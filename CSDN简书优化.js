@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.4.6
+// @version      0.4.7
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require	     http://cdn.staticfile.org/jquery/2.1.4/jquery.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1134900
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1135447
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
 // ==/UserScript==
 
@@ -141,6 +141,11 @@
           });
         }
       });
+      $(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
+        (index, item) => {
+          $(item).find(".content-box").css("border", "2px solid red");
+        }
+      );
     });
   } else {
     //手机
