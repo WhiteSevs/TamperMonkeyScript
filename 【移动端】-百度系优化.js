@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】-百度系优化
 // @namespace    http://tampermonkey.net/
-// @version      0.5.7
+// @version      0.5.8
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @include      *://m.baidu.com/*
 // @include      *://www.baidu.com/*
@@ -310,115 +310,115 @@
                 .ec_wise_ad,
                 div#copyright + div,
                 div#pop-up{
-                    display:none !important;
+                  display:none !important;
                 }
                 .searchboxtop.newsearch-white-style .se-form {
-                    border-color: #4e6ef2 !important;
+                  border-color: #4e6ef2 !important;
                 }
                 .searchboxtop.newsearch-white-style .se-bn {
-                    color: #fff !important;
-                    background: #4e6ef2 !important;
+                  color: #fff !important;
+                  background: #4e6ef2 !important;
                 }
                 .se-head-logo .se-logo img {
-                    display: inherit !important;
+                  display: inherit !important;
                 }
                 .se-head-tablink {
-                    border-bottom: 1px solid #e6e6e6 !important;
-                    //background-color: #fff !important;
-                    background-color: transparent !important;
+                  border-bottom: 1px solid #e6e6e6 !important;
+                  //background-color: #fff !important;
+                  background-color: transparent !important;
                 }
 
                 a.se-tabitem span{
-                    color: #000 !important;
+                  color: #000 !important;
                 }
                 // div.c-peak-layer{
-                //     display:none !important;
+                //   display:none !important;
                 // } 百度关键字背景
                 .se-tablink-scroll-wrapper .se-tab-cur:after{
-                    border-bottom: 2px solid #38f !important;
+                  border-bottom: 2px solid #38f !important;
                 }
                 .c-tags-scroll.c-padding-x{
-                    display: none !important;
+                  display: none !important;
                 }
                 .white-bdsearch-isredirecrt{  
-                    display: inline-flex;
-                    background: #43ba76;
-                    color: #fff;
-                    width: 28px;
-                    font-size: 16px;
-                    line-height: 25px;
-                    justify-content: center;
-                    align-items: center;
-                    border-radius: 5px;
-                    margin: 0 auto;
-                    margin-right: 6px;
+                  display: inline-flex;
+                  background: #43ba76;
+                  color: #fff;
+                  width: 28px;
+                  font-size: 16px;
+                  line-height: 25px;
+                  justify-content: center;
+                  align-items: center;
+                  border-radius: 5px;
+                  margin: 0 auto;
+                  margin-right: 6px;
                 }
                 /* 修复图片显示问题 */
                 .image-strong-card div[class*="image-content__"] > div{
-                    display: inline-block;
-                    overflow: hidden;
-                    vertical-align: top;
+                  display: inline-block;
+                  overflow: hidden;
+                  vertical-align: top;
                 }
                 .c-result-content div[class*="tieba-newxml-forum-img-class__"]{
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: flex;
-                    -webkit-box-align: center;
-                    -webkit-align-items: center;
-                    align-items: center;
+                  display: -webkit-box;
+                  display: -webkit-flex;
+                  display: flex;
+                  -webkit-box-align: center;
+                  -webkit-align-items: center;
+                  align-items: center;
                 }
                 
                 .c-result-content div[class*="tieba-newxml-forum-img__"]{
-                    width: .553rem;
-                    height: .553rem;
+                  width: .553rem;
+                  height: .553rem;
                 }
                 
                 .c-result-content div[class*="tieba-newxml-forum-img__"] img{
-                    width: 100%;
-                    height: 100%;
-                    border-radius: .09rem;
+                  width: 100%;
+                  height: 100%;
+                  border-radius: .09rem;
                 }
                 .c-result-content div[class*="tieba-newxml-forum-class__"]{
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: flex;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    -webkit-flex-direction: column;
-                    flex-direction: column;
-                    -webkit-box-pack: center;
-                    -webkit-justify-content: center;
-                    justify-content: center;
-                    max-width: 2.2rem;
+                  display: -webkit-box;
+                  display: -webkit-flex;
+                  display: flex;
+                  -webkit-box-orient: vertical;
+                  -webkit-box-direction: normal;
+                  -webkit-flex-direction: column;
+                  flex-direction: column;
+                  -webkit-box-pack: center;
+                  -webkit-justify-content: center;
+                  justify-content: center;
+                  max-width: 2.2rem;
                 }
                 .c-result-content div[class*="c-img-content-btn__"]{
-                    position: absolute;
-                    right: 0;
-                    width: .55rem;
-                    text-align: center;
-                    line-height: .28rem;
-                    border: 1px solid rgba(31,31,31,.5);
-                    border-radius: .15rem;
-                    font-family: PingFangSC-Medium;
-                    font-size: .13rem;
-                    color: #1f1f1f;
+                  position: absolute;
+                  right: 0;
+                  width: .55rem;
+                  text-align: center;
+                  line-height: .28rem;
+                  border: 1px solid rgba(31,31,31,.5);
+                  border-radius: .15rem;
+                  font-family: PingFangSC-Medium;
+                  font-size: .13rem;
+                  color: #1f1f1f;
                 }
                 .c-result-content div[class*="tieba-newxml-thread-comment-user__"]{
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: flex;
-                    -webkit-box-align: center;
-                    -webkit-align-items: center;
-                    align-items: center;
-                    margin-top: .03rem;
+                  display: -webkit-box;
+                  display: -webkit-flex;
+                  display: flex;
+                  -webkit-box-align: center;
+                  -webkit-align-items: center;
+                  align-items: center;
+                  margin-top: .03rem;
                 }
                 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] img{
-                    width: .16rem;
-                    height: .16rem;
-                    border-radius: 50%;
+                  width: .16rem;
+                  height: .16rem;
+                  border-radius: 50%;
                 }
                 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] span{
-                    margin-right: .08rem;
+                  margin-right: .08rem;
                 }
                 
             `,
@@ -426,16 +426,16 @@
                 html,
                 body,
                 div#header{
-                    height: 100%;
+                  height: calc( 100vh - 120px );
                 }
                 form#index-form{ /* fixed垂直水平居中 */
-                    position: fixed;
-                    top:0;
-                    right:0;
-                    bottom:0;
-                    left:0;
-                    margin:auto !important;
-                    width: 90%;
+                  position: fixed;
+                  top:0;
+                  right:0;
+                  bottom:0;
+                  left:0;
+                  margin:auto !important;
+                  width: 90%;
                 }
                 div#navs ~ div,
                 #login-wraps,
@@ -444,7 +444,7 @@
                 div.baiduappcall-wrap div.voice.call,
                 div.tab_news,
                 div#navs{
-                    display: none !important;
+                  display: none !important;
                 }
             `,
       baijiahao: `
@@ -459,13 +459,13 @@
                 #searchwordSdk ~ div:nth-child(n+4),
                 #searchwordSdk,
                 div#commentModule div div span:last-child{
-                    display:none !important;
+                  display:none !important;
                 }
                 body.scrollHide{
-                    overflow:auto !important;
+                  overflow:auto !important;
                 }
                 .mainContent{
-                    height:  auto !important;
+                  height:  auto !important;
                 }
             `,
       tieba: `
@@ -483,10 +483,10 @@
                 .wake-app,
                 .banner-wrapper-defensive,
                 .open-app{
-                    display:none !important;
+                  display:none !important;
                 }
                 body.tb-modal-open{
-                    overflow:auto !important;
+                  overflow:auto !important;
                 }
             `,
       wenku: `
@@ -507,30 +507,30 @@
                 .search-pay-container,
                 .wk-student-defense,
                 .vip-rec-card-main{
-                    display:none !important;
+                  display:none !important;
                 }
                 .bartop{
-                    display: unset;
+                  display: unset;
                 }
                 .reader-wrap{
-                    height:auto !important;
+                  height:auto !important;
                 }
                 #view-rr-app{
-                    overflow-y:auto !important;
+                  overflow-y:auto !important;
                 }
                 #view-app,
                 #view-rr-app{
-                    max-height: 100% !important;
+                  max-height: 100% !important;
                 }
                 .top-card{
-                    margin-top: 10px !important;
+                  margin-top: 10px !important;
                 }
                 *{
-                    -webkit-touch-callout: inherit !important;
-                    -khtml-user-select: auto !important;
-                    -moz-user-select: auto !important;
-                    -ms-user-select: auto !important;
-                    user-select: auto !important;
+                  -webkit-touch-callout: inherit !important;
+                  -khtml-user-select: auto !important;
+                  -moz-user-select: auto !important;
+                  -ms-user-select: auto !important;
+                  user-select: auto !important;
                 }
             `,
       jingyan: `
@@ -541,11 +541,11 @@
                 .asp-self-rander,
                 .baobao-image-item,
                 #wgt-ad-guess{
-                    display:none !important;
+                  display:none !important;
                 }
                 .exp-content-container{
-                    max-height: 100% !important;
-                    overflow:auto !important;
+                  max-height: 100% !important;
+                  overflow:auto !important;
                 }
             `,
       baike: `
@@ -554,10 +554,10 @@
                 .BK-content-load,
                 #J-tashuo-button-fixed,
                 #J-super-layer-promote{
-                    display:none !important;
+                  display:none !important;
                 }
                 #J-other-content{
-                    display:block !important;
+                  display:block !important;
                 }
             `,
       zhidao: `
@@ -574,32 +574,32 @@
                 #knowledge-answer-list,
                 .go-to-ask,
                 div[class*='ads']{
-                    display:none !important;
+                  display:none !important;
                 }
                 .w-detail-container{
-                    max-height: 100% !important;
-                    overflow: auto !important;
+                  max-height: 100% !important;
+                  overflow: auto !important;
                 }
             `,
       fanyi: `
                 .app-bar,
                 .jifeng-container,
                 .intro-title{
-                    display:none !important;
+                  display:none !important;
                 }
                 .new-header-dl.{
-                    visibility: hidden;
+                  visibility: hidden;
                 }
             `,
       fanyiapp: `
                 .fanyi-invoke-btn,
                 .top-bn{
-                    display:none !important;
+                  display:none !important;
                 }
             `,
       image: `
                 #boxBanner{
-                    display:none !important;
+                  display:none !important;
                 }
             `,
       map: `
@@ -610,7 +610,7 @@
                 #downloadnativepopup,
                 .xiaoduVoiceCard,
                 .index-widget-guidebanner{
-                    display:none !important;
+                  display:none !important;
                 }
             `,
     },
@@ -1125,24 +1125,79 @@
           if (!checkHrefTag()) {
             replaceLink();
           }
-          isHandling = false;
+          setTimeout(() => {
+            isHandling = false;
+          }, 500);
           runNum++;
         });
       }
 
       function clickOtherSearchEvent() {
-        /* 点击输入框，输入其它文字，有提示，禁止百度篡改 */
-        Utils.mutationObserver("#se-box .suggest-content", {
-          fn: (mutations) => {
-            $("#se-box .suggest-content button").on("click", function (e) {
-              e?.stopPropagation();
-              e?.preventDefault();
-              window.location.href =
-                "https://m.baidu.com/s?word=" + $(this).text();
-              return false;
-            });
+        /* 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度 */
+        var suggestList = "#se-box .suggest-content";
+        var suggestBtn = "#se-box .suggest-content button";
+        var suggestList_HOME = "#index-box .suggest-content";
+        var suggestBtn_HOME = "#index-box .suggest-content button";
+        var searchInput = "#kw";
+        var searchBtn = "#se-bn";
+        var searchInput_HOME = "#index-kw";
+        var searchBtn_HOME = "#index-bn";
+        function mutationObserverFunction(btnElement) {
+          $(btnElement)?.on("click", function (e) {
+            e?.stopPropagation();
+            e?.preventDefault();
+            console.log("跳转搜索 -> " + $(this).text());
+            window.location.href =
+              "https://m.baidu.com/s?word=" + $(this).text();
+            return false;
+          });
+        }
+        function searchBtnJump(e, searchInput) {
+          var searchInputElement = $(searchInput);
+          e?.stopPropagation();
+          e?.preventDefault();
+          console.log("跳转搜索 -> " + searchInputElement.val());
+          window.location.href =
+            "https://m.baidu.com/s?word=" + searchInputElement.val();
+          return false;
+        }
+
+        function enterKeyDownEvent(e, searchInput) {
+          if (e.keyCode === 108 || e.keyCode === 13) {
+            var searchInputElement = $(searchInput);
+            e?.stopPropagation();
+            e?.preventDefault();
+            console.log("回车键跳转搜索 -> " + searchInputElement.val());
+            window.location.href =
+              "https://m.baidu.com/s?word=" + searchInputElement.val();
+            return false;
+          }
+          return true;
+        }
+        Utils.mutationObserver(suggestList, {
+          fn: () => {
+            mutationObserverFunction(suggestBtn);
           },
           config: { childList: true, attributes: true },
+        });
+        Utils.mutationObserver(suggestList_HOME, {
+          fn: () => {
+            mutationObserverFunction(suggestBtn_HOME);
+          },
+          config: { childList: true, attributes: true },
+        });
+
+        $(searchBtn)?.on("click", function (e) {
+          return searchBtnJump(e, searchInput);
+        });
+        $(searchBtn_HOME)?.on("click", function (e) {
+          return searchBtnJump(e, searchInput_HOME);
+        });
+        $(searchInput)?.on("keydown", function (e) {
+          return enterKeyDownEvent(e, searchInput);
+        });
+        $(searchInput_HOME)?.on("keydown", function (e) {
+          return enterKeyDownEvent(e, searchInput_HOME);
         });
       }
 
@@ -1166,7 +1221,11 @@
           }
         });
       }
-      if (this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g)) {
+      if (
+        this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) ||
+        this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?ref=/g) ||
+        this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
+      ) {
         GM_addStyle(this.css.searchHome);
         console.log(
           "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
