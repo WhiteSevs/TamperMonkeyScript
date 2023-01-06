@@ -30,6 +30,7 @@
 // @grant        GM_xmlhttpRequest
 // @require	     http://cdn.staticfile.org/jquery/2.1.4/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1135447
 // @run-at       document-start
 // ==/UserScript==
 
@@ -307,7 +308,8 @@
                 .sfc-image-content-waterfall-item[wat-item-data-id="no-img"],
                 .se-results-pre,
                 .ec_wise_ad,
-                div#copyright + div{
+                div#copyright + div,
+                div#pop-up{
                     display:none !important;
                 }
                 .searchboxtop.newsearch-white-style .se-form {
@@ -1128,13 +1130,23 @@
         });
       }
 
-      function killLaunch() {
-        /* 寻找启动安卓APP的scheme的js，并替换成无关字符串，不启动 */
-        console.log($("html").html());
+      function clickOtherSearchEvent() {
+        /* 点击输入框，输入其它文字，有提示，禁止百度篡改 */
+        Utils.mutationObserver("#se-box .suggest-content", {
+          fn: (mutations) => {
+            $("#se-box .suggest-content button").on("click", function (e) {
+              e?.stopPropagation();
+              e?.preventDefault();
+              window.location.href =
+                "https://m.baidu.com/s?word=" + $(this).text();
+              return false;
+            });
+          },
+          config: { childList: true, attributes: true },
+        });
       }
 
       if (this.current_url.match(/http(s|):\/\/(m|www).baidu.com/g)) {
-        killLaunch();
         console.log(
           "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
@@ -1148,6 +1160,7 @@
         $(function () {
           replaceLinkEvent();
           redirectTopLink();
+          clickOtherSearchEvent();
           if (GM_getValue("menu_autoloading", false)) {
             autoLoadNextPage();
           }
