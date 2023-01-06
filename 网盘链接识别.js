@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.06.11.00
+// @version      23.01.06.13.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -588,6 +588,9 @@
         },
         getRedirectFinalUrl(url) {
           let that = this;
+          Qmsg.success("获取重定向后的直链", {
+            html: true,
+          });
           console.log("开始获取重定向后的直链");
           return new Promise((res) => {
             GM_xmlhttpRequest({
