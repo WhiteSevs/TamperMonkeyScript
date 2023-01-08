@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.06.13.00
+// @version      23.01.08.21.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -584,6 +584,16 @@
                 html: true,
               });
             },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
+                html: true,
+              });
+            },
           });
         },
         getRedirectFinalUrl(url) {
@@ -606,6 +616,12 @@
                 res(this.finalUrl);
               },
               onerror: function () {
+                res(url);
+              },
+              onabort: function () {
+                res(url);
+              },
+              ontimeout: function () {
                 res(url);
               },
             });
@@ -663,6 +679,16 @@
             },
             onerror: function () {
               Qmsg.error("网络异常", {
+                html: true,
+              });
+            },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
                 html: true,
               });
             },
@@ -778,6 +804,16 @@
               },
               onerror: () => {
                 Qmsg.error("网络异常", {
+                  html: true,
+                });
+              },
+              onabort: function () {
+                Qmsg.error("请求意外中止", {
+                  html: true,
+                });
+              },
+              ontimeout: function () {
+                Qmsg.error("请求超时", {
                   html: true,
                 });
               },
@@ -969,6 +1005,16 @@
                       html: true,
                     });
                   },
+                  onabort: function () {
+                    Qmsg.error("请求意外中止", {
+                      html: true,
+                    });
+                  },
+                  ontimeout: function () {
+                    Qmsg.error("请求超时", {
+                      html: true,
+                    });
+                  },
                 });
               } else {
                 Qmsg.error("请求失败，请重试", {
@@ -978,6 +1024,16 @@
             },
             onerror: function () {
               Qmsg.error("网络异常", {
+                html: true,
+              });
+            },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
                 html: true,
               });
             },
@@ -1041,6 +1097,28 @@
 										<a href="javascript:;">${fileName}</a>
 									</div>
 									<div class="netdisk-static-filesize">解析失败，请求异常</div>
+								</div>`;
+                res(ret_content);
+              },
+              onabort: function () {
+                console.log(r);
+                ret_content = `
+								<div class="netdisk-static-body">
+									<div class="netdisk-static-filename">
+										<a href="javascript:;">${fileName}</a>
+									</div>
+									<div class="netdisk-static-filesize">解析失败，请求中止</div>
+								</div>`;
+                res(ret_content);
+              },
+              ontimeout: function () {
+                console.log(r);
+                ret_content = `
+								<div class="netdisk-static-body">
+									<div class="netdisk-static-filename">
+										<a href="javascript:;">${fileName}</a>
+									</div>
+									<div class="netdisk-static-filesize">解析失败，请求超时</div>
 								</div>`;
                 res(ret_content);
               },
@@ -1179,6 +1257,16 @@
                 html: true,
               });
             },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
+                html: true,
+              });
+            },
           });
         },
         getCookie() {
@@ -1219,6 +1307,16 @@
             onerror: (r) => {
               console.error(r);
               Qmsg.error("网络异常", {
+                html: true,
+              });
+            },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
                 html: true,
               });
             },
@@ -1341,6 +1439,16 @@
                 html: true,
               });
             },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
+                html: true,
+              });
+            },
           });
         },
       },
@@ -1406,6 +1514,16 @@
             onerror: function () {
               Qmsg.error("网络异常");
             },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
+                html: true,
+              });
+            },
           });
         },
         getPid() {
@@ -1447,6 +1565,16 @@
             },
             onerror: function () {
               Qmsg.error("网络异常", {
+                html: true,
+              });
+            },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
                 html: true,
               });
             },
@@ -1497,6 +1625,16 @@
             },
             onerror: function () {
               Qmsg.error("网络异常", {
+                html: true,
+              });
+            },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
                 html: true,
               });
             },
@@ -1559,6 +1697,16 @@
                 html: true,
               });
             },
+            onabort: function () {
+              Qmsg.error("请求意外中止", {
+                html: true,
+              });
+            },
+            ontimeout: function () {
+              Qmsg.error("请求超时", {
+                html: true,
+              });
+            },
           });
         },
       },
@@ -1574,6 +1722,8 @@
           5104: "分享已过期",
           "-1000": "获取出错",
           "-2000": "网络异常",
+          "-3000": "请求意外中止",
+          "-4000": "请求超时",
         },
         async default(shareCode, accessCode) {
           console.log(shareCode, accessCode);
@@ -1698,9 +1848,15 @@
                 console.log(r);
                 res([
                   {
-                    error: -2,
+                    error: -2000,
                   },
                 ]);
+              },
+              onabort: function () {
+                res([{ error: -3000 }]);
+              },
+              ontimeout: function () {
+                res([{ error: -4000 }]);
               },
             });
           });
@@ -1733,6 +1889,12 @@
               },
               onerror: (r) => {
                 console.log(r);
+                res([]);
+              },
+              onabort: function () {
+                res([]);
+              },
+              ontimeout: function () {
                 res([]);
               },
             });
@@ -1848,7 +2010,17 @@
               onerror: () => {
                 console.log(r);
                 res({
-                  code: -2,
+                  code: -2000,
+                });
+              },
+              onabort: function () {
+                res({
+                  code: -3000,
+                });
+              },
+              ontimeout: function () {
+                res({
+                  code: -4000,
                 });
               },
             });
@@ -1968,6 +2140,18 @@
                 });
                 res("");
               },
+              onabort: function () {
+                Qmsg.error("请求意外中止", {
+                  html: true,
+                });
+                res("");
+              },
+              ontimeout: function () {
+                Qmsg.error("请求超时", {
+                  html: true,
+                });
+                res("");
+              },
             });
           });
         },
@@ -2009,6 +2193,18 @@
                 });
                 res([]);
               },
+              onabort: function () {
+                Qmsg.error("请求意外中止", {
+                  html: true,
+                });
+                res([]);
+              },
+              ontimeout: function () {
+                Qmsg.error("请求超时", {
+                  html: true,
+                });
+                res([]);
+              },
             });
           });
         },
@@ -2038,6 +2234,18 @@
               },
               onerror: () => {
                 Qmsg.error("网络异常", {
+                  html: true,
+                });
+                res([]);
+              },
+              onabort: function () {
+                Qmsg.error("请求意外中止", {
+                  html: true,
+                });
+                res([]);
+              },
+              ontimeout: function () {
+                Qmsg.error("请求超时", {
                   html: true,
                 });
                 res([]);
