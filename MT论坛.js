@@ -2,7 +2,7 @@
 // @name         MT论坛
 // @namespace    http://tampermonkey.net/
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.6.9
+// @version      2.7.0
 // @author       WhiteSevs
 // @icon         https://bbs.binmt.cc/favicon.ico
 // @match        *://bbs.binmt.cc/*
@@ -7045,6 +7045,9 @@
         } /* 看不得报错，增加判断 */
         if (
           null != a &&
+          typeof a.parentNode !== "undefined" &&
+          typeof a.parentNode.className !== "undefined" &&
+          typeof a.parentNode.className.indexOf === "function" &&
           -1 === a.parentNode.className.indexOf("texttolink") &&
           "#cdata-section" !== a.nodeName
         ) {
