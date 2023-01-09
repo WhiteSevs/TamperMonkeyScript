@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】-百度系优化
 // @namespace    http://tampermonkey.net/
-// @version      0.5.8
+// @version      0.5.9
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @include      *://m.baidu.com/*
 // @include      *://www.baidu.com/*
@@ -1148,7 +1148,7 @@
             e?.preventDefault();
             console.log("跳转搜索 -> " + $(this).text());
             window.location.href =
-              "https://m.baidu.com/s?word=" + $(this).text();
+              window.location.origin + "/s?word=" + $(this).text();
             return false;
           });
         }
@@ -1158,7 +1158,7 @@
           e?.preventDefault();
           console.log("跳转搜索 -> " + searchInputElement.val());
           window.location.href =
-            "https://m.baidu.com/s?word=" + searchInputElement.val();
+            window.location.origin + "/s?word=" + searchInputElement.val();
           return false;
         }
 
@@ -1169,7 +1169,7 @@
             e?.preventDefault();
             console.log("回车键跳转搜索 -> " + searchInputElement.val());
             window.location.href =
-              "https://m.baidu.com/s?word=" + searchInputElement.val();
+              window.location.origin + "/s?word=" + searchInputElement.val();
             return false;
           }
           return true;
