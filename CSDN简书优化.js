@@ -67,7 +67,7 @@
     /* 简书 */
     function isJianShu() {
       /* 判断是否是 简书 */
-      return Boolean(/jianshu.com/i.test(window.location.href));
+      return Boolean(/jianshu.com/i.test(window.location.origin));
     }
     function PC() {
       console.log("简书");
@@ -86,7 +86,8 @@
       span.note__flow__download,
       .download-guide,
       #footer,
-      .comment-open-app-btn-wrap{
+      .comment-open-app-btn-wrap,
+      .nav.navbar-nav + div{
         display:none !important;
       }
       body.reader-day-mode.normal-size {
@@ -139,7 +140,7 @@
     /* csdn-移动端 */
     function isCSDN() {
       /* 判断是否是 CSDN */
-      return Boolean(/csdn.net/i.test(window.location.href));
+      return Boolean(/csdn.net/i.test(window.location.origin));
     }
     function Mobile() {
       /* 移动端 */
@@ -147,7 +148,6 @@
       const css = `
       #mainBox{
         width: auto;
-        
       }
       .user-desc.user-desc-fix{
         height: auto  !important;
@@ -162,7 +162,9 @@
       #content_views pre.set-code-hide .hide-preCode-box,
       .passport-login-container,
       .hljs-button[data-title='登录后复制'],
-      .article-show-more{
+      .article-show-more,
+      #treeSkill,
+      div.btn_open_app_prompt_div{
         display:none !important;
       }
       .GM-csdn-dl{
@@ -478,6 +480,14 @@
           });
         }
       }
+      function clickPreCodeAutoPreview() {
+        /* 点击代码块自动展开 */
+        $("pre[name=code]").on("click", function () {
+          let obj = $(this);
+          obj.css("height", "auto");
+          obj.find(".hide-preCode-box")?.remove();
+        });
+      }
       GM_addStyle(css);
       $(document).ready(function () {
         unsafeWindow.articleType = 0;
@@ -489,6 +499,7 @@
             $(item).find(".content-box").css("border", "2px solid red");
           }
         );
+        clickPreCodeAutoPreview();
       });
     }
 
