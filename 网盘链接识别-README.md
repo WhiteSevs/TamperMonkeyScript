@@ -1,0 +1,138 @@
+# 🌈 使用方式
+
+识别出链接时，页面侧边栏会出现一个悬浮按钮。
+
+| 功能         | 设备 |                操作 |
+| ------------ | :--: | ------------------: |
+| 显示链接界面 |  PC  |                点击 |
+|              | 手机 |                点击 |
+| 显示设置界面 |  PC  | 双击/右击后点击设置 |
+|              | 手机 |                双击 |
+
+# 🌍 介绍
+
+- `手机，电脑均可使用`
+- 识别到网盘链接会屏幕侧边栏出现悬浮按钮
+- 可拖动悬浮按钮到任意位置，它会自动吸附到侧边栏，还可以设置透明度和大小，让它不影响浏览网页(手机)【提示：有默认最大值和最小值】
+- 可点击网盘图标小按钮，可定位该链接在网页中出现的位置
+
+# 📢 总设置
+
+- 悬浮按钮大小
+- 悬浮按钮透明度
+- 页面文本匹配类型可选择普通文本`innerText`(默认)、超文本`innerHTML`和全部(包括`innerText`和`innerHTML`)
+- 如果不在配置页设置新标签页打开，那么会复制该网盘链接到剪贴板中
+
+# 🔑 百度网盘链接识别
+
+- 功能：配置了解析网站可以直接跳转到已解析界面
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 蓝奏云链接识别
+
+- 功能：单/多文件直链解析
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
+
+# 🔑 天翼云云链接识别
+
+- 功能：单文件直链解析
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
+
+# 🔑123 盘
+
+- 功能：设置里有启用蓝奏云直链解析，含多文件
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
+
+# 🔑 文叔叔链接识别
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：文叔叔单文件直链解析，多文件暂不支持（太多了，还不如打开自己选择下载的）
+- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
+
+# 🔑 阿里云链接识别
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 中国移动云盘(原:和彩云)链接识别
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 奶牛链接识别
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
+
+# 🔑115 盘
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 腾讯微云
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 迅雷网盘
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 夸克网盘
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 城通网盘(部分)
+
+- 功能：新标签页打开，如果有密码，复制到剪贴板
+
+# 🔑 磁力 magnet
+
+- 功能：调用 scheme 打开，如果开启，在下方 scheme 转发设置 scheme 链接，具体请看后面的帮助
+
+# 🔧 帮助
+
+#### 1.百度云直链获取的网站配置，主要是使用了开源项目`https://github.com/yuantuo666/baiduwp-php`的网站
+
+|       参数       |                               值                               |
+| :--------------: | :------------------------------------------------------------: |
+|     网址-Url     |       网站的 url，末尾带/，如：https://www.example.com/        |
+|     参数-Key     |                       该项目一般是 surl                        |
+|     密码-Key     |                        该项目一般是 pwd                        |
+|     密钥-Key     |                     该项目一般是 Password                      |
+|    密钥-Value    |                   如果站长启用的话，输入密钥                   |
+| 网站存在密钥访问 | 如果站长启用的话，请开启，上面的密钥-Key 和密钥-Value 才会生效 |
+
+[![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)](https://www.helloimg.com/image/ZPJRUv)
+
+#### 2.scheme 调用方式
+
+首先开启该设置后，需要在手机上装特定的 app
+https://baiqi.lanzoul.com/b066di6gb
+密码:bzyb
+
+该链接格式为`jumpwsv://go?package={#package#}&activity={#activity#}&intentAction={#intentAction#}&intentData={#intentAction#}&intentExtra={#intentExtra#}`
+其中`{#intentExtra#}`可以为空，若使用，则为`{"参数1":"值1","参数2":"值2"}`，`{#intentAction#}`会自动替换成 url
+下面几个是示例 scheme 链接，可以直接复制粘贴到里面去
+
+```
+# 使用IDM+下载该链接
+jumpwsv://go?package=idm.internet.download.manager.plus&activity=idm.internet.download.manager.UrlHandlerDownloader&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+
+# 使用IDM+内部浏览器访问该链接
+jumpwsv://go?package=idm.internet.download.manager.plus&activity=acr.browser.lightning.activity.BrowserLauncher&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+
+# 使用IDM+内部浏览器隐身访问该链接
+jumpwsv://go?package=idm.internet.download.manager.plus&activity=acr.browser.lightning.activity.IncognitoActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+
+# 使用ADM下载该链接
+jumpwsv://go?package=com.dv.adm&activity=com.dv.get.AEditor&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+
+# 使用ADM内部浏览器访问该链接
+jumpwsv://go?package=com.dv.adm&activity=com.dv.get.WebBrow&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+
+# 使用手机版迅雷下载该链接(可以是magnet格式)
+jumpwsv://go?package=com.xunlei.downloadprovider
+&activity=com.xunlei.downloadprovider.launch.dispatch.mocklink.LinkDLBtFileExplorerActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+
+
+```
