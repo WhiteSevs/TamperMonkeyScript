@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.08.21.00
+// @version      23.01.09.11.21
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -235,29 +235,41 @@
     matchPageLink(clipboardText) {
       // 检查页面是否存在链接
       let matchTextRange = GM_getValue("pageMatchRange", "innerText");
+      let ignoreStr = [
+        $(".whitesevPopOneFile"),
+        $(".whitesevPopMoreFile"),
+        $(".whitesevPop-whitesevPopSetting"),
+      ]; /* 忽略的文字，如：设置、直链弹窗 */
       if (matchTextRange.toLowerCase() === "all") {
         this.pageText = $("body").prop("innerText");
-        if ($(".whitesevPop-whitesevPopSetting").length !== 0) {
-          this.pageText = this.pageText.replaceAll(
-            $(".whitesevPop-whitesevPopSetting").prop("innerText"),
-            ""
-          );
-        }
-        this.pageText += $("body").prop("innerHTML");
-        if ($(".whitesevPop-whitesevPopSetting").length !== 0) {
-          this.pageText = this.pageText.replaceAll(
-            $(".whitesevPop-whitesevPopSetting").prop("innerText"),
-            ""
-          );
-        }
+        ignoreStr.forEach((item) => {
+          let _str_ = item.prop("innerText");
+          _str_ = _str_ == null ? "" : _str_;
+          this.pageText = this.pageText.replaceAll(_str_, "");
+        });
+        let pageHTML = $("body").prop("innerHTML");
+        ignoreStr.forEach((item) => {
+          let _str_ = item.prop("innerHTML");
+          _str_ = _str_ == null ? "" : _str_;
+          pageHTML = pageHTML.replaceAll(_str_, "");
+        });
+        this.pageText += pageHTML;
         this.pageText += clipboardText;
       } else {
         this.pageText = $("body").prop(matchTextRange) + clipboardText;
-        if ($(".whitesevPop-whitesevPopSetting").length !== 0) {
-          this.pageText = this.pageText.replaceAll(
-            $(".whitesevPop-whitesevPopSetting").prop(matchTextRange),
-            ""
-          );
+        if (matchTextRange.toLowerCase() === "innertext") {
+          ignoreStr.forEach((item) => {
+            let _str_ = item.prop("innerText");
+            _str_ = _str_ == null ? "" : _str_;
+            this.pageText = this.pageText.replaceAll(_str_, "");
+          });
+        } else {
+          ignoreStr.forEach((item) => {
+            let _str_ = item.prop("innerHTML");
+            _str_ = _str_ == null ? "" : _str_;
+            this.pageText = this.pageText.replaceAll(_str_, "");
+            this.pageText = this.pageText.replaceAll(_str_, "");
+          });
         }
       }
       if (!this.isInit) {
@@ -2281,8 +2293,6 @@
               }
             })
           );
-
-          console.log(files);
         },
       },
     },
@@ -3938,6 +3948,7 @@
               },
             },
           },
+          class: "whitesevPopOneFile",
           height: "180px",
           width: pops.isPhone() ? "300px" : "400px",
           mask: true,
