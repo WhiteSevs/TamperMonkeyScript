@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.4.7
+// @version      0.4.8
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -26,43 +26,63 @@
 
 (function () {
   "use strict";
-  var GM_menu = {
-    data: [
-      ["menu_showRedirect", "手机csdn显示Redirect", true],
-      ["menu_thistab", "手机csdn新页面打开", true],
-    ],
+  var GM_Menu = {
+    data: {
+      removeCSDNDownloadPC: {
+        text: "电脑-移除文章底部的CSDN下载",
+        enable: false,
+      },
+      articleCenter: {
+        text: "电脑-全文居中",
+        enable: true,
+      },
+      showDirect: {
+        text: "手机-标识处理过的底部推荐文章",
+        enable: true,
+      },
+      openNewTab: {
+        text: "手机-底部推荐文章新标签页打开",
+        enable: true,
+      },
+      removeCSDNDownloadMobile: {
+        text: "手机-移除文章底部的CSDN下载",
+        enable: false,
+      },
+    },
     init: function () {
       /* 初始化数据 */
       let _this_ = this;
-      Array.from(this.data).forEach((item, index) => {
-        let menuKey = item[0];
-        let menuValue = GM_getValue(menuKey);
-        if (menuValue == null) {
-          GM_setValue(menuKey, true);
-          menuValue = GM_getValue(menuKey);
+      Object.keys(this.data).forEach((key) => {
+        let value = GM_getValue(key);
+        if (value == null) {
+          GM_setValue(key, _this_.data[key].enable);
+          value = GM_getValue(key);
         }
-        _this_.data[index][item.length - 1] = menuValue;
+        _this_.data[key]["enable"] = value;
       });
     },
     register: function () {
       /* 注册油猴菜单 */
-      Array.from(this.data).forEach((item) => {
-        let menuKey = item[0];
-        let menuName = item[1];
-        let menuValue = item[2];
-        let menuShowName = "[" + (menuValue ? "√" : "×") + "]" + menuName;
-        GM_registerMenuCommand(menuShowName, function () {
-          if (menuValue) {
-            GM_setValue(menuKey, false);
-          } else {
-            GM_setValue(menuKey, true);
-          }
+      let _this_ = this;
+      Object.keys(this.data).forEach((key) => {
+        let text = _this_.data[key]["text"];
+        let enable = _this_.data[key]["enable"];
+        let showText = "[" + (enable ? "√" : "×") + "]" + text;
+        GM_registerMenuCommand(showText, function () {
+          GM_setValue(key, enable ? false : true);
           window.location.reload();
         });
       });
     },
   };
-
+  function waitForElementToRemove(_query_ = "") {
+    /* 移除元素（未出现也可以等待出现） */
+    Utils.waitForDOM(_query_).then((dom) => {
+      dom.forEach((item) => {
+        $(item).remove();
+      });
+    });
+  }
   function JianShu() {
     /* 简书 */
     function isJianShu() {
@@ -164,7 +184,9 @@
       .hljs-button[data-title='登录后复制'],
       .article-show-more,
       #treeSkill,
-      div.btn_open_app_prompt_div{
+      div.btn_open_app_prompt_div,
+      div.readall_box,
+      div.aside-header-fixed{
         display:none !important;
       }
       .GM-csdn-dl{
@@ -269,150 +291,114 @@
         -ms-user-select: text !important;
         user-select: text !important;
       }
-      #content_views pre.set-code-hide{
+      #content_views pre.set-code-hide,
+      .article_content{
         height: 100% !important;
-        overflow-y: auto !important;
+        overflow: auto !important;
       }
       `;
       GM_addStyle(css);
-      function replace_all_commend() {
-        //替换所有的推荐
-        var commend_list = $(".container-fluid");
-        for (var coml = 0; coml < commend_list.length; coml++) {
-          let current_commend_className =
-            commend_list[coml].getAttribute("class");
-          let current_commend_url = "";
-          let current_commend_title = "";
-          let current_commend_content = "";
-          let current_commend_img = "";
-          if (commend_list[coml].getAttribute("data-url")) {
-            //有data-url 就有recommend_title
-            /* console.log("有 data-url"); */
-            current_commend_url = commend_list[coml].getAttribute("data-url");
-            current_commend_title = $(commend_list[coml])
-              .find(".recommend_title")
-              .html();
-            current_commend_content = $(commend_list[coml])
-              .find(".text")
-              .html();
-            // current_commend_title = commend_list[coml].getElementsByClassName("recommend_title")[0].innerHTML;
-            // current_commend_content = commend_list[coml].getElementsByClassName("text active")[0].innerHTML;
-            let current_commend_img_dom = $(commend_list[coml]).find(
-              ".recommend-img"
-            );
-            if (current_commend_img_dom.length) {
-              for (
-                var imgs = 0;
-                imgs < current_commend_img_dom.length;
-                imgs++
-              ) {
-                current_commend_img =
-                  current_commend_img + current_commend_img_dom[imgs].innerHTML;
+      function refactoringRecommendation() {
+        /* 重构底部推荐 */
+        function refactoring() {
+          /* 反复执行的重构函数 */
+          $(".container-fluid").each((index, item) => {
+            item = $(item);
+            var url = ""; /* 链接 */
+            var title = ""; /* 标题 */
+            var content = ""; /* 内容 */
+            var img = ""; /* 图片 */
+            var isCSDNDownload = false; /* 判断是否是CSDN资源下载 */
+            var isCSDNEduDownload = false; /* 判断是否是CSDN-学院资源下载 */
+            if (item.attr("data-url")) {
+              /* 存在真正的URL */
+              url = item.attr("data-url");
+              title = item.find(".recommend_title div.left").html();
+              content = item.find(".text").html();
+              if (item.find(".recommend-img").length) {
+                /* 如果有图片就加进去 */
+                item.find(".recommend-img").each((_index_, _item_) => {
+                  img += $(_item_).html();
+                });
               }
+            } else {
+              console.log("节点上无data-url");
+              url = item.find("a[data-type]").attr("href");
+              title = item.find(".recommend_title div.left").html();
+              content = item.find(".text").html();
             }
-          } else {
-            /* console.log("没有data-url"); */
-            current_commend_url =
-              commend_list[coml].getElementsByTagName("a")[0].href;
-            current_commend_title =
-              commend_list[coml].getElementsByTagName("a")[0].innerHTML;
-            current_commend_content =
-              commend_list[coml].getElementsByClassName("text")[0].innerHTML;
-            current_commend_img = "";
-          }
-          /* console.log("真实url：", current_commend_url); */
-          if (GM_menu.data[0][2]) {
-            current_commend_title =
-              current_commend_title +
-              `<div class="GM-csdn-Redirect">Redirect</div>`;
-          }
-          if (
-            current_commend_url.match(
-              /http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
-            )
-          ) {
-            console.log("该链接为csdn资源下载，标识");
-            current_commend_title =
-              current_commend_title +
-              `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`;
-          } else if (current_commend_url.match(/edu.csdn.net/g)) {
-            console.log("该链接为csdn学院下载，标识");
-            current_commend_title =
-              current_commend_title +
-              `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>`;
-          }
-          commend_list[coml].className = "GM-csdn-dl";
-          commend_list[coml].setAttribute("data-url", current_commend_url);
-          commend_list[coml].innerHTML =
-            `<div class="GM-csdn-title">` +
-            current_commend_title +
-            "</div>" +
-            `<div class="GM-csdn-content">` +
-            current_commend_content +
-            "</div>" +
-            `<div class="GM-csdn-img">` +
-            current_commend_img +
-            "</div>";
-          $("#recommend")
-            .find(".recommend_list")
-            .before($("#first_recommend_list").find("dl").parent().html());
-          $("#first_recommend_list")?.remove();
+            if (GM_Menu.data.showDirect.enable) {
+              /* 开启就添加 */
+              title += `<div class="GM-csdn-Redirect">Redirect</div>`;
+            }
+            var _URL_ = new URL(url);
+            if (
+              _URL_.origin.match(
+                /download.csdn.net/gi ||
+                  _URL_.pathname.match(/www.iteye.com\/resource/gi)
+              )
+            ) {
+              /* 该链接为csdn资源下载 */
+              console.log("该链接为csdn资源下载");
+              isCSDNDownload = true;
+              title += `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`;
+            } else if (_URL_.origin.match(/edu.csdn.net/gi)) {
+              /* 该链接为csdn学院下载 */
+              isCSDNEduDownload = true;
+              console.log("该链接为csdn学院下载");
+              title += `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>`;
+            }
+            item.attr("class", "GM-csdn-dl");
+            item.attr("data-url", url);
+            item.html(
+              `<div class="GM-csdn-title"><div class="left">${title}</div></div><div class="GM-csdn-content">${content}</div><div class="GM-csdn-img">${img}</div>`
+            );
+            if (
+              (isCSDNDownload || isCSDNEduDownload) &&
+              GM_Menu.data.removeCSDNDownloadMobile.enable
+            ) {
+              item.remove();
+            }
+            /* $("#recommend")
+              .find(".recommend_list")
+              .before($("#first_recommend_list").find("dl").parent().html()); */
+          });
         }
+
+        Utils.mutationObserver("#recommend", {
+          fn: () => {
+            setTimeout(() => {
+              refactoring();
+            }, 300);
+          },
+          config: { childList: true, subtree: true, attributes: true },
+        });
+
+        gmRecommendClickEvent();
       }
 
-      function new_commend_event() {
-        //新的推荐跳转事件
-        $(".GM-csdn-dl").bind("click", function (e) {
-          let current_click_url = e.currentTarget.dataset.url;
-          if (GM_menu.data[1][2]) {
-            window.open(current_click_url);
+      function gmRecommendClickEvent() {
+        /* 底部推荐点击跳转事件 */
+        $("body").on("click", ".GM-csdn-dl", function () {
+          let url = $(this).attr("data-url");
+          if (GM_Menu.data.openNewTab.enable) {
+            window.open(url, "_blank");
           } else {
-            window.location.href = current_click_url;
+            window.location.href = url;
           }
         });
       }
 
-      function auto_review() {
-        //自动展开
-        $(".article_content")?.removeAttr("style");
-        $(".readall_box")?.show();
-        $(".readall_box")?.addClass("readall_box_nobg");
-        $(".readall_box")?.hide();
-        $(".readall_box")?.addClass("readall_box_nobg");
-        $(".detail-open-app-isshow")?.css("display", "block");
-        $(".isshow-mask-lock-box")?.show();
-      }
-      function removeElement() {
-        /* 移除一些元素 */
-        $(".passport-login-container")?.remove();
+      function removeAds() {
+        /* 去除广告 */
+        waitForElementToRemove(".passport-login-container");
+        waitForElementToRemove(".btn_open_app_prompt_box.detail-open-removed");
+        waitForElementToRemove(".add-firstAd");
       }
 
       $(document).ready(function () {
-        var csdn_interval_runum = 0;
-        var csdn_interval = setInterval(function () {
-          csdn_interval_runum = csdn_interval_runum + 1;
-          console.log("展开");
-          if (csdn_interval_runum <= 5) {
-            auto_review();
-            removeElement();
-          } else {
-            clearInterval(csdn_interval);
-          }
-        }, 200);
-        var loding_comment_dom_num = 0;
-        var loding_comment_dom = setInterval(function () {
-          loding_comment_dom_num = loding_comment_dom_num + 1;
-          if (loding_comment_dom_num <= 5) {
-            try {
-              replace_all_commend();
-            } catch (err) {
-              console.log("替换底部链接失败", err);
-            }
-          } else {
-            clearInterval(loding_comment_dom);
-            new_commend_event();
-          }
-        }, 500);
+        removeAds();
+        refactoringRecommendation();
       });
     }
     function PC() {
@@ -424,8 +410,6 @@
       .opt-box.text-center,
       .leftPop,
       #csdn-shop-window,
-      #passportbox,
-      .passport-login-container,
       .toolbar-advert,
       .hide-article-box,
       .user-desc.user-desc-fix,
@@ -453,34 +437,47 @@
         overflow: auto !important;
       }
   `;
-      function UnblockCopy(dom) {
-        /* 取消禁止复制 */
-        if (dom.length) {
-          $(".hljs-button.signin").attr("data-title", "复制");
-          $(".hljs-button.signin").on("click", function () {
-            const copyBtn = $(this);
-            const copyArea = $(this).parent();
-            copyBtn.attr("data-title", "复制成功");
-            const btnParentElement = Utils.findParentDOM(this, (dom) => {
-              return dom.className == "prettyprint" ? true : false;
-            });
-            if (btnParentElement) {
-              $(btnParentElement).bind({
-                mouseenter: function (e) {
-                  copyBtn.attr("data-title", "复制");
-                  $(btnParentElement).unbind("mouseenter").unbind("mouseleave");
-                },
-                mouseleave: function (e) {
-                  copyBtn.attr("data-title", "复制");
-                  $(btnParentElement).unbind("mouseenter").unbind("mouseleave");
-                },
-              });
-            }
-            Utils.setClip(copyArea.text());
-          });
-        }
+      function removeClipboardHijacking() {
+        /* 去除剪贴板劫持 */
+        unsafeWindow.articleType = 0;
+        unsafeWindow.csdn.copyright.textData = undefined;
+        unsafeWindow.csdn.copyright.htmlData = undefined;
+        $(".article-copyright")?.remove();
       }
-      function clickPreCodeAutoPreview() {
+      function unBlockCopy() {
+        /* 取消禁止复制 */
+        Utils.waitForDOM(".hljs-button.signin").then((dom) => {
+          if (dom.length) {
+            $(".hljs-button.signin").attr("data-title", "复制");
+            $(".hljs-button.signin").on("click", function () {
+              const copyBtn = $(this);
+              const copyArea = $(this).parent();
+              copyBtn.attr("data-title", "复制成功");
+              const btnParentElement = Utils.findParentDOM(this, (dom) => {
+                return dom.className == "prettyprint" ? true : false;
+              });
+              if (btnParentElement) {
+                $(btnParentElement).bind({
+                  mouseenter: function (e) {
+                    copyBtn.attr("data-title", "复制");
+                    $(btnParentElement)
+                      .unbind("mouseenter")
+                      .unbind("mouseleave");
+                  },
+                  mouseleave: function (e) {
+                    copyBtn.attr("data-title", "复制");
+                    $(btnParentElement)
+                      .unbind("mouseenter")
+                      .unbind("mouseleave");
+                  },
+                });
+              }
+              Utils.setClip(copyArea.text());
+            });
+          }
+        });
+      }
+      function clickPreCodeAutomatically() {
         /* 点击代码块自动展开 */
         $("pre[data-index]").on("click", function () {
           let obj = $(this);
@@ -488,35 +485,96 @@
           obj.find(".hide-preCode-box")?.remove();
         });
       }
-      GM_addStyle(css);
-      $(document).ready(function () {
-        unsafeWindow.articleType = 0;
-        unsafeWindow.csdn.copyright.textData = undefined;
-        unsafeWindow.csdn.copyright.htmlData = undefined;
-        $(".article-copyright")?.remove();
-        Utils.waitForDOM(".hljs-button.signin").then((dom) => {
-          UnblockCopy(dom);
+      function restoreComments() {
+        /* 恢复评论到正确位置 */
+        /* 第一条评论 */
+        Utils.waitForDOM(".first-recommend-box").then((dom) => {
+          $(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
+            $(dom)
+          );
         });
+        /* 第二条评论 */
+        Utils.waitForDOM(".second-recommend-box").then((dom) => {
+          $(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
+            $(dom)
+          );
+        });
+      }
+      function identityCSDNDownload() {
+        /* 标识CSDN下载的链接 */
         $(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
           (index, item) => {
-            $(item).find(".content-box").css("border", "2px solid red");
+            if (GM_Menu.data.removeCSDNDownloadPC.enable) {
+              item.remove();
+            } else {
+              $(item).find(".content-box").css("border", "2px solid red");
+            }
           }
         );
-        clickPreCodeAutoPreview();
+      }
+
+      function articleCenter() {
+        /* 全文居中 */
+        if (!GM_Menu.data.articleCenter.enable) {
+          return;
+        }
+        GM_addStyle(
+          `aside.blog_container_aside{
+            display:none !important;
+          }
+          #mainBox main{
+            width: inherit !important;
+          }
+        `
+        );
+      }
+      function addGotoRecommandButton() {
+        /* 添加前往评论的按钮，在返回顶部的下面 */
+        const btnElement = $(`
+        <a class="option-box" data-type="gorecommand">
+          <span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>
+        </a>
+        `);
+
+        Utils.waitForDOM(".csdn-side-toolbar").then((dom) => {
+          $(dom).append(btnElement);
+          $('.option-box[data-type="gorecommand"]').on("click", function () {
+            console.log("滚动到评论");
+            $("html, body").animate(
+              {
+                scrollTop:
+                  $("#toolBarBox").offset().top -
+                  $("#csdn-toolbar").height() -
+                  8,
+              },
+              1000
+            );
+          });
+        });
+      }
+      GM_addStyle(css);
+      articleCenter();
+      $(document).ready(function () {
+        removeClipboardHijacking();
+        unBlockCopy();
+        identityCSDNDownload();
+        clickPreCodeAutomatically();
+        restoreComments();
+        addGotoRecommandButton();
       });
     }
 
     if (isCSDN()) {
       if (Utils.isPhone()) {
-        Mobile();
+        Mobile(); /* 移动端 */
       } else {
-        PC();
+        PC(); /* 桌面端 */
       }
     }
   }
 
-  GM_menu.init();
-  GM_menu.register();
+  GM_Menu.init();
+  GM_Menu.register();
 
   JianShu();
   CSDN();
