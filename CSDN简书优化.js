@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.4.6
+// @version      0.4.7
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -482,7 +482,7 @@
       }
       function clickPreCodeAutoPreview() {
         /* 点击代码块自动展开 */
-        $("pre[name=code]").on("click", function () {
+        $("pre[data-index]").on("click", function () {
           let obj = $(this);
           obj.css("height", "auto");
           obj.find(".hide-preCode-box")?.remove();
@@ -491,6 +491,9 @@
       GM_addStyle(css);
       $(document).ready(function () {
         unsafeWindow.articleType = 0;
+        unsafeWindow.csdn.copyright.textData = undefined;
+        unsafeWindow.csdn.copyright.htmlData = undefined;
+        $(".article-copyright")?.remove();
         Utils.waitForDOM(".hljs-button.signin").then((dom) => {
           UnblockCopy(dom);
         });
