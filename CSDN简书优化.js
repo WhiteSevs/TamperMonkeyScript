@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.4.8
+// @version      0.4.9
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -333,10 +333,9 @@
             }
             var _URL_ = new URL(url);
             if (
-              _URL_.origin.match(
-                /download.csdn.net/gi ||
-                  _URL_.pathname.match(/www.iteye.com\/resource/gi)
-              )
+              _URL_.host === "download.csdn.net" ||
+              (_URL_.host === "www.iteye.com" &&
+                _URL_.pathname.match(/^\/resource/gi))
             ) {
               /* 该链接为csdn资源下载 */
               console.log("该链接为csdn资源下载");
