@@ -2,7 +2,7 @@
 // @name         MT论坛
 // @namespace    http://tampermonkey.net/
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.0
+// @version      2.7.1
 // @author       WhiteSevs
 // @icon         https://bbs.binmt.cc/favicon.ico
 // @match        *://bbs.binmt.cc/*
@@ -11708,6 +11708,7 @@
     },
     setDynamicAvatar() {
       /* 设置动态头像 */
+      /* 感谢提供思路 https://greasyfork.org/zh-CN/scripts/11969-discuz论坛头像上传助手 */
       if (
         !window.location.href.match(mt_config.rexp.data_setting_url) ||
         !GM_getValue("v51", false)
@@ -11719,10 +11720,25 @@
         .match(/formhash=([0-9a-zA-Z]+)/);
       let uid = $jq(".sidenv_exit a:nth-child(2)")
         .attr("href")
-        .match(/uid=([0-9]+)/);
-      let bigStatus = false;
-      let mediumStatus = false;
-      let smallStatus = false;
+        .match(/uid=([0-9]+)/); /* 获取UID */
+      let avatarInfo = {
+        maxSize: 2097152 /* 图片文件最大大小 */,
+        big: {
+          width: 200,
+          height: 250,
+          status: false,
+        },
+        medium: {
+          width: 120,
+          height: 120,
+          status: false,
+        },
+        small: {
+          width: 48,
+          height: 48,
+          status: false,
+        },
+      };
       formhash = formhash[formhash.length - 1];
       uid = uid[uid.length - 1];
       let dynamicAvater = $jq(`
@@ -11756,9 +11772,23 @@
             `);
 
       function getStatus() {
-        return bigStatus && mediumStatus && smallStatus;
+        /* 获取变量状态 */
+        return (
+          avatarInfo.big.status &&
+          avatarInfo.medium.status &&
+          avatarInfo.small.status
+        );
       }
-
+      function setStatus(key, value) {
+        /* 设置变量状态 */
+        if (key === "comiis_file_dynamic_avater_big") {
+          avatarInfo.big.status = value;
+        } else if (key === "comiis_file_dynamic_avater_medium") {
+          avatarInfo.medium.status = value;
+        } else {
+          avatarInfo.small.status = value;
+        }
+      }
       function getPCUploadNewAvater() {
         return new Promise((res) => {
           GM_xmlhttpRequest({
@@ -11777,6 +11807,45 @@
           });
         });
       }
+
+      function changeCheckFileEvent(
+        elementQuery,
+        maxWidth,
+        maxHeight,
+        maxSize
+      ) {
+        /* 检查上传的文件是否符合，大小，尺寸 */
+        $jq(elementQuery).on("change", function () {
+          let uploadImageFile = this.files[0];
+          let fileSize = uploadImageFile.size;
+          let tmpImage = new Image();
+          let reader = new FileReader();
+          reader.readAsDataURL(uploadImageFile);
+          reader.onload = function (e) {
+            tmpImage.src = e.target.result;
+            tmpImage.onload = function () {
+              if (this.width > maxWidth || this.height > maxHeight) {
+                $jq(elementQuery).val("");
+                popup2.toast({
+                  text:
+                    "图片尺寸超出，当前宽:" + this.width + " 高:" + this.height,
+                  delayTime: 4000,
+                });
+                return;
+              }
+              if (fileSize > maxSize) {
+                $jq(elementQuery).val("");
+                popup2.toast({
+                  text: `图片大小(最大${maxSize})超出，当前大小:${fileSize}`,
+                  delayTime: 4000,
+                });
+                return;
+              }
+            };
+          };
+        });
+      }
+
       $jq(".comiis_edit_avatar").after(dynamicAvater);
       dynamicAvater.on("click", () => {
         popup2.confirm({
@@ -11785,18 +11854,18 @@
                     <p style="padding: 10px 0px;">修改动态头像</p>
                     <div style="height: 45vh;overflow: auto;">
                         <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
-                            <p style="float: left;font-weight: bold;">1. 电脑版帖内头像: 200×250 </p>
+                            <p style="float: left;font-weight: bold;">1. 电脑版帖内头像: ${avatarInfo.big.width}×${avatarInfo.big.height} </p>
                             <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
-                            <input type="file" id="comiis_file_dynamic_avater_big" data-maxwidth=200 data-maxheight=250 style="margin: 20px 0px;" accept="image/*">
+                            <input type="file" id="comiis_file_dynamic_avater_big" data-maxwidth=${avatarInfo.big.width} data-maxheight=${avatarInfo.big.height} style="margin: 20px 0px;" accept="image/*">
                         </div>
                         <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
-                            <p style="float: left;font-weight: bold;">2. 一般通用的头像: 120×120 </p>
+                            <p style="float: left;font-weight: bold;">2. 一般通用的头像: ${avatarInfo.medium.width}×${avatarInfo.medium.height} </p>
                             <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
-                            <input type="file" id="comiis_file_dynamic_avater_medium" data-maxwidth=120 data-maxheight=120 style="margin: 20px 0px;" accept="image/*"></div>
+                            <input type="file" id="comiis_file_dynamic_avater_medium" data-maxwidth=${avatarInfo.medium.width} data-maxheight=${avatarInfo.medium.width} style="margin: 20px 0px;" accept="image/*"></div>
                         <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
-                            <p style="float: left;font-weight: bold;">3. 电脑版右上角小头像: 48×48 </p>
+                            <p style="float: left;font-weight: bold;">3. 电脑版右上角小头像: ${avatarInfo.small.width}×${avatarInfo.small.height} </p>
                             <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
-                            <input type="file" id="comiis_file_dynamic_avater_small" data-maxwidth=48 data-maxheight=48 style="margin: 20px 0px;" accept="image/*"></div>
+                            <input type="file" id="comiis_file_dynamic_avater_small" data-maxwidth=${avatarInfo.small.width} data-maxheight=${avatarInfo.small.width} style="margin: 20px 0px;" accept="image/*"></div>
                     </div>
                     `,
           mask: true,
@@ -11894,128 +11963,62 @@
           let statusObj = fileObj.parent().find(".status");
           let maxWidth = parseInt(fileObj.attr("data-maxwidth"));
           let maxHeight = parseInt(fileObj.attr("data-maxheight"));
-          statusObj.text("🤡获取尺寸大小中...");
-
+          statusObj.text("🤡获取文件信息中...");
           let uploadImageFile = fileObj.prop("files")[0];
+          let fileSize = uploadImageFile.size;
           let tmpImage = new Image();
           let reader = new FileReader();
           reader.readAsDataURL(uploadImageFile);
           reader.onload = function (e) {
             tmpImage.src = e.target.result;
             tmpImage.onload = function () {
-              if (fileObj.attr("id") == "comiis_file_dynamic_avater_big") {
-                if (this.width > maxWidth || this.height > maxHeight) {
-                  bigStatus = false;
-                  fileObj.val("");
-                  statusObj.text(
-                    "🤡校验失败，图片尺寸不符合 " +
-                      this.width +
-                      "×" +
-                      this.height
-                  );
-                  return;
-                }
-                bigStatus = true;
-              } else if (
-                fileObj.attr("id") == "comiis_file_dynamic_avater_medium"
-              ) {
-                if (this.width > maxWidth || this.height > maxHeight) {
-                  mediumStatus = false;
-                  fileObj.val("");
-                  statusObj.text(
-                    "🤡校验失败，图片尺寸不符合 " +
-                      this.width +
-                      "×" +
-                      this.height
-                  );
-                  return;
-                }
-                mediumStatus = true;
-              } else {
-                if (this.width > maxWidth || this.height > maxHeight) {
-                  smallStatus = false;
-                  fileObj.val("");
-                  statusObj.text(
-                    "🤡校验失败，图片尺寸不符合 " +
-                      this.width +
-                      "×" +
-                      this.height
-                  );
-                  return;
-                }
-                smallStatus = true;
+              if (this.width > maxWidth || this.height > maxHeight) {
+                /* 判断尺寸大小 */
+                setStatus(fileObj.attr("id"), false);
+                fileObj.val("");
+                statusObj.text(
+                  "🤡校验失败，图片尺寸不符合 " + this.width + "×" + this.height
+                );
+                return;
               }
-              statusObj.text("🤣 通过 " + this.width + "×" + this.height);
+
+              if (fileSize > avatarInfo.maxSize) {
+                setStatus(fileObj.attr("id"), false);
+                fileObj.val("");
+                statusObj.text("🤡校验失败，图片大小不符合 " + fileSize);
+                return;
+              }
+              setStatus(fileObj.attr("id"), true);
+              statusObj.text(
+                "🤣 通过 " +
+                  this.width +
+                  "×" +
+                  this.height +
+                  " 大小(byte):" +
+                  fileSize
+              );
             };
           };
         }
       );
-      $jq("#comiis_file_dynamic_avater_big").on("change", function () {
-        let maxWidth = 200;
-        let maxHeight = 250;
-        let uploadImageFile = this.files[0];
-        let tmpImage = new Image();
-        let reader = new FileReader();
-        reader.readAsDataURL(uploadImageFile);
-        reader.onload = function (e) {
-          tmpImage.src = e.target.result;
-          tmpImage.onload = function () {
-            if (this.width > maxWidth || this.height > maxHeight) {
-              $jq("#comiis_file_dynamic_avater_big").val("");
-              popup2.toast({
-                text:
-                  "图片尺寸超出，当前宽:" + this.width + " 高:" + this.height,
-                delayTime: 4000,
-              });
-              return;
-            }
-          };
-        };
-      });
-      $jq("#comiis_file_dynamic_avater_medium").on("change", function () {
-        let maxWidth = 120;
-        let maxHeight = 120;
-        let uploadImageFile = this.files[0];
-        let tmpImage = new Image();
-        let reader = new FileReader();
-        reader.readAsDataURL(uploadImageFile);
-        reader.onload = function (e) {
-          tmpImage.src = e.target.result;
-          tmpImage.onload = function () {
-            if (this.width > maxWidth || this.height > maxHeight) {
-              $jq("#comiis_file_dynamic_avater_medium").val("");
-              popup2.toast({
-                text:
-                  "图片尺寸超出，当前宽:" + this.width + " 高:" + this.height,
-                delayTime: 4000,
-              });
-              return;
-            }
-          };
-        };
-      });
-      $jq("#comiis_file_dynamic_avater_small").on("change", function () {
-        let maxWidth = 48;
-        let maxHeight = 48;
-        let uploadImageFile = this.files[0];
-        let tmpImage = new Image();
-        let reader = new FileReader();
-        reader.readAsDataURL(uploadImageFile);
-        reader.onload = function (e) {
-          tmpImage.src = e.target.result;
-          tmpImage.onload = function () {
-            if (this.width > maxWidth || this.height > maxHeight) {
-              $jq("#comiis_file_dynamic_avater_small").val("");
-              popup2.toast({
-                text:
-                  "图片尺寸超出，当前宽:" + this.width + " 高:" + this.height,
-                delayTime: 4000,
-              });
-              return;
-            }
-          };
-        };
-      });
+      changeCheckFileEvent(
+        "#comiis_file_dynamic_avater_big",
+        avatarInfo.big.width,
+        avatarInfo.big.height,
+        avatarInfo.maxSize
+      );
+      changeCheckFileEvent(
+        "#comiis_file_dynamic_avater_medium",
+        avatarInfo.medium.width,
+        avatarInfo.medium.height,
+        avatarInfo.maxSize
+      );
+      changeCheckFileEvent(
+        "#comiis_file_dynamic_avater_small",
+        avatarInfo.small.width,
+        avatarInfo.small.height,
+        avatarInfo.maxSize
+      );
     },
     shieldPlate() {
       /* 屏蔽板块 */
