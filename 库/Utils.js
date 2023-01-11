@@ -2,7 +2,7 @@
  * @overview	 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  0.4
+ * @version  0.5
  */
 let Utils = {};
 
@@ -1492,4 +1492,187 @@ Utils.uniqueArray = function (
         return compareFun(item, ele);
       })
   );
+};
+
+/*
+ * @description (恢复|释放)该对象内部方法，让它执行(无效|有效)
+ * @param {object} needReleaseObject - 需要操作的对象
+ * @param {string} needReleaseName - 需要操作的对象的名字
+ * @param {Array} functionNameList - 需要释放的方法，如果为空，默认全部方法
+ * @return {boolean} release - true为释放该对象下的某些方法，false为恢复该对象下的某些方法，默认为true
+ * @example Utils.noConflict(console,"console",["log"],true);console.log; // 释放该方法
+ * @example Utils.noConflict(console,"console",["log"],false);console.log; //恢复该方法
+ * @example Utils.noConflict(console,"console",[],true);console; // 释放所有方法
+ * @example Utils.noConflict(console,"console",[],false);console; //恢复所有方法
+ */
+Utils.noConflict = function (
+  needReleaseObject,
+  needReleaseName,
+  functionNameList = [],
+  release = true
+) {
+  if (typeof needReleaseObject !== "object") {
+    throw "参数 needReleaseObject 类型必须为object类型";
+  }
+  if (!(functionNameList instanceof Array)) {
+    throw "参数 functionName 类型必须为数组类型";
+  }
+  var needReleaseKey = "__" + needReleaseName;
+  function cloneObj(obj) {
+    /* 复制对象 */
+    var newObj = {};
+    if (obj instanceof Array) {
+      newObj = [];
+    }
+    for (var key in obj) {
+      var val = obj[key];
+      newObj[key] = typeof val === "object" ? cloneObj(val) : val;
+    }
+    return newObj;
+  }
+  function releaseAll() {
+    /* 释放所有 */
+    if (typeof window[needReleaseKey] !== "undefined") {
+      /* 已存在 */
+      return;
+    }
+    window[needReleaseKey] = cloneObj(needReleaseObject);
+    Object.values(needReleaseObject).forEach((value) => {
+      if (typeof value === "function") {
+        needReleaseObject[value.name] = () => {};
+      }
+    });
+  }
+  function releaseOne() {
+    /* 释放单个 */
+    Array.from(functionNameList).forEach((item) => {
+      Object.values(needReleaseObject).forEach((value) => {
+        if (typeof value === "function") {
+          if (typeof window[needReleaseKey] === "undefined") {
+            window[needReleaseKey] = {};
+          }
+          if (item === value.name) {
+            window[needReleaseKey][value.name] = needReleaseObject[value.name];
+            needReleaseObject[value.name] = () => {};
+          }
+        }
+      });
+    });
+  }
+  function recoveryAll() {
+    /* 恢复所有 */
+    if (typeof window[needReleaseKey] === "undefined") {
+      /* 未存在 */
+      return;
+    }
+    Object.assign(needReleaseObject, window[needReleaseKey]);
+    delete window[needReleaseKey];
+  }
+
+  function recoveryOne() {
+    /* 恢复单个 */
+    if (typeof window[needReleaseKey] === "undefined") {
+      /* 未存在 */
+      return;
+    }
+    Array.from(functionNameList).forEach((item) => {
+      if (window[needReleaseKey][item]) {
+        needReleaseObject[item] = window[needReleaseKey][item];
+        delete window[needReleaseKey][item];
+        if (Object.keys(window[needReleaseKey]).length === 0) {
+          delete window[needReleaseKey];
+        }
+      }
+    });
+  }
+  if (release) {
+    /* 释放 */
+    if (functionNameList.length === 0) {
+      releaseAll();
+    } else {
+      /* 对单个进行操作 */
+      releaseOne();
+    }
+  } else {
+    /* 恢复 */
+    if (functionNameList.length === 0) {
+      recoveryAll();
+    } else {
+      /* 对单个进行操作 */
+      recoveryOne();
+    }
+  }
+};
+
+/*
+ * @description 注册油猴菜单
+ * @param {object} data - 传递的菜单数据
+ * @param {boolean} autoReload - 点击该菜单后数据改变后自动重载页面,true为自动重载,false不开启自动重载
+ * @example
+ * var GM_Menu = new Utils.GM_Menu({
+ *    menu_key:{
+ *    text:"测试按钮"
+ *    enable:true,
+ *    showText:(text,enable)=>{
+ *      return "[" + (enable ? "√" : "×") + "]" + text;
+ *    },
+ *    callback:(status)=>{
+ *      console.log("点击菜单，值修改",status);
+ *    }
+ *  }
+ * });
+ *  GM_Menu.init(); //初始化
+ *  GM_Menu.register(); // 进行注册到菜单中
+ *  GM_Menu.getEnable("menu_key"); // 获取某个菜单项的值
+ *
+ * @exampleResult [√]测试按钮
+ */
+Utils.GM_Menu = function (data = {}, autoReload = true) {
+  if (typeof GM_getValue === "undefined") {
+    throw "请在脚本开头加上 @grant  GM_getValue";
+  }
+  if (typeof GM_setValue === "undefined") {
+    throw "请在脚本开头加上 @grant  GM_getValue";
+  }
+  if (typeof GM_registerMenuCommand === "undefined") {
+    throw "请在脚本开头加上 @grant  GM_registerMenuCommand";
+  }
+  this.init = function () {
+    /* 初始化数据 */
+    Object.keys(data).forEach((key) => {
+      let value = GM_getValue(key);
+      if (value == null) {
+        GM_setValue(key, data[key].enable);
+        value = GM_getValue(key);
+      }
+      data[key]["enable"] = value;
+    });
+  };
+  this.register = function () {
+    /* 注册油猴菜单 */
+    Object.keys(data).forEach((key) => {
+      let item = data[key];
+      let text = item["text"]; /* 文本 */
+      let enable = item["enable"]; /* 用户开启的状态 */
+      let showText =
+        typeof item["showText"] === "function"
+          ? item["showText"]()
+          : text; /* 油猴菜单上显示的文本 */
+      let callback = item["callback"]; /* 用户点击后的回调 */
+      GM_registerMenuCommand(showText, function () {
+        let _enable_ = enable ? false : true;
+        GM_setValue(key, _enable_);
+        if (typeof callback === "function") {
+          callback();
+        }
+        if (autoReload) {
+          window.location.reload();
+        }
+      });
+    });
+  };
+  this.getEnable = function (key) {
+    /* 获取键值开启状态 */
+    return data[key]["enable"];
+  };
 };
