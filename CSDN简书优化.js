@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.5.0
+// @version      0.5.1
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -533,26 +533,44 @@
     removeCSDNDownloadPC: {
       text: "电脑-移除文章底部的CSDN下载",
       enable: false,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
     },
     articleCenter: {
       text: "电脑-全文居中",
       enable: true,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
     },
     shieldLoginDialog: {
       text: "电脑-屏蔽登录弹窗",
       enable: true,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
     },
     showDirect: {
       text: "手机-标识处理过的底部推荐文章",
       enable: true,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
     },
     openNewTab: {
       text: "手机-底部推荐文章新标签页打开",
       enable: true,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
     },
     removeCSDNDownloadMobile: {
       text: "手机-移除文章底部的CSDN下载",
       enable: false,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
     },
   });
   GM_Menu.init();
