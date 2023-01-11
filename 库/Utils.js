@@ -1627,7 +1627,7 @@ Utils.noConflict = function (
  *
  * @exampleResult [√]测试按钮
  */
-Utils.GM_Menu = function (data = {}, autoReload = true) {
+Utils.GM_Menu = function (data = {}, autoReload = false) {
   if (typeof GM_getValue === "undefined") {
     throw "请在脚本开头加上 @grant  GM_getValue";
   }
@@ -1637,6 +1637,10 @@ Utils.GM_Menu = function (data = {}, autoReload = true) {
   if (typeof GM_registerMenuCommand === "undefined") {
     throw "请在脚本开头加上 @grant  GM_registerMenuCommand";
   }
+  if (typeof GM_unregisterMenuCommand === "undefined") {
+    throw "请在脚本开头加上 @grant  GM_unregisterMenuCommand";
+  }
+  this.GM_Menu_Id_Data = []; /* 注册的菜单的id */
   this.init = function () {
     /* 初始化数据 */
     Object.keys(data).forEach((key) => {
@@ -1650,16 +1654,18 @@ Utils.GM_Menu = function (data = {}, autoReload = true) {
   };
   this.register = function () {
     /* 注册油猴菜单 */
+    let _this_ = this;
     Object.keys(data).forEach((key) => {
       let item = data[key];
       let text = item["text"]; /* 文本 */
       let enable = item["enable"]; /* 用户开启的状态 */
       let showText =
         typeof item["showText"] === "function"
-          ? item["showText"]()
+          ? item["showText"](text, enable)
           : text; /* 油猴菜单上显示的文本 */
       let callback = item["callback"]; /* 用户点击后的回调 */
-      GM_registerMenuCommand(showText, function () {
+      let GM_Menu_Id = null;
+      GM_Menu_Id = GM_registerMenuCommand(showText, function () {
         let _enable_ = enable ? false : true;
         GM_setValue(key, _enable_);
         if (typeof callback === "function") {
@@ -1667,8 +1673,15 @@ Utils.GM_Menu = function (data = {}, autoReload = true) {
         }
         if (autoReload) {
           window.location.reload();
+        } else {
+          _this_.GM_Menu_Id_Data.forEach((_menu_) => {
+            GM_unregisterMenuCommand(_menu_);
+          });
+          _this_.init();
+          _this_.register();
         }
       });
+      _this_.GM_Menu_Id_Data = [..._this_.GM_Menu_Id_Data, GM_Menu_Id];
     });
   };
   this.getEnable = function (key) {
