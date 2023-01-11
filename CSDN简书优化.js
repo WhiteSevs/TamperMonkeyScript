@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.4.9
+// @version      0.5.0
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -26,55 +26,6 @@
 
 (function () {
   "use strict";
-  var GM_Menu = {
-    data: {
-      removeCSDNDownloadPC: {
-        text: "电脑-移除文章底部的CSDN下载",
-        enable: false,
-      },
-      articleCenter: {
-        text: "电脑-全文居中",
-        enable: true,
-      },
-      showDirect: {
-        text: "手机-标识处理过的底部推荐文章",
-        enable: true,
-      },
-      openNewTab: {
-        text: "手机-底部推荐文章新标签页打开",
-        enable: true,
-      },
-      removeCSDNDownloadMobile: {
-        text: "手机-移除文章底部的CSDN下载",
-        enable: false,
-      },
-    },
-    init: function () {
-      /* 初始化数据 */
-      let _this_ = this;
-      Object.keys(this.data).forEach((key) => {
-        let value = GM_getValue(key);
-        if (value == null) {
-          GM_setValue(key, _this_.data[key].enable);
-          value = GM_getValue(key);
-        }
-        _this_.data[key]["enable"] = value;
-      });
-    },
-    register: function () {
-      /* 注册油猴菜单 */
-      let _this_ = this;
-      Object.keys(this.data).forEach((key) => {
-        let text = _this_.data[key]["text"];
-        let enable = _this_.data[key]["enable"];
-        let showText = "[" + (enable ? "√" : "×") + "]" + text;
-        GM_registerMenuCommand(showText, function () {
-          GM_setValue(key, enable ? false : true);
-          window.location.reload();
-        });
-      });
-    },
-  };
   function waitForElementToRemove(_query_ = "") {
     /* 移除元素（未出现也可以等待出现） */
     Utils.waitForDOM(_query_).then((dom) => {
@@ -327,7 +278,7 @@
               title = item.find(".recommend_title div.left").html();
               content = item.find(".text").html();
             }
-            if (GM_Menu.data.showDirect.enable) {
+            if (GM_Menu.getEnable("showDirect")) {
               /* 开启就添加 */
               title += `<div class="GM-csdn-Redirect">Redirect</div>`;
             }
@@ -354,7 +305,7 @@
             );
             if (
               (isCSDNDownload || isCSDNEduDownload) &&
-              GM_Menu.data.removeCSDNDownloadMobile.enable
+              GM_Menu.getEnable("removeCSDNDownloadMobile")
             ) {
               item.remove();
             }
@@ -380,7 +331,7 @@
         /* 底部推荐点击跳转事件 */
         $("body").on("click", ".GM-csdn-dl", function () {
           let url = $(this).attr("data-url");
-          if (GM_Menu.data.openNewTab.enable) {
+          if (GM_Menu.getEnable("openNewTab")) {
             window.open(url, "_blank");
           } else {
             window.location.href = url;
@@ -503,7 +454,7 @@
         /* 标识CSDN下载的链接 */
         $(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
           (index, item) => {
-            if (GM_Menu.data.removeCSDNDownloadPC.enable) {
+            if (GM_Menu.getEnable("removeCSDNDownloadPC")) {
               item.remove();
             } else {
               $(item).find(".content-box").css("border", "2px solid red");
@@ -514,7 +465,7 @@
 
       function articleCenter() {
         /* 全文居中 */
-        if (!GM_Menu.data.articleCenter.enable) {
+        if (!GM_Menu.getEnable("articleCenter")) {
           return;
         }
         GM_addStyle(
@@ -551,8 +502,15 @@
           });
         });
       }
+      function shieldLoginDialog() {
+        /* 屏蔽登录弹窗 */
+        if (GM_Menu.getEnable("shieldLoginDialog")) {
+          GM_addStyle(`.passport-login-container{display: none !important;}`);
+        }
+      }
       GM_addStyle(css);
       articleCenter();
+      shieldLoginDialog();
       $(document).ready(function () {
         removeClipboardHijacking();
         unBlockCopy();
@@ -571,7 +529,32 @@
       }
     }
   }
-
+  var GM_Menu = new Utils.GM_Menu({
+    removeCSDNDownloadPC: {
+      text: "电脑-移除文章底部的CSDN下载",
+      enable: false,
+    },
+    articleCenter: {
+      text: "电脑-全文居中",
+      enable: true,
+    },
+    shieldLoginDialog: {
+      text: "电脑-屏蔽登录弹窗",
+      enable: true,
+    },
+    showDirect: {
+      text: "手机-标识处理过的底部推荐文章",
+      enable: true,
+    },
+    openNewTab: {
+      text: "手机-底部推荐文章新标签页打开",
+      enable: true,
+    },
+    removeCSDNDownloadMobile: {
+      text: "手机-移除文章底部的CSDN下载",
+      enable: false,
+    },
+  });
   GM_Menu.init();
   GM_Menu.register();
 

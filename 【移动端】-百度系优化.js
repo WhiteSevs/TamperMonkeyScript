@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】-百度系优化
 // @namespace    http://tampermonkey.net/
-// @version      0.5.9
+// @version      0.6.0
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @include      *://m.baidu.com/*
 // @include      *://www.baidu.com/*
@@ -28,7 +28,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_xmlhttpRequest
-// @require	     http://cdn.staticfile.org/jquery/2.1.4/jquery.min.js
+// @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1135447
 // @run-at       document-start
@@ -36,6 +36,7 @@
 
 (function () {
   "use strict";
+  const LOG = GM_getValue("LOG", false); /* 控制台显示日志 */
 
   const CSDN_FLAG_CSS = `标识
     .csdn-flag-component-box .praise {
@@ -3017,39 +3018,34 @@
     });
   }
 
-  function register_GM_Menu() {
-    var GM_menus = [
-      ["menu_autoloading", "自动展开下一页", false],
-      ["menu_showisdirect", "显示已重定向图标", true],
-    ];
-    /* 修改菜单默认值 */
-    for (let i = 0; i < GM_menus.length; i++) {
-      let get_GM_value = GM_getValue(GM_menus[i][0]);
-      if (get_GM_value) {
-        GM_menus[i][2] = true;
-      } else {
-        GM_menus[i][2] = false;
-      }
-    }
-    /* 注册油猴菜单 */
-    for (let i = 0; i < GM_menus.length; i++) {
-      let current_v = GM_menus[i][0];
-      let current_name = GM_menus[i][1];
-      let current_status = GM_menus[i][2];
-      GM_registerMenuCommand(
-        `[${current_status ? "√" : "×"}]${current_name}`,
-        function () {
-          if (current_status) {
-            GM_deleteValue(current_v);
-          } else {
-            GM_setValue(current_v, "1");
-          }
-          window.location.reload();
-        }
-      );
-    }
+  var GM_Menu = new Utils.GM_Menu({
+    menu_autoloading: {
+      text: "自动展开下一页",
+      enable: false,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
+    },
+    menu_showisdirect: {
+      text: "显示已重定向图标",
+      enable: true,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
+    },
+    log: {
+      text: "控制台显示日志",
+      enable: false,
+      showText: (_text_, _enable_) => {
+        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
+    },
+  });
+  GM_Menu.init();
+  GM_Menu.register();
+  if (GM_Menu.getEnable("log") == false) {
+    console.log = function () {};
   }
-  register_GM_Menu();
   GM_addStyle(CSDN_FLAG_CSS);
   baidu.init();
 })();
