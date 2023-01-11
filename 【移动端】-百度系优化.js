@@ -36,8 +36,14 @@
 
 (function () {
   "use strict";
-  const LOG = GM_getValue("LOG", false); /* 控制台显示日志 */
-
+  const LOG = GM_getValue("LOG", false);
+  var __console__ = {};
+  __console__.log = function () {
+    if (!LOG) {
+      return;
+    }
+    console.log.apply(console, arguments);
+  };
   const CSDN_FLAG_CSS = `标识
     .csdn-flag-component-box .praise {
         padding-right: 20px;
@@ -637,7 +643,7 @@
                   newUrl = aTagDataIvk["control"]["default_url"]
                     ? aTagDataIvk["control"]["default_url"]
                     : aTagDataIvk["control"]["dataUrl"];
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度搜索%c]%c A标签上存在隐藏的url: %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -648,8 +654,8 @@
                   );
                 }
               } catch (error) {
-                console.log(error);
-                console.log(
+                __console__.log(error);
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c A标签上存在隐藏的url，但是替换失败",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -667,7 +673,7 @@
               return;
             }
             item.href = newUrl;
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度搜索%c]%c 替换成新链接: %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -761,7 +767,7 @@
             dataLog = JSON.parse(dataLog);
             url = dataLog.mu;
           } catch (error) {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度搜索%c]%c DOM的属性data-log不存在👇",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -779,7 +785,7 @@
                 articleDataLog = JSON.parse(articleDataLog);
                 url = articleDataLog.mu;
               } catch (error) {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c article DOM的属性的rl-link-data-log也不存在👇，获取真实链接失败",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -787,10 +793,10 @@
                   "font-weight:bold;color:cornflowerblue",
                   "color:red"
                 );
-                console.log(value);
+                __console__.log(value);
               }
             } else {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c article DOM不存在",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -807,7 +813,7 @@
               dataLog = JSON.parse(dataIVK);
               url = dataLog.control.default_url;
             } catch (error) {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c DOM的属性data-ivk不存在👇",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -833,7 +839,7 @@
           flagElement.className = "csdn-flag-component-box";
           flagElement.innerHTML = `<a class="praise" href="javascript:;">CSDN下载</a>`;
           DOM.querySelector(".c-title-text")?.append(flagElement);
-          console.log(
+          __console__.log(
             "%c[BaiDu优化%c-%c百度搜索%c]%c 插入CSDN下载提示标题",
             "font-weight:bold;color:cornflowerblue",
             "font-weight:bold;color:cornflowerblue",
@@ -858,7 +864,7 @@
             let searchArticleOriginal_link = dataLog["mu"];
             if (searchArticleOriginal_link.match(/recommend_list.baidu.com/g)) {
               items.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家都在搜",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -869,7 +875,7 @@
             }
             if (items.outerText.substr(0, 5) == "大家还在搜") {
               items.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家都在搜:显示出来的",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -881,7 +887,7 @@
             if (items.childNodes.length > 1) {
               if (items.outerText.match(/(大家还在搜|百度APP内打开)/)) {
                 items.childNodes[1].remove();
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家都在搜:隐藏的(点击后，跳出来的)",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -904,7 +910,7 @@
               });
               if (bottom_remove_flag) {
                 items.remove();
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>百度APP内打开",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -927,7 +933,7 @@
               items.attributes.srcid.value.match(/(sigma|vid_fourfold)/g)
             ) {
               items.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除推荐==>xxx 相关 xxx",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -938,7 +944,7 @@
             }
             if (searchArticleOriginal_link.match(/expert.baidu.com/g)) {
               items.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>百度健康",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -949,7 +955,7 @@
             }
             if (searchArticleOriginal_link.match(/author.baidu.com\/home\//g)) {
               items.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>百家号聚合",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -960,7 +966,7 @@
             }
             if (dataLog["ensrcid"] == "wenda_inquiry") {
               items.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>问一问",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -977,7 +983,7 @@
               result_parent.getAttribute("data-from") == "etpl"
             ) {
               items.parentElement.parentElement.remove();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>隐藏的广告，会跳出来的",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -1021,7 +1027,7 @@
             } else if (
               realLinkUrl.match(/http:\/\/m.baidu.com\/productcard/g)
             ) {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度搜索%c]%c 该链接不予替换: %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -1065,7 +1071,7 @@
             }
             if (url.match(/http(s|):\/\/m.baidu.com\/from/g)) {
               ret = false;
-              /* console.log("%c[BaiDu优化%c-%c百度搜索%c]%c 发现存在没有替换成功的链接: %s", 
+              /* __console__.log("%c[BaiDu优化%c-%c百度搜索%c]%c 发现存在没有替换成功的链接: %s", 
                                         "font-weight:bold;color:cornflowerblue",
                                         "font-weight:bold;color:cornflowerblue",
                                         "font-weight:bold;color:darkorange",
@@ -1086,7 +1092,7 @@
             item.hasAttribute("data-sflink") &&
             item.getAttribute("href") != item.getAttribute("data-sflink")
           ) {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -1105,7 +1111,7 @@
         Array.from($("script")).forEach((items, index) => {
           if (items.text.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
             items.remove();
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度搜索%c]%c 删除跳转百度app提示js==>",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -1147,7 +1153,10 @@
           $(btnElement)?.on("click", function (e) {
             e?.stopPropagation();
             e?.preventDefault();
-            console.log("跳转搜索 -> " + $(this).text());
+            __console__.log("点击按钮跳转搜索 -> " + $(this).text());
+            __console__.log(
+              window.location.origin + "/s?word=" + $(this).text()
+            );
             window.location.href =
               window.location.origin + "/s?word=" + $(this).text();
             return false;
@@ -1157,7 +1166,10 @@
           var searchInputElement = $(searchInput);
           e?.stopPropagation();
           e?.preventDefault();
-          console.log("跳转搜索 -> " + searchInputElement.val());
+          __console__.log("点击按钮跳转搜索 -> " + searchInputElement.val());
+          __console__.log(
+            window.location.origin + "/s?word=" + searchInputElement.val()
+          );
           window.location.href =
             window.location.origin + "/s?word=" + searchInputElement.val();
           return false;
@@ -1168,7 +1180,10 @@
             var searchInputElement = $(searchInput);
             e?.stopPropagation();
             e?.preventDefault();
-            console.log("回车键跳转搜索 -> " + searchInputElement.val());
+            __console__.log("回车键跳转搜索 -> " + searchInputElement.val());
+            __console__.log(
+              window.location.origin + "/s?word=" + searchInputElement.val()
+            );
             window.location.href =
               window.location.origin + "/s?word=" + searchInputElement.val();
             return false;
@@ -1203,7 +1218,7 @@
       }
 
       if (this.current_url.match(/http(s|):\/\/(m|www).baidu.com/g)) {
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -1228,7 +1243,7 @@
         this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
       ) {
         GM_addStyle(this.css.searchHome);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -1243,7 +1258,7 @@
       // 百家号
       if (this.current_url.match(/http(s|):\/\/baijiahao.baidu.com/g)) {
         GM_addStyle(this.css.baijiahao);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%百家号%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -1319,7 +1334,7 @@
                 user_comment_time =
                   childrenElement[childrenElement.length - 1].textContent;
               } else {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -1328,7 +1343,7 @@
                   "color:red",
                   "获取PC端的数据楼层和时间信息失败👇"
                 );
-                console.log(childrenElement);
+                __console__.log(childrenElement);
                 user_floor = "";
                 user_comment_time = "";
               }
@@ -1545,7 +1560,7 @@
                   "white-btn-comment-reverse"
                 );
                 mainPositive();
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -1557,7 +1572,7 @@
               } else {
                 event.currentTarget.setAttribute("class", "white-btn-comment");
                 mainReverse();
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -1586,7 +1601,7 @@
                 onerror: function (resp) {
                   if (resp.error.match("wappass.baidu.com")) {
                     let url = resp.error.match(/"(.*?)"/)[1];
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c 触发百度校验: %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1597,7 +1612,7 @@
                     );
                     window.location.href = url;
                   } else {
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1606,7 +1621,7 @@
                       "color:red",
                       "获取评论数据失败 👇"
                     );
-                    console.log(resp);
+                    __console__.log(resp);
                     res(400);
                   }
                 },
@@ -1630,7 +1645,7 @@
                   res(comment_list);
                 },
                 onerror: function (resp) {
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1639,7 +1654,7 @@
                     "color:red",
                     "取第一页的评论的评论数据失败 👇"
                   );
-                  console.log(resp);
+                  __console__.log(resp);
                   res(400);
                 },
               });
@@ -1654,7 +1669,7 @@
               );
               if (userScrollHeight >= $(document).height()) {
                 if (isloding_flag) {
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1683,7 +1698,7 @@
                     "&pn=" +
                     window.page +
                     "&see_lz=0";
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c 请求下一页评论的url: %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1692,7 +1707,7 @@
                     "color:0",
                     next_page_url
                   );
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c 贴子所有评论的url: %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1704,7 +1719,7 @@
                   let pageHTML = await tiebaConfig.getPageComment(
                     next_page_url
                   );
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1716,7 +1731,7 @@
                   let user_commands_list = await tiebaConfig.getPageCommentList(
                     next_page_all_comment_url
                   );
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1728,7 +1743,7 @@
                   if (pageHTML == 400 || user_commands_list == 400) {
                     loadingView.setHTML("未知错误，请看控制台");
                     $(window).unbind();
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1768,7 +1783,7 @@
                   }
                   loadingView.setVisible(false);
                   if (window.page >= window.max_page) {
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1780,7 +1795,7 @@
                     loadingView.setHTML("已加载所有的评论");
                     loadingView.setVisible(false);
                     $(window).unbind();
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1805,7 +1820,7 @@
               );
               if (userScrollHeight >= $(document).height()) {
                 if (isloding_flag) {
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1834,7 +1849,7 @@
                     "&pn=" +
                     window.page +
                     "&see_lz=0";
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c 请求上一页评论的url: %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1843,7 +1858,7 @@
                     "color:0",
                     page_url
                   );
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c 贴子所有评论的url: %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1853,7 +1868,7 @@
                     page_all_comment_url
                   );
                   let pageHTML = await tiebaConfig.getPageComment(page_url);
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1865,7 +1880,7 @@
                   let user_commands_list = await tiebaConfig.getPageCommentList(
                     page_all_comment_url
                   );
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -1877,7 +1892,7 @@
                   if (pageHTML == 400 || user_commands_list == 400) {
                     loadingView.setHTML("未知错误，请看控制台");
                     $(window).unbind();
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1919,7 +1934,7 @@
                   }
                   loadingView.setVisible(false);
                   if (window.page <= 1) {
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1931,7 +1946,7 @@
                     loadingView.setHTML("已加载所有的评论");
                     loadingView.setVisible(false);
                     $(window).unbind();
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -1950,7 +1965,7 @@
           insertLoadingHTML: () => {
             /* 插入加载中的html */
             if (!loadingView.exists()) {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2019,7 +2034,7 @@
                 url
               );
               if (pageHTML == 400 || user_commands_list == 400) {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2030,7 +2045,7 @@
                 );
                 return;
               }
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2046,7 +2061,7 @@
                 );
                 tiebaConfig.loadingNextCommand();
                 $(window).trigger("scroll");
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2079,7 +2094,7 @@
                 });
                 loadingView.destory();
               }
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c 共 %s 页评论，当前所在 %s 页",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2090,7 +2105,7 @@
                 window.page
               );
             } else {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2101,7 +2116,7 @@
               );
             }
           } else {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2148,7 +2163,7 @@
                 url
               );
               if (pageHTML == 400 || user_commands_list == 400) {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2159,7 +2174,7 @@
                 );
                 return;
               }
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2176,7 +2191,7 @@
                 window.page = window.max_page;
                 tiebaConfig.loadingPrevCommand();
                 $(window).trigger("scroll");
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2211,7 +2226,7 @@
                 loadingView.destory();
               }
 
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c 共 %s 页评论，当前所在 %s 页",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2222,7 +2237,7 @@
                 window.page
               );
             } else {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2233,7 +2248,7 @@
               );
             }
           } else {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2485,7 +2500,7 @@
               .getAttribute("src")
               .match(/http(s|):\/\/tiebapic.baidu.com\/forum/g)
           ) {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2494,7 +2509,7 @@
               "color:0",
               "点击图片👇"
             );
-            console.log(event.target);
+            __console__.log(event.target);
             var viewer = new Viewer(event.target, {
               inline: false,
               hidden: () => {
@@ -2508,7 +2523,7 @@
       }
       if (this.current_url.match(/http(s|):\/\/tieba.baidu.com/g)) {
         GM_addStyle(this.css.tieba);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2529,7 +2544,7 @@
       // 百度文库
       if (this.current_url.match(/http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         GM_addStyle(this.css.wenku);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度文库%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2544,7 +2559,7 @@
       // 百度经验
       if (this.current_url.match(/http(s|):\/\/jingyan.baidu.com/g)) {
         GM_addStyle(this.css.jingyan);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度经验%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2559,7 +2574,7 @@
       // 百度百科
       if (this.current_url.match(/http(s|):\/\/baike.baidu.com/g)) {
         GM_addStyle(this.css.baike);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度百科%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2623,7 +2638,7 @@
           if (match_id.length >= 2) {
             // 由于不知道有多少页，定时器加载判断
             var page_interval = setInterval(function () {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度百科%c]%c 定时器loading",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2642,7 +2657,7 @@
                 page_ +
                 "&insf=1&_=" +
                 new Date().getTime();
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度百科%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2666,7 +2681,7 @@
                   let main_content = $_resp.find(".BK-main-content");
                   let new_content = main_content.prevObject[0].innerHTML;
                   if (new_content.trim() == `<a name="u0"></a>`) {
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度百科%c]%c %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -2688,7 +2703,7 @@
                   page_interval_lock = false;
                 },
                 onerror: function (resp) {
-                  console.log(
+                  __console__.log(
                     "%c[BaiDu优化%c-%c百度百科%c]%c %s",
                     "font-weight:bold;color:cornflowerblue",
                     "font-weight:bold;color:cornflowerblue",
@@ -2697,7 +2712,7 @@
                     "color:red",
                     "请求失败 👇"
                   );
-                  console.log(resp);
+                  __console__.log(resp);
                   insert_img();
                   set_normal_img_size();
                   loadingView.setHTML("请求失败");
@@ -2707,7 +2722,7 @@
               });
             }, 1000);
           } else {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度百科%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2738,7 +2753,7 @@
             let item = index_tashuo_list_bottom[i];
             let class_name = item.className;
             if (class_name != "J-hot-item-container") {
-              console.log(
+              __console__.log(
                 "%c[BaiDu优化%c-%c百度百科-他说%c]%c %s",
                 "font-weight:bold;color:cornflowerblue",
                 "font-weight:bold;color:cornflowerblue",
@@ -2758,7 +2773,7 @@
       // 百度知道
       if (this.current_url.match(/http(s|):\/\/zhidao.baidu.com/g)) {
         GM_addStyle(this.css.zhidao);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度知道%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2774,7 +2789,7 @@
       /* 百度翻译 */
       if (this.current_url.match(/http(s|):\/\/fanyi.baidu.com/g)) {
         GM_addStyle(this.css.fanyi);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度翻译%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2790,7 +2805,7 @@
         let internal = setInterval(() => {
           if (internalNum >= 30 || document.querySelector("#page-content")) {
             $("#page-content")?.attr("style", "max-height:unset !important");
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度翻译APP%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2804,7 +2819,7 @@
           }
           internalNum++;
         }, 150);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度翻译APP%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2818,7 +2833,7 @@
     image() {
       if (this.current_url.match(/http(s|):\/\/image.baidu.com/g)) {
         GM_addStyle(this.css.image);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度图片%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2832,7 +2847,7 @@
     map() {
       if (this.current_url.match(/http(s|):\/\/map.baidu.com/g)) {
         GM_addStyle(this.css.map);
-        console.log(
+        __console__.log(
           "%c[BaiDu优化%c-%c百度地图%c]%c %s",
           "font-weight:bold;color:cornflowerblue",
           "font-weight:bold;color:cornflowerblue",
@@ -2866,7 +2881,7 @@
             $(".new-nextpage").attr("href") ||
             $(".new-nextpage-only").attr("href");
           if (!next_page_url) {
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2877,7 +2892,7 @@
             );
             isloding_flag = false;
             $(window).unbind();
-            console.log(
+            __console__.log(
               "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
               "font-weight:bold;color:cornflowerblue",
               "font-weight:bold;color:cornflowerblue",
@@ -2894,7 +2909,7 @@
             params_pn.length == 0
               ? "第 10 条"
               : "第 " + parseInt(params_pn[0]) + " 条";
-          console.log(
+          __console__.log(
             "%c[BaiDu优化%c-%c百度搜索%c]%c 正在请求%s数据: %s",
             "font-weight:bold;color:cornflowerblue",
             "font-weight:bold;color:cornflowerblue",
@@ -2925,7 +2940,7 @@
                   ) {
                     let cssDOM = GM_addStyle(this.innerHTML);
                     cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-                    console.log(
+                    __console__.log(
                       "%c[BaiDu优化%c-%c百度搜索%c]%c 插入Vue的CSS: %s",
                       "font-weight:bold;color:cornflowerblue",
                       "font-weight:bold;color:cornflowerblue",
@@ -2946,7 +2961,7 @@
                 });
                 $("#page-controller").html(next_html_next_page_html);
               } else {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2956,7 +2971,7 @@
                   "已加载所有的搜索结果"
                 );
                 $(window).unbind();
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2971,7 +2986,7 @@
             },
             onerror: function (resp) {
               if (next_page_url == undefined) {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2981,7 +2996,7 @@
                   "未获取到下一页的url"
                 );
               } else {
-                console.log(
+                __console__.log(
                   "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
                   "font-weight:bold;color:cornflowerblue",
                   "font-weight:bold;color:cornflowerblue",
@@ -2990,7 +3005,7 @@
                   "color:red",
                   "加载失败 👇"
                 );
-                console.log(resp);
+                __console__.log(resp);
                 loadingView.setHTML("加载失败");
               }
               isloding_flag = false;
@@ -3004,7 +3019,7 @@
                 (parseInt($(".new-nowpage")[0].textContent.match(/([0-9]+)/)) +
                   1) +
                 " 条";
-          console.log(
+          __console__.log(
             "%c[BaiDu优化%c-%c百度搜索%c]%c 正在加载%s中请稍后，请勿重复",
             "font-weight:bold;color:cornflowerblue",
             "font-weight:bold;color:cornflowerblue",
@@ -3018,34 +3033,34 @@
     });
   }
 
-  var GM_Menu = new Utils.GM_Menu({
-    menu_autoloading: {
-      text: "自动展开下一页",
-      enable: false,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+  var GM_Menu = new Utils.GM_Menu(
+    {
+      menu_autoloading: {
+        text: "自动展开下一页",
+        enable: false,
+        showText: (_text_, _enable_) => {
+          return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+        },
+      },
+      menu_showisdirect: {
+        text: "显示已重定向图标",
+        enable: true,
+        showText: (_text_, _enable_) => {
+          return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+        },
+      },
+      LOG: {
+        text: "控制台输出日志",
+        enable: false,
+        showText: (_text_, _enable_) => {
+          return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+        },
       },
     },
-    menu_showisdirect: {
-      text: "显示已重定向图标",
-      enable: true,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-    log: {
-      text: "控制台显示日志",
-      enable: false,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-  });
+    true
+  );
   GM_Menu.init();
   GM_Menu.register();
-  if (GM_Menu.getEnable("log") == false) {
-    console.log = function () {};
-  }
   GM_addStyle(CSDN_FLAG_CSS);
   baidu.init();
 })();
