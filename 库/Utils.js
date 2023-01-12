@@ -11,44 +11,45 @@ let Utils = {};
  * @param {object} params - 该函数的参数和捕获到错误的函数的参数，类型为数组Array
  * @param {string|function} errorFunc - 捕获到错误后执行的函数或函数格式的字符串
  * @example Utils.tryCatch("(pam)=>{console.log('this is a function and params is' + pam[0])}",["参数1"],"()=>{console.log('对错误进行处理判断')}");
+ * @example Utils.tryCatch((pam)=>{console.log('this is a function and params is' + pam[0])},["参数1"],"()=>{console.log('对错误进行处理判断')}");
  */
 Utils.tryCatch = function (func, params, errorFunc) {
-  /* 捕获错误 */
-  if (func == null) {
-    throw "警告: 参数 func 为不存在";
-  }
-  if (typeof func !== "function" && typeof func !== "string") {
-    throw "参数 func 类型必须为function类型或者string类型";
-  }
-  if (
-    params != null &&
-    typeof params !== "object" &&
-    typeof params !== "string"
-  ) {
-    throw "参数 params 类型必须为object类型或者string类型";
-  }
-  if (
-    errorFunc != null &&
-    typeof errorFunc !== "object" &&
-    typeof errorFunc !== "string"
-  ) {
-    throw "参数 errorFunc 类型必须为function类型或者string类型";
-  }
-  var result = null;
-  try {
-    result = typeof func === "string" ? window.eval(func) : func(params);
-  } catch (error) {
-    console.log(
-      "%c" + (func.name ? func.name : func + "出现错误"),
-      "color: #f20000"
-    );
-    console.log("%c" + ("错误原因：" + error), "color: #f20000");
-    console.trace(func);
-    result =
-      typeof func === "string" ? window.eval(errorFunc) : errorFunc(params);
-  } finally {
-    return result;
-  }
+	/* 捕获错误 */
+	if (func == null) {
+		throw "警告: 参数 func 为不存在";
+	}
+	if (typeof func !== "function" && typeof func !== "string") {
+		throw "参数 func 类型必须为function类型或者string类型";
+	}
+	if (
+		params != null &&
+		typeof params !== "object" &&
+		typeof params !== "string"
+	) {
+		throw "参数 params 类型必须为object类型或者string类型";
+	}
+	if (
+		errorFunc != null &&
+		typeof errorFunc !== "object" &&
+		typeof errorFunc !== "string"
+	) {
+		throw "参数 errorFunc 类型必须为function类型或者string类型";
+	}
+	var result = null;
+	try {
+		result = typeof func === "string" ? window.eval(func) : func(params);
+	} catch (error) {
+		console.log(
+			"%c" + (func.name ? func.name : func + "出现错误"),
+			"color: #f20000"
+		);
+		console.log("%c" + ("错误原因：" + error), "color: #f20000");
+		console.trace(func);
+		result =
+			typeof func === "string" ? window.eval(errorFunc) : errorFunc(params);
+	} finally {
+		return result;
+	}
 };
 
 /*
@@ -58,26 +59,26 @@ Utils.tryCatch = function (func, params, errorFunc) {
  * @example Utils.formatTextToTimeStamp("2022-11-21 00:00:00");
  */
 Utils.formatTextToTimeStamp = function (text) {
-  /* 把字符串格式的时间（完整，包括日期和时间）格式化成时间戳 */
-  if (typeof text !== "string") {
-    throw "参数 text 必须为string类型";
-  }
-  if (text.length === 8) {
-    /* 参数只有时间 */
-    var today = new Date();
-    text =
-      today.getFullYear() +
-      "-" +
-      (today.getMonth() + 1) +
-      "-" +
-      today.getDate() +
-      " " +
-      text;
-  }
-  text = text.substring(0, 19);
-  text = text.replace(/-/g, "/");
-  var timestamp = new Date(text).getTime();
-  return timestamp;
+	/* 把字符串格式的时间（完整，包括日期和时间）格式化成时间戳 */
+	if (typeof text !== "string") {
+		throw "参数 text 必须为string类型";
+	}
+	if (text.length === 8) {
+		/* 参数只有时间 */
+		var today = new Date();
+		text =
+			today.getFullYear() +
+			"-" +
+			(today.getMonth() + 1) +
+			"-" +
+			today.getDate() +
+			" " +
+			text;
+	}
+	text = text.substring(0, 19);
+	text = text.replace(/-/g, "/");
+	var timestamp = new Date(text).getTime();
+	return timestamp;
 };
 
 /*
@@ -89,35 +90,35 @@ Utils.formatTextToTimeStamp = function (text) {
  * @exampleResult  true
  */
 Utils.findWindowPageString = function (str, caseSensitive = false) {
-  var TRange = null;
-  var strFound;
-  if (window.find) {
-    /* CODE FOR BROWSERS THAT SUPPORT window.find */
-    strFound = self.find(str, caseSensitive, true, true, false);
-    if (strFound && self.getSelection && !self.getSelection().anchorNode) {
-      strFound = self.find(str, caseSensitive, true, true, false);
-    }
-    if (!strFound) {
-      strFound = self.find(str, 0, 1);
-      while (self.find(str, 0, 1)) continue;
-    }
-  } else if (navigator.appName.indexOf("Microsoft") != -1) {
-    /* EXPLORER-SPECIFIC CODE */
-    if (TRange != null) {
-      TRange.collapse(false);
-      strFound = TRange.findText(str);
-      if (strFound) TRange.select();
-    }
-    if (TRange == null || strFound == 0) {
-      TRange = self.document.body.createTextRange();
-      strFound = TRange.findText(str);
-      if (strFound) TRange.select();
-    }
-  } else if (navigator.appName == "Opera") {
-    alert("Opera browsers not supported, sorry...");
-    return;
-  }
-  return strFound ? true : false;
+	var TRange = null;
+	var strFound;
+	if (window.find) {
+		/* CODE FOR BROWSERS THAT SUPPORT window.find */
+		strFound = self.find(str, caseSensitive, true, true, false);
+		if (strFound && self.getSelection && !self.getSelection().anchorNode) {
+			strFound = self.find(str, caseSensitive, true, true, false);
+		}
+		if (!strFound) {
+			strFound = self.find(str, 0, 1);
+			while (self.find(str, 0, 1)) continue;
+		}
+	} else if (navigator.appName.indexOf("Microsoft") != -1) {
+		/* EXPLORER-SPECIFIC CODE */
+		if (TRange != null) {
+			TRange.collapse(false);
+			strFound = TRange.findText(str);
+			if (strFound) TRange.select();
+		}
+		if (TRange == null || strFound == 0) {
+			TRange = self.document.body.createTextRange();
+			strFound = TRange.findText(str);
+			if (strFound) TRange.select();
+		}
+	} else if (navigator.appName == "Opera") {
+		alert("Opera browsers not supported, sorry...");
+		return;
+	}
+	return strFound ? true : false;
 };
 
 /*
@@ -129,35 +130,35 @@ Utils.findWindowPageString = function (str, caseSensitive = false) {
  * @exampleResult
  */
 Utils.formatByteToSize = function (byteSize, addType = true) {
-  /* B字节转KB、MB、GB */
-  byteSize = parseInt(byteSize);
-  if (isNaN(byteSize)) {
-    throw "参数 byteSize 格式不正确";
-  }
-  var result = 0;
-  var resultType = "KB";
-  var sizeData = {};
-  sizeData.KB = 1024;
-  sizeData.MB = sizeData.KB * sizeData.KB;
-  sizeData.GB = sizeData.MB * sizeData.KB;
-  sizeData.TB = sizeData.GB * sizeData.KB;
-  sizeData.PB = sizeData.TB * sizeData.KB;
-  sizeData.EB = sizeData.PB * sizeData.KB;
-  sizeData.ZB = sizeData.EB * sizeData.KB;
-  sizeData.YB = sizeData.ZB * sizeData.KB;
-  sizeData.BB = sizeData.YB * sizeData.KB;
-  sizeData.NB = sizeData.BB * sizeData.KB;
-  sizeData.DB = sizeData.NB * sizeData.KB;
-  for (key in sizeData) {
-    result = byteSize / sizeData[key];
-    resultType = key;
-    if (sizeData.KB >= result) {
-      break;
-    }
-  }
-  result = result.toFixed(2);
-  result = addType ? result + resultType.toString() : parseFloat(result);
-  return result;
+	/* B字节转KB、MB、GB */
+	byteSize = parseInt(byteSize);
+	if (isNaN(byteSize)) {
+		throw "参数 byteSize 格式不正确";
+	}
+	var result = 0;
+	var resultType = "KB";
+	var sizeData = {};
+	sizeData.KB = 1024;
+	sizeData.MB = sizeData.KB * sizeData.KB;
+	sizeData.GB = sizeData.MB * sizeData.KB;
+	sizeData.TB = sizeData.GB * sizeData.KB;
+	sizeData.PB = sizeData.TB * sizeData.KB;
+	sizeData.EB = sizeData.PB * sizeData.KB;
+	sizeData.ZB = sizeData.EB * sizeData.KB;
+	sizeData.YB = sizeData.ZB * sizeData.KB;
+	sizeData.BB = sizeData.YB * sizeData.KB;
+	sizeData.NB = sizeData.BB * sizeData.KB;
+	sizeData.DB = sizeData.NB * sizeData.KB;
+	for (key in sizeData) {
+		result = byteSize / sizeData[key];
+		resultType = key;
+		if (sizeData.KB >= result) {
+			break;
+		}
+	}
+	result = result.toFixed(2);
+	result = addType ? result + resultType.toString() : parseFloat(result);
+	return result;
 };
 
 /*
@@ -169,33 +170,33 @@ Utils.formatByteToSize = function (byteSize, addType = true) {
  * @example [{"time":"2022-1-1"},{"time":"2022-2-2"}].sort(Utils.sortListByProperty((item)=>{return item["time"]},false))
  */
 Utils.sortListByProperty = function (getPropertyValueFunc, sortByDesc = true) {
-  if (typeof sortByDesc !== "boolean") {
-    throw "参数 sortByDesc 必须为boolean类型";
-  }
-  if (getPropertyValueFunc == null) {
-    throw "获取前面的值或后面的值的方法不能为空";
-  }
-  return function (after_obj, before_obj) {
-    var beforeValue = getPropertyValueFunc(before_obj); /*  前 */
-    var afterValue = getPropertyValueFunc(after_obj); /* 后 */
-    if (sortByDesc) {
-      if (afterValue > beforeValue) {
-        return -1;
-      } else if (afterValue < beforeValue) {
-        return 1;
-      } else {
-        return 0;
-      }
-    } else {
-      if (afterValue < beforeValue) {
-        return -1;
-      } else if (afterValue > beforeValue) {
-        return 1;
-      } else {
-        return 0;
-      }
-    }
-  };
+	if (typeof sortByDesc !== "boolean") {
+		throw "参数 sortByDesc 必须为boolean类型";
+	}
+	if (getPropertyValueFunc == null) {
+		throw "获取前面的值或后面的值的方法不能为空";
+	}
+	return function (after_obj, before_obj) {
+		var beforeValue = getPropertyValueFunc(before_obj); /*  前 */
+		var afterValue = getPropertyValueFunc(after_obj); /* 后 */
+		if (sortByDesc) {
+			if (afterValue > beforeValue) {
+				return -1;
+			} else if (afterValue < beforeValue) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else {
+			if (afterValue < beforeValue) {
+				return -1;
+			} else if (afterValue > beforeValue) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+	};
 };
 
 /*
@@ -203,17 +204,17 @@ Utils.sortListByProperty = function (getPropertyValueFunc, sortByDesc = true) {
  * @example [{"name":"Array内部方法: "},{"name":"mergeToString"}].mergeToString("name");
  */
 Utils.mergeArrayToString = function (list, propertyName) {
-  if (list == null) {
-    throw "参数 list 不能为空";
-  }
-  if (propertyName == null) {
-    throw "参数 propertyName 不能为null";
-  }
-  var content = "";
-  Array.from(list).forEach((item) => {
-    content = content + item[propertyName];
-  });
-  return content;
+	if (list == null) {
+		throw "参数 list 不能为空";
+	}
+	if (propertyName == null) {
+		throw "参数 propertyName 不能为null";
+	}
+	var content = "";
+	Array.from(list).forEach((item) => {
+		content = content + item[propertyName];
+	});
+	return content;
 };
 
 /*
@@ -224,14 +225,14 @@ Utils.mergeArrayToString = function (list, propertyName) {
  * @exampleResult ['jsonToArray', 'Array']
  */
 Utils.jsonAllValueToArray = function (_json_) {
-  if (typeof _json_ !== "object") {
-    throw "参数 _json_ 必须为object类型";
-  }
-  var retArray = [];
-  Object.keys(_json_).forEach(function (key) {
-    retArray = [...retArray, _json_[key]];
-  });
-  return retArray;
+	if (typeof _json_ !== "object") {
+		throw "参数 _json_ 必须为object类型";
+	}
+	var retArray = [];
+	Object.keys(_json_).forEach(function (key) {
+		retArray = [...retArray, _json_[key]];
+	});
+	return retArray;
 };
 
 /*
@@ -242,10 +243,10 @@ Utils.jsonAllValueToArray = function (_json_) {
  * @exampleResult {"Utils":"jsonStrToObject","return","json"}
  */
 Utils.jsonStrToObject = function (text) {
-  if (typeof text !== "string") {
-    throw "参数 text 类型必须为string类型";
-  }
-  return window.eval("(" + text + ")");
+	if (typeof text !== "string") {
+		throw "参数 text 类型必须为string类型";
+	}
+	return window.eval("(" + text + ")");
 };
 
 /*
@@ -256,7 +257,7 @@ Utils.jsonStrToObject = function (text) {
  * @exampleResult getArrayRandValue
  */
 Utils.getArrayRandValue = function (_array_) {
-  return _array_[Math.floor(Math.random() * _array_.length)];
+	return _array_[Math.floor(Math.random() * _array_.length)];
 };
 
 /*
@@ -270,15 +271,15 @@ Utils.getArrayRandValue = function (_array_) {
  * @exampleResult 8
  */
 Utils.getRandNumber = function (number, number2) {
-  if (typeof number !== "number") {
-    throw "参数 number 必须为number类型";
-  }
-  if (typeof number2 !== "number") {
-    throw "参数 number2 必须为number类型";
-  }
-  var leftNumber = number > number2 ? number2 : number;
-  var rightNumber = number > number2 ? number : number2;
-  return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
+	if (typeof number !== "number") {
+		throw "参数 number 必须为number类型";
+	}
+	if (typeof number2 !== "number") {
+		throw "参数 number2 必须为number类型";
+	}
+	var leftNumber = number > number2 ? number2 : number;
+	var rightNumber = number > number2 ? number : number2;
+	return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
 };
 
 /*
@@ -299,45 +300,45 @@ Utils.getRandNumber = function (number, number2) {
  * @exampleResult 15:10:13
  */
 Utils.getFormatTime = function (types = "yyyy-MM-dd HH:mm:ss", text) {
-  if (typeof types !== "string") {
-    throw "参数 types 必须是string类型";
-  }
-  if (text != null && typeof text !== "string" && typeof text !== "number") {
-    throw "参数 text 必须是string类型或者number类型";
-  }
-  var time = text == null ? new Date() : new Date(text);
-  function _checkTime_(i) {
-    /* 校验时间补0 */
-    if (i < 10) return "0" + i;
-    return i;
-  }
+	if (typeof types !== "string") {
+		throw "参数 types 必须是string类型";
+	}
+	if (text != null && typeof text !== "string" && typeof text !== "number") {
+		throw "参数 text 必须是string类型或者number类型";
+	}
+	var time = text == null ? new Date() : new Date(text);
+	function _checkTime_(i) {
+		/* 校验时间补0 */
+		if (i < 10) return "0" + i;
+		return i;
+	}
 
-  function _timeSystemChange_(_hour_) {
-    /* 时间制修改 24小时制转12小时制 */
-    return _hour_ > 12 ? _hour_ - 12 : _hour_;
-  }
+	function _timeSystemChange_(_hour_) {
+		/* 时间制修改 24小时制转12小时制 */
+		return _hour_ > 12 ? _hour_ - 12 : _hour_;
+	}
 
-  var timeRegexp = {
-    yyyy: time.getFullYear(),
-    /* 年 */
-    MM: _checkTime_(time.getMonth() + 1),
-    /* 月 */
-    dd: _checkTime_(time.getDate()),
-    /* 日 */
-    HH: _checkTime_(time.getHours()),
-    /* 时 (24小时制) */
-    hh: _checkTime_(_timeSystemChange_(time.getHours())),
-    /* 时 (12小时制) */
-    mm: _checkTime_(time.getMinutes()),
-    /* 分 */
-    ss: _checkTime_(time.getSeconds()),
-    /* 秒 */
-  };
-  Object.keys(timeRegexp).forEach(function (key) {
-    var replaecRegexp = new RegExp(key, "g");
-    types = types.replace(replaecRegexp, timeRegexp[key]);
-  });
-  return types;
+	var timeRegexp = {
+		yyyy: time.getFullYear(),
+		/* 年 */
+		MM: _checkTime_(time.getMonth() + 1),
+		/* 月 */
+		dd: _checkTime_(time.getDate()),
+		/* 日 */
+		HH: _checkTime_(time.getHours()),
+		/* 时 (24小时制) */
+		hh: _checkTime_(_timeSystemChange_(time.getHours())),
+		/* 时 (12小时制) */
+		mm: _checkTime_(time.getMinutes()),
+		/* 分 */
+		ss: _checkTime_(time.getSeconds()),
+		/* 秒 */
+	};
+	Object.keys(timeRegexp).forEach(function (key) {
+		var replaecRegexp = new RegExp(key, "g");
+		types = types.replace(replaecRegexp, timeRegexp[key]);
+	});
+	return types;
 };
 /*
  * @description 【手机】检测点击的地方是否在该元素区域内
@@ -347,36 +348,36 @@ Utils.getFormatTime = function (types = "yyyy-MM-dd HH:mm:ss", text) {
  * @exampleResult false
  */
 Utils.checkClickInDOM = function (checkDOM) {
-  if (!(checkDOM instanceof HTMLElement)) {
-    throw "参数 checkDOM 类型必须为DOM元素";
-  }
-  var mouseClickPosX = Number(window.event.clientX); /* 鼠标相对屏幕横坐标 */
-  var mouseClickPosY = Number(window.event.clientY); /* 鼠标相对屏幕纵坐标 */
-  var elementPosXLeft = Number(
-    checkDOM.getBoundingClientRect().left
-  ); /* 要检测的元素的相对屏幕的横坐标最左边 */
-  var elementPosXRight = Number(
-    checkDOM.getBoundingClientRect().right
-  ); /* 要检测的元素的相对屏幕的横坐标最右边 */
-  var elementPosYTop = Number(
-    checkDOM.getBoundingClientRect().top
-  ); /* 要检测的元素的相对屏幕的纵坐标最上边 */
-  var elementPosYBottom = Number(
-    checkDOM.getBoundingClientRect().bottom
-  ); /* 要检测的元素的相对屏幕的纵坐标最下边 */
-  if (
-    mouseClickPosX >= elementPosXLeft &&
-    mouseClickPosX <= elementPosXRight &&
-    mouseClickPosY >= elementPosYTop &&
-    mouseClickPosY <= elementPosYBottom
-  ) {
-    return true;
-  } else if (checkDOM.innerHTML.indexOf(window.event.target.innerHTML) !== -1) {
-    /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
-    return true;
-  } else {
-    return false;
-  }
+	if (!(checkDOM instanceof HTMLElement)) {
+		throw "参数 checkDOM 类型必须为DOM元素";
+	}
+	var mouseClickPosX = Number(window.event.clientX); /* 鼠标相对屏幕横坐标 */
+	var mouseClickPosY = Number(window.event.clientY); /* 鼠标相对屏幕纵坐标 */
+	var elementPosXLeft = Number(
+		checkDOM.getBoundingClientRect().left
+	); /* 要检测的元素的相对屏幕的横坐标最左边 */
+	var elementPosXRight = Number(
+		checkDOM.getBoundingClientRect().right
+	); /* 要检测的元素的相对屏幕的横坐标最右边 */
+	var elementPosYTop = Number(
+		checkDOM.getBoundingClientRect().top
+	); /* 要检测的元素的相对屏幕的纵坐标最上边 */
+	var elementPosYBottom = Number(
+		checkDOM.getBoundingClientRect().bottom
+	); /* 要检测的元素的相对屏幕的纵坐标最下边 */
+	if (
+		mouseClickPosX >= elementPosXLeft &&
+		mouseClickPosX <= elementPosXRight &&
+		mouseClickPosY >= elementPosYTop &&
+		mouseClickPosY <= elementPosYBottom
+	) {
+		return true;
+	} else if (checkDOM.innerHTML.indexOf(window.event.target.innerHTML) !== -1) {
+		/* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
+		return true;
+	} else {
+		return false;
+	}
 };
 
 /*
@@ -390,18 +391,18 @@ Utils.checkClickInDOM = function (checkDOM) {
  * @exampleResult 无返回值
  */
 Utils.asyncSetTimeOut = function (fnStr, delayTime) {
-  var _this = this;
-  if (typeof fnStr !== "function" && typeof fnStr !== "string") {
-    throw "参数 fnStr 类型必须为function类型或者string类型";
-  }
-  if (typeof delayTime !== "number") {
-    throw "参数 delayTime 类型必须为number类型";
-  }
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(_this.tryCatch(fnStr));
-    }, delayTime);
-  });
+	var _this = this;
+	if (typeof fnStr !== "function" && typeof fnStr !== "string") {
+		throw "参数 fnStr 类型必须为function类型或者string类型";
+	}
+	if (typeof delayTime !== "number") {
+		throw "参数 delayTime 类型必须为number类型";
+	}
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(_this.tryCatch(fnStr));
+		}, delayTime);
+	});
 };
 
 /*
@@ -412,21 +413,21 @@ Utils.asyncSetTimeOut = function (fnStr, delayTime) {
  * @example await Utils.asyncArrayForEach([1,2,3],xxxFunction);
  */
 Utils.asyncArrayForEach = function (arrayData, handleDataFunction) {
-  var _this = this;
-  if (typeof arrayData !== "object") {
-    throw "参数 arrayData 类型必须为object类型";
-  }
-  if (
-    typeof handleDataFunction !== "function" &&
-    typeof handleDataFunction !== "string"
-  ) {
-    throw "参数 handleDataFunction 类型必须为function或者string类型";
-  }
-  return Promise.all(
-    Array.from(arrayData).map(async (item, index) => {
-      await _this.tryCatch(handleDataFunction, [index, item]);
-    })
-  );
+	var _this = this;
+	if (typeof arrayData !== "object") {
+		throw "参数 arrayData 类型必须为object类型";
+	}
+	if (
+		typeof handleDataFunction !== "function" &&
+		typeof handleDataFunction !== "string"
+	) {
+		throw "参数 handleDataFunction 类型必须为function或者string类型";
+	}
+	return Promise.all(
+		Array.from(arrayData).map(async (item, index) => {
+			await _this.tryCatch(handleDataFunction, [index, item]);
+		})
+	);
 };
 
 /*
@@ -436,14 +437,14 @@ Utils.asyncArrayForEach = function (arrayData, handleDataFunction) {
  * @example await Utils.sleep(2500); - 同步延时2500毫秒
  */
 Utils.sleep = function (delayTime) {
-  if (typeof delayTime !== "number") {
-    throw "参数 delayTime 类型必须为number类型";
-  }
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, delayTime);
-  });
+	if (typeof delayTime !== "number") {
+		throw "参数 delayTime 类型必须为number类型";
+	}
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve();
+		}, delayTime);
+	});
 };
 
 /*
@@ -460,167 +461,167 @@ Utils.sleep = function (delayTime) {
  * 					Cookies.get("xxxx");
  */
 Utils.registerWindowCookies = () => {
-  /*! js-cookie v3.0.1 | MIT */
-  (function (global, factory) {
-    typeof exports === "object" && typeof module !== "undefined"
-      ? (module.exports = factory())
-      : typeof define === "function" && define.amd
-      ? define(factory)
-      : ((global = global || self),
-        (function () {
-          var current = global.Cookies;
-          var exports = (global.Cookies = factory());
-          exports.noConflict = function () {
-            global.Cookies = current;
-            return exports;
-          };
-        })());
-  })(this, function () {
-    "use strict";
-    /* eslint-disable no-var */
-    function assign(target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        for (var key in source) {
-          target[key] = source[key];
-        }
-      }
-      return target;
-    }
-    /* eslint-enable no-var */
-    /* eslint-disable no-var */
-    var defaultConverter = {
-      read: function (value) {
-        if (value[0] === '"') {
-          value = value.slice(1, -1);
-        }
-        return value.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
-      },
-      write: function (value) {
-        return encodeURIComponent(value).replace(
-          /%(2[346BF]|3[AC-F]|40|5[BDE]|60|7[BCD])/g,
-          decodeURIComponent
-        );
-      },
-    };
-    /* eslint-enable no-var */
+	/*! js-cookie v3.0.1 | MIT */
+	(function (global, factory) {
+		typeof exports === "object" && typeof module !== "undefined"
+			? (module.exports = factory())
+			: typeof define === "function" && define.amd
+			? define(factory)
+			: ((global = global || self),
+			  (function () {
+					var current = global.Cookies;
+					var exports = (global.Cookies = factory());
+					exports.noConflict = function () {
+						global.Cookies = current;
+						return exports;
+					};
+			  })());
+	})(this, function () {
+		"use strict";
+		/* eslint-disable no-var */
+		function assign(target) {
+			for (var i = 1; i < arguments.length; i++) {
+				var source = arguments[i];
+				for (var key in source) {
+					target[key] = source[key];
+				}
+			}
+			return target;
+		}
+		/* eslint-enable no-var */
+		/* eslint-disable no-var */
+		var defaultConverter = {
+			read: function (value) {
+				if (value[0] === '"') {
+					value = value.slice(1, -1);
+				}
+				return value.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
+			},
+			write: function (value) {
+				return encodeURIComponent(value).replace(
+					/%(2[346BF]|3[AC-F]|40|5[BDE]|60|7[BCD])/g,
+					decodeURIComponent
+				);
+			},
+		};
+		/* eslint-enable no-var */
 
-    /* eslint-disable no-var */
+		/* eslint-disable no-var */
 
-    function init(converter, defaultAttributes) {
-      function set(key, value, attributes) {
-        if (typeof document === "undefined") {
-          return;
-        }
+		function init(converter, defaultAttributes) {
+			function set(key, value, attributes) {
+				if (typeof document === "undefined") {
+					return;
+				}
 
-        attributes = assign({}, defaultAttributes, attributes);
+				attributes = assign({}, defaultAttributes, attributes);
 
-        if (typeof attributes.expires === "number") {
-          attributes.expires = new Date(
-            Date.now() + attributes.expires * 864e5
-          );
-        }
-        if (attributes.expires) {
-          attributes.expires = attributes.expires.toUTCString();
-        }
+				if (typeof attributes.expires === "number") {
+					attributes.expires = new Date(
+						Date.now() + attributes.expires * 864e5
+					);
+				}
+				if (attributes.expires) {
+					attributes.expires = attributes.expires.toUTCString();
+				}
 
-        key = encodeURIComponent(key)
-          .replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent)
-          .replace(/[()]/g, escape);
+				key = encodeURIComponent(key)
+					.replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent)
+					.replace(/[()]/g, escape);
 
-        var stringifiedAttributes = "";
-        for (var attributeName in attributes) {
-          if (!attributes[attributeName]) {
-            continue;
-          }
+				var stringifiedAttributes = "";
+				for (var attributeName in attributes) {
+					if (!attributes[attributeName]) {
+						continue;
+					}
 
-          stringifiedAttributes += "; " + attributeName;
+					stringifiedAttributes += "; " + attributeName;
 
-          if (attributes[attributeName] === true) {
-            continue;
-          }
-          /* Considers RFC 6265 section 5.2:
+					if (attributes[attributeName] === true) {
+						continue;
+					}
+					/* Considers RFC 6265 section 5.2:
 						...
 						3.  If the remaining unparsed-attributes contains a %x3B (";")
 								character:
 						Consume the characters of the unparsed-attributes up to,
 						not including, the first %x3B (";") character.
 						... */
-          stringifiedAttributes +=
-            "=" + attributes[attributeName].split(";")[0];
-        }
+					stringifiedAttributes +=
+						"=" + attributes[attributeName].split(";")[0];
+				}
 
-        return (document.cookie =
-          key + "=" + converter.write(value, key) + stringifiedAttributes);
-      }
+				return (document.cookie =
+					key + "=" + converter.write(value, key) + stringifiedAttributes);
+			}
 
-      function get(key) {
-        if (typeof document === "undefined" || (arguments.length && !key)) {
-          return;
-        }
+			function get(key) {
+				if (typeof document === "undefined" || (arguments.length && !key)) {
+					return;
+				}
 
-        /* To prevent the for loop in the first place assign an empty array
+				/* To prevent the for loop in the first place assign an empty array
 					in case there are no cookies at all. */
-        var cookies = document.cookie ? document.cookie.split("; ") : [];
-        var jar = {};
-        for (var i = 0; i < cookies.length; i++) {
-          var parts = cookies[i].split("=");
-          var value = parts.slice(1).join("=");
+				var cookies = document.cookie ? document.cookie.split("; ") : [];
+				var jar = {};
+				for (var i = 0; i < cookies.length; i++) {
+					var parts = cookies[i].split("=");
+					var value = parts.slice(1).join("=");
 
-          try {
-            var foundKey = decodeURIComponent(parts[0]);
-            jar[foundKey] = converter.read(value, foundKey);
+					try {
+						var foundKey = decodeURIComponent(parts[0]);
+						jar[foundKey] = converter.read(value, foundKey);
 
-            if (key === foundKey) {
-              break;
-            }
-          } catch (e) {}
-        }
+						if (key === foundKey) {
+							break;
+						}
+					} catch (e) {}
+				}
 
-        return key ? jar[key] : jar;
-      }
+				return key ? jar[key] : jar;
+			}
 
-      return Object.create(
-        {
-          set: set,
-          get: get,
-          remove: function (key, attributes) {
-            set(
-              key,
-              "",
-              assign({}, attributes, {
-                expires: -1,
-              })
-            );
-          },
-          withAttributes: function (attributes) {
-            return init(
-              this.converter,
-              assign({}, this.attributes, attributes)
-            );
-          },
-          withConverter: function (converter) {
-            return init(assign({}, this.converter, converter), this.attributes);
-          },
-        },
-        {
-          attributes: {
-            value: Object.freeze(defaultAttributes),
-          },
-          converter: {
-            value: Object.freeze(converter),
-          },
-        }
-      );
-    }
+			return Object.create(
+				{
+					set: set,
+					get: get,
+					remove: function (key, attributes) {
+						set(
+							key,
+							"",
+							assign({}, attributes, {
+								expires: -1,
+							})
+						);
+					},
+					withAttributes: function (attributes) {
+						return init(
+							this.converter,
+							assign({}, this.attributes, attributes)
+						);
+					},
+					withConverter: function (converter) {
+						return init(assign({}, this.converter, converter), this.attributes);
+					},
+				},
+				{
+					attributes: {
+						value: Object.freeze(defaultAttributes),
+					},
+					converter: {
+						value: Object.freeze(converter),
+					},
+				}
+			);
+		}
 
-    var api = init(defaultConverter, {
-      path: "/",
-    });
-    /* eslint-enable no-var */
+		var api = init(defaultConverter, {
+			path: "/",
+		});
+		/* eslint-enable no-var */
 
-    return api;
-  });
+		return api;
+	});
 };
 
 /*
@@ -631,20 +632,20 @@ Utils.registerWindowCookies = () => {
  * @exampleResult blob://xxxxxxx
  */
 Utils.base64ToBlob = function (dataurl) {
-  if (typeof dataurl !== "string") {
-    throw "参数 dataurl 类型必须为string类型";
-  }
-  var arr = dataurl.split(","),
-    mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[1]),
-    n = bstr.length,
-    u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new Blob([u8arr], {
-    type: mime,
-  });
+	if (typeof dataurl !== "string") {
+		throw "参数 dataurl 类型必须为string类型";
+	}
+	var arr = dataurl.split(","),
+		mime = arr[0].match(/:(.*?);/)[1],
+		bstr = atob(arr[1]),
+		n = bstr.length,
+		u8arr = new Uint8Array(n);
+	while (n--) {
+		u8arr[n] = bstr.charCodeAt(n);
+	}
+	return new Blob([u8arr], {
+		type: mime,
+	});
 };
 /*
  * @description base64转File对象
@@ -654,23 +655,23 @@ Utils.base64ToBlob = function (dataurl) {
  * @exampleResult object
  */
 Utils.base64ToFile = function (dataurl, fileName) {
-  if (typeof dataurl !== "string") {
-    throw "参数 dataurl 类型必须为string类型";
-  }
-  if (typeof fileName !== "string") {
-    throw "参数 fileName 类型必须为string类型";
-  }
-  var arr = dataurl.split(","),
-    mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[1]),
-    n = bstr.length,
-    u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new File([u8arr], fileName, {
-    type: mime,
-  });
+	if (typeof dataurl !== "string") {
+		throw "参数 dataurl 类型必须为string类型";
+	}
+	if (typeof fileName !== "string") {
+		throw "参数 fileName 类型必须为string类型";
+	}
+	var arr = dataurl.split(","),
+		mime = arr[0].match(/:(.*?);/)[1],
+		bstr = atob(arr[1]),
+		n = bstr.length,
+		u8arr = new Uint8Array(n);
+	while (n--) {
+		u8arr[n] = bstr.charCodeAt(n);
+	}
+	return new File([u8arr], fileName, {
+		type: mime,
+	});
 };
 
 /*
@@ -682,15 +683,15 @@ Utils.base64ToFile = function (dataurl, fileName) {
  * @exampleResult object
  */
 Utils.blobToFile = function (theBlob, fileName) {
-  if (typeof theBlob !== "string") {
-    throw "参数 theBlob 类型必须为string类型";
-  }
-  if (typeof fileName !== "string") {
-    throw "参数 fileName 类型必须为string类型";
-  }
-  theBlob.lastModifiedDate = new Date();
-  theBlob.name = fileName;
-  return theBlob;
+	if (typeof theBlob !== "string") {
+		throw "参数 theBlob 类型必须为string类型";
+	}
+	if (typeof fileName !== "string") {
+		throw "参数 fileName 类型必须为string类型";
+	}
+	theBlob.lastModifiedDate = new Date();
+	theBlob.name = fileName;
+	return theBlob;
 };
 
 /*
@@ -701,13 +702,13 @@ Utils.blobToFile = function (theBlob, fileName) {
  * @exampleResult data:image/jpeg:base64/,xxxxxx
  */
 Utils.asyncFileToBase64 = function (file) {
-  var reader = new FileReader();
-  reader.readAsDataURL(file);
-  return new Promise((resolve) => {
-    reader.onload = function (e) {
-      resolve(e.target.result);
-    };
-  });
+	var reader = new FileReader();
+	reader.readAsDataURL(file);
+	return new Promise((resolve) => {
+		reader.onload = function (e) {
+			resolve(e.target.result);
+		};
+	});
 };
 
 /*
@@ -717,17 +718,17 @@ Utils.asyncFileToBase64 = function (file) {
  * @example  Utils.downloadBase64("data:image/jpeg:base64/,xxxxxx");
  */
 Utils.downloadBase64 = function (base64Content, fileName) {
-  var aLink = document.createElement("a");
-  var blob = this.base64ToBlob(base64Content);
-  var evt = document.createEvent("HTMLEvents");
-  evt.initEvent(
-    "click",
-    true,
-    true
-  ); /* initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为 */
-  aLink.download = fileName;
-  aLink.href = URL.createObjectURL(blob);
-  aLink.click();
+	var aLink = document.createElement("a");
+	var blob = this.base64ToBlob(base64Content);
+	var evt = document.createEvent("HTMLEvents");
+	evt.initEvent(
+		"click",
+		true,
+		true
+	); /* initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为 */
+	aLink.download = fileName;
+	aLink.href = URL.createObjectURL(blob);
+	aLink.click();
 };
 
 /*
@@ -737,7 +738,7 @@ Utils.downloadBase64 = function (base64Content, fileName) {
  * @exampleResult true
  */
 Utils.isPhone = function () {
-  return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
+	return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
 };
 
 /*
@@ -748,56 +749,56 @@ Utils.isPhone = function () {
  * @example  dictionary.has("xxx");
  */
 Utils.Dictionary = function () {
-  this.items = {};
-  this.has = function (key) {
-    /* 检查是否有某一个键 */
-    return this.items.hasOwnProperty(key);
-  };
-  this.set = function (key, val = "") {
-    /* 为字典添加某一个值 */
-    if (key === undefined) {
-      throw "参数 key 不能为空";
-    }
-    this.items[key] = val;
-  };
-  this.delete = function (key) {
-    /* 删除某一个键 */
-    if (this.has(key)) {
-      delete this.items[key];
-      return true;
-    }
-    return false;
-  };
-  this.get = function (key) {
-    /* 查找某一特定项 */
-    return this.has(key) ? this.items[key] : undefined;
-  };
-  this.values = function () {
-    /* 返回字典中的所有值 */
-    var resultList = [];
-    for (var prop in this.items) {
-      if (this.has(prop)) {
-        resultList.push(this.items[prop]);
-      }
-    }
-    return resultList;
-  };
-  this.clear = function () {
-    /* 清空字典 */
-    this.items = {};
-  };
-  this.size = function () {
-    /* 获取字典的长度 */
-    return Object.keys(this.items).length;
-  };
-  this.keys = function () {
-    /* 获取字典所有的键 */
-    return Object.keys(this.items);
-  };
-  this.getItems = function () {
-    /* 返回字典本身 */
-    return this.items;
-  };
+	this.items = {};
+	this.has = function (key) {
+		/* 检查是否有某一个键 */
+		return this.items.hasOwnProperty(key);
+	};
+	this.set = function (key, val = "") {
+		/* 为字典添加某一个值 */
+		if (key === undefined) {
+			throw "参数 key 不能为空";
+		}
+		this.items[key] = val;
+	};
+	this.delete = function (key) {
+		/* 删除某一个键 */
+		if (this.has(key)) {
+			delete this.items[key];
+			return true;
+		}
+		return false;
+	};
+	this.get = function (key) {
+		/* 查找某一特定项 */
+		return this.has(key) ? this.items[key] : undefined;
+	};
+	this.values = function () {
+		/* 返回字典中的所有值 */
+		var resultList = [];
+		for (var prop in this.items) {
+			if (this.has(prop)) {
+				resultList.push(this.items[prop]);
+			}
+		}
+		return resultList;
+	};
+	this.clear = function () {
+		/* 清空字典 */
+		this.items = {};
+	};
+	this.size = function () {
+		/* 获取字典的长度 */
+		return Object.keys(this.items).length;
+	};
+	this.keys = function () {
+		/* 获取字典所有的键 */
+		return Object.keys(this.items);
+	};
+	this.getItems = function () {
+		/* 返回字典本身 */
+		return this.items;
+	};
 };
 
 /*
@@ -808,22 +809,22 @@ Utils.Dictionary = function () {
  * @exampleResult  {"1":1,"2":{"3":4}}
  */
 Utils.assignJSON = function (target, source) {
-  for (var target_key in target) {
-    if (typeof source[target_key] !== "undefined") {
-      if (
-        typeof source[target_key] === "object" &&
-        !(source[target_key] instanceof HTMLElement)
-      ) {
-        target[target_key] = this.assignJSON(
-          target[target_key],
-          source[target_key]
-        );
-      } else {
-        target[target_key] = source[target_key];
-      }
-    }
-  }
-  return target;
+	for (var target_key in target) {
+		if (typeof source[target_key] !== "undefined") {
+			if (
+				typeof source[target_key] === "object" &&
+				!(source[target_key] instanceof HTMLElement)
+			) {
+				target[target_key] = this.assignJSON(
+					target[target_key],
+					source[target_key]
+				);
+			} else {
+				target[target_key] = source[target_key];
+			}
+		}
+	}
+	return target;
 };
 
 /*
@@ -835,17 +836,17 @@ Utils.assignJSON = function (target, source) {
  * @exampleResult  true
  */
 Utils.isNull = function (object) {
-  var result = false;
-  if (typeof object === "undefined") {
-    result = true;
-  } else if (typeof object === "object") {
-    if (Object.keys(object).length === 0) {
-      result = true;
-    }
-  } else if (typeof object === "number") {
-    result = object === 0 ? true : false;
-  }
-  return result;
+	var result = false;
+	if (typeof object === "undefined") {
+		result = true;
+	} else if (typeof object === "object") {
+		if (Object.keys(object).length === 0) {
+			result = true;
+		}
+	} else if (typeof object === "number") {
+		result = object === 0 ? true : false;
+	}
+	return result;
 };
 
 /*
@@ -862,21 +863,21 @@ Utils.isNull = function (object) {
  *          --- 此处是循环内 ---
  */
 Utils.lockFunction = function (func) {
-  this.flag = false;
-  this.lock = function () {
-    this.flag = true;
-  };
-  this.unlock = function () {
-    this.flag = false;
-  };
-  this.run = async function () {
-    if (this.flag) {
-      return;
-    }
-    this.lock();
-    await func(arguments); /* arguments调用 */
-    this.unlock();
-  };
+	this.flag = false;
+	this.lock = function () {
+		this.flag = true;
+	};
+	this.unlock = function () {
+		this.flag = false;
+	};
+	this.run = async function () {
+		if (this.flag) {
+			return;
+		}
+		this.lock();
+		await func(arguments); /* arguments调用 */
+		this.unlock();
+	};
 };
 
 /*
@@ -889,27 +890,27 @@ Utils.lockFunction = function (func) {
  * @example Utils.waitForDOM("div#xxx").then((dom)=>{xxxx});
  */
 Utils.waitForDOM = function (target, intervalNumMax = 90, intervalTime = 300) {
-  if (typeof target !== "string") {
-    throw "参数 target 必须为string类型";
-  }
-  intervalNumMax = parseInt(intervalNumMax);
-  intervalTime = parseInt(intervalTime);
-  var intervalNum = 0;
-  return new Promise((resolve) => {
-    var interval = setInterval(function () {
-      if (intervalNum > intervalNumMax) {
-        resolve([]);
-        clearInterval(interval);
-        return;
-      }
-      if (document.querySelectorAll(target).length !== 0) {
-        resolve(document.querySelectorAll(target));
-        clearInterval(interval);
-        return;
-      }
-      intervalNum++;
-    }, intervalTime);
-  });
+	if (typeof target !== "string") {
+		throw "参数 target 必须为string类型";
+	}
+	intervalNumMax = parseInt(intervalNumMax);
+	intervalTime = parseInt(intervalTime);
+	var intervalNum = 0;
+	return new Promise((resolve) => {
+		var interval = setInterval(function () {
+			if (intervalNum > intervalNumMax) {
+				resolve([]);
+				clearInterval(interval);
+				return;
+			}
+			if (document.querySelectorAll(target).length !== 0) {
+				resolve(document.querySelectorAll(target));
+				clearInterval(interval);
+				return;
+			}
+			intervalNum++;
+		}, intervalTime);
+	});
 };
 
 /*
@@ -921,30 +922,30 @@ Utils.waitForDOM = function (target, intervalNumMax = 90, intervalTime = 300) {
  * @exampleResult true;
  */
 Utils.deleteParentDOM = function (target, parentDOMFunc) {
-  if (target == null) {
-    throw "参数 target 不能为null";
-  }
-  if (!(target instanceof HTMLElement)) {
-    throw "参数 target 类型必须为DOM元素";
-  }
-  if (typeof parentDOMFunc !== "function") {
-    throw "参数 parentDOMFunc 类型必须为function类型";
-  }
-  var result = false;
-  var _parentElement_ = target.parentElement;
-  while (!0) {
-    if (_parentElement_ == null) {
-      return;
-    }
-    var handleStatus = parentDOMFunc(_parentElement_);
-    if (handleStatus) {
-      result = true;
-      _parentElement_.remove();
-      break;
-    }
-    _parentElement_ = _parentElement_.parentElement;
-  }
-  return result;
+	if (target == null) {
+		throw "参数 target 不能为null";
+	}
+	if (!(target instanceof HTMLElement)) {
+		throw "参数 target 类型必须为DOM元素";
+	}
+	if (typeof parentDOMFunc !== "function") {
+		throw "参数 parentDOMFunc 类型必须为function类型";
+	}
+	var result = false;
+	var _parentElement_ = target.parentElement;
+	while (!0) {
+		if (_parentElement_ == null) {
+			return;
+		}
+		var handleStatus = parentDOMFunc(_parentElement_);
+		if (handleStatus) {
+			result = true;
+			_parentElement_.remove();
+			break;
+		}
+		_parentElement_ = _parentElement_.parentElement;
+	}
+	return result;
 };
 
 /*
@@ -956,29 +957,29 @@ Utils.deleteParentDOM = function (target, parentDOMFunc) {
  * @exampleResult {HTMLElement};
  */
 Utils.findParentDOM = function (target, parentDOMFunc) {
-  if (target == null) {
-    throw "参数 target 不能为null";
-  }
-  if (!(target instanceof HTMLElement)) {
-    throw "参数 target 类型必须为DOM元素";
-  }
-  if (typeof parentDOMFunc !== "function") {
-    throw "参数 parentDOMFunc 类型必须为function类型";
-  }
-  var result = null;
-  var _parentElement_ = target.parentElement;
-  while (!0) {
-    if (_parentElement_ == null) {
-      return;
-    }
-    var handleStatus = parentDOMFunc(_parentElement_);
-    if (handleStatus) {
-      result = _parentElement_;
-      break;
-    }
-    _parentElement_ = _parentElement_.parentElement;
-  }
-  return result;
+	if (target == null) {
+		throw "参数 target 不能为null";
+	}
+	if (!(target instanceof HTMLElement)) {
+		throw "参数 target 类型必须为DOM元素";
+	}
+	if (typeof parentDOMFunc !== "function") {
+		throw "参数 parentDOMFunc 类型必须为function类型";
+	}
+	var result = null;
+	var _parentElement_ = target.parentElement;
+	while (!0) {
+		if (_parentElement_ == null) {
+			return;
+		}
+		var handleStatus = parentDOMFunc(_parentElement_);
+		if (handleStatus) {
+			result = _parentElement_;
+			break;
+		}
+		_parentElement_ = _parentElement_.parentElement;
+	}
+	return result;
 };
 
 /*
@@ -987,20 +988,20 @@ Utils.findParentDOM = function (target, parentDOMFunc) {
  * @example Utils.setClip("xxxx");
  */
 Utils.setClip = function (text) {
-  if (text == null) {
-    return;
-  }
-  var clipBoardDOM = document.createElement("input");
-  clipBoardDOM.type = "text";
-  clipBoardDOM.setAttribute("style", "opacity:0;position:absolute;");
-  clipBoardDOM.id = "whitesevClipBoardInput";
-  document.body.append(clipBoardDOM);
-  var clipBoardInputNode = document.querySelector("#whitesevClipBoardInput");
-  clipBoardInputNode.value = text;
-  clipBoardInputNode.removeAttribute("disabled");
-  clipBoardInputNode.select();
-  document.execCommand("copy");
-  clipBoardInputNode.remove();
+	if (text == null) {
+		return;
+	}
+	var clipBoardDOM = document.createElement("input");
+	clipBoardDOM.type = "text";
+	clipBoardDOM.setAttribute("style", "opacity:0;position:absolute;");
+	clipBoardDOM.id = "whitesevClipBoardInput";
+	document.body.append(clipBoardDOM);
+	var clipBoardInputNode = document.querySelector("#whitesevClipBoardInput");
+	clipBoardInputNode.value = text;
+	clipBoardInputNode.removeAttribute("disabled");
+	clipBoardInputNode.select();
+	document.execCommand("copy");
+	clipBoardInputNode.remove();
 };
 
 /*
@@ -1010,48 +1011,48 @@ Utils.setClip = function (text) {
  * @example Utils.mutationObserver("div.xxxx",{"fn":(mutations)=>{},"config":{childList:true,attributes:true}});
  */
 Utils.mutationObserver = function (target, observer_config) {
-  if (typeof target !== "string" && !(target instanceof HTMLElement)) {
-    throw "参数 target 类型必须为string或者HTMLElement类型";
-  }
-  var default_obverser_config = {
-    /* 监听到元素有反馈，需执行的函数 */
-    fn: () => {},
-    config: {
-      /* 当为 true 时，将会监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target。默认值为 false */
-      subtree: undefined,
-      /* 当为 true 时，监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）。默认值为 false。 */
-      childList: undefined,
-      /* 当为 true 时观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue，默认值则为 false */
-      attributes: undefined,
-      /* 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知 */
-      attributeFilter: undefined,
-      /* 当为 true 时，记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情。默认值为 false */
-      attributeOldValue: undefined,
-      /* 当为 true 时，监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue，默认值则为 false */
-      characterData: undefined,
-      /* 当为 true 时，记录前一个被监听的节点中发生的文本变化。默认值为 false */
-      characterDataOldValue: undefined,
-    },
-  };
-  observer_config = this.assignJSON(default_obverser_config, observer_config);
-  var MutationObserver =
-    window.MutationObserver ||
-    window.webkitMutationObserver ||
-    window.MozMutationObserver;
-  var mutationObserver = new MutationObserver(function (mutations) {
-    observer_config.fn(mutations);
-  });
-  if (target instanceof HTMLElement) {
-    /* 传入的参数是节点元素 */
-    mutationObserver.observe(target, observer_config.config);
-  } else {
-    /* 传入的target是字符串 */
-    this.waitForDOM(target).then((dom) => {
-      if (dom.length) {
-        mutationObserver.observe(dom[dom.length - 1], observer_config.config);
-      }
-    });
-  }
+	if (typeof target !== "string" && !(target instanceof HTMLElement)) {
+		throw "参数 target 类型必须为string或者HTMLElement类型";
+	}
+	var default_obverser_config = {
+		/* 监听到元素有反馈，需执行的函数 */
+		fn: () => {},
+		config: {
+			/* 当为 true 时，将会监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target。默认值为 false */
+			subtree: undefined,
+			/* 当为 true 时，监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）。默认值为 false。 */
+			childList: undefined,
+			/* 当为 true 时观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue，默认值则为 false */
+			attributes: undefined,
+			/* 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知 */
+			attributeFilter: undefined,
+			/* 当为 true 时，记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情。默认值为 false */
+			attributeOldValue: undefined,
+			/* 当为 true 时，监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue，默认值则为 false */
+			characterData: undefined,
+			/* 当为 true 时，记录前一个被监听的节点中发生的文本变化。默认值为 false */
+			characterDataOldValue: undefined,
+		},
+	};
+	observer_config = this.assignJSON(default_obverser_config, observer_config);
+	var MutationObserver =
+		window.MutationObserver ||
+		window.webkitMutationObserver ||
+		window.MozMutationObserver;
+	var mutationObserver = new MutationObserver(function (mutations) {
+		observer_config.fn(mutations);
+	});
+	if (target instanceof HTMLElement) {
+		/* 传入的参数是节点元素 */
+		mutationObserver.observe(target, observer_config.config);
+	} else {
+		/* 传入的target是字符串 */
+		this.waitForDOM(target).then((dom) => {
+			if (dom.length) {
+				mutationObserver.observe(dom[dom.length - 1], observer_config.config);
+			}
+		});
+	}
 };
 
 /*
@@ -1061,34 +1062,34 @@ Utils.mutationObserver = function (target, observer_config) {
  * @exampleResult Mozilla/5.0....
  */
 Utils.getRandomAndroidUA = function () {
-  const ANDROID_UA = [
-    "Mozilla/5.0 (Linux; Android 12; LDN-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 12; RNE-L03) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 12; ASUS_X00ID Build/NMF26F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3497.100 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 12; WAS-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 12; PRA-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 12; MYA-L03) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.64 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 12; PBEM00 Build/PKQ1.190519.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.3904.62 XWEB/2891 MMWEBSDK/200901 Mobile Safari/537.36 MMWEBID/4773 MicroMessenger/12.19.1760(0x28901335) Process/toolsmp WeChat/arm64 NetType/4G Language/zh_CN ABI/arm64",
-    "Mozilla/5.0 (Linux; Android 11; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046011 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 11; Moto G Play) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.64 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 11; Moto C Build/NRD90M.063) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3440.91 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 11; Redmi Note 4 Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3396.87 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 11; HUAWEI VNS-L21 Build/HUAWEIVNS-L21) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3359.158 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 10; VTR-L09) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 10; ANG-AN00 Build/HUAWEIANG-AN00; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046011 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 10; MI 5X Build/OPM1.171019.019; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.3904.62 XWEB/2891 MMWEBSDK/200801 Mobile Safari/537.36 MMWEBID/9633 MicroMessenger/12.18.1740(0x2890123B) Process/toolsmp WeChat/arm64 NetType/4G Language/zh_CN ABI/arm64",
-    "Mozilla/5.0 (Linux; Android 10; Moto C Plus Build/NRD90M.04.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3440.91 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 10; TRT-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.64 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 9; Moto G (5) Build/NPPS25.137-93-14; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.3497.100 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/193.0.0.45.101;]",
-    "Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 9.0; ARM; Trident/12; Touch; rv:11.0; IEMobile/11.0; HTC; Windows Phone 8X by HTC) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537",
-    "Mozilla/5.0 (Linux; Android 9; Moto G Build/MOB30M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.2403.119 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 8; MI 6 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.24 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.4960.1 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4873.1 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4749.1 Mobile Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4600.1 Mobile Safari/537.36",
-  ];
-  return ANDROID_UA[Math.floor(Math.random() * ANDROID_UA.length)];
+	const ANDROID_UA = [
+		"Mozilla/5.0 (Linux; Android 12; LDN-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 12; RNE-L03) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 12; ASUS_X00ID Build/NMF26F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3497.100 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 12; WAS-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 12; PRA-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 12; MYA-L03) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.64 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 12; PBEM00 Build/PKQ1.190519.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.3904.62 XWEB/2891 MMWEBSDK/200901 Mobile Safari/537.36 MMWEBID/4773 MicroMessenger/12.19.1760(0x28901335) Process/toolsmp WeChat/arm64 NetType/4G Language/zh_CN ABI/arm64",
+		"Mozilla/5.0 (Linux; Android 11; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046011 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 11; Moto G Play) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.64 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 11; Moto C Build/NRD90M.063) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3440.91 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 11; Redmi Note 4 Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3396.87 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 11; HUAWEI VNS-L21 Build/HUAWEIVNS-L21) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3359.158 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 10; VTR-L09) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.80 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 10; ANG-AN00 Build/HUAWEIANG-AN00; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.72 MQQBrowser/6.2 TBS/046011 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 10; MI 5X Build/OPM1.171019.019; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.3904.62 XWEB/2891 MMWEBSDK/200801 Mobile Safari/537.36 MMWEBID/9633 MicroMessenger/12.18.1740(0x2890123B) Process/toolsmp WeChat/arm64 NetType/4G Language/zh_CN ABI/arm64",
+		"Mozilla/5.0 (Linux; Android 10; Moto C Plus Build/NRD90M.04.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3440.91 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 10; TRT-LX3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.64 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 9; Moto G (5) Build/NPPS25.137-93-14; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.3497.100 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/193.0.0.45.101;]",
+		"Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 9.0; ARM; Trident/12; Touch; rv:11.0; IEMobile/11.0; HTC; Windows Phone 8X by HTC) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537",
+		"Mozilla/5.0 (Linux; Android 9; Moto G Build/MOB30M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.2403.119 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 8; MI 6 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.24 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.4960.1 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4873.1 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4749.1 Mobile Safari/537.36",
+		"Mozilla/5.0 (Linux; Android 8; M2003J15SC Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4600.1 Mobile Safari/537.36",
+	];
+	return ANDROID_UA[Math.floor(Math.random() * ANDROID_UA.length)];
 };
 
 /*
@@ -1098,34 +1099,34 @@ Utils.getRandomAndroidUA = function () {
  * @exampleResult Mozilla/5.0....
  */
 Utils.getRandomPCUA = function () {
-  const PC_UA = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.5304.107 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5249.119 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5089.1 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.24 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.4960.1 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4873.1 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.94 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4749.1 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4687.2 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4658.2 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4635.4 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4600.1 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4573.1 Safari/537.36 Edge/43.0.2442.991",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4510.2 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4461.1 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4412.5 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4388.4 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.2272.101 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.218 Safari/537.36 Edge/13.10586",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4279.4 Safari/537.36 Edge/13.10586",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.2228.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.67 Safari/537.36",
-  ];
-  return PC_UA[Math.floor(Math.random() * PC_UA.length)];
+	const PC_UA = [
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.5304.107 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5249.119 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5089.1 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.24 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.4960.1 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4873.1 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.94 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4749.1 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4687.2 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4658.2 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4635.4 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4600.1 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4573.1 Safari/537.36 Edge/43.0.2442.991",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4510.2 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4461.1 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4412.5 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4388.4 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.2272.101 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.218 Safari/537.36 Edge/13.10586",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4279.4 Safari/537.36 Edge/13.10586",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.2228.0 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.3538.67 Safari/537.36",
+	];
+	return PC_UA[Math.floor(Math.random() * PC_UA.length)];
 };
 
 /*
@@ -1156,302 +1157,302 @@ Utils.getRandomPCUA = function () {
  *
  */
 Utils.indexedDB = function (dbName = "default_db", storeName = "default_form") {
-  this.dbName = dbName; /* 数据存储名 */
-  this.slqVersion = "1"; /* websql的版本号，由于ios的问题，版本号的写法不一样 */
-  this.dbVersion = 1; /* indexDB的版本号 */
-  this.storeName = storeName; /* store----即“表”的名字 */
-  this.indexedDB =
-    window.indexedDB ||
-    window.mozIndexedDB ||
-    window.webkitIndexedDB ||
-    window.msIndexedDB; /* 监听IndexDB */
-  if (!this.indexedDB) {
-    alert("很抱歉，您的浏览器不支持indexedDB");
-  }
-  this.db = {}; /* 缓存数据库，避免同一个页面重复创建和销毁 */
-  this.store = null;
-  this.errorCode = {
-    /* 错误码 */
-    success: {
-      code: 200,
-      msg: "操作成功",
-    },
-    error: {
-      code: 401,
-      msg: "操作失败",
-    },
-    open: { code: 91001, msg: "打开数据库失败" },
-    save: { code: 91002, msg: "保存数据失败" },
-    get: { code: 91003, msg: "获取数据失败" },
-    delete: { code: 91004, msg: "删除数据失败" },
-    deleteAll: { code: 91005, msg: "清空数据库失败" },
-  };
-  /* 创建“表” */
-  this.createStore = function (dbName) {
-    let txn, store;
-    if (this.indexedDB) {
-      /* 如果是支持IndexDB的 */
-      txn = this.db[dbName].transaction(
-        this.storeName,
-        "readwrite"
-      ); /* IndexDB的读写权限 */
-      store = txn.objectStore(this.storeName);
-    }
-    return store;
-  };
-  this.open = function (callback, dbName) {
-    let that = this;
-    /* 打开数据库 */
-    if (that.indexedDB) {
-      /* 如果支持IndexDB */
-      if (!that.db[dbName]) {
-        /* 如果缓存中没有，则进行数据库的创建或打开，提高效率 */
-        let request = that.indexedDB.open(dbName, that.dbVersion);
-        request.onerror = function (e) {
-          callback({
-            code: that.errorCode.open.code,
-            msg: that.errorCode.open.msg,
-            error: e,
-          });
-        };
-        request.onsuccess = function (e) {
-          if (!that.db[dbName]) {
-            that.db[dbName] = e.target.result;
-          }
-          let store = that.createStore(dbName);
-          callback(store);
-        };
-        request.onupgradeneeded = function (e) {
-          that.db[dbName] = e.target.result;
-          let store = that.db[dbName].createObjectStore(that.storeName, {
-            keyPath: "key",
-          });
-          store.transaction.oncomplete = function (event) {
-            callback(store);
-          };
-        };
-      } else {
-        /* 如果缓存中已经打开了数据库，就直接使用 */
-        let store = that.createStore(dbName);
-        callback(store);
-      }
-    }
-  };
-  this.save = function (key, value) {
-    /* 保存数据到数据库  key---数据key  value----数据值 */
-    let that = this;
-    if (that.indexedDB) {
-      return new Promise((resolve, reject) => {
-        let dbName = that.dbName;
-        let inData = {
-          key: key,
-          value: value,
-        };
-        that.open(function (result) {
-          let error = result.hasOwnProperty("error");
-          if (error) {
-            resolve(result);
-          } else {
-            let request = result.put(inData);
-            request.onsuccess = function (e) {
-              resolve({
-                code: that.errorCode.success.code,
-                msg: that.errorCode.success.msg,
-                success: true,
-              }); /* 保存成功有success 字段 */
-            };
-            request.onerror = function (e) {
-              resolve({
-                code: that.errorCode.save.code,
-                msg: that.errorCode.save.msg,
-                error: e,
-              });
-            };
-          }
-        }, dbName);
-      });
-    }
-  };
-  this.get = function (key) {
-    /* 根据key获取值 */
-    let that = this;
-    return new Promise((resolve, reject) => {
-      let dbName = that.dbName;
-      if (that.indexedDB) {
-        that.open(function (result) {
-          let error =
-            result.hasOwnProperty(
-              "error"
-            ); /* 判断返回的数据中是否有error字段 */
-          if (error) {
-            reject({
-              code: that.errorCode.open.get,
-              msg: that.errorCode.get.msg,
-              error: error,
-              result: result,
-            });
-          } else {
-            let request = result.get(key);
-            request.onsuccess = function (e) {
-              let result = e.target.result;
-              let data = result ? result.value : undefined;
-              resolve({
-                code: data
-                  ? that.errorCode.success.code
-                  : that.errorCode.error.code,
-                msg: data
-                  ? that.errorCode.success.msg
-                  : that.errorCode.error.msg,
-                data: data || [],
-                success: true,
-              });
-            };
-            request.onerror = function (e) {
-              reject({
-                code: that.errorCode.get.code,
-                msg: that.errorCode.get.msg,
-                result: result,
-                error: e,
-              });
-            };
-          }
-        }, dbName);
-      }
-    });
-  };
-  this.regexpGet = function (key) {
-    let that = this;
-    var list = [];
-    return new Promise((resolve, reject) => {
-      /* 正则查询 */
-      let dbName = that.dbName;
-      if (that.indexedDB) {
-        that.open(function (result) {
-          let error =
-            result.hasOwnProperty(
-              "error"
-            ); /* 判断返回的数据中是否有error字段 */
-          if (error) {
-            reject({
-              code: that.errorCode.open.get,
-              msg: that.errorCode.get.msg,
-              error: error,
-              result: result,
-            });
-          } else {
-            let request = result.getAll();
-            request.onsuccess = function (e) {
-              let result = e.target.result;
-              if (result.length !== 0) {
-                result.forEach((item, index) => {
-                  if (item["key"].match(key)) {
-                    var concatList = item["value"];
-                    concatList["key"] = item["key"];
-                    list = [...list, concatList];
-                  }
-                });
-              }
-              resolve({
-                code: that.errorCode.success.code,
-                msg: that.errorCode.success.msg,
-                data: list,
-                success: true,
-              });
-            };
-            request.onerror = function (e) {
-              reject({
-                code: that.errorCode.get.code,
-                msg: that.errorCode.get.msg,
-                result: result,
-                error: e,
-              });
-            };
-          }
-        }, dbName);
-      }
-    });
-  };
-  this.getPaging = function (key, offset = 0, count = 1) {
-    /* 查询分页(未完成) */
-    let that = this;
-    return new Promise((resolve, reject) => {
-      that.get(key).then((_resolve_) => {
-        if (_resolve_["code"] !== 200) {
-          resolve(_resolve_);
-        }
-        resolve();
-      }),
-        (_reject_) => {
-          reject(_reject_);
-        };
-    });
-  };
-  this.delete = function (key) {
-    let that = this;
-    return new Promise((resolve, reject) => {
-      /* 根据key删除某条数据 */
-      let dbName = that.dbName;
-      if (that.indexedDB) {
-        that.open(function (result) {
-          let error = result.hasOwnProperty("error");
-          if (error) {
-            resolve(result);
-          } else {
-            let request = result.get(key);
-            request.onsuccess = function (e) {
-              let recode = e.target.result;
-              if (recode) {
-                request = result.delete(key);
-              }
-              resolve({
-                code: recode
-                  ? that.errorCode.success.code
-                  : that.errorCode.error.code,
-                msg: recode
-                  ? that.errorCode.success.msg
-                  : that.errorCode.error.msg,
-                success: true,
-              });
-            };
-            request.onerror = function (e) {
-              resolve({
-                code: that.errorCode.delete.code,
-                msg: that.errorCode.delete.msg,
-                error: e,
-              });
-            };
-          }
-        }, dbName);
-      }
-    });
-  };
-  this.deleteAll = function () {
-    let that = this;
-    return new Promise((resolve, reject) => {
-      /* 清空数据库 */
-      let dbName = that.dbName;
-      if (that.indexedDB) {
-        that.open(function (result) {
-          let error = result.hasOwnProperty("error");
-          if (error) {
-            resolve({
-              code: that.errorCode.deleteAll.code,
-              msg: that.errorCode.deleteAll.msg,
-              error: error,
-              result: result,
-            });
-          } else {
-            result.clear();
-            resolve({
-              code: that.errorCode.success.code,
-              msg: that.errorCode.success.msg,
-              success: true,
-            });
-          }
-        }, dbName);
-      }
-    });
-  };
+	this.dbName = dbName; /* 数据存储名 */
+	this.slqVersion = "1"; /* websql的版本号，由于ios的问题，版本号的写法不一样 */
+	this.dbVersion = 1; /* indexDB的版本号 */
+	this.storeName = storeName; /* store----即“表”的名字 */
+	this.indexedDB =
+		window.indexedDB ||
+		window.mozIndexedDB ||
+		window.webkitIndexedDB ||
+		window.msIndexedDB; /* 监听IndexDB */
+	if (!this.indexedDB) {
+		alert("很抱歉，您的浏览器不支持indexedDB");
+	}
+	this.db = {}; /* 缓存数据库，避免同一个页面重复创建和销毁 */
+	this.store = null;
+	this.errorCode = {
+		/* 错误码 */
+		success: {
+			code: 200,
+			msg: "操作成功",
+		},
+		error: {
+			code: 401,
+			msg: "操作失败",
+		},
+		open: { code: 91001, msg: "打开数据库失败" },
+		save: { code: 91002, msg: "保存数据失败" },
+		get: { code: 91003, msg: "获取数据失败" },
+		delete: { code: 91004, msg: "删除数据失败" },
+		deleteAll: { code: 91005, msg: "清空数据库失败" },
+	};
+	/* 创建“表” */
+	this.createStore = function (dbName) {
+		let txn, store;
+		if (this.indexedDB) {
+			/* 如果是支持IndexDB的 */
+			txn = this.db[dbName].transaction(
+				this.storeName,
+				"readwrite"
+			); /* IndexDB的读写权限 */
+			store = txn.objectStore(this.storeName);
+		}
+		return store;
+	};
+	this.open = function (callback, dbName) {
+		let that = this;
+		/* 打开数据库 */
+		if (that.indexedDB) {
+			/* 如果支持IndexDB */
+			if (!that.db[dbName]) {
+				/* 如果缓存中没有，则进行数据库的创建或打开，提高效率 */
+				let request = that.indexedDB.open(dbName, that.dbVersion);
+				request.onerror = function (e) {
+					callback({
+						code: that.errorCode.open.code,
+						msg: that.errorCode.open.msg,
+						error: e,
+					});
+				};
+				request.onsuccess = function (e) {
+					if (!that.db[dbName]) {
+						that.db[dbName] = e.target.result;
+					}
+					let store = that.createStore(dbName);
+					callback(store);
+				};
+				request.onupgradeneeded = function (e) {
+					that.db[dbName] = e.target.result;
+					let store = that.db[dbName].createObjectStore(that.storeName, {
+						keyPath: "key",
+					});
+					store.transaction.oncomplete = function (event) {
+						callback(store);
+					};
+				};
+			} else {
+				/* 如果缓存中已经打开了数据库，就直接使用 */
+				let store = that.createStore(dbName);
+				callback(store);
+			}
+		}
+	};
+	this.save = function (key, value) {
+		/* 保存数据到数据库  key---数据key  value----数据值 */
+		let that = this;
+		if (that.indexedDB) {
+			return new Promise((resolve, reject) => {
+				let dbName = that.dbName;
+				let inData = {
+					key: key,
+					value: value,
+				};
+				that.open(function (result) {
+					let error = result.hasOwnProperty("error");
+					if (error) {
+						resolve(result);
+					} else {
+						let request = result.put(inData);
+						request.onsuccess = function (e) {
+							resolve({
+								code: that.errorCode.success.code,
+								msg: that.errorCode.success.msg,
+								success: true,
+							}); /* 保存成功有success 字段 */
+						};
+						request.onerror = function (e) {
+							resolve({
+								code: that.errorCode.save.code,
+								msg: that.errorCode.save.msg,
+								error: e,
+							});
+						};
+					}
+				}, dbName);
+			});
+		}
+	};
+	this.get = function (key) {
+		/* 根据key获取值 */
+		let that = this;
+		return new Promise((resolve, reject) => {
+			let dbName = that.dbName;
+			if (that.indexedDB) {
+				that.open(function (result) {
+					let error =
+						result.hasOwnProperty(
+							"error"
+						); /* 判断返回的数据中是否有error字段 */
+					if (error) {
+						reject({
+							code: that.errorCode.open.get,
+							msg: that.errorCode.get.msg,
+							error: error,
+							result: result,
+						});
+					} else {
+						let request = result.get(key);
+						request.onsuccess = function (e) {
+							let result = e.target.result;
+							let data = result ? result.value : undefined;
+							resolve({
+								code: data
+									? that.errorCode.success.code
+									: that.errorCode.error.code,
+								msg: data
+									? that.errorCode.success.msg
+									: that.errorCode.error.msg,
+								data: data || [],
+								success: true,
+							});
+						};
+						request.onerror = function (e) {
+							reject({
+								code: that.errorCode.get.code,
+								msg: that.errorCode.get.msg,
+								result: result,
+								error: e,
+							});
+						};
+					}
+				}, dbName);
+			}
+		});
+	};
+	this.regexpGet = function (key) {
+		let that = this;
+		var list = [];
+		return new Promise((resolve, reject) => {
+			/* 正则查询 */
+			let dbName = that.dbName;
+			if (that.indexedDB) {
+				that.open(function (result) {
+					let error =
+						result.hasOwnProperty(
+							"error"
+						); /* 判断返回的数据中是否有error字段 */
+					if (error) {
+						reject({
+							code: that.errorCode.open.get,
+							msg: that.errorCode.get.msg,
+							error: error,
+							result: result,
+						});
+					} else {
+						let request = result.getAll();
+						request.onsuccess = function (e) {
+							let result = e.target.result;
+							if (result.length !== 0) {
+								result.forEach((item, index) => {
+									if (item["key"].match(key)) {
+										var concatList = item["value"];
+										concatList["key"] = item["key"];
+										list = [...list, concatList];
+									}
+								});
+							}
+							resolve({
+								code: that.errorCode.success.code,
+								msg: that.errorCode.success.msg,
+								data: list,
+								success: true,
+							});
+						};
+						request.onerror = function (e) {
+							reject({
+								code: that.errorCode.get.code,
+								msg: that.errorCode.get.msg,
+								result: result,
+								error: e,
+							});
+						};
+					}
+				}, dbName);
+			}
+		});
+	};
+	this.getPaging = function (key, offset = 0, count = 1) {
+		/* 查询分页(未完成) */
+		let that = this;
+		return new Promise((resolve, reject) => {
+			that.get(key).then((_resolve_) => {
+				if (_resolve_["code"] !== 200) {
+					resolve(_resolve_);
+				}
+				resolve();
+			}),
+				(_reject_) => {
+					reject(_reject_);
+				};
+		});
+	};
+	this.delete = function (key) {
+		let that = this;
+		return new Promise((resolve, reject) => {
+			/* 根据key删除某条数据 */
+			let dbName = that.dbName;
+			if (that.indexedDB) {
+				that.open(function (result) {
+					let error = result.hasOwnProperty("error");
+					if (error) {
+						resolve(result);
+					} else {
+						let request = result.get(key);
+						request.onsuccess = function (e) {
+							let recode = e.target.result;
+							if (recode) {
+								request = result.delete(key);
+							}
+							resolve({
+								code: recode
+									? that.errorCode.success.code
+									: that.errorCode.error.code,
+								msg: recode
+									? that.errorCode.success.msg
+									: that.errorCode.error.msg,
+								success: true,
+							});
+						};
+						request.onerror = function (e) {
+							resolve({
+								code: that.errorCode.delete.code,
+								msg: that.errorCode.delete.msg,
+								error: e,
+							});
+						};
+					}
+				}, dbName);
+			}
+		});
+	};
+	this.deleteAll = function () {
+		let that = this;
+		return new Promise((resolve, reject) => {
+			/* 清空数据库 */
+			let dbName = that.dbName;
+			if (that.indexedDB) {
+				that.open(function (result) {
+					let error = result.hasOwnProperty("error");
+					if (error) {
+						resolve({
+							code: that.errorCode.deleteAll.code,
+							msg: that.errorCode.deleteAll.msg,
+							error: error,
+							result: result,
+						});
+					} else {
+						result.clear();
+						resolve({
+							code: that.errorCode.success.code,
+							msg: that.errorCode.success.msg,
+							success: true,
+						});
+					}
+				}, dbName);
+			}
+		});
+	};
 };
 
 /*
@@ -1461,10 +1462,10 @@ Utils.indexedDB = function (dbName = "default_db", storeName = "default_form") {
  * @exampleResult Mozilla/5.0....
  */
 Utils.getMaxZIndex = function () {
-  let arr = [...document.all].map(
-    (e) => +window.getComputedStyle(e).zIndex || 0
-  );
-  return arr.length ? Math.max(...arr) + 1 : 0;
+	let arr = [...document.all].map(
+		(e) => +window.getComputedStyle(e).zIndex || 0
+	);
+	return arr.length ? Math.max(...arr) + 1 : 0;
 };
 
 /*
@@ -1479,19 +1480,19 @@ Utils.getMaxZIndex = function () {
  * @exampleResult [{"key": 2}]
  */
 Utils.uniqueArray = function (
-  uniqueArrayData = [],
-  compareArrayData = [],
-  compareFun
+	uniqueArrayData = [],
+	compareArrayData = [],
+	compareFun
 ) {
-  if (typeof compareFun !== "function") {
-    throw "参数 compareFun 类型必须为function类型";
-  }
-  return Array.from(uniqueArrayData).filter(
-    (item) =>
-      !Array.from(compareArrayData).some(function (ele) {
-        return compareFun(item, ele);
-      })
-  );
+	if (typeof compareFun !== "function") {
+		throw "参数 compareFun 类型必须为function类型";
+	}
+	return Array.from(uniqueArrayData).filter(
+		(item) =>
+			!Array.from(compareArrayData).some(function (ele) {
+				return compareFun(item, ele);
+			})
+	);
 };
 
 /*
@@ -1506,102 +1507,102 @@ Utils.uniqueArray = function (
  * @example Utils.noConflict(console,"console",[],false);console; //恢复所有方法
  */
 Utils.noConflict = function (
-  needReleaseObject,
-  needReleaseName,
-  functionNameList = [],
-  release = true
+	needReleaseObject,
+	needReleaseName,
+	functionNameList = [],
+	release = true
 ) {
-  if (typeof needReleaseObject !== "object") {
-    throw "参数 needReleaseObject 类型必须为object类型";
-  }
-  if (!(functionNameList instanceof Array)) {
-    throw "参数 functionName 类型必须为数组类型";
-  }
-  var needReleaseKey = "__" + needReleaseName;
-  function cloneObj(obj) {
-    /* 复制对象 */
-    var newObj = {};
-    if (obj instanceof Array) {
-      newObj = [];
-    }
-    for (var key in obj) {
-      var val = obj[key];
-      newObj[key] = typeof val === "object" ? cloneObj(val) : val;
-    }
-    return newObj;
-  }
-  function releaseAll() {
-    /* 释放所有 */
-    if (typeof window[needReleaseKey] !== "undefined") {
-      /* 已存在 */
-      return;
-    }
-    window[needReleaseKey] = cloneObj(needReleaseObject);
-    Object.values(needReleaseObject).forEach((value) => {
-      if (typeof value === "function") {
-        needReleaseObject[value.name] = () => {};
-      }
-    });
-  }
-  function releaseOne() {
-    /* 释放单个 */
-    Array.from(functionNameList).forEach((item) => {
-      Object.values(needReleaseObject).forEach((value) => {
-        if (typeof value === "function") {
-          if (typeof window[needReleaseKey] === "undefined") {
-            window[needReleaseKey] = {};
-          }
-          if (item === value.name) {
-            window[needReleaseKey][value.name] = needReleaseObject[value.name];
-            needReleaseObject[value.name] = () => {};
-          }
-        }
-      });
-    });
-  }
-  function recoveryAll() {
-    /* 恢复所有 */
-    if (typeof window[needReleaseKey] === "undefined") {
-      /* 未存在 */
-      return;
-    }
-    Object.assign(needReleaseObject, window[needReleaseKey]);
-    delete window[needReleaseKey];
-  }
+	if (typeof needReleaseObject !== "object") {
+		throw "参数 needReleaseObject 类型必须为object类型";
+	}
+	if (!(functionNameList instanceof Array)) {
+		throw "参数 functionName 类型必须为数组类型";
+	}
+	var needReleaseKey = "__" + needReleaseName;
+	function cloneObj(obj) {
+		/* 复制对象 */
+		var newObj = {};
+		if (obj instanceof Array) {
+			newObj = [];
+		}
+		for (var key in obj) {
+			var val = obj[key];
+			newObj[key] = typeof val === "object" ? cloneObj(val) : val;
+		}
+		return newObj;
+	}
+	function releaseAll() {
+		/* 释放所有 */
+		if (typeof window[needReleaseKey] !== "undefined") {
+			/* 已存在 */
+			return;
+		}
+		window[needReleaseKey] = cloneObj(needReleaseObject);
+		Object.values(needReleaseObject).forEach((value) => {
+			if (typeof value === "function") {
+				needReleaseObject[value.name] = () => {};
+			}
+		});
+	}
+	function releaseOne() {
+		/* 释放单个 */
+		Array.from(functionNameList).forEach((item) => {
+			Object.values(needReleaseObject).forEach((value) => {
+				if (typeof value === "function") {
+					if (typeof window[needReleaseKey] === "undefined") {
+						window[needReleaseKey] = {};
+					}
+					if (item === value.name) {
+						window[needReleaseKey][value.name] = needReleaseObject[value.name];
+						needReleaseObject[value.name] = () => {};
+					}
+				}
+			});
+		});
+	}
+	function recoveryAll() {
+		/* 恢复所有 */
+		if (typeof window[needReleaseKey] === "undefined") {
+			/* 未存在 */
+			return;
+		}
+		Object.assign(needReleaseObject, window[needReleaseKey]);
+		delete window[needReleaseKey];
+	}
 
-  function recoveryOne() {
-    /* 恢复单个 */
-    if (typeof window[needReleaseKey] === "undefined") {
-      /* 未存在 */
-      return;
-    }
-    Array.from(functionNameList).forEach((item) => {
-      if (window[needReleaseKey][item]) {
-        needReleaseObject[item] = window[needReleaseKey][item];
-        delete window[needReleaseKey][item];
-        if (Object.keys(window[needReleaseKey]).length === 0) {
-          delete window[needReleaseKey];
-        }
-      }
-    });
-  }
-  if (release) {
-    /* 释放 */
-    if (functionNameList.length === 0) {
-      releaseAll();
-    } else {
-      /* 对单个进行操作 */
-      releaseOne();
-    }
-  } else {
-    /* 恢复 */
-    if (functionNameList.length === 0) {
-      recoveryAll();
-    } else {
-      /* 对单个进行操作 */
-      recoveryOne();
-    }
-  }
+	function recoveryOne() {
+		/* 恢复单个 */
+		if (typeof window[needReleaseKey] === "undefined") {
+			/* 未存在 */
+			return;
+		}
+		Array.from(functionNameList).forEach((item) => {
+			if (window[needReleaseKey][item]) {
+				needReleaseObject[item] = window[needReleaseKey][item];
+				delete window[needReleaseKey][item];
+				if (Object.keys(window[needReleaseKey]).length === 0) {
+					delete window[needReleaseKey];
+				}
+			}
+		});
+	}
+	if (release) {
+		/* 释放 */
+		if (functionNameList.length === 0) {
+			releaseAll();
+		} else {
+			/* 对单个进行操作 */
+			releaseOne();
+		}
+	} else {
+		/* 恢复 */
+		if (functionNameList.length === 0) {
+			recoveryAll();
+		} else {
+			/* 对单个进行操作 */
+			recoveryOne();
+		}
+	}
 };
 
 /*
@@ -1628,64 +1629,64 @@ Utils.noConflict = function (
  * @exampleResult [√]测试按钮
  */
 Utils.GM_Menu = function (data = {}, autoReload = false) {
-  if (typeof GM_getValue === "undefined") {
-    throw "请在脚本开头加上 @grant  GM_getValue";
-  }
-  if (typeof GM_setValue === "undefined") {
-    throw "请在脚本开头加上 @grant  GM_getValue";
-  }
-  if (typeof GM_registerMenuCommand === "undefined") {
-    throw "请在脚本开头加上 @grant  GM_registerMenuCommand";
-  }
-  if (typeof GM_unregisterMenuCommand === "undefined") {
-    throw "请在脚本开头加上 @grant  GM_unregisterMenuCommand";
-  }
-  this.GM_Menu_Id_Data = []; /* 注册的菜单的id */
-  this.init = function () {
-    /* 初始化数据 */
-    Object.keys(data).forEach((key) => {
-      let value = GM_getValue(key);
-      if (value == null) {
-        GM_setValue(key, data[key].enable);
-        value = GM_getValue(key);
-      }
-      data[key]["enable"] = value;
-    });
-  };
-  this.register = function () {
-    /* 注册油猴菜单 */
-    let _this_ = this;
-    Object.keys(data).forEach((key) => {
-      let item = data[key];
-      let text = item["text"]; /* 文本 */
-      let enable = item["enable"]; /* 用户开启的状态 */
-      let showText =
-        typeof item["showText"] === "function"
-          ? item["showText"](text, enable)
-          : text; /* 油猴菜单上显示的文本 */
-      let callback = item["callback"]; /* 用户点击后的回调 */
-      let GM_Menu_Id = null;
-      GM_Menu_Id = GM_registerMenuCommand(showText, function () {
-        let _enable_ = enable ? false : true;
-        GM_setValue(key, _enable_);
-        if (typeof callback === "function") {
-          callback(key, _enable_);
-        }
-        if (autoReload) {
-          window.location.reload();
-        } else {
-          _this_.GM_Menu_Id_Data.forEach((_menu_) => {
-            GM_unregisterMenuCommand(_menu_);
-          });
-          _this_.init();
-          _this_.register();
-        }
-      });
-      _this_.GM_Menu_Id_Data = [..._this_.GM_Menu_Id_Data, GM_Menu_Id];
-    });
-  };
-  this.getEnable = function (key) {
-    /* 获取键值开启状态 */
-    return data[key]["enable"];
-  };
+	if (typeof GM_getValue === "undefined") {
+		throw "请在脚本开头加上 @grant  GM_getValue";
+	}
+	if (typeof GM_setValue === "undefined") {
+		throw "请在脚本开头加上 @grant  GM_getValue";
+	}
+	if (typeof GM_registerMenuCommand === "undefined") {
+		throw "请在脚本开头加上 @grant  GM_registerMenuCommand";
+	}
+	if (typeof GM_unregisterMenuCommand === "undefined") {
+		throw "请在脚本开头加上 @grant  GM_unregisterMenuCommand";
+	}
+	this.GM_Menu_Id_Data = []; /* 注册的菜单的id */
+	this.init = function () {
+		/* 初始化数据 */
+		Object.keys(data).forEach((key) => {
+			let value = GM_getValue(key);
+			if (value == null) {
+				GM_setValue(key, data[key].enable);
+				value = GM_getValue(key);
+			}
+			data[key]["enable"] = value;
+		});
+	};
+	this.register = function () {
+		/* 注册油猴菜单 */
+		let _this_ = this;
+		Object.keys(data).forEach((key) => {
+			let item = data[key];
+			let text = item["text"]; /* 文本 */
+			let enable = item["enable"]; /* 用户开启的状态 */
+			let showText =
+				typeof item["showText"] === "function"
+					? item["showText"](text, enable)
+					: text; /* 油猴菜单上显示的文本 */
+			let callback = item["callback"]; /* 用户点击后的回调 */
+			let GM_Menu_Id = null;
+			GM_Menu_Id = GM_registerMenuCommand(showText, function () {
+				let _enable_ = enable ? false : true;
+				GM_setValue(key, _enable_);
+				if (typeof callback === "function") {
+					callback(key, _enable_);
+				}
+				if (autoReload) {
+					window.location.reload();
+				} else {
+					_this_.GM_Menu_Id_Data.forEach((_menu_) => {
+						GM_unregisterMenuCommand(_menu_);
+					});
+					_this_.init();
+					_this_.register();
+				}
+			});
+			_this_.GM_Menu_Id_Data = [..._this_.GM_Menu_Id_Data, GM_Menu_Id];
+		});
+	};
+	this.getEnable = function (key) {
+		/* 获取键值开启状态 */
+		return data[key]["enable"];
+	};
 };
