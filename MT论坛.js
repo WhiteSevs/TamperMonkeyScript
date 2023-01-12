@@ -2,7 +2,7 @@
 // @name         MT论坛
 // @namespace    http://tampermonkey.net/
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.1
+// @version      2.7.2
 // @author       WhiteSevs
 // @icon         https://bbs.binmt.cc/favicon.ico
 // @match        *://bbs.binmt.cc/*
@@ -131,21 +131,21 @@
           enable: true,
           text: "确定",
           callback: () => {
-            popup2.confirm_close();
+            popup2.closeConfirm();
           },
         },
         cancel: {
           enable: true,
           text: "取消",
           callback: () => {
-            popup2.confirm_close();
+            popup2.closeConfirm();
           },
         },
         other: {
           enable: false,
           text: "另一个按钮",
           callback: () => {
-            popup2.confirm_close();
+            popup2.closeConfirm();
           },
         },
       };
@@ -188,7 +188,7 @@
             </div>
             `;
       if (options.only) {
-        this.confirm_close();
+        this.closeConfirm();
       }
       let jqConfirmHTML = $jq(confirmHTML);
 
@@ -218,9 +218,9 @@
         }
       );
       if (options.mask) {
-        this.mask_show(maxZIndex);
+        this.showMask(maxZIndex);
       } else {
-        this.mask_close();
+        this.closeMask();
       }
     },
     toast: (param_options) => {
@@ -240,9 +240,13 @@
       }
 
       if (options.only) {
-        popup2.toast_close();
+        popup2.closeToast();
       }
-      let toastobj = $jq(`<div class="popup2-toast">${options.text}</div>`);
+      let toastobj = $jq(
+        `<div class="popup2-toast" style="z-index:${
+          Utils.getMaxZIndex() + 10
+        };">${options.text}</div>`
+      );
       $jq("body").append(toastobj);
       toastobj.css(
         "transform",
@@ -254,18 +258,18 @@
       setTimeout(() => {
         toastobj.addClass("popup2-toast-show");
         setTimeout(() => {
-          popup2.toast_close(toastobj);
+          popup2.closeToast(toastobj);
         }, options.delayTime);
       }, 150);
     },
-    mask_show: function (zIndex = 0) {
+    showMask: function (zIndex = 0) {
       this.force_mask_init();
       $jq("#force-mask").show();
       if (zIndex !== 0) {
         $jq("#force-mask").css("z-index", zIndex);
       }
     },
-    mask_loading_show: function () {
+    showLoadingMask: function () {
       this.force_mask_init();
       $jq("#force-mask")
         .html(
@@ -273,19 +277,19 @@
         )
         .show();
     },
-    mask_close: function () {
+    closeMask: function () {
       $jq("#force-mask").html("").hide();
       document.documentElement.style.overflow = "auto";
     },
-    toast_close: (toastobj) => {
+    closeToast: (toastobj) => {
       if (toastobj) {
         toastobj.remove();
       } else {
         $jq(".popup2-toast").remove();
       }
     },
-    confirm_close: function () {
-      this.mask_close();
+    closeConfirm: function () {
+      this.closeMask();
       $jq.each($jq(".popup2-popmenu"), function (index, obj) {
         $jq(obj).remove();
       });
@@ -317,126 +321,125 @@
       xtips.value = xtips.value.concat(xtip_toast_id);
     },
   };
-  let mt_config = {
-    dom_obj: {
-      select_beauty: function () {
+  let MT_CONFIG = {
+    element: {
+      selectBeauty: function () {
         /* 下拉列表对象 */
         return document.querySelector(
-          mt_config.dom_querySelector.select_beauty
+          MT_CONFIG.elementQuerySelector.selectBeauty
         );
       },
-      combox_switch: function () {
+      comboxSwitch: function () {
         /* 复选框对象 */
         return document.querySelector(
-          mt_config.dom_querySelector.combox_switch
+          MT_CONFIG.elementQuerySelector.comboxSwitch
         );
       },
-      comiis_verify: function () {
+      comiisVerify: function () {
         /* 帖子内各个人的信息节点【list】 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.comiis_verify
+          MT_CONFIG.elementQuerySelectorAll.comiisVerify
         );
       },
-      comiis_formlist: function () {
+      comiisFormlist: function () {
         /* 导航中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.comiis_formlist
+          MT_CONFIG.elementQuerySelectorAll.comiisFormlist
         );
       },
-      comiis_mmlist: function () {
+      comiisMmlist: function () {
         /* 帖子内评论，包括帖子内容主体，第一个就是主体【list】 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.comiis_mmlist
+          MT_CONFIG.elementQuerySelectorAll.comiisMmlist
         );
       },
-      comiis_postli: function () {
+      comiisPostli: function () {
         /* 帖子内评论，包括帖子内容主体，第一个就是主体【list】 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.comiis_postli
+          MT_CONFIG.elementQuerySelectorAll.comiisPostli
         );
       },
-      post_bottom_controls: function () {
+      postBottomControls: function () {
         /* 帖子底部一栏控件 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.post_bottom_controls
+          MT_CONFIG.elementQuerySelectorAll.postBottomControls
         );
       },
-      post_list_of_comments: function () {
+      postListOfComments: function () {
         /* 帖子内评论列表 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.post_list_of_comments
+          MT_CONFIG.elementQuerySelectorAll.postListOfComments
         );
       },
-      post_next_commect: function () {
+      postNextCommect: function () {
         /* 帖子内评论下一页的按钮 */
         return document.querySelectorAll(
-          mt_config.dom_querySelectorAll.post_next_commect
+          MT_CONFIG.elementQuerySelectorAll.postNextCommect
         );
       },
     },
-    dom_querySelector: {
-      select_beauty: "select.beauty-select" /* 本脚本的选择器下拉列表 */,
-      combox_switch: "code.whitesevcheckbox" /* 本脚本的开关选择器 */,
+    elementQuerySelector: {
+      selectBeauty: "select.beauty-select" /* 本脚本的选择器下拉列表 */,
+      comboxSwitch: "code.whitesevcheckbox" /* 本脚本的开关选择器 */,
     },
-    dom_querySelectorAll: {
-      comiis_verify: "span.comiis_verify" /* 帖子内各个人的信息节点【list】 */,
-      comiis_formlist:
+    elementQuerySelectorAll: {
+      comiisVerify: "span.comiis_verify" /* 帖子内各个人的信息节点【list】 */,
+      comiisFormlist:
         "li.forumlist_li" /* 导航中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */,
-      comiis_mmlist:
+      comiisMmlist:
         ".comiis_mmlist" /* 帖子内评论，包括帖子内容主体，第一个就是主体【list】 */,
-      comiis_postli:
+      comiisPostli:
         "div.comiis_postli.comiis_list_readimgs.nfqsqi" /* 帖子内评论，包括帖子内容主体，第一个就是主体【list】 */,
-      post_bottom_controls:
+      postBottomControls:
         ".comiis_znalist_bottom.b_t.cl" /* 帖子底部一栏控件 */,
-      post_list_of_comments:
-        "div.comiis_postlist.kqide" /* 帖子内评论列表(总) */,
-      post_next_commect:
+      postListOfComments: "div.comiis_postlist.kqide" /* 帖子内评论列表(总) */,
+      postNextCommect:
         "div.comiis_page.bg_f>a:nth-child(3)" /* 帖子内评论下一页的按钮 */,
     },
-    rexp: {
+    regexp: {
       bbs: /bbs.binmt.cc/ /* 论坛 */,
-      search_url: /bbs.binmt.cc\/search.php/g /* 搜索页 */,
-      chat_url: /home.php\?mod=space&do=pm&subop=view/g /* 聊天页 */,
-      home_url: /home.php\?mod=spacecp&ac=profile&op=info/g /* 个人空间页 */,
-      home_url_brief: /home.php\?mod=space/g /* 个人空间页简略url */,
-      home_url_at: /bbs.binmt.cc\/space-uid-/g /* 个人空间页的@点进去 */,
-      home_kmisign_url:
+      searchUrl: /bbs.binmt.cc\/search.php/g /* 搜索页 */,
+      chatUrl: /home.php\?mod=space&do=pm&subop=view/g /* 聊天页 */,
+      homeUrl: /home.php\?mod=spacecp&ac=profile&op=info/g /* 个人空间页 */,
+      homeUrlBrief: /home.php\?mod=space/g /* 个人空间页简略url */,
+      homeUrlWithAt: /bbs.binmt.cc\/space-uid-/g /* 个人空间页的@点进去 */,
+      homeKmisignUrl:
         /bbs.binmt.cc\/(forum.php\?mod=guide&view=hot(|&mobile=2)|k_misign-sign.html)/g /* 主页和签到页链接 */,
-      home_space_url:
+      homeSpaceUrl:
         /bbs\.binmt\.cc\/home\.php\?mod=space&do=profile&mycenter/g /* 【我的】 个人信息页链接 */,
-      home_space_pc_uid_url: /space-uid-(.*?).html/ /* PC 个人空间链接uid */,
-      reply_forum:
+      homeSpacePCUidUrl: /space-uid-(.*?).html/ /* PC 个人空间链接uid */,
+      replyForum:
         /bbs.binmt.cc\/forum.php\?mod=post&action=reply/g /* 回复的界面url */,
-      sign_url: "" /* 签到url */,
-      navigation_url:
+      signUrl: "" /* 签到url */,
+      navigationUrl:
         /forum.php\?mod=guide(&index=1|)&view=(newthread|hot|digest|new|sofa)&index=1/g /* 导航链接，包括最新、热门、精华、回复、抢沙发 */,
-      community_url: /forum.php\?forumlist/ /* 社区 */,
-      forum_post:
+      communityUrl: /forum.php\?forumlist/ /* 社区 */,
+      forumPost:
         /(bbs.binmt.cc\/thread-|bbs.binmt.cc\/forum.php\?mod=viewthread)/g /* 帖子链接 */,
-      forum_post_pc: /.*:\/\/bbs.binmt.cc\/thread.*/ /* 资料设置 */,
-      data_setting_url:
+      forumPostPC: /.*:\/\/bbs.binmt.cc\/thread.*/ /* 资料设置 */,
+      dataSettingUrl:
         /mod=space&do=profile&set=comiis&mycenter=1/ /* 帖子链接-PC */,
-      forum_guide_url: /bbs.binmt.cc\/forum.php\?mod=guide/g /* 导航链接 */,
-      forum_post_reply:
+      forumGuideUrl: /bbs.binmt.cc\/forum.php\?mod=guide/g /* 导航链接 */,
+      forumPostReply:
         /forum.php\?mod=post&action=reply/g /* 帖子中回复的链接 */,
-      forum_post_page: "&page=(.*)" /* 帖子链接的当前所在页 page */,
-      forum_post_pc_page: "thread-(.*?)-" /* PC帖子链接的当前所在页 page */,
-      forum_plate_text:
+      forumPostPage: "&page=(.*)" /* 帖子链接的当前所在页 page */,
+      forumPostPCPage: "thread-(.*?)-" /* PC帖子链接的当前所在页 page */,
+      forumPlateText:
         /休闲灌水|求助问答|逆向教程|资源共享|综合交流|编程开发|玩机教程|建议反馈/g /* 各版块名称 */,
-      plate_url:
+      plateUrl:
         /bbs.binmt.cc\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g /* 板块链接 */,
       formhash: /formhash=(.+)&/ /* 论坛账号的凭证 */,
       hash: /hash=(.+)&/ /* 论坛账号的凭证 */,
-      font_special:
+      fontSpecial:
         /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g /* 帖子内特殊字体格式 */,
-      forum_post_guide_url:
+      forumPostGuideUrl:
         /bbs.binmt.cc\/page-[1-5].html|bbs.binmt.cc\/forum.php\?mod=guide/g /* 帖子链接和导航链接 */,
-      mt_uid: /uid=(\d+)/ /* discuz uid */,
+      MTUid: /uid=(\d+)/ /* discuz uid */,
       nologin: /member.php\?mod=logging&action=login(|&mobile=2)/g /* 未登录 */,
-      k_misign_sign: "bbs.binmt.cc/k_misign-sign.html" /* 签到url */,
-      post_forum: /forum.php\?mod=post&action=newthread/ /* 发布帖子 */,
-      edit_forum: /forum.php\?mod=post&action=edit/ /* 编辑帖子 */,
-      space_post: /home.php\?mod=space.*?type=reply/ /* 个人空间-帖子 */,
+      kMiSignSign: "bbs.binmt.cc/k_misign-sign.html" /* 签到url */,
+      postForum: /forum.php\?mod=post&action=newthread/ /* 发布帖子 */,
+      editForum: /forum.php\?mod=post&action=edit/ /* 编辑帖子 */,
+      spacePost: /home.php\?mod=space.*?type=reply/ /* 个人空间-帖子 */,
     },
     GMRunStartTime: Date.now(),
     cookiePre: () => {
@@ -666,6 +669,7 @@
       });
     };
     window.GM_asyncLoadScriptNode = (url) => {
+      /* 异步加载JS文件 */
       return new Promise((res) => {
         let tempNode = document.createElement("script");
         tempNode.setAttribute("src", url);
@@ -676,7 +680,7 @@
       });
     };
     window.GM_asyncLoadStyleSheet = (url) => {
-      /* 异步添加跨域css资源 */
+      /* 异步加载CSS文件 */
       if (loadNetworkResource.indexOf(url) != -1) {
         console.log("已加载该css:", url);
         return;
@@ -824,14 +828,14 @@
   const pc = {
     collectionForumPost() {
       /* 悬浮按钮-添加收藏帖子功能 */
-      if (!window.location.href.match(mt_config.rexp.forum_post)) {
+      if (!window.location.href.match(MT_CONFIG.regexp.forumPost)) {
         return;
       }
       var own_formhash = document.querySelector(
         "#scform > input[type=hidden]:nth-child(1)"
       ).value;
       var collect_href_id = window.location.href.match(
-        mt_config.rexp.forum_post_pc_page
+        MT_CONFIG.regexp.forumPostPCPage
       )[1];
       var collect_href =
         "https://bbs.binmt.cc/home.php?mod=spacecp&ac=favorite&type=thread&id=" +
@@ -849,7 +853,7 @@
     detectUserOnlineStatus() {
       /* 探测用户在线状态 */
       return;
-      if (window.location.href.match(mt_config.rexp.forum_post_pc)) {
+      if (window.location.href.match(MT_CONFIG.regexp.forumPostPC)) {
         var quanju = [];
         var cishu = 0;
         for (
@@ -928,7 +932,7 @@
     },
     quickReply() {
       /* 快捷回复 */
-      if (!window.location.href.match(mt_config.rexp.forum_post)) {
+      if (!window.location.href.match(MT_CONFIG.regexp.forumPost)) {
         return;
       }
       document.querySelector("#scrolltop > span:nth-child(2) > a").onclick =
@@ -1008,7 +1012,7 @@
       /* 自动展开帖子内容 */
       if (
         GM_getValue("v18") &&
-        location.href.match(mt_config.rexp.forum_post)
+        location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         GM_addStyle(`
                 div.comiis_message.bg_f.view_one.b_b.cl.message > div.comiis_messages.comiis_aimg_show.cl{
@@ -1061,14 +1065,14 @@
         let comiis_recommend_addkey_match = null;
         inputFormHash = inputFormHash ? inputFormHash.value : null;
         if (sidenv_exit) {
-          sidenv_exit_match = sidenv_exit.href.match(mt_config.rexp.formhash);
+          sidenv_exit_match = sidenv_exit.href.match(MT_CONFIG.regexp.formhash);
           sidenv_exit_match = sidenv_exit_match
             ? sidenv_exit_match[sidenv_exit_match.length - 1]
             : null;
         }
         if (comiis_recommend_addkey) {
           comiis_recommend_addkey_match = comiis_recommend_addkey.href.match(
-            mt_config.rexp.hash
+            MT_CONFIG.regexp.hash
           );
           comiis_recommend_addkey_match = comiis_recommend_addkey_match
             ? comiis_recommend_addkey_match[
@@ -1192,7 +1196,7 @@
 
       if (
         envIsMobile() &&
-        window.location.href.match(mt_config.rexp.k_misign_sign)
+        window.location.href.match(MT_CONFIG.regexp.kMiSignSign)
       ) {
         var deleteLocalStorageSignInfo = $jq(`
                 <div style="display: flex;align-items: center;justify-content: end;margin-right: 8px;"><i class="comiis_font" style="font-size: 24px;padding: 0px 6px;"></i>
@@ -1208,8 +1212,8 @@
                   popup2.toast("删除失败");
                 } else {
                   popup2.toast("删除成功");
-                  popup2.mask_close();
-                  popup2.confirm_close();
+                  popup2.closeMask();
+                  popup2.closeConfirm();
                 }
               },
             },
@@ -1270,7 +1274,7 @@
             "https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js"
           );
           if (typeof $jq.NZ_MsgBox == "undefined") {
-            popup2.toast("网络异常,加载NZMsgBox.js失败");
+            popup2.toast("加载NZMsgBox.js失败");
             return;
           } else {
             console.log("成功加载NZMsgBox.js");
@@ -1303,8 +1307,8 @@
                   "blackHomeListNums",
                   parseInt($jq("#blackhomeselect").val())
                 );
-                popup2.mask_close();
-                popup2.confirm_close();
+                popup2.closeMask();
+                popup2.closeConfirm();
                 popup2.toast("设置成功");
               },
             },
@@ -1486,7 +1490,7 @@
       insertMobileBlackHomeButton: async function () {
         /* 插入手机版查看小黑屋的按钮 */
         if (
-          window.location.href.match(mt_config.rexp.bbs) != null &&
+          window.location.href.match(MT_CONFIG.regexp.bbs) != null &&
           GM_getValue("v30")
         ) {
           let comiis_left_Touch = document.createElement("li");
@@ -1577,7 +1581,7 @@
     },
     blacklistShieldUsersOrBlocks() {
       /* 黑名单-屏蔽用户或板块 */
-      if (!window.location.href.match(mt_config.rexp.home_space_url)) {
+      if (!window.location.href.match(MT_CONFIG.regexp.homeSpaceUrl)) {
         return;
       }
       var white_space_ele = document.createElement("div");
@@ -1934,7 +1938,7 @@
     chatChartBed() {
       /* 聊天的图床 */
       if (
-        !window.location.href.match(mt_config.rexp.chat_url) ||
+        !window.location.href.match(MT_CONFIG.regexp.chatUrl) ||
         !GM_getValue("v40")
       ) {
         return;
@@ -2169,7 +2173,7 @@
                   chartBedUser = user;
                   chartBedPwd = pwd;
                   popup2.toast("设置完毕,请重新点击");
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -2180,11 +2184,11 @@
                 loginCallBack
               );
             } else if (chartBedToken == null || !loginStatus) {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               tokenStatus = true;
               popup2.toast("正在配置token");
               chartBedToken = await getToken();
-              popup2.mask_close();
+              popup2.closeMask();
               console.log("token:" + chartBedToken);
               if (chartBedToken != null) {
                 $jq("#filedata_kggzs").click();
@@ -2202,7 +2206,7 @@
           if (chooseImageFiles.length == 0) {
             return;
           }
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("上传图片中...请稍后");
           console.log(`图片数量:${chooseImageFiles.length}`);
           let uploadFileAwaitFunction = async (params) => {
@@ -2245,7 +2249,7 @@
             }
           };
           let completeFunction = () => {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_kggzs").val("");
           };
           Utils.asyncArrayForEach(
@@ -2308,7 +2312,7 @@
                   chartBedUser = user;
                   chartBedPwd = pwd;
                   popup2.toast("设置完毕,请重新点击");
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -2320,7 +2324,7 @@
               );
             } else if (chartBedAuthToken == null || !loginStatus) {
               authTokenStatus = true;
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast("正在配置auth_token");
               chartBedAuthToken = await mobile.chartBed.getAuthToken(
                 chartBedUrl
@@ -2334,7 +2338,7 @@
                   chartBedPwd,
                   chartBedAuthToken
                 );
-                popup2.mask_close();
+                popup2.closeMask();
                 if (retloginStatus) {
                   loginStatus = true;
                   $jq("#filedata_hello").click();
@@ -2342,7 +2346,7 @@
                   clearData();
                 }
               }
-              popup2.mask_close();
+              popup2.closeMask();
               authTokenStatus = false;
             } else {
               $jq("#filedata_hello").click();
@@ -2354,7 +2358,7 @@
           if (chooseImageFiles.length == 0) {
             return;
           }
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("上传图片中...请稍后");
           let uploadFileAwaitFunction = async (params) => {
             let imageFile = chooseImageFiles[params[0]];
@@ -2397,7 +2401,7 @@
           };
 
           let completeFunction = () => {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_hello").val("");
           };
           Utils.asyncArrayForEach(
@@ -2409,11 +2413,11 @@
         });
         $jq(document).on("click", "#imglist_hello .delImg", async function (e) {
           e.preventDefault();
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("删除中，请稍后");
           let id_encoded = e.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
-            popup2.mask_close();
+            popup2.closeMask();
             popup2.toast("获取id_encoded失败，请自行去Hello图床删除");
             return;
           }
@@ -2422,7 +2426,7 @@
             chartBedAuthToken,
             id_encoded
           );
-          popup2.mask_close();
+          popup2.closeMask();
           if (deleteStatus) {
             $jq(this).parent().remove();
             mobile.chartBed.storage.delete("hello", id_encoded);
@@ -2466,7 +2470,7 @@
                   chartBedUser = user;
                   chartBedPwd = pwd;
                   popup2.toast("设置完毕,请重新点击");
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -2477,7 +2481,7 @@
                 loginCallBack
               );
             } else if (chartBedAuthToken == null || !loginStatus) {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               authTokenStatus = true;
               popup2.toast("正在配置auth_token");
               chartBedAuthToken = await mobile.chartBed.getAuthToken(
@@ -2492,7 +2496,7 @@
                   chartBedPwd,
                   chartBedAuthToken
                 );
-                popup2.mask_close();
+                popup2.closeMask();
                 if (retloginStatus) {
                   loginStatus = true;
                   $jq("#filedata_z4a").click();
@@ -2500,7 +2504,7 @@
                   clearData();
                 }
               }
-              popup2.mask_close();
+              popup2.closeMask();
               authTokenStatus = false;
             } else {
               $jq("#filedata_z4a").click();
@@ -2512,7 +2516,7 @@
           if (chooseImageFiles.length == 0) {
             return;
           }
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("上传图片中...请稍后");
           let uploadFileAwaitFunction = async (params) => {
             console.log("上传图片：" + chooseImageFiles[params[0]]);
@@ -2555,7 +2559,7 @@
           };
 
           let completeFunction = () => {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_z4a").val("");
           };
           Utils.asyncArrayForEach(
@@ -2567,11 +2571,11 @@
         });
         $jq(document).on("click", "#imglist_z4a .delImg", async function (e) {
           e.preventDefault();
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("删除中，请稍后");
           let id_encoded = e.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
-            popup2.mask_close();
+            popup2.closeMask();
             popup2.toast("获取id_encoded失败，请自行去Z4A图床删除");
             return;
           }
@@ -2580,7 +2584,7 @@
             chartBedAuthToken,
             id_encoded
           );
-          popup2.mask_close();
+          popup2.closeMask();
           if (deleteStatus) {
             $jq(this).parent().remove();
             mobile.chartBed.storage.delete("z4a", id_encoded);
@@ -2705,7 +2709,7 @@
       /* 代码块复制按钮 */
       if (
         !GM_getValue("v46") &&
-        !window.location.href.match(mt_config.rexp.forum_post)
+        !window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         return;
       }
@@ -2755,14 +2759,14 @@
       /* 评论区添加点评功能 */
       if (
         GM_getValue("v6") &&
-        window.location.href.match(mt_config.rexp.forum_post)
+        window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         var hongbao = document.getElementsByClassName("bottom_zhan y");
         if (hongbao.length == 0) {
         } else {
           var cishu2 = 0;
           var replyhref = hongbao[cishu2].getElementsByTagName("a")[0].href;
-          var page = replyhref.match(mt_config.rexp.forum_post_page)[1];
+          var page = replyhref.match(MT_CONFIG.regexp.forumPostPage)[1];
           /* console.log(page); */
           for (cishu2 = 0; cishu2 < hongbao.length; cishu2++) {
             if (hongbao[cishu2].children.length == 1) {
@@ -2831,9 +2835,11 @@
     },
     customCollection() {
       /* 帖子快照 */
-      const urlBBSMatchStatus = window.location.href.match(mt_config.rexp.bbs);
+      const urlBBSMatchStatus = window.location.href.match(
+        MT_CONFIG.regexp.bbs
+      );
       const forumPostMatchStatus = window.location.href.match(
-        mt_config.rexp.forum_post
+        MT_CONFIG.regexp.forumPost
       );
       const storageMatchStatus = GM_getValue("v54", false);
       if (!storageMatchStatus) {
@@ -2967,7 +2973,7 @@
                             popup2.toast({
                               text: resolve["msg"],
                             });
-                            popup2.confirm_close();
+                            popup2.closeConfirm();
                             return;
                           }
                           customCollectionData.forEach((_item_, _index_) => {
@@ -2982,11 +2988,11 @@
                           Utils.deleteParentDOM(_this, (dom) => {
                             return dom.id === "autolist" ? true : false;
                           });
-                          popup2.confirm_close();
+                          popup2.closeConfirm();
                         },
                         (err) => {
                           console.log(err);
-                          popup2.confirm_close();
+                          popup2.closeConfirm();
                           popup2.toast({
                             text: "删除失败，原因请看控制台",
                           });
@@ -3044,7 +3050,7 @@
           xtip.sheet({
             btn: ["快照为图片", "快照为源码"],
             btn1: function () {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast({
                 text: "正在处理网页转图片中",
               });
@@ -3087,20 +3093,20 @@
                   console.log(resolve);
                   if (resolve["code"] !== 200) {
                     console.log(resolve);
-                    popup2.mask_close();
+                    popup2.closeMask();
                     popup2.toast({
                       text: resolve["msg"],
                     });
                     return;
                   }
-                  popup2.mask_close();
+                  popup2.closeMask();
                   popup2.toast({
                     text: "保存成功",
                   });
                 }),
                   (err) => {
                     console.log(err);
-                    popup2.mask_close();
+                    popup2.closeMask();
                     popup2.toast({
                       text: "保存数据失败",
                     });
@@ -3108,7 +3114,7 @@
               });
             },
             btn2: function () {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast({
                 text: "正在保存数据中",
               });
@@ -3129,20 +3135,20 @@
                 console.log(resolve);
                 if (resolve["code"] !== 200) {
                   console.log(resolve);
-                  popup2.mask_close();
+                  popup2.closeMask();
                   popup2.toast({
                     text: resolve["msg"],
                   });
                   return;
                 }
-                popup2.mask_close();
+                popup2.closeMask();
                 popup2.toast({
                   text: "保存成功",
                 });
               }),
                 (err) => {
                   console.log(err);
-                  popup2.mask_close();
+                  popup2.closeMask();
                   popup2.toast({
                     text: "保存数据失败",
                   });
@@ -3361,7 +3367,7 @@
                   chartBedUser = user;
                   chartBedPwd = pwd;
                   popup2.toast("设置完毕,请重新点击");
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                   res(false);
                 } else {
                   popup2.toast("账号或密码不能为空");
@@ -3373,10 +3379,10 @@
                 loginCallBack
               );
             } else if (chartBedToken == null) {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast("正在配置token");
               chartBedToken = await getToken();
-              popup2.mask_close();
+              popup2.closeMask();
               console.log("token:" + chartBedToken);
               if (chartBedToken != null) {
                 res(true);
@@ -3385,7 +3391,7 @@
                 res(false);
               }
             } else {
-              res(false);
+              res(true);
             }
           });
         }
@@ -3446,12 +3452,12 @@
             }
           };
           let completeFunction = () => {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_kggzs").val("");
           };
 
           let waterMarkAwaitFunction = async () => {
-            popup2.mask_loading_show();
+            popup2.showLoadingMask();
             Promise.all(
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
@@ -3489,11 +3495,13 @@
               })
             ).then(async () => {
               chooseImageFiles = needUploadImageFileArray;
-              popup2.mask_close();
+              popup2.closeMask();
               if (GM_getValue("chartBedWaterMarkAutoDefault")) {
-                let login_status = await checkLogin();
-                if (login_status) {
-                  popup2.mask_loading_show();
+                checkLogin().then((loginStatus) => {
+                  if (!loginStatus) {
+                    return;
+                  }
+                  popup2.showLoadingMask();
                   popup2.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
@@ -3504,78 +3512,83 @@
                     Utils.tryCatch(completeFunction);
                   });
                   return null;
-                }
-              }
-              let renderHTML = "";
-              Array.from(needUploadImageArray).forEach((item) => {
-                renderHTML =
-                  renderHTML +
-                  '<img src="' +
-                  item +
-                  '" crossoriginNew="anonymous">';
-              });
-              popup2.confirm({
-                text: `<style>
-                                .dialogbox.popup2-popmenu {
-                                    width: 80vw;
-                                    height: 55vh;
-                                }
-                                #popup2-confirm,
-                                #popup2-confirm .comiis_tip.bg_f{ 
-                                    width: inherit;
-                                    height: inherit;
-                                }
-                                #popup2-confirm .comiis_tip.bg_f dt.f_b{
-                                    height: calc(100% - 115px);
-                                }
-                                .upload-image-water{
-                                    height: 100%;
-                                }
-                                </style><div class="upload-image-water">${renderHTML}<div>`,
-                mask: true,
-                only: true,
-                ok: {
-                  text: "继续上传",
-                  callback: async () => {
-                    popup2.confirm_close();
-                    let login_status = await checkLogin();
-                    if (login_status) {
-                      popup2.mask_loading_show();
-                      popup2.toast("上传水印图片中...请稍后");
+                });
+              } else {
+                let renderHTML = "";
+                Array.from(needUploadImageArray).forEach((item) => {
+                  renderHTML =
+                    renderHTML +
+                    '<img src="' +
+                    item +
+                    '" crossoriginNew="anonymous">';
+                });
+                popup2.confirm({
+                  text: `<style>
+                                  .dialogbox.popup2-popmenu {
+                                      width: 80vw;
+                                      height: 55vh;
+                                  }
+                                  #popup2-confirm,
+                                  #popup2-confirm .comiis_tip.bg_f{ 
+                                      width: inherit;
+                                      height: inherit;
+                                  }
+                                  #popup2-confirm .comiis_tip.bg_f dt.f_b{
+                                      height: calc(100% - 115px);
+                                  }
+                                  .upload-image-water{
+                                      height: 100%;
+                                  }
+                                  </style><div class="upload-image-water">${renderHTML}<div>`,
+                  mask: true,
+                  only: true,
+                  ok: {
+                    text: "继续上传",
+                    callback: async () => {
+                      popup2.closeConfirm();
+                      checkLogin().then((loginStatus) => {
+                        if (!loginStatus) {
+                          return;
+                        }
+                        popup2.showLoadingMask();
+                        popup2.toast("上传水印图片中...请稍后");
 
-                      console.log(
-                        `图片数量:${needUploadImageFileArray.length}`
-                      );
-                      Utils.asyncArrayForEach(
-                        needUploadImageFileArray,
-                        uploadFileAwaitFunction
-                      ).then(() => {
-                        Utils.tryCatch(completeFunction);
+                        console.log(
+                          `图片数量:${needUploadImageFileArray.length}`
+                        );
+                        Utils.asyncArrayForEach(
+                          needUploadImageFileArray,
+                          uploadFileAwaitFunction
+                        ).then(() => {
+                          Utils.tryCatch(completeFunction);
+                        });
                       });
-                    }
+                    },
                   },
-                },
-                other: {
-                  enable: true,
-                  text: "保存至本地",
-                  callback: () => {
-                    Array.from(needUploadImageFileArray).forEach(
-                      async (item, index) => {
-                        let base64Image = await Utils.asyncFileToBase64(item);
-                        Utils.downloadBase64(item.name, base64Image);
-                      }
-                    );
+                  other: {
+                    enable: true,
+                    text: "保存至本地",
+                    callback: () => {
+                      Array.from(needUploadImageFileArray).forEach(
+                        async (item, index) => {
+                          let base64Image = await Utils.asyncFileToBase64(item);
+                          Utils.downloadBase64(item.name, base64Image);
+                        }
+                      );
+                    },
                   },
-                },
-              });
+                });
+              }
             });
           };
           if (GM_getValue("chartBedAddWaterMark")) {
             Utils.tryCatch(waterMarkAwaitFunction);
           } else {
-            let login_status = await checkLogin();
-            if (login_status) {
-              popup2.mask_loading_show();
+            checkLogin().then((loginStatus) => {
+              if (!loginStatus) {
+                return;
+              }
+              popup2.showLoadingMask();
               popup2.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
@@ -3585,7 +3598,7 @@
               ).then(() => {
                 Utils.tryCatch(completeFunction);
               });
-            }
+            });
           }
         });
         $jq(document).on("click", "#imglist_kggzs .delImg", async (e) => {
@@ -3641,7 +3654,7 @@
                   chartBedUser = user;
                   chartBedPwd = pwd;
                   popup2.toast("设置完毕,请重新点击");
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                   res(false);
                 } else {
                   popup2.toast("账号或密码不能为空");
@@ -3653,7 +3666,7 @@
                 loginCallBack
               );
             } else if (chartBedAuthToken == null && !loginStatus) {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast("正在配置auth_token");
               chartBedAuthToken = await mobile.chartBed.getAuthToken(
                 chartBedUrl
@@ -3667,7 +3680,7 @@
                   chartBedPwd,
                   chartBedAuthToken
                 );
-                popup2.mask_close();
+                popup2.closeMask();
                 if (retloginStatus) {
                   loginStatus = true;
                   res(true);
@@ -3678,10 +3691,10 @@
                   return;
                 }
               }
-              popup2.mask_close();
+              popup2.closeMask();
               res(false);
             } else {
-              res(false);
+              res(true);
             }
           });
         }
@@ -3741,12 +3754,12 @@
             }
           };
           let completeFunction = () => {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_hello").val("");
           };
 
           let waterMarkAwaitFunction = async () => {
-            popup2.mask_loading_show();
+            popup2.showLoadingMask();
             Promise.all(
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
@@ -3784,11 +3797,13 @@
               })
             ).then(async () => {
               chooseImageFiles = needUploadImageFileArray;
-              popup2.mask_close();
-              if (GM_getValue("chartBedWaterMarkAutoDefault")) {
-                let login_status = await checkLogin();
-                if (login_status) {
-                  popup2.mask_loading_show();
+              popup2.closeMask();
+              if (GM_getValue("chartBedWaterMarkAutoDefault", false)) {
+                checkLogin().then((loginStatus) => {
+                  if (!loginStatus) {
+                    return;
+                  }
+                  popup2.showLoadingMask();
                   popup2.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
@@ -3798,79 +3813,84 @@
                   ).then(() => {
                     Utils.tryCatch(completeFunction);
                   });
-                }
-                return null;
-              }
-              let renderHTML = "";
-              Array.from(needUploadImageArray).forEach((item) => {
-                renderHTML =
-                  renderHTML +
-                  '<img src="' +
-                  item +
-                  '" crossoriginNew="anonymous">';
-              });
-              popup2.confirm({
-                text: `<style>
-                                .dialogbox.popup2-popmenu {
-                                    width: 80vw;
-                                    height: 55vh;
-                                }
-                                #popup2-confirm,
-                                #popup2-confirm .comiis_tip.bg_f{ 
-                                    width: inherit;
-                                    height: inherit;
-                                }
-                                #popup2-confirm .comiis_tip.bg_f dt.f_b{
-                                    height: calc(100% - 115px);
-                                }
-                                .upload-image-water{
-                                    height: 100%;
-                                }
-                                </style><div class="upload-image-water">${renderHTML}<div>`,
-                mask: true,
-                only: true,
-                ok: {
-                  text: "继续上传",
-                  callback: async () => {
-                    popup2.confirm_close();
-                    let login_status = await checkLogin();
-                    if (login_status) {
-                      popup2.mask_loading_show();
-                      popup2.toast("上传水印图片中...请稍后");
+                });
+              } else {
+                let renderHTML = "";
+                Array.from(needUploadImageArray).forEach((item) => {
+                  renderHTML =
+                    renderHTML +
+                    '<img src="' +
+                    item +
+                    '" crossoriginNew="anonymous">';
+                });
+                popup2.confirm({
+                  text: `<style>
+                                  .dialogbox.popup2-popmenu {
+                                      width: 80vw;
+                                      height: 55vh;
+                                  }
+                                  #popup2-confirm,
+                                  #popup2-confirm .comiis_tip.bg_f{ 
+                                      width: inherit;
+                                      height: inherit;
+                                  }
+                                  #popup2-confirm .comiis_tip.bg_f dt.f_b{
+                                      height: calc(100% - 115px);
+                                  }
+                                  .upload-image-water{
+                                      height: 100%;
+                                  }
+                                  </style><div class="upload-image-water">${renderHTML}<div>`,
+                  mask: true,
+                  only: true,
+                  ok: {
+                    text: "继续上传",
+                    callback: async () => {
+                      popup2.closeConfirm();
+                      checkLogin().then((loginStatus) => {
+                        if (loginStatus) {
+                          popup2.showLoadingMask();
+                          popup2.toast("上传水印图片中...请稍后");
 
-                      console.log(
-                        `图片数量:${needUploadImageFileArray.length}`
-                      );
-                      Utils.asyncArrayForEach(
-                        needUploadImageFileArray,
-                        uploadFileAwaitFunction
-                      ).then(() => {
-                        Utils.tryCatch(completeFunction);
+                          console.log(
+                            `图片数量:${needUploadImageFileArray.length}`
+                          );
+                          Utils.asyncArrayForEach(
+                            needUploadImageFileArray,
+                            uploadFileAwaitFunction
+                          ).then(() => {
+                            Utils.tryCatch(completeFunction);
+                          });
+                        } else {
+                          console.log("登录失败");
+                        }
                       });
-                    }
+                    },
                   },
-                },
-                other: {
-                  enable: true,
-                  text: "保存至本地",
-                  callback: () => {
-                    Array.from(needUploadImageFileArray).forEach(
-                      async (item, index) => {
-                        let base64Image = await Utils.asyncFileToBase64(item);
-                        Utils.downloadBase64(item.name, base64Image);
-                      }
-                    );
+                  other: {
+                    enable: true,
+                    text: "保存至本地",
+                    callback: () => {
+                      Array.from(needUploadImageFileArray).forEach(
+                        async (item, index) => {
+                          let base64Image = await Utils.asyncFileToBase64(item);
+                          Utils.downloadBase64(item.name, base64Image);
+                        }
+                      );
+                    },
                   },
-                },
-              });
+                });
+              }
             });
           };
-          if (GM_getValue("chartBedAddWaterMark")) {
+          if (GM_getValue("chartBedAddWaterMark", false)) {
             Utils.tryCatch(waterMarkAwaitFunction);
           } else {
-            let login_status = await checkLogin();
-            if (login_status) {
-              popup2.mask_loading_show();
+            checkLogin().then((loginStatus) => {
+              if (!loginStatus) {
+                return;
+              }
+              popup2.showLoadingMask();
               popup2.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
@@ -3880,16 +3900,16 @@
               ).then(() => {
                 Utils.tryCatch(completeFunction);
               });
-            }
+            });
           }
         });
         $jq(document).on("click", "#imglist_hello .delImg", async function (e) {
           e.preventDefault();
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("删除中，请稍后");
           let id_encoded = e.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
-            popup2.mask_close();
+            popup2.closeMask();
             popup2.toast("获取id_encoded失败，请自行去Hello图床删除");
             return;
           }
@@ -3898,7 +3918,7 @@
             chartBedAuthToken,
             id_encoded
           );
-          popup2.mask_close();
+          popup2.closeMask();
           if (deleteStatus) {
             $jq(this).parent().remove();
             mobile.chartBed.storage.delete("hello", id_encoded);
@@ -3941,7 +3961,7 @@
                   chartBedUser = user;
                   chartBedPwd = pwd;
                   popup2.toast("设置完毕,请重新点击");
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                   res(false);
                 } else {
                   popup2.toast("账号或密码不能为空");
@@ -3953,7 +3973,7 @@
                 loginCallBack
               );
             } else if (chartBedAuthToken == null && !loginStatus) {
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast("正在配置auth_token");
               chartBedAuthToken = await mobile.chartBed.getAuthToken(
                 chartBedUrl
@@ -3967,7 +3987,7 @@
                   chartBedPwd,
                   chartBedAuthToken
                 );
-                popup2.mask_close();
+                popup2.closeMask();
                 if (retloginStatus) {
                   console.log("登录成功");
                   loginStatus = true;
@@ -3979,10 +3999,10 @@
                   return;
                 }
               }
-              popup2.mask_close();
+              popup2.closeMask();
               res(false);
             } else {
-              res(false);
+              res(true);
             }
           });
         }
@@ -4038,11 +4058,11 @@
             }
           };
           let completeFunction = () => {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_z4a").val("");
           };
           let waterMarkAwaitFunction = async () => {
-            popup2.mask_loading_show();
+            popup2.showLoadingMask();
             Promise.all(
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
@@ -4080,11 +4100,13 @@
               })
             ).then(async () => {
               chooseImageFiles = needUploadImageFileArray;
-              popup2.mask_close();
+              popup2.closeMask();
               if (GM_getValue("chartBedWaterMarkAutoDefault")) {
-                let login_status = await checkLogin();
-                if (login_status) {
-                  popup2.mask_loading_show();
+                checkLogin().then((loginStatus) => {
+                  if (!loginStatus) {
+                    return;
+                  }
+                  popup2.showLoadingMask();
                   popup2.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
@@ -4094,79 +4116,81 @@
                   ).then(() => {
                     Utils.tryCatch(completeFunction);
                   });
-                  return null;
-                }
-              }
-              let renderHTML = "";
-              Array.from(needUploadImageArray).forEach((item) => {
-                renderHTML =
-                  renderHTML +
-                  '<img src="' +
-                  item +
-                  '" crossoriginNew="anonymous">';
-              });
-              popup2.confirm({
-                text: `<style>
-                                .dialogbox.popup2-popmenu {
-                                    width: 80vw;
-                                    height: 55vh;
-                                }
-                                #popup2-confirm,
-                                #popup2-confirm .comiis_tip.bg_f{ 
-                                    width: inherit;
-                                    height: inherit;
-                                }
-                                #popup2-confirm .comiis_tip.bg_f dt.f_b{
-                                    height: calc(100% - 115px);
-                                }
-                                .upload-image-water{
-                                    height: 100%;
-                                }
-                                </style><div class="upload-image-water">${renderHTML}<div>`,
-                mask: true,
-                only: true,
-                ok: {
-                  text: "继续上传",
-                  callback: async () => {
-                    popup2.confirm_close();
-                    let login_status = await checkLogin();
-                    if (login_status) {
-                      popup2.mask_loading_show();
-                      popup2.toast("上传水印图片中...请稍后");
+                });
+              } else {
+                let renderHTML = "";
+                Array.from(needUploadImageArray).forEach((item) => {
+                  renderHTML =
+                    renderHTML +
+                    '<img src="' +
+                    item +
+                    '" crossoriginNew="anonymous">';
+                });
+                popup2.confirm({
+                  text: `<style>
+                                  .dialogbox.popup2-popmenu {
+                                      width: 80vw;
+                                      height: 55vh;
+                                  }
+                                  #popup2-confirm,
+                                  #popup2-confirm .comiis_tip.bg_f{ 
+                                      width: inherit;
+                                      height: inherit;
+                                  }
+                                  #popup2-confirm .comiis_tip.bg_f dt.f_b{
+                                      height: calc(100% - 115px);
+                                  }
+                                  .upload-image-water{
+                                      height: 100%;
+                                  }
+                                  </style><div class="upload-image-water">${renderHTML}<div>`,
+                  mask: true,
+                  only: true,
+                  ok: {
+                    text: "继续上传",
+                    callback: async () => {
+                      popup2.closeConfirm();
+                      let login_status = await checkLogin();
+                      if (login_status) {
+                        popup2.showLoadingMask();
+                        popup2.toast("上传水印图片中...请稍后");
 
-                      console.log(
-                        `图片数量:${needUploadImageFileArray.length}`
-                      );
-                      Utils.asyncArrayForEach(
-                        needUploadImageFileArray,
-                        uploadFileAwaitFunction
-                      ).then(() => {
-                        Utils.tryCatch(completeFunction);
-                      });
-                    }
-                  },
-                },
-                other: {
-                  enable: true,
-                  text: "保存至本地",
-                  callback: () => {
-                    Array.from(needUploadImageFileArray).forEach(
-                      async (item, index) => {
-                        let base64Image = await Utils.asyncFileToBase64(item);
-                        Utils.downloadBase64(item.name, base64Image);
+                        console.log(
+                          `图片数量:${needUploadImageFileArray.length}`
+                        );
+                        Utils.asyncArrayForEach(
+                          needUploadImageFileArray,
+                          uploadFileAwaitFunction
+                        ).then(() => {
+                          Utils.tryCatch(completeFunction);
+                        });
                       }
-                    );
+                    },
                   },
-                },
-              });
+                  other: {
+                    enable: true,
+                    text: "保存至本地",
+                    callback: () => {
+                      Array.from(needUploadImageFileArray).forEach(
+                        async (item, index) => {
+                          let base64Image = await Utils.asyncFileToBase64(item);
+                          Utils.downloadBase64(item.name, base64Image);
+                        }
+                      );
+                    },
+                  },
+                });
+              }
             });
           };
           if (GM_getValue("chartBedAddWaterMark")) {
             Utils.tryCatch(waterMarkAwaitFunction);
           } else {
-            let login_status = await checkLogin();
-            if (login_status) {
-              popup2.mask_loading_show();
+            checkLogin().then((loginStatus) => {
+              if (!loginStatus) {
+                return;
+              }
+              popup2.showLoadingMask();
               popup2.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
@@ -4176,16 +4200,16 @@
               ).then(() => {
                 Utils.tryCatch(completeFunction);
               });
-            }
+            });
           }
         });
         $jq(document).on("click", "#imglist_z4a .delImg", async function (e) {
           e.preventDefault();
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           popup2.toast("删除中，请稍后");
           let id_encoded = e.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
-            popup2.mask_close();
+            popup2.closeMask();
             popup2.toast("获取id_encoded失败，请自行去Z4A图床删除");
             return;
           }
@@ -4194,7 +4218,7 @@
             chartBedAuthToken,
             id_encoded
           );
-          popup2.mask_close();
+          popup2.closeMask();
           if (deleteStatus) {
             $jq(this).parent().remove();
             mobile.chartBed.storage.delete("z4a", id_encoded);
@@ -4306,7 +4330,7 @@
             });
           }
           function completeFunction() {
-            popup2.mask_close();
+            popup2.closeMask();
             $jq("#filedata_mt").val("");
           }
           async function uploadFileAwaitFunction(params) {
@@ -4360,7 +4384,7 @@
             }
           }
           async function waterMarkAwaitFunction() {
-            popup2.mask_loading_show();
+            popup2.showLoadingMask();
             Promise.all(
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
@@ -4398,9 +4422,9 @@
               })
             ).then(async () => {
               chooseImageFiles = needUploadImageFileArray;
-              popup2.mask_close();
+              popup2.closeMask();
               if (GM_getValue("chartBedWaterMarkAutoDefault")) {
-                popup2.mask_loading_show();
+                popup2.showLoadingMask();
                 popup2.toast("上传水印图片中...请稍后");
 
                 console.log(`图片数量:${needUploadImageFileArray.length}`);
@@ -4443,8 +4467,8 @@
                 ok: {
                   text: "继续上传",
                   callback: async () => {
-                    popup2.confirm_close();
-                    popup2.mask_loading_show();
+                    popup2.closeConfirm();
+                    popup2.showLoadingMask();
                     popup2.toast("上传水印图片中...请稍后");
 
                     console.log(`图片数量:${needUploadImageFileArray.length}`);
@@ -4474,7 +4498,7 @@
           if (GM_getValue("chartBedAddWaterMark")) {
             Utils.tryCatch(waterMarkAwaitFunction);
           } else {
-            popup2.mask_loading_show();
+            popup2.showLoadingMask();
             popup2.toast("上传图片中...请稍后");
 
             console.log(`图片数量:${chooseImageFiles.length}`);
@@ -4678,7 +4702,7 @@
       /* 编辑器优化-简略 */
       if (
         !GM_getValue("v49") ||
-        !window.location.href.match(mt_config.rexp.forum_post)
+        !window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         return;
       }
@@ -5721,7 +5745,7 @@
         ) {
           return;
         }
-        popup2.mask_loading_show();
+        popup2.showLoadingMask();
         if ($jq("#fastpostsubmit").val() == "发表") {
           var msgobj = $jq("#needmessage");
           let url = form_action + "reply&handlekey=fastpost&loc=1&inajax=1";
@@ -5736,7 +5760,7 @@
             timeout: 5000,
             dataType: "xml",
             success: function (s) {
-              popup2.mask_close();
+              popup2.closeMask();
               console.log(s.lastChild.firstChild.nodeValue);
               evalscript(s.lastChild.firstChild.nodeValue);
               if (handle_error(s)) {
@@ -5755,7 +5779,7 @@
               );
             },
             error: function (e) {
-              popup2.mask_close();
+              popup2.closeMask();
               console.log(e);
               /* window.location.href = form_action; */
               popup2.toast("连接超时,网络异常");
@@ -5781,7 +5805,7 @@
             timeout: 5000,
             dataType: "xml",
             success: function (s) {
-              popup2.mask_close();
+              popup2.closeMask();
               console.log(s.lastChild.firstChild.nodeValue);
               evalscript(s.lastChild.firstChild.nodeValue);
               if (handle_error(s)) {
@@ -5803,7 +5827,7 @@
               $jq(document).scrollTop($jq(document).height());
             },
             error: (e) => {
-              popup2.mask_close();
+              popup2.closeMask();
               console.log(e);
               /*  window.location.href = $jq('#comiis_foot_menu_beautify_big .reply_user_content').attr('data-reply-action'); */
 
@@ -5822,7 +5846,7 @@
           /* 回复按钮新事件 */
           var obj = $jq(this);
           $jq("#comiis_foot_menu_beautify_big").attr("data-model", "reply");
-          popup2.mask_loading_show();
+          popup2.showLoadingMask();
           console.log($jq(this));
           $jq.ajax({
             type: "GET",
@@ -5830,7 +5854,7 @@
             dataType: "xml",
             timeout: 5000,
             success: function (s) {
-              popup2.mask_close();
+              popup2.closeMask();
               console.log(s.lastChild.firstChild.nodeValue);
               if (handle_error(s)) {
                 return;
@@ -5880,7 +5904,7 @@
               );
             },
             error: (e) => {
-              popup2.mask_close();
+              popup2.closeMask();
               console.log(e);
               /* window.location.href = obj.attr('datahref'); */
               popup2.toast("连接超时,网络异常");
@@ -6220,9 +6244,9 @@
       /* 编辑器优化-完整版 */
       if (
         !GM_getValue("v50") ||
-        (!window.location.href.match(mt_config.rexp.post_forum) &&
-          !window.location.href.match(mt_config.rexp.edit_forum) &&
-          !window.location.href.match(mt_config.rexp.reply_forum))
+        (!window.location.href.match(MT_CONFIG.regexp.postForum) &&
+          !window.location.href.match(MT_CONFIG.regexp.editForum) &&
+          !window.location.href.match(MT_CONFIG.regexp.replyForum))
         /* !window.location.href.match(mt_config.rexp.forum_post) */
       ) {
         return;
@@ -6475,8 +6499,8 @@
             mask: true,
             ok: {
               callback: () => {
-                popup2.mask_close();
-                popup2.confirm_close();
+                popup2.closeMask();
+                popup2.closeConfirm();
                 comiis_delthread();
               },
             },
@@ -6515,7 +6539,7 @@
                 ) {
                   $jq("#needmessage")?.val(editHistoryText);
                   $jq("#needsubject")?.val(editHistorySubjectText);
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                   popup2.toast("恢复成功");
                 } else {
                   popup2.confirm({
@@ -6523,7 +6547,7 @@
                     callback: () => {
                       $jq("#needmessage")?.val(editHistoryText);
                       $jq("#needsubject")?.val(editHistorySubjectText);
-                      popup2.confirm_close();
+                      popup2.closeConfirm();
                       popup2.toast("覆盖成功");
                     },
                     mask: true,
@@ -6540,7 +6564,7 @@
               callback: () => {
                 GM_deleteValue("editHistoryText");
                 GM_deleteValue("editHistorySubjectText");
-                popup2.confirm_close();
+                popup2.closeConfirm();
                 popup2.toast("删除成功");
               },
             },
@@ -6978,7 +7002,7 @@
         );
       }
       if (
-        window.location.href.match(mt_config.rexp.edit_forum) &&
+        window.location.href.match(MT_CONFIG.regexp.editForum) &&
         $jq("#needsubject").val() === ""
       ) {
         $jq(".comiis_styli.comiis_flex").hide();
@@ -7167,7 +7191,7 @@
       /* 蓝奏功能(登录、上传、查看历史上传、删除) */
       if (
         !GM_getValue("v47") ||
-        !window.location.href.match(mt_config.rexp.bbs)
+        !window.location.href.match(MT_CONFIG.regexp.bbs)
       ) {
         return;
       }
@@ -7504,7 +7528,7 @@
             ok: {
               callback: () => {
                 plugin_delete_lanzou_file(t_id, t_f_id, index);
-                popup2.confirm_close();
+                popup2.closeConfirm();
               },
             },
 
@@ -7824,7 +7848,7 @@
       }
       if (
         GM_getValue("v21") &&
-        window.location.href.match(mt_config.rexp.forum_post) &&
+        window.location.href.match(MT_CONFIG.regexp.forumPost) &&
         document.title.indexOf("提示信息 - MT论坛") == -1
       ) {
         let tip_html = `
@@ -7938,7 +7962,7 @@
 
       if (
         GM_getValue("v32") &&
-        window.location.href.match(mt_config.rexp.forum_post) &&
+        window.location.href.match(MT_CONFIG.regexp.forumPost) &&
         document.title.indexOf("提示信息 - MT论坛") == -1
       ) {
         if (!document.querySelector(".comiis_pltit span.f_d")) {
@@ -8062,8 +8086,8 @@
       if (
         !GM_getValue("v45") &&
         !(
-          window.location.href.match(mt_config.rexp.forum_guide_url) ||
-          !window.location.href.match(mt_config.rexp.search_url)
+          window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
+          !window.location.href.match(MT_CONFIG.regexp.searchUrl)
         )
       ) {
         return;
@@ -8160,13 +8184,13 @@
 
       function getFormList() {
         /* 获取当前页面所有帖子 */
-        let formList = mt_config.dom_obj.comiis_formlist()
-          ? mt_config.dom_obj.comiis_formlist()
+        let formList = MT_CONFIG.element.comiisFormlist()
+          ? MT_CONFIG.element.comiisFormlist()
           : [];
         formList =
-          formList.length == 0 ? mt_config.dom_obj.comiis_postli() : formList;
+          formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
         formList =
-          formList.length == 0 ? mt_config.dom_obj.comiis_mmlist() : formList;
+          formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
         return formList;
       }
       let formlist = null; /* 帖子列表 */
@@ -8496,18 +8520,18 @@
     paymentSubjectReminder() {
       /* 付费主题白嫖提醒 */
       let urlForumPostMatchStatus = window.location.href.match(
-        mt_config.rexp.forum_post
+        MT_CONFIG.regexp.forumPost
       );
       let urlHomeSpaceMatchStatus = window.location.href.match(
-        mt_config.rexp.home_space_url
+        MT_CONFIG.regexp.homeSpaceUrl
       );
       let urlGuideMatchStatus = window.location.href.match(
-        mt_config.rexp.forum_guide_url
+        MT_CONFIG.regexp.forumGuideUrl
       );
       let urlCommunityMatchStatus =
-        window.location.href.match(mt_config.rexp.community_url) ||
-        window.location.href.match(mt_config.rexp.plate_url);
-      let urlBBSMatchStatus = window.location.href.match(mt_config.rexp.bbs);
+        window.location.href.match(MT_CONFIG.regexp.communityUrl) ||
+        window.location.href.match(MT_CONFIG.regexp.plateUrl);
+      let urlBBSMatchStatus = window.location.href.match(MT_CONFIG.regexp.bbs);
 
       let storageMatchStatus = GM_getValue("v44") != null;
       let setTipForumPostList =
@@ -8725,7 +8749,7 @@
                   Utils.deleteParentDOM(e.target, (dom) => {
                     return dom.localName === "tr" ? true : false;
                   });
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                 },
               },
               only: true,
@@ -8814,7 +8838,7 @@
                     if (!isRemove) {
                       popup2.toast("移出失败");
                     } else {
-                      popup2.confirm_close();
+                      popup2.closeConfirm();
                       popup2.toast({
                         text: "移出成功",
                       });
@@ -8964,23 +8988,23 @@
       if (
         !GM_getValue("v34") &&
         !(
-          window.location.href.match(mt_config.rexp.forum_guide_url) ||
+          window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
           /* !(window.location.href.match(mt_config.rexp.forum_post)) ||
                     !(window.location.href.match(mt_config.rexp.plate_url)) || */
-          !window.location.href.match(mt_config.rexp.search_url)
+          !window.location.href.match(MT_CONFIG.regexp.searchUrl)
         )
       ) {
         return;
       }
 
       function getFormList() {
-        let formList = mt_config.dom_obj.comiis_formlist()
-          ? mt_config.dom_obj.comiis_formlist()
+        let formList = MT_CONFIG.element.comiisFormlist()
+          ? MT_CONFIG.element.comiisFormlist()
           : [];
         formList =
-          formList.length == 0 ? mt_config.dom_obj.comiis_postli() : formList;
+          formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
         formList =
-          formList.length == 0 ? mt_config.dom_obj.comiis_mmlist() : formList;
+          formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
         return formList;
       }
       let formlist = null; /* 帖子列表 */
@@ -9706,7 +9730,7 @@
             }
             text = text.replace(
               item,
-              `<img src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}">`
+              `<img src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}" crossoriginNew="anonymous">`
             );
           });
         }
@@ -10443,7 +10467,7 @@
                   } else {
                     comiis_addsmilies(userInput); /* 插入贴内 */
                   }
-                  popup2.confirm_close();
+                  popup2.closeConfirm();
                   /* if (value["isFunc"]) {
                                         userInput = mobile.quickUBB.set_rainbow(value["num"], userInput);
                                     }*/
@@ -10845,7 +10869,7 @@
       /* 修复图片宽度 */
       if (
         GM_getValue("v16") &&
-        window.location.href.match(mt_config.rexp.forum_post)
+        window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         GM_addStyle(`
                 .comiis_messages img{
@@ -10858,7 +10882,7 @@
       /* 移除评论区字体效果 */
       if (
         GM_getValue("v3") &&
-        window.location.href.match(mt_config.rexp.forum_post)
+        window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         var hide = document.getElementsByTagName("font");
         var postForumMain = document.querySelector(".comiis_ordertype")
@@ -10879,7 +10903,7 @@
         for (let i = 0; i < content.length; i++) {
           if (postForumMain.indexOf(content[i].innerHTML) == -1) {
             content[i].innerHTML = content[i].innerHTML.replace(
-              mt_config.rexp.font_special,
+              MT_CONFIG.regexp.fontSpecial,
               ""
             );
             if (content[i].nextElementSibling.localName === "strike") {
@@ -10909,7 +10933,7 @@
       /* 移除帖子内的字体style */
       if (
         GM_getValue("v1") &&
-        window.location.href.match(mt_config.rexp.forum_post)
+        window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         if ($jq(".comiis_a.comiis_message_table.cl").eq(0).html()) {
           $jq(".comiis_a.comiis_message_table.cl")
@@ -10918,7 +10942,7 @@
               $jq(".comiis_a.comiis_message_table.cl")
                 .eq(0)
                 .html()
-                .replace(mt_config.rexp.font_special, "")
+                .replace(MT_CONFIG.regexp.fontSpecial, "")
             );
         }
       }
@@ -10927,7 +10951,7 @@
       /* 修复搜索的清空按钮 */
       if (
         GM_getValue("v36") &&
-        window.location.href.match(mt_config.rexp.search_url)
+        window.location.href.match(MT_CONFIG.regexp.searchUrl)
       ) {
         let $search_input = $jq(".ssclose.bg_e.f_e");
         if ($search_input) {
@@ -10946,7 +10970,7 @@
         return;
       }
 
-      if (window.location.href.match(mt_config.rexp.home_url_brief)) {
+      if (window.location.href.match(MT_CONFIG.regexp.homeUrlBrief)) {
         let href_params = window.location.href.match(/home.php\?(.+)/gi);
         href_params = href_params[href_params.length - 1];
         let params_split = href_params.split("&");
@@ -10958,7 +10982,7 @@
           window.location.href = window.location.href + "&do=profile";
         }
       }
-      if (window.location.href.match(mt_config.rexp.home_url_at)) {
+      if (window.location.href.match(MT_CONFIG.regexp.homeUrlWithAt)) {
         let href_params = window.location.href.match(/space-uid-(.+).html/i);
         href_params = href_params[href_params.length - 1];
         window.location.href = `https://bbs.binmt.cc/home.php?mod=space&uid=${href_params}&do=profile`;
@@ -11452,7 +11476,7 @@
       }
       if (
         GM_getValue("v19") &&
-        location.href.match(mt_config.rexp.search_url)
+        location.href.match(MT_CONFIG.regexp.searchUrl)
       ) {
         GM_addStyle(`
                 #comiis_search_noe{
@@ -11569,8 +11593,8 @@
     selectPostingSection() {
       /* 在发帖/编辑帖子时选择发帖板块 */
       if (
-        !window.location.href.match(mt_config.rexp.post_forum) &&
-        !window.location.href.match(mt_config.rexp.edit_forum)
+        !window.location.href.match(MT_CONFIG.regexp.postForum) &&
+        !window.location.href.match(MT_CONFIG.regexp.editForum)
       ) {
         return;
       }
@@ -11630,7 +11654,7 @@
       let currentSection = window.location.search.match(/fid=([0-9]+)/);
       currentSection = currentSection[currentSection.length - 1];
 
-      if (window.location.href.match(mt_config.rexp.post_forum)) {
+      if (window.location.href.match(MT_CONFIG.regexp.postForum)) {
         /* 发帖 */
         console.log("发帖");
         selectNode.on("change", function () {
@@ -11710,7 +11734,7 @@
       /* 设置动态头像 */
       /* 感谢提供思路 https://greasyfork.org/zh-CN/scripts/11969-discuz论坛头像上传助手 */
       if (
-        !window.location.href.match(mt_config.rexp.data_setting_url) ||
+        !window.location.href.match(MT_CONFIG.regexp.dataSettingUrl) ||
         !GM_getValue("v51", false)
       ) {
         return;
@@ -11877,7 +11901,7 @@
                 popup2.toast("图片校验不通过");
                 return;
               }
-              popup2.mask_loading_show();
+              popup2.showLoadingMask();
               popup2.toast("正在处理数据中...");
               let baseBig = await Utils.asyncFileToBase64(
                 $jq("#comiis_file_dynamic_avater_big").prop("files")[0]
@@ -11895,13 +11919,13 @@
               let data_resp = await getPCUploadNewAvater();
               if (data_resp == "") {
                 popup2.toast("获取PC数据失败");
-                popup2.mask_close();
+                popup2.closeMask();
                 return;
               }
               let data = data_resp.match(/var[\s]*data[\s]*=[\s]*"(.+?)"/);
               if (data == null || data.length != 2) {
                 popup2.toast("获取变量-data失败");
-                popup2.mask_close();
+                popup2.closeMask();
                 return;
               }
               data = data[data.length - 1];
@@ -11935,7 +11959,7 @@
                     -1
                   ) {
                     popup2.toast("上传成功");
-                    popup2.confirm_close();
+                    popup2.closeConfirm();
                     setTimeout(() => {
                       window.location.reload();
                     }, 1500);
@@ -12022,7 +12046,7 @@
     },
     shieldPlate() {
       /* 屏蔽板块 */
-      if (window.location.href.match(mt_config.rexp.forum_guide_url)) {
+      if (window.location.href.match(MT_CONFIG.regexp.forumGuideUrl)) {
         let infos = document.querySelectorAll(
           ".comiis_forumlist .forumlist_li"
         );
@@ -12046,9 +12070,9 @@
     shieldUser() {
       /* 屏蔽用户 */
       if (
-        window.location.href.match(mt_config.rexp.forum_guide_url) ||
-        window.location.href.match(mt_config.rexp.plate_url) ||
-        window.location.href.match(mt_config.rexp.forum_post)
+        window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
+        window.location.href.match(MT_CONFIG.regexp.plateUrl) ||
+        window.location.href.match(MT_CONFIG.regexp.forumPost)
       ) {
         let infos = document.querySelectorAll(
           ".comiis_forumlist .forumlist_li"
@@ -12073,7 +12097,7 @@
             }
           }
           usr = usr[0].href;
-          let usr_uid = usr.match(mt_config.rexp.mt_uid)[1];
+          let usr_uid = usr.match(MT_CONFIG.regexp.MTUid)[1];
           if (black_list_array.indexOf(usr_uid) != -1) {
             console.log("屏蔽用户：" + usr_uid);
             info.setAttribute("style", "display:none !important;");
@@ -12084,7 +12108,7 @@
     showLatestPostForm() {
       /* 导读新增显示最新帖子 */
       if (
-        !window.location.href.match(mt_config.rexp.navigation_url) ||
+        !window.location.href.match(MT_CONFIG.regexp.navigationUrl) ||
         !GM_getValue("v53", false)
       ) {
         return;
@@ -12195,7 +12219,7 @@
     },
     showSignInRanking() {
       /* 显示签到的最先几个人，最多10个，和顶部的今日签到之星 */
-      if (window.location.href.match(mt_config.rexp.k_misign_sign)) {
+      if (window.location.href.match(MT_CONFIG.regexp.kMiSignSign)) {
         let today_ranking_ele = document.querySelector(
           ".comiis_topnv .comiis_flex .flex"
         );
@@ -12433,7 +12457,7 @@
       /* 显示今日之星，在签到页上 */
       if (
         GM_getValue("v33") &&
-        window.location.href.match(mt_config.rexp.k_misign_sign)
+        window.location.href.match(MT_CONFIG.regexp.kMiSignSign)
       ) {
         let todayStarParent = $jq(".pg_k_misign .comiis_qdinfo");
         let todayStar = document.createElement("ul");
@@ -12493,10 +12517,10 @@
       /* 显示用户的uid */
       if (
         GM_getValue("v15") &&
-        (window.location.href.match(mt_config.rexp.forum_post_guide_url) ||
-          window.location.href.match(mt_config.rexp.forum_post) ||
-          window.location.href.match(mt_config.rexp.plate_url) ||
-          window.location.href.match(mt_config.rexp.search_url) ||
+        (window.location.href.match(MT_CONFIG.regexp.forumPostGuideUrl) ||
+          window.location.href.match(MT_CONFIG.regexp.forumPost) ||
+          window.location.href.match(MT_CONFIG.regexp.plateUrl) ||
+          window.location.href.match(MT_CONFIG.regexp.searchUrl) ||
           window.location.href.match(
             /bbs.binmt.cc\/home.php\?mod=space&do=thread&view=me/
           ) ||
@@ -12515,13 +12539,13 @@
         window.findUserFormList = false;
         window.findUserFormListNums = 0;
         let findSetInval = setInterval(function () {
-          let formList = mt_config.dom_obj.comiis_formlist()
-            ? mt_config.dom_obj.comiis_formlist()
+          let formList = MT_CONFIG.element.comiisFormlist()
+            ? MT_CONFIG.element.comiisFormlist()
             : [];
           formList =
-            formList.length == 0 ? mt_config.dom_obj.comiis_postli() : formList;
+            formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
           formList =
-            formList.length == 0 ? mt_config.dom_obj.comiis_mmlist() : formList;
+            formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
           window.findUserFormList = formList.length ? true : false;
           if (findUserFormListNums >= 16) {
             console.log("已循环16次，未找到帖子");
@@ -12536,7 +12560,7 @@
             function matchUIDByArray(data) {
               for (let i = 0; i < data.length; i++) {
                 let url = data[i].href;
-                let uid = url.match(mt_config.rexp.mt_uid);
+                let uid = url.match(MT_CONFIG.regexp.MTUid);
                 if (uid) {
                   return uid[1];
                 }
@@ -12612,7 +12636,7 @@
     async showSpaceContreteReply() {
       /* 显示空间-帖子-具体回复 */
       if (
-        !window.location.href.match(mt_config.rexp.space_post) ||
+        !window.location.href.match(MT_CONFIG.regexp.spacePost) ||
         !GM_getValue("v52")
       ) {
         return;
@@ -12667,13 +12691,13 @@
 
       function getFormList() {
         /* 获取当前页面所有帖子 */
-        let formList = mt_config.dom_obj.comiis_formlist()
-          ? mt_config.dom_obj.comiis_formlist()
+        let formList = MT_CONFIG.element.comiisFormlist()
+          ? MT_CONFIG.element.comiisFormlist()
           : [];
         formList =
-          formList.length == 0 ? mt_config.dom_obj.comiis_postli() : formList;
+          formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
         formList =
-          formList.length == 0 ? mt_config.dom_obj.comiis_mmlist() : formList;
+          formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
         return formList;
       }
       var pcReplyArray = await getPCReply();
@@ -12768,7 +12792,7 @@
                 }`);
       }
 
-      if (window.location.href.match(mt_config.rexp.bbs)) {
+      if (window.location.href.match(MT_CONFIG.regexp.bbs)) {
         var setting_content = document.createElement("li");
         setting_content.className = "comiis_left_Touch";
         setting_content.innerHTML =
@@ -12926,8 +12950,8 @@
           text: "不再提醒",
           callback: () => {
             GM_setValue("firstUse", false);
-            popup2.confirm_close();
-            popup2.mask_close();
+            popup2.closeConfirm();
+            popup2.closeMask();
           },
         },
       });
@@ -12936,7 +12960,7 @@
   if (envCheck()) {
     $jq(document).ready(function () {
       entrance();
-      console.log(`执行完毕,耗时${Date.now() - mt_config.GMRunStartTime}ms`);
+      console.log(`执行完毕,耗时${Date.now() - MT_CONFIG.GMRunStartTime}ms`);
       firstUseTip();
     });
   }
