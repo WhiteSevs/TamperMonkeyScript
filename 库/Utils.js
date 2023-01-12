@@ -2,7 +2,7 @@
  * @overview	 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  0.5
+ * @version  0.6
  */
 let Utils = {};
 
@@ -1616,7 +1616,7 @@ Utils.noConflict = function (
  *    showText:(text,enable)=>{
  *      return "[" + (enable ? "√" : "×") + "]" + text;
  *    },
- *    callback:(status)=>{
+ *    callback:(key,status)=>{
  *      console.log("点击菜单，值修改",status);
  *    }
  *  }
@@ -1669,7 +1669,7 @@ Utils.GM_Menu = function (data = {}, autoReload = false) {
         let _enable_ = enable ? false : true;
         GM_setValue(key, _enable_);
         if (typeof callback === "function") {
-          callback();
+          callback(key, _enable_);
         }
         if (autoReload) {
           window.location.reload();
