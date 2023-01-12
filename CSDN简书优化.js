@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.5.1
+// @version      0.5.2
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -365,7 +365,8 @@
       .user-desc.user-desc-fix,
       .recommend-card-box,
       .more-article,
-      .article-show-more{
+      .article-show-more,
+      #csdn-toolbar-profile-nologin{
           display: none !important;
       }
       .comment-list-box{
@@ -505,7 +506,9 @@
       function shieldLoginDialog() {
         /* 屏蔽登录弹窗 */
         if (GM_Menu.getEnable("shieldLoginDialog")) {
-          GM_addStyle(`.passport-login-container{display: none !important;}`);
+          window.GM_CSS_GM_shieldLoginDialog = [
+            GM_addStyle(`.passport-login-container{display: none !important;}`),
+          ];
         }
       }
       GM_addStyle(css);
@@ -549,6 +552,28 @@
       enable: true,
       showText: (_text_, _enable_) => {
         return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+      },
+      callback: (_key_, _enable_) => {
+        if (!_enable_) {
+          window.GM_CSS_GM_shieldLoginDialog.forEach((item) => {
+            item.remove();
+          });
+        } else {
+          if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
+            window.GM_CSS_GM_shieldLoginDialog = [
+              ...window.GM_CSS_GM_shieldLoginDialog,
+              GM_addStyle(
+                `.passport-login-container{display: none !important;}`
+              ),
+            ];
+          } else {
+            window.GM_CSS_GM_shieldLoginDialog = [
+              GM_addStyle(
+                `.passport-login-container{display: none !important;}`
+              ),
+            ];
+          }
+        }
       },
     },
     showDirect: {
