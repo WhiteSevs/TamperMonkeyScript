@@ -2,7 +2,7 @@
 // @name         MT论坛
 // @namespace    http://tampermonkey.net/
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.3
+// @version      2.7.4
 // @author       WhiteSevs
 // @icon         https://bbs.binmt.cc/favicon.ico
 // @match        *://bbs.binmt.cc/*
@@ -468,7 +468,9 @@
 		console.log("正在检测脚本环境...");
 		if (typeof $ != "undefined") {
 			window.$jq =
-				$.noConflict(true); /* 为什么这么写，X浏览器加载jq会替换网页上的jq */
+				$.noConflict(
+					true
+				); /* 为什么这么写，非油猴管理器使用该脚本没有容器环境，会修改页面的jQuery */
 			console.log(
 				`check: %c $jq %c √ jQuery版本:${$jq.fn.jquery}`,
 				"background:#24272A; color:#ffffff",
@@ -482,6 +484,10 @@
 				return false;
 			}
 			if (typeof jQuery != "undefined") {
+				if (jQuery.fn.jquery === "3.4.1") {
+					/* 恢复页面的jQuery失败，再试一次 */
+					window.$jq = $.noConflict(true);
+				}
 				console.log(
 					`check: %c $ %c √ 网站的jQuery版本:${
 						$.fn ? $.fn.jquery : jQuery.fn.jquery
@@ -653,14 +659,6 @@
 							console.log("eval执行失败" + error);
 							execStatus = false;
 						}
-						/* try {
-                            window.eval(retText);
-                            execStatus = true;
-                            loadNetworkResource = loadNetworkResource.concat(url);
-                         }catch (error) {
-                            console.log("window.eval执行失败 " + error);
-                            execStatus = false;
-                         }*/
 						res(execStatus);
 					},
 					onerror: () => {
@@ -947,8 +945,6 @@
 					},
 					true
 				);
-				GM_Menu.init();
-				GM_Menu.register();
 			});
 		},
 		quickReply() {
@@ -1205,6 +1201,13 @@
 						console.log("签到: 网络异常");
 						popup2.toast({
 							text: "签到: 网络异常",
+							delayTime: 4000,
+						});
+					},
+					ontimeout: () => {
+						console.log("签到: 网络超时");
+						popup2.toast({
+							text: "签到: 网络超时",
 							delayTime: 4000,
 						});
 					},
@@ -1573,6 +1576,10 @@
 							popup2.toast("网络异常,请重新获取");
 							res();
 						},
+						ontimeout: () => {
+							popup2.toast("请求超时,请重新获取");
+							res();
+						},
 					});
 				});
 			},
@@ -1734,6 +1741,7 @@
 					GM_xmlhttpRequest({
 						url: url,
 						method: "GET",
+						timeout: 8000,
 						headers: {
 							"user-agent": Utils.getRandomPCUA(),
 						},
@@ -1754,6 +1762,10 @@
 							popup2.toast("网络异常");
 							res(null);
 						},
+						ontimeout: () => {
+							popup2.toast("请求超时");
+							res(null);
+						},
 					});
 				});
 			},
@@ -1763,6 +1775,7 @@
 					GM_xmlhttpRequest({
 						url: `${url}/login`,
 						method: "POST",
+						timeout: 8000,
 						data: `login-subject=${user}&password=${pwd}&auth_token=${auth_token}`,
 						headers: {
 							"Content-Type": "application/x-www-form-urlencoded",
@@ -1779,7 +1792,11 @@
 						},
 						onerror: () => {
 							popup2.toast("网络异常");
-							res(404);
+							res(false);
+						},
+						ontimeout: () => {
+							popup2.toast("请求超时");
+							res(false);
 						},
 					});
 				});
@@ -1804,6 +1821,7 @@
 						method: "POST",
 						data: form,
 						async: false,
+
 						responseType: "json",
 						headers: {
 							Accept: "application/json",
@@ -1862,6 +1880,7 @@
 					GM_xmlhttpRequest({
 						url: `${url}/json`,
 						method: "POST",
+						timeout: 5000,
 						data: `auth_token=${auth_token}&action=delete&single=true&delete=image&deleting[id]=${id_encoded}`,
 						headers: {
 							"Content-Type":
@@ -1906,6 +1925,10 @@
 						},
 						onerror: () => {
 							popup2.toast("网络异常");
+							res(false);
+						},
+						ontimeout: () => {
+							popup2.toast("请求超时");
 							res(false);
 						},
 					});
@@ -2047,6 +2070,7 @@
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/tokens`,
 							method: "POST",
+							timeout: 5000,
 							data: formData,
 							headers: {
 								Accept: "application/json",
@@ -2068,6 +2092,10 @@
 							},
 							onerror: () => {
 								popup2.toast("网络异常");
+								res(null);
+							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
 								res(null);
 							},
 						});
@@ -2138,6 +2166,7 @@
 							url: `${chartBedUrl}/images/:${imageKey}`,
 							method: "DELETE",
 							async: false,
+							timeout: 5000,
 							data: JSON.stringify({
 								key: "",
 							}),
@@ -2160,6 +2189,10 @@
 							},
 							onerror: (r) => {
 								popup2.toast("网络异常");
+								res(res_data);
+							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
 								res(res_data);
 							},
 						});
@@ -3006,7 +3039,7 @@
 													popup2.toast({
 														text: "删除成功",
 													});
-													Utils.deleteParentDOM(_this, (dom) => {
+													Utils.deleteParentNode(_this, (dom) => {
 														return dom.id === "autolist" ? true : false;
 													});
 													popup2.closeConfirm();
@@ -3245,6 +3278,7 @@
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/tokens`,
 							method: "POST",
+							timeout: 5000,
 							data: formData,
 							headers: {
 								Accept: "application/json",
@@ -3266,6 +3300,10 @@
 							},
 							onerror: () => {
 								popup2.toast("网络异常");
+								res(null);
+							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
 								res(null);
 							},
 						});
@@ -3341,6 +3379,7 @@
 							url: `${chartBedUrl}/images/:${imageKey}`,
 							method: "DELETE",
 							async: false,
+							timeout: 5000,
 							data: JSON.stringify({
 								key: "",
 							}),
@@ -3361,6 +3400,10 @@
 							},
 							onerror: (r) => {
 								popup2.toast("网络异常");
+								res(res_data);
+							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
 								res(res_data);
 							},
 						});
@@ -4289,6 +4332,10 @@
 								onerror: (response) => {
 									console.log(response);
 									popup2.toast("网络异常");
+									resolve(null);
+								},
+								ontimeout: () => {
+									popup2.toast("请求超时");
 									resolve(null);
 								},
 							});
@@ -5949,7 +5996,7 @@
 					$jq("#needmessage").focus();
 				} else if (
 					window.event &&
-					!Utils.checkClickInDOM(
+					!Utils.checkUserClickInNode(
 						document.querySelector("#comiis_foot_menu_beautify_big")
 					)
 				) {
@@ -7332,6 +7379,7 @@
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/mlogin.php",
+							timeout: 5000,
 							method: "get",
 							data: `task=3&uid=${encodeURI(
 								user
@@ -7354,6 +7402,10 @@
 								xtips.toast("网络异常,获取formhash失败");
 								res(null);
 							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
+								resolve(null);
+							},
 						});
 					});
 				},
@@ -7362,6 +7414,7 @@
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/mlogin.php",
+							timeout: 5000,
 							method: "post",
 							headers: {
 								"content-type": "application/x-www-form-urlencoded",
@@ -7394,6 +7447,10 @@
 								xtips.toast("网络异常,登录失败");
 								res(false);
 							},
+							ontimeout: () => {
+								xtips.toast("请求超时");
+								res(false);
+							},
 						});
 					});
 				},
@@ -7409,6 +7466,7 @@
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/fileup.php",
 							method: "post",
+							timeout: 5000,
 							data: formData,
 							headers: {
 								Accept: "*/*",
@@ -7428,6 +7486,10 @@
 								xtips.toast("网络异常,删除失败");
 								res(null);
 							},
+							ontimeout: () => {
+								xtips.toast("请求超时");
+								res(null);
+							},
 						});
 					});
 				},
@@ -7437,6 +7499,7 @@
 						GM_xmlhttpRequest({
 							url: `https://up.woozooo.com/doupload.php`,
 							method: "post",
+							timeout: 5000,
 							data: `task=6&file_id=${file_id}`,
 							headers: {
 								"Content-Type":
@@ -7457,6 +7520,10 @@
 								xtips.toast("网络异常,删除失败");
 								res(false);
 							},
+							ontimeout: () => {
+								xtips.toast("请求超时");
+								res(false);
+							},
 						});
 					});
 				},
@@ -7467,12 +7534,17 @@
 							url: `https://up.woozooo.com/account.php?action=logout&${encodeURI(
 								user
 							)}`,
+							timeout: 5000,
 							method: "get",
 							onload: (r) => {
 								res(r.responseText.match("成功") ? true : false);
 							},
 							onerror: () => {
 								xtips.toast("网络异常,退出失败");
+								res(false);
+							},
+							ontimeout: () => {
+								xtips.toast("请求超时");
 								res(false);
 							},
 						});
@@ -7894,7 +7966,7 @@
 				}
 				let commentsNum = parseInt(commentsEle.textContent);
 				if (commentsNum >= 10) {
-					Utils.waitForDOM(".comiis_page.bg_f").then((next_page_dom) => {
+					Utils.waitNode(".comiis_page.bg_f").then((next_page_dom) => {
 						console.log("找到下一页元素！");
 						autoLoadNextPageComments(next_page_dom[0]);
 					});
@@ -8724,11 +8796,17 @@
 					console.log("排序后——可白嫖：", isFreeContentList);
 					console.log("排序后——未到白嫖时间：", isPaidContentList);
 					isFreeContent =
-						Utils.mergeArrayToString(isFreeNotVisitedContentList, "content") +
-						Utils.mergeArrayToString(isFreeContentList, "content");
+						Utils.mergeArrayToString(isFreeNotVisitedContentList, (item) => {
+							return item["content"];
+						}) +
+						Utils.mergeArrayToString(isFreeContentList, (item) => {
+							return item["content"];
+						});
 					isPaidContent = Utils.mergeArrayToString(
 						isPaidContentList,
-						"content"
+						(item) => {
+							return item["content"];
+						}
 					);
 					if (notVisitedNums > 0) {
 						notVisitedTipContent = `<span class="icon_msgs bg_del f_f" style="
@@ -8767,7 +8845,7 @@
 									data.splice(t_index, 1);
 									console.log(data);
 									paymentSubjectReminderHome.setData(data);
-									Utils.deleteParentDOM(e.target, (dom) => {
+									Utils.deleteParentNode(e.target, (dom) => {
 										return dom.localName === "tr" ? true : false;
 									});
 									popup2.closeConfirm();
@@ -10234,8 +10312,8 @@
 
 			if (typeof unsafeWindow.comiis_addsmilies == "function") {
 				/* 替换全局函数添加图片到里面触发input */
-				unsafeWindow.comiis_addsmilies = (a) => {
-					unsafeWindow.$("#needmessage").comiis_insert(a);
+				unsafeWindow.comiis_addsmilies = (_str_) => {
+					unsafeWindow.$("#needmessage").comiis_insert(_str_);
 					unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("input"));
 				};
 			}
@@ -11839,6 +11917,7 @@
 					GM_xmlhttpRequest({
 						url: "https://bbs.binmt.cc/home.php?mod=spacecp&ac=avatar",
 						method: "GET",
+						timeout: 5000,
 						headers: {
 							"User-Agent": Utils.getRandomPCUA(),
 						},
@@ -11847,6 +11926,10 @@
 						},
 						onerror: function () {
 							popup2.toast("网络异常,请重新获取");
+							res("");
+						},
+						ontimeout: () => {
+							popup2.toast("请求超时");
 							res("");
 						},
 					});
@@ -12140,7 +12223,7 @@
 					GM_xmlhttpRequest({
 						url: "https://bbs.binmt.cc/forum.php?mod=guide&view=hot",
 						method: "get",
-						timeout: 5000,
+						timeout: 8000,
 						async: false,
 						headers: {
 							accept:
@@ -12174,6 +12257,10 @@
 						onerror: function (resp) {
 							console.log(resp);
 							popup2.toast("网络异常,获取轮播失败");
+							res([]);
+						},
+						ontimeout: () => {
+							popup2.toast("请求超时");
 							res([]);
 						},
 					});
@@ -12256,6 +12343,7 @@
 								"https://bbs.binmt.cc/k_misign-sign.html?operation=" + urlextra,
 							async: false,
 							responseType: "html",
+							timeout: 5000,
 							headers: {
 								"User-Agent": Utils.getRandomPCUA(),
 							},
@@ -12284,6 +12372,10 @@
 								popup2.toast("网络异常,请重新获取");
 								res(0);
 							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
+								res(0);
+							},
 						});
 					});
 				};
@@ -12295,6 +12387,7 @@
 								"https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=" +
 								page,
 							async: false,
+							timeout: 5000,
 							responseType: "html",
 							headers: {
 								"User-Agent": Utils.getRandomPCUA(),
@@ -12339,6 +12432,10 @@
 							},
 							onerror: function (resp) {
 								console.log(resp);
+								res({});
+							},
+							ontimeout: () => {
+								popup2.toast("请求超时");
 								res({});
 							},
 						});
@@ -12486,6 +12583,7 @@
 					url: "/k_misign-sign.html",
 					method: "get",
 					async: false,
+					timeout: 5000,
 					headers: {
 						"User-Agent": Utils.getRandomPCUA(),
 					},
@@ -12530,6 +12628,11 @@
 					onerror: (r) => {
 						console.log(r);
 						log.error("请求今日之星失败");
+						popup2.toast("请求今日之星失败");
+					},
+					ontimeout: () => {
+						popup2.toast("请求今日之星超时");
+						log.error("请求超时");
 					},
 				});
 			}
@@ -12670,6 +12773,7 @@
 						url: window.location.href,
 						method: "get",
 						async: false,
+						timeout: 5000,
 						headers: {
 							"User-Agent": Utils.getRandomPCUA(),
 						},
@@ -12704,6 +12808,10 @@
 						onerror: () => {
 							console.log("网络异常,获取PC回复失败");
 							popup2.toast("网络异常,获取PC回复失败");
+							res(null);
+						},
+						ontimeout: () => {
+							popup2.toast("请求超时");
 							res(null);
 						},
 					});
@@ -12866,84 +12974,6 @@
 			}
 		},
 	};
-
-	function Hooks() {
-		/* hook?用不到 */
-		return {
-			initEnv: function () {
-				Function.prototype.hook = function (realFunc, hookFunc, context) {
-					var _context = null; /* 函数上下文 */
-					var _funcName = null; /* 函数名 */
-
-					_context = context || window;
-					_funcName = getFuncName(this);
-					_context["realFunc_" + _funcName] = this;
-
-					console.log(window);
-
-					if (
-						_context[_funcName].prototype &&
-						_context[_funcName].prototype.isHooked
-					) {
-						console.log("Already has been hooked,unhook first");
-						return false;
-					}
-
-					function getFuncName(fn) {
-						/* 获取函数名 */
-						var strFunc = fn.toString();
-						var _regex = /function\s+(\w+)\s*\(/;
-						var patten = strFunc.match(_regex);
-						if (patten) {
-							return patten[1];
-						}
-						return "";
-					}
-					try {
-						eval(
-							"_context[_funcName] = function " +
-								_funcName +
-								"(){\n" +
-								"var args = Array.prototype.slice.call(arguments,0);\n" +
-								"var obj = this;\n" +
-								"hookFunc.apply(obj,args);\n" +
-								"return _context['realFunc_" +
-								_funcName +
-								"'].apply(obj,args);\n" +
-								"};"
-						);
-						_context[_funcName].prototype.isHooked = true;
-						return true;
-					} catch (e) {
-						console.log("Hook failed,check the params.");
-						return false;
-					}
-				};
-				Function.prototype.unhook = function (realFunc, funcName, context) {
-					var _context = null;
-					var _funcName = null;
-					_context = context || window;
-					_funcName = funcName;
-					if (!_context[_funcName].prototype.isHooked) {
-						console.log("No function is hooked on");
-						return false;
-					}
-					_context[_funcName] = _context["realFunc" + _funcName];
-					delete _context["realFunc_" + _funcName];
-					return true;
-				};
-			},
-			cleanEnv: function () {
-				if (Function.prototype.hasOwnProperty("hook")) {
-					delete Function.prototype.hook;
-				}
-				if (Function.prototype.hasOwnProperty("unhook")) {
-					delete Function.prototype.unhook;
-				}
-				return true;
-			},
-		};
-	}
 
 	function entrance() {
 		/* 这是入口 */

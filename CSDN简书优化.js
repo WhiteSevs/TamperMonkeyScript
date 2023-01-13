@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @namespace    http://tampermonkey.net/
-// @version      0.5.2
+// @version      0.5.3
 // @description  支持手机端和PC端
 // @author       MT-戒酒的李白染
 // @include      http*://www.csdn.net/*
@@ -25,24 +25,24 @@
 // ==/UserScript==
 
 (function () {
-  "use strict";
-  function waitForElementToRemove(_query_ = "") {
-    /* 移除元素（未出现也可以等待出现） */
-    Utils.waitForDOM(_query_).then((dom) => {
-      dom.forEach((item) => {
-        $(item).remove();
-      });
-    });
-  }
-  function JianShu() {
-    /* 简书 */
-    function isJianShu() {
-      /* 判断是否是 简书 */
-      return Boolean(/jianshu.com/i.test(window.location.origin));
-    }
-    function PC() {
-      console.log("简书");
-      const css = `
+	"use strict";
+	function waitForElementToRemove(_query_ = "") {
+		/* 移除元素（未出现也可以等待出现） */
+		Utils.waitNode(_query_).then((dom) => {
+			dom.forEach((item) => {
+				$(item).remove();
+			});
+		});
+	}
+	function JianShu() {
+		/* 简书 */
+		function isJianShu() {
+			/* 判断是否是 简书 */
+			return Boolean(/jianshu.com/i.test(window.location.origin));
+		}
+		function PC() {
+			console.log("简书");
+			const css = `
       .download-app-guidance,
       .call-app-btn,
       .collapse-tips,
@@ -74,49 +74,49 @@
         background-image:none !important;
       }
       `;
-      GM_addStyle(css);
-      Utils.waitForDOM('div#homepage div[class*="dialog-"]').then((dom) => {
-        if (dom.length) {
-          dom[0].style["visibility"] = "hidden";
-        }
-      });
-      Utils.mutationObserver('div#homepage div[class*="dialog-"]', {
-        fn: (mutations) => {
-          if (mutations.length == 0) {
-            return;
-          }
-          if (mutations[0].target.style["display"] != "none") {
-            document
-              .querySelector('div#homepage div[class*="dialog-"] .cancel')
-              ?.click();
-          }
-        },
-        config: {
-          /* 子节点的变动（新增、删除或者更改） */
-          childList: false,
-          /* 属性的变动 */
-          attributes: true,
-          /* 节点内容或节点文本的变动 */
-          characterData: true,
-          /* 是否将观察器应用于该节点的所有后代节点 */
-          subtree: true,
-        },
-      });
-    }
-    if (isJianShu()) {
-      PC();
-    }
-  }
-  function CSDN() {
-    /* csdn-移动端 */
-    function isCSDN() {
-      /* 判断是否是 CSDN */
-      return Boolean(/csdn.net/i.test(window.location.origin));
-    }
-    function Mobile() {
-      /* 移动端 */
-      console.log("CSDN-移动端");
-      const css = `
+			GM_addStyle(css);
+			Utils.waitNode('div#homepage div[class*="dialog-"]').then((dom) => {
+				if (dom.length) {
+					dom[0].style["visibility"] = "hidden";
+				}
+			});
+			Utils.mutationObserver('div#homepage div[class*="dialog-"]', {
+				fn: (mutations) => {
+					if (mutations.length == 0) {
+						return;
+					}
+					if (mutations[0].target.style["display"] != "none") {
+						document
+							.querySelector('div#homepage div[class*="dialog-"] .cancel')
+							?.click();
+					}
+				},
+				config: {
+					/* 子节点的变动（新增、删除或者更改） */
+					childList: false,
+					/* 属性的变动 */
+					attributes: true,
+					/* 节点内容或节点文本的变动 */
+					characterData: true,
+					/* 是否将观察器应用于该节点的所有后代节点 */
+					subtree: true,
+				},
+			});
+		}
+		if (isJianShu()) {
+			PC();
+		}
+	}
+	function CSDN() {
+		/* csdn-移动端 */
+		function isCSDN() {
+			/* 判断是否是 CSDN */
+			return Boolean(/csdn.net/i.test(window.location.origin));
+		}
+		function Mobile() {
+			/* 移动端 */
+			console.log("CSDN-移动端");
+			const css = `
       #mainBox{
         width: auto;
       }
@@ -248,113 +248,113 @@
         overflow: auto !important;
       }
       `;
-      GM_addStyle(css);
-      function refactoringRecommendation() {
-        /* 重构底部推荐 */
-        function refactoring() {
-          /* 反复执行的重构函数 */
-          $(".container-fluid").each((index, item) => {
-            item = $(item);
-            var url = ""; /* 链接 */
-            var title = ""; /* 标题 */
-            var content = ""; /* 内容 */
-            var img = ""; /* 图片 */
-            var isCSDNDownload = false; /* 判断是否是CSDN资源下载 */
-            var isCSDNEduDownload = false; /* 判断是否是CSDN-学院资源下载 */
-            if (item.attr("data-url")) {
-              /* 存在真正的URL */
-              url = item.attr("data-url");
-              title = item.find(".recommend_title div.left").html();
-              content = item.find(".text").html();
-              if (item.find(".recommend-img").length) {
-                /* 如果有图片就加进去 */
-                item.find(".recommend-img").each((_index_, _item_) => {
-                  img += $(_item_).html();
-                });
-              }
-            } else {
-              console.log("节点上无data-url");
-              url = item.find("a[data-type]").attr("href");
-              title = item.find(".recommend_title div.left").html();
-              content = item.find(".text").html();
-            }
-            if (GM_Menu.getEnable("showDirect")) {
-              /* 开启就添加 */
-              title += `<div class="GM-csdn-Redirect">Redirect</div>`;
-            }
-            var _URL_ = new URL(url);
-            if (
-              _URL_.host === "download.csdn.net" ||
-              (_URL_.host === "www.iteye.com" &&
-                _URL_.pathname.match(/^\/resource/gi))
-            ) {
-              /* 该链接为csdn资源下载 */
-              console.log("该链接为csdn资源下载");
-              isCSDNDownload = true;
-              title += `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`;
-            } else if (_URL_.origin.match(/edu.csdn.net/gi)) {
-              /* 该链接为csdn学院下载 */
-              isCSDNEduDownload = true;
-              console.log("该链接为csdn学院下载");
-              title += `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>`;
-            }
-            item.attr("class", "GM-csdn-dl");
-            item.attr("data-url", url);
-            item.html(
-              `<div class="GM-csdn-title"><div class="left">${title}</div></div><div class="GM-csdn-content">${content}</div><div class="GM-csdn-img">${img}</div>`
-            );
-            if (
-              (isCSDNDownload || isCSDNEduDownload) &&
-              GM_Menu.getEnable("removeCSDNDownloadMobile")
-            ) {
-              item.remove();
-            }
-            /* $("#recommend")
+			GM_addStyle(css);
+			function refactoringRecommendation() {
+				/* 重构底部推荐 */
+				function refactoring() {
+					/* 反复执行的重构函数 */
+					$(".container-fluid").each((index, item) => {
+						item = $(item);
+						var url = ""; /* 链接 */
+						var title = ""; /* 标题 */
+						var content = ""; /* 内容 */
+						var img = ""; /* 图片 */
+						var isCSDNDownload = false; /* 判断是否是CSDN资源下载 */
+						var isCSDNEduDownload = false; /* 判断是否是CSDN-学院资源下载 */
+						if (item.attr("data-url")) {
+							/* 存在真正的URL */
+							url = item.attr("data-url");
+							title = item.find(".recommend_title div.left").html();
+							content = item.find(".text").html();
+							if (item.find(".recommend-img").length) {
+								/* 如果有图片就加进去 */
+								item.find(".recommend-img").each((_index_, _item_) => {
+									img += $(_item_).html();
+								});
+							}
+						} else {
+							console.log("节点上无data-url");
+							url = item.find("a[data-type]").attr("href");
+							title = item.find(".recommend_title div.left").html();
+							content = item.find(".text").html();
+						}
+						if (GM_Menu.get("showDirect")) {
+							/* 开启就添加 */
+							title += `<div class="GM-csdn-Redirect">Redirect</div>`;
+						}
+						var _URL_ = new URL(url);
+						if (
+							_URL_.host === "download.csdn.net" ||
+							(_URL_.host === "www.iteye.com" &&
+								_URL_.pathname.match(/^\/resource/gi))
+						) {
+							/* 该链接为csdn资源下载 */
+							console.log("该链接为csdn资源下载");
+							isCSDNDownload = true;
+							title += `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`;
+						} else if (_URL_.origin.match(/edu.csdn.net/gi)) {
+							/* 该链接为csdn学院下载 */
+							isCSDNEduDownload = true;
+							console.log("该链接为csdn学院下载");
+							title += `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>`;
+						}
+						item.attr("class", "GM-csdn-dl");
+						item.attr("data-url", url);
+						item.html(
+							`<div class="GM-csdn-title"><div class="left">${title}</div></div><div class="GM-csdn-content">${content}</div><div class="GM-csdn-img">${img}</div>`
+						);
+						if (
+							(isCSDNDownload || isCSDNEduDownload) &&
+							GM_Menu.get("removeCSDNDownloadMobile")
+						) {
+							item.remove();
+						}
+						/* $("#recommend")
               .find(".recommend_list")
               .before($("#first_recommend_list").find("dl").parent().html()); */
-          });
-        }
+					});
+				}
 
-        Utils.mutationObserver("#recommend", {
-          fn: () => {
-            setTimeout(() => {
-              refactoring();
-            }, 300);
-          },
-          config: { childList: true, subtree: true, attributes: true },
-        });
+				Utils.mutationObserver("#recommend", {
+					fn: () => {
+						setTimeout(() => {
+							refactoring();
+						}, 300);
+					},
+					config: { childList: true, subtree: true, attributes: true },
+				});
 
-        gmRecommendClickEvent();
-      }
+				gmRecommendClickEvent();
+			}
 
-      function gmRecommendClickEvent() {
-        /* 底部推荐点击跳转事件 */
-        $("body").on("click", ".GM-csdn-dl", function () {
-          let url = $(this).attr("data-url");
-          if (GM_Menu.getEnable("openNewTab")) {
-            window.open(url, "_blank");
-          } else {
-            window.location.href = url;
-          }
-        });
-      }
+			function gmRecommendClickEvent() {
+				/* 底部推荐点击跳转事件 */
+				$("body").on("click", ".GM-csdn-dl", function () {
+					let url = $(this).attr("data-url");
+					if (GM_Menu.get("openNewTab")) {
+						window.open(url, "_blank");
+					} else {
+						window.location.href = url;
+					}
+				});
+			}
 
-      function removeAds() {
-        /* 去除广告 */
-        waitForElementToRemove(".passport-login-container");
-        waitForElementToRemove(".btn_open_app_prompt_box.detail-open-removed");
-        waitForElementToRemove(".add-firstAd");
-      }
+			function removeAds() {
+				/* 去除广告 */
+				waitForElementToRemove(".passport-login-container");
+				waitForElementToRemove(".btn_open_app_prompt_box.detail-open-removed");
+				waitForElementToRemove(".add-firstAd");
+			}
 
-      $(document).ready(function () {
-        removeAds();
-        refactoringRecommendation();
-      });
-    }
-    function PC() {
-      /* 桌面端 */
-      console.log("CSDN-桌面端访问");
-      const css = `
+			$(document).ready(function () {
+				removeAds();
+				refactoringRecommendation();
+			});
+		}
+		function PC() {
+			/* 桌面端 */
+			console.log("CSDN-桌面端访问");
+			const css = `
       .ecommend-item-box.recommend-recommend-box,
       .login-mark,
       .opt-box.text-center,
@@ -388,219 +388,217 @@
         overflow: auto !important;
       }
   `;
-      function removeClipboardHijacking() {
-        /* 去除剪贴板劫持 */
-        unsafeWindow.articleType = 0;
-        unsafeWindow.csdn.copyright.textData = undefined;
-        unsafeWindow.csdn.copyright.htmlData = undefined;
-        $(".article-copyright")?.remove();
-      }
-      function unBlockCopy() {
-        /* 取消禁止复制 */
-        Utils.waitForDOM(".hljs-button.signin").then((dom) => {
-          if (dom.length) {
-            $(".hljs-button.signin").attr("data-title", "复制");
-            $(".hljs-button.signin").on("click", function () {
-              const copyBtn = $(this);
-              const copyArea = $(this).parent();
-              copyBtn.attr("data-title", "复制成功");
-              const btnParentElement = Utils.findParentDOM(this, (dom) => {
-                return dom.className == "prettyprint" ? true : false;
-              });
-              if (btnParentElement) {
-                $(btnParentElement).bind({
-                  mouseenter: function (e) {
-                    copyBtn.attr("data-title", "复制");
-                    $(btnParentElement)
-                      .unbind("mouseenter")
-                      .unbind("mouseleave");
-                  },
-                  mouseleave: function (e) {
-                    copyBtn.attr("data-title", "复制");
-                    $(btnParentElement)
-                      .unbind("mouseenter")
-                      .unbind("mouseleave");
-                  },
-                });
-              }
-              Utils.setClip(copyArea.text());
-            });
-          }
-        });
-      }
-      function clickPreCodeAutomatically() {
-        /* 点击代码块自动展开 */
-        $("pre[data-index]").on("click", function () {
-          let obj = $(this);
-          obj.css("height", "auto");
-          obj.find(".hide-preCode-box")?.remove();
-        });
-      }
-      function restoreComments() {
-        /* 恢复评论到正确位置 */
-        /* 第一条评论 */
-        Utils.waitForDOM(".first-recommend-box").then((dom) => {
-          $(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
-            $(dom)
-          );
-        });
-        /* 第二条评论 */
-        Utils.waitForDOM(".second-recommend-box").then((dom) => {
-          $(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
-            $(dom)
-          );
-        });
-      }
-      function identityCSDNDownload() {
-        /* 标识CSDN下载的链接 */
-        $(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
-          (index, item) => {
-            if (GM_Menu.getEnable("removeCSDNDownloadPC")) {
-              item.remove();
-            } else {
-              $(item).find(".content-box").css("border", "2px solid red");
-            }
-          }
-        );
-      }
+			function removeClipboardHijacking() {
+				/* 去除剪贴板劫持 */
+				unsafeWindow.articleType = 0;
+				unsafeWindow.csdn.copyright.textData = undefined;
+				unsafeWindow.csdn.copyright.htmlData = undefined;
+				$(".article-copyright")?.remove();
+			}
+			function unBlockCopy() {
+				/* 取消禁止复制 */
+				Utils.waitNode(".hljs-button.signin").then((dom) => {
+					if (dom.length) {
+						$(".hljs-button.signin").attr("data-title", "复制");
+						$(".hljs-button.signin").on("click", function () {
+							const copyBtn = $(this);
+							const copyArea = $(this).parent();
+							copyBtn.attr("data-title", "复制成功");
+							const btnParentElement = Utils.findParentNode(this, (dom) => {
+								return dom.className == "prettyprint" ? true : false;
+							});
+							if (btnParentElement) {
+								$(btnParentElement).bind({
+									mouseenter: function (e) {
+										copyBtn.attr("data-title", "复制");
+										$(btnParentElement)
+											.unbind("mouseenter")
+											.unbind("mouseleave");
+									},
+									mouseleave: function (e) {
+										copyBtn.attr("data-title", "复制");
+										$(btnParentElement)
+											.unbind("mouseenter")
+											.unbind("mouseleave");
+									},
+								});
+							}
+							Utils.setClip(copyArea.text());
+						});
+					}
+				});
+			}
+			function clickPreCodeAutomatically() {
+				/* 点击代码块自动展开 */
+				$("pre[data-index]").on("click", function () {
+					let obj = $(this);
+					obj.css("height", "auto");
+					obj.find(".hide-preCode-box")?.remove();
+				});
+			}
+			function restoreComments() {
+				/* 恢复评论到正确位置 */
+				/* 第一条评论 */
+				Utils.waitNode(".first-recommend-box").then((dom) => {
+					$(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
+						$(dom)
+					);
+				});
+				/* 第二条评论 */
+				Utils.waitNode(".second-recommend-box").then((dom) => {
+					$(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
+						$(dom)
+					);
+				});
+			}
+			function identityCSDNDownload() {
+				/* 标识CSDN下载的链接 */
+				$(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
+					(index, item) => {
+						if (GM_Menu.get("removeCSDNDownloadPC")) {
+							item.remove();
+						} else {
+							$(item).find(".content-box").css("border", "2px solid red");
+						}
+					}
+				);
+			}
 
-      function articleCenter() {
-        /* 全文居中 */
-        if (!GM_Menu.getEnable("articleCenter")) {
-          return;
-        }
-        GM_addStyle(
-          `aside.blog_container_aside{
+			function articleCenter() {
+				/* 全文居中 */
+				if (!GM_Menu.get("articleCenter")) {
+					return;
+				}
+				GM_addStyle(
+					`aside.blog_container_aside{
             display:none !important;
           }
           #mainBox main{
             width: inherit !important;
           }
         `
-        );
-      }
-      function addGotoRecommandButton() {
-        /* 添加前往评论的按钮，在返回顶部的下面 */
-        const btnElement = $(`
+				);
+			}
+			function addGotoRecommandButton() {
+				/* 添加前往评论的按钮，在返回顶部的下面 */
+				const btnElement = $(`
         <a class="option-box" data-type="gorecommand">
           <span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>
         </a>
         `);
 
-        Utils.waitForDOM(".csdn-side-toolbar").then((dom) => {
-          $(dom).append(btnElement);
-          $('.option-box[data-type="gorecommand"]').on("click", function () {
-            console.log("滚动到评论");
-            $("html, body").animate(
-              {
-                scrollTop:
-                  $("#toolBarBox").offset().top -
-                  $("#csdn-toolbar").height() -
-                  8,
-              },
-              1000
-            );
-          });
-        });
-      }
-      function shieldLoginDialog() {
-        /* 屏蔽登录弹窗 */
-        if (GM_Menu.getEnable("shieldLoginDialog")) {
-          window.GM_CSS_GM_shieldLoginDialog = [
-            GM_addStyle(`.passport-login-container{display: none !important;}`),
-          ];
-        }
-      }
-      GM_addStyle(css);
-      articleCenter();
-      shieldLoginDialog();
-      $(document).ready(function () {
-        removeClipboardHijacking();
-        unBlockCopy();
-        identityCSDNDownload();
-        clickPreCodeAutomatically();
-        restoreComments();
-        addGotoRecommandButton();
-      });
-    }
+				Utils.waitNode(".csdn-side-toolbar").then((dom) => {
+					$(dom).append(btnElement);
+					$('.option-box[data-type="gorecommand"]').on("click", function () {
+						console.log("滚动到评论");
+						$("html, body").animate(
+							{
+								scrollTop:
+									$("#toolBarBox").offset().top -
+									$("#csdn-toolbar").height() -
+									8,
+							},
+							1000
+						);
+					});
+				});
+			}
+			function shieldLoginDialog() {
+				/* 屏蔽登录弹窗 */
+				if (GM_Menu.get("shieldLoginDialog")) {
+					window.GM_CSS_GM_shieldLoginDialog = [
+						GM_addStyle(`.passport-login-container{display: none !important;}`),
+					];
+				}
+			}
+			GM_addStyle(css);
+			articleCenter();
+			shieldLoginDialog();
+			$(document).ready(function () {
+				removeClipboardHijacking();
+				unBlockCopy();
+				identityCSDNDownload();
+				clickPreCodeAutomatically();
+				restoreComments();
+				addGotoRecommandButton();
+			});
+		}
 
-    if (isCSDN()) {
-      if (Utils.isPhone()) {
-        Mobile(); /* 移动端 */
-      } else {
-        PC(); /* 桌面端 */
-      }
-    }
-  }
-  var GM_Menu = new Utils.GM_Menu({
-    removeCSDNDownloadPC: {
-      text: "电脑-移除文章底部的CSDN下载",
-      enable: false,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-    articleCenter: {
-      text: "电脑-全文居中",
-      enable: true,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-    shieldLoginDialog: {
-      text: "电脑-屏蔽登录弹窗",
-      enable: true,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-      callback: (_key_, _enable_) => {
-        if (!_enable_) {
-          window.GM_CSS_GM_shieldLoginDialog.forEach((item) => {
-            item.remove();
-          });
-        } else {
-          if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
-            window.GM_CSS_GM_shieldLoginDialog = [
-              ...window.GM_CSS_GM_shieldLoginDialog,
-              GM_addStyle(
-                `.passport-login-container{display: none !important;}`
-              ),
-            ];
-          } else {
-            window.GM_CSS_GM_shieldLoginDialog = [
-              GM_addStyle(
-                `.passport-login-container{display: none !important;}`
-              ),
-            ];
-          }
-        }
-      },
-    },
-    showDirect: {
-      text: "手机-标识处理过的底部推荐文章",
-      enable: true,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-    openNewTab: {
-      text: "手机-底部推荐文章新标签页打开",
-      enable: true,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-    removeCSDNDownloadMobile: {
-      text: "手机-移除文章底部的CSDN下载",
-      enable: false,
-      showText: (_text_, _enable_) => {
-        return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
-      },
-    },
-  });
-  GM_Menu.init();
-  GM_Menu.register();
+		if (isCSDN()) {
+			if (Utils.isPhone()) {
+				Mobile(); /* 移动端 */
+			} else {
+				PC(); /* 桌面端 */
+			}
+		}
+	}
+	var GM_Menu = new Utils.GM_Menu({
+		removeCSDNDownloadPC: {
+			text: "电脑-移除文章底部的CSDN下载",
+			enable: false,
+			showText: (_text_, _enable_) => {
+				return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+			},
+		},
+		articleCenter: {
+			text: "电脑-全文居中",
+			enable: true,
+			showText: (_text_, _enable_) => {
+				return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+			},
+		},
+		shieldLoginDialog: {
+			text: "电脑-屏蔽登录弹窗",
+			enable: true,
+			showText: (_text_, _enable_) => {
+				return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+			},
+			callback: (_key_, _enable_) => {
+				if (!_enable_) {
+					window.GM_CSS_GM_shieldLoginDialog.forEach((item) => {
+						item.remove();
+					});
+				} else {
+					if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
+						window.GM_CSS_GM_shieldLoginDialog = [
+							...window.GM_CSS_GM_shieldLoginDialog,
+							GM_addStyle(
+								`.passport-login-container{display: none !important;}`
+							),
+						];
+					} else {
+						window.GM_CSS_GM_shieldLoginDialog = [
+							GM_addStyle(
+								`.passport-login-container{display: none !important;}`
+							),
+						];
+					}
+				}
+			},
+		},
+		showDirect: {
+			text: "手机-标识处理过的底部推荐文章",
+			enable: true,
+			showText: (_text_, _enable_) => {
+				return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+			},
+		},
+		openNewTab: {
+			text: "手机-底部推荐文章新标签页打开",
+			enable: true,
+			showText: (_text_, _enable_) => {
+				return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+			},
+		},
+		removeCSDNDownloadMobile: {
+			text: "手机-移除文章底部的CSDN下载",
+			enable: false,
+			showText: (_text_, _enable_) => {
+				return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+			},
+		},
+	});
 
-  JianShu();
-  CSDN();
+	JianShu();
+	CSDN();
 })();
