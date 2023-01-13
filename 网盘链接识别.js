@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.13.16.12
+// @version      23.01.13.16.50
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -790,6 +790,10 @@
 											width: "350px",
 											height: "160px",
 											mask: true,
+											animation: GM_getValue(
+												"popsAnimation",
+												"pops-anim-fadein-zoom"
+											),
 											drag: GM_getValue("pcDrag", false),
 										});
 									} else {
@@ -1000,6 +1004,10 @@
 												width: "350px",
 												height: "160px",
 												mask: true,
+												animation: GM_getValue(
+													"popsAnimation",
+													"pops-anim-fadein-zoom"
+												),
 												drag: GM_getValue("pcDrag", false),
 											});
 										} else if ("没有了".indexOf(info) != -1) {
@@ -1221,6 +1229,10 @@
 										width: "350px",
 										height: "160px",
 										mask: true,
+										animation: GM_getValue(
+											"popsAnimation",
+											"pops-anim-fadein-zoom"
+										),
 										drag: GM_getValue("pcDrag", false),
 									});
 
@@ -1407,6 +1419,10 @@
 																	content: {
 																		text: "等待5s，登录的账号注册Cookies",
 																	},
+																	animation: GM_getValue(
+																		"popsAnimation",
+																		"pops-anim-fadein-zoom"
+																	),
 																});
 																var registerTianYiYunCookies = GM_openInTab(
 																	"https://cloud.189.cn/web/main/",
@@ -1424,11 +1440,19 @@
 													height: pops.isPhone() ? "400px" : "400px",
 													width: pops.isPhone() ? "350px" : "350px",
 													drag: GM_getValue("pcDrag", false),
+													animation: GM_getValue(
+														"popsAnimation",
+														"pops-anim-fadein-zoom"
+													),
 													sandbox: true,
 												});
 											},
 										},
 									},
+									animation: GM_getValue(
+										"popsAnimation",
+										"pops-anim-fadein-zoom"
+									),
 									mask: true,
 									drag: GM_getValue("pcDrag", false),
 									height: "180px",
@@ -2533,7 +2557,7 @@
 					overflow: auto;
 				}
         .whitesevPopSetting .netdisk-setting-main{
-          padding: 20px;
+          padding: 6px 20px 6px 20px;
         }
         .whitesevPopSetting details.netdisk-setting-menu {
           margin: 10px 0px;
@@ -2985,18 +3009,38 @@
 									<summary>总设置</summary>
 									<div class="netdisk-setting-menu-item">
 											<label data-id="netdisk-size">大小${ui_size}</label>
-											<input type="range" data-key="size" data-content="大小" min="15" max="250" defaultvalue="50">
+											<input type="range" data-key="size" data-content="大小" min="15" max="250" data-default="50">
 									</div>
 									<div class="netdisk-setting-menu-item">
 											<label data-id="netdisk-opacity" content="透明度">透明度${ui_opacity}</label>
-											<input type="range" data-key="opacity" data-content="透明度" min="0.1" max="1" step="0.1" defaultvalue="1">
+											<input type="range" data-key="opacity" data-content="透明度" min="0.1" max="1" step="0.1" data-default="1">
 									</div>
 									<div class="netdisk-setting-menu-item">
 											<label>匹配类型</label>
-											<select data-key="pageMatchRange">
+											<select data-key="pageMatchRange" data-default="all">
 													<option data-value="all">全部</option>
 													<option data-value="innerText">普通文本</option>
 													<option data-value="innerHTML">超文本</option>
+											</select>
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label>弹窗动画</label>
+											<select data-key="popsAnimation" data-default="pops-anim-fadein-zoom">
+													<option data-value="pops-anim-spread">spread</option>
+													<option data-value="pops-anim-shake">shake</option>
+													<option data-value="pops-anim-rolling-left">rolling-left</option>
+													<option data-value="pops-anim-rolling-right">rolling-right</option>
+													<option data-value="pops-anim-slide-top">slide-top</option>
+													<option data-value="pops-anim-slide-bottom">slide-bottom</option>
+													<option data-value="pops-anim-slide-left">slide-left</option>
+													<option data-value="pops-anim-slide-right">slide-right</option>
+													<option data-value="pops-anim-fadein">fadein</option>
+													<option data-value="pops-anim-fadein-zoom">fadein-zoom</option>
+													<option data-value="pops-anim-fadein-alert">fadein-alert</option>
+													<option data-value="pops-anim-don">don</option>
+													<option data-value="pops-anim-roll">roll</option>
+													<option data-value="pops-anim-sandra">sandra</option>
+													<option data-value="pops-anim-gather">gather</option>
 											</select>
 									</div>
 									<div class="netdisk-setting-menu-item" type="checkbox">
@@ -3306,6 +3350,7 @@
 							},
 						},
 					},
+					animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
 					class: "whitesevPopSetting",
 					height: "350px",
 					width: pops.isPhone() ? "350px" : "500px",
@@ -3317,6 +3362,7 @@
 				this.setSelectEvent();
 			},
 			setCheckBoxClickEvent() {
+				/* 设置复选框是否选中 */
 				$(".netdisk-setting input").each((i, v) => {
 					let data_key = v.getAttribute("data-key");
 					v.value = GM_getValue(data_key) ? GM_getValue(data_key) : "";
@@ -3362,21 +3408,26 @@
 				});
 			},
 			setSelectEvent() {
+				/* 设置下拉列表的默认值 */
 				$(".netdisk-setting select").change(function (e) {
 					let data_key = e.target.getAttribute("data-key");
 					let data_value =
 						e.target[e.target.selectedIndex].getAttribute("data-value");
 					GM_setValue(data_key, data_value);
 				});
-				let pageMatchRangeOptionValue = GM_getValue(
-					"pageMatchRange",
-					"innerText"
-				);
-				$(".netdisk-setting select[data-key=pageMatchRange]")
-					.find(`option[data-value='${pageMatchRangeOptionValue}']`)
-					.attr("selected", true);
+
+				$(".netdisk-setting-menu-item select").each((index, item) => {
+					item = $(item);
+					let dataKey = item.attr("data-key");
+					let dataDefaultValue = item.attr("data-default");
+					let getDataValue = GM_getValue(dataKey, dataDefaultValue);
+					item
+						.find(`option[data-value=${getDataValue}]`)
+						.attr("selected", true);
+				});
 			},
 			setSuspensionEvent() {
+				/* 设置悬浮按钮事件 */
 				let needDragEle = document.getElementById("whitesevSuspensionId");
 				let that = this;
 				let _drag_ = new AnyTouch(needDragEle);
@@ -3745,6 +3796,7 @@
 						},
 					},
 					class: "whitesevPop",
+					animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
 					width: pops.isPhone() ? "350px" : "500px",
 					drag: GM_getValue("pcDrag", false),
 					mask: true,
@@ -3950,6 +4002,7 @@
 					},
 					class: "whitesevPopOneFile",
 					height: "180px",
+					animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
 					width: pops.isPhone() ? "300px" : "400px",
 					mask: true,
 					drag: GM_getValue("pcDrag", false),
@@ -3977,6 +4030,7 @@
 					class: "whitesevPopMoreFile",
 					mask: true,
 					height: "400px",
+					animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
 					width: pops.isPhone() ? "300px" : "400px",
 					drag: GM_getValue("pcDrag", false),
 				});
