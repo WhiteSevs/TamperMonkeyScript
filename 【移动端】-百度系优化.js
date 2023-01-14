@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】-百度系优化
 // @namespace    http://tampermonkey.net/
-// @version      0.6.1
+// @version      0.6.2
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @include      *://m.baidu.com/*
 // @include      *://www.baidu.com/*
@@ -685,7 +685,6 @@
 							url
 						); */
 					});
-					removeAds();
 				}
 
 				function getRealLinkJSON() {
@@ -846,13 +845,10 @@
 								"color:blue"
 							);
 						}
-						if (
-							item.children().length > 1 &&
-							item.text().match(/(大家还在搜|百度APP内打开)/)
-						) {
-							item.children()[1]?.remove();
+						if (item.find(".c-atom-afterclick-recomm-wrap").length) {
+							item.find(".c-atom-afterclick-recomm-wrap")?.remove();
 							__console__.log(
-								"%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家都在搜:隐藏的(点击后，跳出来的)",
+								"%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家还在搜:隐藏的(点击后，跳出来的)",
 								"font-weight:bold;color:cornflowerblue",
 								"font-weight:bold;color:cornflowerblue",
 								"font-weight:bold;color:darkorange",
@@ -1215,8 +1211,6 @@
 			function tiebaLoadComments() {
 				// 贴吧加载评论
 				const tiebaConfig = {
-					useragent:
-						"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36 Edg/101.0.1210.39",
 					getNewCommentInnerHTML: (element, user_commands_list) => {
 						// 根据dom获取需要插入的评论的html
 						let data_field = JSON.parse(element.attributes["data-field"].value);
@@ -1533,7 +1527,7 @@
 								timeout: 5000,
 								method: "GET",
 								headers: {
-									"User-Agent": tiebaConfig.useragent,
+									"User-Agent": Utils.getRandomPCUA(),
 								},
 								onload: function (resp) {
 									let _html_ = $(resp.responseText);
@@ -1566,6 +1560,9 @@
 										res(400);
 									}
 								},
+								ontimeout: function () {
+									res(400);
+								},
 							});
 						});
 					},
@@ -1578,7 +1575,7 @@
 								method: "GET",
 								headers: {
 									Accept: "application/json, text/javascript, */*; q=0.01",
-									"User-Agent": tiebaConfig.useragent,
+									"User-Agent": Utils.getRandomPCUA(),
 								},
 								onload: function (resp) {
 									let data = JSON.parse(resp.responseText);
@@ -1596,6 +1593,9 @@
 										"取第一页的评论的评论数据失败 👇"
 									);
 									__console__.log(resp);
+									res(400);
+								},
+								ontimeout: function () {
 									res(400);
 								},
 							});
@@ -2534,7 +2534,7 @@
 				let match_id = ele_url.match(/item\/.*\/(\d*)/);
 
 				function set_normal_img_size() {
-					//GM_xmlhttpRequest获取到的图片大小要重新设置
+					// 获取到的图片大小要重新设置
 					let col_para = document.getElementsByClassName("col-para");
 					$.each(col_para, (i, n) => {
 						n.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
@@ -2559,7 +2559,7 @@
 				}
 
 				function insert_img() {
-					// GM_xmlhttpRequest获取到的要重新将图片链接插入到img标签中
+					// 获取到的要重新将图片链接插入到img标签中
 					let content_img = document.getElementsByClassName("lazy-img");
 					$.each(content_img, (i, v) => {
 						let content_img = v.parentElement.parentElement.parentElement;
@@ -2613,8 +2613,7 @@
 								method: "GET",
 								async: false,
 								headers: {
-									"User-Agent":
-										"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Mobile Safari/537.36 Edg/96.0.1054.62",
+									"User-Agent": Utils.getRandomPCUA(),
 								},
 								onload: function (resp) {
 									loadingView.setVisible(false);
@@ -2657,6 +2656,23 @@
 									insert_img();
 									set_normal_img_size();
 									loadingView.setHTML("请求失败");
+									loadingView.setIconVisible(false);
+									clearInterval(page_interval);
+								},
+								ontimeout: function () {
+									__console__.log(
+										"%c[BaiDu优化%c-%c百度百科%c]%c %s",
+										"font-weight:bold;color:cornflowerblue",
+										"font-weight:bold;color:cornflowerblue",
+										"font-weight:bold;color:darkorange",
+										"font-weight:bold;color:cornflowerblue",
+										"color:red",
+										"请求超时 👇"
+									);
+									__console__.log(resp);
+									insert_img();
+									set_normal_img_size();
+									loadingView.setHTML("请求超时");
 									loadingView.setIconVisible(false);
 									clearInterval(page_interval);
 								},
@@ -2939,6 +2955,20 @@
 								__console__.log(resp);
 								loadingView.setHTML("加载失败");
 							}
+							isloding_flag = false;
+						},
+						ontimeout: function () {
+							__console__.log(
+								"%c[BaiDu优化%c-%c百度搜索%c]%c %s",
+								"font-weight:bold;color:cornflowerblue",
+								"font-weight:bold;color:cornflowerblue",
+								"font-weight:bold;color:darkorange",
+								"font-weight:bold;color:cornflowerblue",
+								"color:red",
+								"请求超时 👇"
+							);
+							__console__.log(resp);
+							loadingView.setHTML("请求超时");
 							isloding_flag = false;
 						},
 					});
