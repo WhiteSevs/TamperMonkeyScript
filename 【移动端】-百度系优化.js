@@ -3032,21 +3032,21 @@
 				text: "自动展开下一页",
 				enable: false,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 			},
 			menu_showisdirect: {
 				text: "显示已重定向图标",
 				enable: true,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 			},
 			LOG: {
 				text: "控制台输出日志",
 				enable: false,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 			},
 		},

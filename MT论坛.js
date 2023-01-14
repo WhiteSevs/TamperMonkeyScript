@@ -939,7 +939,7 @@
 							text: "探测用户在线状态",
 							enable: false,
 							showText: (_text_, _enable_) => {
-								return "[" + (_enable_ ? "√" : "×") + "]" + _text_;
+								return (_enable_ ? "✅" : "❌") + " " + _text_;
 							},
 						},
 					},

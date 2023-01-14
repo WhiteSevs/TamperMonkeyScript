@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.14.16.50
+// @version      23.01.14.18.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -13,6 +13,8 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_openInTab
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // @connect      *
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
@@ -2573,6 +2575,7 @@
 				$("body").append($(_settingHtml_)[0]);
 			},
 			initPop() {
+				/* 所有的弹窗初始化设置 */
 				Qmsg.config({
 					position: "center",
 				});
@@ -3032,7 +3035,8 @@
 					`);
 				}
 			},
-			openPop() {
+			showSettingView() {
+				/* 显示设置界面 */
 				let _settingHtml_ = `
 				<div class="netdisk-setting-body">
 					<div class="netdisk-setting">
@@ -3586,75 +3590,76 @@
 					drag: GM_getValue("pcDrag", false),
 					mask: true,
 				});
-
-				this.setInputEvent();
-				this.setSelectEvent();
-			},
-			setInputEvent() {
-				/* 设置复选框是否选中 */
-				$(".netdisk-setting input").each((index, item) => {
-					let data_key = item.getAttribute("data-key");
-					let data_default = item.getAttribute("data-default");
-					item.value = GM_getValue(data_key, data_default)
-						? GM_getValue(data_key, data_default)
-						: "";
-					switch (item.getAttribute("type")) {
-						case "checkbox":
-							item.checked = GM_getValue(data_key) ? true : false;
-							let mutex = item.getAttribute("mutex");
-							$(item).on("click", (e) => {
-								if (mutex) {
-									let mutexElement = $(mutex);
-									let mutex_data_key = $(mutex).attr("data-key");
-									if (item.checked) {
-										mutexElement.prop("checked", !item.checked);
-										GM_setValue(mutex_data_key, !item.checked);
+				function setSettingInputEvent() {
+					/* 设置复选框是否选中 */
+					$(".netdisk-setting input").each((index, item) => {
+						let data_key = item.getAttribute("data-key");
+						let data_default = item.getAttribute("data-default");
+						item.value = GM_getValue(data_key, data_default)
+							? GM_getValue(data_key, data_default)
+							: "";
+						switch (item.getAttribute("type")) {
+							case "checkbox":
+								item.checked = GM_getValue(data_key) ? true : false;
+								let mutex = item.getAttribute("mutex");
+								$(item).on("click", (e) => {
+									if (mutex) {
+										let mutexElement = $(mutex);
+										let mutex_data_key = $(mutex).attr("data-key");
+										if (item.checked) {
+											mutexElement.prop("checked", !item.checked);
+											GM_setValue(mutex_data_key, !item.checked);
+										}
 									}
-								}
-								GM_setValue(data_key, item.checked);
-							});
-							break;
-						case "range":
-							$(item).on("input propertychange", (val) => {
-								$(`.netdisk-setting label[data-id=netdisk-${data_key}]`).html(
-									`${item.getAttribute("data-content")}${item.value}`
-								);
-								let itSize = $(".netdisk-setting input[data-key=size]").val();
-								$("#whitesevSuspensionId").css({
-									width: itSize + "px",
-									height: itSize + "px",
-									opacity: $(".netdisk-setting input[data-key=opacity]").val(),
+									GM_setValue(data_key, item.checked);
 								});
-								UI.size = itSize;
-								UI.suspension.setSuspensionDefaultPositionEvent();
-								GM_setValue(data_key, item.value);
-							});
+								break;
+							case "range":
+								$(item).on("input propertychange", (val) => {
+									$(`.netdisk-setting label[data-id=netdisk-${data_key}]`).html(
+										`${item.getAttribute("data-content")}${item.value}`
+									);
+									let itSize = $(".netdisk-setting input[data-key=size]").val();
+									$("#whitesevSuspensionId").css({
+										width: itSize + "px",
+										height: itSize + "px",
+										opacity: $(
+											".netdisk-setting input[data-key=opacity]"
+										).val(),
+									});
+									UI.size = itSize;
+									UI.suspension.setSuspensionDefaultPositionEvent();
+									GM_setValue(data_key, item.value);
+								});
 
-						default:
-							$(item).on("input propertychange", (val) => {
-								GM_setValue(data_key, item.value);
-							});
-					}
-				});
-			},
-			setSelectEvent() {
-				/* 设置下拉列表的默认值 */
-				$(".netdisk-setting select").change(function (e) {
-					let data_key = e.target.getAttribute("data-key");
-					let data_value =
-						e.target[e.target.selectedIndex].getAttribute("data-value");
-					GM_setValue(data_key, data_value);
-				});
+							default:
+								$(item).on("input propertychange", (val) => {
+									GM_setValue(data_key, item.value);
+								});
+						}
+					});
+				}
+				function setSettingSelectEvent() {
+					/* 设置下拉列表的默认值 */
+					$(".netdisk-setting select").change(function (e) {
+						let data_key = e.target.getAttribute("data-key");
+						let data_value =
+							e.target[e.target.selectedIndex].getAttribute("data-value");
+						GM_setValue(data_key, data_value);
+					});
 
-				$(".netdisk-setting-menu-item select").each((index, item) => {
-					item = $(item);
-					let dataKey = item.attr("data-key");
-					let dataDefaultValue = item.attr("data-default");
-					let getDataValue = GM_getValue(dataKey, dataDefaultValue);
-					item
-						.find(`option[data-value=${getDataValue}]`)
-						.attr("selected", true);
-				});
+					$(".netdisk-setting-menu-item select").each((index, item) => {
+						item = $(item);
+						let dataKey = item.attr("data-key");
+						let dataDefaultValue = item.attr("data-default");
+						let getDataValue = GM_getValue(dataKey, dataDefaultValue);
+						item
+							.find(`option[data-value=${getDataValue}]`)
+							.attr("selected", true);
+					});
+				}
+				setSettingInputEvent();
+				setSettingSelectEvent();
 			},
 			setSuspensionEvent() {
 				/* 设置悬浮按钮事件 */
@@ -3728,7 +3733,7 @@
 						clearTimeout(timerID);
 						timerID = setTimeout(function () {
 							isDouble = false;
-							that.openPop();
+							that.showSettingView();
 						}, 300);
 					} else {
 						isDouble = true;
@@ -3748,7 +3753,7 @@
 					}
 					if (targetClassName == "whitesevSuspensionSetting") {
 						console.log("打开设置界面");
-						that.openPop();
+						that.showSettingView();
 					}
 				});
 				$("#whitesevSuspensionId").on("contextmenu", (e) => {
@@ -4310,6 +4315,21 @@
 			});
 		},
 	};
+	var GM_Menu = new Utils.GM_Menu(
+		{
+			showSetting: {
+				text: "打开设置界面",
+				enable: false,
+				showText: (_text_, _enable_) => {
+					return "⚙ " + _text_;
+				},
+				callback: () => {
+					UI.suspension.showSettingView();
+				},
+			},
+		},
+		false
+	);
 	$(document).ready(function () {
 		UI.monitorDOMInsert();
 	});
