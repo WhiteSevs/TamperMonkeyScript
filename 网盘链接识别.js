@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.13.16.50
+// @version      23.01.14.16.50
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -35,192 +35,221 @@
 
 		regular: {
 			baidu: {
-				link_innerText:
-					/pan.baidu.com\/s\/[0-9a-zA-Z-_]{8,24}([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi, // 百度网盘链接
-				link_innerHTML:
-					/pan.baidu.com\/s\/[0-9a-zA-Z-_]{8,24}([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi, // 百度网盘链接
+				link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_baidu", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 百度网盘链接
+				link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_baidu", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 百度网盘链接
 				shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi, // 链接参数
 				shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(密码|访问码|提取码).+/g, // 用来判断是否存在密码
-				accessCode: /[0-9a-zA-Z]{4}/i, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow:
 					"pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
 			},
 			lanzou: {
-				link_innerText:
-					/lanzou[a-z]{0,1}.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[a-zA-Z0-9]{3,6}|)/gi,
-				link_innerHTML:
-					/lanzou[a-z]{0,1}.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[a-zA-Z0-9]{3,6}|)/gi,
+				link_innerText: `lanzou[a-z]{0,1}.com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_lanzou", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[a-zA-Z0-9]{3,6}|)`,
+				link_innerHTML: `lanzou[a-z]{0,1}.com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_lanzou", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[a-zA-Z0-9]{3,6}|)`,
 				shareCode:
 					/lanzou[a-z]{0,1}.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
 				shareCodeNotMatch: /^(ajax|file|undefined|1125)/gi, // shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
 				shareCodeNeedRemoveStr: /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)/gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/i,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
 				uiLinkShow: "lanzoux.com/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://www.lanzoux.com/s/{#shareCode#}",
 			},
 			tianyiyun: {
-				link_innerText:
-					/(cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14}))([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/(cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14}))([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
+				link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_tianyiyun", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_tianyiyun", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode:
 					/cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14})/gi,
 				shareCodeNeedRemoveStr:
 					/cloud\.189\.cn\/t\/|cloud.189.cn\/web\/share\?code=/gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
 				uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://cloud.189.cn/t/{#shareCode#}",
 			},
 			hecaiyun: {
-				link_innerText:
-					/caiyun.139.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/caiyun.139.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
+				link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_hecaiyun", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_hecaiyun", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode: /caiyun\.139\.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})/gi,
 				shareCodeNeedRemoveStr: /caiyun\.139\.com\/m\/i\?/gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
 				uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://caiyun.139.com/m/i?{#shareCode#}",
 			},
 			aliyun: {
-				link_innerText:
-					/aliyundrive.com\/s\/([a-zA-Z0-9_\-]{8,14})([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/aliyundrive.com\/s\/([a-zA-Z0-9_\-]{8,14})([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
+				link_innerText: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_aliyun", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_aliyun", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode: /aliyundrive\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
 				shareCodeNotMatch: /undefined/gi, // shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
 				shareCodeNeedRemoveStr: /aliyundrive\.com\/s\//gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
 				acceesCodeNotMatch: /^(font)/gi,
 				uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://aliyundrive.com/s/{#shareCode#}",
 			},
 			wenshushu: {
-				link_innerText:
-					/(wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14}))([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/(wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14}))([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
+				link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_wenshushu", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_wenshushu", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode:
 					/wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})/gi,
 				shareCodeNeedRemoveStr: /wss.ink\/f\/|ws28.cn\/f\/|wss1.cn\/f\//gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/g,
+				accessCode: /[0-9a-zA-Z]{4}/gi,
 				uiLinkShow: "wss.ink/f/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://wss.ink/f/{#shareCode#}",
 			},
 			nainiu: {
-				link_innerText:
-					/cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
+				link_innerText: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_nainiu", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_nainiu", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode: /cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
 				shareCodeNeedRemoveStr: /cowtransfer\.com\/s\//gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
 				uiLinkShow: "cowtransfer.com/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://cowtransfer.com/s/{#shareCode#}",
 			},
 			_123pan: {
-				link_innerText:
-					/123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})([\s\S]{0,20}(密码|访问码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})([\s\S]{0,300}(密码|访问码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
+				link_innerText: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText__123pan", 20)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML__123pan", 300)
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode: /123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
 				shareCodeNeedRemoveStr: /123pan.com\/s\//gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
-				accessCode: /[0-9a-zA-Z]{4}/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
 				uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://123pan.com/s/{#shareCode#}",
 			},
 			weiyun: {
-				link_innerText:
-					/weiyun.com\/[0-9a-zA-Z\-_]{8,24}([\s\S]{0,20}(访问码|密码|提取码)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi,
-				link_innerHTML:
-					/weiyun.com\/[0-9a-zA-Z\-_]{8,24}([\s\S]{0,300}(访问码|密码|提取码)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi,
-				shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
+				link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_weiyun", 20)
+				)}}(访问码|密码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+				link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_weiyun", 300)
+				)}}(访问码|密码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+				shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi, // 链接参数
 				shareCodeNotMatch:
 					/^(ajax|file|download|ptqrshow|xy-privacy|comp|web)/gi, // shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
 				shareCodeNeedRemoveStr: /weiyun.com\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/g, // 用来判断是否存在密码
-				accessCode: /[0-9a-zA-Z]{4}/g, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://share.weiyun.com/{#shareCode#}",
 			},
 			xunlei: {
-				link_innerText:
-					/xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\s\S]{0,20}(访问码|提取码|密码|)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
-				link_innerHTML:
-					/xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\s\S]{0,300}(访问码|提取码|密码|)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
+				link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_xunlei", 20)
+				)}}(访问码|提取码|密码|)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_xunlei", 300)
+				)}}(访问码|提取码|密码|)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
 				shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi, // 链接参数
 				shareCodeNeedRemoveStr: /xunlei.com\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/g, // 用来判断是否存在密码
-				accessCode: /[0-9a-zA-Z]{4}/g, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "pan.xunlei.com/s/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://pan.xunlei.com/s/{#shareCode#}",
 			},
 			_115pan: {
-				link_innerText:
-					/115.com\/s\/[0-9a-zA-Z\-_]{8,24}([\s\S]{0,20}(访问码|密码|提取码|\?password=)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
-				link_innerHTML:
-					/115.com\/s\/[0-9a-zA-Z\-_]{8,24}([\s\S]{0,300}(访问码|密码|提取码|\?password=)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
+				link_innerText: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText__115pan", 20)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				link_innerHTML: `115.com\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML__115pan", 300)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
 				shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
 				shareCodeNeedRemoveStr: /115.com\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|\?password=|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /(\?password=|)([0-9a-zA-Z]{4})/i, // 提取码（如果存在的话）
+				accessCode: /(\?password=|)([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://115.com/s/{#shareCode#}",
 			},
 			chengtong1: {
-				link_innerText:
-					/ctfile.com(\/d\/|\/f\/)[0-9a-zA-Z\-_]{8,24}([\s\S]{0,20}(访问码|密码|提取码|\?password=)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
-				link_innerHTML:
-					/ctfile.com(\/d\/|\/f\/)[0-9a-zA-Z\-_]{8,24}([\s\S]{0,300}(访问码|密码|提取码|\?password=)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
+				link_innerText: `ctfile.com(/d/|/f/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText__chengtong1", 20)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				link_innerHTML: `ctfile.com(/d/|/f/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${GM_getValue(
+					"innerHTML__chengtong1",
+					300
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
 				shareCode: /ctfile.com(\/d\/|\/f\/)([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
 				shareCodeNeedRemoveStr: /ctfile.com(\/d\/|\/f\/)/gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/i, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://url95.ctfile.com/d/{#shareCode#}",
 			},
 			chengtong2: {
-				link_innerText:
-					/(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/)[0-9a-zA-Z\-_]{8,24}([\s\S]{0,20}(访问码|密码|提取码|\?password=)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
-				link_innerHTML:
-					/(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/)[0-9a-zA-Z\-_]{8,24}([\s\S]{0,300}(访问码|密码|提取码|\?password=)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
+				link_innerText: `(2k.us/file/|u062.com/fil\/|545c.com/file/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText__chengtong2", 20)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				link_innerHTML: `(2k.us/file/|u062.com/file/|545c.com/file/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML__chengtong2", 300)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
 				shareCode:
 					/(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/)([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
 				shareCodeNeedRemoveStr:
 					/2k.us\/file\/|u062.com\/file\/|545c.com\/file\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/i, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://u062.com/file/{#shareCode#}",
 			},
 			kuake: {
-				link_innerText:
-					/quark.cn\/s\/[0-9a-zA-Z\-_]{8,24}([\s\S]{0,20}(访问码|密码|提取码|\?password=)[\s\S]{0,10}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
-				link_innerHTML:
-					/quark.cn\/s\/[0-9a-zA-Z\-_]{8,24}([\s\S]{0,300}(访问码|密码|提取码|\?password=)[\s\S]{0,15}[0-9a-zA-Z]{4}|)/gi, // 网盘链接
+				link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerText_kuake", 20)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+					GM_getValue("innerHTML_kuake", 300)
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
 				shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
 				shareCodeNeedRemoveStr: /quark.cn\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/i, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://pan.quark.cn/s/{#shareCode#}",
 			},
 			magnet: {
-				link_innerText: /magnet:\?xt=urn:btih:[0-9a-fA-F]{32,40}/gi,
-				link_innerHTML: /magnet:\?xt=urn:btih:[0-9a-fA-F]{32,40}/gi,
+				link_innerText: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
+				link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
 				shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi, // 链接参数
 				shareCodeNeedRemoveStr: /magnet:\?xt=urn:btih:/gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/i, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}", // 用于显示的链接
 				blank: "magnet:?xt=urn:btih:{#shareCode#}",
 			},
@@ -280,12 +309,12 @@
 			if (matchTextRange.toLowerCase() === "all") {
 				$.each(this.regular, (netdiskName, item) => {
 					window.GM_linkWorker.postMessage({
-						regexp: item["link_innerText"],
+						regexp: new RegExp(item["link_innerText"], "gi"),
 						pageText: this.pageText,
 						netdiskName: netdiskName,
 					});
 					window.GM_linkWorker.postMessage({
-						regexp: item["link_innerHTML"],
+						regexp: new RegExp(item["link_innerHTML"], "gi"),
 						pageText: this.pageText,
 						netdiskName: netdiskName,
 					});
@@ -293,7 +322,7 @@
 			} else {
 				$.each(this.regular, (netdiskName, item) => {
 					window.GM_linkWorker.postMessage({
-						regexp: item[`link_${matchTextRange}`],
+						regexp: new RegExp(item[`link_${matchTextRange}`], "gi"),
 						pageText: this.pageText,
 						netdiskName: netdiskName,
 					});
@@ -332,12 +361,18 @@
 		handleShareCode(netDiskName, url) {
 			// 处理shareCode
 			let shareCodeMatch = url.match(this.regular[netDiskName].shareCode);
-			if (shareCodeMatch == null) {
+			if (
+				shareCodeMatch == null ||
+				(shareCodeMatch != null && shareCodeMatch.length === 0)
+			) {
+				console.log(
+					"根据链接获取shareCode失败",
+					arguments,
+					this.regular[netDiskName].shareCode
+				);
 				return "";
 			}
-			if (shareCodeMatch.length === 0) {
-				return "";
-			}
+
 			let shareCode = shareCodeMatch[0].replace(
 				this.regular[netDiskName].shareCodeNeedRemoveStr,
 				""
@@ -357,18 +392,18 @@
 				this.regular[netDiskName].checkAccessCode
 			);
 			if (accessCodeMatch) {
-				accessCode = accessCodeMatch[0].match(
+				accessCode = accessCodeMatch[accessCodeMatch.length - 1].match(
 					this.regular[netDiskName].accessCode
 				);
 				if (accessCode == null) {
 					return "";
 				}
-				$.each(accessCode, (i, v) => {
-					if (!v.match(this.regular[netDiskName]["accessCodeNotMatch"])) {
-						return accessCode[i];
+				$.each(accessCode, (index, item) => {
+					if (!item.match(this.regular[netDiskName]["accessCodeNotMatch"])) {
+						return accessCode[index];
 					}
 				});
-				accessCode = accessCode[0];
+				accessCode = accessCode[accessCode.length - 1];
 			}
 			return accessCode;
 		},
@@ -1861,8 +1896,7 @@
 							method: "GET",
 							headers: {
 								accept: "*/*",
-								"user-agent":
-									"Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
+								"user-agent": Utils.getRandomPCUA(),
 								referer: "https://www.123pan.com/s/" + shareCode,
 							},
 							onload: (r) => {
@@ -1872,7 +1906,6 @@
 									let infoList = json_data["data"]["InfoList"];
 									res(infoList);
 								} else {
-									console.log(r);
 									res([
 										{
 											error: json_data["code"],
@@ -1919,7 +1952,6 @@
 									let infoList = json_data["data"]["InfoList"];
 									res(infoList);
 								} else {
-									console.log(r);
 									res([]);
 								}
 							},
@@ -2393,12 +2425,13 @@
 					let data = e.data;
 					let link_regexp = data["regexp"];
 					let pageText = data["pageText"];
-					let netdisk = data["netdiskName"];
-					let matchLink = pageText.match(link_regexp);
+					let netdiskName = data["netdiskName"];
+					let matchData = pageText.match(link_regexp);
+					matchData = matchData ? matchData : [];
 					this.postMessage({
-						"msg": matchLink ? "workercallback: 文本匹配完毕,当前文本匹配到网盘链接数量:"+matchLink.length.toString() : "workercallback: 文本匹配完毕,当前未匹配到",
-						"netdisk": matchLink ? netdisk : "" ,
-						"data": matchLink ? matchLink : []
+						"msg": matchData.length ? "workercallback: success! "+matchData.length.toString() : "workercallback: none",
+						"netdiskName": netdiskName ,
+						"data": matchData
 					});
 				}, false);
 
@@ -2411,7 +2444,7 @@
 			window.GM_linkWorker = new Worker(WorkerHandle.blobUrl);
 
 			window.GM_linkWorker.onmessage = function (e) {
-				WorkerHandle.successCallBack(e.data["data"], e.data["netdisk"]);
+				WorkerHandle.successCallBack(e.data["data"], e.data["netdiskName"]);
 			};
 			window.GM_linkWorker.onerror = function (error) {
 				WorkerHandle.errorCallBack(error);
@@ -2419,7 +2452,7 @@
 		},
 		successCallBack: (matchLink, netdiskName) => {
 			/* worker处理文件匹配后的回调 */
-			if (!matchLink.length && UI.isHandling) {
+			if (matchLink.length === 0 && UI.isHandling) {
 				setTimeout(() => {
 					UI.isHandling = false;
 					/* 延迟赋值-防止页面子元素插入导致闪烁 */
@@ -2436,6 +2469,7 @@
 			Array.from(matchLinkSet).forEach((item) => {
 				NetDisk.handleLink(netdiskName, item);
 			});
+
 			if (NetDisk.hasMatchLink) {
 				UI.suspension.show();
 			}
@@ -2601,7 +2635,7 @@
 					display: flex;
     			justify-content: space-between;
 				}
-				.netdisk-setting-menu-item select[data-key=pageMatchRange]{
+				.netdisk-setting-menu-item select{
 					background-color: #fff;
 				}
 				/*checkbox美化*/
@@ -2999,8 +3033,6 @@
 				}
 			},
 			openPop() {
-				let ui_size = GM_getValue("size", 50);
-				let ui_opacity = GM_getValue("opacity", 1);
 				let _settingHtml_ = `
 				<div class="netdisk-setting-body">
 					<div class="netdisk-setting">
@@ -3008,11 +3040,14 @@
 							<details class="netdisk-setting-menu" type="总设置">
 									<summary>总设置</summary>
 									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-size">大小${ui_size}</label>
+											<label data-id="netdisk-size">大小${GM_getValue("size", 50)}</label>
 											<input type="range" data-key="size" data-content="大小" min="15" max="250" data-default="50">
 									</div>
 									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-opacity" content="透明度">透明度${ui_opacity}</label>
+											<label data-id="netdisk-opacity" content="透明度">透明度${GM_getValue(
+												"opacity",
+												1
+											)}</label>
 											<input type="range" data-key="opacity" data-content="透明度" min="0.1" max="1" step="0.1" data-default="1">
 									</div>
 									<div class="netdisk-setting-menu-item">
@@ -3103,6 +3138,20 @@
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
 									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerText_baidu">提取码间隔(innerText)${GM_getValue(
+												"innerText_baidu",
+												20
+											)}</label>
+											<input type="range" data-key="innerText_baidu" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_baidu">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_baidu",
+												300
+											)}</label>
+											<input type="range" data-key="innerHTML_baidu" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="蓝奏云">
 								<summary>蓝奏云</summary>
@@ -3132,6 +3181,20 @@
 										<p>scheme转发</p>
 										<input type="text" data-key="lanzou-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
 								</div>
+								<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_lanzou">提取码间隔(innerText)${GM_getValue(
+											"innerText_lanzou",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_lanzou" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+								</div>
+								<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerHTML_lanzou">提取码间隔(innerHTML)${GM_getValue(
+											"innerHTML_lanzou",
+											300
+										)}</label>
+										<input type="range" data-key="innerHTML_lanzou" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+								</div>
 							</details>
 							<details class="netdisk-setting-menu" type="天翼云">
 									<summary>天翼云</summary>
@@ -3160,7 +3223,20 @@
 											<p>scheme转发</p>
 											<input type="text" data-key="tianyiyun-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
 									</div>
-									
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_tianyiyun">提取码间隔(innerText)${GM_getValue(
+											"innerText_tianyiyun",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_tianyiyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_tianyiyun">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_tianyiyun",
+												300
+											)}</label>
+											<input type="range" data-key="innerHTML_tianyiyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="和彩云">
 									<summary>中国移动云盘(原:和彩云)</summary>
@@ -3171,6 +3247,20 @@
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
 									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_hecaiyun">提取码间隔(innerText)${GM_getValue(
+											"innerText_hecaiyun",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_hecaiyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_hecaiyun">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_hecaiyun",
+												300
+											)}</label>
+											<input type="range" data-key="innerHTML_hecaiyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="阿里云">
 									<summary>阿里云</summary>
@@ -3180,6 +3270,20 @@
 											<input type="checkbox" data-key="aliyun-open-enable">
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
+									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_aliyun">提取码间隔(innerText)${GM_getValue(
+											"innerText_aliyun",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_aliyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_aliyun">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_aliyun",
+												300
+											)}</label>
+											<input type="range" data-key="innerHTML_aliyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
 									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="文叔叔">
@@ -3209,7 +3313,20 @@
 											<p>scheme转发</p>
 											<input type="text" data-key="wenshushu-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
 									</div>
-									
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_wenshushu">提取码间隔(innerText)${GM_getValue(
+											"innerText_wenshushu",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_wenshushu" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_wenshushu">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_wenshushu",
+												300
+											)}</label>
+											<input type="range" data-key="innerHTML_wenshushu" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="奶牛">
 									<summary>奶牛</summary>
@@ -3219,6 +3336,20 @@
 											<input type="checkbox" data-key="nainiu-open-enable">
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
+									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_nainiu">提取码间隔(innerText)${GM_getValue(
+											"innerText_nainiu",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_nainiu" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_nainiu">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_nainiu",
+												300
+											)}</label>
+											<input type="range" data-key="innerHTML_nainiu" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
 									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="123盘">
@@ -3248,7 +3379,20 @@
 											<p>scheme转发</p>
 											<input type="text" data-key="_123pan-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
 									</div>
-									
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText__123pan">提取码间隔(innerText)${GM_getValue(
+											"innerText__123pan",
+											20
+										)}</label>
+										<input type="range" data-key="innerText__123pan" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML__123pan">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML__123pan",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML__123pan" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="微云">
 									<summary>微云</summary>
@@ -3258,6 +3402,20 @@
 											<input type="checkbox" data-key="weiyun-open-enable">
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
+									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_weiyun">提取码间隔(innerText)${GM_getValue(
+											"innerText_weiyun",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_weiyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_weiyun">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_weiyun",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML_weiyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
 									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="迅雷云盘">
@@ -3269,6 +3427,20 @@
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
 									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_xunlei">提取码间隔(innerText)${GM_getValue(
+											"innerText_xunlei",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_xunlei" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_xunlei">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_xunlei",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML_xunlei" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="115盘">
 									<summary>115盘</summary>
@@ -3278,6 +3450,20 @@
 											<input type="checkbox" data-key="_115pan-open-enable">
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
+									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText__115pan">提取码间隔(innerText)${GM_getValue(
+											"innerText__115pan",
+											20
+										)}</label>
+										<input type="range" data-key="innerText__115pan" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML__115pan">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML__115pan",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML__115pan" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
 									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="城通网盘1">
@@ -3289,6 +3475,20 @@
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
 									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText__chengtong1">提取码间隔(innerText)${GM_getValue(
+											"innerText__chengtong1",
+											20
+										)}</label>
+										<input type="range" data-key="innerText__chengtong1" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML__chengtong1">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML__chengtong1",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML__chengtong1" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="城通网盘2">
 									<summary>城通网盘2</summary>
@@ -3299,6 +3499,20 @@
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
 									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText__chengtong2">提取码间隔(innerText)${GM_getValue(
+											"innerText__chengtong2",
+											20
+										)}</label>
+										<input type="range" data-key="innerText__chengtong2" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML__chengtong2">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML__chengtong2",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML__chengtong2" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="夸克网盘">
 									<summary>夸克网盘</summary>
@@ -3308,6 +3522,20 @@
 											<input type="checkbox" data-key="kuake-open-enable">
 											<div class="knobs"><span></span></div><div class="layer"></div>
 										</div>
+									</div>
+									<div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_kuake">提取码间隔(innerText)${GM_getValue(
+											"innerText_kuake",
+											20
+										)}</label>
+										<input type="range" data-key="innerText_kuake" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_kuake">提取码间隔(innerHTML)${GM_getValue(
+												"innerHTML_kuake",
+												300
+											)}</label>
+										<input type="range" data-key="innerHTML_kuake" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
 									</div>
 							</details>
 							<details class="netdisk-setting-menu" type="磁力magnet">
@@ -3323,6 +3551,7 @@
 											<p>scheme转发</p>
 											<input type="text" data-key="magnet-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
 									</div>
+									
 							</details>
 						</div>
 					</div>
@@ -3358,34 +3587,37 @@
 					mask: true,
 				});
 
-				this.setCheckBoxClickEvent();
+				this.setInputEvent();
 				this.setSelectEvent();
 			},
-			setCheckBoxClickEvent() {
+			setInputEvent() {
 				/* 设置复选框是否选中 */
-				$(".netdisk-setting input").each((i, v) => {
-					let data_key = v.getAttribute("data-key");
-					v.value = GM_getValue(data_key) ? GM_getValue(data_key) : "";
-					switch (v.getAttribute("type")) {
+				$(".netdisk-setting input").each((index, item) => {
+					let data_key = item.getAttribute("data-key");
+					let data_default = item.getAttribute("data-default");
+					item.value = GM_getValue(data_key, data_default)
+						? GM_getValue(data_key, data_default)
+						: "";
+					switch (item.getAttribute("type")) {
 						case "checkbox":
-							v.checked = GM_getValue(data_key) ? true : false;
-							let mutex = v.getAttribute("mutex");
-							$(v).on("click", (e) => {
+							item.checked = GM_getValue(data_key) ? true : false;
+							let mutex = item.getAttribute("mutex");
+							$(item).on("click", (e) => {
 								if (mutex) {
 									let mutexElement = $(mutex);
 									let mutex_data_key = $(mutex).attr("data-key");
-									if (v.checked) {
-										mutexElement.prop("checked", !v.checked);
-										GM_setValue(mutex_data_key, !v.checked);
+									if (item.checked) {
+										mutexElement.prop("checked", !item.checked);
+										GM_setValue(mutex_data_key, !item.checked);
 									}
 								}
-								GM_setValue(data_key, v.checked);
+								GM_setValue(data_key, item.checked);
 							});
 							break;
 						case "range":
-							$(v).on("input propertychange", (val) => {
+							$(item).on("input propertychange", (val) => {
 								$(`.netdisk-setting label[data-id=netdisk-${data_key}]`).html(
-									`${v.getAttribute("data-content")}${v.value}`
+									`${item.getAttribute("data-content")}${item.value}`
 								);
 								let itSize = $(".netdisk-setting input[data-key=size]").val();
 								$("#whitesevSuspensionId").css({
@@ -3395,14 +3627,12 @@
 								});
 								UI.size = itSize;
 								UI.suspension.setSuspensionDefaultPositionEvent();
-								GM_setValue(data_key, v.value);
+								GM_setValue(data_key, item.value);
 							});
-							$(".netdisk-setting input[data-key=opacity]").val(
-								GM_getValue("opacity") ? GM_getValue("opacity") : 1
-							); // 初始化opacity的值
+
 						default:
-							$(v).on("input propertychange", (val) => {
-								GM_setValue(data_key, v.value);
+							$(item).on("input propertychange", (val) => {
+								GM_setValue(data_key, item.value);
 							});
 					}
 				});
@@ -3897,7 +4127,7 @@
 				if (!UI.uiLinkAlias) {
 					return null;
 				}
-				console.log("修改");
+
 				let uiLink = NetDisk.regular[_netdiskname_].uiLinkShow.replace(
 					/{#shareCode#}/gi,
 					_sharecode_
@@ -3910,9 +4140,10 @@
 							.replace(/ /g, "");
 				let needChangeDOM = $(
 					UI.uiLinkAlias.popsElement.querySelector(
-						`.netdisk-url a[data-sharecode=${_sharecode_}]`
+						`.netdisk-url a[data-sharecode='${_sharecode_}']`
 					)
 				);
+				console.log("修改", needChangeDOM);
 				needChangeDOM.attr("data-accesscode", _accesscode_);
 				needChangeDOM.html(uiLink);
 			},
