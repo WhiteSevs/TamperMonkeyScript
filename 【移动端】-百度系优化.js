@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】-百度系优化
 // @namespace    http://tampermonkey.net/
-// @version      0.6.2
+// @version      0.6.3
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @include      *://m.baidu.com/*
 // @include      *://www.baidu.com/*
@@ -16,6 +16,7 @@
 // @include      *://fanyi-app.baidu.com/*
 // @include      *://image.baidu.com/*
 // @include      *://map.baidu.com/*
+// @include      *://xue.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -301,6 +302,7 @@
 			this.fanyi();
 			this.image();
 			this.map();
+			this.xue();
 		},
 		css: {
 			search: `
@@ -622,6 +624,22 @@
                   display:none !important;
                 }
             `,
+			xue: `
+								.sc-dkcEsn,
+								.sc-fHSyak,
+								.sc-gikAfH,
+								swan-view.strategy-institution-list,
+								swan-view.strategy-wrapper,
+								.swan-spider-tap,
+								.booking,
+								.head-bar,
+								.head-bar-placeholder{
+									display: none !important;
+								}
+								.sc-cHGmPC{
+									width: auto !important;
+								}
+			`,
 		},
 		search() {
 			// 百度搜索
@@ -2796,6 +2814,20 @@
 				GM_addStyle(this.css.map);
 				__console__.log(
 					"%c[BaiDu优化%c-%c百度地图%c]%c %s",
+					"font-weight:bold;color:cornflowerblue",
+					"font-weight:bold;color:cornflowerblue",
+					"font-weight:bold;color:darkorange",
+					"font-weight:bold;color:cornflowerblue",
+					"color:0",
+					"插入CSS规则"
+				);
+			}
+		},
+		xue() {
+			if (this.current_url.match(/http(s|):\/\/xue.baidu.com/g)) {
+				GM_addStyle(this.css.xue);
+				__console__.log(
+					"%c[BaiDu优化%c-%c知了好学%c]%c %s",
 					"font-weight:bold;color:cornflowerblue",
 					"font-weight:bold;color:cornflowerblue",
 					"font-weight:bold;color:darkorange",
