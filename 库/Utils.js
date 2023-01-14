@@ -53,7 +53,7 @@ Utils.tryCatch = function (func, params, errorFunc) {
 };
 
 /*
- * @description 格式化时间字符串
+ * @description 字符串格式的时间转时间戳
  * @param {string} str - 字符串格式的时间，例如：2022-11-21 00:00:00，或者是 00:00:00
  * @return {number} - 返回时间戳
  * @example Utils.formatTextToTimeStamp("2022-11-21 00:00:00");
