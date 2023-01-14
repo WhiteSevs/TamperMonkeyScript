@@ -203,15 +203,15 @@
 			chengtong1: {
 				link_innerText: `ctfile.com(/d/|/f/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText__chengtong1", 20)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{6}|)`, // 网盘链接
 				link_innerHTML: `ctfile.com(/d/|/f/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${GM_getValue(
 					"innerHTML__chengtong1",
 					300
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{6}|)`, // 网盘链接
 				shareCode: /ctfile.com(\/d\/|\/f\/)([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
 				shareCodeNeedRemoveStr: /ctfile.com(\/d\/|\/f\/)/gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
 				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
+				accessCode: /([0-9a-zA-Z]{6})/gi, // 提取码（如果存在的话）
 				uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
 				blank: "https://url95.ctfile.com/d/{#shareCode#}",
 			},
