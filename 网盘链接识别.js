@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.14.18.00
+// @version      23.01.15.23.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -2458,7 +2458,7 @@
 				setTimeout(() => {
 					UI.isHandling = false;
 					/* 延迟赋值-防止页面子元素插入导致闪烁 */
-				}, 800);
+				}, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
 				return;
 			}
 
@@ -2477,7 +2477,7 @@
 			}
 			setTimeout(() => {
 				UI.isHandling = false;
-			}, 800);
+			}, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
 		},
 		errorCallBack: (error) => {
 			console.log("worker throw error: ", error);
@@ -3044,15 +3044,22 @@
 							<details class="netdisk-setting-menu" type="总设置">
 									<summary>总设置</summary>
 									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-size">大小${GM_getValue("size", 50)}</label>
-											<input type="range" data-key="size" data-content="大小" min="15" max="250" data-default="50">
+											<label data-id="netdisk-size">大小 ${GM_getValue("size", 50)}</label>
+											<input type="range" data-key="size" data-content="大小 " min="15" max="250" data-default="50">
 									</div>
 									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-opacity" content="透明度">透明度${GM_getValue(
+											<label data-id="netdisk-opacity" content="透明度 ">透明度 ${GM_getValue(
 												"opacity",
 												1
 											)}</label>
-											<input type="range" data-key="opacity" data-content="透明度" min="0.1" max="1" step="0.1" data-default="1">
+											<input type="range" data-key="opacity" data-content="透明度 " min="0.1" max="1" step="0.1" data-default="1">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-delaytime">检测延时(秒) ${GM_getValue(
+												"delaytime",
+												0.8
+											)}</label>
+											<input type="range" data-key="delaytime" data-content="检测延时(秒) " min="0.6" step="0.1" max="5.0" data-default="0.8">
 									</div>
 									<div class="netdisk-setting-menu-item">
 											<label>匹配类型</label>
