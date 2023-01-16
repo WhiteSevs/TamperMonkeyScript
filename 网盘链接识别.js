@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://tampermonkey.net/
-// @version      23.01.15.23.00
+// @version      23.01.16.12.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @include      *
@@ -794,7 +794,6 @@
 										pops.prompt({
 											title: {
 												text: "密码错误",
-												placeholder: "请重新输入密码",
 											},
 											btn: {
 												reverse: true,
@@ -823,6 +822,7 @@
 											},
 											content: {
 												focus: true,
+												placeholder: "请重新输入密码",
 											},
 											width: "350px",
 											height: "160px",
@@ -1005,7 +1005,6 @@
 											pops.prompt({
 												title: {
 													text: "密码错误",
-													placeholder: "请重新输入密码",
 												},
 												btn: {
 													reverse: true,
@@ -1037,6 +1036,7 @@
 												},
 												content: {
 													focus: true,
+													placeholder: "请重新输入密码",
 												},
 												width: "350px",
 												height: "160px",
@@ -1232,16 +1232,16 @@
 									pops.prompt({
 										title: {
 											text: "密码错误",
-											placeholder: "请重新输入密码",
 										},
 										btn: {
 											reverse: true,
+											position: "end",
 											cancel: {
 												text: "取消",
 											},
 											ok: {
 												callback: (event) => {
-													let inputPwd = this.getText().replace(/ /g, "");
+													let inputPwd = event.text.replace(/ /g, "");
 													if (inputPwd != "") {
 														let uiLink = NetDisk.regular.tianyiyun.uiLinkShow
 															.replace(/{#shareCode#}/gi, that.shareCode)
@@ -1261,6 +1261,7 @@
 											},
 										},
 										content: {
+											placeholder: "请重新输入密码",
 											focus: true,
 										},
 										width: "350px",
@@ -2602,9 +2603,14 @@
 				.netdisk-setting-menu-item{
 					display:flex;
           justify-content: space-between;
+					display: flex;
+					align-items: center;
 				}
 				.netdisk-setting-menu-item label{
 					width:150px;
+				}
+				.netdisk-setting-menu-item[type=checkbox]{
+					align-items: flex-start;
 				}
 				.netdisk-setting-menu-item[type=checkbox],
         .netdisk-setting-menu-item[type="scheme"]{
@@ -3665,8 +3671,51 @@
 							.attr("selected", true);
 					});
 				}
+				function setSettingLabelEvent() {
+					/* 设置点击Label设置range为默认值 */
+					$(UI.uiSettingAlias.popsElement)
+						.find("label[data-id*=netdisk-]")
+						.on("click", function () {
+							let obj = $(this);
+							let dataKey = obj.next().attr("data-key");
+							let dataDefaultValue = obj.next().attr("data-default");
+							let currentValue = obj.next().val();
+							pops.confirm({
+								mask: true,
+								title: {
+									text: "提示",
+									position: "center",
+								},
+								content: {
+									text:
+										"当前值:" +
+										currentValue +
+										" ，是否修改为默认值:" +
+										dataDefaultValue +
+										" ?",
+								},
+								btn: {
+									ok: {
+										callback: function (_event_) {
+											console.log(
+												"当前值:" +
+													currentValue +
+													" ，修改为默认值:" +
+													dataDefaultValue
+											);
+											GM_setValue(dataKey, dataDefaultValue);
+											obj.next().val(dataDefaultValue);
+											obj.next().trigger("propertychange");
+											_event_.close();
+										},
+									},
+								},
+							});
+						});
+				}
 				setSettingInputEvent();
 				setSettingSelectEvent();
+				setSettingLabelEvent();
 			},
 			setSuspensionEvent() {
 				/* 设置悬浮按钮事件 */
