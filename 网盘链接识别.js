@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         网盘链接识别
-// @namespace    https://tampermonkey.net/
-// @version      23.01.16.12.00
+// @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
+// @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
+// @version      23.01.21.12.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
-// @include      *
+// @match        http://*/*
+// @match        https://*/*
 // @run-at       document-body
 // @license      GPL-3.0-only
 // @grant        GM_setValue
@@ -4380,6 +4382,7 @@
 					return "⚙ " + _text_;
 				},
 				callback: () => {
+					UI.suspension.initPop();
 					UI.suspension.showSettingView();
 				},
 			},
