@@ -1,15 +1,18 @@
 // ==UserScript==
 // @name         CSDN|简书优化
-// @namespace    http://tampermonkey.net/
-// @version      0.5.3
+// @icon         https://www.csdn.net/favicon.ico
+// @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
+// @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
+// @version      0.5.4
 // @description  支持手机端和PC端
-// @author       MT-戒酒的李白染
-// @include      http*://www.csdn.net/*
-// @include      http*://bbs.csdn.net/*
-// @include      http*://www.jianshu.com/*
-// @include      http*://*blog.csdn.net/*
-// @include      http*://download.csdn.net/*
-// @include      http*://huaweicloud.csdn.net/*
+// @author       WhiteSevs
+// @match        http*://www.csdn.net/*
+// @match        http*://bbs.csdn.net/*
+// @match        http*://*.jianshu.com/*
+// @match        http*://*.jianshu.io/*
+// @match        http*://*blog.csdn.net/*
+// @match        http*://download.csdn.net/*
+// @match        http*://huaweicloud.csdn.net/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -38,10 +41,26 @@
 		/* 简书 */
 		function isJianShu() {
 			/* 判断是否是 简书 */
-			return Boolean(/jianshu.com/i.test(window.location.origin));
+			return Boolean(/jianshu.(com|io)/i.test(window.location.origin));
+		}
+		function articleCenter() {
+			/* 全文居中 */
+			GM_addStyle(`
+			div[role=main] aside,
+			div._3Pnjry{
+				display: none !important;
+			}
+			div._gp-ck{
+				width: 100% !important;
+			}
+			`);
+			console.log("添加居中");
 		}
 		function PC() {
 			console.log("简书");
+			if (GM_Menu.get("JianShuArticleCenter")) {
+				articleCenter();
+			}
 			const css = `
       .download-app-guidance,
       .call-app-btn,
@@ -58,7 +77,8 @@
       .download-guide,
       #footer,
       .comment-open-app-btn-wrap,
-      .nav.navbar-nav + div{
+      .nav.navbar-nav + div,
+			.self-flow-ad{
         display:none !important;
       }
       body.reader-day-mode.normal-size {
@@ -532,72 +552,87 @@
 			}
 		}
 	}
-	var GM_Menu = new Utils.GM_Menu({
-		removeCSDNDownloadPC: {
-			text: "电脑-移除文章底部的CSDN下载",
-			enable: false,
-			showText: (_text_, _enable_) => {
-				return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+	if (Boolean(/csdn.net/i.test(window.location.origin))) {
+		var GM_Menu = new Utils.GM_Menu({
+			removeCSDNDownloadPC: {
+				text: "电脑-移除文章底部的CSDN下载",
+				enable: false,
+				showText: (_text_, _enable_) => {
+					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+				},
 			},
-		},
-		articleCenter: {
-			text: "电脑-全文居中",
-			enable: true,
-			showText: (_text_, _enable_) => {
-				return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+			articleCenter: {
+				text: "电脑-全文居中",
+				enable: true,
+				showText: (_text_, _enable_) => {
+					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+				},
 			},
-		},
-		shieldLoginDialog: {
-			text: "电脑-屏蔽登录弹窗",
-			enable: true,
-			showText: (_text_, _enable_) => {
-				return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
-			},
-			callback: (_key_, _enable_) => {
-				if (!_enable_) {
-					window.GM_CSS_GM_shieldLoginDialog.forEach((item) => {
-						item.remove();
-					});
-				} else {
-					if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
-						window.GM_CSS_GM_shieldLoginDialog = [
-							...window.GM_CSS_GM_shieldLoginDialog,
-							GM_addStyle(
-								`.passport-login-container{display: none !important;}`
-							),
-						];
+			shieldLoginDialog: {
+				text: "电脑-屏蔽登录弹窗",
+				enable: true,
+				showText: (_text_, _enable_) => {
+					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+				},
+				callback: (_key_, _enable_) => {
+					if (!_enable_) {
+						window.GM_CSS_GM_shieldLoginDialog.forEach((item) => {
+							item.remove();
+						});
 					} else {
-						window.GM_CSS_GM_shieldLoginDialog = [
-							GM_addStyle(
-								`.passport-login-container{display: none !important;}`
-							),
-						];
+						if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
+							window.GM_CSS_GM_shieldLoginDialog = [
+								...window.GM_CSS_GM_shieldLoginDialog,
+								GM_addStyle(
+									`.passport-login-container{display: none !important;}`
+								),
+							];
+						} else {
+							window.GM_CSS_GM_shieldLoginDialog = [
+								GM_addStyle(
+									`.passport-login-container{display: none !important;}`
+								),
+							];
+						}
 					}
-				}
+				},
 			},
-		},
-		showDirect: {
-			text: "手机-标识处理过的底部推荐文章",
-			enable: true,
-			showText: (_text_, _enable_) => {
-				return (_enable_ ? "✅" : "❌") + " " + _text_;
+			showDirect: {
+				text: "手机-标识处理过的底部推荐文章",
+				enable: true,
+				showText: (_text_, _enable_) => {
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
+				},
 			},
-		},
-		openNewTab: {
-			text: "手机-底部推荐文章新标签页打开",
-			enable: true,
-			showText: (_text_, _enable_) => {
-				return (_enable_ ? "✅" : "❌") + " " + _text_;
+			openNewTab: {
+				text: "手机-底部推荐文章新标签页打开",
+				enable: true,
+				showText: (_text_, _enable_) => {
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
+				},
 			},
-		},
-		removeCSDNDownloadMobile: {
-			text: "手机-移除文章底部的CSDN下载",
-			enable: false,
-			showText: (_text_, _enable_) => {
-				return (_enable_ ? "✅" : "❌") + " " + _text_;
+			removeCSDNDownloadMobile: {
+				text: "手机-移除文章底部的CSDN下载",
+				enable: false,
+				showText: (_text_, _enable_) => {
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
+				},
 			},
-		},
-	});
+		});
+	} else if (Boolean(/jianshu.(com|io)/i.test(window.location.origin))) {
+		var GM_Menu = new Utils.GM_Menu({
+			JianShuArticleCenter: {
+				text: "电脑-全文居中",
+				enable: true,
+				showText: (_text_, _enable_) => {
+					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+				},
+				callback: () => {
+					window.location.reload();
+				},
+			},
+		});
+	}
 
 	JianShu();
 	CSDN();
