@@ -1,14 +1,12 @@
 // ==UserScript==
 // @name         MT论坛
-// @namespace    http://tampermonkey.net/
-// @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.4
-// @author       WhiteSevs
 // @icon         https://bbs.binmt.cc/favicon.ico
+// @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
+// @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
+// @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
+// @version      2.7.5
+// @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
-// @compatible   edge Beta/Dev/Candy 测试通过
-// @compatible   Yandex 测试通过
-// @compatible   Kiwi 测试通过
 // @license      GPL-3.0-only
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -20,7 +18,7 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @run-at       document-start
-// @supportURL   https://github.com/893177236/Monkey_script
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
@@ -12298,6 +12296,7 @@
                         height: 22px;
                         line-height: 22px;
                         overflow: hidden;
+												min-width: 100px;
                     }
                     `);
 					var latestPostFormHTML = "";
@@ -12993,7 +12992,7 @@
 
 	function firstUseTip() {
 		/* 第一次使用该脚本的提示 */
-		if (GM_getValue("firstUse", true)) {
+		if (GM_getValue("firstUse", true) && envIsMobile()) {
 			var tipImage = "https://www.helloimg.com/images/2023/01/04/oCgy7o.gif";
 			popup2.confirm({
 				text: `<p>如果您是第一次使用，请看演示GIF</p><image src="${tipImage}" alt="演示图-48MB" loading="eager" crossoriginNew="anonymous" height="400"></image>`,
