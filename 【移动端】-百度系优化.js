@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.6.4
+// @version      0.6.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -645,7 +645,7 @@ https: (function () {
 			`,
 		},
 		search() {
-			// 百度搜索
+			/* 百度搜索 */
 			function replaceLink() {
 				/* 替换链接 */
 				function setNodeAttrHref(jQDOM, url) {
@@ -709,7 +709,7 @@ https: (function () {
 				}
 
 				function getRealLinkJSON() {
-					// 由于部分真实链接存储在 script 标签中，得取出
+					/*  由于部分真实链接存储在 script 标签中，得取出 */
 					let data = new Utils.Dictionary();
 					$("script[id^='atom-data-']").each((index, item) => {
 						let json_data = JSON.parse(item.innerHTML);
@@ -826,14 +826,14 @@ https: (function () {
 				}
 
 				function removeAds() {
-					// 移除广告、推广
-					$(".icon-logo")?.first().remove(); //底部下一页前面图标删除
-					$("#page-relative")?.remove(); //末尾 ===>>  大家都在搜  广告位
+					/* 移除广告、推广 */
+					$(".icon-logo")?.first().remove(); /* 底部下一页前面图标删除 */
+					$("#page-relative")?.remove(); /* 末尾 ===>>  大家都在搜  广告位 */
 					$(
 						".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
-					)?.remove(); //中间 ===>>  大家都在搜  广告位
-					$("#pop-up")?.remove(); //跳转百度app提示
-					$(".ec_wise_ad")?.parent()?.remove(); // 顶部的部分商品广告
+					)?.remove(); /* 中间 ===>>  大家都在搜  广告位 */
+					$("#pop-up")?.remove(); /* 跳转百度app提示 */
+					$(".ec_wise_ad")?.parent()?.remove(); /* 顶部的部分商品广告 */
 
 					$(".c-result.result").each((index, item) => {
 						item = $(item);
@@ -877,7 +877,7 @@ https: (function () {
 								"color:blue"
 							);
 						}
-						let bottomLogoElement = item.find(".c-color-source"); //底部标识
+						let bottomLogoElement = item.find(".c-color-source"); /* 底部标识 */
 						if (bottomLogoElement.length) {
 							bottomLogoElement.each((_index_, _item_) => {
 								if (_item_.outerText.match(/百度(APP内打开|手机助手)/)) {
@@ -1213,7 +1213,7 @@ https: (function () {
 			}
 		},
 		baijiahao() {
-			// 百家号
+			/* 百家号 */
 			if (this.current_url.match(/http(s|):\/\/baijiahao.baidu.com/g)) {
 				GM_addStyle(this.css.baijiahao);
 				__console__.log(
@@ -1228,12 +1228,12 @@ https: (function () {
 			}
 		},
 		tieba() {
-			//  百度贴吧
+			/* 百度贴吧 */
 			function tiebaLoadComments() {
-				// 贴吧加载评论
+				/* 贴吧加载评论 */
 				const tiebaConfig = {
 					getNewCommentInnerHTML: (element, user_commands_list) => {
-						// 根据dom获取需要插入的评论的html
+						/* 根据dom获取需要插入的评论的html */
 						let data_field = JSON.parse(element.attributes["data-field"].value);
 						if (Object.keys(data_field).length == 0) {
 							return;
@@ -1317,32 +1317,38 @@ https: (function () {
 								user_ip_position = "IP属地:" + user_ip_position;
 							}
 						}
-						let currentTime = new Date(); //结束时间
+						let currentTime = new Date(); /* 结束时间 */
 						let timeDifference =
 							currentTime.getTime() -
-							new Date(user_comment_time.replace(/-/g, "/")).getTime(); //时间差的毫秒数
+							new Date(
+								user_comment_time.replace(/-/g, "/")
+							).getTime(); /* 时间差的毫秒数 */
 
-						//------------------------------
+						/* ------------------------------ */
 
-						//计算出相差天数
+						/* 计算出相差天数 */
 						let days = Math.floor(timeDifference / (24 * 3600 * 1000));
 						if (days > 0) {
 							user_comment_time = days + "天前";
 						} else {
-							//计算出小时数
-							let leave1 = timeDifference % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
+							/* 计算出小时数 */
+							let leave1 =
+								timeDifference %
+								(24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
 							let hours = Math.floor(leave1 / (3600 * 1000));
 							if (hours > 0) {
 								user_comment_time = hours + "小时前";
 							} else {
-								//计算相差分钟数
-								let leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
+								/* 计算相差分钟数 */
+								let leave2 =
+									leave1 % (3600 * 1000); /* 计算小时数后剩余的毫秒数 */
 								let minutes = Math.floor(leave2 / (60 * 1000));
 								if (minutes > 0) {
 									user_comment_time = minutes + "分钟前";
 								} else {
-									//计算相差秒数
-									let leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
+									/* 计算相差秒数 */
+									let leave3 =
+										leave2 % (60 * 1000); /* 计算分钟数后剩余的毫秒数 */
 									let seconds = Math.round(leave3 / 1000);
 									user_comment_time = seconds + "秒前";
 								}
@@ -1437,15 +1443,15 @@ https: (function () {
 						return new_command_innerHTML;
 					},
 					insertNewCommentInnerHTML: (_html_) => {
-						// 根据评论的html插入页面中
+						/* 根据评论的html插入页面中 */
 						if ($(".post-cut-guide").length) {
 							$(".post-cut-guide").before(_html_);
 						} else {
-							$(".pb-page-wrapper").append(_html_); // 老版帖子
+							$(".pb-page-wrapper").append(_html_); /* 老版帖子 */
 						}
 					},
 					insertOnlyLZ: () => {
-						// 插入只看楼主的按钮
+						/* 插入只看楼主的按钮 */
 						let ele_parent = $("#replySwitch");
 						let onlyLzInnerHTML = `
                         <div style="display: -webkit-box;
@@ -1541,7 +1547,7 @@ https: (function () {
 						});
 					},
 					getPageComment: (url) => {
-						// 获取第一页的评论（不包括评论的评论）
+						/* 获取第一页的评论（不包括评论的评论） */
 						return new Promise((res) => {
 							GM_xmlhttpRequest({
 								url: url,
@@ -1588,7 +1594,7 @@ https: (function () {
 						});
 					},
 					getPageCommentList: (url) => {
-						// 获取第一页的评论的评论
+						/* 获取第一页的评论的评论 */
 						return new Promise((res) => {
 							GM_xmlhttpRequest({
 								url: url,
@@ -1623,7 +1629,7 @@ https: (function () {
 						});
 					},
 					loadingNextCommand: () => {
-						// 自动加载下一页的评论
+						/* 自动加载下一页的评论 */
 						var isloding_flag = false;
 						$(window).bind("scroll", async function () {
 							let userScrollHeight = Math.ceil(
@@ -1941,7 +1947,7 @@ https: (function () {
 						}
 					},
 					displayCommand: (classlist) => {
-						// 动态显示只看楼主
+						/* 动态显示只看楼主 */
 						if (Array.from(classlist).includes("white-only-lz-qx")) {
 							$(".white-only-lz").removeClass("white-only-lz-qx");
 							let lzReply = $(".post-item");
@@ -2235,7 +2241,7 @@ https: (function () {
 					}
 					intervalNum++;
 				}, 300);
-				// 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件
+				/* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
 				GM_addStyle(`
                 .post-item[data-v-74eb13e2] {
                     overflow: hidden;
@@ -2503,7 +2509,7 @@ https: (function () {
 			}
 		},
 		wenku() {
-			// 百度文库
+			/* 百度文库 */
 			if (this.current_url.match(/http(s|):\/\/(wk|tanbi).baidu.com/g)) {
 				GM_addStyle(this.css.wenku);
 				__console__.log(
@@ -2518,7 +2524,7 @@ https: (function () {
 			}
 		},
 		jingyan() {
-			// 百度经验
+			/* 百度经验 */
 			if (this.current_url.match(/http(s|):\/\/jingyan.baidu.com/g)) {
 				GM_addStyle(this.css.jingyan);
 				__console__.log(
@@ -2533,7 +2539,7 @@ https: (function () {
 			}
 		},
 		baike() {
-			// 百度百科
+			/* 百度百科 */
 			if (this.current_url.match(/http(s|):\/\/baike.baidu.com/g)) {
 				GM_addStyle(this.css.baike);
 				__console__.log(
@@ -2555,7 +2561,7 @@ https: (function () {
 				let match_id = ele_url.match(/item\/.*\/(\d*)/);
 
 				function set_normal_img_size() {
-					// 获取到的图片大小要重新设置
+					/* 获取到的图片大小要重新设置 */
 					let col_para = document.getElementsByClassName("col-para");
 					$.each(col_para, (i, n) => {
 						n.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
@@ -2580,7 +2586,7 @@ https: (function () {
 				}
 
 				function insert_img() {
-					// 获取到的要重新将图片链接插入到img标签中
+					/* 获取到的要重新将图片链接插入到img标签中 */
 					let content_img = document.getElementsByClassName("lazy-img");
 					$.each(content_img, (i, v) => {
 						let content_img = v.parentElement.parentElement.parentElement;
@@ -2594,11 +2600,11 @@ https: (function () {
 				}
 
 				function loadMore() {
-					// 循环加载更多内容
+					/* 循环加载更多内容 */
 					loadingView.setCSS();
 					$(".BK-main-content").after(loadingView.html);
 					if (match_id.length >= 2) {
-						// 由于不知道有多少页，定时器加载判断
+						/* 由于不知道有多少页，定时器加载判断 */
 						var page_interval = setInterval(function () {
 							__console__.log(
 								"%c[BaiDu优化%c-%c百度百科%c]%c 定时器loading",
@@ -2724,7 +2730,7 @@ https: (function () {
 				}, 2000);
 
 				function remove_bottom_ad() {
-					// 去除底部广告
+					/* 去除底部广告 */
 					let index_tashuo_list_bottom =
 						document.getElementById("index_tashuo_list").children;
 					for (let i = 0; i < index_tashuo_list_bottom.length; i++) {
@@ -2748,7 +2754,7 @@ https: (function () {
 			}
 		},
 		zhidao() {
-			// 百度知道
+			/* 百度知道 */
 			if (this.current_url.match(/http(s|):\/\/zhidao.baidu.com/g)) {
 				GM_addStyle(this.css.zhidao);
 				__console__.log(
@@ -2848,13 +2854,10 @@ https: (function () {
 		$("#page-controller").after($(loadingView.html));
 		loadingView.setCSS();
 		$(window).bind("scroll", function () {
-			// scroll at bottom
 			let userScrollHeight = Math.ceil(
 				$(window).scrollTop() + $(window).height() + 200
 			);
-			// let userScrollHeight = Math.ceil($(window).scrollTop() + $(window).height());
 			if (userScrollHeight >= $(document).height()) {
-				// load data
 				if (isloding_flag == false) {
 					loadingView.setVisible(true);
 					isloding_flag = true;
