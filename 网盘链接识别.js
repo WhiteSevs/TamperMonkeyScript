@@ -2,11 +2,10 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.01.21.12.00
+// @version      23.01.28.12.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
-// @match        http://*/*
-// @match        https://*/*
+// @match        *://*/*
 // @run-at       document-body
 // @license      GPL-3.0-only
 // @grant        GM_setValue
@@ -18,10 +17,18 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @connect      *
+// @connect      lanzoux.com
+// @connect      lanzoug.com
+// @connect      189.cn
+// @connect      123pan.com
+// @connect      wenshushu.cn
+// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?s1\.hdslb\.com(:[0-9]{1,5})?\/.*$/
+// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?www\.bilibili\.com(:[0-9]{1,5})?\/.*$/
+// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?message\.bilibili\.com(:[0-9]{1,5})?\/.*$/
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/455576-qmsg/code/Qmsg.js?version=1122361
-// @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1127486
+// @require      https://greasyfork.org/scripts/456470-网盘链接识别-图标库/code/网盘链接识别-图标库.js?version=1127486
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1134453
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1138028
 // ==/UserScript==
@@ -29,29 +36,30 @@
 (function () {
 	"use strict";
 	const NetDisk = {
-		// 网盘链接获取
-		isInit: false, // 是否初始化
-		pageText: null, // 页面显示出的文字
-		linkDict: null, // 链接字典
-		isMatching: false, // 正在匹配链接中
-		matchLink: null, // 匹配到的
-		hasMatchLink: false, // 已存在匹配的链接
+		isInit: false /* 是否初始化 */,
+		pageText: null /* 页面显示出的文字 */,
+		linkDict: null /* 链接字典 */,
+		isMatching: false /* 正在匹配链接中 */,
+		matchLink: null /* 匹配到的 */,
+		hasMatchLink: false /* 已存在匹配的链接 */,
 
 		regular: {
 			baidu: {
 				link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText_baidu", 20)
-				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 百度网盘链接
+				)}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
 				link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerHTML_baidu", 300)
-				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 百度网盘链接
-				shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi, // 链接参数
-				shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(密码|访问码|提取码).+/g, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
+				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
+				shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi /* 链接参数 */,
+				shareCodeNeedRemoveStr:
+					/pan\.baidu\.com\/s\//gi /* 需要替换空的字符串，比如pan.baidu.com/s/替换为空 */,
+				checkAccessCode: /(密码|访问码|提取码).+/g /* 用来判断是否存在密码 */,
+				accessCode: /([0-9a-zA-Z]{4})/gi /* 提取码（如果存在的话） */,
 				uiLinkShow:
-					"pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}", // 用于显示的链接
-				blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
+					"pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}" /* 用于显示的链接 */,
+				blank:
+					"https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}" /* 新标签页打开的链接 */,
 			},
 			lanzou: {
 				link_innerText: `lanzou[a-z]{0,1}.com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
@@ -62,7 +70,8 @@
 				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[a-zA-Z0-9]{3,6}|)`,
 				shareCode:
 					/lanzou[a-z]{0,1}.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
-				shareCodeNotMatch: /^(ajax|file|undefined|1125)/gi, // shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
+				shareCodeNotMatch:
+					/^(ajax|file|undefined|1125)/gi /* shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配 */,
 				shareCodeNeedRemoveStr: /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)/gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
 				accessCode: /([0-9a-zA-Z]{4})/gi,
@@ -107,7 +116,7 @@
 					GM_getValue("innerHTML_aliyun", 300)
 				)}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode: /aliyundrive\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
-				shareCodeNotMatch: /undefined/gi, // shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
+				shareCodeNotMatch: /undefined/gi,
 				shareCodeNeedRemoveStr: /aliyundrive\.com\/s\//gi,
 				checkAccessCode: /(密码|访问码|提取码).+/g,
 				accessCode: /([0-9a-zA-Z]{4})/gi,
@@ -165,108 +174,108 @@
 				link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerHTML_weiyun", 300)
 				)}}(访问码|密码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
-				shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi, // 链接参数
+				shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
 				shareCodeNotMatch:
-					/^(ajax|file|download|ptqrshow|xy-privacy|comp|web)/gi, // shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
-				shareCodeNeedRemoveStr: /weiyun.com\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|访问码).+/g, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
+					/^(ajax|file|download|ptqrshow|xy-privacy|comp|web)/gi,
+				shareCodeNeedRemoveStr: /weiyun.com\//gi,
+				checkAccessCode: /(提取码|密码|访问码).+/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
+				uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://share.weiyun.com/{#shareCode#}",
 			},
 			xunlei: {
 				link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText_xunlei", 20)
-				)}}(访问码|提取码|密码|)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|提取码|密码|)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
 				link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerHTML_xunlei", 300)
-				)}}(访问码|提取码|密码|)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
-				shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi, // 链接参数
-				shareCodeNeedRemoveStr: /xunlei.com\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|访问码).+/g, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "pan.xunlei.com/s/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
+				)}}(访问码|提取码|密码|)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+				shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
+				shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
+				checkAccessCode: /(提取码|密码|访问码).+/g,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
+				uiLinkShow: "pan.xunlei.com/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://pan.xunlei.com/s/{#shareCode#}",
 			},
 			_115pan: {
 				link_innerText: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText__115pan", 20)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
 				link_innerHTML: `115.com\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerHTML__115pan", 300)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
-				shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
-				shareCodeNeedRemoveStr: /115.com\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|\?password=|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /(\?password=|)([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+				shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
+				shareCodeNeedRemoveStr: /115.com\/s\//gi,
+				checkAccessCode: /(提取码|密码|\?password=|访问码).+/gi,
+				accessCode: /(\?password=|)([0-9a-zA-Z]{4})/gi,
+				uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://115.com/s/{#shareCode#}",
 			},
 			chengtong1: {
 				link_innerText: `ctfile.com(/d/|/f/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText__chengtong1", 20)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{6}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{6}|)`,
 				link_innerHTML: `ctfile.com(/d/|/f/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${GM_getValue(
 					"innerHTML__chengtong1",
 					300
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{6}|)`, // 网盘链接
-				shareCode: /ctfile.com(\/d\/|\/f\/)([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
-				shareCodeNeedRemoveStr: /ctfile.com(\/d\/|\/f\/)/gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{6})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{6}|)`,
+				shareCode: /ctfile.com(\/d\/|\/f\/)([0-9a-zA-Z\-_]{8,24})/gi,
+				shareCodeNeedRemoveStr: /ctfile.com(\/d\/|\/f\/)/gi,
+				checkAccessCode: /(提取码|密码|访问码).+/gi,
+				accessCode: /([0-9a-zA-Z]{6})/gi,
+				uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://url95.ctfile.com/d/{#shareCode#}",
 			},
 			chengtong2: {
 				link_innerText: `(2k.us/file/|u062.com/fil\/|545c.com/file/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText__chengtong2", 20)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
 				link_innerHTML: `(2k.us/file/|u062.com/file/|545c.com/file/)[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerHTML__chengtong2", 300)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
 				shareCode:
-					/(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/)([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
+					/(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/)([0-9a-zA-Z\-_]{8,24})/gi,
 				shareCodeNeedRemoveStr:
-					/2k.us\/file\/|u062.com\/file\/|545c.com\/file\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
+					/2k.us\/file\/|u062.com\/file\/|545c.com\/file\//gi,
+				checkAccessCode: /(提取码|密码|访问码).+/gi,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
+				uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://u062.com/file/{#shareCode#}",
 			},
 			kuake: {
 				link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerText_kuake", 20)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`, // 网盘链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
 				link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
 					GM_getValue("innerHTML_kuake", 300)
-				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`, // 网盘链接
-				shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi, // 链接参数
-				shareCodeNeedRemoveStr: /quark.cn\/s\//gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}", // 用于显示的链接
+				)}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+				shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
+				shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
+				checkAccessCode: /(提取码|密码|访问码).+/gi,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
+				uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}",
 				blank: "https://pan.quark.cn/s/{#shareCode#}",
 			},
 			magnet: {
 				link_innerText: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
 				link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
-				shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi, // 链接参数
-				shareCodeNeedRemoveStr: /magnet:\?xt=urn:btih:/gi, // 需要替换空的字符串，比如pan.baidu.com/s/替换为空
-				checkAccessCode: /(提取码|密码|访问码).+/gi, // 用来判断是否存在密码
-				accessCode: /([0-9a-zA-Z]{4})/gi, // 提取码（如果存在的话）
-				uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}", // 用于显示的链接
+				shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi,
+				shareCodeNeedRemoveStr: /magnet:\?xt=urn:btih:/gi,
+				checkAccessCode: /(提取码|密码|访问码).+/gi,
+				accessCode: /([0-9a-zA-Z]{4})/gi,
+				uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
 				blank: "magnet:?xt=urn:btih:{#shareCode#}",
 			},
 		},
 		initLinkDict() {
-			// 初始化字典
+			/* 初始化字典 */
 			NetDisk.linkDict = new Utils.Dictionary();
 			Object.keys(NetDisk.regular).forEach((keys) => {
 				NetDisk.linkDict.set(keys, new Utils.Dictionary());
 			});
 		},
 		matchPageLink(clipboardText) {
-			// 检查页面是否存在链接
+			/* 检查页面是否存在链接 */
 			let matchTextRange = GM_getValue("pageMatchRange", "innerText");
 			let ignoreStr = [
 				$(".whitesevPopOneFile"),
@@ -334,7 +343,7 @@
 			}
 		},
 		handleLink(netDiskName, url) {
-			// 处理链接，将匹配到的链接转为参数和密码存入字典中
+			/* 处理链接，将匹配到的链接转为参数和密码存入字典中 */
 			let currentDict = this.linkDict.get(netDiskName);
 			let shareCode = this.handleShareCode(netDiskName, url);
 			if (shareCode == "" || shareCode == null) {
@@ -363,7 +372,7 @@
 			}
 		},
 		handleShareCode(netDiskName, url) {
-			// 处理shareCode
+			/* 处理shareCode */
 			let shareCodeMatch = url.match(this.regular[netDiskName].shareCode);
 			if (
 				shareCodeMatch == null ||
@@ -386,11 +395,12 @@
 				console.log("不可能的shareCode =>", shareCode);
 				return "";
 			}
-			shareCode = decodeURIComponent(shareCode); // %E7%BD%91%E7%9B%98 => 网盘
+			shareCode =
+				decodeURIComponent(shareCode); /* %E7%BD%91%E7%9B%98 => 网盘 */
 			return shareCode;
 		},
 		handleAccessCode(netDiskName, url) {
-			// 处理accessCode
+			/* 处理accessCode */
 			let accessCode = "";
 			let accessCodeMatch = url.match(
 				this.regular[netDiskName].checkAccessCode
@@ -412,7 +422,7 @@
 			return accessCode;
 		},
 		handleLinkShow(netDiskName, shareCode, accessCode) {
-			// 处理显示在弹窗的网盘链接
+			/* 处理显示在弹窗的网盘链接 */
 			let netdisk_regular = NetDisk.regular[netDiskName];
 			let uiLink = netdisk_regular["uiLinkShow"].replace(
 				/{#shareCode#}/gi,
@@ -433,7 +443,8 @@
 						name: "clipboard-read",
 					})
 					.then((result) => {
-						const hasFocus = document.hasFocus(); //这个是重点，可判断是否为当前dom页面
+						const hasFocus =
+							document.hasFocus(); /* 这个是重点，可判断是否为当前dom页面 */
 						if (
 							hasFocus &&
 							(result.state === "granted" || result.state === "prompt")
@@ -451,7 +462,7 @@
 	};
 
 	const NetDiskLinkParse = {
-		// 网盘直链解析
+		/* 网盘直链解析 */
 		netdisk: {
 			baidu: {
 				default(shareCode, accessCode) {
@@ -495,20 +506,20 @@
 						return null;
 					}
 					var temp = document.createElement("form");
-					var list = {}; //表单数据
+					var list = {}; /* 表单数据 */
 					list[paramSurl] = shareCode;
 					list[paramPwd] = accessCode;
 					if (baidu_website_key_enable) {
 						list[paramKey] = paramWebSiteKey;
 					}
-					temp.action = bdurl; //解析网址
+					temp.action = bdurl; /* 解析网址 */
 					temp.method = "post";
 					temp.style.display = "none";
 					temp.target = "_blank";
 					for (var x in list) {
 						var opt = document.createElement("textarea");
 						opt.name = x;
-						opt.value = list[x]; // alert(opt.name)
+						opt.value = list[x]; /* alert(opt.name) */
 						temp.appendChild(opt);
 					}
 					document.body.appendChild(temp);
@@ -516,11 +527,11 @@
 				},
 			},
 			lanzou: {
-				// 流程：判断是否是多文件
-				// 单文件 => 请求https://www.lanzoux.com/{shareToken} 判断链接类型和是否能正常获取
-				//       => 请求https://www.lanzoux.com/tp/{shareToken} 获取文件sign
-				//       => 请求https://www.lanzoux.com/ajaxm.php 获取下载参数，下载参数例如：https://develope.lanzoug.com/file/?xxxxxxxxx
-				// 多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]}
+				/* 流程：判断是否是多文件
+				 单文件 => 请求https://www.lanzoux.com/{shareToken} 判断链接类型和是否能正常获取
+				       => 请求https://www.lanzoux.com/tp/{shareToken} 获取文件sign
+				       => 请求https://www.lanzoux.com/ajaxm.php 获取下载参数，下载参数例如：https://develope.lanzoug.com/file/?xxxxxxxxx
+				 多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]} */
 				url: {
 					default: (replaced, shareCode) => {
 						return NetDisk.regular.lanzou.blank
@@ -540,33 +551,35 @@
 				},
 				regexp: {
 					unicode: {
-						match: /[%\u4e00-\u9fa5]+/g, // 判断该链接是否是中文
+						match: /[%\u4e00-\u9fa5]+/g /* 判断该链接是否是中文 */,
 						tip: "中文链接",
 						isUnicode: false,
 					},
 					noFile: {
-						match: /div>来晚啦...文件取消分享了<\/div>/g, //蓝奏文件取消分享
+						match: /div>来晚啦...文件取消分享了<\/div>/g /* 蓝奏文件取消分享 */,
 						tip: "来晚啦...文件取消分享了",
 					},
 					noExists: {
-						match: /div>文件不存在，或已删除<\/div>/g, //蓝奏文件链接错误
+						match: /div>文件不存在，或已删除<\/div>/g /* 蓝奏文件链接错误 */,
 						tip: "文件不存在，或已删除",
 					},
 					moreFile: {
-						match: /<span id=\"filemore\" onclick=\"more\(\);\">/g, // 蓝奏多文件
+						match:
+							/<span id=\"filemore\" onclick=\"more\(\);\">/g /* 蓝奏多文件 */,
 					},
 					sign: {
-						match: /var[\s]*(posign|postsign)[\s]*=[\s]*'(.+?)';/, //蓝奏设置了密码的单文件请求需要的sign值;
+						match:
+							/var[\s]*(posign|postsign)[\s]*=[\s]*'(.+?)';/ /* 蓝奏设置了密码的单文件请求需要的sign值 */,
 					},
 					fileName: {
-						match: /<title>(.*)<\/title>/, //蓝奏文件名
+						match: /<title>(.*)<\/title>/ /* 蓝奏文件名 */,
 					},
 					size: {
-						match: /<span class=\"mtt\">\((.*)\)<\/span>/, //蓝奏文件大小
+						match: /<span class=\"mtt\">\((.*)\)<\/span>/ /* 蓝奏文件大小 */,
 					},
 					loadDown: {
 						match:
-							/var[\s]*(loaddown|oreferr|spototo|domianload)[\s]*=[\s]*'(.+?)';/i,
+							/var[\s]*(loaddown|oreferr|spototo|domianload)[\s]*=[\s]*'(.+?)';/i /* 蓝奏文件直链 */,
 					},
 				},
 				http: {
@@ -590,7 +603,7 @@
 					accessCode,
 					getShareCodeByPageAgain = false
 				) {
-					// 获取文件下载链接
+					/* 获取文件下载链接 */
 					let that = this;
 					let _url_ = this.url.default(this.replaced, shareCode);
 					console.log(_url_);
@@ -679,7 +692,7 @@
 					});
 				},
 				checkPageCode(resp) {
-					// 页面检查，看看是否存在文件失效情况
+					/* 页面检查，看看是否存在文件失效情况 */
 					let pageText = resp.responseText;
 					if (pageText.match(this.regexp.noFile.match)) {
 						Qmsg.error(this.regexp.noFile.tip, {
@@ -696,7 +709,7 @@
 					return true;
 				},
 				isMoreFile(resp) {
-					// 判断是否是多文件的链接
+					/* 判断是否是多文件的链接 */
 					let pageText = resp.responseText;
 					if (pageText.match(this.regexp.moreFile.match)) {
 						console.log("该链接为多文件");
@@ -705,7 +718,7 @@
 					return false;
 				},
 				getLinkByTp(shareCode, accessCode) {
-					// 访问蓝奏tp获取sign
+					/* 访问蓝奏tp获取sign */
 					let _url_ = this.url.tp(shareCode);
 					let that = this;
 					GM_xmlhttpRequest({
@@ -746,7 +759,7 @@
 					});
 				},
 				async getLink(resp, shareCode, accessCode) {
-					// 获取链接
+					/* 获取链接 */
 					let that = this;
 					let pageText = resp.responseText;
 					if (pageText == null) {
@@ -904,7 +917,7 @@
 					}
 				},
 				getMoreFile(resp, shareCode, accessCode) {
-					// 多文件获取
+					/* 多文件获取 */
 					let _url_ = this.url.default(this.replaced, shareCode);
 					let that = this;
 					GM_xmlhttpRequest({
@@ -1099,7 +1112,7 @@
 					});
 				},
 				parseMoreFile(shareCode, fileName, fileSize) {
-					// 根据获取到的json中多文件链接来获取单文件直链
+					/* 根据获取到的json中多文件链接来获取单文件直链 */
 					let ret_content = "";
 					let that = this;
 					return new Promise((res) => {
@@ -1334,7 +1347,7 @@
 					});
 				},
 				getCookie() {
-					// 暂不需要获取cookie
+					/* 暂不需要获取cookie */
 					let cookie = "";
 					return cookie;
 				},
@@ -1529,13 +1542,13 @@
 				},
 			},
 			hecaiyun: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
 			},
 			aliyun: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
@@ -1787,7 +1800,7 @@
 				},
 			},
 			nainiu: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
@@ -1936,7 +1949,7 @@
 					});
 				},
 				getFilesByRec(shareCode, accessCode, parentFileId) {
-					// 递归算法使用的请求
+					/* 递归算法使用的请求 */
 					let url = `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${shareCode}&SharePwd=${accessCode}&ParentFileId=${parentFileId}&Page=1`;
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
@@ -1974,14 +1987,14 @@
 					});
 				},
 				async recursiveAlgorithm(infoList) {
-					// 异步递归算法
+					/* 异步递归算法 */
 					let that = this;
 					return Promise.all(
 						Array.from(infoList).map(async (value, index) => {
 							let fileType = value["Type"];
 							console.log(fileType ? "文件夹" : "文件");
 							if (fileType) {
-								// 是文件夹
+								/* 是文件夹 */
 								let retList = await that.getFilesByRec(
 									that.shareCode,
 									that.accessCode,
@@ -1989,7 +2002,7 @@
 								);
 								await that.recursiveAlgorithm(retList);
 							} else {
-								// 是文件
+								/* 是文件 */
 								let fileName = value["FileName"];
 								let fileSize = Utils.formatByteToSize(value["Size"]);
 								let fileDownloadUrl = value["DownloadUrl"];
@@ -2108,39 +2121,39 @@
 				},
 			},
 			weiyun: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
-					// https://share.weiyun.com/webapp/json/weiyunQdiskClient/DiskUserInfoGet?refer=chrome_windows&g_tk=
-					// 不做解析 微云QQ或微信登录的有效期很短
+					/* https://share.weiyun.com/webapp/json/weiyunQdiskClient/DiskUserInfoGet?refer=chrome_windows&g_tk=
+					 不做解析 微云QQ或微信登录的有效期很短 */
 					console.log(shareCode, accessCode);
 				},
 			},
 			xunlei: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
 			},
 			_115pan: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
 			},
 			chengtong1: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
 			},
 			chengtong2: {
-				// 不行
+				/* 不行 */
 				default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
 				},
 			},
 			kuake: {
-				// 不行-需要转存到自己的网盘中fied才可以通过验证传递回下载地址，通过分享到是不会传回来的
+				/* 不行-需要转存到自己的网盘中fied才可以通过验证传递回下载地址，通过分享到是不会传回来的 */
 				code: {
 					14001: "非法token",
 					21001: "文件不存在",
@@ -2158,7 +2171,7 @@
 						/{#shareCode#}/g,
 						shareCode
 					);
-					this.shareStoken = await this.getShareStoken(); // 分享的stoken
+					this.shareStoken = await this.getShareStoken(); /* 分享的stoken */
 					console.log(`stoken: ${this.shareStoken}`);
 					if (this.shareStoken != "") {
 						let data_list = await this.getFolderInfo();
@@ -2327,7 +2340,7 @@
 					});
 				},
 				async parseFileLink(_data_) {
-					// 单文件
+					/* 单文件 */
 					let that = this;
 					return new Promise(async (resolve) => {
 						let downloadUrl = await that.getLink(_data_["fid"]);
@@ -2335,7 +2348,7 @@
 					});
 				},
 				async parseMoreFileLink(_data_) {
-					// 多文件
+					/* 多文件 */
 					let that = this;
 					return Promise.all(
 						Array.from(_data_).map(async (item, index) => {
@@ -2364,7 +2377,7 @@
 			NetDiskLinkParse.netdisk[netdiskName].default(shareCode, accessCode);
 		},
 		setClipboard(uiLink, tip) {
-			// 复制到剪贴板
+			/* 复制到剪贴板 */
 			GM_setClipboard(uiLink);
 			tip = tip ? tip : "提取码已复制";
 			Qmsg.success(tip, {
@@ -2372,7 +2385,7 @@
 			});
 		},
 		blank(url, accessCode) {
-			// 新标签页打开
+			/* 新标签页打开 */
 			if (accessCode) {
 				this.setClipboard(accessCode);
 			}
@@ -2399,7 +2412,7 @@
 	};
 
 	const filterScheme = {
-		// android scheme调用
+		/* android scheme调用 */
 		defaultScheme:
 			"jumpwsv://go?package=idm.internet.download.manager.plus&activity=idm.internet.download.manager.UrlHandlerDownloader&intentAction=android.intent.action.VIEW&intentData={#intentData#}&intentExtra=",
 		packageIDM: "idm.internet.download.manager.plus",
@@ -2407,8 +2420,8 @@
 		defaultAction: "android.intent.action.VIEW",
 		defaultExtra: "",
 		handleUrl(enable_key, forward_key, url) {
-			// 参数 是否启用的key和转发的scheme和需要转发的url
-			if (!GM_getValue(enable_key)) {
+			/* 参数 是否启用的key和转发的scheme和需要转发的url */
+			if (!GM_getValue(enable_key, false)) {
 				return url;
 			}
 			url = url.replace(/&/g, "{-and-}");
@@ -2488,17 +2501,17 @@
 	};
 	const UI = {
 		matchIcon: new Set(),
-		size: 50, // 高度和宽度
-		opacity: 1, // 按钮透明度
-		isCreatedUISetting: false, // 已创建设置界面
-		isHandling: false, // 是否在处理页面链接中标识
-		uiLinkAlias: null, // 链接层唯一标识
-		uiSettingAlias: null, // 设置层唯一标识
+		size: 50 /* 高度和宽度 */,
+		opacity: 1 /* 按钮透明度 */,
+		isCreatedUISetting: false /* 已创建设置界面 */,
+		isHandling: false /* 是否在处理页面链接中标识 */,
+		uiLinkAlias: null /* 链接层唯一标识 */,
+		uiSettingAlias: null /* 设置层唯一标识 */,
 
-		uiLinkParseAlias: "单文件直链层", // 单文件直链层唯一标识
-		uiLinkParseMoreAlias: "多文件直链层", // 多文件直链层唯一标识
-		uiPasswordAlias: "重输密码层", // 重输密码层唯一标识
-		bgInterval: null, // 定时事件id
+		uiLinkParseAlias: "单文件直链层" /* 单文件直链层唯一标识 */,
+		uiLinkParseMoreAlias: "多文件直链层" /* 多文件直链层唯一标识 */,
+		uiPasswordAlias: "重输密码层" /* 重输密码层唯一标识 */,
+		bgInterval: null /* 定时事件id */,
 		src: {
 			icon: {
 				baidu: RESOURCE_ICON.baidu,
@@ -2516,10 +2529,10 @@
 				chengtong2: RESOURCE_ICON.chengtong2,
 				kuake: RESOURCE_ICON.kuake,
 				magnet: RESOURCE_ICON.magnet,
-			}, // icon结尾处
+			} /* icon结尾处 */,
 		},
 		suspension: {
-			// 悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮）
+			/*  悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮） */
 			isShow: false,
 			show() {
 				if (!UI.suspension.isShow) {
@@ -3727,8 +3740,8 @@
 				let timerID = null;
 				let isClicked = false;
 				let isDouble = false;
-				let click_deviation_x = 0; // 点击元素，距离元素左上角的X轴偏移
-				let click_deviation_y = 0; // 点击元素，距离元素左上角的Y轴偏移
+				let click_deviation_x = 0; /* 点击元素，距离元素左上角的X轴偏移 */
+				let click_deviation_y = 0; /* 点击元素，距离元素左上角的Y轴偏移 */
 				_drag_.on("pan", (e) => {
 					if (!isClicked) {
 						isClicked = true;
@@ -3787,7 +3800,7 @@
 
 				_drag_.on(["click", "tap"], (e) => {
 					if (isDouble) {
-						// 双
+						/* 双 */
 						clearTimeout(timerID);
 						timerID = setTimeout(function () {
 							isDouble = false;
@@ -3821,7 +3834,7 @@
 					var maxT1 = $(window).height() - UI.size;
 					var x1 = e.clientX;
 					var y1 = e.clientY;
-					//不允许超出浏览器范围
+					/* 不允许超出浏览器范围 */
 					x1 = x1 < 0 ? 0 : x1;
 					x1 = x1 < maxL1 ? x1 : maxL1;
 					y1 = y1 < 0 ? 0 : y1;
@@ -3834,7 +3847,7 @@
 				});
 			},
 			setSuspensionDefaultPositionEvent() {
-				// 设置悬浮按钮位置
+				/* 设置悬浮按钮位置 */
 				let maxY = $(window).height() - UI.size;
 				let defaultX = $(window).width() - UI.size;
 				let defaultY = $(window).height() / 2 - UI.size;
@@ -3848,7 +3861,7 @@
 						: defaultY;
 
 				setX = GM_getValue("isRight") ? defaultX : 0;
-				setY = setY < maxY ? setY : maxY; // 超出高度那肯定是最底下了
+				setY = setY < maxY ? setY : maxY; /* 超出高度那肯定是最底下了 */
 				setY = setY < 0 ? 0 : setY;
 				GM_setValue("suspensionX", setX);
 				GM_setValue("suspensionY", setY);
@@ -3922,14 +3935,14 @@
 				`);
 			},
 			resizeEvent() {
-				// 界面大小改变
+				/* 界面大小改变 */
 				let that = this;
 				$(window).resize(function () {
 					that.setSuspensionDefaultPositionEvent();
 				});
 			},
 			randBg() {
-				// 悬浮按钮背景轮播淡入淡出
+				/* 悬浮按钮背景轮播淡入淡出 */
 				clearInterval(this.bgInterval);
 				let currentList = [];
 				let currentIndex = 0;
@@ -3964,7 +3977,7 @@
 		},
 
 		view: {
-			// 主界面
+			/* 主界面 */
 			show() {
 				if (!UI.uiLinkAlias) {
 					this.addCSS();
@@ -4157,7 +4170,7 @@
 				$("body").on("click", ".netdisk-url a", clickEvent);
 			},
 			addLinkView(_netdiskname_, _sharecode_, _accesscode_) {
-				// 添加新的链接
+				/* 添加新的链接 */
 				if (!UI.uiLinkAlias) {
 					return null;
 				}
@@ -4186,7 +4199,7 @@
 				parentDOM.append(insertDOM);
 			},
 			changeLinkView(_netdiskname_, _sharecode_, _accesscode_) {
-				// 修改已存在的view
+				/* 修改已存在的view */
 				if (!UI.uiLinkAlias) {
 					return null;
 				}
@@ -4226,7 +4239,7 @@
 			},
 		},
 		staticView: {
-			// 直链弹窗
+			/* 直链弹窗 */
 			isLoadCSS: false,
 			addCSS() {
 				if (!this.isLoadCSS) {
@@ -4336,6 +4349,10 @@
 			Utils.mutationObserver(document.body, {
 				fn: async (mutations) => {
 					var retStatus = false;
+					if (UI.isHandling) {
+						/* 当前正在处理文本正则匹配中 */
+						return null;
+					}
 					$.each(mutations, (i, v) => {
 						if (
 							v.target.className != null &&
@@ -4347,10 +4364,7 @@
 						}
 					});
 					if (retStatus) {
-						return null;
-					}
-					if (UI.isHandling) {
-						// 当前正在处理文本正则匹配中
+						/* 排除弹窗内部元素 */
 						return null;
 					}
 					UI.isHandling = true;
