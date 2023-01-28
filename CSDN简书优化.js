@@ -3,9 +3,10 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.5.4
+// @version      0.5.5
 // @description  支持手机端和PC端
 // @author       WhiteSevs
+// @match        http*://link.csdn.net/*
 // @match        http*://www.csdn.net/*
 // @match        http*://bbs.csdn.net/*
 // @match        http*://*.jianshu.com/*
@@ -45,7 +46,7 @@
 		}
 		function articleCenter() {
 			/* 全文居中 */
-			GM_addStyle(`
+			const articleCenterCSS = `
 			div[role=main] aside,
 			div._3Pnjry{
 				display: none !important;
@@ -53,13 +54,31 @@
 			div._gp-ck{
 				width: 100% !important;
 			}
+			`;
+			GM_addStyle(articleCenterCSS);
+			waitForElementToRemove("div[role=main] aside");
+			waitForElementToRemove("div._3Pnjry");
+			Utils.waitNode("div._gp-ck").then((dom) => {
+				dom.forEach((item) => {
+					item.style["width"] = "100%";
+				});
+			});
+		}
+		function JianShuremoveFooterRecommendRead() {
+			/* 手机-移除底部推荐阅读 */
+			GM_addStyle(`
+			#recommended-notes{
+				display: none !important;
+			}
 			`);
-			console.log("添加居中");
 		}
 		function PC() {
 			console.log("简书");
 			if (GM_Menu.get("JianShuArticleCenter")) {
 				articleCenter();
+			}
+			if (GM_Menu.get("JianShuremoveFooterRecommendRead")) {
+				JianShuremoveFooterRecommendRead();
 			}
 			const css = `
       .download-app-guidance,
@@ -78,7 +97,8 @@
       #footer,
       .comment-open-app-btn-wrap,
       .nav.navbar-nav + div,
-			.self-flow-ad{
+			.self-flow-ad,
+			#free-reward-panel{
         display:none !important;
       }
       body.reader-day-mode.normal-size {
@@ -93,6 +113,9 @@
       #note-show .content .show-content-free .collapse-free-content:after{
         background-image:none !important;
       }
+			footer > div > div{
+        justify-content: center;
+			}
       `;
 			GM_addStyle(css);
 			Utils.waitNode('div#homepage div[class*="dialog-"]').then((dom) => {
@@ -124,6 +147,18 @@
 			});
 		}
 		if (isJianShu()) {
+			if (window.location.pathname === "/go-wild") {
+				/* 禁止简书拦截跳转 */
+				let search = window.location.href.replace(
+					window.location.origin + "/",
+					""
+				);
+				search = decodeURIComponent(search);
+				let newURL = search
+					.replace(/^go-wild\?ac=2&url=/gi, "")
+					.replace(/^https:\/\/link.zhihu.com\/\?target\=/gi, "");
+				window.location.href = newURL;
+			}
 			PC();
 		}
 	}
@@ -411,8 +446,8 @@
 			function removeClipboardHijacking() {
 				/* 去除剪贴板劫持 */
 				unsafeWindow.articleType = 0;
-				unsafeWindow.csdn.copyright.textData = undefined;
-				unsafeWindow.csdn.copyright.htmlData = undefined;
+				unsafeWindow.csdn.copyright.textData = "";
+				unsafeWindow.csdn.copyright.htmlData = "";
 				$(".article-copyright")?.remove();
 			}
 			function unBlockCopy() {
@@ -545,6 +580,18 @@
 		}
 
 		if (isCSDN()) {
+			if (window.location.host === "link.csdn.net") {
+				/* 禁止CSDN拦截跳转 */
+				let search = window.location.href.replace(
+					window.location.origin + "/",
+					""
+				);
+				search = decodeURIComponent(search);
+				let newURL = search
+					.replace(/^\?target\=/gi, "")
+					.replace(/^https:\/\/link.zhihu.com\/\?target\=/gi, "");
+				window.location.href = newURL;
+			}
 			if (Utils.isPhone()) {
 				Mobile(); /* 移动端 */
 			} else {
@@ -558,21 +605,21 @@
 				text: "电脑-移除文章底部的CSDN下载",
 				enable: false,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 			},
 			articleCenter: {
 				text: "电脑-全文居中",
 				enable: true,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 			},
 			shieldLoginDialog: {
 				text: "电脑-屏蔽登录弹窗",
 				enable: true,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 				callback: (_key_, _enable_) => {
 					if (!_enable_) {
@@ -625,7 +672,17 @@
 				text: "电脑-全文居中",
 				enable: true,
 				showText: (_text_, _enable_) => {
-					return "[" + (_enable_ ? "✅" : "❌") + "]" + _text_;
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
+				},
+				callback: () => {
+					window.location.reload();
+				},
+			},
+			JianShuremoveFooterRecommendRead: {
+				text: "手机-移除底部推荐阅读",
+				enable: false,
+				showText: (_text_, _enable_) => {
+					return (_enable_ ? "✅" : "❌") + " " + _text_;
 				},
 				callback: () => {
 					window.location.reload();
