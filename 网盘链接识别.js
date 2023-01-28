@@ -30,7 +30,7 @@
 // @require      https://greasyfork.org/scripts/455576-qmsg/code/Qmsg.js?version=1122361
 // @require      https://greasyfork.org/scripts/456470-网盘链接识别-图标库/code/网盘链接识别-图标库.js?version=1127486
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1134453
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1138028
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1142738
 // ==/UserScript==
 
 (function () {

@@ -4,9 +4,9 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.5
+// @version      2.7.6
 // @author       WhiteSevs
-// @match        *://bbs.binmt.cc/*
+// @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -26,7 +26,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1082044
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1102558
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1128500
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1138028
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1142738
 // ==/UserScript==
 
 (function () {
@@ -160,7 +160,7 @@
 			let confirmZIndex =
 				popup2.config.confirm.zIndex > maxZIndex
 					? popup2.config.confirm.zIndex
-					: maxZIndex + 10;
+					: maxZIndex + 100;
 			if (options.ok.enable || options.cancel.enable) {
 			}
 			if (!options.reverse) {
@@ -918,7 +918,7 @@
 					xtips.toast(text);
 				} else {
 					xtips.toast(text.text, {
-						times: text.delayTime ? text.delayTime : 2,
+						times: text.delayTime ? text.delayTime / 1000 : 2,
 					});
 				}
 			};
@@ -8086,7 +8086,6 @@
 			Utils.tryCatch(mobile.recoveryIMGWidth);
 			Utils.tryCatch(mobile.identifyLinks);
 			Utils.tryCatch(mobile.showUserUID);
-			Utils.tryCatch(mobile.previewPictures);
 			Utils.tryCatch(mobile.removeForumPostFontStyle);
 			Utils.tryCatch(mobile.removeForumPostCommentFontStyle);
 			Utils.tryCatch(mobile.autoSignIn);
@@ -8133,7 +8132,6 @@
 			Utils.tryCatch(mobile.commentsAddReviews);
 			Utils.tryCatch(mobile.identifyLinks);
 			Utils.tryCatch(mobile.showUserUID);
-			Utils.tryCatch(mobile.previewPictures);
 			Utils.tryCatch(mobile.pageSmallWindowBrowsingForumPost);
 			Utils.tryCatch(mobile.codeQuoteCopyBtn);
 			Utils.tryCatch(
@@ -8155,7 +8153,6 @@
 			) {
 				function beforeHookRun() {
 					Utils.tryCatch(mobile.showUserUID);
-					Utils.tryCatch(mobile.previewPictures);
 					Utils.tryCatch(mobile.shieldUser);
 					Utils.tryCatch(mobile.shieldPlate);
 					Utils.tryCatch(mobile.pageSmallWindowBrowsingForumPost);
@@ -8184,10 +8181,6 @@
 				return;
 			}
 
-			/*   if (window != top.window) {
-                  console.log("当前在非top里，已禁用初始化小窗");
-                  return;
-            } */
 			let small_icon_width = 24;
 			let small_right_btn_width = 115;
 			let small_title_width =
@@ -8235,7 +8228,7 @@
                     width: ${small_right_btn_width}px;
                     justify-content: center;
                 }
-                
+                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_picture,
                 .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowopen,
                 .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowclose{
                     width: 100%;
@@ -8293,16 +8286,17 @@
 				if (isFindFormList) {
 					formlist = getFormList();
 					main();
+					console.log("成功注入小窗");
 					clearInterval(waitFormListAppear);
 				} else {
-					if (findFormListNums >= 10) {
+					if (findFormListNums >= 40) {
 						console.log("未出现帖子或寻找贴子超时，清理定时器");
 						clearInterval(waitFormListAppear);
 					}
 					isFindFormList = getFormList().length ? true : false;
 					findFormListNums += 1;
 				}
-			}, 800);
+			}, 200);
 
 			function popstateFunction() {
 				window.history.pushState("forward", null, "#");
@@ -8339,18 +8333,18 @@
 				}
 			}
 
-			function getSmallPageBtn(forumPostTitle, forumPostUrl, isNew) {
-				let prevNode = document.createElement("li");
-				let constructURL = new URL(forumPostUrl);
+			function showSmallWindow(title, url, imagesList = []) {
+				/* 显示小窗 */
+				let constructURL = new URL(url);
 				let isHTTPS =
 					constructURL.protocol.indexOf("https:") != -1 ? true : false;
-				let safeIcon = `<svg t="1660458686317" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2383"
+				let icon_safe = `<svg t="1660458686317" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2383"
                 width="12" height="12" style="margin: 0px 6px 0px 2px;">
                 <path
                     d="M842.666667 384h-74.666667V277.333333a234.666667 234.666667 0 1 0-469.333333 0v106.666667H224a53.393333 53.393333 0 0 0-53.333333 53.333333v490.666667a53.393333 53.393333 0 0 0 53.333333 53.333333h618.666667a53.393333 53.393333 0 0 0 53.333333-53.333333V437.333333a53.393333 53.393333 0 0 0-53.333333-53.333333zM341.333333 277.333333c0-105.866667 86.133333-192 192-192s192 86.133333 192 192v106.666667H341.333333z"
                     fill="#000000" p-id="2384"></path>
-            </svg>`;
-				let unsafeIcon = `<svg t="1663899632280"
+            </svg>`; /* 安全的图标 */
+				let icon_unsafe = `<svg t="1663899632280"
                 class="icon"
                 viewBox="0 0 1024 1024"
                 version="1.1"
@@ -8361,8 +8355,8 @@
                <path d="M770.423989 451.309956H368.89432V284.246158c0-80.739434 65.689748-146.429182 146.429182-146.429182S661.738235 203.506724 661.738235 284.246158a43.350032 43.350032 0 0 0 86.700063 0c0-128.547294-104.581952-233.129246-233.122021-233.129246-128.547294 0-233.129246 104.581952-233.129245 233.129246v167.063798h-21.978466a43.350032 43.350032 0 0 0-43.350032 43.350031v437.965371a43.350032 43.350032 0 0 0 43.350032 43.350032h510.215423a43.350032 43.350032 0 0 0 43.350032-43.350032V494.659987a43.350032 43.350032 0 0 0-43.350032-43.350031z"
                      fill="#2c2c2c"
                      p-id="3361"></path>
-           </svg>`;
-				let blankOpenIcon = `<svg t="1660459294973" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3580"
+           </svg>`; /* 不安全的图标 */
+				let icon_openBlank = `<svg t="1660459294973" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3580"
                 width="17" height="17">
                 <path
                     d="M5.064339 94.782119l0-74.338917 494.595401 0c17.302383 0 31.352438 16.614748 31.352438 37.206628 0 20.517541-14.050055 37.132289-31.352438 37.132289L5.064339 94.782119"
@@ -8391,8 +8385,8 @@
                 <path
                     d="M947.941995 28.564729c12.210167-12.265921 33.935716-10.426033 48.431805 4.107225 14.551843 14.477504 16.391731 36.221637 4.107225 48.431805L288.425706 793.214831c-12.265921 12.321676-33.9543 10.481787-48.506143-4.12581-14.533258-14.458919-16.373147-36.221637-4.107225-48.394635L947.941995 28.564729"
                     p-id="3594" fill="#2c2c2c"></path>
-            </svg>`;
-				let closeIcon = `<svg t="1660459530654"
+            </svg>`; /* 新标签页打开的按钮 */
+				let icon_close = `<svg t="1660459530654"
                 class="icon"
                 viewBox="0 0 1024 1024"
                 version="1.1"
@@ -8403,208 +8397,205 @@
                <path d="M579.392 511.296l429.376 428.544a48.128 48.128 0 0 1-34.176 82.304c-12.8 0-25.088-5.12-34.112-14.208L511.168 579.392 81.792 1008a48.32 48.32 0 0 1-67.648-0.576 48.128 48.128 0 0 1-0.64-67.52L442.88 511.296 13.568 82.752A48.128 48.128 0 0 1 14.08 15.168 48.32 48.32 0 0 1 81.792 14.592l429.376 428.544L940.48 14.592a48.32 48.32 0 0 1 67.648 0.64c18.624 18.56 18.88 48.64 0.64 67.52L579.392 511.296z"
                      fill="#2c2c2c"
                      p-id="5065"></path>
-           </svg>`;
-				let showWebsiteSafeIcon = isHTTPS ? safeIcon : unsafeIcon;
+           </svg>`; /* 关闭的按钮 */
+				let icon_picture_html =
+					imagesList.length !== 0
+						? `
+				<div class="xtiper_tit_right_picture">
+					<i class="comiis_font" style="font-size: 22px;"></i>
+				</div>`
+						: ""; /* 图片按钮 */
+				let showWebsiteSafeIcon = isHTTPS ? icon_safe : icon_unsafe;
 				let websiteTitle = `
                     <div class="xtiper_sheet_tit_top_drag"><div></div></div>
                     <div style="display:flex;justify-content: space-between;">
                         <img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" class="xtiper_tit_ico">
                         <div class="xtiper_tit_content">
-                            <p>${forumPostTitle}</p>
+                            <p>${title}</p>
                             <div class="xtiper_tit_svg_lock">
                                 ${showWebsiteSafeIcon}
                                 <p>${constructURL.host}</p>
                             </div>
                         </div>
                         <div class="xtiper_tit_right">
+														${icon_picture_html}
                             <div class="xtiper_tit_right_windowopen">
-                                ${blankOpenIcon}
+                                ${icon_openBlank}
                             </div>
                             <div class="xtiper_tit_right_windowclose">
-                                ${closeIcon}
+                                ${icon_close}
                             </div>
                         </div>
                     </div>`;
-				prevNode.className = "f_c";
-				prevNode.setAttribute(
-					"style",
-					"display: flex;justify-content: center;align-items: center;"
-				);
-				prevNode.innerHTML = `<svg t="1660462230529"
-                class="icon"
-                viewBox="0 0 1024 1024"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                p-id="7937"
-                width="18"
-                height="18"
-                style="margin-right: 4px;">
-               <path d="M885.333333 768h-618.666666C215.466667 768 170.666667 725.333333 170.666667 672v-448C170.666667 170.666667 213.333333 128 266.666667 128h616.533333C938.666667 128 981.333333 170.666667 981.333333 224v445.866667c0 55.466667-42.666667 98.133333-96 98.133333z m-618.666666-576c-17.066667 0-32 14.933333-32 32v445.866667c0 17.066667 14.933333 32 32 32h616.533333c17.066667 0 32-14.933333 32-32V224c2.133333-17.066667-12.8-32-29.866667-32h-618.666666z"
-                     p-id="7938"
-                     fill="#999999"></path>
-               <path d="M757.333333 896h-618.666666C85.333333 896 42.666667 851.2 42.666667 800v-448c0-17.066667 14.933333-32 32-32s32 14.933333 32 32v445.866667c0 19.2 14.933333 34.133333 32 34.133333h616.533333c17.066667 0 32 14.933333 32 32s-12.8 32-29.866667 32z"
-                     p-id="7939"
-                     fill="#999999"></path>
-           </svg>
-           <a class="tosmallwindowprev"></a>`;
-				prevNode.getElementsByClassName("tosmallwindowprev")[0].innerText =
-					isNew ? "Win" : "浏览";
-				prevNode.onclick = () => {
-					banBack();
-					let temp_id = xtip.open({
-						type: "url",
-						content: forumPostUrl,
-						title: websiteTitle,
-						height: "88%",
-						app: true,
-						success: (e) => {},
-						end: () => {
-							console.log("点击其它区域关闭小窗");
-							resumeBack();
-						},
-					});
-					if (typeof top.window.tampermonkeyByMT != "undefined") {
-						console.log("当前执行为非油猴调用");
-						let iframe_id = temp_id + "_id";
-						document.getElementById(iframe_id).onload = () => {
-							console.log(`子窗口: ${iframe_id}加载完毕`);
-							let scriptNode = document.createElement("script");
-							scriptNode.innerHTML = top.window.tampermonkeyByMT;
-							document
-								.getElementById(iframe_id)
-								.contentWindow.document.head.append(scriptNode);
-						};
-					}
-					smallWindowId = temp_id;
 
-					console.log(smallWindowId);
-					let dragNode = new AnyTouch(document.getElementById(temp_id));
-					let smallWidowNode = document
-						.getElementById(temp_id)
-						.querySelector("div.xtiper_sheet");
-					let smallWidowNormalHeight = parseInt(
-						smallWidowNode.style["height"]
-					); /* 小窗原始高度 */
-					console.log("小窗原始高度", smallWidowNormalHeight);
-					dragNode.on("pan", (e) => {
-						if (e.phase == "move" && e.displacementY > 0) {
-							/* 当前为向下移动 */
-							smallWidowNode.style["transition"] = "none";
-							smallWidowNode.style["height"] =
-								Math.abs(smallWidowNormalHeight - e.distanceY) + "px";
-						}
-						if (e.isEnd) {
-							/* 当前为停止移动，松开手指，判断在哪个区域，一半以上回归上面，一般以下，关闭 */
-							smallWidowNode.style["transition"] = "0.2s ease-in";
-							if (
-								parseInt(smallWidowNode.style["height"]) >
-								window.innerHeight / 2
-							) {
-								smallWidowNode.style["height"] = smallWidowNormalHeight + "px";
-							} else {
-								resumeBack();
-							}
-						}
-					});
-					dragNode.on("tap", (e) => {
+				let smallWindowIframeId = xtip.open({
+					type: "url",
+					content: url,
+					title: websiteTitle,
+					height: "92%",
+					app: true,
+					success: (e) => {
+						banBack();
+					},
+					end: () => {
+						console.log("点击其它区域关闭小窗");
+						resumeBack();
+					},
+				});
+
+				if (typeof top.window.tampermonkeyByMT != "undefined") {
+					console.log("当前执行为非油猴调用");
+					let iframe_id = smallWindowIframeId + "_id";
+					document.getElementById(iframe_id).onload = () => {
+						console.log(`子窗口: ${iframe_id}加载完毕`);
+						let scriptNode = document.createElement("script");
+						scriptNode.innerHTML = top.window.tampermonkeyByMT;
+						document
+							.getElementById(iframe_id)
+							.contentWindow.document.head.append(scriptNode);
+					};
+				}
+				smallWindowId = smallWindowIframeId;
+
+				console.log(smallWindowId);
+				let dragNode = new AnyTouch(
+					document.getElementById(smallWindowIframeId)
+				);
+				let smallWidowNode = document
+					.getElementById(smallWindowIframeId)
+					.querySelector("div.xtiper_sheet");
+				let smallWidowNormalHeight = parseInt(
+					smallWidowNode.style["height"]
+				); /* 小窗原始高度 */
+				console.log("小窗原始高度", smallWidowNormalHeight);
+				dragNode.on("pan", (e) => {
+					if (e.phase == "move" && e.displacementY > 0) {
+						/* 当前为向下移动 */
+						smallWidowNode.style["transition"] = "none";
+						smallWidowNode.style["height"] =
+							Math.abs(smallWidowNormalHeight - e.distanceY) + "px";
+					}
+					if (e.isEnd) {
+						/* 当前为停止移动，松开手指，判断在哪个区域，一半以上回归上面，一般以下，关闭 */
+						smallWidowNode.style["transition"] = "0.2s ease-in";
 						if (
-							document
-								.getElementById(temp_id)
-								.querySelector(".xtiper_bg")
-								.outerHTML.indexOf(e.target.outerHTML) != -1
+							parseInt(smallWidowNode.style["height"]) >
+							window.innerHeight / 2
 						) {
-							/* 点击背景关闭小窗 */
-							console.log("点击背景关闭小窗");
+							smallWidowNode.style["height"] = smallWidowNormalHeight + "px";
+						} else {
 							resumeBack();
-							dragNode.off("tap");
-							dragNode.off("pan");
-							return;
 						}
-						if (
-							document
-								.getElementById(temp_id)
-								.querySelector(".xtiper_tit_content")
-								.outerHTML.indexOf(e.target.outerHTML) != -1
-						) {
-							GM_setClipboard(`『${forumPostTitle}』 - ${forumPostUrl}`);
-							xtips.toast("已复制链接", {
-								icon: "success",
-								pos: "bottom",
-							});
-							return;
-						}
-						if (
-							document
-								.getElementById(temp_id)
-								.querySelector(".xtiper_tit_right_windowopen svg")
-								.outerHTML.indexOf(e.target.outerHTML) != -1
-						) {
-							window.open(forumPostUrl, "_blank");
-							return;
-						}
-						if (
-							document
-								.getElementById(temp_id)
-								.querySelector(".xtiper_tit_right_windowclose svg")
-								.outerHTML.indexOf(e.target.outerHTML) != -1
-						) {
-							console.log("点击关闭按钮关闭小窗");
-							resumeBack();
-							dragNode.off("tap");
-							dragNode.off("pan");
-							return;
-						}
-					});
-				};
-				return prevNode;
+					}
+				});
+				dragNode.on("tap", (e) => {
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_bg")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						/* 点击背景关闭小窗 */
+						console.log("点击背景关闭小窗");
+						resumeBack();
+						dragNode.off("tap");
+						dragNode.off("pan");
+						return;
+					}
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_tit_content")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						GM_setClipboard(`『${title}』 - ${url}`);
+						xtips.toast("已复制链接", {
+							icon: "success",
+							pos: "bottom",
+						});
+						return;
+					}
+					if (
+						document
+							.querySelector("#" + smallWindowId)
+							.querySelector(".xtiper_tit_right_picture") &&
+						document
+							.querySelector("#" + smallWindowId)
+							.querySelector(".xtiper_tit_right_picture i")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						console.log("点击查看图片", imagesList);
+						var viewerULNodeHTML = "";
+						imagesList.forEach((item) => {
+							viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+						});
+						var viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
+						let viewer = new Viewer(viewerULNode, {
+							inline: false,
+							url: "data-src",
+							zIndex: Utils.getMaxZIndex() + 100,
+							hidden: () => {
+								viewer.destroy();
+							},
+						});
+						viewer.zoomTo(1);
+						viewer.show();
+					}
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_tit_right_windowopen svg")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						window.open(url, "_blank");
+						return;
+					}
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_tit_right_windowclose svg")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						console.log("点击关闭按钮关闭小窗");
+						resumeBack();
+						dragNode.off("tap");
+						dragNode.off("pan");
+						return;
+					}
+				});
 			}
 			async function main() {
 				$jq.each(formlist, function (index, value) {
-					let isNewUI = false;
-					let formBottomEle = value.querySelectorAll(
-						".comiis_znalist_bottom.b_t.cl ul.cl li"
-					);
-					if (!formBottomEle.length) {
-						let tempFormBottomEle = value.querySelectorAll(
-							".comiis_xznalist_bottom.cl ul.cl li"
-						); /* 新版论坛UI */
-						if (!tempFormBottomEle.length) {
-							return;
-						}
-						formBottomEle = tempFormBottomEle;
-						isNewUI = true;
+					value = $jq(value);
+					if (value.attr("data-injection-small-window")) {
+						return;
 					}
-					let clParentEle = formBottomEle[0].parentElement;
-					if (clParentEle.querySelector(".tosmallwindowprev")) {
-						console.log("已经插入过小窗浏览");
-					} else {
-						let forumPostUrl = value
-							.querySelector(".mmlist_li_box.cl a")
-							.getAttribute("href");
-						let forumPostTitle = value.querySelector(
-							".mmlist_li_box.cl a"
-						).innerText;
-						if (!forumPostUrl) {
-							console.log("获取帖子url失败");
-							return;
+
+					let title = value.find(".mmlist_li_box a").text(); /* 帖子标题 */
+					let url = value.find(".mmlist_li_box a").attr("href"); /* 帖子地址 */
+					var imagesList = []; /* 帖子内图片列表 */
+					value.attr("data-injection-small-window", true);
+					value.attr("data-injection-small-window-url", url);
+					value.attr("data-injection-small-window-title", title);
+					value.find(".comiis_pyqlist_img img").each((imgIndex, ImgNode) => {
+						imagesList = [...imagesList, ImgNode.getAttribute("src")];
+					});
+					value.find(".comiis_pyqlist_imgs img").each((imgIndex, ImgNode) => {
+						imagesList = [...imagesList, ImgNode.getAttribute("src")];
+					});
+					value.find(".mmlist_li_box a").each((aIndex, aNode) => {
+						aNode.href = "javascript:;";
+					});
+					value.find(".mmlist_li_box").on("click", function () {
+						var mouseClickPosX = Number(
+							window.event.clientX
+						); /* 鼠标相对屏幕横坐标 */
+						if (document.body.offsetWidth / 2 > mouseClickPosX) {
+							window.location.href = url;
+						} else {
+							showSmallWindow(title, url, imagesList);
 						}
-						if (!forumPostTitle) {
-							console.log("获取帖子标题失败");
-							return;
-						}
-						let previewPicturesEle = getSmallPageBtn(
-							forumPostTitle,
-							forumPostUrl,
-							isNewUI ? isNewUI : null
-						);
-						if (previewPicturesEle != null) {
-							clParentEle.append(previewPicturesEle);
-							clParentEle.setAttribute(
-								"style",
-								"display: flex;height: inherit;"
-							);
-						}
-					}
+					});
 				});
 			}
 		},
@@ -9078,129 +9069,6 @@
 						);
 					}
 				}
-			}
-		},
-		async previewPictures() {
-			/* 贴外预览图片-使用github项目https://github.com/fengyuanchen/viewerjs */
-			if (
-				!GM_getValue("v34") &&
-				!(
-					window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
-					/* !(window.location.href.match(mt_config.rexp.forum_post)) ||
-                    !(window.location.href.match(mt_config.rexp.plate_url)) || */
-					!window.location.href.match(MT_CONFIG.regexp.searchUrl)
-				)
-			) {
-				return;
-			}
-
-			function getFormList() {
-				let formList = MT_CONFIG.element.comiisFormlist()
-					? MT_CONFIG.element.comiisFormlist()
-					: [];
-				formList =
-					formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
-				formList =
-					formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
-				return formList;
-			}
-			let formlist = null; /* 帖子列表 */
-			let isFindFormList = false;
-			let findFormListNums = 0;
-			let waitFormListAppear = setInterval(function () {
-				if (isFindFormList) {
-					formlist = getFormList();
-					main();
-					clearInterval(waitFormListAppear);
-				} else {
-					if (findFormListNums >= 10) {
-						console.log("未出现帖子或寻找贴子超时，清理定时器");
-						clearInterval(waitFormListAppear);
-					}
-					isFindFormList = getFormList().length ? true : false;
-					findFormListNums += 1;
-				}
-			}, 800);
-
-			function getPreviewBtn(node, isNew) {
-				let prevNode = document.createElement("li");
-				prevNode.className = "f_c";
-				let imageDOM = node.querySelectorAll(".comiis_pyqlist_img").length
-					? node.querySelectorAll(".comiis_pyqlist_img")
-					: node.querySelectorAll(".comiis_pyqlist_imgs");
-				if (imageDOM.length == 0) {
-					return null;
-				}
-
-				prevNode.setAttribute(
-					"style",
-					"display: flex;justify-content: center;"
-				);
-				prevNode.innerHTML = `<i class="comiis_font"></i><a class="topreimg"></a>`;
-				Array.from(imageDOM).forEach((item) => {
-					let needPrevImages = item.querySelectorAll("img");
-					let postForumImageNodeDiv = document.createElement("div");
-					let postForumImageNodeUl = document.createElement("ul");
-					postForumImageNodeUl.className = "postforumimages";
-					postForumImageNodeUl.setAttribute("style", "display:none;");
-					Array.from(needPrevImages).forEach((_img_) => {
-						let tempLi = document.createElement("li");
-						let tempImg = document.createElement("img");
-						tempImg.setAttribute("data-src", _img_.getAttribute("src"));
-						tempLi.append(tempImg);
-						postForumImageNodeUl.append(tempLi);
-					});
-					postForumImageNodeDiv.append(postForumImageNodeUl);
-					prevNode.append(postForumImageNodeDiv);
-				});
-				let canPrevImageNums = prevNode.getElementsByTagName("img").length;
-				prevNode.getElementsByClassName("topreimg")[0].innerText = isNew
-					? canPrevImageNums
-					: "预览";
-				prevNode.onclick = (e) => {
-					let imageList = e.target.parentElement.children[2].children[0];
-					let viewer = new Viewer(imageList, {
-						inline: false,
-						url: "data-src",
-						hidden: () => {
-							viewer.destroy();
-						},
-					});
-					viewer.zoomTo(1);
-					viewer.show();
-				};
-				return prevNode;
-			}
-			async function main() {
-				$jq.each(formlist, function (index, value) {
-					let isNewUI = false;
-					let formBottomEle = value.querySelectorAll(
-						".comiis_znalist_bottom.b_t.cl ul.cl li"
-					);
-					if (!formBottomEle.length) {
-						let tempFormBottomEle = value.querySelectorAll(
-							".comiis_xznalist_bottom.cl ul.cl li"
-						); /* 新版论坛UI */
-						if (!tempFormBottomEle.length) {
-							return;
-						}
-						formBottomEle = tempFormBottomEle;
-						isNewUI = true;
-					}
-					let clParentEle = formBottomEle[0].parentElement;
-					if (clParentEle.querySelector(".topreimg")) {
-						console.log("已经插入过预览图片");
-					} else {
-						let previewPicturesEle = getPreviewBtn(
-							value,
-							isNewUI ? isNewUI : null
-						);
-						if (previewPicturesEle != null) {
-							clParentEle.append(previewPicturesEle);
-							clParentEle.setAttribute("style", "display: flex;");
-						}
-					}
-				});
 			}
 		},
 		previewPostForum() {
@@ -11382,7 +11250,6 @@
 				setParentEvent() {
 					let that = this;
 					function _focus_event_(event) {
-						// event.stopPropagation();
 						document
 							.querySelector(`div.${that.searchSelectClassName}`)
 							.setAttribute(
@@ -11683,7 +11550,6 @@
 				}
 
 				search_event();
-				//add_search_history();
 				add_clear_history();
 			}
 		},
@@ -12017,7 +11883,7 @@
 							let base64Arr = [baseBig, baseMedium, baseSmall];
 							const dataArr = base64Arr.map((str) =>
 								str.substr(str.indexOf(",") + 1)
-							); //拿到3个头像的Base64字符串
+							); /* 拿到3个头像的Base64字符串 */
 							let data_resp = await getPCUploadNewAvater();
 							if (data_resp == "") {
 								popup2.toast("获取PC数据失败");
@@ -12670,8 +12536,8 @@
 					formList =
 						formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
 					window.findUserFormList = formList.length ? true : false;
-					if (findUserFormListNums >= 16) {
-						console.log("已循环16次，未找到帖子");
+					if (findUserFormListNums >= 40) {
+						console.log("已循环40次，未找到帖子");
 						clearInterval(findSetInval);
 					}
 					if (window.findUserFormList) {
@@ -12753,7 +12619,7 @@
 					} else {
 						findUserFormListNums += 1;
 					}
-				}, 800);
+				}, 200);
 			}
 		},
 		async showSpaceContreteReply() {
