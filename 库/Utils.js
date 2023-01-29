@@ -2,7 +2,7 @@
  * @overview	 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  0.8
+ * @version  0.9
  */
 let Utils = {};
 
@@ -1615,4 +1615,100 @@ Utils.GM_Menu = function (data = {}, autoReload = false) {
 	};
 	init(); /* 初始化数据 */
 	register(); /* 注册到油猴菜单中 */
+};
+
+/*
+ * @description 基于Function prototype，能够勾住和释放任何函数
+ * [bool]hook:params{
+ * 		realFunc[String|must]:用于保存原始函数的函数名称,用于unHook;
+ * 		hookFunc[Function|must]:替换的hook函数;
+ * 		context[Object|opt]:目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
+ * 		methodName[String|opt]:匿名函数需显式传入目标函数名eg:this.Begin = function(){....};}
+ * [bool]unhook:params{
+ * 		realFunc[String|must]:用于保存原始函数的函数名称,用于unHook;
+ * 		funcName[String|must]:被Hook的函数名称
+ * 		context[Object|opt]:目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1}
+ * @example var hook = new Utils.Hooks()
+ * 					hook.initEnv();
+ *					function myFunction(){
+							console.log("我自己需要执行的函数");
+ 						}
+						function testFunction(){
+							console.log("正常执行的函数");
+						}
+						testFunction.hook(testFunction,myFunction,window)
+ *
+ */
+Utils.Hooks = function () {
+	this.initEnv = function () {
+		Function.prototype.hook = function (realFunc, hookFunc, context) {
+			var _context = null; //函数上下文
+			var _funcName = null; //函数名
+
+			_context = context || window;
+			_funcName = getFuncName(this);
+			_context["realFunc_" + _funcName] = this;
+
+			console.log(window);
+
+			if (
+				_context[_funcName].prototype &&
+				_context[_funcName].prototype.isHooked
+			) {
+				console.log("Already has been hooked,unhook first");
+				return false;
+			}
+			function getFuncName(fn) {
+				// 获取函数名
+				var strFunc = fn.toString();
+				var _regex = /function\s+(\w+)\s*\(/;
+				var patten = strFunc.match(_regex);
+				if (patten) {
+					return patten[1];
+				}
+				return "";
+			}
+			try {
+				eval(
+					"_context[_funcName] = function " +
+						_funcName +
+						"(){\n" +
+						"var args = Array.prototype.slice.call(arguments,0);\n" +
+						"var obj = this;\n" +
+						"hookFunc.apply(obj,args);\n" +
+						"return _context['realFunc_" +
+						_funcName +
+						"'].apply(obj,args);\n" +
+						"};"
+				);
+				_context[_funcName].prototype.isHooked = true;
+				return true;
+			} catch (e) {
+				console.log("Hook failed,check the params.");
+				return false;
+			}
+		};
+		Function.prototype.unhook = function (realFunc, funcName, context) {
+			var _context = null;
+			var _funcName = null;
+			_context = context || window;
+			_funcName = funcName;
+			if (!_context[_funcName].prototype.isHooked) {
+				console.log("No function is hooked on");
+				return false;
+			}
+			_context[_funcName] = _context["realFunc" + _funcName];
+			delete _context["realFunc_" + _funcName];
+			return true;
+		};
+	};
+	this.cleanEnv = function () {
+		if (Function.prototype.hasOwnProperty("hook")) {
+			delete Function.prototype.hook;
+		}
+		if (Function.prototype.hasOwnProperty("unhook")) {
+			delete Function.prototype.unhook;
+		}
+		return true;
+	};
 };
