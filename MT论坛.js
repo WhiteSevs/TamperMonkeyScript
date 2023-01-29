@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.6
+// @version      2.7.7
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -26,7 +26,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1082044
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1102558
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1128500
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1142740
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1143053
 // ==/UserScript==
 
 (function () {
@@ -3059,6 +3059,7 @@
 							$jq(".msgcon #misign_list").append(itemElement);
 						});
 					} else {
+						$jq(".msgcon").html("<center>暂无快照</center>");
 					}
 				}),
 					(err) => {
@@ -5718,7 +5719,7 @@
 					return false;
 				}
 			);
-			textarea_scrollHeight = () => {};
+			unsafeWindow.textarea_scrollHeight = () => {};
 			let btn_fabiao = $jq(
 				'#comiis_foot_menu_beautify_big li[data-attr="发表"] input'
 			);
@@ -6444,7 +6445,7 @@
 				comiis_post_tab
 			);
 			comiis_post_tab.remove();
-			textarea_scrollHeight = () => {};
+			unsafeWindow.textarea_scrollHeight = () => {};
 			$jq(".comiis_btnbox").hide();
 
 			if ($jq(".comiis_scrollTop_box").length) {
@@ -7854,15 +7855,6 @@
 				);
 			}
 			insertBtn();
-		},
-		async loadCheckboxTipResource() {
-			/* 加载checkbox值变化的显示的提示的资源 */
-			await GM_asyncLoadScriptContent(
-				"https://whitesev.gitee.io/static_resource/ios_loading/js/iosOverlay.js"
-			);
-			await GM_asyncLoadStyleSheet(
-				"https://whitesev.gitee.io/static_resource/ios_loading/css/iosOverlay.css"
-			);
 		},
 		loadNextComments() {
 			/* 加载下一页的评论 */
@@ -12822,20 +12814,44 @@
 					'<code class="bg_f b_ok comiis_checkbox comiis_checkbox_close whitesevcheckbox" style="left: 20px;"></code>' +
 					"</div>";
 				GM_addStyle(`
-                .comiis_sidenv_box ul.comiis_left_Touch.bdew li:nth-last-child(1) {
-                    margin-bottom: 10px;
-                }
-                `);
+					.comiis_sidenv_box ul.comiis_left_Touch.bdew li:nth-last-child(1) {
+							margin-bottom: 10px;
+					}
+					`);
 				$jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
 					setting_content
 				);
-
+				if (unsafeWindow.comiis_app_color_modes === 1) {
+					$jq(".comiis_sidenv_box ul.comiis_left_Touch .beauty-select").css(
+						"color",
+						"#ccc"
+					);
+				}
+				if (typeof unsafeWindow.comiis_app_setcolor_mode === "function") {
+					/* Hook切换夜间模式的函数 */
+					var hook = new Utils.Hooks();
+					hook.initEnv();
+					unsafeWindow.comiis_app_setcolor_mode.hook(
+						unsafeWindow.comiis_app_setcolor_mode,
+						() => {
+							if (unsafeWindow.comiis_app_color_modes === 1) {
+								$jq(
+									".comiis_sidenv_box ul.comiis_left_Touch .beauty-select"
+								).css("color", "#000");
+							} else if (unsafeWindow.comiis_app_color_modes === 0) {
+								$jq(
+									".comiis_sidenv_box ul.comiis_left_Touch .beauty-select"
+								).css("color", "#ccc");
+							}
+						},
+						unsafeWindow
+					);
+				}
 				Utils.tryCatch(setSelectNodeCSS);
 				Utils.tryCatch(setLastClickItem);
 
 				Utils.tryCatch(setCodeNodeClickEvent);
 				Utils.tryCatch(setSelectNodeChangeEvent);
-				/* tryCatch(loadCheckboxTipResource); */
 			}
 		},
 	};
