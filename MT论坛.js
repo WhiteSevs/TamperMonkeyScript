@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.7
+// @version      2.7.8
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -26,7 +26,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1082044
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1102558
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1143054
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1143053
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1143981
 // ==/UserScript==
 
 (function () {
@@ -412,7 +412,7 @@
 				/bbs.binmt.cc\/forum.php\?mod=post&action=reply/g /* 回复的界面url */,
 			signUrl: "" /* 签到url */,
 			navigationUrl:
-				/forum.php\?mod=guide(&index=1|)&view=(newthread|hot|digest|new|sofa)&index=1/g /* 导航链接，包括最新、热门、精华、回复、抢沙发 */,
+				/forum.php\?mod=guide(&index=1|)&view=(newthread|hot|digest|new|sofa)(&index=1|)/g /* 导航链接，包括最新、热门、精华、回复、抢沙发 */,
 			communityUrl: /forum.php\?forumlist/ /* 社区 */,
 			forumPost:
 				/(bbs.binmt.cc\/thread-|bbs.binmt.cc\/forum.php\?mod=viewthread)/g /* 帖子链接 */,
@@ -824,6 +824,29 @@
 	}
 
 	const pc = {
+		main() {
+			/* 电脑版函数按顺序加载 */
+			/* 禁止自动执行的函数(这些函数在其它地方调用) */
+			const notRunFunc = ["main"];
+			Object.keys(pc).forEach((key) => {
+				if (typeof pc[key] !== "function" || notRunFunc.indexOf(key) != -1) {
+					return;
+				}
+				Utils.tryCatch(pc[key]);
+			});
+		},
+		initPopup2() {
+			/* 兼容PC端 popup2的toast */
+			popup2.toast = (text) => {
+				if (typeof text == "string") {
+					xtips.toast(text);
+				} else {
+					xtips.toast(text.text, {
+						times: text.delayTime ? text.delayTime / 1000 : 2,
+					});
+				}
+			};
+		},
 		collectionForumPost() {
 			/* 悬浮按钮-添加收藏帖子功能 */
 			if (!window.location.href.match(MT_CONFIG.regexp.forumPost)) {
@@ -892,6 +915,64 @@
 				}
 			}
 		},
+		imageViewingOptimizationInThePost() {
+			/* 贴内图片查看优化 */
+			if (!window.location.href.match(MT_CONFIG.regexp.forumPost)) {
+				return;
+			}
+			function viewIMG(imgList = []) {
+				/* 查看图片 */
+				let viewerULNodeHTML = "";
+				imgList.forEach((item) => {
+					viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+				});
+				let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
+				let viewer = new Viewer(viewerULNode, {
+					inline: false,
+					url: "data-src",
+					zIndex: Utils.getMaxZIndex() + 100,
+					hidden: () => {
+						viewer.destroy();
+					},
+				});
+				viewer.zoomTo(1);
+				viewer.show();
+			}
+			Utils.waitNode("#postlist .comiis_vrx").then((nodeList) => {
+				nodeList.forEach((item) => {
+					if (item.getAttribute("isHandlingViewIMG")) {
+						/* 已处理过 */
+						return;
+					}
+					let clickShowIMGList = []; /* 点击显示的图片组 */
+					item.querySelectorAll("img").forEach((_item_) => {
+						let IMG_URL =
+							_item_.src || _item_.getAttribute("file"); /* 图片链接 */
+						let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname; /* 主机名 */
+						if (
+							IMG_URL_HOSTNAME.indexOf("oss3-bbs.mt2.cn") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("helloimg.com") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("imgse.com") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("ax1x.com") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("z4a.net") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("icdn.binmt.cc") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("i3.wp.com") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("telegra.ph") != -1 ||
+							IMG_URL_HOSTNAME.indexOf("images.weserv.nl") != -1
+						) {
+							clickShowIMGList = [...clickShowIMGList, IMG_URL];
+							_item_.removeAttribute("onclick");
+							$jq(_item_).on("click", function (event) {
+								event.preventDefault();
+								viewIMG(clickShowIMGList);
+							});
+							return;
+						}
+					});
+					item.setAttribute("isHandlingViewIMG", true);
+				});
+			});
+		},
 		latestReleaseForumPost() {
 			/* 最新发表 */
 			var latestReleaseNode = $jq(
@@ -911,25 +992,8 @@
 					);
 			}
 		},
-		main() {
-			/* 电脑版函数按顺序加载 */
-			popup2.toast = (text) => {
-				if (typeof text == "string") {
-					xtips.toast(text);
-				} else {
-					xtips.toast(text.text, {
-						times: text.delayTime ? text.delayTime / 1000 : 2,
-					});
-				}
-			};
-
-			Object.keys(pc).forEach((key) => {
-				if (key !== "main") {
-					Utils.tryCatch(pc[key]);
-				}
-			});
-			Utils.tryCatch(mobile.identifyLinks);
-			Utils.tryCatch(mobile.autoSignIn);
+		loadPCMenu() {
+			/* 注册PC端油猴菜单 */
 			Utils.tryCatch(() => {
 				var GM_Menu = new Utils.GM_Menu(
 					{
@@ -1020,9 +1084,1109 @@
 				user_info.appendChild(user_level_node);
 			}
 		},
+		runMobileFunc() {
+			/* 执行手机端函数 */
+			Utils.tryCatch(mobile.identifyLinks);
+			Utils.tryCatch(mobile.autoSignIn);
+		},
 	};
+	const mobileRepeatFunc = {
+		/* 需要重复执行的函数 */
+		main() {
+			console.log("执行 需要重复执行的函数");
+			Object.keys(mobileRepeatFunc).forEach((key) => {
+				if (key === "main" || typeof mobileRepeatFunc[key] !== "function") {
+					return;
+				}
+				Utils.tryCatch(mobileRepeatFunc[key]);
+			});
+			unsafeWindow.popup.init();
+		},
+		shieldUser() {
+			/* 屏蔽用户 */
+			if (
+				window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
+				window.location.href.match(MT_CONFIG.regexp.plateUrl) ||
+				window.location.href.match(MT_CONFIG.regexp.forumPost)
+			) {
+				let infos = document.querySelectorAll(
+					".comiis_forumlist .forumlist_li"
+				); /* 帖子外 */
+				if (!infos.length) {
+					/* 帖子内 */
+					infos = document.querySelectorAll(".comiis_postlist .comiis_postli");
+					if (!infos.length) {
+						return;
+					}
+				}
+				let shieldUserList = GM_getValue("shieldUser", []);
+				let needRemoveList = [];
+				shieldUserList.forEach((item) => {
+					needRemoveList = [...needRemoveList, item["uid"]];
+				});
+				Array.from(infos).forEach((info) => {
+					let usr = info.getElementsByClassName("wblist_tximg");
+					if (!usr.length) {
+						usr = info.getElementsByClassName("postli_top_tximg");
+						if (!usr.length) {
+							return;
+						}
+					}
+					let url = usr[0].href;
+					let userUID = url.match(
+						MT_CONFIG.regexp.MTUid
+					)[1]; /* 获取帖子链接的uid */
+					if (needRemoveList.indexOf(userUID) != -1) {
+						console.log("屏蔽用户：" + userUID);
+						info.setAttribute("style", "display:none !important;");
+					}
+				});
+			}
+		},
+		shieldPlate() {
+			/* 屏蔽板块 */
+			if (window.location.href.match(MT_CONFIG.regexp.forumGuideUrl)) {
+				let infos = document.querySelectorAll(
+					".comiis_forumlist .forumlist_li"
+				);
+				let shieldPlateList = GM_getValue("shieldPlate", []);
+				let needRemoveList = [];
+				shieldPlateList.forEach((item) => {
+					needRemoveList = [...needRemoveList, item];
+				});
+				Array.from(infos).forEach((info) => {
+					let from_plate = (
+						info.querySelector(".forumlist_li_time a.f_d") ||
+						info.querySelector(".comiis_xznalist_bk.cl")
+					).outerText;
+					from_plate = from_plate.replace(//g, "");
+					from_plate = from_plate.replace(/\s*/g, "");
+					from_plate = from_plate.replace("来自", "");
+					if (needRemoveList.indexOf(from_plate) != -1) {
+						console.log("屏蔽目标板块：" + from_plate);
+						info.setAttribute("style", "display:none !important;");
+					}
+				});
+			}
+		},
+		commentsAddReviews() {
+			/* 评论区添加点评功能 */
+			if (
+				GM_getValue("v6") &&
+				window.location.href.match(MT_CONFIG.regexp.forumPost)
+			) {
+				var hongbao = document.getElementsByClassName("bottom_zhan y");
+				if (hongbao.length == 0) {
+				} else {
+					var cishu2 = 0;
+					var replyhref = hongbao[cishu2].getElementsByTagName("a")[0].href;
+					var page = replyhref.match(MT_CONFIG.regexp.forumPostPage)[1];
+					/* console.log(page); */
+					for (cishu2 = 0; cishu2 < hongbao.length; cishu2++) {
+						if (hongbao[cishu2].children.length == 1) {
+							var rewardhref = hongbao[cishu2]
+								.getElementsByTagName("a")[0]
+								.href.replace("mod=post&", "mod=misc&");
+							rewardhref = rewardhref.replace(
+								"action=reply&",
+								"action=comment&"
+							);
+							var reviews_href = rewardhref + "&extra=page%3D1&page=" + page;
+							let reviews_pid = hongbao[
+								cishu2
+							].parentElement.parentElement.id.replace("pid", "&pid=");
+							reviews_href = reviews_href + reviews_pid;
+							/* console.log(rewardhref) */
+							var oa = document.createElement("a");
+							var ob = document.createElement("i");
+							var lm = document.getElementsByClassName("bottom_zhan y")[cishu2];
+							oa.href = reviews_href;
+							oa.className = "f_c dialog";
+							ob.style =
+								"content: url(https://s1.ax1x.com/2020/04/26/Jcq8VU.png);height: 15px;";
+							ob.className = "comiis_font mt_review";
+							ob.innerHTML = "";
+							oa.appendChild(ob);
+							let review_username =
+								hongbao[
+									cishu2
+								].parentElement.parentElement.getElementsByClassName(
+									"top_user f_b"
+								)[0].text;
+							oa.onclick = function () {
+								let click_time = Date.now();
+								var mt_interval = setInterval(function () {
+									let run_time = parseInt((Date.now() - click_time) / 1000);
+									if (run_time >= 5) {
+										console.log("超时");
+										clearInterval(mt_interval);
+									} else if (
+										document.querySelector(
+											"div[id=ntcmsg_popmenu]>div>span.f_c"
+										) != null
+									) {
+										console.log("存在，清理定时器");
+										console.log("点评用户：", review_username);
+										console.log("该对象出现用时:", run_time);
+										try {
+											document.querySelector(
+												"div[id=ntcmsg_popmenu]>div>span.f_c"
+											).innerText = "点评 " + review_username;
+										} catch (err) {
+											console.log("修改点评失败", err);
+										}
+										clearInterval(mt_interval);
+									}
+								}, 100);
+							};
+							lm.insertAdjacentElement("afterBegin", oa);
+						} else {
+							console.log("已有点评按钮，无需再次添加");
+						}
+					}
+				}
+			}
+		},
+		identifyLinks() {
+			/* 识别链接 */
+			if (!GM_getValue("v2", false)) {
+				return;
+			}
+			/*TEXT link to Clickable Hyperlink*/
+			var clearLink,
+				excludedTags,
+				filter,
+				linkMixInit,
+				linkPack,
+				linkify,
+				observePage,
+				observer,
+				setLink,
+				url_regexp,
+				xpath;
+			url_regexp =
+				/((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
+			clearLink = function (a) {
+				var b;
+				a = null != (b = a.originalTarget) ? b : a.target;
+				if (
+					null != a &&
+					"a" === a.localName &&
+					-1 !== a.className.indexOf("texttolink") &&
+					((b = a.getAttribute("href")),
+					0 !== b.indexOf("http") &&
+						0 !== b.indexOf("ed2k://") &&
+						0 !== b.indexOf("thunder://"))
+				)
+					return a.setAttribute("href", "http://" + b);
+			};
+			document.addEventListener("mouseover", clearLink);
+			setLink = function (a) {
+				/* Uncaught TypeError: a.parentNode.className.indexOf is not a function */
+				if (typeof a != "object") {
+					return;
+				} /* 看不得报错，增加判断 */
+				if (
+					null != a &&
+					typeof a.parentNode !== "undefined" &&
+					typeof a.parentNode.className !== "undefined" &&
+					typeof a.parentNode.className.indexOf === "function" &&
+					-1 === a.parentNode.className.indexOf("texttolink") &&
+					"#cdata-section" !== a.nodeName
+				) {
+					var b = a.textContent.replace(
+						url_regexp,
+						'<a href="$1" target="_blank" class="texttolink">$1</a>'
+					);
+					if (a.textContent.length !== b.length) {
+						var c = document.createElement("span");
+						c.innerHTML = b;
+						console.log(`识别: ${c.querySelector("a")}`);
+						return a.parentNode.replaceChild(c, a);
+					}
+				}
+			};
+			excludedTags =
+				"a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
+					" "
+				);
+			xpath =
+				"//text()[not(ancestor::" +
+				excludedTags.join(") and not(ancestor::") +
+				")]";
+			filter = new RegExp("^(" + excludedTags.join("|") + ")$", "i");
+			linkPack = function (a, b) {
+				var c, d;
+				if (b + 1e4 < a.snapshotLength) {
+					var e = (c = b);
+					for (d = b + 1e4; b <= d ? c <= d : c >= d; e = b <= d ? ++c : --c)
+						setLink(a.snapshotItem(e));
+					setTimeout(function () {
+						return linkPack(a, b + 1e4);
+					}, 15);
+				} else
+					for (
+						e = c = b, d = a.snapshotLength;
+						b <= d ? c <= d : c >= d;
+						e = b <= d ? ++c : --c
+					)
+						setLink(a.snapshotItem(e));
+			};
+			linkify = function (a) {
+				a = document.evaluate(
+					xpath,
+					a,
+					null,
+					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+					null
+				);
+				return linkPack(a, 0);
+			};
+			observePage = function (a) {
+				for (
+					a = document.createTreeWalker(
+						a,
+						NodeFilter.SHOW_TEXT,
+						{
+							acceptNode: function (a) {
+								if (!filter.test(a.parentNode.localName))
+									return NodeFilter.FILTER_ACCEPT;
+							},
+						},
+						!1
+					);
+					a.nextNode();
 
+				)
+					setLink(a.currentNode);
+			};
+			observer = new window.MutationObserver(function (a) {
+				var b, c;
+				var d = 0;
+				for (b = a.length; d < b; d++) {
+					var e = a[d];
+					if ("childList" === e.type) {
+						var g = e.addedNodes;
+						var f = 0;
+						for (c = g.length; f < c; f++) (e = g[f]), observePage(e);
+					}
+				}
+			});
+			linkMixInit = function () {
+				/* if (window === window.top && "" !== window.document.title) return linkify(document.body), observer.observe(document.body, {
+                    childList: !0,
+                    subtree: !0
+                })
+                修改为可在iframe内执行 */
+				return (
+					linkify(document.body),
+					observer.observe(document.body, {
+						childList: !0,
+						subtree: !0,
+					})
+				);
+			};
+			var clearlinkF = function (a) {
+					var url = a.getAttribute("href");
+					if (
+						0 !== url.indexOf("http") &&
+						0 !== url.indexOf("ed2k://") &&
+						0 !== url.indexOf("thunder://")
+					)
+						return a.setAttribute("href", "http://" + url);
+				},
+				clearlinkE = function () {
+					for (
+						var a = document.getElementsByClassName("texttolink"), b = 0;
+						b < a.length;
+						b++
+					)
+						clearlinkF(a[b]);
+				};
+			setTimeout(clearlinkE, 1500);
+			setTimeout(linkMixInit, 100);
+		},
+		showUserUID() {
+			/* 显示用户的uid */
+			if (
+				GM_getValue("v15") &&
+				(window.location.href.match(MT_CONFIG.regexp.forumPostGuideUrl) ||
+					window.location.href.match(MT_CONFIG.regexp.forumPost) ||
+					window.location.href.match(MT_CONFIG.regexp.plateUrl) ||
+					window.location.href.match(MT_CONFIG.regexp.searchUrl) ||
+					window.location.href.match(
+						/bbs.binmt.cc\/home.php\?mod=space&do=thread&view=me/
+					) ||
+					window.location.href.match(
+						/home.php\?mod=space&uid=.+&do=thread&view=me/
+					))
+			) {
+				if (!window.GM_isaddShowUidCss) {
+					window.GM_isaddShowUidCss = true;
+					GM_addStyle(`
+                        .postli_top_tximg + h2{
+                            height: auto;
+                        }
+                    `);
+				}
+				window.findUserFormList = false;
+				window.findUserFormListNums = 0;
+				let findSetInval = setInterval(function () {
+					let formList = MT_CONFIG.element.comiisFormlist()
+						? MT_CONFIG.element.comiisFormlist()
+						: [];
+					formList =
+						formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
+					formList =
+						formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
+					window.findUserFormList = formList.length ? true : false;
+					if (findUserFormListNums >= 40) {
+						console.log("已循环40次，未找到帖子");
+						clearInterval(findSetInval);
+					}
+					if (window.findUserFormList) {
+						GM_addStyle(`
+                        .comiis_postli_top.bg_f.b_t h2{
+                            height: auto;
+                        }`);
+
+						function matchUIDByArray(data) {
+							for (let i = 0; i < data.length; i++) {
+								let url = data[i].href;
+								let uid = url.match(MT_CONFIG.regexp.MTUid);
+								if (uid) {
+									return uid[1];
+								}
+							}
+							return null;
+						}
+						$jq.each(formList, (index, value) => {
+							let mtUIDOM = value.getElementsByClassName("mt_uid_set");
+							if (!mtUIDOM.length) {
+								let childrenByATagetElement = value.getElementsByTagName("a");
+								let mt_uid = null;
+								mt_uid = matchUIDByArray(childrenByATagetElement);
+								if (mt_uid != null) {
+									let uid_control = document.createElement("a");
+									let mtUidDomInsertElement =
+										value.getElementsByClassName("top_lev")[0];
+									let uid_control_height = getComputedStyle(
+										mtUidDomInsertElement,
+										null
+									)["height"];
+									let uid_control_margin = getComputedStyle(
+										mtUidDomInsertElement,
+										null
+									)["margin"];
+									let uid_control_padding = getComputedStyle(
+										mtUidDomInsertElement,
+										null
+									)["padding"];
+									let uid_control_line_height = getComputedStyle(
+										mtUidDomInsertElement,
+										null
+									)["line-height"];
+									let uid_control_font = getComputedStyle(
+										mtUidDomInsertElement,
+										null
+									)["font"];
+									let uid_control_bg_color = "#FF7600";
+									uid_control.className = "mt_uid_set";
+									uid_control.style = `
+                                        font: ${uid_control_font};
+                                        background: ${uid_control_bg_color};
+                                        color: white;
+                                        float: left;
+                                        margin: ${uid_control_margin};
+                                        padding: ${uid_control_padding};
+                                        height: ${uid_control_height};
+                                        line-height: ${uid_control_line_height};
+                                        border-radius: 1.5px;`;
+									uid_control.innerHTML = "UID:" + mt_uid;
+									uid_control.onclick = function () {
+										try {
+											GM_setClipboard(mt_uid);
+											popup2.toast(`${mt_uid}已复制`);
+											console.log("复制:", mt_uid);
+										} catch (err) {
+											popup2.toast(`${mt_uid}复制失败`);
+											console.log("复制失败:" + mt_uid, err);
+										}
+									};
+
+									mtUidDomInsertElement.parentElement.append(uid_control);
+								}
+							}
+						});
+						console.log("成功找到帖子DOM");
+						clearInterval(findSetInval);
+					} else {
+						findUserFormListNums += 1;
+					}
+				}, 200);
+			}
+		},
+		pageSmallWindowBrowsingForumPost() {
+			/* 页面小窗浏览帖子 */
+			if (
+				!GM_getValue("v45", false) &&
+				(!window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
+					!window.location.href.match(MT_CONFIG.regexp.searchUrl))
+			) {
+				return;
+			}
+
+			let small_icon_width = 24;
+			let small_right_btn_width = 115;
+			let small_title_width =
+				"calc(100% - " + (small_icon_width + small_right_btn_width) + "px)";
+			GM_addStyle(`
+				.xtiper_sheet,
+				.xtiper_sheet .xtiper_sheet_tit{
+						border-radius: 18px 18px 0px 0px;
+				}
+				/* title自定义美化 */
+				.xtiper_sheet_tit.xtiper_sheet_left{
+						display: block;
+						background: #fff;
+						width: 100%;
+						box-sizing: border-box;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left img.xtiper_tit_ico{
+						background: #fff;
+						filter: invert(100%);
+						width: ${small_icon_width}px;
+						height: ${small_icon_width}px;
+						align-self: center;
+						border-radius: 3px;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content{
+						margin-left: 22px;
+						width: ${small_title_width};
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content p{
+						word-wrap: break-word;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content .xtiper_tit_svg_lock{
+						display: flex;
+						align-items: center;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content .xtiper_tit_svg_lock svg{
+						margin: 0px 6px 0px 2px;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right {
+						display: inline-flex;
+						align-items: center;
+						align-content: center;
+						width: ${small_right_btn_width}px;
+						justify-content: center;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_picture,
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowopen,
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowclose{
+						width: 100%;
+						text-align: center;
+						margin: 0px 0px;
+						height: 100%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+
+				}
+				/* 底部高度不对等问题*/
+				.xtiper_content.xtit{
+						height: calc(100% - 80px); 
+				}
+				/* 底部消息距离底部30px*/
+				.xtiper.xtiper_msg.xtiper_msg_bottom.xtiper_msg_black.xon{
+						margin-bottom: 30px;
+				}
+
+				/* 标题顶部拖拽*/
+				.xtiper_sheet_tit_top_drag{
+						width: 100%;
+						position: relative;
+						height: 10px;
+				}
+				.xtiper_sheet_tit_top_drag div{
+						width: 50px;
+						margin: 0 auto;
+						height: 4px;
+						background: #d9d9d9;
+						border-radius: 15px;
+						bottom: 3px;
+						position: relative;
+					}
+			`);
+
+			function getFormList() {
+				/* 获取当前页面所有帖子 */
+				let formList = MT_CONFIG.element.comiisFormlist()
+					? MT_CONFIG.element.comiisFormlist()
+					: [];
+				formList =
+					formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
+				formList =
+					formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
+				return formList;
+			}
+			let formlist = null; /* 帖子列表 */
+			let isFindFormList = false; /* 是否找到帖子 */
+			let findFormListNums = 0; /* 找到帖子的数量 */
+			let smallWindowId = null; /* 小窗对象 */
+			let waitFormListAppear = setInterval(function () {
+				/* 等待页面加载出现帖子 */
+				if (isFindFormList) {
+					formlist = getFormList();
+					main();
+					console.log("成功注入小窗");
+					clearInterval(waitFormListAppear);
+				} else {
+					if (findFormListNums >= 40) {
+						console.log("未出现帖子或寻找贴子超时，清理定时器");
+						clearInterval(waitFormListAppear);
+					}
+					isFindFormList = getFormList().length ? true : false;
+					findFormListNums += 1;
+				}
+			}, 200);
+
+			function popstateFunction() {
+				window.history.pushState("forward", null, "#");
+				window.history.forward(1);
+				resumeBack();
+			}
+
+			function banBack() {
+				/* 禁止浏览器后退按钮 */
+				if (window.history && window.history.pushState) {
+					$jq(window).on("popstate", popstateFunction);
+				}
+				window.history.pushState(
+					"forward",
+					null,
+					"#"
+				); /* 在IE中必须得有这两行 */
+				window.history.forward(1);
+			}
+
+			async function resumeBack() {
+				/* 允许浏览器后退并关闭小窗 */
+				xtip.close(smallWindowId);
+				smallWindowId = null;
+				$jq(window).off("popstate", popstateFunction);
+				while (1) {
+					if (window.location.href == "https://bbs.binmt.cc/#") {
+						console.log("back！");
+						await Utils.asyncSetTimeOut("window.history.back();", 100);
+						await Utils.sleep(100);
+					} else {
+						return;
+					}
+				}
+			}
+
+			function showSmallWindow(title, url, imagesList = []) {
+				/* 显示小窗 */
+				let constructURL = new URL(url);
+				let isHTTPS =
+					constructURL.protocol.indexOf("https:") != -1 ? true : false;
+				let icon_safe = `<svg t="1660458686317" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2383"
+                width="12" height="12" style="margin: 0px 6px 0px 2px;">
+                <path
+                    d="M842.666667 384h-74.666667V277.333333a234.666667 234.666667 0 1 0-469.333333 0v106.666667H224a53.393333 53.393333 0 0 0-53.333333 53.333333v490.666667a53.393333 53.393333 0 0 0 53.333333 53.333333h618.666667a53.393333 53.393333 0 0 0 53.333333-53.333333V437.333333a53.393333 53.393333 0 0 0-53.333333-53.333333zM341.333333 277.333333c0-105.866667 86.133333-192 192-192s192 86.133333 192 192v106.666667H341.333333z"
+                    fill="#000000" p-id="2384"></path>
+            </svg>`; /* 安全的图标 */
+				let icon_unsafe = `<svg t="1663899632280"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="3360"
+                width="12"
+                height="12">
+               <path d="M770.423989 451.309956H368.89432V284.246158c0-80.739434 65.689748-146.429182 146.429182-146.429182S661.738235 203.506724 661.738235 284.246158a43.350032 43.350032 0 0 0 86.700063 0c0-128.547294-104.581952-233.129246-233.122021-233.129246-128.547294 0-233.129246 104.581952-233.129245 233.129246v167.063798h-21.978466a43.350032 43.350032 0 0 0-43.350032 43.350031v437.965371a43.350032 43.350032 0 0 0 43.350032 43.350032h510.215423a43.350032 43.350032 0 0 0 43.350032-43.350032V494.659987a43.350032 43.350032 0 0 0-43.350032-43.350031z"
+                     fill="#2c2c2c"
+                     p-id="3361"></path>
+           </svg>`; /* 不安全的图标 */
+				let icon_openBlank = `<svg t="1660459294973" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3580"
+                width="17" height="17">
+                <path
+                    d="M5.064339 94.782119l0-74.338917 494.595401 0c17.302383 0 31.352438 16.614748 31.352438 37.206628 0 20.517541-14.050055 37.132289-31.352438 37.132289L5.064339 94.782119"
+                    p-id="3581" fill="#2c2c2c"></path>
+                <path
+                    d="M1008.639721 1024l-74.338917 0L934.300804 529.404599c0-17.302383 16.614748-31.352438 37.206628-31.352438 20.517541 0 37.132289 14.050055 37.132289 31.352438L1008.639721 1024"
+                    p-id="3582" fill="#2c2c2c"></path>
+                <path d="M1008.639721 20.443202 945.972014 20.443202 1008.639721 20.443202Z" p-id="3583" fill="#2c2c2c"></path>
+                <path d="M1008.639721 83.129494 1008.639721 20.443202 1008.639721 83.129494Z" p-id="3584" fill="#2c2c2c"></path>
+                <path d="M5.064339 83.129494 5.064339 20.443202 67.750631 20.443202 5.064339 20.443202 5.064339 83.129494Z"
+                    p-id="3585" fill="#2c2c2c"></path>
+                <path d="M5.064339 1024 5.064339 961.332293 5.064339 1024Z" p-id="3586" fill="#2c2c2c"></path>
+                <path d="M67.750631 1024 5.064339 1024 67.750631 1024Z" p-id="3587" fill="#2c2c2c"></path>
+                <path d="M1008.639721 1024 945.972014 1024 1008.639721 1024Z" p-id="3588" fill="#2c2c2c"></path>
+                <path d="M1008.639721 1024 1008.639721 961.332293 1008.639721 1024Z" p-id="3589" fill="#2c2c2c"></path>
+                <path
+                    d="M934.300804 20.443202l74.338917 0 0 263.438538c0 17.302383-16.614748 31.371023-37.132289 31.371023-20.610465 0-37.206628-14.06864-37.206628-31.371023L934.300804 20.443202"
+                    p-id="3590" fill="#2c2c2c"></path>
+                <path
+                    d="M726.393437 94.782119c-17.339552 0-31.371023-16.614748-31.371023-37.132289 0-20.573295 14.031471-37.206628 31.371023-37.206628l282.227699 0 0 74.338917L726.393437 94.782119"
+                    p-id="3591" fill="#2c2c2c"></path>
+                <path d="M79.403256 1024 5.064339 1024 5.064339 20.443202 79.403256 20.443202 79.403256 1024Z" p-id="3592"
+                    fill="#2c2c2c"></path>
+                <path d="M1008.639721 949.661083 1008.639721 1024 5.064339 1024 5.064339 949.661083 1008.639721 949.661083Z"
+                    p-id="3593" fill="#2c2c2c"></path>
+                <path
+                    d="M947.941995 28.564729c12.210167-12.265921 33.935716-10.426033 48.431805 4.107225 14.551843 14.477504 16.391731 36.221637 4.107225 48.431805L288.425706 793.214831c-12.265921 12.321676-33.9543 10.481787-48.506143-4.12581-14.533258-14.458919-16.373147-36.221637-4.107225-48.394635L947.941995 28.564729"
+                    p-id="3594" fill="#2c2c2c"></path>
+            </svg>`; /* 新标签页打开的按钮 */
+				let icon_close = `<svg t="1660459530654"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="5064"
+                width="17"
+                height="17">
+               <path d="M579.392 511.296l429.376 428.544a48.128 48.128 0 0 1-34.176 82.304c-12.8 0-25.088-5.12-34.112-14.208L511.168 579.392 81.792 1008a48.32 48.32 0 0 1-67.648-0.576 48.128 48.128 0 0 1-0.64-67.52L442.88 511.296 13.568 82.752A48.128 48.128 0 0 1 14.08 15.168 48.32 48.32 0 0 1 81.792 14.592l429.376 428.544L940.48 14.592a48.32 48.32 0 0 1 67.648 0.64c18.624 18.56 18.88 48.64 0.64 67.52L579.392 511.296z"
+                     fill="#2c2c2c"
+                     p-id="5065"></path>
+           </svg>`; /* 关闭的按钮 */
+				let icon_picture_html =
+					imagesList.length !== 0
+						? `
+				<div class="xtiper_tit_right_picture">
+					<i class="comiis_font" style="font-size: 22px;"></i>
+				</div>`
+						: ""; /* 图片按钮 */
+				let showWebsiteSafeIcon = isHTTPS ? icon_safe : icon_unsafe;
+				let websiteTitle = `
+					<div class="xtiper_sheet_tit_top_drag"><div></div></div>
+					<div style="display:flex;justify-content: space-between;">
+							<img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" class="xtiper_tit_ico">
+							<div class="xtiper_tit_content">
+									<p>${title}</p>
+									<div class="xtiper_tit_svg_lock">
+											${showWebsiteSafeIcon}
+											<p>${constructURL.host}</p>
+									</div>
+							</div>
+							<div class="xtiper_tit_right">
+									${icon_picture_html}
+									<div class="xtiper_tit_right_windowopen">
+											${icon_openBlank}
+									</div>
+									<div class="xtiper_tit_right_windowclose">
+											${icon_close}
+									</div>
+							</div>
+					</div>`;
+
+				let smallWindowIframeId = xtip.open({
+					type: "url",
+					content: url,
+					title: websiteTitle,
+					height: "92%",
+					app: true,
+					success: (e) => {
+						banBack();
+					},
+					end: () => {
+						console.log("点击其它区域关闭小窗");
+						resumeBack();
+					},
+				});
+
+				if (typeof top.window.tampermonkeyByMT != "undefined") {
+					console.log("当前执行为非油猴调用");
+					let iframe_id = smallWindowIframeId + "_id";
+					document.getElementById(iframe_id).onload = () => {
+						console.log(`子窗口: ${iframe_id}加载完毕`);
+						let scriptNode = document.createElement("script");
+						scriptNode.innerHTML = top.window.tampermonkeyByMT;
+						document
+							.getElementById(iframe_id)
+							.contentWindow.document.head.append(scriptNode);
+					};
+				}
+				smallWindowId = smallWindowIframeId;
+
+				console.log(smallWindowId);
+				let dragNode = new AnyTouch(
+					document.getElementById(smallWindowIframeId)
+				);
+				let smallWidowNode = document
+					.getElementById(smallWindowIframeId)
+					.querySelector("div.xtiper_sheet");
+				let smallWidowNormalHeight = parseInt(
+					smallWidowNode.style["height"]
+				); /* 小窗原始高度 */
+				console.log("小窗原始高度", smallWidowNormalHeight);
+				dragNode.on("pan", (e) => {
+					if (e.phase == "move" && e.displacementY > 0) {
+						/* 当前为向下移动 */
+						smallWidowNode.style["transition"] = "none";
+						smallWidowNode.style["height"] =
+							Math.abs(smallWidowNormalHeight - e.distanceY) + "px";
+					}
+					if (e.isEnd) {
+						/* 当前为停止移动，松开手指，判断在哪个区域，一半以上回归上面，一般以下，关闭 */
+						smallWidowNode.style["transition"] = "0.2s ease-in";
+						if (
+							parseInt(smallWidowNode.style["height"]) >
+							window.innerHeight / 2
+						) {
+							smallWidowNode.style["height"] = smallWidowNormalHeight + "px";
+						} else {
+							resumeBack();
+						}
+					}
+				});
+				dragNode.on("tap", (e) => {
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_bg")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						/* 点击背景关闭小窗 */
+						console.log("点击背景关闭小窗");
+						resumeBack();
+						dragNode.off("tap");
+						dragNode.off("pan");
+						return;
+					}
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_tit_content")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						GM_setClipboard(`『${title}』 - ${url}`);
+						xtips.toast("已复制链接", {
+							icon: "success",
+							pos: "bottom",
+						});
+						return;
+					}
+					if (
+						document
+							.querySelector("#" + smallWindowId)
+							.querySelector(".xtiper_tit_right_picture") &&
+						document
+							.querySelector("#" + smallWindowId)
+							.querySelector(".xtiper_tit_right_picture i")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						/* 点击查看图片 */
+						console.log("点击查看图片", imagesList);
+						var viewerULNodeHTML = "";
+						imagesList.forEach((item) => {
+							viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+						});
+						var viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
+						let viewer = new Viewer(viewerULNode, {
+							inline: false,
+							url: "data-src",
+							zIndex: Utils.getMaxZIndex() + 100,
+							hidden: () => {
+								viewer.destroy();
+							},
+						});
+						viewer.zoomTo(1);
+						viewer.show();
+					}
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_tit_right_windowopen svg")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						/* 点击 新标签页打开 */
+						window.open(url, "_blank");
+						return;
+					}
+					if (
+						document
+							.getElementById(smallWindowIframeId)
+							.querySelector(".xtiper_tit_right_windowclose svg")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						/* 点击 关闭小窗 */
+						console.log("点击 关闭小窗");
+						resumeBack();
+						dragNode.off("tap");
+						dragNode.off("pan");
+						return;
+					}
+					if (
+						document
+							.querySelector(".xtiper_tit_ico")
+							.outerHTML.indexOf(e.target.outerHTML) != -1
+					) {
+						/* 点击 刷新iframe */
+						console.log("点击 刷新iframe");
+						document
+							.querySelector("#" + smallWindowIframeId)
+							?.querySelector("iframe")
+							?.contentWindow?.location?.reload();
+					}
+				});
+			}
+			async function main() {
+				$jq.each(formlist, function (index, value) {
+					value = $jq(value);
+					if (value.attr("data-injection-small-window")) {
+						return;
+					}
+
+					let title = value.find(".mmlist_li_box a").text(); /* 帖子标题 */
+					let url = value.find(".mmlist_li_box a").attr("href"); /* 帖子地址 */
+					var imagesList = []; /* 帖子内图片列表 */
+					value.attr("data-injection-small-window", true);
+					value.attr("data-injection-small-window-url", url);
+					value.attr("data-injection-small-window-title", title);
+					value.find(".comiis_pyqlist_img img").each((imgIndex, ImgNode) => {
+						imagesList = [...imagesList, ImgNode.getAttribute("src")];
+					});
+					value.find(".comiis_pyqlist_imgs img").each((imgIndex, ImgNode) => {
+						imagesList = [...imagesList, ImgNode.getAttribute("src")];
+					});
+					value.find(".mmlist_li_box a").each((aIndex, aNode) => {
+						aNode.href = "javascript:;";
+					});
+					value.find(".mmlist_li_box").on("click", function (event) {
+						var mouseClickPosX = Number(
+							window.event.clientX
+						); /* 鼠标相对屏幕横坐标 */
+						if (document.body.offsetWidth / 2 > mouseClickPosX) {
+							window.location.href = url;
+						} else {
+							showSmallWindow(title, url, imagesList);
+						}
+					});
+				});
+			}
+		},
+		codeQuoteCopyBtn() {
+			/* 代码块复制按钮 */
+			if (
+				!GM_getValue("v46") &&
+				!window.location.href.match(MT_CONFIG.regexp.forumPost)
+			) {
+				return;
+			}
+			let comiis_blockcode = $jq(".comiis_blockcode.comiis_bodybg");
+			$jq.each(comiis_blockcode, (index, value) => {
+				if (!value.getAttribute("data-copy")) {
+					value.setAttribute("data-copy", true);
+					let tempDivNode = document.createElement("div");
+					tempDivNode.setAttribute("style", "height: 34px;margin: 14px 0px;");
+					let btnSpanNode = document.createElement("span");
+					btnSpanNode.className = "reader-copy-button";
+					btnSpanNode.setAttribute(
+						"style",
+						"background: #000;background-size: cover;background-repeat: no-repeat;background-position: 0;color: #fff;line-height: 40px;display: block;position: absolute;text-align: center;border-radius: 5px;cursor: pointer;right: auto!important;font-size: 15px;width: 70px;user-select: none;"
+					);
+					btnSpanNode.innerHTML = `
+                    <i style="display: inline-block;margin-right: 6px;width: 16px;height: 16px;background-size: cover;vertical-align: sub;user-select: none;">
+                    <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>复制按钮</title>
+                        <defs>
+                            <rect id="path-1" x="0" y="0" width="16" height="16"></rect>
+                        </defs>
+                        <g id="阅读页复制-拦截" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g>
+                                <mask id="mask-2" fill="white">
+                                    <use xlink:href="#path-1"></use>
+                                </mask>
+                                <g id="矩形"></g>
+                                <path d="M4.11794319,3.55555556 L9.51168644,3.55555556 C10.4768443,3.55555556 11.2592593,4.33797056 11.2592593,5.30312837 L11.2592593,13.067242 C11.2592593,14.0323998 10.4768443,14.8148148 9.51168644,14.8148148 L4.11794319,14.8148148 C3.15278537,14.8148148 2.37037037,14.0323998 2.37037037,13.067242 L2.37037037,5.30312837 C2.37037037,4.33797056 3.15278537,3.55555556 4.11794319,3.55555556 Z" id="矩形" stroke="#DFDFDF" stroke-width="1.45631068" mask="url(#mask-2)"></path>
+                                <path d="M5.03703704,0.888888889 L12.1481481,0.888888889 C13.1299877,0.888888889 13.9259259,1.68482711 13.9259259,2.66666667 L13.9259259,12.7407407" id="形状" stroke="#DFDFDF" stroke-width="1.45631068" mask="url(#mask-2)"></path>
+                            </g>
+                        </g>
+                    </svg>
+                    </i>复制`;
+					tempDivNode.append(btnSpanNode);
+					tempDivNode.onclick = () => {
+						popup2.toast("已复制代码");
+						GM_setClipboard(value.outerText || value.innerText);
+					};
+					value.before(tempDivNode);
+				} else {
+					console.log("已创建复制按钮");
+				}
+			});
+		},
+		editorOptimizationOffDefaultBottomReplyBtnClickEvent() {
+			/* 取消绑定回复底部回复按钮的默认事件 */
+			$jq.each($jq(".comiis_postli_times .dialog[href*=reply]"), (i, v) => {
+				/* 把回复按钮的href改成JavaScript:; */
+				let href = v.getAttribute("href");
+				if (href != "javascript:;") {
+					v.setAttribute("class", "f_c dialog_reply");
+					v.setAttribute("datahref", href);
+					v.setAttribute("href", "javascript:;");
+				}
+			});
+		},
+		removeForumPostCommentFontStyle() {
+			/* 移除评论区字体效果 */
+			if (
+				GM_getValue("v3") &&
+				window.location.href.match(MT_CONFIG.regexp.forumPost)
+			) {
+				var hide = document.getElementsByTagName("font");
+				var postForumMain = document.querySelector(".comiis_ordertype")
+					? document.querySelector(".comiis_postlist.kqide .comiis_postli")
+							.innerHTML
+					: "";
+				for (let i = 0; i < hide.length; i++) {
+					if (postForumMain.indexOf(hide[i].innerHTML) == -1) {
+						console.log(hide[i].innerHTML);
+						hide[i].removeAttribute("color");
+						hide[i].removeAttribute("style");
+						hide[i].removeAttribute("size");
+					}
+				}
+				var content = document.getElementsByClassName(
+					"comiis_message bg_f view_all cl message"
+				);
+				for (let i = 0; i < content.length; i++) {
+					if (postForumMain.indexOf(content[i].innerHTML) == -1) {
+						content[i].innerHTML = content[i].innerHTML.replace(
+							MT_CONFIG.regexp.fontSpecial,
+							""
+						);
+						if (content[i].nextElementSibling.localName === "strike") {
+							console.log("影响后面出现下划线的罪魁祸首", content[i]);
+							content[i].nextElementSibling.outerHTML = content[
+								i
+							].nextElementSibling.outerHTML
+								.replace(/^<strike>(\n|)/g, "")
+								.replace(/<\/strike>$/g, "");
+						}
+					}
+				}
+				document
+					.querySelectorAll(".comiis_postli.comiis_list_readimgs.nfqsqi")
+					.forEach((item) => {
+						if (item.parentElement.localName === "strike") {
+							try {
+								item.parentElement.outerHTML = item.parentElement.outerHTML
+									.replace(/^<strike>(\n|)/g, "")
+									.replace(/<\/strike>$/g, "");
+							} catch (error) {}
+						}
+					});
+			}
+		},
+		imageViewingOptimizationInThePost() {
+			/* 贴内图片查看优化 */
+			if (
+				!GM_getValue("v55", false) ||
+				!window.location.href.match(MT_CONFIG.regexp.forumPost)
+			) {
+				return;
+			}
+			function viewIMG(imgList = []) {
+				/* 查看图片 */
+				let viewerULNodeHTML = "";
+				imgList.forEach((item) => {
+					viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+				});
+				let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
+				let viewer = new Viewer(viewerULNode, {
+					inline: false,
+					url: "data-src",
+					zIndex: Utils.getMaxZIndex() + 100,
+					hidden: () => {
+						viewer.destroy();
+					},
+				});
+				viewer.zoomTo(1);
+				viewer.show();
+			}
+			Utils.waitNode("div.comiis_postlist.kqide .comiis_postli").then(
+				(nodeList) => {
+					nodeList.forEach((item) => {
+						if (item.getAttribute("isHandlingViewIMG")) {
+							/* 已处理过 */
+							return;
+						}
+						let clickShowIMGList = []; /* 点击显示的图片组 */
+						item.querySelectorAll("img").forEach((_item_) => {
+							let IMG_URL = _item_.src; /* 图片链接 */
+							let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname; /* 主机名 */
+							let imgParentNode = _item_.parentElement; /* img标签的父元素 */
+							if (imgParentNode.nodeName.toLowerCase() === "span") {
+								clickShowIMGList = [...clickShowIMGList, IMG_URL];
+								imgParentNode.removeAttribute("onclick");
+								$jq(imgParentNode).on("click", function () {
+									viewIMG(clickShowIMGList);
+								});
+								return;
+							}
+							if (
+								IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
+								IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1
+							) {
+								return;
+							}
+							clickShowIMGList = [...clickShowIMGList, IMG_URL];
+							$jq(_item_).on("click", function () {
+								viewIMG(clickShowIMGList);
+							});
+						});
+						item.setAttribute("isHandlingViewIMG", true);
+					});
+				}
+			);
+		},
+	};
 	const mobile = {
+		main() {
+			/* 手机版按顺序加载的函数 */
+			/* 禁止自动执行的函数(这些函数在其它地方调用) */
+			const notRunFunc = [
+				"main",
+				"loadSettingView",
+				"editorChartBed",
+				"editorOptimizationOffDefaultBottomReplyBtnClickEvent",
+				"previewPostForum",
+				"selectPostingSection",
+			];
+			Object.keys(mobile).forEach((key) => {
+				if (
+					typeof mobile[key] !== "function" ||
+					notRunFunc.indexOf(key) != -1
+				) {
+					return;
+				}
+				if (key === "loadNextComments") {
+					Utils.tryCatch(
+						mobile[key],
+						"",
+						'$jq("#loading-comment-tip").text("加载评论失败")'
+					);
+					return;
+				}
+				if (key === "loadPrevComments") {
+					Utils.tryCatch(
+						mobile[key],
+						"",
+						'$jq("#loading-comment-tip-prev").text("加载评论失败")'
+					);
+					return;
+				}
+				Utils.tryCatch(mobile[key]);
+				mobileRepeatFunc.main();
+			});
+			unsafeWindow.popup2 = popup2;
+			popup2.init();
+		},
 		autoExpendFullTextByForumPost() {
 			/* 自动展开帖子内容 */
 			if (
@@ -1287,8 +2451,8 @@
 				signIn(formhash);
 			}
 		},
-		blackHome: {
-			showBlackHomeView: async () => {
+		blackHome() {
+			async function showBlackHomeView() {
 				/* 显示小黑屋界面 */
 				if (typeof $jq.NZ_MsgBox == "undefined") {
 					popup2.toast("加载NZMsgBox.js中");
@@ -1337,9 +2501,9 @@
 					});
 					$jq("#blackhomeselect").val(GM_getValue("blackHomeListNums", 1));
 				});
-				let blackListJSON = await mobile.blackHome.getMoreBlackList();
+				let blackListJSON = await getMoreBlackList();
 				if (blackListJSON == null) {
-					$jq(".msgcon").html("获取小黑屋名单失败,请关闭并重新打开");
+					$jq(".msgcon").html("<center>获取小黑屋名单失败</center>");
 					return;
 				}
 
@@ -1508,8 +2672,8 @@
 				$jq(".msgcon").html(mainBlackContent);
 				$jq(".NZ-MsgBox-alert.NZ-MsgBox--motion").css("top", "100px");
 				$jq(".msgcon").css("height", "400px");
-			},
-			insertMobileBlackHomeButton: async function () {
+			}
+			async function insertMobileBlackHomeButton() {
 				/* 插入手机版查看小黑屋的按钮 */
 				if (
 					window.location.href.match(MT_CONFIG.regexp.bbs) != null &&
@@ -1526,33 +2690,33 @@
                         </div>
                         <div class="flex">小黑屋</div>`;
 					GM_addStyle(`
-                    .NZ-MsgBox-alert .msgcontainer .msgtitle {
-                        text-align: center !important;
-                    }
-                    #autolist .k_misign_lu img {
-                        width: 40px;
-                        height: 40px;
-                        -moz-border-radius: 20px;
-                        -webkit-border-radius: 20px;
-                        border-radius: 20px;
-                    }
-                    .k_misign_lc .f_c{
-                        margin: 5px 0px;
-                    }
-                    tbody#autolist,
-                    tbody#autolist tr {
-                        width: auto;
-                    }`);
+						.NZ-MsgBox-alert .msgcontainer .msgtitle {
+								text-align: center !important;
+						}
+						#autolist .k_misign_lu img {
+								width: 40px;
+								height: 40px;
+								-moz-border-radius: 20px;
+								-webkit-border-radius: 20px;
+								border-radius: 20px;
+						}
+						.k_misign_lc .f_c{
+								margin: 5px 0px;
+						}
+						tbody#autolist,
+						tbody#autolist tr {
+								width: auto;
+						}`);
 					black_home_ele.onclick = () => {
-						mobile.blackHome.showBlackHomeView();
+						showBlackHomeView();
 					};
 					comiis_left_Touch.append(black_home_ele);
 					$jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
 						comiis_left_Touch
 					);
 				}
-			},
-			getBlackList: async function (cid = "") {
+			}
+			async function getBlackList(cid = "") {
 				/* 获取黑名单列表 */
 				return new Promise((res) => {
 					GM_xmlhttpRequest({
@@ -1572,18 +2736,17 @@
 						onerror: (r) => {
 							console.log(r);
 							popup2.toast("网络异常,请重新获取");
-							res();
+							res("");
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时,请重新获取");
-							res();
+							res("");
 						},
 					});
 				});
-			},
-			getMoreBlackList: function () {
+			}
+			function getMoreBlackList() {
 				/* 获取多个小黑屋名单列表 */
-				const _this_ = this;
 				return new Promise(async (resolve) => {
 					let cid = "";
 					let resultData = [];
@@ -1592,7 +2755,10 @@
 						index < GM_getValue("blackHomeListNums", 1);
 						index++
 					) {
-						let result = await _this_.getBlackList(cid);
+						let result = await getBlackList(cid);
+						if (result == null || result == "") {
+							resolve();
+						}
 						let parseResult = Utils.jsonStrToObject(result);
 						let message = parseResult["message"];
 						let data = parseResult["data"];
@@ -1603,86 +2769,393 @@
 					}
 					resolve(resultData);
 				});
-			},
+			}
+			insertMobileBlackHomeButton();
 		},
 		blacklistShieldUsersOrBlocks() {
 			/* 黑名单-屏蔽用户或板块 */
 			if (!window.location.href.match(MT_CONFIG.regexp.homeSpaceUrl)) {
 				return;
 			}
-			var white_space_ele = document.createElement("div");
-			var black_list_ele = document.createElement("div");
-			white_space_ele.className = "styli_h cl";
-			black_list_ele.setAttribute("id", "blacklistallmain");
-			black_list_ele.className = "comiis_myinfo_list bg_f cl";
-			black_list_ele.innerHTML = `<li class="comiis_styli b_b cl">
-                                                <textarea name="blacklistuid" id="blacklistuid" placeholder="输入想要屏蔽的用户的uid，多个uid用英文逗号分隔，如1234,5678,9231"></textarea>
-                                                <textarea name="blacklistplate" id="blacklistplate" placeholder="输入想要屏蔽的板块，多个板块用顿号分隔，如求助问答、休闲灌水"></textarea>
-                                                <a href="javascript:void(0)" id="blacklistsave" class="comiis_flex comiis_styli bg_f b_t cl">
-                                                    <div class="flex">保存</div>
-                                                </a>
-                                            </li>`;
+			const blackListCSS = `
+			#shieldUser .styli_tit i,
+			#shieldPlate .styli_tit i{
+				color: #ff0019 !important;
+			}
+			.popup2-popmenu input[placeholder='请输入需要屏蔽的用户'],
+			.popup2-popmenu input[placeholder='请输入需要屏蔽的板块'],
+			.popup2-popmenu input[placeholder='备注']{
+				border: 0px;
+				border-bottom: 1px solid #000;
+				font-size: 16px;
+				width: 100%;
+				outline: 0;
+				padding-top: 22px;
+			}
+			.NZ-MsgBox-alert .msgcontainer .msgcon{
+				max-height: 400px !important;
+			}
+			.NZ-MsgBox-alert .msgdivflex{
+				display: flex;
+    		align-items: center;
+				margin: 16px 10px;
+				width:100%;
+			}
+			.NZ-MsgBox-alert .msgdivflex a{
+				margin-right: 10px;
+			}
+			.NZ-MsgBox-alert .msgdivflex p[data-remark]:before{
+				content:"备注：";
+				font-weight: bold;
+			}
+			.NZ-MsgBox-alert .msgdivflex p[data-uid]:before{
+				content:"UID：";
+				font-weight: bold;
+    		margin-right: 1.64px;
+			}
+			.NZ-MsgBox-alert .msgdivmain{
+				display: flex;
+    		align-items: center;
+			}
+			.NZ-MsgBox-alert .msgdivmain i.comiis_font{
+				font-size: 24px;
+				padding: 0px 6px;
+			}
+			`;
+			const blankLinesHTML = '<div class="styli_h cl"></div>';
+			const shieldUserOrPlateHTML = `
+			<div id="blackList" class="comiis_myinfo_list bg_f cl">
+				<a href="javascript:;" id="shieldUser" class="comiis_flex comiis_styli bg_f b_t cl">
+					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
+					<div class="flex">屏蔽用户</div>
+					<div class="styli_ico">
+						<i class="comiis_font f_e"></i>
+					</div>
+				</a>
+				<a href="javascript:;" id="shieldPlate" class="comiis_flex comiis_styli bg_f b_t cl">
+					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
+					<div class="flex">屏蔽板块</div>
+					<div class="styli_ico">
+						<i class="comiis_font f_e"></i>
+					</div>
+				</a>
+			</div>
+			`;
+			function setShieldViewData(alertTitle, storageKey) {
+				/* 页面加载数据 */
+				let shieldList = GM_getValue(storageKey, []);
+				console.log(shieldList);
+				if (shieldList.length === 0) {
+					$jq(".NZ-MsgBox-alert .msgcon").html("<center>暂无数据</center>");
+					return;
+				}
+				let shieldHTML = "";
+				if (alertTitle.indexOf("用户") != -1) {
+					/* 显示的屏蔽的用户 */
+					shieldList.forEach((item) => {
+						shieldHTML += `
+						<div class="msgdivmain" data="shieldUser">
+							<div class="msgdivflex">
+								<a href="home.php?mod=space&uid=${item["uid"]}&do=profile">
+									<img src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${item["uid"]}&size=small">
+								</a>
+								<div>
+									<p data-uid>${item["uid"]}</p>
+									<p data-remark>${item["remark"]}</p>
+								</div>
+							</div>
+							<i class="comiis_font f14 z" data-flag="edit" data-uid="${item["uid"]}"></i>
+							<i class="comiis_font" data-flag="delete" data-uid="${item["uid"]}"></i>
+						</div>
+				`;
+					});
+				} else {
+					/* 显示的屏蔽的板块 */
+					shieldList.forEach((item) => {
+						shieldHTML += `
+						<div class="msgdivmain" data="shieldPlate">
+							<div class="msgdivflex">
+								<a href="javascript:;">
+									${item}
+								</a>
+								<p></p>
+							</div>
+							<i class="comiis_font" data-name="${item}" data-flag='delete'></i>
+						</div>
+				`;
+					});
+				}
+
+				$jq(".NZ-MsgBox-alert .msgcon").html(
+					$jq("<li>" + shieldHTML + "</li>")
+				);
+			}
+			function setTitleClickEvent(text, callback) {
+				/* 设置点击标题事件 */
+				$jq(".NZ-MsgBox-alert .msgtitle").on("click", function () {
+					popup2.confirm({
+						text: text,
+						ok: {
+							callback: () => {
+								callback();
+							},
+						},
+					});
+				});
+			}
+			function setClickEvent() {
+				/* 设置点击事件 */
+				$jq(document).on("click", "#shieldUser", function () {
+					var storageKeyUser = "shieldUser"; /* 本地存储键值 */
+					$jq.NZ_MsgBox.alert({
+						title: "屏蔽用户",
+						content: "<center>检索中...</center>",
+						type: "",
+						location: "center",
+						buttons: {
+							confirm: {
+								text: "确定",
+							},
+						},
+					});
+					setShieldViewData("屏蔽用户", storageKeyUser);
+					const inputHTML = `
+					<input name="text" placeholder="请输入需要屏蔽的用户" autofocus>
+					<input name="text" placeholder="备注">`;
+					setTitleClickEvent(inputHTML, () => {
+						let userInputUID = $jq(
+							".popup2-popmenu input[placeholder='请输入需要屏蔽的用户']"
+						)
+							.val()
+							.trim();
+						let userInputRemark = $jq(
+							".popup2-popmenu input[placeholder='备注']"
+						).val();
+						let storageValue = {
+							uid: userInputUID,
+							remark: userInputRemark,
+						};
+						if (storageValue.uid == "") {
+							popup2.toast("请输入需要屏蔽的用户的UID");
+							return;
+						}
+						let storageData = GM_getValue(storageKeyUser, []).filter((item) => {
+							return item["uid"].toString() === storageValue.uid ? true : false;
+						});
+						if (storageData.length != 0) {
+							popup2.toast("已添加过该用户");
+							return;
+						}
+						console.log("添加", storageValue);
+						GM_setValue(storageKeyUser, [
+							...GM_getValue(storageKeyUser, []),
+							storageValue,
+						]);
+
+						popup2.closeMask();
+						popup2.closeConfirm();
+						popup2.toast("添加成功");
+						setShieldViewData("屏蔽用户", storageKeyUser);
+					});
+					$jq(document).on(
+						"click",
+						".NZ-MsgBox-alert .msgdivmain[data='shieldUser'] i.comiis_font[data-flag='edit']",
+						function () {
+							let uid = this.getAttribute("data-uid").toString();
+							let storageItem = GM_getValue(storageKeyUser, []);
+							let storageData = storageItem.filter((item) => {
+								return item["uid"].toString() === uid ? true : false;
+							})[0];
+
+							let remark = storageData["remark"];
+							popup2.confirm({
+								text: `<input name="text" placeholder="请输入需要屏蔽的用户" autofocus>
+								<input name="text" placeholder="备注">`,
+								ok: {
+									callback: () => {
+										let userInputUID = $jq(
+											".popup2-popmenu input[placeholder='请输入需要屏蔽的用户']"
+										).val();
+										let userInputRemark = $jq(
+											".popup2-popmenu input[placeholder='备注']"
+										).val();
+										if (userInputUID == "") {
+											popup2.toast("请输入需要屏蔽的用户的UID");
+											return;
+										}
+										storageData.uid = userInputUID.trim();
+										storageData.remark = userInputRemark;
+										console.log("修改", storageData);
+										storageItem.forEach((item, index) => {
+											if (item["uid"].toString() === userInputUID.toString()) {
+												item = storageData;
+												return;
+											}
+										});
+										GM_setValue(storageKeyUser, storageItem);
+
+										popup2.closeMask();
+										popup2.closeConfirm();
+										popup2.toast("修改成功");
+										setShieldViewData("屏蔽用户", storageKeyUser);
+									},
+									text: "修改",
+								},
+							});
+							$jq(
+								".popup2-popmenu input[placeholder='请输入需要屏蔽的用户']"
+							).val(uid);
+							console.log(remark);
+							$jq(".popup2-popmenu input[placeholder='备注']").val(remark);
+						}
+					);
+					$jq(document).on(
+						"click",
+						".NZ-MsgBox-alert .msgdivmain[data='shieldUser'] i.comiis_font[data-flag='delete']",
+						function () {
+							let parentNode = this.parentElement;
+							let uid = this.getAttribute("data-uid").toString();
+							popup2.confirm({
+								text: "确定删除该条数据？",
+								ok: {
+									callback: () => {
+										let storageItem = GM_getValue(storageKeyUser, []);
+										storageItem.forEach((item, index) => {
+											if (item["uid"].toString() === uid) {
+												console.log("找到");
+												storageItem.splice(index, 1);
+												return;
+											}
+										});
+										console.log("删除", uid);
+										GM_setValue(storageKeyUser, storageItem);
+										parentNode.remove();
+										popup2.closeMask();
+										popup2.closeConfirm();
+										popup2.toast("删除成功");
+									},
+								},
+							});
+						}
+					);
+					$jq(
+						".popup2-popmenu input[placeholder='请输入需要屏蔽的用户']"
+					).focus();
+				});
+
+				$jq(document).on("click", "#shieldPlate", function () {
+					var storageKeyPlate = "shieldPlate"; /* 本地存储键值 */
+					$jq.NZ_MsgBox.alert({
+						title: "屏蔽板块",
+						content: "<center>检索中...</center>",
+						type: "",
+						location: "center",
+						buttons: {
+							confirm: {
+								text: "确定",
+							},
+						},
+					});
+					setShieldViewData("屏蔽板块", storageKeyPlate);
+					const inputHTML = `
+					<input name="text" placeholder="请输入需要屏蔽的板块" autofocus>`;
+					setTitleClickEvent(inputHTML, () => {
+						let storageValue = $jq(
+							".popup2-popmenu input[placeholder='请输入需要屏蔽的板块']"
+						)
+							.val()
+							.trim();
+						if (storageValue == "") {
+							popup2.toast("不能为空");
+							return;
+						}
+						console.log("添加", storageValue);
+						GM_setValue(storageKeyPlate, [
+							...GM_getValue(storageKeyPlate, []),
+							storageValue,
+						]);
+						popup2.closeMask();
+						popup2.closeConfirm();
+						popup2.toast("添加成功");
+						setShieldViewData("屏蔽板块", storageKeyPlate);
+					});
+					$jq(document).on(
+						"click",
+						".NZ-MsgBox-alert .msgdivmain[data='shieldPlate'] i.comiis_font[data-flag='delete']",
+						function () {
+							let parentNode = this.parentElement;
+							let name = this.getAttribute("data-name").toString();
+							popup2.confirm({
+								text: "确定删除该条数据？",
+								ok: {
+									callback: () => {
+										let storageItem = GM_getValue(storageKeyPlate, []);
+										storageItem.forEach((item, index) => {
+											if (item.toString() === name) {
+												console.log("找到");
+												storageItem.splice(index, 1);
+												return;
+											}
+										});
+										console.log("删除", name);
+										GM_setValue(storageKeyPlate, storageItem);
+										parentNode.remove();
+										popup2.closeMask();
+										popup2.closeConfirm();
+										popup2.toast("删除成功");
+									},
+								},
+							});
+						}
+					);
+					$jq(
+						".popup2-popmenu input[placeholder='请输入需要屏蔽的板块']"
+					).focus();
+				});
+			}
+			GM_addStyle(blackListCSS);
+			$jq(".comiis_myinfo").append($jq(blankLinesHTML));
+			$jq(".comiis_myinfo").append($jq(shieldUserOrPlateHTML));
+			$jq(".comiis_myinfo").append($jq(blankLinesHTML));
+			setClickEvent();
 			GM_addStyle(`
-                #blacklistallmain{
-                    height: 232px;
-                }
-                #blacklistallmain li.comiis_styli{
-                    height: 180px;
-                }
-                #blacklistallmain #blacklistuid{
-                    width: 90%; 
-                    resize: none; 
-                    opacity: 0.7; 
-                    height: 70% !important; 
-                    line-height: inherit;
-                    -webkit-appearance: none;
-                    border: none !important;
-                    font-size: 14px;
-                    vertical-align: middle;
-                    background-color: transparent;
-                    border-bottom: 3px solid #efefef !important;
-                }
-                #blacklistallmain #blacklistplate{
-                    width: 90%; 
-                    resize: none; 
-                    opacity: 0.7; 
-                    height: 30% !important;
-                    line-height: inherit;
-                    -webkit-appearance: none;
-                    border: none !important;
-                    font-size: 14px;
-                    vertical-align: middle;
-                    background-color: transparent;
-                }
-                #blacklistsave{
-                    text-align: center;
-                    background: transparent !important;
-                    border-color: transparent !important;
-                }
-                `);
-			let mt_commis_menu =
-				document.getElementsByClassName("comiis_myinfo cl")[0];
-			mt_commis_menu.appendChild(white_space_ele);
-			mt_commis_menu.appendChild(black_list_ele);
-			mt_commis_menu.appendChild(white_space_ele);
-			document.getElementById("blacklistuid").textContent = GM_getValue(
-				"blacklistuid"
-			)
-				? GM_getValue("blacklistuid")
-				: "";
-			document.getElementById("blacklistplate").textContent = GM_getValue(
-				"blacklistplate"
-			)
-				? GM_getValue("blacklistplate")
-				: "";
-			document.getElementById("blacklistsave").onclick = () => {
-				let blackListUIDValue = document.getElementById("blacklistuid").value;
-				let blackListPlateValue =
-					document.getElementById("blacklistplate").value;
-				GM_setValue("blacklistuid", blackListUIDValue);
-				GM_setValue("blacklistplate", blackListPlateValue);
-				popup2.toast("保存成功");
-			};
+				#blacklistallmain{
+						height: 232px;
+				}
+				#blacklistallmain li.comiis_styli{
+						height: 180px;
+				}
+				#blacklistallmain #blacklistuid{
+						width: 90%; 
+						resize: none; 
+						opacity: 0.7; 
+						height: 70% !important; 
+						line-height: inherit;
+						-webkit-appearance: none;
+						border: none !important;
+						font-size: 14px;
+						vertical-align: middle;
+						background-color: transparent;
+						border-bottom: 3px solid #efefef !important;
+				}
+				#blacklistallmain #blacklistplate{
+						width: 90%; 
+						resize: none; 
+						opacity: 0.7; 
+						height: 30% !important;
+						line-height: inherit;
+						-webkit-appearance: none;
+						border: none !important;
+						font-size: 14px;
+						vertical-align: middle;
+						background-color: transparent;
+				}
+				#blacklistsave{
+						text-align: center;
+						background: transparent !important;
+						border-color: transparent !important;
+				}
+				`);
 		},
 		chartBed: {
 			ret_code: {
@@ -1819,7 +3292,6 @@
 						method: "POST",
 						data: form,
 						async: false,
-
 						responseType: "json",
 						headers: {
 							Accept: "application/json",
@@ -7254,6 +8726,68 @@
 			setTimeout(clearlinkE, 1500);
 			setTimeout(linkMixInit, 100);
 		},
+		imageViewingOptimizationInThePost() {
+			/* 贴内图片查看优化 */
+			if (
+				!GM_getValue("v55", false) ||
+				!window.location.href.match(MT_CONFIG.regexp.forumPost)
+			) {
+				return;
+			}
+			function viewIMG(imgList = []) {
+				/* 查看图片 */
+				let viewerULNodeHTML = "";
+				imgList.forEach((item) => {
+					viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+				});
+				let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
+				let viewer = new Viewer(viewerULNode, {
+					inline: false,
+					url: "data-src",
+					zIndex: Utils.getMaxZIndex() + 100,
+					hidden: () => {
+						viewer.destroy();
+					},
+				});
+				viewer.zoomTo(1);
+				viewer.show();
+			}
+			Utils.waitNode("div.comiis_postlist.kqide .comiis_postli").then(
+				(nodeList) => {
+					nodeList.forEach((item) => {
+						if (item.getAttribute("isHandlingViewIMG")) {
+							/* 已处理过 */
+							return;
+						}
+						let clickShowIMGList = []; /* 点击显示的图片组 */
+						item.querySelectorAll("img").forEach((_item_) => {
+							let IMG_URL = _item_.src; /* 图片链接 */
+							let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname; /* 主机名 */
+							let imgParentNode = _item_.parentElement; /* img标签的父元素 */
+							if (imgParentNode.nodeName.toLowerCase() === "span") {
+								clickShowIMGList = [...clickShowIMGList, IMG_URL];
+								imgParentNode.removeAttribute("onclick");
+								$jq(imgParentNode).on("click", function () {
+									viewIMG(clickShowIMGList);
+								});
+								return;
+							}
+							if (
+								IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
+								IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1
+							) {
+								return;
+							}
+							clickShowIMGList = [...clickShowIMGList, IMG_URL];
+							$jq(_item_).on("click", function () {
+								viewIMG(clickShowIMGList);
+							});
+						});
+						item.setAttribute("isHandlingViewIMG", true);
+					});
+				}
+			);
+		},
 		lanzouFunction() {
 			/* 蓝奏功能(登录、上传、查看历史上传、删除) */
 			if (
@@ -7843,8 +9377,8 @@
                     <div class="flex">蓝奏云</div>`;
 				ANode.onclick = () => {
 					if (!lanZouViewShowLock) {
-						showView();
 						lanZouViewShowLock = true;
+						showView();
 					} else {
 						console.log("重复点击");
 					}
@@ -7910,7 +9444,7 @@
 								$jq(window).off("scroll", scroll_loadNextComments);
 							}
 							kqideSourceNode.append(postDOM);
-							mobile.needRepeatLoadingJSResource();
+							mobileRepeatFunc.main();
 							res();
 						});
 					});
@@ -8004,7 +9538,6 @@
 									"#loading-comment-tip-prev"
 								)[0].parentElement.style.display = "none";
 								kqideSourceNode.prepend(postDOM);
-								mobile.needRepeatLoadingJSResource();
 							} else {
 								kqideSourceNode.prepend(postDOM);
 								let newURL = new URL(prev_page_url);
@@ -8020,7 +9553,7 @@
 								let page_title = postlist.find(".comiis_viewtit")[0].outerHTML;
 								console.log($jq(page_title));
 								kqideSourceNode.prepend($jq(page_title)[0]);
-								mobile.needRepeatLoadingJSResource();
+
 								/* $jq(".comiis_page.bg_f").remove(); */
 								$jq("#loading-comment-tip-prev").remove();
 								$jq("#loading-comment-tip-prev").off(
@@ -8029,6 +9562,7 @@
 								);
 								$jq(window).off("scroll");
 							}
+							mobileRepeatFunc.main();
 							res();
 						});
 					});
@@ -8072,66 +9606,7 @@
 				}
 			}
 		},
-		main() {
-			/* 手机版按顺序加载的函数 */
-			Utils.tryCatch(mobile.commentsAddReviews);
-			Utils.tryCatch(mobile.recoveryIMGWidth);
-			Utils.tryCatch(mobile.identifyLinks);
-			Utils.tryCatch(mobile.showUserUID);
-			Utils.tryCatch(mobile.removeForumPostFontStyle);
-			Utils.tryCatch(mobile.removeForumPostCommentFontStyle);
-			Utils.tryCatch(mobile.autoSignIn);
-			Utils.tryCatch(mobile.autoExpendFullTextByForumPost);
-			Utils.tryCatch(mobile.searchHistory);
-			Utils.tryCatch(
-				mobile.loadNextComments,
-				"",
-				'$jq("#loading-comment-tip").text("加载评论失败")'
-			);
-			Utils.tryCatch(
-				mobile.loadPrevComments,
-				"",
-				'$jq("#loading-comment-tip-prev").text("加载评论失败")'
-			);
-			Utils.tryCatch(mobile.repairClearSearchInput);
-			Utils.tryCatch(mobile.repairUnableToEnterOtherSpaceCorrectly);
-			Utils.tryCatch(mobile.chatChartBed);
-			Utils.tryCatch(mobile.pageSmallWindowBrowsingForumPost);
-			Utils.tryCatch(mobile.codeQuoteCopyBtn);
-			Utils.tryCatch(mobile.editorOptimization);
-			Utils.tryCatch(mobile.editorOptimizationFull);
-			Utils.tryCatch(mobile.shieldUser);
-			Utils.tryCatch(mobile.shieldPlate);
-			Utils.tryCatch(mobile.userCheckBoxSettings); /* 选项主要界面内容 */
-			Utils.tryCatch(mobile.blackHome.insertMobileBlackHomeButton);
-			Utils.tryCatch(mobile.lanzouFunction);
-			Utils.tryCatch(mobile.paymentSubjectReminder);
-			Utils.tryCatch(mobile.blacklistShieldUsersOrBlocks);
-			Utils.tryCatch(mobile.showTodayStar);
-			Utils.tryCatch(mobile.showSignInRanking);
-			Utils.tryCatch(mobile.setDynamicAvatar);
-			Utils.tryCatch(mobile.pageAfterDOMChangeRunFunction);
-			Utils.tryCatch(mobile.showSpaceContreteReply);
-			Utils.tryCatch(mobile.showLatestPostForm);
-			Utils.tryCatch(mobile.customCollection);
 
-			unsafeWindow.popup2 = popup2;
-			popup2.init();
-		},
-		needRepeatLoadingJSResource() {
-			/* 帖子内需要重复执行的js */
-			Utils.tryCatch(mobile.shieldUser);
-			Utils.tryCatch(mobile.commentsAddReviews);
-			Utils.tryCatch(mobile.identifyLinks);
-			Utils.tryCatch(mobile.showUserUID);
-			Utils.tryCatch(mobile.pageSmallWindowBrowsingForumPost);
-			Utils.tryCatch(mobile.codeQuoteCopyBtn);
-			Utils.tryCatch(
-				mobile.editorOptimizationOffDefaultBottomReplyBtnClickEvent
-			);
-			Utils.tryCatch(mobile.removeForumPostCommentFontStyle);
-			popup.init();
-		},
 		pageAfterDOMChangeRunFunction() {
 			/* 当本页面动态加载帖子需要重复加载的东西 */
 			if (
@@ -8145,8 +9620,8 @@
 			) {
 				function beforeHookRun() {
 					Utils.tryCatch(mobile.showUserUID);
-					Utils.tryCatch(mobile.shieldUser);
-					Utils.tryCatch(mobile.shieldPlate);
+					Utils.tryCatch(mobileRepeatFunc.shieldUser);
+					Utils.tryCatch(mobileRepeatFunc.shieldPlate);
 					Utils.tryCatch(mobile.pageSmallWindowBrowsingForumPost);
 					Utils.tryCatch(mobile.codeQuoteCopyBtn);
 				}
@@ -8164,11 +9639,9 @@
 		pageSmallWindowBrowsingForumPost() {
 			/* 页面小窗浏览帖子 */
 			if (
-				!GM_getValue("v45") &&
-				!(
-					window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
-					!window.location.href.match(MT_CONFIG.regexp.searchUrl)
-				)
+				!GM_getValue("v45", false) &&
+				(!window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
+					!window.location.href.match(MT_CONFIG.regexp.searchUrl))
 			) {
 				return;
 			}
@@ -8178,85 +9651,86 @@
 			let small_title_width =
 				"calc(100% - " + (small_icon_width + small_right_btn_width) + "px)";
 			GM_addStyle(`
-                .xtiper_sheet,
-                .xtiper_sheet .xtiper_sheet_tit{
-                    border-radius: 18px 18px 0px 0px;
-                }
-                /* title自定义美化 */
-                .xtiper_sheet_tit.xtiper_sheet_left{
-                    display: block;
-                    background: #fff;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left img.xtiper_tit_ico{
-                    background: #fff;
-                    filter: invert(100%);
-                    width: ${small_icon_width}px;
-                    height: ${small_icon_width}px;
-                    align-self: center;
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content{
-                    margin-left: 22px;
-                    width: ${small_title_width};
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content p{
-                    word-wrap: break-word;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content .xtiper_tit_svg_lock{
-                    display: flex;
-                    align-items: center;
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content .xtiper_tit_svg_lock svg{
-                    margin: 0px 6px 0px 2px;
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right {
-                    display: inline-flex;
-                    align-items: center;
-                    align-content: center;
-                    width: ${small_right_btn_width}px;
-                    justify-content: center;
-                }
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_picture,
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowopen,
-                .xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowclose{
-                    width: 100%;
-                    text-align: center;
-                    margin: 0px 0px;
-                    height: 100%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-    
-                }
-                /* 底部高度不对等问题*/
-                .xtiper_content.xtit{
-                    height: calc(100% - 80px); 
-                }
-                /* 底部消息距离底部30px*/
-                .xtiper.xtiper_msg.xtiper_msg_bottom.xtiper_msg_black.xon{
-                    margin-bottom: 30px;
-                }
-    
-                /* 标题顶部拖拽*/
-                .xtiper_sheet_tit_top_drag{
-                    width: 100%;
-                    position: relative;
-                    height: 10px;
-                }
-                .xtiper_sheet_tit_top_drag div{
-                    width: 50px;
-                    margin: 0 auto;
-                    height: 4px;
-                    background: #d9d9d9;
-                    border-radius: 15px;
-                    bottom: 3px;
-                    position: relative;
-                }
-            `);
+				.xtiper_sheet,
+				.xtiper_sheet .xtiper_sheet_tit{
+						border-radius: 18px 18px 0px 0px;
+				}
+				/* title自定义美化 */
+				.xtiper_sheet_tit.xtiper_sheet_left{
+						display: block;
+						background: #fff;
+						width: 100%;
+						box-sizing: border-box;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left img.xtiper_tit_ico{
+						background: #fff;
+						filter: invert(100%);
+						width: ${small_icon_width}px;
+						height: ${small_icon_width}px;
+						align-self: center;
+						border-radius: 3px;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content{
+						margin-left: 22px;
+						width: ${small_title_width};
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content p{
+						word-wrap: break-word;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content .xtiper_tit_svg_lock{
+						display: flex;
+						align-items: center;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_content .xtiper_tit_svg_lock svg{
+						margin: 0px 6px 0px 2px;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right {
+						display: inline-flex;
+						align-items: center;
+						align-content: center;
+						width: ${small_right_btn_width}px;
+						justify-content: center;
+				}
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_picture,
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowopen,
+				.xtiper_sheet_tit.xtiper_sheet_left .xtiper_tit_right_windowclose{
+						width: 100%;
+						text-align: center;
+						margin: 0px 0px;
+						height: 100%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+
+				}
+				/* 底部高度不对等问题*/
+				.xtiper_content.xtit{
+						height: calc(100% - 80px); 
+				}
+				/* 底部消息距离底部30px*/
+				.xtiper.xtiper_msg.xtiper_msg_bottom.xtiper_msg_black.xon{
+						margin-bottom: 30px;
+				}
+
+				/* 标题顶部拖拽*/
+				.xtiper_sheet_tit_top_drag{
+						width: 100%;
+						position: relative;
+						height: 10px;
+				}
+				.xtiper_sheet_tit_top_drag div{
+						width: 50px;
+						margin: 0 auto;
+						height: 4px;
+						background: #d9d9d9;
+						border-radius: 15px;
+						bottom: 3px;
+						position: relative;
+					}
+			`);
 
 			function getFormList() {
 				/* 获取当前页面所有帖子 */
@@ -8399,26 +9873,26 @@
 						: ""; /* 图片按钮 */
 				let showWebsiteSafeIcon = isHTTPS ? icon_safe : icon_unsafe;
 				let websiteTitle = `
-                    <div class="xtiper_sheet_tit_top_drag"><div></div></div>
-                    <div style="display:flex;justify-content: space-between;">
-                        <img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" class="xtiper_tit_ico">
-                        <div class="xtiper_tit_content">
-                            <p>${title}</p>
-                            <div class="xtiper_tit_svg_lock">
-                                ${showWebsiteSafeIcon}
-                                <p>${constructURL.host}</p>
-                            </div>
-                        </div>
-                        <div class="xtiper_tit_right">
-														${icon_picture_html}
-                            <div class="xtiper_tit_right_windowopen">
-                                ${icon_openBlank}
-                            </div>
-                            <div class="xtiper_tit_right_windowclose">
-                                ${icon_close}
-                            </div>
-                        </div>
-                    </div>`;
+					<div class="xtiper_sheet_tit_top_drag"><div></div></div>
+					<div style="display:flex;justify-content: space-between;">
+							<img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" class="xtiper_tit_ico">
+							<div class="xtiper_tit_content">
+									<p>${title}</p>
+									<div class="xtiper_tit_svg_lock">
+											${showWebsiteSafeIcon}
+											<p>${constructURL.host}</p>
+									</div>
+							</div>
+							<div class="xtiper_tit_right">
+									${icon_picture_html}
+									<div class="xtiper_tit_right_windowopen">
+											${icon_openBlank}
+									</div>
+									<div class="xtiper_tit_right_windowclose">
+											${icon_close}
+									</div>
+							</div>
+					</div>`;
 
 				let smallWindowIframeId = xtip.open({
 					type: "url",
@@ -8516,6 +9990,7 @@
 							.querySelector(".xtiper_tit_right_picture i")
 							.outerHTML.indexOf(e.target.outerHTML) != -1
 					) {
+						/* 点击查看图片 */
 						console.log("点击查看图片", imagesList);
 						var viewerULNodeHTML = "";
 						imagesList.forEach((item) => {
@@ -8539,6 +10014,7 @@
 							.querySelector(".xtiper_tit_right_windowopen svg")
 							.outerHTML.indexOf(e.target.outerHTML) != -1
 					) {
+						/* 点击 新标签页打开 */
 						window.open(url, "_blank");
 						return;
 					}
@@ -8548,11 +10024,20 @@
 							.querySelector(".xtiper_tit_right_windowclose svg")
 							.outerHTML.indexOf(e.target.outerHTML) != -1
 					) {
-						console.log("点击关闭按钮关闭小窗");
+						/* 点击 关闭小窗 */
+						console.log("点击 关闭小窗");
 						resumeBack();
 						dragNode.off("tap");
 						dragNode.off("pan");
 						return;
+					}
+					if (document.querySelector(".xtiper_tit_ico")) {
+						/* 点击 刷新iframe */
+						console.log("点击 刷新iframe");
+						document
+							.querySelector("#" + smallWindowIframeId)
+							?.querySelector("iframe")
+							?.contentWindow?.location?.reload();
 					}
 				});
 			}
@@ -8578,7 +10063,7 @@
 					value.find(".mmlist_li_box a").each((aIndex, aNode) => {
 						aNode.href = "javascript:;";
 					});
-					value.find(".mmlist_li_box").on("click", function () {
+					value.find(".mmlist_li_box").on("click", function (event) {
 						var mouseClickPosX = Number(
 							window.event.clientX
 						); /* 鼠标相对屏幕横坐标 */
@@ -12004,67 +13489,6 @@
 				avatarInfo.maxSize
 			);
 		},
-		shieldPlate() {
-			/* 屏蔽板块 */
-			if (window.location.href.match(MT_CONFIG.regexp.forumGuideUrl)) {
-				let infos = document.querySelectorAll(
-					".comiis_forumlist .forumlist_li"
-				);
-				let black_list = GM_getValue("blacklistplate") || "";
-				let black_list_array = black_list.split("、");
-				Array.from(infos).forEach((info) => {
-					let from_plate = (
-						info.querySelector(".forumlist_li_time a.f_d") ||
-						info.querySelector(".comiis_xznalist_bk.cl")
-					).outerText;
-					from_plate = from_plate.replace(//g, "");
-					from_plate = from_plate.replace(/\s*/g, "");
-					from_plate = from_plate.replace("来自", "");
-					if (black_list_array.indexOf(from_plate) != -1) {
-						console.log("屏蔽目标板块：" + from_plate);
-						info.setAttribute("style", "display:none !important;");
-					}
-				});
-			}
-		},
-		shieldUser() {
-			/* 屏蔽用户 */
-			if (
-				window.location.href.match(MT_CONFIG.regexp.forumGuideUrl) ||
-				window.location.href.match(MT_CONFIG.regexp.plateUrl) ||
-				window.location.href.match(MT_CONFIG.regexp.forumPost)
-			) {
-				let infos = document.querySelectorAll(
-					".comiis_forumlist .forumlist_li"
-				); /* 帖子外 */
-				if (!infos.length) {
-					/* 帖子内 */
-					infos = document.querySelectorAll(".comiis_postlist .comiis_postli");
-					if (!infos.length) {
-						return;
-					}
-				}
-				let black_list = GM_getValue("blacklistuid")
-					? GM_getValue("blacklistuid")
-					: "";
-				let black_list_array = black_list.split(",");
-				Array.from(infos).forEach((info) => {
-					let usr = info.getElementsByClassName("wblist_tximg");
-					if (!usr.length) {
-						usr = info.getElementsByClassName("postli_top_tximg");
-						if (!usr.length) {
-							return;
-						}
-					}
-					usr = usr[0].href;
-					let usr_uid = usr.match(MT_CONFIG.regexp.MTUid)[1];
-					if (black_list_array.indexOf(usr_uid) != -1) {
-						console.log("屏蔽用户：" + usr_uid);
-						info.setAttribute("style", "display:none !important;");
-					}
-				});
-			}
-		},
 		showLatestPostForm() {
 			/* 导读新增显示最新帖子 */
 			if (
@@ -12125,38 +13549,38 @@
 			getLatestPostForm().then((result) => {
 				if (result.length) {
 					GM_addStyle(`
-                    div.comiis_mh_kxtxt{
-                        margin-top: 10px;
-                    }
-                    div.comiis_mh_kxtxt li{ 
-                        height: 30px;
-                        width: 100%;
-                        display: flex;
-                        align-items: center;
-                        padding: 0px 10px;
-                    }
-                    div.comiis_mh_kxtxt span{
-                        background: #FF705E;
-                        color: #fff;
-                        float: left;
-                        height: 18px;
-                        line-height: 18px;
-                        padding: 0 3px;
-                        margin-top: 2px;
-                        margin-right: 10px;
-                        overflow: hidden;
-                        border-radius: 2px;
-                    }
-                    div.comiis_mh_kxtxt a{
-                        display: block;
-                        font-size: 14px;
-                        font-weight: 400;
-                        height: 22px;
-                        line-height: 22px;
-                        overflow: hidden;
-												min-width: 100px;
-                    }
-                    `);
+						div.comiis_mh_kxtxt_owm{
+								margin-top: 10px;
+						}
+						div.comiis_mh_kxtxt_owm li{ 
+								height: 30px;
+								width: 100%;
+								display: flex;
+								align-items: center;
+								padding: 0px 10px;
+						}
+						div.comiis_mh_kxtxt_owm span{
+								background: #FF705E;
+								color: #fff;
+								float: left;
+								height: 18px;
+								line-height: 18px;
+								padding: 0 3px;
+								margin-top: 2px;
+								margin-right: 10px;
+								overflow: hidden;
+								border-radius: 2px;
+						}
+						div.comiis_mh_kxtxt_owm a{
+								display: block;
+								font-size: 14px;
+								font-weight: 400;
+								height: 22px;
+								line-height: 22px;
+								overflow: hidden;
+								min-width: 100px;
+						}
+						`);
 					var latestPostFormHTML = "";
 					console.log(result);
 					result.sort(
@@ -12176,7 +13600,7 @@
 					});
 					$jq(".comiis_forumlist.comiis_xznlist").before(
 						$jq(
-							`<div class="comiis_mh_kxtxt bg_f"><ul>${latestPostFormHTML}</ul></div>`
+							`<div class="comiis_mh_kxtxt bg_f comiis_mh_kxtxt_owm"><ul>${latestPostFormHTML}</ul></div>`
 						)
 					);
 				}
@@ -12706,8 +14130,8 @@
 				});
 			});
 		},
-		userCheckBoxSettings() {
-			/* 侧边栏配置项 */
+		loadSettingView() {
+			/* 注册设置菜单项 */
 			function checkboxNode() {
 				return $jq(".whitesevcheckbox");
 			}
@@ -12810,6 +14234,7 @@
 					'<option value="v52">空间-帖子-显示具体回复内容</option>' +
 					'<option value="v53">导读新增显示最新帖子</option>' +
 					'<option value="v54">帖子快照</option>' +
+					'<option value="v55">贴内图片查看优化</option>' +
 					"</select>" +
 					'<code class="bg_f b_ok comiis_checkbox comiis_checkbox_close whitesevcheckbox" style="left: 20px;"></code>' +
 					"</div>";
@@ -12867,6 +14292,7 @@
 		} else {
 			console.log("移动端显示");
 			$jq(document).ready(function () {
+				Utils.tryCatch(mobile.loadSettingView);
 				Utils.tryCatch(mobile.main);
 			});
 		}
