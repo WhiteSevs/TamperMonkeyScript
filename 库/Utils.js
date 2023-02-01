@@ -877,15 +877,15 @@ Utils.findParentNode = function (target, handleFunc) {
  * @example Utils.setClip("xxxx");
  */
 Utils.setClip = function (text) {
-	if (text == null) {
+	if (typeof text !== "string") {
 		return;
 	}
-	var chipBoardNode = document.createElement("input");
+	let chipBoardNode = document.createElement("input");
 	chipBoardNode.type = "text";
 	chipBoardNode.setAttribute("style", "opacity:0;position:absolute;");
 	chipBoardNode.id = "whitesevClipBoardInput";
 	document.body.append(chipBoardNode);
-	var clipBoardInputNode = document.querySelector("#whitesevClipBoardInput");
+	let clipBoardInputNode = document.querySelector("#whitesevClipBoardInput");
 	clipBoardInputNode.value = text;
 	clipBoardInputNode.removeAttribute("disabled");
 	clipBoardInputNode.select();
@@ -1530,7 +1530,7 @@ Utils.noConflict = function (
  *    }
  *  }
  * });
- *  GM_Menu.getEnable("menu_key"); // 获取某个菜单项的值
+ *  GM_Menu.get("menu_key"); // 获取某个菜单项的值
  *
  * @exampleResult [√]测试按钮
  */
