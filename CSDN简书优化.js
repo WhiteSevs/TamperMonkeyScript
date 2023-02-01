@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.5.5
+// @version      0.5.6
 // @description  支持手机端和PC端
 // @author       WhiteSevs
 // @match        http*://link.csdn.net/*
@@ -434,6 +434,7 @@
       .recommend-right.align-items-stretch.clearfix,.dl_right_fixed{
           margin-left: 45px;
       }
+			#content_views pre,
       #content_views pre code{
           user-select: text !important;
       }
