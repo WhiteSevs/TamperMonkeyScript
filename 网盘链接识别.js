@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.01.31.17.00
+// @version      23.02.07.11.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1813,6 +1813,7 @@
 					"-2000": "网络异常",
 					"-3000": "请求意外中止",
 					"-4000": "请求超时",
+					104: "文件已失效",
 				},
 				async default(shareCode, accessCode) {
 					console.log(shareCode, accessCode);
@@ -1820,9 +1821,17 @@
 					this.accessCode = accessCode;
 					this.panelList = [];
 					this.panelContent = "";
+					let checkStatus = await this.checkLinkValidity(shareCode, accessCode);
+					if (!checkStatus) {
+						return;
+					}
 					let infoLists = await this.getFiles(shareCode, accessCode, 0);
 					if (infoLists[0]["error"] == null) {
 						if (infoLists.length == 1 && infoLists[0]["Type"] == 0) {
+							if (infoLists[0]["Status"] == 104) {
+								Qmsg.error("文件已失效");
+								return;
+							}
 							let downloadUrl = infoLists[0]["DownloadUrl"];
 							let fileSize = "";
 							if (downloadUrl == "") {
@@ -1903,10 +1912,130 @@
 						});
 					}
 				},
+				checkLinkValidity(shareCode, accessCode) {
+					/* 校验链接有效性 */
+					Qmsg.info("正在校验链接有效性");
+					let _this_ = this;
+					let url = `https://www.123pan.com/s/${shareCode}`;
+					return new Promise((resolve) => {
+						GM_xmlhttpRequest({
+							url: url,
+							timeout: 5000,
+							async: false,
+							method: "GET",
+							headers: {
+								"user-agent": Utils.getRandomPCUA(),
+								referer: "https://www.123pan.com",
+							},
+							onload: (response) => {
+								console.log(response);
+								let match = response.responseText.match(
+									/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s
+								);
+								if (match) {
+									console.log(match);
+									let g_initialProps = JSON.parse(
+										"{" + match[match.length - 1] + "}"
+									);
+									console.log(g_initialProps);
+									if (g_initialProps.res.code != 0) {
+										Qmsg.error(g_initialProps.res.message);
+										resolve(false);
+										return;
+									}
+									let HasPwd = g_initialProps.res.data.HasPwd;
+									if (HasPwd) {
+										if (accessCode == null || accessCode == "") {
+											/* 该链接需要密码但是没有获取到 */
+											Qmsg.error("密码缺失!", {
+												html: true,
+											});
+											pops.prompt({
+												title: {
+													text: "密码缺失",
+												},
+												btn: {
+													reverse: true,
+													position: "end",
+													cancel: {
+														text: "取消",
+													},
+													ok: {
+														callback: (event) => {
+															let newAccessCode = event.text.replace(/ /g, "");
+															if (newAccessCode != "") {
+																let uiLink = NetDisk.regular._123pan.uiLinkShow
+																	.replace(/{#shareCode#}/gi, shareCode)
+																	.replace(/{#accessCode#}/gi, newAccessCode);
+																$(
+																	`.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+																).attr("data-accesscode", newAccessCode);
+																$(
+																	`.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+																).html(uiLink);
+																console.log("重新输入的密码：" + newAccessCode);
+																_this_.accessCode = newAccessCode;
+																_this_.checkLinkValidity(
+																	shareCode,
+																	newAccessCode
+																);
+																event.close();
+															} else {
+																Qmsg.error("请勿输入空密码");
+															}
+														},
+													},
+												},
+												content: {
+													placeholder: "请重新输入密码",
+													focus: true,
+												},
+												width: "350px",
+												height: "160px",
+												mask: true,
+												animation: GM_getValue(
+													"popsAnimation",
+													"pops-anim-fadein-zoom"
+												),
+												drag: GM_getValue("pcDrag", false),
+											});
+
+											resolve(false);
+										} else {
+											/* 该链接需要密码且已获取到 */
+											resolve(true);
+										}
+									} else {
+										/* 该链接不需要密码 */
+										resolve(true);
+									}
+								} else {
+									Qmsg.error("校验链接-获取初始化内容失败", {
+										html: true,
+									});
+									resolve(false);
+								}
+							},
+							onerror: () => {
+								Qmsg.error("校验链接有效性失败", {
+									html: true,
+								});
+								resolve(false);
+							},
+							ontimeout: () => {
+								Qmsg.error("校验链接有效性超时", {
+									html: true,
+								});
+								resolve(false);
+							},
+						});
+					});
+				},
 				getFiles(shareCode, accessCode, parentFileId) {
 					/* 获取文件 */
+					let _this_ = this;
 					let url = `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${shareCode}&SharePwd=${accessCode}&ParentFileId=${parentFileId}&Page=1`;
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: url,
 							timeout: 5000,
@@ -1917,14 +2046,67 @@
 								"user-agent": Utils.getRandomPCUA(),
 								referer: "https://www.123pan.com/s/" + shareCode,
 							},
-							onload: (r) => {
-								console.log(r);
-								let json_data = JSON.parse(r.responseText);
-								if (r.status == 200 && json_data["code"] == 0) {
+							onload: (response) => {
+								console.log(response);
+								let json_data = JSON.parse(response.responseText);
+								if (response.status == 200 && json_data["code"] == 0) {
 									let infoList = json_data["data"]["InfoList"];
-									res(infoList);
+									resolve(infoList);
+								} else if (json_data["code"] == 5103) {
+									/* 前面校验过链接有效性，所以肯定是密码不对 */
+									pops.prompt({
+										title: {
+											text: "密码错误",
+										},
+										btn: {
+											reverse: true,
+											position: "end",
+											cancel: {
+												text: "取消",
+											},
+											ok: {
+												callback: (event) => {
+													let newAccessCode = event.text.replace(/ /g, "");
+													if (newAccessCode != "") {
+														let uiLink = NetDisk.regular._123pan.uiLinkShow
+															.replace(/{#shareCode#}/gi, shareCode)
+															.replace(/{#accessCode#}/gi, newAccessCode);
+														$(
+															`.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+														).attr("data-accesscode", newAccessCode);
+														$(
+															`.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+														).html(uiLink);
+														console.log("重新输入的密码：" + newAccessCode);
+														_this_.accessCode = newAccessCode;
+														_this_.checkLinkValidity(shareCode, newAccessCode);
+														event.close();
+													} else {
+														Qmsg.error("请勿输入空密码");
+													}
+												},
+											},
+										},
+										content: {
+											placeholder: "请重新输入密码",
+											focus: true,
+										},
+										width: "350px",
+										height: "160px",
+										mask: true,
+										animation: GM_getValue(
+											"popsAnimation",
+											"pops-anim-fadein-zoom"
+										),
+										drag: GM_getValue("pcDrag", false),
+									});
+									resolve([
+										{
+											error: json_data["code"],
+										},
+									]);
 								} else {
-									res([
+									resolve([
 										{
 											error: json_data["code"],
 										},
@@ -1933,17 +2115,17 @@
 							},
 							onerror: (r) => {
 								console.log(r);
-								res([
+								resolve([
 									{
 										error: -2000,
 									},
 								]);
 							},
 							onabort: function () {
-								res([{ error: -3000 }]);
+								resolve([{ error: -3000 }]);
 							},
 							ontimeout: function () {
-								res([{ error: -4000 }]);
+								resolve([{ error: -4000 }]);
 							},
 						});
 					});
@@ -1951,7 +2133,7 @@
 				getFilesByRec(shareCode, accessCode, parentFileId) {
 					/* 递归算法使用的请求 */
 					let url = `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${shareCode}&SharePwd=${accessCode}&ParentFileId=${parentFileId}&Page=1`;
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: url,
 							timeout: 5000,
@@ -1963,25 +2145,25 @@
 									"Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
 								referer: "https://www.123pan.com/s/" + shareCode,
 							},
-							onload: (r) => {
-								console.log(r);
-								let json_data = JSON.parse(r.responseText);
-								if (r.status == 200 && json_data["code"] == 0) {
+							onload: (response) => {
+								console.log(response);
+								let json_data = JSON.parse(response.responseText);
+								if (response.status == 200 && json_data["code"] == 0) {
 									let infoList = json_data["data"]["InfoList"];
-									res(infoList);
+									resolve(infoList);
 								} else {
-									res([]);
+									resolve([]);
 								}
 							},
 							onerror: (r) => {
 								console.log(r);
-								res([]);
+								resolve([]);
 							},
 							onabort: function () {
-								res([]);
+								resolve([]);
 							},
 							ontimeout: function () {
-								res([]);
+								resolve([]);
 							},
 						});
 					});
@@ -1990,29 +2172,42 @@
 					/* 异步递归算法 */
 					let that = this;
 					return Promise.all(
-						Array.from(infoList).map(async (value, index) => {
-							let fileType = value["Type"];
+						Array.from(infoList).map(async (item, index) => {
+							let fileType = item["Type"];
 							console.log(fileType ? "文件夹" : "文件");
 							if (fileType) {
 								/* 是文件夹 */
 								let retList = await that.getFilesByRec(
 									that.shareCode,
 									that.accessCode,
-									value["FileId"]
+									item["FileId"]
 								);
 								await that.recursiveAlgorithm(retList);
 							} else {
 								/* 是文件 */
-								let fileName = value["FileName"];
-								let fileSize = Utils.formatByteToSize(value["Size"]);
-								let fileDownloadUrl = value["DownloadUrl"];
-								if (fileDownloadUrl == "") {
+								console.log(item);
+								let fileName = item["FileName"];
+								let fileSize = Utils.formatByteToSize(item["Size"]);
+								let fileDownloadUrl = item["DownloadUrl"];
+								let fileStatus = item["Status"]; /* 文件有效状态 */
+								if (fileStatus == 104) {
+									that.panelList = [
+										...that.panelList,
+										{
+											url: "文件已失效",
+											fileName: fileName,
+											fileSize: 0,
+											createTime: item["CreateAt"],
+											updateTime: item["UpdateAt"],
+										},
+									];
+								} else if (fileDownloadUrl == "") {
 									let downloadInfo = await that.getFileDownloadInfo(
-										value["Etag"],
-										value["FileId"],
-										value["S3KeyFlag"],
+										item["Etag"],
+										item["FileId"],
+										item["S3KeyFlag"],
 										that.shareCode,
-										value["Size"]
+										item["Size"]
 									);
 									if (downloadInfo["code"] == 0) {
 										fileDownloadUrl = downloadInfo["data"]["DownloadURL"];
@@ -2027,8 +2222,8 @@
 												url: fileDownloadUrl,
 												fileName: fileName,
 												fileSize: fileSize,
-												createTime: value["CreateAt"],
-												updateTime: value["UpdateAt"],
+												createTime: item["CreateAt"],
+												updateTime: item["UpdateAt"],
 											},
 										];
 									} else {
@@ -2038,8 +2233,8 @@
 												url: "获取下载链接失败",
 												fileName: fileName,
 												fileSize: 0,
-												createTime: value["CreateAt"],
-												updateTime: value["UpdateAt"],
+												createTime: item["CreateAt"],
+												updateTime: item["UpdateAt"],
 											},
 										];
 									}
@@ -2055,8 +2250,8 @@
 											url: fileDownloadUrl,
 											fileName: fileName,
 											fileSize: fileSize,
-											createTime: value["CreateAt"],
-											updateTime: value["UpdateAt"],
+											createTime: item["CreateAt"],
+											updateTime: item["UpdateAt"],
 										},
 									];
 								}
@@ -2067,7 +2262,7 @@
 				getFileDownloadInfo(Etag, FileID, S3keyFlag, ShareKey, Size) {
 					/* 获取单文件下载链接 */
 					let _this_ = this;
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: "http://www.123pan.com/a/api/share/download/info",
 							method: "post",
@@ -2082,30 +2277,35 @@
 							}),
 							headers: {
 								accept: "*/*",
-								"user-agent":
-									"Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
+								"user-agent": Utils.getRandomPCUA(),
 							},
-							onload: (r) => {
-								let res_data = JSON.parse(r.responseText);
+							onload: (response) => {
+								let res_data = JSON.parse(response.responseText);
 								console.log(res_data);
-								res_data["data"]["DownloadURL"] = _this_.decodeDownloadUrl(
-									res_data["data"]["DownloadURL"]
-								);
-								res(res_data);
+								if (res_data["code"] == 0) {
+									res_data["data"]["DownloadURL"] = _this_.decodeDownloadUrl(
+										res_data["data"]["DownloadURL"]
+									);
+									resolve(res_data);
+								} else {
+									resolve({
+										code: res_data["code"],
+									});
+								}
 							},
 							onerror: () => {
 								console.log(r);
-								res({
+								resolve({
 									code: -2000,
 								});
 							},
 							onabort: function () {
-								res({
+								resolve({
 									code: -3000,
 								});
 							},
 							ontimeout: function () {
-								res({
+								resolve({
 									code: -4000,
 								});
 							},
