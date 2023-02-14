@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.02.07.11.00
+// @version      23.02.14.17.20
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -30,7 +30,7 @@
 // @require      https://greasyfork.org/scripts/455576-qmsg/code/Qmsg.js?version=1122361
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1127486
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1134453
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1143981
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
 // ==/UserScript==
 
 (function () {
@@ -2711,7 +2711,7 @@
 		uiLinkParseAlias: "单文件直链层" /* 单文件直链层唯一标识 */,
 		uiLinkParseMoreAlias: "多文件直链层" /* 多文件直链层唯一标识 */,
 		uiPasswordAlias: "重输密码层" /* 重输密码层唯一标识 */,
-		bgInterval: null /* 定时事件id */,
+		isRandBg: false /* 是否正在循环切换按钮背景 */,
 		src: {
 			icon: {
 				baidu: RESOURCE_ICON.baidu,
@@ -2823,6 +2823,7 @@
 				}
 				.netdisk-setting-menu-item label{
 					width:150px;
+					padding-right: 15px;
 				}
 				.netdisk-setting-menu-item[type=checkbox]{
 					align-items: flex-start;
@@ -3274,6 +3275,20 @@
 												1
 											)}</label>
 											<input type="range" data-key="opacity" data-content="透明度 " min="0.1" max="1" step="0.1" data-default="1">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-randbg-time" content="按钮背景切换时间(毫秒) ">按钮背景切换时间(毫秒) ${GM_getValue(
+												"randbg-time",
+												1500
+											)}</label>
+											<input type="range" data-key="randbg-time" data-content="按钮背景切换时间(毫秒) " min="0" max="10000" step="100" data-default="1500">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-randbg-show-time" content="按钮背景切换停留时间(毫秒) ">按钮背景切换停留时间(毫秒) ${GM_getValue(
+												"randbg-show-time",
+												1200
+											)}</label>
+											<input type="range" data-key="randbg-show-time" data-content="按钮背景切换停留时间(毫秒) " min="0" max="10000" step="100" data-default="1200">
 									</div>
 									<div class="netdisk-setting-menu-item">
 											<label data-id="netdisk-delaytime">检测延时(秒) ${GM_getValue(
@@ -4143,36 +4158,49 @@
 			},
 			randBg() {
 				/* 悬浮按钮背景轮播淡入淡出 */
-				clearInterval(this.bgInterval);
+				if (this.isRandBg) {
+					return;
+				}
 				let currentList = [];
 				let currentIndex = 0;
-				let switchBgTime = 1500;
-				UI.matchIcon.forEach((item) => {
-					currentList = currentList.concat(item);
-				});
-				let randBgSrc = UI.src.icon[currentList[currentIndex]];
-				$(".whitesevSuspension .netdisk").css(
-					"background-image",
-					`url(${randBgSrc})`
-				);
-				if (currentList.length > 1) {
-					this.bgInterval = setInterval(function () {
-						$(".whitesevSuspension .netdisk").fadeOut(
-							switchBgTime,
-							function () {
-								currentIndex++;
-								currentIndex =
-									currentIndex < currentList.length ? currentIndex : 0;
-								randBgSrc = UI.src.icon[currentList[currentIndex]];
-								$(".whitesevSuspension .netdisk").css(
-									"background-image",
-									`url(${randBgSrc})`
-								);
-								$(this).fadeIn(switchBgTime);
-							}
-						);
-					}, switchBgTime * 2);
+				let switchBgTime = 1500; /* 淡入或淡出的持续时间 */
+				let switchBgShowTime = 1200; /* 淡入或淡出后的延迟切换时间 */
+				currentList = getRandBgList();
+				let randBgSrc = currentList[currentIndex];
+				let randBgNode = $(".whitesevSuspension .netdisk");
+				randBgNode.css("background-image", `url(${randBgSrc})`);
+				if (
+					currentList.length < 2 ||
+					GM_getValue("randbg-time", switchBgTime) <= 0
+				) {
+					return;
 				}
+				this.isRandBg = true;
+				function getRandBgList() {
+					let _result_list_ = [];
+					UI.matchIcon.forEach((item) => {
+						_result_list_ = [..._result_list_, UI.src.icon[item]];
+					});
+					return _result_list_;
+				}
+				function _show_(_time_, _bg_src_) {
+					currentList = getRandBgList();
+					randBgNode.fadeOut(_time_, function () {
+						currentIndex++;
+						currentIndex = currentIndex < currentList.length ? currentIndex : 0;
+						_bg_src_ = currentList[currentIndex];
+						randBgNode.css("background-image", `url(${_bg_src_})`);
+						setTimeout(() => {
+							randBgNode.fadeIn(_time_, function () {
+								_show_(
+									parseInt(GM_getValue("randbg-time", switchBgTime)),
+									_bg_src_
+								);
+							});
+						}, parseInt(GM_getValue("randbg-show-time", switchBgShowTime)));
+					});
+				}
+				_show_(parseInt(GM_getValue("randbg-time", switchBgTime)), randBgSrc);
 			},
 		},
 

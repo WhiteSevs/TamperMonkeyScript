@@ -3,17 +3,12 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.5.6
+// @version      0.5.7
 // @description  支持手机端和PC端
 // @author       WhiteSevs
-// @match        http*://link.csdn.net/*
-// @match        http*://www.csdn.net/*
-// @match        http*://bbs.csdn.net/*
+// @match        http*://*.csdn.net/*
 // @match        http*://*.jianshu.com/*
 // @match        http*://*.jianshu.io/*
-// @match        http*://*blog.csdn.net/*
-// @match        http*://download.csdn.net/*
-// @match        http*://huaweicloud.csdn.net/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -25,14 +20,14 @@
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1143981
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
 // ==/UserScript==
 
 (function () {
 	"use strict";
 	function waitForElementToRemove(_query_ = "") {
 		/* 移除元素（未出现也可以等待出现） */
-		Utils.waitNode(_query_).then((dom) => {
+		Utils.waitNode(_query_, undefined, 200).then((dom) => {
 			dom.forEach((item) => {
 				$(item).remove();
 			});
