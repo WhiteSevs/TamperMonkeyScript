@@ -7191,7 +7191,6 @@
 											responseType: "arraybuffer",
 											timeout: _this._options.imageTimeout,
 											onload: (resp) => {
-												console.log(resp);
 												if (resp.readyState === 4 && resp.status === 200) {
 													let content_type = "image/jpeg";
 													let content_type_list =
@@ -7204,21 +7203,16 @@
 															);
 															return;
 														}
-													});
+													});			
 													var imageBase64 = "";
-													if (typeof resp.responseBase64 !== "undefined") {
-														imageBase64 = resp.responseBase64;
-													} else {
-														var imageBytes = new Uint8Array(resp.response);
-														var imageLen = imageBytes.byteLength;
-														for (var i = 0; i < imageLen; i++) {
-															imageBase64 += String.fromCharCode(imageBytes[i]);
-														}
-														imageBase64 = window.btoa(imageBase64);
+													var imageBytes = new Uint8Array(resp.response);
+													var imageLen = imageBytes.byteLength;
+													for (var i = 0; i < imageLen; i++) {
+														imageBase64 += String.fromCharCode(imageBytes[i]);
 													}
+													imageBase64 = window.btoa(imageBase64);
 													imageBase64 =
 														"data:" + content_type + ";base64," + imageBase64;
-													console.log(imageBase64);
 													img.src = imageBase64;
 												} else {
 													img.src = src;
