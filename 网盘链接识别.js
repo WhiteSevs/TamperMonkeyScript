@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.02.14.17.20
+// @version      23.02.20.17.20
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -3284,11 +3284,11 @@
 											<input type="range" data-key="randbg-time" data-content="按钮背景切换时间(毫秒) " min="0" max="10000" step="100" data-default="1500">
 									</div>
 									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-randbg-show-time" content="按钮背景切换停留时间(毫秒) ">按钮背景切换停留时间(毫秒) ${GM_getValue(
+											<label data-id="netdisk-randbg-show-time" content="按钮背景停留时间(毫秒) ">按钮背景停留时间(毫秒) ${GM_getValue(
 												"randbg-show-time",
 												1200
 											)}</label>
-											<input type="range" data-key="randbg-show-time" data-content="按钮背景切换停留时间(毫秒) " min="0" max="10000" step="100" data-default="1200">
+											<input type="range" data-key="randbg-show-time" data-content="按钮背景停留时间(毫秒) " min="0" max="10000" step="100" data-default="1200">
 									</div>
 									<div class="netdisk-setting-menu-item">
 											<label data-id="netdisk-delaytime">检测延时(秒) ${GM_getValue(
@@ -4190,14 +4190,14 @@
 						currentIndex = currentIndex < currentList.length ? currentIndex : 0;
 						_bg_src_ = currentList[currentIndex];
 						randBgNode.css("background-image", `url(${_bg_src_})`);
-						setTimeout(() => {
-							randBgNode.fadeIn(_time_, function () {
+						randBgNode.fadeIn(_time_, function () {
+							setTimeout(() => {
 								_show_(
 									parseInt(GM_getValue("randbg-time", switchBgTime)),
 									_bg_src_
 								);
-							});
-						}, parseInt(GM_getValue("randbg-show-time", switchBgShowTime)));
+							}, parseInt(GM_getValue("randbg-show-time", switchBgShowTime)));
+						});
 					});
 				}
 				_show_(parseInt(GM_getValue("randbg-time", switchBgTime)), randBgSrc);
