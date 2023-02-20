@@ -18,15 +18,14 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @run-at       document-start
-// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
 // @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1118788
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1082044
-// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1102558
-// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1143054
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1143981
+// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1149609
+// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
 // ==/UserScript==
 
 (function () {
@@ -161,8 +160,6 @@
 				popup2.config.confirm.zIndex > maxZIndex
 					? popup2.config.confirm.zIndex
 					: maxZIndex + 100;
-			if (options.ok.enable || options.cancel.enable) {
-			}
 			if (!options.reverse) {
 				bottomBtnHTML = `<a href="javascript:;" class="tip_btn bg_f f_b popup2-confirm-cancel">${options.cancel.text}</a>
                 <a href="javascript:;" class="tip_btn bg_f f_0 popup2-confirm-ok">
@@ -191,7 +188,13 @@
 				this.closeConfirm();
 			}
 			let jqConfirmHTML = $jq(confirmHTML);
-
+			let setBottomBtn =
+				options.ok.enable ||
+				options.cancel.enable ||
+				options.other.enable; /* 如果所有按钮都不存在的话 */
+			if (!setBottomBtn) {
+				jqConfirmHTML.find("dd.b_t").remove();
+			}
 			if (options.other.enable) {
 				jqConfirmHTML.find("dd.b_t .popup2-confirm-bottom-btn").after(
 					$jq(`
@@ -205,23 +208,27 @@
 				});
 			}
 			$jq("body").append(jqConfirmHTML);
-			$jq(`#popup2-confirm a:contains('${options.ok.text}')`).on(
-				"click",
-				() => {
+			jqConfirmHTML
+				.find(`.popup2-confirm-bottom-btn a:contains('${options.ok.text}')`)
+				.on("click", () => {
 					Utils.tryCatch(options.ok.callback);
-				}
-			);
-			$jq(`#popup2-confirm a:contains('${options.cancel.text}')`).on(
-				"click",
-				() => {
+				});
+			jqConfirmHTML
+				.find(`.popup2-confirm-bottom-btn a:contains('${options.cancel.text}')`)
+				.on("click", () => {
 					Utils.tryCatch(options.cancel.callback);
-				}
-			);
+				});
+			jqConfirmHTML
+				.find(`.popup2-confirm-bottom-btn a:contains('${options.other.text}')`)
+				.on("click", () => {
+					Utils.tryCatch(options.other.callback);
+				});
 			if (options.mask) {
 				this.showMask(maxZIndex);
 			} else {
 				this.closeMask();
 			}
+			return jqConfirmHTML;
 		},
 		toast: (param_options) => {
 			let options = {
@@ -1110,7 +1117,7 @@
 				}
 				Utils.tryCatch(mobileRepeatFunc[key]);
 			});
-			unsafeWindow.popup.init();
+			unsafeWindow?.popup?.init();
 		},
 		shieldUser() {
 			/* 屏蔽用户 */
@@ -1874,7 +1881,11 @@
 							.querySelector(".xtiper_tit_content")
 							.outerHTML.indexOf(e.target.outerHTML) != -1
 					) {
-						GM_setClipboard(`『${title}』 - ${url}`);
+						if (title !== "") {
+							GM_setClipboard(`『${title}』 - ${url}`);
+						} else {
+							GM_setClipboard(url);
+						}
 						xtips.toast("已复制链接", {
 							icon: "success",
 							pos: "bottom",
@@ -1952,7 +1963,12 @@
 						return;
 					}
 
-					let title = value.find(".mmlist_li_box a").text(); /* 帖子标题 */
+					let title = value
+						.find(".mmlist_li_box h2 a")
+						.text()
+						.trim(); /* 帖子标题 */
+					title =
+						title == "" ? value.find(".mmlist_li_box a").text().trim() : title; // 防止获取的标题是空的
 					let url = value.find(".mmlist_li_box a").attr("href"); /* 帖子地址 */
 					var imagesList = []; /* 帖子内图片列表 */
 					value.attr("data-injection-small-window", true);
@@ -2128,6 +2144,7 @@
 							/* 已处理过 */
 							return;
 						}
+
 						let clickShowIMGList = []; /* 点击显示的图片组 */
 						item.querySelectorAll("img").forEach((_item_) => {
 							let IMG_URL = _item_.src; /* 图片链接 */
@@ -2152,6 +2169,10 @@
 								viewIMG(clickShowIMGList, _index_);
 							});
 						});
+						if (clickShowIMGList.length) {
+							console.log(item);
+							console.log("处理的图片", clickShowIMGList);
+						}
 						item.setAttribute("isHandlingViewIMG", true);
 					});
 				}
@@ -2396,10 +2417,15 @@
 				window.location.href.match(MT_CONFIG.regexp.kMiSignSign)
 			) {
 				var deleteLocalStorageSignInfo = $jq(`
-                <div style="display: flex;align-items: center;justify-content: end;margin-right: 8px;"><i class="comiis_font" style="font-size: 24px;padding: 0px 6px;"></i>
+                <div style="
+									display: flex;
+									align-items: center;
+									justify-content: flex-end;
+									margin-right: 8px;">
+									<i class="comiis_font" style="font-size: 24px;padding: 0px 6px;"></i>
                 </div>
                 `);
-				deleteLocalStorageSignInfo.on("click", () => {
+				deleteLocalStorageSignInfo.on("click", "i", () => {
 					popup2.confirm({
 						text: "<p>是否清空脚本签到记录的时间?</p>",
 						ok: {
@@ -3231,7 +3257,7 @@
 					GM_xmlhttpRequest({
 						url: url,
 						method: "GET",
-						timeout: 8000,
+						timeout: 15000,
 						headers: {
 							"user-agent": Utils.getRandomPCUA(),
 						},
@@ -3265,7 +3291,7 @@
 					GM_xmlhttpRequest({
 						url: `${url}/login`,
 						method: "POST",
-						timeout: 8000,
+						timeout: 15000,
 						data: `login-subject=${user}&password=${pwd}&auth_token=${auth_token}`,
 						headers: {
 							"Content-Type": "application/x-www-form-urlencoded",
@@ -3369,7 +3395,7 @@
 					GM_xmlhttpRequest({
 						url: `${url}/json`,
 						method: "POST",
-						timeout: 5000,
+						timeout: 15000,
 						data: `auth_token=${auth_token}&action=delete&single=true&delete=image&deleting[id]=${id_encoded}`,
 						headers: {
 							"Content-Type":
@@ -3553,14 +3579,11 @@
 
 				function getToken() {
 					return new Promise((res) => {
-						let formData = new FormData();
-						formData.append("email", chartBedUser);
-						formData.append("password", chartBedPwd);
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/tokens`,
 							method: "POST",
 							timeout: 5000,
-							data: formData,
+							data: `email=${chartBedUser}&password=${chartBedPwd}`,
 							headers: {
 								Accept: "application/json",
 							},
@@ -4634,16 +4657,14 @@
 
 				function getToken() {
 					return new Promise((res) => {
-						let formData = new FormData();
-						formData.append("email", chartBedUser);
-						formData.append("password", chartBedPwd);
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/tokens`,
 							method: "POST",
 							timeout: 5000,
-							data: formData,
+							data: `email=${chartBedUser}&password=${chartBedPwd}`,
 							headers: {
 								Accept: "application/json",
+								"Content-Type": "application/x-www-form-urlencoded",
 							},
 							onload: (r) => {
 								if (code[r.status] != null) {
@@ -8567,6 +8588,7 @@
 				},
 				login_getFormHash(user, pwd) {
 					/* 获取账号的formhash */
+					popup2.showLoadingMask();
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/mlogin.php",
@@ -8576,24 +8598,27 @@
 								user
 							)}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=`,
 							/* headers不设置，使用手机headers */
-							onload: (r) => {
-								let formhash = r.responseText.match(/formhash':'(.+?)'/);
+							onload: (response) => {
+								popup2.closeMask();
+								let formhash = response.responseText.match(/formhash':'(.+?)'/);
 								if (formhash && formhash.length == 2) {
 									xtips.toast("获取formhash成功");
 									res(formhash[1]);
-								} else if (!r.responseText.match("登录")) {
+								} else if (!response.responseText.match("登录")) {
 									res(4);
 								} else {
-									console.log(r);
+									console.log(response);
 									xtips.toast("获取formhash失败");
 									res(null);
 								}
 							},
 							onerror: () => {
+								popup2.closeMask();
 								xtips.toast("网络异常,获取formhash失败");
 								res(null);
 							},
 							ontimeout: () => {
+								popup2.closeMask();
 								popup2.toast("请求超时");
 								resolve(null);
 							},
@@ -8602,6 +8627,7 @@
 				},
 				login(user, pwd, formhash) {
 					/* 登录 */
+					popup2.showLoadingMask();
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/mlogin.php",
@@ -8614,31 +8640,36 @@
 								user
 							)}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=&formhash=${formhash}`,
 							responseType: "json",
-							onload: (r) => {
+							onload: (response) => {
+								popup2.closeMask();
 								if (
-									(r.finalUrl.indexOf("woozooo.com/mlogin.php") != -1 &&
-										JSON.parse(r.responseText)["zt"] == 1) ||
-									r.finalUrl.indexOf("woozooo.com/myfile.php") != -1
+									(response.finalUrl.indexOf("woozooo.com/mlogin.php") != -1 &&
+										JSON.parse(response.responseText)["zt"] == 1) ||
+									response.finalUrl.indexOf("woozooo.com/myfile.php") != -1
 								) {
 									res(true);
 								} else {
 									if (
-										r.responseHeaders.indexOf("content-type: text/json" != -1)
+										response.responseHeaders.indexOf(
+											"content-type: text/json" != -1
+										)
 									) {
-										xtips.toast(JSON.parse(r.responseText)["info"]);
+										xtips.toast(JSON.parse(response.responseText)["info"]);
 									} else {
 										xtips.toast("登录失败");
-										console.log(r);
+										console.log(response);
 									}
 
 									res(false);
 								}
 							},
 							onerror: () => {
+								popup2.closeMask();
 								xtips.toast("网络异常,登录失败");
 								res(false);
 							},
 							ontimeout: () => {
+								popup2.closeMask();
 								xtips.toast("请求超时");
 								res(false);
 							},
@@ -8647,6 +8678,7 @@
 				},
 				uploadFile(file) {
 					/* 上传文件 */
+					popup2.showLoadingMask();
 					let formData = new FormData();
 					formData.append("task", 1);
 					formData.append("ve", 2);
@@ -8657,27 +8689,29 @@
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/fileup.php",
 							method: "post",
-							timeout: 5000,
 							data: formData,
 							headers: {
 								Accept: "*/*",
 							},
-							onload: (r) => {
-								let json_data = JSON.parse(r.responseText);
+							onload: (response) => {
+								popup2.closeMask();
+								let json_data = JSON.parse(response.responseText);
 								if (json_data["zt"] == 1) {
 									xtips.toast(json_data["info"]);
 									res(json_data["text"][0]);
 								} else {
 									xtips.toast(json_data["info"]);
-									console.log(r);
+									console.log(response);
 									res(null);
 								}
 							},
 							onerror: () => {
-								xtips.toast("网络异常,删除失败");
+								popup2.closeMask();
+								xtips.toast("网络异常,上传失败");
 								res(null);
 							},
 							ontimeout: () => {
+								popup2.closeMask();
 								xtips.toast("请求超时");
 								res(null);
 							},
@@ -8686,6 +8720,7 @@
 				},
 				deleteFile(file_id) {
 					/* 删除文件 */
+					popup2.showLoadingMask();
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
 							url: `https://up.woozooo.com/doupload.php`,
@@ -8696,22 +8731,25 @@
 								"Content-Type":
 									"application/x-www-form-urlencoded; charset=UTF-8",
 							},
-							onload: (r) => {
+							onload: (response) => {
+								popup2.closeMask();
 								try {
-									let data = JSON.parse(r.responseText);
+									let data = JSON.parse(response.responseText);
 									xtips.toast(data["info"]);
 									res(true);
 								} catch (error) {
 									xtips.toast("删除失败");
-									console.log(r);
+									console.log(response);
 									res(false);
 								}
 							},
 							onerror: () => {
+								popup2.closeMask();
 								xtips.toast("网络异常,删除失败");
 								res(false);
 							},
 							ontimeout: () => {
+								popup2.closeMask();
 								xtips.toast("请求超时");
 								res(false);
 							},
@@ -8720,6 +8758,7 @@
 				},
 				outLogin(user) {
 					/* 退出登录 */
+					popup2.showLoadingMask();
 					return new Promise((res) => {
 						GM_xmlhttpRequest({
 							url: `https://up.woozooo.com/account.php?action=logout&${encodeURI(
@@ -8727,14 +8766,17 @@
 							)}`,
 							timeout: 5000,
 							method: "get",
-							onload: (r) => {
-								res(r.responseText.match("成功") ? true : false);
+							onload: (response) => {
+								popup2.closeMask();
+								res(response.responseText.match("成功") ? true : false);
 							},
 							onerror: () => {
+								popup2.closeMask();
 								xtips.toast("网络异常,退出失败");
 								res(false);
 							},
 							ontimeout: () => {
+								popup2.closeMask();
 								xtips.toast("请求超时");
 								res(false);
 							},
@@ -8874,6 +8916,7 @@
 									if (_formhash_ == null) {
 										return;
 									}
+
 									let loginStatus = await lanzou.login(
 										inputUser,
 										inputPwd,
@@ -11528,7 +11571,7 @@
 		recoveryIMGWidth() {
 			/* 修复图片宽度 */
 			if (
-				GM_getValue("v16") &&
+				GM_getValue("v16", false) &&
 				window.location.href.match(MT_CONFIG.regexp.forumPost)
 			) {
 				GM_addStyle(`
@@ -11541,14 +11584,14 @@
 		removeForumPostFontStyle() {
 			/* 移除帖子内的字体style */
 			if (
-				GM_getValue("v1") &&
+				GM_getValue("v1", false) &&
 				window.location.href.match(MT_CONFIG.regexp.forumPost)
 			) {
-				if ($jq(".comiis_a.comiis_message_table.cl").eq(0).html()) {
-					$jq(".comiis_a.comiis_message_table.cl")
+				if ($jq(".comiis_a.comiis_message_table").eq(0).html()) {
+					$jq(".comiis_a.comiis_message_table")
 						.eq(0)
 						.html(
-							$jq(".comiis_a.comiis_message_table.cl")
+							$jq(".comiis_a.comiis_message_table")
 								.eq(0)
 								.html()
 								.replace(MT_CONFIG.regexp.fontSpecial, "")
@@ -12746,6 +12789,9 @@
 								line-height: 22px;
 								overflow: hidden;
 								min-width: 100px;
+								max-width: 80%;
+								text-overflow: ellipsis;
+								white-space: nowrap;
 						}
 						`);
 					var latestPostFormHTML = "";
