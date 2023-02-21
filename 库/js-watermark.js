@@ -704,4 +704,4 @@ const Watermark = function () {};
 			});
 		});
 	};
-})(window.Watermark);
+})(Watermark);
