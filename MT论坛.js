@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.0
+// @version      2.8.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -955,6 +955,15 @@
 							_item_.src || _item_.getAttribute("file"); /* 图片链接 */
 						let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname; /* 主机名 */
 						let IMG_URL_PATHNAME = new URL(IMG_URL).pathname; /* 路径 */
+						let imgParentNode = _item_.parentElement; /* img标签的父元素 */
+						if (
+							imgParentNode.nodeName.toLowerCase() === "a" &&
+							imgParentNode.getAttribute("href") === IMG_URL
+						) {
+							imgParentNode.setAttribute("href", "javascript:;");
+							imgParentNode.removeAttribute("target");
+						}
+
 						if (
 							IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
 							(IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1 &&
@@ -963,6 +972,7 @@
 							/* 图片黑名单 */
 							return;
 						}
+
 						clickShowIMGList = [...clickShowIMGList, IMG_URL];
 						_item_.removeAttribute("onclick");
 						$jq(_item_).off("click");
@@ -2157,6 +2167,13 @@
 								imgParentNode.removeAttribute("onclick");
 							}
 							if (
+								imgParentNode.nodeName.toLowerCase() === "a" &&
+								imgParentNode.getAttribute("href") === IMG_URL
+							) {
+								imgParentNode.setAttribute("href", "javascript:;");
+								imgParentNode.removeAttribute("target");
+							}
+							if (
 								IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
 								(IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1 &&
 									IMG_URL_PATHNAME.match("^(/static/image|/template)"))
@@ -2164,6 +2181,7 @@
 								/* 图片黑名单 */
 								return;
 							}
+
 							clickShowIMGList = [...clickShowIMGList, IMG_URL];
 
 							$jq(_item_).on("click", function () {
@@ -3430,11 +3448,11 @@
 							Referer: `${url}/`,
 							Origin: url,
 						},
-						onload: (r) => {
-							let json_data = JSON.parse(r.responseText);
+						onload: (response) => {
+							console.log(response);
+							let json_data = JSON.parse(response.responseText);
 							console.log(json_data);
 							let status_code = json_data["status_code"];
-
 							if (status_code == 200) {
 								popup2.toast("上传成功");
 								let file_reader = new FileReader();
@@ -8183,7 +8201,9 @@
 					(editHistoryText !== "" || editHistorySubjectText !== "") &&
 					$jq(
 						".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')"
-					).attr("class") != "f_c"
+					).attr("class") != "f_c" &&
+					editHistoryText !== $jq("#needmessage").text() &&
+					editHistorySubjectText !== $jq("#needmessage")
 				) {
 					popup2.confirm({
 						text: "<p>存在历史写入的数据，是否恢复到编辑器里？</p>",
