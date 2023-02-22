@@ -3903,7 +3903,7 @@
                                 </span>
                                 <span class="charu f_f">插入</span>
                                 <span class="p_img">
-                                    <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                    <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                         <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                 </span>
                                 <input type="hidden" name="">
@@ -4054,7 +4054,7 @@
                                 </span>
                                 <span class="charu f_f">插入</span>
                                 <span class="p_img">
-                                    <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                    <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                         <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                 </span>
                                 <input type="hidden" name="">
@@ -4212,7 +4212,7 @@
                                 </span>
                                 <span class="charu f_f">插入</span>
                                 <span class="p_img">
-                                    <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                    <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                         <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                 </span>
                                 <input type="hidden" name="">
@@ -4281,7 +4281,7 @@
                         </span>
                         <span class="charu f_f">${_web}</span>
                         <span class="p_img">
-                            <a href="javascript:;" onclick="comiis_addsmilies('[url=${_url}][img]${_url}[/img][/url]')">
+                            <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
                                 <img style="height:54px;width:54px;" title="${_name}" data-src="${_thumb_url}" class="vm b_ok"></a>
                         </span>
                         <input type="hidden" name="${_name}">
@@ -4987,7 +4987,7 @@
                                         </span>
                                         <span class="charu f_f">插入</span>
                                         <span class="p_img">
-                                            <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                            <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                                 <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                         </span>
                                         <input type="hidden" name="">
@@ -5289,7 +5289,7 @@
                                             </span>
                                             <span class="charu f_f">插入</span>
                                             <span class="p_img">
-                                                <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                                <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                                     <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                             </span>
                                             <input type="hidden" name="">
@@ -5593,7 +5593,7 @@
                                         </span>
                                         <span class="charu f_f">插入</span>
                                         <span class="p_img">
-                                            <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                            <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                                 <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                         </span>
                                         <input type="hidden" name="">
@@ -5923,7 +5923,7 @@
                                         </span>
                                         <span class="charu f_f">插入</span>
                                         <span class="p_img">
-                                            <a href="javascript:;" onclick="comiis_addsmilies('[url=${image_url}][img]${image_url}[/img][/url]')">
+                                            <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
                                                 <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
                                         </span>
                                         <input type="hidden" name="">
@@ -6118,7 +6118,7 @@
                               </span>
                               <span class="charu f_f">${_web}</span>
                               <span class="p_img">
-                                  <a href="javascript:;" onclick="comiis_addsmilies('[url=${_url}][img]${_url}[/img][/url]')">
+                                  <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
                                       <img style="height:54px;width:54px;" title="${_name}" src="${_thumb_url}" class="vm b_ok" crossoriginNew="anonymous"></a>
                               </span>
                               <input type="hidden" name="${_name}">
@@ -6161,7 +6161,7 @@
                               </span>
                               <span class="charu f_f">${_web}</span>
                               <span class="p_img">
-                                  <a href="javascript:;" onclick="comiis_addsmilies('[url=${_url}][img]${_url}[/img][/url]')">
+                                  <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
                                       <img style="height:54px;width:54px;" title="${_name}" src="${_thumb_url}" class="vm b_ok" crossoriginNew="anonymous"></a>
                               </span>
                               <input type="hidden" name="${_name}">
