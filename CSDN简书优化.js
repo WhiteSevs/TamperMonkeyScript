@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.5.7
+// @version      0.5.8
 // @description  支持手机端和PC端
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -20,7 +20,7 @@
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1152861
 // ==/UserScript==
 
 (function () {
@@ -416,7 +416,8 @@
       .recommend-card-box,
       .more-article,
       .article-show-more,
-      #csdn-toolbar-profile-nologin{
+      #csdn-toolbar-profile-nologin,
+			.guide-rr-first{
           display: none !important;
       }
       .comment-list-box{
