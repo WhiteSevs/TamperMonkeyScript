@@ -3,8 +3,8 @@
 // @icon         https://bbs.binmt.cc/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
-// @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示uid、屏蔽用户、手机版小黑屋、编辑器优化等
-// @version      2.7.9.1
+// @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
+// @version      2.8.0
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -25,7 +25,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1082044
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1152183
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1152861
 // ==/UserScript==
 
 (function () {
@@ -954,9 +954,11 @@
 						let IMG_URL =
 							_item_.src || _item_.getAttribute("file"); /* 图片链接 */
 						let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname; /* 主机名 */
+						let IMG_URL_PATHNAME = new URL(IMG_URL).pathname; /* 路径 */
 						if (
 							IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
-							IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1
+							(IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1 &&
+								IMG_URL_PATHNAME.match("^(/static/image|/template)"))
 						) {
 							/* 图片黑名单 */
 							return;
@@ -2149,13 +2151,15 @@
 						item.querySelectorAll("img").forEach((_item_) => {
 							let IMG_URL = _item_.src; /* 图片链接 */
 							let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname; /* 主机名 */
+							let IMG_URL_PATHNAME = new URL(IMG_URL).pathname; /* 路径 */
 							let imgParentNode = _item_.parentElement; /* img标签的父元素 */
 							if (imgParentNode.nodeName.toLowerCase() === "span") {
 								imgParentNode.removeAttribute("onclick");
 							}
 							if (
 								IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
-								IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1
+								(IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1 &&
+									IMG_URL_PATHNAME.match("^(/static/image|/template)"))
 							) {
 								/* 图片黑名单 */
 								return;
@@ -2239,7 +2243,7 @@
 		},
 		autoSignIn() {
 			/* 签到 */
-			Utils.registerWindowCookies();
+			Utils.registerWindowCookies(window);
 			function checkLogin() {
 				/* 检测是否登录 */
 				let pc_login = document.querySelector("#comiis_key");
@@ -2491,21 +2495,73 @@
 		blackHome() {
 			async function showBlackHomeView() {
 				/* 显示小黑屋界面 */
-				if (typeof $jq.NZ_MsgBox == "undefined") {
-					popup2.toast("加载NZMsgBox.js中");
-					await GM_asyncLoadScriptNode(
-						"https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js"
-					);
-					if (typeof $jq.NZ_MsgBox == "undefined") {
-						popup2.toast("加载NZMsgBox.js失败");
-						return;
-					} else {
-						console.log("成功加载NZMsgBox.js");
-					}
+				let blackListJSON = await getMoreBlackList();
+				if (blackListJSON == null) {
+					popup2.toast("获取小黑屋名单失败");
+					popup2.closeMask();
+					return;
 				}
+				popup2.closeMask();
+
+				let blackCSSNode = GM_addStyle(`
+				.blackhome-user-filter input{
+					width: -webkit-fill-available;
+					height: 30px;
+					margin: 8px 20px;
+					border: 0px;
+					border-bottom: 1px solid;
+				}
+				.blackhome-user-list{
+					height: 330px;
+					overflow-y: auto;
+				}
+				.blackhome-user-list .blackhome-user-item{
+					display: flex;
+					margin: 18px 0px;
+				}
+				.blackhome-user-avatar-name{
+					margin-left: 8px;
+					margin-right: 8px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					flex-direction: column;
+					width: 28%;
+				}
+				.blackhome-user-avatar-name img{
+					width: 55px;
+    			height: 55px;
+					border-radius: 80px;
+				}
+				blackhome-user-avatar-name div{
+					margin-top: 8px;
+				}
+				.blackhome-user-text{
+					width: 68%;
+				}
+				.blackhome-user-text div{
+					display: flex;
+				}
+				.blackhome-user-text div p:nth-child(1){
+					display: flex;
+					min-width: 85px;
+				}
+				.blackhome-user-list .blackhome-user-action{
+					color: #53bcf5;
+				}
+				.blackhome-user-list .blackhome-user-groupexpiry{
+					color: #53bcf5;
+				}
+				.blackhome-user-list .blackhome-user-operator{
+					color: #fc2a2a;
+				}
+				`);
 				$jq.NZ_MsgBox.alert({
 					title: "小黑屋名单",
-					content: "<center>获取中...</center>",
+					content: `
+					<div class="blackhome-user-filter"><input placeholder="搜索用户名/操作人员/UID(可正则)"></div>
+					<center>处理数据中...</center>
+					<div class="blackhome-user-list"></div>`,
 					type: "",
 					location: "center",
 					buttons: {
@@ -2513,11 +2569,15 @@
 							text: "确定",
 						},
 					},
+					callback: function () {
+						blackCSSNode?.remove();
+					},
 				});
+				$jq(".NZ-MsgBox-alert .msgcon center").hide();
 				$jq(".msgtitle").on("click", function () {
 					let text = "请选择查看小黑屋的页数";
 					let selectHTML = "";
-					for (let i = 1; i <= 10; i++) {
+					for (let i = 1; i <= 20; i++) {
 						selectHTML += `<option value="${i}">${i}</option>`;
 					}
 					selectHTML = `<select id="blackhomeselect" style="margin-left: 10px;">${selectHTML}</select>`;
@@ -2538,13 +2598,6 @@
 					});
 					$jq("#blackhomeselect").val(GM_getValue("blackHomeListNums", 1));
 				});
-				let blackListJSON = await getMoreBlackList();
-				if (blackListJSON == null) {
-					$jq(".msgcon").html("<center>获取小黑屋名单失败</center>");
-					return;
-				}
-
-				let blackContent = "";
 
 				function jsonToArrayWithAddPropertyTime(data) {
 					let _list_ = [];
@@ -2640,75 +2693,54 @@
 				}
 				let newBlacklist = jsonToArrayWithAddPropertyTime(blackListJSON);
 				console.log("排序完毕的结果", newBlacklist);
+				let blackViewHTML = "";
 				$jq.each(newBlacklist, function (index, value) {
-					let blackreson = value["reason"] == "" ? "无" : value["reason"];
-					blackContent =
-						blackContent +
-						`
-                    <tbody id="autolist">
-                        <tr>
-                            <td class="k_misign_lu" style="text-align: center;overflow-wrap: break-word;width: 76px;">
-                                <a href="home.php?mod=space&uid=` +
-						value["uid"] +
-						`&do=profile">
-                                    <img src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=` +
-						value["uid"] +
-						`&amp;size=small">
-                                </a>
-                                <div class="f_c" style="display: flex;justify-content: center;margin-top: 5px;word-break: break-word;">
-                                    <h4>
-                                        <a href="home.php?mod=space&uid=` +
-						value["uid"] +
-						`&do=profile">` +
-						value["username"] +
-						`</a>
-                                    </h4>
-                                </div>
-                            </td>
-                            <td class="k_misign_ll" style="width: 10px;">
-                                <span></span>
-                            </td>
-                            <td class="k_misign_lc" style="max-width: 200px;">
-                                <div class="f_c" style="display: flex;justify-content: space-between;">
-                                    <h4>
-                                        <div class="y">操作时间: ` +
-						value["dateline"] +
-						`</div>
-                                    </h4>
-                                </div>
-                                <div class="f_c" style="display: flex;justify-content: space-between;">
-                                    <p class="f_0">操作行为: ` +
-						value["action"] +
-						`</p>
-                                </div>
-                                <div class="f_c" style="display: flex;justify-content: space-between;">
-                                    <p class="f_0">过期时间: ` +
-						value["groupexpiry"] +
-						`</p>
-                                </div>
-                                <div class="f_c" style="display: flex;justify-content: space-between;">
-                                    <p class="f_0" style="color: #fc2a2a !important;">操作人员: ` +
-						value["operator"] +
-						`</p>
-                                </div>
-                                <div class="f_c" style="display: flex;justify-content: space-between;">操作理由: ` +
-						blackreson +
-						`</div>
-                                
-                            </td>
-                        </tr>
-                        <tr style="height:15px;"></tr>
-                    </tbody>
-                    `;
-					/* console.log(value); */
+					let reason = value["reason"] == "" ? "无" : value["reason"];
+					blackViewHTML =
+						blackViewHTML +
+						` <div class="blackhome-user-item" 
+						data-name="${value["username"]}"
+						data-uid="${value["uid"]}" 
+						data-operator="${value["operator"]}">
+                <div class="blackhome-user-avatar-name">
+									<img src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${value["uid"]}&size=small" loading="lazy">
+									<div>${value["username"]}</div>
+								</div>
+								<div class="blackhome-user-text">
+									<div class="blackhome-user-dateline">
+										<p>操作时间：</p>
+										<p>${value["dateline"]}</p>
+									</div>
+									<div class="blackhome-user-action">
+										<p>操作行为：</p>
+										<p>${value["action"]}</p>
+									</div>
+									<div class="blackhome-user-groupexpiry">
+										<p>过期时间：</p>
+										<p>${value["groupexpiry"]}</p>
+									</div>
+									<div class="blackhome-user-operator">
+										<p>操作人员：</p>
+										<p>${value["operator"]}</p>
+									</div>
+									<div class="blackhome-user-reason">
+										<p>操作理由：</p>
+										<p>${reason}</p>
+									</div>
+								</div>
+							</div>`;
 				});
-				let mainBlackContent =
-					'<table id="misign_list" style="overflow: auto;height: inherit;margin: 15px 0px;width: 100%;">' +
-					blackContent +
-					"</table>";
-				$jq(".msgcon").html(mainBlackContent);
-				$jq(".NZ-MsgBox-alert.NZ-MsgBox--motion").css("top", "100px");
-				$jq(".msgcon").css("height", "400px");
+				let blackViewNode = $jq(blackViewHTML);
+				$jq(".blackhome-user-list").append(blackViewNode);
+				blackViewNode.on("click", ".blackhome-user-avatar-name", function () {
+					window.open(
+						`home.php?mod=space&uid=${this.parentElement.getAttribute(
+							"data-uid"
+						)}&do=profile`,
+						"_blank"
+					);
+				});
+				handleFilterInfo();
 			}
 			async function insertMobileBlackHomeButton() {
 				/* 插入手机版查看小黑屋的按钮 */
@@ -2745,6 +2777,8 @@
 								width: auto;
 						}`);
 					black_home_ele.onclick = () => {
+						popup2.showLoadingMask();
+						popup2.toast("正在获取小黑屋名单中...");
 						showBlackHomeView();
 					};
 					comiis_left_Touch.append(black_home_ele);
@@ -2803,9 +2837,61 @@
 						cid = message_split[message_split.length - 1];
 						data = Utils.jsonAllValueToArray(data);
 						resultData = [...resultData, ...data];
+						await Utils.sleep(600);
 					}
 					resolve(resultData);
 				});
+			}
+			function handleFilterInfo() {
+				/* 过滤 */
+				let isSeaching = false;
+				$jq(".blackhome-user-filter input").on(
+					"propertychange input",
+					function () {
+						let inputText = this.value.trim();
+						if (isSeaching) {
+							return;
+						}
+						isSeaching = true;
+						if (inputText == "") {
+							$jq(".blackhome-user-item").each((index, item) => {
+								item.removeAttribute("style");
+							});
+							isSeaching = false;
+							return;
+						}
+						$jq(".NZ-MsgBox-alert .msgcon center").text("过滤中...");
+						$jq(".NZ-MsgBox-alert .msgcon center").show();
+						let isFind = false;
+						$jq(".blackhome-user-item").each((index, item) => {
+							if (
+								item
+									.getAttribute("data-name")
+									.match(new RegExp(inputText, "ig")) ||
+								item
+									.getAttribute("data-uid")
+									.trim()
+									.match(new RegExp(inputText, "ig")) ||
+								item
+									.getAttribute("data-operator")
+									.match(new RegExp(inputText, "ig"))
+							) {
+								/* 匹配到 */
+								isFind = true;
+								item.removeAttribute("style");
+							} else {
+								item.setAttribute("style", "display:none;");
+							}
+						});
+						if (!isFind) {
+							$jq(".NZ-MsgBox-alert .msgcon center").text("空");
+							$jq(".NZ-MsgBox-alert .msgcon center").show();
+						} else {
+							$jq(".NZ-MsgBox-alert .msgcon center").hide();
+						}
+						isSeaching = false;
+					}
+				);
 			}
 			insertMobileBlackHomeButton();
 		},
@@ -2863,14 +2949,14 @@
 			const shieldUserOrPlateHTML = `
 			<div id="blackList" class="comiis_myinfo_list bg_f cl">
 				<a href="javascript:;" id="shieldUser" class="comiis_flex comiis_styli bg_f b_t cl">
-					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
+					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
 					<div class="flex">屏蔽用户</div>
 					<div class="styli_ico">
 						<i class="comiis_font f_e"></i>
 					</div>
 				</a>
 				<a href="javascript:;" id="shieldPlate" class="comiis_flex comiis_styli bg_f b_t cl">
-					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
+					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
 					<div class="flex">屏蔽板块</div>
 					<div class="styli_ico">
 						<i class="comiis_font f_e"></i>
@@ -6350,6 +6436,66 @@
             #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt{
                 display:none;
             }
+						@media screen and (max-width: 350px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 14.5%;
+							}
+						}
+						@media screen and (min-width: 350px) and (max-width: 400px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 12.5%;
+							}
+						}
+						@media screen and (min-width: 400px) and (max-width: 450px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 11%;
+							}
+						}
+						@media screen and (min-width: 450px) and (max-width: 500px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 10%;
+							}
+						}
+						@media screen and (min-width: 500px) and (max-width: 550px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 9.5%;
+							}
+						}
+						@media screen and (min-width: 550px) and (max-width: 600px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 9%;
+							}
+						}
+						@media screen and (min-width: 600px) and (max-width: 650px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 8.5%;
+							}
+						}
+						@media screen and (min-width: 650px) and (max-width: 700px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 8%;
+							}
+						}
+						@media screen and (min-width: 700px) and (max-width: 750px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 7.5%;
+							}
+						}
+						@media screen and (min-width: 750px) and (max-width: 800px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 7%;
+							}
+						}
+						@media screen and (min-width: 800px) and (max-width: 850px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 6.5%;
+							}
+						}
+						@media screen and (min-width: 850px) and (max-width: 1200px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 6%;
+							}
+						}
             `);
 			let pl = $jq("#comiis_foot_memu .comiis_flex li")[1];
 			let dz = $jq("#comiis_foot_memu .comiis_flex li")[2];
@@ -7818,6 +7964,66 @@
             #comiis_post_tab .comiis_over_box{
                 max-height: 225px;
             }
+						@media screen and (max-width: 350px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 14.5%;
+							}
+						}
+						@media screen and (min-width: 350px) and (max-width: 400px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 12.5%;
+							}
+						}
+						@media screen and (min-width: 400px) and (max-width: 450px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 11%;
+							}
+						}
+						@media screen and (min-width: 450px) and (max-width: 500px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 10%;
+							}
+						}
+						@media screen and (min-width: 500px) and (max-width: 550px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 9.5%;
+							}
+						}
+						@media screen and (min-width: 550px) and (max-width: 600px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 9%;
+							}
+						}
+						@media screen and (min-width: 600px) and (max-width: 650px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 8.5%;
+							}
+						}
+						@media screen and (min-width: 650px) and (max-width: 700px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 8%;
+							}
+						}
+						@media screen and (min-width: 700px) and (max-width: 750px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 7.5%;
+							}
+						}
+						@media screen and (min-width: 750px) and (max-width: 800px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 7%;
+							}
+						}
+						@media screen and (min-width: 800px) and (max-width: 850px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 6.5%;
+							}
+						}
+						@media screen and (min-width: 850px) and (max-width: 1200px) {
+							.comiis_bqbox .bqbox_c li {
+								width: 6%;
+							}
+						}
             `);
 			$jq(".comiis_scrollTop_box").parent().hide();
 			$jq("#postform .comiis_post_from.mt15").css(
@@ -9307,7 +9513,310 @@
 				}
 			}
 		},
+		onlineUserView() {
+			/* 在线用户查看 */
+			if (!GM_getValue("v56", false)) {
+				return;
+			}
 
+			function handleFilterInfo(userListNode) {
+				/* 过滤用户/UID */
+				let inputNode = $jq(".online-user-filter input");
+				let isSeaching = false;
+				inputNode.on("propertychange input", function () {
+					let inputText = this.value.trim();
+					if (isSeaching) {
+						return;
+					}
+					isSeaching = true;
+					if (inputText == "") {
+						$jq(".NZ-MsgBox-alert .msgcon center").hide();
+						$jq(".online-user-list li.online-item").each((index, item) => {
+							item.removeAttribute("style");
+						});
+						isSeaching = false;
+						return;
+					}
+
+					$jq(".NZ-MsgBox-alert .msgcon center").text("搜索中...");
+					$jq(".NZ-MsgBox-alert .msgcon center").show();
+					let isFind = false;
+					$jq(".online-user-list li.online-item").each((index, item) => {
+						if (
+							item
+								.getAttribute("data-name")
+								.match(new RegExp(inputText, "ig")) ||
+							item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) ||
+							item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))
+						) {
+							isFind = true;
+							$jq(".NZ-MsgBox-alert .msgcon center").hide();
+							item.removeAttribute("style");
+						} else {
+							item.setAttribute("style", "display:none;");
+						}
+					});
+					if (!isFind) {
+						$jq(".NZ-MsgBox-alert .msgcon center").text("空");
+						$jq(".NZ-MsgBox-alert .msgcon center").show();
+					}
+					isSeaching = false;
+				});
+			}
+			function showView(data) {
+				console.log(data);
+				let totalOnline = data["totalOnline"]; /* 全部在线用户 */
+				let onlineUser = data["onlineUser"]; /* 在线会员用户(已注册账号的) */
+				let noRegisterUser = data["noRegisterUser"]; /* 游客 */
+				let invisibleUser = data["invisibleUser"]; /* 隐身的用户 */
+				let userList = data["data"]; /* 用户列表 */
+				/* 显示列表 */
+				let dialogCSSNode = GM_addStyle(`
+				.online-user-filter input{
+					width: -webkit-fill-available;
+					height: 30px;
+					margin: 8px 20px;
+					border: 0px;
+					border-bottom: 1px solid;
+				}
+				.online-user-list{
+					height: 300px;
+				}
+				.online-user-list li{
+					display: flex;
+					margin: 18px 0px;
+				}
+				.online-user-avatar{
+					margin-left: 30px;
+					margin-right: 30px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+				.online-user-avatar img{
+					width: 80px;
+    			height: 80px;
+					border-radius: 8px;
+				}
+				.online-user-list{
+					overflow-y: auto;
+				}
+				.online-user-list div.online-user-name p::before,
+				.online-user-list div.online-user-sf p::before,
+				.online-user-list div.online-user-uid p::before{
+					display: flex;
+					width: 70px;
+					float: left;
+				}
+				.online-user-list div.online-user-name p::before{
+					content: "用户名：";
+				}
+				.online-user-list div.online-user-sf p::before{
+					content: "身份：";
+				}
+				.online-user-list div.online-user-uid p::before{
+					content: "UID：";
+				}
+				.online-user-list div.online-user-sf p[data-sf="会员"]{
+					color: #88b500;
+				}
+				.online-user-list div.online-user-sf p[data-sf="版主"]{
+					color: #2db5e3;
+				}
+				.online-user-list div.online-user-sf p[data-sf="超级版主"]{
+					color: #e89e38;
+				}
+				.online-user-list div.online-user-sf p[data-sf="管理员"]{
+					color: #ff5416;
+				}
+				`);
+				$jq.NZ_MsgBox.alert({
+					title: "在线用户查看",
+					content: `
+					<div class="online-user-info">${totalOnline} 人在线 - ${onlineUser} 会员${
+						invisibleUser == 0 ? "" : "(" + invisibleUser + " 隐身)"
+					} - ${noRegisterUser} 位游客</div>
+					<div class="online-user-filter"><input placeholder="搜索用户名/身份/UID(可正则)"></div>
+					<center>处理数据中...</center>
+					<div class="online-user-list"></div>`,
+					type: "",
+					location: "center",
+					buttons: {
+						confirm: {
+							text: "确定",
+						},
+					},
+					callback: () => {
+						dialogCSSNode?.remove();
+					},
+				});
+
+				let userListHTML = "";
+				let userListNode = null;
+				userList.forEach((item) => {
+					userListHTML += `
+					<li class="online-item" data-name="${item["name"]}" data-uid="${item["uid"]}" data-sf="${item["sf"]}">
+							<div class="online-user-avatar">
+								<img src="${item["avatar"]}" loading="lazy">
+							</div>
+							<div class="online-user-text">
+								<div class="online-user-name">
+									<p>${item["name"]}</p>
+								</div>
+								<div class="online-user-sf">
+									<p data-sf="${item["sf"]}">${item["sf"]}</p>
+								</div>
+								<div class="online-user-uid">
+									<p>${item["uid"]}</p>
+								</div>
+							</div>
+					</li>
+					`;
+				});
+				popup2.closeMask();
+				$jq(".NZ-MsgBox-alert .msgcon center").hide();
+				userListNode = $jq(userListHTML);
+				handleFilterInfo();
+				$jq(".online-user-list").append(userListNode);
+				userListNode.on("click", ".online-user-avatar", function () {
+					window.open(
+						`home.php?mod=space&uid=${this.parentElement.getAttribute(
+							"data-uid"
+						)}&do=profile`,
+						"_blank"
+					);
+				});
+			}
+			function getOnlineUsers() {
+				/* 获取在线用户列表 */
+				let result = {
+					totalOnline: 0,
+					onlineUser: 0,
+					noRegisterUser: 0,
+					invisibleUser: 0,
+					data: [],
+				};
+				return new Promise((resolve, reject) => {
+					GM_xmlhttpRequest({
+						url: "https://bbs.binmt.cc/forum.php?showoldetails=yes",
+						method: "GET",
+						data: "showoldetails=yes",
+						timeout: 5000,
+						headers: {
+							"User-Agent": Utils.getRandomPCUA(),
+						},
+						onload: function (response) {
+							console.log(response);
+							let pageHTML = $jq(response.responseText);
+							let onlineList = pageHTML.find("#onlinelist ul li");
+							onlineList.each((index, item) => {
+								let uid = item
+									.querySelector("a")
+									.getAttribute("href")
+									.match("uid-(.+?).html")[1]; /* uid */
+								let avatar = `https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${uid}&size=middle`; /* 头像 */
+								let name = item.querySelector("a").innerText; /* 名字 */
+								let sf = ""; /* 身份 */
+								let space = item
+									.querySelector("a")
+									.getAttribute("href"); /* 个人空间页 */
+								let memberSrc = item.querySelector("img").src;
+								if (memberSrc.indexOf("online_member") != -1) {
+									sf = "会员";
+								} else if (memberSrc.indexOf("online_moderator") != -1) {
+									sf = "版主";
+								} else if (memberSrc.indexOf("online_supermod") != -1) {
+									sf = "超级版主";
+								} else if (memberSrc.indexOf("online_admin") != -1) {
+									sf = "管理员";
+								} else {
+									sf = "未知身份";
+								}
+								result.data = [
+									...result.data,
+									{
+										uid: uid,
+										avatar: avatar,
+										name: name,
+										sf: sf,
+										space: space,
+									},
+								];
+							});
+
+							let onlineInfo = pageHTML
+								.find("#online div.bm_h span.xs1")
+								.text();
+							result.totalOnline = parseInt(
+								onlineInfo.match(/([0-9]*)\s*人在线/i)[1]
+							);
+							result.onlineUser = parseInt(
+								onlineInfo.match(/([0-9]*)\s*会员/i)[1]
+							);
+							result.noRegisterUser = parseInt(
+								onlineInfo.match(/([0-9]*)\s*位游客/i)[1]
+							);
+							result.invisibleUser = parseInt(
+								onlineInfo.match(/([0-9]*)\s*隐身/i)[1]
+							);
+							if (isNaN(result.totalOnline)) {
+								result.totalOnline = 0;
+							}
+							if (isNaN(result.onlineUser)) {
+								result.onlineUser = 0;
+							}
+							if (isNaN(result.noRegisterUser)) {
+								result.noRegisterUser = 0;
+							}
+							if (isNaN(result.invisibleUser)) {
+								result.invisibleUser = 0;
+							}
+							console.log(onlineInfo);
+							resolve(result);
+						},
+						onerror: function () {
+							popup2.toast("网络异常，请重新获取");
+							reject();
+						},
+						ontimeout: function () {
+							popup2.toast("请求超时");
+							reject();
+						},
+					});
+				});
+			}
+			function insertLeftButton() {
+				/* 插入左边按钮 */
+				let btnNode = `
+				<li class="comiis_left_Touch">
+					<a href="javascript:;" class="online-user-view">
+						<div class="styli_tit f_c">
+							<i class="comiis_font" style="color: #2d92ff"></i>
+						</div>
+						<div class="flex">在线用户查看</div></a
+					>
+				</li>
+				`;
+				btnNode = $jq(btnNode);
+				btnNode.on("click", function () {
+					popup2.showLoadingMask();
+					popup2.toast("获取在线用户列表中");
+					getOnlineUsers()
+						.then((resolve) => {
+							showView(resolve);
+						})
+						.catch(() => {
+							console.log(arguments);
+							popup2.toast("获取在线用户列表失败");
+							popup2.closeMask();
+						});
+				});
+				$jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
+					btnNode
+				);
+			}
+			insertLeftButton();
+		},
 		pageAfterDOMChangeRunFunction() {
 			/* 当本页面动态加载帖子需要重复加载的东西 */
 			if (
@@ -13313,7 +13822,6 @@
 					'<option value="v21">自动加载下一页评论</option>' +
 					'<option value="v30">小黑屋</option>' +
 					'<option value="v33">今日签到之星</option>' +
-					'<option value="v34">帖外预览图片</option>' +
 					'<option value="v36">修复搜索的清空按钮</option>' +
 					'<option value="v37">修复无法正确进入别人的空间</option>' +
 					'<option value="v40">聊天内图床</option>' +
@@ -13328,6 +13836,7 @@
 					'<option value="v53">导读新增显示最新帖子</option>' +
 					'<option value="v54">帖子快照</option>' +
 					'<option value="v55">贴内图片查看优化</option>' +
+					'<option value="v56">在线用户查看</option>' +
 					"</select>" +
 					'<code class="bg_f b_ok comiis_checkbox comiis_checkbox_close whitesevcheckbox" style="left: 20px;"></code>' +
 					"</div>";
