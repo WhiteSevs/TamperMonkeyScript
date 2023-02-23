@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.1
+// @version      2.8.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -22,10 +22,10 @@
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
 // @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1118788
-// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1082044
+// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153104
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1152183
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1152861
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1153204
 // ==/UserScript==
 
 (function () {
@@ -466,6 +466,84 @@
         popup.close()
     */
 
+	function checkResource() {
+		/* 检测引用库是否正确加载 */
+		// @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
+		// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
+		// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1118788
+		// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153104
+		// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1152183
+		// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
+		// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1152861
+		function _checkResouce_(
+			checkObj,
+			name = "",
+			url = "",
+			replaceJQueryNewName = ""
+		) {
+			if (typeof checkObj === "undefined") {
+				GM_referenceJavascriptResource(url, replaceJQueryNewName).then(
+					(resolve) => {
+						if (resolve) {
+							console.log(
+								"check: %c " + name + " %c √ 修复",
+								"background:#24272A; color:#ffffff",
+								"color:#00a5ff"
+							);
+						} else {
+							console.log(
+								"check: %c " + name + " %c ×",
+								"background:#24272A; color:#ffffff",
+								"color:#f90000"
+							);
+						}
+					}
+				);
+			} else {
+				console.log(
+					"check: %c " + name + " %c √",
+					"background:#24272A; color:#ffffff",
+					"color:#00a5ff"
+				);
+			}
+		}
+		_checkResouce_(
+			AnyTouch,
+			"AnyTouch",
+			"https://unpkg.com/any-touch/dist/any-touch.umd.min.js"
+		);
+		_checkResouce_(
+			Viewer,
+			"Viewer",
+			"https://greasyfork.org/scripts/449471-viewer/code/Viewer.js"
+		);
+		_checkResouce_(
+			xtip,
+			"xtip",
+			"https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js"
+		);
+		_checkResouce_(
+			$jq.NZ_MsgBox,
+			"NZ_MsgBox",
+			"https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js",
+			"$jq"
+		);
+		_checkResouce_(
+			Watermark,
+			"Watermark",
+			"https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js"
+		);
+		_checkResouce_(
+			html2canvas,
+			"html2canvas",
+			"https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js"
+		);
+		_checkResouce_(
+			Utils,
+			"Utils",
+			"https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js"
+		);
+	}
 	function envCheck() {
 		/* 脚本运行环境修复，兼容部分函数 */
 		let checkStatus = true;
@@ -514,7 +592,7 @@
 			window.GM_xmlhttpRequest_isRepair = false;
 			var trans_id = uuid();
 			GM_xmlhttpRequest = (req) => {
-				g_gm_callback_map[
+				_XJSAPI_.g_gm_callback_map[
 					"_" + user_script_id + "_" + trans_id + "_GM_xmlhttpRequest"
 				] = req;
 				if (req.url && !req.url.startsWith("http")) {
@@ -602,25 +680,25 @@
 					timeout: f.timeout,
 					dataType: f.responseType,
 					headers: headers_options,
-					success: (r) => {
-						if (typeof r === "string") {
-							f.onload({ responseText: r, type: "ajax" });
+					success: (response) => {
+						if (typeof response === "string") {
+							f.onload({ responseText: response, type: "ajax" });
 						} else {
-							f.onload(r);
+							f.onload(response);
 						}
 					},
-					error: (r) => {
-						if (r.status == 200) {
-							if (typeof r === "string") {
-								f.onload({ responseText: r, type: "ajax" });
+					error: (response) => {
+						if (response.status == 200) {
+							if (typeof response === "string") {
+								f.onload({ responseText: response, type: "ajax" });
 							} else {
-								f.onload(r);
+								f.onload(response);
 							}
 						} else {
-							if (typeof r === "string") {
-								f.onerror({ responseText: r, type: "ajax" });
+							if (typeof response === "string") {
+								f.onerror({ responseText: response, type: "ajax" });
 							} else {
-								f.onerror(r);
+								f.onerror(response);
 							}
 						}
 					},
@@ -636,51 +714,49 @@
 		}
 
 		var loadNetworkResource = [];
-		window.GM_asyncLoadScriptContent = (url, replaceStatus) => {
-			/* 异步执行跨域js资源 js */
-			if (loadNetworkResource.indexOf(url) != -1) {
-				console.log("已加载该js:", url);
-				return;
-			}
-			replaceStatus = replaceStatus == null ? true : replaceStatus;
-			return new Promise((res) => {
+		window.GM_referenceJavascriptResource = (url, newJQuery = "") => {
+			/* 重新引用JavaScript文件，并且可自定义jQuery引用名 */
+			return new Promise((resolve) => {
+				if (loadNetworkResource.indexOf(url) != -1) {
+					console.log("已加载该js:", url);
+					resolve(true);
+				}
 				GM_xmlhttpRequest({
 					url: url,
 					method: "GET",
 					async: false,
 					timeout: 10000,
-					onload: (r) => {
+					onload: (response) => {
 						let execStatus = false;
-						let retText = r.responseText;
-						if (replaceStatus) {
-							retText = retText.replace(/\$/g, "$jq");
-							retText = retText.replace(/jQuery/g, "$jq");
+						let scriptText = response.responseText;
+						if (newJQuery != "") {
+							scriptText = `let $ = ${newJQuery};let jQuery = ${newJQuery};\n${scriptText}`;
 						}
 						try {
-							eval(retText);
+							eval(scriptText);
 							execStatus = true;
 							loadNetworkResource = loadNetworkResource.concat(url);
 						} catch (error) {
 							console.log("eval执行失败" + error);
 							execStatus = false;
 						}
-						res(execStatus);
+						resolve(execStatus);
 					},
 					onerror: () => {
 						console.log("网络异常,加载JS失败", url);
-						res(false);
+						resolve(false);
 					},
 				});
 			});
 		};
 		window.GM_asyncLoadScriptNode = (url) => {
 			/* 异步加载JS文件 */
-			return new Promise((res) => {
+			return new Promise((resolve) => {
 				let tempNode = document.createElement("script");
 				tempNode.setAttribute("src", url);
 				document.head.append(tempNode);
 				tempNode.onload = () => {
-					res();
+					resolve();
 				};
 			});
 		};
@@ -776,19 +852,7 @@
 		}
 		if (typeof GM_setClipboard == "undefined") {
 			window.GM_setClipboard = (text) => {
-				let clipBoardDOM = document.createElement("input");
-				clipBoardDOM.type = "text";
-				clipBoardDOM.setAttribute("style", "opacity:0;position:absolute;");
-				clipBoardDOM.id = "whitesevClipBoardInput";
-				document.body.append(clipBoardDOM);
-				let clipBoardInputNode = document.getElementById(
-					"whitesevClipBoardInput"
-				);
-				clipBoardInputNode.value = text;
-				clipBoardInputNode.removeAttribute("disabled");
-				clipBoardInputNode.select();
-				document.execCommand("copy");
-				clipBoardInputNode.remove();
+				Utils.setClip(text);
 			};
 			console.log(
 				"check: %c GM_setClipboard %c √ 修复",
@@ -816,6 +880,7 @@
 				"color:#00a5ff"
 			);
 		}
+		checkResource();
 		if (checkStatus) {
 			console.log(`脚本环境检测结果: 通过`);
 		} else {
@@ -872,11 +937,17 @@
 				own_formhash;
 			var new_collect = document.createElement("span");
 			var old_Suspended = document.getElementById("scrolltop");
-			new_collect.innerHTML =
-				'<a href="' +
-				collect_href +
-				'" id="k_favorite" onclick="showWindow(this.id, this.href, \'get\', 0);" onmouseover="this.title = $(\'favoritenumber\').innerHTML + \' 人收藏\'" ><img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif" height="26" width="26" style="position:absolute;top:10px;left:11px"></a>';
-			old_Suspended.insertAdjacentElement("afterBegin", new_collect);
+			new_collect.innerHTML = `
+			<a href="${collect_href}" 
+				id="k_favorite"
+				onclick="showWindow(this.id, this.href, 'get', 0);"
+				onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
+				<img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif" loading="lazy" 
+						 height="26" 
+						 width="26" 
+						 style="position:absolute;top:10px;left:11px">
+			</a>
+			`;
 		},
 		detectUserOnlineStatus() {
 			/* 探测用户在线状态 */
@@ -932,7 +1003,7 @@
 				/* 查看图片 */
 				let viewerULNodeHTML = "";
 				imgList.forEach((item) => {
-					viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+					viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
 				});
 				let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
 				let viewer = new Viewer(viewerULNode, {
@@ -1794,7 +1865,7 @@
 				let websiteTitle = `
 					<div class="xtiper_sheet_tit_top_drag"><div></div></div>
 					<div style="display:flex;justify-content: space-between;">
-							<img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" class="xtiper_tit_ico">
+							<img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" loading="lazy" class="xtiper_tit_ico">
 							<div class="xtiper_tit_content">
 									<p>${title}</p>
 									<div class="xtiper_tit_svg_lock">
@@ -1917,7 +1988,7 @@
 						console.log("点击查看图片", imagesList);
 						var viewerULNodeHTML = "";
 						imagesList.forEach((item) => {
-							viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+							viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
 						});
 						var viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
 						let viewer = new Viewer(viewerULNode, {
@@ -2133,7 +2204,7 @@
 				/* 查看图片 */
 				let viewerULNodeHTML = "";
 				imgList.forEach((item) => {
-					viewerULNodeHTML += "<li><img data-src='" + item + "'></li>";
+					viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
 				});
 				let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
 				let viewer = new Viewer(viewerULNode, {
@@ -2332,12 +2403,12 @@
 						"User-Agent": Utils.getRandomPCUA(),
 					},
 					timeout: 5000,
-					onload: (r) => {
-						console.log(r);
+					onload: (response) => {
+						console.log(response);
 						GM_setValue("mt_sign", parseInt(Utils.getFormatTime("yyyyMMdd")));
-						if (r.lastChild || r.type == "ajax") {
+						if (response.lastChild || response.type == "ajax") {
 							/* ajax函数版本 */
-							if (r.responseText == "") {
+							if (response.responseText == "") {
 								popup2.toast({
 									text: "签到: 成功",
 									delayTime: 4000,
@@ -2345,7 +2416,7 @@
 								return;
 							}
 
-							let signInContent = r.lastChild.firstChild.nodeValue;
+							let signInContent = response.lastChild.firstChild.nodeValue;
 							if (signInContent.indexOf("您已经被列入黑名单") != -1) {
 								popup2.toast({
 									text: "签到: 您已经被列入黑名单",
@@ -2362,7 +2433,9 @@
 							}
 						} else {
 							/* GM_xmlhttpRequest版本 */
-							let CDATA = r.responseText.match(/<\!\[CDATA\[([\s\S]*)\]\]>/);
+							let CDATA = response.responseText.match(
+								/<\!\[CDATA\[([\s\S]*)\]\]>/
+							);
 							CDATA = CDATA[CDATA.length - 1];
 							let CDATA_Node = $jq("<div>" + CDATA + "</div>");
 							let content = CDATA_Node.text();
@@ -2403,7 +2476,7 @@
 								delayTime: 4000,
 							});
 						}
-						if (typeof r == "string") {
+						if (typeof response == "string") {
 							/* 无油猴函数的版本的签到成功是没有返回值的 */
 							popup2.toast({
 								text: "签到: 成功",
@@ -2412,8 +2485,8 @@
 							return;
 						}
 					},
-					onerror: (r) => {
-						console.log(r);
+					onerror: (response) => {
+						console.log(response);
 						console.log("签到: 网络异常");
 						popup2.toast({
 							text: "签到: 网络异常",
@@ -2559,9 +2632,9 @@
 				}
 				.blackhome-user-text div{
 					display: flex;
+					align-items: center;
 				}
 				.blackhome-user-text div p:nth-child(1){
-					display: flex;
 					min-width: 85px;
 				}
 				.blackhome-user-list .blackhome-user-action{
@@ -2807,7 +2880,7 @@
 			}
 			async function getBlackList(cid = "") {
 				/* 获取黑名单列表 */
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url:
 							"https://bbs.binmt.cc/forum.php?mod=misc&action=showdarkroom&cid=" +
@@ -2819,17 +2892,18 @@
 						headers: {
 							"User-Agent": Utils.getRandomPCUA(),
 						},
-						onload: (r) => {
-							res(r.responseText);
+						onload: (response) => {
+							console.log(response);
+							resolve(response.responseText);
 						},
-						onerror: (r) => {
-							console.log(r);
+						onerror: (response) => {
+							console.log(response);
 							popup2.toast("网络异常,请重新获取");
-							res("");
+							resolve("");
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时,请重新获取");
-							res("");
+							resolve("");
 						},
 					});
 				});
@@ -2998,7 +3072,7 @@
 						<div class="msgdivmain" data="shieldUser">
 							<div class="msgdivflex">
 								<a href="home.php?mod=space&uid=${item["uid"]}&do=profile">
-									<img src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${item["uid"]}&size=small">
+									<img src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${item["uid"]}&size=small" loading="lazy">
 								</a>
 								<div>
 									<p data-uid>${item["uid"]}</p>
@@ -3357,41 +3431,42 @@
 			},
 			getAuthToken(url) {
 				/* 获取图床的auth_token */
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: url,
 						method: "GET",
 						timeout: 15000,
+						responseType: "html",
 						headers: {
 							"user-agent": Utils.getRandomPCUA(),
 						},
-						onload: (r) => {
-							let token = r.responseText.match(
+						onload: (response) => {
+							let token = response.responseText.match(
 								/PF.obj.config.auth_token[\s]*=[\s]*"(.+)";/i
 							);
 							if (token != null && token.length == 2) {
 								popup2.toast("auth_token成功获取");
-								res(token[1]);
+								resolve(token[1]);
 							} else {
-								console.log(r);
+								console.log(response);
 								popup2.toast("auth_token获取失败");
-								res(null);
+								resolve(null);
 							}
 						},
 						onerror: () => {
 							popup2.toast("网络异常");
-							res(null);
+							resolve(null);
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时");
-							res(null);
+							resolve(null);
 						},
 					});
 				});
 			},
 			login(url, user, pwd, auth_token) {
 				/* 图床登录 */
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: `${url}/login`,
 						method: "POST",
@@ -3400,23 +3475,26 @@
 						headers: {
 							"Content-Type": "application/x-www-form-urlencoded",
 						},
-						onload: (e) => {
-							console.log(e);
-							if (e.status == 200 && e.responseText.match("注销")) {
+						onload: (response) => {
+							console.log(response);
+							if (
+								response.status == 200 &&
+								response.responseText.match("注销")
+							) {
 								popup2.toast("登陆成功");
-								res(true);
+								resolve(true);
 							} else {
 								popup2.toast("登录失败");
-								res(false);
+								resolve(false);
 							}
 						},
 						onerror: () => {
 							popup2.toast("网络异常");
-							res(false);
+							resolve(false);
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时");
-							res(false);
+							resolve(false);
 						},
 					});
 				});
@@ -3435,7 +3513,7 @@
 				form.append("auth_token", auth_token);
 				form.append("nsfw", 0);
 				form.append("source", imageFile);
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: `${url}/json`,
 						method: "POST",
@@ -3466,7 +3544,7 @@
 										this.result; /* 此时的图片已经存储到了result中	 */
 									res_data["imageUri"] = imageUri;
 									res_data["json_data"] = json_data;
-									res(res_data);
+									resolve(res_data);
 								};
 							} else if (
 								mobile.chartBed.ret_code[status_code] != null &&
@@ -3479,23 +3557,23 @@
 										json_data["error"]["code"]
 									]
 								);
-								res(res_data);
+								resolve(res_data);
 							} else {
 								console.log(json_data);
-								res(res_data);
+								resolve(res_data);
 							}
 						},
-						onerror: (r) => {
-							console.log(r.responseText);
+						onerror: (response) => {
+							console.log(response.responseText);
 							popup2.toast("网络异常");
-							res(res_data);
+							resolve(res_data);
 						},
 					});
 				});
 			},
 			deleteImage(url, auth_token, id_encoded) {
 				/* 删除图片请求 */
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: `${url}/json`,
 						method: "POST",
@@ -3505,20 +3583,20 @@
 							"Content-Type":
 								"application/x-www-form-urlencoded; charset=UTF-8",
 						},
-						onload: (e) => {
+						onload: (response) => {
 							try {
-								let json_data = JSON.parse(e.responseText);
+								let json_data = JSON.parse(response.responseText);
 								let status_code = json_data["status_code"];
 
 								if (status_code == 200 && json_data["success"]["code"] == 200) {
 									popup2.toast(mobile.chartBed.ret_code["200"]["200"]);
-									res(true);
+									resolve(true);
 								} else if (
 									status_code == 400 &&
 									json_data["error"]["code"] == 100
 								) {
 									popup2.toast(mobile.chartBed.ret_code["400"]["100"]);
-									res(true);
+									resolve(true);
 								} else if (
 									mobile.chartBed.ret_code[status_code] != null &&
 									mobile.chartBed.ret_code[status_code][
@@ -3530,25 +3608,25 @@
 											json_data["error"]["code"]
 										]
 									);
-									res(false);
+									resolve(false);
 								} else {
 									console.log(json_data);
 									popup2.toast(json_data["error"]["message"]);
-									res(false);
+									resolve(false);
 								}
 							} catch (error) {
 								popup2.toast("删除失败");
 								console.log(error);
-								res(false);
+								resolve(false);
 							}
 						},
 						onerror: () => {
 							popup2.toast("网络异常");
-							res(false);
+							resolve(false);
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时");
-							res(false);
+							resolve(false);
 						},
 					});
 				});
@@ -3682,7 +3760,7 @@
 				};
 
 				function getToken() {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/tokens`,
 							method: "POST",
@@ -3691,28 +3769,28 @@
 							headers: {
 								Accept: "application/json",
 							},
-							onload: (r) => {
-								if (code[r.status] != null) {
-									popup2.toast(code[r.status]);
-									res(null);
+							onload: (response) => {
+								if (code[response.status] != null) {
+									popup2.toast(code[response.status]);
+									resolve(null);
 									return;
 								}
-								let json_data = JSON.parse(r.responseText);
+								let json_data = JSON.parse(response.responseText);
 								if (json_data["status"]) {
 									popup2.toast("token成功获取");
-									res(json_data["data"]["token"]);
+									resolve(json_data["data"]["token"]);
 								} else {
 									popup2.toast(json_data["message"]);
-									res(null);
+									resolve(null);
 								}
 							},
 							onerror: () => {
 								popup2.toast("网络异常");
-								res(null);
+								resolve(null);
 							},
 							ontimeout: () => {
 								popup2.toast("请求超时");
-								res(null);
+								resolve(null);
 							},
 						});
 					});
@@ -3726,7 +3804,7 @@
 					let form = new FormData();
 					form.append("strategy_id", 2); /* 存储策略 */
 					form.append("file", imageFile);
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/upload`,
 							method: "POST",
@@ -3738,13 +3816,13 @@
 								"User-Agent": Utils.getRandomPCUA(),
 								Authorization: `Bearer ${chartBedToken}`,
 							},
-							onload: (r) => {
-								if (code[r.status] != null) {
-									popup2.toast(code[r.status]);
-									res(res_data);
+							onload: (response) => {
+								if (code[response.status] != null) {
+									popup2.toast(code[response.status]);
+									resolve(res_data);
 									return;
 								}
-								let json_data = JSON.parse(r.responseText);
+								let json_data = JSON.parse(response.responseText);
 								console.log(json_data);
 
 								if (json_data["status"]) {
@@ -3760,24 +3838,24 @@
 											this.result; /* 此时的图片已经存储到了result中	 */
 										res_data["imageUri"] = imageUri;
 										res_data["json_data"] = json_data;
-										res(res_data);
+										resolve(res_data);
 									};
 								} else {
 									console.log(json_data);
 									popup2.toast(json_data["message"]);
-									res(res_data);
+									resolve(res_data);
 								}
 							},
-							onerror: (r) => {
+							onerror: () => {
 								popup2.toast("网络异常");
-								res(res_data);
+								resolve(res_data);
 							},
 						});
 					});
 				}
 
 				function deleteImage(imageKey) {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/images/:${imageKey}`,
 							method: "DELETE",
@@ -3794,22 +3872,22 @@
 								Authorization: `Bearer ${chartBedToken}`,
 								Origin: chartBedUrl,
 							},
-							onload: (r) => {
-								if (code[r.status] != null) {
-									popup2.toast(code[r.status]);
-									res(res_data);
+							onload: (response) => {
+								if (code[response.status] != null) {
+									popup2.toast(code[response.status]);
+									resolve(res_data);
 									return;
 								}
-								let json_data = JSON.parse(r.responseText);
+								let json_data = JSON.parse(response.responseText);
 								console.log(json_data);
 							},
-							onerror: (r) => {
+							onerror: () => {
 								popup2.toast("网络异常");
-								res(res_data);
+								resolve(res_data);
 							},
 							ontimeout: () => {
 								popup2.toast("请求超时");
-								res(res_data);
+								resolve(res_data);
 							},
 						});
 					});
@@ -3904,7 +3982,12 @@
                                 <span class="charu f_f">插入</span>
                                 <span class="p_img">
                                     <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                        <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                        <img style="height:54px;width:54px;" 
+																						 title="${image_name}" 
+																						 loading="lazy"
+																						 src="${image_uri}" 
+																						 class="vm b_ok">
+																		</a>
                                 </span>
                                 <input type="hidden" name="">
                             </li>`;
@@ -4055,7 +4138,12 @@
                                 <span class="charu f_f">插入</span>
                                 <span class="p_img">
                                     <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                        <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                        <img style="height:54px;width:54px;" 
+																						 title="${image_name}" 
+																						 src="${image_uri}" 
+																						 loading="lazy"
+																						 class="vm b_ok">
+																		</a>
                                 </span>
                                 <input type="hidden" name="">
                             </li>`;
@@ -4213,7 +4301,12 @@
                                 <span class="charu f_f">插入</span>
                                 <span class="p_img">
                                     <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                        <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                        <img style="height:54px;width:54px;" 
+																						 title="${image_name}" 
+																						 src="${image_uri}" 
+																						 class="vm b_ok"
+																						 loading="lazy">
+																		</a>
                                 </span>
                                 <input type="hidden" name="">
                             </li>`;
@@ -4282,7 +4375,11 @@
                         <span class="charu f_f">${_web}</span>
                         <span class="p_img">
                             <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
-                                <img style="height:54px;width:54px;" title="${_name}" data-src="${_thumb_url}" class="vm b_ok"></a>
+                                <img style="height:54px;width:54px;" 
+																title="${_name}" 
+																data-src="${_thumb_url}" 
+																loading="lazy"
+																class="vm b_ok"></a>
                         </span>
                         <input type="hidden" name="${_name}">
                     </li>
@@ -4398,18 +4495,6 @@
 
 			async function showView() {
 				/* 显示-快照列表(dialog) */
-				if (typeof $jq.NZ_MsgBox == "undefined") {
-					popup2.toast("加载NZMsgBox.js中");
-					await GM_asyncLoadScriptNode(
-						"https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js"
-					);
-					if (typeof $jq.NZ_MsgBox == "undefined") {
-						popup2.toast("网络异常,加载NZMsgBox.js失败");
-						return;
-					} else {
-						console.log("成功加载NZMsgBox.js");
-					}
-				}
 				$jq.NZ_MsgBox.alert({
 					title: "快照",
 					content: "<center>获取中...</center>",
@@ -4493,7 +4578,7 @@
 										type: "html",
 										width: document.documentElement.clientWidth + "px",
 										height: document.documentElement.clientHeight + "px",
-										content: `<img src="${item["data"]}" style="width:100%;"></img>`,
+										content: `<img src="${item["data"]}" style="width:100%;" loading="lazy"></img>`,
 										title: "查看帖子快照",
 										lock: false,
 										zindex:
@@ -4760,7 +4845,7 @@
 				};
 
 				function getToken() {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/tokens`,
 							method: "POST",
@@ -4770,28 +4855,28 @@
 								Accept: "application/json",
 								"Content-Type": "application/x-www-form-urlencoded",
 							},
-							onload: (r) => {
-								if (code[r.status] != null) {
-									popup2.toast(code[r.status]);
-									res(null);
+							onload: (response) => {
+								if (code[response.status] != null) {
+									popup2.toast(code[response.status]);
+									resolve(null);
 									return;
 								}
-								let json_data = JSON.parse(r.responseText);
+								let json_data = JSON.parse(response.responseText);
 								if (json_data["status"]) {
 									popup2.toast("token成功获取");
-									res(json_data["data"]["token"]);
+									resolve(json_data["data"]["token"]);
 								} else {
 									popup2.toast(json_data["message"]);
-									res(null);
+									resolve(null);
 								}
 							},
 							onerror: () => {
 								popup2.toast("网络异常");
-								res(null);
+								resolve(null);
 							},
 							ontimeout: () => {
 								popup2.toast("请求超时");
-								res(null);
+								resolve(null);
 							},
 						});
 					});
@@ -4805,7 +4890,7 @@
 					let form = new FormData();
 					form.append("strategy_id", 2); /* 存储策略 */
 					form.append("file", imageFile);
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/upload`,
 							method: "POST",
@@ -4817,18 +4902,18 @@
 								"User-Agent": Utils.getRandomPCUA(),
 								Authorization: `Bearer ${chartBedToken}`,
 							},
-							onload: (r) => {
-								if (code[r.status] != null) {
-									popup2.toast(code[r.status]);
-									res(res_data);
+							onload: (response) => {
+								if (code[response.status] != null) {
+									popup2.toast(code[response.status]);
+									resolve(res_data);
 									return;
 								}
-								if (r.responseText.match("502 Bad Gateway")) {
+								if (response.responseText.match("502 Bad Gateway")) {
 									popup2.toast("获取返回结果502失败");
-									res(res_data);
+									resolve(res_data);
 									return;
 								}
-								let json_data = JSON.parse(r.responseText);
+								let json_data = JSON.parse(response.responseText);
 								console.log(json_data);
 
 								if (json_data["status"]) {
@@ -4844,24 +4929,24 @@
 											this.result; /* 此时的图片已经存储到了result中	 */
 										res_data["imageUri"] = imageUri;
 										res_data["json_data"] = json_data;
-										res(res_data);
+										resolve(res_data);
 									};
 								} else {
 									console.log(json_data);
 									popup2.toast(json_data["message"]);
-									res(res_data);
+									resolve(res_data);
 								}
 							},
-							onerror: (r) => {
+							onerror: () => {
 								popup2.toast("网络异常");
-								res(res_data);
+								resolve(res_data);
 							},
 						});
 					});
 				}
 
 				function deleteImage(imageKey) {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `${chartBedUrl}/images/:${imageKey}`,
 							method: "DELETE",
@@ -4876,22 +4961,22 @@
 								"User-Agent": Utils.getRandomPCUA(),
 								Authorization: `Bearer ${chartBedToken}`,
 							},
-							onload: (r) => {
-								if (code[r.status] != null) {
-									popup2.toast(code[r.status]);
-									res(res_data);
+							onload: (response) => {
+								if (code[response.status] != null) {
+									popup2.toast(code[response.status]);
+									resolve(res_data);
 									return;
 								}
-								let json_data = JSON.parse(r.responseText);
+								let json_data = JSON.parse(response.responseText);
 								console.log(json_data);
 							},
-							onerror: (r) => {
+							onerror: () => {
 								popup2.toast("网络异常");
-								res(res_data);
+								resolve(res_data);
 							},
 							ontimeout: () => {
 								popup2.toast("请求超时");
-								res(res_data);
+								resolve(res_data);
 							},
 						});
 					});
@@ -4907,7 +4992,7 @@
 				}
 
 				function checkLogin() {
-					return new Promise(async (res) => {
+					return new Promise(async (resolve) => {
 						if (!chartBedUser || !chartBedPwd) {
 							let loginCallBack = () => {
 								let user = $jq("#chartbed_user").val().trim();
@@ -4919,7 +5004,7 @@
 									chartBedPwd = pwd;
 									popup2.toast("设置完毕,请重新点击");
 									popup2.closeConfirm();
-									res(false);
+									resolve(false);
 								} else {
 									popup2.toast("账号或密码不能为空");
 								}
@@ -4936,13 +5021,13 @@
 							popup2.closeMask();
 							console.log("token:" + chartBedToken);
 							if (chartBedToken != null) {
-								res(true);
+								resolve(true);
 							} else {
 								clearData();
-								res(false);
+								resolve(false);
 							}
 						} else {
-							res(true);
+							resolve(true);
 						}
 					});
 				}
@@ -4988,7 +5073,11 @@
                                         <span class="charu f_f">插入</span>
                                         <span class="p_img">
                                             <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                                <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                                <img style="height:54px;width:54px;" 
+																								title="${image_name}" 
+																								src="${image_uri}" 
+																								loading="lazy"
+																								class="vm b_ok"></a>
                                         </span>
                                         <input type="hidden" name="">
                                     </li>`;
@@ -5071,7 +5160,7 @@
 										renderHTML +
 										'<img src="' +
 										item +
-										'" crossoriginNew="anonymous">';
+										'" crossoriginNew="anonymous" loading="lazy">';
 								});
 								popup2.confirm({
 									text: `<style>
@@ -5194,7 +5283,7 @@
 				};
 
 				function checkLogin() {
-					return new Promise(async (res) => {
+					return new Promise(async (resolve) => {
 						if (!chartBedUser || !chartBedPwd) {
 							let loginCallBack = () => {
 								let user = $jq("#chartbed_user").val().trim();
@@ -5206,7 +5295,7 @@
 									chartBedPwd = pwd;
 									popup2.toast("设置完毕,请重新点击");
 									popup2.closeConfirm();
-									res(false);
+									resolve(false);
 								} else {
 									popup2.toast("账号或密码不能为空");
 								}
@@ -5234,18 +5323,18 @@
 								popup2.closeMask();
 								if (retloginStatus) {
 									loginStatus = true;
-									res(true);
+									resolve(true);
 									return;
 								} else {
 									clearData();
-									res(false);
+									resolve(false);
 									return;
 								}
 							}
 							popup2.closeMask();
-							res(false);
+							resolve(false);
 						} else {
-							res(true);
+							resolve(true);
 						}
 					});
 				}
@@ -5290,7 +5379,11 @@
                                             <span class="charu f_f">插入</span>
                                             <span class="p_img">
                                                 <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                                    <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                                    <img style="height:54px;width:54px;" 
+																										title="${image_name}" 
+																										src="${image_uri}" 
+																										loading="lazy"
+																										class="vm b_ok"></a>
                                             </span>
                                             <input type="hidden" name="">
                                         </li>`;
@@ -5372,7 +5465,7 @@
 										renderHTML +
 										'<img src="' +
 										item +
-										'" crossoriginNew="anonymous">';
+										'" crossoriginNew="anonymous" loading="lazy">';
 								});
 								popup2.confirm({
 									text: `<style>
@@ -5501,7 +5594,7 @@
 				};
 
 				function checkLogin() {
-					return new Promise(async (res) => {
+					return new Promise(async (resolve) => {
 						if (!chartBedUser || !chartBedPwd) {
 							let loginCallBack = () => {
 								let user = $jq("#chartbed_user").val().trim();
@@ -5513,7 +5606,7 @@
 									chartBedPwd = pwd;
 									popup2.toast("设置完毕,请重新点击");
 									popup2.closeConfirm();
-									res(false);
+									resolve(false);
 								} else {
 									popup2.toast("账号或密码不能为空");
 								}
@@ -5542,18 +5635,18 @@
 								if (retloginStatus) {
 									console.log("登录成功");
 									loginStatus = true;
-									res(true);
+									resolve(true);
 									return;
 								} else {
 									clearData();
-									res(false);
+									resolve(false);
 									return;
 								}
 							}
 							popup2.closeMask();
-							res(false);
+							resolve(false);
 						} else {
-							res(true);
+							resolve(true);
 						}
 					});
 				}
@@ -5594,7 +5687,11 @@
                                         <span class="charu f_f">插入</span>
                                         <span class="p_img">
                                             <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                                <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                                <img style="height:54px;width:54px;" 
+																								title="${image_name}" 
+																								src="${image_uri}" 
+																								loading="lazy"
+																								class="vm b_ok"></a>
                                         </span>
                                         <input type="hidden" name="">
                                     </li>`;
@@ -5675,7 +5772,7 @@
 										renderHTML +
 										'<img src="' +
 										item +
-										'" crossoriginNew="anonymous">';
+										'" crossoriginNew="anonymous" loading="lazy">';
 								});
 								popup2.confirm({
 									text: `<style>
@@ -5836,7 +5933,7 @@
 						let form = new FormData();
 						form.append("strategy_id", 2); /* 存储策略 */
 						form.append("file", imageFile);
-						return new Promise((res) => {
+						return new Promise((resolve) => {
 							GM_xmlhttpRequest({
 								url: `https://img.binmt.cc/upload`,
 								method: "POST",
@@ -5851,8 +5948,8 @@
 									referer: "https://img.binmt.cc/",
 									"x-csrf-token": csrfToken,
 								},
-								onload: (r) => {
-									let json_data = JSON.parse(r.responseText);
+								onload: (response) => {
+									let json_data = JSON.parse(response.responseText);
 									console.log(json_data);
 
 									if (json_data["status"]) {
@@ -5868,18 +5965,18 @@
 												this.result; /* 此时的图片已经存储到了result中	 */
 											res_data["imageUri"] = imageUri;
 											res_data["json_data"] = json_data;
-											res(res_data);
+											resolve(res_data);
 										};
 									} else {
 										console.log(json_data);
 										popup2.toast(json_data["message"]);
-										res(res_data);
+										resolve(res_data);
 									}
 								},
-								onerror: (r) => {
-									console.log(r);
+								onerror: (response) => {
+									console.log(response);
 									popup2.toast("网络异常");
-									res(res_data);
+									resolve(res_data);
 								},
 							});
 						});
@@ -5924,7 +6021,11 @@
                                         <span class="charu f_f">插入</span>
                                         <span class="p_img">
                                             <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                                <img style="height:54px;width:54px;" title="${image_name}" src="${image_uri}" class="vm b_ok"></a>
+                                                <img style="height:54px;width:54px;" 
+																								title="${image_name}" 
+																								src="${image_uri}" 
+																								loading="lazy"
+																								class="vm b_ok"></a>
                                         </span>
                                         <input type="hidden" name="">
                                     </li>`;
@@ -5997,7 +6098,7 @@
 									renderHTML +
 									'<img src="' +
 									item +
-									'" crossoriginNew="anonymous">';
+									'" crossoriginNew="anonymous" loading="lazy">';
 							});
 							popup2.confirm({
 								text: `<style>
@@ -6119,7 +6220,12 @@
                               <span class="charu f_f">${_web}</span>
                               <span class="p_img">
                                   <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
-                                      <img style="height:54px;width:54px;" title="${_name}" src="${_thumb_url}" class="vm b_ok" crossoriginNew="anonymous"></a>
+                                      <img style="height:54px;width:54px;" 
+																			title="${_name}" 
+																			src="${_thumb_url}" 
+																			class="vm b_ok" 
+																			loading="lazy"
+																			crossoriginNew="anonymous"></a>
                               </span>
                               <input type="hidden" name="${_name}">
                           </li>
@@ -6162,7 +6268,13 @@
                               <span class="charu f_f">${_web}</span>
                               <span class="p_img">
                                   <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
-                                      <img style="height:54px;width:54px;" title="${_name}" src="${_thumb_url}" class="vm b_ok" crossoriginNew="anonymous"></a>
+                                      <img style="height:54px;width:54px;" 
+																			title="${_name}" 
+																			src="${_thumb_url}" 
+																			class="vm b_ok" 
+																			crossoriginNew="anonymous"
+																			loading="lazy"
+																			></a>
                               </span>
                               <input type="hidden" name="${_name}">
                           </li>
@@ -6765,286 +6877,286 @@
                             <div class="comiis_smiley_box swiper-container-horizontal swiper-container-android">
                                 <div class="swiper-wrapper bqbox_c comiis_optimization">
                                     <div class="swiper-slide">
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[呵呵]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[撇嘴]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[色]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[发呆]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq004.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[得意]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq005.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[流泪]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq006.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[害羞]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq007.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[闭嘴]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq008.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[睡]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq009.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[大哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq010.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[尴尬]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq011.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[发怒]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq012.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[调皮]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq013.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[呲牙]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq014.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[惊讶]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq015.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[难过]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq016.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[酷]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq017.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[冷汗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq018.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抓狂]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq019.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[吐]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq020.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[偷笑]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq021.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[可爱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq022.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[白眼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq023.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[傲慢]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq024.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[饥饿]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq025.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[困]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq026.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[惊恐]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq027.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[流汗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq028.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[憨笑]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq029.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[装逼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq030.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[奋斗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq031.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[咒骂]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq032.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[疑问]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq033.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[嘘]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq034.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[晕]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq035.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[折磨]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq036.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[衰]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq037.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[骷髅]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq038.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[敲打]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq039.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[再见]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq040.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[擦汗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq041.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抠鼻]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq042.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[鼓掌]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq043.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[糗大了]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq044.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[坏笑]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq045.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[左哼哼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq046.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[右哼哼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq047.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[哈欠]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq048.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[鄙视]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq049.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[委屈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq050.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[快哭了]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq051.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[阴脸]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq052.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[亲亲]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq053.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[吓]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq054.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[可怜]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq055.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[眨眼睛]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq056.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[笑哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq057.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[dogeQQ]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq058.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[泪奔]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq059.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[无奈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq060.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[托腮]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq061.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[卖萌]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq062.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[斜眼笑]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[喷血]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq064.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[惊喜]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq065.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[骚扰]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq066.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[小纠结]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq067.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[我最美]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq068.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[菜刀]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq069.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[西瓜]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq070.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[啤酒]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq071.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[篮球]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq072.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[乒乓]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq073.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[咖啡]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq074.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[饭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq075.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[猪]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq076.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[玫瑰]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq077.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[凋谢]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq078.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[示爱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq079.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[爱心]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq080.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[心碎]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq081.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[蛋糕]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq082.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[闪电]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq083.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[炸弹]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq084.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[刀]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq085.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[足球]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq086.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[瓢虫]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq087.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[便便]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq088.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[月亮]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq089.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[太阳]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq090.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[礼物]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq091.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抱抱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq092.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[喝彩]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq93.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[祈祷]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq94.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[棒棒糖]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq95.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[药]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq96.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[赞]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq097.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[差劲]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq098.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[握手]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq099.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[胜利]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq100.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抱拳]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[勾引]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[拳头]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[差劲]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq104.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[爱你]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[NO]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[OK]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[呵呵]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[撇嘴]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[色]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[发呆]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq004.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[得意]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq005.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[流泪]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq006.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[害羞]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq007.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[闭嘴]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq008.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[睡]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq009.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[大哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq010.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[尴尬]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq011.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[发怒]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq012.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[调皮]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq013.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[呲牙]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq014.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[惊讶]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq015.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[难过]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq016.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[酷]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq017.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[冷汗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq018.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抓狂]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq019.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[吐]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq020.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[偷笑]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq021.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[可爱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq022.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[白眼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq023.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[傲慢]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq024.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[饥饿]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq025.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[困]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq026.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[惊恐]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq027.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[流汗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq028.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[憨笑]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq029.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[装逼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq030.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[奋斗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq031.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[咒骂]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq032.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[疑问]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq033.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[嘘]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq034.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[晕]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq035.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[折磨]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq036.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[衰]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq037.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[骷髅]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq038.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[敲打]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq039.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[再见]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq040.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[擦汗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq041.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抠鼻]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq042.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[鼓掌]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq043.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[糗大了]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq044.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[坏笑]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq045.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[左哼哼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq046.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[右哼哼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq047.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[哈欠]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq048.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[鄙视]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq049.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[委屈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq050.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[快哭了]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq051.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[阴脸]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq052.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[亲亲]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq053.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[吓]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq054.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[可怜]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq055.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[眨眼睛]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq056.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[笑哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq057.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[dogeQQ]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq058.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[泪奔]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq059.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[无奈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq060.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[托腮]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq061.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[卖萌]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq062.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[斜眼笑]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[喷血]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq064.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[惊喜]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq065.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[骚扰]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq066.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[小纠结]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq067.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[我最美]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq068.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[菜刀]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq069.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[西瓜]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq070.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[啤酒]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq071.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[篮球]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq072.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[乒乓]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq073.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[咖啡]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq074.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[饭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq075.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[猪]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq076.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[玫瑰]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq077.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[凋谢]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq078.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[示爱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq079.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[爱心]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq080.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[心碎]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq081.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[蛋糕]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq082.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[闪电]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq083.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[炸弹]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq084.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[刀]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq085.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[足球]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq086.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[瓢虫]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq087.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[便便]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq088.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[月亮]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq089.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[太阳]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq090.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[礼物]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq091.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抱抱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq092.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[喝彩]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq93.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[祈祷]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq94.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[棒棒糖]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq95.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[药]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq96.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[赞]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq097.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[差劲]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq098.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[握手]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq099.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[胜利]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq100.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[抱拳]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[勾引]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[拳头]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[差劲]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq104.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[爱你]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[NO]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[OK]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif" class="vm"></a></li>
                                     
                                     </div>
     
                                     <div class="swiper-slide" style="display: none;">
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#呵呵]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#滑稽]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#吐舌]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_3.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#哈哈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_2.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#啊]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_23.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#酷]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_22.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#怒]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_13.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#开心]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_39.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#汗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_14.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#泪]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_16.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#黑线]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_15.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#鄙视]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_21.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#不高兴]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_12.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#真棒]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_17.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#钱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_40.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#疑问]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_26.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#阴险]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_20.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#吐]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_34.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#咦]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_41.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#委屈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_29.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#花心]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_6.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#呼～]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_42.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#激动]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_5.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#冷]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_43.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#可爱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_4.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#What？]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_25.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#勉强]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_38.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#狂汗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_24.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#酸爽]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_27.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#乖]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_8.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#雅美蝶]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_28.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#睡觉]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_31.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#惊哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_19.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#哼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_44.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#笑尿]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_32.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#惊讶]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_30.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#小乖]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_7.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#喷]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_18.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#抠鼻]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_33.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#捂嘴笑]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_9.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#你懂的]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_11.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#犀利]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_35.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#小红脸]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_36.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#懒得理]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_37.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#爱心]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_45.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#心碎]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_46.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#玫瑰]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_47.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#礼物]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_48.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#彩虹]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_49.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#太阳]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_50.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#月亮]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_51.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#钱币]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_52.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#咖啡]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_53.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#蛋糕]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_54.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#大拇指]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_55.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#胜利]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_56.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#爱你]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_57.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#OK]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_58.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#弱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_59.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#沙发]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_60.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#纸巾]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_61.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#香蕉]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_62.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#便便]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_63.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#药丸]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_64.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#红领巾]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_65.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#蜡烛]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#三道杠]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#音乐]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#灯泡]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#呵呵]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#滑稽]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#吐舌]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_3.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#哈哈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_2.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#啊]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_23.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#酷]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_22.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#怒]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_13.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#开心]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_39.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#汗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_14.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#泪]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_16.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#黑线]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_15.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#鄙视]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_21.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#不高兴]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_12.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#真棒]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_17.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#钱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_40.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#疑问]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_26.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#阴险]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_20.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#吐]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_34.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#咦]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_41.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#委屈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_29.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#花心]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_6.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#呼～]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_42.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#激动]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_5.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#冷]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_43.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#可爱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_4.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#What？]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_25.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#勉强]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_38.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#狂汗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_24.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#酸爽]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_27.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#乖]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_8.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#雅美蝶]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_28.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#睡觉]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_31.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#惊哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_19.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#哼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_44.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#笑尿]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_32.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#惊讶]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_30.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#小乖]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_7.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#喷]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_18.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#抠鼻]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_33.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#捂嘴笑]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_9.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#你懂的]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_11.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#犀利]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_35.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#小红脸]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_36.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#懒得理]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_37.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#爱心]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_45.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#心碎]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_46.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#玫瑰]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_47.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#礼物]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_48.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#彩虹]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_49.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#太阳]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_50.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#月亮]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_51.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#钱币]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_52.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#咖啡]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_53.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#蛋糕]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_54.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#大拇指]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_55.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#胜利]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_56.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#爱你]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_57.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#OK]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_58.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#弱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_59.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#沙发]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_60.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#纸巾]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_61.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#香蕉]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_62.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#便便]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_63.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#药丸]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_64.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#红领巾]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_65.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#蜡烛]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#三道杠]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#音乐]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[#灯泡]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png" class="vm"></a></li>
                                     </div>
                                     
                                     <div class="swiper-slide" style="display: none;">
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge思考]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/2.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge再见]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/3.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge生气]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/4.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge气哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/5.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge笑哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/7.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge调皮]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/6.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge啊哈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/8.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge原谅TA]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/9.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/10.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao思考]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/11.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao拜拜]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/12.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao生气]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/13.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao气哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/14.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[二哈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/15.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[摊手]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/19.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w并不简单]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/20.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w滑稽]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w色]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/22.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w爱你]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/23.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w拜拜]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/24.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w悲伤]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/25.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w鄙视]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/26.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w馋嘴]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/27.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w冷汗]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/28.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w打哈欠]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/29.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w打脸]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/30.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w敲打]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/31.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w生病]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/32.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w闭嘴]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/33.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w鼓掌]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/34.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w哈哈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/35.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w害羞]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/36.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w呵呵]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/37.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w黑线]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/38.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w哼哼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/39.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w调皮]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/40.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w可爱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/41.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w可怜]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/42.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w酷]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/43.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w困]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/44.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w懒得理你]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/45.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w流泪]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/46.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w怒]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/47.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w怒骂]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/48.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w钱]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/49.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w亲亲]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/50.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w傻眼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/51.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w便秘]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/52.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w失望]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/53.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w衰]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/54.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w睡觉]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/55.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w思考]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/56.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w开心]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/57.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w色舔]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/58.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w偷笑]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/59.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w吐]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/60.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w抠鼻]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/61.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w委屈]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/62.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w笑哭]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/63.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w嘻嘻]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/64.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w嘘]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/65.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w阴险]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/66.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w疑问]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/67.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w抓狂]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/70.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w晕]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/69.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w右哼哼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/68.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w左哼哼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/71.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w肥皂]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/77.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w奥特曼]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/78.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w草泥马]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/79.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w兔子]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/80.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w熊猫]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/81.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w猪头]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/82.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w→_→]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/83.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w给力]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/84.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w囧]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w萌]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w神马]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png" class="vm"></a></li>
-                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w威武]');"><img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge思考]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/2.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge再见]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/3.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge生气]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/4.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge气哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/5.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge笑哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/7.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge调皮]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/6.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge啊哈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/8.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[doge原谅TA]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/9.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/10.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao思考]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/11.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao拜拜]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/12.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao生气]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/13.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[miao气哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/14.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[二哈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/15.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[摊手]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/19.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w并不简单]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/20.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w滑稽]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w色]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/22.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w爱你]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/23.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w拜拜]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/24.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w悲伤]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/25.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w鄙视]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/26.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w馋嘴]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/27.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w冷汗]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/28.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w打哈欠]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/29.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w打脸]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/30.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w敲打]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/31.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w生病]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/32.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w闭嘴]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/33.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w鼓掌]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/34.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w哈哈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/35.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w害羞]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/36.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w呵呵]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/37.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w黑线]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/38.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w哼哼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/39.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w调皮]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/40.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w可爱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/41.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w可怜]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/42.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w酷]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/43.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w困]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/44.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w懒得理你]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/45.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w流泪]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/46.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w怒]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/47.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w怒骂]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/48.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w钱]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/49.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w亲亲]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/50.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w傻眼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/51.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w便秘]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/52.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w失望]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/53.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w衰]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/54.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w睡觉]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/55.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w思考]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/56.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w开心]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/57.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w色舔]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/58.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w偷笑]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/59.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w吐]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/60.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w抠鼻]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/61.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w委屈]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/62.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w笑哭]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/63.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w嘻嘻]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/64.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w嘘]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/65.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w阴险]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/66.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w疑问]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/67.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w抓狂]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/70.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w晕]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/69.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w右哼哼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/68.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w左哼哼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/71.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w肥皂]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/77.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w奥特曼]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/78.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w草泥马]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/79.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w兔子]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/80.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w熊猫]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/81.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w猪头]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/82.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w→_→]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/83.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w给力]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/84.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w囧]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w萌]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w神马]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png" class="vm"></a></li>
+                                        <li><a href="javascript:;" onclick="comiis_addsmilies('[w威武]');"><img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png" class="vm"></a></li>
                                     </div>
                                 </div>
                                 <div class="bqbox_t">
                                     <ul id="comiis_smilies_key">
                                         <li>
                                             <a href="javascript:;" id="comiis_smilies_tab_n_1" class="bg_f b_l b_r">
-                                                <img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
+                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
                                             </a>
                                         </li>
                                         <li>
                                             <a href="javascript:;" id="comiis_smilies_tab_n_2" class="">
-                                                <img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
+                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
                                             </a>
                                         </li>
                                         <li>
                                             <a href="javascript:;" id="comiis_smilies_tab_n_3" class="">
-                                                <img data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
+                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
                                             </a>
                                         </li>
                                     </ul>
@@ -7213,7 +7325,7 @@
 													uid +
 													'"><a href="home.php?mod=space&uid=' +
 													uid +
-													'"><img src="uc_server/avatar.php?uid=' +
+													'"><img loading="lazy" src="uc_server/avatar.php?uid=' +
 													uid +
 													'&size=small"></a></li>'
 											);
@@ -8815,7 +8927,7 @@
 				login_getFormHash(user, pwd) {
 					/* 获取账号的formhash */
 					popup2.showLoadingMask();
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/mlogin.php",
 							timeout: 5000,
@@ -8829,19 +8941,19 @@
 								let formhash = response.responseText.match(/formhash':'(.+?)'/);
 								if (formhash && formhash.length == 2) {
 									xtips.toast("获取formhash成功");
-									res(formhash[1]);
+									resolve(formhash[1]);
 								} else if (!response.responseText.match("登录")) {
-									res(4);
+									resolve(4);
 								} else {
 									console.log(response);
 									xtips.toast("获取formhash失败");
-									res(null);
+									resolve(null);
 								}
 							},
 							onerror: () => {
 								popup2.closeMask();
 								xtips.toast("网络异常,获取formhash失败");
-								res(null);
+								resolve(null);
 							},
 							ontimeout: () => {
 								popup2.closeMask();
@@ -8854,7 +8966,7 @@
 				login(user, pwd, formhash) {
 					/* 登录 */
 					popup2.showLoadingMask();
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/mlogin.php",
 							timeout: 5000,
@@ -8873,7 +8985,7 @@
 										JSON.parse(response.responseText)["zt"] == 1) ||
 									response.finalUrl.indexOf("woozooo.com/myfile.php") != -1
 								) {
-									res(true);
+									resolve(true);
 								} else {
 									if (
 										response.responseHeaders.indexOf(
@@ -8886,18 +8998,18 @@
 										console.log(response);
 									}
 
-									res(false);
+									resolve(false);
 								}
 							},
 							onerror: () => {
 								popup2.closeMask();
 								xtips.toast("网络异常,登录失败");
-								res(false);
+								resolve(false);
 							},
 							ontimeout: () => {
 								popup2.closeMask();
 								xtips.toast("请求超时");
-								res(false);
+								resolve(false);
 							},
 						});
 					});
@@ -8911,7 +9023,7 @@
 					formData.append("id", "WU_FILE_0");
 					formData.append("folder_id_bb_n", -1);
 					formData.append("upload_file", file);
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: "https://up.woozooo.com/fileup.php",
 							method: "post",
@@ -8924,22 +9036,22 @@
 								let json_data = JSON.parse(response.responseText);
 								if (json_data["zt"] == 1) {
 									xtips.toast(json_data["info"]);
-									res(json_data["text"][0]);
+									resolve(json_data["text"][0]);
 								} else {
 									xtips.toast(json_data["info"]);
 									console.log(response);
-									res(null);
+									resolve(null);
 								}
 							},
 							onerror: () => {
 								popup2.closeMask();
 								xtips.toast("网络异常,上传失败");
-								res(null);
+								resolve(null);
 							},
 							ontimeout: () => {
 								popup2.closeMask();
 								xtips.toast("请求超时");
-								res(null);
+								resolve(null);
 							},
 						});
 					});
@@ -8947,7 +9059,7 @@
 				deleteFile(file_id) {
 					/* 删除文件 */
 					popup2.showLoadingMask();
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `https://up.woozooo.com/doupload.php`,
 							method: "post",
@@ -8962,22 +9074,22 @@
 								try {
 									let data = JSON.parse(response.responseText);
 									xtips.toast(data["info"]);
-									res(true);
+									resolve(true);
 								} catch (error) {
 									xtips.toast("删除失败");
 									console.log(response);
-									res(false);
+									resolve(false);
 								}
 							},
 							onerror: () => {
 								popup2.closeMask();
 								xtips.toast("网络异常,删除失败");
-								res(false);
+								resolve(false);
 							},
 							ontimeout: () => {
 								popup2.closeMask();
 								xtips.toast("请求超时");
-								res(false);
+								resolve(false);
 							},
 						});
 					});
@@ -8985,7 +9097,7 @@
 				outLogin(user) {
 					/* 退出登录 */
 					popup2.showLoadingMask();
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url: `https://up.woozooo.com/account.php?action=logout&${encodeURI(
 								user
@@ -8994,17 +9106,17 @@
 							method: "get",
 							onload: (response) => {
 								popup2.closeMask();
-								res(response.responseText.match("成功") ? true : false);
+								resolve(response.responseText.match("成功") ? true : false);
 							},
 							onerror: () => {
 								popup2.closeMask();
 								xtips.toast("网络异常,退出失败");
-								res(false);
+								resolve(false);
 							},
 							ontimeout: () => {
 								popup2.closeMask();
 								xtips.toast("请求超时");
-								res(false);
+								resolve(false);
 							},
 						});
 					});
@@ -9013,22 +9125,6 @@
 			async function showUploadFiles() {
 				/* 历史上传的文件们 */
 				lanZouViewShowLock = false;
-				if (typeof $jq.NZ_MsgBox == "undefined") {
-					popup2.toast({
-						text: "加载NZMsgBox.js中",
-					});
-					await GM_asyncLoadScriptNode(
-						"https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js"
-					);
-					if (typeof $jq.NZ_MsgBox == "undefined") {
-						popup2.toast({
-							text: "网络异常,加载NZMsgBox.js失败",
-						});
-						return;
-					} else {
-						console.log("成功加载NZMsgBox.js");
-					}
-				}
 				let data = lanzou.storage.getUploadFiles();
 				data.reverse();
 				let content = "";
@@ -9299,7 +9395,7 @@
 				ANode.className = "blacklist";
 				ANode.innerHTML = `
                     <div class="styli_tit f_c">
-                        <img src="data:image/jpeg;base64,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">
+                        <img loading="lazy" src="data:image/jpeg;base64,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">
                     </div>
                     <div class="flex">蓝奏云</div>`;
 				ANode.onclick = () => {
@@ -9332,7 +9428,7 @@
 				}
 
 				function _loadNextComments_() {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						$jq("#loading-comment-tip").text("正在加载评论中...");
 						$jq("#loading-comment-tip")[0].parentElement.style.display = "";
 						let _url_ = next_page_url;
@@ -9372,7 +9468,7 @@
 							}
 							kqideSourceNode.append(postDOM);
 							mobileRepeatFunc.main();
-							res();
+							resolve();
 						});
 					});
 				}
@@ -9438,7 +9534,7 @@
 				$jq("#loading-comment-tip-prev").on("click", _loadPrevComments_);
 
 				function _loadPrevComments_() {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						$jq("#loading-comment-tip-prev").text("正在加载评论中...");
 						$jq("#loading-comment-tip-prev")[0].parentElement.style.display =
 							"";
@@ -9490,7 +9586,7 @@
 								$jq(window).off("scroll");
 							}
 							mobileRepeatFunc.main();
-							res();
+							resolve();
 						});
 					});
 				}
@@ -9605,6 +9701,7 @@
 				.online-user-list li{
 					display: flex;
 					margin: 18px 0px;
+					align-items: center;
 				}
 				.online-user-avatar{
 					margin-left: 30px;
@@ -9617,6 +9714,9 @@
 					width: 80px;
     			height: 80px;
 					border-radius: 8px;
+				}
+				.online-user-info{
+					text-align: center;
 				}
 				.online-user-list{
 					overflow-y: auto;
@@ -9710,17 +9810,17 @@
 			function getOnlineUsers() {
 				/* 获取在线用户列表 */
 				let result = {
+					status: false,
 					totalOnline: 0,
 					onlineUser: 0,
 					noRegisterUser: 0,
 					invisibleUser: 0,
 					data: [],
 				};
-				return new Promise((resolve, reject) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: "https://bbs.binmt.cc/forum.php?showoldetails=yes",
 						method: "GET",
-						data: "showoldetails=yes",
 						timeout: 5000,
 						headers: {
 							"User-Agent": Utils.getRandomPCUA(),
@@ -9767,40 +9867,33 @@
 							let onlineInfo = pageHTML
 								.find("#online div.bm_h span.xs1")
 								.text();
-							result.totalOnline = parseInt(
-								onlineInfo.match(/([0-9]*)\s*人在线/i)[1]
-							);
-							result.onlineUser = parseInt(
-								onlineInfo.match(/([0-9]*)\s*会员/i)[1]
-							);
-							result.noRegisterUser = parseInt(
-								onlineInfo.match(/([0-9]*)\s*位游客/i)[1]
-							);
-							result.invisibleUser = parseInt(
-								onlineInfo.match(/([0-9]*)\s*隐身/i)[1]
-							);
-							if (isNaN(result.totalOnline)) {
-								result.totalOnline = 0;
-							}
-							if (isNaN(result.onlineUser)) {
-								result.onlineUser = 0;
-							}
-							if (isNaN(result.noRegisterUser)) {
-								result.noRegisterUser = 0;
-							}
-							if (isNaN(result.invisibleUser)) {
-								result.invisibleUser = 0;
-							}
 							console.log(onlineInfo);
+							result.totalOnline = Utils.parseInt(
+								onlineInfo.match(/([0-9]*)\s*人在线/i),
+								0
+							);
+							result.onlineUser = Utils.parseInt(
+								onlineInfo.match(/([0-9]*)\s*会员/i),
+								0
+							);
+							result.noRegisterUser = Utils.parseInt(
+								onlineInfo.match(/([0-9]*)\s*位游客/i),
+								0
+							);
+							result.invisibleUser = Utils.parseInt(
+								onlineInfo.match(/([0-9]*)\s*隐身/i),
+								0
+							);
+							result.status = true;
 							resolve(result);
 						},
 						onerror: function () {
 							popup2.toast("网络异常，请重新获取");
-							reject();
+							resolve(result);
 						},
 						ontimeout: function () {
 							popup2.toast("请求超时");
-							reject();
+							resolve(result);
 						},
 					});
 				});
@@ -9821,15 +9914,14 @@
 				btnNode.on("click", function () {
 					popup2.showLoadingMask();
 					popup2.toast("获取在线用户列表中");
-					getOnlineUsers()
-						.then((resolve) => {
+					getOnlineUsers().then((resolve) => {
+						if (resolve.status) {
 							showView(resolve);
-						})
-						.catch(() => {
-							console.log(arguments);
+						} else {
 							popup2.toast("获取在线用户列表失败");
 							popup2.closeMask();
-						});
+						}
+					});
 				});
 				$jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
 					btnNode
@@ -9946,18 +10038,6 @@
 				},
 				async showView() {
 					/* 显示-付费主题白嫖列表(dialog) */
-					if (typeof $jq.NZ_MsgBox == "undefined") {
-						popup2.toast("加载NZMsgBox.js中");
-						await GM_asyncLoadScriptNode(
-							"https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js"
-						);
-						if (typeof $jq.NZ_MsgBox == "undefined") {
-							popup2.toast("网络异常,加载NZMsgBox.js失败");
-							return;
-						} else {
-							console.log("成功加载NZMsgBox.js");
-						}
-					}
 					let data = paymentSubjectReminderHome.getData();
 					console.log("准备排序的数据: ", data);
 					$jq.NZ_MsgBox.alert({
@@ -10838,7 +10918,7 @@
 						}
 						text = text.replace(
 							item,
-							`<span class="comiis_postimg vm"><img id="aimg_${aimg_id}" src="${imgsrc}" alt="${imgtitle}" title="${imgtitle}"></span>`
+							`<span class="comiis_postimg vm"><img loading="lazy" id="aimg_${aimg_id}" src="${imgsrc}" alt="${imgtitle}" title="${imgtitle}"></span>`
 						);
 					});
 				}
@@ -10962,7 +11042,7 @@
 						}
 						text = text.replace(
 							item,
-							`<img src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}" crossoriginNew="anonymous">`
+							`<img loading="lazy" src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}" crossoriginNew="anonymous">`
 						);
 					});
 				}
@@ -11081,7 +11161,7 @@
 						if (smiliesMatchSrc) {
 							text = text.replace(
 								item,
-								`<img src="${smiliesMatchSrc}" border="0" alt="" smilieid="">`
+								`<img loading="lazy" src="${smiliesMatchSrc}" border="0" alt="" smilieid="">`
 							);
 						}
 					});
@@ -11166,7 +11246,7 @@
 						/* 这个是以前的wpa协议，现在是tencent协议，mt的discuz没有更新，如：tencent://message/?uin=xxx&site=bbs.binmt.cc&menu=yes  */
 						text = text.replace(
 							item,
-							`<a href="http://wpa.qq.com/msgrd?v=3&uin=${content}&site=[Discuz!]&from=discuz&menu=yes" target="_blank"><img src="static/image/common/qq_big.gif" border="0"></a>`
+							`<a href="http://wpa.qq.com/msgrd?v=3&uin=${content}&site=[Discuz!]&from=discuz&menu=yes" target="_blank"><img loading="lazy" src="static/image/common/qq_big.gif" border="0"></a>`
 						);
 					});
 				}
@@ -12644,13 +12724,13 @@
 					event.list = this.list;
 					event.showList = this.showList;
 					this.addSearching();
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						var result = that.inputValueChangeEvent(event);
 						if (this.parentDOM.value !== "" && result.length == 0) {
 							this.parentDOM.dispatchEvent(new Event("focus"));
 						}
 						that.removeSearching();
-						res(result);
+						resolve(result);
 					});
 				}
 			}
@@ -12947,14 +13027,14 @@
 			let dynamicAvater = $jq(`
             <a href="javascript:;" class="comiis_flex comiis_edit_dynamic_avatar comiis_styli bg_f b_t cl">
                 <div class="flex">修改动态头像</div>
-            <img style="
+            <img loading="lazy" style="
                 float: right;
                 width: 30px;
                 height: 30px;
                 border-radius: 50%;
                 overflow: hidden;
             " src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${uid}&size=big&ts=1" class="kmtximg">
-            <img style="
+            <img loading="lazy" style="
                 float: right;
                 width: 30px;
                 height: 30px;
@@ -12963,7 +13043,7 @@
                 margin-left: 10px;
                 margin-right: 10px;
             " src="https://avatar-bbs.mt2.cn/uc_server/avatar.php?uid=${uid}&size=middle&ts=1" class="kmtximg">
-            <img style="
+            <img loading="lazy" style="
                 float: right;
                 width: 30px;
                 height: 30px;
@@ -12993,7 +13073,7 @@
 				}
 			}
 			function getPCUploadNewAvater() {
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: "https://bbs.binmt.cc/home.php?mod=spacecp&ac=avatar",
 						method: "GET",
@@ -13001,16 +13081,16 @@
 						headers: {
 							"User-Agent": Utils.getRandomPCUA(),
 						},
-						onload: function (resp) {
-							res(resp.responseText);
+						onload: function (response) {
+							resolve(response.responseText);
 						},
 						onerror: function () {
 							popup2.toast("网络异常,请重新获取");
-							res("");
+							resolve("");
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时");
-							res("");
+							resolve("");
 						},
 					});
 				});
@@ -13029,8 +13109,8 @@
 					let tmpImage = new Image();
 					let reader = new FileReader();
 					reader.readAsDataURL(uploadImageFile);
-					reader.onload = function (e) {
-						tmpImage.src = e.target.result;
+					reader.onload = function (response) {
+						tmpImage.src = response.target.result;
 						tmpImage.onload = function () {
 							if (this.width > maxWidth || this.height > maxHeight) {
 								$jq(elementQuery).val("");
@@ -13136,8 +13216,8 @@
 										"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 									"User-Agent": Utils.getRandomPCUA(),
 								},
-								onload: function (resp) {
-									let text = resp.responseText;
+								onload: function (response) {
+									let text = response.responseText;
 									if (
 										text.indexOf("window.parent.postMessage('success','*')") !=
 										-1
@@ -13177,8 +13257,8 @@
 					let tmpImage = new Image();
 					let reader = new FileReader();
 					reader.readAsDataURL(uploadImageFile);
-					reader.onload = function (e) {
-						tmpImage.src = e.target.result;
+					reader.onload = function (response) {
+						tmpImage.src = response.target.result;
 						tmpImage.onload = function () {
 							if (this.width > maxWidth || this.height > maxHeight) {
 								/* 判断尺寸大小 */
@@ -13238,25 +13318,27 @@
 			}
 			function getLatestPostForm() {
 				/* 获取轮播的最新的帖子 */
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: "https://bbs.binmt.cc/forum.php?mod=guide&view=hot",
-						method: "get",
+						method: "GET",
 						timeout: 8000,
 						async: false,
+						responseType: "html",
 						headers: {
 							accept:
 								"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-							"user-agent": Utils.getRandomAndroidUA(),
+							"User-Agent": Utils.getRandomAndroidUA(),
 						},
-						onload: function (resp) {
-							var respHTML = $jq(resp.responseText);
+						onload: function (response) {
+							console.log(response);
+							var respHTML = $jq(response.responseText);
 							var postFormList = respHTML.find(
 								'div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul'
 							);
 							if (postFormList.length === 0) {
 								popup2.toast("获取轮播失败");
-								res([]);
+								resolve([]);
 							} else {
 								var result = [];
 								postFormList[postFormList.length - 1]
@@ -13270,17 +13352,17 @@
 											...result,
 										];
 									});
-								res(result);
+								resolve(result);
 							}
 						},
-						onerror: function (resp) {
-							console.log(resp);
+						onerror: function (response) {
+							console.log(response);
 							popup2.toast("网络异常,获取轮播失败");
-							res([]);
+							resolve([]);
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时");
-							res([]);
+							resolve([]);
 						},
 					});
 				});
@@ -13360,7 +13442,7 @@
 					)[0]
 				);
 				let getMaxPage = (urlextra) => {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url:
 								"https://bbs.binmt.cc/k_misign-sign.html?operation=" + urlextra,
@@ -13370,8 +13452,8 @@
 							headers: {
 								"User-Agent": Utils.getRandomPCUA(),
 							},
-							onload: function (resp) {
-								let last_page = $jq(resp.responseText).find(
+							onload: function (response) {
+								let last_page = $jq(response.responseText).find(
 									"#J_list_detail .pg span"
 								);
 								if (
@@ -13380,31 +13462,31 @@
 								) {
 									let last_page_match = last_page[0].title.match(/([0-9]+)/);
 									if (last_page_match.length == 2) {
-										res(last_page_match[last_page_match.length - 1]);
+										resolve(last_page_match[last_page_match.length - 1]);
 									} else {
 										popup2.toast("获取页失败");
-										res(0);
+										resolve(0);
 									}
 								} else {
 									popup2.toast("请求最先签到的页失败");
-									res(0);
+									resolve(0);
 								}
 							},
-							onerror: function (resp) {
-								console.log(resp);
+							onerror: function (response) {
+								console.log(response);
 								popup2.toast("网络异常,请重新获取");
-								res(0);
+								resolve(0);
 							},
 							ontimeout: () => {
 								popup2.toast("请求超时");
-								res(0);
+								resolve(0);
 							},
 						});
 					});
 				};
 
 				let getPagePeople = (page) => {
-					return new Promise((res) => {
+					return new Promise((resolve) => {
 						GM_xmlhttpRequest({
 							url:
 								"https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=" +
@@ -13415,8 +13497,8 @@
 							headers: {
 								"User-Agent": Utils.getRandomPCUA(),
 							},
-							onload: function (resp) {
-								let peoples = $jq(resp.responseText).find(
+							onload: function (response) {
+								let peoples = $jq(response.responseText).find(
 									"#J_list_detail tbody tr"
 								);
 								let ret_array = [];
@@ -13424,7 +13506,7 @@
 									peoples.length == 2 &&
 									peoples[0].textContent.indexOf("暂无内容") != -1
 								) {
-									res(ret_array);
+									resolve(ret_array);
 									return;
 								}
 								for (let i = 1; i <= peoples.length - 2; i++) {
@@ -13451,15 +13533,15 @@
 									ret_json["reward"] = sign_reward;
 									ret_array = ret_array.concat(ret_json);
 								}
-								res(ret_array);
+								resolve(ret_array);
 							},
-							onerror: function (resp) {
-								console.log(resp);
-								res({});
+							onerror: function (response) {
+								console.log(response);
+								resolve({});
 							},
 							ontimeout: () => {
 								popup2.toast("请求超时");
-								res({});
+								resolve({});
 							},
 						});
 					});
@@ -13512,43 +13594,24 @@
 						latestPeople.forEach((people) => {
 							peopleHTML =
 								peopleHTML +
-								`
-                            <tbody id="autolist_` +
-								people["uid"] +
-								`">
-                                <tr>
-                                    <td class="k_misign_lu">
-                                        <a href="home.php?mod=space&amp;uid=` +
-								people["uid"] +
-								`"><img
-                                                src="` +
-								people["avatar"] +
-								`"></a>
-                                    </td>
-                                    <td class="k_misign_ll"><span></span></td>
-                                    <td class="k_misign_lc">
-                                        <h4 class="f_c"><a href="home.php?mod=space&amp;uid=` +
-								people["uid"] +
-								`">` +
-								people["user"] +
-								`</a><span>` +
-								people["time"] +
-								`</span><span
-                                                class="y">总天数 ` +
-								people["days"] +
-								`天</span></h4>
-                                        <p class="f_0">月天数 ` +
-								people["monthDays"] +
-								` 天
-                                            ，
-                                            上次奖励
-                                            ` +
-								people["reward"] +
-								`</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            `;
+								`<tbody id="autolist_${people["uid"]}">
+                  <tr>
+                		<td class="k_misign_lu">
+                    	<a href="home.php?mod=space&amp;uid=${people["uid"]}">
+												<img src="${people["avatar"]}" loading="lazy">
+											</a>
+                  	</td>
+                  	<td class="k_misign_ll"><span></span></td>
+                  	<td class="k_misign_lc">
+                    	<h4 class="f_c">
+												<a href="home.php?mod=space&amp;uid=${people["uid"]}">${people["user"]}</a>
+												<span>${people["time"]}</span>
+												<span class="y">总天数 ${people["days"]}天</span>
+											</h4>
+                    	<p class="f_0">月天数 ${people["monthDays"]} 天，次奖励 ${people["reward"]}</p>
+                  	</td>
+                	</tr>
+              	</tbody>`;
 						});
 						let latestHTML =
 							`<li class="styli_h bg_e"></li>
@@ -13610,8 +13673,8 @@
 					headers: {
 						"User-Agent": Utils.getRandomPCUA(),
 					},
-					onload: (r) => {
-						let html = $jq(r.responseText);
+					onload: (response) => {
+						let html = $jq(response.responseText);
 						let todatastarele = html.find("#pt span.xg1");
 						if (!todatastarele.length) {
 							return;
@@ -13648,8 +13711,8 @@
                         }`);
 						todayStarParent.append(todayStar);
 					},
-					onerror: (r) => {
-						console.log(r);
+					onerror: (response) => {
+						console.log(response);
 						log.error("请求今日之星失败");
 						popup2.toast("请求今日之星失败");
 					},
@@ -13671,7 +13734,7 @@
 
 			function getPCReply() {
 				/* 获取PC端的回复内容 */
-				return new Promise((res) => {
+				return new Promise((resolve) => {
 					GM_xmlhttpRequest({
 						url: window.location.href,
 						method: "get",
@@ -13680,8 +13743,8 @@
 						headers: {
 							"User-Agent": Utils.getRandomPCUA(),
 						},
-						onload: (r) => {
-							let pageHTML = $jq(r.responseText);
+						onload: (response) => {
+							let pageHTML = $jq(response.responseText);
 							let form = pageHTML.find("#delform tr.bw0_all+tr");
 							let arrayData = [];
 							Array.from(form).forEach((v, i) => {
@@ -13706,16 +13769,16 @@
 								}
 								arrayData.push(replyData);
 							});
-							res(arrayData);
+							resolve(arrayData);
 						},
 						onerror: () => {
 							console.log("网络异常,获取PC回复失败");
 							popup2.toast("网络异常,获取PC回复失败");
-							res(null);
+							resolve(null);
 						},
 						ontimeout: () => {
 							popup2.toast("请求超时");
-							res(null);
+							resolve(null);
 						},
 					});
 				});
