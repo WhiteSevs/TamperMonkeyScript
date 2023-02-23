@@ -2,731 +2,866 @@
 原: https://www.jq22.com/demo/NZ-Plugin-MsgBox202201130154/Js/NZ-Plugin/Js/NZ-MsgBox.min.js
 */
 
-(function($) {
-    $.NZ_MsgBox = {
-        alert: function(a) {
-            var b = $.extend({}, o, a);
-            b.buttons = $.extend({}, o.buttons, a.buttons);
-            show_MsgBox(b, "alert")
-        },
-        confirm: function(a) {
-            var b = $.extend({}, o, a);
-            b.buttons = $.extend({}, o.buttons, a.buttons);
-            show_MsgBox(b, "confirm")
-        },
-        prompt: function(a) {
-            var b = $.extend({}, o, a);
-            b.type = "";
-            b.buttons = $.extend({}, o.buttons, a.buttons);
-            show_MsgBox(b, "prompt")
-        },
-        tipsbar: function(a) {
-            var b = $.extend({}, p, a);
-            switch (b.location) {
-                case "top":
-                    b.location = "locationT";
-                    break;
-                case "right":
-                    b.location = "locationR";
-                    break;
-                default:
-                    b.location = "locationR";
-                    break
-            }
-            show_TipsBar(b)
-        },
-        tooltip: function(a) {
-            var b = $.extend({}, r, a);
-            return show_ToolTips(b)
-        },
-        toast: function(a) {
-            var b = $.extend({}, q, a);
-            return show_Toast(b)
-        }
-    };
+(function ($) {
+	$.NZ_MsgBox = {
+		alert: function (a) {
+			var b = $.extend({}, o, a);
+			b.buttons = $.extend({}, o.buttons, a.buttons);
+			show_MsgBox(b, "alert");
+		},
+		confirm: function (a) {
+			var b = $.extend({}, o, a);
+			b.buttons = $.extend({}, o.buttons, a.buttons);
+			show_MsgBox(b, "confirm");
+		},
+		prompt: function (a) {
+			var b = $.extend({}, o, a);
+			b.type = "";
+			b.buttons = $.extend({}, o.buttons, a.buttons);
+			show_MsgBox(b, "prompt");
+		},
+		tipsbar: function (a) {
+			var b = $.extend({}, p, a);
+			switch (b.location) {
+				case "top":
+					b.location = "locationT";
+					break;
+				case "right":
+					b.location = "locationR";
+					break;
+				default:
+					b.location = "locationR";
+					break;
+			}
+			show_TipsBar(b);
+		},
+		tooltip: function (a) {
+			var b = $.extend({}, r, a);
+			return show_ToolTips(b);
+		},
+		toast: function (a) {
+			var b = $.extend({}, q, a);
+			return show_Toast(b);
+		},
+	};
 
-    function show_MsgBox(b, c) {
-        var d = CalculateLayer("messagebox");
-        var e = $("<div class='NZ-MsgBox-bg'></div>");
-        e.show();
-        var f = $("<div class=\"NZ-MsgBox-alert\"></div>");
-        if (d >= 99999) {
-            e.css({
-                "z-index": d - 1
-            });
-            f.css({
-                "z-index": d
-            })
-        }
-        var g = $("<div class=\"distop\"></div>");
-        f.append(g);
-        var h = $("<div class=\"msgcontainer\"></div>");
-        f.append(h);
-        if (c === "confirm") {
-            var i = b.type !== null && typeof b.type !== "undefined" && b.type !== "none" ? b.type : "question";
-            b.type = i;
-            h.append("<div class=\"icon " + i + "\"></div>")
-        } else if (b.type !== null && typeof b.type !== "undefined" && b.type !== "" && b.type !== "none" && c !== "prompt") {
-            h.append("<div class=\"icon " + b.type + "\"></div>")
-        }
-        if (b.title !== null && b.title !== "") {
-            h.append("<div class=\"msgtitle\">" + b.title + "</div>")
-        }
-        var j = $("<input type=\"text\" class=\"keycon\">");
-        if (c === "prompt") {
-            h.append(j)
-        }
-        if (b.content !== null && b.content !== "") {
-            if (c === "prompt") {
-                j.val(b.content)
-            } else {
-                h.append("<div class=\"msgcon\">" + b.content + "</div>")
-            }
-        }
-        var k = $("<div class=\"operatebar\"></div>");
-        f.append(k);
-        var l = $("<button type=\"button\">" + b.buttons.confirm.text + "</button>");
-        var m = $("<button type=\"button\" class=\"cancel\">" + b.buttons.cancel.text + "</button>");
-        switch (b.type) {
-            case "success":
-                l.addClass("success");
-                break;
-            case "question":
-            case "input":
-                l.addClass("normal");
-                break;
-            case "warning":
-                l.addClass("warning");
-                break;
-            case "error":
-                l.addClass("error");
-                break;
-            default:
-                l.addClass("normal");
-                h.addClass("typenone");
-                break
-        }
-        switch (c) {
-            case "alert":
-                k.append(l);
-                break;
-            case "confirm":
-            case "prompt":
-                k.append(l).append(m);
-                l.addClass("beleft");
-                m.addClass("beright");
-                break;
-            default:
-                k.append(l);
-                break
-        }
-        if ($(".NZ-MsgBox-alert").length > 0) {
-            var n = setInterval(function() {
-                if ($(".NZ-MsgBox-alert").length <= 0) {
-                    clearInterval(n);
-                    show()
-                }
-            }, 500)
-        } else {
-            show()
-        }
+	function show_MsgBox(b, c) {
+		var d = CalculateLayer("messagebox");
+		var e = $("<div class='NZ-MsgBox-bg'></div>");
+		e.show();
+		var f = $('<div class="NZ-MsgBox-alert"></div>');
+		if (d >= 99999) {
+			e.css({
+				"z-index": d - 1,
+			});
+			f.css({
+				"z-index": d,
+			});
+		}
+		var g = $('<div class="distop"></div>');
+		f.append(g);
+		var h = $('<div class="msgcontainer"></div>');
+		f.append(h);
+		if (c === "confirm") {
+			var i =
+				b.type !== null && typeof b.type !== "undefined" && b.type !== "none"
+					? b.type
+					: "question";
+			b.type = i;
+			h.append('<div class="icon ' + i + '"></div>');
+		} else if (
+			b.type !== null &&
+			typeof b.type !== "undefined" &&
+			b.type !== "" &&
+			b.type !== "none" &&
+			c !== "prompt"
+		) {
+			h.append('<div class="icon ' + b.type + '"></div>');
+		}
+		if (b.title !== null && b.title !== "") {
+			h.append('<div class="msgtitle">' + b.title + "</div>");
+		}
+		var j = $('<input type="text" class="keycon">');
+		if (c === "prompt") {
+			h.append(j);
+		}
+		if (b.content !== null && b.content !== "") {
+			if (c === "prompt") {
+				j.val(b.content);
+			} else {
+				h.append('<div class="msgcon">' + b.content + "</div>");
+			}
+		}
+		var k = $('<div class="operatebar"></div>');
+		f.append(k);
+		var l = $('<button type="button">' + b.buttons.confirm.text + "</button>");
+		var m = $(
+			'<button type="button" class="cancel">' +
+				b.buttons.cancel.text +
+				"</button>"
+		);
+		switch (b.type) {
+			case "success":
+				l.addClass("success");
+				break;
+			case "question":
+			case "input":
+				l.addClass("normal");
+				break;
+			case "warning":
+				l.addClass("warning");
+				break;
+			case "error":
+				l.addClass("error");
+				break;
+			default:
+				l.addClass("normal");
+				h.addClass("typenone");
+				break;
+		}
+		switch (c) {
+			case "alert":
+				k.append(l);
+				break;
+			case "confirm":
+			case "prompt":
+				k.append(l).append(m);
+				l.addClass("beleft");
+				m.addClass("beright");
+				break;
+			default:
+				k.append(l);
+				break;
+		}
+		if ($(".NZ-MsgBox-alert").length > 0) {
+			var n = setInterval(function () {
+				if ($(".NZ-MsgBox-alert").length <= 0) {
+					clearInterval(n);
+					show();
+				}
+			}, 500);
+		} else {
+			show();
+		}
 
-        function show() {
-            if (b.aero) {
-                $(document.body).css("overflow-x", "hidden");
-                e.addClass("aero")
-            }
-            $(document.body).after(e);
-            $(document.body).after(f);
-            if (parseInt($(window).width()) < parseInt(f.css("max-wdith"))) {
-                f.css({
-                    "max-width": (parseInt($(window).width()) - 10) + "px"
-                })
-            }
-            calMainConHeight();
-            $(window).on("resize.NZ_MSGBOX", function() {
-                calMainConHeight()
-            });
+		function show() {
+			if (b.aero) {
+				$(document.body).css("overflow-x", "hidden");
+				e.addClass("aero");
+			}
+			$(document.body).after(e);
+			$(document.body).after(f);
+			if (parseInt($(window).width()) < parseInt(f.css("max-wdith"))) {
+				f.css({
+					"max-width": parseInt($(window).width()) - 10 + "px",
+				});
+			}
+			calMainConHeight();
+			$(window).on("resize.NZ_MSGBOX", function () {
+				calMainConHeight();
+			});
 
-            function calMainConHeight() {
-                var a = parseInt($(window).height()) - g.outerHeight() - k.outerHeight() - 120;
-                f.find("div.msgcon").css({
-                    "max-height": a <= 100 ? 100 : a
-                })
-            }
-            e.addClass("NZ-MsgBox--motion NZ-MsgBox-bg--show");
-            f.show().css({
-                "left": (parseInt($(window).width()) - parseInt(f.width())) / 2,
-                "top": (parseInt($(window).height()) - parseInt(f.height())) / 2
-            }).addClass("NZ-MsgBox--motion NZ-MsgBox-alert--open").on("animationend webkitAnimationEnd", function() {
-                f.removeClass("NZ-MsgBox-alert--open");
-                e.mousedown(function() {
-                    f.addClass("NZ-MsgBox--leap");
-                    f.on("animationend.leap webkitAnimationEnd.leap", function() {
-                        $(this).removeClass("NZ-MsgBox--leap");
-                        f.find(m).length > 0 ? m.focus() : l.focus()
-                    })
-                })
-            });
-            f.find("div.icon").addClass("NZ-MsgBox--showicon NZ-MsgBox--motion");
-            showInit()
-        }
+			function calMainConHeight() {
+				var a =
+					parseInt($(window).height()) -
+					g.outerHeight() -
+					k.outerHeight() -
+					120;
+				f.find("div.msgcon").css({
+					"max-height": a <= 100 ? 100 : a,
+				});
+			}
+			e.addClass("NZ-MsgBox--motion NZ-MsgBox-bg--show");
+			f.show()
+				.css({
+					left: (parseInt($(window).width()) - parseInt(f.width())) / 2,
+					top: (parseInt($(window).height()) - parseInt(f.height())) / 2,
+				})
+				.addClass("NZ-MsgBox--motion NZ-MsgBox-alert--open")
+				.on("animationend webkitAnimationEnd", function () {
+					f.removeClass("NZ-MsgBox-alert--open");
+					e.mousedown(function () {
+						f.addClass("NZ-MsgBox--leap");
+						f.on("animationend.leap webkitAnimationEnd.leap", function () {
+							$(this).removeClass("NZ-MsgBox--leap");
+							f.find(m).length > 0 ? m.focus() : l.focus();
+						});
+					});
+				});
+			f.find("div.icon").addClass("NZ-MsgBox--showicon NZ-MsgBox--motion");
+			showInit();
+		}
 
-        function showInit() {
-            c === "alert" ? l.focus() : m.focus();
-            if (b.dragmove) {
-                g.NZDrag("init", {
-                    bydragobj: f
-                });
-                g.css("cursor", "move")
-            }
-            if (c === "prompt") {
-                j.focus();
-                m.click(function() {
-                    close(null)
-                });
-                l.click(function() {
-                    close(j.val())
-                })
-            } else {
-                m.click(function() {
-                    close(false)
-                });
-                l.click(function() {
-                    close(true)
-                })
-            }
-        }
+		function showInit() {
+			c === "alert" ? l.focus() : m.focus();
+			if (b.dragmove) {
+				g.NZDrag("init", {
+					bydragobj: f,
+				});
+				g.css("cursor", "move");
+			}
+			if (c === "prompt") {
+				j.focus();
+				m.click(function () {
+					close(null);
+				});
+				l.click(function () {
+					close(j.val());
+				});
+			} else {
+				m.click(function () {
+					close(false);
+				});
+				l.click(function () {
+					close(true);
+				});
+			}
+		}
 
-        function close(a) {
-            f.removeClass("NZ-MsgBox-alert--open").addClass("NZ-MsgBox-alert--close").on("animationend webkitAnimationEnd", function() {
-                $(document.body).css("overflow-x", "initial");
-                $(this).remove();
-                if (typeof b.callback === "function") {
-                    b.callback(a)
-                }
-            });
-            $(document.body).removeClass("NZ-MsgBox-bg--aero");
-            e.removeClass("NZ-MsgBox-bg--show").addClass("NZ-MsgBox-bg--hide").css({
-                "animation-delay": ".3s"
-            }).on("animationend webkitAnimationEnd", function() {
-                $(this).remove()
-            })
-        }
-    }
+		function close(a) {
+			f.removeClass("NZ-MsgBox-alert--open")
+				.addClass("NZ-MsgBox-alert--close")
+				.on("animationend webkitAnimationEnd", function () {
+					$(document.body).css("overflow-x", "initial");
+					$(this).remove();
+					if (typeof b.callback === "function") {
+						b.callback(a);
+					}
+				});
+			$(document.body).removeClass("NZ-MsgBox-bg--aero");
+			e.removeClass("NZ-MsgBox-bg--show")
+				.addClass("NZ-MsgBox-bg--hide")
+				.css({
+					"animation-delay": ".3s",
+				})
+				.on("animationend webkitAnimationEnd", function () {
+					$(this).remove();
+				});
+		}
+	}
 
-    function show_TipsBar(e) {
-        var f = $("<div></div>");
-        if ($(".NZ-TipsBar-Container." + e.location + "." + e.tipsort).length > 0) {
-            f = $(".NZ-TipsBar-Container." + e.location + "." + e.tipsort)
-        } else {
-            f.addClass("NZ-TipsBar-Container " + e.location + " " + e.tipsort).css({
-                "z-index": CalculateLayer("tips")
-            });
-            $(document.body).append(f)
-        }
-        var g = $("<div class=\"tipbar-capsule\" style=\"height:0px\"></div>");
-        var h = $("<div class=\"tipbar\"></div>");
-        if (e.type !== "" && e.type !== null) {
-            h.addClass("carrystate " + e.type);
-            h.append("<i class=\"tipsbar-icon icon-state NZ-TipsBar--motion NZ-MsgBox--showicon\"></i>");
-            h.children(".tipsbar-icon").on("animationend webkitAnimationEnd", function(a) {
-                a.stopPropagation()
-            })
-        }
-        if (e.title !== "" && e.title !== null) {
-            h.append("<div class=\"title NZ-TipsBar--motion NZ-Motion--inlinecon\">" + e.title + "</div>");
-            h.children(".title").on("animationend webkitAnimationEnd", function(a) {
-                a.stopPropagation()
-            })
-        }
-        if (e.content !== "" && e.content !== null) {
-            h.append("<div class=\"con NZ-TipsBar--motion NZ-Motion--inlinecon\" style=\"" + (h.find(".title").length > 0 ? "margin-top:5px" : "") + "\">" + e.content + "</div > ");
-            h.children(".con").on("animationend webkitAnimationEnd", function(a) {
-                a.stopPropagation()
-            }).css({
-                "animation-delay": ".3s"
-            })
-        }
-        if (e.tipsort === "top" && f.children().length > 0) {
-            f.children(":eq(0)").before(g)
-        } else {
-            f.append(g)
-        } if (e.closebtn) {
-            var i = $("<button type=\"button\" class=\"close\"></button>");
-            h.append(i);
-            i.click(function() {
-                close()
-            })
-        }
-        var j = "NZ-TipsBar-show--right",
-            motiontype_hide = "NZ-TipsBar-hide--right";
-        if (e.location === "locationT") {
-            j = "NZ-TipsBar-show--top";
-            motiontype_hide = "NZ-TipsBar-hide--top"
-        }
-        g.append(h);
-        g.height(h.outerHeight() + 10).on("transitionend webkitTransitionEnd", function() {
-            $(document.body).css("overflow-x", "hidden")
-        });
-        h.addClass("NZ-TipsBar--motion " + j).on("animationend webkitAnimationEnd", function(b) {
-            g.css({
-                "height": "auto"
-            });
-            $(document.body).css("overflow-x", "initial");
-            if (e.showtime !== null && typeof e.showtime === "number") {
-                if (e.processbar) {
-                    var c = $("<div class=\"processbar\"><div></div></div>");
-                    c.children().addClass("NZ-TipsBar--motion NZ-TipsBar--process").css({
-                        "animation-duration": (e.showtime / 1000) + "s"
-                    }).on("animationend webkitAnimationEnd", function(a) {
-                        close();
-                        a.stopPropagation()
-                    });
-                    h.append(c);
-                    h.on({
-                        "mouseover": function() {
-                            c.children().css({
-                                "animation-play-state": "paused"
-                            })
-                        },
-                        "mouseout": function() {
-                            c.children().css({
-                                "animation-play-state": "running"
-                            })
-                        }
-                    })
-                } else {
-                    var d = setTimeout(function() {
-                        clearTimeout(d);
-                        close()
-                    }, e.showtime)
-                }
-            }
-            b.stopPropagation()
-        });
+	function show_TipsBar(e) {
+		var f = $("<div></div>");
+		if ($(".NZ-TipsBar-Container." + e.location + "." + e.tipsort).length > 0) {
+			f = $(".NZ-TipsBar-Container." + e.location + "." + e.tipsort);
+		} else {
+			f.addClass("NZ-TipsBar-Container " + e.location + " " + e.tipsort).css({
+				"z-index": CalculateLayer("tips"),
+			});
+			$(document.body).append(f);
+		}
+		var g = $('<div class="tipbar-capsule" style="height:0px"></div>');
+		var h = $('<div class="tipbar"></div>');
+		if (e.type !== "" && e.type !== null) {
+			h.addClass("carrystate " + e.type);
+			h.append(
+				'<i class="tipsbar-icon icon-state NZ-TipsBar--motion NZ-MsgBox--showicon"></i>'
+			);
+			h.children(".tipsbar-icon").on(
+				"animationend webkitAnimationEnd",
+				function (a) {
+					a.stopPropagation();
+				}
+			);
+		}
+		if (e.title !== "" && e.title !== null) {
+			h.append(
+				'<div class="title NZ-TipsBar--motion NZ-Motion--inlinecon">' +
+					e.title +
+					"</div>"
+			);
+			h.children(".title").on("animationend webkitAnimationEnd", function (a) {
+				a.stopPropagation();
+			});
+		}
+		if (e.content !== "" && e.content !== null) {
+			h.append(
+				'<div class="con NZ-TipsBar--motion NZ-Motion--inlinecon" style="' +
+					(h.find(".title").length > 0 ? "margin-top:5px" : "") +
+					'">' +
+					e.content +
+					"</div > "
+			);
+			h.children(".con")
+				.on("animationend webkitAnimationEnd", function (a) {
+					a.stopPropagation();
+				})
+				.css({
+					"animation-delay": ".3s",
+				});
+		}
+		if (e.tipsort === "top" && f.children().length > 0) {
+			f.children(":eq(0)").before(g);
+		} else {
+			f.append(g);
+		}
+		if (e.closebtn) {
+			var i = $('<button type="button" class="close"></button>');
+			h.append(i);
+			i.click(function () {
+				close();
+			});
+		}
+		var j = "NZ-TipsBar-show--right",
+			motiontype_hide = "NZ-TipsBar-hide--right";
+		if (e.location === "locationT") {
+			j = "NZ-TipsBar-show--top";
+			motiontype_hide = "NZ-TipsBar-hide--top";
+		}
+		g.append(h);
+		g.height(h.outerHeight() + 10).on(
+			"transitionend webkitTransitionEnd",
+			function () {
+				$(document.body).css("overflow-x", "hidden");
+			}
+		);
+		h.addClass("NZ-TipsBar--motion " + j).on(
+			"animationend webkitAnimationEnd",
+			function (b) {
+				g.css({
+					height: "auto",
+				});
+				$(document.body).css("overflow-x", "initial");
+				if (e.showtime !== null && typeof e.showtime === "number") {
+					if (e.processbar) {
+						var c = $('<div class="processbar"><div></div></div>');
+						c.children()
+							.addClass("NZ-TipsBar--motion NZ-TipsBar--process")
+							.css({
+								"animation-duration": e.showtime / 1000 + "s",
+							})
+							.on("animationend webkitAnimationEnd", function (a) {
+								close();
+								a.stopPropagation();
+							});
+						h.append(c);
+						h.on({
+							mouseover: function () {
+								c.children().css({
+									"animation-play-state": "paused",
+								});
+							},
+							mouseout: function () {
+								c.children().css({
+									"animation-play-state": "running",
+								});
+							},
+						});
+					} else {
+						var d = setTimeout(function () {
+							clearTimeout(d);
+							close();
+						}, e.showtime);
+					}
+				}
+				b.stopPropagation();
+			}
+		);
 
-        function close() {
-            g.css("height", g.outerHeight());
-            h.removeClass(j).off("animationend webkitAnimationEnd").addClass(motiontype_hide).on("animationend webkitAnimationEnd", function() {
-                $(this).remove();
-                g.height("0").off("transitionend webkitTransitionEnd").on("transitionend webkitTransitionEnd", function(a) {
-                    $(this).remove();
-                    if (e.callback !== null && typeof e.callback === "function") {
-                        e.callback()
-                    }
-                    if (f.children().length === 0) {
-                        f.remove()
-                    }
-                    a.stopPropagation()
-                })
-            })
-        }
-    }
+		function close() {
+			g.css("height", g.outerHeight());
+			h.removeClass(j)
+				.off("animationend webkitAnimationEnd")
+				.addClass(motiontype_hide)
+				.on("animationend webkitAnimationEnd", function () {
+					$(this).remove();
+					g.height("0")
+						.off("transitionend webkitTransitionEnd")
+						.on("transitionend webkitTransitionEnd", function (a) {
+							$(this).remove();
+							if (e.callback !== null && typeof e.callback === "function") {
+								e.callback();
+							}
+							if (f.children().length === 0) {
+								f.remove();
+							}
+							a.stopPropagation();
+						});
+				});
+		}
+	}
 
-    function show_Toast(b) {
-        var c;
-        var d = (function() {
-            b.onshowbefore();
-            c = $("<div>" + b.content + "</div>");
-            c.addClass("NZ-Toast");
-            if (b.masklayer) {
-                $(document.body).append("<div class=\"NZ-Toast-bg\"></div>")
-            }
-            if (c.find("img").length > 0) {
-                try {
-                    c.find("img").load(function() {
-                        showmain()
-                    })
-                } catch (e) {
-                    showmain()
-                }
-            } else {
-                showmain()
-            }
+	function show_Toast(b) {
+		var c;
+		var d = (function () {
+			b.onshowbefore();
+			c = $("<div>" + b.content + "</div>");
+			c.addClass("NZ-Toast");
+			if (b.masklayer) {
+				$(document.body).append('<div class="NZ-Toast-bg"></div>');
+			}
+			if (c.find("img").length > 0) {
+				try {
+					c.find("img").load(function () {
+						showmain();
+					});
+				} catch (e) {
+					showmain();
+				}
+			} else {
+				showmain();
+			}
 
-            function showmain() {
-                $(document.body).append(c);
-                if (b.location === "center") {
-                    c.addClass("NZ-MsgBox--motion NZ-MsgBox-alert--open").css({
-                        "margin-left": -c.outerWidth() / 2,
-                        "margin-top": -c.outerHeight() / 2
-                    })
-                } else if (b.location === "top") {
-                    c.addClass("top NZ-MsgBox--motion NZ-Motion--fadeInTop").css({
-                        "margin-left": -c.outerWidth() / 2,
-                        "margin-top": 0
-                    })
-                }
-                b.onshow();
-                if (b.showtime !== null) {
-                    setTimeout(function() {
-                        f()
-                    }, b.showtime)
-                }
-            }
-        }());
-        var f = function() {
-            b.onhidebefore();
-            if (b.location === "center") {
-                c.removeClass("NZ-MsgBox-alert--open").addClass("NZ-MsgBox-alert--close").on("animationend webkitAnimationEnd", function() {
-                    $(this).remove();
-                    b.onhide()
-                })
-            } else if (b.location === "top") {
-                c.removeClass("NZ-Motion--fadeInTop").addClass("NZ-Motion--fadeOutTop").on("animationend webkitAnimationEnd", function() {
-                    $(this).remove();
-                    b.onhide()
-                })
-            }
-            if (b.masklayer) {
-                $(".NZ-Toast-bg").remove()
-            }
-        };
-        var g = function(a) {
-            c.html(a.content);
-            if (c.find("img").length > 0) {
-                c.find("img").load(function() {
-                    c.css({
-                        "margin-left": -c.outerWidth() / 2,
-                        "margin-top": -c.outerHeight() / 2
-                    })
-                })
-            } else {
-                c.css({
-                    "margin-left": -c.outerWidth() / 2,
-                    "margin-top": -c.outerHeight() / 2
-                })
-            }
-        };
-        return {
-            hide: f,
-            update: g
-        }
-    }
+			function showmain() {
+				$(document.body).append(c);
+				if (b.location === "center") {
+					c.addClass("NZ-MsgBox--motion NZ-MsgBox-alert--open").css({
+						"margin-left": -c.outerWidth() / 2,
+						"margin-top": -c.outerHeight() / 2,
+					});
+				} else if (b.location === "top") {
+					c.addClass("top NZ-MsgBox--motion NZ-Motion--fadeInTop").css({
+						"margin-left": -c.outerWidth() / 2,
+						"margin-top": 0,
+					});
+				}
+				b.onshow();
+				if (b.showtime !== null) {
+					setTimeout(function () {
+						f();
+					}, b.showtime);
+				}
+			}
+		})();
+		var f = function () {
+			b.onhidebefore();
+			if (b.location === "center") {
+				c.removeClass("NZ-MsgBox-alert--open")
+					.addClass("NZ-MsgBox-alert--close")
+					.on("animationend webkitAnimationEnd", function () {
+						$(this).remove();
+						b.onhide();
+					});
+			} else if (b.location === "top") {
+				c.removeClass("NZ-Motion--fadeInTop")
+					.addClass("NZ-Motion--fadeOutTop")
+					.on("animationend webkitAnimationEnd", function () {
+						$(this).remove();
+						b.onhide();
+					});
+			}
+			if (b.masklayer) {
+				$(".NZ-Toast-bg").remove();
+			}
+		};
+		var g = function (a) {
+			c.html(a.content);
+			if (c.find("img").length > 0) {
+				c.find("img").load(function () {
+					c.css({
+						"margin-left": -c.outerWidth() / 2,
+						"margin-top": -c.outerHeight() / 2,
+					});
+				});
+			} else {
+				c.css({
+					"margin-left": -c.outerWidth() / 2,
+					"margin-top": -c.outerHeight() / 2,
+				});
+			}
+		};
+		return {
+			hide: f,
+			update: g,
+		};
+	}
 
-    function show_ToolTips(c) {
-        if (c.tiptarget === null) return;
-        var d = $(c.tiptarget);
-        var e = $("<div class=\"NZ-Tooltips NZ-MsgBox--motion\"></div>");
-        d.on(c.show, function() {
-            $(this).trigger(c.hide);
-            e = $("<div class=\"NZ-Tooltips NZ-MsgBox--motion\"></div>");
-            if (c.theme !== "") e.addClass(c.theme);
-            if (c.contentAttr !== "") {
-                e.html($(this).attr(c.contentAttr)).append("<div class=\"tip-arrow\"></div>")
-            } else if (c.content !== "") {
-                e.html(c.content).append("<div class=\"tip-arrow\"></div>")
-            } else {
-                return false
-            }
-            e.css({
-                "z-index": CalculateLayer() + 1
-            });
-            $(document.body).append(e);
-            var a = 25;
-            var b = {
-                Top: {
-                    left: $(this).offset().left + $(this).outerWidth() / 2 - e.width() * 0.2 - a / 2,
-                    top: $(this).offset().top - e.outerHeight() - a / 2,
-                    arrow: "",
-                    motion: "NZ-Motion--fadeInTop"
-                },
-                Right: {
-                    left: $(this).offset().left + $(this).outerWidth() + a / 2,
-                    top: $(this).offset().top + $(this).outerHeight() / 2 - e.outerHeight() / 2,
-                    arrow: "left",
-                    motion: "NZ-Motion--fadeInRight"
-                },
-                Bottom: {
-                    left: $(this).offset().left + $(this).outerWidth() / 2 - e.width() * 0.2 - a / 2,
-                    top: $(this).offset().top + $(this).outerHeight() + a / 2,
-                    arrow: "top",
-                    motion: "NZ-Motion--fadeInDown"
-                },
-                Left: {
-                    left: $(this).offset().left - e.outerWidth() - a / 2,
-                    top: $(this).offset().top + $(this).outerHeight() / 2 - e.outerHeight() / 2,
-                    arrow: "right",
-                    motion: "NZ-Motion--fadeInLeft"
-                }
-            };
-            e.mouseenter(function() {
-                if (parseInt($(this).css("opacity")) > 0.5) {
-                    $(this).css({
-                        "animation-play-state": "paused"
-                    })
-                }
-            }).mouseleave(function() {
-                $(this).css({
-                    "animation-play-state": "running"
-                })
-            });
-            switch (c.location) {
-                case "auto":
-                default:
-                    if (b.Top.left > 0 && b.Top.top > 0) {
-                        e.css({
-                            "left": b.Top.left,
-                            "top": b.Top.top
-                        });
-                        e.addClass(b.Top.motion)
-                    } else if (b.Right.left <= $(window).width) {
-                        e.css({
-                            "left": b.Right.left,
-                            "top": b.Right.top
-                        });
-                        e.find(".tip-arrow").addClass(b.Right.arrow).addClass(b.Right.motion)
-                    } else if (b.Left.left > 0) {
-                        e.css({
-                            "left": b.Left.left,
-                            "top": b.Left.top
-                        });
-                        e.find(".tip-arrow").addClass(b.Left.arrow).addClass(b.Left.motion)
-                    } else {
-                        e.css({
-                            "left": b.Bottom.left,
-                            "top": b.Bottom.top
-                        });
-                        e.find(".tip-arrow").addClass(b.Bottom.arrow).addClass(b.Bottom.motion)
-                    }
-                    break;
-                case "top":
-                    e.css({
-                        "left": b.Top.left,
-                        "top": b.Top.top
-                    }).addClass(b.Top.motion);
-                    break;
-                case "right":
-                    e.css({
-                        "left": b.Right.left,
-                        "top": b.Right.top
-                    }).addClass(b.Right.motion);
-                    e.find(".tip-arrow").addClass(b.Right.arrow);
-                    break;
-                case "bottom":
-                    e.css({
-                        "left": b.Bottom.left,
-                        "top": b.Bottom.top
-                    }).addClass(b.Bottom.motion);
-                    e.find(".tip-arrow").addClass(b.Bottom.arrow);
-                    break;
-                case "left":
-                    e.css({
-                        "left": b.Left.left,
-                        "top": b.Left.top
-                    }).addClass(b.Left.motion);
-                    e.find(".tip-arrow").addClass(b.Left.arrow);
-                    break
-            }
-        }).on(c.hide, function() {
-            let target_motion = "";
-            if (e.find(".tip-arrow").hasClass("left")) {
-                target_motion = "NZ-Motion--fadeInRight"
-            } else if (e.find(".tip-arrow").hasClass("top")) {
-                target_motion = "NZ-Motion--fadeInDown"
-            } else if (e.find(".tip-arrow").hasClass("right")) {
-                target_motion = "NZ-Motion--fadeInLeft"
-            } else {
-                target_motion = "NZ-Motion--fadeInTop"
-            }
-            e.removeClass(target_motion).addClass(target_motion.replace("In", "Out")).on("animationend webkitAnimationEnd", function() {
-                $(this).remove()
-            })
-        })
-    }
-    var o = {
-        title: "",
-        content: "",
-        type: "none",
-        aero: true,
-        dragmove: true,
-        inputMode: "text",
-        buttons: {
-            confirm: {
-                text: "确定"
-            },
-            cancel: {
-                text: "取消"
-            }
-        },
-        callback: function(a) {}
-    };
-    var p = {
-        title: "",
-        content: "",
-        location: "right",
-        tipsort: "top",
-        type: "",
-        showtime: null,
-        closebtn: true,
-        processbar: true,
-        callback: null
-    };
-    var q = {
-        onshowbefore: function() {},
-        onshow: function() {},
-        onhidebefore: function() {},
-        onhide: function() {},
-        content: null,
-        location: "center",
-        masklayer: false,
-        showtime: null
-    };
-    var r = {
-        tiptarget: null,
-        content: "",
-        contentAttr: "",
-        location: "auto",
-        show: "mouseenter",
-        hide: "mouseleave",
-        theme: ""
-    };
+	function show_ToolTips(c) {
+		if (c.tiptarget === null) return;
+		var d = $(c.tiptarget);
+		var e = $('<div class="NZ-Tooltips NZ-MsgBox--motion"></div>');
+		d.on(c.show, function () {
+			$(this).trigger(c.hide);
+			e = $('<div class="NZ-Tooltips NZ-MsgBox--motion"></div>');
+			if (c.theme !== "") e.addClass(c.theme);
+			if (c.contentAttr !== "") {
+				e.html($(this).attr(c.contentAttr)).append(
+					'<div class="tip-arrow"></div>'
+				);
+			} else if (c.content !== "") {
+				e.html(c.content).append('<div class="tip-arrow"></div>');
+			} else {
+				return false;
+			}
+			e.css({
+				"z-index": CalculateLayer() + 1,
+			});
+			$(document.body).append(e);
+			var a = 25;
+			var b = {
+				Top: {
+					left:
+						$(this).offset().left +
+						$(this).outerWidth() / 2 -
+						e.width() * 0.2 -
+						a / 2,
+					top: $(this).offset().top - e.outerHeight() - a / 2,
+					arrow: "",
+					motion: "NZ-Motion--fadeInTop",
+				},
+				Right: {
+					left: $(this).offset().left + $(this).outerWidth() + a / 2,
+					top:
+						$(this).offset().top +
+						$(this).outerHeight() / 2 -
+						e.outerHeight() / 2,
+					arrow: "left",
+					motion: "NZ-Motion--fadeInRight",
+				},
+				Bottom: {
+					left:
+						$(this).offset().left +
+						$(this).outerWidth() / 2 -
+						e.width() * 0.2 -
+						a / 2,
+					top: $(this).offset().top + $(this).outerHeight() + a / 2,
+					arrow: "top",
+					motion: "NZ-Motion--fadeInDown",
+				},
+				Left: {
+					left: $(this).offset().left - e.outerWidth() - a / 2,
+					top:
+						$(this).offset().top +
+						$(this).outerHeight() / 2 -
+						e.outerHeight() / 2,
+					arrow: "right",
+					motion: "NZ-Motion--fadeInLeft",
+				},
+			};
+			e.mouseenter(function () {
+				if (parseInt($(this).css("opacity")) > 0.5) {
+					$(this).css({
+						"animation-play-state": "paused",
+					});
+				}
+			}).mouseleave(function () {
+				$(this).css({
+					"animation-play-state": "running",
+				});
+			});
+			switch (c.location) {
+				case "auto":
+				default:
+					if (b.Top.left > 0 && b.Top.top > 0) {
+						e.css({
+							left: b.Top.left,
+							top: b.Top.top,
+						});
+						e.addClass(b.Top.motion);
+					} else if (b.Right.left <= $(window).width) {
+						e.css({
+							left: b.Right.left,
+							top: b.Right.top,
+						});
+						e.find(".tip-arrow")
+							.addClass(b.Right.arrow)
+							.addClass(b.Right.motion);
+					} else if (b.Left.left > 0) {
+						e.css({
+							left: b.Left.left,
+							top: b.Left.top,
+						});
+						e.find(".tip-arrow").addClass(b.Left.arrow).addClass(b.Left.motion);
+					} else {
+						e.css({
+							left: b.Bottom.left,
+							top: b.Bottom.top,
+						});
+						e.find(".tip-arrow")
+							.addClass(b.Bottom.arrow)
+							.addClass(b.Bottom.motion);
+					}
+					break;
+				case "top":
+					e.css({
+						left: b.Top.left,
+						top: b.Top.top,
+					}).addClass(b.Top.motion);
+					break;
+				case "right":
+					e.css({
+						left: b.Right.left,
+						top: b.Right.top,
+					}).addClass(b.Right.motion);
+					e.find(".tip-arrow").addClass(b.Right.arrow);
+					break;
+				case "bottom":
+					e.css({
+						left: b.Bottom.left,
+						top: b.Bottom.top,
+					}).addClass(b.Bottom.motion);
+					e.find(".tip-arrow").addClass(b.Bottom.arrow);
+					break;
+				case "left":
+					e.css({
+						left: b.Left.left,
+						top: b.Left.top,
+					}).addClass(b.Left.motion);
+					e.find(".tip-arrow").addClass(b.Left.arrow);
+					break;
+			}
+		}).on(c.hide, function () {
+			let target_motion = "";
+			if (e.find(".tip-arrow").hasClass("left")) {
+				target_motion = "NZ-Motion--fadeInRight";
+			} else if (e.find(".tip-arrow").hasClass("top")) {
+				target_motion = "NZ-Motion--fadeInDown";
+			} else if (e.find(".tip-arrow").hasClass("right")) {
+				target_motion = "NZ-Motion--fadeInLeft";
+			} else {
+				target_motion = "NZ-Motion--fadeInTop";
+			}
+			e.removeClass(target_motion)
+				.addClass(target_motion.replace("In", "Out"))
+				.on("animationend webkitAnimationEnd", function () {
+					$(this).remove();
+				});
+		});
+	}
+	var o = {
+		title: "",
+		content: "",
+		type: "none",
+		aero: true,
+		dragmove: true,
+		inputMode: "text",
+		buttons: {
+			confirm: {
+				text: "确定",
+			},
+			cancel: {
+				text: "取消",
+			},
+		},
+		callback: function (a) {},
+	};
+	var p = {
+		title: "",
+		content: "",
+		location: "right",
+		tipsort: "top",
+		type: "",
+		showtime: null,
+		closebtn: true,
+		processbar: true,
+		callback: null,
+	};
+	var q = {
+		onshowbefore: function () {},
+		onshow: function () {},
+		onhidebefore: function () {},
+		onhide: function () {},
+		content: null,
+		location: "center",
+		masklayer: false,
+		showtime: null,
+	};
+	var r = {
+		tiptarget: null,
+		content: "",
+		contentAttr: "",
+		location: "auto",
+		show: "mouseenter",
+		hide: "mouseleave",
+		theme: "",
+	};
 
-    function CalculateLayer(a) {
-        let layerindex = 0;
-        switch (a) {
-            case "messagebox":
-                break;
-            case "news":
-                if ($(".NZ-MsgBox-alert").length > 0) {
-                    layerindex = parseFloat($(".NZ-MsgBox-alert").css("z-index")) - 3
-                }
-                break;
-            case "tips":
-                if ($(".NZ-TipsBar-Container").length > 0) {
-                    layerindex = parseFloat($(".NZ-TipsBar-Container").css("z-index")) + 1
-                }
-                break;
-            default:
-        }
-        if (layerindex <= 0) {
-            layerindex = Math.max.apply(null, $.map($('body *'), function(e, n) {
-                if ($(e).css('position') != 'static') return parseInt($(e).css('z-index')) || -1
-            }));
-            if (layerindex <= 0 || layerindex == "auto") {
-                layerindex = 9999
-            }
-        }
-        return layerindex
-    }
-    
-/*
+	function CalculateLayer(a) {
+		let layerindex = 0;
+		switch (a) {
+			case "messagebox":
+				break;
+			case "news":
+				if ($(".NZ-MsgBox-alert").length > 0) {
+					layerindex = parseFloat($(".NZ-MsgBox-alert").css("z-index")) - 3;
+				}
+				break;
+			case "tips":
+				if ($(".NZ-TipsBar-Container").length > 0) {
+					layerindex =
+						parseFloat($(".NZ-TipsBar-Container").css("z-index")) + 1;
+				}
+				break;
+			default:
+		}
+		if (layerindex <= 0) {
+			layerindex = Math.max.apply(
+				null,
+				$.map($("body *"), function (e, n) {
+					if ($(e).css("position") != "static")
+						return parseInt($(e).css("z-index")) || -1;
+				})
+			);
+			if (layerindex <= 0 || layerindex == "auto") {
+				layerindex = 9999;
+			}
+		}
+		return layerindex;
+	}
+
+	/*
 原: https://www.jq22.com/demo/NZ-Plugin-MsgBox202201130154/Js/NZ-Plugin/Js/NZ-Drag.min.js
 */
-    $(function() {
-        $(document.body).append($("<style>.NZ-Drag{-moz-user-select: -moz-none;-moz-user-select: none;-o-user-select: none;-khtml-user-select: none;-webkit-user-select: none;-ms-user-select: none;user-select: none}</style>"))
-    });
-    var j = {
-        init: function(a, b) {
-            var c = $(this);
-            var d = {
-                bydragobj: c,
-                isTransparent: true
-            };
-            var f = $.extend({}, $.fn.NZDrag.defaultparam, b);
-            f = $.extend({}, d, f);
-            var g = false;
-            var h, divY;
-            var i = 0,
-                topUpper = 0,
-                rightUpper = 0,
-                bottomUpper = 0;
-            c.bind({
-                "click.NZDrag": function(e) {},
-                "mousedown.NZDrag": function(e) {
-                    g = true;
-                    f = $.extend({}, $.fn.NZDrag.defaultparam, b);
-                    f = $.extend({}, d, f);
-                    switch (f.bydragobj.css("position")) {
-                        case "absolute":
-                        default:
-                            i = f.upper.left === null || typeof f.upper.left === "undefined" ? -f.bydragobj.outerWidth() / 2 : f.upper.left;
-                            topUpper = f.upper.top === null || typeof f.upper.top === "undefined" ? 0 : f.upper.top;
-                            rightUpper = f.upper.right === null || typeof f.upper.right === "undefined" ? (document.body.scrollWidth + f.bydragobj.outerWidth() / 2) : f.upper.right;
-                            bottomUpper = f.upper.bottom === null || typeof f.upper.bottom === "undefined" ? (document.body.scrollHeight - f.bydragobj.outerHeight() / 2) : f.upper.bottom;
-                            break;
-                        case "fixed":
-                            i = f.upper.left === null || typeof f.upper.left === "undefined" ? -f.bydragobj.outerWidth() / 2 : f.upper.left;
-                            topUpper = f.upper.top === null || typeof f.upper.top === "undefined" ? 0 : f.upper.top;
-                            rightUpper = f.upper.right === null || typeof f.upper.right === "undefined" ? ($(window).width() - f.bydragobj.outerWidth() / 2) : f.upper.right;
-                            bottomUpper = f.upper.bottom === null || typeof f.upper.bottom === "undefined" ? ($(window).height() - f.bydragobj.outerHeight() / 2) : f.upper.bottom;
-                            break
-                    }
-                    h = e.pageX - parseInt(f.bydragobj.css("left") == "auto" ? 0 : f.bydragobj.css("left"));
-                    divY = e.pageY - parseInt(f.bydragobj.css("top") == "auto" ? 0 : f.bydragobj.css("top"));
-                    if (f.isTransparent) {
-                        f.bydragobj.fadeTo(20, 0.5)
-                    }
-                    if (f.bydragobj.find("iframe").length > 0) {
-                        f.bydragobj.find("iframe").hide()
-                    }
-                    $(document.body).attr('unselectable', 'on').addClass("NZ-Drag");
-                    $(document).bind({
-                        "mousemove.NZDrag": function(e) {
-                            if (g) {
-                                f.bydragobj.css({
-                                    left: (e.pageX - h) <= i ? i : ((e.pageX - h) >= rightUpper) ? rightUpper : e.pageX - h,
-                                    top: (e.pageY - divY) <= topUpper ? topUpper : ((e.pageY - divY) >= bottomUpper ? bottomUpper : (e.pageY - divY))
-                                })
-                            }
-                        },
-                        "mouseup.NZDrag": function(e) {
-                            f.bydragobj.find("iframe").show();
-                            g = false;
-                            f.bydragobj.fadeTo("fast", 1);
-                            $(document).unbind("mousemove.NZDrag mouseup.NZDrag selectstart.NZDrag");
-                            $(document.body).removeClass("NZ-Drag").removeAttr("unselectable");
-                            $("#isfloat").html($(document.body).css("user-select"))
-                        },
-                        "selectstart.NZDrag": function(e) {
-                            return false
-                        }
-                    });
-                    e.preventDefault();
-                    stopBubble(e)
-                }
-            })
-        },
-        destroy: function() {
-            $(this).unbind("click.NZDrag").unbind("mousedown.NZDrag")
-        }
-    };
-    $.fn.NZDrag = function(a, b) {
-        if (j[a]) {
-            return j[a].apply(this, arguments)
-        } else if (typeof j === 'object' || !a) {
-            return j.show.apply(this, arguments)
-        }
-    };
-    $.fn.NZDrag.defaultparam = {
-        upper: {
-            left: null,
-            right: null,
-            top: null,
-            bottom: null
-        }
-    };
+	$(function () {
+		$(document.body).append(
+			$(
+				"<style>.NZ-Drag{-moz-user-select: -moz-none;-moz-user-select: none;-o-user-select: none;-khtml-user-select: none;-webkit-user-select: none;-ms-user-select: none;user-select: none}</style>"
+			)
+		);
+	});
+	var j = {
+		init: function (a, b) {
+			var c = $(this);
+			var d = {
+				bydragobj: c,
+				isTransparent: true,
+			};
+			var f = $.extend({}, $.fn.NZDrag.defaultparam, b);
+			f = $.extend({}, d, f);
+			var g = false;
+			var h, divY;
+			var i = 0,
+				topUpper = 0,
+				rightUpper = 0,
+				bottomUpper = 0;
+			c.bind({
+				"click.NZDrag": function (e) {},
+				"mousedown.NZDrag": function (e) {
+					g = true;
+					f = $.extend({}, $.fn.NZDrag.defaultparam, b);
+					f = $.extend({}, d, f);
+					switch (f.bydragobj.css("position")) {
+						case "absolute":
+						default:
+							i =
+								f.upper.left === null || typeof f.upper.left === "undefined"
+									? -f.bydragobj.outerWidth() / 2
+									: f.upper.left;
+							topUpper =
+								f.upper.top === null || typeof f.upper.top === "undefined"
+									? 0
+									: f.upper.top;
+							rightUpper =
+								f.upper.right === null || typeof f.upper.right === "undefined"
+									? document.body.scrollWidth + f.bydragobj.outerWidth() / 2
+									: f.upper.right;
+							bottomUpper =
+								f.upper.bottom === null || typeof f.upper.bottom === "undefined"
+									? document.body.scrollHeight - f.bydragobj.outerHeight() / 2
+									: f.upper.bottom;
+							break;
+						case "fixed":
+							i =
+								f.upper.left === null || typeof f.upper.left === "undefined"
+									? -f.bydragobj.outerWidth() / 2
+									: f.upper.left;
+							topUpper =
+								f.upper.top === null || typeof f.upper.top === "undefined"
+									? 0
+									: f.upper.top;
+							rightUpper =
+								f.upper.right === null || typeof f.upper.right === "undefined"
+									? $(window).width() - f.bydragobj.outerWidth() / 2
+									: f.upper.right;
+							bottomUpper =
+								f.upper.bottom === null || typeof f.upper.bottom === "undefined"
+									? $(window).height() - f.bydragobj.outerHeight() / 2
+									: f.upper.bottom;
+							break;
+					}
+					h =
+						e.pageX -
+						parseInt(
+							f.bydragobj.css("left") == "auto" ? 0 : f.bydragobj.css("left")
+						);
+					divY =
+						e.pageY -
+						parseInt(
+							f.bydragobj.css("top") == "auto" ? 0 : f.bydragobj.css("top")
+						);
+					if (f.isTransparent) {
+						f.bydragobj.fadeTo(20, 0.5);
+					}
+					if (f.bydragobj.find("iframe").length > 0) {
+						f.bydragobj.find("iframe").hide();
+					}
+					$(document.body).attr("unselectable", "on").addClass("NZ-Drag");
+					$(document).bind({
+						"mousemove.NZDrag": function (e) {
+							if (g) {
+								f.bydragobj.css({
+									left:
+										e.pageX - h <= i
+											? i
+											: e.pageX - h >= rightUpper
+											? rightUpper
+											: e.pageX - h,
+									top:
+										e.pageY - divY <= topUpper
+											? topUpper
+											: e.pageY - divY >= bottomUpper
+											? bottomUpper
+											: e.pageY - divY,
+								});
+							}
+						},
+						"mouseup.NZDrag": function (e) {
+							f.bydragobj.find("iframe").show();
+							g = false;
+							f.bydragobj.fadeTo("fast", 1);
+							$(document).unbind(
+								"mousemove.NZDrag mouseup.NZDrag selectstart.NZDrag"
+							);
+							$(document.body)
+								.removeClass("NZ-Drag")
+								.removeAttr("unselectable");
+							$("#isfloat").html($(document.body).css("user-select"));
+						},
+						"selectstart.NZDrag": function (e) {
+							return false;
+						},
+					});
+					e.preventDefault();
+					stopBubble(e);
+				},
+			});
+		},
+		destroy: function () {
+			$(this).unbind("click.NZDrag").unbind("mousedown.NZDrag");
+		},
+	};
+	$.fn.NZDrag = function (a, b) {
+		if (j[a]) {
+			return j[a].apply(this, arguments);
+		} else if (typeof j === "object" || !a) {
+			return j.show.apply(this, arguments);
+		}
+	};
+	$.fn.NZDrag.defaultparam = {
+		upper: {
+			left: null,
+			right: null,
+			top: null,
+			bottom: null,
+		},
+	};
 
-    function stopBubble(e) {
-        if (e && e.stopPropagation) {
-            e.stopPropagation()
-        } else {
-            window.event.cancelBubble = true
-        }
-    }
-})(typeof $jq !="undefined"  ? $jq: $);
-
-
-
+	function stopBubble(e) {
+		if (e && e.stopPropagation) {
+			e.stopPropagation();
+		} else {
+			window.event.cancelBubble = true;
+		}
+	}
+})(typeof $ != "undefined" ? $ : jQuery);
 
 /*
 此处加入css: https://www.jq22.com/demo/NZ-Plugin-MsgBox202201130154/Js/NZ-Plugin/Css/NZ-MsgBox.min.css
 */
 
-(function(){
-    let cssNode = document.createElement("style");
-let cssResource= `@font-face {
+(function () {
+	let cssNode = document.createElement("style");
+	let cssResource = `@font-face {
 	font-family:'Roboto-Medium';
 	src:url('../Fonts/Roboto-Medium.ttf') format('truetype');
 	font-display:swap
@@ -1796,6 +1931,6 @@ to {
 	animation-name:NZ-Motion--fadeOutRight
 }
 `;
-cssNode .innerHTML= cssResource;
-document.head.append(cssNode );
+	cssNode.innerHTML = cssResource;
+	document.head.append(cssNode);
 })();
