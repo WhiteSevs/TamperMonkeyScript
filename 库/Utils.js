@@ -2,7 +2,7 @@
  * @description	 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.2
+ * @version  1.3
  **/
 (function (Utils) {
 	/**
@@ -1871,5 +1871,31 @@ Cape Lock	 20			Up Arrow	   38		 	 ,<							188		'"		 222
 			ctx.fillStyle = this.config.textColor;
 			ctx.fillText(txt, width / 2 - w / 2, height / 2 + h / 2);
 		}.bind(this);
+	};
+
+	/**
+	 * 将正则匹配到的结果取出最后一个值并转换成int格式
+	 * @param matchList 正则匹配的列表
+	 * @param defaultValue 正则匹配的列表为空时，或者正则匹配的列表最后一项不为Int，返回该默认值
+	 * @example Utils.parseInt(["dadaadada123124","123124"],0);
+	 * @returns 123124
+	 * @example Utils.parseInt(null,0);
+	 * @returns 0
+	 * @example Utils.parseInt(["aaaaaa"]);
+	 * @returns 0
+	 * @example Utils.parseInt(["aaaaaa"],"66");
+	 * @returns 66
+	 * @example Utils.parseInt(["aaaaaaa"],"aa");
+	 * @returns NaN
+	 **/
+	Utils.parseInt = function (matchList = [], defaultValue = 0) {
+		if (matchList == null) {
+			return parseInt(defaultValue);
+		}
+		let parseValue = parseInt(matchList[matchList.length - 1]);
+		if (isNaN(parseValue)) {
+			parseValue = parseInt(defaultValue);
+		}
+		return parseValue;
 	};
 })((Utils = {}));
