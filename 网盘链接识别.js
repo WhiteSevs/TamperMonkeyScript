@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.02.20.17.20
+// @version      23.3.2.14.20
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -22,15 +22,18 @@
 // @connect      189.cn
 // @connect      123pan.com
 // @connect      wenshushu.cn
-// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?s1\.hdslb\.com(:[0-9]{1,5})?\/.*$/
-// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?www\.bilibili\.com(:[0-9]{1,5})?\/.*$/
-// @exclude      /^[^:/#?]*:\/\/([^#?/]*\.)?message\.bilibili\.com(:[0-9]{1,5})?\/.*$/
+// @exclude      /^http(s|):\/\/s1\.hdslb\.com\/.*$/
+// @exclude      /^http(s|):\/\/(message|www)\.bilibili\.com\/.*$/
+// @exclude      /^http(s|):\/\/.*\.mail\.qq\.com\/.*$/
+// @exclude      /^http(s|):\/\/.*video\.qq\.com\/.*$/
+// @exclude      /^http(s|):\/\/.*\.vscode-cdn\.net\/.*$/
+// @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/455576-qmsg/code/Qmsg.js?version=1122361
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1127486
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1134453
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1153204
 // ==/UserScript==
 
 (function () {
@@ -2314,6 +2317,9 @@
 				},
 				decodeDownloadUrl(url) {
 					/* 将直链的param参数解析成真正的直链 */
+					if (url === "") {
+						return "";
+					}
 					const decodeURL = new URL(url);
 					const params = decodeURL.search.replace(/^\?params=/gi, "");
 					const atobURL = atob(params);
@@ -3983,8 +3989,11 @@
 						y = y < maxT ? y : maxT;
 						x = x < 0 ? 0 : x;
 						y = y < 0 ? 0 : y;
-						GM_setValue("suspensionX", x);
-						GM_setValue("suspensionY", y);
+						if (top.window == self.window) {
+							GM_setValue("suspensionX", x);
+							GM_setValue("suspensionY", y);
+						}
+
 						$("#whitesevSuspensionId").css({
 							left: x,
 							top: y,
@@ -4000,12 +4009,18 @@
 						let setCSSLeft = 0;
 						if (left_px >= $(window).width() / 2) {
 							setCSSLeft = $(window).width() - UI.size;
-							GM_setValue("isRight", true);
+							if (top.window == self.window) {
+								GM_setValue("isRight", true);
+							}
 						} else {
-							GM_setValue("isRight", false);
+							if (top.window == self.window) {
+								GM_setValue("isRight", false);
+							}
+						}
+						if (top.window == self.window) {
+							GM_setValue("suspensionX", setCSSLeft);
 						}
 
-						GM_setValue("suspensionX", setCSSLeft);
 						$("#whitesevSuspensionId").css({
 							left: setCSSLeft,
 							transition: "left 300ms ease 0s",
@@ -4066,20 +4081,17 @@
 				let maxY = $(window).height() - UI.size;
 				let defaultX = $(window).width() - UI.size;
 				let defaultY = $(window).height() / 2 - UI.size;
-				let setX =
-					GM_getValue("suspensionX") != null
-						? GM_getValue("suspensionX")
-						: defaultX;
-				let setY =
-					GM_getValue("suspensionY") != null
-						? GM_getValue("suspensionY")
-						: defaultY;
+				let setX = GM_getValue("suspensionX", defaultX);
+				let setY = GM_getValue("suspensionY", defaultY);
 
 				setX = GM_getValue("isRight") ? defaultX : 0;
 				setY = setY < maxY ? setY : maxY; /* 超出高度那肯定是最底下了 */
 				setY = setY < 0 ? 0 : setY;
-				GM_setValue("suspensionX", setX);
-				GM_setValue("suspensionY", setY);
+				if (top.window == self.window) {
+					GM_setValue("suspensionX", setX);
+					GM_setValue("suspensionY", setY);
+				}
+
 				$("#whitesevSuspensionId").css({
 					left: setX,
 					top: setY,
