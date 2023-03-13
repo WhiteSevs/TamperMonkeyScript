@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.6.7
+// @version      0.6.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -34,11 +34,11 @@
 // @grant        GM_xmlhttpRequest
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1149608
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1160780
 // @run-at       document-start
 // ==/UserScript==
 
-https: (function () {
+(function () {
 	"use strict";
 	const LOG = GM_getValue("LOG", false);
 	var __console__ = {};
@@ -857,6 +857,16 @@ https: (function () {
 								"color:blue"
 							);
 						}
+						if(item.attr("tpl") === "wenda_abstract" && item.attr("preventClick") == null){
+							/* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
+							item.attr("preventClick","true");
+							item.on("click",function(event){
+								event.preventDefault();
+								window.location.href=searchArticleOriginal_link;
+
+							})
+							return;
+						}
 						if (item.text().substr(0, 5) == "大家还在搜") {
 							item?.remove();
 							__console__.log(
@@ -1088,9 +1098,9 @@ https: (function () {
 				var searchInput_HOME = "#index-kw";
 				var searchBtn_HOME = "#index-bn";
 				function mutationObserverFunction(btnElement) {
-					$(btnElement)?.on("click", function (e) {
-						e?.stopPropagation();
-						e?.preventDefault();
+					$(btnElement)?.on("click", function (event) {
+						event?.stopPropagation();
+						event?.preventDefault();
 						__console__.log("点击按钮跳转搜索 -> " + $(this).text());
 						__console__.log(
 							window.location.origin + "/s?word=" + $(this).text()
@@ -1100,10 +1110,10 @@ https: (function () {
 						return false;
 					});
 				}
-				function searchBtnJump(e, searchInput) {
+				function searchBtnJump(event, searchInput) {
 					var searchInputElement = $(searchInput);
-					e?.stopPropagation();
-					e?.preventDefault();
+					event?.stopPropagation();
+					event?.preventDefault();
 					__console__.log("点击按钮跳转搜索 -> " + searchInputElement.val());
 					__console__.log(
 						window.location.origin + "/s?word=" + searchInputElement.val()
@@ -1113,11 +1123,11 @@ https: (function () {
 					return false;
 				}
 
-				function enterKeyDownEvent(e, searchInput) {
-					if (e.keyCode === 108 || e.keyCode === 13) {
+				function enterKeyDownEvent(event, searchInput) {
+					if (event.keyCode === 108 || event.keyCode === 13) {
 						var searchInputElement = $(searchInput);
-						e?.stopPropagation();
-						e?.preventDefault();
+						event?.stopPropagation();
+						event?.preventDefault();
 						__console__.log("回车键跳转搜索 -> " + searchInputElement.val());
 						__console__.log(
 							window.location.origin + "/s?word=" + searchInputElement.val()
@@ -1141,17 +1151,17 @@ https: (function () {
 					config: { childList: true, attributes: true },
 				});
 
-				$(searchBtn)?.on("click", function (e) {
-					return searchBtnJump(e, searchInput);
+				$(searchBtn)?.on("click", function (event) {
+					return searchBtnJump(event, searchInput);
 				});
-				$(searchBtn_HOME)?.on("click", function (e) {
-					return searchBtnJump(e, searchInput_HOME);
+				$(searchBtn_HOME)?.on("click", function (event) {
+					return searchBtnJump(event, searchInput_HOME);
 				});
-				$(searchInput)?.on("keydown", function (e) {
-					return enterKeyDownEvent(e, searchInput);
+				$(searchInput)?.on("keydown", function (event) {
+					return enterKeyDownEvent(event, searchInput);
 				});
-				$(searchInput_HOME)?.on("keydown", function (e) {
-					return enterKeyDownEvent(e, searchInput_HOME);
+				$(searchInput_HOME)?.on("keydown", function (event) {
+					return enterKeyDownEvent(event, searchInput_HOME);
 				});
 			}
 
@@ -1168,7 +1178,7 @@ https: (function () {
 				GM_addStyle(this.css.search);
 				$(function () {
 					var lock = false;
-					Utils.mutationObserver($(".search-page"), {
+					Utils.mutationObserver(".search-page", {
 						fn: async () => {
 							if (lock) {
 								return;
@@ -2857,7 +2867,7 @@ https: (function () {
 		loadingView.setCSS();
 		$(window).bind("scroll", function () {
 			let userScrollHeight = Math.ceil(
-				$(window).scrollTop() + $(window).height() + 200
+				$(window).scrollTop() + $(window).height() + 300
 			);
 			if (userScrollHeight >= $(document).height()) {
 				if (isloding_flag == false) {
@@ -2915,7 +2925,7 @@ https: (function () {
 							loadingView.setVisible(false);
 							let page_html = $(resp.response);
 							page_html.find("style").filter(function (index) {
-								/* 插入vue打包的css */ if (
+								/* 插入vue打包的css需重新引入 */ if (
 									this.hasAttribute("data-vue-ssr-id")
 								) {
 									let dataVueSsrId = "data-vue-ssr-id";
@@ -2928,7 +2938,7 @@ https: (function () {
 										let cssDOM = GM_addStyle(this.innerHTML);
 										cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
 										__console__.log(
-											"%c[BaiDu优化%c-%c百度搜索%c]%c 插入Vue的CSS: %s",
+											"%c[BaiDu优化%c-%c百度搜索%c]%c 插入Vue的CSS id: %s",
 											"font-weight:bold;color:cornflowerblue",
 											"font-weight:bold;color:cornflowerblue",
 											"font-weight:bold;color:darkorange",
