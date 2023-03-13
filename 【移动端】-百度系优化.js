@@ -1164,22 +1164,6 @@
           return enterKeyDownEvent(event, searchInput_HOME);
         });
       }
-
-      /**
-       * 替换搜索框右边的搜索按钮【百度一下】为自定义，防止它自动跳转下载百度浏览器和弹窗
-       */
-      function replaceSearchBtn() {
-        if (document.querySelector("#se-bn[createbynew]")) {
-          /* 已存在该按钮 */
-          return;
-        }
-        /* $("button#se-bn").remove(); */
-        $("#se-form").on("submit", function (event) {
-			console.log("阻止提交");
-          event.preventDefault();
-          return false;
-        });
-      }
       if (this.current_url.match(/http(s|):\/\/(m|www).baidu.com/g)) {
         __console__.log(
           "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
