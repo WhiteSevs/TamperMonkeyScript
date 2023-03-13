@@ -2,7 +2,7 @@
  * @description	 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.4
+ * @version  1.5
  **/
 (function (Utils) {
   /**
@@ -2074,9 +2074,9 @@
 
   /**
    * @description 等待某个对象出现，结果为异步，需要await或者then
-   * @param {object} target - 需要寻找的元素，传入id或class或div等...
-   * @param {number} intervalNumMax - 循环次数
-   * @param {number} intervalTime - 每次的循环时间
+   * @param {string} target - 需要寻找的元素，传入字符串格式的元素选择器，如div#xxxx...
+   * @param {number} intervalNumMax - 循环查找元素次数
+   * @param {number} intervalTime - 循环查找元素间隔时间
    * @return {Array} - 如果找到返回数组形式的Node类型的对象，否则返回空数组
    * @example await Utils.waitNode("div.xxx");
    * @example Utils.waitNode("div#xxx").then((node)=>{xxxx});
@@ -2095,8 +2095,9 @@
           clearInterval(interval);
           return;
         }
-        if (document.querySelectorAll(target).length !== 0) {
-          resolve(document.querySelectorAll(target));
+        let queryTargetNodeList = document.querySelectorAll(target);
+        if (queryTargetNodeList.length !== 0) {
+          resolve(queryTargetNodeList);
           clearInterval(interval);
           return;
         }
