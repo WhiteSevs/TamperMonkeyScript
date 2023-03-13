@@ -1202,7 +1202,6 @@
           redirectTopLink();
           clickOtherSearchEvent();
           replaceLink();
-          replaceSearchBtn();
           if (GM_Menu.get("menu_autoloading")) {
             autoLoadNextPage();
           }
