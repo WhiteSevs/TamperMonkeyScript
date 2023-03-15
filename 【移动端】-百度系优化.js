@@ -2188,11 +2188,15 @@
           let clickNode = $(this);
           let dataTrack = clickNode.attr("data-track");
           if (dataTrack == null) {
+            log.error("百度贴吧", "未找到data-track");
+            log.error("百度贴吧", clickNode);
             return false;
           }
           dataTrack = JSON.parse(dataTrack);
           let tid = dataTrack["tid"];
           if (tid == null) {
+            log.error("百度贴吧", "未找到tid");
+            log.error("百度贴吧", dataTrack);
             return false;
           }
           log.success("百度贴吧", `跳转至: https://tieba.baidu.com/p/${tid}`);
@@ -2200,7 +2204,7 @@
           return false;
         });
         Utils.waitNode(
-          ".topic-share-sc .topic-share-item .thread-bottom .forum"
+          ".thread-bottom .forum"
         ).then((nodeList) => {
           log.success("百度贴吧", "设置贴吧种类正确跳转");
           log.success("百度贴吧", nodeList);
