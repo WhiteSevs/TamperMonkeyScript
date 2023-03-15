@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.6.8
+// @version      0.6.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -20,6 +20,7 @@
 // @match        *://image.baidu.com/*
 // @match        *://map.baidu.com/*
 // @match        *://xue.baidu.com/*
+// @match        *://mbd.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -32,6 +33,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1160801
@@ -40,12 +42,39 @@
 
 (function () {
   "use strict";
-  var __console__ = {};
-  __console__.log = function () {
-    if (!GM_getValue("LOG", false)) {
-      return;
-    }
-    console.log.apply(console, arguments);
+  var log = {
+    tag: "Baidu优化",
+    info: function (tag, text, color = "0") {
+      /* #f400ff */
+      if (!GM_getValue("LOG", false)) {
+        return;
+      }
+      if (typeof text === "object") {
+        this.info(tag, "输出Object👇", color);
+        console.log(text);
+      } else {
+        console.log(
+          `%c[${log.tag}%c-%c${tag}%c]%c ${text}`,
+          "font-weight:bold;color:cornflowerblue",
+          "font-weight:bold;color:cornflowerblue",
+          "font-weight:bold;color:darkorange",
+          "font-weight:bold;color:cornflowerblue",
+          `color:${color}`
+        );
+      }
+    },
+    error: function (tag, text, color = "red") {
+      if (!GM_getValue("LOG", false)) {
+        return;
+      }
+      this.info(tag, text, color);
+    },
+    success: function (tag, text, color = "blue") {
+      if (!GM_getValue("LOG", false)) {
+        return;
+      }
+      this.info(tag, text, color);
+    },
   };
   const CSDN_FLAG_CSS = `标识
     .csdn-flag-component-box .praise {
@@ -91,200 +120,249 @@
 `;
 
   var LoadingView = function () {
-    this.html =
-      '<div class="page-isloading whitesev-page-isloading" style="margin: 0.08rem;background: #fff;height: 45px;font-size: 15px;display: flex;text-align: center;align-items: center;width: inherit;justify-content: center;border-radius: 0.12rem;">' +
-      '<span class="whitesev-isloading-text" style="">Loading...</span>' +
-      "</div>";
-    this.iconHTML =
-      '<div class="whitesev-isloading-icon" style="margin:0px 0px 28px 15px;">' +
-      '<div id="whitesev-isloading-outside"></div>' +
-      '<div id="whitesev-isloading-within"></div>' +
-      "</div>";
-    this.setVisible = function (_value_) {
-      /* 修改 提示的显示状态 */
-      $(".page-isloading")?.css("display", _value_ ? "flex" : "none");
-    };
-    this.setIconVisible = function (_value_) {
-      /* 修改正在加载中图标的状态 */
-      $(".whitesev-isloading-icon")?.css("display", _value_ ? "unset" : "none");
-    };
-    this.setText = function (_value_) {
-      /* 设置加载的文本 */
-      $(".whitesev-isloading-text")?.html("<span>" + _value_ + "</span>");
-    };
-    this.setTextWithLoadIcon = function (_value_) {
-      /* 设置加载的文本-外加加载图标 */
-      $(".whitesev-isloading-text")?.html("<span>" + _value_ + "</span>");
-      $(".whitesev-isloading-icon")?.remove();
-      $(".whitesev-isloading-text")?.after(this.iconHTML);
-      $(".whitesev-isloading-icon")?.css("display", "unset");
-    };
-    this.setHTML = function (_value_) {
-      /* 设置加载的HTML */
-      $(".whitesev-isloading-text")?.html("<span>" + _value_ + "</span>");
-      if (!$(".whitesev-isloading-icon").length) {
-        $(".page-isloading")?.append(this.iconHTML);
+    let loadingClassName = "whitesev-page-isloading";
+    let loadingTextClassName = "whitesev-isloading-text";
+    let loadingIconClassName = "whitesev-isloading-icon";
+    let loadingOutSideIconClassName = "whitesev-isloading-outside";
+    let loadingWithInIconClassName = "whitesev-isloading-within";
+    let html = `
+    <div class="${loadingClassName}">
+      <span class="${loadingTextClassName}">Loading...</span>
+    </div>`;
+    let iconHTML = `
+    <div class="${loadingIconClassName}">
+      <div class="${loadingOutSideIconClassName}"></div>
+      <div class="${loadingWithInIconClassName}"></div>
+    </div>`;
+    /**
+     * 获取经过jQuery转换过的Loading的HTML
+     * @param {Boolean} withIcon
+     * @returns {jQuery}
+     */
+    this.getLoadingNode = function (withIcon = false) {
+      let parseHTML = $(html);
+      if (withIcon) {
+        parseHTML.find(`.${loadingTextClassName}`)?.after($(iconHTML));
       }
-      $(".whitesev-isloading-icon")?.css("display", "none");
+      return parseHTML;
     };
-    this.setCSS = function () {
-      /* 设置CSS */
-      GM_addStyle(`
-            #whitesev-isloading-outside,
-            #whitesev-isloading-within{
-                position: absolute;
-                margin-left: 140px;
-            }
-            #whitesev-isloading-outside {
-                background-color: rgba(0, 0, 0, 0);
-                border: 5px solid rgba(0, 183, 229, 0.9);
-                opacity: .9;
-                border-right: 5px solid rgba(0, 0, 0, 0);
-                border-left: 5px solid rgba(0, 0, 0, 0);
-                border-radius: 50px;
-                box-shadow: 0 0 35px #2187e7;
-                width: 20px;
-                height: 20px;
-                margin: 0 auto;
-                /*position: fixed;
-                left: 50%;
-                top: 50%;
-                margin-left: -25px;
-                margin-top: -25px;*/
-                -moz-animation: spinPulse 1s infinite ease-in-out;
-                -webkit-animation: spinPulse 1s infinite ease-in-out;
-                -o-animation: spinPulse 1s infinite ease-in-out;
-                -ms-animation: spinPulse 1s infinite ease-in-out
-            }
-            #whitesev-isloading-within {
-                background: rgba(0, 0, 0, 0) no-repeat center center;
-                border: 5px solid rgba(0, 183, 229, 0.9);
-                opacity: .9;
-                border-top: 5px solid rgba(0, 0, 0, 0);
-                border-bottom: 5px solid rgba(0, 0, 0, 0);
-                border-radius: 50px;
-                box-shadow: 0 0 15px #2187e7;
-                width: 20px;
-                height: 20px;
-                margin: 0 auto;
-                /*position: fixed;
-                left: 50%;
-                top: 50%;
-                margin-left: -15px;
-                margin-top: -15px;*/
-                -moz-animation: spinoffPulse 3s infinite linear;
-                -webkit-animation: spinoffPulse 3s infinite linear;
-                -o-animation: spinoffPulse 3s infinite linear;
-                -ms-animation: spinoffPulse 3s infinite linear
-            }
-            @-moz-keyframes spinPulse {
-                0% {
-                    -moz-transform: rotate(160deg);
-                    opacity: 0;
-                    box-shadow: 0 0 1px #505050
-                }
-                50% {
-                    -moz-transform: rotate(145deg);
-                    opacity: 1
-                }
-                100% {
-                    -moz-transform: rotate(-320deg);
-                    opacity: 0
-                }
-            }
-            @-moz-keyframes spinoffPulse {
-                0% {
-                    -moz-transform: rotate(0deg)
-                }
-                100% {
-                    -moz-transform: rotate(360deg)
-                }
-            }
-            @-webkit-keyframes spinPulse {
-                0% {
-                    -webkit-transform: rotate(160deg);
-                    opacity: 0;
-                    box-shadow: 0 0 1px #505050
-                }
-                50% {
-                    -webkit-transform: rotate(145deg);
-                    opacity: 1
-                }
-                100% {
-                    -webkit-transform: rotate(-320deg);
-                    opacity: 0
-                }
-            }
-            @-webkit-keyframes spinoffPulse {
-                0% {
-                    -webkit-transform: rotate(0deg)
-                }
-                100% {
-                    -webkit-transform: rotate(360deg)
-                }
-            }
-            @-o-keyframes spinPulse {
-                0% {
-                    -o-transform: rotate(160deg);
-                    opacity: 0;
-                    box-shadow: 0 0 1px #505050
-                }
-                50% {
-                    -o-transform: rotate(145deg);
-                    opacity: 1
-                }
-                100% {
-                    -o-transform: rotate(-320deg);
-                    opacity: 0
-                }
-            }
-            @-o-keyframes spinoffPulse {
-                0% {
-                    -o-transform: rotate(0deg)
-                }
-                100% {
-                    -o-transform: rotate(360deg)
-                }
-            }
-            @-ms-keyframes spinPulse {
-                0% {
-                    -ms-transform: rotate(160deg);
-                    opacity: 0;
-                    box-shadow: 0 0 1px #505050
-                }
-                50% {
-                    -ms-transform: rotate(145deg);
-                    opacity: 1
-                }
-                100% {
-                    -ms-transform: rotate(-320deg);
-                    opacity: 0
-                }
-            }
-            @-ms-keyframes spinoffPulse {
-                0% {
-                    -ms-transform: rotate(0deg)
-                }
-                100% {
-                    -ms-transform: rotate(360deg)
-                }
-            }`);
+    /**
+     * 设置Loading显示/关闭
+     * @param {Boolean} _value_
+     */
+    this.setVisible = function (_value_) {
+      $(`.${loadingClassName}`)?.css("display", _value_ ? "flex" : "none");
     };
+    /**
+     * 设置Loading图标显示/关闭
+     * @param {Boolean} _value_
+     */
+    this.setIconVisible = function (_value_) {
+      $(`.${loadingIconClassName}`)?.css("display", _value_ ? "unset" : "none");
+    };
+    /**
+     * 设置Loading的文本
+     * @param {String} _value_ 文本
+     * @param {Boolean} withIcon 设置Icon图标
+     */
+    this.setText = function (_value_, withIcon = false) {
+      $(`${loadingTextClassName}`)?.html(`<span>${_value_}</span>`);
+      if (withIcon) {
+        if ($(`.${loadingIconClassName}`).length === 0) {
+          $(`.${loadingTextClassName}`)?.after(iconHTML);
+        }
+        $(`.${loadingIconClassName}`)?.css("display", "unset");
+      } else {
+        $(`.${loadingIconClassName}`)?.remove();
+      }
+    };
+    /**
+     * 删除Loading元素
+     */
     this.destory = function () {
       /* 销毁 */
-      $(".page-isloading")?.remove();
+      $(`.${loadingClassName}`)?.remove();
     };
-    this.exists = function () {
-      /* 判断是否已加载 */
-      return $(".whitesev-page-isloading").length == 0 ? false : true;
+    /**
+     * 判断Loading是否已加载到页面中
+     * @returns true|false
+     */
+    this.isExists = function () {
+      return $(`.${loadingClassName}`).length == 0 ? false : true;
     };
-    this.iconExists = function () {
-      /* 判断图标是否存在 */
-      return $(".whitesev-isloading-icon").length == 0 ? false : true;
+    /**
+     * 判断Loading是否存在Loading图标
+     * @returns true|false
+     */
+    this.isExistsIcon = function () {
+      return $(`.${loadingIconClassName}`).length == 0 ? false : true;
     };
-    this.textExists = function () {
-      /* 判断带图标的文本是否存在 */
-      return $(".whitesev-isloading-text").length == 0 ? false : true;
+    /**
+     * 判断Loading中的文本是否存在
+     * @returns true|false
+     */
+    this.isExistsText = function () {
+      return $(`.${loadingTextClassName}`).length == 0 ? false : true;
+    };
+    /**
+     * 加载需要的CSS
+     */
+    this.setCSS = function () {
+      GM_addStyle(`
+        .${loadingClassName}{
+          margin: 0.08rem;
+          background: #fff;
+          height: 45px;
+          font-size: 15px;
+          display: flex;
+          text-align: center;
+          align-items: center;
+          width: inherit;
+          justify-content: center;
+          border-radius: 0.12rem;
+        }
+        .${loadingIconClassName}{
+          margin:0px 0px 28px 15px;
+        }
+        .${loadingOutSideIconClassName},
+        .${loadingWithInIconClassName}{
+          position: absolute;
+          margin-left: 140px;
+        }
+        .${loadingOutSideIconClassName}{
+          background-color: rgba(0, 0, 0, 0);
+          border: 5px solid rgba(0, 183, 229, 0.9);
+          opacity: .9;
+          border-right: 5px solid rgba(0, 0, 0, 0);
+          border-left: 5px solid rgba(0, 0, 0, 0);
+          border-radius: 50px;
+          box-shadow: 0 0 35px #2187e7;
+          width: 20px;
+          height: 20px;
+          margin: 0 auto;
+          /*position: fixed;
+          left: 50%;
+          top: 50%;
+          margin-left: -25px;
+          margin-top: -25px;*/
+          -moz-animation: spinPulse 1s infinite ease-in-out;
+          -webkit-animation: spinPulse 1s infinite ease-in-out;
+          -o-animation: spinPulse 1s infinite ease-in-out;
+          -ms-animation: spinPulse 1s infinite ease-in-out;
+        }
+        .${loadingWithInIconClassName}{
+          background: rgba(0, 0, 0, 0) no-repeat center center;
+          border: 5px solid rgba(0, 183, 229, 0.9);
+          opacity: .9;
+          border-top: 5px solid rgba(0, 0, 0, 0);
+          border-bottom: 5px solid rgba(0, 0, 0, 0);
+          border-radius: 50px;
+          box-shadow: 0 0 15px #2187e7;
+          width: 20px;
+          height: 20px;
+          margin: 0 auto;
+          /*position: fixed;
+          left: 50%;
+          top: 50%;
+          margin-left: -15px;
+          margin-top: -15px;*/
+          -moz-animation: spinoffPulse 3s infinite linear;
+          -webkit-animation: spinoffPulse 3s infinite linear;
+          -o-animation: spinoffPulse 3s infinite linear;
+          -ms-animation: spinoffPulse 3s infinite linear;
+        }
+        @-moz-keyframes spinPulse {
+            0% {
+                -moz-transform: rotate(160deg);
+                opacity: 0;
+                box-shadow: 0 0 1px #505050
+            }
+            50% {
+                -moz-transform: rotate(145deg);
+                opacity: 1
+            }
+            100% {
+                -moz-transform: rotate(-320deg);
+                opacity: 0
+            }
+        }
+        @-moz-keyframes spinoffPulse {
+            0% {
+                -moz-transform: rotate(0deg)
+            }
+            100% {
+                -moz-transform: rotate(360deg)
+            }
+        }
+        @-webkit-keyframes spinPulse {
+            0% {
+                -webkit-transform: rotate(160deg);
+                opacity: 0;
+                box-shadow: 0 0 1px #505050
+            }
+            50% {
+                -webkit-transform: rotate(145deg);
+                opacity: 1
+            }
+            100% {
+                -webkit-transform: rotate(-320deg);
+                opacity: 0
+            }
+        }
+        @-webkit-keyframes spinoffPulse {
+            0% {
+                -webkit-transform: rotate(0deg)
+            }
+            100% {
+                -webkit-transform: rotate(360deg)
+            }
+        }
+        @-o-keyframes spinPulse {
+            0% {
+                -o-transform: rotate(160deg);
+                opacity: 0;
+                box-shadow: 0 0 1px #505050
+            }
+            50% {
+                -o-transform: rotate(145deg);
+                opacity: 1
+            }
+            100% {
+                -o-transform: rotate(-320deg);
+                opacity: 0
+            }
+        }
+        @-o-keyframes spinoffPulse {
+            0% {
+                -o-transform: rotate(0deg)
+            }
+            100% {
+                -o-transform: rotate(360deg)
+            }
+        }
+        @-ms-keyframes spinPulse {
+            0% {
+                -ms-transform: rotate(160deg);
+                opacity: 0;
+                box-shadow: 0 0 1px #505050
+            }
+            50% {
+                -ms-transform: rotate(145deg);
+                opacity: 1
+            }
+            100% {
+                -ms-transform: rotate(-320deg);
+                opacity: 0
+            }
+        }
+        @-ms-keyframes spinoffPulse {
+            0% {
+                -ms-transform: rotate(0deg)
+            }
+            100% {
+                -ms-transform: rotate(360deg)
+            }
+        }`);
     };
   };
 
@@ -304,346 +382,355 @@
       this.fanyi();
       this.image();
       this.map();
+      this.mbd();
       this.xue();
     },
     css: {
       search: `
-                .c-container.na-ec-item,
-                .c-container.ec-container,
-                div[data-type="ad"],
-                .c-result.sfc-log[data-tpl="adv_wenku_fc"],
-                .c-recomm-wrap.new-ux-recom-wrapper.animation,
-                #results-pre,
-                .video-recommend,
-                .c-result.sfc-log[data-tpl="search_recomm"],
-                .sfc-image-content-waterfall-item[wat-item-data-id="no-img"],
-                .se-results-pre,
-                .ec_wise_ad,
-                div#copyright + div,
-                div#pop-up,
-                div[class*='ad-wrapper__'],
-                div[class*='rec-wrapper__']{
-                  display:none !important;
-                }
-                .searchboxtop.newsearch-white-style .se-form {
-                  border-color: #4e6ef2 !important;
-                }
-                .searchboxtop.newsearch-white-style .se-bn {
-                  color: #fff !important;
-                  background: #4e6ef2 !important;
-                }
-                .se-head-logo .se-logo img {
-                  display: inherit !important;
-                }
-                .se-head-tablink {
-                  border-bottom: 1px solid #e6e6e6 !important;
-                  //background-color: #fff !important;
-                  background-color: transparent !important;
-                }
+			.c-container.na-ec-item,
+			.c-container.ec-container,
+			div[data-type="ad"],
+			.c-result.sfc-log[data-tpl="adv_wenku_fc"],
+			.c-recomm-wrap.new-ux-recom-wrapper.animation,
+			#results-pre,
+			.video-recommend,
+			.c-result.sfc-log[data-tpl="search_recomm"],
+			.sfc-image-content-waterfall-item[wat-item-data-id="no-img"],
+			.se-results-pre,
+			.ec_wise_ad,
+			div#copyright + div,
+			div#pop-up,
+			div[class*='ad-wrapper__'],
+			div[class*='rec-wrapper__']{
+				display:none !important;
+			}
+			.searchboxtop.newsearch-white-style .se-form {
+				border-color: #4e6ef2 !important;
+			}
+			.searchboxtop.newsearch-white-style .se-bn {
+				color: #fff !important;
+				background: #4e6ef2 !important;
+			}
+			.se-head-logo .se-logo img {
+				display: inherit !important;
+			}
+			.se-head-tablink {
+				border-bottom: 1px solid #e6e6e6 !important;
+				//background-color: #fff !important;
+				background-color: transparent !important;
+			}
 
-                a.se-tabitem span{
-                  color: #000 !important;
-                }
-                // div.c-peak-layer{
-                //   display:none !important;
-                // } 百度关键字背景
-                .se-tablink-scroll-wrapper .se-tab-cur:after{
-                  border-bottom: 2px solid #38f !important;
-                }
-                .c-tags-scroll.c-padding-x{
-                  display: none !important;
-                }
-                .white-bdsearch-isredirecrt{  
-                  display: inline-flex;
-                  background: #43ba76;
-                  color: #fff;
-                  width: 28px;
-                  font-size: 16px;
-                  line-height: 25px;
-                  justify-content: center;
-                  align-items: center;
-                  border-radius: 5px;
-                  margin: 0 auto;
-                  margin-right: 6px;
-                }
-                /* 修复图片显示问题 */
-                .image-strong-card div[class*="image-content__"] > div{
-                  display: inline-block;
-                  overflow: hidden;
-                  vertical-align: top;
-                }
-                .c-result-content div[class*="tieba-newxml-forum-img-class__"]{
-                  display: -webkit-box;
-                  display: -webkit-flex;
-                  display: flex;
-                  -webkit-box-align: center;
-                  -webkit-align-items: center;
-                  align-items: center;
-                }
-                
-                .c-result-content div[class*="tieba-newxml-forum-img__"]{
-                  width: .553rem;
-                  height: .553rem;
-                }
-                
-                .c-result-content div[class*="tieba-newxml-forum-img__"] img{
-                  width: 100%;
-                  height: 100%;
-                  border-radius: .09rem;
-                }
-                .c-result-content div[class*="tieba-newxml-forum-class__"]{
-                  display: -webkit-box;
-                  display: -webkit-flex;
-                  display: flex;
-                  -webkit-box-orient: vertical;
-                  -webkit-box-direction: normal;
-                  -webkit-flex-direction: column;
-                  flex-direction: column;
-                  -webkit-box-pack: center;
-                  -webkit-justify-content: center;
-                  justify-content: center;
-                  max-width: 2.2rem;
-                }
-                .c-result-content div[class*="c-img-content-btn__"]{
-                  position: absolute;
-                  right: 0;
-                  width: .55rem;
-                  text-align: center;
-                  line-height: .28rem;
-                  border: 1px solid rgba(31,31,31,.5);
-                  border-radius: .15rem;
-                  font-family: PingFangSC-Medium;
-                  font-size: .13rem;
-                  color: #1f1f1f;
-                }
-                .c-result-content div[class*="tieba-newxml-thread-comment-user__"]{
-                  display: -webkit-box;
-                  display: -webkit-flex;
-                  display: flex;
-                  -webkit-box-align: center;
-                  -webkit-align-items: center;
-                  align-items: center;
-                  margin-top: .03rem;
-                }
-                .c-result-content div[class*="tieba-newxml-thread-comment-user__"] img{
-                  width: .16rem;
-                  height: .16rem;
-                  border-radius: 50%;
-                }
-                .c-result-content div[class*="tieba-newxml-thread-comment-user__"] span{
-                  margin-right: .08rem;
-                }
-                
-            `,
+			a.se-tabitem span{
+				color: #000 !important;
+			}
+			// div.c-peak-layer{
+			//   display:none !important;
+			// } 百度关键字背景
+			.se-tablink-scroll-wrapper .se-tab-cur:after{
+				border-bottom: 2px solid #38f !important;
+			}
+			.c-tags-scroll.c-padding-x{
+				display: none !important;
+			}
+			.white-bdsearch-isredirecrt{  
+				display: inline-flex;
+				background: #43ba76;
+				color: #fff;
+				width: 28px;
+				font-size: 16px;
+				line-height: 25px;
+				justify-content: center;
+				align-items: center;
+				border-radius: 5px;
+				margin: 0 auto;
+				margin-right: 6px;
+			}
+			/* 修复图片显示问题 */
+			.image-strong-card div[class*="image-content__"] > div{
+				display: inline-block;
+				overflow: hidden;
+				vertical-align: top;
+			}
+			.c-result-content div[class*="tieba-newxml-forum-img-class__"]{
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-align: center;
+				-webkit-align-items: center;
+				align-items: center;
+			}
+			
+			.c-result-content div[class*="tieba-newxml-forum-img__"]{
+				width: .553rem;
+				height: .553rem;
+			}
+			
+			.c-result-content div[class*="tieba-newxml-forum-img__"] img{
+				width: 100%;
+				height: 100%;
+				border-radius: .09rem;
+			}
+			.c-result-content div[class*="tieba-newxml-forum-class__"]{
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-orient: vertical;
+				-webkit-box-direction: normal;
+				-webkit-flex-direction: column;
+				flex-direction: column;
+				-webkit-box-pack: center;
+				-webkit-justify-content: center;
+				justify-content: center;
+				max-width: 2.2rem;
+			}
+			.c-result-content div[class*="c-img-content-btn__"]{
+				position: absolute;
+				right: 0;
+				width: .55rem;
+				text-align: center;
+				line-height: .28rem;
+				border: 1px solid rgba(31,31,31,.5);
+				border-radius: .15rem;
+				font-family: PingFangSC-Medium;
+				font-size: .13rem;
+				color: #1f1f1f;
+			}
+			.c-result-content div[class*="tieba-newxml-thread-comment-user__"]{
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: flex;
+				-webkit-box-align: center;
+				-webkit-align-items: center;
+				align-items: center;
+				margin-top: .03rem;
+			}
+			.c-result-content div[class*="tieba-newxml-thread-comment-user__"] img{
+				width: .16rem;
+				height: .16rem;
+				border-radius: 50%;
+			}
+			.c-result-content div[class*="tieba-newxml-thread-comment-user__"] span{
+				margin-right: .08rem;
+			}
+			
+		`,
       searchHome: `
-                html,
-                body,
-                div#header{
-                  height: calc( 100vh - 120px );
-                }
-                form#index-form{ /* fixed垂直水平居中 */
-                  position: fixed;
-                  top:0;
-                  right:0;
-                  bottom:0;
-                  left:0;
-                  margin:auto !important;
-                  width: 90%;
-                }
-                div#navs ~ div,
-                #login-wraps,
-                a.square-enterance,
-                div#ts-image-uploader-icon,
-                div.baiduappcall-wrap div.voice.call,
-                div.tab_news,
-                div#navs{
-                  display: none !important;
-                }
-            `,
+			html,
+			body,
+			div#header{
+				height: calc( 100vh - 120px );
+			}
+			form#index-form{ /* fixed垂直水平居中 */
+				position: fixed;
+				top:0;
+				right:0;
+				bottom:0;
+				left:0;
+				margin:auto !important;
+				width: 90%;
+			}
+			div#navs ~ div,
+			#login-wraps,
+			a.square-enterance,
+			div#ts-image-uploader-icon,
+			div.baiduappcall-wrap div.voice.call,
+			div.tab_news,
+			div#navs{
+				display: none !important;
+			}
+		`,
       baijiahao: `
-                .layer-wrap,
-                .openImg,
-                .oPadding,
-                .infinite-scroll-component__outerdiv,
-                .bottomTTSStruct,
-                .undefined,
-                .headDeflectorContainer,
-                .followSuper,
-                #searchwordSdk ~ div:nth-child(n+4),
-                #searchwordSdk,
-                div#commentModule div div span:last-child{
-                  display:none !important;
-                }
-                body.scrollHide{
-                  overflow:auto !important;
-                }
-                .mainContent{
-                  height:  auto !important;
-                }
-            `,
+			.layer-wrap,
+			.openImg,
+			.oPadding,
+			.infinite-scroll-component__outerdiv,
+			.bottomTTSStruct,
+			.undefined,
+			.headDeflectorContainer,
+			.followSuper,
+			#searchwordSdk ~ div:nth-child(n+4),
+			#searchwordSdk,
+			div#commentModule div div span:last-child{
+				display:none !important;
+			}
+			body.scrollHide{
+				overflow:auto !important;
+			}
+			.mainContent{
+				height:  auto !important;
+			}
+		`,
       tieba: `
-                .tb-backflow-defensive,
-                .fixed-nav-bar-defensive,
-                .post-cut-guide,
-                .ertiao-wrap-defensive,
-                .feed-warp.gray-background,
-                .pb-page-wrapper.app-view.transition-fade nav:first-child,
-                .comment-box,
-                .only-lz,
-                .nav-bar-v2 .nav-bar-bottom,
-                .more-image-desc,
-                .fengchao-banner-defensive,
-                .wake-app,
-                .banner-wrapper-defensive,
-                .open-app{
-                  display:none !important;
-                }
-                body.tb-modal-open{
-                  overflow:auto !important;
-                }
-            `,
+			.tb-backflow-defensive,
+			.fixed-nav-bar-defensive,
+			.post-cut-guide,
+			.ertiao-wrap-defensive,
+			.feed-warp.gray-background,
+			.pb-page-wrapper.app-view.transition-fade nav:first-child,
+			.comment-box,
+			.only-lz,
+			.nav-bar-v2 .nav-bar-bottom,
+			.more-image-desc,
+			.fengchao-banner-defensive,
+			.wake-app,
+			.banner-wrapper-defensive,
+			.open-app,
+      .topic-share-page-v2 .bav-bar-top{
+				display:none !important;
+			}
+			body.tb-modal-open{
+				overflow:auto !important;
+			}
+		`,
       wenku: `
-                .reader-pop-manager-view-containter,
-                .core-download,
-                .card-wrap.card-vip,
-                #app,
-                .pop-manager-view-containter,
-                #carousel,
-                .card-wrap,
-                .n-card-wrap-exp,
-                .pageNo .pager~div[class*="__wm"],
-                .fold-pager,
-                .vip-choice,
-                .wk-bottom-btn,
-                .continue-read-wrap.invite-clipboard,
-                .wk-student,
-                .search-pay-container,
-                .wk-student-defense,
-                .vip-rec-card-main{
-                  display:none !important;
-                }
-                .bartop{
-                  display: unset;
-                }
-                .reader-wrap{
-                  height:auto !important;
-                }
-                #view-rr-app{
-                  overflow-y:auto !important;
-                }
-                #view-app,
-                #view-rr-app{
-                  max-height: 100% !important;
-                }
-                .top-card{
-                  margin-top: 10px !important;
-                }
-                *{
-                  -webkit-touch-callout: inherit !important;
-                  -khtml-user-select: auto !important;
-                  -moz-user-select: auto !important;
-                  -ms-user-select: auto !important;
-                  user-select: auto !important;
-                }
-            `,
+			.reader-pop-manager-view-containter,
+			.core-download,
+			.card-wrap.card-vip,
+			#app,
+			.pop-manager-view-containter,
+			#carousel,
+			.card-wrap,
+			.n-card-wrap-exp,
+			.pageNo .pager~div[class*="__wm"],
+			.fold-pager,
+			.vip-choice,
+			.wk-bottom-btn,
+			.continue-read-wrap.invite-clipboard,
+			.wk-student,
+			.search-pay-container,
+			.wk-student-defense,
+			.vip-rec-card-main{
+				display:none !important;
+			}
+			.bartop{
+				display: unset;
+			}
+			.reader-wrap{
+				height:auto !important;
+			}
+			#view-rr-app{
+				overflow-y:auto !important;
+			}
+			#view-app,
+			#view-rr-app{
+				max-height: 100% !important;
+			}
+			.top-card{
+				margin-top: 10px !important;
+			}
+			*{
+				-webkit-touch-callout: inherit !important;
+				-khtml-user-select: auto !important;
+				-moz-user-select: auto !important;
+				-ms-user-select: auto !important;
+				user-select: auto !important;
+			}
+		`,
       jingyan: `
-                .article-feed-next,
-                .wgt-rel-exp-feed,
-                .article-feed-btn-fixed,
-                .read-whole-mask.app,
-                .asp-self-rander,
-                .baobao-image-item,
-                #wgt-ad-guess{
-                  display:none !important;
-                }
-                .exp-content-container{
-                  max-height: 100% !important;
-                  overflow:auto !important;
-                }
-            `,
+			.article-feed-next,
+			.wgt-rel-exp-feed,
+			.article-feed-btn-fixed,
+			.read-whole-mask.app,
+			.asp-self-rander,
+			.baobao-image-item,
+			#wgt-ad-guess{
+				display:none !important;
+			}
+			.exp-content-container{
+				max-height: 100% !important;
+				overflow:auto !important;
+			}
+		`,
       baike: `
-                .BK-after-content-wrapper,
-                .yitiao-container,
-                .BK-content-load,
-                #J-tashuo-button-fixed,
-                #J-super-layer-promote{
-                  display:none !important;
-                }
-                #J-other-content{
-                  display:block !important;
-                }
-            `,
+			.BK-after-content-wrapper,
+			.yitiao-container,
+			.BK-content-load,
+			#J-tashuo-button-fixed,
+			#J-super-layer-promote{
+				display:none !important;
+			}
+			#J-other-content{
+				display:block !important;
+			}
+		`,
       zhidao: `
-                /* .dec + div, */
-                #feed-recommend,
-                .dec,
-                .wgt-topic-hot,
-                #respect-footer,
-                #wap-youx-change-asp,
-                div.question-line + div:not(.replies-container),
-                .wgt-asp-youx,
-                .w-detail-display-btn,
-                .ask-for-friend,
-                #knowledge-answer-list,
-                .go-to-ask,
-                div[class*='ads']{
-                  display:none !important;
-                }
-                .w-detail-container{
-                  max-height: 100% !important;
-                  overflow: auto !important;
-                }
-            `,
+			/* .dec + div, */
+			#feed-recommend,
+			.dec,
+			.wgt-topic-hot,
+			#respect-footer,
+			#wap-youx-change-asp,
+			div.question-line + div:not(.replies-container),
+			.wgt-asp-youx,
+			.w-detail-display-btn,
+			.ask-for-friend,
+			#knowledge-answer-list,
+			.go-to-ask,
+			div[class*='ads']{
+				display:none !important;
+			}
+			.w-detail-container{
+				max-height: 100% !important;
+				overflow: auto !important;
+			}
+		`,
       fanyi: `
-                .app-bar,
-                .jifeng-container,
-                .intro-title,
-								.sideQrContainer,
-								.inner.clearfix{
-                  display:none !important;
-                }
-                .new-header-dl.{
-                  visibility: hidden;
-                }
-            `,
+			.app-bar,
+			.jifeng-container,
+			.intro-title,
+							.sideQrContainer,
+							.inner.clearfix{
+				display:none !important;
+			}
+			.new-header-dl.{
+				visibility: hidden;
+			}
+		`,
       fanyiapp: `
-                .fanyi-invoke-btn,
-                .top-bn{
-                  display:none !important;
-                }
-            `,
+			.fanyi-invoke-btn,
+			.top-bn{
+				display:none !important;
+			}
+		`,
       image: `
-                #boxBanner{
-                  display:none !important;
-                }
-            `,
+			#boxBanner{
+				display:none !important;
+			}
+		`,
       map: `
-                .index-widget-guidebanner,
-                .common-widget-bottom-banner-changeId,
-                #index-areaEntry-widget,
-                div.common-widget-bottom-banner-changeId,
-                #downloadnativepopup,
-                .xiaoduVoiceCard,
-                .index-widget-guidebanner{
-                  display:none !important;
-                }
-            `,
+			.index-widget-guidebanner,
+			.common-widget-bottom-banner-changeId,
+			#index-areaEntry-widget,
+			div.common-widget-bottom-banner-changeId,
+			#downloadnativepopup,
+			.xiaoduVoiceCard,
+			.index-widget-guidebanner{
+				display:none !important;
+			}
+		`,
+      mbd: `
+			div.headDeflectorContainer,
+			#page_wrapper .other div[class*='undefined'],
+			#page_wrapper .other > div[class=""]{
+				display: none !important;
+			}
+		`,
       xue: `
-								.sc-dkcEsn,
-								.sc-fHSyak,
-								.sc-gikAfH,
-								swan-view.strategy-institution-list,
-								swan-view.strategy-wrapper,
-								.swan-spider-tap,
-								.booking,
-								.head-bar,
-								.head-bar-placeholder{
-									display: none !important;
-								}
-								.sc-cHGmPC{
-									width: auto !important;
-								}
-			`,
+			.sc-dkcEsn,
+			.sc-fHSyak,
+			.sc-gikAfH,
+			swan-view.strategy-institution-list,
+			swan-view.strategy-wrapper,
+			.swan-spider-tap,
+			.booking,
+			.head-bar,
+			.head-bar-placeholder{
+				display: none !important;
+			}
+			.sc-cHGmPC{
+				width: auto !important;
+			}
+		`,
     },
     search() {
       /* 百度搜索 */
@@ -667,26 +754,11 @@
                   newUrl = aTagDataIvk["control"]["default_url"]
                     ? aTagDataIvk["control"]["default_url"]
                     : aTagDataIvk["control"]["dataUrl"];
-                  /* __console__.log(
-										"%c[BaiDu优化%c-%c百度搜索%c]%c A标签上存在隐藏的url: %s",
-										"font-weight:bold;color:cornflowerblue",
-										"font-weight:bold;color:cornflowerblue",
-										"font-weight:bold;color:darkorange",
-										"font-weight:bold;color:cornflowerblue",
-										"color:0",
-										url
-									); */
+                  /* log.info("百度搜索","A标签上存在隐藏的url: "+url) */
                 }
               } catch (error) {
-                __console__.log(error);
-                /* __console__.log(
-									"%c[BaiDu优化%c-%c百度搜索%c]%c A标签上存在隐藏的url，但是替换失败",
-									"font-weight:bold;color:cornflowerblue",
-									"font-weight:bold;color:cornflowerblue",
-									"font-weight:bold;color:darkorange",
-									"font-weight:bold;color:cornflowerblue",
-									"color:red"
-								); */
+                /* log.error("百度搜索","A标签上存在隐藏的url，但是替换失败") */
+                log.error("百度搜索", error);
               }
             }
             if (
@@ -697,15 +769,7 @@
               return;
             }
             item.href = newUrl;
-            /* __console__.log(
-							"%c[BaiDu优化%c-%c百度搜索%c]%c 替换成新链接: %s",
-							"font-weight:bold;color:cornflowerblue",
-							"font-weight:bold;color:cornflowerblue",
-							"font-weight:bold;color:darkorange",
-							"font-weight:bold;color:cornflowerblue",
-							"color:0",
-							url
-						); */
+            /* log.info("百度搜索","替换成新链接: "+url) */
           });
         }
 
@@ -740,14 +804,7 @@
             dataLog = JSON.parse(dataLog);
             url = dataLog.mu;
           } catch (error) {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度搜索%c]%c DOM的属性data-log不存在👇",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:red"
-            );
+            log.error("百度搜索", "DOM的属性data-log不存在👇");
           }
           if (!url || url === "") {
             let articleDataLog = jQDOM
@@ -758,25 +815,14 @@
                 articleDataLog = JSON.parse(articleDataLog);
                 url = articleDataLog.mu;
               } catch (error) {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度搜索%c]%c article DOM的属性的rl-link-data-log也不存在👇，获取真实链接失败",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:red"
+                log.error(
+                  "百度搜索",
+                  "article DOM的属性的rl-link-data-log也不存在👇，获取真实链接失败"
                 );
-                __console__.log(jQDOM);
+                log.error("百度搜索", jQDOM);
               }
             } else {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c article DOM不存在",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:red"
-              );
+              log.error("百度搜索", "article DOM不存在");
             }
           }
 
@@ -786,14 +832,8 @@
               dataLog = JSON.parse(dataIVK);
               url = dataLog.control.default_url;
             } catch (error) {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c DOM的属性data-ivk不存在👇",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:red"
-              );
+              log.error("百度搜索", "DOM的属性data-ivk不存在👇");
+              log.error("百度搜索", error);
             }
           }
           if (url !== "" || url != null) {
@@ -816,14 +856,7 @@
                 `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
               )
             );
-          __console__.log(
-            "%c[BaiDu优化%c-%c百度搜索%c]%c 插入CSDN下载提示标题",
-            "font-weight:bold;color:cornflowerblue",
-            "font-weight:bold;color:cornflowerblue",
-            "font-weight:bold;color:darkorange",
-            "font-weight:bold;color:cornflowerblue",
-            "color:blue"
-          );
+          log.success("百度搜索", "插入CSDN下载提示标题");
         }
 
         function removeAds() {
@@ -847,35 +880,17 @@
               item.attr("tpl") === "recommend_list"
             ) {
               item?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家还在搜",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
-              );
+              log.success("百度搜索", "删除广告==>大家还在搜");
             }
             if (item.text().substr(0, 5) == "大家还在搜") {
               item?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家都在搜:显示出来的",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
-              );
+              log.success("百度搜索", "删除广告==>大家都在搜（能看到的）");
             }
             if (item.find(".c-atom-afterclick-recomm-wrap").length) {
               item.find(".c-atom-afterclick-recomm-wrap")?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>大家还在搜:隐藏的(点击后，跳出来的)",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
+              log.success(
+                "百度搜索",
+                "删除广告==>大家还在搜:隐藏的(点击后，跳出来的)"
               );
             }
             let bottomLogoElement = item.find(".c-color-source"); /* 底部标识 */
@@ -883,14 +898,7 @@
               bottomLogoElement.each((_index_, _item_) => {
                 if (_item_.outerText.match(/百度(APP内打开|手机助手)/)) {
                   item.remove();
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>百度APP内打开",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:blue"
-                  );
+                  log.success("百度搜索", "删除广告==>百度APP内打开");
                 }
               });
             }
@@ -907,47 +915,19 @@
               item.attr("srcid").match(/(sigma|vid_fourfold)/g)
             ) {
               item.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除推荐==>xxx 相关 xxx",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
-              );
+              log.success("百度搜索", "删除推荐==>xxx 相关 xxx");
             }
             if (searchArticleOriginal_link.match(/expert.baidu.com/g)) {
               item?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>百度健康",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
-              );
+              log.success("百度搜索", "删除广告==>百度健康");
             }
             if (searchArticleOriginal_link.match(/author.baidu.com\/home\//g)) {
               item?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>百家号聚合",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
-              );
+              log.success("百度搜索", "删除广告==>百家号聚合");
             }
             if (dataLog["ensrcid"] == "wenda_inquiry") {
               item?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>问一问",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
-              );
+              log.success("百度搜索", "删除广告==>问一问");
             }
           });
           $("span").each((index, item) => {
@@ -958,13 +938,9 @@
               resultParentElement.attr("data-from") === "etpl"
             ) {
               resultParentElement?.remove();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 删除广告==>隐藏的广告，会跳出来的",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:blue"
+              log.success(
+                "百度搜索",
+                "删除广告==>隐藏的广告，会在滚动时跳出来的"
               );
             }
           });
@@ -1015,15 +991,7 @@
             } else if (
               realLinkUrl.match(/http:\/\/m.baidu.com\/productcard/g)
             ) {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c 该链接不予替换: %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:red",
-                realLinkUrl
-              );
+              log.error("百度搜索", "该链接不予替换: " + realLinkUrl);
             } else {
               setNodeAttrHref(item, realLinkUrl);
               articleElement.attr("rl-link-href", realLinkUrl);
@@ -1056,14 +1024,10 @@
             item.hasAttribute("data-sflink") &&
             item.getAttribute("href") != item.getAttribute("data-sflink")
           ) {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:#ba00f8",
-              "重定向顶部按钮: " + item.outerText.trim()
+            log.success(
+              "百度搜索",
+              "重定向顶部按钮: " + item.outerText.trim(),
+              "#ba00f8"
             );
             item.href = item.getAttribute("data-sflink");
           }
@@ -1075,14 +1039,7 @@
         $("script").each((index, item) => {
           if (item.text.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
             item?.remove();
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度搜索%c]%c 删除跳转百度app提示js==>",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:blue"
-            );
+            log.success("百度搜索", "删除广告==>跳转百度app提示");
           }
         });
       }
@@ -1101,12 +1058,11 @@
           $(btnElement)?.on("click", function (event) {
             event?.stopPropagation();
             event?.preventDefault();
-            __console__.log("点击按钮跳转搜索 -> " + $(this).text());
-            __console__.log(
-              window.location.origin + "/s?word=" + $(this).text()
-            );
-            window.location.href =
+            let redirectURL =
               window.location.origin + "/s?word=" + $(this).text();
+            log.success("百度搜索", "点击按钮跳转搜索 -> " + $(this).text());
+            log.success("百度搜索", redirectURL);
+            window.location.href = redirectURL;
             return false;
           });
         }
@@ -1114,12 +1070,15 @@
           var searchInputElement = $(searchInput);
           event?.stopPropagation();
           event?.preventDefault();
-          __console__.log("点击按钮跳转搜索 -> " + searchInputElement.val());
-          __console__.log(
-            window.location.origin + "/s?word=" + searchInputElement.val()
-          );
-          window.location.href =
+          let redirectURL =
             window.location.origin + "/s?word=" + searchInputElement.val();
+          log.success(
+            "百度搜索",
+            "点击按钮跳转搜索 -> " + searchInputElement.val()
+          );
+          log.success("百度搜索", redirectURL);
+          window.location.href = redirectURL;
+
           return false;
         }
 
@@ -1128,12 +1087,14 @@
             var searchInputElement = $(searchInput);
             event?.stopPropagation();
             event?.preventDefault();
-            __console__.log("回车键跳转搜索 -> " + searchInputElement.val());
-            __console__.log(
-              window.location.origin + "/s?word=" + searchInputElement.val()
-            );
-            window.location.href =
+            let redirectURL =
               window.location.origin + "/s?word=" + searchInputElement.val();
+            log.success(
+              "百度搜索",
+              "回车键跳转搜索 -> " + searchInputElement.val()
+            );
+            log.success("百度搜索", redirectURL);
+            window.location.href = redirectURL;
             return false;
           }
           return true;
@@ -1165,15 +1126,7 @@
         });
       }
       if (this.current_url.match(/http(s|):\/\/(m|www).baidu.com/g)) {
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度搜索", "插入CSS规则");
         GM_addStyle(this.css.search);
         $(function () {
           var lock = false;
@@ -1186,7 +1139,8 @@
               try {
                 replaceLink();
               } catch (error) {
-                __console__.log(error);
+                log.error("百度搜索", "替换为真实链接失败");
+                log.error("百度搜索", error);
               } finally {
                 setTimeout(() => {
                   lock = false;
@@ -1213,30 +1167,14 @@
         this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
       ) {
         GM_addStyle(this.css.searchHome);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则-主页"
-        );
+        log.info("百度搜索", "插入CSS规则-主页");
       }
     },
     baijiahao() {
       /* 百家号 */
       if (this.current_url.match(/http(s|):\/\/baijiahao.baidu.com/g)) {
         GM_addStyle(this.css.baijiahao);
-        __console__.log(
-          "%c[BaiDu优化%c-%百家号%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百家号", "插入CSS规则");
       }
     },
     tieba() {
@@ -1302,16 +1240,8 @@
                 user_comment_time =
                   childrenElement[childrenElement.length - 1].textContent;
               } else {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:red",
-                  "获取PC端的数据楼层和时间信息失败👇"
-                );
-                __console__.log(childrenElement);
+                log.error("百度贴吧", "获取PC端的数据楼层和时间信息失败👇");
+                log.error("百度贴吧", childrenElement);
                 user_floor = "";
                 user_comment_time = "";
               }
@@ -1523,7 +1453,7 @@
                         }`;
             GM_addStyle(btnCSS);
             $(".white-btn-comment-reverse").on("click", (event) => {
-              $(window).unbind();
+              $(window).off("scroll");
               $(".post-item")?.remove();
               if (
                 event.currentTarget.getAttribute("class") ===
@@ -1534,27 +1464,11 @@
                   "white-btn-comment-reverse"
                 );
                 mainPositive();
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:0",
-                  "执行 正序"
-                );
+                log.info("百度贴吧", "获取评论===>正序");
               } else {
                 event.currentTarget.setAttribute("class", "white-btn-comment");
                 mainReverse();
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:0",
-                  "执行 倒序"
-                );
+                log.info("百度贴吧", "获取评论===>倒序");
               }
             });
           },
@@ -1573,29 +1487,16 @@
                   res(_html_);
                 },
                 onerror: function (resp) {
-                  if (resp.error.match("wappass.baidu.com")) {
+                  if (
+                    typeof resp.error === "string" &&
+                    resp.error.match("wappass.baidu.com")
+                  ) {
                     let url = resp.error.match(/"(.*?)"/)[1];
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c 触发百度校验: %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:0",
-                      url
-                    );
+                    log.error("百度贴吧", "触发百度校验: " + url);
                     window.location.href = url;
                   } else {
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:red",
-                      "获取评论数据失败 👇"
-                    );
-                    __console__.log(resp);
+                    log.error("百度贴吧", "获取评论数据失败 👇");
+                    log.error("百度贴吧", resp);
                     res(400);
                   }
                 },
@@ -1622,16 +1523,8 @@
                   res(comment_list);
                 },
                 onerror: function (resp) {
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:red",
-                    "取第一页的评论的评论数据失败 👇"
-                  );
-                  __console__.log(resp);
+                  log.error("百度贴吧", "取第一页的评论的评论数据失败 👇");
+                  log.error("百度贴吧", resp);
                   res(400);
                 },
                 ontimeout: function () {
@@ -1643,95 +1536,37 @@
           loadingNextCommand: () => {
             /* 自动加载下一页的评论 */
             var isloding_flag = false;
-            $(window).bind("scroll", async function () {
+            $(window).on("scroll", async function (event, isInit = false) {
               let userScrollHeight = Math.ceil(
-                $(window).scrollTop() + $(window).height() + 150
+                $(window).scrollTop() + $(window).height() + 250
               );
-              if (userScrollHeight >= $(document).height()) {
+              if (userScrollHeight >= $(document).height() || isInit) {
                 if (isloding_flag) {
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    "正在请求中"
-                  );
+                  log.info("百度贴吧", "正在请求中");
                 } else {
                   isloding_flag = true;
-                  loadingView.setTextWithLoadIcon("Loading...");
+                  loadingView.setText("Loading...", true);
                   loadingView.setVisible(true);
                   let timeStamp = Date.now();
-                  let next_page_url =
-                    "https://tieba.baidu.com/p/" +
-                    window.param_tid +
-                    "?pn=" +
-                    window.page;
-                  let next_page_all_comment_url =
-                    "https://tieba.baidu.com/p/totalComment?t=" +
-                    timeStamp +
-                    "&tid=" +
-                    window.param_tid +
-                    "&fid=" +
-                    window.param_forum_id +
-                    "&pn=" +
-                    window.page +
-                    "&see_lz=0";
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c 请求下一页评论的url: %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    next_page_url
-                  );
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c 贴子所有评论的url: %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    next_page_all_comment_url
+                  let next_page_url = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
+                  let next_page_all_comment_url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
+                  log.info("百度贴吧", "请求下一页评论的url: " + next_page_url);
+                  log.info(
+                    "百度贴吧",
+                    "贴子所有评论的url: " + next_page_all_comment_url
                   );
                   let pageHTML = await tiebaConfig.getPageComment(
                     next_page_url
                   );
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    "成功获取下一页评论"
-                  );
+                  log.info("百度贴吧", "成功获取下一页评论");
                   let user_commands_list = await tiebaConfig.getPageCommentList(
                     next_page_all_comment_url
                   );
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    "成功获取下一页评论对应的数组"
-                  );
+                  log.info("百度贴吧", "成功获取下一页评论对应的数组");
                   if (pageHTML == 400 || user_commands_list == 400) {
-                    loadingView.setHTML("未知错误，请看控制台");
-                    $(window).unbind();
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:#f400ff",
-                      "取消绑定监听"
-                    );
+                    loadingView.setText("未知错误，请看控制台");
+                    $(window).off("scroll");
+                    log.success("百度贴吧", "取消绑定scroll", "#f400ff");
                   }
                   let commands = pageHTML.find(".l_post.l_post_bright");
                   commands = Array.from(commands);
@@ -1763,27 +1598,11 @@
                   }
                   loadingView.setVisible(false);
                   if (window.page >= window.max_page) {
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:0",
-                      "已加载所有的评论"
-                    );
-                    loadingView.setHTML("已加载所有的评论");
+                    log.info("百度贴吧", "已加载所有的评论");
+                    loadingView.setText("已加载所有的评论");
                     loadingView.setVisible(false);
-                    $(window).unbind();
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:#f400ff",
-                      "取消绑定监听"
-                    );
+                    $(window).off("scroll");
+                    log.success("百度贴吧", "取消绑定scroll", "#f400ff");
                   }
                   window.page++;
                   isloding_flag = false;
@@ -1794,93 +1613,35 @@
           loadingPrevCommand: () => {
             /* 自动加载上一页的评论 */
             var isloding_flag = false;
-            $(window).bind("scroll", async function () {
+            $(window).on("scroll", async function (event, isInit = false) {
               let userScrollHeight = Math.ceil(
-                $(window).scrollTop() + $(window).height() + 150
+                $(window).scrollTop() + $(window).height() + 250
               );
-              if (userScrollHeight >= $(document).height()) {
+              if (userScrollHeight >= $(document).height() || isInit) {
                 if (isloding_flag) {
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    "正在请求中"
-                  );
+                  log.info("百度贴吧", "正在请求中");
                 } else {
                   isloding_flag = true;
-                  loadingView.setTextWithLoadIcon("Loading...");
+                  loadingView.setText("Loading...", true);
                   loadingView.setVisible(true);
                   let timeStamp = Date.now();
-                  let page_url =
-                    "https://tieba.baidu.com/p/" +
-                    window.param_tid +
-                    "?pn=" +
-                    window.page;
-                  let page_all_comment_url =
-                    "https://tieba.baidu.com/p/totalComment?t=" +
-                    timeStamp +
-                    "&tid=" +
-                    window.param_tid +
-                    "&fid=" +
-                    window.param_forum_id +
-                    "&pn=" +
-                    window.page +
-                    "&see_lz=0";
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c 请求上一页评论的url: %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    page_url
-                  );
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c 贴子所有评论的url: %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    page_all_comment_url
+                  let page_url = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
+                  let page_all_comment_url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
+                  log.info("百度贴吧", "请求上一页评论的url: " + page_url);
+                  log.info(
+                    "百度贴吧",
+                    "贴子所有评论的url: " + page_all_comment_url
                   );
                   let pageHTML = await tiebaConfig.getPageComment(page_url);
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    "成功获取上一页评论"
-                  );
+                  log.info("百度贴吧", "成功获取上一页评论");
                   let user_commands_list = await tiebaConfig.getPageCommentList(
                     page_all_comment_url
                   );
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:0",
-                    "成功获取下一页评论对应的数组"
-                  );
+                  log.info("百度贴吧", "成功获取下一页评论对应的数组");
                   if (pageHTML == 400 || user_commands_list == 400) {
-                    loadingView.setHTML("未知错误，请看控制台");
-                    $(window).unbind();
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:#f400ff",
-                      "取消绑定监听"
-                    );
+                    loadingView.setText("未知错误，请看控制台");
+                    $(window).off("scroll");
+                    log.success("百度贴吧", "取消绑定scroll", "#f400ff");
                   }
                   let commands = pageHTML.find(".l_post.l_post_bright");
                   commands = Array.from(commands);
@@ -1914,27 +1675,11 @@
                   }
                   loadingView.setVisible(false);
                   if (window.page <= 1) {
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:0",
-                      "已加载所有的评论"
-                    );
-                    loadingView.setHTML("已加载所有的评论");
+                    log.info("百度贴吧", "已加载所有的评论");
+                    loadingView.setText("已加载所有的评论");
                     loadingView.setVisible(false);
-                    $(window).unbind();
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:#f400ff",
-                      "取消绑定监听"
-                    );
+                    $(window).off("scroll");
+                    log.info("百度贴吧", "取消绑定scroll", "#f400ff");
                   }
                   window.page--;
                   isloding_flag = false;
@@ -1944,17 +1689,9 @@
           },
           insertLoadingHTML: () => {
             /* 插入加载中的html */
-            if (!loadingView.exists()) {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                "插入loading"
-              );
-              $(".main-page-wrap").append($(loadingView.html));
+            if (!loadingView.isExists()) {
+              log.info("百度贴吧", "插入loading");
+              $(".main-page-wrap").append(loadingView.getLoadingNode());
               loadingView.setCSS();
             }
           },
@@ -1992,64 +1729,28 @@
               let timeStamp = Date.now();
               window.page = 1;
               tiebaConfig.insertLoadingHTML();
-              loadingView.setTextWithLoadIcon("Loading...");
+              loadingView.setText("Loading...", true);
               loadingView.setVisible(true);
-              let url =
-                "https://tieba.baidu.com/p/totalComment?t=" +
-                timeStamp +
-                "&tid=" +
-                window.param_tid +
-                "&fid=" +
-                window.param_forum_id +
-                "&pn=" +
-                window.page +
-                "&see_lz=0";
-              let pageUrl =
-                "https://tieba.baidu.com/p/" +
-                window.param_tid +
-                "?pn=" +
-                window.page;
+              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
+              let pageUrl = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
               let pageHTML = await tiebaConfig.getPageComment(pageUrl);
               let user_commands_list = await tiebaConfig.getPageCommentList(
                 url
               );
               if (pageHTML == 400 || user_commands_list == 400) {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:red",
-                  "新评论区获取失败"
-                );
+                loadingView.setText("获取评论失败");
+                log.error("百度贴吧", "新评论区获取失败");
                 return;
               }
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                "成功获取评论HTML"
-              );
+              log.info("百度贴吧", "成功获取评论HTML");
               window.max_page = pageHTML.find(".jump_input_bright");
               if (window.max_page.length) {
                 window.max_page = parseInt(
                   max_page[0].attributes["max-page"].value
                 );
                 tiebaConfig.loadingNextCommand();
-                $(window).trigger("scroll");
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:0",
-                  "当前为多页，执行监听"
-                );
+                $(window).trigger("scroll", true);
+                log.info("百度贴吧", "当前为多页，执行监听");
               } else {
                 let commands = pageHTML.find(".l_post.l_post_bright");
                 window.max_page = 1;
@@ -2074,37 +1775,15 @@
                 });
                 loadingView.destory();
               }
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c 共 %s 页评论，当前所在 %s 页",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                window.max_page,
-                window.page
+              log.info(
+                "百度贴吧",
+                `共 ${window.max_page} 页评论，当前所在 ${window.page} 页`
               );
             } else {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:red",
-                "贴吧：获取参数data-banner-info失败"
-              );
+              log.error("百度贴吧", "贴吧：获取参数data-banner-info失败");
             }
           } else {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:red",
-              "贴吧：未找到本页参数p"
-            );
+            log.error("百度贴吧", "贴吧：未找到本页参数p");
           }
         }
         async function mainReverse() {
@@ -2121,48 +1800,20 @@
               let timeStamp = Date.now();
               window.page = 1;
               tiebaConfig.insertLoadingHTML();
-              loadingView.setTextWithLoadIcon("Loading...");
+              loadingView.setText("Loading...", true);
               loadingView.setVisible(true);
-              let url =
-                "https://tieba.baidu.com/p/totalComment?t=" +
-                timeStamp +
-                "&tid=" +
-                window.param_tid +
-                "&fid=" +
-                window.param_forum_id +
-                "&pn=" +
-                window.page +
-                "&see_lz=0";
-              let pageUrl =
-                "https://tieba.baidu.com/p/" +
-                window.param_tid +
-                "?pn=" +
-                window.page;
+              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
+              let pageUrl = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
               let pageHTML = await tiebaConfig.getPageComment(pageUrl);
               let user_commands_list = await tiebaConfig.getPageCommentList(
                 url
               );
               if (pageHTML == 400 || user_commands_list == 400) {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:red",
-                  "新评论区获取失败"
-                );
+                loadingView.setText("获取评论失败");
+                log.error("百度贴吧", "新评论区获取失败");
                 return;
               }
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                "成功获取评论HTML"
-              );
+              log.info("百度贴吧", "成功获取评论HTML");
               window.max_page = pageHTML.find(".jump_input_bright");
               if (window.max_page.length) {
                 window.max_page = parseInt(
@@ -2170,16 +1821,8 @@
                 );
                 window.page = window.max_page;
                 tiebaConfig.loadingPrevCommand();
-                $(window).trigger("scroll");
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:0",
-                  "当前为多页，执行监听"
-                );
+                $(window).trigger("scroll", true);
+                log.info("百度贴吧", "当前为多页，执行监听");
               } else {
                 let commands = pageHTML.find(".l_post.l_post_bright");
                 window.max_page = 1;
@@ -2205,46 +1848,29 @@
                 });
                 loadingView.destory();
               }
-
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c 共 %s 页评论，当前所在 %s 页",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                window.max_page,
-                window.page
+              log.info(
+                "百度贴吧",
+                `共 ${window.max_page} 页评论，当前所在 ${window.page} 页`
               );
             } else {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:red",
-                "贴吧：获取参数data-banner-info失败"
-              );
+              log.error("百度贴吧", `贴吧：获取参数data-banner-info失败`);
             }
           } else {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:red",
-              "贴吧：未找到本页参数p"
-            );
+            log.error("百度贴吧", `贴吧：未找到本页参数p`);
           }
         }
         let intervalNum = 0;
+        let intervalMaxNum = 60;
         let interval = setInterval(() => {
-          if (
-            $(".recommend-item").attr("data-banner-info") ||
-            intervalNum > 30
-          ) {
+          if (intervalNum >= intervalMaxNum) {
+            log.error(
+              "百度贴吧",
+              `贴吧：超次数，未找到recommend-item的属性data-banner-info`
+            );
+            clearInterval(interval);
+            return;
+          }
+          if ($(".recommend-item").attr("data-banner-info")) {
             $(".post-item")?.remove();
             mainPositive();
             tiebaConfig.insertReverseBtn();
@@ -2451,72 +2077,209 @@
                     margin-left: .04rem
                 }
                 `);
-        GM_addStyle(`
-                .thread-text .BDE_Smiley {
-                    width: .2rem;
-                    height: .2rem;
-                    vertical-align: middle;
-                }
-                .thread-text .BDE_Image{
-                    margin-top: 8px;
-                    max-width: 350px;
-                    cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
-                    height: auto;
-                    width: auto;
-                    width: 100%;
-                }
-                .text-content .at{
-                    font-weight: 600;
-                    color: #a3a1a9;
-                }
-                `);
+        GM_addStyle(
+          `
+          .thread-text .BDE_Smiley {
+              width: .2rem;
+              height: .2rem;
+              vertical-align: middle;
+          }
+          .thread-text .BDE_Image{
+              margin-top: 8px;
+              max-width: 350px;
+              cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
+              height: auto;
+              width: auto;
+              width: 100%;
+          }
+          .text-content .at{
+              font-weight: 600;
+              color: #a3a1a9;
+          }
+          `
+        );
       }
       function registerImagePreview() {
-        /* 注册全局贴吧图片点击预览 */
-        $(document).on("click", function (event) {
+        /* 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片) */
+        function viewIMG(imgList = [], _index_ = 0) {
+          /* 查看图片 */
+          let viewerULNodeHTML = "";
+          imgList.forEach((item) => {
+            viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+          });
+          let viewerULNode = $(`<ul>${viewerULNodeHTML}</ul>`)[0];
+          let viewer = new Viewer(viewerULNode, {
+            inline: false,
+            url: "data-src",
+            zIndex: Utils.getMaxZIndex() + 100,
+            hidden: () => {
+              viewer.destroy();
+            },
+          });
+          _index_ = _index_ < 0 ? 0 : _index_;
+          viewer.view(_index_);
+          viewer.zoomTo(1);
+          viewer.show();
+        }
+        $(document).on("click", "img", function (event) {
+          let imgNode = event.target;
+          let imgSrc =
+            imgNode.getAttribute("data-src") || imgNode.getAttribute("src");
           if (
-            event.target.getAttribute("src") &&
-            event.target
-              .getAttribute("src")
-              .match(/http(s|):\/\/tiebapic.baidu.com\/forum/g)
+            imgNode.parentElement.getAttribute("data-viewer-action") === "view"
           ) {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:0",
-              "点击图片👇"
-            );
-            __console__.log(event.target);
-            var viewer = new Viewer(event.target, {
-              inline: false,
-              hidden: () => {
-                viewer.destroy();
-              },
-            });
-            viewer.zoomTo(1);
-            viewer.show();
+            return;
+          }
+          if (
+            imgSrc &&
+            imgSrc.match(/http(s|):\/\/tiebapic.baidu.com\/forum/g)
+          ) {
+            log.info("百度贴吧", `点击图片👇`);
+            log.info("百度贴吧", imgNode);
+            if (imgNode.parentElement.className === "img-box") {
+              /* 帖子主体内的图片 */
+              let parentMain = Utils.findParentNode(imgNode, (node) => {
+                return node.className === "img-sudoku main-img-sudoku";
+              });
+              log.info("百度贴吧", parentMain);
+              if (!parentMain) {
+                viewIMG([imgSrc]);
+                return;
+              }
+              let lazyImgList = [];
+              parentMain.querySelectorAll("img.img").forEach((item) => {
+                let _imgSrc_ =
+                  item.getAttribute("data-src") || item.getAttribute("src");
+                log.info("百度贴吧", `获取图片: ${_imgSrc_}`);
+                lazyImgList = [...lazyImgList, _imgSrc_];
+              });
+              log.info("百度贴吧", "图片列表👇");
+              log.info("百度贴吧", lazyImgList);
+              viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+            } else if (imgNode.parentElement.className === "text-content") {
+              /* 评论区内的图片 */
+              let parentMain = imgNode.parentElement;
+              let lazyImgList = [];
+              log.info("百度贴吧", parentMain);
+              parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
+                let _imgSrc_ =
+                  item.getAttribute("data-src") || item.getAttribute("src");
+                log.info("百度贴吧", `获取图片: ${_imgSrc_}`);
+                lazyImgList = [...lazyImgList, _imgSrc_];
+              });
+              log.info("百度贴吧", "评论区图片列表👇");
+              log.info("百度贴吧", lazyImgList);
+              viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+            } else {
+              /* 单个图片预览 */
+              viewIMG([imgSrc]);
+            }
           }
         });
       }
-      if (this.current_url.match(/http(s|):\/\/tieba.baidu.com/g)) {
-        GM_addStyle(this.css.tieba);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度贴吧%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
+      /**
+       * 重定向跳转
+       */
+      function redirectJump() {
+        log.info("百度贴吧", "话题热榜-阻止默认跳转");
+        $(document).on("click", ".topic-share-item", function (event) {
+          event?.stopPropagation();
+          event?.preventDefault();
+          let clickNode = $(this);
+          let dataTrack = clickNode.attr("data-track");
+          if (dataTrack == null) {
+            return false;
+          }
+          dataTrack = JSON.parse(dataTrack);
+          let tid = dataTrack["tid"];
+          if (tid == null) {
+            return false;
+          }
+          log.success("百度贴吧", `跳转至: https://tieba.baidu.com/p/${tid}`);
+          window.location.href = `https://tieba.baidu.com/p/${tid}`;
+          return false;
+        });
+        Utils.waitNode(
+          ".topic-share-sc .topic-share-item .thread-bottom .forum"
+        ).then((nodeList) => {
+          log.success("百度贴吧", "设置贴吧种类正确跳转");
+          log.success("百度贴吧", nodeList);
+          nodeList.forEach(item=>{
+            item.ontouchstart = function (event) {
+              event?.stopPropagation();
+              event?.preventDefault();
+              window.location.href = `https://tieba.baidu.com/f?kw=${$(this)
+                .text()
+                .trim()
+                .replace(/吧$/g, "")}`;
+              return false;
+            };
+          })
+        });
+        Utils.mutationObserver(".topic-share-thread .list-content", {
+          fn: (mutations) => {
+            mutations.forEach((item) => {
+              item.addedNodes.forEach((item2) => {
+                if (
+                  typeof item2.className === "string" && 
+                  item2.className.indexOf("topic-share-item") != -1
+                ) {
+                  log.success("百度贴吧", "设置新增的帖子的贴吧种类正确跳转");
+                  log.success("百度贴吧", item2);
+                  item2.querySelector(".thread-bottom .forum").ontouchstart =
+                    function (event) {
+                      event?.stopPropagation();
+                      event?.preventDefault();
+                      window.location.href = `https://tieba.baidu.com/f?kw=${$(
+                        this
+                      )
+                        .text()
+                        .trim()
+                        .replace(/吧$/g, "")}`;
+                      return false;
+                    };
+                }
+              });
+            });
+          },
+          config: {
+            childList: true,
+            subtree: true,
+          },
+        });
+        $(document).on(
+          "touchstart",
+          ".topic-share-item .forum",
+          function (event) {
+            console.log(event);
+            event?.stopPropagation();
+            event?.preventDefault();
+            return false;
+          }
         );
-        if (this.current_url.match(/http(s|):\/\/tieba.baidu.com\/p\//g)) {
-          setTimeout(function () {
-            tiebaLoadComments();
-            registerImagePreview();
-          }, 2000);
+        /*         Utils.waitNode(".topic-share-item").then((nodeList)=>{
+          nodeList.forEach(item=>{
+            item.__vue__.$el.onclick = (event)=>{
+              event?.stopPropagation();
+              event?.preventDefault();
+              return false;
+            }
+          })
+        }) */
+      }
+      if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
+        GM_addStyle(this.css.tieba);
+        log.info("百度贴吧", "插入CSS规则");
+        if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
+          tiebaLoadComments();
+          registerImagePreview();
+        }
+        if (
+          this.current_url.match(
+            /^http(s|):\/\/tieba.baidu.com\/mo\/q\/newtopic\/topicTemplate/g
+          )
+        ) {
+          redirectJump();
         }
       }
     },
@@ -2524,45 +2287,21 @@
       /* 百度文库 */
       if (this.current_url.match(/http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         GM_addStyle(this.css.wenku);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度文库%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度文库", "插入CSS规则");
       }
     },
     jingyan() {
       /* 百度经验 */
       if (this.current_url.match(/http(s|):\/\/jingyan.baidu.com/g)) {
         GM_addStyle(this.css.jingyan);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度经验%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度经验", "插入CSS规则");
       }
     },
     baike() {
       /* 百度百科 */
       if (this.current_url.match(/http(s|):\/\/baike.baidu.com/g)) {
         GM_addStyle(this.css.baike);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度百科%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度百科", "插入CSS规则");
         let page_ = 1;
         let page_interval_lock = false;
         let more_url = "https://baike.baidu.com" + window.location.pathname;
@@ -2614,38 +2353,18 @@
         function loadMore() {
           /* 循环加载更多内容 */
           loadingView.setCSS();
-          $(".BK-main-content").after(loadingView.html);
+          $(".BK-main-content").after(loadingView.getLoadingNode());
           if (match_id.length >= 2) {
             /* 由于不知道有多少页，定时器加载判断 */
             var page_interval = setInterval(function () {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度百科%c]%c 定时器loading",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0"
-              );
+              log.info("百度百科", "定时器loading");
               loadingView.setVisible(true);
               if (page_interval_lock == true) {
                 return;
               }
               page_interval_lock = true;
-              more_url =
-                more_url +
-                "?wpf=3&ldr=1&page=" +
-                page_ +
-                "&insf=1&_=" +
-                new Date().getTime();
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度百科%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                more_url
-              );
+              more_url = `${more_url}?wpf=3&ldr=1&page=${page_}&insf=1&_=${new Date().getTime()}`;
+              log.info("百度百科", more_url);
               GM_xmlhttpRequest({
                 url: more_url,
                 timeout: 5000,
@@ -2660,21 +2379,13 @@
                   let main_content = $_resp.find(".BK-main-content");
                   let new_content = main_content.prevObject[0].innerHTML;
                   if (new_content.trim() == `<a name="u0"></a>`) {
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度百科%c]%c %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:0",
-                      "已到达最大页" + (page_ - 1)
-                    );
+                    log.info("百度百科", "已到达最大页" + (page_ - 1));
                     insert_img();
                     set_normal_img_size();
-                    loadingView.setHTML("已到达最大页" + (page_ - 1));
+                    loadingView.setText("已到达最大页" + (page_ - 1));
                     clearInterval(page_interval);
                   } else {
-                    loadingView.setTextWithLoadIcon("正在加载页 " + page_);
+                    loadingView.setText("正在加载页 " + page_, true);
                     $(".BK-main-content").append($(new_content));
                   }
                   window.history.pushState("forward", null, setLocationUrl);
@@ -2682,51 +2393,27 @@
                   page_interval_lock = false;
                 },
                 onerror: function (resp) {
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度百科%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:red",
-                    "请求失败 👇"
-                  );
-                  __console__.log(resp);
+                  log.error("百度百科", "请求失败 👇");
+                  log.error("百度百科", resp);
                   insert_img();
                   set_normal_img_size();
-                  loadingView.setHTML("请求失败");
+                  loadingView.setText("请求失败");
                   loadingView.setIconVisible(false);
                   clearInterval(page_interval);
                 },
                 ontimeout: function () {
-                  __console__.log(
-                    "%c[BaiDu优化%c-%c百度百科%c]%c %s",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:cornflowerblue",
-                    "font-weight:bold;color:darkorange",
-                    "font-weight:bold;color:cornflowerblue",
-                    "color:red",
-                    "请求超时 👇"
-                  );
-                  __console__.log(resp);
+                  log.error("百度百科", "请求超时 👇");
+                  log.error("百度百科", resp);
                   insert_img();
                   set_normal_img_size();
-                  loadingView.setHTML("请求超时");
+                  loadingView.setText("请求超时");
                   loadingView.setIconVisible(false);
                   clearInterval(page_interval);
                 },
               });
             }, 1000);
           } else {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度百科%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:red",
-              "匹配id失败"
-            );
+            log.error("百度百科", "匹配id失败");
           }
         }
         setTimeout(function () {
@@ -2749,15 +2436,7 @@
             let item = index_tashuo_list_bottom[i];
             let class_name = item.className;
             if (class_name != "J-hot-item-container") {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度百科-他说%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:0",
-                "TA has ad，remove ！"
-              );
+              log.info("百度百科-他说", "TA has ad，remove ！");
               item.remove();
               i--;
             }
@@ -2769,15 +2448,7 @@
       /* 百度知道 */
       if (this.current_url.match(/http(s|):\/\/zhidao.baidu.com/g)) {
         GM_addStyle(this.css.zhidao);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度知道%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度知道", "插入CSS规则");
         $(".ec-ad")?.parent()?.remove();
       }
     },
@@ -2785,15 +2456,7 @@
       /* 百度翻译 */
       if (this.current_url.match(/http(s|):\/\/fanyi.baidu.com/g)) {
         GM_addStyle(this.css.fanyi);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度翻译%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度翻译", "插入CSS规则");
       }
       if (this.current_url.match(/http(s|):\/\/fanyi-app.baidu.com/g)) {
         GM_addStyle(this.css.fanyiapp);
@@ -2805,57 +2468,35 @@
           30,
           150
         );
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度翻译APP%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度翻译APP", "插入CSS规则");
       }
     },
     image() {
       if (this.current_url.match(/http(s|):\/\/image.baidu.com/g)) {
         GM_addStyle(this.css.image);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度图片%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度图片", "插入CSS规则");
       }
     },
     map() {
-      if (this.current_url.match(/http(s|):\/\/map.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/map.baidu.com/g)) {
         GM_addStyle(this.css.map);
-        __console__.log(
-          "%c[BaiDu优化%c-%c百度地图%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("百度地图", "插入CSS规则");
+      }
+    },
+    mbd() {
+      if (this.current_url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
+        /* 
+        示例
+        https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
+        */
+        GM_addStyle(this.css.mbd);
+        log.info("百家号之mdb", "插入CSS规则");
       }
     },
     xue() {
-      if (this.current_url.match(/http(s|):\/\/xue.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/xue.baidu.com/g)) {
         GM_addStyle(this.css.xue);
-        __console__.log(
-          "%c[BaiDu优化%c-%c知了好学%c]%c %s",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          "color:0",
-          "插入CSS规则"
-        );
+        log.info("知了好学", "插入CSS规则");
       }
     },
   };
@@ -2863,9 +2504,9 @@
   function autoLoadNextPage() {
     /* 百度搜索-自动加载下一页 */
     var isloding_flag = false;
-    $("#page-controller").after($(loadingView.html));
+    $("#page-controller").after(loadingView.getLoadingNode(true));
     loadingView.setCSS();
-    $(window).bind("scroll", function () {
+    $(window).on("scroll", function () {
       let userScrollHeight = Math.ceil(
         $(window).scrollTop() + $(window).height() + 300
       );
@@ -2878,26 +2519,10 @@
             $(".new-nextpage").attr("href") ||
             $(".new-nextpage-only").attr("href");
           if (!next_page_url) {
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:0",
-              "获取不到下一页，怀疑已加载所有的搜索结果"
-            );
+            log.info("百度搜索", "获取不到下一页，怀疑已加载所有的搜索结果");
             isloding_flag = false;
-            $(window).unbind();
-            __console__.log(
-              "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:cornflowerblue",
-              "font-weight:bold;color:darkorange",
-              "font-weight:bold;color:cornflowerblue",
-              "color:#f400ff",
-              "取消绑定监听"
-            );
+            $(window).off("scroll");
+            log.info("百度搜索", "取消绑定scroll", "#f400ff");
             loadingView.destory();
             return;
           }
@@ -2906,17 +2531,12 @@
             params_pn.length == 0
               ? "第 10 条"
               : "第 " + parseInt(params_pn[0]) + " 条";
-          __console__.log(
-            "%c[BaiDu优化%c-%c百度搜索%c]%c 正在请求%s数据: %s",
-            "font-weight:bold;color:cornflowerblue",
-            "font-weight:bold;color:cornflowerblue",
-            "font-weight:bold;color:darkorange",
-            "font-weight:bold;color:cornflowerblue",
-            "color:0",
-            next_page_textContent,
-            next_page_url
+          log.info(
+            "百度搜索",
+            `正在请求${next_page_textContent}数据: ${next_page_url}`
           );
-          loadingView.setTextWithLoadIcon("Loading...");
+
+          loadingView.setText("Loading...", true);
           GM_xmlhttpRequest({
             url: next_page_url,
             timeout: 5000,
@@ -2937,14 +2557,9 @@
                   ) {
                     let cssDOM = GM_addStyle(this.innerHTML);
                     cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-                    __console__.log(
-                      "%c[BaiDu优化%c-%c百度搜索%c]%c 插入Vue的CSS id: %s",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:cornflowerblue",
-                      "font-weight:bold;color:darkorange",
-                      "font-weight:bold;color:cornflowerblue",
-                      "color:0",
-                      dataVueSsrIdValue
+                    log.info(
+                      "百度搜索",
+                      `插入Vue的CSS id: ${dataVueSsrIdValue}`
                     );
                   }
                 }
@@ -2958,67 +2573,27 @@
                 });
                 $("#page-controller").html(next_html_next_page_html);
               } else {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:0",
-                  "已加载所有的搜索结果"
-                );
-                $(window).unbind();
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:#f400ff",
-                  "取消绑定监听"
-                );
+                log.info("百度搜索", "已加载所有的搜索结果");
+                $(window).off("scroll");
+                log.info("百度搜索", "取消绑定scroll", "#f400ff");
               }
               isloding_flag = false;
               window.history.pushState("forward", null, next_page_url);
             },
             onerror: function (resp) {
               if (next_page_url == undefined) {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:red",
-                  "未获取到下一页的url"
-                );
+                log.error("百度搜索", "未获取到下一页的url");
               } else {
-                __console__.log(
-                  "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:cornflowerblue",
-                  "font-weight:bold;color:darkorange",
-                  "font-weight:bold;color:cornflowerblue",
-                  "color:red",
-                  "加载失败 👇"
-                );
-                __console__.log(resp);
-                loadingView.setHTML("加载失败");
+                log.error("百度搜索", "加载失败 👇");
+                log.error("百度搜索", resp);
+                loadingView.setText("加载失败");
               }
               isloding_flag = false;
             },
             ontimeout: function () {
-              __console__.log(
-                "%c[BaiDu优化%c-%c百度搜索%c]%c %s",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:cornflowerblue",
-                "font-weight:bold;color:darkorange",
-                "font-weight:bold;color:cornflowerblue",
-                "color:red",
-                "请求超时 👇"
-              );
-              __console__.log(resp);
-              loadingView.setHTML("请求超时");
+              log.error("百度搜索", "请求超时 👇");
+              log.error("百度搜索", resp);
+              loadingView.setText("请求超时");
               isloding_flag = false;
             },
           });
@@ -3030,14 +2605,9 @@
                 (parseInt($(".new-nowpage")[0].textContent.match(/([0-9]+)/)) +
                   1) +
                 " 条";
-          __console__.log(
-            "%c[BaiDu优化%c-%c百度搜索%c]%c 正在加载%s中请稍后，请勿重复",
-            "font-weight:bold;color:cornflowerblue",
-            "font-weight:bold;color:cornflowerblue",
-            "font-weight:bold;color:darkorange",
-            "font-weight:bold;color:cornflowerblue",
-            "color:0",
-            next_page_textContent
+          log.info(
+            "百度搜索",
+            `正在加载${next_page_textContent}中请稍后，请勿重复`
           );
         }
       }
