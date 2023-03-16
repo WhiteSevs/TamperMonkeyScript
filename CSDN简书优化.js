@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.5.9
+// @version      0.6.0
 // @description  支持手机端和PC端
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -26,11 +26,12 @@
   "use strict";
   var log = {
     tag: "CSDN|简书优化",
-    info: function (tag, text, color = "0") {
+    info: function (tag, text = [], color = "0") {
       /* #f400ff */
       if (typeof text === "object") {
         this.info(tag, "输出Object👇", color);
-        console.log(text);
+        text = text instanceof Array ? text : [text];
+        console.log.apply(console, text);
       } else {
         console.log(
           `%c[${log.tag}%c-%c${tag}%c]%c ${text}`,
@@ -42,16 +43,10 @@
         );
       }
     },
-    error: function (tag, text, color = "red") {
-      if (!GM_getValue("LOG", false)) {
-        return;
-      }
+    error: function (tag, text = [], color = "red") {
       this.info(tag, text, color);
     },
-    success: function (tag, text, color = "blue") {
-      if (!GM_getValue("LOG", false)) {
-        return;
-      }
+    success: function (tag, text = [], color = "blue") {
       this.info(tag, text, color);
     },
   };
@@ -350,7 +345,7 @@
       GM_addStyle(css);
       function refactoringRecommendation() {
         /* 重构底部推荐 */
-		log.info("CSDN-移动端", "重构底部推荐");
+        log.info("CSDN-移动端", "重构底部推荐");
         function refactoring() {
           /* 反复执行的重构函数 */
           $(".container-fluid").each((index, item) => {
@@ -429,7 +424,7 @@
 
       function gmRecommendClickEvent() {
         /* 设置底部推荐点击跳转事件 */
-		log.info("CSDN-移动端", "设置底部推荐点击跳转事件");
+        log.info("CSDN-移动端", "设置底部推荐点击跳转事件");
         $(document).on("click", ".GM-csdn-dl", function () {
           let url = $(this).attr("data-url");
           if (GM_Menu.get("openNewTab")) {
@@ -469,7 +464,8 @@
       .more-article,
       .article-show-more,
       #csdn-toolbar-profile-nologin,
-			.guide-rr-first{
+			.guide-rr-first,
+      #recommend-item-box-tow{
           display: none !important;
       }
       .comment-list-box{

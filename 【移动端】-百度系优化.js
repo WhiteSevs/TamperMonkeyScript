@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.6.9
+// @version      0.7.0
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -44,14 +44,15 @@
   "use strict";
   var log = {
     tag: "Baidu优化",
-    info: function (tag, text, color = "0") {
+    info: function (tag, text = [], color = "0") {
       /* #f400ff */
       if (!GM_getValue("LOG", false)) {
         return;
       }
       if (typeof text === "object") {
         this.info(tag, "输出Object👇", color);
-        console.log(text);
+        text = text instanceof Array ? text : [text];
+        console.log.apply(console, text);
       } else {
         console.log(
           `%c[${log.tag}%c-%c${tag}%c]%c ${text}`,
@@ -63,16 +64,10 @@
         );
       }
     },
-    error: function (tag, text, color = "red") {
-      if (!GM_getValue("LOG", false)) {
-        return;
-      }
+    error: function (tag, text = [], color = "red") {
       this.info(tag, text, color);
     },
-    success: function (tag, text, color = "blue") {
-      if (!GM_getValue("LOG", false)) {
-        return;
-      }
+    success: function (tag, text = [], color = "blue") {
       this.info(tag, text, color);
     },
   };
@@ -905,7 +900,7 @@
 
             if (
               searchArticleOriginal_link.match(
-                /http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
+                /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
               )
             ) {
               addCSDNFlag(item);
@@ -997,7 +992,7 @@
               articleElement.attr("rl-link-href", realLinkUrl);
             }
 
-            if (!realLinkUrl.match(/http(s|):\/\/m.baidu.com\/from/g)) {
+            if (!realLinkUrl.match(/^http(s|):\/\/m.baidu.com\/from/g)) {
               if (!GM_Menu.get("menu_showisdirect")) {
                 return;
               }
@@ -1125,7 +1120,7 @@
           return enterKeyDownEvent(event, searchInput_HOME);
         });
       }
-      if (this.current_url.match(/http(s|):\/\/(m|www).baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/(m|www).baidu.com/g)) {
         log.info("百度搜索", "插入CSS规则");
         GM_addStyle(this.css.search);
         $(function () {
@@ -1172,7 +1167,7 @@
     },
     baijiahao() {
       /* 百家号 */
-      if (this.current_url.match(/http(s|):\/\/baijiahao.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
         GM_addStyle(this.css.baijiahao);
         log.info("百家号", "插入CSS规则");
       }
@@ -2132,7 +2127,7 @@
           }
           if (
             imgSrc &&
-            imgSrc.match(/http(s|):\/\/tiebapic.baidu.com\/forum/g)
+            imgSrc.match(/^http(s|):\/\/tiebapic.baidu.com\/forum/g)
           ) {
             log.info("百度贴吧", `点击图片👇`);
             log.info("百度贴吧", imgNode);
@@ -2203,12 +2198,10 @@
           window.location.href = `https://tieba.baidu.com/p/${tid}`;
           return false;
         });
-        Utils.waitNode(
-          ".thread-bottom .forum"
-        ).then((nodeList) => {
+        Utils.waitNode(".thread-bottom .forum").then((nodeList) => {
           log.success("百度贴吧", "设置贴吧种类正确跳转");
           log.success("百度贴吧", nodeList);
-          nodeList.forEach(item=>{
+          nodeList.forEach((item) => {
             item.ontouchstart = function (event) {
               event?.stopPropagation();
               event?.preventDefault();
@@ -2218,14 +2211,14 @@
                 .replace(/吧$/g, "")}`;
               return false;
             };
-          })
+          });
         });
         Utils.mutationObserver(".topic-share-thread .list-content", {
           fn: (mutations) => {
             mutations.forEach((item) => {
               item.addedNodes.forEach((item2) => {
                 if (
-                  typeof item2.className === "string" && 
+                  typeof item2.className === "string" &&
                   item2.className.indexOf("topic-share-item") != -1
                 ) {
                   log.success("百度贴吧", "设置新增的帖子的贴吧种类正确跳转");
@@ -2255,21 +2248,11 @@
           "touchstart",
           ".topic-share-item .forum",
           function (event) {
-            console.log(event);
             event?.stopPropagation();
             event?.preventDefault();
             return false;
           }
         );
-        /*         Utils.waitNode(".topic-share-item").then((nodeList)=>{
-          nodeList.forEach(item=>{
-            item.__vue__.$el.onclick = (event)=>{
-              event?.stopPropagation();
-              event?.preventDefault();
-              return false;
-            }
-          })
-        }) */
       }
       if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
         GM_addStyle(this.css.tieba);
@@ -2289,21 +2272,21 @@
     },
     wenku() {
       /* 百度文库 */
-      if (this.current_url.match(/http(s|):\/\/(wk|tanbi).baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         GM_addStyle(this.css.wenku);
         log.info("百度文库", "插入CSS规则");
       }
     },
     jingyan() {
       /* 百度经验 */
-      if (this.current_url.match(/http(s|):\/\/jingyan.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
         GM_addStyle(this.css.jingyan);
         log.info("百度经验", "插入CSS规则");
       }
     },
     baike() {
       /* 百度百科 */
-      if (this.current_url.match(/http(s|):\/\/baike.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
         GM_addStyle(this.css.baike);
         log.info("百度百科", "插入CSS规则");
         let page_ = 1;
@@ -2427,7 +2410,7 @@
     },
     baiketashuo() {
       /* 百度百科-他说 */
-      if (this.current_url.match(/http(s|):\/\/baike.baidu.com\/tashuo/g)) {
+      if (this.current_url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
         setTimeout(function () {
           remove_bottom_ad();
         }, 2000);
@@ -2450,7 +2433,7 @@
     },
     zhidao() {
       /* 百度知道 */
-      if (this.current_url.match(/http(s|):\/\/zhidao.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
         GM_addStyle(this.css.zhidao);
         log.info("百度知道", "插入CSS规则");
         $(".ec-ad")?.parent()?.remove();
@@ -2458,11 +2441,11 @@
     },
     fanyi() {
       /* 百度翻译 */
-      if (this.current_url.match(/http(s|):\/\/fanyi.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
         GM_addStyle(this.css.fanyi);
         log.info("百度翻译", "插入CSS规则");
       }
-      if (this.current_url.match(/http(s|):\/\/fanyi-app.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         GM_addStyle(this.css.fanyiapp);
         Utils.waitNode(
           "#page-content",
@@ -2476,7 +2459,7 @@
       }
     },
     image() {
-      if (this.current_url.match(/http(s|):\/\/image.baidu.com/g)) {
+      if (this.current_url.match(/^http(s|):\/\/image.baidu.com/g)) {
         GM_addStyle(this.css.image);
         log.info("百度图片", "插入CSS规则");
       }
