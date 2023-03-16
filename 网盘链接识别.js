@@ -2732,7 +2732,6 @@
     },
     createWorkerObject: () => {
       window.GM_linkWorker = new Worker(WorkerHandle.blobUrl);
-
       window.GM_linkWorker.onmessage = function (e) {
         WorkerHandle.successCallBack(e.data["data"], e.data["netdiskName"]);
       };
