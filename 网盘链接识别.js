@@ -2,8 +2,8 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.3.16.9.20
-// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、magnet格式，支持蓝奏云、天翼云、123盘、奶牛直链获取下载，页面动态监控链接
+// @version      23.3.17.16.00
+// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
 // @run-at       document-body
@@ -22,6 +22,7 @@
 // @connect      189.cn
 // @connect      123pan.com
 // @connect      wenshushu.cn
+// @connect      jianguoyun.com
 // @exclude      /^http(s|):\/\/s1\.hdslb\.com\/.*$/
 // @exclude      /^http(s|):\/\/(message|www)\.bilibili\.com\/.*$/
 // @exclude      /^http(s|):\/\/.*\.mail\.qq\.com\/.*$/
@@ -295,6 +296,20 @@
         uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
         blank: "magnet:?xt=urn:btih:{#shareCode#}",
       },
+      jianguoyun: {
+        link_innerText: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
+          GM_getValue("innerText_jianguoyun", 20)
+        )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
+        link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
+          GM_getValue("innerHTML_jianguoyun", 300)
+        )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
+        shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z\-_]{16,24})/gi,
+        shareCodeNeedRemoveStr: /jianguoyun.com\/p\//gi,
+        checkAccessCode: /(提取码|密码|访问码).+/gi,
+        accessCode: /([0-9a-zA-Z]+)/gi,
+        uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://www.jianguoyun.com/p/{#shareCode#}",
+      },
     },
     initLinkDict() {
       /* 初始化字典 */
@@ -303,7 +318,7 @@
         NetDisk.linkDict.set(keys, new Utils.Dictionary());
       });
     },
-    matchPageLink(clipboardText) {
+    matchPageLink(clipboardText="") {
       /* 检查页面是否存在链接 */
       let matchTextRange = GM_getValue("pageMatchRange", "innerText");
       let ignoreStr = [
@@ -350,12 +365,12 @@
       }
       if (matchTextRange.toLowerCase() === "all") {
         $.each(this.regular, (netdiskName, item) => {
-          window.GM_linkWorker.postMessage({
+          WorkerHandle.GM_matchWorker.postMessage({
             regexp: new RegExp(item["link_innerText"], "gi"),
             pageText: this.pageText,
             netdiskName: netdiskName,
           });
-          window.GM_linkWorker.postMessage({
+          WorkerHandle.GM_matchWorker.postMessage({
             regexp: new RegExp(item["link_innerHTML"], "gi"),
             pageText: this.pageText,
             netdiskName: netdiskName,
@@ -363,7 +378,7 @@
         });
       } else {
         $.each(this.regular, (netdiskName, item) => {
-          window.GM_linkWorker.postMessage({
+          WorkerHandle.GM_matchWorker.postMessage({
             regexp: new RegExp(item[`link_${matchTextRange}`], "gi"),
             pageText: this.pageText,
             netdiskName: netdiskName,
@@ -676,7 +691,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -774,7 +789,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -906,7 +921,7 @@
                 }
               },
               onerror: () => {
-                Qmsg.error("网络异常", {
+                Qmsg.error("请求异常", {
                   html: true,
                 });
               },
@@ -1123,7 +1138,7 @@
                     }
                   },
                   onerror: function () {
-                    Qmsg.error("网络异常", {
+                    Qmsg.error("请求异常", {
                       html: true,
                     });
                   },
@@ -1145,7 +1160,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1381,7 +1396,7 @@
             },
             onerror: function (response) {
               log.error("天翼云-获取下载参数", response);
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1437,7 +1452,7 @@
             },
             onerror: (response) => {
               log.error("天翼云-获取ShareId", response);
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1579,7 +1594,7 @@
             },
             onerror: function (response) {
               log.error("天翼云-获取下载链接", response);
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1656,7 +1671,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常");
+              Qmsg.error("请求异常");
             },
             onabort: function () {
               Qmsg.error("请求意外中止", {
@@ -1708,7 +1723,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1768,7 +1783,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1837,7 +1852,7 @@
               }
             },
             onerror: function () {
-              Qmsg.error("网络异常", {
+              Qmsg.error("请求异常", {
                 html: true,
               });
             },
@@ -1865,7 +1880,7 @@
           5103: "分享码错误或者分享地址错误",
           5104: "分享已过期",
           "-1000": "获取出错",
-          "-2000": "网络异常",
+          "-2000": "请求异常",
           "-3000": "请求意外中止",
           "-4000": "请求超时",
           104: "文件已失效",
@@ -2490,7 +2505,7 @@
                 }
               },
               onerror: () => {
-                Qmsg.error("网络异常", {
+                Qmsg.error("请求异常", {
                   html: true,
                 });
                 res("");
@@ -2545,7 +2560,7 @@
                 }
               },
               onerror: () => {
-                Qmsg.error("网络异常", {
+                Qmsg.error("请求异常", {
                   html: true,
                 });
                 res([]);
@@ -2591,7 +2606,7 @@
                 }
               },
               onerror: () => {
-                Qmsg.error("网络异常", {
+                Qmsg.error("请求异常", {
                   html: true,
                 });
                 res([]);
@@ -2639,6 +2654,436 @@
               }
             })
           );
+        },
+      },
+      jianguoyun: {
+        errorCode: {
+          UnAuthorized: "请先登录坚果云账号",
+        },
+        async default(shareCode, accessCode) {
+          log.info("坚果云", [shareCode, accessCode]);
+          this.shareCode = shareCode;
+          this.accessCode = accessCode;
+          let downloadParams = await this.getRequestDownloadParams();
+          if (!downloadParams) {
+            return;
+          }
+          if (downloadParams["isdir"]) {
+            /* 是文件夹 */
+            this.parseMoreFile(downloadParams["hash"], downloadParams["name"]);
+          } else {
+            /* 是文件 */
+            let fileSize = Utils.formatByteToSize(downloadParams["size"]);
+            let downloadUrl = await this.getFileLink(
+              downloadParams.hash,
+              downloadParams.name
+            );
+            if (!downloadUrl) {
+              return;
+            }
+            downloadUrl = filterScheme.handleUrl(
+              "jianguoyun-static-scheme-enable",
+              "jianguoyun-static-scheme-forward",
+              downloadUrl
+            );
+            log.info("坚果云", [downloadUrl]);
+            UI.staticView.oneFile(
+              "坚果云盘单文件直链",
+              downloadParams["name"],
+              fileSize,
+              downloadUrl
+            );
+          }
+        },
+        /**
+         * 解析多文件信息
+         * @param {String} hash 文件hash值
+         * @param {String} currentLocation 当前位置
+         * @returns
+         */
+        async parseMoreFile(hash = "", currentLocation = "") {
+          let folderInfo = await this.getFolderInfo(hash);
+          if (!folderInfo) {
+            return;
+          }
+          let _this_ = this;
+          let downloadList = [];
+          Promise.all(
+            Array.from(folderInfo).map(async (item, index) => {
+              let downloadUrl = await _this_.getDirLink(
+                hash,
+                currentLocation,
+                item["relPath"]
+              );
+              if (!downloadUrl) {
+                return;
+              }
+              downloadUrl = filterScheme.handleUrl(
+                "jianguoyun-static-scheme-enable",
+                "jianguoyun-static-scheme-forward",
+                downloadUrl
+              );
+              log.info("坚果云", [downloadUrl]);
+              downloadList = [
+                ...downloadList,
+                {
+                  url: downloadUrl,
+                  name: item["relPath"].replace(/^\//gi, ""),
+                  size: Utils.formatByteToSize(item["size"]),
+                  mtime: item["mtime"],
+                  content: "",
+                },
+              ];
+              await Utils.sleep(150);
+            })
+          ).then(() => {
+            if (downloadList.length == 0) {
+              return;
+            }
+            let folderContent = "";
+            downloadList.sort(
+              Utils.sortListByProperty((item) => {
+                return item["mtime"];
+              })
+            );
+            downloadList.forEach((item) => {
+              folderContent = `${folderContent}
+              <div class="netdisk-static-body">
+                <div class="netdisk-static-filename">
+                  <a target="_blank" href="${item["url"]}">${item["name"]}</a>
+                </div>
+                <div class="netdisk-static-filesize">${item["size"]}</div>
+              </div>
+              `;
+            });
+            UI.staticView.moreFile("坚果云多文件直链", folderContent);
+          });
+        },
+        /**
+         * 处理密码错误的弹窗
+         */
+        handleErrorAccessCode() {
+          let _this_ = this;
+          pops.prompt({
+            title: {
+              text: "密码错误",
+            },
+            btn: {
+              reverse: true,
+              position: "end",
+              cancel: {
+                text: "取消",
+              },
+              ok: {
+                type: "primary",
+                callback: (event) => {
+                  let inputPwd = event.text.replace(/ /g, "");
+                  if (inputPwd != "") {
+                    log.success(
+                      "坚果云",
+                      `原:${_this_.accessCode} 现:${inputPwd}`
+                    );
+                    _this_.accessCode = inputPwd;
+                    let uiLink = NetDisk.regular.jianguoyun.uiLinkShow
+                      .replaceAll("{#shareCode#}", _this_.shareCode)
+                      .replaceAll("{#accessCode#}", inputPwd);
+                    $(
+                      `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
+                    ).attr("data-accesscode", inputPwd);
+                    $(
+                      `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
+                    ).html(uiLink);
+                  }
+                  log.success("坚果云", "重新输入的密码：" + inputPwd);
+                  $(
+                    `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
+                  ).click();
+                  event.close();
+                },
+              },
+            },
+            content: {
+              focus: true,
+              placeholder: "请重新输入密码",
+            },
+            width: "350px",
+            height: "160px",
+            mask: true,
+            animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+            drag: GM_getValue("pcDrag", false),
+          });
+        },
+        /**
+         * 获取下载链接所需要的hash值和name
+         */
+        getRequestDownloadParams() {
+          log.info("坚果云", "获取hash值");
+          Qmsg.info("正在获取请求信息", {
+            html: true,
+          });
+          let pageInfoRegexp = /var[\s]*PageInfo[\s]*=[\s]*{([\s\S]+)};/i;
+          let _this_ = this;
+          let formData = new FormData();
+          formData.append("pd", this.accessCode);
+          return new Promise((resolve) => {
+            GM_xmlhttpRequest({
+              url: `https://www.jianguoyun.com/p/${_this_.shareCode}`,
+              method: _this_.accessCode == "" ? "GET" : "POST",
+              data:
+                _this_.accessCode == "" ? undefined : `pd=${_this_.accessCode}`,
+              async: false,
+              timeout: 5000,
+              responseType: "html",
+              headers: {
+                "content-type": "application/x-www-form-urlencoded",
+                "User-Agent": Utils.getRandomPCUA(),
+                referer: "https://www.jianguoyun.com/p/" + _this_.shareCode,
+              },
+              onload: function (response) {
+                log.info("坚果云", "请求信息");
+                log.info("坚果云", response);
+                let pageInfo = response.responseText.match(pageInfoRegexp);
+                if (pageInfo) {
+                  pageInfo = pageInfo[pageInfo.length - 1];
+                  pageInfo = `({${pageInfo}})`;
+                  pageInfo = eval(pageInfo);
+                  log.info("坚果云", pageInfo);
+                  let fileName = pageInfo["name"];
+                  let fileSize = pageInfo["size"];
+                  let fileHash = pageInfo["hash"];
+                  let fileNeedsPassword = pageInfo["needsPassword"];
+                  let fileOwner = pageInfo["owner"];
+                  let isdir = pageInfo["isdir"];
+                  let fileErrorCode = pageInfo["errorCode"];
+                  fileName = decodeURIComponent(fileName);
+                  log.success("坚果云", "是否是文件夹 ===> " + isdir);
+                  log.success("坚果云", "hash ===> " + fileHash);
+                  log.success("坚果云", "name ===> " + fileName);
+                  log.success("坚果云", "size ===> " + fileSize);
+                  if (
+                    fileNeedsPassword &&
+                    (_this_.accessCode == null || _this_.accessCode == "")
+                  ) {
+                    /* 需要密码但没密码 */
+                    Qmsg.error("密码不正确!");
+                    _this_.handleErrorAccessCode();
+                    resolve(false);
+                    return;
+                  }
+                  if (fileErrorCode === "AuthenticationFailed") {
+                    Qmsg.error("密码错误");
+                    _this_.handleErrorAccessCode();
+                    resolve(false);
+                    return;
+                  }
+                  if (fileHash == "" || fileHash == null) {
+                    log.error("坚果云", "hash为空，可能文件被撤销分享了");
+                    Qmsg.error(`文件分享已被撤销`, {
+                      html: true,
+                    });
+                    resolve(false);
+                    return;
+                  }
+                  if (fileSize == null && isdir == false) {
+                    log.error("坚果云", "无size，可能文件被删除了");
+                    Qmsg.error(
+                      `“${fileName}”文件已被拥有者（“${fileOwner}”）删除`,
+                      {
+                        html: true,
+                      }
+                    );
+                    resolve(false);
+                    return;
+                  } else {
+                    resolve({
+                      name: fileName,
+                      hash: fileHash,
+                      size: fileSize,
+                      needsPassword: fileNeedsPassword,
+                      owner: fileOwner,
+                      isdir: isdir,
+                    });
+                  }
+                } else {
+                  log.error("坚果云", "获取PageInfo失败");
+                  Qmsg.error("坚果云: 获取PageInfo失败", {
+                    html: true,
+                  });
+                  resolve(false);
+                }
+              },
+              onerror: function (response) {
+                log.error("坚果云", "请求异常");
+                log.error("坚果云", response);
+                Qmsg.error("坚果云: 请求异常", {
+                  html: true,
+                });
+                resolve(false);
+              },
+              ontimeout: function () {
+                log.error("坚果云", "请求超时");
+                Qmsg.error("请求超时", {
+                  html: true,
+                });
+                resolve(false);
+              },
+            });
+          });
+        },
+        /**
+         * 获取下载链接
+         * @param {String} fileHash 文件hash值
+         * @param {String} fileName 文件名
+         */
+        getFileLink(fileHash = "", fileName = "") {
+          fileName = encodeURIComponent(fileName);
+          let _this_ = this;
+          return new Promise((resolve) => {
+            GM_xmlhttpRequest({
+              url: `https://www.jianguoyun.com/d/ajax/fileops/pubFileLink?k=${fileHash}&name=${fileName}&wm=false${
+                _this_.accessCode == "" ? "" : "&pd=" + _this_.accessCode
+              }&forwin=1&_=${new Date().getTime()}`,
+              method: "GET",
+              timeout: 5000,
+              async: false,
+              responseType: "json",
+              headers: {
+                "User-Agent": Utils.getRandomPCUA(),
+              },
+              onload: function (response) {
+                log.info("坚果云", "请求信息");
+                log.info("坚果云", response);
+                try {
+                  let resultJSON = JSON.parse(response.responseText);
+                  log.info("坚果云", resultJSON);
+                  if (resultJSON.hasOwnProperty("errorCode")) {
+                    Qmsg.error("坚果云: " + resultJSON["detailMsg"], {
+                      html: true,
+                    });
+                    resolve(false);
+                  } else {
+                    resolve(resultJSON["url"]);
+                  }
+                } catch (error) {
+                  log.error("坚果云", error);
+                  Qmsg.error("坚果云: 处理下载链接异常", {
+                    html: true,
+                  });
+                  resolve(false);
+                }
+              },
+              onerror: function (response) {
+                log.error("坚果云", "请求异常");
+                log.error("坚果云", response);
+                Qmsg.error("坚果云: 请求异常", {
+                  html: true,
+                });
+                resolve(false);
+              },
+              ontimeout: function () {
+                log.error("坚果云", "请求超时");
+                Qmsg.error("请求超时", {
+                  html: true,
+                });
+                resolve(false);
+              },
+            });
+          });
+        },
+        /**
+         * 获取文件夹下的文件下载链接
+         * @param {String} fileHash
+         * @param {String} fileName
+         * @param {String} filePath
+         * @returns
+         */
+        getDirLink(fileHash = "", fileName = "", filePath = "/") {
+          fileName = encodeURIComponent(fileName);
+          return new Promise((resolve) => {
+            GM_xmlhttpRequest({
+              url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRLink?k=${fileHash}&dn=${fileName}&p=${filePath}&forwin=1&_=${new Date().getTime()}`,
+              method: "GET",
+              timeout: 5000,
+              async: false,
+              responseType: "json",
+              headers: {
+                "User-Agent": Utils.getRandomPCUA(),
+              },
+              onload: function (response) {
+                log.info("坚果云", "请求信息");
+                log.info("坚果云", response);
+                try {
+                  let resultJSON = JSON.parse(response.responseText);
+                  log.info("坚果云", resultJSON);
+                  if (resultJSON.hasOwnProperty("errorCode")) {
+                    Qmsg.error("坚果云: " + resultJSON["detailMsg"], {
+                      html: true,
+                    });
+                    resolve(false);
+                  } else {
+                    resolve(resultJSON["url"]);
+                  }
+                } catch (error) {
+                  log.error("坚果云", error);
+                  Qmsg.error("坚果云: 处理下载链接异常", {
+                    html: true,
+                  });
+                  resolve(false);
+                }
+              },
+              onerror: function (response) {
+                log.error("坚果云", "请求异常");
+                log.error("坚果云", response);
+                Qmsg.error("坚果云: 请求异常", {
+                  html: true,
+                });
+                resolve(false);
+              },
+              ontimeout: function () {
+                log.error("坚果云", "请求超时");
+                Qmsg.error("请求超时", {
+                  html: true,
+                });
+                resolve(false);
+              },
+            });
+          });
+        },
+        getFolderInfo(hash = "") {
+          return new Promise((resolve) => {
+            GM_xmlhttpRequest({
+              url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRBrowse?hash=${hash}&relPath=%2F&_=${new Date().getTime()}`,
+              method: "GET",
+              async: false,
+              timeout: 5000,
+              responseType: "json",
+              headers: {
+                "User-Agent": Utils.getRandomPCUA(),
+              },
+              onload: function (response) {
+                log.info("坚果云", "请求信息");
+                log.info("坚果云", response);
+                try {
+                  let resultJSON = JSON.parse(response.responseText);
+                  log.info("坚果云", resultJSON);
+                  resolve(resultJSON["objects"]);
+                } catch (error) {
+                  log.error("坚果云", error);
+                  Qmsg.error("坚果云: 处理多文件信息异常");
+                  resolve(false);
+                }
+              },
+              onerror: function (response) {
+                log.error("坚果云", response);
+                Qmsg.error("请求异常");
+                resolve(false);
+              },
+              ontimeout: function () {
+                Qmsg.error("请求超时");
+                resolve(false);
+              },
+            });
+          });
         },
       },
     },
@@ -2698,9 +3143,7 @@
       }
       url = url.replace(/&/g, "{-and-}");
       url = url.replace(/#/g, "{-number-}");
-      let thisScheme = GM_getValue(forward_key)
-        ? GM_getValue(forward_key)
-        : this.defaultScheme;
+      let thisScheme = GM_getValue(forward_key, this.defaultScheme);
       thisScheme = thisScheme.replace("{#intentData#}", url);
       return thisScheme;
     },
@@ -2708,38 +3151,60 @@
 
   const WorkerHandle = {
     blobUrl: "",
-    insertDOMHandleTextMatch: () => {
+    GM_matchWorker: null,
+    /**
+     * 初始化Worker的Blob链接
+     */
+    initWorkerBlobLink: function () {
       const handleMatch = `
-			(()=>{
-				this.addEventListener('message', function (e) {
-					let data = e.data;
-					let link_regexp = data["regexp"];
-					let pageText = data["pageText"];
-					let netdiskName = data["netdiskName"];
-					let matchData = pageText.match(link_regexp);
-					matchData = matchData ? matchData : [];
-					this.postMessage({
-						"msg": matchData.length ? "workercallback: success! "+matchData.length.toString() : "workercallback: none",
-						"netdiskName": netdiskName ,
-						"data": matchData
-					});
-				}, false);
-
-			})()`;
+			(() => {
+        this.addEventListener(
+          "message",
+          function (event) {
+            let data = event.data;
+            let link_regexp = data["regexp"];
+            let pageText = data["pageText"];
+            let netdiskName = data["netdiskName"];
+            let matchData = pageText.match(link_regexp);
+            matchData = matchData ? matchData : [];
+            this.postMessage({
+              msg: matchData.length
+                ? "workercallback: success! " + matchData.length.toString()
+                : "workercallback: none",
+              netdiskName: netdiskName,
+              data: matchData,
+            });
+          },
+          false
+        );
+      })();
+      `;
       var blob = new Blob([handleMatch]);
       WorkerHandle.blobUrl = window.URL.createObjectURL(blob);
       log.info("Worker Blob Link", WorkerHandle.blobUrl);
     },
-    createWorkerObject: () => {
-      window.GM_linkWorker = new Worker(WorkerHandle.blobUrl);
-      window.GM_linkWorker.onmessage = function (e) {
-        WorkerHandle.successCallBack(e.data["data"], e.data["netdiskName"]);
+    /**
+     * 初始化Worker对象
+     */
+    initWorker: function () {
+      WorkerHandle.GM_matchWorker = new Worker(WorkerHandle.blobUrl);
+      WorkerHandle.GM_matchWorker.onmessage = function (event) {
+        WorkerHandle.successCallBack(
+          event.data["data"],
+          event.data["netdiskName"]
+        );
       };
-      window.GM_linkWorker.onerror = function (error) {
+      WorkerHandle.GM_matchWorker.onerror = function (error) {
         WorkerHandle.errorCallBack(error);
       };
     },
-    successCallBack: (matchLink, netdiskName) => {
+    /**
+     * Worker成功回调
+     * @param {String} matchLink
+     * @param {String} netdiskName
+     * @returns
+     */
+    successCallBack: function (matchLink, netdiskName) {
       /* worker处理文件匹配后的回调 */
       if (matchLink.length === 0 && UI.isHandling) {
         setTimeout(() => {
@@ -2766,7 +3231,11 @@
         UI.isHandling = false;
       }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
     },
-    errorCallBack: (error) => {
+    /**
+     * Worker失败回调
+     * @param {Object} error
+     */
+    errorCallBack: function (error) {
       log.error("Worker throw error", error);
     },
   };
@@ -2800,6 +3269,7 @@
         chengtong2: RESOURCE_ICON.chengtong2,
         kuake: RESOURCE_ICON.kuake,
         magnet: RESOURCE_ICON.magnet,
+        jianguoyun: RESOURCE_ICON.jianguoyun,
       } /* icon结尾处 */,
     },
     suspension: {
@@ -3871,6 +4341,48 @@
 									</div>
 									
 							</details>
+              <details class="netdisk-setting-menu" type="坚果云">
+									<summary>坚果云</summary>
+									<div class="netdisk-setting-menu-item" type="checkbox">
+                    <p>新标签页打开</p>
+                    <div class="netdisk-checkbox">
+                      <input type="checkbox" data-key="jianguoyun-open-enable" mutex=".netdisk-checkbox input[data-key='jianguoyun-static-enable']">
+                      <div class="knobs"><span></span></div><div class="layer"></div>
+                    </div>
+									</div>
+                  <div class="netdisk-setting-menu-item" type="checkbox">
+										<p>单文件直链获取</p>
+										<div class="netdisk-checkbox">
+											<input type="checkbox" data-key="jianguoyun-static-enable" mutex=".netdisk-checkbox input[data-key='jianguoyun-open-enable']">
+											<div class="knobs"><span></span></div><div class="layer"></div>
+										</div>
+									</div>
+                  <div class="netdisk-setting-menu-item" type="checkbox">
+											<p>直链调用scheme</p>
+											<div class="netdisk-checkbox">
+												<input type="checkbox" data-key="jianguoyun-static-scheme-enable">
+												<div class="knobs"><span></span></div><div class="layer"></div>
+											</div>
+									</div>
+									<div class="netdisk-setting-menu-item" type="scheme">
+											<p>scheme转发</p>
+											<input type="text" data-key="jianguoyun-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
+									</div>
+                  <div class="netdisk-setting-menu-item">
+										<label data-id="netdisk-innerText_jianguoyun">提取码间隔(innerText)${GM_getValue(
+                      "innerText_jianguoyun",
+                      20
+                    )}</label>
+										<input type="range" data-key="innerText_jianguoyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
+									</div>
+									<div class="netdisk-setting-menu-item">
+											<label data-id="netdisk-innerHTML_jianguoyun">提取码间隔(innerHTML)${GM_getValue(
+                        "innerHTML_jianguoyun",
+                        300
+                      )}</label>
+										<input type="range" data-key="innerHTML_jianguoyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
+									</div>
+							</details>
 						</div>
 					</div>
 				</div>
@@ -4650,20 +5162,19 @@
       },
     },
     monitorDOMInsert() {
-      WorkerHandle.insertDOMHandleTextMatch();
-      WorkerHandle.createWorkerObject();
+      WorkerHandle.initWorkerBlobLink();
+      WorkerHandle.initWorker();
       Utils.mutationObserver(document.body, {
         fn: async (mutations) => {
-          var retStatus = false;
           if (UI.isHandling) {
             /* 当前正在处理文本正则匹配中 */
             return null;
           }
-          $.each(mutations, (i, v) => {
+          UI.isHandling = true;
+          var retStatus = false;
+          $.each(mutations, (index, item) => {
             if (
-              v.target.className != null &&
-              typeof v.target.className == "string" &&
-              v.target.className.match(/whitesevPop|netdisk-url-box/gi)
+              item?.target?.className?.match(/whitesevPop|netdisk-url-box/gi)
             ) {
               retStatus = true;
               return null;
@@ -4673,7 +5184,6 @@
             /* 排除弹窗内部元素 */
             return null;
           }
-          UI.isHandling = true;
           let clipboardText = "";
           if (GM_getValue("readClipboard", false)) {
             clipboardText = await NetDisk.getClipboardText();
@@ -4691,6 +5201,7 @@
           subtree: true,
         },
       });
+      NetDisk.matchPageLink();/* 自执行一次，因为有的页面上没触发mutationObserver */
     },
   };
   var GM_Menu = new Utils.GM_Menu(
