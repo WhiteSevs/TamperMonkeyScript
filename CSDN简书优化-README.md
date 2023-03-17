@@ -1,4 +1,7 @@
-## CSDN-桌面端
+## 🎁演示GIF
+[![CSDN-简书优化演示.gif](https://cdn.img.kggzs.cn/img/2023/46/20236413bd91368df.gif)](https://cdn.img.kggzs.cn/img/2023/46/20236413bd91368df.gif)
+
+## ![https://favicon.yandex.net/favicon/v2/https://www.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://www.csdn.net/?size=32) CSDN-桌面端
 
 - 屏蔽广告
 - 屏蔽登录
@@ -15,7 +18,7 @@
 - 可在设置中开启 全文居中(默认开启)
 - 可在设置中开启 屏蔽登录弹窗(动态屏蔽)
 
-## CSDN-移动端
+## ![https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32) CSDN-移动端
 
 - 屏蔽广告
 - 屏蔽登录
@@ -33,7 +36,7 @@
 - 可在设置中开启 底部推荐文章新标签页打开
 - 可在设置中开启 移除文章底部的 CSDN 下载
 
-## 简书（桌面端-移动端）
+## ![https://favicon.yandex.net/favicon/v2/https://www.jianshu.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.jianshu.com/?size=32) 简书（桌面端&移动端）
 
 - 屏蔽广告
 - 屏蔽登录
@@ -45,6 +48,6 @@
 - 自动展开全文
 - 评论排序
 
-## 部分图片
+## 🏆部分图片
 
 [![oG9BTt.png](https://www.helloimg.com/images/2023/01/12/oG9BTt.png)](https://www.helloimg.com/image/oG9BTt)
