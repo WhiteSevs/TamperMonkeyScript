@@ -203,7 +203,6 @@
           config.runCount = isNaN(inputRunCount)
             ? config.runCount
             : parseInt(inputRunCount);
-          Qmsg.info("执行次数: " + config.runCount);
           let inputDelaytime = prompt(
             "请输入每次执行后延时的时间，单位（秒）",
             60
@@ -211,19 +210,26 @@
           config.delaytime = isNaN(inputDelaytime)
             ? config.delaytime
             : parseInt(inputDelaytime) * 1000;
-          Qmsg.info("延时时间: " + config.delaytime + "秒");
 
           let inputScore = prompt("请输入需要获得的分数", 1500);
           config.score = isNaN(inputScore)
             ? config.score
             : parseInt(inputScore);
-          Qmsg.info("获得分数: " + config.score);
 
           let inputCredit = prompt("请输入每局获取的金币数量", 20);
           config.credit = isNaN(inputCredit)
             ? config.credit
             : parseInt(inputCredit);
-          Qmsg.info("赚取的金币", config.credit);
+          Qmsg.info(`
+          <div style="text-align: left;">
+            <div style="margin-bottom: 3px;">执行次数: <i style="color: red">${config.runCount}次</i></div>
+            <div style="margin-bottom: 3px;">延时时间: <i style="color: red">${config.delaytime/1000}秒</i></div>
+            <div style="margin-bottom: 3px;">每局分数: <i style="color: red">${config.score}</i></div>
+            <div>每局金币: <i style="color: red">${config.credit}个</div>
+          </div>
+        `,{
+            html:true
+          })
           Qmsg.success("开始执行");
           auto();
         },
@@ -252,5 +258,4 @@
     timeout: 3000,
     showReverse:true
   });
-  // Your code here...
 })();
