@@ -2,7 +2,7 @@
 // @name         蛋仔乐消除
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/h5/20230120/xxl/player?size=32
-// @version      0.4
+// @version      0.5
 // @description  一键完成赚金币任务和分享获取门票，按钮在油猴菜单中
 // @author       WhiteSev
 // @match        https://party.163.com/h5/20230120/xxl/player/*
@@ -198,7 +198,6 @@
           return "⚙ " + _text_;
         },
         callback: () => {
-          config.loadingMsg = Qmsg.loading("执行中...");
           let inputRunCount = prompt("请输入需要执行的次数", 1);
           config.runCount = isNaN(inputRunCount)
             ? config.runCount
@@ -220,17 +219,27 @@
           config.credit = isNaN(inputCredit)
             ? config.credit
             : parseInt(inputCredit);
-          Qmsg.info(`
+          config.loadingMsg = Qmsg.loading(
+            `
           <div style="text-align: left;">
-            <div style="margin-bottom: 3px;">执行次数: <i style="color: red">${config.runCount}次</i></div>
-            <div style="margin-bottom: 3px;">延时时间: <i style="color: red">${config.delaytime/1000}秒</i></div>
-            <div style="margin-bottom: 3px;">每局分数: <i style="color: red">${config.score}</i></div>
-            <div>每局金币: <i style="color: red">${config.credit}个</div>
+            <div style="margin-bottom: 4px;">执行次数: <i style="color: red">${
+              config.runCount
+            }次</i></div>
+            <div style="margin-bottom: 4px;">延时时间: <i style="color: red">${
+              config.delaytime / 1000
+            }秒</i></div>
+            <div style="margin-bottom: 4px;">每局分数: <i style="color: red">${
+              config.score
+            }</i></div>
+            <div style="margin-bottom: 4px;">每局金币: <i style="color: red">${config.credit}个</div>
+            <div><i style="color: green">执行中...</div>
           </div>
-        `,{
-            html:true,
-            timeout: 5000
-          })
+        `,
+            {
+              html: true,
+              autoClose: false,
+            }
+          );
           Qmsg.success("开始执行");
           auto();
         },
@@ -257,6 +266,6 @@
   Qmsg.config({
     position: "bottom",
     timeout: 3000,
-    showReverse:true
+    showReverse: true,
   });
 })();
