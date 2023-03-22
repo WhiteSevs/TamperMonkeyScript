@@ -59,10 +59,6 @@
       async: false,
       timeout: 5000,
       responseType: "json",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Linux; Android 12; M2012K11C Build/SKQ1.211006.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.102 MQQBrowser/6.2 TBS/046317 Mobile Safari/537.36 V1_AND_SQ_8.9.25_3640_YYB_D QQ/8.9.25.10005 NetType/WIFI WebP/0.3.0  Edg/110.0.0.0",
-      },
       onload: function (response) {
         let result = response.responseText
           .replace("game_end(", "")
@@ -101,10 +97,6 @@
         async: false,
         timeout: 5000,
         responseType: "json",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Linux; Android 12; M2012K11C Build/SKQ1.211006.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.102 MQQBrowser/6.2 TBS/046317 Mobile Safari/537.36 V1_AND_SQ_8.9.25_3640_YYB_D QQ/8.9.25.10005 NetType/WIFI WebP/0.3.0  Edg/110.0.0.0",
-        },
         onload: function (response) {
           let result = response.responseText
             .replace("game_start(", "")
