@@ -2,7 +2,7 @@
  * @description	 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.5
+ * @version  1.6
  **/
 (function (Utils) {
   /**
@@ -379,7 +379,7 @@
    * @param {Object} handleFunc	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
    * @return {Boolean}	如果找到返回满足要求的父元素，如果未找到返回null
    * @example
-   * 	Utils.findParentNode(document.querySelector(".xxx"),(node)=>{return node.id="xxx" ? true:false});
+   * 	Utils.findParentNode(document.querySelector(".xxx"),(node)=>{return node.id==="xxx"});
    * @return
    * 	Node;
    **/
@@ -891,7 +891,7 @@
       throw "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue";
     }
     if (typeof GM_setValue === "undefined") {
-      throw "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue";
+      throw "Utils.GM_Menu 请在脚本开头加上 @grant  GM_setValue";
     }
     if (typeof GM_registerMenuCommand === "undefined") {
       throw "Utils.GM_Menu 请在脚本开头加上 @grant  GM_registerMenuCommand";
@@ -1663,16 +1663,16 @@
       target.each((index, item) => {
         mutationObserver.observe(item, observer_config.config);
       });
-    } else if(typeof target === "string"){
+    } else if (typeof target === "string") {
       /* 传入的target是字符串 */
       this.waitNode(target).then((NodeList) => {
         NodeList.forEach((item) => {
           mutationObserver.observe(item, observer_config.config);
         });
       });
-    }else{
+    } else {
       /* 未知 */
-      console.error("Utils.mutationObserver 未知参数",arguments);
+      console.error("Utils.mutationObserver 未知参数", arguments);
     }
   };
   /**
@@ -1955,6 +1955,46 @@
     };
   };
 
+  /**
+   * 对获取的元素列表进行排序
+   * @param {NodeList|jQuery} nodeListCallBack 获取元素列表，可以使用querySelectorAll或者jQuery的遍历
+   * @param {Function} valueCallBack 获取当前循环列表中元素的要比较的值
+   * @param {Boolean} reverse 元素升序(false)或降序(true)，默认-升序
+   * @example Utils.sortNodeListByProprety( ()=>{ document.querySelectorAll("table tr")}, (item)=>{return parseInt(item.getAttribute("data-value"));}, false);
+   */
+  Utils.sortNodeListByProprety = function (
+    nodeListCallBack,
+    valueCallBack,
+    reverse = false
+  ) {
+    let nodeList = nodeListCallBack();
+    let nodeListLength = nodeList.length;
+    for (var i = 0; i < nodeListLength - 1; i++) {
+      for (var j = 0; j < nodeListLength - 1 - i; j++) {
+        let beforeNode = nodeList[j];
+        let afterNode = nodeList[j + 1];
+        let beforeValue = valueCallBack(beforeNode);
+        let afterValue = valueCallBack(afterNode);
+        if (
+          (reverse == true && beforeValue < afterValue) ||
+          (reverse == false && beforeValue > afterValue)
+        ) {
+          /* 升序/降序 */
+          /* 相邻元素两两对比 */
+          let temp = beforeNode.nextElementSibling;
+          afterNode.after(beforeNode);
+          if (temp == null) {
+            /* 如果为空，那么是最后一个元素，使用append */
+            temp.parentNode.appendChild(afterNode);
+          } else {
+            /* 不为空，使用before */
+            temp.before(afterNode);
+          }
+          nodeList = nodeListCallBack();
+        }
+      }
+    }
+  };
   /**
    * @param {string|function} func - 需要捕获错误的函数或函数格式的字符串
    * @param {object} params - 该函数的参数和捕获到错误的函数的参数，类型为数组Array
