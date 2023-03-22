@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         蛋仔乐消除
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
-// @version      0.2
+// @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/h5/20230120/xxl/player?size=32
+// @version      0.3
 // @description  一键完成赚金币任务和分享获取门票，按钮在油猴菜单中
 // @author       WhiteSev
 // @match        https://party.163.com/h5/20230120/xxl/player/*
