@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         蛋仔乐消除
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
-// @version      0.1
-// @description  自动生成的描述
+// @version      0.2
+// @description  一键完成赚金币任务和分享获取门票，按钮在油猴菜单中
 // @author       WhiteSev
 // @match        https://party.163.com/h5/20230120/xxl/player/*
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
@@ -249,6 +249,7 @@
   Qmsg.config({
     position: "bottom",
     timeout: 3000,
+    showReverse:trues
   });
   // Your code here...
 })();
