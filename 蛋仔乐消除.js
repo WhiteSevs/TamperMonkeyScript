@@ -209,7 +209,7 @@
           );
           config.delaytime = isNaN(inputDelaytime)
             ? config.delaytime
-            : parseInt(config.delaytime) * 1000;
+            : parseInt(inputDelaytime) * 1000;
           Qmsg.info("延时时间: " + config.delaytime + "秒");
 
           let inputScore = prompt("请输入需要获得的分数", 1500);
