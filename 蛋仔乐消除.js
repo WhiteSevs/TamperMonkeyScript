@@ -228,7 +228,8 @@
             <div>每局金币: <i style="color: red">${config.credit}个</div>
           </div>
         `,{
-            html:true
+            html:true,
+            timeout: 5000
           })
           Qmsg.success("开始执行");
           auto();
