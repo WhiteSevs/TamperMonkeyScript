@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.3.17.16.00
+// @version      23.3.22.14.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -31,10 +31,10 @@
 // @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/455576-qmsg/code/Qmsg.js?version=1122361
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1164153
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1162631
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1134453
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1160801
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1164713
 // ==/UserScript==
 
 (function () {
@@ -311,15 +311,20 @@
         blank: "https://www.jianguoyun.com/p/{#shareCode#}",
       },
     },
+    /**
+     * 初始化字典
+     */
     initLinkDict() {
-      /* 初始化字典 */
       NetDisk.linkDict = new Utils.Dictionary();
       Object.keys(NetDisk.regular).forEach((keys) => {
         NetDisk.linkDict.set(keys, new Utils.Dictionary());
       });
     },
-    matchPageLink(clipboardText="") {
-      /* 检查页面是否存在链接 */
+    /**
+     * 检查页面是否存在链接
+     * @param {String} clipboardText 剪贴板文本
+     */
+    matchPageLink(clipboardText = "") {
       let matchTextRange = GM_getValue("pageMatchRange", "innerText");
       let ignoreStr = [
         $(".whitesevPopOneFile"),
@@ -386,8 +391,12 @@
         });
       }
     },
+    /**
+     * 处理链接，将匹配到的链接转为参数和密码存入字典中
+     * @param {String} netDiskName 网盘名称
+     * @param {String} url
+     */
     handleLink(netDiskName, url) {
-      /* 处理链接，将匹配到的链接转为参数和密码存入字典中 */
       let currentDict = this.linkDict.get(netDiskName);
       let shareCode = this.handleShareCode(netDiskName, url);
       if (shareCode == "" || shareCode == null) {
@@ -415,8 +424,13 @@
         );
       }
     },
+    /**
+     * 对传入的url进行处理，返回shareCode
+     * @param {String} netDiskName 网盘名称
+     * @param {String} url
+     * @returns
+     */
     handleShareCode(netDiskName, url) {
-      /* 处理shareCode */
       let shareCodeMatch = url.match(this.regular[netDiskName].shareCode);
       if (
         shareCodeMatch == null ||
@@ -443,8 +457,13 @@
         decodeURIComponent(shareCode); /* %E7%BD%91%E7%9B%98 => 网盘 */
       return shareCode;
     },
+    /**
+     * 对传入的url进行处理，返回accessCode
+     * @param {String} netDiskName 网盘名称
+     * @param {String} url
+     * @returns "https://xxx" || ""
+     */
     handleAccessCode(netDiskName, url) {
-      /* 处理accessCode */
       let accessCode = "";
       let accessCodeMatch = url.match(
         this.regular[netDiskName].checkAccessCode
@@ -465,22 +484,36 @@
       }
       return accessCode;
     },
+    /**
+     * 获取在弹窗中显示出的链接
+     * @param {String} netDiskName 网盘名称，指NetDisk.regular的内部键名
+     * @param {String} shareCode
+     * @param {String} accessCode
+     * @returns
+     */
     handleLinkShow(netDiskName, shareCode, accessCode) {
-      /* 处理显示在弹窗的网盘链接 */
-      let netdisk_regular = NetDisk.regular[netDiskName];
-      let uiLink = netdisk_regular["uiLinkShow"].replace(
+      let netDiskRegular = NetDisk.regular[netDiskName];
+      if (netDiskRegular == null) {
+        Qmsg.error("BUG: 获取uiLink规则失败");
+        log.error("handleLinkShow", netDiskName, shareCode, accessCode);
+        throw "错误";
+      }
+      let uiLink = netDiskRegular["uiLinkShow"].replace(
         /{#shareCode#}/gi,
         shareCode
       );
-      if (accessCode) {
+      if (accessCode && accessCode != "") {
         uiLink = uiLink.replace(/{#accessCode#}/g, accessCode);
       } else {
         uiLink = uiLink.replace(/( |提取码:|{#accessCode#}|\?pwd=)/g, "");
       }
       return uiLink;
     },
+    /**
+     * 获取剪贴板文本
+     * @returns
+     */
     getClipboardText() {
-      /* 获取剪贴板文本 */
       return new Promise((res) => {
         navigator.permissions
           .query({
@@ -516,37 +549,28 @@
           let paramKey = GM_getValue("paramKey");
           let paramWebSiteKey = GM_getValue("paramWebSiteKey");
           let baidu_website_key_enable = GM_getValue(
-            "baidu-website-key-enable"
+            "baidu-website-key-enable",
+            false
           );
 
           if (!bdurl) {
-            Qmsg.error("请完善配置 网址-Url", {
-              html: true,
-            });
+            Qmsg.error("请完善配置 网址-Url");
             return null;
           }
           if (!paramSurl) {
-            Qmsg.error("请完善配置 参数-Key", {
-              html: true,
-            });
+            Qmsg.error("请完善配置 参数-Key");
             return null;
           }
           if (!paramPwd) {
-            Qmsg.error("请完善配置 密码-Key", {
-              html: true,
-            });
+            Qmsg.error("请完善配置 密码-Key");
             return null;
           }
           if (!paramKey) {
-            Qmsg.error("请完善配置 密钥-Key", {
-              html: true,
-            });
+            Qmsg.error("请完善配置 密钥-Key");
             return null;
           }
           if (baidu_website_key_enable && !paramWebSiteKey) {
-            Qmsg.error("请完善配置 密钥-Value", {
-              html: true,
-            });
+            Qmsg.error("请完善配置 密钥-Value");
             return null;
           }
           var temp = document.createElement("form");
@@ -586,11 +610,6 @@
             return NetDisk.regular.lanzou.blank
               .replace("/s/", "/tp/")
               .replace(/{#shareCode#}/gi, shareCode);
-          },
-          uiLink: (shareCode, accessCode) => {
-            return NetDisk.regular.lanzou.uiLinkShow
-              .replace(/{#shareCode#}/gi, shareCode)
-              .replace(/{#accessCode#}/gi, accessCode);
           },
         },
         regexp: {
@@ -648,7 +667,7 @@
           getShareCodeByPageAgain = false
         ) {
           /* 获取文件下载链接 */
-          let that = this;
+          let _this_ = this;
           let _url_ = this.url.default(this.replaced, shareCode);
           log.error("蓝奏云-获取文件下载链接", _url_);
           GM_xmlhttpRequest({
@@ -657,15 +676,15 @@
             method: "GET",
             headers: {
               Accept: "*/*",
-              "user-agent": that.http.UserAgent,
+              "user-agent": _this_.http.UserAgent,
               referer: window.location.origin,
             },
             onload: function (response) {
               if (response.status == 200 && response.readyState == 4) {
-                if (that.checkPageCode(response)) {
-                  if (that.isMoreFile(response)) {
+                if (_this_.checkPageCode(response)) {
+                  if (_this_.isMoreFile(response)) {
                     log.info("蓝奏云-获取文件下载链接", "该链接为多文件");
-                    that.getMoreFile(response, shareCode, accessCode);
+                    _this_.getMoreFile(response, shareCode, accessCode);
                   } else {
                     log.info("蓝奏云-获取文件下载链接", "该链接为单文件");
                     log.info("蓝奏云-获取文件下载链接", response);
@@ -677,41 +696,31 @@
                         shareCodeNewMatch[shareCodeNewMatch.length - 1];
                       log.info(
                         "蓝奏云-获取文件下载链接",
-                        "新参数 => " + shareCode
+                        `新参数 => ${shareCode}`
                       );
                     }
-                    that.getLinkByTp(shareCode, accessCode);
+                    _this_.getLinkByTp(shareCode, accessCode);
                   }
                 }
               } else {
                 log.error("蓝奏云-获取文件下载链接", response);
-                Qmsg.error("请求失败，请重试", {
-                  html: true,
-                });
+                Qmsg.error("请求失败，请重试");
               }
             },
             onerror: function () {
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         getRedirectFinalUrl(url) {
-          let that = this;
-          Qmsg.success("获取重定向后的直链", {
-            html: true,
-          });
+          let _this_ = this;
+          Qmsg.success("获取重定向后的直链");
           log.info("蓝奏云-获取重定向后的直链", "开始获取重定向后的直链");
           return new Promise((res) => {
             GM_xmlhttpRequest({
@@ -742,15 +751,11 @@
           /* 页面检查，看看是否存在文件失效情况 */
           let pageText = resp.responseText;
           if (pageText.match(this.regexp.noFile.match)) {
-            Qmsg.error(this.regexp.noFile.tip, {
-              html: true,
-            });
+            Qmsg.error(this.regexp.noFile.tip);
             return false;
           }
           if (pageText.match(this.regexp.noExists.match)) {
-            Qmsg.error(this.regexp.noExists.tip, {
-              html: true,
-            });
+            Qmsg.error(this.regexp.noExists.tip);
             return false;
           }
           return true;
@@ -767,47 +772,39 @@
         getLinkByTp(shareCode, accessCode) {
           /* 访问蓝奏tp获取sign */
           let _url_ = this.url.tp(shareCode);
-          let that = this;
+          let _this_ = this;
           GM_xmlhttpRequest({
             url: _url_,
             timeout: 5000,
             method: "GET",
             headers: {
               Accept: "*/*",
-              "user-agent": that.http.UserAgent,
+              "user-agent": _this_.http.UserAgent,
               referer: window.location.origin,
             },
             onload: function (response) {
               log.info("蓝奏云-访问蓝奏tp获取sign", "by_tp ↓");
               log.info("蓝奏云-访问蓝奏tp获取sign", response);
               if (response.status == 200 && response.readyState == 4) {
-                that.getLink(response, shareCode, accessCode);
+                _this_.getLink(response, shareCode, accessCode);
               } else {
-                Qmsg.error("请求失败，请重试", {
-                  html: true,
-                });
+                Qmsg.error("请求失败，请重试");
               }
             },
             onerror: function () {
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         async getLink(resp, shareCode, accessCode) {
           /* 获取链接 */
-          let that = this;
+          let _this_ = this;
           let pageText = resp.responseText;
           if (pageText == null) {
             log.error("蓝奏云-获取链接", "shareCode错误，重新从页面中获取");
@@ -823,7 +820,7 @@
           let fileSize = fileSizeMatch ? fileSizeMatch[1].trim() : "";
           if (sign) {
             postData_sign = sign[sign.length - 1];
-            log.info("蓝奏云-获取链接", "获取Sign:" + postData_sign);
+            log.info(`蓝奏云-获取链接", "获取Sign: ${postData_sign}`);
             if (accessCode) {
               log.info("蓝奏云-获取链接", "传入参数=>有密码");
               postData_p = accessCode;
@@ -836,23 +833,19 @@
               method: "POST",
               responseType: "json",
               headers: {
-                "Content-Type": that.http.ContentTypeForm,
-                "user-agent": that.http.UserAgent,
+                "Content-Type": _this_.http.ContentTypeForm,
+                "user-agent": _this_.http.UserAgent,
                 referer: window.location.origin,
               },
-              data:
-                "action=downprocess&sign=" + postData_sign + "&p=" + postData_p,
+              data: `action=downprocess&sign=${postData_sign}&p=${postData_p}`,
               onload: async (response) => {
                 log.info("蓝奏云-获取链接", response);
                 if (response.status == 200 && response.readyState == 4) {
                   let json_data = JSON.parse(response.responseText);
-                  let downloadUrl =
-                    json_data["dom"] + "/file/" + json_data["url"];
+                  let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
                   let zt = json_data["zt"];
                   if ("密码不正确".indexOf(json_data["inf"]) != -1) {
-                    Qmsg.error("密码不正确!", {
-                      html: true,
-                    });
+                    Qmsg.error("密码不正确!");
                     pops.prompt({
                       title: {
                         text: "密码错误",
@@ -867,20 +860,22 @@
                           type: "primary",
                           callback: (event) => {
                             let inputPwd = event.text.replace(/ /g, "");
-                            if (inputPwd != "") {
-                              let uiLink = that.url.uiLink(shareCode, inputPwd);
-                              $(
-                                `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
-                              ).attr("data-accesscode", inputPwd);
-                              $(
-                                `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
-                              ).html(uiLink);
-                            }
+                            let uiLink = NetDisk.handleLinkShow(
+                              "lanzou",
+                              shareCode,
+                              inputPwd
+                            );
+                            $(
+                              `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
+                            ).attr("data-accesscode", inputPwd);
+                            $(
+                              `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
+                            ).html(uiLink);
                             log.success(
                               "蓝奏云-获取链接",
-                              "重新输入的密码：" + inputPwd
+                              `重新输入的密码：${inputPwd}`
                             );
-                            that.getLink(resp, shareCode, inputPwd);
+                            _this_.getLink(resp, shareCode, inputPwd);
                             event.close();
                           },
                         },
@@ -900,7 +895,7 @@
                     });
                   } else {
                     fileName = json_data["inf"] ? json_data["inf"] : fileName;
-                    downloadUrl = await that.getRedirectFinalUrl(downloadUrl);
+                    downloadUrl = await _this_.getRedirectFinalUrl(downloadUrl);
                     log.info("蓝奏云-获取链接", downloadUrl);
                     downloadUrl = filterScheme.handleUrl(
                       "lanzou-static-scheme-enable",
@@ -915,25 +910,18 @@
                     );
                   }
                 } else {
-                  Qmsg.error("请求失败，请重试", {
-                    html: true,
-                  });
+                  Qmsg.error("请求失败，请重试");
                 }
               },
-              onerror: () => {
-                Qmsg.error("请求异常", {
-                  html: true,
-                });
+              onerror: function (response) {
+                log.error("蓝奏云-获取链接", response);
+                Qmsg.error("请求异常");
               },
               onabort: function () {
-                Qmsg.error("请求意外中止", {
-                  html: true,
-                });
+                Qmsg.error("请求意外中止");
               },
               ontimeout: function () {
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
               },
             });
           } else {
@@ -942,11 +930,11 @@
               loaddown = pageText.match(/cppat[\s]*\+[\s]*'(.+?)'/i);
             }
             if (loaddown != null) {
-              let downloadUrl =
-                "https://develope.lanzoug.com/file/" +
-                loaddown[loaddown.length - 1];
+              let downloadUrl = `https://develope.lanzoug.com/file/${
+                loaddown[loaddown.length - 1]
+              }`;
               log.info("蓝奏云-获取链接", [fileName, fileSize, downloadUrl]);
-              downloadUrl = await that.getRedirectFinalUrl(downloadUrl);
+              downloadUrl = await _this_.getRedirectFinalUrl(downloadUrl);
               log.info("蓝奏云-获取链接", downloadUrl);
               downloadUrl = filterScheme.handleUrl(
                 "lanzou-static-scheme-enable",
@@ -960,23 +948,21 @@
                 downloadUrl
               );
             } else {
-              Qmsg.error("获取sign失败", {
-                html: true,
-              });
+              Qmsg.error("获取sign失败");
             }
           }
         },
         getMoreFile(resp, shareCode, accessCode) {
           /* 多文件获取 */
           let _url_ = this.url.default(this.replaced, shareCode);
-          let that = this;
+          let _this_ = this;
           GM_xmlhttpRequest({
             url: _url_,
             timeout: 5000,
             method: "GET",
             headers: {
               Accept: "*/*",
-              "user-agent": that.http.UserAgent,
+              "user-agent": _this_.http.UserAgent,
               referer: window.location.origin,
             },
             onload: function (response) {
@@ -1000,7 +986,7 @@
                   k_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");"
                 );
                 let k = pageText.match(k_rexp)[2];
-                let lx = shareCode.match(that.regexp.unicode.match) ? 1 : 2;
+                let lx = shareCode.match(_this_.regexp.unicode.match) ? 1 : 2;
                 let postData = `lx=${lx}&fid=${fid}&uid=${uid}&pg=${pgs}&rep=0&t=${t}&k=${k}&up=1&ls=1&pwd=${accessCode}`;
                 log.info("蓝奏云-多文件获取", "多文件请求参数：" + postData);
                 GM_xmlhttpRequest({
@@ -1009,8 +995,8 @@
                   method: "POST",
                   responseType: "json",
                   headers: {
-                    "Content-Type": that.http.ContentTypeForm,
-                    "user-agent": that.http.UserAgent,
+                    "Content-Type": _this_.http.ContentTypeForm,
+                    "user-agent": _this_.http.UserAgent,
                     referer: window.location.origin,
                   },
                   data: postData,
@@ -1020,19 +1006,15 @@
                     let zt = json_data["zt"];
                     let info = json_data["info"];
                     if (zt == 4) {
-                      Qmsg.error(info, {
-                        html: true,
-                      });
+                      Qmsg.error(info);
                     } else if (zt == 1) {
-                      Qmsg.success("获取文件夹成功，解析文件直链中...", {
-                        html: true,
-                      });
+                      Qmsg.success("获取文件夹成功，解析文件直链中...");
                       var folder = json_data["text"];
                       var folderContent = "";
                       var folderContextArray = [];
                       log.info(
                         "蓝奏云-多文件获取",
-                        "本链接一共" + folder.length + "个文件"
+                        `本链接一共${folder.length}个文件`
                       );
 
                       Promise.all(
@@ -1045,7 +1027,7 @@
                             `第${index + 1}个开始解析`
                           );
 
-                          let content = await that.parseMoreFile(
+                          let content = await _this_.parseMoreFile(
                             _shareCode_,
                             fileName,
                             fileSize
@@ -1076,9 +1058,7 @@
                         );
                       });
                     } else if ("密码不正确".indexOf(info) != -1) {
-                      Qmsg.error("密码不正确!", {
-                        html: true,
-                      });
+                      Qmsg.error("密码不正确!");
                       pops.prompt({
                         title: {
                           text: "密码错误",
@@ -1093,23 +1073,22 @@
                             type: "primary",
                             callback: (event) => {
                               let inputPwd = event.text.replace(/ /g, "");
-                              if (inputPwd != "") {
-                                let uiLink = that.url.uiLink(
-                                  shareCode,
-                                  inputPwd
-                                );
-                                $(
-                                  `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
-                                ).attr("data-accesscode", inputPwd);
-                                $(
-                                  `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
-                                ).html(uiLink);
-                              }
+                              let uiLink = NetDisk.handleLinkShow(
+                                "lanzou",
+                                shareCode,
+                                inputPwd
+                              );
+                              $(
+                                `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
+                              ).attr("data-accesscode", inputPwd);
+                              $(
+                                `.netdisk-url a[data-netdisk=lanzou][data-sharecode=${shareCode}]`
+                              ).html(uiLink);
                               log.success(
                                 "蓝奏云-多文件获取",
                                 "重新输入的密码：" + inputPwd
                               );
-                              that.getMoreFile(response, shareCode, inputPwd);
+                              _this_.getMoreFile(response, shareCode, inputPwd);
                               event.close();
                             },
                           },
@@ -1128,70 +1107,52 @@
                         drag: GM_getValue("pcDrag", false),
                       });
                     } else if ("没有了".indexOf(info) != -1) {
-                      Qmsg.error("没有文件了", {
-                        html: true,
-                      });
+                      Qmsg.error("没有文件了");
                     } else {
-                      Qmsg.error("未知错误", {
-                        html: true,
-                      });
+                      Qmsg.error("未知错误");
                     }
                   },
                   onerror: function () {
-                    Qmsg.error("请求异常", {
-                      html: true,
-                    });
+                    Qmsg.error("请求异常");
                   },
                   onabort: function () {
-                    Qmsg.error("请求意外中止", {
-                      html: true,
-                    });
+                    Qmsg.error("请求意外中止");
                   },
                   ontimeout: function () {
-                    Qmsg.error("请求超时", {
-                      html: true,
-                    });
+                    Qmsg.error("请求超时");
                   },
                 });
               } else {
-                Qmsg.error("请求失败，请重试", {
-                  html: true,
-                });
+                Qmsg.error("请求失败，请重试");
               }
             },
             onerror: function () {
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         parseMoreFile(shareCode, fileName, fileSize) {
           /* 根据获取到的json中多文件链接来获取单文件直链 */
           let ret_content = "";
-          let that = this;
+          let _this_ = this;
           return new Promise((res) => {
             GM_xmlhttpRequest({
-              url: that.url.tp(shareCode),
+              url: _this_.url.tp(shareCode),
               timeout: 5000,
               method: "GET",
               headers: {
                 Accept: "*/*",
-                "user-agent": that.http.UserAgent,
+                "user-agent": _this_.http.UserAgent,
                 referer: window.location.origin,
               },
-              onload: async function (r) {
-                let pageText = r.responseText;
+              onload: async function (response) {
+                let pageText = response.responseText;
                 let loaddown = pageText.match(
                   NetDiskLinkParse.netdisk.lanzou.regexp.loadDown.match
                 );
@@ -1204,7 +1165,7 @@
                   let needRedirectDownloadUrl = `https://develope.lanzoug.com/file/${
                     loaddown[loaddown.length - 1]
                   }`;
-                  downloadUrl = await that.getRedirectFinalUrl(
+                  downloadUrl = await _this_.getRedirectFinalUrl(
                     needRedirectDownloadUrl
                   );
                   submit_url = filterScheme.handleUrl(
@@ -1279,10 +1240,10 @@
           this.getDownloadParams();
         },
         getDownloadParams() {
-          let that = this;
+          let _this_ = this;
           let post_url =
             "https://cloud.189.cn/api/open/share/getShareInfoByCodeV2.action";
-          let post_data = "shareCode=" + that.shareCode;
+          let post_data = `shareCode=${_this_.shareCode}`;
 
           GM_xmlhttpRequest({
             url: post_url,
@@ -1302,11 +1263,9 @@
               let json_data = JSON.parse(response.responseText);
               if (response.status == 200 && json_data.res_code == 0) {
                 log.info("天翼云-获取下载参数", json_data);
-                that.isFolder = json_data.isFolder;
-                if (json_data["needAccessCode"] && !that.accessCode) {
-                  Qmsg.error("密码不正确!", {
-                    html: true,
-                  });
+                _this_.isFolder = json_data.isFolder;
+                if (json_data["needAccessCode"] && !_this_.accessCode) {
+                  Qmsg.error("密码不正确!");
                   pops.prompt({
                     title: {
                       text: "密码错误",
@@ -1320,23 +1279,23 @@
                       ok: {
                         callback: (event) => {
                           let inputPwd = event.text.replace(/ /g, "");
-                          if (inputPwd != "") {
-                            let uiLink = NetDisk.regular.tianyiyun.uiLinkShow
-                              .replace(/{#shareCode#}/gi, that.shareCode)
-                              .replace(/{#accessCode#}/gi, inputPwd);
-                            $(
-                              `.netdisk-url a[data-netdisk=tianyiyun][data-sharecode=${that.shareCode}]`
-                            ).attr("data-accesscode", inputPwd);
-                            $(
-                              `.netdisk-url a[data-netdisk=tianyiyun][data-sharecode=${that.shareCode}]`
-                            ).html(uiLink);
-                          }
+                          let uiLink = NetDisk.handleLinkShow(
+                            "tianyiyun",
+                            _this_.shareCode,
+                            inputPwd
+                          );
+                          $(
+                            `.netdisk-url a[data-netdisk=tianyiyun][data-sharecode=${_this_.shareCode}]`
+                          ).attr("data-accesscode", inputPwd);
+                          $(
+                            `.netdisk-url a[data-netdisk=tianyiyun][data-sharecode=${_this_.shareCode}]`
+                          ).html(uiLink);
                           log.success(
                             "天翼云-获取下载参数",
                             "重新输入的密码：" + inputPwd
                           );
-                          that.accessCode = inputPwd;
-                          that.getDownloadParams();
+                          _this_.accessCode = inputPwd;
+                          _this_.getDownloadParams();
                           event.close();
                         },
                       },
@@ -1357,58 +1316,46 @@
 
                   return;
                 }
-                if (that.isFolder) {
+                if (_this_.isFolder) {
                   log.info("天翼云-获取下载参数", "该链接是文件夹");
-                  if (that.accessCode) {
-                    GM_setClipboard(that.accessCode);
-                    Qmsg.info("提取码已复制", {
-                      html: true,
-                    });
+                  if (_this_.accessCode) {
+                    GM_setClipboard(_this_.accessCode);
+                    Qmsg.info("提取码已复制");
                   }
                   window.open(
-                    "https://cloud.189.cn/t/" + that.shareCode,
+                    "https://cloud.189.cn/t/" + _this_.shareCode,
                     "_blank"
                   );
                   return;
                 }
 
-                that.fileId = json_data.fileId;
-                that.fileName = json_data.fileName;
-                that.fileSize = json_data.fileSize;
-                that.fileType = json_data.fileType;
-                that.shareId = json_data.shareId;
-                if (!that.shareId) {
-                  that.getShareId();
+                _this_.fileId = json_data.fileId;
+                _this_.fileName = json_data.fileName;
+                _this_.fileSize = json_data.fileSize;
+                _this_.fileType = json_data.fileType;
+                _this_.shareId = json_data.shareId;
+                if (!_this_.shareId) {
+                  _this_.getShareId();
                 } else {
-                  that.getDownloadUrl();
+                  _this_.getDownloadUrl();
                 }
               } else {
-                if (that.code.hasOwnProperty(json_data["res_code"])) {
-                  Qmsg.error(that.code[json_data["res_code"]], {
-                    html: true,
-                  });
+                if (_this_.code.hasOwnProperty(json_data["res_code"])) {
+                  Qmsg.error(_this_.code[json_data["res_code"]]);
                 } else {
-                  Qmsg.error("获取FileId失败", {
-                    html: true,
-                  });
+                  Qmsg.error("获取FileId失败");
                 }
               }
             },
             onerror: function (response) {
               log.error("天翼云-获取下载参数", response);
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
@@ -1418,12 +1365,8 @@
           return cookie;
         },
         getShareId() {
-          let that = this;
-          let post_url =
-            "https://cloud.189.cn/api/open/share/checkAccessCode.action?noCache=0.44175365295952296&shareCode=" +
-            that.shareCode +
-            "&accessCode=" +
-            that.accessCode;
+          let _this_ = this;
+          let post_url = `https://cloud.189.cn/api/open/share/checkAccessCode.action?noCache=0.44175365295952296&shareCode=${_this_.shareCode}&accessCode=${_this_.accessCode}`;
           GM_xmlhttpRequest({
             url: post_url,
             timeout: 5000,
@@ -1432,7 +1375,8 @@
               "cache-control": "no-cache",
               "user-agent":
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36 Edg/94.0.992.38",
-              referer: "https://cloud.189.cn/web/share?code=" + that.shareCode,
+              referer:
+                "https://cloud.189.cn/web/share?code=" + _this_.shareCode,
             },
             onload: (response) => {
               log.info("天翼云-获取ShareId", response);
@@ -1441,41 +1385,29 @@
                 response.status == 200 &&
                 json_data["res_message"] == "成功"
               ) {
-                that.shareId = json_data["shareId"];
-                that.getDownloadUrl();
+                _this_.shareId = json_data["shareId"];
+                _this_.getDownloadUrl();
               } else {
-                Qmsg.error("获取shareId失败", {
-                  html: true,
-                });
+                Qmsg.error("获取shareId失败");
                 log.info("天翼云-获取ShareId", json_data);
               }
             },
             onerror: (response) => {
               log.error("天翼云-获取ShareId", response);
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         getDownloadUrl() {
-          let that = this;
-          let cookie_ = that.getCookie();
-          let post_url =
-            "https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?noCache=0.8242175875972797&fileId=" +
-            that.fileId +
-            "&dt=1&shareId=" +
-            that.shareId;
+          let _this_ = this;
+          let cookie_ = _this_.getCookie();
+          let post_url = `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?noCache=0.8242175875972797&fileId=${_this_.fileId}&dt=1&shareId=${_this_.shareId}`;
           GM_xmlhttpRequest({
             url: post_url,
             timeout: 5000,
@@ -1485,7 +1417,8 @@
               "cache-control": "no-cache",
               "user-agent":
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36 Edg/94.0.992.38",
-              referer: "https://cloud.189.cn/web/share?code=" + that.shareCode,
+              referer:
+                "https://cloud.189.cn/web/share?code=" + _this_.shareCode,
             },
             cookie: cookie_,
             onload: function (response) {
@@ -1501,8 +1434,8 @@
                 );
                 UI.staticView.oneFile(
                   "天翼云单文件直链",
-                  that.fileName,
-                  Utils.formatByteToSize(that.fileSize),
+                  _this_.fileName,
+                  Utils.formatByteToSize(_this_.fileSize),
                   download_url
                 );
               } else if (
@@ -1515,7 +1448,7 @@
                     text: "天翼云",
                   },
                   content: {
-                    text: that.code[json_data.errorCode],
+                    text: _this_.code[json_data.errorCode],
                     html: false,
                   },
                   btn: {
@@ -1554,7 +1487,7 @@
                                 setTimeout(() => {
                                   registerTianYiYunCookies?.close();
                                   waitRegister?.close();
-                                  that.getDownloadUrl();
+                                  _this_.getDownloadUrl();
                                 }, 5000);
                               },
                             },
@@ -1581,32 +1514,22 @@
                   height: "180px",
                   width: pops.isPhone() ? "350px" : "450px",
                 });
-              } else if (that.code.hasOwnProperty(json_data["res_code"])) {
-                Qmsg.error(that.code[json_data["res_code"]], {
-                  html: true,
-                });
+              } else if (_this_.code.hasOwnProperty(json_data["res_code"])) {
+                Qmsg.error(_this_.code[json_data["res_code"]]);
               } else {
-                Qmsg.error("请求失败", {
-                  html: true,
-                });
+                Qmsg.error("请求失败");
                 log.error("天翼云-获取下载链接", response);
               }
             },
             onerror: function (response) {
               log.error("天翼云-获取下载链接", response);
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
@@ -1631,13 +1554,11 @@
         },
         default(shareCode, accessCode) {
           this.tid = shareCode;
-          Qmsg.info("正在请求直链中...", {
-            html: true,
-          });
+          Qmsg.info("正在请求直链中...");
           this.getWss();
         },
         getWss() {
-          let that = this;
+          let _this_ = this;
           let url = "https://www.wenshushu.cn/ap/login/anonymous";
           let post_data = {
             dev_info: "{}",
@@ -1655,40 +1576,32 @@
                 "Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
               referer: window.location.origin,
             },
-            onload: function (r) {
-              let json_data = JSON.parse(r.responseText);
-              if (r.status == 200 && json_data["code"] == 0) {
-                that.token = json_data["data"]["token"];
-                that.getPid();
-              } else if (json_data["code"] in that.code) {
-                Qmsg.error(that.code[json_data["code"]], {
-                  html: true,
-                });
+            onload: function (response) {
+              let json_data = JSON.parse(response.responseText);
+              if (response.status == 200 && json_data["code"] == 0) {
+                _this_.token = json_data["data"]["token"];
+                _this_.getPid();
+              } else if (json_data["code"] in _this_.code) {
+                Qmsg.error(_this_.code[json_data["code"]]);
               } else {
-                Qmsg.error("获取wss失败", {
-                  html: true,
-                });
+                Qmsg.error("获取wss失败");
               }
             },
             onerror: function () {
               Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         getPid() {
-          let that = this;
+          let _this_ = this;
           let post_data = {
-            tid: that.tid,
+            tid: _this_.tid,
             password: "",
             ufileid: "",
           };
@@ -1704,43 +1617,33 @@
               "user-agent":
                 "Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
               referer: window.location.origin,
-              "x-token": that.token,
+              "x-token": _this_.token,
             },
-            onload: function (r) {
-              let json_data = JSON.parse(r.responseText);
-              if (r.status == 200 && json_data["code"] == 0) {
+            onload: function (response) {
+              let json_data = JSON.parse(response.responseText);
+              if (response.status == 200 && json_data["code"] == 0) {
                 let bid = json_data["data"]["boxid"];
                 let pid = json_data["data"]["ufileid"];
-                that.getFileNList(bid, pid);
-              } else if (json_data["code"] in that.code) {
-                Qmsg.error(that.code[json_data["code"]], {
-                  html: true,
-                });
+                _this_.getFileNList(bid, pid);
+              } else if (json_data["code"] in _this_.code) {
+                Qmsg.error(_this_.code[json_data["code"]]);
               } else {
-                Qmsg.error("获取pid失败", {
-                  html: true,
-                });
+                Qmsg.error("获取pid失败");
               }
             },
             onerror: function () {
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         getFileNList(bid, pid) {
-          let that = this;
+          let _this_ = this;
           let url = "https://www.wenshushu.cn/ap/ufile/nlist";
           let post_data = {
             start: 0,
@@ -1766,41 +1669,31 @@
               "user-agent":
                 "Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
               referer: window.location.origin,
-              "x-token": that.token,
+              "x-token": _this_.token,
             },
-            onload: function (r) {
-              let json_data = JSON.parse(r.responseText);
-              if (r.status == 200 && json_data["code"] == 0) {
-                that.getDownloadUrl(json_data["data"]["fileList"][0]);
-              } else if (json_data["code"] in that.code) {
-                Qmsg.error(that.code[json_data["code"]], {
-                  html: true,
-                });
+            onload: function (response) {
+              let json_data = JSON.parse(response.responseText);
+              if (response.status == 200 && json_data["code"] == 0) {
+                _this_.getDownloadUrl(json_data["data"]["fileList"][0]);
+              } else if (json_data["code"] in _this_.code) {
+                Qmsg.error(_this_.code[json_data["code"]]);
               } else {
-                Qmsg.error("获取文件信息失败", {
-                  html: true,
-                });
+                Qmsg.error("获取文件信息失败");
               }
             },
             onerror: function () {
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
         getDownloadUrl(data) {
-          let that = this;
+          let _this_ = this;
           let file_name = data.fname;
           let file_size = Utils.formatByteToSize(data.size);
           let post_url = "https://www.wenshushu.cn/ap/dl/sign";
@@ -1820,11 +1713,11 @@
               "user-agent":
                 "Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36 Edg/91.0.864.59",
               referer: window.location.origin,
-              "x-token": that.token,
+              "x-token": _this_.token,
             },
-            onload: function (r) {
-              let json_data = JSON.parse(r.responseText);
-              if (r.status == 200 && json_data["code"] == 0) {
+            onload: function (response) {
+              let json_data = JSON.parse(response.responseText);
+              if (response.status == 200 && json_data["code"] == 0) {
                 let download_url = json_data["data"]["url"];
                 if (download_url == "") {
                   Qmsg.error("对方的分享流量不足");
@@ -1841,30 +1734,20 @@
                     download_url
                   );
                 }
-              } else if (json_data["data"] in that.code) {
-                Qmsg.error(that.code[json_data["data"]], {
-                  html: true,
-                });
+              } else if (json_data["data"] in _this_.code) {
+                Qmsg.error(_this_.code[json_data["data"]]);
               } else {
-                Qmsg.error("获取下载链接失败", {
-                  html: true,
-                });
+                Qmsg.error("获取下载链接失败");
               }
             },
             onerror: function () {
-              Qmsg.error("请求异常", {
-                html: true,
-              });
+              Qmsg.error("请求异常");
             },
             onabort: function () {
-              Qmsg.error("请求意外中止", {
-                html: true,
-              });
+              Qmsg.error("请求意外中止");
             },
             ontimeout: function () {
-              Qmsg.error("请求超时", {
-                html: true,
-              });
+              Qmsg.error("请求超时");
             },
           });
         },
@@ -1938,9 +1821,7 @@
                 downloadUrl
               );
             } else {
-              Qmsg.info("正在递归文件", {
-                html: true,
-              });
+              Qmsg.info("正在递归文件");
 
               this.folderNumber = 0;
               await this.recursiveAlgorithm(infoLists);
@@ -1957,29 +1838,27 @@
                   item["fileSize"] === 0
                 ) {
                   this.panelContent += `
-					<div class="netdisk-static-body">
-							<div class="netdisk-static-filename">
-									<a href="javascript:;">${item["fileName"]}</a>
-							</div>
-							<div class="netdisk-static-filesize">${item["fileSize"]}-获取下载链接失败</div>
-					</div>`;
+                  <div class="netdisk-static-body">
+                      <div class="netdisk-static-filename">
+                          <a href="javascript:;">${item["fileName"]}</a>
+                      </div>
+                      <div class="netdisk-static-filesize">${item["fileSize"]}-获取下载链接失败</div>
+                  </div>`;
                 } else {
                   this.panelContent += `
-					<div class="netdisk-static-body">
-							<div class="netdisk-static-filename">
-									<a target="_blank" href="${item["url"]}">${item["fileName"]}</a>
-							</div>
-							<div class="netdisk-static-filesize">${item["fileSize"]}</div>
-					</div>`;
+                  <div class="netdisk-static-body">
+                      <div class="netdisk-static-filename">
+                          <a target="_blank" href="${item["url"]}">${item["fileName"]}</a>
+                      </div>
+                      <div class="netdisk-static-filesize">${item["fileSize"]}</div>
+                  </div>`;
                 }
               });
               UI.staticView.moreFile("123盘多文件直链", this.panelContent);
               log.info("123云盘", "递归完毕");
             }
           } else {
-            Qmsg.error(this.code[infoLists[0]["error"]], {
-              html: true,
-            });
+            Qmsg.error(this.code[infoLists[0]["error"]]);
           }
         },
         checkLinkValidity(shareCode, accessCode) {
@@ -2004,9 +1883,8 @@
                 );
                 if (match) {
                   log.info("123云盘-校验链接有效性", match);
-
                   let g_initialProps = JSON.parse(
-                    "{" + match[match.length - 1] + "}"
+                    `{${match[match.length - 1]}}`
                   );
                   log.info("123云盘-校验链接有效性", g_initialProps);
 
@@ -2019,9 +1897,7 @@
                   if (HasPwd) {
                     if (accessCode == null || accessCode == "") {
                       /* 该链接需要密码但是没有获取到 */
-                      Qmsg.error("密码缺失!", {
-                        html: true,
-                      });
+                      Qmsg.error("密码缺失!");
                       pops.prompt({
                         title: {
                           text: "密码缺失",
@@ -2035,30 +1911,28 @@
                           ok: {
                             callback: (event) => {
                               let newAccessCode = event.text.replace(/ /g, "");
-                              if (newAccessCode != "") {
-                                let uiLink = NetDisk.regular._123pan.uiLinkShow
-                                  .replace(/{#shareCode#}/gi, shareCode)
-                                  .replace(/{#accessCode#}/gi, newAccessCode);
-                                $(
-                                  `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
-                                ).attr("data-accesscode", newAccessCode);
-                                $(
-                                  `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
-                                ).html(uiLink);
-                                log.info(
-                                  "123云盘-校验链接有效性",
-                                  "重新输入的密码：" + newAccessCode
-                                );
+                              let uiLink = NetDisk.handleLinkShow(
+                                "_123pan",
+                                shareCode,
+                                newAccessCode
+                              );
+                              $(
+                                `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+                              ).attr("data-accesscode", newAccessCode);
+                              $(
+                                `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+                              ).html(uiLink);
+                              log.info(
+                                "123云盘-校验链接有效性",
+                                "重新输入的密码：" + newAccessCode
+                              );
 
-                                _this_.accessCode = newAccessCode;
-                                _this_.checkLinkValidity(
-                                  shareCode,
-                                  newAccessCode
-                                );
-                                event.close();
-                              } else {
-                                Qmsg.error("请勿输入空密码");
-                              }
+                              _this_.accessCode = newAccessCode;
+                              _this_.checkLinkValidity(
+                                shareCode,
+                                newAccessCode
+                              );
+                              event.close();
                             },
                           },
                         },
@@ -2086,22 +1960,17 @@
                     resolve(true);
                   }
                 } else {
-                  Qmsg.error("校验链接-获取初始化内容失败", {
-                    html: true,
-                  });
+                  Qmsg.error("校验链接-获取初始化内容失败");
                   resolve(false);
                 }
               },
-              onerror: () => {
-                Qmsg.error("校验链接有效性失败", {
-                  html: true,
-                });
+              onerror: function (response) {
+                log.info("123云盘-校验链接有效性", response);
+                Qmsg.error("校验链接有效性失败");
                 resolve(false);
               },
-              ontimeout: () => {
-                Qmsg.error("校验链接有效性超时", {
-                  html: true,
-                });
+              ontimeout: function () {
+                Qmsg.error("校验链接有效性超时");
                 resolve(false);
               },
             });
@@ -2143,26 +2012,24 @@
                       ok: {
                         callback: (event) => {
                           let newAccessCode = event.text.replace(/ /g, "");
-                          if (newAccessCode != "") {
-                            let uiLink = NetDisk.regular._123pan.uiLinkShow
-                              .replace(/{#shareCode#}/gi, shareCode)
-                              .replace(/{#accessCode#}/gi, newAccessCode);
-                            $(
-                              `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
-                            ).attr("data-accesscode", newAccessCode);
-                            $(
-                              `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
-                            ).html(uiLink);
-                            log.success(
-                              "123云盘-获取文件",
-                              "重新输入的密码：" + newAccessCode
-                            );
-                            _this_.accessCode = newAccessCode;
-                            _this_.checkLinkValidity(shareCode, newAccessCode);
-                            event.close();
-                          } else {
-                            Qmsg.error("请勿输入空密码");
-                          }
+                          let uiLink = NetDisk.handleLinkShow(
+                            "_123pan",
+                            shareCode,
+                            newAccessCode
+                          );
+                          $(
+                            `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+                          ).attr("data-accesscode", newAccessCode);
+                          $(
+                            `.netdisk-url a[data-netdisk=_123pan][data-sharecode=${shareCode}]`
+                          ).html(uiLink);
+                          log.success(
+                            "123云盘-获取文件",
+                            "重新输入的密码：" + newAccessCode
+                          );
+                          _this_.accessCode = newAccessCode;
+                          _this_.checkLinkValidity(shareCode, newAccessCode);
+                          event.close();
                         },
                       },
                     },
@@ -2192,7 +2059,7 @@
                   ]);
                 }
               },
-              onerror: (response) => {
+              onerror: function (response) {
                 log.error("123云盘-获取文件", response);
                 resolve([
                   {
@@ -2249,19 +2116,19 @@
         },
         async recursiveAlgorithm(infoList) {
           /* 异步递归算法 */
-          let that = this;
+          let _this_ = this;
           return Promise.all(
             Array.from(infoList).map(async (item, index) => {
               let fileType = item["Type"];
               log.info("123云盘-异步递归算法", fileType ? "文件夹" : "文件");
               if (fileType) {
                 /* 是文件夹 */
-                let retList = await that.getFilesByRec(
-                  that.shareCode,
-                  that.accessCode,
+                let retList = await _this_.getFilesByRec(
+                  _this_.shareCode,
+                  _this_.accessCode,
                   item["FileId"]
                 );
-                await that.recursiveAlgorithm(retList);
+                await _this_.recursiveAlgorithm(retList);
               } else {
                 /* 是文件 */
                 log.info("123云盘-异步递归算法", item);
@@ -2270,8 +2137,8 @@
                 let fileDownloadUrl = item["DownloadUrl"];
                 let fileStatus = item["Status"]; /* 文件有效状态 */
                 if (fileStatus == 104) {
-                  that.panelList = [
-                    ...that.panelList,
+                  _this_.panelList = [
+                    ..._this_.panelList,
                     {
                       url: "文件已失效",
                       fileName: fileName,
@@ -2281,11 +2148,11 @@
                     },
                   ];
                 } else if (fileDownloadUrl == "") {
-                  let downloadInfo = await that.getFileDownloadInfo(
+                  let downloadInfo = await _this_.getFileDownloadInfo(
                     item["Etag"],
                     item["FileId"],
                     item["S3KeyFlag"],
-                    that.shareCode,
+                    _this_.shareCode,
                     item["Size"]
                   );
                   if (downloadInfo["code"] == 0) {
@@ -2295,8 +2162,8 @@
                       "_123pan-static-scheme-forward",
                       fileDownloadUrl
                     );
-                    that.panelList = [
-                      ...that.panelList,
+                    _this_.panelList = [
+                      ..._this_.panelList,
                       {
                         url: fileDownloadUrl,
                         fileName: fileName,
@@ -2306,8 +2173,8 @@
                       },
                     ];
                   } else {
-                    that.panelList = [
-                      ...that.panelList,
+                    _this_.panelList = [
+                      ..._this_.panelList,
                       {
                         url: "获取下载链接失败",
                         fileName: fileName,
@@ -2323,8 +2190,8 @@
                     "_123pan-static-scheme-forward",
                     fileDownloadUrl
                   );
-                  that.panelList = [
-                    ...that.panelList,
+                  _this_.panelList = [
+                    ..._this_.panelList,
                     {
                       url: fileDownloadUrl,
                       fileName: fileName,
@@ -2443,9 +2310,7 @@
         },
         async default(shareCode, accessCode) {
           log.info("夸克", [shareCode, accessCode]);
-          Qmsg.error("抱歉，夸克不支持直链获取", {
-            html: true,
-          });
+          Qmsg.error("抱歉，夸克不支持直链获取");
           return;
           this.shareCode = shareCode;
           this.accessCode = accessCode;
@@ -2458,9 +2323,7 @@
           if (this.shareStoken != "") {
             let data_list = await this.getFolderInfo();
             if (data_list.length == 0) {
-              Qmsg.error("获取失败", {
-                html: true,
-              });
+              Qmsg.error("获取失败");
             } else if (data_list.length == 1 && data_list[0]["file"]) {
               log.info("夸克", "夸克单文件直链");
               await this.parseFileLink(data_list[0]);
@@ -2474,15 +2337,15 @@
         },
         getShareStoken() {
           /* 获取ShareStoken */
-          let that = this;
+          let _this_ = this;
           return new Promise((res) => {
             GM_xmlhttpRequest({
               url: "https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=h5",
               timeout: 5000,
               method: "POST",
               data: JSON.stringify({
-                pwd_id: that.shareCode,
-                passcode: that.accessCode,
+                pwd_id: _this_.shareCode,
+                passcode: _this_.accessCode,
               }),
               headers: {
                 Accept: "application/json, text/plain, */*",
@@ -2491,35 +2354,28 @@
                 referer: "https://pan.quark.cn/",
                 origin: "https://pan.quark.cn",
               },
-              onload: (response) => {
+              onload: function (response) {
                 let json_data = JSON.parse(response.responseText);
 
                 if (json_data["status"] == 200) {
                   res(json_data["data"]["stoken"]);
                 } else {
                   log.info("夸克-获取ShareStoken", json_data);
-                  Qmsg.error(json_data["message"], {
-                    html: true,
-                  });
+                  Qmsg.error(json_data["message"]);
                   res("");
                 }
               },
-              onerror: () => {
-                Qmsg.error("请求异常", {
-                  html: true,
-                });
+              onerror: function (response) {
+                log.error("夸克-获取ShareStoken", response);
+                Qmsg.error("请求异常");
                 res("");
               },
               onabort: function () {
-                Qmsg.error("请求意外中止", {
-                  html: true,
-                });
+                Qmsg.error("请求意外中止");
                 res("");
               },
               ontimeout: function () {
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
                 res("");
               },
             });
@@ -2527,11 +2383,11 @@
         },
         getFolderInfo(pdir_fid) {
           /* 获取文件夹信息 */
-          let that = this;
+          let _this_ = this;
           pdir_fid = pdir_fid == null ? "" : pdir_fid;
           return new Promise((res) => {
             GM_xmlhttpRequest({
-              url: `https://drive.quark.cn/1/clouddrive/share/sharepage/detail?pr=ucpro&fr=pc&pwd_id=${that.shareCode}&stoken=${that.shareStoken}&pdir_fid=${pdir_fid}&force=0&_page=1&_size=50&_fetch_banner=0&_fetch_share=0&_fetch_total=1&_sort=file_type:asc,updated_at:desc`,
+              url: `https://drive.quark.cn/1/clouddrive/share/sharepage/detail?pr=ucpro&fr=pc&pwd_id=${_this_.shareCode}&stoken=${_this_.shareStoken}&pdir_fid=${pdir_fid}&force=0&_page=1&_size=50&_fetch_banner=0&_fetch_share=0&_fetch_total=1&_sort=file_type:asc,updated_at:desc`,
               timeout: 5000,
               method: "GET",
               headers: {
@@ -2541,40 +2397,31 @@
                 referer: "https://pan.quark.cn/",
                 origin: "https://pan.quark.cn",
               },
-              onload: (response) => {
+              onload: function (response) {
                 let json_data = JSON.parse(response.responseText);
                 log.info("夸克-获取文件夹信息", json_data);
 
-                if (that.code[json_data["code"]] != null) {
-                  Qmsg.error(that.code[json_data["code"]], {
-                    html: true,
-                  });
+                if (_this_.code[json_data["code"]] != null) {
+                  Qmsg.error(_this_.code[json_data["code"]]);
                   res([]);
                 } else if (json_data["status"] == 200) {
                   res(json_data["data"]["list"]);
                 } else {
-                  Qmsg.error(json_data["message"], {
-                    html: true,
-                  });
+                  Qmsg.error(json_data["message"]);
                   res([]);
                 }
               },
-              onerror: () => {
-                Qmsg.error("请求异常", {
-                  html: true,
-                });
+              onerror: function (response) {
+                log.info("夸克-获取文件夹信息", response);
+                Qmsg.error("请求异常");
                 res([]);
               },
               onabort: function () {
-                Qmsg.error("请求意外中止", {
-                  html: true,
-                });
+                Qmsg.error("请求意外中止");
                 res([]);
               },
               ontimeout: function () {
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
                 res([]);
               },
             });
@@ -2582,11 +2429,11 @@
         },
         getLink(fids) {
           /* 获取链接 */
-          let that = this;
+          let _this_ = this;
           return new Promise((res) => {
             GM_xmlhttpRequest({
               method: "POST",
-              url: "https://drive.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc",
+              url: "https://drive.quark.cn/1/clouddrive/file/download?pr=ucpro&fr=pc&ve=2.1.5",
               headers: {
                 "Content-Type": "application/json;charset=utf-8",
               },
@@ -2596,31 +2443,24 @@
               onload: function (response) {
                 let json_data = JSON.parse(response.responseText);
                 log.info("夸克-获取链接", json_data);
-                if (that.code[json_data["code"]] != null) {
-                  Qmsg.error(that.code[json_data["code"]], {
-                    html: true,
-                  });
+                if (_this_.code[json_data["code"]] != null) {
+                  Qmsg.error(_this_.code[json_data["code"]]);
                   res([]);
                 } else {
                   res(json_data);
                 }
               },
-              onerror: () => {
-                Qmsg.error("请求异常", {
-                  html: true,
-                });
+              onerror: function (response) {
+                log.error("夸克-获取链接", response);
+                Qmsg.error("请求异常");
                 res([]);
               },
               onabort: function () {
-                Qmsg.error("请求意外中止", {
-                  html: true,
-                });
+                Qmsg.error("请求意外中止");
                 res([]);
               },
               ontimeout: function () {
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
                 res([]);
               },
             });
@@ -2628,28 +2468,28 @@
         },
         async parseFileLink(_data_) {
           /* 解析单文件链接 */
-          let that = this;
+          let _this_ = this;
           return new Promise(async (resolve) => {
-            let downloadUrl = await that.getLink(_data_["fid"]);
+            let downloadUrl = await _this_.getLink(_data_["fid"]);
             resolve(downloadUrl);
           });
         },
         async parseMoreFileLink(_data_) {
           /* 解析多文件链接 */
-          let that = this;
+          let _this_ = this;
           return Promise.all(
             Array.from(_data_).map(async (item, index) => {
               if (item["file"]) {
                 /* 是文件 */
                 log.info("夸克-解析多文件链接", "是文件");
                 log.info("夸克-解析多文件链接", item);
-                let fileInfo = await that.getLink(item["fid"]);
+                let fileInfo = await _this_.getLink(item["fid"]);
                 log.info("夸克-解析多文件链接", fileInfo);
               } else {
                 /* 是文件夹 */
-                let folderInfo = await that.getFolderInfo(item["fid"]);
+                let folderInfo = await _this_.getFolderInfo(item["fid"]);
                 if (folderInfo.length != 0) {
-                  await that.parseMoreFileLink(folderInfo);
+                  await _this_.parseMoreFileLink(folderInfo);
                 }
               }
             })
@@ -2778,22 +2618,23 @@
                 type: "primary",
                 callback: (event) => {
                   let inputPwd = event.text.replace(/ /g, "");
-                  if (inputPwd != "") {
-                    log.success(
-                      "坚果云",
-                      `原:${_this_.accessCode} 现:${inputPwd}`
-                    );
-                    _this_.accessCode = inputPwd;
-                    let uiLink = NetDisk.regular.jianguoyun.uiLinkShow
-                      .replaceAll("{#shareCode#}", _this_.shareCode)
-                      .replaceAll("{#accessCode#}", inputPwd);
-                    $(
-                      `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
-                    ).attr("data-accesscode", inputPwd);
-                    $(
-                      `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
-                    ).html(uiLink);
-                  }
+
+                  log.success(
+                    "坚果云",
+                    `原:${_this_.accessCode} 现:${inputPwd}`
+                  );
+                  _this_.accessCode = inputPwd;
+                  let uiLink = NetDisk.handleLinkShow(
+                    "tianyiyun",
+                    _this_.shareCode,
+                    inputPwd
+                  );
+                  $(
+                    `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
+                  ).attr("data-accesscode", inputPwd);
+                  $(
+                    `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
+                  ).html(uiLink);
                   log.success("坚果云", "重新输入的密码：" + inputPwd);
                   $(
                     `.netdisk-url a[data-netdisk=jianguoyun][data-sharecode=${_this_.shareCode}]`
@@ -2818,9 +2659,7 @@
          */
         getRequestDownloadParams() {
           log.info("坚果云", "获取hash值");
-          Qmsg.info("正在获取请求信息", {
-            html: true,
-          });
+          Qmsg.info("正在获取请求信息");
           let pageInfoRegexp = /var[\s]*PageInfo[\s]*=[\s]*{([\s\S]+)};/i;
           let _this_ = this;
           let formData = new FormData();
@@ -2878,19 +2717,14 @@
                   }
                   if (fileHash == "" || fileHash == null) {
                     log.error("坚果云", "hash为空，可能文件被撤销分享了");
-                    Qmsg.error(`文件分享已被撤销`, {
-                      html: true,
-                    });
+                    Qmsg.error(`文件分享已被撤销`);
                     resolve(false);
                     return;
                   }
                   if (fileSize == null && isdir == false) {
                     log.error("坚果云", "无size，可能文件被删除了");
                     Qmsg.error(
-                      `“${fileName}”文件已被拥有者（“${fileOwner}”）删除`,
-                      {
-                        html: true,
-                      }
+                      `“${fileName}”文件已被拥有者（“${fileOwner}”）删除`
                     );
                     resolve(false);
                     return;
@@ -2906,25 +2740,19 @@
                   }
                 } else {
                   log.error("坚果云", "获取PageInfo失败");
-                  Qmsg.error("坚果云: 获取PageInfo失败", {
-                    html: true,
-                  });
+                  Qmsg.error("坚果云: 获取PageInfo失败");
                   resolve(false);
                 }
               },
               onerror: function (response) {
                 log.error("坚果云", "请求异常");
                 log.error("坚果云", response);
-                Qmsg.error("坚果云: 请求异常", {
-                  html: true,
-                });
+                Qmsg.error("坚果云: 请求异常");
                 resolve(false);
               },
               ontimeout: function () {
                 log.error("坚果云", "请求超时");
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
                 resolve(false);
               },
             });
@@ -2957,34 +2785,26 @@
                   let resultJSON = JSON.parse(response.responseText);
                   log.info("坚果云", resultJSON);
                   if (resultJSON.hasOwnProperty("errorCode")) {
-                    Qmsg.error("坚果云: " + resultJSON["detailMsg"], {
-                      html: true,
-                    });
+                    Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
                     resolve(false);
                   } else {
                     resolve(resultJSON["url"]);
                   }
                 } catch (error) {
                   log.error("坚果云", error);
-                  Qmsg.error("坚果云: 处理下载链接异常", {
-                    html: true,
-                  });
+                  Qmsg.error("坚果云: 处理下载链接异常");
                   resolve(false);
                 }
               },
               onerror: function (response) {
                 log.error("坚果云", "请求异常");
                 log.error("坚果云", response);
-                Qmsg.error("坚果云: 请求异常", {
-                  html: true,
-                });
+                Qmsg.error("坚果云: 请求异常");
                 resolve(false);
               },
               ontimeout: function () {
                 log.error("坚果云", "请求超时");
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
                 resolve(false);
               },
             });
@@ -3016,34 +2836,26 @@
                   let resultJSON = JSON.parse(response.responseText);
                   log.info("坚果云", resultJSON);
                   if (resultJSON.hasOwnProperty("errorCode")) {
-                    Qmsg.error("坚果云: " + resultJSON["detailMsg"], {
-                      html: true,
-                    });
+                    Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
                     resolve(false);
                   } else {
                     resolve(resultJSON["url"]);
                   }
                 } catch (error) {
                   log.error("坚果云", error);
-                  Qmsg.error("坚果云: 处理下载链接异常", {
-                    html: true,
-                  });
+                  Qmsg.error("坚果云: 处理下载链接异常");
                   resolve(false);
                 }
               },
               onerror: function (response) {
                 log.error("坚果云", "请求异常");
                 log.error("坚果云", response);
-                Qmsg.error("坚果云: 请求异常", {
-                  html: true,
-                });
+                Qmsg.error("坚果云: 请求异常");
                 resolve(false);
               },
               ontimeout: function () {
                 log.error("坚果云", "请求超时");
-                Qmsg.error("请求超时", {
-                  html: true,
-                });
+                Qmsg.error("请求超时");
                 resolve(false);
               },
             });
@@ -3088,18 +2900,14 @@
       },
     },
     parse(netdiskName, shareCode, accessCode) {
-      Qmsg.info("正在获取直链", {
-        html: true,
-      });
+      Qmsg.info("正在获取直链");
       NetDiskLinkParse.netdisk[netdiskName].default(shareCode, accessCode);
     },
     setClipboard(uiLink, tip) {
       /* 复制到剪贴板 */
       GM_setClipboard(uiLink);
       tip = tip ? tip : "提取码已复制";
-      Qmsg.success(tip, {
-        html: true,
-      });
+      Qmsg.success(tip);
     },
     blank(url, accessCode) {
       /* 新标签页打开 */
@@ -3253,6 +3061,7 @@
     uiPasswordAlias: "重输密码层" /* 重输密码层唯一标识 */,
     isRandBg: false /* 是否正在循环切换按钮背景 */,
     src: {
+      /* 图标 */
       icon: {
         baidu: RESOURCE_ICON.baidu,
         lanzou: RESOURCE_ICON.lanzou,
@@ -3334,7 +3143,12 @@
       initPop() {
         /* 所有的弹窗初始化设置 */
         Qmsg.config({
-          position: "center",
+          position: GM_getValue("qmsg-position", "top"),
+          html: true,
+          maxNums: parseInt(GM_getValue("qmsg-maxnums", 3)),
+          autoClose: true,
+          showClose: false,
+          showReverse: GM_getValue("qmsg-showreverse", false),
         });
 
         GM_addStyle(`
@@ -3535,241 +3349,22 @@
 						-webkit-appearance: none;
 						border: 0;
 				}
-		
-					/*message提示的css文件*/
-					.qmsg.qmsg-wrapper{
-						box-sizing: border-box;
-						margin: 0;
-						padding: 0;
-						color: rgba(0, 0, 0, .55);
-						font-size: 13px;
-						font-variant: tabular-nums;
-						line-height: 1;
-						list-style: none;
-						font-feature-settings: "tnum";
-						position: fixed;
-						top: 16px;
-						left: 0;
-						z-index: 50000;
-						width: 100%;
-						pointer-events: none;
-					}
-					.qmsg .qmsg-item{
-							padding: 8px;
-							text-align: center;
-							-webkit-animation-duration: .3s;
-							animation-duration: .3s;
-							position: relative;
-					}
-					.qmsg .qmsg-item .qmsg-count{
-							text-align: center;
-							position: absolute;
-							left: -4px;
-							top: -4px;
-							background-color: red;
-							color: #fff;
-							font-size: 12px;
-							line-height: 16px;
-							border-radius: 2px;
-							display: inline-block;
-							min-width: 16px;
-							height: 16px;
-							-webkit-animation-duration: .3s;
-							animation-duration: .3s;
-					}
-					.qmsg .qmsg-item:first-child{
-							margin-top: -8px;
-					}
-					.qmsg .qmsg-content{
-							text-align: left;
-							position: relative;
-							display: inline-block;
-							padding: 10px 16px;
-							background: #fff;
-							border-radius: 4px;
-							box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-							pointer-events: all;
-							/* min-width: 175px; */
-							max-width: 80%;
-							min-width: 80px;
-					}
-					.qmsg .qmsg-content [class^="qmsg-content-"]{
-							white-space: nowrap;
-							overflow: hidden;
-							text-overflow: ellipsis;
-					}
-					.qmsg .qmsg-content .qmsg-content-with-close{
-							padding-right: 20px;
-					}
-					.qmsg .qmsg-icon{
-							display: inline-block;
-							color: inherit;
-							font-style: normal;
-							line-height: 0;
-							text-align: center;
-							text-transform: none;
-							vertical-align: -.125em;
-							text-rendering: optimizeLegibility;
-							-webkit-font-smoothing: antialiased;
-							-moz-osx-font-smoothing: grayscale;
-							position: relative;
-							top: 1px;
-							margin-right: 8px;
-							font-size: 16px;
-					}
-					.qmsg .qmsg-icon svg{
-							display: inline-block;
-					}
-					
-					.qmsg .qmsg-content-info .qmsg-icon{
-							color: #1890ff;
-					}
-					.qmsg .qmsg-icon-close{
-							position: absolute;
-							top: 11px;
-							right: 5px;
-							padding: 0;
-							overflow: hidden;
-							font-size: 12px;
-							line-height: 22px;
-							background-color: transparent;
-							border: none;
-							outline: none;
-							cursor: pointer;
-							color: rgba(0, 0, 0, .45);
-							transition: color .3s
-					}
-					.qmsg .qmsg-icon-close:hover>svg path{
-							stroke: #555;
-					}
-					.qmsg .animate-turn{
-							animation:MessageTurn 1s linear infinite;  
-							-webkit-animation: MessageTurn 1s linear infinite;
-					}
-					@keyframes MessageTurn{
-							0%{-webkit-transform:rotate(0deg);}
-							25%{-webkit-transform:rotate(90deg);}
-							50%{-webkit-transform:rotate(180deg);}
-							75%{-webkit-transform:rotate(270deg);}
-							100%{-webkit-transform:rotate(360deg);}
-					}
-					@-webkit-keyframes MessageTurn{
-							0%{-webkit-transform:rotate(0deg);}
-							25%{-webkit-transform:rotate(90deg);}
-							50%{-webkit-transform:rotate(180deg);}
-							75%{-webkit-transform:rotate(270deg);}
-							100%{-webkit-transform:rotate(360deg);}
-					}
-					
-					@-webkit-keyframes MessageMoveOut {
-							0% {
-									max-height: 150px;
-									padding: 8px;
-									opacity: 1
-							}
-					
-							to {
-									max-height: 0;
-									padding: 0;
-									opacity: 0
-							}
-					}
-					
-					@keyframes MessageMoveOut {
-							0% {
-									max-height: 150px;
-									padding: 8px;
-									opacity: 1
-							}
-					
-							to {
-									max-height: 0;
-									padding: 0;
-									opacity: 0
-							}
-					}
-					
-					
-					@-webkit-keyframes MessageMoveIn {
-							
-							0% {
-									transform: translateY(-100%);
-									transform-origin: 0 0;
-									opacity: 0
-							}
-					
-							to {
-									transform: translateY(0);
-									transform-origin: 0 0;
-									opacity: 1
-							}
-					}
-					
-					@keyframes MessageMoveIn {
-							0% {
-									transform: translateY(-100%);
-									transform-origin: 0 0;
-									opacity: 0
-							}
-					
-							to {
-									transform: translateY(0);
-									transform-origin: 0 0;
-									opacity: 1
-							}
-					}
-					@-webkit-keyframes MessageShake {
-							0%,
-							100% {
-								transform: translateX(0px);
-								opacity: 1;
-							}
-						
-							25%,
-							75% {
-									transform: translateX(-4px);
-								opacity: 0.75;
-							}
-						
-							50% {
-									transform: translateX(4px);
-									opacity: 0.25;
-							}
-						}
-					@keyframes MessageShake {
-							0%,
-							100% {
-								transform: translateX(0px);
-								opacity: 1;
-							}
-						
-							25%,
-							75% {
-									transform: translateX(-4px);
-								opacity: 0.75;
-							}
-						
-							50% {
-									transform: translateX(4px);
-									opacity: 0.25;
-							}
-						}
 
-						/* select美化 无法美化option*/
-						.netdisk-setting-menu-item select{
-							height: 32px;
-							line-height: 32px;
-							font-size: 14px;
-							width: 200px;
-							border: 1px solid #5c5c5c;
-							border-radius: 5px;
-							text-align: center;
-							outline: 0;
-						}
-						.netdisk-setting-menu-item select:focus{
-							border: 1px solid #002bff;
-						}
-						/* select美化*/
+        /* select美化 无法美化option*/
+        .netdisk-setting-menu-item select{
+          height: 32px;
+          line-height: 32px;
+          font-size: 14px;
+          width: 200px;
+          border: 1px solid #5c5c5c;
+          border-radius: 5px;
+          text-align: center;
+          outline: 0;
+        }
+        .netdisk-setting-menu-item select:focus{
+          border: 1px solid #002bff;
+        }
+        /* select美化*/
 				`);
         if (!pops.isPhone()) {
           GM_addStyle(`
@@ -3865,6 +3460,37 @@
 													<option data-value="pops-anim-sandra">sandra</option>
 													<option data-value="pops-anim-gather">gather</option>
 											</select>
+									</div>
+                  <div class="netdisk-setting-menu-item">
+											<label>Toast位置</label>
+											<select data-key="qmsg-position" data-default="top">
+													<option data-value="topleft">左上角</option>
+													<option data-value="top">顶部</option>
+													<option data-value="topright">右上角</option>
+													<option data-value="left">左边</option>
+													<option data-value="center">中间</option>
+													<option data-value="right">右边</option>
+													<option data-value="bottomleft">左下角</option>
+													<option data-value="bottom">底部</option>
+													<option data-value="bottomright">右下角</option>
+											</select>
+									</div>
+                  <div class="netdisk-setting-menu-item">
+											<label>Toast同时显示最多数量</label>
+											<select data-key="qmsg-maxnums" data-default="3">
+													<option data-value="1">1</option>
+													<option data-value="2">2</option>
+													<option data-value="3">3</option>
+													<option data-value="4">4</option>
+													<option data-value="5">5</option>
+											</select>
+									</div>
+                  <div class="netdisk-setting-menu-item" type="checkbox">
+											<p>Toast逆序弹出</p>
+											<div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+												<input type="checkbox" data-key="qmsg-showreverse">
+												<div class="knobs"><span></span></div><div class="layer"></div>
+											</div>
 									</div>
 									<div class="netdisk-setting-menu-item" type="checkbox">
 											<p>读取剪贴板</p>
@@ -4428,7 +4054,7 @@
               case "checkbox":
                 item.checked = GM_getValue(data_key) ? true : false;
                 let mutex = item.getAttribute("mutex");
-                $(item).on("click", (e) => {
+                $(item).on("click", function (event) {
                   if (mutex) {
                     let mutexElement = $(mutex);
                     let mutex_data_key = $(mutex).attr("data-key");
@@ -4447,8 +4073,8 @@
                   );
                   let itSize = $(".netdisk-setting input[data-key=size]").val();
                   $("#whitesevSuspensionId").css({
-                    width: itSize + "px",
-                    height: itSize + "px",
+                    width: `${itSize}px`,
+                    height: `${itSize}px`,
                     opacity: $(
                       ".netdisk-setting input[data-key=opacity]"
                     ).val(),
@@ -4467,10 +4093,12 @@
         }
         function setSettingSelectEvent() {
           /* 设置下拉列表的默认值 */
-          $(".netdisk-setting select").change(function (e) {
-            let data_key = e.target.getAttribute("data-key");
+          $(".netdisk-setting select").change(function (event) {
+            let data_key = event.target.getAttribute("data-key");
             let data_value =
-              e.target[e.target.selectedIndex].getAttribute("data-value");
+              event.target[event.target.selectedIndex].getAttribute(
+                "data-value"
+              );
             GM_setValue(data_key, data_value);
           });
 
@@ -4500,22 +4128,14 @@
                   position: "center",
                 },
                 content: {
-                  text:
-                    "当前值:" +
-                    currentValue +
-                    " ，是否修改为默认值:" +
-                    dataDefaultValue +
-                    " ?",
+                  text: `当前设置的值为:${currentValue}，是否修改为默认值:${dataDefaultValue} ？`,
                 },
                 btn: {
                   ok: {
                     callback: function (_event_) {
                       log.info(
                         "设置界面",
-                        "当前值:" +
-                          currentValue +
-                          " ，修改为默认值:" +
-                          dataDefaultValue
+                        `当前 ==> ${currentValue}，默认值 ==> ${dataDefaultValue}`
                       );
                       GM_setValue(dataKey, dataDefaultValue);
                       obj.next().val(dataDefaultValue);
@@ -4534,35 +4154,35 @@
       setSuspensionEvent() {
         /* 设置悬浮按钮事件 */
         let needDragEle = document.getElementById("whitesevSuspensionId");
-        let that = this;
+        let _this_ = this;
         let _drag_ = new AnyTouch(needDragEle);
         let timerID = null;
         let isClicked = false;
         let isDouble = false;
         let click_deviation_x = 0; /* 点击元素，距离元素左上角的X轴偏移 */
         let click_deviation_y = 0; /* 点击元素，距离元素左上角的Y轴偏移 */
-        _drag_.on("pan", (e) => {
+        _drag_.on("pan", function (event) {
           if (!isClicked) {
             isClicked = true;
-            click_deviation_x = e.nativeEvent.offsetX
-              ? parseInt(e.nativeEvent.offsetX)
-              : parseInt(e.getOffset().x);
-            click_deviation_y = e.nativeEvent.offsetY
-              ? parseInt(e.nativeEvent.offsetY)
-              : parseInt(e.getOffset().y);
+            click_deviation_x = event.nativeEvent.offsetX
+              ? parseInt(event.nativeEvent.offsetX)
+              : parseInt(event.getOffset().x);
+            click_deviation_y = event.nativeEvent.offsetY
+              ? parseInt(event.nativeEvent.offsetY)
+              : parseInt(event.getOffset().y);
             $("#whitesevSuspensionId").css({
               cursor: "move",
               transition: "none",
             });
           }
-          if (e.phase == "move") {
+          if (event.phase == "move") {
             if (click_deviation_x > 250 || click_deviation_y > 250) {
               return;
             }
             var maxL = $(window).width() - UI.size;
             var maxT = $(window).height() - UI.size;
-            var x = e.x - click_deviation_x;
-            var y = e.y - click_deviation_y;
+            var x = event.x - click_deviation_x;
+            var y = event.y - click_deviation_y;
             x = x < maxL ? x : maxL;
             y = y < maxT ? y : maxT;
             x = x < 0 ? 0 : x;
@@ -4578,7 +4198,7 @@
             });
           }
 
-          if (e.phase == "end") {
+          if (event.phase == "end") {
             isClicked = false;
             $("#whitesevSuspensionId").css("cursor", "auto");
             let left_px = parseInt(
@@ -4606,13 +4226,13 @@
           }
         });
 
-        _drag_.on(["click", "tap"], (e) => {
+        _drag_.on(["click", "tap"], function (event) {
           if (isDouble) {
             /* 双 */
             clearTimeout(timerID);
             timerID = setTimeout(function () {
               isDouble = false;
-              that.showSettingView();
+              _this_.showSettingView();
             }, 300);
           } else {
             isDouble = true;
@@ -4622,9 +4242,9 @@
             }, 300);
           }
         });
-        $(window).on("click", (e) => {
-          let targetId = e.target.id;
-          let targetClassName = e.target.className;
+        $(window).on("click", function (event) {
+          let targetId = event.target.id;
+          let targetClassName = event.target.className;
           if (targetId != "whitesevSuspensionContextMenu") {
             $("#whitesevSuspensionContextMenu").addClass(
               "whitesevSuspensionContextMenuHide"
@@ -4632,16 +4252,16 @@
           }
           if (targetClassName == "whitesevSuspensionSetting") {
             log.info("设置悬浮按钮事件", "打开设置界面");
-            that.showSettingView();
+            _this_.showSettingView();
           }
         });
-        $("#whitesevSuspensionId").on("contextmenu", (e) => {
-          e.preventDefault();
+        $("#whitesevSuspensionId").on("contextmenu", function (event) {
+          event.preventDefault();
           let settingEle = $("#whitesevSuspensionContextMenu");
           var maxL1 = $(window).width() - UI.size;
           var maxT1 = $(window).height() - UI.size;
-          var x1 = e.clientX;
-          var y1 = e.clientY;
+          var x1 = event.clientX;
+          var y1 = event.clientY;
           /* 不允许超出浏览器范围 */
           x1 = x1 < 0 ? 0 : x1;
           x1 = x1 < maxL1 ? x1 : maxL1;
@@ -4741,9 +4361,8 @@
       },
       resizeEvent() {
         /* 界面大小改变 */
-        let that = this;
-        $(window).resize(function () {
-          that.setSuspensionDefaultPositionEvent();
+        $(window).resize(() => {
+          this.setSuspensionDefaultPositionEvent();
         });
       },
       randBg() {
@@ -4994,16 +4613,11 @@
         }
         log.info("添加新的链接", [_netdiskname_, _sharecode_, _accesscode_]);
         let icon = UI.src.icon[_netdiskname_];
-        let uiLink = NetDisk.regular[_netdiskname_].uiLinkShow.replace(
-          /{#shareCode#}/gi,
-          _sharecode_
+        let uiLink = NetDisk.handleLinkShow(
+          _netdiskname_,
+          _sharecode_,
+          _accesscode_
         );
-        uiLink = _accesscode_
-          ? uiLink.replace(/{#accessCode#}/gi, _accesscode_)
-          : uiLink
-              .replace(/{#accessCode#}/gi, "")
-              .replace(/提取码:/gi, "")
-              .replace(/ /g, "");
         let insertDOM = this.getViewHTML(
           icon,
           _netdiskname_,
@@ -5021,17 +4635,11 @@
         if (!UI.uiLinkAlias) {
           return null;
         }
-
-        let uiLink = NetDisk.regular[_netdiskname_].uiLinkShow.replace(
-          /{#shareCode#}/gi,
-          _sharecode_
+        let uiLink = NetDisk.handleLinkShow(
+          _netdiskname_,
+          _sharecode_,
+          _accesscode_
         );
-        uiLink = _accesscode_
-          ? uiLink.replace(/{#accessCode#}/gi, _accesscode_)
-          : uiLink
-              .replace(/{#accessCode#}/gi, "")
-              .replace(/提取码:/gi, "")
-              .replace(/ /g, "");
         let needChangeDOM = $(
           UI.uiLinkAlias.popsElement.querySelector(
             `.netdisk-url a[data-sharecode='${_sharecode_}']`
@@ -5098,9 +4706,7 @@
       },
       oneFile(title, fileName, fileSize, downloadUrl) {
         this.addCSS();
-        Qmsg.success("成功获取直链", {
-          html: true,
-        });
+        Qmsg.success("成功获取直链");
         pops.confirm({
           title: {
             text: title,
@@ -5135,9 +4741,7 @@
       },
       moreFile(_title_, _content_) {
         this.addCSS();
-        Qmsg.success("成功获取多文件直链", {
-          html: true,
-        });
+        Qmsg.success("成功获取多文件直链");
         pops.alert({
           title: {
             text: _title_,
@@ -5201,7 +4805,7 @@
           subtree: true,
         },
       });
-      NetDisk.matchPageLink();/* 自执行一次，因为有的页面上没触发mutationObserver */
+      NetDisk.matchPageLink(); /* 自执行一次，因为有的页面上没触发mutationObserver */
     },
   };
   var GM_Menu = new Utils.GM_Menu(
@@ -5210,7 +4814,7 @@
         text: "打开设置界面",
         enable: false,
         showText: (_text_, _enable_) => {
-          return "⚙ " + _text_;
+          return `⚙ ${_text_}`;
         },
         callback: () => {
           UI.suspension.initPop();

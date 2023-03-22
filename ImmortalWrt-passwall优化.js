@@ -1,14 +1,13 @@
 // ==UserScript==
-// @name         ImmortalWrt-passwall优化
-// @namespace    openWrt使用luci-theme-argon主题的passwall优化部分设置，添加一键测速和排序，请根据自己的openwrt地址设置本脚本匹配域
-// @version      0.1
-// @description  自动生成的描述
+// @name         ImmortalWrt-passwall优化 
+// @version      0.2
+// @description  openWrt使用luci-theme-argon主题的passwall优化部分设置，添加一键测速和排序，请根据自己的openwrt地址设置本脚本匹配域
 // @author       WhiteSev
 // @icon         http://192.168.6.1/luci-static/argon/favicon.ico
 // @match        *://192.168.6.1/cgi-bin/luci/admin/services/passwall/node_list*
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
-// @require      // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1164153
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1160801
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1164153
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1164713
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
