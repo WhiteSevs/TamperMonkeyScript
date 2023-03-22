@@ -147,16 +147,16 @@
           result = eval(`(${result})`);
           console.log(result);
           let success = result["success"];
-          if(success){
+          if (success) {
             Qmsg.success(`成功分享`);
-          }else{
-            if(result.hasOwnProperty("msg")){
-              Qmsg.error(result["msg"])
-            }else{
+          } else {
+            if (result.hasOwnProperty("msg")) {
+              Qmsg.error(result["msg"]);
+            } else {
               Qmsg.error(`分享失败`);
             }
           }
-          
+
           resolve(success);
         },
         onerror: function (response) {
@@ -198,17 +198,30 @@
         },
         callback: () => {
           config.loadingMsg = Qmsg.loading("执行中...");
-          config.runCount = prompt("请输入需要执行的次数", 1);
+          let inputRunCount = prompt("请输入需要执行的次数", 1);
+          config.runCount = isNaN(inputRunCount)
+            ? config.runCount
+            : parseInt(inputRunCount);
           Qmsg.info("执行次数: " + config.runCount);
-          config.delaytime = prompt(
+          let inputDelaytime = prompt(
             "请输入每次执行后延时的时间，单位（秒）",
             60
           );
-          config.delaytime = parseInt(config.delaytime) * 1000;
+          config.delaytime = isNaN(inputDelaytime)
+            ? config.delaytime
+            : parseInt(config.delaytime) * 1000;
           Qmsg.info("延时时间: " + config.delaytime + "秒");
-          config.score = prompt("请输入需要获得的分数", 1500);
+
+          let inputScore = prompt("请输入需要获得的分数", 1500);
+          config.score = isNaN(inputScore)
+            ? config.score
+            : parseInt(inputScore);
           Qmsg.info("获得分数: " + config.score);
-          config.credit = prompt("请输入每局获取的金币数量", 20);
+
+          let inputCredit = prompt("请输入每局获取的金币数量", 20);
+          config.credit = isNaN(inputCredit)
+            ? config.credit
+            : parseInt(inputCredit);
           Qmsg.info("赚取的金币", config.credit);
           Qmsg.success("开始执行");
           auto();
@@ -233,5 +246,9 @@
     },
     false
   );
+  Qmsg.config({
+    position: "bottom",
+    timeout: 3000,
+  });
   // Your code here...
 })();
