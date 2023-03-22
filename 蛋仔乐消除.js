@@ -249,7 +249,7 @@
   Qmsg.config({
     position: "bottom",
     timeout: 3000,
-    showReverse:trues
+    showReverse:true
   });
   // Your code here...
 })();
