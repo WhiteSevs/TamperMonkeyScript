@@ -17,7 +17,7 @@
 // @grant        GM_info
 // @run-at       document-start
 // ==/UserScript==
- 
+
 (function () {
   "use strict";
   var log = {
