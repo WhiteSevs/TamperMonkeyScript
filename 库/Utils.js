@@ -2002,52 +2002,7 @@
    * @example Utils.tryCatch("(pam)=>{console.log('this is a function and params is' + pam[0])}",["参数1"],"()=>{console.log('对错误进行处理判断')}");
    * @example Utils.tryCatch((pam)=>{console.log('this is a function and params is' + pam[0])},["参数1"],"()=>{console.log('对错误进行处理判断')}");
    **/
-  Utils.tryCatch = function (func, params, errorFunc) {
-    /* 捕获错误 */
-    if (func == null) {
-      throw "Utils.tryCatch 警告: 参数 func 为不存在";
-    }
-    if (typeof func !== "function" && typeof func !== "string") {
-      throw "Utils.tryCatch 参数 func 必须为 Function|String 类型";
-    }
-    if (
-      params != null &&
-      typeof params !== "object" &&
-      typeof params !== "string"
-    ) {
-      throw "Utils.tryCatch 参数 params 必须为 object|String 类型";
-    }
-    if (
-      errorFunc != null &&
-      typeof errorFunc !== "object" &&
-      typeof errorFunc !== "string"
-    ) {
-      throw "Utils.tryCatch 参数 errorFunc 必须为 Function|String 类型";
-    }
-    var result = null;
-    try {
-      result = typeof func === "string" ? window.eval(func) : func(params);
-    } catch (error) {
-      console.log(
-        "%c" + (func?.name ? func?.name : func + "出现错误"),
-        "color: #f20000"
-      );
-      console.log("%c" + ("错误原因：" + error), "color: #f20000");
-      console.trace(func);
-      result =
-        typeof func === "string" ? window.eval(errorFunc) : errorFunc(params);
-    } finally {
-      return result;
-    }
-  };
-  /**
-   * @param {string|function} func - 需要捕获错误的函数或函数格式的字符串
-   * @param {object} params - 该函数的参数和捕获到错误的函数的参数，类型为数组Array
-   * @param {string|function} errorFunc - 捕获到错误后执行的函数或函数格式的字符串
-   * @example Utils.tryCatch("(pam)=>{console.log('this is a function and params is' + pam[0])}",["参数1"],"()=>{console.log('对错误进行处理判断')}");
-   * @example Utils.tryCatch((pam)=>{console.log('this is a function and params is' + pam[0])},["参数1"],"()=>{console.log('对错误进行处理判断')}");
-   **/
-  Utils.tryCatch = function (func, params, errorFunc) {
+  Utils.tryCatch = function(func, params, errorFunc) {
     /* 捕获错误 */
     if (func == null) {
       throw "Utils.tryCatch 警告: 参数 func 为不存在";

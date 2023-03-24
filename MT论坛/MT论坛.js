@@ -4,24 +4,26 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.3
+// @version      2.8.4
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
+// @grant        unsafeWindow
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
 // @grant        GM_setClipboard
 // @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_cookie
 // @run-at       document-start
 // @connect      helloimg.com
 // @connect      z4a.net
 // @connect      kggzs.cn
 // @connect      woozooo.com
+// @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
@@ -29,7 +31,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153232
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1152183
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1153204
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1164713
 // ==/UserScript==
 
 (function () {
@@ -109,7 +111,7 @@
       },
     },
     init: () => {
-      Object.keys(popup2.config).forEach(function (key) {
+      Object.keys(popup2.config).forEach( (key)=> {
         let style = popup2.config[key].style;
         if (style != "") {
           GM_addStyle(style);
@@ -475,26 +477,26 @@
     /**
      * 脚本开始执行的时间
      */
-    GMRunStartTime: Date.now(),
+    gmRunStartTime: Date.now(),
     /**
      * dz论坛在cookie中保存的键所使用的的前缀
      * @returns
      */
-    cookiePre: () => {
+    getCookiePre: () => {
       return unsafeWindow.cookiepre;
     },
     /**
      * 当前账号的uid
      * @returns 666666
      */
-    uid: () => {
+    getUID: () => {
       return unsafeWindow.discuz_uid;
     },
     /**
      * 当前账号的formhash(有延迟仅移动端)
      * @returns xxxxxx
      */
-    formhash: () => {
+    getFormHash: () => {
       return unsafeWindow.formhash;
     },
     /**
@@ -524,9 +526,9 @@
       } else {
         localResult = GM_getValue(localGMKey) ? true : false;
       }
-	  if(matchURL.length == 0){
-		urlMatchResult = true;
-	  }
+      if (matchURL.length == 0) {
+        urlMatchResult = true;
+      }
       matchURL.forEach((item) => {
         if (currentURL.match(new RegExp(item), "ig")) {
           urlMatchResult = true;
@@ -715,9 +717,9 @@
         "background:#24272A; color:#ffffff",
         "background:#fff;"
       );
-      window.GM_xmlhttpRequest = (f) => {
-        console.log(`$jq.ajax请求 url: ${f.url}`);
-        console.log(f);
+      window.GM_xmlhttpRequest = (requestData) => {
+        console.log(`$jq.ajax请求 url: ${requestData.url}`);
+        console.log("jq.ajax请求的数据: ", requestData);
         let headers_options = {};
         let headers_options_key = [
           "Accept-Charset",
@@ -742,39 +744,39 @@
           "User-Agent",
           "Via",
         ];
-        if (f.headers != null) {
+        if (requestData.headers != null) {
           Array.from(headers_options_key).forEach((item) => {
-            delete f.headers[item];
+            delete requestData.headers[item];
           });
         } else {
-          f.headers = {};
+          requestData.headers = {};
         }
         $jq.ajax({
-          url: f.url,
-          type: f.method,
-          data: f.data,
-          timeout: f.timeout,
-          dataType: f.responseType,
+          url: requestData.url,
+          type: requestData.method,
+          data: requestData.data,
+          timeout: requestData.timeout,
+          dataType: requestData.responseType,
           headers: headers_options,
           success: (response) => {
             if (typeof response === "string") {
-              f.onload({ responseText: response, type: "ajax" });
+              requestData.onload({ responseText: response, type: "ajax" });
             } else {
-              f.onload(response);
+              requestData.onload(response);
             }
           },
           error: (response) => {
             if (response.status == 200) {
               if (typeof response === "string") {
-                f.onload({ responseText: response, type: "ajax" });
+                requestData.onload({ responseText: response, type: "ajax" });
               } else {
-                f.onload(response);
+                requestData.onload(response);
               }
             } else {
               if (typeof response === "string") {
-                f.onerror({ responseText: response, type: "ajax" });
+                requestData.onerror({ responseText: response, type: "ajax" });
               } else {
-                f.onerror(response);
+                requestData.onerror(response);
               }
             }
           },
@@ -911,7 +913,10 @@
         let cssDOM = document.createElement("style");
         cssDOM.setAttribute("type", "text/css");
         cssDOM.innerHTML = styleText;
-        document.head.appendChild(cssDOM);
+        document.documentElement.insertBefore(
+          cssDOM,
+          document.documentElement.childNodes[0]
+        );
         return cssDOM;
       };
       console.log(
@@ -979,11 +984,11 @@
       /* 电脑版函数按顺序加载 */
       /* 禁止自动执行的函数(这些函数在其它地方调用) */
       const notRunFunc = ["main"];
-      Object.keys(pc).forEach((key) => {
+      Object.keys(pc).forEach( (key)=> {
         if (typeof pc[key] !== "function" || notRunFunc.indexOf(key) != -1) {
           return;
         }
-        Utils.tryCatch(pc[key]);
+        Utils.tryCatch.call(this,pc[key]);
       });
     },
     initPopup2() {
@@ -1127,6 +1132,7 @@
 
             clickShowIMGList = [...clickShowIMGList, IMG_URL];
             _item_.removeAttribute("onclick");
+            _item_.setAttribute("onclick", "");
             $jq(_item_).off("click");
             $jq(_item_).on("click", function (event) {
               event.preventDefault();
@@ -1173,21 +1179,160 @@
           );
       }
     },
+    /**
+     * 加载下一页评论
+     */
+    loadNextComments() {
+      if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
+        return;
+      }
+      console.log("this指向",this);
+      if ($jq(".pgbtn").length == 0) {
+        console.warn("没有找到下一页按钮");
+        return;
+      }
+
+      var getPageInfo = function (url) {
+        return new Promise((resolve) => {
+          GM_xmlhttpRequest({
+            url: url,
+            method: "get",
+            timeout: 5000,
+            responseType: "html",
+            onload: function (response) {
+              console.log(response);
+              var pageHTML = $jq(response.responseText);
+              var nextPageBtn = pageHTML.find(".pgbtn a");
+              pageHTML.find("#postlistreply")?.remove();
+              pageHTML.find(".bm_h.comiis_snvbt")?.remove();
+              resolve({
+                url: nextPageBtn ? $jq(nextPageBtn).attr("href") : null,
+                postlist: pageHTML.find("#postlist"),
+                pgbtn: pageHTML.find(".pgbtn"),
+                pgs: pageHTML.find(".pgs.mtm"),
+              });
+            },
+            onerror: function (response) {
+              console.error(response);
+              popup2.toast("请求异常");
+              resolve(false);
+            },
+            ontimeout: function () {
+              popup2.toast("请求超时");
+              resolve(false);
+            },
+          });
+        });
+      };
+      var isElementInViewport = function (el) {
+        // 获取元素是否在可视区域
+        var doc = document.documentElement;
+        var rect = el.getBoundingClientRect();
+        return (
+          rect.top >= 0 &&
+          rect.bottom <= (window.innerHeight || doc.clientHeight)
+        );
+      };
+      var isHandling = false;
+      var scrollEvent = async function () {
+        if (isHandling == true) {
+          return;
+        }
+        isHandling = true;
+        var isElementInViewportStatus = isElementInViewport($jq(".pgbtn")[0]);
+        if (isElementInViewportStatus) {
+          var nextURL = $jq(".pgbtn a").attr("href");
+          if (nextURL) {
+            let pageInfo = await getPageInfo(nextURL);
+            console.log(pageInfo);
+            if (pageInfo) {
+              if (!pageInfo["url"]) {
+                console.log("最后一页，取消监听");
+                $jq(document).off("scroll", scrollEvent);
+                $jq(".pgbtn")?.remove();
+              }
+              if (pageInfo["postlist"]) {
+                $jq("#postlist")?.html(
+                  $jq("#postlist")?.html() + $jq(pageInfo["postlist"]).html()
+                );
+              }
+              if (pageInfo["pgbtn"]) {
+                $jq(".pgbtn")?.html($jq(pageInfo["pgbtn"]).html());
+              }
+              if (pageInfo["pgs"]) {
+                $jq(".pgs.mtm")?.html($jq(pageInfo["pgs"]).html());
+              }
+              pc.postBrowsingOptimization();
+            }
+          } else {
+            console.error("获取下一页失败");
+          }
+        }
+        await Utils.sleep(50);
+        isHandling = false;
+      };
+      $jq(document).on("scroll", scrollEvent);
+    },
     loadPCMenu() {
       /* 注册PC端油猴菜单 */
-      Utils.tryCatch(() => {
-        var GM_Menu = new Utils.GM_Menu(
-          {
-            detectUserOnlineStatus: {
-              text: "探测用户在线状态",
-              enable: false,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
+      new Utils.GM_Menu(
+        {
+          detectUserOnlineStatus: {
+            text: "探测用户在线状态",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          true
+          postBrowsingOptimization: {
+            text: "帖子浏览优化",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true
+      );
+    },
+    /**
+     * 帖子浏览优化
+     */
+    postBrowsingOptimization() {
+      if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
+        return;
+      }
+      if (!GM_getValue("postBrowsingOptimization", false)) {
+        return;
+      }
+      let optimizationCSS = `
+          .pls .avatar img,
+          .avtm img{
+            border-radius: 10%;
+          }
+          .pls .avatar img{
+            width: 90px;
+          }
+          `; /* 优化的CSS */
+      GM_addStyle(optimizationCSS);
+      document.querySelectorAll("#postlist .comiis_vrx").forEach((item) => {
+        let leftTdNode = item.querySelector(
+          "table.plhin tr:first-child td.pls"
         );
+        let rightTdNode = item.querySelector(
+          "table.plhin tr:first-child td.plc"
+        );
+        let leftInfoMeta =
+          leftTdNode.querySelector(".tns.xg2"); /* 左边的信息块 */
+        let leftInfoMetaNextElement =
+          leftInfoMeta.nextElementSibling; /* 下一个元素 */
+        while (1) {
+          if (leftInfoMetaNextElement == null) {
+            break;
+          }
+          leftInfoMetaNextElement.style.display = "none";
+          leftInfoMetaNextElement = leftInfoMetaNextElement.nextElementSibling;
+        }
       });
     },
     quickReply() {
@@ -1267,8 +1412,8 @@
     },
     runMobileFunc() {
       /* 执行手机端函数 */
-      Utils.tryCatch(mobileRepeatFunc.identifyLinks);
-      Utils.tryCatch(mobile.autoSignIn);
+      Utils.tryCatch.call(mobileRepeatFunc,mobileRepeatFunc.identifyLinks);
+      Utils.tryCatch.call(mobile,mobile.autoSignIn);
     },
   };
 
@@ -1281,7 +1426,7 @@
         if (key === "main" || typeof mobileRepeatFunc[key] !== "function") {
           return;
         }
-        Utils.tryCatch(mobileRepeatFunc[key]);
+        Utils.tryCatch.call(this,mobileRepeatFunc[key]);
       });
       unsafeWindow?.popup?.init();
     },
@@ -2404,22 +2549,16 @@
           return;
         }
         if (key === "loadNextComments") {
-          Utils.tryCatch(
-            mobile[key],
-            "",
-            '$jq("#loading-comment-tip").text("加载评论失败")'
-          );
+          Utils.tryCatch.call(this,"",
+          '$jq("#loading-comment-tip").text("加载评论失败")')
           return;
         }
         if (key === "loadPrevComments") {
-          Utils.tryCatch(
-            mobile[key],
-            "",
-            '$jq("#loading-comment-tip-prev").text("加载评论失败")'
-          );
+          Utils.tryCatch.call(this,"",
+          '$jq("#loading-comment-tip-prev").text("加载评论失败")')
           return;
         }
-        Utils.tryCatch(mobile[key]);
+        Utils.tryCatch.call(this,mobile[key]);
         mobileRepeatFunc.main();
       });
       unsafeWindow.popup2 = popup2;
@@ -2450,16 +2589,29 @@
      * @returns
      */
     autoSignIn() {
-      Utils.registerWindowCookies(window);
-      function checkLogin() {
-        /* 检测是否登录 */
+      /**
+       * 检测是否登录
+       * @returns
+       */
+      async function checkLogin() {
+        unsafeWindow.GM_cookie = GM_cookie;
+        /* 桌面端登录 */
         let pc_login = document.querySelector("#comiis_key");
-        let mobile_login_cookie = Cookies.get("cQWy_2132_auth");
-        let mobile_lastvisit_cookie = Cookies.get("cQWy_2132_lastvisit");
+        /* 移动端的退出按钮，不登录是不会出现的 */
+        let mobile_login_exitBtn = document.querySelector(
+          ".sidenv_exit a[href*='member.php?mod=logging&action=logout']"
+        );
+        /* 登录Cookie，通过移动端登录，该Cookie不会HttpOnly，但是通过桌面端和调用QQ登录会 */
+        let mobile_login_cookie = await getCookie("cQWy_2132_auth");
+        /* 最后访问Cookie */
+        let mobile_lastvisit_cookie = await getCookie("cQWy_2132_lastvisit");
+        console.log(GM_cookie.list("cQWy_2132_lastvisit"));
+        console.log("桌面端登录: ", pc_login);
+        console.log("移动端登录: ", mobile_login_exitBtn);
         console.log(
           "账号cQWy_2132_auth: ",
           mobile_login_cookie
-            ? mobile_login_cookie.slice(0, 5) + "..."
+            ? mobile_login_cookie.slice(0, 8) + "..."
             : mobile_login_cookie
         );
         console.log(
@@ -2471,9 +2623,33 @@
               )
             : mobile_login_cookie
         );
-        return pc_login || mobile_login_cookie || mobile_lastvisit_cookie;
+        return pc_login || mobile_login_cookie || mobile_login_exitBtn;
       }
-
+      /**
+       * 获取Cookie，使用了GM_cookie，可能在某些油猴管理器上不兼容
+       * @param {String} cookieName 需要获取的Cookie名字
+       * @returns {String|undefined}
+       */
+      function getCookie(cookieName) {
+        return new Promise((resolve) => {
+          if (typeof GM_cookie == "undefined") {
+            Utils.registerWindowCookies(window);
+          } else {
+            GM_cookie.list({ name: cookieName }, function (cookies, error) {
+              if (error) {
+                resolve(null);
+              } else {
+                if (cookies.length == 0) {
+                  resolve(null);
+                } else {
+                  console.log(cookies);
+                  resolve(cookies[0].value);
+                }
+              }
+            });
+          }
+        });
+      }
       function getFormHash() {
         /* 获取账号的formhash */
         let inputFormHash = top.document.querySelector("input[name=formhash]");
@@ -2702,6 +2878,20 @@
       } else {
         signIn(formhash);
       }
+    },
+
+    /**
+     * 自动点击同意-用户协议
+     */
+    autoClickUserAgreement() {
+      if (
+        !MT_CONFIG.methodRunCheck([
+          /http(s?):\/\/bbs.binmt.cc\/member.php\?mod=logging/gi,
+        ])
+      ) {
+        return;
+      }
+      document.querySelector("#agreebbrules")?.click();
     },
     /**
      * 小黑屋
@@ -3523,6 +3713,14 @@
         },
       },
       storage: {
+        /**
+         * 对已上传图片添加上传记录到本地存储
+         * @param {*} web
+         * @param {*} id_encoded
+         * @param {*} url
+         * @param {*} thumb_url
+         * @param {*} name
+         */
         add: function (web, id_encoded, url, thumb_url, name) {
           let localData = GM_getValue("chartBedsImagesHistory", []);
           let saveData = localData.concat({
@@ -3534,6 +3732,12 @@
           });
           GM_setValue("chartBedsImagesHistory", saveData);
         },
+        /**
+         * 删除本地存储中已上传图片的记录
+         * @param {*} _web_
+         * @param {*} id_encoded
+         * @returns
+         */
         delete: function (_web_, id_encoded) {
           let localData = GM_getValue("chartBedsImagesHistory", []);
           let successDelete = false;
@@ -3552,12 +3756,20 @@
 
           return successDelete;
         },
+        /**
+         * 获取本地存储中已上传的图片信息
+         * @returns
+         */
         get: function () {
           return GM_getValue("chartBedsImagesHistory", []);
         },
       },
+      /**
+       * 获取图床的auth_token，这里是想imgtu或hello图床这些通用api接口
+       * @param {*} url
+       * @returns
+       */
       getAuthToken(url) {
-        /* 获取图床的auth_token */
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: url,
@@ -3591,8 +3803,15 @@
           });
         });
       },
+      /**
+       * 图床登录
+       * @param {*} url
+       * @param {*} user
+       * @param {*} pwd
+       * @param {*} auth_token
+       * @returns
+       */
       login(url, user, pwd, auth_token) {
-        /* 图床登录 */
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `${url}/login`,
@@ -3626,8 +3845,14 @@
           });
         });
       },
+      /**
+       * 上传图片
+       * @param {*} url
+       * @param {*} auth_token
+       * @param {*} imageFile
+       * @returns
+       */
       uploadImage(url, auth_token, imageFile) {
-        /* 上传图片请求 */
         let res_data = {
           imageUri: null,
           json_data: null,
@@ -3698,8 +3923,14 @@
           });
         });
       },
+      /**
+       * 删除已上传图片
+       * @param {*} url
+       * @param {*} auth_token
+       * @param {*} id_encoded
+       * @returns
+       */
       deleteImage(url, auth_token, id_encoded) {
-        /* 删除图片请求 */
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `${url}/json`,
@@ -3758,46 +3989,58 @@
           });
         });
       },
+      /**
+       * 图片账号密码的弹窗
+       * @param {*} chartbedname
+       * @param {*} register_url
+       * @param {*} callbackfun
+       */
       popupUserPwd(chartbedname, register_url, callbackfun) {
         popup2.confirm({
           text: `
-                    <p style="padding: 10px 0px;">${chartbedname}</p>
-                    <div>
-                        <div style="display: flex;">
-                            <p style="width: 60px;padding: 0;align-self: center;">账号</p>
-                            <input type="text" placeholder="请输入图床的账号" style="
-                                -webkit-appearance: none;
-                                width: 100%;
-                                height: 2.5em;
-                                line-height: 1.4;
-                                font-size: inherit;
-                                border: none;
-                                outline: none;
-                                background-color: transparent;
-                                border-bottom: 1px solid #000000;
-                            " id="chartbed_user">
-                        </div>
-                        <div style="display: flex;">
-                            <p style="width: 60px;padding: 0;align-self: center;">密码</p>
-                            <input type="password" placeholder="请输入图床的密码" style="
-                                -webkit-appearance: none;
-                                width: 100%;
-                                height: 2.5em;
-                                line-height: 1.4;
-                                font-size: inherit;
-                                border: none;
-                                outline: none;
-                                background-color: transparent;
-                                border-bottom: 1px solid #000000;
-                            " id="chartbed_pwd">
-                        </div>
-                        <p><a style="color: #003ffa !important;" href="${register_url}" target="_blank">没有账号？点我去注册！</a></p>
-                    </div>`,
+            <p style="padding: 10px 0px;">${chartbedname}</p>
+            <div>
+                <div style="display: flex;">
+                    <p style="width: 60px;padding: 0;align-self: center;">账号</p>
+                    <input type="text" placeholder="请输入图床的账号" style="
+                        -webkit-appearance: none;
+                        width: 100%;
+                        height: 2.5em;
+                        line-height: 1.4;
+                        font-size: inherit;
+                        border: none;
+                        outline: none;
+                        background-color: transparent;
+                        border-bottom: 1px solid #000000;
+                    " id="chartbed_user">
+                </div>
+                <div style="display: flex;">
+                    <p style="width: 60px;padding: 0;align-self: center;">密码</p>
+                    <input type="password" placeholder="请输入图床的密码" style="
+                        -webkit-appearance: none;
+                        width: 100%;
+                        height: 2.5em;
+                        line-height: 1.4;
+                        font-size: inherit;
+                        border: none;
+                        outline: none;
+                        background-color: transparent;
+                        border-bottom: 1px solid #000000;
+                    " id="chartbed_pwd">
+                </div>
+                <p><a style="color: #003ffa !important;" href="${register_url}" target="_blank">没有账号？点我去注册！</a></p>
+            </div>`,
           mask: true,
           only: true,
           ok: {
             callback: () => {
-              callbackfun();
+              let inputUser = document
+                .querySelector("#chartbed_user")
+                .value.trim();
+              let inputPwd = document
+                .querySelector("#chartbed_pwd")
+                .value.trim();
+              callbackfun(inputUser, inputPwd);
             },
           },
         });
@@ -4046,8 +4289,10 @@
                   GM_setValue("KggzsChartBedPwd", pwd);
                   chartBedUser = user;
                   chartBedPwd = pwd;
-                  popup2.toast("设置完毕,请重新点击");
                   popup2.closeConfirm();
+                  setTimeout(() => {
+                    $jq("#imglist_kggzs .up_btn_kggzs a").click();
+                  }, 500);
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -4190,8 +4435,10 @@
                   GM_setValue("HelloChartBedPwd", pwd);
                   chartBedUser = user;
                   chartBedPwd = pwd;
-                  popup2.toast("设置完毕,请重新点击");
                   popup2.closeConfirm();
+                  setTimeout(() => {
+                    $jq("#imglist_hello .up_btn_hello a").click();
+                  }, 500);
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -4353,8 +4600,10 @@
                   GM_setValue("Z4AChartBedPwd", pwd);
                   chartBedUser = user;
                   chartBedPwd = pwd;
-                  popup2.toast("设置完毕,请重新点击");
                   popup2.closeConfirm();
+                  setTimeout(() => {
+                    $jq("#imglist_z4a .up_btn_z4a a").click();
+                  }, 500);
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -4936,15 +5185,17 @@
        * 论坛图床-修复点击上传和点击插入功能
        */
       function chartbedByBBSMT() {
-        GM_addStyle(`
-                #imglist .p_img a{
-                    float: left;
-                    height: 36px;
-                }
-                #imglist .del a{
-                    padding: 0;
-                }  
-                `);
+        GM_addStyle(
+          `
+            #imglist .p_img a{
+                float: left;
+                height: 36px;
+            }
+            #imglist .del a{
+                padding: 0;
+            }  
+          `
+        );
         $jq("#imglist .up_btn").append($jq("#filedata"));
         $jq(document).on("click", "#imglist .up_btn a", function (e) {
           $jq(this).next().click();
@@ -4960,13 +5211,15 @@
 
       function chartbedByKggzs() {
         /* 编辑器图片上传 康哥图床 */
-        GM_addStyle(`
-                    #imglist_kggzs .delImg{
-                        position: absolute;
-                        top: -5px;
-                        left: -5px;
-                    }
-                `);
+        GM_addStyle(
+          `
+            #imglist_kggzs .delImg{
+                position: absolute;
+                top: -5px;
+                left: -5px;
+            }
+        `
+        );
         let chartBedUrl = "https://img.kggzs.cn/api/v1";
         let chartBedUser = GM_getValue("KggzsChartBedUser");
         let chartBedPwd = GM_getValue("KggzsChartBedPwd");
@@ -5136,9 +5389,10 @@
                   GM_setValue("KggzsChartBedPwd", pwd);
                   chartBedUser = user;
                   chartBedPwd = pwd;
-                  popup2.toast("设置完毕,请重新点击");
                   popup2.closeConfirm();
-                  resolve(false);
+                  checkLogin().then((status) => {
+                    resolve(status);
+                  });
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -5427,9 +5681,10 @@
                   GM_setValue("HelloChartBedPwd", pwd);
                   chartBedUser = user;
                   chartBedPwd = pwd;
-                  popup2.toast("设置完毕,请重新点击");
                   popup2.closeConfirm();
-                  resolve(false);
+                  checkLogin().then((status) => {
+                    resolve(status);
+                  });
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -5738,9 +5993,10 @@
                   GM_setValue("Z4AChartBedPwd", pwd);
                   chartBedUser = user;
                   chartBedPwd = pwd;
-                  popup2.toast("设置完毕,请重新点击");
                   popup2.closeConfirm();
-                  resolve(false);
+                  checkLogin().then((status) => {
+                    resolve(status);
+                  });
                 } else {
                   popup2.toast("账号或密码不能为空");
                 }
@@ -5813,22 +6069,22 @@
                 uploadImageReturn["json_data"]["image"]["filename"];
               let image_uri = uploadImageReturn["imageUri"];
               let uploadImageHTML = `<li>
-                                        <span class="delImg" id-encode="${image_id_encoded}">
-                                            <a href="javascript:;">
-                                                <i class="comiis_font f_g"></i>
-                                            </a>
-                                        </span>
-                                        <span class="charu f_f">插入</span>
-                                        <span class="p_img">
-                                            <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
-                                                <img style="height:54px;width:54px;" 
-																								title="${image_name}" 
-																								src="${image_uri}" 
-																								loading="lazy"
-																								class="vm b_ok"></a>
-                                        </span>
-                                        <input type="hidden" name="">
-                                    </li>`;
+                  <span class="delImg" id-encode="${image_id_encoded}">
+                      <a href="javascript:;">
+                          <i class="comiis_font f_g"></i>
+                      </a>
+                  </span>
+                  <span class="charu f_f">插入</span>
+                  <span class="p_img">
+                      <a href="javascript:;" onclick="comiis_addsmilies('[img]${image_url}[/img]')">
+                          <img style="height:54px;width:54px;" 
+                          title="${image_name}" 
+                          src="${image_uri}" 
+                          loading="lazy"
+                          class="vm b_ok"></a>
+                  </span>
+                  <input type="hidden" name="">
+              </li>`;
               $jq("#imglist_z4a").append($jq(uploadImageHTML));
               mobile.chartBed.storage.add(
                 "z4a",
@@ -5910,22 +6166,23 @@
                 });
                 popup2.confirm({
                   text: `<style>
-                                  .dialogbox.popup2-popmenu {
-                                      width: 80vw;
-                                      height: 55vh;
-                                  }
-                                  #popup2-confirm,
-                                  #popup2-confirm .comiis_tip.bg_f{ 
-                                      width: inherit;
-                                      height: inherit;
-                                  }
-                                  #popup2-confirm .comiis_tip.bg_f dt.f_b{
-                                      height: calc(100% - 115px);
-                                  }
-                                  .upload-image-water{
-                                      height: 100%;
-                                  }
-                                  </style><div class="upload-image-water">${renderHTML}<div>`,
+                          .dialogbox.popup2-popmenu {
+                              width: 80vw;
+                              height: 55vh;
+                          }
+                          #popup2-confirm,
+                          #popup2-confirm .comiis_tip.bg_f{ 
+                              width: inherit;
+                              height: inherit;
+                          }
+                          #popup2-confirm .comiis_tip.bg_f dt.f_b{
+                              height: calc(100% - 115px);
+                          }
+                          .upload-image-water{
+                              height: 100%;
+                          }
+                        </style>
+                        <div class="upload-image-water">${renderHTML}<div>`,
                   mask: true,
                   only: true,
                   ok: {
@@ -6345,25 +6602,24 @@
                 let _name = historyImages[i]["name"];
 
                 let _imageHTML = `
-                          <li>
-                              <span class="delImg" t-id="${_id}" t-web="${_web}">
-                                  <a href="javascript:;">
-                                      <i class="comiis_font f_g"></i>
-                                  </a>
-                              </span>
-                              <span class="charu f_f">${_web}</span>
-                              <span class="p_img">
-                                  <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
-                                      <img style="height:54px;width:54px;" 
-																			title="${_name}" 
-																			src="${_thumb_url}" 
-																			class="vm b_ok" 
-																			loading="lazy"
-																			crossoriginNew="anonymous"></a>
-                              </span>
-                              <input type="hidden" name="${_name}">
-                          </li>
-                          `;
+                    <li>
+                      <span class="delImg" t-id="${_id}" t-web="${_web}">
+                          <a href="javascript:;">
+                              <i class="comiis_font f_g"></i>
+                          </a>
+                      </span>
+                      <span class="charu f_f">${_web}</span>
+                      <span class="p_img">
+                          <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
+                              <img style="height:54px;width:54px;" 
+                              title="${_name}" 
+                              src="${_thumb_url}" 
+                              class="vm b_ok" 
+                              loading="lazy"
+                              crossoriginNew="anonymous"></a>
+                      </span>
+                      <input type="hidden" name="${_name}">
+                  </li>`;
                 $jq("#imglist_history").append($jq(_imageHTML));
               });
             } else if (isAddHistoryImages.length < historyImages.length) {
@@ -6393,26 +6649,25 @@
                 let _thumb_url = item["thumb_url"];
                 let _name = item["name"];
                 let _imageHTML = `
-                          <li>
-                              <span class="delImg" t-id="${_id}" t-web="${_web}">
-                                  <a href="javascript:;">
-                                      <i class="comiis_font f_g"></i>
-                                  </a>
-                              </span>
-                              <span class="charu f_f">${_web}</span>
-                              <span class="p_img">
-                                  <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
-                                      <img style="height:54px;width:54px;" 
-																			title="${_name}" 
-																			src="${_thumb_url}" 
-																			class="vm b_ok" 
-																			crossoriginNew="anonymous"
-																			loading="lazy"
-																			></a>
-                              </span>
-                              <input type="hidden" name="${_name}">
-                          </li>
-                          `;
+                  <li>
+                      <span class="delImg" t-id="${_id}" t-web="${_web}">
+                          <a href="javascript:;">
+                              <i class="comiis_font f_g"></i>
+                          </a>
+                      </span>
+                      <span class="charu f_f">${_web}</span>
+                      <span class="p_img">
+                          <a href="javascript:;" onclick="comiis_addsmilies('[img]${_url}[/img]')">
+                              <img style="height:54px;width:54px;" 
+                              title="${_name}" 
+                              src="${_thumb_url}" 
+                              class="vm b_ok" 
+                              crossoriginNew="anonymous"
+                              loading="lazy"
+                              ></a>
+                      </span>
+                      <input type="hidden" name="${_name}">
+                  </li>`;
                 $jq("#imglist_history").append($jq(_imageHTML));
               });
             } else if (isAddHistoryImages.length > historyImages.length) {
@@ -6507,259 +6762,285 @@
         return;
       }
       GM_addStyle(`
-            #comiis_foot_menu_beautify{
-                position: fixed;
-                display: inline-flex;
-                z-index: 90;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                height: 48px;
-                overflow: hidden;
-                align-content: center;
-                justify-content: center;
-                align-items: center;
-            }
-            #comiis_foot_menu_beautify_big{
-                position: fixed;
-                display: inline-flex;
-                flex-direction: column;
-                z-index: 90;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                min-height: 120px;
-                overflow: hidden;
-                align-content: center;
-                justify-content: center;
-                align-items: center;
-            }
-            #comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {
-                padding-left:10px;
-                color:#999999;
-            }
-            #comiis_foot_menu_beautify .reply_area ul li a{
-                display: block;
-                width: 22px;
-                height: 22px;
-                padding: 4px 8px;
-                margin: 8px 0;
-                position: relative;
-            }
-            #comiis_foot_menu_beautify .reply_area ul{
-                display: inline-flex;
-                align-content: center;
-                align-items: center;
-                justify-content: center;
-            }
-            #comiis_foot_menu_beautify .reply_area,
-            #comiis_foot_menu_beautify .reply_area ul{
-                width: 100%;
-            }
+        #comiis_foot_menu_beautify{
+            position: fixed;
+            display: inline-flex;
+            z-index: 90;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 48px;
+            overflow: hidden;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+        }
+        #comiis_foot_menu_beautify_big{
+            position: fixed;
+            display: inline-flex;
+            flex-direction: column;
+            z-index: 90;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            min-height: 120px;
+            overflow: hidden;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+        }
+        #comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {
+            padding-left:10px;
+            color:#999999;
+        }
+        #comiis_foot_menu_beautify .reply_area ul li a{
+            display: block;
+            width: 22px;
+            height: 22px;
+            padding: 4px 8px;
+            margin: 8px 0;
+            position: relative;
+        }
+        #comiis_foot_menu_beautify .reply_area ul{
+            display: inline-flex;
+            align-content: center;
+            align-items: center;
+            justify-content: center;
+        }
+        #comiis_foot_menu_beautify .reply_area,
+        #comiis_foot_menu_beautify .reply_area ul{
+            width: 100%;
+        }
+        
+        #comiis_foot_menu_beautify .reply_area li a i {
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            font-size: 22px;
+        }
+        #comiis_foot_menu_beautify .reply_area li a span {
+            position: absolute;
+            display: block;
+            font-size: 10px;
+            height: 14px;
+            line-height: 14px;
+            padding: 0 6px;
+            right: -8px;
+            top: 4px;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        #comiis_foot_menu_beautify li[data-attr="回帖"] input{
+            border: transparent;
+            border-radius: 15px;
+            height: 30px;
+            width: 100%;
+        }
+        #comiis_foot_menu_beautify_big .reply_area{
+            margin: 10px 0px 5px 0px;
+        }
+        #comiis_foot_menu_beautify_big .reply_area ul{
+            display: inline-flex;
+            align-content: center;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="回帖"]{
+            width: 75vw;
+            margin-right: 15px;
+        }
+        #comiis_foot_menu_beautify_big .reply_user_content{
+            width: 75vw;
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin: 8px 10px;
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="发表"]{
+
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new{
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i{
+            font-size: 22px;
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="发表"] input{
+            width: 60px;
+            height: 30px;
+            border: transparent;
+            color: #ffffff;
+            background: #d1c9fc;
+            border-radius: 30px;
+            margin-bottom: 6px;
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text='true']{
+            background: #7a61fb;
+        }
+        #comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea{
+            padding: 10px 10px 10px 10px;
+            border: transparent;
+            border-radius: 6px;
+            min-height: 70px;
+            max-height: 180px;
+            background: #e9e8ec;
+            overflow-y: auto;
+            width: -webkit-fill-available;
+        }
+        #comiis_foot_menu_beautify .reply_area li[data-attr="回帖"]{
+            width: 65%;
+            margin: 0px 3%;
+            text-align: center;
+        }
+        #comiis_foot_menu_beautify .reply_area li:not(first-child){
+            width: 7%;
+            text-align: -webkit-center;
+            text-align: center;
+        }
+        #comiis_foot_menu_beautify_big .other_area{
+            width: 100%;
+            text-align: center;
+        }
+        #comiis_foot_menu_beautify_big .other_area .menu_icon a{
+            margin: 0px 20px;
+        }
+        #comiis_foot_menu_beautify_big .other_area i{
+            font-size: 24px;
+        }
+        #comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i{
+            font-size: 16px;
+        }
+        #comiis_foot_menu_beautify_big .other_area .menu_body{
+            background: #f4f4f4;
+
+        }
+        #comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization{
+            max-height: 140px;
+            overflow-y: auto;
+            flex-direction: column;
+        }
+        #comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t{
+            background: #fff;
             
-            #comiis_foot_menu_beautify .reply_area li a i {
-                width: 22px;
-                height: 22px;
-                line-height: 22px;
-                font-size: 22px;
-            }
-            #comiis_foot_menu_beautify .reply_area li a span {
-                position: absolute;
-                display: block;
-                font-size: 10px;
-                height: 14px;
-                line-height: 14px;
-                padding: 0 6px;
-                right: -8px;
-                top: 4px;
-                overflow: hidden;
-                border-radius: 20px;
-            }
-            #comiis_foot_menu_beautify li[data-attr="回帖"] input{
-                border: transparent;
-                border-radius: 15px;
-                height: 30px;
-                width: 100%;
-            }
-            #comiis_foot_menu_beautify_big .reply_area{
-                margin: 10px 0px 5px 0px;
-            }
-            #comiis_foot_menu_beautify_big .reply_area ul{
-                display: inline-flex;
-                align-content: center;
-                justify-content: center;
-                align-items: flex-end;
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="回帖"]{
-                width: 75vw;
-                margin-right: 15px;
-            }
-            #comiis_foot_menu_beautify_big .reply_user_content{
-                width: 75vw;
-                word-wrap: break-word;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                margin: 8px 10px;
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="发表"]{
-    
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new{
-                text-align: center;
-                margin-bottom: 28px;
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i{
-                font-size: 22px;
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="发表"] input{
-                width: 60px;
-                height: 30px;
-                border: transparent;
-                color: #ffffff;
-                background: #d1c9fc;
-                border-radius: 30px;
-                margin-bottom: 6px;
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text='true']{
-                background: #7a61fb;
-            }
-            #comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea{
-                padding: 10px 10px 10px 10px;
-                border: transparent;
-                border-radius: 6px;
-                min-height: 70px;
-                max-height: 180px;
-                background: #e9e8ec;
-                overflow-y: auto;
-                width: -webkit-fill-available;
-            }
-            #comiis_foot_menu_beautify .reply_area li[data-attr="回帖"]{
-                width: 65%;
-                margin: 0px 3%;
-                text-align: center;
-            }
-            #comiis_foot_menu_beautify .reply_area li:not(first-child){
-                width: 7%;
-                text-align: -webkit-center;
-                text-align: center;
-            }
-            #comiis_foot_menu_beautify_big .other_area{
-                width: 100%;
-                text-align: center;
-            }
-            #comiis_foot_menu_beautify_big .other_area .menu_icon a{
-                margin: 0px 20px;
-            }
-            #comiis_foot_menu_beautify_big .other_area i{
-                font-size: 24px;
-            }
-            #comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i{
-                font-size: 16px;
-            }
-            #comiis_foot_menu_beautify_big .other_area .menu_body{
-                background: #f4f4f4;
-    
-            }
-            #comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization{
-                max-height: 140px;
-                overflow-y: auto;
-                flex-direction: column;
-            }
-            #comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t{
-                background: #fff;
-                
-            }
-            #comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t ul#comiis_smilies_key li a.bg_f.b_l.b_r{
-                background: #f4f4f4 !important;
-            }
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key{
-                display: -webkit-box;
-                top: 0px;
-                left: 0px;
-                height: 42px;
-                line-height: 42px;
-                overflow: hidden;
-                overflow-x: auto;        
-            }
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li{
-                padding: 0px 10px;
-            }
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox,
-            #comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style{
-                height: 140px;
-                overflow-y: auto;
-                flex-direction: column;
-            }
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a,
-            #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt{
-                display:none;
-            }
-						@media screen and (max-width: 350px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 14.5%;
-							}
-						}
-						@media screen and (min-width: 350px) and (max-width: 400px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 12.5%;
-							}
-						}
-						@media screen and (min-width: 400px) and (max-width: 450px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 11%;
-							}
-						}
-						@media screen and (min-width: 450px) and (max-width: 500px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 10%;
-							}
-						}
-						@media screen and (min-width: 500px) and (max-width: 550px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 9.5%;
-							}
-						}
-						@media screen and (min-width: 550px) and (max-width: 600px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 9%;
-							}
-						}
-						@media screen and (min-width: 600px) and (max-width: 650px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 8.5%;
-							}
-						}
-						@media screen and (min-width: 650px) and (max-width: 700px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 8%;
-							}
-						}
-						@media screen and (min-width: 700px) and (max-width: 750px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 7.5%;
-							}
-						}
-						@media screen and (min-width: 750px) and (max-width: 800px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 7%;
-							}
-						}
-						@media screen and (min-width: 800px) and (max-width: 850px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 6.5%;
-							}
-						}
-						@media screen and (min-width: 850px) and (max-width: 1200px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 6%;
-							}
-						}
-            `);
+        }
+        #comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t ul#comiis_smilies_key li a.bg_f.b_l.b_r{
+            background: #f4f4f4 !important;
+        }
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key{
+            display: -webkit-box;
+            top: 0px;
+            left: 0px;
+            height: 42px;
+            line-height: 42px;
+            overflow: hidden;
+            overflow-x: auto;        
+        }
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li{
+            padding: 0px 10px;
+        }
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox,
+        #comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style{
+            height: 140px;
+            overflow-y: auto;
+            flex-direction: column;
+        }
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a,
+        #comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt{
+            display:none;
+        }
+        @media screen and (max-width: 350px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 14.5%;
+          }
+        }
+        @media screen and (min-width: 350px) and (max-width: 400px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 12.5%;
+          }
+        }
+        @media screen and (min-width: 400px) and (max-width: 450px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 11%;
+          }
+        }
+        @media screen and (min-width: 450px) and (max-width: 500px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 10%;
+          }
+        }
+        @media screen and (min-width: 500px) and (max-width: 550px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 9.5%;
+          }
+        }
+        @media screen and (min-width: 550px) and (max-width: 600px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 9%;
+          }
+        }
+        @media screen and (min-width: 600px) and (max-width: 650px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 8.5%;
+          }
+        }
+        @media screen and (min-width: 650px) and (max-width: 700px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 8%;
+          }
+        }
+        @media screen and (min-width: 700px) and (max-width: 750px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 7.5%;
+          }
+        }
+        @media screen and (min-width: 750px) and (max-width: 800px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 7%;
+          }
+        }
+        @media screen and (min-width: 800px) and (max-width: 850px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 6.5%;
+          }
+        }
+        @media screen and (min-width: 850px) and (max-width: 1200px) {
+          .comiis_bqbox .bqbox_c li {
+            width: 6%;
+          }
+        }
+        @media screen and (min-width: 1200px){
+          .comiis_bqbox .bqbox_c li {
+            width: 4.5%;
+          }
+        }
+        #imglist_settings button{
+          font-size: 13.333px;
+          color: #9baacf;
+          outline: none;
+          border: none;
+          height: 35px;
+          width: 80px;
+          border-radius: 10px;
+          box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #ffffff;
+          font-weight: 800;
+          line-height: 40px;
+          background: #efefef;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        #imglist_settings button:active{
+          box-shadow: inset 0.2rem 0.2rem 0.5rem #c8d0e7, inset -0.2rem -0.2rem 0.5rem #ffffff !important;
+          color: #638ffb !important;
+        }
+        `);
       let pl = $jq("#comiis_foot_memu .comiis_flex li")[1];
       let dz = $jq("#comiis_foot_memu .comiis_flex li")[2];
       let sc = $jq("#comiis_foot_memu .comiis_flex li")[3];
@@ -6863,6 +7144,24 @@
                              </div>
                              <div class='comiis_upbox comiis_chartbed_settings' style='display: none;height: 170px;overflow-y: auto;background: #fff;'>
                                 <ul id="imglist_settings" class="cl">
+                                    <li class="comiis_styli_m f15 comiis_flex b_b">
+                                        <div class="flex" style="text-align: left;">删除已保存的康哥图床的账号</div>
+                                        <div class="styli_r">
+                                            <button class="removeChartBedAccount" data-key="['KggzsChartBedUser','KggzsChartBedPwd']">点我删除</button>
+                                        </div>	
+                                    </li>
+                                    <li class="comiis_styli_m f15 comiis_flex b_b">
+                                        <div class="flex" style="text-align: left;">删除已保存的Hello图床的账号</div>
+                                        <div class="styli_r">
+                                          <button class="removeChartBedAccount" data-key="['HelloChartBedUser','HelloChartBedPwd']">点我删除</button>
+                                        </div>	
+                                    </li>
+                                    <li class="comiis_styli_m f15 comiis_flex b_b">
+                                        <div class="flex" style="text-align: left;">删除已保存的Z4A图床的账号</div>
+                                        <div class="styli_r">
+                                          <button class="removeChartBedAccount" data-key="['Z4AChartBedUser','Z4AChartBedPwd']">点我删除</button>
+                                        </div>	
+                                    </li>
                                     <li class="comiis_styli_m f15 comiis_flex b_b">
                                         <div class="flex" style="text-align: left;">水印</div>
                                         <div class="styli_r">
@@ -7957,6 +8256,27 @@
           .fadeIn();
       });
 
+      $jq(".removeChartBedAccount").on("click", function (event) {
+        event.preventDefault();
+        let node = $jq(this);
+        popup2.confirm({
+          text: "<p>确定删除保存的账号和密码？</p>",
+          ok: {
+            callback: () => {
+              eval(node.attr("data-key")).forEach((item) => {
+                console.log("删除");
+                GM_deleteValue(item);
+              });
+              popup2.closeConfirm();
+              popup2.toast("删除成功");
+            },
+          },
+
+          mask: true,
+          only: true,
+        });
+      });
+
       function chartbedWaterMarkEvent() {
         /* 图床-水印-设置的各种事件 */
 
@@ -8292,6 +8612,11 @@
 								width: 6%;
 							}
 						}
+            @media screen and (min-width: 1200px){
+							.comiis_bqbox .bqbox_c li {
+								width: 4.5%;
+							}
+						}
             `);
       $jq(".comiis_scrollTop_box").parent().hide();
       $jq("#postform .comiis_post_from.mt15").css(
@@ -8611,6 +8936,29 @@
       let before_image_luntan = $jq(
         ".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist"
       );
+      GM_addStyle(`
+      #imglist_settings button{
+        font-size: 13.333px;
+        color: #9baacf;
+        outline: none;
+        border: none;
+        height: 35px;
+        width: 80px;
+        border-radius: 10px;
+        box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #ffffff;
+        font-weight: 800;
+        line-height: 40px;
+        background: #efefef;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #imglist_settings button:active{
+        box-shadow: inset 0.2rem 0.2rem 0.5rem #c8d0e7, inset -0.2rem -0.2rem 0.5rem #ffffff !important;
+        color: #638ffb !important;
+      }
+      `);
       $jq(".gm_plugin_chartbed").append(
         $jq(`
                 <div class='comiis_upbox comiis_chartbed_luntan'></div>
@@ -8664,6 +9012,24 @@
                 </div>
                 <div class='comiis_upbox comiis_chartbed_settings' style='display: none;height: 170px;overflow-y: auto;'>
                     <ul id="imglist_settings" class="cl">
+                        <li class="comiis_styli_m f15 comiis_flex b_b">
+                            <div class="flex" style="text-align: left;">删除已保存的康哥图床的账号</div>
+                            <div class="styli_r">
+                                <button class="removeChartBedAccount" data-key="['KggzsChartBedUser','KggzsChartBedPwd']">点我删除</button>
+                            </div>	
+                        </li>
+                        <li class="comiis_styli_m f15 comiis_flex b_b">
+                            <div class="flex" style="text-align: left;">删除已保存的Hello图床的账号</div>
+                            <div class="styli_r">
+                              <button class="removeChartBedAccount" data-key="['HelloChartBedUser','HelloChartBedPwd']">点我删除</button>
+                            </div>	
+                        </li>
+                        <li class="comiis_styli_m f15 comiis_flex b_b">
+                            <div class="flex" style="text-align: left;">删除已保存的Z4A图床的账号</div>
+                            <div class="styli_r">
+                              <button class="removeChartBedAccount" data-key="['Z4AChartBedUser','Z4AChartBedPwd']">点我删除</button>
+                            </div>	
+                        </li>
                         <li class="comiis_styli_m f15 comiis_flex b_b">
                             <div class="flex">水印</div>
                             <div class="styli_r">
@@ -8756,9 +9122,28 @@
           .fadeIn();
       });
 
-      function chartbedWaterMarkEvent() {
-        /* 图床-水印-设置的各种事件 */
+      function setSettingViewEvent() {
+        /* 图床-设置的各种事件 */
+        $jq(".removeChartBedAccount").on("click", function (event) {
+          event.preventDefault();
+          let node = $jq(this);
+          popup2.confirm({
+            text: "<p>确定删除保存的账号和密码？</p>",
+            ok: {
+              callback: () => {
+                eval(node.attr("data-key")).forEach((item) => {
+                  console.log("删除");
+                  GM_deleteValue(item);
+                });
+                popup2.closeConfirm();
+                popup2.toast("删除成功");
+              },
+            },
 
+            mask: true,
+            only: true,
+          });
+        });
         $jq("label[for='autowatermarkdefault']").on("click", function () {
           let obj = $jq(this);
           let code_obj = obj.find("code");
@@ -8941,7 +9326,7 @@
       }
       $jq("#needmessage").attr("placeholder", "来吧，尽情发挥吧...");
       Utils.tryCatch(mobile.selectPostingSection);
-      Utils.tryCatch(chartbedWaterMarkEvent);
+      Utils.tryCatch(setSettingViewEvent);
     },
     /**
      * 蓝奏功能(登录、上传、查看历史上传、删除)
@@ -8953,61 +9338,61 @@
       }
       var lanZouViewShowLock = false;
       GM_addStyle(`
-            .xtiper_content.xmin .loginbox{
-                padding: 15px;
-                font-size: 14px;
-            }
-            .xtiper_content.xmin .loginbox div{
-                padding-bottom: 10px;
-            }
-            .xtiper_content.xmin .loginbox .xinput.xful{
-                width: 100%;
-                resize: none;
-                -webkit-appearance: none;
-                border-radius: 0;
-                height: 34px;
-                padding: 0 8px;
-                transition-property: box-shadow,border-color;
-                -webkit-transition: 0.2s ease-in;
-                transition: 0.2s ease-in;
-                border: 1px solid #bebebe;
-                box-sizing: border-box;
-                font-size: 14px;
-                color: #333;
-            }
-            .xtiper_content.xmin .loginbox .xbutton.xful.xblue{
-                background-image: none;
-                color: #fff;
-                border: 1px solid #0e73e9;
-                background-color: #0e73e9;
-                width: 100%;
-                box-shadow: inset 0px 0px 2px #fff;
-                -webkit-box-shadow: inset 0px 0px 2px #fff;
-                -moz-box-shadow: inset 0px 0px 2px #fff;
-                padding: 0 18px;
-                height: 38px;
-                cursor: pointer;
-                font-size: 14px;
-                -webkit-border-radius: 0;
-                -moz-border-radius: 0;
-                border-radius: 0;
-            }
-            .xtiper_content.xmin .loginbox .xinput.xful:focus,
-            .xtiper_content.xmin .loginbox .xinput.xful:hover{
-                border-color: #7a9cd3;
-                box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(122 156 211 / 60%);
-            }
-            .xtiper_content.xmin .loginbox .xbutton.xful.xblue,
-            .xtiper_content.xmin .loginbox .xbutton.xful.xblue:hover{
-                background-color: #005ecd;
-            }
-            .xtiper_content.xmin .loginbox .xbutton.xful.xblue:active {
-                box-shadow: inset 0px 0px 3px rgb(0 0 0 / 30%);
-                -o-box-shadow: inset 0px 0px 3px rgba(0,0,0,0.3);
-                -webkit-box-shadow: inset 0px 0px 3px rgb(0 0 0 / 30%);
-                -moz-box-shadow: inset 0px 0px 3px rgba(0,0,0,0.3);
-            }
-            `);
+      .xtiper_content.xmin .loginbox{
+          padding: 15px;
+          font-size: 14px;
+      }
+      .xtiper_content.xmin .loginbox div{
+          padding-bottom: 10px;
+      }
+      .xtiper_content.xmin .loginbox .xinput.xful{
+          width: 100%;
+          resize: none;
+          -webkit-appearance: none;
+          border-radius: 0;
+          height: 34px;
+          padding: 0 8px;
+          transition-property: box-shadow,border-color;
+          -webkit-transition: 0.2s ease-in;
+          transition: 0.2s ease-in;
+          border: 1px solid #bebebe;
+          box-sizing: border-box;
+          font-size: 14px;
+          color: #333;
+      }
+      .xtiper_content.xmin .loginbox .xbutton.xful.xblue{
+          background-image: none;
+          color: #fff;
+          border: 1px solid #0e73e9;
+          background-color: #0e73e9;
+          width: 100%;
+          box-shadow: inset 0px 0px 2px #fff;
+          -webkit-box-shadow: inset 0px 0px 2px #fff;
+          -moz-box-shadow: inset 0px 0px 2px #fff;
+          padding: 0 18px;
+          height: 38px;
+          cursor: pointer;
+          font-size: 14px;
+          -webkit-border-radius: 0;
+          -moz-border-radius: 0;
+          border-radius: 0;
+      }
+      .xtiper_content.xmin .loginbox .xinput.xful:focus,
+      .xtiper_content.xmin .loginbox .xinput.xful:hover{
+          border-color: #7a9cd3;
+          box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(122 156 211 / 60%);
+      }
+      .xtiper_content.xmin .loginbox .xbutton.xful.xblue,
+      .xtiper_content.xmin .loginbox .xbutton.xful.xblue:hover{
+          background-color: #005ecd;
+      }
+      .xtiper_content.xmin .loginbox .xbutton.xful.xblue:active {
+          box-shadow: inset 0px 0px 3px rgb(0 0 0 / 30%);
+          -o-box-shadow: inset 0px 0px 3px rgba(0,0,0,0.3);
+          -webkit-box-shadow: inset 0px 0px 3px rgb(0 0 0 / 30%);
+          -moz-box-shadow: inset 0px 0px 3px rgba(0,0,0,0.3);
+      }
+      `);
       const lanzou = {
         storage: {
           getUser() {
@@ -9397,6 +9782,16 @@
               };
           },
         });
+        console.log(document.querySelector(".xinput.xful[type='password']"));
+        Utils.listenKeyPress(
+          document.querySelector(".xinput.xful[type='password']"),
+          (keyName, otherKey) => {
+            if (keyName === "Enter") {
+              console.log("回车按键");
+              $jq("button.xbutton.xful.xblue").click();
+            }
+          }
+        );
       }
       async function showLanZouView(user, pwd) {
         popup2.toast("校验登录信息中...");
@@ -13125,7 +13520,7 @@
                         `)
             );
           } else {
-            Object.keys(classifyClassNameDict).forEach(function (key) {
+            Object.keys(classifyClassNameDict).forEach( (key) =>{
               $jq(
                 ".comiis_post_from ." + classifyClassNameDict[key]["className"]
               ).remove();
@@ -13143,9 +13538,11 @@
      * 感谢提供思路 https://greasyfork.org/zh-CN/scripts/11969-discuz论坛头像上传助手
      */
     setDynamicAvatar() {
-		if(!(MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.dataSettingUrl],"v51"))){
-			return;
-		}
+      if (
+        !MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.dataSettingUrl], "v51")
+      ) {
+        return;
+      }
       let formhash = $jq(".sidenv_exit a:nth-child(1)")
         .attr("href")
         .match(/formhash=([0-9a-zA-Z]+)/);
@@ -13286,24 +13683,23 @@
       dynamicAvater.on("click", () => {
         popup2.confirm({
           text: `
-                    <style>.comiis_tip{width: 80vw;}</style>
-                    <p style="padding: 10px 0px;">修改动态头像</p>
-                    <div style="height: 45vh;overflow: auto;">
-                        <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
-                            <p style="float: left;font-weight: bold;">1. 电脑版帖内头像: ${avatarInfo.big.width}×${avatarInfo.big.height} </p>
-                            <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
-                            <input type="file" id="comiis_file_dynamic_avater_big" data-maxwidth=${avatarInfo.big.width} data-maxheight=${avatarInfo.big.height} style="margin: 20px 0px;" accept="image/*">
-                        </div>
-                        <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
-                            <p style="float: left;font-weight: bold;">2. 一般通用的头像: ${avatarInfo.medium.width}×${avatarInfo.medium.height} </p>
-                            <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
-                            <input type="file" id="comiis_file_dynamic_avater_medium" data-maxwidth=${avatarInfo.medium.width} data-maxheight=${avatarInfo.medium.width} style="margin: 20px 0px;" accept="image/*"></div>
-                        <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
-                            <p style="float: left;font-weight: bold;">3. 电脑版右上角小头像: ${avatarInfo.small.width}×${avatarInfo.small.height} </p>
-                            <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
-                            <input type="file" id="comiis_file_dynamic_avater_small" data-maxwidth=${avatarInfo.small.width} data-maxheight=${avatarInfo.small.width} style="margin: 20px 0px;" accept="image/*"></div>
-                    </div>
-                    `,
+            <style>.comiis_tip{width: 80vw;}</style>
+            <p style="padding: 10px 0px;">修改动态头像</p>
+            <div style="height: 45vh;overflow-y: auto;overflow-x: hidden;">
+                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
+                    <p style="float: left;font-weight: bold;">1. 桌面端头像: ${avatarInfo.big.width}×${avatarInfo.big.height} </p>
+                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
+                    <input type="file" id="comiis_file_dynamic_avater_big" data-maxwidth=${avatarInfo.big.width} data-maxheight=${avatarInfo.big.height} style="margin: 20px 0px;" accept="image/*">
+                </div>
+                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
+                    <p style="float: left;font-weight: bold;">2. 移动端头像: ${avatarInfo.medium.width}×${avatarInfo.medium.height} </p>
+                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
+                    <input type="file" id="comiis_file_dynamic_avater_medium" data-maxwidth=${avatarInfo.medium.width} data-maxheight=${avatarInfo.medium.width} style="margin: 20px 0px;" accept="image/*"></div>
+                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
+                    <p style="float: left;font-weight: bold;">3. 桌面端右上角小头像: ${avatarInfo.small.width}×${avatarInfo.small.height} </p>
+                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
+                    <input type="file" id="comiis_file_dynamic_avater_small" data-maxwidth=${avatarInfo.small.width} data-maxheight=${avatarInfo.small.width} style="margin: 20px 0px;" accept="image/*"></div>
+            </div>`,
           mask: true,
           only: true,
           ok: {
@@ -13460,9 +13856,11 @@
      * 导读新增显示最新帖子
      */
     showLatestPostForm() {
-		if(!(MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.navigationUrl],"v53"))){
-			return;
-		}
+      if (
+        !MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.navigationUrl], "v53")
+      ) {
+        return;
+      }
       function getLatestPostForm() {
         /* 获取轮播的最新的帖子 */
         return new Promise((resolve) => {
@@ -13581,169 +13979,169 @@
      * 显示签到的最先几个人，最多10个，和顶部的今日签到之星
      */
     showSignInRanking() {
-		if(!(MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.kMiSignSign]))){
-			return;
-		}
+      if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.kMiSignSign])) {
+        return;
+      }
 
-        let today_ranking_ele = document.querySelector(
-          ".comiis_topnv .comiis_flex .flex"
-        );
-        today_ranking_ele.after(
-          $jq(
-            `<li class="flex"><a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');">今日最先</a></li>`
-          )[0]
-        );
-        let getMaxPage = (urlextra) => {
-          return new Promise((resolve) => {
-            GM_xmlhttpRequest({
-              url:
-                "https://bbs.binmt.cc/k_misign-sign.html?operation=" + urlextra,
-              async: false,
-              responseType: "html",
-              timeout: 5000,
-              headers: {
-                "User-Agent": Utils.getRandomPCUA(),
-              },
-              onload: function (response) {
-                let last_page = $jq(response.responseText).find(
-                  "#J_list_detail .pg span"
-                );
-                if (
-                  last_page.length &&
-                  typeof last_page[0].title != "undefined"
-                ) {
-                  let last_page_match = last_page[0].title.match(/([0-9]+)/);
-                  if (last_page_match.length == 2) {
-                    resolve(last_page_match[last_page_match.length - 1]);
-                  } else {
-                    popup2.toast("获取页失败");
-                    resolve(0);
-                  }
+      let today_ranking_ele = document.querySelector(
+        ".comiis_topnv .comiis_flex .flex"
+      );
+      today_ranking_ele.after(
+        $jq(
+          `<li class="flex"><a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');">今日最先</a></li>`
+        )[0]
+      );
+      let getMaxPage = (urlextra) => {
+        return new Promise((resolve) => {
+          GM_xmlhttpRequest({
+            url:
+              "https://bbs.binmt.cc/k_misign-sign.html?operation=" + urlextra,
+            async: false,
+            responseType: "html",
+            timeout: 5000,
+            headers: {
+              "User-Agent": Utils.getRandomPCUA(),
+            },
+            onload: function (response) {
+              let last_page = $jq(response.responseText).find(
+                "#J_list_detail .pg span"
+              );
+              if (
+                last_page.length &&
+                typeof last_page[0].title != "undefined"
+              ) {
+                let last_page_match = last_page[0].title.match(/([0-9]+)/);
+                if (last_page_match.length == 2) {
+                  resolve(last_page_match[last_page_match.length - 1]);
                 } else {
-                  popup2.toast("请求最先签到的页失败");
+                  popup2.toast("获取页失败");
                   resolve(0);
                 }
-              },
-              onerror: function (response) {
-                console.log(response);
-                popup2.toast("网络异常,请重新获取");
+              } else {
+                popup2.toast("请求最先签到的页失败");
                 resolve(0);
-              },
-              ontimeout: () => {
-                popup2.toast("请求超时");
-                resolve(0);
-              },
-            });
+              }
+            },
+            onerror: function (response) {
+              console.log(response);
+              popup2.toast("网络异常,请重新获取");
+              resolve(0);
+            },
+            ontimeout: () => {
+              popup2.toast("请求超时");
+              resolve(0);
+            },
           });
-        };
+        });
+      };
 
-        let getPagePeople = (page) => {
-          return new Promise((resolve) => {
-            GM_xmlhttpRequest({
-              url:
-                "https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=" +
-                page,
-              async: false,
-              timeout: 5000,
-              responseType: "html",
-              headers: {
-                "User-Agent": Utils.getRandomPCUA(),
-              },
-              onload: function (response) {
-                let peoples = $jq(response.responseText).find(
-                  "#J_list_detail tbody tr"
-                );
-                let ret_array = [];
-                if (
-                  peoples.length == 2 &&
-                  peoples[0].textContent.indexOf("暂无内容") != -1
-                ) {
-                  resolve(ret_array);
-                  return;
-                }
-                for (let i = 1; i <= peoples.length - 2; i++) {
-                  let people = peoples[i];
-                  let ret_json = {};
-                  let user_name =
-                    people.children[0].getElementsByTagName("a")[0].textContent;
-                  let space_url =
-                    people.children[0].getElementsByTagName("a")[0].href;
-                  let uid = space_url.match(/space-uid-([0-9]*)/)[1];
-                  let sign_all_days = people.children[1].textContent;
-                  let sign_month_days = people.children[2].textContent;
-                  let sign_time = people.children[3].textContent;
-                  let sign_reward = people.children[5].textContent;
-                  ret_json["user"] = user_name;
-                  ret_json["uid"] = uid;
-                  ret_json["avatar"] = MT_CONFIG.getAvatar(uid, "small");
-                  ret_json["days"] = sign_all_days;
-                  ret_json["monthDays"] = sign_month_days;
-                  ret_json["time"] = sign_time;
-                  ret_json["reward"] = sign_reward;
-                  ret_array = ret_array.concat(ret_json);
-                }
+      let getPagePeople = (page) => {
+        return new Promise((resolve) => {
+          GM_xmlhttpRequest({
+            url:
+              "https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=" +
+              page,
+            async: false,
+            timeout: 5000,
+            responseType: "html",
+            headers: {
+              "User-Agent": Utils.getRandomPCUA(),
+            },
+            onload: function (response) {
+              let peoples = $jq(response.responseText).find(
+                "#J_list_detail tbody tr"
+              );
+              let ret_array = [];
+              if (
+                peoples.length == 2 &&
+                peoples[0].textContent.indexOf("暂无内容") != -1
+              ) {
                 resolve(ret_array);
-              },
-              onerror: function (response) {
-                console.log(response);
-                resolve({});
-              },
-              ontimeout: () => {
-                popup2.toast("请求超时");
-                resolve({});
-              },
-            });
+                return;
+              }
+              for (let i = 1; i <= peoples.length - 2; i++) {
+                let people = peoples[i];
+                let ret_json = {};
+                let user_name =
+                  people.children[0].getElementsByTagName("a")[0].textContent;
+                let space_url =
+                  people.children[0].getElementsByTagName("a")[0].href;
+                let uid = space_url.match(/space-uid-([0-9]*)/)[1];
+                let sign_all_days = people.children[1].textContent;
+                let sign_month_days = people.children[2].textContent;
+                let sign_time = people.children[3].textContent;
+                let sign_reward = people.children[5].textContent;
+                ret_json["user"] = user_name;
+                ret_json["uid"] = uid;
+                ret_json["avatar"] = MT_CONFIG.getAvatar(uid, "small");
+                ret_json["days"] = sign_all_days;
+                ret_json["monthDays"] = sign_month_days;
+                ret_json["time"] = sign_time;
+                ret_json["reward"] = sign_reward;
+                ret_array = ret_array.concat(ret_json);
+              }
+              resolve(ret_array);
+            },
+            onerror: function (response) {
+              console.log(response);
+              resolve({});
+            },
+            ontimeout: () => {
+              popup2.toast("请求超时");
+              resolve({});
+            },
           });
-        };
+        });
+      };
 
-        function changeRankList(data, listtype) {
-          $jq("#ranklist").html(data);
-          $jq("#ranklist").attr("listtype", listtype);
+      function changeRankList(data, listtype) {
+        $jq("#ranklist").html(data);
+        $jq("#ranklist").attr("listtype", listtype);
+      }
+
+      ajaxlist = async (listtype) => {
+        listtype = listtype;
+        if (listtype == "today") {
+          loadingdelay = false;
+          urlextra = "list&op=today";
+        } else if (listtype == "month") {
+          loadingdelay = false;
+          urlextra = "list&op=month";
+        } else if (listtype == "zong") {
+          loadingdelay = false;
+          urlextra = "list&op=zong";
+        } else if (listtype == "calendar") {
+          loadingdelay = true;
+          urlextra = "calendar";
+        } else {
+          loadingdelay = false;
+          urlextra = "list";
         }
-
-        ajaxlist = async (listtype) => {
-          listtype = listtype;
-          if (listtype == "today") {
-            loadingdelay = false;
-            urlextra = "list&op=today";
-          } else if (listtype == "month") {
-            loadingdelay = false;
-            urlextra = "list&op=month";
-          } else if (listtype == "zong") {
-            loadingdelay = false;
-            urlextra = "list&op=zong";
-          } else if (listtype == "calendar") {
-            loadingdelay = true;
-            urlextra = "calendar";
-          } else {
-            loadingdelay = false;
-            urlextra = "list";
+        /* alert(loadingdelay); */
+        if (listtype == "todayLatest") {
+          loadingdelay = false;
+          urlextra = "list&op=&page=0";
+          let maxPage = await getMaxPage(urlextra);
+          if (maxPage == 0) {
+            return;
           }
-          /* alert(loadingdelay); */
-          if (listtype == "todayLatest") {
-            loadingdelay = false;
-            urlextra = "list&op=&page=0";
-            let maxPage = await getMaxPage(urlextra);
-            if (maxPage == 0) {
-              return;
-            }
-            let latestPeople = await getPagePeople(maxPage);
+          let latestPeople = await getPagePeople(maxPage);
 
+          latestPeople.reverse();
+          if (latestPeople.length < 10) {
+            let latestPeople_2 = await getPagePeople(maxPage - 1);
+            latestPeople_2.reverse();
+            latestPeople = latestPeople.concat(latestPeople_2);
             latestPeople.reverse();
-            if (latestPeople.length < 10) {
-              let latestPeople_2 = await getPagePeople(maxPage - 1);
-              latestPeople_2.reverse();
-              latestPeople = latestPeople.concat(latestPeople_2);
-              latestPeople.reverse();
-            }
+          }
 
-            let peopleHTML = "";
-            latestPeople.reverse();
-            console.log(latestPeople);
-            latestPeople.forEach((people) => {
-              peopleHTML =
-                peopleHTML +
-                `<tbody id="autolist_${people["uid"]}">
+          let peopleHTML = "";
+          latestPeople.reverse();
+          console.log(latestPeople);
+          latestPeople.forEach((people) => {
+            peopleHTML =
+              peopleHTML +
+              `<tbody id="autolist_${people["uid"]}">
                   <tr>
                 		<td class="k_misign_lu">
                     	<a href="home.php?mod=space&amp;uid=${people["uid"]}">
@@ -13761,9 +14159,9 @@
                   	</td>
                 	</tr>
               	</tbody>`;
-            });
-            let latestHTML =
-              `<li class="styli_h bg_e"></li>
+          });
+          let latestHTML =
+            `<li class="styli_h bg_e"></li>
                         <div class="comiis_topnv bg_f b_t b_b">
                             <ul class="comiis_flex">
                                 <li class="flex"><a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a></li>
@@ -13778,80 +14176,80 @@
                             <div class="k_misign_list bg_f">
                                 <table id="misign_list">
                                 ` +
-              peopleHTML +
-              `
+            peopleHTML +
+            `
                                 </table>
                             </div>
                         </div>`;
-            changeRankList(latestHTML, listtype);
-          } else {
-            $jq.ajax({
-              type: "GET",
-              url: "plugin.php?id=k_misign:sign&operation=" + urlextra,
-              async: false,
-              dataType: "html",
-              success: function (data) {
-                /* console.log(data); */
-                data = data.replace(
-                  `今日排行</a></li>`,
-                  `今日排行</a></li><li class="flex"><a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');">今日最先</a></li>`
-                );
-                changeRankList(data, listtype);
-              },
-              complete: function (XHR, TS) {
-                XHR = null;
-              },
-            });
-          }
-        };
+          changeRankList(latestHTML, listtype);
+        } else {
+          $jq.ajax({
+            type: "GET",
+            url: "plugin.php?id=k_misign:sign&operation=" + urlextra,
+            async: false,
+            dataType: "html",
+            success: function (data) {
+              /* console.log(data); */
+              data = data.replace(
+                `今日排行</a></li>`,
+                `今日排行</a></li><li class="flex"><a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');">今日最先</a></li>`
+              );
+              changeRankList(data, listtype);
+            },
+            complete: function (XHR, TS) {
+              XHR = null;
+            },
+          });
+        }
+      };
     },
     /**
      * 显示今日之星，在签到页上
      */
     showTodayStar() {
-		if(!(MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.kMiSignSign],"v33"))){
-			return;
-		}
+      if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.kMiSignSign], "v33")) {
+        return;
+      }
 
-        let todayStarParent = $jq(".pg_k_misign .comiis_qdinfo");
-        let todayStar = document.createElement("ul");
-        GM_xmlhttpRequest({
-          url: "/k_misign-sign.html",
-          method: "get",
-          async: false,
-          timeout: 5000,
-          headers: {
-            "User-Agent": Utils.getRandomPCUA(),
-          },
-          onload: (response) => {
-            let html = $jq(response.responseText);
-            let todatastarele = html.find("#pt span.xg1");
-            if (!todatastarele.length) {
-              return;
-            }
-            let todaypeople = todatastarele[0].textContent.replace(
-              "今日签到之星：",
-              ""
-            );
-            todayStar.innerHTML =
-              '<li class="f_f" style="display: flex;flex-direction: column;width: 100%;"><span class="comiis_tm">今日签到之星</span>' +
-              todaypeople +
-              "</li>";
-            let comiis_space_box_height = getComputedStyle(
-              $jq(".comiis_space_box")[0],
-              null
-            )["height"].replace("px", "");
-            let comiis_space_box_padding_bottom = getComputedStyle(
-              $jq(".comiis_space_box")[0],
-              null
-            )["padding-bottom"].replace("px", "");
-            comiis_space_box_height = parseInt(comiis_space_box_height);
-            comiis_space_box_padding_bottom = parseInt(
-              comiis_space_box_padding_bottom
-            );
-            let total_height =
-              comiis_space_box_height + comiis_space_box_padding_bottom + 50;
-            GM_addStyle(`
+      let todayStarParent = $jq(".pg_k_misign .comiis_qdinfo");
+      let todayStar = document.createElement("ul");
+      GM_xmlhttpRequest({
+        url: "/k_misign-sign.html",
+        method: "get",
+        async: false,
+        timeout: 5000,
+        headers: {
+          "User-Agent": Utils.getRandomPCUA(),
+        },
+        onload: (response) => {
+          let html = $jq(response.responseText);
+          let todatastarele = html.find("#pt span.xg1");
+          if (!todatastarele.length) {
+            return;
+          }
+          let todaypeople = todatastarele[0].textContent.replace(
+            "今日签到之星：",
+            ""
+          );
+          todayStar.innerHTML =
+            '<li class="f_f" style="display: flex;flex-direction: column;width: 100%;"><span class="comiis_tm">今日签到之星</span>' +
+            todaypeople +
+            "</li>";
+          let comiis_space_box_height = getComputedStyle(
+            $jq(".comiis_space_box")[0],
+            null
+          )["height"].replace("px", "");
+          let comiis_space_box_padding_bottom = getComputedStyle(
+            $jq(".comiis_space_box")[0],
+            null
+          )["padding-bottom"].replace("px", "");
+          comiis_space_box_height = parseInt(comiis_space_box_height);
+          comiis_space_box_padding_bottom = parseInt(
+            comiis_space_box_padding_bottom
+          );
+          let total_height =
+            comiis_space_box_height + comiis_space_box_padding_bottom + 50;
+          GM_addStyle(`
                         .comiis_space_box{
                             height: ${total_height}px;
                             background-size: 100% 100%;
@@ -13859,26 +14257,26 @@
                         .pg_k_misign .comiis_qdinfo{
                             height: 110px !important;
                         }`);
-            todayStarParent.append(todayStar);
-          },
-          onerror: (response) => {
-            console.log(response);
-            log.error("请求今日之星失败");
-            popup2.toast("请求今日之星失败");
-          },
-          ontimeout: () => {
-            popup2.toast("请求今日之星超时");
-            log.error("请求超时");
-          },
-        });
+          todayStarParent.append(todayStar);
+        },
+        onerror: (response) => {
+          console.log(response);
+          log.error("请求今日之星失败");
+          popup2.toast("请求今日之星失败");
+        },
+        ontimeout: () => {
+          popup2.toast("请求今日之星超时");
+          log.error("请求超时");
+        },
+      });
     },
     /**
      * 显示空间-帖子-具体回复
      */
     async showSpaceContreteReply() {
-		if(!(MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.spacePost],"v52"))){
-			return;
-		}
+      if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.spacePost], "v52")) {
+        return;
+      }
 
       function getPCReply() {
         /* 获取PC端的回复内容 */
@@ -14122,13 +14520,13 @@
       console.log("PC端显示");
       Utils.tryCatch(pc.repairPCNoLoadResource);
       $jq(document).ready(function () {
-        Utils.tryCatch(pc.main);
+        pc.main();
       });
     } else {
       console.log("移动端显示");
       $jq(document).ready(function () {
         Utils.tryCatch(mobile.loadSettingView);
-        Utils.tryCatch(mobile.main);
+        mobile.main();
       });
     }
   }
@@ -14155,7 +14553,7 @@
   if (envCheck()) {
     $jq(document).ready(function () {
       entrance();
-      console.log(`执行完毕,耗时${Date.now() - MT_CONFIG.GMRunStartTime}ms`);
+      console.log(`执行完毕,耗时${Date.now() - MT_CONFIG.gmRunStartTime}ms`);
       firstUseTip();
     });
   }
