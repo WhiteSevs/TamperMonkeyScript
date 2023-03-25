@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.4
+// @version      2.8.5
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -29,7 +29,7 @@
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
 // @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1118788
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153232
-// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1152183
+// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1164713
 // ==/UserScript==
@@ -111,7 +111,7 @@
       },
     },
     init: () => {
-      Object.keys(popup2.config).forEach( (key)=> {
+      Object.keys(popup2.config).forEach((key) => {
         let style = popup2.config[key].style;
         if (style != "") {
           GM_addStyle(style);
@@ -709,7 +709,7 @@
         "background:#24272A; color:#ffffff",
         "color:#00a5ff"
       );
-    } else if (typeof GM_xmlhttpRequest == "undefined") {
+    } else if (typeof GM_xmlhttpRequest === "undefined") {
       window.GM_xmlhttpRequest_isRepair = true;
       isFailedFunction = isFailedFunction.concat("GM_xmlhttpRequest");
       console.log(
@@ -851,7 +851,7 @@
       cssNode.setAttribute("type", "text/css");
       document.head.append(cssNode);
     };
-    if (typeof GM_getValue == "undefined") {
+    if (typeof GM_getValue === "undefined") {
       window.GM_getValue = (key, defaultValue) => {
         let value = window.localStorage.getItem(key);
         if (typeof value == "string" && value.trim() != String()) {
@@ -873,7 +873,7 @@
         "color:#00a5ff"
       );
     }
-    if (typeof GM_setValue == "undefined") {
+    if (typeof GM_setValue === "undefined") {
       window.GM_setValue = (key, value) => {
         if (value == undefined) {
           value = null;
@@ -892,7 +892,7 @@
         "color:#00a5ff"
       );
     }
-    if (typeof GM_deleteValue == "undefined") {
+    if (typeof GM_deleteValue === "undefined") {
       window.GM_deleteValue = (key) => {
         window.localStorage.removeItem(key);
       };
@@ -908,7 +908,7 @@
         "color:#00a5ff"
       );
     }
-    if (typeof GM_addStyle == "undefined") {
+    if (typeof GM_addStyle === "undefined") {
       window.GM_addStyle = (styleText) => {
         let cssDOM = document.createElement("style");
         cssDOM.setAttribute("type", "text/css");
@@ -931,7 +931,7 @@
         "color:#00a5ff"
       );
     }
-    if (typeof GM_setClipboard == "undefined") {
+    if (typeof GM_setClipboard === "undefined") {
       window.GM_setClipboard = (text) => {
         Utils.setClip(text);
       };
@@ -947,7 +947,7 @@
         "color:#00a5ff"
       );
     }
-    if (typeof unsafeWindow == "undefined") {
+    if (typeof unsafeWindow === "undefined") {
       window.unsafeWindow = window;
       console.log(
         "check: %c unsafeWindow %c √ 修复",
@@ -957,6 +957,20 @@
     } else {
       console.log(
         "check: %c unsafeWindow %c √",
+        "background:#24272A; color:#ffffff",
+        "color:#00a5ff"
+      );
+    }
+    if (typeof GM_cookie === "undefined") {
+      unsafeWindow.GM_cookie = new Utils.GM_Cookie();
+      console.log(
+        "check: %c GM_cookie %c √ 修复",
+        "background:#24272A; color:#ffffff",
+        "color:#00a5ff"
+      );
+    } else {
+      console.log(
+        "check: %c GM_cookie %c √",
         "background:#24272A; color:#ffffff",
         "color:#00a5ff"
       );
@@ -984,11 +998,11 @@
       /* 电脑版函数按顺序加载 */
       /* 禁止自动执行的函数(这些函数在其它地方调用) */
       const notRunFunc = ["main"];
-      Object.keys(pc).forEach( (key)=> {
+      Object.keys(pc).forEach((key) => {
         if (typeof pc[key] !== "function" || notRunFunc.indexOf(key) != -1) {
           return;
         }
-        Utils.tryCatch.call(this,pc[key]);
+        Utils.tryCatch.call(this, pc[key]);
       });
     },
     initPopup2() {
@@ -1186,7 +1200,7 @@
       if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
         return;
       }
-      console.log("this指向",this);
+      console.log("this指向", this);
       if ($jq(".pgbtn").length == 0) {
         console.warn("没有找到下一页按钮");
         return;
@@ -1412,8 +1426,8 @@
     },
     runMobileFunc() {
       /* 执行手机端函数 */
-      Utils.tryCatch.call(mobileRepeatFunc,mobileRepeatFunc.identifyLinks);
-      Utils.tryCatch.call(mobile,mobile.autoSignIn);
+      Utils.tryCatch.call(mobileRepeatFunc, mobileRepeatFunc.identifyLinks);
+      Utils.tryCatch.call(mobile, mobile.autoSignIn);
     },
   };
 
@@ -1426,7 +1440,7 @@
         if (key === "main" || typeof mobileRepeatFunc[key] !== "function") {
           return;
         }
-        Utils.tryCatch.call(this,mobileRepeatFunc[key]);
+        Utils.tryCatch.call(this, mobileRepeatFunc[key]);
       });
       unsafeWindow?.popup?.init();
     },
@@ -2131,7 +2145,7 @@
           title: websiteTitle,
           height: "92%",
           app: true,
-          success: (e) => {
+          success: () => {
             banBack();
           },
           end: () => {
@@ -2142,14 +2156,22 @@
 
         if (typeof top.window.tampermonkeyByMT != "undefined") {
           console.log("当前执行为非油猴调用");
-          let iframe_id = smallWindowIframeId + "_id";
-          document.getElementById(iframe_id).onload = () => {
-            console.log(`子窗口: ${iframe_id}加载完毕`);
+          let smallWindowNode = document.getElementById(
+            `${smallWindowIframeId}_id`
+          );
+          smallWindowNode.onload = () => {
+            console.log(`子窗口: ${smallWindowIframeId}_id 加载完毕`);
             let scriptNode = document.createElement("script");
+            let cssNode = document.createElement("style");
+            scriptNode.setAttribute("type", "text/javascript");
+            cssNode.setAttribute("type", "text/css");
+            cssNode.innerHTML = `#comiis_foot_menu_beautify{
+              bottom: 40px;
+            }`;
             scriptNode.innerHTML = top.window.tampermonkeyByMT;
-            document
-              .getElementById(iframe_id)
-              .contentWindow.document.head.append(scriptNode);
+            smallWindowNode.contentWindow.document.head.append(cssNode);
+            smallWindowNode.contentWindow.document.head.append(scriptNode);
+            console.log(cssNode);
           };
         }
         smallWindowId = smallWindowIframeId;
@@ -2165,14 +2187,14 @@
           smallWidowNode.style["height"]
         ); /* 小窗原始高度 */
         console.log("小窗原始高度", smallWidowNormalHeight);
-        dragNode.on("pan", (e) => {
-          if (e.phase == "move" && e.displacementY > 0) {
+        dragNode.on("pan", (event) => {
+          if (event.phase == "move" && event.displacementY > 0) {
             /* 当前为向下移动 */
             smallWidowNode.style["transition"] = "none";
             smallWidowNode.style["height"] =
-              Math.abs(smallWidowNormalHeight - e.distanceY) + "px";
+              Math.abs(smallWidowNormalHeight - event.distanceY) + "px";
           }
-          if (e.isEnd) {
+          if (event.isEnd) {
             /* 当前为停止移动，松开手指，判断在哪个区域，一半以上回归上面，一般以下，关闭 */
             smallWidowNode.style["transition"] = "0.2s ease-in";
             if (
@@ -2185,12 +2207,12 @@
             }
           }
         });
-        dragNode.on("tap", (e) => {
+        dragNode.on("tap", (event) => {
           if (
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_bg")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 点击背景关闭小窗 */
             console.log("点击背景关闭小窗");
@@ -2203,7 +2225,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_tit_content")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             if (title !== "") {
               GM_setClipboard(`『${title}』 - ${url}`);
@@ -2223,7 +2245,7 @@
             document
               .querySelector("#" + smallWindowId)
               .querySelector(".xtiper_tit_right_picture i")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 点击查看图片 */
             console.log("点击查看图片", imagesList);
@@ -2247,7 +2269,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_tit_right_windowopen svg")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 点击 新标签页打开 */
             window.open(url, "_blank");
@@ -2257,7 +2279,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_tit_right_windowclose svg")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 点击 关闭小窗 */
             console.log("点击 关闭小窗");
@@ -2269,7 +2291,7 @@
           if (
             document
               .querySelector(".xtiper_tit_ico")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 点击 刷新iframe */
             console.log("点击 刷新iframe");
@@ -2549,16 +2571,22 @@
           return;
         }
         if (key === "loadNextComments") {
-          Utils.tryCatch.call(this,"",
-          '$jq("#loading-comment-tip").text("加载评论失败")')
+          Utils.tryCatch.call(
+            this,
+            mobile.loadNextComments,
+            '$jq("#loading-comment-tip").text("加载评论失败")'
+          );
           return;
         }
         if (key === "loadPrevComments") {
-          Utils.tryCatch.call(this,"",
-          '$jq("#loading-comment-tip-prev").text("加载评论失败")')
+          Utils.tryCatch.call(
+            this,
+            mobile.loadPrevComments,
+            '$jq("#loading-comment-tip-prev").text("加载评论失败")'
+          );
           return;
         }
-        Utils.tryCatch.call(this,mobile[key]);
+        Utils.tryCatch.call(this, mobile[key]);
         mobileRepeatFunc.main();
       });
       unsafeWindow.popup2 = popup2;
@@ -2594,7 +2622,6 @@
        * @returns
        */
       async function checkLogin() {
-        unsafeWindow.GM_cookie = GM_cookie;
         /* 桌面端登录 */
         let pc_login = document.querySelector("#comiis_key");
         /* 移动端的退出按钮，不登录是不会出现的 */
@@ -2632,22 +2659,18 @@
        */
       function getCookie(cookieName) {
         return new Promise((resolve) => {
-          if (typeof GM_cookie == "undefined") {
-            Utils.registerWindowCookies(window);
-          } else {
-            GM_cookie.list({ name: cookieName }, function (cookies, error) {
-              if (error) {
+          GM_cookie.list({ name: cookieName }, function (cookies, error) {
+            if (error) {
+              resolve(null);
+            } else {
+              if (cookies.length == 0) {
                 resolve(null);
               } else {
-                if (cookies.length == 0) {
-                  resolve(null);
-                } else {
-                  console.log(cookies);
-                  resolve(cookies[0].value);
-                }
+                console.log(cookies);
+                resolve(cookies[0].value);
               }
-            });
-          }
+            }
+          });
         });
       }
       function getFormHash() {
@@ -7610,7 +7633,7 @@
       );
       $jq("#comiis_foot_menu_beautify .comiis_recommend_addkey").on(
         "click",
-        function (e) {
+        function () {
           /* 点赞按钮事件 */
           if (comiis_recommend_key == 0) {
             comiis_recommend_key = 1;
@@ -9960,20 +9983,20 @@
       }
       function autoLoadNextPageComments(post_comments_list) {
         /* 自动加载下一页的评论 */
-        $jq("#loading-comment-tip")[0].parentElement.style.display = "";
+        $jq("#loading-comment-tip").parent().css("display", "");
         let next_page_url = post_comments_list.children[2].href;
         console.log("预设，获取下一页url：", next_page_url);
         if (next_page_url.indexOf("javascript:;") != -1) {
           console.log(post_comments_list);
           console.log("无多页评论");
-          $jq("#loading-comment-tip")[0].parentElement.style.display = "none";
+          $jq("#loading-comment-tip").parent()?.remove();
           return;
         }
 
         function _loadNextComments_() {
           return new Promise((resolve) => {
             $jq("#loading-comment-tip").text("正在加载评论中...");
-            $jq("#loading-comment-tip")[0].parentElement.style.display = "";
+            $jq("#loading-comment-tip").parent().css("display", "");
             let _url_ = next_page_url;
             $jq.get(_url_, function (data, status, xhr) {
               console.log("正在请求的下一页url", _url_);
@@ -9993,8 +10016,7 @@
                 if (window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
-                $jq("#loading-comment-tip")[0].parentElement.style.display =
-                  "none";
+                $jq("#loading-comment-tip").parent()?.remove();
               } else {
                 console.log("评论全部加载完毕，关闭监听事件");
                 let newURL = new URL(next_page_url);
@@ -10031,11 +10053,7 @@
       }
 
       let tip_html = `
-                <div class="comiis_multi_box bg_f b_t">
-                    <label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">
-                    正在等待页面加载完毕
-                    </label>
-                </div>`;
+      <div class="comiis_multi_box bg_f b_t"><label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">正在等待页面加载完毕</label></div>`;
       $jq(".comiis_bodybox").append($jq(tip_html));
       let commentsEle =
         document.querySelector(".comiis_pltit span.f_d") ||
@@ -10046,8 +10064,8 @@
           .querySelector(".comiis_pltit h2")
           .textContent.indexOf("暂无评论") != -1
       ) {
+        $jq("#loading-comment-tip").parent()?.remove();
         console.log("暂无评论");
-        $jq("#loading-comment-tip")[0].parentElement.style.display = "none";
         return;
       }
       let commentsNum = parseInt(commentsEle.textContent);
@@ -10057,8 +10075,8 @@
           autoLoadNextPageComments(next_page_dom[0]);
         });
       } else {
+        $jq("#loading-comment-tip").parent()?.remove();
         console.log("无多页评论");
-        $jq("#loading-comment-tip")[0].parentElement.style.display = "none";
       }
     },
     /**
@@ -10085,8 +10103,7 @@
         function _loadPrevComments_() {
           return new Promise((resolve) => {
             $jq("#loading-comment-tip-prev").text("正在加载评论中...");
-            $jq("#loading-comment-tip-prev")[0].parentElement.style.display =
-              "";
+            $jq("#loading-comment-tip-prev").parent()?.css("display", "");
             let _url_ = prev_page_url;
             $jq.get(_url_, function (data, status, xhr) {
               console.log("正在请求的上一页评论：", prev_page_url);
@@ -10106,9 +10123,7 @@
                 if (window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
-                $jq(
-                  "#loading-comment-tip-prev"
-                )[0].parentElement.style.display = "none";
+                $jq("#loading-comment-tip-prev").parent()?.remove();
                 kqideSourceNode.prepend(postDOM);
               } else {
                 kqideSourceNode.prepend(postDOM);
@@ -10151,11 +10166,7 @@
 
       console.log("当前不在第一页，加载上一页评论");
       let tip_html = `
-                    <div class="comiis_multi_box bg_f b_t">
-                        <label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip-prev">
-                        正在等待页面加载完毕
-                        </label>
-                    </div>`;
+      <div class="comiis_multi_box bg_f b_t"><label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip-prev">正在等待页面加载完毕</label></div>`;
       $jq(".comiis_bodybox script")[0].after($jq(tip_html)[0]);
       if (
         document.querySelector(".comiis_pltit h2") &&
@@ -10164,8 +10175,7 @@
           .textContent.indexOf("暂无评论") != -1
       ) {
         console.log("暂无上一页评论");
-        $jq("#loading-comment-tip-prev")[0].parentElement.style.display =
-          "none";
+        $jq("#loading-comment-tip-prev").parent()?.remove();
         return;
       }
       autoLoadPrevPageComments();
@@ -13520,7 +13530,7 @@
                         `)
             );
           } else {
-            Object.keys(classifyClassNameDict).forEach( (key) =>{
+            Object.keys(classifyClassNameDict).forEach((key) => {
               $jq(
                 ".comiis_post_from ." + classifyClassNameDict[key]["className"]
               ).remove();
