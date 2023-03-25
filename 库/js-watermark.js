@@ -7,12 +7,7 @@
  * @description JavaScript 图片文字水印、图片图片水印生成工具，生成 base64 编码图片。
  */
 
-if (typeof Watermark === "undefined") {
-  var Watermark = function () {};
-} else {
-  console.warn("Watermark 已存在");
-  let Watermark = function () {};
-}
+let Watermark = function () {};
 (function (Watermark) {
   "use strict";
   /**
