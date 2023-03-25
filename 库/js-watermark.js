@@ -11,7 +11,6 @@ if (typeof Watermark === "undefined") {
   var Watermark = function () {};
 } else {
   console.warn("Watermark 已存在");
-  console.log(Watermark);
   let Watermark = function () {};
 }
 (function (Watermark) {
