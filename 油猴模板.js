@@ -13,8 +13,8 @@
 // @grant        GM_setValue
 // @grant        GM_deleteValue
 // @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
 // @grant        GM_info
+// @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
 
