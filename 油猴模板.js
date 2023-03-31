@@ -19,56 +19,78 @@
 // ==/UserScript==
 
 (function () {
-  "use strict";
   var log = {
-    tag: GM_info?.script?.name || "自动生成的脚本",
-    info(callTag, text = [], color = "0") {
+    /* 命名空间 */
+    nameSpace: "log",
+    tag: GM_info?.script?.name,
+    info: function (msg, color = 0, type = "info") {
       /* #f400ff */
-      if (typeof text === "object") {
-        this.info(callTag, "输出Object👇", color);
-        text = text instanceof Array ? text : [text];
-        console.log.apply(console, text);
+      let callerName = this.info?.caller?.name;
+      if (type === "success") {
+        callerName = this.success?.caller?.name;
+      } else if (type === "error") {
+        callerName = this.error?.caller?.name;
+      }
+      if (typeof msg === "object") {
+        console.log(
+          `%c[${log.tag}%c-%c${callerName}%c]%c `,
+          "font-weight: bold;color: cornflowerblue",
+          "font-weight: bold;color: cornflowerblue",
+          "font-weight: bold;color: darkorange",
+          "font-weight: bold;color: cornflowerblue",
+          `color: ${color}`,
+          msg
+        );
       } else {
         console.log(
-          `%c[${this.tag}%c-%c${callTag}%c]%c ${text}`,
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          `color:${color}`
+          `%c[${log.tag}%c-%c${callerName}%c]%c ${msg}`,
+          "font-weight: bold;color: cornflowerblue",
+          "font-weight: bold;color: cornflowerblue",
+          "font-weight: bold;color: darkorange",
+          "font-weight: bold;color: cornflowerblue",
+          `color: ${color}`
         );
       }
     },
-    error(tag, text = [], color = "red") {
-      this.info(tag, text, color);
+    error: function (msg, color = "red") {
+      this.info(msg, color, "error");
     },
-    success(tag, text = [], color = "blue") {
-      this.info(tag, text, color);
+    success: function (msg, color = "blue") {
+      this.info(msg, color, "success");
     },
   };
 
   /* 全局配置 */
-  var GLOBAL_CONFIG = {};
+  var GLOBAL_CONFIG = {
+    /* 命名空间 */
+    nameSpace: "GLOBAL_CONFIG",
+    /* config数据 */
+    data: {},
+  };
 
   /* 在document-start就插入的CSS */
   var GLOBAL_CSS = {
-    /* 全局CSS */
-    _css_: ``,
-    /* 延迟添加的CSS元素 */
+    /* 命名空间 */
+    nameSpace: "GLOBAL_CSS",
+    /* CSS数据 */
+    data: ``,
+    /* 延迟添加的CSS元素列表 */
     delayCSSNode: [],
-    /* 添加到页面的元素 */
+    /* 添加到页面的元素列表 */
     node: [],
     /**
-     * 初始化
+     * 初始化全局CSS
      */
     init() {
-      log.info("init", "初始化全局CSS");
-      this.node = [...this.node, GM_addStyle(this._css_)];
+      log.info("初始化全局CSS");
+      this.node = [...this.node, GM_addStyle(this.data)];
     },
   };
 
   /* 全局执行函数，存在DOM未加载和加载完毕执行的函数 */
   var GLOBAL_RUN = {
+    /* 命名空间 */
+    nameSpace: "GLOBAL_RUN",
     /**
      * 初始化
      * @param {Array} domStartCallBack dom未加载回调
@@ -80,7 +102,7 @@
       this.exec(domStartCallBack);
       /* 然后执行DOM加载完毕的函数 */
       $(() => {
-        log.success("init", "DOM加载完毕，执行回调");
+        log.success("DOM加载完毕，执行回调");
         this.exec(domReadyCallBack);
       });
     },
@@ -102,7 +124,7 @@
         try {
           item(addGlobalCss);
         } catch (error) {
-          log.error("exec", error);
+          log.error(error);
         }
       });
     },
@@ -110,6 +132,8 @@
 
   /* 桌面端执行 */
   var deskTop = {
+    /* 命名空间 */
+    nameSpace: "deskTop",
     /* 配置 */
     config: {},
     init() {
@@ -137,7 +161,7 @@
             functionName,
           ];
         } else {
-          log.error("init", "未知不被执行的函数" + functionName);
+          log.error(`未知不被执行的函数名字 ${functionName}`);
         }
       });
       GLOBAL_RUN.init(
@@ -149,6 +173,8 @@
 
   /* 移动端执行 */
   var mobile = {
+    /* 命名空间 */
+    nameSpace: "mobile",
     config: {},
     init() {
       /* 不被执行的keyName */
@@ -175,7 +201,7 @@
             functionName,
           ];
         } else {
-          log.error("init", "未知不被执行的函数" + functionName);
+          log.error(`未知不被执行的函数名字 ${functionName}`);
         }
       });
       GLOBAL_RUN.init(
@@ -184,6 +210,8 @@
       );
     },
   };
+  /* 执行 桌面端初始化 */
   deskTop.init();
+  /* 执行 移动端初始化 */
   mobile.init();
 })();
