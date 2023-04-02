@@ -2,7 +2,7 @@
  * 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.7
+ * @version  1.8
  **/
 (function (Utils) {
   /**
@@ -701,7 +701,7 @@
    * @param {String} cssText css字符串
    */
   Utils.GM_addStyle = function (cssText) {
-    if (!(cssText instanceof String)) {
+    if (typeof cssText !== "string") {
       throw new Error("Utils.GM_addStyle 参数cssText 必须为String类型");
     }
     let cssNode = document.createElement("style");
