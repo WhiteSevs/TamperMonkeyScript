@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.5
+// @version      2.8.6
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -31,20 +31,11 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153232
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1164713
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1169869
 // ==/UserScript==
 
 (function () {
   "use strict";
-  const log = {
-    success: (str) => {
-      console.log("%c" + str, "color: #00a5ff");
-    },
-    error: (str) => {
-      console.trace("%c" + str, "color: #f20000");
-    },
-  };
-
   const popup2 = {
     /* 自定义新的popup */
     config: {
@@ -368,7 +359,7 @@
         );
       },
       comiisFormlist: function () {
-        /* 导航中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */
+        /* 导读中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */
         return document.querySelectorAll(
           MT_CONFIG.elementQuerySelectorAll.comiisFormlist
         );
@@ -415,7 +406,7 @@
     elementQuerySelectorAll: {
       comiisVerify: "span.comiis_verify" /* 帖子内各个人的信息节点【list】 */,
       comiisFormlist:
-        "li.forumlist_li" /* 导航中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */,
+        "li.forumlist_li" /* 导读中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */,
       comiisMmlist:
         ".comiis_mmlist" /* 帖子内评论，包括帖子内容主体，第一个就是主体【list】 */,
       comiisPostli:
@@ -445,14 +436,14 @@
         /bbs.binmt.cc\/forum.php\?mod=post&action=reply/g /* 回复的界面url */,
       signUrl: "" /* 签到url */,
       navigationUrl:
-        /forum.php\?mod=guide(&index=1|)&view=(newthread|hot|digest|new|sofa)(&index=1|)/g /* 导航链接，包括最新、热门、精华、回复、抢沙发 */,
+        /forum.php\?mod=guide(&index=1|)&view=(newthread|hot|digest|new|sofa)(&index=1|)/g /* 导读链接，包括最新、热门、精华、回复、抢沙发 */,
       communityUrl: /forum.php\?forumlist/ /* 社区 */,
       forumPost:
         /(bbs.binmt.cc\/thread-|bbs.binmt.cc\/forum.php\?mod=viewthread)/g /* 帖子链接 */,
       forumPostPC: /.*:\/\/bbs.binmt.cc\/thread.*/ /* 资料设置 */,
       dataSettingUrl:
         /mod=space&do=profile&set=comiis&mycenter=1/ /* 帖子链接-PC */,
-      forumGuideUrl: /bbs.binmt.cc\/forum.php\?mod=guide/g /* 导航链接 */,
+      forumGuideUrl: /bbs.binmt.cc\/forum.php\?mod=guide/g /* 导读链接 */,
       forumPostReply:
         /forum.php\?mod=post&action=reply/g /* 帖子中回复的链接 */,
       forumPostPage: "&page=(.*)" /* 帖子链接的当前所在页 page */,
@@ -466,7 +457,7 @@
       fontSpecial:
         /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g /* 帖子内特殊字体格式 */,
       forumPostGuideUrl:
-        /bbs.binmt.cc\/page-[1-5].html|bbs.binmt.cc\/forum.php\?mod=guide/g /* 帖子链接和导航链接 */,
+        /bbs.binmt.cc\/page-[1-5].html|bbs.binmt.cc\/forum.php\?mod=guide/g /* 帖子链接和导读链接 */,
       MTUid: /uid=(\d+)/ /* discuz uid */,
       nologin: /member.php\?mod=logging&action=login(|&mobile=2)/g /* 未登录 */,
       kMiSignSign: "bbs.binmt.cc/k_misign-sign.html" /* 签到url */,
@@ -1091,6 +1082,108 @@
         }
       }
     },
+    guideOptimization() {
+      /* 导读浏览优化 */
+      if (!window.location.href.match(MT_CONFIG.urlRegexp.forumGuideUrl)) {
+        return;
+      }
+      if (!GM_getValue("guideOptimization", false)) {
+        return;
+      }
+      GM_addStyle(`
+      table>tbody >tr{
+        display: none;
+      }
+      .xst{
+        font-size: 15px;
+      }
+      td.author_img{
+        width: 50px;
+        padding: 15px 0;
+      }
+      td.author_img img{
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+      .list_author{
+        margin-top: 2px;
+        color: #999;
+        font-size: 12px;
+      }
+      .bankuai_tu_by a{
+        color: #999 !important;
+      }
+      .bankuai_tu_by img{
+        height: 16px;
+        margin: 1px 1px 0 0;
+        vertical-align: top;
+      }
+      tbody a:hover{
+        text-decoration: none;
+        color: #3498db;
+      }
+      .byg_th_align em + a{
+        margin-right: 5px;
+      }
+      `);
+      let formList = $jq(".bm_c table tbody");
+      formList.each((index, item) => {
+        let tableNode = $jq(item);
+        let formListTr = tableNode.find("tr");
+        let commonHTML = tableNode.find("th.common").html();
+        let formUrl = tableNode
+          .find("th.common")[0]
+          .querySelectorAll("a")[0]
+          .getAttribute("href");
+        let mid = null;
+        let uid = tableNode
+          .find("td.by>cite>a")[0]
+          .getAttribute("href")
+          .match(/uid-(\d+)/)[1];
+        let newHTML = `
+        <td class="author_img">
+          <a href="space-uid-${uid}.html" c="1" mid="${mid}">
+          <img src="${MT_CONFIG.getAvatar(uid, "middle")}"></a>
+        </td>
+        <th colspan="3" class="new byg_th">
+          <div class="byg_th_align">
+             ${commonHTML}
+          </div>
+          <div class="list_author cl">
+              <span class="z">作者:&nbsp;
+                  ${tableNode.find("td.by>cite>a")[0].innerHTML}
+                  ${tableNode.find("td.by>em>span")[0].innerHTML}
+              </span>
+              <span class="z pipe">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+              <span class="z">最后发表:&nbsp;
+                  ${
+                    tableNode.find("td.by>cite>a")[1].innerHTML
+                  }&nbsp;&nbsp;&nbsp;
+                  ${tableNode.find("td.by>em>a")[0].innerHTML}
+              </span>
+              <span class="y bankuai_tu_by">
+                <a href="${formUrl}">
+                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACOUlEQVRYR+1X0XETMRDdtfRP0gFUgG9O+iZUAKmApAJMBZgKMBUQKohTQcy3dHOmApIOzL/lZTbc3eh0ki/kfMkww37Zlkbv7e7bJxnhiQOfGB/+HQJlWR45594AwAkAvAWAo6B6GwBYAsBKCHGVZRl/743eCjDwbrd7T0SzCGgKYIOIi8lk8qWPyF4C1lrO9OtfAIeEuArnSimuTDSSBIqiOCMiBh8ciPghz/NF7KAogUOC16CIeJ7n+UVIokPAGHOCiNeD044cQESvtdYrf6lDwFq7BoCXIxFYa62zJIFKdJdjgHtnnvqibFXAWss9ejcygW9KqbNGGz6YtZbH5tnIBDZKqeMUAQrBieiT1noemYwfQgj2CXDO8Zw3uqkVb4yZI+LH8EylVFP55kNZllPnXLlvszFmhYiveI8/20VRzIjoM/9ORN+11mzXd2Gt7SQlhMiyLGOxty+j2OZ6dKq74Kfnikul1GkFwhXge4JjI4R4wRacGuloBVJsq0N5dqehJRPRnywQec0P1hKvNZXwF5ME/BKPKMQrpdSddjotGMOCw0RCS275QNXnmxFH8VYIMfWv6I4V+4oeoQ0tF+y0wBsdX9WH4tFywKgG6h+rVrDyD3UpRcGTFfAqMfhuqJ00Vca9T7IhbwN2RCnlrHa8xyJwyy9jIlqGD4+DEOCsAGAupbzZbrfP/UOllOu+F3CMxN4WeMb0CxFnsTfd0BHp08CcAaSUi4dkdx9yvX9M7nPIkD3/CfwGBboJMIftEqkAAAAASUVORK5CYII=" />${
+                    tableNode.find("td.num>a")[0].innerText
+                  }
+                </a>&nbsp;
+              </span>
+              <span class="y bankuai_tu_by" style="margin-right: 20px">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACVElEQVRYR+1W3W3bQAwmTb83GzSdoDnr7rn2BukETSeoO0HtCdpO0GSCeoPYzzrhnA3sDZJ3yywYSIIk352sOIBRIHwTxCM/kh9/EM4seGb/8Abg/8mAc+4yz/NPAHANAFcAcNnizwYA1gCwIKKVUkq+O6UzA4XjHwBw02mtqXBLRPMuIFEAaZrOEFGcv1gQcZYkyTxkwAvAOXex2+3uEVFSfbIw83o4HE6UUo9tYwcAnHNXeZ7/9dS4/nYrtUbE5zozs/BBuPE+gnZDRAKiwY0GgCMif0LEaZIktz5HWZbdMPMvAHjn++/LRAOAtVZY/DEQxRMRjZVSohOUIoPLGAhjjCoNVACstYL8W5AsiF/bkadpOiYiHo1Gq/q7IhN/Ijh/a62n8v8ZgBhCxPvIg63Wuup7D0+kvp/r2bHWSq2DnGDmiTFmWQJYIqIMmZBUiEUhYHyjtf5QGujKKAAstdYTtNYKe4X1QUHE70mSSImi2SqjEr0sy6bM/DNmV/TPD6CI6jVK0OBJVwmYeWWMGR9LwkZ9CxIuaiTbEtF1HxISkRL9k9tQMihs7tOGzDw3xsyqNqwxNzaIHotReswgkpa+CBDwQWtd7ZiDUZznuUQTmoayTKZa6zuf8WIACfODzotpWi0l3zKSw0NARBcLMzeWESJKO7ePlDrOh7bzgxKU2rKUOjIRa2/fP6/zIIDSwmscJHXC+ZAde5IJY7/0DPuOiGYnnWR1h3Ib7vf7MTOXR2mbI3KkrBFxMRgMFr7r50UZ6Bl1b/XOEvS22PPBG4CzZ+AfrntRcuAjU2wAAAAASUVORK5CYII=" />${
+                  tableNode.find("td.num>em")[0].innerText
+                }
+              </span>
+          </div>
+        </th>
+        `;
+        let newListNode = $jq(newHTML);
+        $jq(newListNode.find(".byg_th_align")[0].children[0]).before(
+          "<em>[" + tableNode.find("tr>td.by>a")[0].outerHTML + "]</em>"
+        );
+        tableNode.html(newListNode);
+      });
+    },
     imageViewingOptimizationInThePost() {
       /* 贴内图片查看优化 */
       if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
@@ -1159,19 +1252,21 @@
         });
       }
       run();
-      Utils.mutationObserver("#postlist", {
-        fn: () => {
-          if (handling) {
-            return;
-          }
-          handling = true;
-          run();
-          handling = false;
-        },
-        config: {
-          subtree: true,
-          childList: true,
-        },
+      Utils.waitNode("#postlist").then((nodeList) => {
+        Utils.mutationObserver(nodeList[0], {
+          callback: () => {
+            if (handling) {
+              return;
+            }
+            handling = true;
+            run();
+            handling = false;
+          },
+          config: {
+            subtree: true,
+            childList: true,
+          },
+        });
       });
     },
     latestReleaseForumPost() {
@@ -1200,7 +1295,6 @@
       if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
         return;
       }
-      console.log("this指向", this);
       if ($jq(".pgbtn").length == 0) {
         console.warn("没有找到下一页按钮");
         return;
@@ -1305,8 +1399,19 @@
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
+          guideOptimization: {
+            text: "导读浏览优化",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
         },
-        true
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
       );
     },
     /**
@@ -8463,184 +8568,184 @@
       Utils.tryCatch(mobile.previewPostForum);
       Utils.tryCatch(mobile.quickUBB.insertReplayUBB);
       GM_addStyle(`
-            .f_c, .f_c a, .ntc_body{
-                color: #000000 !important;
-            }
-            input::placeholder,
-            textarea::placeholder {
-                color: #cfcfcf;
-            }
-            #needsubject::placeholder{
-                font-weight: bold;
-            }
-            #needmessage::placeholder{
+      .f_c, .f_c a, .ntc_body{
+          color: #000000 !important;
+      }
+      input::placeholder,
+      textarea::placeholder {
+          color: #cfcfcf;
+      }
+      #needsubject::placeholder{
+          font-weight: bold;
+      }
+      #needmessage::placeholder{
 
-            }
-            #postform #comiis_mh_sub{
-                height: 60px;
-                display: flex;
-                align-items: center;
-            }
-            #postform #comiis_post_tab{
-                display: inherit;
-                width: 100%;
-            }
-            #postform .comiis_sendbtn{
-                padding:0 12px;
-                display: flex !important;
-                -webkit-box-align: center;
-                align-items: center;
-            }
-            #postform .f_f{
-                color: #ffffff !important;
-            }
-            #postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link, 
-            #postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited,
-            #postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover{
-                color: #333333 !important;
-            }
-            #postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot{
-                position: fixed;
-                display: inline-table;
-                z-index: 90;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                overflow: hidden;
-                padding: 0;
-            }
-            #postform .comiis_post_from #comiis_post_tab .comiis_bqbox{
-                height:200px;
-            }
-            #postform .comiis_post_from #comiis_post_tab .comiis_smiley_box{
-                height:150px;
-            }
-            /* #postform .comiis_post_from #comiis_post_tab .comiis_input_style.cl:nth-child(1){
-                height:345px;
-            } */
-            #postform .comiis_post_from #comiis_post_tab .comiis_input_style .comiis_post_urlico{
-                overflow-y: auto;
-                height: 110px;
-            }
-            #postform .comiis_post_from #comiis_post_tab .comiis_smiley_box .comiis_optimization{
-                display: block;
-                overflow-y: auto;
-                height: 100%;
-            }
-            #postform #comiis_post_tab .comiis_input_style .comiis_xifont{   
-                width: -webkit-fill-available;
-            }
-            #postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font{   
-                font-size: 16px;
-                line-height: inherit;
-                padding-top: 0px;
-            }
-            #postform #comiis_post_tab .comiis_input_style .styli_h10{
-                display:none;
-            }
-            .gm_plugin_chartbed .comiis_chartbed_luntan,
-            .gm_plugin_chartbed .comiis_chartbed_kggzs,
-            .gm_plugin_chartbed .comiis_chartbed_hello,
-            .gm_plugin_chartbed .comiis_chartbed_z4a,
-            .gm_plugin_chartbed .comiis_chartbed_mt,
-            .gm_plugin_chartbed .comiis_chartbed_history{
-                height: 140px;
-                overflow-y: auto;
-                flex-direction: column;
-            }
-            #comiis_pictitle_key {
-                display: -webkit-box;
-                top: 0px;
-                left: 0px;
-                height: 42px;
-                line-height: 42px;
-                overflow: hidden;
-                overflow-x: auto;
-                background: #f8f8f8;
-            }
-            #comiis_pictitle_key a {
-                color: #333 !important;
-                padding: 0px 10px;
-            }
-            #comiis_mh_sub{
-                height: auto !important;
-            }
-            #comiis_mh_sub .swiper-wrapper.comiis_post_ico{
-                flex-flow: wrap;
-            }
-            #comiis_mh_sub a{
-                margin:5px 0px;
-            }
-            #comiis_post_tab .comiis_over_box{
-                max-height: 225px;
-            }
-						@media screen and (max-width: 350px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 14.5%;
-							}
-						}
-						@media screen and (min-width: 350px) and (max-width: 400px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 12.5%;
-							}
-						}
-						@media screen and (min-width: 400px) and (max-width: 450px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 11%;
-							}
-						}
-						@media screen and (min-width: 450px) and (max-width: 500px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 10%;
-							}
-						}
-						@media screen and (min-width: 500px) and (max-width: 550px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 9.5%;
-							}
-						}
-						@media screen and (min-width: 550px) and (max-width: 600px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 9%;
-							}
-						}
-						@media screen and (min-width: 600px) and (max-width: 650px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 8.5%;
-							}
-						}
-						@media screen and (min-width: 650px) and (max-width: 700px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 8%;
-							}
-						}
-						@media screen and (min-width: 700px) and (max-width: 750px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 7.5%;
-							}
-						}
-						@media screen and (min-width: 750px) and (max-width: 800px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 7%;
-							}
-						}
-						@media screen and (min-width: 800px) and (max-width: 850px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 6.5%;
-							}
-						}
-						@media screen and (min-width: 850px) and (max-width: 1200px) {
-							.comiis_bqbox .bqbox_c li {
-								width: 6%;
-							}
-						}
-            @media screen and (min-width: 1200px){
-							.comiis_bqbox .bqbox_c li {
-								width: 4.5%;
-							}
-						}
-            `);
+      }
+      #postform #comiis_mh_sub{
+          height: 60px;
+          display: flex;
+          align-items: center;
+      }
+      #postform #comiis_post_tab{
+          display: inherit;
+          width: 100%;
+      }
+      #postform .comiis_sendbtn{
+          padding:0 12px;
+          display: flex !important;
+          -webkit-box-align: center;
+          align-items: center;
+      }
+      #postform .f_f{
+          color: #ffffff !important;
+      }
+      #postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link, 
+      #postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited,
+      #postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover{
+          color: #333333 !important;
+      }
+      #postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot{
+          position: fixed;
+          display: inline-table;
+          z-index: 90;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          overflow: hidden;
+          padding: 0;
+      }
+      #postform .comiis_post_from #comiis_post_tab .comiis_bqbox{
+          height:200px;
+      }
+      #postform .comiis_post_from #comiis_post_tab .comiis_smiley_box{
+          height:150px;
+      }
+      /* #postform .comiis_post_from #comiis_post_tab .comiis_input_style.cl:nth-child(1){
+          height:345px;
+      } */
+      #postform .comiis_post_from #comiis_post_tab .comiis_input_style .comiis_post_urlico{
+          overflow-y: auto;
+          height: 110px;
+      }
+      #postform .comiis_post_from #comiis_post_tab .comiis_smiley_box .comiis_optimization{
+          display: block;
+          overflow-y: auto;
+          height: 100%;
+      }
+      #postform #comiis_post_tab .comiis_input_style .comiis_xifont{   
+          width: -webkit-fill-available;
+      }
+      #postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font{   
+          font-size: 16px;
+          line-height: inherit;
+          padding-top: 0px;
+      }
+      #postform #comiis_post_tab .comiis_input_style .styli_h10{
+          display:none;
+      }
+      .gm_plugin_chartbed .comiis_chartbed_luntan,
+      .gm_plugin_chartbed .comiis_chartbed_kggzs,
+      .gm_plugin_chartbed .comiis_chartbed_hello,
+      .gm_plugin_chartbed .comiis_chartbed_z4a,
+      .gm_plugin_chartbed .comiis_chartbed_mt,
+      .gm_plugin_chartbed .comiis_chartbed_history{
+          height: 140px;
+          overflow-y: auto;
+          flex-direction: column;
+      }
+      #comiis_pictitle_key {
+          display: -webkit-box;
+          top: 0px;
+          left: 0px;
+          height: 42px;
+          line-height: 42px;
+          overflow: hidden;
+          overflow-x: auto;
+          background: #f8f8f8;
+      }
+      #comiis_pictitle_key a {
+          color: #333 !important;
+          padding: 0px 10px;
+      }
+      #comiis_mh_sub{
+          height: auto !important;
+      }
+      #comiis_mh_sub .swiper-wrapper.comiis_post_ico{
+          flex-flow: wrap;
+      }
+      #comiis_mh_sub a{
+          margin:5px 0px;
+      }
+      #comiis_post_tab .comiis_over_box{
+          max-height: 225px;
+      }
+      @media screen and (max-width: 350px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 14.5%;
+        }
+      }
+      @media screen and (min-width: 350px) and (max-width: 400px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 12.5%;
+        }
+      }
+      @media screen and (min-width: 400px) and (max-width: 450px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 11%;
+        }
+      }
+      @media screen and (min-width: 450px) and (max-width: 500px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 10%;
+        }
+      }
+      @media screen and (min-width: 500px) and (max-width: 550px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 9.5%;
+        }
+      }
+      @media screen and (min-width: 550px) and (max-width: 600px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 9%;
+        }
+      }
+      @media screen and (min-width: 600px) and (max-width: 650px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 8.5%;
+        }
+      }
+      @media screen and (min-width: 650px) and (max-width: 700px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 8%;
+        }
+      }
+      @media screen and (min-width: 700px) and (max-width: 750px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 7.5%;
+        }
+      }
+      @media screen and (min-width: 750px) and (max-width: 800px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 7%;
+        }
+      }
+      @media screen and (min-width: 800px) and (max-width: 850px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 6.5%;
+        }
+      }
+      @media screen and (min-width: 850px) and (max-width: 1200px) {
+        .comiis_bqbox .bqbox_c li {
+          width: 6%;
+        }
+      }
+      @media screen and (min-width: 1200px){
+        .comiis_bqbox .bqbox_c li {
+          width: 4.5%;
+        }
+      }
+      `);
       $jq(".comiis_scrollTop_box").parent().hide();
       $jq("#postform .comiis_post_from.mt15").css(
         "cssText",
@@ -8716,52 +8821,52 @@
       );
       let btn_reply = $jq(".comiis_btnbox button#postsubmit:contains('回复')");
       GM_addStyle(`
-                #comiis_head .header_y{
-                    display: flex;
-                    align-content: center;
-                    align-items: center;
-                    justify-content: flex-end;
-                    height: 100%;
-                }
-                #comiis_head .header_y input{
-                    border: transparent;
-                    background: transparent;
-                    text-align: center;
-                    margin: 0px 5px;
-                }
-                #comiis_head .header_y input[value="删除"]{
-                    color: #dd0000;
-                }
-                #comiis_head .header_y input[value="保存"]{
-                    color: #b0ff6a;
-                }
-                #comiis_head .header_y input[value="保存草稿"]{
-                    color: #FF9900;
-                }
-                #comiis_head .header_y input[value="发表"]{
-                    color: #b0ff6a;
-                }
-                #comiis_head .header_y input[value="回复"]{
-                    color: #b0ff6a;
-                }
-                #comiis_post_tab{
-                    color:rgb(0,0,0);
-                }
-                .gm_plugin_chartbed .delImg a,
-                .gm_plugin_chartbed .p_img a{
-                    padding: 0;
-                }
-                .gm_plugin_chartbed .delImg a i{
-                    line-height: inherit;
-                }
-                #filedata,
-                #filedata_kggzs,
-                #filedata_hello,
-                #filedata_kggzs,
-                #filedata_mt{
-                    display:none;
-                }
-            `);
+          #comiis_head .header_y{
+              display: flex;
+              align-content: center;
+              align-items: center;
+              justify-content: flex-end;
+              height: 100%;
+          }
+          #comiis_head .header_y input{
+              border: transparent;
+              background: transparent;
+              text-align: center;
+              margin: 0px 5px;
+          }
+          #comiis_head .header_y input[value="删除"]{
+              color: #dd0000;
+          }
+          #comiis_head .header_y input[value="保存"]{
+              color: #b0ff6a;
+          }
+          #comiis_head .header_y input[value="保存草稿"]{
+              color: #FF9900;
+          }
+          #comiis_head .header_y input[value="发表"]{
+              color: #b0ff6a;
+          }
+          #comiis_head .header_y input[value="回复"]{
+              color: #b0ff6a;
+          }
+          #comiis_post_tab{
+              color:rgb(0,0,0);
+          }
+          .gm_plugin_chartbed .delImg a,
+          .gm_plugin_chartbed .p_img a{
+              padding: 0;
+          }
+          .gm_plugin_chartbed .delImg a i{
+              line-height: inherit;
+          }
+          #filedata,
+          #filedata_kggzs,
+          #filedata_hello,
+          #filedata_kggzs,
+          #filedata_mt{
+              display:none;
+          }
+      `);
       if (btn_del.length) {
         $jq("#comiis_head .header_y").append(
           $jq(`<input class="new_btn_del" type="button" value="删除">`)
@@ -8880,10 +8985,11 @@
       }
 
       var recordHeight = 0;
-      Utils.mutationObserver(
-        "#postform > div > div.comiis_post_ico.comiis_minipost_icot",
-        {
-          fn: (mutations) => {
+      Utils.waitNode(
+        "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
+      ).then((nodeList) => {
+        Utils.mutationObserver(nodeList[0], {
+          callback: (mutations) => {
             var $tar = document.querySelector(
               "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
             );
@@ -8932,8 +9038,9 @@
             /* 是否将观察器应用于该节点的所有后代节点 */
             subtree: true,
           },
-        }
-      );
+        });
+      });
+
       $jq(window).on("resize", function (e) {
         let needMessageSeeHeight =
           document.documentElement.clientHeight -
@@ -10016,7 +10123,6 @@
                 if (window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
-                $jq("#loading-comment-tip").parent()?.remove();
               } else {
                 console.log("评论全部加载完毕，关闭监听事件");
                 let newURL = new URL(next_page_url);
@@ -10027,7 +10133,7 @@
                 }
                 $jq(".comiis_page.bg_f").remove();
                 $jq("#loading-comment-tip").text("已加载完所有评论");
-                $jq("#loading-comment-tip")[0].parentElement.style.display = "";
+                $jq("#loading-comment-tip").parent()?.remove();
                 $jq("#loading-comment-tip").off("click", _loadNextComments_);
                 $jq(window).off("scroll", scroll_loadNextComments);
               }
@@ -10123,7 +10229,6 @@
                 if (window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
-                $jq("#loading-comment-tip-prev").parent()?.remove();
                 kqideSourceNode.prepend(postDOM);
               } else {
                 kqideSourceNode.prepend(postDOM);
@@ -10142,7 +10247,7 @@
                 kqideSourceNode.prepend($jq(page_title)[0]);
 
                 /* $jq(".comiis_page.bg_f").remove(); */
-                $jq("#loading-comment-tip-prev").remove();
+                $jq("#loading-comment-tip-prev").parent().remove();
                 $jq("#loading-comment-tip-prev").off(
                   "click",
                   _loadPrevComments_
@@ -10794,7 +10899,7 @@
         let paySubjectTip = $jq("span.kmren"); /* 购买主题的元素 */
 
         if (paySubjectTip.length != 0) {
-          log.success("当前帖子存在需要购买主题");
+          console.log("当前帖子存在需要购买主题");
           let isAddTip = false;
           let tipBtnHTML = "";
           Array.from(setTipForumPostList).forEach((item, index) => {
@@ -10804,7 +10909,7 @@
             }
           });
           if (isAddTip) {
-            log.success("已设置提醒");
+            console.log("已设置提醒");
             tipBtnHTML = $jq(
               `<a href="javascript:;" class="styli_tit f_c"><i class="comiis_font" style="color: #ffffff;"></i></a>`
             );
@@ -10840,7 +10945,7 @@
               });
             });
           } else {
-            log.success("未设置提醒");
+            console.log("未设置提醒");
             tipBtnHTML = $jq(
               `<a href="javascript:;" class="styli_tit f_c"><i class="comiis_font" style="color: #FF9900;"></i></a>`
             );
@@ -12787,7 +12892,7 @@
           $jq("#scform_srchtxt").val("");
         });
       } else {
-        log.error("搜索界面: 获取清空按钮失败");
+        console.log("搜索界面: 获取清空按钮失败");
       }
     },
     /**
@@ -14271,12 +14376,12 @@
         },
         onerror: (response) => {
           console.log(response);
-          log.error("请求今日之星失败");
+          console.log("请求今日之星失败");
           popup2.toast("请求今日之星失败");
         },
         ontimeout: () => {
           popup2.toast("请求今日之星超时");
-          log.error("请求超时");
+          console.log("请求超时");
         },
       });
     },

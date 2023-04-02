@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.0
+// @version      0.7.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -33,45 +33,29 @@
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
+// @grant        GM_info
+// @grant        unsafeWindowresponse
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1164713
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1169869
 // @run-at       document-start
 // ==/UserScript==
 
 (function () {
-  "use strict";
-  var log = {
-    tag: "Baidu优化",
-    info: function (tag, text = [], color = "0") {
-      /* #f400ff */
-      if (!GM_getValue("LOG", false)) {
-        return;
-      }
-      if (typeof text === "object") {
-        this.info(tag, "输出Object👇", color);
-        text = text instanceof Array ? text : [text];
-        console.log.apply(console, text);
-      } else {
-        console.log(
-          `%c[${log.tag}%c-%c${tag}%c]%c ${text}`,
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:cornflowerblue",
-          "font-weight:bold;color:darkorange",
-          "font-weight:bold;color:cornflowerblue",
-          `color:${color}`
-        );
-      }
+  let log = new Utils.Log(GM_info);
+  let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+  httpx.config({
+    onabort: function () {
+      log.error("请求取消");
     },
-    error: function (tag, text = [], color = "red") {
-      this.info(tag, text, color);
+    ontimeout: function () {
+      log.error("请求超时");
     },
-    success: function (tag, text = [], color = "blue") {
-      this.info(tag, text, color);
+    onerror: function (response) {
+      log.error(["httpx-onerror 请求异常", response]);
     },
-  };
-  const CSDN_FLAG_CSS = `标识
+  });
+  const CSDN_FLAG_CSS = `
     .csdn-flag-component-box .praise {
         padding-right: 20px;
         background: #ff5722;
@@ -673,11 +657,12 @@
 			.app-bar,
 			.jifeng-container,
 			.intro-title,
-							.sideQrContainer,
-							.inner.clearfix{
+      .sideQrContainer,
+      .inner.clearfix,
+      section.bottom-intro{
 				display:none !important;
 			}
-			.new-header-dl.{
+			.new-header-dl{
 				visibility: hidden;
 			}
 		`,
@@ -749,11 +734,11 @@
                   newUrl = aTagDataIvk["control"]["default_url"]
                     ? aTagDataIvk["control"]["default_url"]
                     : aTagDataIvk["control"]["dataUrl"];
-                  /* log.info("百度搜索","A标签上存在隐藏的url: "+url) */
+                  /* log.info("A标签上存在隐藏的url: "+url) */
                 }
               } catch (error) {
-                /* log.error("百度搜索","A标签上存在隐藏的url，但是替换失败") */
-                log.error("百度搜索", error);
+                /* log.error("A标签上存在隐藏的url，但是替换失败") */
+                log.error(error);
               }
             }
             if (
@@ -764,7 +749,7 @@
               return;
             }
             item.href = newUrl;
-            /* log.info("百度搜索","替换成新链接: "+url) */
+            /* log.info("替换成新链接: "+url) */
           });
         }
 
@@ -795,12 +780,15 @@
           /* 解析DOM节点上隐藏在属性中的真正url */
           let url = null;
           let dataLog = jQDOM.attr("data-log");
-          try {
-            dataLog = JSON.parse(dataLog);
-            url = dataLog.mu;
-          } catch (error) {
-            log.error("百度搜索", "DOM的属性data-log不存在👇");
+          if (dataLog) {
+            try {
+              dataLog = JSON.parse(dataLog);
+              url = dataLog.mu;
+            } catch (error) {
+              log.error("DOM的属性data-log不存在👇");
+            }
           }
+
           if (!url || url === "") {
             let articleDataLog = jQDOM
               .find("article")
@@ -814,27 +802,29 @@
                   "百度搜索",
                   "article DOM的属性的rl-link-data-log也不存在👇，获取真实链接失败"
                 );
-                log.error("百度搜索", jQDOM);
+                log.error(jQDOM);
               }
-            } else {
-              log.error("百度搜索", "article DOM不存在");
             }
           }
 
           if (!url || url === "") {
             let dataIVK = jQDOM.attr("data-ivk");
-            try {
-              dataLog = JSON.parse(dataIVK);
-              url = dataLog.control.default_url;
-            } catch (error) {
-              log.error("百度搜索", "DOM的属性data-ivk不存在👇");
-              log.error("百度搜索", error);
+            if (dataIVK) {
+              try {
+                dataLog = JSON.parse(dataIVK);
+                url = dataLog.control.default_url;
+              } catch (error) {
+                log.error("DOM的属性data-ivk不存在👇");
+                log.error(error);
+              }
             }
           }
           if (url !== "" || url != null) {
             url = decodeURIComponent(url);
           } else {
             url = null;
+            log.error("未找到真实链接");
+            log.error(jQDOM);
           }
           return url;
         }
@@ -851,7 +841,7 @@
                 `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
               )
             );
-          log.success("百度搜索", "插入CSDN下载提示标题");
+          log.success("插入CSDN下载提示标题");
         }
 
         function removeAds() {
@@ -875,25 +865,22 @@
               item.attr("tpl") === "recommend_list"
             ) {
               item?.remove();
-              log.success("百度搜索", "删除广告==>大家还在搜");
+              log.success("删除广告==>大家还在搜");
             }
             if (item.text().substr(0, 5) == "大家还在搜") {
               item?.remove();
-              log.success("百度搜索", "删除广告==>大家都在搜（能看到的）");
+              log.success("删除广告==>大家都在搜（能看到的）");
             }
             if (item.find(".c-atom-afterclick-recomm-wrap").length) {
               item.find(".c-atom-afterclick-recomm-wrap")?.remove();
-              log.success(
-                "百度搜索",
-                "删除广告==>大家还在搜:隐藏的(点击后，跳出来的)"
-              );
+              log.success("删除广告==>大家还在搜:隐藏的(点击后，跳出来的)");
             }
             let bottomLogoElement = item.find(".c-color-source"); /* 底部标识 */
             if (bottomLogoElement.length) {
               bottomLogoElement.each((_index_, _item_) => {
                 if (_item_.outerText.match(/百度(APP内打开|手机助手)/)) {
                   item.remove();
-                  log.success("百度搜索", "删除广告==>百度APP内打开");
+                  log.success("删除广告==>百度APP内打开");
                 }
               });
             }
@@ -910,19 +897,19 @@
               item.attr("srcid").match(/(sigma|vid_fourfold)/g)
             ) {
               item.remove();
-              log.success("百度搜索", "删除推荐==>xxx 相关 xxx");
+              log.success("删除推荐==>xxx 相关 xxx");
             }
             if (searchArticleOriginal_link.match(/expert.baidu.com/g)) {
               item?.remove();
-              log.success("百度搜索", "删除广告==>百度健康");
+              log.success("删除广告==>百度健康");
             }
             if (searchArticleOriginal_link.match(/author.baidu.com\/home\//g)) {
               item?.remove();
-              log.success("百度搜索", "删除广告==>百家号聚合");
+              log.success("删除广告==>百家号聚合");
             }
             if (dataLog["ensrcid"] == "wenda_inquiry") {
               item?.remove();
-              log.success("百度搜索", "删除广告==>问一问");
+              log.success("删除广告==>问一问");
             }
           });
           $("span").each((index, item) => {
@@ -933,10 +920,7 @@
               resultParentElement.attr("data-from") === "etpl"
             ) {
               resultParentElement?.remove();
-              log.success(
-                "百度搜索",
-                "删除广告==>隐藏的广告，会在滚动时跳出来的"
-              );
+              log.success("删除广告==>隐藏的广告，会在滚动时跳出来的");
             }
           });
         }
@@ -986,7 +970,7 @@
             } else if (
               realLinkUrl.match(/http:\/\/m.baidu.com\/productcard/g)
             ) {
-              log.error("百度搜索", "该链接不予替换: " + realLinkUrl);
+              log.error("该链接不予替换: " + realLinkUrl);
             } else {
               setNodeAttrHref(item, realLinkUrl);
               articleElement.attr("rl-link-href", realLinkUrl);
@@ -1019,11 +1003,7 @@
             item.hasAttribute("data-sflink") &&
             item.getAttribute("href") != item.getAttribute("data-sflink")
           ) {
-            log.success(
-              "百度搜索",
-              "重定向顶部按钮: " + item.outerText.trim(),
-              "#ba00f8"
-            );
+            log.success("重定向顶部按钮: " + item.outerText.trim(), "#ba00f8");
             item.href = item.getAttribute("data-sflink");
           }
         });
@@ -1034,7 +1014,7 @@
         $("script").each((index, item) => {
           if (item.text.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
             item?.remove();
-            log.success("百度搜索", "删除广告==>跳转百度app提示");
+            log.success("删除广告==>跳转百度app提示");
           }
         });
       }
@@ -1050,13 +1030,14 @@
         var searchInput_HOME = "#index-kw";
         var searchBtn_HOME = "#index-bn";
         function mutationObserverFunction(btnElement) {
+          log.success("设置搜索建议自定义click事件");
           $(btnElement)?.on("click", function (event) {
             event?.stopPropagation();
             event?.preventDefault();
             let redirectURL =
               window.location.origin + "/s?word=" + $(this).text();
-            log.success("百度搜索", "点击按钮跳转搜索 -> " + $(this).text());
-            log.success("百度搜索", redirectURL);
+            log.success("点击按钮跳转搜索 -> " + $(this).text());
+            log.success(redirectURL);
             window.location.href = redirectURL;
             return false;
           });
@@ -1067,11 +1048,8 @@
           event?.preventDefault();
           let redirectURL =
             window.location.origin + "/s?word=" + searchInputElement.val();
-          log.success(
-            "百度搜索",
-            "点击按钮跳转搜索 -> " + searchInputElement.val()
-          );
-          log.success("百度搜索", redirectURL);
+          log.success("点击按钮跳转搜索 -> " + searchInputElement.val());
+          log.success(redirectURL);
           window.location.href = redirectURL;
 
           return false;
@@ -1084,27 +1062,28 @@
             event?.preventDefault();
             let redirectURL =
               window.location.origin + "/s?word=" + searchInputElement.val();
-            log.success(
-              "百度搜索",
-              "回车键跳转搜索 -> " + searchInputElement.val()
-            );
-            log.success("百度搜索", redirectURL);
+            log.success("回车键跳转搜索 -> " + searchInputElement.val());
+            log.success(redirectURL);
             window.location.href = redirectURL;
             return false;
           }
           return true;
         }
-        Utils.mutationObserver(suggestList, {
-          fn: () => {
-            mutationObserverFunction(suggestBtn);
-          },
-          config: { childList: true, attributes: true },
+        Utils.waitNode(suggestList).then((nodeList) => {
+          Utils.mutationObserver(nodeList[0], {
+            callback: () => {
+              mutationObserverFunction(suggestBtn);
+            },
+            config: { childList: true, attributes: true },
+          });
         });
-        Utils.mutationObserver(suggestList_HOME, {
-          fn: () => {
-            mutationObserverFunction(suggestBtn_HOME);
-          },
-          config: { childList: true, attributes: true },
+        Utils.waitNode(suggestList_HOME).then((nodeList) => {
+          Utils.mutationObserver(nodeList[0], {
+            callback: () => {
+              mutationObserverFunction(suggestBtn_HOME);
+            },
+            config: { childList: true, attributes: true },
+          });
         });
 
         $(searchBtn)?.on("click", function (event) {
@@ -1121,31 +1100,33 @@
         });
       }
       if (this.current_url.match(/^http(s|):\/\/(m|www).baidu.com/g)) {
-        log.info("百度搜索", "插入CSS规则");
+        log.info("插入CSS规则");
         GM_addStyle(this.css.search);
         $(function () {
           var lock = false;
-          Utils.mutationObserver("div#page.search-page", {
-            fn: async () => {
-              if (lock) {
-                return;
-              }
-              lock = true;
-              try {
-                replaceLink();
-              } catch (error) {
-                log.error("百度搜索", "替换为真实链接失败");
-                log.error("百度搜索", error);
-              } finally {
-                setTimeout(() => {
-                  lock = false;
-                }, 600);
-              }
-            },
-            config: {
-              childList: true,
-              subtree: true,
-            },
+          Utils.waitNode("div#page.search-page").then((nodeList) => {
+            Utils.mutationObserver(nodeList[0], {
+              callback: async () => {
+                if (lock) {
+                  return;
+                }
+                lock = true;
+                try {
+                  replaceLink();
+                } catch (error) {
+                  log.error("替换为真实链接失败");
+                  log.error(error);
+                } finally {
+                  setTimeout(() => {
+                    lock = false;
+                  }, 600);
+                }
+              },
+              config: {
+                childList: true,
+                subtree: true,
+              },
+            });
           });
           replaceScriptBaiDuTip();
           redirectTopLink();
@@ -1162,14 +1143,14 @@
         this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
       ) {
         GM_addStyle(this.css.searchHome);
-        log.info("百度搜索", "插入CSS规则-主页");
+        log.info("插入CSS规则-主页");
       }
     },
     baijiahao() {
       /* 百家号 */
       if (this.current_url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
         GM_addStyle(this.css.baijiahao);
-        log.info("百家号", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     tieba() {
@@ -1235,8 +1216,8 @@
                 user_comment_time =
                   childrenElement[childrenElement.length - 1].textContent;
               } else {
-                log.error("百度贴吧", "获取PC端的数据楼层和时间信息失败👇");
-                log.error("百度贴吧", childrenElement);
+                log.error("获取PC端的数据楼层和时间信息失败👇");
+                log.error(childrenElement);
                 user_floor = "";
                 user_comment_time = "";
               }
@@ -1459,74 +1440,56 @@
                   "white-btn-comment-reverse"
                 );
                 mainPositive();
-                log.info("百度贴吧", "获取评论===>正序");
+                log.info("获取评论===>正序");
               } else {
                 event.currentTarget.setAttribute("class", "white-btn-comment");
                 mainReverse();
-                log.info("百度贴吧", "获取评论===>倒序");
+                log.info("获取评论===>倒序");
               }
             });
           },
-          getPageComment: (url) => {
+          getPageComment: async (url) => {
             /* 获取第一页的评论（不包括评论的评论） */
-            return new Promise((res) => {
-              GM_xmlhttpRequest({
-                url: url,
-                timeout: 5000,
-                method: "GET",
-                headers: {
-                  "User-Agent": Utils.getRandomPCUA(),
-                },
-                onload: function (resp) {
-                  let _html_ = $(resp.responseText);
-                  res(_html_);
-                },
-                onerror: function (resp) {
-                  if (
-                    typeof resp.error === "string" &&
-                    resp.error.match("wappass.baidu.com")
-                  ) {
-                    let url = resp.error.match(/"(.*?)"/)[1];
-                    log.error("百度贴吧", "触发百度校验: " + url);
-                    window.location.href = url;
-                  } else {
-                    log.error("百度贴吧", "获取评论数据失败 👇");
-                    log.error("百度贴吧", resp);
-                    res(400);
-                  }
-                },
-                ontimeout: function () {
-                  res(400);
-                },
-              });
+            let getResp = await httpx.get({
+              url: url,
+              headers: {
+                "User-Agent": Utils.getRandomPCUA(),
+              },
             });
+            let respData = getResp.data;
+            if (getResp.status) {
+              return $(respData.responseText);
+            } else if (getResp.type === "onerror") {
+              if (
+                typeof respData.error === "string" &&
+                respData.error.match("wappass.baidu.com")
+              ) {
+                let url = respData.error.match(/"(.*?)"/)[1];
+                log.error("触发百度校验: " + url);
+                window.location.href = url;
+              } else {
+                log.error("获取评论数据失败 👇");
+                log.error(respData);
+              }
+            }
           },
-          getPageCommentList: (url) => {
+          getPageCommentList: async (url) => {
             /* 获取第一页的评论的评论 */
-            return new Promise((res) => {
-              GM_xmlhttpRequest({
-                url: url,
-                timeout: 5000,
-                method: "GET",
-                headers: {
-                  Accept: "application/json, text/javascript, */*; q=0.01",
-                  "User-Agent": Utils.getRandomPCUA(),
-                },
-                onload: function (resp) {
-                  let data = JSON.parse(resp.responseText);
-                  let comment_list = data["data"]["comment_list"];
-                  res(comment_list);
-                },
-                onerror: function (resp) {
-                  log.error("百度贴吧", "取第一页的评论的评论数据失败 👇");
-                  log.error("百度贴吧", resp);
-                  res(400);
-                },
-                ontimeout: function () {
-                  res(400);
-                },
-              });
+            let getResp = await httpx.get({
+              url: url,
+              headers: {
+                Accept: "application/json, text/javascript, */*; q=0.01",
+                "User-Agent": Utils.getRandomPCUA(),
+              },
             });
+            let respData = getResp.data;
+            if (getResp.status) {
+              let data = JSON.parse(respData.responseText);
+              return data["data"]["comment_list"];
+            } else if (getResp.type === "onerror") {
+              log.error("取第一页的评论的评论数据失败 👇");
+              log.error(resp);
+            }
           },
           loadingNextCommand: () => {
             /* 自动加载下一页的评论 */
@@ -1537,7 +1500,7 @@
               );
               if (userScrollHeight >= $(document).height() || isInit) {
                 if (isloding_flag) {
-                  log.info("百度贴吧", "正在请求中");
+                  log.info("正在请求中");
                 } else {
                   isloding_flag = true;
                   loadingView.setText("Loading...", true);
@@ -1545,7 +1508,7 @@
                   let timeStamp = Date.now();
                   let next_page_url = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
                   let next_page_all_comment_url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
-                  log.info("百度贴吧", "请求下一页评论的url: " + next_page_url);
+                  log.info("请求下一页评论的url: " + next_page_url);
                   log.info(
                     "百度贴吧",
                     "贴子所有评论的url: " + next_page_all_comment_url
@@ -1553,15 +1516,16 @@
                   let pageHTML = await tiebaConfig.getPageComment(
                     next_page_url
                   );
-                  log.info("百度贴吧", "成功获取下一页评论");
+                  log.info("成功获取下一页评论");
                   let user_commands_list = await tiebaConfig.getPageCommentList(
                     next_page_all_comment_url
                   );
-                  log.info("百度贴吧", "成功获取下一页评论对应的数组");
-                  if (pageHTML == 400 || user_commands_list == 400) {
+                  log.info("成功获取下一页评论对应的数组");
+                  if (!pageHTML || !user_commands_list) {
                     loadingView.setText("未知错误，请看控制台");
                     $(window).off("scroll");
-                    log.success("百度贴吧", "取消绑定scroll", "#f400ff");
+                    log.success("取消绑定scroll", "#f400ff");
+                    return;
                   }
                   let commands = pageHTML.find(".l_post.l_post_bright");
                   commands = Array.from(commands);
@@ -1593,11 +1557,11 @@
                   }
                   loadingView.setVisible(false);
                   if (window.page >= window.max_page) {
-                    log.info("百度贴吧", "已加载所有的评论");
+                    log.info("已加载所有的评论");
                     loadingView.setText("已加载所有的评论");
                     loadingView.setVisible(false);
                     $(window).off("scroll");
-                    log.success("百度贴吧", "取消绑定scroll", "#f400ff");
+                    log.success("取消绑定scroll", "#f400ff");
                   }
                   window.page++;
                   isloding_flag = false;
@@ -1614,7 +1578,7 @@
               );
               if (userScrollHeight >= $(document).height() || isInit) {
                 if (isloding_flag) {
-                  log.info("百度贴吧", "正在请求中");
+                  log.info("正在请求中");
                 } else {
                   isloding_flag = true;
                   loadingView.setText("Loading...", true);
@@ -1622,21 +1586,22 @@
                   let timeStamp = Date.now();
                   let page_url = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
                   let page_all_comment_url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
-                  log.info("百度贴吧", "请求上一页评论的url: " + page_url);
+                  log.info("请求上一页评论的url: " + page_url);
                   log.info(
                     "百度贴吧",
                     "贴子所有评论的url: " + page_all_comment_url
                   );
                   let pageHTML = await tiebaConfig.getPageComment(page_url);
-                  log.info("百度贴吧", "成功获取上一页评论");
+                  log.info("成功获取上一页评论");
                   let user_commands_list = await tiebaConfig.getPageCommentList(
                     page_all_comment_url
                   );
-                  log.info("百度贴吧", "成功获取下一页评论对应的数组");
-                  if (pageHTML == 400 || user_commands_list == 400) {
+                  log.info("成功获取下一页评论对应的数组");
+                  if (!pageHTML || !user_commands_list) {
                     loadingView.setText("未知错误，请看控制台");
                     $(window).off("scroll");
-                    log.success("百度贴吧", "取消绑定scroll", "#f400ff");
+                    log.success("取消绑定scroll", "#f400ff");
+                    return;
                   }
                   let commands = pageHTML.find(".l_post.l_post_bright");
                   commands = Array.from(commands);
@@ -1670,11 +1635,11 @@
                   }
                   loadingView.setVisible(false);
                   if (window.page <= 1) {
-                    log.info("百度贴吧", "已加载所有的评论");
+                    log.info("已加载所有的评论");
                     loadingView.setText("已加载所有的评论");
                     loadingView.setVisible(false);
                     $(window).off("scroll");
-                    log.info("百度贴吧", "取消绑定scroll", "#f400ff");
+                    log.info("取消绑定scroll", "#f400ff");
                   }
                   window.page--;
                   isloding_flag = false;
@@ -1685,7 +1650,7 @@
           insertLoadingHTML: () => {
             /* 插入加载中的html */
             if (!loadingView.isExists()) {
-              log.info("百度贴吧", "插入loading");
+              log.info("插入loading");
               $(".main-page-wrap").append(loadingView.getLoadingNode());
               loadingView.setCSS();
             }
@@ -1732,12 +1697,12 @@
               let user_commands_list = await tiebaConfig.getPageCommentList(
                 url
               );
-              if (pageHTML == 400 || user_commands_list == 400) {
+              if (!pageHTML || !user_commands_list) {
                 loadingView.setText("获取评论失败");
-                log.error("百度贴吧", "新评论区获取失败");
+                log.error("新评论区获取失败");
                 return;
               }
-              log.info("百度贴吧", "成功获取评论HTML");
+              log.info("成功获取评论HTML");
               window.max_page = pageHTML.find(".jump_input_bright");
               if (window.max_page.length) {
                 window.max_page = parseInt(
@@ -1745,7 +1710,7 @@
                 );
                 tiebaConfig.loadingNextCommand();
                 $(window).trigger("scroll", true);
-                log.info("百度贴吧", "当前为多页，执行监听");
+                log.info("当前为多页，执行监听");
               } else {
                 let commands = pageHTML.find(".l_post.l_post_bright");
                 window.max_page = 1;
@@ -1775,10 +1740,10 @@
                 `共 ${window.max_page} 页评论，当前所在 ${window.page} 页`
               );
             } else {
-              log.error("百度贴吧", "贴吧：获取参数data-banner-info失败");
+              log.error("贴吧：获取参数data-banner-info失败");
             }
           } else {
-            log.error("百度贴吧", "贴吧：未找到本页参数p");
+            log.error("贴吧：未找到本页参数p");
           }
         }
         async function mainReverse() {
@@ -1803,12 +1768,12 @@
               let user_commands_list = await tiebaConfig.getPageCommentList(
                 url
               );
-              if (pageHTML == 400 || user_commands_list == 400) {
+              if (!pageHTML || !user_commands_list) {
                 loadingView.setText("获取评论失败");
-                log.error("百度贴吧", "新评论区获取失败");
+                log.error("新评论区获取失败");
                 return;
               }
-              log.info("百度贴吧", "成功获取评论HTML");
+              log.info("成功获取评论HTML");
               window.max_page = pageHTML.find(".jump_input_bright");
               if (window.max_page.length) {
                 window.max_page = parseInt(
@@ -1817,7 +1782,7 @@
                 window.page = window.max_page;
                 tiebaConfig.loadingPrevCommand();
                 $(window).trigger("scroll", true);
-                log.info("百度贴吧", "当前为多页，执行监听");
+                log.info("当前为多页，执行监听");
               } else {
                 let commands = pageHTML.find(".l_post.l_post_bright");
                 window.max_page = 1;
@@ -1848,10 +1813,10 @@
                 `共 ${window.max_page} 页评论，当前所在 ${window.page} 页`
               );
             } else {
-              log.error("百度贴吧", `贴吧：获取参数data-banner-info失败`);
+              log.error(`贴吧：获取参数data-banner-info失败`);
             }
           } else {
-            log.error("百度贴吧", `贴吧：未找到本页参数p`);
+            log.error(`贴吧：未找到本页参数p`);
           }
         }
         let intervalNum = 0;
@@ -1859,7 +1824,6 @@
         let interval = setInterval(() => {
           if (intervalNum >= intervalMaxNum) {
             log.error(
-              "百度贴吧",
               `贴吧：超次数，未找到recommend-item的属性data-banner-info`
             );
             clearInterval(interval);
@@ -2129,14 +2093,14 @@
             imgSrc &&
             imgSrc.match(/^http(s|):\/\/tiebapic.baidu.com\/forum/g)
           ) {
-            log.info("百度贴吧", `点击图片👇`);
-            log.info("百度贴吧", imgNode);
+            log.info(`点击图片👇`);
+            log.info(imgNode);
             if (imgNode.parentElement.className === "img-box") {
               /* 帖子主体内的图片 */
               let parentMain = Utils.findParentNode(imgNode, (node) => {
                 return node.className === "img-sudoku main-img-sudoku";
               });
-              log.info("百度贴吧", parentMain);
+              log.info(parentMain);
               if (!parentMain) {
                 viewIMG([imgSrc]);
                 return;
@@ -2145,25 +2109,25 @@
               parentMain.querySelectorAll("img.img").forEach((item) => {
                 let _imgSrc_ =
                   item.getAttribute("data-src") || item.getAttribute("src");
-                log.info("百度贴吧", `获取图片: ${_imgSrc_}`);
+                log.info(`获取图片: ${_imgSrc_}`);
                 lazyImgList = [...lazyImgList, _imgSrc_];
               });
-              log.info("百度贴吧", "图片列表👇");
-              log.info("百度贴吧", lazyImgList);
+              log.info("图片列表👇");
+              log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
             } else if (imgNode.parentElement.className === "text-content") {
               /* 评论区内的图片 */
               let parentMain = imgNode.parentElement;
               let lazyImgList = [];
-              log.info("百度贴吧", parentMain);
+              log.info(parentMain);
               parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
                 let _imgSrc_ =
                   item.getAttribute("data-src") || item.getAttribute("src");
-                log.info("百度贴吧", `获取图片: ${_imgSrc_}`);
+                log.info(`获取图片: ${_imgSrc_}`);
                 lazyImgList = [...lazyImgList, _imgSrc_];
               });
-              log.info("百度贴吧", "评论区图片列表👇");
-              log.info("百度贴吧", lazyImgList);
+              log.info("评论区图片列表👇");
+              log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
             } else {
               /* 单个图片预览 */
@@ -2176,31 +2140,31 @@
        * 重定向跳转
        */
       function redirectJump() {
-        log.info("百度贴吧", "话题热榜-阻止默认跳转");
+        log.info("话题热榜-阻止默认跳转");
         $(document).on("click", ".topic-share-item", function (event) {
           event?.stopPropagation();
           event?.preventDefault();
           let clickNode = $(this);
           let dataTrack = clickNode.attr("data-track");
           if (dataTrack == null) {
-            log.error("百度贴吧", "未找到data-track");
-            log.error("百度贴吧", clickNode);
+            log.error("未找到data-track");
+            log.error(clickNode);
             return false;
           }
           dataTrack = JSON.parse(dataTrack);
           let tid = dataTrack["tid"];
           if (tid == null) {
-            log.error("百度贴吧", "未找到tid");
-            log.error("百度贴吧", dataTrack);
+            log.error("未找到tid");
+            log.error(dataTrack);
             return false;
           }
-          log.success("百度贴吧", `跳转至: https://tieba.baidu.com/p/${tid}`);
+          log.success(`跳转至: https://tieba.baidu.com/p/${tid}`);
           window.location.href = `https://tieba.baidu.com/p/${tid}`;
           return false;
         });
         Utils.waitNode(".thread-bottom .forum").then((nodeList) => {
-          log.success("百度贴吧", "设置贴吧种类正确跳转");
-          log.success("百度贴吧", nodeList);
+          log.success("设置贴吧种类正确跳转");
+          log.success(nodeList);
           nodeList.forEach((item) => {
             item.ontouchstart = function (event) {
               event?.stopPropagation();
@@ -2213,37 +2177,40 @@
             };
           });
         });
-        Utils.mutationObserver(".topic-share-thread .list-content", {
-          fn: (mutations) => {
-            mutations.forEach((item) => {
-              item.addedNodes.forEach((item2) => {
-                if (
-                  typeof item2.className === "string" &&
-                  item2.className.indexOf("topic-share-item") != -1
-                ) {
-                  log.success("百度贴吧", "设置新增的帖子的贴吧种类正确跳转");
-                  log.success("百度贴吧", item2);
-                  item2.querySelector(".thread-bottom .forum").ontouchstart =
-                    function (event) {
-                      event?.stopPropagation();
-                      event?.preventDefault();
-                      window.location.href = `https://tieba.baidu.com/f?kw=${$(
-                        this
-                      )
-                        .text()
-                        .trim()
-                        .replace(/吧$/g, "")}`;
-                      return false;
-                    };
-                }
+        Utils.waitNode(".topic-share-thread .list-content").then((nodeList) => {
+          Utils.mutationObserver(nodeList[0], {
+            callback: (mutations) => {
+              mutations.forEach((item) => {
+                item.addedNodes.forEach((item2) => {
+                  if (
+                    typeof item2.className === "string" &&
+                    item2.className.indexOf("topic-share-item") != -1
+                  ) {
+                    log.success("设置新增的帖子的贴吧种类正确跳转");
+                    log.success(item2);
+                    item2.querySelector(".thread-bottom .forum").ontouchstart =
+                      function (event) {
+                        event?.stopPropagation();
+                        event?.preventDefault();
+                        window.location.href = `https://tieba.baidu.com/f?kw=${$(
+                          this
+                        )
+                          .text()
+                          .trim()
+                          .replace(/吧$/g, "")}`;
+                        return false;
+                      };
+                  }
+                });
               });
-            });
-          },
-          config: {
-            childList: true,
-            subtree: true,
-          },
+            },
+            config: {
+              childList: true,
+              subtree: true,
+            },
+          });
         });
+
         $(document).on(
           "touchstart",
           ".topic-share-item .forum",
@@ -2256,7 +2223,7 @@
       }
       if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
         GM_addStyle(this.css.tieba);
-        log.info("百度贴吧", "插入CSS规则");
+        log.info("插入CSS规则");
         if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
           tiebaLoadComments();
           registerImagePreview();
@@ -2274,21 +2241,21 @@
       /* 百度文库 */
       if (this.current_url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         GM_addStyle(this.css.wenku);
-        log.info("百度文库", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     jingyan() {
       /* 百度经验 */
       if (this.current_url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
         GM_addStyle(this.css.jingyan);
-        log.info("百度经验", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     baike() {
       /* 百度百科 */
       if (this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
         GM_addStyle(this.css.baike);
-        log.info("百度百科", "插入CSS规则");
+        log.info("插入CSS规则");
         let page_ = 1;
         let page_interval_lock = false;
         let more_url = "https://baike.baidu.com" + window.location.pathname;
@@ -2343,64 +2310,66 @@
           $(".BK-main-content").after(loadingView.getLoadingNode());
           if (match_id.length >= 2) {
             /* 由于不知道有多少页，定时器加载判断 */
-            var page_interval = setInterval(function () {
-              log.info("百度百科", "定时器loading");
+            var page_interval = setInterval(async function () {
+              log.info("定时器loading");
               loadingView.setVisible(true);
               if (page_interval_lock == true) {
                 return;
               }
               page_interval_lock = true;
               more_url = `${more_url}?wpf=3&ldr=1&page=${page_}&insf=1&_=${new Date().getTime()}`;
-              log.info("百度百科", more_url);
-              GM_xmlhttpRequest({
+              log.info(more_url);
+              let getResp = await httpx.get({
                 url: more_url,
-                timeout: 5000,
-                method: "GET",
-                async: false,
                 headers: {
                   "User-Agent": Utils.getRandomPCUA(),
                 },
-                onload: function (resp) {
-                  loadingView.setVisible(false);
-                  let $_resp = $(resp.response);
-                  let main_content = $_resp.find(".BK-main-content");
-                  let new_content = main_content.prevObject[0].innerHTML;
-                  if (new_content.trim() == `<a name="u0"></a>`) {
-                    log.info("百度百科", "已到达最大页" + (page_ - 1));
-                    insert_img();
-                    set_normal_img_size();
-                    loadingView.setText("已到达最大页" + (page_ - 1));
-                    clearInterval(page_interval);
-                  } else {
-                    loadingView.setText("正在加载页 " + page_, true);
-                    $(".BK-main-content").append($(new_content));
-                  }
-                  window.history.pushState("forward", null, setLocationUrl);
-                  page_++;
-                  page_interval_lock = false;
-                },
-                onerror: function (resp) {
-                  log.error("百度百科", "请求失败 👇");
-                  log.error("百度百科", resp);
-                  insert_img();
-                  set_normal_img_size();
-                  loadingView.setText("请求失败");
-                  loadingView.setIconVisible(false);
-                  clearInterval(page_interval);
-                },
-                ontimeout: function () {
-                  log.error("百度百科", "请求超时 👇");
-                  log.error("百度百科", resp);
-                  insert_img();
-                  set_normal_img_size();
-                  loadingView.setText("请求超时");
-                  loadingView.setIconVisible(false);
-                  clearInterval(page_interval);
-                },
               });
+              let respData = getResp.data;
+              if (getResp.status) {
+                loadingView.setVisible(false);
+                let $_resp = $(respData.response);
+                let main_content = $_resp.find(".BK-main-content");
+                let new_content = main_content.prevObject[0].innerHTML;
+                if (new_content.trim() == `<a name="u0"></a>`) {
+                  log.info("已到达最大页" + (page_ - 1));
+                  insert_img();
+                  set_normal_img_size();
+                  loadingView.setText("已到达最大页" + (page_ - 1));
+                  clearInterval(page_interval);
+                } else {
+                  loadingView.setText("正在加载页 " + page_, true);
+                  $(".BK-main-content").append($(new_content));
+                }
+                window.history.pushState("forward", null, setLocationUrl);
+                page_++;
+                page_interval_lock = false;
+              } else if (getResp.type === "onerror") {
+                log.error("请求失败 👇");
+                log.error(respData);
+                insert_img();
+                set_normal_img_size();
+                loadingView.setText("请求失败");
+                loadingView.setIconVisible(false);
+                clearInterval(page_interval);
+              } else if (getResp.type === "ontimeout") {
+                log.error("请求超时 👇");
+                insert_img();
+                set_normal_img_size();
+                loadingView.setText("请求超时");
+                loadingView.setIconVisible(false);
+                clearInterval(page_interval);
+              } else {
+                log.error("未知错误");
+                insert_img();
+                set_normal_img_size();
+                loadingView.setText("未知错误");
+                loadingView.setIconVisible(false);
+                clearInterval(page_interval);
+              }
             }, 1000);
           } else {
-            log.error("百度百科", "匹配id失败");
+            log.error("匹配id失败");
           }
         }
         setTimeout(function () {
@@ -2423,7 +2392,7 @@
             let item = index_tashuo_list_bottom[i];
             let class_name = item.className;
             if (class_name != "J-hot-item-container") {
-              log.info("百度百科-他说", "TA has ad，remove ！");
+              log.info("TA has ad，remove ！");
               item.remove();
               i--;
             }
@@ -2435,7 +2404,7 @@
       /* 百度知道 */
       if (this.current_url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
         GM_addStyle(this.css.zhidao);
-        log.info("百度知道", "插入CSS规则");
+        log.info("插入CSS规则");
         $(".ec-ad")?.parent()?.remove();
       }
     },
@@ -2443,7 +2412,7 @@
       /* 百度翻译 */
       if (this.current_url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
         GM_addStyle(this.css.fanyi);
-        log.info("百度翻译", "插入CSS规则");
+        log.info("插入CSS规则");
       }
       if (this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         GM_addStyle(this.css.fanyiapp);
@@ -2455,19 +2424,19 @@
           30,
           150
         );
-        log.info("百度翻译APP", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     image() {
       if (this.current_url.match(/^http(s|):\/\/image.baidu.com/g)) {
         GM_addStyle(this.css.image);
-        log.info("百度图片", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     map() {
       if (this.current_url.match(/^http(s|):\/\/map.baidu.com/g)) {
         GM_addStyle(this.css.map);
-        log.info("百度地图", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     mbd() {
@@ -2477,13 +2446,13 @@
         https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
         */
         GM_addStyle(this.css.mbd);
-        log.info("百家号之mdb", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
     xue() {
       if (this.current_url.match(/^http(s|):\/\/xue.baidu.com/g)) {
         GM_addStyle(this.css.xue);
-        log.info("知了好学", "插入CSS规则");
+        log.info("插入CSS规则");
       }
     },
   };
@@ -2493,7 +2462,7 @@
     var isloding_flag = false;
     $("#page-controller").after(loadingView.getLoadingNode(true));
     loadingView.setCSS();
-    $(window).on("scroll", function () {
+    $(window).on("scroll", async function () {
       let userScrollHeight = Math.ceil(
         $(window).scrollTop() + $(window).height() + 300
       );
@@ -2506,10 +2475,10 @@
             $(".new-nextpage").attr("href") ||
             $(".new-nextpage-only").attr("href");
           if (!next_page_url) {
-            log.info("百度搜索", "获取不到下一页，怀疑已加载所有的搜索结果");
+            log.info("获取不到下一页，怀疑已加载所有的搜索结果");
             isloding_flag = false;
             $(window).off("scroll");
-            log.info("百度搜索", "取消绑定scroll", "#f400ff");
+            log.info("取消绑定scroll", "#f400ff");
             loadingView.destory();
             return;
           }
@@ -2518,72 +2487,66 @@
             params_pn.length == 0
               ? "第 10 条"
               : "第 " + parseInt(params_pn[0]) + " 条";
-          log.info(
-            "百度搜索",
-            `正在请求${next_page_textContent}数据: ${next_page_url}`
-          );
+          log.info(`正在请求${next_page_textContent}数据: ${next_page_url}`);
 
           loadingView.setText("Loading...", true);
-          GM_xmlhttpRequest({
+          let getResp = await httpx.get({
             url: next_page_url,
-            timeout: 5000,
-            method: "GET",
-            onload: function (resp) {
-              loadingView.setVisible(false);
-              let page_html = $(resp.response);
-              page_html.find("style").filter(function (index) {
-                /* 插入vue打包的css需重新引入 */ if (
-                  this.hasAttribute("data-vue-ssr-id")
-                ) {
-                  let dataVueSsrId = "data-vue-ssr-id";
-                  let dataVueSsrIdValue = this.getAttribute(dataVueSsrId);
-                  if (
-                    !document.querySelector(
-                      "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
-                    )
-                  ) {
-                    let cssDOM = GM_addStyle(this.innerHTML);
-                    cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-                    log.info(
-                      "百度搜索",
-                      `插入Vue的CSS id: ${dataVueSsrIdValue}`
-                    );
-                  }
-                }
-              });
-              let search_result = page_html.find(".c-result.result");
-              let next_html_next_page_html = page_html.find("#page-controller");
-              let this_page_results = $("#results");
-              if (this_page_results != void 0) {
-                $.each(search_result, (i, n) => {
-                  this_page_results.append(n);
-                });
-                $("#page-controller").html(next_html_next_page_html);
-              } else {
-                log.info("百度搜索", "已加载所有的搜索结果");
-                $(window).off("scroll");
-                log.info("百度搜索", "取消绑定scroll", "#f400ff");
-              }
-              isloding_flag = false;
-              window.history.pushState("forward", null, next_page_url);
-            },
-            onerror: function (resp) {
-              if (next_page_url == undefined) {
-                log.error("百度搜索", "未获取到下一页的url");
-              } else {
-                log.error("百度搜索", "加载失败 👇");
-                log.error("百度搜索", resp);
-                loadingView.setText("加载失败");
-              }
-              isloding_flag = false;
-            },
-            ontimeout: function () {
-              log.error("百度搜索", "请求超时 👇");
-              log.error("百度搜索", resp);
-              loadingView.setText("请求超时");
-              isloding_flag = false;
-            },
           });
+          let respData = getResp.data;
+          if (getResp.status) {
+            loadingView.setVisible(false);
+            let page_html = $(respData.response);
+            page_html.find("style").filter(function (index) {
+              /* 插入vue打包的css需重新引入 */ if (
+                this.hasAttribute("data-vue-ssr-id")
+              ) {
+                let dataVueSsrId = "data-vue-ssr-id";
+                let dataVueSsrIdValue = this.getAttribute(dataVueSsrId);
+                if (
+                  !document.querySelector(
+                    "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
+                  )
+                ) {
+                  let cssDOM = GM_addStyle(this.innerHTML);
+                  cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
+                  log.info(`插入Vue的CSS id: ${dataVueSsrIdValue}`);
+                }
+              }
+            });
+            let search_result = page_html.find(".c-result.result");
+            let next_html_next_page_html = page_html.find("#page-controller");
+            let this_page_results = $("#results");
+            if (this_page_results != void 0) {
+              $.each(search_result, (i, n) => {
+                this_page_results.append(n);
+              });
+              $("#page-controller").html(next_html_next_page_html);
+            } else {
+              log.info("已加载所有的搜索结果");
+              $(window).off("scroll");
+              log.info("取消绑定scroll", "#f400ff");
+            }
+            isloding_flag = false;
+            window.history.pushState("forward", null, next_page_url);
+          } else if (getResp.type === "onerror") {
+            if (next_page_url == undefined) {
+              log.error("未获取到下一页的url");
+            } else {
+              log.error("加载失败 👇");
+              log.error(respData);
+              loadingView.setText("加载失败");
+            }
+            isloding_flag = false;
+          } else if (getResp.type === "ontimeout") {
+            log.error("请求超时 👇");
+            loadingView.setText("请求超时");
+            isloding_flag = false;
+          } else {
+            log.error("未知错误");
+            loadingView.setText("未知错误");
+            isloding_flag = false;
+          }
         } else {
           let next_page_textContent =
             $(".new-nowpage").length == 0
@@ -2625,7 +2588,11 @@
         },
       },
     },
-    true
+    true,
+    GM_getValue,
+    GM_setValue,
+    GM_registerMenuCommand,
+    GM_unregisterMenuCommand
   );
   GM_addStyle(CSDN_FLAG_CSS);
   baidu.init();
