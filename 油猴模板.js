@@ -3,9 +3,9 @@
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @version      0.1
 // @description  自动生成的描述
-// @author       WhiteSev
-// @include      <$URL$>
-// @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
+// @author       WhiteSevs
+// @license      GPL-3.0-only
+// @match        <$URL$>
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -16,49 +16,12 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
+// @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1169869
 // ==/UserScript==
 
 (function () {
-  var log = {
-    /* 命名空间 */
-    nameSpace: "log",
-    tag: GM_info?.script?.name,
-    info: function (msg, color = 0, type = "info") {
-      /* #f400ff */
-      let callerName = this.info?.caller?.name;
-      if (type === "success") {
-        callerName = this.success?.caller?.name;
-      } else if (type === "error") {
-        callerName = this.error?.caller?.name;
-      }
-      if (typeof msg === "object") {
-        console.log(
-          `%c[${log.tag}%c-%c${callerName}%c]%c `,
-          "font-weight: bold;color: cornflowerblue",
-          "font-weight: bold;color: cornflowerblue",
-          "font-weight: bold;color: darkorange",
-          "font-weight: bold;color: cornflowerblue",
-          `color: ${color}`,
-          msg
-        );
-      } else {
-        console.log(
-          `%c[${log.tag}%c-%c${callerName}%c]%c ${msg}`,
-          "font-weight: bold;color: cornflowerblue",
-          "font-weight: bold;color: cornflowerblue",
-          "font-weight: bold;color: darkorange",
-          "font-weight: bold;color: cornflowerblue",
-          `color: ${color}`
-        );
-      }
-    },
-    error: function (msg, color = "red") {
-      this.info(msg, color, "error");
-    },
-    success: function (msg, color = "blue") {
-      this.info(msg, color, "success");
-    },
-  };
+  var log = new Utils.Log(GM_info);
 
   /* 全局配置 */
   var GLOBAL_CONFIG = {
@@ -73,7 +36,14 @@
     /* 命名空间 */
     nameSpace: "GLOBAL_CSS",
     /* CSS数据 */
-    data: ``,
+    data: [
+      {
+        /* 添加的CSS */
+        css: ``,
+        /* 该CSS的作用或描述 */
+        desc: "",
+      },
+    ],
     /* 延迟添加的CSS元素列表 */
     delayCSSNode: [],
     /* 添加到页面的元素列表 */
@@ -82,8 +52,10 @@
      * 初始化全局CSS
      */
     init() {
-      log.info("初始化全局CSS");
-      this.node = [...this.node, GM_addStyle(this.data)];
+      this.data.forEach((item) => {
+        this.node = [...this.node, GM_addStyle(item.css)];
+      });
+      t;
     },
   };
 
@@ -97,12 +69,16 @@
      * @param {Array} domReadyCallBack dom加载完毕回调
      */
     init(domStartCallBack = [], domReadyCallBack = []) {
-      /* 首先加载全局CSS */
+      /* 注册window函数 */
+      GLOBAL_WINDOW.init();
+      /* 注册全局CSS */
       GLOBAL_CSS.init();
+      /* 注册menu菜单 */
+      GLOBAL_GM_MENU.init();
+      /* 执行document-start时需要执行的函数 */
       this.exec(domStartCallBack);
-      /* 然后执行DOM加载完毕的函数 */
       $(() => {
-        log.success("DOM加载完毕，执行回调");
+        /* 执行document-ready时需要执行的函数 */
         this.exec(domReadyCallBack);
       });
     },
@@ -114,10 +90,9 @@
       /* 如果该函数url匹配成功执行，回调加载这个函数的CSS */
       var addGlobalCss = function () {
         if (typeof arguments[0] === "string" && arguments[0] != "") {
-          GLOBAL_CSS.delayCSSNode = [
-            ...GLOBAL_CSS.delayCSSNode,
-            GM_addStyle(arguments[0]),
-          ];
+          let addCSSNode = GM_addStyle(arguments[0]);
+          GLOBAL_CSS.delayCSSNode = [...GLOBAL_CSS.delayCSSNode, addCSSNode];
+          return addCSSNode;
         }
       };
       callBackList.forEach((item) => {
@@ -130,10 +105,61 @@
     },
   };
 
-  /* 桌面端执行 */
-  var deskTop = {
+  /* 全局通用API函数 */
+  var GLOBAL_API = {};
+
+  /* 注册到window的全局函数，比如替换GM_addStyle */
+  var GLOBAL_WINDOW = {
+    init() {
+      Object.keys(this).forEach((keyName) => {
+        if (keyName.toLowerCase() === "init") {
+          return;
+        }
+        window[keyName] = this[keyName];
+      });
+    },
+  };
+
+  /* 注册到tampermonkey的菜单项 */
+  var GLOBAL_GM_MENU = {
+    /* GM_Menu对象 */
+    _gm_menu_: null,
+    /* 点击后自动刷新网页 */
+    _auto_reload_: false,
+    /* 初始化 */
+    init() {
+      let notExecFunctionNameList = ["init", "get"];
+      let menuJSON = {};
+      Object.keys(this).forEach((keyName) => {
+        if (notExecFunctionNameList.indexOf(keyName) !== -1) {
+          return;
+        }
+        if (this[keyName].checkRegister && this[keyName].checkRegister()) {
+          menuJSON[keyName] = this[keyName];
+          delete menuJSON[keyName]["checkRegister"];
+        }
+      });
+      this._gm_menu_ = new Utils.GM_Menu(
+        menuJSON,
+        this._auto_reload_,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+    },
+    /* 根据自己设置的key获取值 */
+    get(gmKeyName) {
+      return this._gm_menu_.get(gmKeyName);
+    },
+    /* Your code here... */
+  };
+
+  /* 桌面端执行，设置的函数开头必须为domStart_或者domReady_ */
+  /* 每个函数都会传入一个添加CSS的函数，调用该函数添加CSS，不直接使用GM_addStyle了 */
+  var ENTRANCE_DESKTOP = {
     /* 命名空间 */
-    nameSpace: "deskTop",
+    nameSpace: "ENTRANCE_DESKTOP",
     /* 配置 */
     config: {},
     init() {
@@ -145,8 +171,8 @@
       var needExecFunctionNameListByDOMReady = [];
       Object.keys(this).forEach((functionName) => {
         if (
-          notExecFunctionNameList.indexOf(functionName) != -1 ||
-          typeof this[functionName] != "function"
+          notExecFunctionNameList.indexOf(functionName) !== -1 ||
+          typeof this[functionName] !== "function"
         ) {
           return;
         }
@@ -161,7 +187,7 @@
             functionName,
           ];
         } else {
-          log.error(`未知不被执行的函数名字 ${functionName}`);
+          log.error(`不被执行的函数名字 ${functionName}`);
         }
       });
       GLOBAL_RUN.init(
@@ -169,12 +195,15 @@
         needExecFunctionNameListByDOMReady
       );
     },
+    /* 通用接口-复用 */
+    api: {},
   };
 
-  /* 移动端执行 */
-  var mobile = {
+  /* 移动端执行，设置的函数开头必须为domStart_或者domReady_ */
+  /* 每个函数都会传入一个添加CSS的函数，调用该函数添加CSS，不直接使用GM_addStyle了 */
+  var ENTRANCE_MOBILE = {
     /* 命名空间 */
-    nameSpace: "mobile",
+    nameSpace: "ENTRANCE_MOBILE",
     config: {},
     init() {
       /* 不被执行的keyName */
@@ -185,8 +214,8 @@
       var needExecFunctionNameListByDOMReady = [];
       Object.keys(this).forEach((functionName) => {
         if (
-          notExecFunctionNameList.indexOf(functionName) != -1 ||
-          typeof this[functionName] != "function"
+          notExecFunctionNameList.indexOf(functionName) !== -1 ||
+          typeof this[functionName] !== "function"
         ) {
           return;
         }
@@ -201,7 +230,7 @@
             functionName,
           ];
         } else {
-          log.error(`未知不被执行的函数名字 ${functionName}`);
+          log.error(`不被执行的函数名字 ${functionName}`);
         }
       });
       GLOBAL_RUN.init(
@@ -209,9 +238,11 @@
         needExecFunctionNameListByDOMReady
       );
     },
+    /* 通用接口-复用 */
+    api: {},
   };
   /* 执行 桌面端初始化 */
-  deskTop.init();
+  ENTRANCE_DESKTOP.init();
   /* 执行 移动端初始化 */
-  mobile.init();
+  ENTRANCE_MOBILE.init();
 })();
