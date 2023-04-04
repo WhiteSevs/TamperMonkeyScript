@@ -1609,7 +1609,7 @@
     let cssResourceNode = document.createElement("style");
     cssResourceNode.setAttribute("type", "text/css");
     cssResourceNode.setAttribute("data-insert-from", "pops");
-    cssResourceNode.innerHTML = this.css;
+    cssResourceNode.innerHTML = this.config.css;
     if (document.head) {
       document.head.append(cssResourceNode);
     } else if (document.documentElement) {

@@ -29,27 +29,27 @@
   } else {
     throw new Error("未找到可以插入到页面中的元素");
   }
-})()(
-  /*!
-   * Viewer.js v1.10.5
-   * https://fengyuanchen.github.io/viewerjs
-   *
-   * Copyright 2015-present Chen Fengyuan
-   * Released under the MIT license
-   *
-   * Date: 2022-04-05T08:21:02.491Z
-   */
+})();
 
-  function (global, factory) {
-    typeof exports === "object" && typeof module !== "undefined"
-      ? (module.exports = factory())
-      : typeof define === "function" && define.amd
-      ? define(factory)
-      : ((global =
-          typeof globalThis !== "undefined" ? globalThis : global || self),
-        (global.Viewer = factory()));
-  }
-)(this, function () {
+/*!
+ * Viewer.js v1.10.5
+ * https://fengyuanchen.github.io/viewerjs
+ *
+ * Copyright 2015-present Chen Fengyuan
+ * Released under the MIT license
+ *
+ * Date: 2022-04-05T08:21:02.491Z
+ */
+
+(function (global, factory) {
+  typeof exports === "object" && typeof module !== "undefined"
+    ? (module.exports = factory())
+    : typeof define === "function" && define.amd
+    ? define(factory)
+    : ((global =
+        typeof globalThis !== "undefined" ? globalThis : global || self),
+      (global.Viewer = factory()));
+})(this, function () {
   "use strict";
 
   function ownKeys(object, enumerableOnly) {
