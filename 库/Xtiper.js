@@ -1,6 +1,5 @@
 (function () {
   let cssResource = `@charset "utf-8";
-  area,blockquote,body,button,code,dd,div,dl,dt,fieldset,form,h1,h2,h3,h4,h5,h6,input,legend,li,ol,p,pre,td,textarea,th,ul{margin:0;padding:0;}
   .xtiper{position:relative;}
   .xtiper_msg{transition-timing-function:ease-out;transition-duration:.2s;transition-property:transform,opacity;}
   .xtiper_msg{position:fixed;left:50%;z-index:99999;overflow:hidden;max-width:752px;min-height:50px;border-radius:3px;box-shadow:0 0 10px rgba(0,0,0,.2);font-size:14px;line-height:50px;opacity:0;}
