@@ -643,7 +643,7 @@
 
   var pops = {};
   pops.config = {
-    version: "0.0.3",
+    version: "0.0.4",
     css: `@charset "utf-8";
 			.pops{
 				transition: all .35s;
@@ -1606,13 +1606,23 @@
   };
   pops.init = function () {
     /* 初始化CSS */
-    var css =
-      '<style name="pops-layer" rel="stylesheet" type="text/css">' +
-      this.config.css +
-      "</style>";
-    var cssElement = Utils.parseTextToDOM(css);
-    Utils.appendChild(document.head, cssElement);
-    this.config.cssElement = cssElement[0];
+    let cssResourceNode = document.createElement("style");
+    cssResourceNode.setAttribute("type", "text/css");
+    cssResourceNode.setAttribute("data-insert-from", "pops");
+    cssResourceNode.innerHTML = this.css;
+    if (document.head) {
+      document.head.append(cssResourceNode);
+    } else if (
+      document.documentElement &&
+      document.documentElement.childNodes.length === 0
+    ) {
+      document.documentElement.appendChild(cssResourceNode);
+    } else if (document.documentElement) {
+      document.documentElement.appendChild(cssResourceNode);
+    } else {
+      throw new Error("未找到可以插入到页面中的元素");
+    }
+    this.config.cssElement = cssResourceNode;
     this.config.init = true;
     this.config.animation = Utils.getKeyFrames(this.config.cssElement.sheet);
   };

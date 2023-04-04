@@ -7,36 +7,57 @@
  *
  * Date: 2022-04-05T08:21:00.150Z
  */
-let view_min_css = `.viewer-close:before,.viewer-flip-horizontal:before,.viewer-flip-vertical:before,.viewer-fullscreen-exit:before,.viewer-fullscreen:before,.viewer-next:before,.viewer-one-to-one:before,.viewer-play:before,.viewer-prev:before,.viewer-reset:before,.viewer-rotate-left:before,.viewer-rotate-right:before,.viewer-zoom-in:before,.viewer-zoom-out:before{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAAUCAYAAABWOyJDAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAQPSURBVHic7Zs/iFxVFMa/0U2UaJGksUgnIVhYxVhpjDbZCBmLdAYECxsRFBTUamcXUiSNncgKQbSxsxH8gzAP3FU2jY0kKKJNiiiIghFlccnP4p3nPCdv3p9778vsLOcHB2bfveeb7955c3jvvNkBIMdxnD64a94GHMfZu3iBcRynN7zAOI7TG15gHCeeNUkr8zaxG2lbYDYsdgMbktBsP03jdQwljSXdtBhLOmtjowC9Mg9L+knSlcD8TNKpSA9lBpK2JF2VdDSR5n5J64m0qli399hNFMUlpshQii5jbXTbHGviB0nLNeNDSd9VO4A2UdB2fp+x0eCnaXxWXGA2X0au/3HgN9P4LFCjIANOJdrLr0zzZ+BEpNYDwKbpnQMeAw4m8HjQtM6Z9qa917zPQwFr3M5KgA6J5rTJCdFZJj9/lyvGhsDvwFNVuV2MhhjrK6b9bFiE+j1r87eBl4HDwCF7/U/k+ofAX5b/EXBv5JoLMuILzf3Ap6Z3EzgdqHMCuF7hcQf4HDgeoHnccncqdK/TvSDWffFXI/exICY/xZyqc6XLWF1UFZna4gJ7q8BsRvgd2/xXpo6P+D9dfT7PpECtA3cnWPM0GXGFZh/wgWltA+cDNC7X+AP4GzjZQe+k5dRxuYPeiuXU7e1qwLpDz7dFjXKRaSwuMLvAlG8zZlG+YmiK1HoFqT7wP2z+4Q45TfEGcMt01xLoNZEBTwRqD4BLpnMLeC1A41UmVxsXgXeBayV/Wx20rpTyrpnWRft7p6O/FdqzGrDukPNtkaMoMo3FBdBSQMOnYBCReyf05s126fU9ytfX98+mY54Kxnp7S9K3kj6U9KYdG0h6UdLbkh7poFXMfUnSOyVvL0h6VtIXHbS6nOP+s/Zm9mvyXW1uuC9ohZ72E9uDmXWLJOB1GxsH+DxPftsB8B6wlGDN02TAkxG6+4D3TWsbeC5CS8CDFce+AW500LhhOW2020TRjK3b21HEmgti9m0RonxbdMZeVzV+/4tF3cBpP7E9mKHNL5q8h5g0eYsCMQz0epq8gQrwMXAgcs0FGXGFRcB9wCemF9PkbYqM/Bas7fxLwNeJPdTdpo4itQti8lPMqTpXuozVRVXPpbHI3KkNTB1NfkL81j2mvhDp91HgV9MKuRIqrykj3WPq4rHyL+axj8/qGPmTqi6F9YDlHOvJU6oYcTsh/TYSzWmTE6JT19CtLTJt32D6CmHe0eQn1O8z5AXgT4sx4Vcu0/EQecMydB8z0hUWkTd2t4CrwNEePqMBcAR4mrBbwyXLPWJa8zrXmmLEhNBmfpkuY2102xxrih+pb+ieAb6vGhuA97UcJ5KR8gZ77K+99xxeYBzH6Q3/Z0fHcXrDC4zjOL3hBcZxnN74F+zlvXFWXF9PAAAAAElFTkSuQmCC");background-repeat:no-repeat;background-size:280px;color:transparent;display:block;font-size:0;height:20px;line-height:0;width:20px}.viewer-zoom-in:before{background-position:0 0;content:"Zoom In"}.viewer-zoom-out:before{background-position:-20px 0;content:"Zoom Out"}.viewer-one-to-one:before{background-position:-40px 0;content:"One to One"}.viewer-reset:before{background-position:-60px 0;content:"Reset"}.viewer-prev:before{background-position:-80px 0;content:"Previous"}.viewer-play:before{background-position:-100px 0;content:"Play"}.viewer-next:before{background-position:-120px 0;content:"Next"}.viewer-rotate-left:before{background-position:-140px 0;content:"Rotate Left"}.viewer-rotate-right:before{background-position:-160px 0;content:"Rotate Right"}.viewer-flip-horizontal:before{background-position:-180px 0;content:"Flip Horizontal"}.viewer-flip-vertical:before{background-position:-200px 0;content:"Flip Vertical"}.viewer-fullscreen:before{background-position:-220px 0;content:"Enter Full Screen"}.viewer-fullscreen-exit:before{background-position:-240px 0;content:"Exit Full Screen"}.viewer-close:before{background-position:-260px 0;content:"Close"}.viewer-container{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;bottom:0;direction:ltr;font-size:0;left:0;line-height:0;overflow:hidden;position:absolute;right:0;top:0;-ms-touch-action:none;touch-action:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.viewer-container ::-moz-selection,.viewer-container::-moz-selection{background-color:transparent}.viewer-container ::selection,.viewer-container::selection{background-color:transparent}.viewer-container:focus{outline:0}.viewer-container img{display:block;height:auto;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;width:100%}.viewer-canvas{bottom:0;left:0;overflow:hidden;position:absolute;right:0;top:0}.viewer-canvas>img{height:auto;margin:15px auto;max-width:90%!important;width:auto}.viewer-footer{bottom:0;left:0;overflow:hidden;position:absolute;right:0;text-align:center}.viewer-navbar{background-color:rgba(0,0,0,.5);overflow:hidden}.viewer-list{box-sizing:content-box;height:50px;margin:0;overflow:hidden;padding:1px 0}.viewer-list>li{color:transparent;cursor:pointer;float:left;font-size:0;height:50px;line-height:0;opacity:.5;overflow:hidden;transition:opacity .15s;width:30px}.viewer-list>li:focus,.viewer-list>li:hover{opacity:.75}.viewer-list>li:focus{outline:0}.viewer-list>li+li{margin-left:1px}.viewer-list>.viewer-loading{position:relative}.viewer-list>.viewer-loading:after{border-width:2px;height:20px;margin-left:-10px;margin-top:-10px;width:20px}.viewer-list>.viewer-active,.viewer-list>.viewer-active:focus,.viewer-list>.viewer-active:hover{opacity:1}.viewer-player{background-color:#000;bottom:0;cursor:none;display:none;right:0;z-index:1}.viewer-player,.viewer-player>img{left:0;position:absolute;top:0}.viewer-toolbar>ul{display:inline-block;margin:0 auto 5px;overflow:hidden;padding:6px 3px}.viewer-toolbar>ul>li{background-color:rgba(0,0,0,.5);border-radius:50%;cursor:pointer;float:left;height:24px;overflow:hidden;transition:background-color .15s;width:24px}.viewer-toolbar>ul>li:focus,.viewer-toolbar>ul>li:hover{background-color:rgba(0,0,0,.8)}.viewer-toolbar>ul>li:focus{box-shadow:0 0 3px #fff;outline:0;position:relative;z-index:1}.viewer-toolbar>ul>li:before{margin:2px}.viewer-toolbar>ul>li+li{margin-left:1px}.viewer-toolbar>ul>.viewer-small{height:18px;margin-bottom:3px;margin-top:3px;width:18px}.viewer-toolbar>ul>.viewer-small:before{margin:-1px}.viewer-toolbar>ul>.viewer-large{height:30px;margin-bottom:-3px;margin-top:-3px;width:30px}.viewer-toolbar>ul>.viewer-large:before{margin:5px}.viewer-tooltip{background-color:rgba(0,0,0,.8);border-radius:10px;color:#fff;display:none;font-size:12px;height:20px;left:50%;line-height:20px;margin-left:-25px;margin-top:-10px;position:absolute;text-align:center;top:50%;width:50px}.viewer-title{color:#ccc;display:inline-block;font-size:12px;line-height:1.2;margin:0 5% 5px;max-width:90%;opacity:.8;overflow:hidden;text-overflow:ellipsis;transition:opacity .15s;white-space:nowrap}.viewer-title:hover{opacity:1}.viewer-button{-webkit-app-region:no-drag;background-color:rgba(0,0,0,.5);border-radius:50%;cursor:pointer;height:80px;overflow:hidden;position:absolute;right:-40px;top:-40px;transition:background-color .15s;width:80px}.viewer-button:focus,.viewer-button:hover{background-color:rgba(0,0,0,.8)}.viewer-button:focus{box-shadow:0 0 3px #fff;outline:0}.viewer-button:before{bottom:15px;left:15px;position:absolute}.viewer-fixed{position:fixed}.viewer-open{overflow:hidden}.viewer-show{display:block}.viewer-hide{display:none}.viewer-backdrop{background-color:rgba(0,0,0,.5)}.viewer-invisible{visibility:hidden}.viewer-move{cursor:move;cursor:-webkit-grab;cursor:grab}.viewer-fade{opacity:0}.viewer-in{opacity:1}.viewer-transition{transition:all .3s}@-webkit-keyframes viewer-spinner{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}@keyframes viewer-spinner{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.viewer-loading:after{-webkit-animation:viewer-spinner 1s linear infinite;animation:viewer-spinner 1s linear infinite;border:4px solid hsla(0,0%,100%,.1);border-left-color:hsla(0,0%,100%,.5);border-radius:50%;content:"";display:inline-block;height:40px;left:50%;margin-left:-20px;margin-top:-20px;position:absolute;top:50%;width:40px;z-index:1}@media (max-width:767px){.viewer-hide-xs-down{display:none}}@media (max-width:991px){.viewer-hide-sm-down{display:none}}@media (max-width:1199px){.viewer-hide-md-down{display:none}}`;
-let temp_view_style_node = document.createElement("style");
-temp_view_style_node.innerHTML= view_min_css;
-document.head.append(temp_view_style_node);
+(function () {
+  let cssResource = `@charset "utf-8";.viewer-close:before,.viewer-flip-horizontal:before,.viewer-flip-vertical:before,.viewer-fullscreen-exit:before,.viewer-fullscreen:before,.viewer-next:before,.viewer-one-to-one:before,.viewer-play:before,.viewer-prev:before,.viewer-reset:before,.viewer-rotate-left:before,.viewer-rotate-right:before,.viewer-zoom-in:before,.viewer-zoom-out:before{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAAUCAYAAABWOyJDAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAQPSURBVHic7Zs/iFxVFMa/0U2UaJGksUgnIVhYxVhpjDbZCBmLdAYECxsRFBTUamcXUiSNncgKQbSxsxH8gzAP3FU2jY0kKKJNiiiIghFlccnP4p3nPCdv3p9778vsLOcHB2bfveeb7955c3jvvNkBIMdxnD64a94GHMfZu3iBcRynN7zAOI7TG15gHCeeNUkr8zaxG2lbYDYsdgMbktBsP03jdQwljSXdtBhLOmtjowC9Mg9L+knSlcD8TNKpSA9lBpK2JF2VdDSR5n5J64m0qli399hNFMUlpshQii5jbXTbHGviB0nLNeNDSd9VO4A2UdB2fp+x0eCnaXxWXGA2X0au/3HgN9P4LFCjIANOJdrLr0zzZ+BEpNYDwKbpnQMeAw4m8HjQtM6Z9qa917zPQwFr3M5KgA6J5rTJCdFZJj9/lyvGhsDvwFNVuV2MhhjrK6b9bFiE+j1r87eBl4HDwCF7/U/k+ofAX5b/EXBv5JoLMuILzf3Ap6Z3EzgdqHMCuF7hcQf4HDgeoHnccncqdK/TvSDWffFXI/exICY/xZyqc6XLWF1UFZna4gJ7q8BsRvgd2/xXpo6P+D9dfT7PpECtA3cnWPM0GXGFZh/wgWltA+cDNC7X+AP4GzjZQe+k5dRxuYPeiuXU7e1qwLpDz7dFjXKRaSwuMLvAlG8zZlG+YmiK1HoFqT7wP2z+4Q45TfEGcMt01xLoNZEBTwRqD4BLpnMLeC1A41UmVxsXgXeBayV/Wx20rpTyrpnWRft7p6O/FdqzGrDukPNtkaMoMo3FBdBSQMOnYBCReyf05s126fU9ytfX98+mY54Kxnp7S9K3kj6U9KYdG0h6UdLbkh7poFXMfUnSOyVvL0h6VtIXHbS6nOP+s/Zm9mvyXW1uuC9ohZ72E9uDmXWLJOB1GxsH+DxPftsB8B6wlGDN02TAkxG6+4D3TWsbeC5CS8CDFce+AW500LhhOW2020TRjK3b21HEmgti9m0RonxbdMZeVzV+/4tF3cBpP7E9mKHNL5q8h5g0eYsCMQz0epq8gQrwMXAgcs0FGXGFRcB9wCemF9PkbYqM/Bas7fxLwNeJPdTdpo4itQti8lPMqTpXuozVRVXPpbHI3KkNTB1NfkL81j2mvhDp91HgV9MKuRIqrykj3WPq4rHyL+axj8/qGPmTqi6F9YDlHOvJU6oYcTsh/TYSzWmTE6JT19CtLTJt32D6CmHe0eQn1O8z5AXgT4sx4Vcu0/EQecMydB8z0hUWkTd2t4CrwNEePqMBcAR4mrBbwyXLPWJa8zrXmmLEhNBmfpkuY2102xxrih+pb+ieAb6vGhuA97UcJ5KR8gZ77K+99xxeYBzH6Q3/Z0fHcXrDC4zjOL3hBcZxnN74F+zlvXFWXF9PAAAAAElFTkSuQmCC");background-repeat:no-repeat;background-size:280px;color:transparent;display:block;font-size:0;height:20px;line-height:0;width:20px}.viewer-zoom-in:before{background-position:0 0;content:"Zoom In"}.viewer-zoom-out:before{background-position:-20px 0;content:"Zoom Out"}.viewer-one-to-one:before{background-position:-40px 0;content:"One to One"}.viewer-reset:before{background-position:-60px 0;content:"Reset"}.viewer-prev:before{background-position:-80px 0;content:"Previous"}.viewer-play:before{background-position:-100px 0;content:"Play"}.viewer-next:before{background-position:-120px 0;content:"Next"}.viewer-rotate-left:before{background-position:-140px 0;content:"Rotate Left"}.viewer-rotate-right:before{background-position:-160px 0;content:"Rotate Right"}.viewer-flip-horizontal:before{background-position:-180px 0;content:"Flip Horizontal"}.viewer-flip-vertical:before{background-position:-200px 0;content:"Flip Vertical"}.viewer-fullscreen:before{background-position:-220px 0;content:"Enter Full Screen"}.viewer-fullscreen-exit:before{background-position:-240px 0;content:"Exit Full Screen"}.viewer-close:before{background-position:-260px 0;content:"Close"}.viewer-container{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;bottom:0;direction:ltr;font-size:0;left:0;line-height:0;overflow:hidden;position:absolute;right:0;top:0;-ms-touch-action:none;touch-action:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.viewer-container ::-moz-selection,.viewer-container::-moz-selection{background-color:transparent}.viewer-container ::selection,.viewer-container::selection{background-color:transparent}.viewer-container:focus{outline:0}.viewer-container img{display:block;height:auto;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;width:100%}.viewer-canvas{bottom:0;left:0;overflow:hidden;position:absolute;right:0;top:0}.viewer-canvas>img{height:auto;margin:15px auto;max-width:90%!important;width:auto}.viewer-footer{bottom:0;left:0;overflow:hidden;position:absolute;right:0;text-align:center}.viewer-navbar{background-color:rgba(0,0,0,.5);overflow:hidden}.viewer-list{box-sizing:content-box;height:50px;margin:0;overflow:hidden;padding:1px 0}.viewer-list>li{color:transparent;cursor:pointer;float:left;font-size:0;height:50px;line-height:0;opacity:.5;overflow:hidden;transition:opacity .15s;width:30px}.viewer-list>li:focus,.viewer-list>li:hover{opacity:.75}.viewer-list>li:focus{outline:0}.viewer-list>li+li{margin-left:1px}.viewer-list>.viewer-loading{position:relative}.viewer-list>.viewer-loading:after{border-width:2px;height:20px;margin-left:-10px;margin-top:-10px;width:20px}.viewer-list>.viewer-active,.viewer-list>.viewer-active:focus,.viewer-list>.viewer-active:hover{opacity:1}.viewer-player{background-color:#000;bottom:0;cursor:none;display:none;right:0;z-index:1}.viewer-player,.viewer-player>img{left:0;position:absolute;top:0}.viewer-toolbar>ul{display:inline-block;margin:0 auto 5px;overflow:hidden;padding:6px 3px}.viewer-toolbar>ul>li{background-color:rgba(0,0,0,.5);border-radius:50%;cursor:pointer;float:left;height:24px;overflow:hidden;transition:background-color .15s;width:24px}.viewer-toolbar>ul>li:focus,.viewer-toolbar>ul>li:hover{background-color:rgba(0,0,0,.8)}.viewer-toolbar>ul>li:focus{box-shadow:0 0 3px #fff;outline:0;position:relative;z-index:1}.viewer-toolbar>ul>li:before{margin:2px}.viewer-toolbar>ul>li+li{margin-left:1px}.viewer-toolbar>ul>.viewer-small{height:18px;margin-bottom:3px;margin-top:3px;width:18px}.viewer-toolbar>ul>.viewer-small:before{margin:-1px}.viewer-toolbar>ul>.viewer-large{height:30px;margin-bottom:-3px;margin-top:-3px;width:30px}.viewer-toolbar>ul>.viewer-large:before{margin:5px}.viewer-tooltip{background-color:rgba(0,0,0,.8);border-radius:10px;color:#fff;display:none;font-size:12px;height:20px;left:50%;line-height:20px;margin-left:-25px;margin-top:-10px;position:absolute;text-align:center;top:50%;width:50px}.viewer-title{color:#ccc;display:inline-block;font-size:12px;line-height:1.2;margin:0 5% 5px;max-width:90%;opacity:.8;overflow:hidden;text-overflow:ellipsis;transition:opacity .15s;white-space:nowrap}.viewer-title:hover{opacity:1}.viewer-button{-webkit-app-region:no-drag;background-color:rgba(0,0,0,.5);border-radius:50%;cursor:pointer;height:80px;overflow:hidden;position:absolute;right:-40px;top:-40px;transition:background-color .15s;width:80px}.viewer-button:focus,.viewer-button:hover{background-color:rgba(0,0,0,.8)}.viewer-button:focus{box-shadow:0 0 3px #fff;outline:0}.viewer-button:before{bottom:15px;left:15px;position:absolute}.viewer-fixed{position:fixed}.viewer-open{overflow:hidden}.viewer-show{display:block}.viewer-hide{display:none}.viewer-backdrop{background-color:rgba(0,0,0,.5)}.viewer-invisible{visibility:hidden}.viewer-move{cursor:move;cursor:-webkit-grab;cursor:grab}.viewer-fade{opacity:0}.viewer-in{opacity:1}.viewer-transition{transition:all .3s}@-webkit-keyframes viewer-spinner{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}@keyframes viewer-spinner{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.viewer-loading:after{-webkit-animation:viewer-spinner 1s linear infinite;animation:viewer-spinner 1s linear infinite;border:4px solid hsla(0,0%,100%,.1);border-left-color:hsla(0,0%,100%,.5);border-radius:50%;content:"";display:inline-block;height:40px;left:50%;margin-left:-20px;margin-top:-20px;position:absolute;top:50%;width:40px;z-index:1}@media (max-width:767px){.viewer-hide-xs-down{display:none}}@media (max-width:991px){.viewer-hide-sm-down{display:none}}@media (max-width:1199px){.viewer-hide-md-down{display:none}}`;
+  let cssResourceNode = document.createElement("style");
+  cssResourceNode.setAttribute("type", "text/css");
+  cssResourceNode.setAttribute("data-insert-from", "viewer");
+  cssResourceNode.innerHTML = cssResource;
+  if (document.head) {
+    document.head.append(cssResourceNode);
+  } else if (
+    document.documentElement &&
+    document.documentElement.childNodes.length === 0
+  ) {
+    document.documentElement.appendChild(cssResourceNode);
+  } else if (document.documentElement) {
+    document.documentElement.appendChild(cssResourceNode);
+  } else {
+    throw new Error("未找到可以插入到页面中的元素");
+  }
+})()(
+  /*!
+   * Viewer.js v1.10.5
+   * https://fengyuanchen.github.io/viewerjs
+   *
+   * Copyright 2015-present Chen Fengyuan
+   * Released under the MIT license
+   *
+   * Date: 2022-04-05T08:21:02.491Z
+   */
 
-
-/*!
- * Viewer.js v1.10.5
- * https://fengyuanchen.github.io/viewerjs
- *
- * Copyright 2015-present Chen Fengyuan
- * Released under the MIT license
- *
- * Date: 2022-04-05T08:21:02.491Z
- */
-
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Viewer = factory());
-})(this, (function () { 'use strict';
+  function (global, factory) {
+    typeof exports === "object" && typeof module !== "undefined"
+      ? (module.exports = factory())
+      : typeof define === "function" && define.amd
+      ? define(factory)
+      : ((global =
+          typeof globalThis !== "undefined" ? globalThis : global || self),
+        (global.Viewer = factory()));
+  }
+)(this, function () {
+  "use strict";
 
   function ownKeys(object, enumerableOnly) {
     var keys = Object.keys(object);
 
     if (Object.getOwnPropertySymbols) {
       var symbols = Object.getOwnPropertySymbols(object);
-      enumerableOnly && (symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      })), keys.push.apply(keys, symbols);
+      enumerableOnly &&
+        (symbols = symbols.filter(function (sym) {
+          return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+        })),
+        keys.push.apply(keys, symbols);
     }
 
     return keys;
@@ -45,11 +66,22 @@ document.head.append(temp_view_style_node);
   function _objectSpread2(target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = null != arguments[i] ? arguments[i] : {};
-      i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
+      i % 2
+        ? ownKeys(Object(source), !0).forEach(function (key) {
+            _defineProperty(target, key, source[key]);
+          })
+        : Object.getOwnPropertyDescriptors
+        ? Object.defineProperties(
+            target,
+            Object.getOwnPropertyDescriptors(source)
+          )
+        : ownKeys(Object(source)).forEach(function (key) {
+            Object.defineProperty(
+              target,
+              key,
+              Object.getOwnPropertyDescriptor(source, key)
+            );
+          });
     }
 
     return target;
@@ -58,11 +90,22 @@ document.head.append(temp_view_style_node);
   function _typeof(obj) {
     "@babel/helpers - typeof";
 
-    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
-      return typeof obj;
-    } : function (obj) {
-      return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    }, _typeof(obj);
+    return (
+      (_typeof =
+        "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+          ? function (obj) {
+              return typeof obj;
+            }
+          : function (obj) {
+              return obj &&
+                "function" == typeof Symbol &&
+                obj.constructor === Symbol &&
+                obj !== Symbol.prototype
+                ? "symbol"
+                : typeof obj;
+            }),
+      _typeof(obj)
+    );
   }
 
   function _classCallCheck(instance, Constructor) {
@@ -85,7 +128,7 @@ document.head.append(temp_view_style_node);
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
     Object.defineProperty(Constructor, "prototype", {
-      writable: false
+      writable: false,
     });
     return Constructor;
   }
@@ -96,7 +139,7 @@ document.head.append(temp_view_style_node);
         value: value,
         enumerable: true,
         configurable: true,
-        writable: true
+        writable: true,
       });
     } else {
       obj[key] = value;
@@ -141,13 +184,13 @@ document.head.append(temp_view_style_node);
      * Custom class name(s) to add to the viewer's root element.
      * @type {string}
      */
-    className: '',
+    className: "",
 
     /**
      * Define where to put the viewer in modal mode.
      * @type {string | Element}
      */
-    container: 'body',
+    container: "body",
 
     /**
      * Filter the images for viewing. Return true if the image is viewable.
@@ -166,7 +209,16 @@ document.head.append(temp_view_style_node);
      * Define the extra attributes to inherit from the original image.
      * @type {Array}
      */
-    inheritedAttributes: ['crossOrigin', 'decoding', 'isMap', 'loading', 'referrerPolicy', 'sizes', 'srcset', 'useMap'],
+    inheritedAttributes: [
+      "crossOrigin",
+      "decoding",
+      "isMap",
+      "loading",
+      "referrerPolicy",
+      "sizes",
+      "srcset",
+      "useMap",
+    ],
 
     /**
      * Define the initial index of image for viewing.
@@ -317,7 +369,7 @@ document.head.append(temp_view_style_node);
      * Define where to get the original image URL for viewing.
      * @type {string | Function}
      */
-    url: 'src',
+    url: "src",
 
     /**
      * Event shortcuts.
@@ -339,20 +391,37 @@ document.head.append(temp_view_style_node);
     zoom: null,
     zoomed: null,
     play: null,
-    stop: null
+    stop: null,
   };
 
-  var TEMPLATE = '<div class="viewer-container" tabindex="-1" touch-action="none">' + '<div class="viewer-canvas"></div>' + '<div class="viewer-footer">' + '<div class="viewer-title"></div>' + '<div class="viewer-toolbar"></div>' + '<div class="viewer-navbar">' + '<ul class="viewer-list" role="navigation"></ul>' + '</div>' + '</div>' + '<div class="viewer-tooltip" role="alert" aria-hidden="true"></div>' + '<div class="viewer-button" data-viewer-action="mix" role="button"></div>' + '<div class="viewer-player"></div>' + '</div>';
+  var TEMPLATE =
+    '<div class="viewer-container" tabindex="-1" touch-action="none">' +
+    '<div class="viewer-canvas"></div>' +
+    '<div class="viewer-footer">' +
+    '<div class="viewer-title"></div>' +
+    '<div class="viewer-toolbar"></div>' +
+    '<div class="viewer-navbar">' +
+    '<ul class="viewer-list" role="navigation"></ul>' +
+    "</div>" +
+    "</div>" +
+    '<div class="viewer-tooltip" role="alert" aria-hidden="true"></div>' +
+    '<div class="viewer-button" data-viewer-action="mix" role="button"></div>' +
+    '<div class="viewer-player"></div>' +
+    "</div>";
 
-  var IS_BROWSER = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+  var IS_BROWSER =
+    typeof window !== "undefined" && typeof window.document !== "undefined";
   var WINDOW = IS_BROWSER ? window : {};
-  var IS_TOUCH_DEVICE = IS_BROWSER && WINDOW.document.documentElement ? 'ontouchstart' in WINDOW.document.documentElement : false;
-  var HAS_POINTER_EVENT = IS_BROWSER ? 'PointerEvent' in WINDOW : false;
-  var NAMESPACE = 'viewer'; // Actions
+  var IS_TOUCH_DEVICE =
+    IS_BROWSER && WINDOW.document.documentElement
+      ? "ontouchstart" in WINDOW.document.documentElement
+      : false;
+  var HAS_POINTER_EVENT = IS_BROWSER ? "PointerEvent" in WINDOW : false;
+  var NAMESPACE = "viewer"; // Actions
 
-  var ACTION_MOVE = 'move';
-  var ACTION_SWITCH = 'switch';
-  var ACTION_ZOOM = 'zoom'; // Classes
+  var ACTION_MOVE = "move";
+  var ACTION_SWITCH = "switch";
+  var ACTION_ZOOM = "zoom"; // Classes
 
   var CLASS_ACTIVE = "".concat(NAMESPACE, "-active");
   var CLASS_CLOSE = "".concat(NAMESPACE, "-close");
@@ -372,46 +441,62 @@ document.head.append(temp_view_style_node);
   var CLASS_SHOW = "".concat(NAMESPACE, "-show");
   var CLASS_TRANSITION = "".concat(NAMESPACE, "-transition"); // Native events
 
-  var EVENT_CLICK = 'click';
-  var EVENT_DBLCLICK = 'dblclick';
-  var EVENT_DRAG_START = 'dragstart';
-  var EVENT_FOCUSIN = 'focusin';
-  var EVENT_KEY_DOWN = 'keydown';
-  var EVENT_LOAD = 'load';
-  var EVENT_ERROR = 'error';
-  var EVENT_TOUCH_END = IS_TOUCH_DEVICE ? 'touchend touchcancel' : 'mouseup';
-  var EVENT_TOUCH_MOVE = IS_TOUCH_DEVICE ? 'touchmove' : 'mousemove';
-  var EVENT_TOUCH_START = IS_TOUCH_DEVICE ? 'touchstart' : 'mousedown';
-  var EVENT_POINTER_DOWN = HAS_POINTER_EVENT ? 'pointerdown' : EVENT_TOUCH_START;
-  var EVENT_POINTER_MOVE = HAS_POINTER_EVENT ? 'pointermove' : EVENT_TOUCH_MOVE;
-  var EVENT_POINTER_UP = HAS_POINTER_EVENT ? 'pointerup pointercancel' : EVENT_TOUCH_END;
-  var EVENT_RESIZE = 'resize';
-  var EVENT_TRANSITION_END = 'transitionend';
-  var EVENT_WHEEL = 'wheel'; // Custom events
+  var EVENT_CLICK = "click";
+  var EVENT_DBLCLICK = "dblclick";
+  var EVENT_DRAG_START = "dragstart";
+  var EVENT_FOCUSIN = "focusin";
+  var EVENT_KEY_DOWN = "keydown";
+  var EVENT_LOAD = "load";
+  var EVENT_ERROR = "error";
+  var EVENT_TOUCH_END = IS_TOUCH_DEVICE ? "touchend touchcancel" : "mouseup";
+  var EVENT_TOUCH_MOVE = IS_TOUCH_DEVICE ? "touchmove" : "mousemove";
+  var EVENT_TOUCH_START = IS_TOUCH_DEVICE ? "touchstart" : "mousedown";
+  var EVENT_POINTER_DOWN = HAS_POINTER_EVENT
+    ? "pointerdown"
+    : EVENT_TOUCH_START;
+  var EVENT_POINTER_MOVE = HAS_POINTER_EVENT ? "pointermove" : EVENT_TOUCH_MOVE;
+  var EVENT_POINTER_UP = HAS_POINTER_EVENT
+    ? "pointerup pointercancel"
+    : EVENT_TOUCH_END;
+  var EVENT_RESIZE = "resize";
+  var EVENT_TRANSITION_END = "transitionend";
+  var EVENT_WHEEL = "wheel"; // Custom events
 
-  var EVENT_READY = 'ready';
-  var EVENT_SHOW = 'show';
-  var EVENT_SHOWN = 'shown';
-  var EVENT_HIDE = 'hide';
-  var EVENT_HIDDEN = 'hidden';
-  var EVENT_VIEW = 'view';
-  var EVENT_VIEWED = 'viewed';
-  var EVENT_MOVE = 'move';
-  var EVENT_MOVED = 'moved';
-  var EVENT_ROTATE = 'rotate';
-  var EVENT_ROTATED = 'rotated';
-  var EVENT_SCALE = 'scale';
-  var EVENT_SCALED = 'scaled';
-  var EVENT_ZOOM = 'zoom';
-  var EVENT_ZOOMED = 'zoomed';
-  var EVENT_PLAY = 'play';
-  var EVENT_STOP = 'stop'; // Data keys
+  var EVENT_READY = "ready";
+  var EVENT_SHOW = "show";
+  var EVENT_SHOWN = "shown";
+  var EVENT_HIDE = "hide";
+  var EVENT_HIDDEN = "hidden";
+  var EVENT_VIEW = "view";
+  var EVENT_VIEWED = "viewed";
+  var EVENT_MOVE = "move";
+  var EVENT_MOVED = "moved";
+  var EVENT_ROTATE = "rotate";
+  var EVENT_ROTATED = "rotated";
+  var EVENT_SCALE = "scale";
+  var EVENT_SCALED = "scaled";
+  var EVENT_ZOOM = "zoom";
+  var EVENT_ZOOMED = "zoomed";
+  var EVENT_PLAY = "play";
+  var EVENT_STOP = "stop"; // Data keys
 
   var DATA_ACTION = "".concat(NAMESPACE, "Action"); // RegExps
 
   var REGEXP_SPACES = /\s\s*/; // Misc
 
-  var BUTTONS = ['zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical'];
+  var BUTTONS = [
+    "zoom-in",
+    "zoom-out",
+    "one-to-one",
+    "reset",
+    "prev",
+    "play",
+    "next",
+    "rotate-left",
+    "rotate-right",
+    "flip-horizontal",
+    "flip-vertical",
+  ];
 
   /**
    * Check if the given value is a string.
@@ -420,7 +505,7 @@ document.head.append(temp_view_style_node);
    */
 
   function isString(value) {
-    return typeof value === 'string';
+    return typeof value === "string";
   }
   /**
    * Check if the given value is not a number.
@@ -434,7 +519,7 @@ document.head.append(temp_view_style_node);
    */
 
   function isNumber(value) {
-    return typeof value === 'number' && !isNaN(value);
+    return typeof value === "number" && !isNaN(value);
   }
   /**
    * Check if the given value is undefined.
@@ -443,7 +528,7 @@ document.head.append(temp_view_style_node);
    */
 
   function isUndefined(value) {
-    return typeof value === 'undefined';
+    return typeof value === "undefined";
   }
   /**
    * Check if the given value is an object.
@@ -452,7 +537,7 @@ document.head.append(temp_view_style_node);
    */
 
   function isObject(value) {
-    return _typeof(value) === 'object' && value !== null;
+    return _typeof(value) === "object" && value !== null;
   }
   var hasOwnProperty = Object.prototype.hasOwnProperty;
   /**
@@ -469,7 +554,11 @@ document.head.append(temp_view_style_node);
     try {
       var _constructor = value.constructor;
       var prototype = _constructor.prototype;
-      return _constructor && prototype && hasOwnProperty.call(prototype, 'isPrototypeOf');
+      return (
+        _constructor &&
+        prototype &&
+        hasOwnProperty.call(prototype, "isPrototypeOf")
+      );
     } catch (error) {
       return false;
     }
@@ -481,7 +570,7 @@ document.head.append(temp_view_style_node);
    */
 
   function isFunction(value) {
-    return typeof value === 'function';
+    return typeof value === "function";
   }
   /**
    * Iterate the given data.
@@ -492,8 +581,10 @@ document.head.append(temp_view_style_node);
 
   function forEach(data, callback) {
     if (data && isFunction(callback)) {
-      if (Array.isArray(data) || isNumber(data.length)
-      /* array-like */
+      if (
+        Array.isArray(data) ||
+        isNumber(data.length)
+        /* array-like */
       ) {
         var length = data.length;
         var i;
@@ -519,23 +610,31 @@ document.head.append(temp_view_style_node);
    * @returns {Object} The extended object.
    */
 
-  var assign = Object.assign || function assign(obj) {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
+  var assign =
+    Object.assign ||
+    function assign(obj) {
+      for (
+        var _len = arguments.length,
+          args = new Array(_len > 1 ? _len - 1 : 0),
+          _key = 1;
+        _key < _len;
+        _key++
+      ) {
+        args[_key - 1] = arguments[_key];
+      }
 
-    if (isObject(obj) && args.length > 0) {
-      args.forEach(function (arg) {
-        if (isObject(arg)) {
-          Object.keys(arg).forEach(function (key) {
-            obj[key] = arg[key];
-          });
-        }
-      });
-    }
+      if (isObject(obj) && args.length > 0) {
+        args.forEach(function (arg) {
+          if (isObject(arg)) {
+            Object.keys(arg).forEach(function (key) {
+              obj[key] = arg[key];
+            });
+          }
+        });
+      }
 
-    return obj;
-  };
+      return obj;
+    };
   var REGEXP_SUFFIX = /^(?:width|height|left|top|marginLeft|marginTop)$/;
   /**
    * Apply styles to the given element.
@@ -547,7 +646,7 @@ document.head.append(temp_view_style_node);
     var style = element.style;
     forEach(styles, function (value, property) {
       if (REGEXP_SUFFIX.test(property) && isNumber(value)) {
-        value += 'px';
+        value += "px";
       }
 
       style[property] = value;
@@ -560,7 +659,14 @@ document.head.append(temp_view_style_node);
    */
 
   function escapeHTMLEntities(value) {
-    return isString(value) ? value.replace(/&(?!amp;|quot;|#39;|lt;|gt;)/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : value;
+    return isString(value)
+      ? value
+          .replace(/&(?!amp;|quot;|#39;|lt;|gt;)/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+      : value;
   }
   /**
    * Check if the given element has a special class.
@@ -574,7 +680,9 @@ document.head.append(temp_view_style_node);
       return false;
     }
 
-    return element.classList ? element.classList.contains(value) : element.className.indexOf(value) > -1;
+    return element.classList
+      ? element.classList.contains(value)
+      : element.className.indexOf(value) > -1;
   }
   /**
    * Add classes to the given element.
@@ -631,7 +739,7 @@ document.head.append(temp_view_style_node);
     }
 
     if (element.className.indexOf(value) >= 0) {
-      element.className = element.className.replace(value, '');
+      element.className = element.className.replace(value, "");
     }
   }
   /**
@@ -653,7 +761,6 @@ document.head.append(temp_view_style_node);
       return;
     } // IE10-11 doesn't support the second parameter of `classList.toggle`
 
-
     if (added) {
       addClass(element, value);
     } else {
@@ -668,7 +775,7 @@ document.head.append(temp_view_style_node);
    */
 
   function hyphenate(value) {
-    return value.replace(REGEXP_HYPHENATE, '$1-$2').toLowerCase();
+    return value.replace(REGEXP_HYPHENATE, "$1-$2").toLowerCase();
   }
   /**
    * Get data from the given element.
@@ -705,7 +812,7 @@ document.head.append(temp_view_style_node);
     }
   }
 
-  var onceSupported = function () {
+  var onceSupported = (function () {
     var supported = false;
 
     if (IS_BROWSER) {
@@ -713,7 +820,7 @@ document.head.append(temp_view_style_node);
 
       var listener = function listener() {};
 
-      var options = Object.defineProperty({}, 'once', {
+      var options = Object.defineProperty({}, "once", {
         get: function get() {
           supported = true;
           return once;
@@ -726,14 +833,14 @@ document.head.append(temp_view_style_node);
          */
         set: function set(value) {
           once = value;
-        }
+        },
       });
-      WINDOW.addEventListener('test', listener, options);
-      WINDOW.removeEventListener('test', listener, options);
+      WINDOW.addEventListener("test", listener, options);
+      WINDOW.removeEventListener("test", listener, options);
     }
 
     return supported;
-  }();
+  })();
   /**
    * Remove event listener from the target element.
    * @param {Element} element - The event target.
@@ -742,30 +849,33 @@ document.head.append(temp_view_style_node);
    * @param {Object} options - The event options.
    */
 
-
   function removeListener(element, type, listener) {
-    var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    var options =
+      arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     var handler = listener;
-    type.trim().split(REGEXP_SPACES).forEach(function (event) {
-      if (!onceSupported) {
-        var listeners = element.listeners;
+    type
+      .trim()
+      .split(REGEXP_SPACES)
+      .forEach(function (event) {
+        if (!onceSupported) {
+          var listeners = element.listeners;
 
-        if (listeners && listeners[event] && listeners[event][listener]) {
-          handler = listeners[event][listener];
-          delete listeners[event][listener];
+          if (listeners && listeners[event] && listeners[event][listener]) {
+            handler = listeners[event][listener];
+            delete listeners[event][listener];
 
-          if (Object.keys(listeners[event]).length === 0) {
-            delete listeners[event];
-          }
+            if (Object.keys(listeners[event]).length === 0) {
+              delete listeners[event];
+            }
 
-          if (Object.keys(listeners).length === 0) {
-            delete element.listeners;
+            if (Object.keys(listeners).length === 0) {
+              delete element.listeners;
+            }
           }
         }
-      }
 
-      element.removeEventListener(event, handler, options);
-    });
+        element.removeEventListener(event, handler, options);
+      });
   }
   /**
    * Add event listener to the target element.
@@ -776,38 +886,50 @@ document.head.append(temp_view_style_node);
    */
 
   function addListener(element, type, listener) {
-    var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    var options =
+      arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     var _handler = listener;
-    type.trim().split(REGEXP_SPACES).forEach(function (event) {
-      if (options.once && !onceSupported) {
-        var _element$listeners = element.listeners,
+    type
+      .trim()
+      .split(REGEXP_SPACES)
+      .forEach(function (event) {
+        if (options.once && !onceSupported) {
+          var _element$listeners = element.listeners,
             listeners = _element$listeners === void 0 ? {} : _element$listeners;
 
-        _handler = function handler() {
-          delete listeners[event][listener];
-          element.removeEventListener(event, _handler, options);
+          _handler = function handler() {
+            delete listeners[event][listener];
+            element.removeEventListener(event, _handler, options);
 
-          for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-            args[_key2] = arguments[_key2];
+            for (
+              var _len2 = arguments.length, args = new Array(_len2), _key2 = 0;
+              _key2 < _len2;
+              _key2++
+            ) {
+              args[_key2] = arguments[_key2];
+            }
+
+            listener.apply(element, args);
+          };
+
+          if (!listeners[event]) {
+            listeners[event] = {};
           }
 
-          listener.apply(element, args);
-        };
+          if (listeners[event][listener]) {
+            element.removeEventListener(
+              event,
+              listeners[event][listener],
+              options
+            );
+          }
 
-        if (!listeners[event]) {
-          listeners[event] = {};
+          listeners[event][listener] = _handler;
+          element.listeners = listeners;
         }
 
-        if (listeners[event][listener]) {
-          element.removeEventListener(event, listeners[event][listener], options);
-        }
-
-        listeners[event][listener] = _handler;
-        element.listeners = listeners;
-      }
-
-      element.addEventListener(event, _handler, options);
-    });
+        element.addEventListener(event, _handler, options);
+      });
   }
   /**
    * Dispatch event on the target element.
@@ -822,13 +944,19 @@ document.head.append(temp_view_style_node);
     var event; // Event and CustomEvent on IE9-11 are global objects, not constructors
 
     if (isFunction(Event) && isFunction(CustomEvent)) {
-      event = new CustomEvent(type, _objectSpread2({
-        bubbles: true,
-        cancelable: true,
-        detail: data
-      }, options));
+      event = new CustomEvent(
+        type,
+        _objectSpread2(
+          {
+            bubbles: true,
+            cancelable: true,
+            detail: data,
+          },
+          options
+        )
+      );
     } else {
-      event = document.createEvent('CustomEvent');
+      event = document.createEvent("CustomEvent");
       event.initCustomEvent(type, true, true, data);
     }
 
@@ -843,8 +971,9 @@ document.head.append(temp_view_style_node);
   function getOffset(element) {
     var box = element.getBoundingClientRect();
     return {
-      left: box.left + (window.pageXOffset - document.documentElement.clientLeft),
-      top: box.top + (window.pageYOffset - document.documentElement.clientTop)
+      left:
+        box.left + (window.pageXOffset - document.documentElement.clientLeft),
+      top: box.top + (window.pageYOffset - document.documentElement.clientTop),
     };
   }
   /**
@@ -855,10 +984,10 @@ document.head.append(temp_view_style_node);
 
   function getTransforms(_ref) {
     var rotate = _ref.rotate,
-        scaleX = _ref.scaleX,
-        scaleY = _ref.scaleY,
-        translateX = _ref.translateX,
-        translateY = _ref.translateY;
+      scaleX = _ref.scaleX,
+      scaleY = _ref.scaleY,
+      translateX = _ref.translateX,
+      translateY = _ref.translateY;
     var values = [];
 
     if (isNumber(translateX) && translateX !== 0) {
@@ -868,7 +997,6 @@ document.head.append(temp_view_style_node);
     if (isNumber(translateY) && translateY !== 0) {
       values.push("translateY(".concat(translateY, "px)"));
     } // Rotate should come first before scale to match orientation transform
-
 
     if (isNumber(rotate) && rotate !== 0) {
       values.push("rotate(".concat(rotate, "deg)"));
@@ -882,11 +1010,11 @@ document.head.append(temp_view_style_node);
       values.push("scaleY(".concat(scaleY, ")"));
     }
 
-    var transform = values.length ? values.join(' ') : 'none';
+    var transform = values.length ? values.join(" ") : "none";
     return {
       WebkitTransform: transform,
       msTransform: transform,
-      transform: transform
+      transform: transform,
     };
   }
   /**
@@ -899,9 +1027,15 @@ document.head.append(temp_view_style_node);
    */
 
   function getImageNameFromURL(url) {
-    return isString(url) ? decodeURIComponent(url.replace(/^.*\//, '').replace(/[?&#].*$/, '')) : '';
+    return isString(url)
+      ? decodeURIComponent(url.replace(/^.*\//, "").replace(/[?&#].*$/, ""))
+      : "";
   }
-  var IS_SAFARI = WINDOW.navigator && /(Macintosh|iPhone|iPod|iPad).*AppleWebKit/i.test(WINDOW.navigator.userAgent);
+  var IS_SAFARI =
+    WINDOW.navigator &&
+    /(Macintosh|iPhone|iPod|iPad).*AppleWebKit/i.test(
+      WINDOW.navigator.userAgent
+    );
   /**
    * Get an image's natural sizes.
    * @param {string} image - The target image.
@@ -911,7 +1045,7 @@ document.head.append(temp_view_style_node);
    */
 
   function getImageNaturalSizes(image, options, callback) {
-    var newImage = document.createElement('img'); // Modern browsers (except Safari)
+    var newImage = document.createElement("img"); // Modern browsers (except Safari)
 
     if (image.naturalWidth && !IS_SAFARI) {
       callback(image.naturalWidth, image.naturalHeight);
@@ -939,7 +1073,16 @@ document.head.append(temp_view_style_node);
     // with its orientation once append it into DOM
 
     if (!IS_SAFARI) {
-      newImage.style.cssText = 'left:0;' + 'max-height:none!important;' + 'max-width:none!important;' + 'min-height:0!important;' + 'min-width:0!important;' + 'opacity:0;' + 'position:absolute;' + 'top:0;' + 'z-index:-1;';
+      newImage.style.cssText =
+        "left:0;" +
+        "max-height:none!important;" +
+        "max-width:none!important;" +
+        "min-height:0!important;" +
+        "min-width:0!important;" +
+        "opacity:0;" +
+        "position:absolute;" +
+        "top:0;" +
+        "z-index:-1;";
       body.appendChild(newImage);
     }
 
@@ -963,7 +1106,7 @@ document.head.append(temp_view_style_node);
         return CLASS_HIDE_MD_DOWN;
 
       default:
-        return '';
+        return "";
     }
   }
   /**
@@ -1003,16 +1146,21 @@ document.head.append(temp_view_style_node);
 
   function getPointer(_ref2, endOnly) {
     var pageX = _ref2.pageX,
-        pageY = _ref2.pageY;
+      pageY = _ref2.pageY;
     var end = {
       endX: pageX,
-      endY: pageY
+      endY: pageY,
     };
-    return endOnly ? end : _objectSpread2({
-      timeStamp: Date.now(),
-      startX: pageX,
-      startY: pageY
-    }, end);
+    return endOnly
+      ? end
+      : _objectSpread2(
+          {
+            timeStamp: Date.now(),
+            startX: pageX,
+            startY: pageY,
+          },
+          end
+        );
   }
   /**
    * Get the center point coordinate of a group of pointers.
@@ -1026,7 +1174,7 @@ document.head.append(temp_view_style_node);
     var count = 0;
     forEach(pointers, function (_ref3) {
       var startX = _ref3.startX,
-          startY = _ref3.startY;
+        startY = _ref3.startY;
       pageX += startX;
       pageY += startY;
       count += 1;
@@ -1035,7 +1183,7 @@ document.head.append(temp_view_style_node);
     pageY /= count;
     return {
       pageX: pageX,
-      pageY: pageY
+      pageY: pageY,
     };
   }
 
@@ -1050,25 +1198,27 @@ document.head.append(temp_view_style_node);
       var ownerDocument = this.element.ownerDocument;
       var body = ownerDocument.body || ownerDocument.documentElement;
       this.body = body;
-      this.scrollbarWidth = window.innerWidth - ownerDocument.documentElement.clientWidth;
+      this.scrollbarWidth =
+        window.innerWidth - ownerDocument.documentElement.clientWidth;
       this.initialBodyPaddingRight = body.style.paddingRight;
-      this.initialBodyComputedPaddingRight = window.getComputedStyle(body).paddingRight;
+      this.initialBodyComputedPaddingRight =
+        window.getComputedStyle(body).paddingRight;
     },
     initContainer: function initContainer() {
       this.containerData = {
         width: window.innerWidth,
-        height: window.innerHeight
+        height: window.innerHeight,
       };
     },
     initViewer: function initViewer() {
       var options = this.options,
-          parent = this.parent;
+        parent = this.parent;
       var viewerData;
 
       if (options.inline) {
         viewerData = {
           width: Math.max(parent.offsetWidth, options.minWidth),
-          height: Math.max(parent.offsetHeight, options.minHeight)
+          height: Math.max(parent.offsetHeight, options.minHeight),
         };
         this.parentData = viewerData;
       }
@@ -1088,11 +1238,11 @@ document.head.append(temp_view_style_node);
       var _this = this;
 
       var element = this.element,
-          options = this.options,
-          list = this.list;
+        options = this.options,
+        list = this.list;
       var items = []; // initList may be called in this.update, so should keep idempotent
 
-      list.innerHTML = '';
+      list.innerHTML = "";
       forEach(this.images, function (image, index) {
         var src = image.src;
         var alt = image.alt || getImageNameFromURL(src);
@@ -1100,8 +1250,8 @@ document.head.append(temp_view_style_node);
         var url = _this.getImageURL(image);
 
         if (src || url) {
-          var item = document.createElement('li');
-          var img = document.createElement('img');
+          var item = document.createElement("li");
+          var img = document.createElement("img");
           forEach(options.inheritedAttributes, function (name) {
             var value = image.getAttribute(name);
 
@@ -1111,13 +1261,13 @@ document.head.append(temp_view_style_node);
           });
           img.src = src || url;
           img.alt = alt;
-          img.setAttribute('data-original-url', url || src);
-          item.setAttribute('data-index', index);
-          item.setAttribute('data-viewer-action', 'view');
-          item.setAttribute('role', 'button');
+          img.setAttribute("data-original-url", url || src);
+          item.setAttribute("data-index", index);
+          item.setAttribute("data-viewer-action", "view");
+          item.setAttribute("role", "button");
 
           if (options.keyboard) {
-            item.setAttribute('tabindex', 0);
+            item.setAttribute("tabindex", 0);
           }
 
           item.appendChild(img);
@@ -1130,40 +1280,55 @@ document.head.append(temp_view_style_node);
         var image = item.firstElementChild;
         var onLoad;
         var onError;
-        setData(image, 'filled', true);
+        setData(image, "filled", true);
 
         if (options.loading) {
           addClass(item, CLASS_LOADING);
         }
 
-        addListener(image, EVENT_LOAD, onLoad = function onLoad(event) {
-          removeListener(image, EVENT_ERROR, onError);
+        addListener(
+          image,
+          EVENT_LOAD,
+          (onLoad = function onLoad(event) {
+            removeListener(image, EVENT_ERROR, onError);
 
-          if (options.loading) {
-            removeClass(item, CLASS_LOADING);
+            if (options.loading) {
+              removeClass(item, CLASS_LOADING);
+            }
+
+            _this.loadImage(event);
+          }),
+          {
+            once: true,
           }
+        );
+        addListener(
+          image,
+          EVENT_ERROR,
+          (onError = function onError() {
+            removeListener(image, EVENT_LOAD, onLoad);
 
-          _this.loadImage(event);
-        }, {
-          once: true
-        });
-        addListener(image, EVENT_ERROR, onError = function onError() {
-          removeListener(image, EVENT_LOAD, onLoad);
-
-          if (options.loading) {
-            removeClass(item, CLASS_LOADING);
+            if (options.loading) {
+              removeClass(item, CLASS_LOADING);
+            }
+          }),
+          {
+            once: true,
           }
-        }, {
-          once: true
-        });
+        );
       });
 
       if (options.transition) {
-        addListener(element, EVENT_VIEWED, function () {
-          addClass(list, CLASS_TRANSITION);
-        }, {
-          once: true
-        });
+        addListener(
+          element,
+          EVENT_VIEWED,
+          function () {
+            addClass(list, CLASS_TRANSITION);
+          },
+          {
+            once: true,
+          }
+        );
       }
     },
     renderList: function renderList() {
@@ -1175,106 +1340,140 @@ document.head.append(temp_view_style_node);
       }
 
       var next = item.nextElementSibling;
-      var gutter = parseInt(window.getComputedStyle(next || item).marginLeft, 10);
+      var gutter = parseInt(
+        window.getComputedStyle(next || item).marginLeft,
+        10
+      );
       var offsetWidth = item.offsetWidth;
       var outerWidth = offsetWidth + gutter; // Place the active item in the center of the screen
 
-      setStyle(this.list, assign({
-        width: outerWidth * this.length - gutter
-      }, getTransforms({
-        translateX: (this.viewerData.width - offsetWidth) / 2 - outerWidth * index
-      })));
+      setStyle(
+        this.list,
+        assign(
+          {
+            width: outerWidth * this.length - gutter,
+          },
+          getTransforms({
+            translateX:
+              (this.viewerData.width - offsetWidth) / 2 - outerWidth * index,
+          })
+        )
+      );
     },
     resetList: function resetList() {
       var list = this.list;
-      list.innerHTML = '';
+      list.innerHTML = "";
       removeClass(list, CLASS_TRANSITION);
-      setStyle(list, getTransforms({
-        translateX: 0
-      }));
+      setStyle(
+        list,
+        getTransforms({
+          translateX: 0,
+        })
+      );
     },
     initImage: function initImage(done) {
       var _this2 = this;
 
       var options = this.options,
-          image = this.image,
-          viewerData = this.viewerData;
+        image = this.image,
+        viewerData = this.viewerData;
       var footerHeight = this.footer.offsetHeight;
       var viewerWidth = viewerData.width;
-      var viewerHeight = Math.max(viewerData.height - footerHeight, footerHeight);
+      var viewerHeight = Math.max(
+        viewerData.height - footerHeight,
+        footerHeight
+      );
       var oldImageData = this.imageData || {};
       var sizingImage;
       this.imageInitializing = {
         abort: function abort() {
           sizingImage.onload = null;
-        }
+        },
       };
-      sizingImage = getImageNaturalSizes(image, options, function (naturalWidth, naturalHeight) {
-        var aspectRatio = naturalWidth / naturalHeight;
-        var width = viewerWidth;
-        var height = viewerHeight;
-        _this2.imageInitializing = false;
+      sizingImage = getImageNaturalSizes(
+        image,
+        options,
+        function (naturalWidth, naturalHeight) {
+          var aspectRatio = naturalWidth / naturalHeight;
+          var width = viewerWidth;
+          var height = viewerHeight;
+          _this2.imageInitializing = false;
 
-        if (viewerHeight * aspectRatio > viewerWidth) {
-          height = viewerWidth / aspectRatio;
-        } else {
-          width = viewerHeight * aspectRatio;
+          if (viewerHeight * aspectRatio > viewerWidth) {
+            height = viewerWidth / aspectRatio;
+          } else {
+            width = viewerHeight * aspectRatio;
+          }
+
+          width = Math.min(width * 0.9, naturalWidth);
+          height = Math.min(height * 0.9, naturalHeight);
+          var left = (viewerWidth - width) / 2;
+          var top = (viewerHeight - height) / 2;
+          var imageData = {
+            left: left,
+            top: top,
+            x: left,
+            y: top,
+            width: width,
+            height: height,
+            oldRatio: 1,
+            ratio: width / naturalWidth,
+            aspectRatio: aspectRatio,
+            naturalWidth: naturalWidth,
+            naturalHeight: naturalHeight,
+          };
+          var initialImageData = assign({}, imageData);
+
+          if (options.rotatable) {
+            imageData.rotate = oldImageData.rotate || 0;
+            initialImageData.rotate = 0;
+          }
+
+          if (options.scalable) {
+            imageData.scaleX = oldImageData.scaleX || 1;
+            imageData.scaleY = oldImageData.scaleY || 1;
+            initialImageData.scaleX = 1;
+            initialImageData.scaleY = 1;
+          }
+
+          _this2.imageData = imageData;
+          _this2.initialImageData = initialImageData;
+
+          if (done) {
+            done();
+          }
         }
-
-        width = Math.min(width * 0.9, naturalWidth);
-        height = Math.min(height * 0.9, naturalHeight);
-        var left = (viewerWidth - width) / 2;
-        var top = (viewerHeight - height) / 2;
-        var imageData = {
-          left: left,
-          top: top,
-          x: left,
-          y: top,
-          width: width,
-          height: height,
-          oldRatio: 1,
-          ratio: width / naturalWidth,
-          aspectRatio: aspectRatio,
-          naturalWidth: naturalWidth,
-          naturalHeight: naturalHeight
-        };
-        var initialImageData = assign({}, imageData);
-
-        if (options.rotatable) {
-          imageData.rotate = oldImageData.rotate || 0;
-          initialImageData.rotate = 0;
-        }
-
-        if (options.scalable) {
-          imageData.scaleX = oldImageData.scaleX || 1;
-          imageData.scaleY = oldImageData.scaleY || 1;
-          initialImageData.scaleX = 1;
-          initialImageData.scaleY = 1;
-        }
-
-        _this2.imageData = imageData;
-        _this2.initialImageData = initialImageData;
-
-        if (done) {
-          done();
-        }
-      });
+      );
     },
     renderImage: function renderImage(done) {
       var _this3 = this;
 
       var image = this.image,
-          imageData = this.imageData;
-      setStyle(image, assign({
-        width: imageData.width,
-        height: imageData.height,
-        // XXX: Not to use translateX/Y to avoid image shaking when zooming
-        marginLeft: imageData.x,
-        marginTop: imageData.y
-      }, getTransforms(imageData)));
+        imageData = this.imageData;
+      setStyle(
+        image,
+        assign(
+          {
+            width: imageData.width,
+            height: imageData.height,
+            // XXX: Not to use translateX/Y to avoid image shaking when zooming
+            marginLeft: imageData.x,
+            marginTop: imageData.y,
+          },
+          getTransforms(imageData)
+        )
+      );
 
       if (done) {
-        if ((this.viewing || this.moving || this.rotating || this.scaling || this.zooming) && this.options.transition && hasClass(image, CLASS_TRANSITION)) {
+        if (
+          (this.viewing ||
+            this.moving ||
+            this.rotating ||
+            this.scaling ||
+            this.zooming) &&
+          this.options.transition &&
+          hasClass(image, CLASS_TRANSITION)
+        ) {
           var onTransitionEnd = function onTransitionEnd() {
             _this3.imageRendering = false;
             done();
@@ -1283,10 +1482,10 @@ document.head.append(temp_view_style_node);
           this.imageRendering = {
             abort: function abort() {
               removeListener(image, EVENT_TRANSITION_END, onTransitionEnd);
-            }
+            },
           };
           addListener(image, EVENT_TRANSITION_END, onTransitionEnd, {
-            once: true
+            once: true,
           });
         } else {
           done();
@@ -1305,38 +1504,71 @@ document.head.append(temp_view_style_node);
         image.parentNode.removeChild(image);
         this.image = null;
       }
-    }
+    },
   };
 
   var events = {
     bind: function bind() {
       var options = this.options,
-          viewer = this.viewer,
-          canvas = this.canvas;
+        viewer = this.viewer,
+        canvas = this.canvas;
       var document = this.element.ownerDocument;
-      addListener(viewer, EVENT_CLICK, this.onClick = this.click.bind(this));
-      addListener(viewer, EVENT_DRAG_START, this.onDragStart = this.dragstart.bind(this));
-      addListener(canvas, EVENT_POINTER_DOWN, this.onPointerDown = this.pointerdown.bind(this));
-      addListener(document, EVENT_POINTER_MOVE, this.onPointerMove = this.pointermove.bind(this));
-      addListener(document, EVENT_POINTER_UP, this.onPointerUp = this.pointerup.bind(this));
-      addListener(document, EVENT_KEY_DOWN, this.onKeyDown = this.keydown.bind(this));
-      addListener(window, EVENT_RESIZE, this.onResize = this.resize.bind(this));
+      addListener(viewer, EVENT_CLICK, (this.onClick = this.click.bind(this)));
+      addListener(
+        viewer,
+        EVENT_DRAG_START,
+        (this.onDragStart = this.dragstart.bind(this))
+      );
+      addListener(
+        canvas,
+        EVENT_POINTER_DOWN,
+        (this.onPointerDown = this.pointerdown.bind(this))
+      );
+      addListener(
+        document,
+        EVENT_POINTER_MOVE,
+        (this.onPointerMove = this.pointermove.bind(this))
+      );
+      addListener(
+        document,
+        EVENT_POINTER_UP,
+        (this.onPointerUp = this.pointerup.bind(this))
+      );
+      addListener(
+        document,
+        EVENT_KEY_DOWN,
+        (this.onKeyDown = this.keydown.bind(this))
+      );
+      addListener(
+        window,
+        EVENT_RESIZE,
+        (this.onResize = this.resize.bind(this))
+      );
 
       if (options.zoomable && options.zoomOnWheel) {
-        addListener(viewer, EVENT_WHEEL, this.onWheel = this.wheel.bind(this), {
-          passive: false,
-          capture: true
-        });
+        addListener(
+          viewer,
+          EVENT_WHEEL,
+          (this.onWheel = this.wheel.bind(this)),
+          {
+            passive: false,
+            capture: true,
+          }
+        );
       }
 
       if (options.toggleOnDblclick) {
-        addListener(canvas, EVENT_DBLCLICK, this.onDblclick = this.dblclick.bind(this));
+        addListener(
+          canvas,
+          EVENT_DBLCLICK,
+          (this.onDblclick = this.dblclick.bind(this))
+        );
       }
     },
     unbind: function unbind() {
       var options = this.options,
-          viewer = this.viewer,
-          canvas = this.canvas;
+        viewer = this.viewer,
+        canvas = this.canvas;
       var document = this.element.ownerDocument;
       removeListener(viewer, EVENT_CLICK, this.onClick);
       removeListener(viewer, EVENT_DRAG_START, this.onDragStart);
@@ -1349,35 +1581,38 @@ document.head.append(temp_view_style_node);
       if (options.zoomable && options.zoomOnWheel) {
         removeListener(viewer, EVENT_WHEEL, this.onWheel, {
           passive: false,
-          capture: true
+          capture: true,
         });
       }
 
       if (options.toggleOnDblclick) {
         removeListener(canvas, EVENT_DBLCLICK, this.onDblclick);
       }
-    }
+    },
   };
 
   var handlers = {
     click: function click(event) {
       var options = this.options,
-          imageData = this.imageData;
+        imageData = this.imageData;
       var target = event.target;
       var action = getData(target, DATA_ACTION);
 
-      if (!action && target.localName === 'img' && target.parentElement.localName === 'li') {
+      if (
+        !action &&
+        target.localName === "img" &&
+        target.parentElement.localName === "li"
+      ) {
         target = target.parentElement;
         action = getData(target, DATA_ACTION);
       } // Cancel the emulated click when the native click event was triggered.
-
 
       if (IS_TOUCH_DEVICE && event.isTrusted && target === this.canvas) {
         clearTimeout(this.clickCanvasTimeout);
       }
 
       switch (action) {
-        case 'mix':
+        case "mix":
           if (this.played) {
             this.stop();
           } else if (options.inline) {
@@ -1392,55 +1627,55 @@ document.head.append(temp_view_style_node);
 
           break;
 
-        case 'hide':
+        case "hide":
           this.hide();
           break;
 
-        case 'view':
-          this.view(getData(target, 'index'));
+        case "view":
+          this.view(getData(target, "index"));
           break;
 
-        case 'zoom-in':
+        case "zoom-in":
           this.zoom(0.1, true);
           break;
 
-        case 'zoom-out':
+        case "zoom-out":
           this.zoom(-0.1, true);
           break;
 
-        case 'one-to-one':
+        case "one-to-one":
           this.toggle();
           break;
 
-        case 'reset':
+        case "reset":
           this.reset();
           break;
 
-        case 'prev':
+        case "prev":
           this.prev(options.loop);
           break;
 
-        case 'play':
+        case "play":
           this.play(options.fullscreen);
           break;
 
-        case 'next':
+        case "next":
           this.next(options.loop);
           break;
 
-        case 'rotate-left':
+        case "rotate-left":
           this.rotate(-90);
           break;
 
-        case 'rotate-right':
+        case "rotate-right":
           this.rotate(90);
           break;
 
-        case 'flip-horizontal':
+        case "flip-horizontal":
           this.scaleX(-imageData.scaleX || -1);
           break;
 
-        case 'flip-vertical':
+        case "flip-vertical":
           this.scaleY(-imageData.scaleY || -1);
           break;
 
@@ -1448,7 +1683,6 @@ document.head.append(temp_view_style_node);
           if (this.played) {
             this.stop();
           }
-
       }
     },
     dblclick: function dblclick(event) {
@@ -1460,8 +1694,9 @@ document.head.append(temp_view_style_node);
           clearTimeout(this.doubleClickImageTimeout);
         } // XXX: No pageX/Y properties in custom event, fallback to the original event.
 
-
-        this.toggle(event.isTrusted ? event : event.detail && event.detail.originalEvent);
+        this.toggle(
+          event.isTrusted ? event : event.detail && event.detail.originalEvent
+        );
       }
     },
     load: function load() {
@@ -1473,17 +1708,23 @@ document.head.append(temp_view_style_node);
       }
 
       var element = this.element,
-          options = this.options,
-          image = this.image,
-          index = this.index,
-          viewerData = this.viewerData;
+        options = this.options,
+        image = this.image,
+        index = this.index,
+        viewerData = this.viewerData;
       removeClass(image, CLASS_INVISIBLE);
 
       if (options.loading) {
         removeClass(this.canvas, CLASS_LOADING);
       }
 
-      image.style.cssText = 'height:0;' + "margin-left:".concat(viewerData.width / 2, "px;") + "margin-top:".concat(viewerData.height / 2, "px;") + 'max-width:none!important;' + 'position:relative;' + 'width:0;';
+      image.style.cssText =
+        "height:0;" +
+        "margin-left:".concat(viewerData.width / 2, "px;") +
+        "margin-top:".concat(viewerData.height / 2, "px;") +
+        "max-width:none!important;" +
+        "position:relative;" +
+        "width:0;";
       this.initImage(function () {
         toggleClass(image, CLASS_MOVE, options.movable);
         toggleClass(image, CLASS_TRANSITION, options.transition);
@@ -1494,17 +1735,22 @@ document.head.append(temp_view_style_node);
 
           if (isFunction(options.viewed)) {
             addListener(element, EVENT_VIEWED, options.viewed, {
-              once: true
+              once: true,
             });
           }
 
-          dispatchEvent(element, EVENT_VIEWED, {
-            originalImage: _this.images[index],
-            index: index,
-            image: image
-          }, {
-            cancelable: false
-          });
+          dispatchEvent(
+            element,
+            EVENT_VIEWED,
+            {
+              originalImage: _this.images[index],
+              index: index,
+              image: image,
+            },
+            {
+              cancelable: false,
+            }
+          );
         });
       });
     },
@@ -1513,32 +1759,42 @@ document.head.append(temp_view_style_node);
       var parent = image.parentNode;
       var parentWidth = parent.offsetWidth || 30;
       var parentHeight = parent.offsetHeight || 50;
-      var filled = !!getData(image, 'filled');
-      getImageNaturalSizes(image, this.options, function (naturalWidth, naturalHeight) {
-        var aspectRatio = naturalWidth / naturalHeight;
-        var width = parentWidth;
-        var height = parentHeight;
+      var filled = !!getData(image, "filled");
+      getImageNaturalSizes(
+        image,
+        this.options,
+        function (naturalWidth, naturalHeight) {
+          var aspectRatio = naturalWidth / naturalHeight;
+          var width = parentWidth;
+          var height = parentHeight;
 
-        if (parentHeight * aspectRatio > parentWidth) {
-          if (filled) {
-            width = parentHeight * aspectRatio;
-          } else {
+          if (parentHeight * aspectRatio > parentWidth) {
+            if (filled) {
+              width = parentHeight * aspectRatio;
+            } else {
+              height = parentWidth / aspectRatio;
+            }
+          } else if (filled) {
             height = parentWidth / aspectRatio;
+          } else {
+            width = parentHeight * aspectRatio;
           }
-        } else if (filled) {
-          height = parentWidth / aspectRatio;
-        } else {
-          width = parentHeight * aspectRatio;
-        }
 
-        setStyle(image, assign({
-          width: width,
-          height: height
-        }, getTransforms({
-          translateX: (parentWidth - width) / 2,
-          translateY: (parentHeight - height) / 2
-        })));
-      });
+          setStyle(
+            image,
+            assign(
+              {
+                width: width,
+                height: height,
+              },
+              getTransforms({
+                translateX: (parentWidth - width) / 2,
+                translateY: (parentHeight - height) / 2,
+              })
+            )
+          );
+        }
+      );
     },
     keydown: function keydown(event) {
       var options = this.options;
@@ -1627,23 +1883,29 @@ document.head.append(temp_view_style_node);
       }
     },
     dragstart: function dragstart(event) {
-      if (event.target.localName === 'img') {
+      if (event.target.localName === "img") {
         event.preventDefault();
       }
     },
     pointerdown: function pointerdown(event) {
       var options = this.options,
-          pointers = this.pointers;
+        pointers = this.pointers;
       var buttons = event.buttons,
-          button = event.button;
+        button = event.button;
 
-      if (!this.viewed || this.showing || this.viewing || this.hiding // Handle mouse event and pointer event and ignore touch event
-      || (event.type === 'mousedown' || event.type === 'pointerdown' && event.pointerType === 'mouse') && ( // No primary button (Usually the left button)
-      isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0 // Open context menu
-      || event.ctrlKey)) {
+      if (
+        !this.viewed ||
+        this.showing ||
+        this.viewing ||
+        this.hiding || // Handle mouse event and pointer event and ignore touch event
+        ((event.type === "mousedown" ||
+          (event.type === "pointerdown" && event.pointerType === "mouse")) && // No primary button (Usually the left button)
+          ((isNumber(buttons) && buttons !== 1) ||
+            (isNumber(button) && button !== 0) || // Open context menu
+            event.ctrlKey))
+      ) {
         return;
       } // Prevent default behaviours as page zooming in touch devices.
-
 
       event.preventDefault();
 
@@ -1657,13 +1919,24 @@ document.head.append(temp_view_style_node);
 
       var action = options.movable ? ACTION_MOVE : false;
 
-      if (options.zoomOnTouch && options.zoomable && Object.keys(pointers).length > 1) {
+      if (
+        options.zoomOnTouch &&
+        options.zoomable &&
+        Object.keys(pointers).length > 1
+      ) {
         action = ACTION_ZOOM;
-      } else if (options.slideOnTouch && (event.pointerType === 'touch' || event.type === 'touchstart') && this.isSwitchable()) {
+      } else if (
+        options.slideOnTouch &&
+        (event.pointerType === "touch" || event.type === "touchstart") &&
+        this.isSwitchable()
+      ) {
         action = ACTION_SWITCH;
       }
 
-      if (options.transition && (action === ACTION_MOVE || action === ACTION_ZOOM)) {
+      if (
+        options.transition &&
+        (action === ACTION_MOVE || action === ACTION_ZOOM)
+      ) {
         removeClass(this.image, CLASS_TRANSITION);
       }
 
@@ -1671,7 +1944,7 @@ document.head.append(temp_view_style_node);
     },
     pointermove: function pointermove(event) {
       var pointers = this.pointers,
-          action = this.action;
+        action = this.action;
 
       if (!this.viewed || !action) {
         return;
@@ -1693,8 +1966,8 @@ document.head.append(temp_view_style_node);
       var _this2 = this;
 
       var options = this.options,
-          action = this.action,
-          pointers = this.pointers;
+        action = this.action,
+        pointers = this.pointers;
       var pointer;
 
       if (event.changedTouches) {
@@ -1713,23 +1986,35 @@ document.head.append(temp_view_style_node);
 
       event.preventDefault();
 
-      if (options.transition && (action === ACTION_MOVE || action === ACTION_ZOOM)) {
+      if (
+        options.transition &&
+        (action === ACTION_MOVE || action === ACTION_ZOOM)
+      ) {
         addClass(this.image, CLASS_TRANSITION);
       }
 
       this.action = false; // Emulate click and double click in touch devices to support backdrop and image zooming (#210).
 
-      if (IS_TOUCH_DEVICE && action !== ACTION_ZOOM && pointer && Date.now() - pointer.timeStamp < 500) {
+      if (
+        IS_TOUCH_DEVICE &&
+        action !== ACTION_ZOOM &&
+        pointer &&
+        Date.now() - pointer.timeStamp < 500
+      ) {
         clearTimeout(this.clickCanvasTimeout);
         clearTimeout(this.doubleClickImageTimeout);
 
-        if (options.toggleOnDblclick && this.viewed && event.target === this.image) {
+        if (
+          options.toggleOnDblclick &&
+          this.viewed &&
+          event.target === this.image
+        ) {
           if (this.imageClicked) {
             this.imageClicked = false; // This timeout will be cleared later when a native dblclick event is triggering
 
             this.doubleClickImageTimeout = setTimeout(function () {
               dispatchEvent(_this2.image, EVENT_DBLCLICK, {
-                originalEvent: event
+                originalEvent: event,
               });
             }, 50);
           } else {
@@ -1742,11 +2027,15 @@ document.head.append(temp_view_style_node);
         } else {
           this.imageClicked = false;
 
-          if (options.backdrop && options.backdrop !== 'static' && event.target === this.canvas) {
+          if (
+            options.backdrop &&
+            options.backdrop !== "static" &&
+            event.target === this.canvas
+          ) {
             // This timeout will be cleared later when a native click event is triggering
             this.clickCanvasTimeout = setTimeout(function () {
               dispatchEvent(_this2.canvas, EVENT_CLICK, {
-                originalEvent: event
+                originalEvent: event,
               });
             }, 50);
           }
@@ -1778,14 +2067,23 @@ document.head.append(temp_view_style_node);
       }
 
       if (this.played) {
-        if (this.options.fullscreen && this.fulled && !(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+        if (
+          this.options.fullscreen &&
+          this.fulled &&
+          !(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement
+          )
+        ) {
           this.stop();
           return;
         }
 
-        forEach(this.player.getElementsByTagName('img'), function (image) {
+        forEach(this.player.getElementsByTagName("img"), function (image) {
           addListener(image, EVENT_LOAD, _this3.loadImage.bind(_this3), {
-            once: true
+            once: true,
           });
           dispatchEvent(image, EVENT_LOAD);
         });
@@ -1820,7 +2118,7 @@ document.head.append(temp_view_style_node);
       }
 
       this.zoom(-delta * ratio, true, event);
-    }
+    },
   };
 
   var methods = {
@@ -1829,9 +2127,12 @@ document.head.append(temp_view_style_node);
      * @returns {Viewer} this
      */
     show: function show() {
-      var immediate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var immediate =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : false;
       var element = this.element,
-          options = this.options;
+        options = this.options;
 
       if (options.inline || this.showing || this.isShown || this.showing) {
         return this;
@@ -1849,7 +2150,7 @@ document.head.append(temp_view_style_node);
 
       if (isFunction(options.show)) {
         addListener(element, EVENT_SHOW, options.show, {
-          once: true
+          once: true,
         });
       }
 
@@ -1865,10 +2166,10 @@ document.head.append(temp_view_style_node);
       this.open();
       var viewer = this.viewer;
       removeClass(viewer, CLASS_HIDE);
-      viewer.setAttribute('role', 'dialog');
-      viewer.setAttribute('aria-labelledby', this.title.id);
-      viewer.setAttribute('aria-modal', true);
-      viewer.removeAttribute('aria-hidden');
+      viewer.setAttribute("role", "dialog");
+      viewer.setAttribute("aria-labelledby", this.title.id);
+      viewer.setAttribute("aria-modal", true);
+      viewer.removeAttribute("aria-hidden");
 
       if (options.transition && !immediate) {
         var shown = this.shown.bind(this);
@@ -1876,13 +2177,13 @@ document.head.append(temp_view_style_node);
           abort: function abort() {
             removeListener(viewer, EVENT_TRANSITION_END, shown);
             removeClass(viewer, CLASS_IN);
-          }
+          },
         };
         addClass(viewer, CLASS_TRANSITION); // Force reflow to enable CSS3 transition
 
         viewer.initialOffsetWidth = viewer.offsetWidth;
         addListener(viewer, EVENT_TRANSITION_END, shown, {
-          once: true
+          once: true,
         });
         addClass(viewer, CLASS_IN);
       } else {
@@ -1901,9 +2202,12 @@ document.head.append(temp_view_style_node);
     hide: function hide() {
       var _this = this;
 
-      var immediate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var immediate =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : false;
       var element = this.element,
-          options = this.options;
+        options = this.options;
 
       if (options.inline || this.hiding || !(this.isShown || this.showing)) {
         return this;
@@ -1911,7 +2215,7 @@ document.head.append(temp_view_style_node);
 
       if (isFunction(options.hide)) {
         addListener(element, EVENT_HIDE, options.hide, {
-          once: true
+          once: true,
         });
       }
 
@@ -1932,7 +2236,7 @@ document.head.append(temp_view_style_node);
       }
 
       var viewer = this.viewer,
-          image = this.image;
+        image = this.image;
 
       var hideImmediately = function hideImmediately() {
         removeClass(viewer, CLASS_IN);
@@ -1965,15 +2269,19 @@ document.head.append(temp_view_style_node);
             if (_this.viewed && hasClass(image, CLASS_TRANSITION)) {
               removeListener(image, EVENT_TRANSITION_END, onImageTransitionEnd);
             } else if (hasClass(viewer, CLASS_TRANSITION)) {
-              removeListener(viewer, EVENT_TRANSITION_END, onViewerTransitionEnd);
+              removeListener(
+                viewer,
+                EVENT_TRANSITION_END,
+                onViewerTransitionEnd
+              );
             }
-          }
+          },
         }; // In case of hiding the viewer when holding on the image (#255),
         // note that the `CLASS_TRANSITION` class will be removed on pointer down.
 
         if (this.viewed && hasClass(image, CLASS_TRANSITION)) {
           addListener(image, EVENT_TRANSITION_END, onImageTransitionEnd, {
-            once: true
+            once: true,
           });
           this.zoomTo(0, false, null, true);
         } else {
@@ -1994,10 +2302,19 @@ document.head.append(temp_view_style_node);
     view: function view() {
       var _this2 = this;
 
-      var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.options.initialViewIndex;
+      var index =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : this.options.initialViewIndex;
       index = Number(index) || 0;
 
-      if (this.hiding || this.played || index < 0 || index >= this.length || this.viewed && index === this.index) {
+      if (
+        this.hiding ||
+        this.played ||
+        index < 0 ||
+        index >= this.length ||
+        (this.viewed && index === this.index)
+      ) {
         return this;
       }
 
@@ -2011,14 +2328,14 @@ document.head.append(temp_view_style_node);
       }
 
       var element = this.element,
-          options = this.options,
-          title = this.title,
-          canvas = this.canvas;
+        options = this.options,
+        title = this.title,
+        canvas = this.canvas;
       var item = this.items[index];
-      var img = item.querySelector('img');
-      var url = getData(img, 'originalUrl');
-      var alt = img.getAttribute('alt');
-      var image = document.createElement('img');
+      var img = item.querySelector("img");
+      var url = getData(img, "originalUrl");
+      var alt = img.getAttribute("alt");
+      var image = document.createElement("img");
       forEach(options.inheritedAttributes, function (name) {
         var value = img.getAttribute(name);
 
@@ -2031,15 +2348,20 @@ document.head.append(temp_view_style_node);
 
       if (isFunction(options.view)) {
         addListener(element, EVENT_VIEW, options.view, {
-          once: true
+          once: true,
         });
       }
 
-      if (dispatchEvent(element, EVENT_VIEW, {
-        originalImage: this.images[index],
-        index: index,
-        image: image
-      }) === false || !this.isShown || this.hiding || this.played) {
+      if (
+        dispatchEvent(element, EVENT_VIEW, {
+          originalImage: this.images[index],
+          index: index,
+          image: image,
+        }) === false ||
+        !this.isShown ||
+        this.hiding ||
+        this.played
+      ) {
         return this;
       }
 
@@ -2047,11 +2369,11 @@ document.head.append(temp_view_style_node);
 
       if (activeItem) {
         removeClass(activeItem, CLASS_ACTIVE);
-        activeItem.removeAttribute('aria-selected');
+        activeItem.removeAttribute("aria-selected");
       }
 
       addClass(item, CLASS_ACTIVE);
-      item.setAttribute('aria-selected', true);
+      item.setAttribute("aria-selected", true);
 
       if (options.focus) {
         item.focus();
@@ -2067,23 +2389,32 @@ document.head.append(temp_view_style_node);
         addClass(canvas, CLASS_LOADING);
       }
 
-      canvas.innerHTML = '';
+      canvas.innerHTML = "";
       canvas.appendChild(image); // Center current item
 
       this.renderList(); // Clear title
 
-      title.innerHTML = ''; // Generate title after viewed
+      title.innerHTML = ""; // Generate title after viewed
 
       var onViewed = function onViewed() {
         var imageData = _this2.imageData;
-        var render = Array.isArray(options.title) ? options.title[1] : options.title;
-        title.innerHTML = escapeHTMLEntities(isFunction(render) ? render.call(_this2, image, imageData) : "".concat(alt, " (").concat(imageData.naturalWidth, " \xD7 ").concat(imageData.naturalHeight, ")"));
+        var render = Array.isArray(options.title)
+          ? options.title[1]
+          : options.title;
+        title.innerHTML = escapeHTMLEntities(
+          isFunction(render)
+            ? render.call(_this2, image, imageData)
+            : ""
+                .concat(alt, " (")
+                .concat(imageData.naturalWidth, " \xD7 ")
+                .concat(imageData.naturalHeight, ")")
+        );
       };
 
       var onLoad;
       var onError;
       addListener(element, EVENT_VIEWED, onViewed, {
-        once: true
+        once: true,
       });
       this.viewing = {
         abort: function abort() {
@@ -2097,47 +2428,56 @@ document.head.append(temp_view_style_node);
             }
           } else {
             // Cancel download to save bandwidth.
-            image.src = '';
+            image.src = "";
             removeListener(image, EVENT_LOAD, onLoad);
 
             if (_this2.timeout) {
               clearTimeout(_this2.timeout);
             }
           }
-        }
+        },
       };
 
       if (image.complete) {
         this.load();
       } else {
-        addListener(image, EVENT_LOAD, onLoad = function onLoad() {
-          removeListener(image, EVENT_ERROR, onError);
+        addListener(
+          image,
+          EVENT_LOAD,
+          (onLoad = function onLoad() {
+            removeListener(image, EVENT_ERROR, onError);
 
-          _this2.load();
-        }, {
-          once: true
-        });
-        addListener(image, EVENT_ERROR, onError = function onError() {
-          removeListener(image, EVENT_LOAD, onLoad);
-
-          if (_this2.timeout) {
-            clearTimeout(_this2.timeout);
-            _this2.timeout = false;
+            _this2.load();
+          }),
+          {
+            once: true,
           }
+        );
+        addListener(
+          image,
+          EVENT_ERROR,
+          (onError = function onError() {
+            removeListener(image, EVENT_LOAD, onLoad);
 
-          removeClass(image, CLASS_INVISIBLE);
+            if (_this2.timeout) {
+              clearTimeout(_this2.timeout);
+              _this2.timeout = false;
+            }
 
-          if (options.loading) {
-            removeClass(_this2.canvas, CLASS_LOADING);
+            removeClass(image, CLASS_INVISIBLE);
+
+            if (options.loading) {
+              removeClass(_this2.canvas, CLASS_LOADING);
+            }
+          }),
+          {
+            once: true,
           }
-        }, {
-          once: true
-        });
+        );
 
         if (this.timeout) {
           clearTimeout(this.timeout);
         } // Make the image visible if it fails to load within 1s
-
 
         this.timeout = setTimeout(function () {
           removeClass(image, CLASS_INVISIBLE);
@@ -2155,7 +2495,10 @@ document.head.append(temp_view_style_node);
      * @returns {Viewer} this
      */
     prev: function prev() {
-      var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var loop =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : false;
       var index = this.index - 1;
 
       if (index < 0) {
@@ -2173,7 +2516,10 @@ document.head.append(temp_view_style_node);
      * @returns {Viewer} this
      */
     next: function next() {
-      var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var loop =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : false;
       var maxIndex = this.length - 1;
       var index = this.index + 1;
 
@@ -2192,9 +2538,13 @@ document.head.append(temp_view_style_node);
      * @returns {Viewer} this
      */
     move: function move(x) {
-      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
+      var y =
+        arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
       var imageData = this.imageData;
-      this.moveTo(isUndefined(x) ? x : imageData.x + Number(x), isUndefined(y) ? y : imageData.y + Number(y));
+      this.moveTo(
+        isUndefined(x) ? x : imageData.x + Number(x),
+        isUndefined(y) ? y : imageData.y + Number(y)
+      );
       return this;
     },
 
@@ -2208,13 +2558,17 @@ document.head.append(temp_view_style_node);
     moveTo: function moveTo(x) {
       var _this3 = this;
 
-      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
+      var y =
+        arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
 
-      var _originalEvent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var _originalEvent =
+        arguments.length > 2 && arguments[2] !== undefined
+          ? arguments[2]
+          : null;
 
       var element = this.element,
-          options = this.options,
-          imageData = this.imageData;
+        options = this.options,
+        imageData = this.imageData;
       x = Number(x);
       y = Number(y);
 
@@ -2238,17 +2592,19 @@ document.head.append(temp_view_style_node);
         if (changed) {
           if (isFunction(options.move)) {
             addListener(element, EVENT_MOVE, options.move, {
-              once: true
+              once: true,
             });
           }
 
-          if (dispatchEvent(element, EVENT_MOVE, {
-            x: x,
-            y: y,
-            oldX: oldX,
-            oldY: oldY,
-            originalEvent: _originalEvent
-          }) === false) {
+          if (
+            dispatchEvent(element, EVENT_MOVE, {
+              x: x,
+              y: y,
+              oldX: oldX,
+              oldY: oldY,
+              originalEvent: _originalEvent,
+            }) === false
+          ) {
             return this;
           }
 
@@ -2262,19 +2618,24 @@ document.head.append(temp_view_style_node);
 
             if (isFunction(options.moved)) {
               addListener(element, EVENT_MOVED, options.moved, {
-                once: true
+                once: true,
               });
             }
 
-            dispatchEvent(element, EVENT_MOVED, {
-              x: x,
-              y: y,
-              oldX: oldX,
-              oldY: oldY,
-              originalEvent: _originalEvent
-            }, {
-              cancelable: false
-            });
+            dispatchEvent(
+              element,
+              EVENT_MOVED,
+              {
+                x: x,
+                y: y,
+                oldX: oldX,
+                oldY: oldY,
+                originalEvent: _originalEvent,
+              },
+              {
+                cancelable: false,
+              }
+            );
           });
         }
       }
@@ -2301,23 +2662,30 @@ document.head.append(temp_view_style_node);
       var _this4 = this;
 
       var element = this.element,
-          options = this.options,
-          imageData = this.imageData;
+        options = this.options,
+        imageData = this.imageData;
       degree = Number(degree);
 
-      if (isNumber(degree) && this.viewed && !this.played && options.rotatable) {
+      if (
+        isNumber(degree) &&
+        this.viewed &&
+        !this.played &&
+        options.rotatable
+      ) {
         var oldDegree = imageData.rotate;
 
         if (isFunction(options.rotate)) {
           addListener(element, EVENT_ROTATE, options.rotate, {
-            once: true
+            once: true,
           });
         }
 
-        if (dispatchEvent(element, EVENT_ROTATE, {
-          degree: degree,
-          oldDegree: oldDegree
-        }) === false) {
+        if (
+          dispatchEvent(element, EVENT_ROTATE, {
+            degree: degree,
+            oldDegree: oldDegree,
+          }) === false
+        ) {
           return this;
         }
 
@@ -2328,16 +2696,21 @@ document.head.append(temp_view_style_node);
 
           if (isFunction(options.rotated)) {
             addListener(element, EVENT_ROTATED, options.rotated, {
-              once: true
+              once: true,
             });
           }
 
-          dispatchEvent(element, EVENT_ROTATED, {
-            degree: degree,
-            oldDegree: oldDegree
-          }, {
-            cancelable: false
-          });
+          dispatchEvent(
+            element,
+            EVENT_ROTATED,
+            {
+              degree: degree,
+              oldDegree: oldDegree,
+            },
+            {
+              cancelable: false,
+            }
+          );
         });
       }
 
@@ -2373,10 +2746,13 @@ document.head.append(temp_view_style_node);
     scale: function scale(scaleX) {
       var _this5 = this;
 
-      var scaleY = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : scaleX;
+      var scaleY =
+        arguments.length > 1 && arguments[1] !== undefined
+          ? arguments[1]
+          : scaleX;
       var element = this.element,
-          options = this.options,
-          imageData = this.imageData;
+        options = this.options,
+        imageData = this.imageData;
       scaleX = Number(scaleX);
       scaleY = Number(scaleY);
 
@@ -2400,16 +2776,18 @@ document.head.append(temp_view_style_node);
         if (changed) {
           if (isFunction(options.scale)) {
             addListener(element, EVENT_SCALE, options.scale, {
-              once: true
+              once: true,
             });
           }
 
-          if (dispatchEvent(element, EVENT_SCALE, {
-            scaleX: scaleX,
-            scaleY: scaleY,
-            oldScaleX: oldScaleX,
-            oldScaleY: oldScaleY
-          }) === false) {
+          if (
+            dispatchEvent(element, EVENT_SCALE, {
+              scaleX: scaleX,
+              scaleY: scaleY,
+              oldScaleX: oldScaleX,
+              oldScaleY: oldScaleY,
+            }) === false
+          ) {
             return this;
           }
 
@@ -2421,18 +2799,23 @@ document.head.append(temp_view_style_node);
 
             if (isFunction(options.scaled)) {
               addListener(element, EVENT_SCALED, options.scaled, {
-                once: true
+                once: true,
               });
             }
 
-            dispatchEvent(element, EVENT_SCALED, {
-              scaleX: scaleX,
-              scaleY: scaleY,
-              oldScaleX: oldScaleX,
-              oldScaleY: oldScaleY
-            }, {
-              cancelable: false
-            });
+            dispatchEvent(
+              element,
+              EVENT_SCALED,
+              {
+                scaleX: scaleX,
+                scaleY: scaleY,
+                oldScaleX: oldScaleX,
+                oldScaleY: oldScaleY,
+              },
+              {
+                cancelable: false,
+              }
+            );
           });
         }
       }
@@ -2448,9 +2831,15 @@ document.head.append(temp_view_style_node);
      * @returns {Viewer} this
      */
     zoom: function zoom(ratio) {
-      var hasTooltip = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var hasTooltip =
+        arguments.length > 1 && arguments[1] !== undefined
+          ? arguments[1]
+          : false;
 
-      var _originalEvent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var _originalEvent =
+        arguments.length > 2 && arguments[2] !== undefined
+          ? arguments[2]
+          : null;
 
       var imageData = this.imageData;
       ratio = Number(ratio);
@@ -2461,7 +2850,11 @@ document.head.append(temp_view_style_node);
         ratio = 1 + ratio;
       }
 
-      this.zoomTo(imageData.width * ratio / imageData.naturalWidth, hasTooltip, _originalEvent);
+      this.zoomTo(
+        (imageData.width * ratio) / imageData.naturalWidth,
+        hasTooltip,
+        _originalEvent
+      );
       return this;
     },
 
@@ -2476,25 +2869,39 @@ document.head.append(temp_view_style_node);
     zoomTo: function zoomTo(ratio) {
       var _this6 = this;
 
-      var hasTooltip = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var hasTooltip =
+        arguments.length > 1 && arguments[1] !== undefined
+          ? arguments[1]
+          : false;
 
-      var _originalEvent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var _originalEvent =
+        arguments.length > 2 && arguments[2] !== undefined
+          ? arguments[2]
+          : null;
 
-      var _zoomable = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      var _zoomable =
+        arguments.length > 3 && arguments[3] !== undefined
+          ? arguments[3]
+          : false;
 
       var element = this.element,
-          options = this.options,
-          pointers = this.pointers,
-          imageData = this.imageData;
+        options = this.options,
+        pointers = this.pointers,
+        imageData = this.imageData;
       var x = imageData.x,
-          y = imageData.y,
-          width = imageData.width,
-          height = imageData.height,
-          naturalWidth = imageData.naturalWidth,
-          naturalHeight = imageData.naturalHeight;
+        y = imageData.y,
+        width = imageData.width,
+        height = imageData.height,
+        naturalWidth = imageData.naturalWidth,
+        naturalHeight = imageData.naturalHeight;
       ratio = Math.max(0, ratio);
 
-      if (isNumber(ratio) && this.viewed && !this.played && (_zoomable || options.zoomable)) {
+      if (
+        isNumber(ratio) &&
+        this.viewed &&
+        !this.played &&
+        (_zoomable || options.zoomable)
+      ) {
         if (!_zoomable) {
           var minZoomRatio = Math.max(0.01, options.minZoomRatio);
           var maxZoomRatio = Math.min(100, options.maxZoomRatio);
@@ -2503,16 +2910,16 @@ document.head.append(temp_view_style_node);
 
         if (_originalEvent) {
           switch (_originalEvent.type) {
-            case 'wheel':
+            case "wheel":
               if (options.zoomRatio >= 0.055 && ratio > 0.95 && ratio < 1.05) {
                 ratio = 1;
               }
 
               break;
 
-            case 'pointermove':
-            case 'touchmove':
-            case 'mousemove':
+            case "pointermove":
+            case "touchmove":
+            case "mousemove":
               if (ratio > 0.99 && ratio < 1.01) {
                 ratio = 1;
               }
@@ -2529,15 +2936,17 @@ document.head.append(temp_view_style_node);
 
         if (isFunction(options.zoom)) {
           addListener(element, EVENT_ZOOM, options.zoom, {
-            once: true
+            once: true,
           });
         }
 
-        if (dispatchEvent(element, EVENT_ZOOM, {
-          ratio: ratio,
-          oldRatio: oldRatio,
-          originalEvent: _originalEvent
-        }) === false) {
+        if (
+          dispatchEvent(element, EVENT_ZOOM, {
+            ratio: ratio,
+            oldRatio: oldRatio,
+            originalEvent: _originalEvent,
+          }) === false
+        ) {
           return this;
         }
 
@@ -2545,13 +2954,18 @@ document.head.append(temp_view_style_node);
 
         if (_originalEvent) {
           var offset = getOffset(this.viewer);
-          var center = pointers && Object.keys(pointers).length > 0 ? getPointersCenter(pointers) : {
-            pageX: _originalEvent.pageX,
-            pageY: _originalEvent.pageY
-          }; // Zoom from the triggering point of the event
+          var center =
+            pointers && Object.keys(pointers).length > 0
+              ? getPointersCenter(pointers)
+              : {
+                  pageX: _originalEvent.pageX,
+                  pageY: _originalEvent.pageY,
+                }; // Zoom from the triggering point of the event
 
-          imageData.x -= offsetWidth * ((center.pageX - offset.left - x) / width);
-          imageData.y -= offsetHeight * ((center.pageY - offset.top - y) / height);
+          imageData.x -=
+            offsetWidth * ((center.pageX - offset.left - x) / width);
+          imageData.y -=
+            offsetHeight * ((center.pageY - offset.top - y) / height);
         } else {
           // Zoom from the center of the image
           imageData.x -= offsetWidth / 2;
@@ -2569,17 +2983,22 @@ document.head.append(temp_view_style_node);
 
           if (isFunction(options.zoomed)) {
             addListener(element, EVENT_ZOOMED, options.zoomed, {
-              once: true
+              once: true,
             });
           }
 
-          dispatchEvent(element, EVENT_ZOOMED, {
-            ratio: ratio,
-            oldRatio: oldRatio,
-            originalEvent: _originalEvent
-          }, {
-            cancelable: false
-          });
+          dispatchEvent(
+            element,
+            EVENT_ZOOMED,
+            {
+              ratio: ratio,
+              oldRatio: oldRatio,
+              originalEvent: _originalEvent,
+            },
+            {
+              cancelable: false,
+            }
+          );
         });
 
         if (hasTooltip) {
@@ -2598,18 +3017,21 @@ document.head.append(temp_view_style_node);
     play: function play() {
       var _this7 = this;
 
-      var fullscreen = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var fullscreen =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : false;
 
       if (!this.isShown || this.played) {
         return this;
       }
 
       var element = this.element,
-          options = this.options;
+        options = this.options;
 
       if (isFunction(options.play)) {
         addListener(element, EVENT_PLAY, options.play, {
-          once: true
+          once: true,
         });
       }
 
@@ -2631,10 +3053,10 @@ document.head.append(temp_view_style_node);
 
       addClass(player, CLASS_SHOW);
       forEach(this.items, function (item, i) {
-        var img = item.querySelector('img');
-        var image = document.createElement('img');
-        image.src = getData(img, 'originalUrl');
-        image.alt = img.getAttribute('alt');
+        var img = item.querySelector("img");
+        var image = document.createElement("img");
+        image.src = getData(img, "originalUrl");
+        image.alt = img.getAttribute("alt");
         image.referrerPolicy = img.referrerPolicy;
         total += 1;
         addClass(image, CLASS_FADE);
@@ -2647,7 +3069,7 @@ document.head.append(temp_view_style_node);
 
         list.push(image);
         addListener(image, EVENT_LOAD, onLoad, {
-          once: true
+          once: true,
         });
         player.appendChild(image);
       });
@@ -2679,11 +3101,11 @@ document.head.append(temp_view_style_node);
       }
 
       var element = this.element,
-          options = this.options;
+        options = this.options;
 
       if (isFunction(options.stop)) {
         addListener(element, EVENT_STOP, options.stop, {
-          once: true
+          once: true,
         });
       }
 
@@ -2694,11 +3116,11 @@ document.head.append(temp_view_style_node);
       var player = this.player;
       this.played = false;
       clearTimeout(this.playing);
-      forEach(player.getElementsByTagName('img'), function (image) {
+      forEach(player.getElementsByTagName("img"), function (image) {
         removeListener(image, EVENT_LOAD, _this8.onLoadWhenPlay);
       });
       removeClass(player, CLASS_SHOW);
-      player.innerHTML = '';
+      player.innerHTML = "";
       this.exitFullscreen();
       return this;
     },
@@ -2707,9 +3129,9 @@ document.head.append(temp_view_style_node);
       var _this9 = this;
 
       var options = this.options,
-          viewer = this.viewer,
-          image = this.image,
-          list = this.list;
+        viewer = this.viewer,
+        image = this.image,
+        list = this.list;
 
       if (!this.isShown || this.played || this.fulled || !options.inline) {
         return this;
@@ -2728,12 +3150,12 @@ document.head.append(temp_view_style_node);
       }
 
       addClass(viewer, CLASS_FIXED);
-      viewer.setAttribute('role', 'dialog');
-      viewer.setAttribute('aria-labelledby', this.title.id);
-      viewer.setAttribute('aria-modal', true);
-      viewer.removeAttribute('style');
+      viewer.setAttribute("role", "dialog");
+      viewer.setAttribute("aria-labelledby", this.title.id);
+      viewer.setAttribute("aria-modal", true);
+      viewer.removeAttribute("style");
       setStyle(viewer, {
-        zIndex: options.zIndex
+        zIndex: options.zIndex,
       });
 
       if (options.focus) {
@@ -2764,9 +3186,9 @@ document.head.append(temp_view_style_node);
       var _this10 = this;
 
       var options = this.options,
-          viewer = this.viewer,
-          image = this.image,
-          list = this.list;
+        viewer = this.viewer,
+        image = this.image,
+        list = this.list;
 
       if (!this.isShown || this.played || !this.fulled || !options.inline) {
         return this;
@@ -2788,12 +3210,12 @@ document.head.append(temp_view_style_node);
         this.clearEnforceFocus();
       }
 
-      viewer.removeAttribute('role');
-      viewer.removeAttribute('aria-labelledby');
-      viewer.removeAttribute('aria-modal');
+      viewer.removeAttribute("role");
+      viewer.removeAttribute("aria-labelledby");
+      viewer.removeAttribute("aria-modal");
       removeClass(viewer, CLASS_FIXED);
       setStyle(viewer, {
-        zIndex: options.zIndexInline
+        zIndex: options.zIndexInline,
       });
       this.viewerData = assign({}, this.parentData);
       this.renderViewer();
@@ -2819,14 +3241,17 @@ document.head.append(temp_view_style_node);
       var _this11 = this;
 
       var options = this.options,
-          tooltipBox = this.tooltipBox,
-          imageData = this.imageData;
+        tooltipBox = this.tooltipBox,
+        imageData = this.imageData;
 
       if (!this.viewed || this.played || !options.tooltip) {
         return this;
       }
 
-      tooltipBox.textContent = "".concat(Math.round(imageData.ratio * 100), "%");
+      tooltipBox.textContent = "".concat(
+        Math.round(imageData.ratio * 100),
+        "%"
+      );
 
       if (!this.tooltipping) {
         if (options.transition) {
@@ -2837,13 +3262,13 @@ document.head.append(temp_view_style_node);
           addClass(tooltipBox, CLASS_SHOW);
           addClass(tooltipBox, CLASS_FADE);
           addClass(tooltipBox, CLASS_TRANSITION);
-          tooltipBox.removeAttribute('aria-hidden'); // Force reflow to enable CSS3 transition
+          tooltipBox.removeAttribute("aria-hidden"); // Force reflow to enable CSS3 transition
 
           tooltipBox.initialOffsetWidth = tooltipBox.offsetWidth;
           addClass(tooltipBox, CLASS_IN);
         } else {
           addClass(tooltipBox, CLASS_SHOW);
-          tooltipBox.removeAttribute('aria-hidden');
+          tooltipBox.removeAttribute("aria-hidden");
         }
       } else {
         clearTimeout(this.tooltipping);
@@ -2851,20 +3276,25 @@ document.head.append(temp_view_style_node);
 
       this.tooltipping = setTimeout(function () {
         if (options.transition) {
-          addListener(tooltipBox, EVENT_TRANSITION_END, function () {
-            removeClass(tooltipBox, CLASS_SHOW);
-            removeClass(tooltipBox, CLASS_FADE);
-            removeClass(tooltipBox, CLASS_TRANSITION);
-            tooltipBox.setAttribute('aria-hidden', true);
-            _this11.fading = false;
-          }, {
-            once: true
-          });
+          addListener(
+            tooltipBox,
+            EVENT_TRANSITION_END,
+            function () {
+              removeClass(tooltipBox, CLASS_SHOW);
+              removeClass(tooltipBox, CLASS_FADE);
+              removeClass(tooltipBox, CLASS_TRANSITION);
+              tooltipBox.setAttribute("aria-hidden", true);
+              _this11.fading = false;
+            },
+            {
+              once: true,
+            }
+          );
           removeClass(tooltipBox, CLASS_IN);
           _this11.fading = true;
         } else {
           removeClass(tooltipBox, CLASS_SHOW);
-          tooltipBox.setAttribute('aria-hidden', true);
+          tooltipBox.setAttribute("aria-hidden", true);
         }
 
         _this11.tooltipping = false;
@@ -2878,7 +3308,10 @@ document.head.append(temp_view_style_node);
      * @returns {Viewer} this
      */
     toggle: function toggle() {
-      var _originalEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var _originalEvent =
+        arguments.length > 0 && arguments[0] !== undefined
+          ? arguments[0]
+          : null;
 
       if (this.imageData.ratio === 1) {
         this.zoomTo(this.imageData.oldRatio, true, _originalEvent);
@@ -2902,23 +3335,26 @@ document.head.append(temp_view_style_node);
       var _this12 = this;
 
       var element = this.element,
-          options = this.options,
-          isImg = this.isImg; // Destroy viewer if the target image was deleted
+        options = this.options,
+        isImg = this.isImg; // Destroy viewer if the target image was deleted
 
       if (isImg && !element.parentNode) {
         return this.destroy();
       }
 
       var images = [];
-      forEach(isImg ? [element] : element.querySelectorAll('img'), function (image) {
-        if (isFunction(options.filter)) {
-          if (options.filter.call(_this12, image)) {
+      forEach(
+        isImg ? [element] : element.querySelectorAll("img"),
+        function (image) {
+          if (isFunction(options.filter)) {
+            if (options.filter.call(_this12, image)) {
+              images.push(image);
+            }
+          } else if (_this12.getImageURL(image)) {
             images.push(image);
           }
-        } else if (_this12.getImageURL(image)) {
-          images.push(image);
         }
-      });
+      );
 
       if (!images.length) {
         return this;
@@ -2930,12 +3366,14 @@ document.head.append(temp_view_style_node);
       if (this.ready) {
         var changedIndexes = [];
         forEach(this.items, function (item, i) {
-          var img = item.querySelector('img');
+          var img = item.querySelector("img");
           var image = images[i];
 
           if (image && img) {
-            if (image.src !== img.src // Title changed (#408)
-            || image.alt !== img.alt) {
+            if (
+              image.src !== img.src || // Title changed (#408)
+              image.alt !== img.alt
+            ) {
               changedIndexes.push(i);
             }
           } else {
@@ -2943,7 +3381,7 @@ document.head.append(temp_view_style_node);
           }
         });
         setStyle(this.list, {
-          width: 'auto'
+          width: "auto",
         });
         this.initList();
 
@@ -2954,12 +3392,17 @@ document.head.append(temp_view_style_node);
 
               if (changedIndex >= 0) {
                 this.viewed = false;
-                this.view(Math.max(Math.min(this.index - changedIndex, this.length - 1), 0));
+                this.view(
+                  Math.max(
+                    Math.min(this.index - changedIndex, this.length - 1),
+                    0
+                  )
+                );
               } else {
                 var activeItem = this.items[this.index]; // Reactivate the current viewing item after reset the list.
 
                 addClass(activeItem, CLASS_ACTIVE);
-                activeItem.setAttribute('aria-selected', true);
+                activeItem.setAttribute("aria-selected", true);
               }
             }
           } else {
@@ -2967,8 +3410,8 @@ document.head.append(temp_view_style_node);
             this.viewed = false;
             this.index = 0;
             this.imageData = {};
-            this.canvas.innerHTML = '';
-            this.title.innerHTML = '';
+            this.canvas.innerHTML = "";
+            this.title.innerHTML = "";
           }
         }
       } else {
@@ -2980,7 +3423,7 @@ document.head.append(temp_view_style_node);
     // Destroy the viewer
     destroy: function destroy() {
       var element = this.element,
-          options = this.options;
+        options = this.options;
 
       if (!element[NAMESPACE]) {
         return this;
@@ -3034,7 +3477,7 @@ document.head.append(temp_view_style_node);
 
       element[NAMESPACE] = undefined;
       return this;
-    }
+    },
   };
 
   var others = {
@@ -3046,7 +3489,7 @@ document.head.append(temp_view_style_node);
       } else if (isFunction(url)) {
         url = url.call(this, image);
       } else {
-        url = '';
+        url = "";
       }
 
       return url;
@@ -3055,25 +3498,36 @@ document.head.append(temp_view_style_node);
       var _this = this;
 
       this.clearEnforceFocus();
-      addListener(document, EVENT_FOCUSIN, this.onFocusin = function (event) {
-        var viewer = _this.viewer;
-        var target = event.target;
+      addListener(
+        document,
+        EVENT_FOCUSIN,
+        (this.onFocusin = function (event) {
+          var viewer = _this.viewer;
+          var target = event.target;
 
-        if (target === document || target === viewer || viewer.contains(target)) {
-          return;
-        }
-
-        while (target) {
-          // Avoid conflicts with other modals (#474, #540)
-          if (target.getAttribute('tabindex') !== null || target.getAttribute('aria-modal') === 'true') {
+          if (
+            target === document ||
+            target === viewer ||
+            viewer.contains(target)
+          ) {
             return;
           }
 
-          target = target.parentElement;
-        }
+          while (target) {
+            // Avoid conflicts with other modals (#474, #540)
+            if (
+              target.getAttribute("tabindex") !== null ||
+              target.getAttribute("aria-modal") === "true"
+            ) {
+              return;
+            }
 
-        viewer.focus();
-      });
+            target = target.parentElement;
+          }
+
+          viewer.focus();
+        })
+      );
     },
     clearEnforceFocus: function clearEnforceFocus() {
       if (this.onFocusin) {
@@ -3084,7 +3538,11 @@ document.head.append(temp_view_style_node);
     open: function open() {
       var body = this.body;
       addClass(body, CLASS_OPEN);
-      body.style.paddingRight = "".concat(this.scrollbarWidth + (parseFloat(this.initialBodyComputedPaddingRight) || 0), "px");
+      body.style.paddingRight = "".concat(
+        this.scrollbarWidth +
+          (parseFloat(this.initialBodyComputedPaddingRight) || 0),
+        "px"
+      );
     },
     close: function close() {
       var body = this.body;
@@ -3093,8 +3551,8 @@ document.head.append(temp_view_style_node);
     },
     shown: function shown() {
       var element = this.element,
-          options = this.options,
-          viewer = this.viewer;
+        options = this.options,
+        viewer = this.viewer;
       this.fulled = true;
       this.isShown = true;
       this.render();
@@ -3108,7 +3566,7 @@ document.head.append(temp_view_style_node);
 
       if (isFunction(options.shown)) {
         addListener(element, EVENT_SHOWN, options.shown, {
-          once: true
+          once: true,
         });
       }
 
@@ -3122,8 +3580,8 @@ document.head.append(temp_view_style_node);
     },
     hidden: function hidden() {
       var element = this.element,
-          options = this.options,
-          viewer = this.viewer;
+        options = this.options,
+        viewer = this.viewer;
 
       if (options.fucus) {
         this.clearEnforceFocus();
@@ -3135,10 +3593,10 @@ document.head.append(temp_view_style_node);
       this.close();
       this.unbind();
       addClass(viewer, CLASS_HIDE);
-      viewer.removeAttribute('role');
-      viewer.removeAttribute('aria-labelledby');
-      viewer.removeAttribute('aria-modal');
-      viewer.setAttribute('aria-hidden', true);
+      viewer.removeAttribute("role");
+      viewer.removeAttribute("aria-labelledby");
+      viewer.removeAttribute("aria-modal");
+      viewer.setAttribute("aria-hidden", true);
       this.resetList();
       this.resetImage();
       this.hiding = false;
@@ -3146,19 +3604,27 @@ document.head.append(temp_view_style_node);
       if (!this.destroyed) {
         if (isFunction(options.hidden)) {
           addListener(element, EVENT_HIDDEN, options.hidden, {
-            once: true
+            once: true,
           });
         }
 
         dispatchEvent(element, EVENT_HIDDEN, null, {
-          cancelable: false
+          cancelable: false,
         });
       }
     },
     requestFullscreen: function requestFullscreen(options) {
       var document = this.element.ownerDocument;
 
-      if (this.fulled && !(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+      if (
+        this.fulled &&
+        !(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement
+        )
+      ) {
         var documentElement = document.documentElement; // Element.requestFullscreen()
 
         if (documentElement.requestFullscreen) {
@@ -3180,7 +3646,13 @@ document.head.append(temp_view_style_node);
     exitFullscreen: function exitFullscreen() {
       var document = this.element.ownerDocument;
 
-      if (this.fulled && (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+      if (
+        this.fulled &&
+        (document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement)
+      ) {
         // Document.exitFullscreen()
         if (document.exitFullscreen) {
           document.exitFullscreen();
@@ -3195,7 +3667,7 @@ document.head.append(temp_view_style_node);
     },
     change: function change(event) {
       var options = this.options,
-          pointers = this.pointers;
+        pointers = this.pointers;
       var pointer = pointers[Object.keys(pointers)[0]]; // In the case of the `pointers` object is empty (#421)
 
       if (!pointer) {
@@ -3216,26 +3688,24 @@ document.head.append(temp_view_style_node);
           this.zoom(getMaxZoomRatio(pointers), false, event);
           break;
 
-        case ACTION_SWITCH:
-          {
-            this.action = 'switched';
-            var absoluteOffsetX = Math.abs(offsetX);
+        case ACTION_SWITCH: {
+          this.action = "switched";
+          var absoluteOffsetX = Math.abs(offsetX);
 
-            if (absoluteOffsetX > 1 && absoluteOffsetX > Math.abs(offsetY)) {
-              // Empty `pointers` as `touchend` event will not be fired after swiped in iOS browsers.
-              this.pointers = {};
+          if (absoluteOffsetX > 1 && absoluteOffsetX > Math.abs(offsetY)) {
+            // Empty `pointers` as `touchend` event will not be fired after swiped in iOS browsers.
+            this.pointers = {};
 
-              if (offsetX > 1) {
-                this.prev(options.loop);
-              } else if (offsetX < -1) {
-                this.next(options.loop);
-              }
+            if (offsetX > 1) {
+              this.prev(options.loop);
+            } else if (offsetX < -1) {
+              this.next(options.loop);
             }
-
-            break;
           }
-      } // Override
 
+          break;
+        }
+      } // Override
 
       forEach(pointers, function (p) {
         p.startX = p.endX;
@@ -3244,33 +3714,42 @@ document.head.append(temp_view_style_node);
     },
     isSwitchable: function isSwitchable() {
       var imageData = this.imageData,
-          viewerData = this.viewerData;
-      return this.length > 1 && imageData.x >= 0 && imageData.y >= 0 && imageData.width <= viewerData.width && imageData.height <= viewerData.height;
-    }
+        viewerData = this.viewerData;
+      return (
+        this.length > 1 &&
+        imageData.x >= 0 &&
+        imageData.y >= 0 &&
+        imageData.width <= viewerData.width &&
+        imageData.height <= viewerData.height
+      );
+    },
   };
 
   var AnotherViewer = WINDOW.Viewer;
 
-  var getUniqueID = function (id) {
+  var getUniqueID = (function (id) {
     return function () {
       id += 1;
       return id;
     };
-  }(-1);
+  })(-1);
 
-  var Viewer = /*#__PURE__*/function () {
+  var Viewer = /*#__PURE__*/ (function () {
     /**
      * Create a new Viewer.
      * @param {Element} element - The target element for viewing.
      * @param {Object} [options={}] - The configuration options.
      */
     function Viewer(element) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var options =
+        arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       _classCallCheck(this, Viewer);
 
       if (!element || element.nodeType !== 1) {
-        throw new Error('The first argument is required and must be an element.');
+        throw new Error(
+          "The first argument is required and must be an element."
+        );
       }
 
       this.element = element;
@@ -3303,310 +3782,376 @@ document.head.append(temp_view_style_node);
       this.init();
     }
 
-    _createClass(Viewer, [{
-      key: "init",
-      value: function init() {
-        var _this = this;
+    _createClass(
+      Viewer,
+      [
+        {
+          key: "init",
+          value: function init() {
+            var _this = this;
 
-        var element = this.element,
-            options = this.options;
+            var element = this.element,
+              options = this.options;
 
-        if (element[NAMESPACE]) {
-          return;
-        }
-
-        element[NAMESPACE] = this; // The `focus` option requires the `keyboard` option set to `true`.
-
-        if (options.focus && !options.keyboard) {
-          options.focus = false;
-        }
-
-        var isImg = element.localName === 'img';
-        var images = [];
-        forEach(isImg ? [element] : element.querySelectorAll('img'), function (image) {
-          if (isFunction(options.filter)) {
-            if (options.filter.call(_this, image)) {
-              images.push(image);
-            }
-          } else if (_this.getImageURL(image)) {
-            images.push(image);
-          }
-        });
-        this.isImg = isImg;
-        this.length = images.length;
-        this.images = images;
-        this.initBody(); // Override `transition` option if it is not supported
-
-        if (isUndefined(document.createElement(NAMESPACE).style.transition)) {
-          options.transition = false;
-        }
-
-        if (options.inline) {
-          var count = 0;
-
-          var progress = function progress() {
-            count += 1;
-
-            if (count === _this.length) {
-              var timeout;
-              _this.initializing = false;
-              _this.delaying = {
-                abort: function abort() {
-                  clearTimeout(timeout);
-                }
-              }; // build asynchronously to keep `this.viewer` is accessible in `ready` event handler.
-
-              timeout = setTimeout(function () {
-                _this.delaying = false;
-
-                _this.build();
-              }, 0);
-            }
-          };
-
-          this.initializing = {
-            abort: function abort() {
-              forEach(images, function (image) {
-                if (!image.complete) {
-                  removeListener(image, EVENT_LOAD, progress);
-                  removeListener(image, EVENT_ERROR, progress);
-                }
-              });
-            }
-          };
-          forEach(images, function (image) {
-            if (image.complete) {
-              progress();
-            } else {
-              var onLoad;
-              var onError;
-              addListener(image, EVENT_LOAD, onLoad = function onLoad() {
-                removeListener(image, EVENT_ERROR, onError);
-                progress();
-              }, {
-                once: true
-              });
-              addListener(image, EVENT_ERROR, onError = function onError() {
-                removeListener(image, EVENT_LOAD, onLoad);
-                progress();
-              }, {
-                once: true
-              });
-            }
-          });
-        } else {
-          addListener(element, EVENT_CLICK, this.onStart = function (_ref) {
-            var target = _ref.target;
-
-            if (target.localName === 'img' && (!isFunction(options.filter) || options.filter.call(_this, target))) {
-              _this.view(_this.images.indexOf(target));
-            }
-          });
-        }
-      }
-    }, {
-      key: "build",
-      value: function build() {
-        if (this.ready) {
-          return;
-        }
-
-        var element = this.element,
-            options = this.options;
-        var parent = element.parentNode;
-        var template = document.createElement('div');
-        template.innerHTML = TEMPLATE;
-        var viewer = template.querySelector(".".concat(NAMESPACE, "-container"));
-        var title = viewer.querySelector(".".concat(NAMESPACE, "-title"));
-        var toolbar = viewer.querySelector(".".concat(NAMESPACE, "-toolbar"));
-        var navbar = viewer.querySelector(".".concat(NAMESPACE, "-navbar"));
-        var button = viewer.querySelector(".".concat(NAMESPACE, "-button"));
-        var canvas = viewer.querySelector(".".concat(NAMESPACE, "-canvas"));
-        this.parent = parent;
-        this.viewer = viewer;
-        this.title = title;
-        this.toolbar = toolbar;
-        this.navbar = navbar;
-        this.button = button;
-        this.canvas = canvas;
-        this.footer = viewer.querySelector(".".concat(NAMESPACE, "-footer"));
-        this.tooltipBox = viewer.querySelector(".".concat(NAMESPACE, "-tooltip"));
-        this.player = viewer.querySelector(".".concat(NAMESPACE, "-player"));
-        this.list = viewer.querySelector(".".concat(NAMESPACE, "-list"));
-        viewer.id = "".concat(NAMESPACE).concat(this.id);
-        title.id = "".concat(NAMESPACE, "Title").concat(this.id);
-        addClass(title, !options.title ? CLASS_HIDE : getResponsiveClass(Array.isArray(options.title) ? options.title[0] : options.title));
-        addClass(navbar, !options.navbar ? CLASS_HIDE : getResponsiveClass(options.navbar));
-        toggleClass(button, CLASS_HIDE, !options.button);
-
-        if (options.keyboard) {
-          button.setAttribute('tabindex', 0);
-        }
-
-        if (options.backdrop) {
-          addClass(viewer, "".concat(NAMESPACE, "-backdrop"));
-
-          if (!options.inline && options.backdrop !== 'static') {
-            setData(canvas, DATA_ACTION, 'hide');
-          }
-        }
-
-        if (isString(options.className) && options.className) {
-          // In case there are multiple class names
-          options.className.split(REGEXP_SPACES).forEach(function (className) {
-            addClass(viewer, className);
-          });
-        }
-
-        if (options.toolbar) {
-          var list = document.createElement('ul');
-          var custom = isPlainObject(options.toolbar);
-          var zoomButtons = BUTTONS.slice(0, 3);
-          var rotateButtons = BUTTONS.slice(7, 9);
-          var scaleButtons = BUTTONS.slice(9);
-
-          if (!custom) {
-            addClass(toolbar, getResponsiveClass(options.toolbar));
-          }
-
-          forEach(custom ? options.toolbar : BUTTONS, function (value, index) {
-            var deep = custom && isPlainObject(value);
-            var name = custom ? hyphenate(index) : value;
-            var show = deep && !isUndefined(value.show) ? value.show : value;
-
-            if (!show || !options.zoomable && zoomButtons.indexOf(name) !== -1 || !options.rotatable && rotateButtons.indexOf(name) !== -1 || !options.scalable && scaleButtons.indexOf(name) !== -1) {
+            if (element[NAMESPACE]) {
               return;
             }
 
-            var size = deep && !isUndefined(value.size) ? value.size : value;
-            var click = deep && !isUndefined(value.click) ? value.click : value;
-            var item = document.createElement('li');
+            element[NAMESPACE] = this; // The `focus` option requires the `keyboard` option set to `true`.
+
+            if (options.focus && !options.keyboard) {
+              options.focus = false;
+            }
+
+            var isImg = element.localName === "img";
+            var images = [];
+            forEach(
+              isImg ? [element] : element.querySelectorAll("img"),
+              function (image) {
+                if (isFunction(options.filter)) {
+                  if (options.filter.call(_this, image)) {
+                    images.push(image);
+                  }
+                } else if (_this.getImageURL(image)) {
+                  images.push(image);
+                }
+              }
+            );
+            this.isImg = isImg;
+            this.length = images.length;
+            this.images = images;
+            this.initBody(); // Override `transition` option if it is not supported
+
+            if (
+              isUndefined(document.createElement(NAMESPACE).style.transition)
+            ) {
+              options.transition = false;
+            }
+
+            if (options.inline) {
+              var count = 0;
+
+              var progress = function progress() {
+                count += 1;
+
+                if (count === _this.length) {
+                  var timeout;
+                  _this.initializing = false;
+                  _this.delaying = {
+                    abort: function abort() {
+                      clearTimeout(timeout);
+                    },
+                  }; // build asynchronously to keep `this.viewer` is accessible in `ready` event handler.
+
+                  timeout = setTimeout(function () {
+                    _this.delaying = false;
+
+                    _this.build();
+                  }, 0);
+                }
+              };
+
+              this.initializing = {
+                abort: function abort() {
+                  forEach(images, function (image) {
+                    if (!image.complete) {
+                      removeListener(image, EVENT_LOAD, progress);
+                      removeListener(image, EVENT_ERROR, progress);
+                    }
+                  });
+                },
+              };
+              forEach(images, function (image) {
+                if (image.complete) {
+                  progress();
+                } else {
+                  var onLoad;
+                  var onError;
+                  addListener(
+                    image,
+                    EVENT_LOAD,
+                    (onLoad = function onLoad() {
+                      removeListener(image, EVENT_ERROR, onError);
+                      progress();
+                    }),
+                    {
+                      once: true,
+                    }
+                  );
+                  addListener(
+                    image,
+                    EVENT_ERROR,
+                    (onError = function onError() {
+                      removeListener(image, EVENT_LOAD, onLoad);
+                      progress();
+                    }),
+                    {
+                      once: true,
+                    }
+                  );
+                }
+              });
+            } else {
+              addListener(
+                element,
+                EVENT_CLICK,
+                (this.onStart = function (_ref) {
+                  var target = _ref.target;
+
+                  if (
+                    target.localName === "img" &&
+                    (!isFunction(options.filter) ||
+                      options.filter.call(_this, target))
+                  ) {
+                    _this.view(_this.images.indexOf(target));
+                  }
+                })
+              );
+            }
+          },
+        },
+        {
+          key: "build",
+          value: function build() {
+            if (this.ready) {
+              return;
+            }
+
+            var element = this.element,
+              options = this.options;
+            var parent = element.parentNode;
+            var template = document.createElement("div");
+            template.innerHTML = TEMPLATE;
+            var viewer = template.querySelector(
+              ".".concat(NAMESPACE, "-container")
+            );
+            var title = viewer.querySelector(".".concat(NAMESPACE, "-title"));
+            var toolbar = viewer.querySelector(
+              ".".concat(NAMESPACE, "-toolbar")
+            );
+            var navbar = viewer.querySelector(".".concat(NAMESPACE, "-navbar"));
+            var button = viewer.querySelector(".".concat(NAMESPACE, "-button"));
+            var canvas = viewer.querySelector(".".concat(NAMESPACE, "-canvas"));
+            this.parent = parent;
+            this.viewer = viewer;
+            this.title = title;
+            this.toolbar = toolbar;
+            this.navbar = navbar;
+            this.button = button;
+            this.canvas = canvas;
+            this.footer = viewer.querySelector(
+              ".".concat(NAMESPACE, "-footer")
+            );
+            this.tooltipBox = viewer.querySelector(
+              ".".concat(NAMESPACE, "-tooltip")
+            );
+            this.player = viewer.querySelector(
+              ".".concat(NAMESPACE, "-player")
+            );
+            this.list = viewer.querySelector(".".concat(NAMESPACE, "-list"));
+            viewer.id = "".concat(NAMESPACE).concat(this.id);
+            title.id = "".concat(NAMESPACE, "Title").concat(this.id);
+            addClass(
+              title,
+              !options.title
+                ? CLASS_HIDE
+                : getResponsiveClass(
+                    Array.isArray(options.title)
+                      ? options.title[0]
+                      : options.title
+                  )
+            );
+            addClass(
+              navbar,
+              !options.navbar ? CLASS_HIDE : getResponsiveClass(options.navbar)
+            );
+            toggleClass(button, CLASS_HIDE, !options.button);
 
             if (options.keyboard) {
-              item.setAttribute('tabindex', 0);
+              button.setAttribute("tabindex", 0);
             }
 
-            item.setAttribute('role', 'button');
-            addClass(item, "".concat(NAMESPACE, "-").concat(name));
+            if (options.backdrop) {
+              addClass(viewer, "".concat(NAMESPACE, "-backdrop"));
 
-            if (!isFunction(click)) {
-              setData(item, DATA_ACTION, name);
+              if (!options.inline && options.backdrop !== "static") {
+                setData(canvas, DATA_ACTION, "hide");
+              }
             }
 
-            if (isNumber(show)) {
-              addClass(item, getResponsiveClass(show));
+            if (isString(options.className) && options.className) {
+              // In case there are multiple class names
+              options.className
+                .split(REGEXP_SPACES)
+                .forEach(function (className) {
+                  addClass(viewer, className);
+                });
             }
 
-            if (['small', 'large'].indexOf(size) !== -1) {
-              addClass(item, "".concat(NAMESPACE, "-").concat(size));
-            } else if (name === 'play') {
-              addClass(item, "".concat(NAMESPACE, "-large"));
+            if (options.toolbar) {
+              var list = document.createElement("ul");
+              var custom = isPlainObject(options.toolbar);
+              var zoomButtons = BUTTONS.slice(0, 3);
+              var rotateButtons = BUTTONS.slice(7, 9);
+              var scaleButtons = BUTTONS.slice(9);
+
+              if (!custom) {
+                addClass(toolbar, getResponsiveClass(options.toolbar));
+              }
+
+              forEach(
+                custom ? options.toolbar : BUTTONS,
+                function (value, index) {
+                  var deep = custom && isPlainObject(value);
+                  var name = custom ? hyphenate(index) : value;
+                  var show =
+                    deep && !isUndefined(value.show) ? value.show : value;
+
+                  if (
+                    !show ||
+                    (!options.zoomable && zoomButtons.indexOf(name) !== -1) ||
+                    (!options.rotatable &&
+                      rotateButtons.indexOf(name) !== -1) ||
+                    (!options.scalable && scaleButtons.indexOf(name) !== -1)
+                  ) {
+                    return;
+                  }
+
+                  var size =
+                    deep && !isUndefined(value.size) ? value.size : value;
+                  var click =
+                    deep && !isUndefined(value.click) ? value.click : value;
+                  var item = document.createElement("li");
+
+                  if (options.keyboard) {
+                    item.setAttribute("tabindex", 0);
+                  }
+
+                  item.setAttribute("role", "button");
+                  addClass(item, "".concat(NAMESPACE, "-").concat(name));
+
+                  if (!isFunction(click)) {
+                    setData(item, DATA_ACTION, name);
+                  }
+
+                  if (isNumber(show)) {
+                    addClass(item, getResponsiveClass(show));
+                  }
+
+                  if (["small", "large"].indexOf(size) !== -1) {
+                    addClass(item, "".concat(NAMESPACE, "-").concat(size));
+                  } else if (name === "play") {
+                    addClass(item, "".concat(NAMESPACE, "-large"));
+                  }
+
+                  if (isFunction(click)) {
+                    addListener(item, EVENT_CLICK, click);
+                  }
+
+                  list.appendChild(item);
+                }
+              );
+              toolbar.appendChild(list);
+            } else {
+              addClass(toolbar, CLASS_HIDE);
             }
 
-            if (isFunction(click)) {
-              addListener(item, EVENT_CLICK, click);
+            if (!options.rotatable) {
+              var rotates = toolbar.querySelectorAll('li[class*="rotate"]');
+              addClass(rotates, CLASS_INVISIBLE);
+              forEach(rotates, function (rotate) {
+                toolbar.appendChild(rotate);
+              });
             }
 
-            list.appendChild(item);
-          });
-          toolbar.appendChild(list);
-        } else {
-          addClass(toolbar, CLASS_HIDE);
-        }
+            if (options.inline) {
+              addClass(button, CLASS_FULLSCREEN);
+              setStyle(viewer, {
+                zIndex: options.zIndexInline,
+              });
 
-        if (!options.rotatable) {
-          var rotates = toolbar.querySelectorAll('li[class*="rotate"]');
-          addClass(rotates, CLASS_INVISIBLE);
-          forEach(rotates, function (rotate) {
-            toolbar.appendChild(rotate);
-          });
-        }
+              if (window.getComputedStyle(parent).position === "static") {
+                setStyle(parent, {
+                  position: "relative",
+                });
+              }
 
-        if (options.inline) {
-          addClass(button, CLASS_FULLSCREEN);
-          setStyle(viewer, {
-            zIndex: options.zIndexInline
-          });
+              parent.insertBefore(viewer, element.nextSibling);
+            } else {
+              addClass(button, CLASS_CLOSE);
+              addClass(viewer, CLASS_FIXED);
+              addClass(viewer, CLASS_FADE);
+              addClass(viewer, CLASS_HIDE);
+              setStyle(viewer, {
+                zIndex: options.zIndex,
+              });
+              var container = options.container;
 
-          if (window.getComputedStyle(parent).position === 'static') {
-            setStyle(parent, {
-              position: 'relative'
-            });
-          }
+              if (isString(container)) {
+                container = element.ownerDocument.querySelector(container);
+              }
 
-          parent.insertBefore(viewer, element.nextSibling);
-        } else {
-          addClass(button, CLASS_CLOSE);
-          addClass(viewer, CLASS_FIXED);
-          addClass(viewer, CLASS_FADE);
-          addClass(viewer, CLASS_HIDE);
-          setStyle(viewer, {
-            zIndex: options.zIndex
-          });
-          var container = options.container;
+              if (!container) {
+                container = this.body;
+              }
 
-          if (isString(container)) {
-            container = element.ownerDocument.querySelector(container);
-          }
+              container.appendChild(viewer);
+            }
 
-          if (!container) {
-            container = this.body;
-          }
+            if (options.inline) {
+              this.render();
+              this.bind();
+              this.isShown = true;
+            }
 
-          container.appendChild(viewer);
-        }
+            this.ready = true;
 
-        if (options.inline) {
-          this.render();
-          this.bind();
-          this.isShown = true;
-        }
+            if (isFunction(options.ready)) {
+              addListener(element, EVENT_READY, options.ready, {
+                once: true,
+              });
+            }
 
-        this.ready = true;
+            if (dispatchEvent(element, EVENT_READY) === false) {
+              this.ready = false;
+              return;
+            }
 
-        if (isFunction(options.ready)) {
-          addListener(element, EVENT_READY, options.ready, {
-            once: true
-          });
-        }
-
-        if (dispatchEvent(element, EVENT_READY) === false) {
-          this.ready = false;
-          return;
-        }
-
-        if (this.ready && options.inline) {
-          this.view(this.index);
-        }
-      }
-      /**
-       * Get the no conflict viewer class.
-       * @returns {Viewer} The viewer class.
-       */
-
-    }], [{
-      key: "noConflict",
-      value: function noConflict() {
-        window.Viewer = AnotherViewer;
-        return Viewer;
-      }
-      /**
-       * Change the default options.
-       * @param {Object} options - The new default options.
-       */
-
-    }, {
-      key: "setDefaults",
-      value: function setDefaults(options) {
-        assign(DEFAULTS, isPlainObject(options) && options);
-      }
-    }]);
+            if (this.ready && options.inline) {
+              this.view(this.index);
+            }
+          },
+          /**
+           * Get the no conflict viewer class.
+           * @returns {Viewer} The viewer class.
+           */
+        },
+      ],
+      [
+        {
+          key: "noConflict",
+          value: function noConflict() {
+            window.Viewer = AnotherViewer;
+            return Viewer;
+          },
+          /**
+           * Change the default options.
+           * @param {Object} options - The new default options.
+           */
+        },
+        {
+          key: "setDefaults",
+          value: function setDefaults(options) {
+            assign(DEFAULTS, isPlainObject(options) && options);
+          },
+        },
+      ]
+    );
 
     return Viewer;
-  }();
+  })();
 
   assign(Viewer.prototype, render, events, handlers, methods, others);
 
   return Viewer;
-
-}));
+});
