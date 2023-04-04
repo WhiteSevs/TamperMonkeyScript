@@ -1612,13 +1612,17 @@
     cssResourceNode.innerHTML = this.css;
     if (document.head) {
       document.head.append(cssResourceNode);
-    } else if (
-      document.documentElement &&
-      document.documentElement.childNodes.length === 0
-    ) {
-      document.documentElement.appendChild(cssResourceNode);
     } else if (document.documentElement) {
-      document.documentElement.appendChild(cssResourceNode);
+      if (document.documentElement.childNodes.length === 0) {
+        document.documentElement.appendChild(cssResourceNode);
+      } else {
+        document.documentElement.insertBefore(
+          cssResourceNode,
+          document.documentElement.childNodes[
+            document.documentElement.childNodes.length - 1
+          ]
+        );
+      }
     } else {
       throw new Error("未找到可以插入到页面中的元素");
     }
