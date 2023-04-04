@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.6
+// @version      2.8.7
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -26,9 +26,9 @@
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
-// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1118788
-// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153232
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
+// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170656
+// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1170657
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1169937
@@ -491,19 +491,13 @@
       return unsafeWindow.formhash;
     },
     /**
-     * 根据UID获取头像
+     * 根据UID获取小|中|大头像
      * @param {String} uid
-     * @param {String} size
+     * @param {String} size small|middle|big
      * @returns
      */
     getAvatar: (uid, size = "") => {
-      return (
-        "https://bbs.binmt.cc/uc_server/avatar.php?uid=" +
-        uid +
-        "&size=" +
-        size +
-        "&ts=1"
-      );
+      return `https://bbs.binmt.cc/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
     },
     /**
      * 方法执行的一些环境判断，如当前所在URL判断和GM_getValue值判断
@@ -532,12 +526,12 @@
   /**
    * 检测引用库是否正确加载
    * @example	https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1081056
-   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1118788
-   * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1153104
-   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1152183
-   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1152861
+   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js
+   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js
+   * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js
+   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js
+   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js
    */
   function checkResource() {
     function _checkResouce_(
@@ -551,13 +545,13 @@
           (resolve) => {
             if (resolve) {
               console.log(
-                "check: %c " + name + " %c √ 修复",
+                `check: %c ${name} %c √ 修复`,
                 "background:#24272A; color:#ffffff",
                 "color:#00a5ff"
               );
             } else {
               console.log(
-                "check: %c " + name + " %c ×",
+                `check: %c ${name} %c ×`,
                 "background:#24272A; color:#ffffff",
                 "color:#f90000"
               );
@@ -566,7 +560,7 @@
         );
       } else {
         console.log(
-          "check: %c " + name + " %c √",
+          `check: %c ${name} %c √`,
           "background:#24272A; color:#ffffff",
           "color:#00a5ff"
         );
@@ -662,10 +656,10 @@
       var trans_id = uuid();
       GM_xmlhttpRequest = (req) => {
         _XJSAPI_.g_gm_callback_map[
-          "_" + user_script_id + "_" + trans_id + "_GM_xmlhttpRequest"
+          `_${user_script_id_}_${trans_id}_GM_xmlhttpRequest`
         ] = req;
         if (req.url && !req.url.startsWith("http")) {
-          req.url = window.location.origin + "/" + req.url.replace(/^\//, "");
+          req.url = `${window.location.origin}/${req.url.replace(/^\//, "")}`;
         }
         if (req.data) {
           if (req.headers) {
@@ -806,7 +800,7 @@
               execStatus = true;
               loadNetworkResource = loadNetworkResource.concat(url);
             } catch (error) {
-              console.log("eval执行失败" + error);
+              console.log(`eval执行失败`, error);
               execStatus = false;
             }
             resolve(execStatus);
@@ -1019,11 +1013,7 @@
       var collect_href_id = window.location.href.match(
         MT_CONFIG.urlRegexp.forumPostPCPage
       )[1];
-      var collect_href =
-        "https://bbs.binmt.cc/home.php?mod=spacecp&ac=favorite&type=thread&id=" +
-        collect_href_id +
-        "&formhash=" +
-        own_formhash;
+      var collect_href = `https://bbs.binmt.cc/home.php?mod=spacecp&ac=favorite&type=thread&id=${collect_href_id}&formhash=${own_formhash}`;
       var new_collect = document.createElement("span");
       var old_Suspended = document.getElementById("scrolltop");
       new_collect.innerHTML = `
@@ -1179,7 +1169,7 @@
         `;
         let newListNode = $jq(newHTML);
         $jq(newListNode.find(".byg_th_align")[0].children[0]).before(
-          "<em>[" + tableNode.find("tr>td.by>a")[0].outerHTML + "]</em>"
+          `<em>[${tableNode.find("tr>td.by>a")[0].outerHTML}]</em>`
         );
         tableNode.html(newListNode);
       });
@@ -1389,21 +1379,21 @@
             text: "探测用户在线状态",
             enable: false,
             showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
+              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
             },
           },
           postBrowsingOptimization: {
             text: "帖子浏览优化",
             enable: false,
             showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
+              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
             },
           },
           guideOptimization: {
             text: "导读浏览优化",
             enable: false,
             showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
+              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
             },
           },
         },
@@ -1586,7 +1576,7 @@
             MT_CONFIG.urlRegexp.MTUid
           )[1]; /* 获取帖子链接的uid */
           if (needRemoveList.indexOf(userUID) != -1) {
-            console.log("屏蔽用户：" + userUID);
+            console.log(`屏蔽用户：${userUID}`);
             info.setAttribute("style", "display:none !important;");
           }
         });
@@ -1644,7 +1634,7 @@
                 "action=reply&",
                 "action=comment&"
               );
-              var reviews_href = rewardhref + "&extra=page%3D1&page=" + page;
+              var reviews_href = `${rewardhref}&extra=page%3D1&page=${page}`;
               let reviews_pid = hongbao[
                 cishu2
               ].parentElement.parentElement.id.replace("pid", "&pid=");
@@ -1766,11 +1756,10 @@
         "a svg canvas applet input button area pre embed frame frameset head iframe img option map meta noscript object script style textarea code".split(
           " "
         );
-      xpath =
-        "//text()[not(ancestor::" +
-        excludedTags.join(") and not(ancestor::") +
-        ")]";
-      filter = new RegExp("^(" + excludedTags.join("|") + ")$", "i");
+      xpath = `//text()[not(ancestor::${excludedTags.join(
+        ") and not(ancestor::"
+      )})]`;
+      filter = new RegExp(`^(${excludedTags.join("|")})$`, "i");
       linkPack = function (a, b) {
         var c, d;
         if (b + 1e4 < a.snapshotLength) {
@@ -1998,8 +1987,9 @@
 
       let small_icon_width = 24;
       let small_right_btn_width = 115;
-      let small_title_width =
-        "calc(100% - " + (small_icon_width + small_right_btn_width) + "px)";
+      let small_title_width = `calc(100% - ${
+        small_icon_width + small_right_btn_width
+      }px)`;
       GM_addStyle(`
 				.xtiper_sheet,
 				.xtiper_sheet .xtiper_sheet_tit{
@@ -2819,10 +2809,7 @@
         console.log("发送签到请求");
         GM_xmlhttpRequest({
           method: "get",
-          url:
-            "/k_misign-sign.html?operation=qiandao&format=button&formhash=" +
-            _formhash_ +
-            "&inajax=1&ajaxtarget=midaben_sign",
+          url: `/k_misign-sign.html?operation=qiandao&format=button&formhash=${_formhash_}&inajax=1&ajaxtarget=midaben_sign`,
           headers: {
             "User-Agent": Utils.getRandomPCUA(),
           },
@@ -2861,7 +2848,7 @@
                 /<\!\[CDATA\[([\s\S]*)\]\]>/
               );
               CDATA = CDATA[CDATA.length - 1];
-              let CDATA_Node = $jq("<div>" + CDATA + "</div>");
+              let CDATA_Node = $jq(`<div>${CDATA}</div>`);
               let content = CDATA_Node.text();
               console.log(content);
               if (content.indexOf("您已经被列入黑名单") != -1) {
@@ -3321,10 +3308,7 @@
         /* 获取黑名单列表 */
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
-            url:
-              "https://bbs.binmt.cc/forum.php?mod=misc&action=showdarkroom&cid=" +
-              cid +
-              "&t=&ajaxdata=json",
+            url: `https://bbs.binmt.cc/forum.php?mod=misc&action=showdarkroom&cid=${cid}&t=&ajaxdata=json`,
             timeout: 5000,
             method: "GET",
             async: false,
@@ -3543,9 +3527,7 @@
           });
         }
 
-        $jq(".NZ-MsgBox-alert .msgcon").html(
-          $jq("<li>" + shieldHTML + "</li>")
-        );
+        $jq(".NZ-MsgBox-alert .msgcon").html($jq(`<li>${shieldHTML}</li>`));
       }
       function setTitleClickEvent(text, callback) {
         /* 设置点击标题事件 */
@@ -5332,7 +5314,7 @@
           let obj = $jq(this);
           if (obj.attr("onclick") == null) {
             let img_id = obj.find("img").attr("id").replace("aimg_", "");
-            comiis_addsmilies("[attachimg]" + img_id + "[/attachimg]");
+            comiis_addsmilies(`[attachimg]${img_id}[/attachimg]`);
           }
         });
       }
@@ -7751,10 +7733,7 @@
                 if (s.indexOf("您已评价过本主题") >= 0) {
                   $jq.ajax({
                     type: "GET",
-                    url:
-                      "plugin.php?id=comiis_app&comiis=re_recommend&tid=" +
-                      tid +
-                      "&inajax=1",
+                    url: `plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`,
                     dataType: "xml",
                     success: (v) => {
                       var recommend_num = Number(
@@ -7810,7 +7789,7 @@
                 } else if (s.indexOf("今日评价机会已用完") >= 0) {
                   popup2.toast("您今日的点赞机会已用完");
                 } else if (
-                  s.indexOf("'recommendv':'+" + allowrecommend + "'") >= 0
+                  s.indexOf(`'recommendv':${allowrecommend}''+`) >= 0
                 ) {
                   var b = [],
                     r;
@@ -7860,17 +7839,14 @@
                       .removeClass("comiis_recommend_list_on")
                       .addClass("comiis_recommend_list_on")
                       .prepend(
-                        '<span id="comiis_recommend_list_t' +
-                          uid +
-                          '"><a href="home.php?mod=space&uid=' +
-                          uid +
-                          '" class="f_c">' +
-                          username +
-                          "</a>" +
-                          ($jq(".comiis_recommend_list_t a").length > 0
-                            ? '<span class="f_d"> , </span>'
-                            : "") +
-                          "</span>"
+                        `<span id="comiis_recommend_list_t${uid}">
+                          <a href="home.php?mod=space&uid=${uid}" class="f_c">${username}</a>
+                          ${
+                            $jq(".comiis_recommend_list_t a").length > 0
+                              ? '<span class="f_d"> , </span>'
+                              : ""
+                          }
+                        </span>`
                       );
                   }
                   if ($jq(".comiis_recommend_list_s").length > 0) {
@@ -7910,7 +7886,7 @@
                   popup2.toast(
                     "点赞成功" +
                       (b["daycount"]
-                        ? ", 您今天还能点赞 " + (b["daycount"] - 1) + " 次"
+                        ? `, 您今天还能点赞 ${b["daycount"] - 1} 次`
                         : "")
                   );
                 } else if (
@@ -8038,7 +8014,7 @@
           let url = form_action + "reply&handlekey=fastpost&loc=1&inajax=1";
           let data = form_serialize + msgobj.val();
           $jq.each($jq("#imglist input[type='hidden']"), (i, v) => {
-            data = data + "&" + v.getAttribute("name") + "=";
+            data = `${data}&${v.getAttribute("name")}=`;
           });
           $jq.ajax({
             type: "POST",
@@ -8080,7 +8056,7 @@
               "data-reply-serialize"
             ) + msgobj.val();
           $jq.each($jq("#imglist input[type='hidden']"), (i, v) => {
-            data = data + "&" + v.getAttribute("name") + "=";
+            data = `${data}&${v.getAttribute("name")}=`;
           });
           $jq.ajax({
             type: "POST",
@@ -8147,7 +8123,7 @@
                 return;
               }
               let requestDOM = $jq(
-                "<div>" + s.lastChild.firstChild.nodeValue + "</div>"
+                `<div>${s.lastChild.firstChild.nodeValue}</div>`
               );
               let reply_url = requestDOM
                 .find(".comiis_tip .tip_tit a")
@@ -9231,8 +9207,8 @@
                         <li class="" id="comiis_pictitle_tab_n_3"><a href="javascript:;" class="">Hello图床</a></li>
                         <li class="" id="comiis_pictitle_tab_n_4"><a href="javascript:;" class="">Z4A图床</a></li>
                         <li class="" id="comiis_pictitle_tab_n_5"><a href="javascript:;" class="">MT图床</a></li>
-                        <li class="" id="comiis_pictitle_tab_n_6"  data-history><a href="javascript:;" class="">历史图片</a></li>
-                        <li class="" id="comiis_pictitle_tab_n_7"  data-setting><a href="javascript:;" class="">设置</a></li>
+                        <li class="" id="comiis_pictitle_tab_n_6" data-history><a href="javascript:;" class="">历史图片</a></li>
+                        <li class="" id="comiis_pictitle_tab_n_7" data-setting><a href="javascript:;" class="">设置</a></li>
                     </ul>
                 </div>`)
       );
@@ -10412,7 +10388,7 @@
           title: "在线用户查看",
           content: `
 					<div class="online-user-info">${totalOnline} 人在线 - ${onlineUser} 会员${
-            invisibleUser == 0 ? "" : "(" + invisibleUser + " 隐身)"
+            invisibleUser == 0 ? "" : `(${invisibleUser}隐身)`
           } - ${noRegisterUser} 位游客</div>
 					<div class="online-user-filter"><input placeholder="搜索用户名/身份/UID(可正则)"></div>
 					<center>处理数据中...</center>
@@ -11597,7 +11573,7 @@
             let content = "";
             let brSplit = contentAll.split("\n");
             if (brSplit.length == 1) {
-              content = "<li>" + contentAll + "</li>";
+              content = `<li>${contentAll}</li>`;
             } else {
               Array.from(brSplit).forEach((item, index) => {
                 if (index == brSplit.length - 1) {
@@ -11983,7 +11959,7 @@
                 li_split = li_split.slice(1);
               }
               Array.from(li_split).forEach((item) => {
-                newContent = newContent + "<li>" + item + "</li>";
+                newContent = `${newContent}<li>${item}</li>`;
               });
               content = newContent;
             }
@@ -12035,9 +12011,7 @@
                     <div class="comiis_htjl bg_h f_a">
                         <i class="comiis_font"></i>
                         总共奖励 ${total_reward} 金币<br>回复本帖可获得 ${every_reward} 金币奖励! 每人限 ${getreward_menbertimes} 次 ${
-              getreward_random != 100
-                ? "(中奖概率 " + getreward_random + "%)"
-                : ""
+              getreward_random != 100 ? `(中奖概率 ${getreward_random}%)` : ""
             }
                     </div>
                     `)
@@ -12645,8 +12619,7 @@
                   ? 0 + parseInt(b).toString(16)
                   : parseInt(b).toString(16);
               wr_rgb = wr_rgb.toUpperCase();
-              wr_code +=
-                "[color=#" + wr_rgb + "]" + wr_text.charAt(j) + "[/color]";
+              wr_code += `[color=#${wr_rgb}]${wr_text.charAt(j)}[/color]`;
             } else {
               wr_code += wr_text.charAt(j);
             }
@@ -12676,8 +12649,7 @@
                   ? 0 + parseInt(b).toString(16)
                   : parseInt(b).toString(16);
               wr_rgb = wr_rgb.toUpperCase();
-              wr_code +=
-                "[color=#" + wr_rgb + "]" + wr_text.charAt(i - 1) + "[/color]";
+              wr_code += `"[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
             } else {
               wr_code += wr_text.charAt(i - 1);
             }
@@ -12706,8 +12678,7 @@
                   ? 0 + parseInt(b).toString(16)
                   : parseInt(b).toString(16);
               wr_rgb = wr_rgb.toUpperCase();
-              wr_code +=
-                "[color=#" + wr_rgb + "]" + wr_text.charAt(i - 1) + "[/color]";
+              wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
             } else {
               wr_code += wr_text.charAt(i - 1);
             }
@@ -12736,8 +12707,7 @@
                   ? 0 + parseInt(255 - b).toString(16)
                   : parseInt(255 - b).toString(16);
               wr_rgb = wr_rgb.toUpperCase();
-              wr_code +=
-                "[color=#" + wr_rgb + "]" + wr_text.charAt(i - 1) + "[/color]";
+              wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
             } else {
               wr_code += wr_text.charAt(i - 1);
             }
@@ -13579,7 +13549,7 @@
           let obj = $jq(this);
           let fid = obj.val();
           let postSection = `forum.php?mod=post&action=newthread&fid=${fid}&extra=&topicsubmit=yes&mobile=2`;
-          console.log("修改发帖板块: " + section_dict[fid] + " " + postSection);
+          console.log(`修改发帖板块: ${section_dict[fid]} ${postSection}`);
           let classifyClassNameDict = {
             求助问答: {
               className: "gm_user_select_help",
@@ -13775,8 +13745,7 @@
               if (this.width > maxWidth || this.height > maxHeight) {
                 $jq(elementQuery).val("");
                 popup2.toast({
-                  text:
-                    "图片尺寸超出，当前宽:" + this.width + " 高:" + this.height,
+                  text: `图片尺寸超出，当前宽:${this.width} 高:${this.height}`,
                   delayTime: 4000,
                 });
                 return;
@@ -13924,7 +13893,7 @@
                 setStatus(fileObj.attr("id"), false);
                 fileObj.val("");
                 statusObj.text(
-                  "🤡校验失败，图片尺寸不符合 " + this.width + "×" + this.height
+                  `🤡校验失败，图片尺寸不符合 宽:${this.width} 高:${this.height}`
                 );
                 return;
               }
@@ -13937,12 +13906,7 @@
               }
               setStatus(fileObj.attr("id"), true);
               statusObj.text(
-                "🤣 通过 " +
-                  this.width +
-                  "×" +
-                  this.height +
-                  " 大小(byte):" +
-                  fileSize
+                `🤣 通过 宽:${this.width} 高:${this.height} 大小(byte):${fileSize}`
               );
             };
           };
@@ -14110,7 +14074,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url:
-              "https://bbs.binmt.cc/k_misign-sign.html?operation=" + urlextra,
+              `https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra}` ,
             async: false,
             responseType: "html",
             timeout: 5000,
@@ -14154,8 +14118,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url:
-              "https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=" +
-              page,
+              `https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
             async: false,
             timeout: 5000,
             responseType: "html",
@@ -14300,7 +14263,7 @@
         } else {
           $jq.ajax({
             type: "GET",
-            url: "plugin.php?id=k_misign:sign&operation=" + urlextra,
+            url: `plugin.php?id=k_misign:sign&operation=${urlextra}`,
             async: false,
             dataType: "html",
             success: function (data) {

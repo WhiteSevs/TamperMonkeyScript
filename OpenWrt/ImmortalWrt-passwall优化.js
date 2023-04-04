@@ -17,7 +17,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
-// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1164153
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1169937
 // ==/UserScript==
 
