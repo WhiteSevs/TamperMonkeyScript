@@ -13,7 +13,7 @@
     throw "全局变量pops已被注册";
   }
 
-  const Utils = {
+  let popsUtils = {
     /* 工具类 */
     assignJSON: function (target, source) {
       /* JSON数据存在即替换 */
@@ -203,7 +203,7 @@
       });
     },
     close(source, guid, config) {
-      Utils.configRemove([source], guid);
+      popsUtils.configRemove([source], guid);
     },
     getPopsMaxZIndex(defaultValue) {
       /* 获取所有弹窗中的最大的z-index */
@@ -327,7 +327,7 @@
               event.preventDefault && event.preventDefault();
               this.handle.setCapture && this.handle.setCapture();
               this.onStart();
-              var maxZIndexInfo = Utils.getPopsMaxZIndex();
+              var maxZIndexInfo = popsUtils.getPopsMaxZIndex();
 
               var maxZIndex = maxZIndexInfo["zIndex"];
               var maxZIndexElement = maxZIndexInfo["animElement"];
@@ -417,24 +417,24 @@
             },
             resize: function () {
               /* 监听窗口变化，重置参数 */
-              var _this = this;
+              var that = this;
               window.addEventListener("resize", () => {
-                _this.maxTop =
+                that.maxTop =
                   Math.max(
-                    _this.maxContainer.clientHeight,
-                    _this.maxContainer.scrollHeight
+                    that.maxContainer.clientHeight,
+                    that.maxContainer.scrollHeight
                   ) -
-                  _this.drag.offsetHeight +
-                  _this.maxContainer.offsetTop +
-                  _this.transformTop;
-                _this.maxLeft =
+                  that.drag.offsetHeight +
+                  that.maxContainer.offsetTop +
+                  that.transformTop;
+                that.maxLeft =
                   Math.max(
-                    _this.maxContainer.clientWidth,
-                    _this.maxContainer.scrollWidth
+                    that.maxContainer.clientWidth,
+                    that.maxContainer.scrollWidth
                   ) -
-                  _this.drag.offsetWidth +
-                  _this.maxContainer.offsetLeft +
-                  _this.transformLeft;
+                  that.drag.offsetWidth +
+                  that.maxContainer.offsetLeft +
+                  that.transformLeft;
               });
             },
             setTransform: function () {
@@ -560,47 +560,47 @@
       if (
         elemTL != el &&
         elemTL != null &&
-        Utils.inArray("pops-mask", elemTL.classList) === -1 &&
-        Utils.inArray("pops-loading", elemTL.classList) === -1
+        popsUtils.inArray("pops-mask", elemTL.classList) === -1 &&
+        popsUtils.inArray("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemTL);
       }
       if (
         elemTR != el &&
-        Utils.inArray(elemTR, elemsUpper) === -1 &&
+        popsUtils.inArray(elemTR, elemsUpper) === -1 &&
         elemTR != null &&
-        Utils.inArray("pops-mask", elemTR.classList) === -1 &&
-        Utils.inArray("pops-loading", elemTL.classList) === -1
+        popsUtils.inArray("pops-mask", elemTR.classList) === -1 &&
+        popsUtils.inArray("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemTR);
       }
 
       if (
         elemBL != el &&
-        Utils.inArray(elemBL, elemsUpper) === -1 &&
+        popsUtils.inArray(elemBL, elemsUpper) === -1 &&
         elemBL != null &&
-        Utils.inArray("pops-mask", elemBL.classList) === -1 &&
-        Utils.inArray("pops-loading", elemTL.classList) === -1
+        popsUtils.inArray("pops-mask", elemBL.classList) === -1 &&
+        popsUtils.inArray("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemBL);
       }
 
       if (
         elemBR != el &&
-        Utils.inArray(elemBR, elemsUpper) === -1 &&
+        popsUtils.inArray(elemBR, elemsUpper) === -1 &&
         elemBR != null &&
-        Utils.inArray("pops-mask", elemBR.classList) === -1 &&
-        Utils.inArray("pops-loading", elemTL.classList) === -1
+        popsUtils.inArray("pops-mask", elemBR.classList) === -1 &&
+        popsUtils.inArray("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemBR);
       }
 
       if (
         elemCENTER != el &&
-        Utils.inArray(elemCENTER, elemsUpper) === -1 &&
+        popsUtils.inArray(elemCENTER, elemsUpper) === -1 &&
         elemCENTER != null &&
-        Utils.inArray("pops-mask", elemCENTER.classList) === -1 &&
-        Utils.inArray("pops-loading", elemTL.classList) === -1
+        popsUtils.inArray("pops-mask", elemCENTER.classList) === -1 &&
+        popsUtils.inArray("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemCENTER);
       }
@@ -643,7 +643,7 @@
 
   var pops = {};
   pops.config = {
-    version: "0.0.4",
+    version: "0.0.5",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -992,7 +992,7 @@
     }
     this.config.cssElement = cssResourceNode;
     this.config.init = true;
-    this.config.animation = Utils.getKeyFrames(this.config.cssElement.sheet);
+    this.config.animation = popsUtils.getKeyFrames(this.config.cssElement.sheet);
   };
 
   pops.isPhone = () => {
@@ -1047,25 +1047,25 @@
       mask: false /* 遮罩层 */,
       drag: false /* 是否拖拽 */,
     };
-    config = Utils.assignJSON(
+    config = popsUtils.assignJSON(
       config,
       arguments.length ? arguments[0] : undefined
     );
-    var _this = this;
-    var guid = Utils.guid();
+    var that = this;
+    var guid = popsUtils.guid();
     if (config.only) {
-      Utils.configRemove(
+      popsUtils.configRemove(
         [
-          _this.config.layer.alert,
-          _this.config.layer.confirm,
-          _this.config.layer.prompt,
-          _this.config.layer.iframe,
+          that.config.layer.alert,
+          that.config.layer.confirm,
+          that.config.layer.prompt,
+          that.config.layer.iframe,
         ],
         "",
         true
       );
     } else {
-      config.zIndex = Utils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+      config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
 
     var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
@@ -1117,7 +1117,7 @@
     </div>`;
 
     const animElement =
-      Utils.parseTextToDOM(animHTML)[0]; /* 弹窗的主元素，包括动画层 */
+      popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的主元素，包括动画层 */
     var maskElement = null; /* 弹窗遮罩层的html */
     const popsElement =
       animElement.querySelector(".pops[type-value"); /* 弹窗的主元素 */
@@ -1131,7 +1131,7 @@
     var elementList = [animElement];
 
     if (config.mask) {
-      maskElement = Utils.parseTextToDOM(maskHTML)[0];
+      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
       elementList = [...elementList, maskElement];
     }
     var event = {
@@ -1142,31 +1142,31 @@
       function: "alert",
       guid: guid,
       close: () => {
-        Utils.close(_this.config.layer.alert, guid, config);
+        popsUtils.close(that.config.layer.alert, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.alert, guid, config);
+        popsUtils.hide(that.config.layer.alert, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.alert, guid, config);
+        popsUtils.show(that.config.layer.alert, guid, config);
       },
     };
     btnCloseElement?.addEventListener("click", () => {
       var _event_ = {
         type: "close",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.close.callback(_event_);
     });
     btnOkElement?.addEventListener("click", () => {
       var _event_ = {
         type: "ok",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.ok.callback(_event_);
     });
 
-    Utils.appendChild(document.body, elementList);
+    popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -1180,7 +1180,7 @@
       },
     ];
     if (config.drag) {
-      Utils.drag(popsElement, {
+      popsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -1194,13 +1194,13 @@
       popsElement: popsElement,
       maskElement: maskElement,
       close: () => {
-        Utils.close(_this.config.layer.alert, guid, config);
+        popsUtils.close(that.config.layer.alert, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.alert, guid, config);
+        popsUtils.hide(that.config.layer.alert, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.alert, guid, config);
+        popsUtils.show(that.config.layer.alert, guid, config);
       },
     };
   };
@@ -1271,25 +1271,25 @@
       mask: false /* 遮罩层 */,
       drag: false /* 是否拖拽 */,
     };
-    config = Utils.assignJSON(
+    config = popsUtils.assignJSON(
       config,
       arguments.length ? arguments[0] : undefined
     );
-    var _this = this;
-    var guid = Utils.guid();
+    var that = this;
+    var guid = popsUtils.guid();
     if (config.only) {
-      Utils.configRemove(
+      popsUtils.configRemove(
         [
-          _this.config.layer.alert,
-          _this.config.layer.confirm,
-          _this.config.layer.prompt,
-          _this.config.layer.iframe,
+          that.config.layer.alert,
+          that.config.layer.confirm,
+          that.config.layer.prompt,
+          that.config.layer.iframe,
         ],
         "",
         true
       );
     } else {
-      config.zIndex = Utils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+      config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
     var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
       config.zIndex - 100
@@ -1357,7 +1357,7 @@
 		</div>
     </div>`;
     const animElement =
-      Utils.parseTextToDOM(animHTML)[0]; /* 弹窗主元素（包括动画） */
+      popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗主元素（包括动画） */
     var maskElement = null; /* 弹窗遮罩层的html */
 
     const popsElement =
@@ -1380,7 +1380,7 @@
 
     var elementList = [animElement];
     if (config.mask) {
-      maskElement = Utils.parseTextToDOM(maskHTML)[0];
+      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
       elementList = [...elementList, maskElement];
     }
 
@@ -1393,45 +1393,45 @@
       guid: guid,
 
       close: () => {
-        Utils.close(_this.config.layer.confirm, guid, config);
+        popsUtils.close(that.config.layer.confirm, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.confirm, guid, config);
+        popsUtils.hide(that.config.layer.confirm, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.confirm, guid, config);
+        popsUtils.show(that.config.layer.confirm, guid, config);
       },
     };
     btnCloseElement?.addEventListener("click", () => {
       var _event_ = {
         type: "close",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.close.callback(_event_);
     });
     btnOkElement?.addEventListener("click", () => {
       var _event_ = {
         type: "ok",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.ok.callback(_event_);
     });
     btnCancelElement?.addEventListener("click", () => {
       var _event_ = {
         type: "cancel",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.cancel.callback(_event_);
     });
     btnOtherElement?.addEventListener("click", () => {
       var _event_ = {
         type: "other",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.other.callback(_event_);
     });
 
-    Utils.appendChild(document.body, elementList);
+    popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -1445,7 +1445,7 @@
       },
     ];
     if (config.drag) {
-      Utils.drag(popsElement, {
+      popsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(animElement).position,
         top: getComputedStyle(animElement).top,
@@ -1459,13 +1459,13 @@
       popsElement: popsElement,
       maskElement: maskElement,
       close: () => {
-        Utils.close(_this.config.layer.confirm, guid, config);
+        popsUtils.close(that.config.layer.confirm, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.confirm, guid, config);
+        popsUtils.hide(that.config.layer.confirm, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.confirm, guid, config);
+        popsUtils.show(that.config.layer.confirm, guid, config);
       },
     };
   };
@@ -1538,25 +1538,25 @@
       mask: false /* 遮罩层 */,
       drag: false /* 是否拖拽 */,
     };
-    config = Utils.assignJSON(
+    config = popsUtils.assignJSON(
       config,
       arguments.length ? arguments[0] : undefined
     );
-    var _this = this;
-    var guid = Utils.guid();
+    var that = this;
+    var guid = popsUtils.guid();
     if (config.only) {
-      Utils.configRemove(
+      popsUtils.configRemove(
         [
-          _this.config.layer.alert,
-          _this.config.layer.confirm,
-          _this.config.layer.prompt,
-          _this.config.layer.iframe,
+          that.config.layer.alert,
+          that.config.layer.confirm,
+          that.config.layer.prompt,
+          that.config.layer.iframe,
         ],
         "",
         true
       );
     } else {
-      config.zIndex = Utils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+      config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
     var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
       config.zIndex - 100
@@ -1629,11 +1629,11 @@
           }
       </div>
     </div>`;
-    var animElement = Utils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
+    var animElement = popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
     var maskElement = null; /* 弹窗遮罩层的html */
     var elementList = [animElement];
     if (config.mask) {
-      maskElement = Utils.parseTextToDOM(maskHTML)[0];
+      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
       elementList = [...elementList, maskElement];
     }
 
@@ -1668,13 +1668,13 @@
       guid: guid,
       text: "",
       close: () => {
-        Utils.close(_this.config.layer.prompt, guid, config);
+        popsUtils.close(that.config.layer.prompt, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.prompt, guid, config);
+        popsUtils.hide(that.config.layer.prompt, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.prompt, guid, config);
+        popsUtils.show(that.config.layer.prompt, guid, config);
       },
     };
     inputElement.value = config.content.text;
@@ -1682,7 +1682,7 @@
       var _event_ = {
         type: "close",
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.close.callback(_event_);
     });
     btnOkElement?.addEventListener("click", () => {
@@ -1690,7 +1690,7 @@
         type: "ok",
         text: inputElement.value,
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.ok.callback(_event_);
     });
     btnCancelElement?.addEventListener("click", () => {
@@ -1698,7 +1698,7 @@
         type: "cancel",
         text: inputElement.value,
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.cancel.callback(_event_);
     });
     btnOtherElement?.addEventListener("click", () => {
@@ -1706,11 +1706,11 @@
         type: "other",
         text: inputElement.value,
       };
-      _event_ = Utils.assignJSON(event, _event_);
+      _event_ = popsUtils.assignJSON(event, _event_);
       config.btn.other.callback(_event_);
     });
 
-    Utils.appendChild(document.body, elementList);
+    popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -1724,7 +1724,7 @@
       },
     ];
     if (config.drag) {
-      Utils.drag(popsElement, {
+      popsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -1742,13 +1742,13 @@
       popsElement: popsElement,
       maskElement: maskElement,
       close: () => {
-        Utils.close(_this.config.layer.prompt, guid, config);
+        popsUtils.close(that.config.layer.prompt, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.prompt, guid, config);
+        popsUtils.hide(that.config.layer.prompt, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.prompt, guid, config);
+        popsUtils.show(that.config.layer.prompt, guid, config);
       },
     };
   };
@@ -1770,44 +1770,40 @@
       mask: true /* 遮罩层 */,
       animation: "pops-anim-fadein-zoom" /* 动画效果 */,
     };
-    config = Utils.assignJSON(
+    config = popsUtils.assignJSON(
       config,
       arguments.length ? arguments[0] : undefined
     );
     if (!(config.parent instanceof HTMLElement)) {
       throw "父元素必须是一个元素节点";
     }
-    var _this = this;
-    var guid = Utils.guid();
+    var that = this;
+    var guid = popsUtils.guid();
     if (config.only) {
-      Utils.configRemove([_this.config.layer.loading], "", true);
+      popsUtils.configRemove([that.config.layer.loading], "", true);
     } else {
-      config.zIndex = Utils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+      config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
     var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
       config.zIndex - 100
-    };${
-      config.animation != null && config.animation != ""
-        ? "position:absolute;"
-        : ""
-    }"></div>`;
-    var animHTML = `<div class="pops-anim" anim="${config.animation}" style="z-index:${config.zIndex};position:absolute;" data-guid="${guid}">
+    };"></div>`;
+    var animHTML = `<div class="pops-anim" anim="${config.animation}" style="z-index:${config.zIndex};" data-guid="${guid}">
     <div class="pops ${config.class}" type-value="loading" style="z-index:${config.zIndex};" data-guid="${guid}">
 				<div class="pops-loading-content">
           <p pops>${config.content.text}</p>
 				</div>
 		</div></div>`;
-    var animElement = Utils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
+    var animElement = popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
     var maskElement = null; /* 弹窗遮罩层的html */
     var elementList = [animElement];
     if (config.mask) {
-      maskElement = Utils.parseTextToDOM(maskHTML)[0];
+      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
       elementList = [...elementList, maskElement];
     }
     const popsElement =
       animElement.querySelector(".pops[type-value"); /* 弹窗的主元素 */
 
-    Utils.appendChild(config.parent, elementList);
+    popsUtils.appendChild(config.parent, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -1826,13 +1822,13 @@
       popsElement: popsElement,
       maskElement: maskElement,
       close: () => {
-        Utils.close(_this.config.layer.loading, guid, config);
+        popsUtils.close(that.config.layer.loading, guid, config);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.loading, guid, config);
+        popsUtils.hide(that.config.layer.loading, guid, config);
       },
       show: () => {
-        Utils.show(_this.config.layer.loading, guid, config);
+        popsUtils.show(that.config.layer.loading, guid, config);
       },
     };
   };
@@ -1878,28 +1874,28 @@
         },
       },
     };
-    config = Utils.assignJSON(
+    config = popsUtils.assignJSON(
       config,
       arguments.length ? arguments[0] : undefined
     );
     if (config.url == null) {
       throw "网址不能为空";
     }
-    var _this = this;
-    var guid = Utils.guid();
+    var that = this;
+    var guid = popsUtils.guid();
     if (config.only) {
-      Utils.configRemove(
+      popsUtils.configRemove(
         [
-          _this.config.layer.alert,
-          _this.config.layer.confirm,
-          _this.config.layer.prompt,
-          _this.config.layer.iframe,
+          that.config.layer.alert,
+          that.config.layer.confirm,
+          that.config.layer.prompt,
+          that.config.layer.iframe,
         ],
         "",
         true
       );
     } else {
-      config.zIndex = Utils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+      config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
     var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
       config.zIndex - 100
@@ -1940,11 +1936,11 @@
 				<div class="pops-controls">${topRightButtonHTML}</div>
         ${config.loading.enable ? iframeLoadingHTML : ""}
 		</div>`;
-    var animElement = Utils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
+    var animElement = popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
     var maskElement = null; /* 弹窗遮罩层的html */
     var elementList = [animElement];
     if (config.mask) {
-      maskElement = Utils.parseTextToDOM(maskHTML)[0];
+      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
       elementList = [...elementList, maskElement];
     }
 
@@ -2000,7 +1996,7 @@
       }
       config.loadEndCallBack(event);
     });
-    Utils.appendChild(document.body, elementList);
+    popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -2014,7 +2010,7 @@
       },
     ];
     if (config.drag) {
-      Utils.drag(popsElement, {
+      popsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -2061,7 +2057,7 @@
           }
         });
         allMinElementList.sort(
-          Utils.sortElementListByProperty(
+          popsUtils.sortElementListByProperty(
             (obj) => {
               return parseInt(getComputedStyle(obj).left);
             },
@@ -2084,7 +2080,7 @@
       config.btn.max.callback(event);
     });
     btnCloseElement?.addEventListener("click", (event) => {
-      Utils.configRemove([_this.config.layer.iframe], guid, false);
+      popsUtils.configRemove([that.config.layer.iframe], guid, false);
       setTimeout(() => {
         var allIsMinElementList = [];
         pops.config.layer.iframe.forEach((item) => {
@@ -2096,7 +2092,7 @@
           }
         });
         allIsMinElementList.sort(
-          Utils.sortElementListByProperty(
+          popsUtils.sortElementListByProperty(
             (obj) => {
               return parseInt(getComputedStyle(obj).left);
             },
@@ -2118,13 +2114,13 @@
       popsElement: popsElement,
       maskElement: maskElement,
       close: () => {
-        Utils.configRemove([_this.config.layer.iframe], guid);
+        popsUtils.configRemove([that.config.layer.iframe], guid);
       },
       hide: () => {
-        Utils.hide(_this.config.layer.iframe, guid);
+        popsUtils.hide(that.config.layer.iframe, guid);
       },
       show: () => {
-        Utils.show(_this.config.layer.iframe, guid);
+        popsUtils.show(that.config.layer.iframe, guid);
       },
     };
   };
