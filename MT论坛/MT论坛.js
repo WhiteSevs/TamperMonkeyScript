@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.7
+// @version      2.8.8
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -447,7 +447,8 @@
       forumPostReply:
         /forum.php\?mod=post&action=reply/g /* 帖子中回复的链接 */,
       forumPostPage: "&page=(.*)" /* 帖子链接的当前所在页 page */,
-      forumPostPCPage: "thread-(.*?)-" /* PC帖子链接的当前所在页 page */,
+      forumPostPCPage:
+        /thread-([\w]+)-|&tid=([\w]+)/i /* PC帖子链接的当前所在页 page */,
       forumPlateText:
         /休闲灌水|求助问答|逆向教程|资源共享|综合交流|编程开发|玩机教程|建议反馈/g /* 各版块名称 */,
       plateUrl:
@@ -1010,23 +1011,25 @@
       var own_formhash = document.querySelector(
         "#scform > input[type=hidden]:nth-child(1)"
       ).value;
-      var collect_href_id = window.location.href.match(
-        MT_CONFIG.urlRegexp.forumPostPCPage
-      )[1];
+      var collect_href_id = window.location.href
+        .match(MT_CONFIG.urlRegexp.forumPostPCPage)
+        .filter(Boolean);
+      collect_href_id = collect_href_id[collect_href_id.length - 1];
       var collect_href = `https://bbs.binmt.cc/home.php?mod=spacecp&ac=favorite&type=thread&id=${collect_href_id}&formhash=${own_formhash}`;
       var new_collect = document.createElement("span");
-      var old_Suspended = document.getElementById("scrolltop");
+      var old_Suspended = document.querySelector("#scrolltop");
       new_collect.innerHTML = `
 			<a href="${collect_href}" 
 				id="k_favorite"
 				onclick="showWindow(this.id, this.href, 'get', 0);"
 				onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
-				<img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif" loading="lazy" 
+				<img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
 						 height="26" 
 						 width="26" 
 						 style="position:absolute;top:10px;left:11px">
 			</a>
 			`;
+      old_Suspended.insertBefore(new_collect,old_Suspended.childNodes[0]);
     },
     detectUserOnlineStatus() {
       /* 探测用户在线状态 */
@@ -1081,7 +1084,7 @@
         return;
       }
       GM_addStyle(`
-      table>tbody >tr{
+      table > tbody[id^=normal] >tr{
         display: none;
       }
       .xst{
@@ -2048,7 +2051,7 @@
 				}
 				/* 底部高度不对等问题*/
 				.xtiper_content.xtit{
-						height: calc(100% - 80px); 
+						height: calc(100% - 80px) !important; 
 				}
 				/* 底部消息距离底部30px*/
 				.xtiper.xtiper_msg.xtiper_msg_bottom.xtiper_msg_black.xon{
@@ -2257,16 +2260,9 @@
           smallWindowNode.onload = () => {
             console.log(`子窗口: ${smallWindowIframeId}_id 加载完毕`);
             let scriptNode = document.createElement("script");
-            let cssNode = document.createElement("style");
             scriptNode.setAttribute("type", "text/javascript");
-            cssNode.setAttribute("type", "text/css");
-            cssNode.innerHTML = `#comiis_foot_menu_beautify{
-              bottom: 40px;
-            }`;
             scriptNode.innerHTML = top.window.tampermonkeyByMT;
-            smallWindowNode.contentWindow.document.head.append(cssNode);
             smallWindowNode.contentWindow.document.head.append(scriptNode);
-            console.log(cssNode);
           };
         }
         smallWindowId = smallWindowIframeId;
@@ -13940,6 +13936,13 @@
       ) {
         return;
       }
+      if (
+        window.location.href.match(
+          /bbs.binmt.cc\/forum.php\?mod=guide&view=hot/g
+        )
+      ) {
+        return;
+      }
       function getLatestPostForm() {
         /* 获取轮播的最新的帖子 */
         return new Promise((resolve) => {
@@ -14073,8 +14076,7 @@
       let getMaxPage = (urlextra) => {
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
-            url:
-              `https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra}` ,
+            url: `https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra}`,
             async: false,
             responseType: "html",
             timeout: 5000,
@@ -14117,8 +14119,7 @@
       let getPagePeople = (page) => {
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
-            url:
-              `https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
+            url: `https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
             async: false,
             timeout: 5000,
             responseType: "html",
