@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.8
+// @version      2.8.9
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -26,12 +26,12 @@
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
-// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1170657
-// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
-// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1169937
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js
+// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js
+// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js
+// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js
+// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
@@ -901,7 +901,7 @@
         cssDOM.innerHTML = styleText;
         document.documentElement.insertBefore(
           cssDOM,
-          document.documentElement.childNodes[0]
+          document.documentElement.children[0]
         );
         return cssDOM;
       };
@@ -1029,7 +1029,7 @@
 						 style="position:absolute;top:10px;left:11px">
 			</a>
 			`;
-      old_Suspended.insertBefore(new_collect,old_Suspended.childNodes[0]);
+      old_Suspended.insertBefore(new_collect, old_Suspended.children[0]);
     },
     detectUserOnlineStatus() {
       /* 探测用户在线状态 */
@@ -1621,76 +1621,47 @@
         GM_getValue("v6") &&
         window.location.href.match(MT_CONFIG.urlRegexp.forumPost)
       ) {
-        var hongbao = document.getElementsByClassName("bottom_zhan y");
-        if (hongbao.length == 0) {
-        } else {
-          var cishu2 = 0;
-          var replyhref = hongbao[cishu2].getElementsByTagName("a")[0].href;
-          var page = replyhref.match(MT_CONFIG.urlRegexp.forumPostPage)[1];
-          /* console.log(page); */
-          for (cishu2 = 0; cishu2 < hongbao.length; cishu2++) {
-            if (hongbao[cishu2].children.length == 1) {
-              var rewardhref = hongbao[cishu2]
-                .getElementsByTagName("a")[0]
-                .href.replace("mod=post&", "mod=misc&");
-              rewardhref = rewardhref.replace(
-                "action=reply&",
-                "action=comment&"
-              );
-              var reviews_href = `${rewardhref}&extra=page%3D1&page=${page}`;
-              let reviews_pid = hongbao[
-                cishu2
-              ].parentElement.parentElement.id.replace("pid", "&pid=");
-              reviews_href = reviews_href + reviews_pid;
-              /* console.log(rewardhref) */
-              var oa = document.createElement("a");
-              var ob = document.createElement("i");
-              var lm = document.getElementsByClassName("bottom_zhan y")[cishu2];
-              oa.href = reviews_href;
-              oa.className = "f_c dialog";
-              ob.style =
-                "content: url(https://s1.ax1x.com/2020/04/26/Jcq8VU.png);height: 15px;";
-              ob.className = "comiis_font mt_review";
-              ob.innerHTML = "";
-              oa.appendChild(ob);
-              let review_username =
-                hongbao[
-                  cishu2
-                ].parentElement.parentElement.getElementsByClassName(
-                  "top_user f_b"
-                )[0].text;
-              oa.onclick = function () {
-                let click_time = Date.now();
-                var mt_interval = setInterval(function () {
-                  let run_time = parseInt((Date.now() - click_time) / 1000);
-                  if (run_time >= 5) {
-                    console.log("超时");
-                    clearInterval(mt_interval);
-                  } else if (
-                    document.querySelector(
-                      "div[id=ntcmsg_popmenu]>div>span.f_c"
-                    ) != null
-                  ) {
-                    console.log("存在，清理定时器");
-                    console.log("点评用户：", review_username);
-                    console.log("该对象出现用时:", run_time);
-                    try {
-                      document.querySelector(
-                        "div[id=ntcmsg_popmenu]>div>span.f_c"
-                      ).innerText = "点评 " + review_username;
-                    } catch (err) {
-                      console.log("修改点评失败", err);
-                    }
-                    clearInterval(mt_interval);
-                  }
-                }, 100);
-              };
-              lm.insertAdjacentElement("afterBegin", oa);
-            } else {
-              console.log("已有点评按钮，无需再次添加");
+        Utils.waitNode(".bottom_zhan.y").then((nodeList) => {
+          nodeList.forEach((item) => {
+            var bottomZhanNode = item;
+            if (bottomZhanNode.getAttribute("data-isaddreviews")) {
+              return;
             }
-          }
-        }
+            bottomZhanNode.setAttribute("data-isaddreviews", true);
+            var replyNode = bottomZhanNode.querySelector("a");
+            var replyUrl = replyNode.getAttribute("datahref");
+            var rewardUrl = replyUrl
+              .replace("mod=post&", "mod=misc&")
+              .replace("action=reply&", "action=comment&");
+            var reviewPage = replyUrl.match(/&page=([\w]+)/i)[1];
+            var reviewsUrl = `${rewardUrl}&extra=page%3D1&page=${reviewPage}`;
+            var reviewsPID = bottomZhanNode
+              .closest(".comiis_postli[id]")
+              .getAttribute("id")
+              .replace("pid", "&pid=");
+            reviewsUrl = reviewsUrl + reviewsPID;
+            var reviewsUserName = bottomZhanNode
+              .closest(".comiis_postli[id]")
+              .querySelector(".top_user.f_b").text;
+            var reviewsNode = $jq(`
+            <a href="${reviewsUrl}" class="f_c dialog">
+              <i class="comiis_font mt_review" style="content: url(&quot;https://s1.ax1x.com/2020/04/26/Jcq8VU.png&quot;); height: 15px;"></i>
+            </a>
+            `);
+            reviewsNode.on("click", function () {
+              Utils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then(
+                (nodeList2) => {
+                  try {
+                    nodeList2[0].innerText = "点评 " + reviewsUserName;
+                  } catch (err) {
+                    console.log("修改点评失败", err);
+                  }
+                }
+              );
+            });
+            $jq(bottomZhanNode).prepend(reviewsNode);
+          });
+        });
       }
     },
     /**
@@ -1874,27 +1845,25 @@
         if (!window.GM_isaddShowUidCss) {
           window.GM_isaddShowUidCss = true;
           GM_addStyle(`
-                        .postli_top_tximg + h2{
-                            height: auto;
-                        }
-                    `);
+            .postli_top_tximg + h2{
+                height: auto;
+            }
+          `);
         }
-        window.findUserFormList = false;
-        window.findUserFormListNums = 0;
+        let findUserFormList = false;
+        let findUserFormListNums = 0;
         let findSetInval = setInterval(function () {
-          let formList = MT_CONFIG.element.comiisFormlist()
-            ? MT_CONFIG.element.comiisFormlist()
-            : [];
-          formList =
-            formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
-          formList =
-            formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
-          window.findUserFormList = formList.length ? true : false;
+          let formList = Utils.getNodeListValue(
+            MT_CONFIG.element.comiisFormlist,
+            MT_CONFIG.element.comiisPostli,
+            MT_CONFIG.element.comiisMmlist
+          );
+          findUserFormList = formList.length ? true : false;
           if (findUserFormListNums >= 40) {
             console.log("已循环40次，未找到帖子");
             clearInterval(findSetInval);
           }
-          if (window.findUserFormList) {
+          if (findUserFormList) {
             GM_addStyle(`
                         .comiis_postli_top.bg_f.b_t h2{
                             height: auto;
@@ -2077,14 +2046,11 @@
 
       function getFormList() {
         /* 获取当前页面所有帖子 */
-        let formList = MT_CONFIG.element.comiisFormlist()
-          ? MT_CONFIG.element.comiisFormlist()
-          : [];
-        formList =
-          formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
-        formList =
-          formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
-        return formList;
+        return Utils.getNodeListValue(
+          MT_CONFIG.element.comiisFormlist,
+          MT_CONFIG.element.comiisPostli,
+          MT_CONFIG.element.comiisMmlist
+        );
       }
       let formlist = null; /* 帖子列表 */
       let isFindFormList = false; /* 是否找到帖子 */
@@ -13092,7 +13058,7 @@
           var objE = document.createElement("div");
           objE.innerHTML = arg;
           var result =
-            objE.childNodes.length == 1 ? objE.childNodes[0] : objE.childNodes;
+            objE.children.length == 1 ? objE.children[0] : objE.children;
           return result;
         }
         addSearching() {
@@ -14411,14 +14377,11 @@
 
       function getFormList() {
         /* 获取当前页面所有帖子 */
-        let formList = MT_CONFIG.element.comiisFormlist()
-          ? MT_CONFIG.element.comiisFormlist()
-          : [];
-        formList =
-          formList.length == 0 ? MT_CONFIG.element.comiisPostli() : formList;
-        formList =
-          formList.length == 0 ? MT_CONFIG.element.comiisMmlist() : formList;
-        return formList;
+        return Utils.getNodeListValue(
+          MT_CONFIG.element.comiisFormlist,
+          MT_CONFIG.element.comiisPostli,
+          MT_CONFIG.element.comiisMmlist
+        );
       }
       var pcReplyArray = await getPCReply();
       if (pcReplyArray == null) {
@@ -14434,9 +14397,9 @@
                 margin: 0px 10px;
             }
             `);
-      Array.from(formList).forEach((v, i) => {
-        Array.from(pcReplyArray[i]).forEach((v2, i2) => {
-          $jq(v).append($jq(`<div class="contrete-reply">${v2}</div>`));
+      Array.from(formList).forEach((item, index) => {
+        Array.from(pcReplyArray[index]).forEach((item2, index2) => {
+          $jq(item).append($jq(`<div class="contrete-reply">${item2}</div>`));
         });
       });
     },
