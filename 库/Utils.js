@@ -370,6 +370,7 @@
 
   /**
    * 获取某个父元素，父元素可能在上层或上上层或上上上层...
+   * 其实也可以使用元素自带的document.querySelector("div").closest("元素选择器")
    * @param {Object} target	当前元素
    * @param {Object} handleFunc	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
    * @return {Boolean}	如果找到返回满足要求的父元素，如果未找到返回null
@@ -542,6 +543,35 @@
     return _array_[Math.floor(Math.random() * _array_.length)];
   };
 
+  /**
+   * 应用场景: 当你想要获取数组形式的元素时，它可能是其它的选择器，那么需要按照先后顺序填入参数
+   * 第一个是优先级最高的，依次下降，如果都没有，返回空列表
+   * 支持document.querySelectorAll、$("")、()=>{return document.querySelectorAll("")}
+   * @param {...NodeList|Function} NodeList
+   * @returns {Array}
+   * @example
+   * Utils.getNodeListValue(document.querySelectorAll("div.xxx"),document.querySelectorAll("a.xxx"));
+   * @example
+   * Utils.getNodeListValue(divGetFunction,aGetFunction);
+   * @return
+   * [...div,div,div]
+   */
+  Utils.getNodeListValue = function () {
+    let resultArray = [];
+    for (let i = 0; i < arguments.length; i++) {
+      let item = arguments[i];
+      let value = item;
+      if (typeof item === "function") {
+        /* 方法 */
+        value = item();
+      }
+      if (value.length !== 0) {
+        resultArray = [...value];
+        break;
+      }
+    }
+    return resultArray;
+  };
   /**
    * 获取格式化后的Date类型时间
    * @param {String} text	需要格式化的字符串或者时间戳
@@ -2062,14 +2092,18 @@
      * @param {String} type
      */
     this.info = function (msg, color, type = "info") {
-      let callerName = this.info?.caller?.name;
-      if (type === "success") {
-        callerName = this.success?.caller?.name;
-      } else if (type === "error") {
-        callerName = this.error?.caller?.name;
-      } else if (type === "info") {
+      let stack = new Error().stack.split("\n");
+      let stackString = stack[2].trim();
+      if (type === "info") {
         color = color || this.details.infoColor;
+      }else{
+        stackString = stack[3].trim();
       }
+      let stackFunctionName = stackString.match(/^at[\s]+(.+?)[\s]+/i)[1];
+      let stackFunctionNamePosition = stackString.match(
+        /^at[\s]+.+[\s]+\((.+?)\)/i
+      )[1];
+      let callerName = stackFunctionName;
       if (typeof msg === "object") {
         console.log(
           `%c[${this.tag}%c-%c${callerName}%c]%c `,
