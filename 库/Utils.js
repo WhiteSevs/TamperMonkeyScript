@@ -2,7 +2,7 @@
  * 自己常用的工具类定义
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.8
+ * @version  1.9
  **/
 (function (Utils) {
   /**
@@ -2067,7 +2067,7 @@
    * })
    * log.success("颜色为#31dc02");
    */
-  Utils.Log = function (_GM_info_) {
+  Utils.Log = function (_GM_info_,debug = false) {
     if (typeof _GM_info_ !== "object") {
       throw new Error(
         'Utils.Log 请添加@grant GM_info且传入该参数,如果使用"use strict"; 就无法获取caller'
@@ -2084,6 +2084,45 @@
       errorColor: "red" /* 错误颜色 */,
       infoColor: "0" /* 信息颜色 */,
     };
+    /**
+     * 解析Error的堆栈获取调用者所在的函数位置
+     * @param {list} stack
+     */
+    let parseErrorStack = function (stack) {
+      let result = {
+        functionName: "",
+        functionPosition: "",
+      };
+      for (let i = 0; i < stack.length; i++) {
+        let stackString = stack[i].trim();
+        let stackFunctionName = stackString.match(/^at[\s]+(.+?)[\s]+/i);
+        let stackFunctionNamePosition = stackString.match(
+          /^at[\s]+.+[\s]+\((.+?)\)/i
+        );
+        if (stackFunctionName == null) {
+          continue;
+        }
+        stackFunctionName = stackFunctionName[stackFunctionName.length - 1];
+        stackFunctionNamePosition =
+          stackFunctionNamePosition[stackFunctionNamePosition.length - 1];
+        if (
+          stackFunctionName === "" ||
+          stackFunctionName.match(
+            new RegExp(
+              "(^Utils.Log.|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each)",
+              "g"
+            )
+          )
+        ) {
+          continue;
+        } else {
+          result.functionName = stackFunctionName;
+          result.functionPosition = stackFunctionNamePosition;
+          break;
+        }
+      }
+      return result;
+    };
     this.tag = _GM_info_?.script?.name;
     /**
      * 控制台-普通输出
@@ -2093,16 +2132,13 @@
      */
     this.info = function (msg, color, type = "info") {
       let stack = new Error().stack.split("\n");
-      let stackString = stack[2].trim();
       if (type === "info") {
         color = color || this.details.infoColor;
-      }else{
-        stackString = stack[3].trim();
       }
-      let stackFunctionName = stackString.match(/^at[\s]+(.+?)[\s]+/i)[1];
-      let stackFunctionNamePosition = stackString.match(
-        /^at[\s]+.+[\s]+\((.+?)\)/i
-      )[1];
+      stack.splice(0, 1);
+      let errorStackParse = parseErrorStack(stack);
+      let stackFunctionName = errorStackParse["functionName"];
+      let stackFunctionNamePosition = errorStackParse["functionPosition"];
       let callerName = stackFunctionName;
       if (typeof msg === "object") {
         console.log(
@@ -2117,6 +2153,9 @@
           ...msgColorDetails,
           `color: ${color}`
         );
+      }
+      if(debug){
+        console.log(stackFunctionNamePosition);
       }
     };
     /**
