@@ -2,7 +2,7 @@
 // @name         蛋仔乐消除
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/h5/20230120/xxl/player?size=32
-// @version      0.6
+// @version      0.7
 // @description  一键完成赚金币任务和分享获取门票，按钮在油猴菜单中
 // @author       WhiteSev
 // @match        https://party.163.com/h5/20230120/xxl/player/*
@@ -26,9 +26,13 @@
 
   let config = {
     score: 1566 /* 分数 */,
+    scoreMax: 1600 /* 设置随机分数-最高 */,
+    scoreMin: 1400 /* 设置随机分数-最低 */,
     credit: 20 /* 金币 */,
     delaytime: 6000 /* 延时时间 */,
-    runCount: 1 /* 执行次数 */,
+    delaytimeMax: 6000,
+    delaytimeMin: 4000,
+    runCount: 5 /* 执行次数 */,
     shareCount: 5 /* 分享执行次数 */,
     loadingMsg: null,
   };
@@ -173,11 +177,49 @@
       });
     });
   }
+  /**
+   * 获取弹出内容
+   * @param {number} runCount
+   * @returns
+   */
+  function getQmsgLoadingText(runCount = 1) {
+    return `
+    <div style="text-align: left;">
+      <div style="margin-bottom: 4px;">当前运行: <i style="color: red">${runCount}次</i></div>
+      <div style="margin-bottom: 4px;">延时时间: <i style="color: red">${
+        config.delaytime / 1000
+      }秒</i></div>
+      <div style="margin-bottom: 4px;">每局分数: <i style="color: red">${
+        config.score
+      }</i></div>
+      <div style="margin-bottom: 4px;">每局金币: <i style="color: red">${
+        config.credit
+      }个</div>
+      <div><i style="color: green">执行中...</div>
+    </div>
+  `;
+  }
+  /**
+   * 设置随机值
+   */
+  function setRandValue() {
+    config.delaytime = Utils.getRandomNumber(
+      config.delaytimeMin,
+      config.delaytimeMax
+    );
+    config.score = Utils.getRandomNumber(config.scoreMin, config.scoreMax);
+  }
   async function auto() {
+    config.loadingMsg = Qmsg.loading(getQmsgLoadingText(1), {
+      html: true,
+      autoClose: false,
+    });
     for (let i = 0; i < config.runCount; i++) {
       console.log(`第 ${i + 1} 次执行`);
       Qmsg.success(`第 ${i + 1} 次执行`);
       try {
+        setRandValue();
+        config.loadingMsg.setHTML(getQmsgLoadingText(i + 1));
         let play_key = await gameStart();
         gameEnd(play_key);
         await Utils.sleep(config.delaytime);
@@ -198,48 +240,33 @@
           return "⚙ " + _text_;
         },
         callback: () => {
-          let inputRunCount = prompt("请输入需要执行的次数", 1);
+          let inputRunCount = prompt("请输入需要执行的次数", 5);
           config.runCount = isNaN(inputRunCount)
             ? config.runCount
             : parseInt(inputRunCount);
-          let inputDelaytime = prompt(
-            "请输入每次执行后延时的时间，单位（秒）",
-            60
-          );
-          config.delaytime = isNaN(inputDelaytime)
-            ? config.delaytime
-            : parseInt(inputDelaytime) * 1000;
 
-          let inputScore = prompt("请输入需要获得的分数", 1500);
-          config.score = isNaN(inputScore)
-            ? config.score
-            : parseInt(inputScore);
+          let inputDelaytime = prompt(
+            "请输入每次执行后延时的时间区间，单位（秒）",
+            "40-60"
+          );
+          inputDelaytime = inputDelaytime.split("-");
+          config.delaytimeMin = parseInt(inputDelaytime[0]) * 1000;
+          config.delaytimeMax = parseInt(inputDelaytime[1]) * 1000;
+
+          let inputScore = prompt(
+            "请输入需要获得的分数区间",
+            `${config.scoreMin}-${config.scoreMax}`
+          );
+          inputScore = inputScore.split("-");
+          config.scoreMin = parseInt(inputScore[0]);
+          config.scoreMax = parseInt(inputScore[1]);
+          setRandValue();
 
           let inputCredit = prompt("请输入每局获取的金币数量", 20);
           config.credit = isNaN(inputCredit)
             ? config.credit
             : parseInt(inputCredit);
-          config.loadingMsg = Qmsg.loading(
-            `
-          <div style="text-align: left;">
-            <div style="margin-bottom: 4px;">执行次数: <i style="color: red">${
-              config.runCount
-            }次</i></div>
-            <div style="margin-bottom: 4px;">延时时间: <i style="color: red">${
-              config.delaytime / 1000
-            }秒</i></div>
-            <div style="margin-bottom: 4px;">每局分数: <i style="color: red">${
-              config.score
-            }</i></div>
-            <div style="margin-bottom: 4px;">每局金币: <i style="color: red">${config.credit}个</div>
-            <div><i style="color: green">执行中...</div>
-          </div>
-        `,
-            {
-              html: true,
-              autoClose: false,
-            }
-          );
+
           Qmsg.success("开始执行");
           auto();
         },
@@ -261,7 +288,11 @@
         },
       },
     },
-    false
+    false,
+    GM_getValue,
+    GM_setValue,
+    GM_registerMenuCommand,
+    GM_unregisterMenuCommand
   );
   Qmsg.config({
     position: "bottom",
