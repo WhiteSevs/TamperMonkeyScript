@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.8.9
+// @version      2.9.0
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -1474,7 +1474,7 @@
     },
     showUserLevel() {
       /* 显示用户具体等级 */
-      var user_avatar = document.getElementsByClassName("pls favatar");
+      var user_avatar = document.querySelectorAll(".pls.favatar");
       var i = 0;
       var user_level = "0级";
       for (i = 0; i < user_avatar.length; i++) {
@@ -7697,7 +7697,7 @@
                     type: "GET",
                     url: `plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`,
                     dataType: "xml",
-                    success: (v) => {
+                    success: (response) => {
                       var recommend_num = Number(
                         $jq("#comiis_recommend_num").text()
                       );
@@ -7941,20 +7941,20 @@
         },
       };
 
-      function handle_error(s) {
+      function handle_error(response) {
         let return_status = false;
-        let messagetext = $jq(s.lastChild.firstChild.nodeValue)
+        let messagetext = $jq(response.lastChild.firstChild.nodeValue)
           .find("#messagetext")
           .text();
         if (messagetext.trim() == "") {
           return return_status;
         }
         console.log(messagetext);
-        $jq.each(error_code, (i, v) => {
-          if (messagetext.indexOf(v["error_match"]) != -1) {
+        $jq.each(error_code, (index, item) => {
+          if (messagetext.indexOf(item["error_match"]) != -1) {
             if (messagetext.indexOf(`typeof errorhandle_=='function'`) != -1) {
               /* 奇怪的返回值，在该帖子是关闭状态，点击回复会出现抱歉，本主题已关闭，不再接受新内容，正常是errorhandle_fastpost */
-              popup2.toast(v["popup_text"]);
+              popup2.toast(item["popup_text"]);
             }
             return_status = true;
             return;
@@ -7964,31 +7964,35 @@
       }
       $jq("#fastpostsubmit").on("click", function () {
         /* 发表按钮|回复按钮点击事件 */
+        var msgobj = $jq("#needmessage");
+        var msgData = msgobj.val();
+        msgData = encodeURIComponent(msgData);
         if (
-          $jq("#needmessage").val() == null ||
-          $jq("#needmessage").val() == ""
+          msgData == null ||
+          msgData === ""
         ) {
           return;
         }
         popup2.showLoadingMask();
         if ($jq("#fastpostsubmit").val() == "发表") {
-          var msgobj = $jq("#needmessage");
+          /* 发表 */
           let url = form_action + "reply&handlekey=fastpost&loc=1&inajax=1";
-          let data = form_serialize + msgobj.val();
-          $jq.each($jq("#imglist input[type='hidden']"), (i, v) => {
-            data = `${data}&${v.getAttribute("name")}=`;
+          let data = form_serialize + msgData;
+          $jq.each($jq("#imglist input[type='hidden']"), (index, item) => {
+            data = `${data}&${item.getAttribute("name")}=`;
           });
+          console.log(data);
           $jq.ajax({
             type: "POST",
             url: url,
             data: data,
             timeout: 5000,
             dataType: "xml",
-            success: function (s) {
+            success: function (response) {
               popup2.closeMask();
-              console.log(s.lastChild.firstChild.nodeValue);
-              evalscript(s.lastChild.firstChild.nodeValue);
-              if (handle_error(s)) {
+              console.log(response.lastChild.firstChild.nodeValue);
+              evalscript(response.lastChild.firstChild.nodeValue);
+              if (handle_error(response)) {
                 return;
               }
               $jq(document).scrollTop($jq(document).height());
@@ -8003,22 +8007,21 @@
                 "发帖千百度，文明第一步"
               );
             },
-            error: function (e) {
+            error: function (response) {
               popup2.closeMask();
-              console.log(e);
+              console.log(response);
               /* window.location.href = form_action; */
               popup2.toast("连接超时,网络异常");
             },
           });
         } else {
           /* 回复 */
-          var msgobj = $jq("#needmessage");
           let data =
             $jq("#comiis_foot_menu_beautify_big .reply_user_content").attr(
               "data-reply-serialize"
-            ) + msgobj.val();
-          $jq.each($jq("#imglist input[type='hidden']"), (i, v) => {
-            data = `${data}&${v.getAttribute("name")}=`;
+            ) + msgData;
+          $jq.each($jq("#imglist input[type='hidden']"), (index, item) => {
+            data = `${data}&${item.getAttribute("name")}=`;
           });
           $jq.ajax({
             type: "POST",
@@ -8029,14 +8032,14 @@
             data: data,
             timeout: 5000,
             dataType: "xml",
-            success: function (s) {
+            success: function (response) {
               popup2.closeMask();
-              console.log(s.lastChild.firstChild.nodeValue);
-              evalscript(s.lastChild.firstChild.nodeValue);
-              if (handle_error(s)) {
+              console.log(response.lastChild.firstChild.nodeValue);
+              evalscript(response.lastChild.firstChild.nodeValue);
+              if (handle_error(response)) {
                 return;
               }
-              $jq(s.lastChild.firstChild.nodeValue).click();
+              $jq(response.lastChild.firstChild.nodeValue).click();
               $jq("#needmessage").val("");
               $jq("#comiis_head").click();
               $jq(
@@ -8051,9 +8054,9 @@
               );
               $jq(document).scrollTop($jq(document).height());
             },
-            error: (e) => {
+            error: (response) => {
               popup2.closeMask();
-              console.log(e);
+              console.log(response);
               /*  window.location.href = $jq('#comiis_foot_menu_beautify_big .reply_user_content').attr('data-reply-action'); */
 
               popup2.toast("连接超时,网络异常");
@@ -8067,7 +8070,7 @@
       $jq(document).on(
         "click",
         ".comiis_postli_times .dialog_reply[datahref*=reply]",
-        function (e) {
+        function (event) {
           /* 回复按钮新事件 */
           var obj = $jq(this);
           $jq("#comiis_foot_menu_beautify_big").attr("data-model", "reply");
@@ -8078,14 +8081,14 @@
             url: obj.attr("datahref") + "&inajax=1",
             dataType: "xml",
             timeout: 5000,
-            success: function (s) {
+            success: function (response) {
               popup2.closeMask();
-              console.log(s.lastChild.firstChild.nodeValue);
-              if (handle_error(s)) {
+              console.log(response.lastChild.firstChild.nodeValue);
+              if (handle_error(response)) {
                 return;
               }
               let requestDOM = $jq(
-                `<div>${s.lastChild.firstChild.nodeValue}</div>`
+                `<div>${response.lastChild.firstChild.nodeValue}</div>`
               );
               let reply_url = requestDOM
                 .find(".comiis_tip .tip_tit a")
@@ -8128,9 +8131,9 @@
                 obj.attr("data-text") ? obj.attr("data-text") : ""
               );
             },
-            error: (e) => {
+            error: (response) => {
               popup2.closeMask();
-              console.log(e);
+              console.log(response);
               /* window.location.href = obj.attr('datahref'); */
               popup2.toast("连接超时,网络异常");
             },
@@ -8140,12 +8143,12 @@
         }
       );
 
-      $jq(document).on("click", function (e) {
+      $jq(document).on("click", function (event) {
         /* 全局点击事件 */
         if (
           document
             .querySelector("#comiis_foot_menu_beautify li[data-attr='回帖']")
-            .outerHTML.indexOf(e.target.outerHTML) != -1
+            .outerHTML.indexOf(event.target.outerHTML) != -1
         ) {
           /* 显示回帖内容 */
           $jq("#comiis_foot_menu_beautify").hide();
@@ -8205,7 +8208,7 @@
       $jq("#comiis_foot_menu_beautify_big .menu_body").hide();
       $jq("#comiis_foot_menu_beautify_big .menu_icon a").on(
         "click",
-        function (e) {
+        function (event) {
           /* 菜单图标点击事件 */
           if (
             $jq(this).attr("class") &&
@@ -8227,7 +8230,7 @@
 
       $jq("#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle").on(
         "click",
-        function (e) {
+        function (event) {
           /* 菜单-图片点击事件 */
           $jq(
             "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab"
@@ -8243,7 +8246,7 @@
       );
       $jq("#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile").on(
         "click",
-        function (e) {
+        function (event) {
           /* 菜单-表情点击事件 */
           $jq(
             "#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab"
@@ -8260,10 +8263,10 @@
           );
           if (smileDOM.attr("data-isLoaded") != 1) {
             smileDOM.attr("data-isLoaded", 1);
-            $jq.each(smileDOM.find("img"), (i, v) => {
-              let data_src = v.getAttribute("data-src");
+            $jq.each(smileDOM.find("img"), (index, item) => {
+              let data_src = item.getAttribute("data-src");
               if (data_src) {
-                v.setAttribute("src", data_src);
+                item.setAttribute("src", data_src);
               }
             });
           }
@@ -8271,7 +8274,7 @@
       );
       $jq("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs").on(
         "click",
-        function (e) {
+        function (event) {
           /* 菜单-插入点击事件 */
           $jq(
             "#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab"
@@ -8290,7 +8293,7 @@
       );
       $jq("#comiis_foot_menu_beautify_big #comiis_smilies_key li").on(
         "click",
-        function (e) {
+        function (event) {
           /* 菜单-表情-点击事件 */
           $jq(
             "#comiis_foot_menu_beautify_big #comiis_smilies_key li a"
@@ -8307,7 +8310,7 @@
 
       $jq(
         "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li"
-      ).on("click", function (e) {
+      ).on("click", function (event) {
         /* 菜单-图片-点击事件 */
         /* let currentDOM = $jq(this); */
         $jq(
@@ -8323,6 +8326,7 @@
       });
 
       $jq(".removeChartBedAccount").on("click", function (event) {
+        /* 删除 点击事件 */
         event.preventDefault();
         let node = $jq(this);
         popup2.confirm({
@@ -8852,8 +8856,8 @@
               text: "恢复",
               callback: () => {
                 if (
-                  $jq("#needmessage")?.val() == "" ||
-                  $jq("#needsubject")?.val() == ""
+                  $jq("#needmessage")?.val() === "" ||
+                  $jq("#needsubject")?.val() === ""
                 ) {
                   $jq("#needmessage")?.val(editHistoryText);
                   $jq("#needsubject")?.val(editHistorySubjectText);
@@ -13971,7 +13975,6 @@
 								width: 100%;
 								display: flex;
 								align-items: center;
-								padding: 0px 10px;
 						}
 						div.comiis_mh_kxtxt_owm span{
 								background: #FF705E;
@@ -13984,6 +13987,7 @@
 								margin-right: 10px;
 								overflow: hidden;
 								border-radius: 2px;
+                margin-left: 10px;
 						}
 						div.comiis_mh_kxtxt_owm a{
 								display: block;
@@ -13996,6 +14000,7 @@
 								max-width: 80%;
 								text-overflow: ellipsis;
 								white-space: nowrap;
+                margin-right: 10px;
 						}
 						`);
           var latestPostFormHTML = "";
@@ -14010,10 +14015,11 @@
           );
           console.log(result);
           result.forEach((item) => {
-            latestPostFormHTML += `<li>
-                            <span>新帖</span>
-                            <a href="${item.href}" title="${item.title}" target="_blank">${item.title}</a>
-                        </li>`;
+            latestPostFormHTML += `
+            <li>
+                <span>新帖</span>
+                <a href="${item.href}" title="${item.title}" target="_blank">${item.title}</a>
+            </li>`;
           });
           $jq(".comiis_forumlist.comiis_xznlist").before(
             $jq(
@@ -14233,13 +14239,13 @@
             url: `plugin.php?id=k_misign:sign&operation=${urlextra}`,
             async: false,
             dataType: "html",
-            success: function (data) {
+            success: function (response) {
               /* console.log(data); */
-              data = data.replace(
+              response = response.replace(
                 `今日排行</a></li>`,
                 `今日排行</a></li><li class="flex"><a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');">今日最先</a></li>`
               );
-              changeRankList(data, listtype);
+              changeRankList(response, listtype);
             },
             complete: function (XHR, TS) {
               XHR = null;
