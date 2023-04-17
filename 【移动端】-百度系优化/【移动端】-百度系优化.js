@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.3
+// @version      0.7.4
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -145,7 +145,7 @@
      * @param {Boolean} withIcon 设置Icon图标
      */
     this.setText = function (_value_, withIcon = false) {
-      $(`${loadingTextClassName}`)?.html(`<span>${_value_}</span>`);
+      $(`.${loadingTextClassName}`)?.html(`<span>${_value_}</span>`);
       if (withIcon) {
         if ($(`.${loadingIconClassName}`).length === 0) {
           $(`.${loadingTextClassName}`)?.after(iconHTML);
