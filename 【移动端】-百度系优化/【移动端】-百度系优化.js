@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.2
+// @version      0.7.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -126,7 +126,7 @@
       return parseHTML;
     };
     /**
-     * 设置Loading显示/关闭
+     * 设置Loading显示/关闭 true显示|false关闭
      * @param {Boolean} _value_
      */
     this.setVisible = function (_value_) {
@@ -2256,125 +2256,114 @@
       if (this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
         GM_addStyle(this.css.baike);
         log.info("插入CSS规则");
-        let page_ = 1;
-        let page_interval_lock = false;
-        let more_url = "https://baike.baidu.com" + window.location.pathname;
-        let ele_url = document.getElementById("J-gotoPC-top")?.href;
-        if (!ele_url) {
-          return;
-        }
-        let match_id = ele_url.match(/item\/.*\/(\d*)/);
-
-        function set_normal_img_size() {
+        let page = 1;
+        function setImageWidthHeight() {
           /* 获取到的图片大小要重新设置 */
-          let col_para = document.getElementsByClassName("col-para");
-          $.each(col_para, (i, n) => {
-            n.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
-            let content_img_item = n.getElementsByClassName("content-img-item");
-            let content_img_link = n.getElementsByClassName("content-img-link");
-            let content_album = n.getElementsByClassName("content-album");
-            if (content_album.length != 0) {
-              content_album[0].setAttribute("style", "");
-              content_img_item = n.getElementsByClassName("content-album-item");
-              content_img_link = n.getElementsByClassName("content-album-link");
+          document.querySelectorAll(".col-para").forEach((item) => {
+            item.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
+            let content_img_item = item.querySelector(".content-img-item");
+            let content_img_link = item.querySelector(".content-img-link");
+            let content_album = item.querySelector(".content-album");
+            content_album?.setAttribute("style", "");
+            if (content_album) {
+              content_img_item = item.querySelector(".content-album-item");
+              content_img_link = item.querySelector(".content-album-link");
             }
-            if (content_img_item.length != 0) {
-              content_img_item[0].setAttribute(
-                "style",
-                "max-height: 39vw;max-width: 30vw;border-radius: 0.09rem;margin: 0 auto;overflow: hidden;"
-              );
-            }
-            if (content_img_link.length != 0) {
-              content_img_link[0].setAttribute("style", "width: 30vw;");
-            }
+            content_img_item?.setAttribute(
+              "style",
+              "max-height: 39vw;max-width: 30vw;border-radius: 0.09rem;margin: 0 auto;overflow: hidden;"
+            );
+            content_img_link?.setAttribute("style", "width: 30vw;");
           });
         }
 
-        function insert_img() {
+        function insertUrlToImageNode() {
           /* 获取到的要重新将图片链接插入到img标签中 */
-          let content_img = document.getElementsByClassName("lazy-img");
-          $.each(content_img, (i, v) => {
-            let content_img = v.parentElement.parentElement.parentElement;
-            let img_url = content_img.getAttribute("data-src")
-              ? content_img.getAttribute("data-src")
-              : v.getAttribute("data-url");
+          document.querySelectorAll(".lazy-img").forEach((item) => {
+            item = $(item);
+            let content_img = $(item.parent().parent().parent());
+            let img_url = content_img.attr("data-src")
+              ? content_img.attr("data-src")
+              : item.attr("data-url");
             if (img_url != null) {
-              v.innerHTML = '<img src="' + img_url + '"></img>';
+              item.innerHTML = `<img src="${img_url}"></img>`;
             }
           });
         }
-
         function loadMore() {
           /* 循环加载更多内容 */
-          loadingView.setCSS();
-          $(".BK-main-content").after(loadingView.getLoadingNode());
-          if (match_id.length >= 2) {
-            /* 由于不知道有多少页，定时器加载判断 */
-            var page_interval = setInterval(async function () {
-              log.info("定时器loading");
-              loadingView.setVisible(true);
-              if (page_interval_lock == true) {
+          Utils.waitNode(".BK-main-content").then(() => {
+            Utils.waitNode("#J-gotoPC-top").then(async (nodeList) => {
+              let nextTargetNode = nodeList[0];
+              let nextUrl = nextTargetNode.href;
+              let nextUrlObj = new URL(nextUrl);
+              let itemId = nextUrlObj.pathname.match(new RegExp("/item/.+?/([0-9]+)","i"));
+              if (!itemId) {
+                log.error(nextUrl);
+                log.error("匹配id失败");
                 return;
               }
-              page_interval_lock = true;
-              more_url = `${more_url}?wpf=3&ldr=1&page=${page_}&insf=1&_=${new Date().getTime()}`;
-              log.info(more_url);
-              let getResp = await httpx.get({
-                url: more_url,
-                headers: {
-                  "User-Agent": Utils.getRandomPCUA(),
-                },
-              });
-              let respData = getResp.data;
-              if (getResp.status) {
-                loadingView.setVisible(false);
-                let $_resp = $(respData.response);
-                let main_content = $_resp.find(".BK-main-content");
-                let new_content = main_content.prevObject[0].innerHTML;
-                if (new_content.trim() == `<a name="u0"></a>`) {
-                  log.info("已到达最大页" + (page_ - 1));
-                  insert_img();
-                  set_normal_img_size();
-                  loadingView.setText("已到达最大页" + (page_ - 1));
-                  clearInterval(page_interval);
+              loadingView.setCSS();
+              $(".BK-main-content").after(loadingView.getLoadingNode());
+              while (1) {
+                loadingView.setVisible(true);
+                let nextPageUrl = `https://baike.baidu.com${nextUrlObj.pathname}?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
+                log.info(nextPageUrl);
+                let getResp = await httpx.get({
+                  url: nextPageUrl,
+                  headers: {
+                    "User-Agent":
+                      "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/112.0.0.0",
+                  },
+                });
+                let respData = getResp.data;
+                if (getResp.status) {
+                  let respObj = $(respData.responseText);
+                  let main_content = respObj.find(".BK-main-content");
+                  let nextPageContent =
+                    main_content.prevObject[0].innerHTML.trim();
+                  if (nextPageContent === `<a name="u0"></a>`) {
+                    log.info("已到达最大页" + (page - 1));
+                    insertUrlToImageNode();
+                    setImageWidthHeight();
+                    loadingView.setText("已到达最大页" + (page - 1));
+                    break;
+                  } else {
+                    loadingView.setText("正在加载页 " + page, true);
+                    log.info(nextPageContent);
+                    $(".BK-main-content").append($(nextPageContent));
+                    await Utils.sleep(350);
+                  }
+                  window.history.pushState("forward", null, respData.finalUrll);
+                  page++;
+                } else if (getResp.type === "onerror") {
+                  log.error("请求失败 👇");
+                  log.error(respData);
+                  insertUrlToImageNode();
+                  setImageWidthHeight();
+                  loadingView.setText("请求失败");
+                  loadingView.setIconVisible(false);
+                  break;
+                } else if (getResp.type === "ontimeout") {
+                  log.error("请求超时 👇");
+                  insertUrlToImageNode();
+                  setImageWidthHeight();
+                  loadingView.setText("请求超时");
+                  loadingView.setIconVisible(false);
+                  break;
                 } else {
-                  loadingView.setText("正在加载页 " + page_, true);
-                  $(".BK-main-content").append($(new_content));
+                  log.error("未知错误");
+                  insertUrlToImageNode();
+                  setImageWidthHeight();
+                  loadingView.setText("未知错误");
+                  loadingView.setIconVisible(false);
+                  break;
                 }
-                window.history.pushState("forward", null, setLocationUrl);
-                page_++;
-                page_interval_lock = false;
-              } else if (getResp.type === "onerror") {
-                log.error("请求失败 👇");
-                log.error(respData);
-                insert_img();
-                set_normal_img_size();
-                loadingView.setText("请求失败");
-                loadingView.setIconVisible(false);
-                clearInterval(page_interval);
-              } else if (getResp.type === "ontimeout") {
-                log.error("请求超时 👇");
-                insert_img();
-                set_normal_img_size();
-                loadingView.setText("请求超时");
-                loadingView.setIconVisible(false);
-                clearInterval(page_interval);
-              } else {
-                log.error("未知错误");
-                insert_img();
-                set_normal_img_size();
-                loadingView.setText("未知错误");
-                loadingView.setIconVisible(false);
-                clearInterval(page_interval);
               }
-            }, 1000);
-          } else {
-            log.error("匹配id失败");
-          }
+            });
+          });
         }
-        setTimeout(function () {
-          loadMore(page_);
-        }, 3000);
+        loadMore();
       }
     },
     baiketashuo() {
