@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.4
+// @version      0.7.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -2292,75 +2292,77 @@
         }
         function loadMore() {
           /* 循环加载更多内容 */
-          Utils.waitNode(".BK-main-content").then(() => {
-            Utils.waitNode("#J-gotoPC-top").then(async (nodeList) => {
-              let nextTargetNode = nodeList[0];
-              let nextUrl = nextTargetNode.href;
-              let nextUrlObj = new URL(nextUrl);
-              let itemId = nextUrlObj.pathname.match(new RegExp("/item/.+?/([0-9]+)","i"));
-              if (!itemId) {
-                log.error(nextUrl);
-                log.error("匹配id失败");
-                return;
-              }
-              loadingView.setCSS();
-              $(".BK-main-content").after(loadingView.getLoadingNode());
-              while (1) {
-                loadingView.setVisible(true);
-                let nextPageUrl = `https://baike.baidu.com${nextUrlObj.pathname}?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
-                log.info(nextPageUrl);
-                let getResp = await httpx.get({
-                  url: nextPageUrl,
-                  headers: {
-                    "User-Agent":
-                      "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/112.0.0.0",
-                  },
-                });
-                let respData = getResp.data;
-                if (getResp.status) {
-                  let respObj = $(respData.responseText);
-                  let main_content = respObj.find(".BK-main-content");
-                  let nextPageContent =
-                    main_content.prevObject[0].innerHTML.trim();
-                  if (nextPageContent === `<a name="u0"></a>`) {
-                    log.info("已到达最大页" + (page - 1));
-                    insertUrlToImageNode();
-                    setImageWidthHeight();
-                    loadingView.setText("已到达最大页" + (page - 1));
-                    break;
-                  } else {
-                    loadingView.setText("正在加载页 " + page, true);
-                    log.info(nextPageContent);
-                    $(".BK-main-content").append($(nextPageContent));
-                    await Utils.sleep(350);
-                  }
-                  window.history.pushState("forward", null, respData.finalUrll);
-                  page++;
-                } else if (getResp.type === "onerror") {
-                  log.error("请求失败 👇");
-                  log.error(respData);
+          Utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
+            let nextTargetNode = document.querySelector("#J-gotoPC-top");
+            let nextUrl = nextTargetNode.href;
+            let nextUrlObj = new URL(nextUrl);
+            let itemId = nextUrlObj.pathname.match(
+              new RegExp("/item/.+?/([0-9]+)", "i")
+            );
+            if (!itemId) {
+              log.error(nextUrl);
+              log.error("匹配id失败");
+              return;
+            }
+            loadingView.setCSS();
+            $(".BK-main-content").after(loadingView.getLoadingNode());
+            while (1) {
+              loadingView.setVisible(true);
+              let nextPageUrl = `https://baike.baidu.com${
+                nextUrlObj.pathname
+              }?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
+              log.info(nextPageUrl);
+              let getResp = await httpx.get({
+                url: nextPageUrl,
+                headers: {
+                  "User-Agent":
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/112.0.0.0",
+                },
+              });
+              let respData = getResp.data;
+              if (getResp.status) {
+                let respObj = $(respData.responseText);
+                let main_content = respObj.find(".BK-main-content");
+                let nextPageContent =
+                  main_content.prevObject[0].innerHTML.trim();
+                if (nextPageContent === `<a name="u0"></a>`) {
+                  log.info("已到达最大页" + (page - 1));
                   insertUrlToImageNode();
                   setImageWidthHeight();
-                  loadingView.setText("请求失败");
-                  loadingView.setIconVisible(false);
-                  break;
-                } else if (getResp.type === "ontimeout") {
-                  log.error("请求超时 👇");
-                  insertUrlToImageNode();
-                  setImageWidthHeight();
-                  loadingView.setText("请求超时");
-                  loadingView.setIconVisible(false);
+                  loadingView.setText("已到达最大页" + (page - 1));
                   break;
                 } else {
-                  log.error("未知错误");
-                  insertUrlToImageNode();
-                  setImageWidthHeight();
-                  loadingView.setText("未知错误");
-                  loadingView.setIconVisible(false);
-                  break;
+                  loadingView.setText("正在加载页 " + page, true);
+                  log.info(nextPageContent);
+                  $(".BK-main-content").append($(nextPageContent));
+                  await Utils.sleep(350);
                 }
+                window.history.pushState("forward", null, respData.finalUrll);
+                page++;
+              } else if (getResp.type === "onerror") {
+                log.error("请求失败 👇");
+                log.error(respData);
+                insertUrlToImageNode();
+                setImageWidthHeight();
+                loadingView.setText("请求失败");
+                loadingView.setIconVisible(false);
+                break;
+              } else if (getResp.type === "ontimeout") {
+                log.error("请求超时 👇");
+                insertUrlToImageNode();
+                setImageWidthHeight();
+                loadingView.setText("请求超时");
+                loadingView.setIconVisible(false);
+                break;
+              } else {
+                log.error("未知错误");
+                insertUrlToImageNode();
+                setImageWidthHeight();
+                loadingView.setText("未知错误");
+                loadingView.setIconVisible(false);
+                break;
               }
-            });
+            }
           });
         }
         loadMore();
@@ -2405,14 +2407,9 @@
       }
       if (this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         GM_addStyle(this.css.fanyiapp);
-        Utils.waitNode(
-          "#page-content",
-          () => {
-            $("#page-content")?.attr("style", "max-height:unset !important");
-          },
-          30,
-          150
-        );
+        Utils.waitNode("#page-content").then(() => {
+          $("#page-content")?.attr("style", "max-height:unset !important");
+        });
         log.info("插入CSS规则");
       }
     },

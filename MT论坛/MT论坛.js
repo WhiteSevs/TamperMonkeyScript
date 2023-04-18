@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.0
+// @version      2.9.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -201,24 +201,24 @@
                 `)
         );
         jqConfirmHTML.find(".popup2-confirm-other").on("click", function () {
-          Utils.tryCatch(options.other.callback);
+          Utils.tryCatch().run(options.other.callback);
         });
       }
       $jq("body").append(jqConfirmHTML);
       jqConfirmHTML
         .find(`.popup2-confirm-bottom-btn a:contains('${options.ok.text}')`)
         .on("click", () => {
-          Utils.tryCatch(options.ok.callback);
+          Utils.tryCatch().run(options.ok.callback);
         });
       jqConfirmHTML
         .find(`.popup2-confirm-bottom-btn a:contains('${options.cancel.text}')`)
         .on("click", () => {
-          Utils.tryCatch(options.cancel.callback);
+          Utils.tryCatch().run(options.cancel.callback);
         });
       jqConfirmHTML
         .find(`.popup2-confirm-bottom-btn a:contains('${options.other.text}')`)
         .on("click", () => {
-          Utils.tryCatch(options.other.callback);
+          Utils.tryCatch().run(options.other.callback);
         });
       if (options.mask) {
         this.showMask(maxZIndex);
@@ -988,7 +988,7 @@
         if (typeof pc[key] !== "function" || notRunFunc.indexOf(key) != -1) {
           return;
         }
-        Utils.tryCatch.call(this, pc[key]);
+        Utils.tryCatch().run(pc[key], this);
       });
     },
     initPopup2() {
@@ -1187,7 +1187,7 @@
         /* 查看图片 */
         let viewerULNodeHTML = "";
         imgList.forEach((item) => {
-          viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+          viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
         let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
         let viewer = new Viewer(viewerULNode, {
@@ -1524,8 +1524,8 @@
     },
     runMobileFunc() {
       /* 执行手机端函数 */
-      Utils.tryCatch.call(mobileRepeatFunc, mobileRepeatFunc.identifyLinks);
-      Utils.tryCatch.call(mobile, mobile.autoSignIn);
+      Utils.tryCatch().run(mobileRepeatFunc.identifyLinks, mobileRepeatFunc);
+      Utils.tryCatch().run(mobile.autoSignIn, mobile);
     },
   };
 
@@ -1538,7 +1538,7 @@
         if (key === "main" || typeof mobileRepeatFunc[key] !== "function") {
           return;
         }
-        Utils.tryCatch.call(this, mobileRepeatFunc[key]);
+        Utils.tryCatch().run(mobileRepeatFunc[key], this);
       });
       unsafeWindow?.popup?.init();
     },
@@ -2308,7 +2308,7 @@
             console.log("点击查看图片", imagesList);
             var viewerULNodeHTML = "";
             imagesList.forEach((item) => {
-              viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+              viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
             });
             var viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
             let viewer = new Viewer(viewerULNode, {
@@ -2533,7 +2533,7 @@
         /* 查看图片 */
         let viewerULNodeHTML = "";
         imgList.forEach((item) => {
-          viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+          viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
         let viewerULNode = $jq(`<ul>${viewerULNodeHTML}</ul>`)[0];
         let viewer = new Viewer(viewerULNode, {
@@ -2628,22 +2628,23 @@
           return;
         }
         if (key === "loadNextComments") {
-          Utils.tryCatch.call(
-            this,
-            mobile.loadNextComments,
-            '$jq("#loading-comment-tip").text("加载评论失败")'
-          );
+          Utils.tryCatch()
+            .error(() => {
+              $jq("#loading-comment-tip").text("加载评论失败");
+            })
+            .run(mobile.loadNextComments, this);
           return;
         }
         if (key === "loadPrevComments") {
-          Utils.tryCatch.call(
-            this,
-            mobile.loadPrevComments,
-            '$jq("#loading-comment-tip-prev").text("加载评论失败")'
-          );
+          Utils.tryCatch()
+            .error(() => {
+              $jq("#loading-comment-tip-prev").text("加载评论失败");
+            })
+            .run(mobile.loadPrevComments, this);
           return;
         }
-        Utils.tryCatch.call(this, mobile[key]);
+
+        Utils.tryCatch().run(mobile[key], this);
         mobileRepeatFunc.main();
       });
       unsafeWindow.popup2 = popup2;
@@ -2689,7 +2690,6 @@
         let mobile_login_cookie = await getCookie("cQWy_2132_auth");
         /* 最后访问Cookie */
         let mobile_lastvisit_cookie = await getCookie("cQWy_2132_lastvisit");
-        console.log(GM_cookie.list("cQWy_2132_lastvisit"));
         console.log("桌面端登录: ", pc_login);
         console.log("移动端登录: ", mobile_login_exitBtn);
         console.log(
@@ -2723,7 +2723,6 @@
               if (cookies.length == 0) {
                 resolve(null);
               } else {
-                console.log(cookies);
                 resolve(cookies[0].value);
               }
             }
@@ -4452,12 +4451,12 @@
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
-            Utils.tryCatch(completeFunction);
+            Utils.tryCatch().run(completeFunction);
           });
         });
-        $jq(document).on("click", "#imglist_kggzs .delImg", async function (e) {
-          e.preventDefault();
-          e.currentTarget.parentElement.remove();
+        $jq(document).on("click", "#imglist_kggzs .delImg", async function (event) {
+          event.preventDefault();
+          event.currentTarget.parentElement.remove();
           /* popup2.toast('删除中，请稍后');
                     let id_encoded = e.currentTarget.getAttribute("id-encode");
                     if(!id_encoded){
@@ -4611,7 +4610,7 @@
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
-            Utils.tryCatch(completeFunction);
+            Utils.tryCatch().run(completeFunction);
           });
         });
         $jq(document).on("click", "#imglist_hello .delImg", async function (e) {
@@ -4776,7 +4775,7 @@
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
-            Utils.tryCatch(completeFunction);
+            Utils.tryCatch().run(completeFunction);
           });
         });
         $jq(document).on("click", "#imglist_z4a .delImg", async function (e) {
@@ -4914,10 +4913,10 @@
       if (GM_getValue("chartBedsImagesHistory") == undefined) {
         GM_setValue("chartBedsImagesHistory", []);
       }
-      Utils.tryCatch(chatKGChartBed);
-      Utils.tryCatch(chatHelloChartBed);
-      Utils.tryCatch(chatZ4AChartBed);
-      Utils.tryCatch(chatHistoryChartBedImages);
+      Utils.tryCatch().run(chatKGChartBed);
+      Utils.tryCatch().run(chatHelloChartBed);
+      Utils.tryCatch().run(chatZ4AChartBed);
+      Utils.tryCatch().run(chatHistoryChartBedImages);
     },
     /**
      * 帖子快照
@@ -5609,7 +5608,7 @@
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
-                    Utils.tryCatch(completeFunction);
+                    Utils.tryCatch().run(completeFunction);
                   });
                   return null;
                 });
@@ -5660,7 +5659,7 @@
                           needUploadImageFileArray,
                           uploadFileAwaitFunction
                         ).then(() => {
-                          Utils.tryCatch(completeFunction);
+                          Utils.tryCatch().run(completeFunction);
                         });
                       });
                     },
@@ -5682,7 +5681,7 @@
             });
           };
           if (GM_getValue("chartBedAddWaterMark")) {
-            Utils.tryCatch(waterMarkAwaitFunction);
+            Utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             checkLogin().then((loginStatus) => {
               if (!loginStatus) {
@@ -5696,7 +5695,7 @@
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
-                Utils.tryCatch(completeFunction);
+                Utils.tryCatch().run(completeFunction);
               });
             });
           }
@@ -5916,7 +5915,7 @@
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
-                    Utils.tryCatch(completeFunction);
+                    Utils.tryCatch().run(completeFunction);
                   });
                 });
               } else {
@@ -5964,7 +5963,7 @@
                             needUploadImageFileArray,
                             uploadFileAwaitFunction
                           ).then(() => {
-                            Utils.tryCatch(completeFunction);
+                            Utils.tryCatch().run(completeFunction);
                           });
                         } else {
                           console.log("登录失败");
@@ -5989,7 +5988,7 @@
             });
           };
           if (GM_getValue("chartBedAddWaterMark", false)) {
-            Utils.tryCatch(waterMarkAwaitFunction);
+            Utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             checkLogin().then((loginStatus) => {
               if (!loginStatus) {
@@ -6003,7 +6002,7 @@
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
-                Utils.tryCatch(completeFunction);
+                Utils.tryCatch().run(completeFunction);
               });
             });
           }
@@ -6224,7 +6223,7 @@
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
-                    Utils.tryCatch(completeFunction);
+                    Utils.tryCatch().run(completeFunction);
                   });
                 });
               } else {
@@ -6273,7 +6272,7 @@
                           needUploadImageFileArray,
                           uploadFileAwaitFunction
                         ).then(() => {
-                          Utils.tryCatch(completeFunction);
+                          Utils.tryCatch().run(completeFunction);
                         });
                       }
                     },
@@ -6295,7 +6294,7 @@
             });
           };
           if (GM_getValue("chartBedAddWaterMark")) {
-            Utils.tryCatch(waterMarkAwaitFunction);
+            Utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             checkLogin().then((loginStatus) => {
               if (!loginStatus) {
@@ -6309,7 +6308,7 @@
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
-                Utils.tryCatch(completeFunction);
+                Utils.tryCatch().run(completeFunction);
               });
             });
           }
@@ -6551,7 +6550,7 @@
                   needUploadImageFileArray,
                   uploadFileAwaitFunction
                 ).then(() => {
-                  Utils.tryCatch(completeFunction);
+                  Utils.tryCatch().run(completeFunction);
                 });
                 return null;
               }
@@ -6595,7 +6594,7 @@
                       needUploadImageFileArray,
                       uploadFileAwaitFunction
                     ).then(() => {
-                      Utils.tryCatch(completeFunction);
+                      Utils.tryCatch().run(completeFunction);
                     });
                   },
                 },
@@ -6615,7 +6614,7 @@
             });
           }
           if (GM_getValue("chartBedAddWaterMark")) {
-            Utils.tryCatch(waterMarkAwaitFunction);
+            Utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             popup2.showLoadingMask();
             popup2.toast("上传图片中...请稍后");
@@ -6625,7 +6624,7 @@
               chooseImageFiles,
               uploadFileAwaitFunction
             ).then(() => {
-              Utils.tryCatch(completeFunction);
+              Utils.tryCatch().run(completeFunction);
             });
           }
         });
@@ -6819,12 +6818,12 @@
 
       $jq(".swiper-wrapper.comiis_post_ico").append(imgBtn);
       $jq("#comiis_post_tab").append(jqMenu);
-      Utils.tryCatch(chartbedByBBSMT);
-      Utils.tryCatch(chartbedByKggzs);
-      Utils.tryCatch(chartbedByHello);
-      Utils.tryCatch(chartbedByZ4a);
-      Utils.tryCatch(chartbedByMT);
-      Utils.tryCatch(chartbedByHistory);
+      Utils.tryCatch().run(chartbedByBBSMT);
+      Utils.tryCatch().run(chartbedByKggzs);
+      Utils.tryCatch().run(chartbedByHello);
+      Utils.tryCatch().run(chartbedByZ4a);
+      Utils.tryCatch().run(chartbedByMT);
+      Utils.tryCatch().run(chartbedByHistory);
     },
     /**
      * 编辑器优化-简略
@@ -7967,10 +7966,7 @@
         var msgobj = $jq("#needmessage");
         var msgData = msgobj.val();
         msgData = encodeURIComponent(msgData);
-        if (
-          msgData == null ||
-          msgData === ""
-        ) {
+        if (msgData == null || msgData === "") {
           return;
         }
         popup2.showLoadingMask();
@@ -8483,12 +8479,12 @@
           .trigger("propertychange");
       }
 
-      Utils.tryCatch(mobile.editorChartBed);
-      Utils.tryCatch(mobile.quickUBB.insertQuickReplyUBB);
-      Utils.tryCatch(
+      Utils.tryCatch().run(mobile.editorChartBed);
+      Utils.tryCatch().run(mobile.quickUBB.insertQuickReplyUBB);
+      Utils.tryCatch().run(
         mobileRepeatFunc.editorOptimizationOffDefaultBottomReplyBtnClickEvent
       );
-      Utils.tryCatch(chartbedWaterMarkEvent);
+      Utils.tryCatch().run(chartbedWaterMarkEvent);
     },
     /**
      * 编辑器优化-完整版
@@ -8506,9 +8502,9 @@
       ) {
         return;
       }
-      Utils.tryCatch(mobile.editorChartBed);
-      Utils.tryCatch(mobile.previewPostForum);
-      Utils.tryCatch(mobile.quickUBB.insertReplayUBB);
+      Utils.tryCatch().run(mobile.editorChartBed);
+      Utils.tryCatch().run(mobile.previewPostForum);
+      Utils.tryCatch().run(mobile.quickUBB.insertReplayUBB);
       GM_addStyle(`
       .f_c, .f_c a, .ntc_body{
           color: #000000 !important;
@@ -9397,8 +9393,8 @@
         );
       }
       $jq("#needmessage").attr("placeholder", "来吧，尽情发挥吧...");
-      Utils.tryCatch(mobile.selectPostingSection);
-      Utils.tryCatch(setSettingViewEvent);
+      Utils.tryCatch().run(mobile.selectPostingSection);
+      Utils.tryCatch().run(setSettingViewEvent);
     },
     /**
      * 蓝奏功能(登录、上传、查看历史上传、删除)
@@ -10544,11 +10540,11 @@
         return;
       }
       function beforeHookRun() {
-        Utils.tryCatch(mobileRepeatFunc.showUserUID);
-        Utils.tryCatch(mobileRepeatFunc.shieldUser);
-        Utils.tryCatch(mobileRepeatFunc.shieldPlate);
-        Utils.tryCatch(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
-        Utils.tryCatch(mobileRepeatFunc.codeQuoteCopyBtn);
+        Utils.tryCatch().run(mobileRepeatFunc.showUserUID);
+        Utils.tryCatch().run(mobileRepeatFunc.shieldUser);
+        Utils.tryCatch().run(mobileRepeatFunc.shieldPlate);
+        Utils.tryCatch().run(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
+        Utils.tryCatch().run(mobileRepeatFunc.codeQuoteCopyBtn);
       }
       document.body.addEventListener("DOMNodeInserted", (event) => {
         let ele = event.target;
@@ -14004,7 +14000,6 @@
 						}
 						`);
           var latestPostFormHTML = "";
-          console.log(result);
           result.sort(
             Utils.sortListByProperty((item) => {
               var forumPostNum = item["href"].match(/thread-(.+?)-/i);
@@ -14013,7 +14008,7 @@
               return forumPostNum;
             }, true)
           );
-          console.log(result);
+          console.log("导读内容",result);
           result.forEach((item) => {
             latestPostFormHTML += `
             <li>
@@ -14553,11 +14548,11 @@
             unsafeWindow
           );
         }
-        Utils.tryCatch(setSelectNodeCSS);
-        Utils.tryCatch(setLastClickItem);
+        Utils.tryCatch().run(setSelectNodeCSS);
+        Utils.tryCatch().run(setLastClickItem);
 
-        Utils.tryCatch(setCodeNodeClickEvent);
-        Utils.tryCatch(setSelectNodeChangeEvent);
+        Utils.tryCatch().run(setCodeNodeClickEvent);
+        Utils.tryCatch().run(setSelectNodeChangeEvent);
       }
     },
   };
@@ -14566,14 +14561,14 @@
     /* 这是入口 */
     if (!envIsMobile()) {
       console.log("PC端显示");
-      Utils.tryCatch(pc.repairPCNoLoadResource);
+      Utils.tryCatch().run(pc.repairPCNoLoadResource);
       $jq(document).ready(function () {
         pc.main();
       });
     } else {
       console.log("移动端显示");
       $jq(document).ready(function () {
-        Utils.tryCatch(mobile.loadSettingView);
+        Utils.tryCatch().run(mobile.loadSettingView);
         mobile.main();
       });
     }
