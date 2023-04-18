@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.6.2
+// @version      0.6.3
 // @description  支持手机端和PC端
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -25,9 +25,9 @@
 
 (function () {
   let log = new Utils.Log(GM_info);
-  function waitForElementToRemove(_query_ = "") {
+  function waitForElementToRemove(selectorText = "") {
     /* 移除元素（未出现也可以等待出现） */
-    Utils.waitNode(_query_).then((dom) => {
+    Utils.waitNode(selectorText).then((dom) => {
       dom.forEach((item) => {
         $(item).remove();
       });
@@ -41,12 +41,17 @@
   let GM_addStyle = Utils.GM_addStyle;
   function JianShu() {
     /* 简书 */
+    /**
+     * 判断是否是 简书
+     * @returns true|false
+     */
     function isJianShu() {
-      /* 判断是否是 简书 */
       return Boolean(/jianshu.(com|io)/i.test(window.location.origin));
     }
+    /**
+     * 全文居中
+     */
     function articleCenter() {
-      /* 全文居中 */
       const articleCenterCSS = `
 			div[role=main] aside,
 			div._3Pnjry{
@@ -65,13 +70,25 @@
         });
       });
     }
+    /**
+     * 手机-移除底部推荐阅读
+     */
     function JianShuremoveFooterRecommendRead() {
-      /* 手机-移除底部推荐阅读 */
       GM_addStyle(`
 			#recommended-notes{
 				display: none !important;
 			}
 			`);
+    }
+    /**
+     * 去除剪贴板劫持
+     */
+    function removeClipboardHijacking() {
+      const stopNativePropagation = (event) => {
+        event.stopPropagation();
+      };
+      window.addEventListener("copy", stopNativePropagation, true);
+      document.addEventListener("copy", stopNativePropagation, true);
     }
     function PC() {
       log.info("当前为PC和移动端混合处理");
@@ -141,7 +158,7 @@
           },
         });
       });
-
+      removeClipboardHijacking();
       if (GM_Menu.get("JianShuArticleCenter")) {
         articleCenter();
       }
@@ -453,8 +470,10 @@
         overflow: auto !important;
       }
   `;
+      /**
+       * 去除剪贴板劫持
+       */
       function removeClipboardHijacking() {
-        /* 去除剪贴板劫持 */
         log.info("去除剪贴板劫持");
         $(".article-copyright")?.remove();
         if (unsafeWindow.articleType) {
