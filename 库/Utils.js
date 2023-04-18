@@ -1,8 +1,8 @@
 /**
- * 自己常用的工具类定义
+ * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.9
+ * @version  2.0
  **/
 (function (Utils) {
   /**
@@ -55,7 +55,7 @@
     }
     return Promise.all(
       Array.from(arrayData).map(async (item, index) => {
-        await that.tryCatch(handleDataFunction, [index, item]);
+        await that.tryCatch(index, item).run(handleDataFunction);
       })
     );
   };
@@ -107,7 +107,7 @@
     }
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(that.tryCatch(fnStr));
+        resolve(that.tryCatch().run(fnStr));
       }, delayTime);
     });
   };
@@ -747,6 +747,7 @@
         document.documentElement.childNodes[0]
       );
     }
+    return cssNode;
   };
 
   /**
@@ -1091,8 +1092,6 @@
         _context = context || window;
         _funcName = getFuncName(this);
         _context["realFunc_" + _funcName] = this;
-
-        console.log(window);
 
         if (
           _context[_funcName].prototype &&
@@ -2067,7 +2066,7 @@
    * })
    * log.success("颜色为#31dc02");
    */
-  Utils.Log = function (_GM_info_,debug = false) {
+  Utils.Log = function (_GM_info_) {
     if (typeof _GM_info_ !== "object") {
       throw new Error(
         'Utils.Log 请添加@grant GM_info且传入该参数,如果使用"use strict"; 就无法获取caller'
@@ -2083,7 +2082,11 @@
       successColor: "blue" /* 成功颜色 */,
       errorColor: "red" /* 错误颜色 */,
       infoColor: "0" /* 信息颜色 */,
+      debug: false /* 开启debug模式，会在控制台输出调用者位置 */,
+      autoClearConsole: false /* 当console输出超过logMaxCount数量自动清理控制台 */,
+      logMaxCount: 999 /* console输出的最高数量，autoClearConsole开启则生效 */,
     };
+    let logCount = 0;
     /**
      * 解析Error的堆栈获取调用者所在的函数位置
      * @param {list} stack
@@ -2123,6 +2126,19 @@
       }
       return result;
     };
+    /**
+     * 检测清理控制台
+     * @this {this}
+     */
+    let checkClearConsole = function () {
+      logCount++;
+      if (
+        this.details.autoClearConsole &&
+        logCount > this.details.logMaxCount
+      ) {
+        console.clear();
+      }
+    };
     this.tag = _GM_info_?.script?.name;
     /**
      * 控制台-普通输出
@@ -2131,6 +2147,7 @@
      * @param {String} type
      */
     this.info = function (msg, color, type = "info") {
+      checkClearConsole.apply(this);
       let stack = new Error().stack.split("\n");
       if (type === "info") {
         color = color || this.details.infoColor;
@@ -2154,7 +2171,7 @@
           `color: ${color}`
         );
       }
-      if(debug){
+      if (this.details.debug) {
         console.log(stackFunctionNamePosition);
       }
     };
@@ -2173,6 +2190,33 @@
      */
     this.success = function (msg, color) {
       this.info(msg, color || this.details.successColor, "success");
+    };
+    /**
+     * 控制台-输出表格
+     * @param {object} msgObj
+     * @example
+     * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
+     */
+    this.table = function (msgObj) {
+      checkClearConsole.apply(this);
+      let stack = new Error().stack.split("\n");
+      if (type === "info") {
+        color = color || this.details.infoColor;
+      }
+      stack.splice(0, 1);
+      let errorStackParse = parseErrorStack(stack);
+      let stackFunctionName = errorStackParse["functionName"];
+      let stackFunctionNamePosition = errorStackParse["functionPosition"];
+      let callerName = stackFunctionName;
+      console.log(
+        `%c[${this.tag}%c-%c${callerName}%c]%c`,
+        ...msgColorDetails,
+        `color: ${color}`
+      );
+      console.table(msgObj);
+      if (this.details.debug) {
+        console.log(stackFunctionNamePosition);
+      }
     };
     /**
      * 配置Log对象的颜色
@@ -2613,52 +2657,93 @@
     }
   };
   /**
-   * @param {string|function} func - 需要捕获错误的函数或函数格式的字符串
-   * @param {object} params - 该函数的参数和捕获到错误的函数的参数，类型为数组Array
-   * @param {string|function} errorFunc - 捕获到错误后执行的函数或函数格式的字符串
-   * @example Utils.tryCatch("(pam)=>{console.log('this is a function and params is' + pam[0])}",["参数1"],"()=>{console.log('对错误进行处理判断')}");
-   * @example Utils.tryCatch((pam)=>{console.log('this is a function and params is' + pam[0])},["参数1"],"()=>{console.log('对错误进行处理判断')}");
-   **/
-  Utils.tryCatch = function (func, params, errorFunc) {
-    /* 捕获错误 */
-    if (func == null) {
-      throw new Error("Utils.tryCatch 警告: 参数 func 为不存在");
-    }
-    if (typeof func !== "function" && typeof func !== "string") {
-      throw new Error("Utils.tryCatch 参数 func 必须为 Function|String 类型");
-    }
-    if (
-      params != null &&
-      typeof params !== "object" &&
-      typeof params !== "string"
-    ) {
-      throw new Error("Utils.tryCatch 参数 params 必须为 object|String 类型");
-    }
-    if (
-      errorFunc != null &&
-      typeof errorFunc !== "object" &&
-      typeof errorFunc !== "string"
-    ) {
-      throw new Error(
-        "Utils.tryCatch 参数 errorFunc 必须为 Function|String 类型"
-      );
-    }
-    var result = null;
-    try {
-      result = typeof func === "string" ? window.eval(func) : func(params);
-    } catch (error) {
-      console.log(
-        "%c" + (func?.name ? func?.name : func + "出现错误"),
-        "color: #f20000"
-      );
-      console.log("%c" + ("错误原因：" + error), "color: #f20000");
-      console.trace(func);
-      result =
-        typeof func === "string" ? window.eval(errorFunc) : errorFunc(params);
-    } finally {
+   * @function Utils.tryCatch
+   * @description 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+   * @param {object|string} params - 函数参数（可选），可以是 object 或 string 类型。如果是 string 类型，则会被当做代码进行执行。
+   * @return {function} - 返回一个对象，其中包含 error 和 run 两个方法。
+   */
+  Utils.tryCatch = function (params) {
+    // 定义变量和函数
+    let func = null;
+    let funcThis = null;
+    let handleErrorFunc = null;
+
+    /**
+     * @function tryCatchObj
+     * @description 空函数，用于链式调用。
+     */
+    function tryCatchObj() {}
+
+    /**
+     * @method error
+     * @description 设置错误处理函数。
+     * @param {function|string} handler - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @return {function} - 返回 tryCatchObj 函数。
+     */
+    tryCatchObj.error = function (handler) {
+      handleErrorFunc = handler;
+      return tryCatchObj;
+    };
+
+    /**
+     * @method run
+     * @description 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+     * @param {function|string} fn - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @param {object|null} fnThis - 待执行函数的作用域，用于apply指定
+     * @return {any|function} - 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
+     * @throws {Error} - 如果传入参数不符合要求，则会抛出相应类型的错误。
+     */
+    tryCatchObj.run = function (fn, fnThis) {
+      func = fn;
+      funcThis = fnThis;
+      let result = executeTryCatch(func, handleErrorFunc, funcThis);
+      return result !== undefined ? result : tryCatchObj;
+    };
+
+    /**
+     * @function executeTryCatch
+     * @description 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+     * @param {function|string} func - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @param {function|string|null} handleErrorFunc - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @param {object|null} funcThis - 待执行函数的作用域，用于apply指定
+     * @return {any|undefined} - 如果函数有返回值，则返回该返回值；否则返回 undefined。
+     */
+    function executeTryCatch(func, handleErrorFunc, funcThis) {
+      let result = undefined;
+      try {
+        if (typeof func === "string") {
+          window.eval(func);
+        } else {
+          result = func.apply(
+            funcThis,
+            Array.prototype.slice.call(arguments, 2)
+          );
+        }
+      } catch (error) {
+        console.log(
+          `%c ${func?.name ? func?.name : func + "出现错误"} `,
+          "color: #f20000"
+        );
+        console.log(`%c 错误原因：${error}`, "color: #f20000");
+        console.trace(func);
+        if (handleErrorFunc) {
+          if (typeof handleErrorFunc === "string") {
+            result = window.eval(handleErrorFunc);
+          } else {
+            result = handleErrorFunc.apply(
+              funcThis,
+              Array.prototype.slice.call(arguments, 2)
+            );
+          }
+        }
+      }
       return result;
     }
+
+    // 返回 tryCatchObj 函数
+    return tryCatchObj;
   };
+
   /**
    * 数组去重，去除重复的值
    * @param {object} uniqueArrayData - 需要去重的数组
@@ -2687,37 +2772,59 @@
   };
 
   /**
-   * 等待某个对象出现，结果为异步，需要await或者then
-   * @param {string} nodeSelector - 需要寻找的元素，传入字符串格式的元素选择器，如div#xxxx...
-   * @return {Array} - 如果找到返回数组形式的Node类型的对象，否则返回空数组
-   * @example await Utils.waitNode("div.xxx");
-   * @example Utils.waitNode("div#xxx").then((nodeList)=>{xxxx});
-   **/
-  Utils.waitNode = function (nodeSelector) {
-    if (typeof nodeSelector !== "string") {
-      throw new Error("Utils.waitNode 参数 target 必须为 string 类型");
+   * 等待指定节点出现，支持多个 selector
+   *
+   * @param {...string} nodeSelectors - 一个或多个节点选择器，必须为字符串类型
+   * @returns {Promise} 返回一个 Promise 对象，成功时返回节点数组，如[ [...nodes], [...nodes] ]
+   * 如果参数 nodeSelectors 只有一个的话，返回 [...nodes]
+   * @example
+   * Utils.waitNode("div.xxx","a.xxx").then( (nodeList)=>{
+   *  let divNodesList = nodeList[0];
+   *  let aNodeList = nodeList[1];
+   * })
+   */
+  Utils.waitNode = function (...nodeSelectors) {
+    /* 检查每个参数是否为字符串类型 */
+    for (const nodeSelector of nodeSelectors) {
+      if (typeof nodeSelector !== "string") {
+        throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+      }
     }
+
     return new Promise((resolve) => {
       /* 防止触发第二次回调 */
       let isReturn = false;
-      let selectNode = document.querySelectorAll(nodeSelector);
-      if (selectNode.length !== 0) {
-        resolve(selectNode);
-      } else {
-        Utils.mutationObserver(document.documentElement, {
-          callback: (mutations, observer) => {
-            let selectNode = document.querySelectorAll(nodeSelector);
-            if (selectNode.length !== 0) {
-              observer.disconnect();
-              if (!isReturn) {
-                isReturn = true;
-                resolve(selectNode);
-              }
+
+      /* 检查所有选择器是否匹配到节点 */
+      const checkNodes = () => {
+        const selectNodes = nodeSelectors.map((selector) => [
+          ...document.querySelectorAll(selector),
+        ]);
+        if (selectNodes.flat().length !== 0) {
+          if (!isReturn) {
+            isReturn = true;
+            if (nodeSelectors.length === 1) {
+              resolve(selectNodes.flat());
+            } else {
+              resolve(selectNodes);
             }
-          },
-          config: { subtree: true, childList: true, attributes: true },
-        });
-      }
+          }
+        }
+      };
+
+      /* 在函数开始时检查节点是否已经存在 */
+      checkNodes();
+
+      /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
+      Utils.mutationObserver(document.documentElement, {
+        callback: (mutations, observer) => {
+          checkNodes();
+          if (isReturn) {
+            observer.disconnect();
+          }
+        },
+        config: { subtree: true, childList: true, attributes: true },
+      });
     });
   };
 })((Utils = {}));
