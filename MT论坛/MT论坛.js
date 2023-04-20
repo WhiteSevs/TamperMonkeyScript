@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.2
+// @version      2.9.3
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -6863,7 +6863,7 @@
             position: fixed;
             display: inline-flex;
             flex-direction: column;
-            z-index: 90;
+            z-index: 92;
             left: 0;
             right: 0;
             bottom: 0;
@@ -6920,6 +6920,9 @@
             border-radius: 15px;
             height: 30px;
             width: 100%;
+        }
+        #comiis_foot_menu_beautify_big .comiis_smiley_box{
+          padding: 6px 6px 0px;
         }
         #comiis_foot_menu_beautify_big .reply_area{
             margin: 10px 0px 5px 0px;
