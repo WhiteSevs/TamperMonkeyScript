@@ -1631,7 +1631,7 @@
             }
             bottomZhanNode.setAttribute("data-isaddreviews", true);
             var replyNode = bottomZhanNode.querySelector("a");
-            var replyUrl = replyNode.getAttribute("datahref");
+            var replyUrl = replyNode.getAttribute("datahref") || replyNode.href;
             var rewardUrl = replyUrl
               .replace("mod=post&", "mod=misc&")
               .replace("action=reply&", "action=comment&");
@@ -2457,15 +2457,21 @@
      * 取消绑定回复底部回复按钮的默认事件
      */
     editorOptimizationOffDefaultBottomReplyBtnClickEvent() {
-      $jq.each($jq(".comiis_postli_times .dialog[href*=reply]"), (i, v) => {
-        /* 把回复按钮的href改成JavaScript:; */
-        let href = v.getAttribute("href");
-        if (href != "javascript:;") {
-          v.setAttribute("class", "f_c dialog_reply");
-          v.setAttribute("datahref", href);
-          v.setAttribute("href", "javascript:;");
+      if (!GM_getValue("v49", false)) {
+        return;
+      }
+      $jq.each(
+        $jq(".comiis_postli_times .dialog[href*=reply]"),
+        (index, item) => {
+          /* 把回复按钮的href改成JavaScript:; */
+          let href = item.getAttribute("href");
+          if (href != "javascript:;") {
+            item.setAttribute("class", "f_c dialog_reply");
+            item.setAttribute("datahref", href);
+            item.setAttribute("href", "javascript:;");
+          }
         }
-      });
+      );
     },
     /**
      * 移除评论区字体效果
