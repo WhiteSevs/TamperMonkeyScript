@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.1
+// @version      2.9.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -652,12 +652,14 @@
         "color:#f90000"
       );
     }
+    /* x浏览器，知不知道GM_xmlhttpRequest是跨域用的，还判断cors？多此一举 */
     if (typeof mbrowser != "undefined") {
       window.GM_xmlhttpRequest_isRepair = false;
-      var trans_id = uuid();
+      let trans_id = uuid();
+      let mbrowserUserScriptId = user_script_id;
       GM_xmlhttpRequest = (req) => {
         _XJSAPI_.g_gm_callback_map[
-          `_${user_script_id_}_${trans_id}_GM_xmlhttpRequest`
+          `_${mbrowserUserScriptId}_${trans_id}_GM_xmlhttpRequest`
         ] = req;
         if (req.url && !req.url.startsWith("http")) {
           req.url = `${window.location.origin}/${req.url.replace(/^\//, "")}`;
@@ -685,7 +687,7 @@
           }
         }
         mbrowser.GM_xmlhttpRequest(
-          user_script_id,
+          mbrowserUserScriptId,
           trans_id,
           JSON.stringify(req)
         );
@@ -4454,10 +4456,13 @@
             Utils.tryCatch().run(completeFunction);
           });
         });
-        $jq(document).on("click", "#imglist_kggzs .delImg", async function (event) {
-          event.preventDefault();
-          event.currentTarget.parentElement.remove();
-          /* popup2.toast('删除中，请稍后');
+        $jq(document).on(
+          "click",
+          "#imglist_kggzs .delImg",
+          async function (event) {
+            event.preventDefault();
+            event.currentTarget.parentElement.remove();
+            /* popup2.toast('删除中，请稍后');
                     let id_encoded = e.currentTarget.getAttribute("id-encode");
                     if(!id_encoded){
                         popup2.toast('获取id_encoded失败，请自行去Hello图床删除');
@@ -4468,7 +4473,8 @@
                         e.currentTarget.parentElement.remove();
                         mobile.chartBed.storage.delete("kggzs",id_encoded);
                     } */
-        });
+          }
+        );
       }
 
       function chatHelloChartBed() {
@@ -14008,7 +14014,7 @@
               return forumPostNum;
             }, true)
           );
-          console.log("导读内容",result);
+          console.log("导读内容", result);
           result.forEach((item) => {
             latestPostFormHTML += `
             <li>
