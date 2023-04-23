@@ -639,11 +639,38 @@
         }
       };
     },
+    /* 禁止滚动 */
+    forbiddenScroll() {
+      let forbiddenScrollCSSNode = document.createElement("style");
+      forbiddenScrollCSSNode.setAttribute("type", "text/css");
+      forbiddenScrollCSSNode.setAttribute("data-use", "forbiddenscroll");
+      forbiddenScrollCSSNode.innerHTML = `
+      html,body {
+        overflow: hidden !important;
+      }
+      `;
+      document.head.appendChild(forbiddenScrollCSSNode);
+      /**
+       * 允许滚动
+       */
+      function forbiddenScrollListener(event) {
+        event.preventDefault();
+      }
+      document.addEventListener("touchmove", forbiddenScrollListener, false);
+      function allowScroll() {
+        forbiddenScrollCSSNode?.remove();
+        forbiddenScrollCSSNode = null;
+        document.removeEventListener("touchmove", forbiddenScrollListener);
+      }
+      return {
+        allowScroll: allowScroll,
+      };
+    },
   };
 
   var pops = {};
   pops.config = {
-    version: "0.0.5",
+    version: "0.0.6",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -992,7 +1019,9 @@
     }
     this.config.cssElement = cssResourceNode;
     this.config.init = true;
-    this.config.animation = popsUtils.getKeyFrames(this.config.cssElement.sheet);
+    this.config.animation = popsUtils.getKeyFrames(
+      this.config.cssElement.sheet
+    );
   };
 
   pops.isPhone = () => {
@@ -1046,6 +1075,7 @@
       zIndex: 10000 /* 弹窗所在的层级 */,
       mask: false /* 遮罩层 */,
       drag: false /* 是否拖拽 */,
+      forbiddenScroll: false /* 禁止页面滚动 */,
     };
     config = popsUtils.assignJSON(
       config,
@@ -1188,6 +1218,7 @@
         limit: true,
       });
     }
+
     return {
       guid: guid,
       animElement: animElement,
@@ -1270,6 +1301,7 @@
       zIndex: 10000 /* 弹窗所在的层级 */,
       mask: false /* 遮罩层 */,
       drag: false /* 是否拖拽 */,
+      forbiddenScroll: false /* 禁止页面滚动 */,
     };
     config = popsUtils.assignJSON(
       config,
@@ -1453,6 +1485,7 @@
         limit: true,
       });
     }
+
     return {
       guid: guid,
       element: animElement,
@@ -1537,6 +1570,7 @@
       zIndex: 10000 /* 弹窗所在的层级 */,
       mask: false /* 遮罩层 */,
       drag: false /* 是否拖拽 */,
+      forbiddenScroll: false /* 禁止页面滚动 */,
     };
     config = popsUtils.assignJSON(
       config,
@@ -1736,6 +1770,7 @@
       /* 设置焦点 */
       inputElement?.focus();
     }
+
     return {
       guid: guid,
       animElement: animElement,
@@ -1769,6 +1804,7 @@
       zIndex: 10000 /* 弹窗所在的层级 */,
       mask: true /* 遮罩层 */,
       animation: "pops-anim-fadein-zoom" /* 动画效果 */,
+      forbiddenScroll: false /* 阻止页面滚动 */,
     };
     config = popsUtils.assignJSON(
       config,
@@ -1816,6 +1852,7 @@
         maskElement: maskElement,
       },
     ];
+
     return {
       guid: guid,
       animElement: animElement,
@@ -1861,6 +1898,7 @@
       height: "250px" /* 高度 */,
       topRightButton: "min|max|close" /* 右上角按钮：最小化、最大化和关闭 */,
       sandbox: false /* 沙箱 */,
+      forbiddenScroll: false /* 禁止页面滚动 */,
       loadEndCallBack: () => {} /* 网页加载完毕的callback */,
       btn: {
         min: {
@@ -2108,6 +2146,7 @@
       }, 1000 * 0.3);
       config.btn.close.callback(event);
     });
+
     return {
       guid: guid,
       animElement: animElement,
