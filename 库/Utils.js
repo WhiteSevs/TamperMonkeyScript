@@ -2011,7 +2011,7 @@
         otherCodeList = [...otherCodeList, "shift"];
       }
       if (typeof callback === "function") {
-        callback(keyName, otherCodeList);
+        callback(keyName, otherCodeList,event);
       }
     });
   };
