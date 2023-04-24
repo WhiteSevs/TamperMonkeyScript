@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.6
+// @version      0.7.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -820,7 +820,7 @@
             }
           }
           if (url !== "" || url != null) {
-            url = url;
+            url = decodeURI(url);
           } else {
             url = null;
             log.error("未找到真实链接");
@@ -961,7 +961,7 @@
               return;
             }
             if (realLinkUrl.match(/http:\/\/www.internal.video.baidu.com/g)) {
-              let internalVideo = decodeURIComponent(
+              let internalVideo = decodeURI(
                 articleElement.getAttribute("rl-link-data-log")
               );
               let internalVideoMatch = internalVideo.match(
