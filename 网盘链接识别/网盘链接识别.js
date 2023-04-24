@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.4.23.15.20
+// @version      23.4.24.17.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -379,12 +379,12 @@
       }
       if (matchTextRange.toLowerCase() === "all") {
         $.each(this.regular, (netdiskName, item) => {
-          WorkerHandle.GM_matchWorker.postMessage({
+          NetDiskWorker.GM_matchWorker.postMessage({
             regexp: new RegExp(item["link_innerText"], "gi"),
             pageText: this.pageText,
             netdiskName: netdiskName,
           });
-          WorkerHandle.GM_matchWorker.postMessage({
+          NetDiskWorker.GM_matchWorker.postMessage({
             regexp: new RegExp(item["link_innerHTML"], "gi"),
             pageText: this.pageText,
             netdiskName: netdiskName,
@@ -392,7 +392,7 @@
         });
       } else {
         $.each(this.regular, (netdiskName, item) => {
-          WorkerHandle.GM_matchWorker.postMessage({
+          NetDiskWorker.GM_matchWorker.postMessage({
             regexp: new RegExp(item[`link_${matchTextRange}`], "gi"),
             pageText: this.pageText,
             netdiskName: netdiskName,
@@ -408,15 +408,15 @@
     handleLink(netDiskName, url) {
       let currentDict = this.linkDict.get(netDiskName);
       let shareCode = this.handleShareCode(netDiskName, url);
-      if (shareCode == "" || shareCode == null) {
+      if (shareCode === "" || shareCode == null) {
         return null;
       }
       let accessCode = this.handleAccessCode(netDiskName, url);
       if (currentDict.has(shareCode)) {
         let dictAccessCode = this.linkDict.get(netDiskName).get(shareCode);
-        if (dictAccessCode == "" && accessCode != "" && accessCode != null) {
+        if (dictAccessCode === "" && accessCode !== "" && accessCode != null) {
           currentDict.set(shareCode, accessCode);
-          UI.view.changeLinkView(netDiskName, shareCode, accessCode);
+          NetDiskUI.view.changeLinkView(netDiskName, shareCode, accessCode);
           log.info(
             `已存在该链接，但无密码，设置密码 ${netDiskName}: ${shareCode}  ===> ${accessCode}`
           );
@@ -424,8 +424,8 @@
       } else {
         this.hasMatchLink = true;
         currentDict.set(shareCode, accessCode);
-        UI.matchIcon.add(netDiskName);
-        UI.view.addLinkView(netDiskName, shareCode, accessCode);
+        NetDiskUI.matchIcon.add(netDiskName);
+        NetDiskUI.view.addLinkView(netDiskName, shareCode, accessCode);
         log.success(
           `添加链接 ${netDiskName}: ${shareCode}  ===> ${accessCode}`
         );
@@ -808,7 +808,7 @@
               let zt = json_data["zt"];
               if ("密码不正确".indexOf(json_data["inf"]) != -1) {
                 Qmsg.error("密码不正确!");
-                UI.newAccessCodeView(
+                NetDiskUI.newAccessCodeView(
                   undefined,
                   "lanzou",
                   shareCode,
@@ -824,12 +824,12 @@
                 );
                 log.info(downloadUrl);
 
-                downloadUrl = filterScheme.handleUrl(
+                downloadUrl = NetDiskFilterScheme.handleUrl(
                   "lanzou-static-scheme-enable",
                   "lanzou-static-scheme-forward",
                   downloadUrl
                 );
-                UI.staticView.oneFile(
+                NetDiskUI.staticView.oneFile(
                   "蓝奏云单文件直链",
                   fileName,
                   fileSize,
@@ -855,12 +855,12 @@
               );
               log.info(downloadUrl);
 
-              downloadUrl = filterScheme.handleUrl(
+              downloadUrl = NetDiskFilterScheme.handleUrl(
                 "lanzou-static-scheme-enable",
                 "lanzou-static-scheme-forward",
                 downloadUrl
               );
-              UI.staticView.oneFile(
+              NetDiskUI.staticView.oneFile(
                 "蓝奏云单文件直链",
                 fileName,
                 fileSize,
@@ -945,10 +945,10 @@
               log.info(`第${i + 1}个解析完毕`);
               folderContent += content;
             }
-            UI.staticView.moreFile("蓝奏云多文件直链", folderContent);
+            NetDiskUI.staticView.moreFile("蓝奏云多文件直链", folderContent);
           } else if ("密码不正确".indexOf(info) !== -1) {
             Qmsg.error("密码不正确!");
-            UI.newAccessCodeView(
+            NetDiskUI.newAccessCodeView(
               undefined,
               "lanzou",
               shareCode,
@@ -991,7 +991,7 @@
                 Utils.getRandomAndroidUA()
               );
 
-              submit_url = filterScheme.handleUrl(
+              submit_url = NetDiskFilterScheme.handleUrl(
                 "lanzou-static-scheme-enable",
                 "lanzou-static-scheme-forward",
                 downloadUrl
@@ -1074,7 +1074,7 @@
             that.isFolder = jsonData.isFolder;
             if (jsonData["needAccessCode"] && !that.accessCode) {
               Qmsg.error("密码不正确!");
-              UI.newAccessCodeView(
+              NetDiskUI.newAccessCodeView(
                 undefined,
                 "tianyiyun",
                 that.shareCode,
@@ -1162,12 +1162,12 @@
           log.info(jsonData);
           if (respData.status == 200 && jsonData.res_code == 0) {
             let download_url = jsonData.fileDownloadUrl;
-            download_url = filterScheme.handleUrl(
+            download_url = NetDiskFilterScheme.handleUrl(
               "tianyiyun-scheme-enable",
               "tianyiyun-scheme-forward",
               download_url
             );
-            UI.staticView.oneFile(
+            NetDiskUI.staticView.oneFile(
               "天翼云单文件直链",
               that.fileName,
               Utils.formatByteToSize(that.fileSize),
@@ -1397,15 +1397,15 @@
           let jsonData = JSON.parse(respData.responseText);
           if (respData.status == 200 && jsonData["code"] == 0) {
             let download_url = jsonData["data"]["url"];
-            if (download_url == "") {
+            if (download_url === "") {
               Qmsg.error("对方的分享流量不足");
             } else {
-              download_url = filterScheme.handleUrl(
+              download_url = NetDiskFilterScheme.handleUrl(
                 "wenshushu-static-scheme-enable",
                 "wenshushu-static-scheme-forward",
                 download_url
               );
-              UI.staticView.oneFile(
+              NetDiskUI.staticView.oneFile(
                 "文叔叔单文件直链",
                 file_name,
                 file_size,
@@ -1461,7 +1461,7 @@
             }
             let downloadUrl = fileInfo["DownloadUrl"];
             let fileSize = "";
-            if (downloadUrl == "") {
+            if (downloadUrl === "") {
               let downloadInfo = await that.getFileDownloadInfo(
                 fileInfo["Etag"],
                 fileInfo["FileId"],
@@ -1470,7 +1470,7 @@
                 fileInfo["Size"]
               );
               if (downloadInfo && downloadInfo["code"] === 0) {
-                downloadUrl = filterScheme.handleUrl(
+                downloadUrl = NetDiskFilterScheme.handleUrl(
                   "_123pan-static-scheme-enable",
                   "_123pan-static-scheme-forward",
                   downloadInfo["data"]["DownloadURL"]
@@ -1481,14 +1481,14 @@
                 fileSize = "获取下载链接失败";
               }
             } else {
-              downloadUrl = filterScheme.handleUrl(
+              downloadUrl = NetDiskFilterScheme.handleUrl(
                 "_123pan-static-scheme-enable",
                 "_123pan-static-scheme-forward",
                 downloadUrl
               );
               fileSize = Utils.formatByteToSize(fileInfo["Size"]);
             }
-            UI.staticView.oneFile(
+            NetDiskUI.staticView.oneFile(
               "123盘单文件直链",
               fileInfo["FileName"],
               fileSize,
@@ -1540,7 +1540,7 @@
                 </div>`;
               }
             });
-            UI.staticView.moreFile("123盘多文件直链", that.panelContent);
+            NetDiskUI.staticView.moreFile("123盘多文件直链", that.panelContent);
             log.info("递归完毕");
           }
         };
@@ -1575,10 +1575,10 @@
               return;
             }
             let HasPwd = g_initialProps.res.data.HasPwd;
-            if (HasPwd && (accessCode == null || accessCode == "")) {
+            if (HasPwd && (accessCode == null || accessCode === "")) {
               /* 该链接需要密码但是没有获取到 */
               Qmsg.error("密码缺失!");
-              UI.newAccessCodeView(
+              NetDiskUI.newAccessCodeView(
                 "密码缺失",
                 "_123pan",
                 shareCode,
@@ -1617,7 +1617,7 @@
               let infoList = json_data["data"]["InfoList"];
               return infoList;
             } else if (json_data["code"] == 5103) {
-              UI.newAccessCodeView(
+              NetDiskUI.newAccessCodeView(
                 undefined,
                 "_123pan",
                 shareCode,
@@ -1687,7 +1687,7 @@
                     updateTime: item["UpdateAt"],
                   },
                 ];
-              } else if (fileDownloadUrl == "") {
+              } else if (fileDownloadUrl === "") {
                 let downloadInfo = await that.getFileDownloadInfo(
                   item["Etag"],
                   item["FileId"],
@@ -1697,7 +1697,7 @@
                 );
                 if (downloadInfo && downloadInfo["code"] === 0) {
                   fileDownloadUrl = downloadInfo["data"]["DownloadURL"];
-                  filterScheme.handleUrl(
+                  NetDiskFilterScheme.handleUrl(
                     "_123pan-static-scheme-enable",
                     "_123pan-static-scheme-forward",
                     fileDownloadUrl
@@ -1725,7 +1725,7 @@
                   ];
                 }
               } else {
-                fileDownloadUrl = filterScheme.handleUrl(
+                fileDownloadUrl = NetDiskFilterScheme.handleUrl(
                   "_123pan-static-scheme-enable",
                   "_123pan-static-scheme-forward",
                   fileDownloadUrl
@@ -1826,13 +1826,13 @@
             if (!downloadUrl) {
               return;
             }
-            downloadUrl = filterScheme.handleUrl(
+            downloadUrl = NetDiskFilterScheme.handleUrl(
               "jianguoyun-static-scheme-enable",
               "jianguoyun-static-scheme-forward",
               downloadUrl
             );
             log.info(downloadUrl);
-            UI.staticView.oneFile(
+            NetDiskUI.staticView.oneFile(
               "坚果云盘单文件直链",
               downloadParams["name"],
               fileSize,
@@ -1862,7 +1862,7 @@
             if (!downloadUrl) {
               return;
             }
-            downloadUrl = filterScheme.handleUrl(
+            downloadUrl = NetDiskFilterScheme.handleUrl(
               "jianguoyun-static-scheme-enable",
               "jianguoyun-static-scheme-forward",
               downloadUrl
@@ -1899,7 +1899,7 @@
                 </div>
                 `;
           });
-          UI.staticView.moreFile("坚果云多文件直链", folderContent);
+          NetDiskUI.staticView.moreFile("坚果云多文件直链", folderContent);
         };
         /**
          * 获取下载链接所需要的hash值和name
@@ -1912,7 +1912,7 @@
           formData.append("pd", that.accessCode);
           let requestDetails = {
             url: `https://www.jianguoyun.com/p/${that.shareCode}`,
-            data: that.accessCode == "" ? undefined : `pd=${that.accessCode}`,
+            data: that.accessCode === "" ? undefined : `pd=${that.accessCode}`,
             responseType: "html",
             headers: {
               "content-type": "application/x-www-form-urlencoded",
@@ -1952,11 +1952,11 @@
             log.success("size ===> " + fileSize);
             if (
               fileNeedsPassword &&
-              (that.accessCode == null || that.accessCode == "")
+              (that.accessCode == null || that.accessCode === "")
             ) {
               /* 需要密码但没密码 */
               Qmsg.error("密码不正确!");
-              UI.newAccessCodeView(
+              NetDiskUI.newAccessCodeView(
                 "密码缺失",
                 "jianguoyun",
                 that.shareCode,
@@ -1968,7 +1968,7 @@
             }
             if (fileErrorCode === "AuthenticationFailed") {
               Qmsg.error("密码错误");
-              UI.newAccessCodeView(
+              NetDiskUI.newAccessCodeView(
                 undefined,
                 "jianguoyun",
                 that.shareCode,
@@ -1978,7 +1978,7 @@
               );
               return;
             }
-            if (fileHash == "" || fileHash == null) {
+            if (fileHash === "" || fileHash == null) {
               log.error("hash为空，可能文件被撤销分享了");
               Qmsg.error(`文件分享已被撤销`);
               return;
@@ -2012,7 +2012,7 @@
           fileName = encodeURIComponent(fileName);
           let getResp = await httpx.get({
             url: `https://www.jianguoyun.com/d/ajax/fileops/pubFileLink?k=${fileHash}&name=${fileName}&wm=false${
-              that.accessCode == "" ? "" : "&pd=" + that.accessCode
+              that.accessCode === "" ? "" : "&pd=" + that.accessCode
             }&forwin=1&_=${new Date().getTime()}`,
             responseType: "json",
             headers: {
@@ -2162,7 +2162,7 @@
         /{#shareCode#}/gi,
         shareCode
       );
-      url = filterScheme.handleUrl(
+      url = NetDiskFilterScheme.handleUrl(
         `${netDiskName}-scheme-enable`,
         `${netDiskName}-scheme-forward`,
         url
@@ -2193,7 +2193,7 @@
     },
   };
 
-  const filterScheme = {
+  const NetDiskFilterScheme = {
     /* android scheme调用 */
     defaultScheme:
       "jumpwsv://go?package=idm.internet.download.manager.plus&activity=idm.internet.download.manager.UrlHandlerDownloader&intentAction=android.intent.action.VIEW&intentData={#intentData#}&intentExtra=",
@@ -2214,7 +2214,7 @@
     },
   };
 
-  const WorkerHandle = {
+  const NetDiskWorker = {
     blobUrl: "",
     GM_matchWorker: null,
     /**
@@ -2245,22 +2245,22 @@
       })();
       `;
       var blob = new Blob([handleMatch]);
-      WorkerHandle.blobUrl = window.URL.createObjectURL(blob);
-      log.info(`Worker Blobk Link ===> ${WorkerHandle.blobUrl}`);
+      NetDiskWorker.blobUrl = window.URL.createObjectURL(blob);
+      log.info(`Worker Blobk Link ===> ${NetDiskWorker.blobUrl}`);
     },
     /**
      * 初始化Worker对象
      */
     initWorker: function () {
-      WorkerHandle.GM_matchWorker = new Worker(WorkerHandle.blobUrl);
-      WorkerHandle.GM_matchWorker.onmessage = function (event) {
-        WorkerHandle.successCallBack(
+      NetDiskWorker.GM_matchWorker = new Worker(NetDiskWorker.blobUrl);
+      NetDiskWorker.GM_matchWorker.onmessage = function (event) {
+        NetDiskWorker.successCallBack(
           event.data["data"],
           event.data["netdiskName"]
         );
       };
-      WorkerHandle.GM_matchWorker.onerror = function (error) {
-        WorkerHandle.errorCallBack(error);
+      NetDiskWorker.GM_matchWorker.onerror = function (error) {
+        NetDiskWorker.errorCallBack(error);
       };
     },
     /**
@@ -2271,9 +2271,9 @@
      */
     successCallBack: function (matchLink, netdiskName) {
       /* worker处理文件匹配后的回调 */
-      if (matchLink.length === 0 && UI.isHandling) {
+      if (matchLink.length === 0 && NetDiskUI.isHandling) {
         setTimeout(() => {
-          UI.isHandling = false;
+          NetDiskUI.isHandling = false;
           /* 延迟赋值-防止页面子元素插入导致闪烁 */
         }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
         return;
@@ -2290,10 +2290,10 @@
       });
 
       if (NetDisk.hasMatchLink) {
-        UI.suspension.show();
+        NetDiskUI.suspension.show();
       }
       setTimeout(() => {
-        UI.isHandling = false;
+        NetDiskUI.isHandling = false;
       }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
     },
     /**
@@ -2304,7 +2304,7 @@
       log.error(["Worker Error", error]);
     },
   };
-  const UI = {
+  const NetDiskUI = {
     matchIcon: new Set() /* 已匹配到的网盘图标字典 */,
     size: 50 /* 高度和宽度 */,
     opacity: 1 /* 按钮透明度 */,
@@ -2342,41 +2342,41 @@
       /*  悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮） */
       isShow: false,
       show() {
-        if (!UI.suspension.isShow) {
+        if (!NetDiskUI.suspension.isShow) {
           this.createUI();
           this.initPop();
           this.setSuspensionEvent();
           this.setSuspensionDefaultPositionEvent();
           this.resizeEvent();
 
-          UI.suspension.isShow = true;
+          NetDiskUI.suspension.isShow = true;
         }
         this.randBg();
       },
       createUI() {
-        UI.size = GM_getValue("size") ? parseInt(GM_getValue("size")) : 50;
-        UI.opacity = GM_getValue("opacity")
+        NetDiskUI.size = GM_getValue("size") ? parseInt(GM_getValue("size")) : 50;
+        NetDiskUI.opacity = GM_getValue("opacity")
           ? parseFloat(GM_getValue("opacity"))
           : 1;
-        if (UI.size < 15) {
+        if (NetDiskUI.size < 15) {
           GM_setValue("size", 15);
-          UI.size = 15;
+          NetDiskUI.size = 15;
         }
-        if (UI.size > 250) {
+        if (NetDiskUI.size > 250) {
           GM_setValue("size", 250);
-          UI.size = 250;
+          NetDiskUI.size = 250;
         }
-        if (UI.opacity < 0.1) {
+        if (NetDiskUI.opacity < 0.1) {
           GM_setValue("opacity", 0.1);
-          UI.opacity = 0.1;
+          NetDiskUI.opacity = 0.1;
         }
-        if (UI.opacity > 1.0) {
+        if (NetDiskUI.opacity > 1.0) {
           GM_setValue("opacity", 1);
-          UI.opacity = 1;
+          NetDiskUI.opacity = 1;
         }
         this.loadCSS();
         let _html_ = `
-				<div class="whitesevSuspension" id="whitesevSuspensionId" style="width:${UI.size}px;height:${UI.size}px;opacity:${UI.opacity}">
+				<div class="whitesevSuspension" id="whitesevSuspensionId" style="width:${NetDiskUI.size}px;height:${NetDiskUI.size}px;opacity:${NetDiskUI.opacity}">
 					<div class="whitesevSuspensionMain">
 						<div class="whitesevSuspensionFloor">
 							<div class="netdisk"></div>
@@ -3304,7 +3304,7 @@
 					</div>
 				</div>
 				`;
-        UI.uiSettingAlias = pops.alert({
+        NetDiskUI.uiSettingAlias = pops.alert({
           title: {
             text: "设置",
             position: "center",
@@ -3371,8 +3371,8 @@
                       ".netdisk-setting input[data-key=opacity]"
                     ).val(),
                   });
-                  UI.size = itSize;
-                  UI.suspension.setSuspensionDefaultPositionEvent();
+                  NetDiskUI.size = itSize;
+                  NetDiskUI.suspension.setSuspensionDefaultPositionEvent();
                   GM_setValue(data_key, item.value);
                 });
 
@@ -3406,7 +3406,7 @@
         }
         function setSettingLabelEvent() {
           /* 设置点击Label设置range为默认值 */
-          $(UI.uiSettingAlias.popsElement)
+          $(NetDiskUI.uiSettingAlias.popsElement)
             .find("label[data-id*=netdisk-]")
             .on("click", function () {
               let obj = $(this);
@@ -3438,7 +3438,7 @@
                 forbiddenScroll: true,
               });
             });
-          $(UI.uiSettingAlias.popsElement)
+          $(NetDiskUI.uiSettingAlias.popsElement)
             .find("label[data-id*=netdisk-]")
             .each((index, item) => {
               $(item).css("cursor", "pointer");
@@ -3472,12 +3472,12 @@
               transition: "none",
             });
           }
-          if (event.phase == "move") {
+          if (event.phase === "move") {
             if (click_deviation_x > 250 || click_deviation_y > 250) {
               return;
             }
-            var maxL = $(window).width() - UI.size;
-            var maxT = $(window).height() - UI.size;
+            var maxL = $(window).width() - NetDiskUI.size;
+            var maxT = $(window).height() - NetDiskUI.size;
             var x = event.x - click_deviation_x;
             var y = event.y - click_deviation_y;
             x = x < maxL ? x : maxL;
@@ -3495,7 +3495,7 @@
             });
           }
 
-          if (event.phase == "end") {
+          if (event.phase === "end") {
             isClicked = false;
             $("#whitesevSuspensionId").css("cursor", "auto");
             let left_px = parseInt(
@@ -3503,7 +3503,7 @@
             );
             let setCSSLeft = 0;
             if (left_px >= $(window).width() / 2) {
-              setCSSLeft = $(window).width() - UI.size;
+              setCSSLeft = $(window).width() - NetDiskUI.size;
               if (top.window == self.window) {
                 GM_setValue("isRight", true);
               }
@@ -3530,13 +3530,13 @@
             timerID = setTimeout(function () {
               isDouble = false;
               that.showSettingView();
-            }, 300);
+            }, 150);
           } else {
             isDouble = true;
             timerID = setTimeout(function () {
               isDouble = false;
-              UI.view.show();
-            }, 300);
+              NetDiskUI.view.show();
+            }, 150);
           }
         });
         $(window).on("click", function (event) {
@@ -3553,14 +3553,14 @@
           }
           if (targetClassName === "whitesevPopNetDiskHistoryMatchMenu") {
             log.info("打开历史匹配记录界面");
-            UI.netDiskHistoryMatch.show();
+            NetDiskUI.netDiskHistoryMatch.show();
           }
         });
         $("#whitesevSuspensionId").on("contextmenu", function (event) {
           event.preventDefault();
           let settingEle = $("#whitesevSuspensionContextMenu");
-          var maxL1 = $(window).width() - UI.size;
-          var maxT1 = $(window).height() - UI.size;
+          var maxL1 = $(window).width() - NetDiskUI.size;
+          var maxT1 = $(window).height() - NetDiskUI.size;
           var x1 = event.clientX;
           var y1 = event.clientY;
           /* 不允许超出浏览器范围 */
@@ -3577,9 +3577,9 @@
       },
       setSuspensionDefaultPositionEvent() {
         /* 设置悬浮按钮位置 */
-        let maxY = $(window).height() - UI.size;
-        let defaultX = $(window).width() - UI.size;
-        let defaultY = $(window).height() / 2 - UI.size;
+        let maxY = $(window).height() - NetDiskUI.size;
+        let defaultX = $(window).width() - NetDiskUI.size;
+        let defaultY = $(window).height() / 2 - NetDiskUI.size;
         let setX = GM_getValue("suspensionX", defaultX);
         let setY = GM_getValue("suspensionY", defaultY);
 
@@ -3688,8 +3688,8 @@
         this.isRandBg = true;
         function getRandBgList() {
           let _result_list_ = [];
-          UI.matchIcon.forEach((item) => {
-            _result_list_ = [..._result_list_, UI.src.icon[item]];
+          NetDiskUI.matchIcon.forEach((item) => {
+            _result_list_ = [..._result_list_, NetDiskUI.src.icon[item]];
           });
           return _result_list_;
         }
@@ -3718,12 +3718,12 @@
      */
     view: {
       show() {
-        if (!UI.uiLinkAlias) {
+        if (!NetDiskUI.uiLinkAlias) {
           this.addCSS();
           this.createView();
           this.registerIconGotoPagePosition();
         } else {
-          UI.uiLinkAlias.show();
+          NetDiskUI.uiLinkAlias.show();
         }
       },
       addCSS() {
@@ -3796,7 +3796,7 @@
       },
       createView() {
         let viewAddHTML = "";
-        UI.matchIcon.forEach((netDiskName) => {
+        NetDiskUI.matchIcon.forEach((netDiskName) => {
           let netDisk = NetDisk.linkDict.get(netDiskName);
           $.each(netDisk.getItems(), (shareCode, accessCode) => {
             let uiLink = NetDisk.handleLinkShow(
@@ -3807,7 +3807,7 @@
             viewAddHTML =
               viewAddHTML +
               this.getViewHTML(
-                UI.src.icon[netDiskName],
+                NetDiskUI.src.icon[netDiskName],
                 netDiskName,
                 shareCode,
                 accessCode,
@@ -3819,7 +3819,7 @@
 					<div class="netdisk-url-box-all">
 						${viewAddHTML}
 					</div>`;
-        UI.uiLinkAlias = pops.alert({
+        NetDiskUI.uiLinkAlias = pops.alert({
           title: {
             text: "网盘",
             position: "center",
@@ -3922,16 +3922,16 @@
        * @returns
        */
       addLinkView(netDiskName, shareCode, accessCode) {
-        UI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
+        NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
           netDiskName,
           shareCode,
           accessCode
         );
-        if (!UI.uiLinkAlias) {
+        if (!NetDiskUI.uiLinkAlias) {
           return null;
         }
         log.info([netDiskName, shareCode, accessCode]);
-        let icon = UI.src.icon[netDiskName];
+        let icon = NetDiskUI.src.icon[netDiskName];
         let uiLink = NetDisk.handleLinkShow(netDiskName, shareCode, accessCode);
         let insertDOM = this.getViewHTML(
           icon,
@@ -3941,7 +3941,7 @@
           uiLink
         );
         let parentDOM = $(
-          UI.uiLinkAlias.popsElement.querySelector(".netdisk-url-box-all")
+          NetDiskUI.uiLinkAlias.popsElement.querySelector(".netdisk-url-box-all")
         );
         parentDOM.append(insertDOM);
       },
@@ -3953,17 +3953,17 @@
        * @returns
        */
       changeLinkView(netDiskName, shareCode, accessCode) {
-        UI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
+        NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
           netDiskName,
           shareCode,
           accessCode
         );
-        if (!UI.uiLinkAlias) {
+        if (!NetDiskUI.uiLinkAlias) {
           return null;
         }
         let uiLink = NetDisk.handleLinkShow(netDiskName, shareCode, accessCode);
         let needChangeDOM = $(
-          UI.uiLinkAlias.popsElement.querySelector(
+          NetDiskUI.uiLinkAlias.popsElement.querySelector(
             `.netdisk-url a[data-sharecode='${shareCode}']`
           )
         );
@@ -4180,12 +4180,13 @@
     netDiskHistoryMatch: {
       storageKey: "netDiskHistoryMatch" /* 本地存储的keyName */,
       isAddCss: false /* 是否已添加CSS */,
-      isSetEvent: false /* 是否已设置DOM事件 */,
+      isSetSearchEvent: false /* 是否已设置DOM事件 */,
+      isSetOtherEvent: false/* 是否已设置其它DOM事件 */,
       show() {
         this.addCSS();
         let data = this.getNetDiskHistoryMatchData();
         let dataHTML = "";
-        data.forEach((item) => {
+        data.forEach((item,index) => {
           let netDiskURL = NetDisk.handleLinkShow(
             item.netDiskName,
             item.shareCode,
@@ -4208,8 +4209,14 @@
             </div>
             <div class="netdiskrecord-icon">
               <p>网盘</p>
-              <img src="${UI.src.icon[item.netDiskName]}">
+              <img src="${NetDiskUI.src.icon[item.netDiskName]}">
             </div>
+            ${item.url === item.topURL ? `
+            <div class="netdiskrecord-url">
+              <p>网址</p>
+              <a href="${item.url}" target="_blank">${item.url}</a>
+            </div>
+            `:`
             <div class="netdiskrecord-url">
               <p>网址</p>
               <a href="${item.url}" target="_blank">${item.url}</a>
@@ -4217,6 +4224,11 @@
             <div class="netdiskrecord-top-url">
               <p>TOP网址</p>
               <a href="${item.topURL}" target="_blank">${item.topURL}</a>
+            </div>
+            `}
+            <div class="netdiskrecord-url-title">
+              <p>网址标题</p>
+              ${item.title}
             </div>
             <div class="netdiskrecord-add-time">
               <p>记录时间</p>
@@ -4226,11 +4238,15 @@
               <p>更新时间</p>
               ${Utils.getFormatTime(undefined, item.updateTime)}
             </div>
+            <div class="netdiskrecord-functions">
+              <p>功能</p>
+              <button class="btn-delete" data-index="${index}">删除</button>
+            </div>
           </li>`;
         });
         dataHTML = `
         <div class="netdiskrecord-search">
-          <input type="text" placeholder="搜索链接/网址，可正则搜索">
+          <input type="text" placeholder="搜索链接/网址/网址标题，可正则搜索">
         </div>
         <ul>${dataHTML}</ul>`;
         pops.confirm({
@@ -4268,6 +4284,7 @@
         });
         this.setEvent();
         this.setSearchEvent();
+        this.setOtherEvent();
       },
       addCSS() {
         if (this.isAddCss) {
@@ -4326,12 +4343,21 @@
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url{
           
         }
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete{
+          background: #263cf3;
+          color: #fff;
+        }
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete:active{
+          background: #6e7be8;
+        }
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,
-        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time{
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time,
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions{
           display: flex;
           margin: 5px 0px;
         }
@@ -4340,19 +4366,21 @@
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,
-        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p{
-          min-width: 60px;
-          max-width: 60px;
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p,
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title p,
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions p{
+          min-width: 80px;
+          max-width: 80px;
           align-self: center;
         }
         `);
       },
       setEvent() {
-        if (this.isSetEvent) {
+        if (this.isSetSearchEvent) {
           return;
         }
         this.isSetEvent = true;
-        UI.view.setNetDiskUrlClickEvent(
+        NetDiskUI.view.setNetDiskUrlClickEvent(
           ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a"
         );
       },
@@ -4395,13 +4423,16 @@
           let isFind = false; /* 找到的状态 */
           $(".whitesevPopNetDiskHistoryMatch .pops-confirm-content li").each(
             (index, item) => {
-              let linkNode = item.querySelector(".netdiskrecord-link a");
-              let urlNode = item.querySelector(".netdiskrecord-url a");
-              let topURLNode = item.querySelector(".netdiskrecord-top-url");
+              let linkNodeText = item.querySelector(".netdiskrecord-link a").innerText;
+              let urlNodeText = item.querySelector(".netdiskrecord-url a").innerText;
+              let topURLNodeText = item.querySelector(".netdiskrecord-top-url");
+              topURLNodeText = topURLNodeText ? topURLNodeText.innerText:"";
+              let urlTitleNodeText = item.querySelector(".netdiskrecord-url-title").innerText;
               if (
-                linkNode.innerText.match(new RegExp(inputText, "ig")) ||
-                urlNode.innerText.match(new RegExp(inputText, "ig")) ||
-                topURLNode.innerText.match(new RegExp(inputText, "ig"))
+                linkNodeText.match(new RegExp(inputText, "ig")) ||
+                urlNodeText.match(new RegExp(inputText, "ig")) ||
+                topURLNodeText.match(new RegExp(inputText, "ig")) ||
+                urlTitleNodeText.match(new RegExp(inputText,"ig"))
               ) {
                 /* 匹配到 */
                 isFind = true;
@@ -4426,6 +4457,35 @@
             }
           }
         );
+      },
+      setOtherEvent(){
+        if(this.isSetOtherEvent){
+          return
+        }
+        this.isSetOtherEvent = true;
+        
+        let that = this;
+        $(document).on("click",".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",function(){
+          /* 删除中的遮罩层 */
+          let deleteLoading = pops.loading({
+            parent: document.querySelector(
+              ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
+            ),
+            content: {
+              text: "搜索中...",
+            },
+            only: true,
+          });
+          let clickNode = $(this);
+          let index = parseInt(clickNode.attr("data-index"));
+          this.closest("li")?.remove();
+          that.deleteNetDiskHistoryMatchData(index);
+          $(".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete").each((index,item)=>{
+            $(item).attr("data-index",index);
+          })
+          deleteLoading?.close();
+
+        })
       },
       /**
        * 存储匹配到的链接
@@ -4452,6 +4512,9 @@
               log.success("匹配历史记录 -> 修改accessCode");
               data[i].accessCode = accessCode;
               data[i].updateTime = new Date().getTime();
+              if(data[i].title){
+                data[i].title = document.title;
+              }
               GM_setValue(this.storageKey, data);
               return;
             } else if (item.accessCode === accessCode) {
@@ -4472,6 +4535,7 @@
             accessCode,
             addTime: time,
             updateTime: time,
+            title: document.title || top.document.title
           },
         ];
         GM_setValue(this.storageKey, data);
@@ -4488,20 +4552,25 @@
         }
         return data;
       },
+      deleteNetDiskHistoryMatchData(index){
+        let data = this.getNetDiskHistoryMatchData();
+        data.splice(index,1);
+        GM_setValue(this.storageKey,data);
+      }
     },
     /**
      * 监听页面元素变动 进行匹配网盘链接
      */
     monitorDOMInsert() {
-      WorkerHandle.initWorkerBlobLink();
-      WorkerHandle.initWorker();
+      NetDiskWorker.initWorkerBlobLink();
+      NetDiskWorker.initWorker();
       Utils.mutationObserver(document.body, {
         callback: async (mutations) => {
-          if (UI.isHandling) {
+          if (NetDiskUI.isHandling) {
             /* 当前正在处理文本正则匹配中 */
             return null;
           }
-          UI.isHandling = true;
+          NetDiskUI.isHandling = true;
           var retStatus = false;
           $.each(mutations, (index, item) => {
             if (
@@ -4544,8 +4613,8 @@
           return `⚙ ${_text_}`;
         },
         callback: () => {
-          UI.suspension.initPop();
-          UI.suspension.showSettingView();
+          NetDiskUI.suspension.initPop();
+          NetDiskUI.suspension.showSettingView();
         },
       },
       showNetDiskHistoryMatch: {
@@ -4555,7 +4624,7 @@
           return `⚙ ${_text_}`;
         },
         callback: () => {
-          UI.netDiskHistoryMatch.show();
+          NetDiskUI.netDiskHistoryMatch.show();
         },
       },
     },
@@ -4566,6 +4635,6 @@
     GM_unregisterMenuCommand
   );
   $(document).ready(function () {
-    UI.monitorDOMInsert();
+    NetDiskUI.monitorDOMInsert();
   });
 })();
