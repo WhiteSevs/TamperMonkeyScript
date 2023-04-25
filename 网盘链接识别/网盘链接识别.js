@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.4.24.17.00
+// @version      23.4.25.17.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -37,6 +37,8 @@
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js
 // ==/UserScript==
+
+
 
 (function () {
   let log = new Utils.Log(GM_info);
@@ -4186,6 +4188,10 @@
         this.addCSS();
         let data = this.getNetDiskHistoryMatchData();
         let dataHTML = "";
+        let that = this;
+        data.sort(Utils.sortListByProperty((item)=>{
+          return item["updateTime"]
+        }))
         data.forEach((item,index) => {
           let netDiskURL = NetDisk.handleLinkShow(
             item.netDiskName,
@@ -4240,7 +4246,7 @@
             </div>
             <div class="netdiskrecord-functions">
               <p>功能</p>
-              <button class="btn-delete" data-index="${index}">删除</button>
+              <button class="btn-delete" data-json='${JSON.stringify(item)}'>删除</button>
             </div>
           </li>`;
         });
@@ -4259,6 +4265,8 @@
             html: true,
           },
           btn: {
+            reverse: true,
+            position: "space-between",
             ok: {
               enable: true,
               callback: function (event) {
@@ -4273,6 +4281,37 @@
             cancel: {
               enable: false,
             },
+            other:{
+              enable: true,
+              text: "清空所有",
+              type: "xiaomi-primary",
+              callback: (event)=>{
+                pops.confirm({
+                  title: {
+                    text:"删除",
+                    position: "center"
+                  },
+                  content: {
+                    text:"确定清空所有的记录？",
+                    html: false
+                  },
+                  btn: {
+                    ok:{
+                      enable:true,
+                      callback: function(okEvent){
+                        that.clearNetDiskHistoryMatchData();
+                        $(".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li").remove();
+                        okEvent.close();
+                      }
+                    },
+                    cancel:{
+                      enable:true
+                    }
+                  },
+                  mask: true,
+                })
+              }
+            }
           },
           class: "whitesevPopNetDiskHistoryMatch",
           animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
@@ -4477,12 +4516,9 @@
             only: true,
           });
           let clickNode = $(this);
-          let index = parseInt(clickNode.attr("data-index"));
+          let dataJSON = clickNode.attr("data-json");
           this.closest("li")?.remove();
-          that.deleteNetDiskHistoryMatchData(index);
-          $(".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete").each((index,item)=>{
-            $(item).attr("data-index",index);
-          })
+          that.deleteNetDiskHistoryMatchData(dataJSON);
           deleteLoading?.close();
 
         })
@@ -4552,10 +4588,26 @@
         }
         return data;
       },
-      deleteNetDiskHistoryMatchData(index){
+      /**
+       * 删除存储的某个项
+       * @param {string} dataJSONText 
+       */
+      deleteNetDiskHistoryMatchData(dataJSONText){
         let data = this.getNetDiskHistoryMatchData();
-        data.splice(index,1);
+        for(let index=0;index<data.length;index++){
+          if(JSON.stringify(data[index]) === dataJSONText){
+            console.log("删除 ===> ",data[index]);
+            data.splice(index,1);
+            break;
+          }
+        }
         GM_setValue(this.storageKey,data);
+      },
+      /**
+       * 清空所有配置
+       */
+      clearNetDiskHistoryMatchData(){
+        GM_setValue(this.storageKey,[]);
       }
     },
     /**
