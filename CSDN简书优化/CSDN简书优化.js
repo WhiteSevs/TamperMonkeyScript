@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.6.4
+// @version      0.6.5
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -164,6 +164,7 @@
         jumpRedirect() {
           if (window.location.pathname === "/go-wild") {
             /* 禁止简书拦截跳转 */
+            window.stop();
             let search = window.location.href.replace(
               window.location.origin + "/",
               ""
@@ -185,7 +186,7 @@
         },
       },
       Mobile: {
-        addCSS(){
+        addCSS() {
           Optimization.jianshu.PC.addCSS();
         },
         /**
@@ -571,6 +572,24 @@
             `);
           }
         },
+        /**
+         * 去除CSDN拦截其它网址的url并自动跳转
+         */
+        jumpRedirect() {
+          /* https://link.csdn.net/?target=https%3A%2F%2Fjaist.dl.sourceforge.net%2Fproject%2Fportecle%2Fv1.11%2Fportecle-1.11.zip */
+          if (
+            window.location.host === "link.csdn.net" &&
+            window.location.search.startsWith("?target")
+          ) {
+            /* 禁止CSDN拦截跳转 */
+            window.stop();
+            let search = window.location.search.replace(/^\?target=/gi, "");
+            search = decodeURIComponent(search);
+            let newURL = search;
+            log.success(`跳转链接 ${newURL}`);
+            window.location.href = newURL;
+          }
+        },
         run() {
           this.addCSS();
           this.articleCenter();
@@ -852,6 +871,7 @@
        * 函数入口
        */
       run() {
+        Optimization.csdn.PC.jumpRedirect();
         if (Utils.isPhone()) {
           log.success("移动端模式");
           this.Mobile.run();
