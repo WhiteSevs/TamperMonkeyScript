@@ -1,3 +1,9 @@
+<!--
+ * @Date: 2023-01-09 10:11:06
+ * @LastEditors: WhiteSev 893177236@qq.com
+ * @LastEditTime: 2023-04-25 13:36:01
+ * @FilePath: \油猴\CSDN简书优化\README.md
+-->
 ## 🎁演示GIF
 [![CSDN-简书优化演示.gif](https://cdn.img.kggzs.cn/img/2023/46/20236413bd91368df.gif)](https://cdn.img.kggzs.cn/img/2023/46/20236413bd91368df.gif)
 
@@ -28,6 +34,7 @@
 - 屏蔽 打开 CSDN APP，看更多技术内容
 - 屏蔽 CSDN 前往
 - 屏蔽顶部的作者横栏
+- 屏蔽 打开 CSDN APP | 小程序看全文
 - 允许复制
 - 底部文章标识 CSDN 下载
 - 自动展开全文
