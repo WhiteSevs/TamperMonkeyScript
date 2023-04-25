@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.8
+// @version      0.7.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -958,6 +958,7 @@
                 ) {
                   return;
                 } else {
+                  window?.stop();
                   window.location.href = realLinkUrl;
                 }
               });
@@ -1046,6 +1047,7 @@
           $(btnElement)?.on("click", function (event) {
             event?.stopPropagation();
             event?.preventDefault();
+            window?.stop();
             let redirectURL =
               window.location.origin + "/s?word=" + $(this).text();
             log.success("点击按钮跳转搜索 -> " + $(this).text());
@@ -1058,12 +1060,12 @@
           var searchInputElement = $(searchInput);
           event?.stopPropagation();
           event?.preventDefault();
+          window?.stop();
           let redirectURL =
             window.location.origin + "/s?word=" + searchInputElement.val();
           log.success("点击按钮跳转搜索 -> " + searchInputElement.val());
           log.success(redirectURL);
           window.location.href = redirectURL;
-
           return false;
         }
 
@@ -1072,6 +1074,7 @@
             var searchInputElement = $(searchInput);
             event?.stopPropagation();
             event?.preventDefault();
+            window?.stop();
             let redirectURL =
               window.location.origin + "/s?word=" + searchInputElement.val();
             log.success("回车键跳转搜索 -> " + searchInputElement.val());
@@ -2156,6 +2159,7 @@
         $(document).on("click", ".topic-share-item", function (event) {
           event?.stopPropagation();
           event?.preventDefault();
+          window?.stop();
           let clickNode = $(this);
           let dataTrack = clickNode.attr("data-track");
           if (dataTrack == null) {
@@ -2181,6 +2185,7 @@
             item.ontouchstart = function (event) {
               event?.stopPropagation();
               event?.preventDefault();
+              window?.stop();
               window.location.href = `https://tieba.baidu.com/f?kw=${$(this)
                 .text()
                 .trim()
@@ -2204,6 +2209,7 @@
                       function (event) {
                         event?.stopPropagation();
                         event?.preventDefault();
+                        window?.stop();
                         window.location.href = `https://tieba.baidu.com/f?kw=${$(
                           this
                         )
