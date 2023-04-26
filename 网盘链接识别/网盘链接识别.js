@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.4.26.10.00
+// @version      23.4.26.15.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1228,8 +1228,16 @@
                         },
                       },
                       url: "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/Fredirect.html",
-                      height: pops.isPhone() ? "400px" : "400px",
-                      width: pops.isPhone() ? "350px" : "350px",
+                      height: pops.isPhone()
+                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone
+                            .height
+                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC
+                            .height,
+                      width: pops.isPhone()
+                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone
+                            .width
+                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC
+                            .height,
                       drag: GM_getValue("pcDrag", false),
                       animation: GM_getValue(
                         "popsAnimation",
@@ -1243,9 +1251,13 @@
               animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
               mask: true,
               drag: GM_getValue("pcDrag", false),
-              height: "180px",
+              height: pops.isPhone()
+                ? NetDiskUI.popsStyle.tianyiyunIframeLogin_Phone.height
+                : NetDiskUI.popsStyle.tianyiyunIframeLogin_PC.height,
               forbiddenScroll: true,
-              width: pops.isPhone() ? "88vw" : "50vw",
+              width: pops.isPhone()
+                ? NetDiskUI.popsStyle.tianyiyunIframeLogin_Phone.width
+                : NetDiskUI.popsStyle.tianyiyunIframeLogin_PC.width,
             });
           } else if (that.code.hasOwnProperty(jsonData["res_code"])) {
             Qmsg.error(that.code[jsonData["res_code"]]);
@@ -2316,6 +2328,120 @@
     uiLinkParseMoreAlias: "多文件直链层" /* 多文件直链层唯一标识 */,
     uiPasswordAlias: "重输密码层" /* 重输密码层唯一标识 */,
     isRandBg: false /* 是否正在循环切换按钮背景 */,
+    popsStyle: {
+      /**
+       * 桌面端 天翼云密码登录iframe
+       */
+      tianyiyunIframeLogin_PC: {
+        width: "50vw",
+        height: "180px",
+      },
+      /**
+       * 移动端 天翼云密码登录iframe
+       */
+      tianyiyunIframeLogin_Phone: {
+        width: "88vw",
+        height: "180px",
+      },
+      /**
+       * 桌面端 天翼云密码登录后注册Cookie弹窗
+       */
+      tianyiyunLoginLoading_PC: {
+        width: "350px",
+        height: "400px",
+      },
+      /**
+       * 移动端 天翼云密码登录后注册Cookie弹窗
+       */
+      tianyiyunLoginLoading_Phone: {
+        width: "350px",
+        height: "400px",
+      },
+      /**
+       * 桌面端 设置界面
+       */
+      setting_PC: {
+        width: "50vw",
+        height: "65vh",
+      },
+      /**
+       * 移动端 设置界面
+       */
+      setting_Phone: {
+        width: "88vw",
+        height: "60vh",
+      },
+      /**
+       * 桌面端 (主)网盘链接界面
+       */
+      netDiskView_PC: {
+        width: "50vw",
+        height: "65vh",
+      },
+      /**
+       * 移动端 (主)网盘链接界面
+       */
+      netDiskView_Phone: {
+        width: "88vw",
+        height: "60vh",
+      },
+      /**
+       * 桌面端 单文件弹窗
+       */
+      oneFileStaticView_PC: {
+        width: "50vw",
+        height: "180px",
+      },
+      /**
+       * 移动端 单文件弹窗
+       */
+      oneFileStaticView_Phone: {
+        width: "88vw",
+        height: "180px",
+      },
+      /**
+       * 桌面端 多文件弹窗
+       */
+      moreFileStaticView_PC: {
+        width: "50vw",
+        height: "400px",
+      },
+      /**
+       * 移动端 多文件弹窗
+       */
+      moreFileStaticView_Phone: {
+        width: "88vw",
+        height: "400px",
+      },
+      /**
+       * 桌面端 新密码、错误密码输入弹窗
+       */
+      newAccessCodeView_PC: {
+        width: "50vw",
+        height: "160px",
+      },
+      /**
+       * 移动端 新密码、错误密码输入弹窗
+       */
+      newAccessCodeView_Phone: {
+        width: "88vw",
+        height: "160px",
+      },
+      /**
+       * 桌面端 历史存储记录弹窗
+       */
+      netDiskHistoryMatchView_PC: {
+        width: "50vw",
+        height: "65vh",
+      },
+      /**
+       * 移动端 历史存储记录弹窗
+       */
+      netDiskHistoryMatchView_Phone: {
+        width: "88vw",
+        height: "60vh",
+      },
+    },
     src: {
       /* 图标 */
       icon: {
@@ -3339,8 +3465,12 @@
           },
           animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
           class: "whitesevPopSetting",
-          height: pops.isPhone() ? "60vh" : "65vh",
-          width: pops.isPhone() ? "88vw" : "50vw",
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.setting_Phone.height
+            : NetDiskUI.popsStyle.setting_PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.setting_Phone.width
+            : NetDiskUI.popsStyle.setting_PC.width,
           drag: GM_getValue("pcDrag", false),
           mask: true,
           forbiddenScroll: true,
@@ -3853,8 +3983,12 @@
           },
           class: "whitesevPop",
           animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-          height: pops.isPhone() ? "60vh" : "65vh",
-          width: pops.isPhone() ? "88vw" : "50vw",
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.netDiskView_Phone.height
+            : NetDiskUI.popsStyle.netDiskView_PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.netDiskView_Phone.width
+            : NetDiskUI.popsStyle.netDiskView_PC.width,
           drag: GM_getValue("pcDrag", false),
           mask: true,
           forbiddenScroll: true,
@@ -4080,8 +4214,12 @@
           },
           class: "whitesevPopOneFile",
           animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-          height: "180px",
-          width: pops.isPhone() ? "88vw" : "50vw",
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.oneFileStaticView_Phone.height
+            : NetDiskUI.popsStyle.oneFileStaticView_PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.oneFileStaticView_Phone.width
+            : NetDiskUI.popsStyle.oneFileStaticView_PC.width,
           mask: true,
           drag: GM_getValue("pcDrag", false),
           forbiddenScroll: true,
@@ -4112,8 +4250,12 @@
           class: "whitesevPopMoreFile",
           mask: true,
           animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-          height: "400px",
-          width: pops.isPhone() ? "88vw" : "50vw",
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.moreFileStaticView_Phone.height
+            : NetDiskUI.popsStyle.moreFileStaticView_PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.moreFileStaticView_Phone.width
+            : NetDiskUI.popsStyle.moreFileStaticView_PC.width,
           drag: GM_getValue("pcDrag", false),
           forbiddenScroll: true,
         });
@@ -4168,8 +4310,12 @@
           placeholder: "请重新输入密码",
           focus: true,
         },
-        height: "160px",
-        width: pops.isPhone() ? "88vw" : "50vw",
+        height: pops.isPhone()
+          ? NetDiskUI.popsStyle.newAccessCodeView_Phone.height
+          : NetDiskUI.popsStyle.newAccessCodeView_PC.height,
+        width: pops.isPhone()
+          ? NetDiskUI.popsStyle.newAccessCodeView_Phone.width
+          : NetDiskUI.popsStyle.newAccessCodeView_PC.width,
         mask: true,
         animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
         drag: GM_getValue("pcDrag", false),
@@ -4332,15 +4478,18 @@
           },
           class: "whitesevPopNetDiskHistoryMatch",
           animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-          height: pops.isPhone() ? "60vh" : "65vh",
-          width: pops.isPhone() ? "88vw" : "50vw",
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.netDiskHistoryMatchView_Phone.height
+            : NetDiskUI.popsStyle.netDiskHistoryMatchView_PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.netDiskHistoryMatchView_Phone.width
+            : NetDiskUI.popsStyle.netDiskHistoryMatchView_PC.height,
           mask: true,
           drag: GM_getValue("pcDrag", false),
           forbiddenScroll: true,
         });
         this.setEvent();
         this.setSearchEvent();
-        this.setOtherEvent();
       },
       addCSS() {
         if (this.isAddCss) {
@@ -4431,15 +4580,51 @@
         }
         `);
       },
+      /**
+       * 设置只执行一次的事件
+       * @returns
+       */
       setEvent() {
         if (this.isSetSearchEvent) {
           return;
         }
+        let that = this;
         this.isSetEvent = true;
         NetDiskUI.view.setNetDiskUrlClickEvent(
           ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a"
         );
+
+        /**
+         * 设置删除按钮点击事件
+         */
+        let setdeleteBtnEvent = function () {
+          $(document).on(
+            "click",
+            ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
+            function () {
+              /* 删除中的遮罩层 */
+              let deleteLoading = pops.loading({
+                parent: document.querySelector(
+                  ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
+                ),
+                content: {
+                  text: "搜索中...",
+                },
+                only: true,
+              });
+              let clickNode = $(this);
+              let dataJSON = clickNode.attr("data-json");
+              this.closest("li")?.remove();
+              that.deleteNetDiskHistoryMatchData(dataJSON);
+              deleteLoading?.close();
+            }
+          );
+        };
+        setdeleteBtnEvent();
       },
+      /**
+       * 设置搜索框的回车事件
+       */
       setSearchEvent() {
         let isSeaching = false; /* 当前搜索的状态 */
         let searchLoading = null; /* 搜索中的遮罩层 */
@@ -4520,35 +4705,6 @@
           }
         );
       },
-      setOtherEvent() {
-        if (this.isSetOtherEvent) {
-          return;
-        }
-        this.isSetOtherEvent = true;
-
-        let that = this;
-        $(document).on(
-          "click",
-          ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
-          function () {
-            /* 删除中的遮罩层 */
-            let deleteLoading = pops.loading({
-              parent: document.querySelector(
-                ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
-              ),
-              content: {
-                text: "搜索中...",
-              },
-              only: true,
-            });
-            let clickNode = $(this);
-            let dataJSON = clickNode.attr("data-json");
-            this.closest("li")?.remove();
-            that.deleteNetDiskHistoryMatchData(dataJSON);
-            deleteLoading?.close();
-          }
-        );
-      },
       /**
        * 排序数据
        * @returns {Array}
@@ -4561,7 +4717,9 @@
         let isDesc =
           localOrder.indexOf("降序") !== -1 ? true : false; /* 降序 */
         let orderField =
-          localOrder.indexOf("记录时间") !== -1 ? "addTime" : "updateTime"; /* 排序字段 */
+          localOrder.indexOf("记录时间") !== -1
+            ? "addTime"
+            : "updateTime"; /* 排序字段 */
         data.sort(
           Utils.sortListByProperty((item) => {
             return item[orderField];
