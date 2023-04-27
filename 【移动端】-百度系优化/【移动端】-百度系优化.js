@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.7.9
+// @version      0.8.0
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -43,6 +43,10 @@
 
 (function () {
   let log = new Utils.Log(GM_info);
+  log.config({
+    logMaxCount: 20,
+    autoClearConsole: true,
+  });
   let httpx = new Utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {
@@ -98,53 +102,55 @@
     }
 `;
 
-  var LoadingView = function () {
-    let loadingClassName = "whitesev-page-isloading";
-    let loadingTextClassName = "whitesev-isloading-text";
-    let loadingIconClassName = "whitesev-isloading-icon";
-    let loadingOutSideIconClassName = "whitesev-isloading-outside";
-    let loadingWithInIconClassName = "whitesev-isloading-within";
-    let html = `
-    <div class="${loadingClassName}">
-      <span class="${loadingTextClassName}">Loading...</span>
-    </div>`;
-    let iconHTML = `
-    <div class="${loadingIconClassName}">
-      <div class="${loadingOutSideIconClassName}"></div>
-      <div class="${loadingWithInIconClassName}"></div>
-    </div>`;
+  class LoadingView {
+    constructor() {
+      let loadingClassName = "whitesev-page-isloading";
+      let loadingTextClassName = "whitesev-isloading-text";
+      let loadingIconClassName = "whitesev-isloading-icon";
+      let loadingOutSideIconClassName = "whitesev-isloading-outside";
+      let loadingWithInIconClassName = "whitesev-isloading-within";
+      let html = `
+      <div class="${loadingClassName}">
+        <span class="${loadingTextClassName}">Loading...</span>
+      </div>`;
+      let iconHTML = `
+      <div class="${loadingIconClassName}">
+        <div class="${loadingOutSideIconClassName}"></div>
+        <div class="${loadingWithInIconClassName}"></div>
+      </div>`;
+    }
     /**
      * 获取经过jQuery转换过的Loading的HTML
      * @param {Boolean} withIcon
      * @returns {jQuery}
      */
-    this.getLoadingNode = function (withIcon = false) {
+    getLoadingNode(withIcon = false) {
       let parseHTML = $(html);
       if (withIcon) {
         parseHTML.find(`.${loadingTextClassName}`)?.after($(iconHTML));
       }
       return parseHTML;
-    };
+    }
     /**
      * 设置Loading显示/关闭 true显示|false关闭
      * @param {Boolean} _value_
      */
-    this.setVisible = function (_value_) {
+    setVisible(_value_) {
       $(`.${loadingClassName}`)?.css("display", _value_ ? "flex" : "none");
-    };
+    }
     /**
      * 设置Loading图标显示/关闭
      * @param {Boolean} _value_
      */
-    this.setIconVisible = function (_value_) {
+    setIconVisible(_value_) {
       $(`.${loadingIconClassName}`)?.css("display", _value_ ? "unset" : "none");
-    };
+    }
     /**
      * 设置Loading的文本
      * @param {String} _value_ 文本
      * @param {Boolean} withIcon 设置Icon图标
      */
-    this.setText = function (_value_, withIcon = false) {
+    setText(_value_, withIcon = false) {
       $(`.${loadingTextClassName}`)?.html(`<span>${_value_}</span>`);
       if (withIcon) {
         if ($(`.${loadingIconClassName}`).length === 0) {
@@ -154,39 +160,39 @@
       } else {
         $(`.${loadingIconClassName}`)?.remove();
       }
-    };
+    }
     /**
      * 删除Loading元素
      */
-    this.destory = function () {
+    destory() {
       /* 销毁 */
       $(`.${loadingClassName}`)?.remove();
-    };
+    }
     /**
      * 判断Loading是否已加载到页面中
      * @returns true|false
      */
-    this.isExists = function () {
+    isExists() {
       return $(`.${loadingClassName}`).length == 0 ? false : true;
-    };
+    }
     /**
      * 判断Loading是否存在Loading图标
      * @returns true|false
      */
-    this.isExistsIcon = function () {
+    isExistsIcon() {
       return $(`.${loadingIconClassName}`).length == 0 ? false : true;
-    };
+    }
     /**
      * 判断Loading中的文本是否存在
      * @returns true|false
      */
-    this.isExistsText = function () {
+    isExistsText() {
       return $(`.${loadingTextClassName}`).length == 0 ? false : true;
-    };
+    }
     /**
      * 加载需要的CSS
      */
-    this.setCSS = function () {
+    setCSS() {
       GM_addStyle(`
         .${loadingClassName}{
           margin: 0.08rem;
@@ -342,8 +348,8 @@
                 -ms-transform: rotate(360deg)
             }
         }`);
-    };
-  };
+    }
+  }
 
   var loadingView = new LoadingView();
 

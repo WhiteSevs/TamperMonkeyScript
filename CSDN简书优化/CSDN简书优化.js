@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.6.5
+// @version      0.6.6
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -25,6 +25,10 @@
 
 (function () {
   let log = new Utils.Log(GM_info);
+  log.config({
+    logMaxCount: 20,
+    autoClearConsole: true,
+  });
   /**
    * 因为在有些页面上，比如：简书，当插入style元素到head中，该页面清除该元素
    */
@@ -578,7 +582,7 @@
         jumpRedirect() {
           /* https://link.csdn.net/?target=https%3A%2F%2Fjaist.dl.sourceforge.net%2Fproject%2Fportecle%2Fv1.11%2Fportecle-1.11.zip */
           if (
-            window.location.host === "link.csdn.net" &&
+            window.location.hostname === "link.csdn.net" &&
             window.location.search.startsWith("?target")
           ) {
             /* 禁止CSDN拦截跳转 */

@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.3
+// @version      2.9.4
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -12840,6 +12840,18 @@
         });
       } else {
         console.log("搜索界面: 获取清空按钮失败");
+      }
+    },
+    /**
+     * 修复评论区打赏评论因为文字或打赏人数评论太多导致高度显示不出来问题
+     */
+    repairRecommendRewardHeight(){
+      if(window.location.href.match(MT_CONFIG.urlRegexp.forumPost)){
+        GM_addStyle(`
+        .comiis_view_lcrate li p{
+          height: auto !important;
+        }
+        `);
       }
     },
     /**
