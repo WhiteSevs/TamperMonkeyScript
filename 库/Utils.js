@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.0
+ * @version  2.1
  **/
 (function (Utils) {
   /**
@@ -2137,6 +2137,7 @@
         logCount > this.details.logMaxCount
       ) {
         console.clear();
+        logCount = 0;
       }
     };
     this.tag = _GM_info_?.script?.name;
