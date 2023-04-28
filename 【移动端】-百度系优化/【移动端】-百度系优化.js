@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.8.0
+// @version      0.8.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -104,19 +104,19 @@
 
   class LoadingView {
     constructor() {
-      let loadingClassName = "whitesev-page-isloading";
-      let loadingTextClassName = "whitesev-isloading-text";
-      let loadingIconClassName = "whitesev-isloading-icon";
-      let loadingOutSideIconClassName = "whitesev-isloading-outside";
-      let loadingWithInIconClassName = "whitesev-isloading-within";
-      let html = `
-      <div class="${loadingClassName}">
-        <span class="${loadingTextClassName}">Loading...</span>
+      this.loadingClassName = "whitesev-page-isloading";
+      this.loadingTextClassName = "whitesev-isloading-text";
+      this.loadingIconClassName = "whitesev-isloading-icon";
+      this.loadingOutSideIconClassName = "whitesev-isloading-outside";
+      this.loadingWithInIconClassName = "whitesev-isloading-within";
+      this.html = `
+      <div class="${this.loadingClassName}">
+        <span class="${this.loadingTextClassName}">Loading...</span>
       </div>`;
-      let iconHTML = `
-      <div class="${loadingIconClassName}">
-        <div class="${loadingOutSideIconClassName}"></div>
-        <div class="${loadingWithInIconClassName}"></div>
+      this.iconHTML = `
+      <div class="${this.loadingIconClassName}">
+        <div class="${this.loadingOutSideIconClassName}"></div>
+        <div class="${this.loadingWithInIconClassName}"></div>
       </div>`;
     }
     /**
@@ -125,40 +125,40 @@
      * @returns {jQuery}
      */
     getLoadingNode(withIcon = false) {
-      let parseHTML = $(html);
+      let parseHTML = $(this.html);
       if (withIcon) {
-        parseHTML.find(`.${loadingTextClassName}`)?.after($(iconHTML));
+        parseHTML.find(`.${this.loadingTextClassName}`)?.after($(this.iconHTML));
       }
       return parseHTML;
     }
     /**
      * 设置Loading显示/关闭 true显示|false关闭
-     * @param {Boolean} _value_
+     * @param {Boolean} value
      */
-    setVisible(_value_) {
-      $(`.${loadingClassName}`)?.css("display", _value_ ? "flex" : "none");
+    setVisible(value) {
+      $(`.${this.loadingClassName}`)?.css("display", value ? "flex" : "none");
     }
     /**
      * 设置Loading图标显示/关闭
-     * @param {Boolean} _value_
+     * @param {Boolean} value
      */
-    setIconVisible(_value_) {
-      $(`.${loadingIconClassName}`)?.css("display", _value_ ? "unset" : "none");
+    setIconVisible(value) {
+      $(`.${this.loadingIconClassName}`)?.css("display", value ? "unset" : "none");
     }
     /**
      * 设置Loading的文本
-     * @param {String} _value_ 文本
+     * @param {String} text 文本
      * @param {Boolean} withIcon 设置Icon图标
      */
-    setText(_value_, withIcon = false) {
-      $(`.${loadingTextClassName}`)?.html(`<span>${_value_}</span>`);
+    setText(text, withIcon = false) {
+      $(`.${this.loadingTextClassName}`)?.html(`<span>${text}</span>`);
       if (withIcon) {
-        if ($(`.${loadingIconClassName}`).length === 0) {
-          $(`.${loadingTextClassName}`)?.after(iconHTML);
+        if ($(`.${this.loadingIconClassName}`).length === 0) {
+          $(`.${this.loadingTextClassName}`)?.after(this.iconHTML);
         }
-        $(`.${loadingIconClassName}`)?.css("display", "unset");
+        $(`.${this.loadingIconClassName}`)?.css("display", "unset");
       } else {
-        $(`.${loadingIconClassName}`)?.remove();
+        $(`.${this.loadingIconClassName}`)?.remove();
       }
     }
     /**
@@ -166,35 +166,35 @@
      */
     destory() {
       /* 销毁 */
-      $(`.${loadingClassName}`)?.remove();
+      $(`.${this.loadingClassName}`)?.remove();
     }
     /**
      * 判断Loading是否已加载到页面中
      * @returns true|false
      */
     isExists() {
-      return $(`.${loadingClassName}`).length == 0 ? false : true;
+      return $(`.${this.loadingClassName}`).length == 0 ? false : true;
     }
     /**
      * 判断Loading是否存在Loading图标
      * @returns true|false
      */
     isExistsIcon() {
-      return $(`.${loadingIconClassName}`).length == 0 ? false : true;
+      return $(`.${this.loadingIconClassName}`).length == 0 ? false : true;
     }
     /**
      * 判断Loading中的文本是否存在
      * @returns true|false
      */
     isExistsText() {
-      return $(`.${loadingTextClassName}`).length == 0 ? false : true;
+      return $(`.${this.loadingTextClassName}`).length == 0 ? false : true;
     }
     /**
      * 加载需要的CSS
      */
     setCSS() {
       GM_addStyle(`
-        .${loadingClassName}{
+        .${this.loadingClassName}{
           margin: 0.08rem;
           background: #fff;
           height: 45px;
@@ -206,15 +206,15 @@
           justify-content: center;
           border-radius: 0.12rem;
         }
-        .${loadingIconClassName}{
+        .${this.loadingIconClassName}{
           margin:0px 0px 28px 15px;
         }
-        .${loadingOutSideIconClassName},
-        .${loadingWithInIconClassName}{
+        .${this.loadingOutSideIconClassName},
+        .${this.loadingWithInIconClassName}{
           position: absolute;
           margin-left: 140px;
         }
-        .${loadingOutSideIconClassName}{
+        .${this.loadingOutSideIconClassName}{
           background-color: rgba(0, 0, 0, 0);
           border: 5px solid rgba(0, 183, 229, 0.9);
           opacity: .9;
@@ -235,7 +235,7 @@
           -o-animation: spinPulse 1s infinite ease-in-out;
           -ms-animation: spinPulse 1s infinite ease-in-out;
         }
-        .${loadingWithInIconClassName}{
+        .${this.loadingWithInIconClassName}{
           background: rgba(0, 0, 0, 0) no-repeat center center;
           border: 5px solid rgba(0, 183, 229, 0.9);
           opacity: .9;
