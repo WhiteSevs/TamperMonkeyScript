@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.4
+// @version      2.9.5
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -801,7 +801,7 @@
             try {
               eval(scriptText);
               execStatus = true;
-              loadNetworkResource = loadNetworkResource.concat(url);
+              loadNetworkResource = [...loadNetworkResource, url];
             } catch (error) {
               console.log(`eval执行失败`, error);
               execStatus = false;
@@ -1301,6 +1301,9 @@
             url: url,
             method: "get",
             timeout: 5000,
+            headers: {
+              "User-Agent": Utils.getRandomPCUA(),
+            },
             responseType: "html",
             onload: function (response) {
               console.log(response);
@@ -3899,6 +3902,7 @@
             data: `login-subject=${user}&password=${pwd}&auth_token=${auth_token}`,
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
+              "User-Agent": Utils.getRandomPCUA(),
             },
             onload: (response) => {
               console.log(response);
@@ -4019,6 +4023,8 @@
             headers: {
               "Content-Type":
                 "application/x-www-form-urlencoded; charset=UTF-8",
+                "User-Agent":Utils.getRandomPCUA(),
+                
             },
             onload: (response) => {
               try {
@@ -4216,6 +4222,7 @@
               data: `email=${chartBedUser}&password=${chartBedPwd}`,
               headers: {
                 Accept: "application/json",
+                "User-Agent":Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 if (code[response.status] != null) {
@@ -5323,6 +5330,7 @@
               data: `email=${chartBedUser}&password=${chartBedPwd}`,
               headers: {
                 Accept: "application/json",
+                "User-Agent":Utils.getRandomPCUA(),
                 "Content-Type": "application/x-www-form-urlencoded",
               },
               onload: (response) => {
@@ -6373,7 +6381,7 @@
                 async: false,
                 timeout: 5000,
                 headers: {
-                  "user-agent": Utils.getRandomPCUA(),
+                  "User-Agent":Utils.getRandomPCUA(),
                   referer: "https://img.binmt.cc/",
                   origin: "https://img.binmt.cc",
                 },
@@ -9542,6 +9550,9 @@
                 user
               )}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=`,
               /* headers不设置，使用手机headers */
+              headers:{
+                "User-Agent":Utils.getRandomPCUA(),
+              },
               onload: (response) => {
                 popup2.closeMask();
                 let formhash = response.responseText.match(/formhash':'(.+?)'/);
@@ -9579,6 +9590,7 @@
               method: "post",
               headers: {
                 "content-type": "application/x-www-form-urlencoded",
+                "User-Agent":Utils.getRandomPCUA(),
               },
               data: `task=3&uid=${encodeURI(
                 user
@@ -9636,6 +9648,7 @@
               data: formData,
               headers: {
                 Accept: "*/*",
+                "User-Agent":Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popup2.closeMask();
@@ -9674,6 +9687,7 @@
               headers: {
                 "Content-Type":
                   "application/x-www-form-urlencoded; charset=UTF-8",
+                  "User-Agent":Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popup2.closeMask();
@@ -9710,6 +9724,9 @@
               )}`,
               timeout: 5000,
               method: "get",
+              headers:{
+                "User-Agent":Utils.getRandomPCUA(),
+              },
               onload: (response) => {
                 popup2.closeMask();
                 resolve(response.responseText.match("成功") ? true : false);
@@ -12845,8 +12862,8 @@
     /**
      * 修复评论区打赏评论因为文字或打赏人数评论太多导致高度显示不出来问题
      */
-    repairRecommendRewardHeight(){
-      if(window.location.href.match(MT_CONFIG.urlRegexp.forumPost)){
+    repairRecommendRewardHeight() {
+      if (window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
         GM_addStyle(`
         .comiis_view_lcrate li p{
           height: auto !important;
