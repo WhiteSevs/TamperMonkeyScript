@@ -20,13 +20,16 @@ dataPaging.append(document.querySelector("body > div"));
   /**
    * 配置
    */
-  DataPaging.prototype.config = {
+  const CONFIG = {
     data: [] /* 数据 */,
     pageCount: 5 /* 每一页显示的数据数量 */,
     pageStep: 3 /* 当前能最多显示出来的页码 */,
     currentPage: 1 /* 当前页码 */,
-    /* 当前页码改变的回调 */
-    pageChangeCallBack: function () {},
+    /**
+     * 当前页码改变的回调
+     * @param {number} page 当前页
+     */
+    pageChangeCallBack: function (page) {},
     /* 上一页按钮 */
     prevBtn: {
       enable: true /* 是否启用 */,
@@ -48,19 +51,177 @@ dataPaging.append(document.querySelector("body > div"));
       callBack: function () {},
     },
   };
+
   /**
    * 整体配置动态计算的数据
    */
-  DataPaging.prototype.pageConfig = {
-    dataPagingNode: null,
+  const PAGE_CONFIG = {
+    /**
+     * 获取当前所在页
+     * @returns {Number}
+     */
     getCurrentPage: function () {
-      return parseInt(
-        this.dataPagingNode
-          ?.querySelector("a[data-current-page]")
-          ?.getAttribute("page-id")
+      return DOM_CONFIG.getAttributeWithPageId(
+        DOM_CONFIG.getAttributeWithCurrentPage()
       );
     },
     maxPage: 1 /* 最大页码 */,
+  };
+  /**
+   * 元素获取配置
+   */
+  const DOM_CONFIG = {
+    /* 整个分页元素 */
+    dataPagingNode: {
+      localName: "div",
+      id: "whitesev-datapaging",
+      dom: null,
+    },
+    /* 第一页按钮 */
+    firstBtnNode: {
+      localName: "a",
+      className: "pg-first",
+      get() {
+        return DOM_CONFIG.dataPagingNode.dom.querySelector(
+          `${this.localName}.${this.className}`
+        );
+      },
+    },
+    /* 上一页按钮 */
+    prevBtnNode: {
+      localName: "a",
+      className: "pg-prev",
+      get() {
+        return DOM_CONFIG.dataPagingNode.dom.querySelector(
+          `${this.localName}.${this.className}`
+        );
+      },
+    },
+    /* 下一页按钮 */
+    nextBtnNode: {
+      localName: "a",
+      className: "pg-next",
+      get() {
+        return DOM_CONFIG.dataPagingNode.dom.querySelector(
+          `${this.localName}.${this.className}`
+        );
+      },
+    },
+    /* 最后一页按钮 */
+    lastBtnNode: {
+      localName: "a",
+      className: "pg-last",
+      get() {
+        return DOM_CONFIG.dataPagingNode.dom.querySelector(
+          `${this.localName}.${this.className}`
+        );
+      },
+    },
+    /**
+     * 设置 元素的 页码 值
+     * @param {HTMLElement} node
+     */
+    setAttributeWithPageId(node, page) {
+      node.setAttribute("page-id", page);
+    },
+    /**
+     * 获取 元素 的页码属性
+     * @param {HTMLElement} node
+     * @returns {Number|null}
+     */
+    getAttributeWithPageId(node) {
+      return node.getAttribute("page-id")
+        ? parseInt(node.getAttribute("page-id"))
+        : null;
+    },
+    /**
+     * 判断 元素 是否存在页码属性
+     * @param {HTMLElement} node
+     * @returns {Boolean}
+     */
+    hasAttributeWithPageId(node) {
+      return node.hasAttribute("page-id");
+    },
+    /**
+     * 设置 元素的属性 为当前所在页码
+     * @param {HTMLElement} node
+     */
+    setAttributeWithCurrentPage(node) {
+      node.setAttribute("data-current-page", "");
+    },
+    /**
+     * 获取当前页码的元素
+     * @param {HTMLElement?} dataPagingNode
+     * @returns {HTMLElement|null}
+     */
+    getAttributeWithCurrentPage(dataPagingNode) {
+      return (dataPagingNode || this.dataPagingNode.dom).querySelector(
+        "a[data-current-page]"
+      );
+    },
+    /**
+     * 判断 元素 是否存在 当前页的属性
+     * @param {HTMLElement} node
+     * @returns
+     */
+    hasAttributeWithCurrentPage(node) {
+      return node.hasAttribute("data-current-page");
+    },
+    /**
+     * 移除 当前页码的属性
+     * @param {HTMLElement} node
+     */
+    removeAttributeWithCurrentPage(node) {
+      node.removeAttribute("data-current-page");
+    },
+    /**
+     * 设置 元素 禁用
+     * @param {HTMLElement} node
+     */
+    setAttributeWithDisabled(node) {
+      node.setAttribute("disabled", true);
+    },
+    /**
+     * 移除当前页面的禁用的元素
+     * @param {HTMLElement|null} dataPagingNode
+     */
+    removeAllAttributeWithDisabled(dataPagingNode) {
+      (dataPagingNode || this.dataPagingNode.dom)
+        .querySelectorAll("a[class][disabled]")
+        .forEach((item) => {
+          item.removeAttribute("disabled");
+        });
+    },
+    /**
+     * 获取 第一页 元素节点
+     * @param {HTMLElement?} dataPagingNode
+     * @returns {HTMLElement|null}
+     */
+    getFirstPageNode(dataPagingNode) {
+      return (dataPagingNode || this.dataPagingNode.dom).querySelector(
+        "a[page-id='1']"
+      );
+    },
+    /**
+     * 获取 最后一页 元素节点
+     * @param {HTMLElement?} dataPagingNode
+     * @returns {HTMLElement|null}
+     */
+    getLastPageNode(dataPagingNode) {
+      return (dataPagingNode || this.dataPagingNode.dom).querySelector(
+        `a[page-id='${PAGE_CONFIG.maxPage}']`
+      );
+    },
+    /**
+     * 获取当前所有的页码元素节点
+     * @param {HTMLElement?} dataPagingNode
+     * @returns {NodeList}
+     */
+    getAllPageNode(dataPagingNode) {
+      return (dataPagingNode || this.dataPagingNode.dom).querySelectorAll(
+        "a[page-id]"
+      );
+    },
   };
   /**
    * 初始化
@@ -68,11 +229,12 @@ dataPaging.append(document.querySelector("body > div"));
    * @this {DataPaging}
    */
   DataPaging.prototype.init = function (details) {
-    Object.assign(this.config,details);
+    Object.assign(CONFIG, details);
     this.addCSS();
   };
   /**
    * 添加CSS
+   * @this {DataPaging}
    */
   DataPaging.prototype.addCSS = function () {
     if (this.isAddCSS) {
@@ -82,38 +244,38 @@ dataPaging.append(document.querySelector("body > div"));
     let cssNode = document.createElement("style");
     cssNode.setAttribute("type", "text/css");
     cssNode.innerHTML = `@charset "utf-8";
-    #whitesev-datapaging {
+    #${DOM_CONFIG.dataPagingNode.id} {
       text-align: center;
       display: inline-block;
     }
     /* 第一页 */
-    #whitesev-datapaging .pg-first::before {
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.firstBtnNode.className}::before {
       content: "\u21E4";
     }
     /* 上一页 */
-    #whitesev-datapaging .pg-prev::before {
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.prevBtnNode.className}::before {
       content: "\u2190";
     }
     /* 下一页 */
-    #whitesev-datapaging .pg-next::before {
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.nextBtnNode.className}::before {
       content: "\u2192";
     }
     /* 最后一页 */
-    #whitesev-datapaging .pg-last::before {
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.lastBtnNode.className}::before {
       content: "\u21E5";
     }
-    #whitesev-datapaging .pg-first,
-    #whitesev-datapaging .pg-prev,
-    #whitesev-datapaging .pg-next,
-    #whitesev-datapaging .pg-last {
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.firstBtnNode.className},
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.prevBtnNode.className},
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.nextBtnNode.className},
+    #${DOM_CONFIG.dataPagingNode.id} .${DOM_CONFIG.lastBtnNode.className} {
       font-family: Arial, sans-serif;
       display: inline-block;
       text-align: center;
       color: #333;
       font-size: 22px;
     }
-    #whitesev-datapaging a,
-    #whitesev-datapaging span {
+    #${DOM_CONFIG.dataPagingNode.id} a,
+    #${DOM_CONFIG.dataPagingNode.id} span {
       width: 45px;
       height: 40px;
       border: 1px solid #ebebeb;
@@ -126,27 +288,27 @@ dataPaging.append(document.querySelector("body > div"));
       margin: 0 2px;
       border-radius: 6px;
     }
-    #whitesev-datapaging a:hover,
-    #whitesev-datapaging span:hover {
+    #${DOM_CONFIG.dataPagingNode.id} a:hover,
+    #${DOM_CONFIG.dataPagingNode.id} span:hover {
       border-color: #3897cd;
       color: #3897cd;
       position: relative;
       z-index: 1;
     }
-    #whitesev-datapaging a {
+    #${DOM_CONFIG.dataPagingNode.id} a {
       cursor: pointer;
     }
-    #whitesev-datapaging a[data-current-page] {
+    #${DOM_CONFIG.dataPagingNode.id} a[data-current-page] {
       background-color: #222a35;
       color: #fff;
       border-color: #ebebeb;
       position: relative;
       z-index: 1;
     }
-    #whitesev-datapaging a.pg-first[disabled="true"],
-    #whitesev-datapaging a.pg-prev[disabled="true"],
-    #whitesev-datapaging a.pg-next[disabled="true"],
-    #whitesev-datapaging a.pg-last[disabled="true"]{
+    #${DOM_CONFIG.dataPagingNode.id} a.${DOM_CONFIG.firstBtnNode.className}[disabled="true"],
+    #${DOM_CONFIG.dataPagingNode.id} a.${DOM_CONFIG.prevBtnNode.className}[disabled="true"],
+    #${DOM_CONFIG.dataPagingNode.id} a.${DOM_CONFIG.nextBtnNode.className}[disabled="true"],
+    #${DOM_CONFIG.dataPagingNode.id} a.${DOM_CONFIG.lastBtnNode.className}[disabled="true"]{
       cursor: not-allowed;
       border: 1px solid transparent;
       color: #8a8a8a;
@@ -161,63 +323,76 @@ dataPaging.append(document.querySelector("body > div"));
    */
   DataPaging.prototype.getDataPagingNode = function () {
     let that = this;
-    let dataPagingNode = document.createElement("div");
-    dataPagingNode.id = "whitesev-datapaging";
-    let firstBtnNode = document.createElement("a"); /* 第一页 */
-    let prevBtnNode = document.createElement("a"); /* 上一页 */
-    let nextBtnNode = document.createElement("a"); /* 下一页 */
-    let lastBtnNode = document.createElement("a"); /* 最后一页 */
-    firstBtnNode.className = "pg-first";
-    prevBtnNode.className = "pg-prev";
-    nextBtnNode.className = "pg-next";
-    lastBtnNode.className = "pg-last";
+    let dataPagingNode = document.createElement(
+      DOM_CONFIG.dataPagingNode.localName
+    );
+    DOM_CONFIG.dataPagingNode.dom = dataPagingNode;
+    dataPagingNode.id = DOM_CONFIG.dataPagingNode.id;
+    let firstBtnNode = document.createElement(
+      DOM_CONFIG.firstBtnNode.localName
+    ); /* 第一页 */
+    let prevBtnNode = document.createElement(
+      DOM_CONFIG.prevBtnNode.localName
+    ); /* 上一页 */
+    let nextBtnNode = document.createElement(
+      DOM_CONFIG.nextBtnNode.localName
+    ); /* 下一页 */
+    let lastBtnNode = document.createElement(
+      DOM_CONFIG.lastBtnNode.localName
+    ); /* 最后一页 */
+    firstBtnNode.className = DOM_CONFIG.firstBtnNode.className;
+    prevBtnNode.className = DOM_CONFIG.prevBtnNode.className;
+    nextBtnNode.className = DOM_CONFIG.nextBtnNode.className;
+    lastBtnNode.className = DOM_CONFIG.lastBtnNode.className;
     /* 自动校正超出或小于的当前页码 */
-    if (this.config.currentPage < 1) {
-      this.config.currentPage = 1;
-    } else if (this.config.currentPage > this.config.data.length) {
-      this.config.currentPage = this.config.data.length;
+    if (CONFIG.currentPage < 1) {
+      CONFIG.currentPage = 1;
+    } else if (CONFIG.currentPage > CONFIG.data.length) {
+      CONFIG.currentPage = CONFIG.data.length;
     }
     /* 计算总数据量除以显示的数据量 得出分页的数量 */
-    this.pageConfig.maxPage = Math.ceil(
-      this.config.data.length / this.config.pageCount
-    );
+    PAGE_CONFIG.maxPage = Math.ceil(CONFIG.data.length / CONFIG.pageCount);
+
     /* 超过1 才开启分页 */
-    if (this.pageConfig.maxPage < 2) {
+    if (PAGE_CONFIG.maxPage < 2) {
       return dataPagingNode;
     }
-    if (this.config.firstBtn.enable) {
+    /* 如果 第一页 开启 */
+    if (CONFIG.firstBtn.enable) {
       this.setFirstBtnClickEvent(firstBtnNode, dataPagingNode);
       dataPagingNode.appendChild(firstBtnNode);
     }
-    if (this.config.prevBtn.enable) {
+    /* 如果 上一页 开启 */
+    if (CONFIG.prevBtn.enable) {
       this.setPrevBtnClickEvent(prevBtnNode, dataPagingNode);
       dataPagingNode.appendChild(prevBtnNode);
     }
-    let currentPage = this.config.currentPage;
-    if (this.config.pageStep > this.pageConfig.maxPage) {
+    /* 配置中的当前所处页码 */
+    let currentPage = CONFIG.currentPage;
+    if (CONFIG.pageStep > PAGE_CONFIG.maxPage) {
       /* 计算出的分的页数 不超过限制的最大页 */
-      for (currentPage; currentPage <= this.pageConfig.maxPage; currentPage++) {
+      for (currentPage; currentPage <= PAGE_CONFIG.maxPage; currentPage++) {
         let pageBtnNode = document.createElement("a");
-        pageBtnNode.setAttribute("page-id", currentPage);
+        DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
         pageBtnNode.innerText = currentPage;
-        if (this.config.currentPage === currentPage) {
-          pageBtnNode.setAttribute("data-current-page", "");
+        if (CONFIG.currentPage === currentPage) {
+          DOM_CONFIG.setAttributeWithCurrentPage(pageBtnNode);
         }
         this.setPageBtnClickEvent(pageBtnNode, dataPagingNode);
         dataPagingNode.appendChild(pageBtnNode);
       }
     } else {
       /* 计算出的分的页数 超过限制的最大页，要添加...省略号代替（pageStep大于） */
-      if (currentPage + this.config.pageCount >= this.pageConfig.maxPage) {
+      if (currentPage + CONFIG.pageCount >= PAGE_CONFIG.maxPage) {
         /* 如果 当前页 + 限制的页码 大于等于 最大页，那么 从最后一页倒序着添加 */
-        currentPage = this.pageConfig.maxPage;
+        currentPage = PAGE_CONFIG.maxPage;
         let needAppendNodeList = [];
-        for (let i = 0; i < this.config.pageStep; i++) {
+        for (let i = 0; i < CONFIG.pageStep; i++) {
           let pageBtnNode = document.createElement("a");
-          pageBtnNode.setAttribute("page-id", currentPage);
+          DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
           pageBtnNode.innerText = currentPage;
-          if (this.config.currentPage === currentPage) {
-            pageBtnNode.setAttribute("data-current-page", "");
+          if (CONFIG.currentPage === currentPage) {
+            DOM_CONFIG.setAttributeWithCurrentPage(pageBtnNode);
           }
           this.setPageBtnClickEvent(pageBtnNode, dataPagingNode);
           needAppendNodeList = [...needAppendNodeList, pageBtnNode];
@@ -228,12 +403,12 @@ dataPaging.append(document.querySelector("body > div"));
           dataPagingNode.appendChild(item);
         });
       } else {
-        for (let i = 0; i < this.config.pageStep; i++) {
+        for (let i = 0; i < CONFIG.pageStep; i++) {
           let pageBtnNode = document.createElement("a");
-          pageBtnNode.setAttribute("page-id", currentPage);
+          DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
           pageBtnNode.innerText = currentPage;
-          if (this.config.currentPage === currentPage) {
-            pageBtnNode.setAttribute("data-current-page", "");
+          if (CONFIG.currentPage === currentPage) {
+            DOM_CONFIG.setAttributeWithCurrentPage(pageBtnNode);
           }
           this.setPageBtnClickEvent(pageBtnNode, dataPagingNode);
           dataPagingNode.appendChild(pageBtnNode);
@@ -241,21 +416,25 @@ dataPaging.append(document.querySelector("body > div"));
         }
       }
     }
-
-    if (this.config.nextBtn.enable) {
+    /* 如果 下一页 开启 */
+    if (CONFIG.nextBtn.enable) {
       this.setNextBtnClickEvent(nextBtnNode, dataPagingNode);
       dataPagingNode.appendChild(nextBtnNode);
     }
-    if (this.config.lastBtn.enable) {
+    /* 如果 最后一页 开启 */
+    if (CONFIG.lastBtn.enable) {
       this.setLastBtnClickEvent(lastBtnNode, dataPagingNode);
       dataPagingNode.appendChild(lastBtnNode);
     }
-    if (this.config.currentPage === 1) {
-      dataPagingNode.querySelector("a.pg-prev").setAttribute("disabled", true);
-    } else if (this.config.currentPage === this.pageConfig.maxPage) {
-      dataPagingNode.querySelector("a.pg-next").setAttribute("disabled", true);
+    /* 配置中的当前页码为1时 设置 第一页、上一页按钮禁用 */
+    if (CONFIG.currentPage === 1) {
+      DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.firstBtnNode.get());
+      DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.prevBtnNode.get());
+    } else if (CONFIG.currentPage === PAGE_CONFIG.maxPage) {
+      /* 如果是最大的页码 下一页、最后一页禁用 */
+      DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.nextBtnNode.get());
+      DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.lastBtnNode.get());
     }
-    this.pageConfig.dataPagingNode = dataPagingNode;
     return dataPagingNode;
   };
 
@@ -271,40 +450,39 @@ dataPaging.append(document.querySelector("body > div"));
   ) {
     let that = this;
     btnNode.onclick = function () {
-      let currentNode = dataPagingNode.querySelector("a[data-current-page]");
-      if (parseInt(currentNode.getAttribute("page-id")) === 1) {
+      let currentNode = DOM_CONFIG.getAttributeWithCurrentPage();
+      /* 当前页为第一页时无效 */
+      if (DOM_CONFIG.getAttributeWithPageId(currentNode) === 1) {
         return;
       }
-      that.config.firstBtn.callBack();
-      let allPageNode = dataPagingNode.querySelectorAll("a[page-id]");
-      for (let i = 0; i < that.config.pageStep; i++) {
+      CONFIG.firstBtn.callBack();
+      let allPageNode = DOM_CONFIG.getAllPageNode(dataPagingNode);
+      for (let i = 0; i < CONFIG.pageStep; i++) {
         let item = allPageNode[i];
+        /* 设置当前页码为第一页 */
         if (i === 0) {
-          item.setAttribute("data-current-page", "");
+          DOM_CONFIG.setAttributeWithCurrentPage(item);
         } else {
-          item.removeAttribute("data-current-page");
+          /* 移除其它设置的第一页 */
+          DOM_CONFIG.removeAttributeWithCurrentPage(item);
         }
-        item.setAttribute("page-id", i + 1);
+        DOM_CONFIG.setAttributeWithPageId(item, i + 1);
         item.innerText = i + 1;
       }
-      dataPagingNode.querySelectorAll("a[class][disabled]").forEach((item) => {
-        item.removeAttribute("disabled");
-      });
-      if (dataPagingNode.querySelector("a[page-id='1']")) {
-        dataPagingNode
-          .querySelector("a.pg-prev")
-          .setAttribute("disabled", true);
-        dataPagingNode
-          .querySelector("a.pg-first")
-          .setAttribute("disabled", true);
+      DOM_CONFIG.removeAllAttributeWithDisabled(dataPagingNode);
+      /* 可视区域存在第一页的页码时，禁用第一页、上一页按钮 */
+      if (DOM_CONFIG.getFirstPageNode(dataPagingNode)) {
+        DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.firstBtnNode.get());
+        DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.prevBtnNode.get());
       }
-      that.config.pageChangeCallBack(1);
+      CONFIG.pageChangeCallBack(1);
     };
   };
   /**
    * 设置 上一页 点击事件
    * @param {HTMLElement} btnNode 元素
    * @param {HTMLElement} dataPagingNode 分页元素(主)
+   * @this {DataPaging}
    */
   DataPaging.prototype.setPrevBtnClickEvent = function (
     btnNode,
@@ -312,36 +490,32 @@ dataPaging.append(document.querySelector("body > div"));
   ) {
     let that = this;
     btnNode.onclick = function () {
-      let currentNode = dataPagingNode.querySelector("a[data-current-page]");
-      if (parseInt(currentNode.getAttribute("page-id")) === 1) {
+      let currentNode = DOM_CONFIG.getAttributeWithCurrentPage();
+      /* 当前页为第一页时无效 */
+      if (DOM_CONFIG.getAttributeWithPageId(currentNode) === 1) {
         return;
       }
-      that.config.prevBtn.callBack();
-      if (currentNode.previousElementSibling.hasAttribute("page-id")) {
+      CONFIG.prevBtn.callBack();
+      if (
+        DOM_CONFIG.hasAttributeWithPageId(currentNode.previousElementSibling)
+      ) {
         currentNode.previousElementSibling.click();
       } else {
-        let allPageNode = dataPagingNode.querySelectorAll("a[page-id]");
+        let allPageNode = DOM_CONFIG.getAllPageNode(dataPagingNode);
         allPageNode.forEach((item, index) => {
-          let page = parseInt(item.getAttribute("page-id"));
+          let page = DOM_CONFIG.getAttributeWithPageId(item);
           page--;
-          item.setAttribute("page-id", page);
+          DOM_CONFIG.setAttributeWithPageId(item, page);
           item.innerText = page;
         });
-        that.config.pageChangeCallBack(that.pageConfig.getCurrentPage());
+        CONFIG.pageChangeCallBack(PAGE_CONFIG.getCurrentPage());
       }
-      dataPagingNode.querySelectorAll("a[class][disabled]").forEach((item) => {
-        item.removeAttribute("disabled");
-      });
-
-      if (dataPagingNode.querySelector("a[page-id='1']")) {
-        dataPagingNode
-          .querySelector("a.pg-prev")
-          .setAttribute("disabled", true);
-        dataPagingNode
-          .querySelector("a.pg-first")
-          .setAttribute("disabled", true);
+      DOM_CONFIG.removeAllAttributeWithDisabled(dataPagingNode);
+      /* 可视区域存在第一页的页码时，禁用第一页、上一页按钮 */
+      if (DOM_CONFIG.getFirstPageNode(dataPagingNode)) {
+        DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.firstBtnNode.get());
+        DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.prevBtnNode.get());
       }
-      
     };
   };
   /**
@@ -355,51 +529,43 @@ dataPaging.append(document.querySelector("body > div"));
     dataPagingNode
   ) {
     let that = this;
-
     btnNode.onclick = function () {
-      let currentNode = dataPagingNode.querySelector("a[data-current-page]");
+      let currentNode = DOM_CONFIG.getAttributeWithCurrentPage();
+      /* 当前页出于最后一页时 无效点击 */
       if (
-        parseInt(currentNode.getAttribute("page-id")) ===
-        that.pageConfig.maxPage
+        DOM_CONFIG.getAttributeWithPageId(currentNode) === PAGE_CONFIG.maxPage
       ) {
         return;
       }
-      that.config.nextBtn.callBack();
-      if (currentNode.nextElementSibling.hasAttribute("page-id")) {
+      CONFIG.nextBtn.callBack();
+      /* 如果后面的按钮存在页码属性 点击 */
+      if (DOM_CONFIG.hasAttributeWithPageId(currentNode.nextElementSibling)) {
         currentNode.nextElementSibling.click();
       } else {
-        let allPageNode = dataPagingNode.querySelectorAll("a[page-id]");
+        let allPageNode = DOM_CONFIG.getAllPageNode(dataPagingNode);
         allPageNode.forEach((item, index) => {
-          let page = parseInt(item.getAttribute("page-id"));
+          let page = DOM_CONFIG.getAttributeWithPageId(item);
           page++;
-          if (page > that.pageConfig.maxPage) {
+          if (page > PAGE_CONFIG.maxPage) {
             return;
           }
-          item.setAttribute("page-id", page);
+          DOM_CONFIG.setAttributeWithPageId(item, page);
           item.innerText = page;
         });
-        that.config.pageChangeCallBack(that.pageConfig.getCurrentPage());
+        CONFIG.pageChangeCallBack(PAGE_CONFIG.getCurrentPage());
       }
-      dataPagingNode.querySelectorAll("a[class][disabled]").forEach((item) => {
-        item.removeAttribute("disabled");
-      });
-      if (
-        dataPagingNode.querySelector(`a[page-id='${that.pageConfig.maxPage}']`)
-      ) {
-        dataPagingNode
-          .querySelector("a.pg-next")
-          .setAttribute("disabled", true);
-        dataPagingNode
-          .querySelector("a.pg-last")
-          .setAttribute("disabled", true);
+      DOM_CONFIG.removeAllAttributeWithDisabled(dataPagingNode);
+      if (DOM_CONFIG.getLastPageNode()) {
+        DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.nextBtnNode.get());
+        DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.lastBtnNode.get());
       }
-      
     };
   };
   /**
    * 设置 最后一页 点击事件
    * @param {HTMLElement} btnNode 元素
    * @param {HTMLElement} dataPagingNode 分页元素(主)
+   * @this {DataPaging}
    */
   DataPaging.prototype.setLastBtnClickEvent = function (
     btnNode,
@@ -407,40 +573,38 @@ dataPaging.append(document.querySelector("body > div"));
   ) {
     let that = this;
     btnNode.onclick = function () {
-      let currentNode = dataPagingNode.querySelector("a[data-current-page]");
+      let currentNode = DOM_CONFIG.getAttributeWithCurrentPage();
       if (
-        parseInt(currentNode.getAttribute("page-id")) ===
-        that.pageConfig.maxPage
+        DOM_CONFIG.getAttributeWithPageId(currentNode) ===
+        PAGE_CONFIG.maxPage
       ) {
         return;
       }
-      that.config.lastBtn.callBack();
-      let allPageNode = dataPagingNode.querySelectorAll("a[page-id]");
+      CONFIG.lastBtn.callBack();
+      let allPageNode = DOM_CONFIG.getAllPageNode(dataPagingNode);
       allPageNode = Array.from(allPageNode);
       allPageNode.reverse();
-      let pageCount = that.pageConfig.maxPage;
+      let pageCount = PAGE_CONFIG.maxPage;
       let index = 0;
       while (true) {
-        if (that.pageConfig.maxPage - pageCount >= 3) {
+        if (PAGE_CONFIG.maxPage - pageCount >= 3) {
           break;
         }
         let item = allPageNode[index];
         if (index === 0) {
-          item.setAttribute("data-current-page", "");
+          DOM_CONFIG.setAttributeWithCurrentPage(item);
         } else {
-          item.removeAttribute("data-current-page");
+          DOM_CONFIG.removeAttributeWithCurrentPage(item);
         }
-        item.setAttribute("page-id", pageCount);
+        DOM_CONFIG.setAttributeWithPageId(item, pageCount);
         item.innerText = pageCount;
         pageCount--;
         index++;
       }
-      dataPagingNode.querySelectorAll("a[class][disabled]").forEach((item) => {
-        item.removeAttribute("disabled");
-      });
-      dataPagingNode.querySelector("a.pg-next").setAttribute("disabled", true);
-      dataPagingNode.querySelector("a.pg-last").setAttribute("disabled", true);
-      that.config.pageChangeCallBack(that.pageConfig.maxPage);
+      DOM_CONFIG.removeAllAttributeWithDisabled(dataPagingNode);
+      DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.nextBtnNode.get());
+      DOM_CONFIG.setAttributeWithDisabled(DOM_CONFIG.lastBtnNode.get());
+      CONFIG.pageChangeCallBack(PAGE_CONFIG.maxPage);
     };
   };
 
@@ -448,6 +612,7 @@ dataPaging.append(document.querySelector("body > div"));
    * 设置 页 点击事件
    * @param {HTMLElement} btnNode 元素
    * @param {HTMLElement} dataPagingNode 分页元素(主)
+   * @this {DataPaging}
    */
   DataPaging.prototype.setPageBtnClickEvent = function (
     btnNode,
@@ -456,14 +621,14 @@ dataPaging.append(document.querySelector("body > div"));
     let that = this;
     btnNode.onclick = function (event) {
       let eventBtnNode = event.target;
-      dataPagingNode.querySelectorAll("a[page-id]").forEach((item) => {
+      DOM_CONFIG.getAllPageNode(dataPagingNode).forEach((item) => {
         if (item == eventBtnNode) {
-          if (!eventBtnNode.hasAttribute("data-current-page")) {
-            eventBtnNode.setAttribute("data-current-page", "");
-            that.config.pageChangeCallBack(that.pageConfig.getCurrentPage());
+          if (!DOM_CONFIG.hasAttributeWithCurrentPage(eventBtnNode)) {
+            DOM_CONFIG.setAttributeWithCurrentPage(eventBtnNode);
+            CONFIG.pageChangeCallBack(PAGE_CONFIG.getCurrentPage());
           }
         } else {
-          item.removeAttribute("data-current-page");
+          DOM_CONFIG.removeAttributeWithCurrentPage(item);
         }
       });
     };
@@ -474,8 +639,18 @@ dataPaging.append(document.querySelector("body > div"));
    * @this {DataPaging}
    */
   DataPaging.prototype.append = function (parentNode) {
+    DOM_CONFIG.dataPagingNode.dom?.remove();
+    DOM_CONFIG.dataPagingNode.dom = null;
     parentNode.appendChild(this.getDataPagingNode());
   };
-})((DataPaging = Function));
 
-  
+  /**
+   * 动态修改配置，注意，修改后需要.append修改原来的元素
+   * @param {Object} details 配置
+   * @this {DataPaging}
+   */
+  DataPaging.prototype.changeConfig = function (details) {
+    this.init(details);
+    return this;
+  };
+})((DataPaging = function () {}));
