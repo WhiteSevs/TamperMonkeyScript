@@ -368,6 +368,7 @@ dataPaging.append(document.querySelector("body > div"));
     }
     let currentPage = CONFIG.currentPage;
     /* 计算出的最大页码在限制的显示页码数量内 */
+    /* 比如计算出的页码总共有5个，设置中当前能显示出的页码按钮元素为3个 */
     if (CONFIG.pageStep > PAGE_CONFIG.maxPage) {
       for (currentPage; currentPage <= PAGE_CONFIG.maxPage; currentPage++) {
         let pageBtnNode = document.createElement("a");
@@ -400,6 +401,7 @@ dataPaging.append(document.querySelector("body > div"));
           dataPagingNode.appendChild(item);
         });
       } else {
+        /* 当前页 在计算出的页码内 */
         for (let i = 0; i < CONFIG.pageStep; i++) {
           let pageBtnNode = document.createElement("a");
           DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
