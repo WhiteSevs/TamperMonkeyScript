@@ -14554,8 +14554,10 @@
 					display: block;
 					top: 50%;
 					left: 30%;
-					width: 35%;
-    			height: 65%;
+					/* width: 35%;
+    			height: 65%; */
+          width: 20%;
+          height: auto;
 					color: #fff;
 					font-size: 10px;
 					font-weight: bold;
