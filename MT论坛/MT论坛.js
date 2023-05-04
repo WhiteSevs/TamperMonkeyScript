@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.5
+// @version      2.9.6
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -109,12 +109,15 @@
         }
       });
     },
-    force_mask_init: function () {
+    force_mask_init: function (zIndex) {
       document.documentElement.style.overflow = "hidden";
       if (!$jq("#force-mask").length) {
         $jq("body").append($jq('<div id="force-mask"></div>'));
       } else {
         $jq("#force-mask").html("");
+      }
+      if(!zIndex){
+        $jq("#force-mask").css("z-index",Utils.getMaxZIndex() + 10);
       }
     },
     confirm: function (param_options) {
@@ -2984,10 +2987,15 @@
      * 小黑屋
      */
     blackHome() {
-      async function showBlackHomeView() {
-        /* 显示小黑屋界面 */
-        let blackListJSON = await getMoreBlackList();
-        if (blackListJSON == null) {
+      let nextCid = ""; /* 下一个cid，用于获取下一页黑名单 */
+      /**
+       * 小黑屋点击事件
+       */
+      async function blackHomeNodeClickEvent() {
+        popup2.showLoadingMask();
+        popup2.toast("正在获取小黑屋名单中...");
+        let blackList = await getBlackList();
+        if (blackList.length === 0) {
           popup2.toast("获取小黑屋名单失败");
           popup2.closeMask();
           return;
@@ -3010,6 +3018,10 @@
 					display: flex;
 					margin: 18px 0px;
 				}
+        .blackhome-user-name{
+          width: 80px;
+          text-align: center;
+        }
 				.blackhome-user-avatar-name{
 					margin-left: 8px;
 					margin-right: 8px;
@@ -3041,7 +3053,7 @@
 					color: #53bcf5;
 				}
 				.blackhome-user-list .blackhome-user-groupexpiry{
-					color: #53bcf5;
+					color: #3e01e3;
 				}
 				.blackhome-user-list .blackhome-user-operator{
 					color: #fc2a2a;
@@ -3051,7 +3063,6 @@
           title: "小黑屋名单",
           content: `
 					<div class="blackhome-user-filter"><input placeholder="搜索用户名/操作人员/UID(可正则)"></div>
-					<center>处理数据中...</center>
 					<div class="blackhome-user-list"></div>`,
           type: "",
           location: "center",
@@ -3064,165 +3075,22 @@
             blackCSSNode?.remove();
           },
         });
-        $jq(".NZ-MsgBox-alert .msgcon center").hide();
-        $jq(".msgtitle").on("click", function () {
-          let text = "请选择查看小黑屋的页数";
-          let selectHTML = "";
-          for (let i = 1; i <= 20; i++) {
-            selectHTML += `<option value="${i}">${i}</option>`;
-          }
-          selectHTML = `<select id="blackhomeselect" style="margin-left: 10px;">${selectHTML}</select>`;
-          text += selectHTML;
-          popup2.confirm({
-            text: text,
-            ok: {
-              callback: () => {
-                GM_setValue(
-                  "blackHomeListNums",
-                  parseInt($jq("#blackhomeselect").val())
-                );
-                popup2.closeMask();
-                popup2.closeConfirm();
-                popup2.toast("设置成功");
-              },
-            },
-          });
-          $jq("#blackhomeselect").val(GM_getValue("blackHomeListNums", 1));
-        });
-
-        function jsonToArrayWithAddPropertyTime(data) {
-          let _list_ = [];
-          let _no_time_list_ = [];
-          console.log("准备排序的数据: ", data);
-          $jq.each(data, function (index, value) {
-            let date = value["dateline"].match(
-              /([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g
-            );
-            if (date == null) {
-              let _time_ = parseInt(Date.now() / 1000);
-              let _time_after_count_ = 0;
-              let sec_data =
-                value["dateline"].match(
-                  /([0-9]+|半)[\s\S]*秒前/
-                ); /* xx|半秒前 */
-              let min_data =
-                value["dateline"].match(
-                  /([0-9]+|半)[\s\S]*分钟前/
-                ); /* xx|半分钟前 */
-              let hour_data =
-                value["dateline"].match(
-                  /([0-9]+|半)[\s\S]*小时前/
-                ); /* xx|半小时前 */
-              let yesterday_time_data = value["dateline"].match(
-                /昨天[\s\S]*(\d{2}):(\d{2})/
-              ); /* 昨天 xx:xx */
-              let before_yesterday_time_data = value["dateline"].match(
-                /前天[\s\S]*(\d{2}):(\d{2})/
-              ); /* 前天 xx:xx */
-              let day_data =
-                value["dateline"].match(/([0-9]+|半)[\s\S]*天前/); /* xx天前 */
-              if (sec_data) {
-                sec_data = sec_data[sec_data.length - 1];
-                sec_data = sec_data.replace(/半/g, 0.5);
-                sec_data = parseFloat(sec_data);
-                _time_after_count_ = _time_ - sec_data;
-              } else if (min_data) {
-                min_data = min_data[min_data.length - 1];
-                min_data = min_data.replace(/半/g, 0.5);
-                min_data = parseFloat(min_data);
-                _time_after_count_ = _time_ - min_data * 60;
-              } else if (hour_data) {
-                hour_data = hour_data[hour_data.length - 1];
-                hour_data = hour_data.replace(/半/g, 0.5);
-                hour_data = parseFloat(hour_data);
-                _time_after_count_ = _time_ - hour_data * 60 * 60;
-              } else if (yesterday_time_data) {
-                let yesterday_hour_data = yesterday_time_data[1];
-                let yesterday_min_data = yesterday_time_data[2];
-                _time_after_count_ =
-                  _time_ -
-                  86400 -
-                  parseInt(yesterday_hour_data) * 3600 -
-                  parseInt(yesterday_min_data) * 60;
-              } else if (before_yesterday_time_data) {
-                let before_yesterday_hour_data = before_yesterday_time_data[1];
-                let before_yesterday_min_data = before_yesterday_time_data[2];
-                _time_after_count_ =
-                  _time_ -
-                  86400 * 2 -
-                  parseInt(before_yesterday_hour_data) * 3600 -
-                  parseInt(before_yesterday_min_data) * 60;
-              } else if (day_data) {
-                day_data = day_data[day_data.length - 1];
-                day_data = day_data.replace(/半/g, 0.5);
-                day_data = parseFloat(day_data);
-                _time_after_count_ = _time_ - day_data * 60 * 60 * 24;
-              }
-              value["time"] = parseInt(_time_after_count_) * 1000;
-              _list_ = _list_.concat(value);
-              return;
-            } else {
-              date = date[0];
-            }
-            value["time"] = Utils.formatTextToTimeStamp(date);
-            _list_ = _list_.concat(value);
-          });
-
-          _list_.sort(
-            Utils.sortListByProperty((item) => {
-              return item["time"];
-            })
-          );
-
-          _no_time_list_.sort(
-            Utils.sortListByProperty((item) => {
-              return item["time"];
-            }, false)
-          );
-          _list_ = [..._list_, ..._no_time_list_];
-          return _list_;
-        }
-        let newBlacklist = jsonToArrayWithAddPropertyTime(blackListJSON);
-        console.log("排序完毕的结果", newBlacklist);
         let blackViewHTML = "";
-        $jq.each(newBlacklist, function (index, value) {
-          let reason = value["reason"] == "" ? "无" : value["reason"];
-          blackViewHTML =
-            blackViewHTML +
-            ` <div class="blackhome-user-item" 
-						data-name="${value["username"]}"
-						data-uid="${value["uid"]}" 
-						data-operator="${value["operator"]}">
-                <div class="blackhome-user-avatar-name">
-									<img src="${MT_CONFIG.getAvatar(value["uid"], "small")}" loading="lazy">
-									<div>${value["username"]}</div>
-								</div>
-								<div class="blackhome-user-text">
-									<div class="blackhome-user-dateline">
-										<p>操作时间：</p>
-										<p>${value["dateline"]}</p>
-									</div>
-									<div class="blackhome-user-action">
-										<p>操作行为：</p>
-										<p>${value["action"]}</p>
-									</div>
-									<div class="blackhome-user-groupexpiry">
-										<p>过期时间：</p>
-										<p>${value["groupexpiry"]}</p>
-									</div>
-									<div class="blackhome-user-operator">
-										<p>操作人员：</p>
-										<p>${value["operator"]}</p>
-									</div>
-									<div class="blackhome-user-reason">
-										<p>操作理由：</p>
-										<p>${reason}</p>
-									</div>
-								</div>
-							</div>`;
+        blackList.forEach((item) => {
+          blackViewHTML += getBlackListViewHTML(item);
         });
         let blackViewNode = $jq(blackViewHTML);
         $jq(".blackhome-user-list").append(blackViewNode);
+        setBlackHomeAvatarClickEvent(blackViewNode);
+        setSearchPropertyChangeEvent();
+        setBlackHomeTitleClickEvent();
+      }
+
+      /**
+       * 设置小黑屋名单中的头像点击事件
+       * @param {HTMLElement} blackViewNode 小黑屋元素节点
+       */
+      function setBlackHomeAvatarClickEvent(blackViewNode) {
         blackViewNode.on("click", ".blackhome-user-avatar-name", function () {
           window.open(
             `home.php?mod=space&uid=${this.parentElement.getAttribute(
@@ -3231,106 +3099,37 @@
             "_blank"
           );
         });
-        handleFilterInfo();
       }
-      async function insertMobileBlackHomeButton() {
-        /* 插入手机版查看小黑屋的按钮 */
-        if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.bbs], "v30")) {
-          return;
-        }
-        let comiis_left_Touch = document.createElement("li");
-        comiis_left_Touch.className = "comiis_left_Touch";
-        let black_home_ele = document.createElement("a");
-        black_home_ele.setAttribute("href", "javascript:;");
-        black_home_ele.className = "blacklist";
-        black_home_ele.innerHTML = `
-                        <div class="styli_tit f_c">
-                            <i class="comiis_font" style="color: #000;"></i>
-                        </div>
-                        <div class="flex">小黑屋</div>`;
-        GM_addStyle(`
-						.NZ-MsgBox-alert .msgcontainer .msgtitle {
-								text-align: center !important;
-						}
-						#autolist .k_misign_lu img {
-								width: 40px;
-								height: 40px;
-								-moz-border-radius: 20px;
-								-webkit-border-radius: 20px;
-								border-radius: 20px;
-						}
-						.k_misign_lc .f_c{
-								margin: 5px 0px;
-						}
-						tbody#autolist,
-						tbody#autolist tr {
-								width: auto;
-						}`);
-        black_home_ele.onclick = () => {
+
+      /**
+       * 设置小黑屋标题的点击事件-点击触发获取下一页
+       */
+      function setBlackHomeTitleClickEvent() {
+        $jq(".msgtitle").on("click", async function () {
           popup2.showLoadingMask();
           popup2.toast("正在获取小黑屋名单中...");
-          showBlackHomeView();
-        };
-        comiis_left_Touch.append(black_home_ele);
-        $jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
-          comiis_left_Touch
-        );
-      }
-      async function getBlackList(cid = "") {
-        /* 获取黑名单列表 */
-        return new Promise((resolve) => {
-          GM_xmlhttpRequest({
-            url: `https://bbs.binmt.cc/forum.php?mod=misc&action=showdarkroom&cid=${cid}&t=&ajaxdata=json`,
-            timeout: 5000,
-            method: "GET",
-            async: false,
-            headers: {
-              "User-Agent": Utils.getRandomPCUA(),
-            },
-            onload: (response) => {
-              console.log(response);
-              resolve(response.responseText);
-            },
-            onerror: (response) => {
-              console.log(response);
-              popup2.toast("网络异常,请重新获取");
-              resolve("");
-            },
-            ontimeout: () => {
-              popup2.toast("请求超时,请重新获取");
-              resolve("");
-            },
-          });
-        });
-      }
-      function getMoreBlackList() {
-        /* 获取多个小黑屋名单列表 */
-        return new Promise(async (resolve) => {
-          let cid = "";
-          let resultData = [];
-          let blackHomeListNums = GM_getValue("blackHomeListNums", 1);
-          for (let index = 0; index < blackHomeListNums; index++) {
-            popup2.toast(
-              `正在获取小黑屋名单中(${index + 1}/${blackHomeListNums})...`
-            );
-            let result = await getBlackList(cid);
-            if (result == null || result == "") {
-              resolve();
-            }
-            let parseResult = Utils.jsonStrToObject(result);
-            let message = parseResult["message"];
-            let data = parseResult["data"];
-            let message_split = message.split("|");
-            cid = message_split[message_split.length - 1];
-            data = Utils.jsonAllValueToArray(data);
-            resultData = [...resultData, ...data];
-            await Utils.sleep(600);
+          console.log("下一页的cid: ", nextCid);
+          let blackList = await getBlackList(nextCid);
+          if (blackList.length === 0) {
+            popup2.toast("获取下一页小黑屋名单失败");
+            popup2.closeMask();
+            return;
           }
-          resolve(resultData);
+          popup2.closeMask();
+          popup2.closeToast();
+          let blackViewHTML = "";
+          blackList.forEach((item) => {
+            blackViewHTML += getBlackListViewHTML(item);
+          });
+          $jq(".blackhome-user-list").append($jq(blackViewHTML));
+          $jq(".blackhome-user-filter input")[0].dispatchEvent(new Event('propertychange'));
         });
       }
-      function handleFilterInfo() {
-        /* 过滤 */
+
+      /**
+       * 设置搜索-过滤的值变化事件
+       */
+      function setSearchPropertyChangeEvent() {
         let isSeaching = false;
         $jq(".blackhome-user-filter input").on(
           "propertychange input",
@@ -3379,6 +3178,237 @@
             isSeaching = false;
           }
         );
+      }
+
+      /**
+       * 插入手机版查看小黑屋的按钮
+       */
+      async function insertMobileBlackHomeButton() {
+        if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.bbs], "v30")) {
+          return;
+        }
+        let blackHomeNode = $jq(`
+        <li class="comiis_left_Touch">
+          <a href="javascript:;" class="blacklist">
+          <div class="styli_tit f_c">
+            <i class="comiis_font" style="color: #000;"></i>
+            </div>
+          <div class="flex">小黑屋</div>
+          </a>
+        </li>
+        `);
+        GM_addStyle(`
+          .NZ-MsgBox-alert .msgcontainer .msgtitle {
+              text-align: center !important;
+          }`);
+        blackHomeNode.on("click", function () {
+          blackHomeNodeClickEvent();
+        });
+
+        $jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
+          blackHomeNode
+        );
+      }
+      /**
+       * 获取黑名单html
+       * @param {String} cid 下一个人的cid
+       * @returns {String}
+       */
+      function getBlackListPageInfoHTML(cid = "") {
+        return new Promise((resolve) => {
+          GM_xmlhttpRequest({
+            url: `https://bbs.binmt.cc/forum.php?mod=misc&action=showdarkroom&cid=${cid}&t=&ajaxdata=json`,
+            timeout: 5000,
+            method: "GET",
+            async: false,
+            headers: {
+              "User-Agent": Utils.getRandomPCUA(),
+            },
+            onload: (response) => {
+              console.log(response);
+              resolve(response.responseText);
+            },
+            onerror: (response) => {
+              console.log(response);
+              popup2.toast("网络异常,请重新获取");
+              resolve("");
+            },
+            ontimeout: () => {
+              popup2.toast("请求超时,请重新获取");
+              resolve("");
+            },
+          });
+        });
+      }
+      /**
+       * 获取小黑屋显示出的html
+       * @param {Object} value
+       * @returns
+       */
+      function getBlackListViewHTML(value) {
+        return ` <div class="blackhome-user-item" 
+        data-name="${value["username"]}"
+        data-uid="${value["uid"]}" 
+        data-operator="${value["operator"]}">
+            <div class="blackhome-user-avatar-name">
+              <img src="${MT_CONFIG.getAvatar(
+                value["uid"],
+                "small"
+              )}" loading="lazy">
+              <div class="blackhome-user-name">${value["username"]}</div>
+            </div>
+            <div class="blackhome-user-text">
+              <div class="blackhome-user-dateline">
+                <p>操作时间：</p>
+                <p>${value["dateline"]}</p>
+              </div>
+              <div class="blackhome-user-action">
+                <p>操作行为：</p>
+                <p>${value["action"]}</p>
+              </div>
+              <div class="blackhome-user-groupexpiry">
+                <p>过期时间：</p>
+                <p>${value["groupexpiry"]}</p>
+              </div>
+              <div class="blackhome-user-operator">
+                <p>操作人员：</p>
+                <p>${value["operator"]}</p>
+              </div>
+              <div class="blackhome-user-reason">
+                <p>操作理由：</p>
+                <p>${value["reason"] === "" ? "无" : value["reason"]}</p>
+              </div>
+            </div>
+          </div>`;
+      }
+      /**
+       * 获取小黑屋名单列表
+       * @param {String} cid 下一页的cid
+       */
+      function getBlackList(cid = "") {
+        return new Promise(async (resolve) => {
+          popup2.toast("正在获取小黑屋名单中...");
+          let result = await getBlackListPageInfoHTML(cid);
+          if (result === "") {
+            resolve([]);
+            return;
+          }
+          let data = parseBlackListHTML(result);
+          console.log("准备排序的数据: ", data);
+          let newData = blackListOrderByTime(data);
+          console.log("排序完毕的结果: ", newData);
+          resolve(newData);
+        });
+      }
+
+      /**
+       * 对小黑屋名单数组进行排序，并添加time属性
+       * @param {Array} data
+       * @returns {Array}
+       */
+      function blackListOrderByTime(data) {
+        let blackList = [];
+        let blackListWithNoTime = [];
+        $jq.each(data, function (index, value) {
+          let date = value["dateline"].match(
+            /([0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]*[0-9]{1,2}:[0-9]{1,2})/g
+          );
+          if (date == null) {
+            let _time_ = parseInt(Date.now() / 1000);
+            let _time_after_count_ = 0;
+            let sec_data =
+              value["dateline"].match(/([0-9]+|半)[\s\S]*秒前/); /* xx|半秒前 */
+            let min_data =
+              value["dateline"].match(
+                /([0-9]+|半)[\s\S]*分钟前/
+              ); /* xx|半分钟前 */
+            let hour_data =
+              value["dateline"].match(
+                /([0-9]+|半)[\s\S]*小时前/
+              ); /* xx|半小时前 */
+            let yesterday_time_data = value["dateline"].match(
+              /昨天[\s\S]*(\d{2}):(\d{2})/
+            ); /* 昨天 xx:xx */
+            let before_yesterday_time_data = value["dateline"].match(
+              /前天[\s\S]*(\d{2}):(\d{2})/
+            ); /* 前天 xx:xx */
+            let day_data =
+              value["dateline"].match(/([0-9]+|半)[\s\S]*天前/); /* xx天前 */
+            if (sec_data) {
+              sec_data = sec_data[sec_data.length - 1];
+              sec_data = sec_data.replace(/半/g, 0.5);
+              sec_data = parseFloat(sec_data);
+              _time_after_count_ = _time_ - sec_data;
+            } else if (min_data) {
+              min_data = min_data[min_data.length - 1];
+              min_data = min_data.replace(/半/g, 0.5);
+              min_data = parseFloat(min_data);
+              _time_after_count_ = _time_ - min_data * 60;
+            } else if (hour_data) {
+              hour_data = hour_data[hour_data.length - 1];
+              hour_data = hour_data.replace(/半/g, 0.5);
+              hour_data = parseFloat(hour_data);
+              _time_after_count_ = _time_ - hour_data * 60 * 60;
+            } else if (yesterday_time_data) {
+              let yesterday_hour_data = yesterday_time_data[1];
+              let yesterday_min_data = yesterday_time_data[2];
+              _time_after_count_ =
+                _time_ -
+                86400 -
+                parseInt(yesterday_hour_data) * 3600 -
+                parseInt(yesterday_min_data) * 60;
+            } else if (before_yesterday_time_data) {
+              let before_yesterday_hour_data = before_yesterday_time_data[1];
+              let before_yesterday_min_data = before_yesterday_time_data[2];
+              _time_after_count_ =
+                _time_ -
+                86400 * 2 -
+                parseInt(before_yesterday_hour_data) * 3600 -
+                parseInt(before_yesterday_min_data) * 60;
+            } else if (day_data) {
+              day_data = day_data[day_data.length - 1];
+              day_data = day_data.replace(/半/g, 0.5);
+              day_data = parseFloat(day_data);
+              _time_after_count_ = _time_ - day_data * 60 * 60 * 24;
+            }
+            value["time"] = parseInt(_time_after_count_) * 1000;
+            blackList = blackList.concat(value);
+            return;
+          } else {
+            date = date[0];
+          }
+          value["time"] = Utils.formatTextToTimeStamp(date);
+          blackList = blackList.concat(value);
+        });
+
+        blackList.sort(
+          Utils.sortListByProperty((item) => {
+            return item["time"];
+          })
+        );
+
+        blackListWithNoTime.sort(
+          Utils.sortListByProperty((item) => {
+            return item["time"];
+          }, false)
+        );
+        blackList = [...blackList, ...blackListWithNoTime];
+        return blackList;
+      }
+
+      /**
+       * 解析黑名单html
+       * @param {string} blackListHTML
+       * @returns {Array}
+       */
+      function parseBlackListHTML(blackListHTML) {
+        let parseResult = Utils.jsonStrToObject(blackListHTML);
+        let data = parseResult["data"]; /* 黑名单列表 */
+        let cid = parseResult["message"].split("|"); /* cid */
+        cid = cid[cid.length - 1];
+        nextCid = cid;
+        data = Utils.jsonAllValueToArray(data);
+        return data;
       }
       insertMobileBlackHomeButton();
     },
@@ -4023,8 +4053,7 @@
             headers: {
               "Content-Type":
                 "application/x-www-form-urlencoded; charset=UTF-8",
-                "User-Agent":Utils.getRandomPCUA(),
-                
+              "User-Agent": Utils.getRandomPCUA(),
             },
             onload: (response) => {
               try {
@@ -4222,7 +4251,7 @@
               data: `email=${chartBedUser}&password=${chartBedPwd}`,
               headers: {
                 Accept: "application/json",
-                "User-Agent":Utils.getRandomPCUA(),
+                "User-Agent": Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 if (code[response.status] != null) {
@@ -5330,7 +5359,7 @@
               data: `email=${chartBedUser}&password=${chartBedPwd}`,
               headers: {
                 Accept: "application/json",
-                "User-Agent":Utils.getRandomPCUA(),
+                "User-Agent": Utils.getRandomPCUA(),
                 "Content-Type": "application/x-www-form-urlencoded",
               },
               onload: (response) => {
@@ -6381,7 +6410,7 @@
                 async: false,
                 timeout: 5000,
                 headers: {
-                  "User-Agent":Utils.getRandomPCUA(),
+                  "User-Agent": Utils.getRandomPCUA(),
                   referer: "https://img.binmt.cc/",
                   origin: "https://img.binmt.cc",
                 },
@@ -9550,8 +9579,8 @@
                 user
               )}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=`,
               /* headers不设置，使用手机headers */
-              headers:{
-                "User-Agent":Utils.getRandomPCUA(),
+              headers: {
+                "User-Agent": Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popup2.closeMask();
@@ -9590,7 +9619,7 @@
               method: "post",
               headers: {
                 "content-type": "application/x-www-form-urlencoded",
-                "User-Agent":Utils.getRandomPCUA(),
+                "User-Agent": Utils.getRandomPCUA(),
               },
               data: `task=3&uid=${encodeURI(
                 user
@@ -9648,7 +9677,7 @@
               data: formData,
               headers: {
                 Accept: "*/*",
-                "User-Agent":Utils.getRandomPCUA(),
+                "User-Agent": Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popup2.closeMask();
@@ -9687,7 +9716,7 @@
               headers: {
                 "Content-Type":
                   "application/x-www-form-urlencoded; charset=UTF-8",
-                  "User-Agent":Utils.getRandomPCUA(),
+                "User-Agent": Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popup2.closeMask();
@@ -9724,8 +9753,8 @@
               )}`,
               timeout: 5000,
               method: "get",
-              headers:{
-                "User-Agent":Utils.getRandomPCUA(),
+              headers: {
+                "User-Agent": Utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popup2.closeMask();
@@ -14451,152 +14480,388 @@
     /**
      * 注册设置菜单项
      */
-    loadSettingView() {
-      function checkboxNode() {
-        return $jq(".whitesevcheckbox");
-      }
-
-      function selectedNodeText() {
-        let selectedVal = selectNode().val();
-        return $jq(`.beauty-select option[value='${selectedVal}']`).text();
-      }
-
-      function selectNode() {
-        return $jq(".beauty-select");
-      }
-
-      function setCodeNodeCheckedStatus(status) {
-        /* 设置 开关的状态 */
-        status
-          ? checkboxNode().removeClass("comiis_checkbox_close")
-          : checkboxNode().addClass("comiis_checkbox_close");
-      }
-
-      function setLastClickItem() {
-        /* 初始化设置上次点击的select内容 */
-        let selectNodeNormalVal =
-          GM_getValue("last") == null ? "v2" : GM_getValue("last");
-        selectNode().val(selectNodeNormalVal);
-        setCodeNodeCheckedStatus(
-          GM_getValue(selectNodeNormalVal) != null ? true : false
+    registerSettingView() {
+      /**
+       * 设置 脚本设置界面的事件
+       */
+      function setPageSettingViewEvent() {
+        $jq(".whitesev-mt-setting-item input[type='checkbox']").each(
+          (index, item) => {
+            item = $jq(item);
+            let dataKey = item.attr("data-key");
+            item.prop("checked", GM_getValue(dataKey, false));
+          }
+        );
+        $jq(".whitesev-mt-setting-item input[type='checkbox']").on(
+          "click",
+          function () {
+            let dataKey = $jq(this).attr("data-key");
+            GM_setValue(dataKey, this.checked);
+          }
         );
       }
-
-      function setSelectNodeChangeEvent() {
-        /* 设置选项的change事件 */
-        selectNode().change(function () {
-          let selected_value = $jq(".beauty-select").val();
-          GM_setValue("last", selected_value);
-          let check_value = GM_getValue(selected_value) != null ? true : false;
-          setCodeNodeCheckedStatus(check_value);
-        });
-      }
-
-      function setCodeNodeClickEvent() {
-        /* 设置开关的click事件 */
-        checkboxNode().on("click", (e) => {
-          let selected_value = selectNode().val();
-          let check_value = GM_getValue(selected_value) != null ? false : true;
-          check_value
-            ? GM_setValue(selected_value, true)
-            : GM_deleteValue(selected_value);
-          let showText = check_value ? "设置-开启" : "设置-关闭";
-          popup2.toast(showText);
-          setCodeNodeCheckedStatus(check_value);
-        });
-      }
-
-      function setSelectNodeCSS() {
+      /**
+       * 设置 脚本设置界面的CSS
+       */
+      function setPageSettingViewCSS() {
+        /* checkbox美化 */
         GM_addStyle(`
-                    .beauty-select{
-                        background-color: #fff;
-                        height:28px;
-                        width: 160px;
-                        line-height:28px;
-                        border: 1px solid #ececec;
-                        background: url(w.png) no-repeat;
-                        background-position: 95% 50%;
-                        -webkit-appearance: none;  /*去掉样式 for chrome*/
-                        appearance:none;/*去掉样式*/
-                        -moz-appearance:none;/*去掉样式*/
-                }`);
+        .whitesev-mt-setting-checkbox .knobs, 
+				.whitesev-mt-setting-checkbox .layer{
+						position: absolute;
+						top: 0;
+						right: 0;
+						bottom: 0;
+						left: 0;
+				}
+				.whitesev-mt-setting-checkbox{
+					/* position: relative;
+					top: 50%;
+					width: 56px;
+					height: 28px;
+					margin: 0px auto 0 auto;
+					overflow: hidden;
+					transform: translateY(-50%); */
+          position: relative;
+          width: 56px;
+          height: 28px;
+          overflow: hidden;
+				}
+				.whitesev-mt-setting-checkbox input[type="checkbox"]{
+						position: relative;
+						width: 100%;
+						height: 100%;
+						padding: 0;
+						margin: 0;
+						opacity: 0;
+						cursor: pointer;
+						z-index: 3;
+				}
+				.whitesev-mt-setting-checkbox .knobs{
+						z-index: 2;
+				}
+				.whitesev-mt-setting-checkbox .layer{
+						width: 100%;
+						background-color: #fcebeb;
+						transition: 0.3s ease all;
+						z-index: 1;
+				}
+				.whitesev-mt-setting-checkbox .knobs:before,
+				.whitesev-mt-setting-checkbox .knobs span{
+					position: relative;
+					display: block;
+					top: 50%;
+					left: 30%;
+					width: 35%;
+    			height: 65%;
+					color: #fff;
+					font-size: 10px;
+					font-weight: bold;
+					text-align: center;
+					line-height: 1;
+					padding: 9px 4px;
+					transform: translate(-50%,-50%);
+				}			
+				.whitesev-mt-setting-checkbox .knobs span{
+						background-color: #F44336;
+						border-radius: 2px;
+						transition: 0.3s ease all, left 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15);
+						z-index: 1;
+				}
+				.whitesev-mt-setting-checkbox .knobs:before{
+					transition: 0.3s ease all, left 0.5s cubic-bezier(0.18, 0.89, 0.35, 1.15);
+					z-index: 2;
+			  }
+				.whitesev-mt-setting-checkbox input[type="checkbox"]:checked + .knobs span{
+					left: 70%;
+					background-color: #03A9F4;
+			  }
+				.whitesev-mt-setting-checkbox input[type="checkbox"]:checked ~ .layer{
+						background-color: #ebf7fc;
+				}`);
+        GM_addStyle(`
+        .whitesev-mt-setting-item{
+          width: 100%;
+          display: inline-flex;
+          margin: 15px 0px;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .whitesev-mt-setting-name{
+          margin-left: 10px;
+        }
+        .whitesev-mt-setting-checkbox{
+          margin-right: 10px;
+        }
+        `);
+      }
+
+      /**
+       * 设置 脚本设置界面
+       */
+      function setPageSettingView() {
+        let settingView = $jq(`
+        <li class="comiis_left_Touch" _mstvisible="3">
+          <a href="javascript:;" class="comiis_left_Touch">
+            <i class="comiis_font" style="color: #ff0505;font-size: 23px;" _msttexthash="5385744" _msthash="25" _mstvisible="5"></i>
+            MT论坛脚本设置
+          </a>
+        </li>
+        `);
+        settingView.on("click", function () {
+          $jq.NZ_MsgBox.alert({
+            title: "MT论坛脚本设置",
+            content: `
+            <div class="whitesev-mt-setting">
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">识别链接</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v2">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">自动签到</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v17">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">自动展开帖子</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v18">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">自适应帖子内图片的宽度</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v16">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">显示用户的UID</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v15">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">识别链接</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v2">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">显示搜索历史</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v19">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">移除帖子字体效果</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v1">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">移除评论区字体效果</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v3">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">评论区点评按钮</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v6">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">自动加载上一页评论</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v32">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">自动加载下一页评论</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v21">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">小黑屋</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v30">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">今日签到之星</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v33">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">修复搜索的清空按钮</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v36">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">修复无法正确进入别人的空间</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v37">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">聊天内图床</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v40">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">付费主题白嫖提醒</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v44">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">页面小窗浏览帖子</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v45">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">代码块上方新增复制按钮</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v46">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">蓝奏云功能</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v47">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">编辑器优化-快捷</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v49">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">编辑器优化-完整</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v50">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">上传动态头像</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v51">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">空间-帖子-显示具体回复内容</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v52">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">导读新增显示最新帖子</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v53">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">帖子快照</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v54">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">贴内图片查看优化</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v55">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">在线用户查看</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v56">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+            </div>
+            `,
+            type: "",
+            buttons: {
+              confirm: { text: "好的" },
+            },
+          });
+          setPageSettingViewEvent();
+        });
+        $jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
+          settingView
+        );
       }
 
       if (window.location.href.match(MT_CONFIG.urlRegexp.bbs)) {
-        var setting_content = document.createElement("li");
-        setting_content.className = "comiis_left_Touch";
-        setting_content.innerHTML =
-          '<div class="styli_tit f_c"><i class="comiis_font" style="color: #a70bfe;font-size: 23px;"></i></div><div class="flex" style="display: flex;align-items: center;"><select style="vertical-align:top;border-color:transparent;font-size: 17px;font-weight: 300;text-overflow:ellipsis;white-space:nowrap;" class="beauty-select">' +
-          '<option value="v2">识别链接</option>' +
-          '<option value="v17">自动签到</option>' +
-          '<option value="v18">自动展开帖子</option>' +
-          '<option value="v16">自适应帖子内图片的宽度</option>' +
-          '<option value="v15">显示用户的UID</option>' +
-          '<option value="v19">显示搜索历史</option>' +
-          '<option value="v1">移除帖子字体效果</option>' +
-          '<option value="v3">移除评论区字体效果</option>' +
-          '<option value="v6">评论区开启点评</option>' +
-          '<option value="v32">自动加载上一页评论</option>' +
-          '<option value="v21">自动加载下一页评论</option>' +
-          '<option value="v30">小黑屋</option>' +
-          '<option value="v33">今日签到之星</option>' +
-          '<option value="v36">修复搜索的清空按钮</option>' +
-          '<option value="v37">修复无法正确进入别人的空间</option>' +
-          '<option value="v40">聊天内图床</option>' +
-          '<option value="v44">付费主题白嫖提醒</option>' +
-          '<option value="v45">页面小窗浏览帖子</option>' +
-          '<option value="v46">代码块上方新增复制按钮</option>' +
-          '<option value="v47">蓝奏云功能</option>' +
-          '<option value="v49">编辑器优化-快捷</option>' +
-          '<option value="v50">编辑器优化-完整</option>' +
-          '<option value="v51">上传动态头像</option>' +
-          '<option value="v52">空间-帖子-显示具体回复内容</option>' +
-          '<option value="v53">导读新增显示最新帖子</option>' +
-          '<option value="v54">帖子快照</option>' +
-          '<option value="v55">贴内图片查看优化</option>' +
-          '<option value="v56">在线用户查看</option>' +
-          "</select>" +
-          '<code class="bg_f b_ok comiis_checkbox comiis_checkbox_close whitesevcheckbox" style="left: 20px;"></code>' +
-          "</div>";
-        GM_addStyle(`
-					.comiis_sidenv_box ul.comiis_left_Touch.bdew li:nth-last-child(1) {
-							margin-bottom: 10px;
-					}
-					`);
-        $jq(".comiis_sidenv_box .sidenv_li .comiis_left_Touch.bdew").append(
-          setting_content
-        );
-        if (unsafeWindow.comiis_app_color_modes === 1) {
-          $jq(".comiis_sidenv_box ul.comiis_left_Touch .beauty-select").css(
-            "color",
-            "#ccc"
-          );
-        }
-        if (typeof unsafeWindow.comiis_app_setcolor_mode === "function") {
-          /* Hook切换夜间模式的函数 */
-          var hook = new Utils.Hooks();
-          hook.initEnv();
-          unsafeWindow.comiis_app_setcolor_mode.hook(
-            unsafeWindow.comiis_app_setcolor_mode,
-            () => {
-              if (unsafeWindow.comiis_app_color_modes === 1) {
-                $jq(
-                  ".comiis_sidenv_box ul.comiis_left_Touch .beauty-select"
-                ).css("color", "#000");
-              } else if (unsafeWindow.comiis_app_color_modes === 0) {
-                $jq(
-                  ".comiis_sidenv_box ul.comiis_left_Touch .beauty-select"
-                ).css("color", "#ccc");
-              }
-            },
-            unsafeWindow
-          );
-        }
-        Utils.tryCatch().run(setSelectNodeCSS);
-        Utils.tryCatch().run(setLastClickItem);
-
-        Utils.tryCatch().run(setCodeNodeClickEvent);
-        Utils.tryCatch().run(setSelectNodeChangeEvent);
+        setPageSettingView();
+        setPageSettingViewCSS();
       }
     },
   };
@@ -14612,7 +14877,7 @@
     } else {
       console.log("移动端显示");
       $jq(document).ready(function () {
-        Utils.tryCatch().run(mobile.loadSettingView);
+        Utils.tryCatch().run(mobile.registerSettingView);
         mobile.main();
       });
     }
