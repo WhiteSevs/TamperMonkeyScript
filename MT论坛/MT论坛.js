@@ -14593,13 +14593,13 @@
         }
         .whitesev-mt-setting-name{
           margin-left: 10px;
+          max-width: 70%;
         }
         .whitesev-mt-setting-checkbox{
           margin-right: 10px;
         }
         `);
       }
-
       /**
        * 设置 脚本设置界面
        */
