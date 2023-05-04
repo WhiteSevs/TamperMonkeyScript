@@ -14581,6 +14581,10 @@
 						background-color: #ebf7fc;
 				}`);
         GM_addStyle(`
+        .whitesev-mt-setting{
+          height: 400px;
+          overflow-y: auto;
+        }
         .whitesev-mt-setting-item{
           width: 100%;
           display: inline-flex;
