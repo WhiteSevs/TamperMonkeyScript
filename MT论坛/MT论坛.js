@@ -2629,7 +2629,7 @@
       /* 禁止自动执行的函数(这些函数在其它地方调用) */
       const notRunFunc = [
         "main",
-        "loadSettingView",
+        "registerSettingView",
         "editorChartBed",
         "previewPostForum",
         "selectPostingSection",
