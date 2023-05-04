@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
 // @version      23.4.26.15.30
-// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
+// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
 // @run-at       document-body
@@ -318,6 +318,24 @@
         uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.jianguoyun.com/p/{#shareCode#}",
       },
+      onedrive_10101619: {
+        link_innerText: `10101619-my.sharepoint.com/.*/personal/chendexian_10101619_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
+          GM_getValue("innerText_onedrive_10101619", 20)
+        )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
+        link_innerHTML: `10101619-my.sharepoint.com/.*/personal/chendexian_10101619_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
+          GM_getValue("innerHTML_onedrive_10101619", 300)
+        )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
+        shareCode:
+          /10101619-my.sharepoint.com\/.*\/personal\/chendexian_10101619_onmicrosoft_com\/([0-9a-zA-Z\-_]+)/gi,
+        shareCodeNeedRemoveStr:
+          /10101619-my.sharepoint.com\/.*\/personal\/chendexian_10101619_onmicrosoft_com\//gi,
+        checkAccessCode: /(提取码|密码|访问码).+/gi,
+        accessCode: /([0-9a-zA-Z]+)/gi,
+        uiLinkShow:
+          "10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#} 提取码: {#accessCode#}",
+        blank:
+          "https://10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#}",
+      },
     },
     /**
      * 初始化字典
@@ -329,55 +347,51 @@
       });
     },
     /**
-     * 检查页面是否存在链接
+     * 删除某些需要忽略的text或html，如：设置、直链弹窗
+     * @param {string} text - 需要进行处理的字符串
+     * @param {Boolean} isHTML - 是否是html属性
+     * @returns {string}
+     */
+    ignoreStrRemove(text, isHTML = false) {
+      let ignoreNodeList = [
+        $(".whitesevPopOneFile") /* 单文件直链弹窗 */,
+        $(".whitesevPopMoreFile") /* 多文件直链弹窗 */,
+        $(".whitesevPop-whitesevPopSetting") /* 设置页面弹窗 */,
+        $(".whitesevPopNetDiskHistoryMatch") /* 历史存储记录弹窗 */,
+        $(
+          ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table"
+        ) /* 历史存储记录弹窗 */,
+      ];
+      ignoreNodeList.forEach((ignoreNodeItem) => {
+        let innerItemText = ignoreNodeItem.prop(
+          isHTML ? "innerHTML" : "innerText"
+        );
+        innerItemText = innerItemText == null ? "" : innerItemText;
+        text = text.replaceAll(innerItemText, "");
+      });
+      return text;
+    },
+    /**
+     * 对页面进行match，处理匹配网盘链接
      * @param {String} clipboardText 剪贴板文本
      */
     matchPageLink(clipboardText = "") {
-      let matchTextRange = GM_getValue("pageMatchRange", "innerText");
-      let ignoreStr = [
-        $(".whitesevPopOneFile"),
-        $(".whitesevPopMoreFile"),
-        $(".whitesevPop-whitesevPopSetting"),
-        $(".whitesevPopNetDiskHistoryMatch"),
-      ]; /* 忽略的文字，如：设置、直链弹窗 */
-      if (matchTextRange.toLowerCase() === "all") {
-        this.pageText = $("body").prop("innerText");
-        ignoreStr.forEach((item) => {
-          let _str_ = item.prop("innerText");
-          _str_ = _str_ == null ? "" : _str_;
-          this.pageText = this.pageText.replaceAll(_str_, "");
-        });
-        let pageHTML = $("body").prop("innerHTML");
-        ignoreStr.forEach((item) => {
-          let _str_ = item.prop("innerHTML");
-          _str_ = _str_ == null ? "" : _str_;
-          pageHTML = pageHTML.replaceAll(_str_, "");
-        });
-        this.pageText += pageHTML;
-        this.pageText += clipboardText;
-      } else {
-        this.pageText = $("body").prop(matchTextRange) + clipboardText;
-        if (matchTextRange.toLowerCase() === "innertext") {
-          ignoreStr.forEach((item) => {
-            let _str_ = item.prop("innerText");
-            _str_ = _str_ == null ? "" : _str_;
-            this.pageText = this.pageText.replaceAll(_str_, "");
-          });
-        } else {
-          ignoreStr.forEach((item) => {
-            let _str_ = item.prop("innerHTML");
-            _str_ = _str_ == null ? "" : _str_;
-            this.pageText = this.pageText.replaceAll(_str_, "");
-            this.pageText = this.pageText.replaceAll(_str_, "");
-          });
-        }
-      }
       if (!this.isInit) {
         this.matchLink = new Set();
         this.initLinkDict();
         this.isInit = true;
       }
+      /* 选择的进行匹配的项 all、innerText、innerHTML */
+      let matchTextRange = GM_getValue("pageMatchRange", "innerText");
+      /* 对innerText 和 innerHTML进行match */
       if (matchTextRange.toLowerCase() === "all") {
+        this.pageText = this.ignoreStrRemove($("body").prop("innerText"));
+        this.pageText += this.ignoreStrRemove(
+          $("body").prop("innerHTML"),
+          true
+        );
+        this.pageText += clipboardText;
+
         $.each(this.regular, (netdiskName, item) => {
           NetDiskWorker.GM_matchWorker.postMessage({
             regexp: new RegExp(item["link_innerText"], "gi"),
@@ -391,6 +405,18 @@
           });
         });
       } else {
+        if (matchTextRange.toLowerCase() === "innertext") {
+          /* 对innerText进行match */
+          this.pageText = this.ignoreStrRemove($("body").prop("innerText"));
+        } else {
+          /* 对innerHTML进行match */
+          this.pageText = this.ignoreStrRemove(
+            $("body").prop("innerHTML"),
+            true
+          );
+        }
+        this.pageText += clipboardText;
+
         $.each(this.regular, (netdiskName, item) => {
           NetDiskWorker.GM_matchWorker.postMessage({
             regexp: new RegExp(item[`link_${matchTextRange}`], "gi"),
@@ -409,7 +435,7 @@
       let currentDict = this.linkDict.get(netDiskName);
       let shareCode = this.handleShareCode(netDiskName, url);
       if (shareCode === "" || shareCode == null) {
-        return null;
+        return;
       }
       let accessCode = this.handleAccessCode(netDiskName, url);
       if (currentDict.has(shareCode)) {
@@ -457,15 +483,15 @@
         log.error(`不可能的shareCode => ${shareCode}`);
         return "";
       }
-      shareCode =
-        decodeURIComponent(shareCode); /* %E7%BD%91%E7%9B%98 => 网盘 */
+      shareCode = decodeURI(shareCode); /* %E7%BD%91%E7%9B%98 => 网盘 */
       return shareCode;
     },
     /**
      * 对传入的url进行处理，返回accessCode
      * @param {String} netDiskName 网盘名称
      * @param {String} url
-     * @returns "https://xxx" || ""
+     * @returns {string}
+     * @example "https://xxx" || ""
      */
     handleAccessCode(netDiskName, url) {
       let accessCode = "";
@@ -617,7 +643,8 @@
            单文件 => 请求https://www.lanzoux.com/{shareToken} 判断链接类型和是否能正常获取
                  => 请求https://www.lanzoux.com/tp/{shareToken} 获取文件sign
                  => 请求https://www.lanzoux.com/ajaxm.php 获取下载参数，下载参数例如：https://develope.lanzoug.com/file/?xxxxxxxxx
-           多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]} */
+           多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，
+           参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]} */
         let that = this;
         this.handleUrl = {
           default: (shareCode) => {
@@ -1229,15 +1256,11 @@
                       },
                       url: "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/Fredirect.html",
                       height: pops.isPhone()
-                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone
-                            .height
-                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC
-                            .height,
+                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.height
+                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
                       width: pops.isPhone()
-                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone
-                            .width
-                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC
-                            .height,
+                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.width
+                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
                       drag: GM_getValue("pcDrag", false),
                       animation: GM_getValue(
                         "popsAnimation",
@@ -1800,10 +1823,16 @@
           if (url === "") {
             return "";
           }
-          const decodeURL = new URL(url);
-          const params = decodeURL.search.replace(/^\?params=/gi, "");
-          const atobURL = atob(params);
-          return decodeURI(atobURL);
+          let decodeURL = new URL(url);
+          let params = decodeURL.search.replace(/^\?params=/gi, "");
+          params = params.split("&")[0];
+          try {
+            let atobURL = atob(params);
+            return decodeURI(atobURL);
+          } catch (error) {
+            log.error(error);
+            return url;
+          }
         };
         return this;
       },
@@ -2135,6 +2164,7 @@
         await parseObj.default(shareCode, accessCode);
       } else {
         log.error(`${netDiskName} 不存在解析`);
+        Qmsg.error("该链接不存在解析功能");
       }
     },
     /**
@@ -2205,16 +2235,24 @@
     },
   };
 
+  /**
+   * android scheme调用
+   */
   const NetDiskFilterScheme = {
-    /* android scheme调用 */
     defaultScheme:
       "jumpwsv://go?package=idm.internet.download.manager.plus&activity=idm.internet.download.manager.UrlHandlerDownloader&intentAction=android.intent.action.VIEW&intentData={#intentData#}&intentExtra=",
     packageIDM: "idm.internet.download.manager.plus",
     activityIDM: "idm.internet.download.manager.UrlHandlerDownloader",
     defaultAction: "android.intent.action.VIEW",
     defaultExtra: "",
+    /**
+     *
+     * @param {string} enable_key 是否启用key
+     * @param {string} forward_key 转发的scheme
+     * @param {string} url 需要转发的url
+     * @returns
+     */
     handleUrl(enable_key, forward_key, url) {
-      /* 参数 是否启用的key和转发的scheme和需要转发的url */
       if (!GM_getValue(enable_key, false)) {
         return url;
       }
@@ -2232,7 +2270,7 @@
     /**
      * 初始化Worker的Blob链接
      */
-    initWorkerBlobLink: function () {
+    initWorkerBlobLink() {
       const handleMatch = `
 			(() => {
         this.addEventListener(
@@ -2263,7 +2301,7 @@
     /**
      * 初始化Worker对象
      */
-    initWorker: function () {
+    initWorker() {
       NetDiskWorker.GM_matchWorker = new Worker(NetDiskWorker.blobUrl);
       NetDiskWorker.GM_matchWorker.onmessage = function (event) {
         NetDiskWorker.successCallBack(
@@ -2279,9 +2317,8 @@
      * Worker成功回调
      * @param {String} matchLink
      * @param {String} netdiskName
-     * @returns
      */
-    successCallBack: function (matchLink, netdiskName) {
+    successCallBack(matchLink, netdiskName) {
       /* worker处理文件匹配后的回调 */
       if (matchLink.length === 0 && NetDiskUI.isHandling) {
         setTimeout(() => {
@@ -2312,22 +2349,23 @@
      * Worker失败回调
      * @param {Object} error
      */
-    errorCallBack: function (error) {
+    errorCallBack(error) {
       log.error(["Worker Error", error]);
     },
   };
+
   const NetDiskUI = {
     matchIcon: new Set() /* 已匹配到的网盘图标字典 */,
     size: 50 /* 高度和宽度 */,
     opacity: 1 /* 按钮透明度 */,
-    isCreatedUISetting: false /* 已创建设置界面 */,
-    isHandling: false /* 是否在处理页面链接中标识 */,
+    isCreatedUISetting: false /* 是否 已创建设置界面 */,
+    isHandling: false /* 是否 在处理页面链接中标识 */,
+    isRandBg: false /* 是否 正在循环切换按钮背景 */,
     uiLinkAlias: null /* 链接层唯一标识 */,
     uiSettingAlias: null /* 设置层唯一标识 */,
     uiLinkParseAlias: "单文件直链层" /* 单文件直链层唯一标识 */,
     uiLinkParseMoreAlias: "多文件直链层" /* 多文件直链层唯一标识 */,
     uiPasswordAlias: "重输密码层" /* 重输密码层唯一标识 */,
-    isRandBg: false /* 是否正在循环切换按钮背景 */,
     popsStyle: {
       /**
        * 桌面端 天翼云密码登录iframe
@@ -2462,6 +2500,7 @@
         kuake: RESOURCE_ICON.kuake,
         magnet: RESOURCE_ICON.magnet,
         jianguoyun: RESOURCE_ICON.jianguoyun,
+        onedrive_10101619: RESOURCE_ICON.onedrive,
       } /* icon结尾处 */,
     },
     suspension: {
@@ -2477,34 +2516,39 @@
 
           NetDiskUI.suspension.isShow = true;
         }
-        this.randBg();
+        this.backgroundSwitch();
       },
       createUI() {
-        NetDiskUI.size = GM_getValue("size")
-          ? parseInt(GM_getValue("size"))
-          : 50;
-        NetDiskUI.opacity = GM_getValue("opacity")
-          ? parseFloat(GM_getValue("opacity"))
-          : 1;
+        NetDiskUI.size = parseInt(GM_getValue("size", 50));
+        NetDiskUI.opacity = parseFloat(GM_getValue("opacity", 1));
         if (NetDiskUI.size < 15) {
+          /* 大小不能小于 15px */
           GM_setValue("size", 15);
           NetDiskUI.size = 15;
         }
         if (NetDiskUI.size > 250) {
+          /* 大小不能大于 250px */
           GM_setValue("size", 250);
           NetDiskUI.size = 250;
         }
         if (NetDiskUI.opacity < 0.1) {
+          /* 透明度不能小于 0.1 */
           GM_setValue("opacity", 0.1);
           NetDiskUI.opacity = 0.1;
         }
         if (NetDiskUI.opacity > 1.0) {
+          /* 透明度不能大于 1.0 */
           GM_setValue("opacity", 1);
           NetDiskUI.opacity = 1;
         }
         this.loadCSS();
-        let _html_ = `
-				<div class="whitesevSuspension" id="whitesevSuspensionId" style="width:${NetDiskUI.size}px;height:${NetDiskUI.size}px;opacity:${NetDiskUI.opacity}">
+        let suspensionHTML = `
+				<div  class="whitesevSuspension"
+              id="whitesevSuspensionId"
+              style="
+                width: ${NetDiskUI.size}px;
+                height: ${NetDiskUI.size}px;
+                opacity: ${NetDiskUI.opacity}">
 					<div class="whitesevSuspensionMain">
 						<div class="whitesevSuspensionFloor">
 							<div class="netdisk"></div>
@@ -2512,7 +2556,7 @@
 					</div>
 				</div>
 				`;
-        let _settingHtml_ = `
+        let menuHTML = `
 				<div id="whitesevSuspensionContextMenu" class="whitesevSuspensionContextMenuHide">
 					<ul>
 						<li class="whitesevSuspensionSetting" style="padding: 0px 10px;">
@@ -2525,11 +2569,13 @@
 				</div>
 				`;
 
-        $("body").append($(_html_)[0]);
-        $("body").append($(_settingHtml_)[0]);
+        $("body").append($(suspensionHTML)[0]);
+        $("body").append($(menuHTML)[0]);
       },
+      /**
+       * 所有的弹窗初始化设置
+       */
       initPop() {
-        /* 所有的弹窗初始化设置 */
         Qmsg.config({
           position: GM_getValue("qmsg-position", "top"),
           html: true,
@@ -2557,6 +2603,16 @@
         }
         .whitesevPopSetting details.netdisk-setting-menu {
           margin: 10px 0px;
+        }
+        .whitesevPopSetting details.netdisk-setting-menu summary{
+          background-color: #f0f0f0;
+          color: #333;
+          font-size: 18px;
+          padding: 10px;
+          border: 1px solid #ccc;
+        }
+        .whitesevPopSetting details.netdisk-setting-menu summary:hover{
+          background-color: #dedede;
         }
 				.netdisk-setting-menu-item{
 					display:flex;
@@ -2645,7 +2701,7 @@
 						transition: 0.3s ease all;
 						z-index: 1;
 				}
-				/*
+      /*
 				.netdisk-checkbox .knobs:before,
 				.netdisk-checkbox .knobs span{
 						position: absolute;
@@ -2662,7 +2718,7 @@
 						padding: 9px 4px;
 				}
 				另类写法居中
-				*/
+      */
 				.netdisk-checkbox .knobs:before,
 				.netdisk-checkbox .knobs span{
 					position: relative;
@@ -2708,11 +2764,12 @@
 						left: 30px;
 						background-color: #03A9F4;
 				}
-				另类写法居中 */
+        另类写法居中 
+      */
 				.netdisk-checkbox input[type="checkbox"]:checked + .knobs span{
 					left: 70%;
 					background-color: #03A9F4;
-			}
+			  }
 				.netdisk-checkbox input[type="checkbox"]:checked ~ .layer{
 						background-color: #ebf7fc;
 				}
@@ -2781,702 +2838,599 @@
 					`);
         }
       },
+      /**
+       * 显示设置界面
+       */
       showSettingView() {
-        /* 显示设置界面 */
-        let _settingHtml_ = `
-				<div class="netdisk-setting-body">
-					<div class="netdisk-setting">
-						<div class="netdisk-setting-main">
-							<details class="netdisk-setting-menu" type="总设置">
-									<summary>总设置</summary>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-size">大小 ${GM_getValue("size", 50)}</label>
-											<input type="range" data-key="size" data-content="大小 " min="15" max="250" data-default="50">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-opacity" content="透明度 ">透明度 ${GM_getValue(
-                        "opacity",
-                        1
-                      )}</label>
-											<input type="range" data-key="opacity" data-content="透明度 " min="0.1" max="1" step="0.1" data-default="1">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-randbg-time" content="按钮背景切换时间(毫秒) ">按钮背景切换时间(毫秒) ${GM_getValue(
-                        "randbg-time",
-                        1500
-                      )}</label>
-											<input type="range" data-key="randbg-time" data-content="按钮背景切换时间(毫秒) " min="0" max="10000" step="100" data-default="1500">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-randbg-show-time" content="按钮背景停留时间(毫秒) ">按钮背景停留时间(毫秒) ${GM_getValue(
-                        "randbg-show-time",
-                        1200
-                      )}</label>
-											<input type="range" data-key="randbg-show-time" data-content="按钮背景停留时间(毫秒) " min="0" max="10000" step="100" data-default="1200">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-delaytime">检测延时(秒) ${GM_getValue(
-                        "delaytime",
-                        0.8
-                      )}</label>
-											<input type="range" data-key="delaytime" data-content="检测延时(秒) " min="0.6" step="0.1" max="5.0" data-default="0.8">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label>匹配类型</label>
-											<select data-key="pageMatchRange" data-default="all">
-													<option data-value="all">全部</option>
-													<option data-value="innerText">普通文本</option>
-													<option data-value="innerHTML">超文本</option>
-											</select>
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label>弹窗动画</label>
-											<select data-key="popsAnimation" data-default="pops-anim-fadein-zoom">
-													<option data-value="pops-anim-spread">spread</option>
-													<option data-value="pops-anim-shake">shake</option>
-													<option data-value="pops-anim-rolling-left">rolling-left</option>
-													<option data-value="pops-anim-rolling-right">rolling-right</option>
-													<option data-value="pops-anim-slide-top">slide-top</option>
-													<option data-value="pops-anim-slide-bottom">slide-bottom</option>
-													<option data-value="pops-anim-slide-left">slide-left</option>
-													<option data-value="pops-anim-slide-right">slide-right</option>
-													<option data-value="pops-anim-fadein">fadein</option>
-													<option data-value="pops-anim-fadein-zoom">fadein-zoom</option>
-													<option data-value="pops-anim-fadein-alert">fadein-alert</option>
-													<option data-value="pops-anim-don">don</option>
-													<option data-value="pops-anim-roll">roll</option>
-													<option data-value="pops-anim-sandra">sandra</option>
-													<option data-value="pops-anim-gather">gather</option>
-											</select>
-									</div>
-                  <div class="netdisk-setting-menu-item">
-											<label>Toast位置</label>
-											<select data-key="qmsg-position" data-default="top">
-													<option data-value="topleft">左上角</option>
-													<option data-value="top">顶部</option>
-													<option data-value="topright">右上角</option>
-													<option data-value="left">左边</option>
-													<option data-value="center">中间</option>
-													<option data-value="right">右边</option>
-													<option data-value="bottomleft">左下角</option>
-													<option data-value="bottom">底部</option>
-													<option data-value="bottomright">右下角</option>
-											</select>
-									</div>
-                  <div class="netdisk-setting-menu-item">
-											<label>Toast同时显示最多数量</label>
-											<select data-key="qmsg-maxnums" data-default="3">
-													<option data-value="1">1</option>
-													<option data-value="2">2</option>
-													<option data-value="3">3</option>
-													<option data-value="4">4</option>
-													<option data-value="5">5</option>
-											</select>
-									</div>
-                  <div class="netdisk-setting-menu-item">
-											<label>历史记录排序规则</label>
-											<select data-key="netdisk-history-match-ordering-rule" data-default="按 更新时间 - 降序">
-													<option data-value="按 记录时间 - 升序">按 记录时间 - 升序</option>
-													<option data-value="按 记录时间 - 降序">按 记录时间 - 降序</option>
-													<option data-value="按 更新时间 - 升序">按 更新时间 - 升序</option>
-													<option data-value="按 更新时间 - 降序">按 更新时间 - 降序</option>
-											</select>
-									</div>
-                  <div class="netdisk-setting-menu-item" type="checkbox">
-											<p>Toast逆序弹出</p>
-											<div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
-												<input type="checkbox" data-key="qmsg-showreverse">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>读取剪贴板</p>
-											<div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
-												<input type="checkbox" data-key="readClipboard">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-                  <div class="netdisk-setting-menu-item" type="checkbox">
-											<p>PC端拖拽窗口</p>
-											<div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
-												<input type="checkbox" data-key="pcDrag">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-                  <div class="netdisk-setting-menu-item" type="checkbox">
-											<p>存储匹配记录</p>
-											<div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
-												<input type="checkbox" data-key="saveMatchNetDisk">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="百度">
-									<summary>百度网盘</summary>
-									<div class="netdisk-setting-menu-item">
-											<label>网址-Url</label>
-											<input type="text" data-key="bdurl" placeholder="如：https://www.example.com/">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label>参数-Key</label>
-											<input type="text" data-key="paramSurl" placeholder="如：surl">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label>密码-Key</label>
-											<input type="text" data-key="paramPwd" placeholder="如：pwd">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label>密钥-Key</label>
-											<input type="text" data-key="paramKey" placeholder="如：Password">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label>密钥-Value</label>
-											<input type="text" data-key="paramWebSiteKey"  placeholder="密钥，有就填">
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>网站存在密钥验证</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="baidu-website-key-enable">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-											
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>启用解析</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="baidu-static-enable" mutex=".netdisk-checkbox input[data-key='baidu-open-enable']">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-											
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="baidu-open-enable" mutex=".netdisk-checkbox input[data-key='baidu-static-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerText_baidu">提取码间隔(innerText)${GM_getValue(
-                        "innerText_baidu",
-                        20
-                      )}</label>
-											<input type="range" data-key="innerText_baidu" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_baidu">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_baidu",
-                        300
-                      )}</label>
-											<input type="range" data-key="innerHTML_baidu" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="蓝奏云">
-								<summary>蓝奏云</summary>
-								<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>单/多文件直链获取</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="lanzou-static-enable" mutex=".netdisk-checkbox input[data-key='lanzou-open-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-								<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="lanzou-open-enable" mutex=".netdisk-checkbox input[data-key='lanzou-static-enable']">
-											<div class="knobs"><span></span></div>
-											<div class="layer"></div>
-										</div>
-								</div>
-								<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>直链调用scheme</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="lanzou-static-scheme-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-								</div>
-								<div class="netdisk-setting-menu-item" type="scheme">
-										<p>scheme转发</p>
-										<input type="text" data-key="lanzou-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-								</div>
-								<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_lanzou">提取码间隔(innerText)${GM_getValue(
-                      "innerText_lanzou",
-                      20
+        /**
+         * 获取设置界面的html
+         * @returns {string}
+         */
+        function getPopsSettingHTML() {
+          let netDiskSettingHTML = "";
+          let netDiskDetailsList = [
+            {
+              type: "百度网盘",
+              key: "baidu",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: `
+                      <div class="netdisk-setting-menu-item">
+                          <label>网址-Url</label>
+                          <input type="text" data-key="bdurl" placeholder="如：https://www.example.com/">
+                      </div>
+                      <div class="netdisk-setting-menu-item">
+                          <label>参数-Key</label>
+                          <input type="text" data-key="paramSurl" placeholder="如：surl">
+                      </div>
+                      <div class="netdisk-setting-menu-item">
+                          <label>密码-Key</label>
+                          <input type="text" data-key="paramPwd" placeholder="如：pwd">
+                      </div>
+                      <div class="netdisk-setting-menu-item">
+                          <label>密钥-Key</label>
+                          <input type="text" data-key="paramKey" placeholder="如：Password">
+                      </div>
+                      <div class="netdisk-setting-menu-item">
+                          <label>密钥-Value</label>
+                          <input type="text" data-key="paramWebSiteKey"  placeholder="密钥，有就填">
+                      </div>
+                      <div class="netdisk-setting-menu-item" type="checkbox">
+                          <p>第三方解析站启用密钥验证</p>
+                          <div class="netdisk-checkbox">
+                            <input type="checkbox" data-key="baidu-website-key-enable">
+                            <div class="knobs"><span></span></div><div class="layer"></div>
+                          </div>
+                          
+                      </div>
+                      <div class="netdisk-setting-menu-item" type="checkbox">
+                          <p>启用第三方解析</p>
+                          <div class="netdisk-checkbox">
+                            <input type="checkbox" data-key="baidu-static-enable" mutex=".netdisk-checkbox input[data-key='baidu-open-enable']">
+                            <div class="knobs"><span></span></div><div class="layer"></div>
+                          </div>
+                      </div>`,
+              endHTML: "",
+            },
+            {
+              type: "蓝奏云",
+              key: "lanzou",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: true,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "天翼云",
+              key: "tianyiyun",
+              checkbox_oneStatic: true,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "中国移动云盘(原:和彩云)",
+              key: "hecaiyun",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "阿里云",
+              key: "aliyun",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "文叔叔",
+              key: "wenshushu",
+              checkbox_oneStatic: true,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "奶牛",
+              key: "nainiu",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "123盘",
+              key: "_123pan",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: true,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "微云",
+              key: "weiyun",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "迅雷云盘",
+              key: "xunlei",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "115盘",
+              key: "_115pan",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "城通网盘1",
+              key: "chengtong1",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "城通网盘2",
+              key: "chengtong2",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "城通网盘3",
+              key: "chengtong3",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "夸克网盘",
+              key: "kuake",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "磁力magnet",
+              key: "magnet",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: false,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: false,
+              range_innerText_default_value: 0,
+              range_innerHTML: false,
+              range_innerHTML_default_value: 0,
+              firstHTML: `
+            <div class="netdisk-setting-menu-item" type="checkbox">
+                <p>调用scheme</p>
+                <div class="netdisk-checkbox">
+                  <input type="checkbox" data-key="magnet-scheme-enable">
+                  <div class="knobs"><span></span></div><div class="layer"></div>
+                </div>
+            </div>
+            <div class="netdisk-setting-menu-item" type="scheme">
+                <p>scheme转发</p>
+                <input type="text" data-key="magnet-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
+            </div>
+            `,
+              endHTML: "",
+            },
+            {
+              type: "坚果云",
+              key: "jianguoyun",
+              checkbox_oneStatic: true,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "OneDrive_10101619",
+              key: "onedrive_10101619",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: false,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: false,
+              text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 300,
+              firstHTML: "",
+              endHTML: "",
+            },
+          ];
+          netDiskDetailsList.forEach((item) => {
+            netDiskSettingHTML += `
+            <details class="netdisk-setting-menu" type="${item.type}">
+              <summary>${item.type}</summary>
+              ${item.firstHTML}
+              ${
+                item.checkbox_oneStatic
+                  ? `
+              <div class="netdisk-setting-menu-item" type="checkbox">
+                <p>单文件直链获取</p>
+                <div class="netdisk-checkbox">
+                  <input  type="checkbox"
+                          data-key="${item.key}-static-enable"
+                          mutex=".netdisk-checkbox input[data-key='${item.key}-open-enable']">
+                  <div class="knobs"><span></span></div><div class="layer"></div>
+                </div>
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.checkbox_oneOrMoreStatic
+                  ? `
+              <div class="netdisk-setting-menu-item" type="checkbox">
+                  <p>单/多文件直链获取</p>
+                  <div class="netdisk-checkbox">
+                    <input  type="checkbox"
+                            data-key="${item.key}-static-enable"
+                            mutex=".netdisk-checkbox
+                            input[data-key='${item.key}-open-enable']">
+                    <div class="knobs"><span></span></div><div class="layer"></div>
+                  </div>
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.checkbox_openBlank
+                  ? `
+              <div class="netdisk-setting-menu-item" type="checkbox">
+                  <p>新标签页打开</p>
+                  <div class="netdisk-checkbox">
+                    <input  type="checkbox"
+                            data-key="${item.key}-open-enable"
+                            mutex=".netdisk-checkbox input[data-key='${item.key}-static-enable']">
+                    <div class="knobs"><span></span></div>
+                    <div class="layer"></div>
+                  </div>
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.checkbox_static_scheme
+                  ? `
+              <div class="netdisk-setting-menu-item" type="checkbox">
+                  <p>直链调用scheme</p>
+                  <div class="netdisk-checkbox">
+                    <input  type="checkbox" 
+                            data-key="${item.key}-static-scheme-enable">
+                    <div class="knobs"><span></span></div><div class="layer"></div>
+                  </div>
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.text_static_scheme_forward
+                  ? `
+              <div class="netdisk-setting-menu-item" type="scheme">
+                  <p>scheme直链转发</p>
+                  <input  type="text" 
+                      data-key="${item.key}-static-scheme-forward"
+                      placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.range_innerText
+                  ? `
+              <div class="netdisk-setting-menu-item">
+                  <label data-id="netdisk-innerText_${
+                    item.key
+                  }">提取码间隔(Text)${GM_getValue(
+                      `innerText_${item.key}`,
+                      parseInt(item.range_innerText_default_value)
                     )}</label>
-										<input type="range" data-key="innerText_lanzou" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-								</div>
-								<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerHTML_lanzou">提取码间隔(innerHTML)${GM_getValue(
-                      "innerHTML_lanzou",
-                      300
+                  <input  type="range"
+                          data-key="innerText_${item.key}"
+                          data-content="提取码间隔(Text)"
+                          min="0"
+                          max="100"
+                          data-default="20">
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.range_innerHTML
+                  ? `
+              <div class="netdisk-setting-menu-item">
+                  <label data-id="netdisk-innerHTML_${
+                    item.key
+                  }">提取码间隔(HTML)${GM_getValue(
+                      `innerHTML_${item.key}`,
+                      parseInt(item.range_innerHTML_default_value)
                     )}</label>
-										<input type="range" data-key="innerHTML_lanzou" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-								</div>
-							</details>
-							<details class="netdisk-setting-menu" type="天翼云">
-									<summary>天翼云</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>单文件直链获取</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="tianyiyun-static-enable" mutex=".netdisk-checkbox input[data-key='tianyiyun-open-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="tianyiyun-open-enable" mutex=".netdisk-checkbox input[data-key='tianyiyun-static-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>直链调用scheme</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="tianyiyun-scheme-enable">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="scheme">
-											<p>scheme转发</p>
-											<input type="text" data-key="tianyiyun-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_tianyiyun">提取码间隔(innerText)${GM_getValue(
-                      "innerText_tianyiyun",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_tianyiyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_tianyiyun">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_tianyiyun",
-                        300
-                      )}</label>
-											<input type="range" data-key="innerHTML_tianyiyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="和彩云">
-									<summary>中国移动云盘(原:和彩云)</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="hecaiyun-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_hecaiyun">提取码间隔(innerText)${GM_getValue(
-                      "innerText_hecaiyun",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_hecaiyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_hecaiyun">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_hecaiyun",
-                        300
-                      )}</label>
-											<input type="range" data-key="innerHTML_hecaiyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="阿里云">
-									<summary>阿里云</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="aliyun-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_aliyun">提取码间隔(innerText)${GM_getValue(
-                      "innerText_aliyun",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_aliyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_aliyun">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_aliyun",
-                        300
-                      )}</label>
-											<input type="range" data-key="innerHTML_aliyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="文叔叔">
-									<summary>文叔叔</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>单文件直链获取</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="wenshushu-static-enable" mutex=".netdisk-checkbox input[data-key='wenshushu-open-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="wenshushu-open-enable" mutex=".netdisk-checkbox input[data-key='wenshushu-static-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>直链调用scheme</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="wenshushu-static-scheme-enable">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="scheme">
-											<p>scheme转发</p>
-											<input type="text" data-key="wenshushu-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_wenshushu">提取码间隔(innerText)${GM_getValue(
-                      "innerText_wenshushu",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_wenshushu" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_wenshushu">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_wenshushu",
-                        300
-                      )}</label>
-											<input type="range" data-key="innerHTML_wenshushu" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="奶牛">
-									<summary>奶牛</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="nainiu-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_nainiu">提取码间隔(innerText)${GM_getValue(
-                      "innerText_nainiu",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_nainiu" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_nainiu">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_nainiu",
-                        300
-                      )}</label>
-											<input type="range" data-key="innerHTML_nainiu" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="123盘">
-									<summary>123盘</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>单/多文件直链获取</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="_123pan-static-enable" mutex=".netdisk-checkbox input[data-key='_123pan-open-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="_123pan-open-enable" mutex=".netdisk-checkbox input[data-key='_123pan-static-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>直链调用scheme</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="_123pan-static-scheme-enable">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="scheme">
-											<p>scheme转发</p>
-											<input type="text" data-key="_123pan-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText__123pan">提取码间隔(innerText)${GM_getValue(
-                      "innerText__123pan",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText__123pan" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML__123pan">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML__123pan",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML__123pan" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="微云">
-									<summary>微云</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="weiyun-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_weiyun">提取码间隔(innerText)${GM_getValue(
-                      "innerText_weiyun",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_weiyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_weiyun">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_weiyun",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML_weiyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="迅雷云盘">
-									<summary>迅雷云盘</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="xunlei-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_xunlei">提取码间隔(innerText)${GM_getValue(
-                      "innerText_xunlei",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_xunlei" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_xunlei">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_xunlei",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML_xunlei" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="115盘">
-									<summary>115盘</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="_115pan-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText__115pan">提取码间隔(innerText)${GM_getValue(
-                      "innerText__115pan",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText__115pan" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML__115pan">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML__115pan",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML__115pan" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="城通网盘1">
-									<summary>城通网盘1</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="chengtong1-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText__chengtong1">提取码间隔(innerText)${GM_getValue(
-                      "innerText__chengtong1",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText__chengtong1" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML__chengtong1">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML__chengtong1",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML__chengtong1" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="城通网盘2">
-									<summary>城通网盘2</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="chengtong2-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText__chengtong2">提取码间隔(innerText)${GM_getValue(
-                      "innerText__chengtong2",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText__chengtong2" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML__chengtong2">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML__chengtong2",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML__chengtong2" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-              <details class="netdisk-setting-menu" type="城通网盘3">
-									<summary>城通网盘3</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="chengtong3-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText__chengtong3">提取码间隔(innerText)${GM_getValue(
-                      "innerText__chengtong3",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText__chengtong3" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML__chengtong3">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML__chengtong3",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML__chengtong3" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="夸克网盘">
-									<summary>夸克网盘</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-										<p>新标签页打开</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="kuake-open-enable">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_kuake">提取码间隔(innerText)${GM_getValue(
-                      "innerText_kuake",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_kuake" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_kuake">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_kuake",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML_kuake" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-							<details class="netdisk-setting-menu" type="磁力magnet">
-									<summary>磁力magnet</summary>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-											<p>调用scheme</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="magnet-scheme-enable">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="scheme">
-											<p>scheme转发</p>
-											<input type="text" data-key="magnet-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-									</div>
-									
-							</details>
-              <details class="netdisk-setting-menu" type="坚果云">
-									<summary>坚果云</summary>
-                  <div class="netdisk-setting-menu-item" type="checkbox">
-										<p>单文件直链获取</p>
-										<div class="netdisk-checkbox">
-											<input type="checkbox" data-key="jianguoyun-static-enable" mutex=".netdisk-checkbox input[data-key='jianguoyun-open-enable']">
-											<div class="knobs"><span></span></div><div class="layer"></div>
-										</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="checkbox">
-                    <p>新标签页打开</p>
-                    <div class="netdisk-checkbox">
-                      <input type="checkbox" data-key="jianguoyun-open-enable" mutex=".netdisk-checkbox input[data-key='jianguoyun-static-enable']">
-                      <div class="knobs"><span></span></div><div class="layer"></div>
+                  <input  type="range"
+                          data-key="innerHTML_${item.key}"
+                          data-content="提取码间隔(HTML)"
+                          min="0"
+                          max="500"
+                          data-default="300">
+              </div>
+              `
+                  : ""
+              }
+              ${item.endHTML}
+            </details>
+            `;
+          });
+
+          netDiskSettingHTML = `
+          <div class="netdisk-setting-body">
+            <div class="netdisk-setting">
+              <div class="netdisk-setting-main">
+                <details class="netdisk-setting-menu" type="总设置">
+                    <summary>总设置</summary>
+                    <div class="netdisk-setting-menu-item">
+                        <label data-id="netdisk-size">大小 ${GM_getValue(
+                          "size",
+                          50
+                        )}</label>
+                        <input type="range" data-key="size" data-content="大小 " min="15" max="250" data-default="50">
                     </div>
-									</div>
-                  <div class="netdisk-setting-menu-item" type="checkbox">
-											<p>直链调用scheme</p>
-											<div class="netdisk-checkbox">
-												<input type="checkbox" data-key="jianguoyun-static-scheme-enable">
-												<div class="knobs"><span></span></div><div class="layer"></div>
-											</div>
-									</div>
-									<div class="netdisk-setting-menu-item" type="scheme">
-											<p>scheme转发</p>
-											<input type="text" data-key="jianguoyun-static-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-									</div>
-                  <div class="netdisk-setting-menu-item">
-										<label data-id="netdisk-innerText_jianguoyun">提取码间隔(innerText)${GM_getValue(
-                      "innerText_jianguoyun",
-                      20
-                    )}</label>
-										<input type="range" data-key="innerText_jianguoyun" data-content="提取码间隔(innerText)" min="0" max="100" data-default="20">
-									</div>
-									<div class="netdisk-setting-menu-item">
-											<label data-id="netdisk-innerHTML_jianguoyun">提取码间隔(innerHTML)${GM_getValue(
-                        "innerHTML_jianguoyun",
-                        300
-                      )}</label>
-										<input type="range" data-key="innerHTML_jianguoyun" data-content="提取码间隔(innerHTML)" min="0" max="500" data-default="300">
-									</div>
-							</details>
-						</div>
-					</div>
-				</div>
-				`;
-        NetDiskUI.uiSettingAlias = pops.alert({
-          title: {
-            text: "设置",
-            position: "center",
-          },
-          content: {
-            text: _settingHtml_,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              callback: function (event) {
-                event.close();
-              },
-            },
-            close: {
-              callback: function (event) {
-                event.close();
-              },
-            },
-          },
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-          class: "whitesevPopSetting",
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.setting_Phone.height
-            : NetDiskUI.popsStyle.setting_PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.setting_Phone.width
-            : NetDiskUI.popsStyle.setting_PC.width,
-          drag: GM_getValue("pcDrag", false),
-          mask: true,
-          forbiddenScroll: true,
-        });
+                    <div class="netdisk-setting-menu-item">
+                        <label data-id="netdisk-opacity" content="透明度 ">透明度 ${GM_getValue(
+                          "opacity",
+                          1
+                        )}</label>
+                        <input type="range" data-key="opacity" data-content="透明度 " min="0.1" max="1" step="0.1" data-default="1">
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label data-id="netdisk-randbg-time" content="按钮背景切换时间(毫秒) ">按钮背景切换时间(毫秒) ${GM_getValue(
+                          "randbg-time",
+                          1500
+                        )}</label>
+                        <input type="range" data-key="randbg-time" data-content="按钮背景切换时间(毫秒) " min="0" max="10000" step="100" data-default="1500">
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label data-id="netdisk-randbg-show-time" content="按钮背景停留时间(毫秒) ">按钮背景停留时间(毫秒) ${GM_getValue(
+                          "randbg-show-time",
+                          1200
+                        )}</label>
+                        <input type="range" data-key="randbg-show-time" data-content="按钮背景停留时间(毫秒) " min="0" max="10000" step="100" data-default="1200">
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label data-id="netdisk-delaytime">文本延迟match(秒) ${GM_getValue(
+                          "delaytime",
+                          0.8
+                        )}</label>
+                        <input type="range" data-key="delaytime" data-content="文本延迟match(秒) " min="0.6" step="0.1" max="5.0" data-default="0.8">
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label>匹配类型</label>
+                        <select data-key="pageMatchRange" data-default="all">
+                            <option data-value="all">全部</option>
+                            <option data-value="innerText">普通文本</option>
+                            <option data-value="innerHTML">超文本</option>
+                        </select>
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label>弹窗动画</label>
+                        <select data-key="popsAnimation" data-default="pops-anim-fadein-zoom">
+                            <option data-value="pops-anim-spread">spread</option>
+                            <option data-value="pops-anim-shake">shake</option>
+                            <option data-value="pops-anim-rolling-left">rolling-left</option>
+                            <option data-value="pops-anim-rolling-right">rolling-right</option>
+                            <option data-value="pops-anim-slide-top">slide-top</option>
+                            <option data-value="pops-anim-slide-bottom">slide-bottom</option>
+                            <option data-value="pops-anim-slide-left">slide-left</option>
+                            <option data-value="pops-anim-slide-right">slide-right</option>
+                            <option data-value="pops-anim-fadein">fadein</option>
+                            <option data-value="pops-anim-fadein-zoom">fadein-zoom</option>
+                            <option data-value="pops-anim-fadein-alert">fadein-alert</option>
+                            <option data-value="pops-anim-don">don</option>
+                            <option data-value="pops-anim-roll">roll</option>
+                            <option data-value="pops-anim-sandra">sandra</option>
+                            <option data-value="pops-anim-gather">gather</option>
+                        </select>
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label>Toast位置</label>
+                        <select data-key="qmsg-position" data-default="top">
+                            <option data-value="topleft">左上角</option>
+                            <option data-value="top">顶部</option>
+                            <option data-value="topright">右上角</option>
+                            <option data-value="left">左边</option>
+                            <option data-value="center">中间</option>
+                            <option data-value="right">右边</option>
+                            <option data-value="bottomleft">左下角</option>
+                            <option data-value="bottom">底部</option>
+                            <option data-value="bottomright">右下角</option>
+                        </select>
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label>Toast同时显示最多数量</label>
+                        <select data-key="qmsg-maxnums" data-default="3">
+                            <option data-value="1">1</option>
+                            <option data-value="2">2</option>
+                            <option data-value="3">3</option>
+                            <option data-value="4">4</option>
+                            <option data-value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="netdisk-setting-menu-item">
+                        <label>历史记录排序规则</label>
+                        <select data-key="netdisk-history-match-ordering-rule" data-default="按 更新时间 - 降序">
+                            <option data-value="按 记录时间 - 升序">按 记录时间 - 升序</option>
+                            <option data-value="按 记录时间 - 降序">按 记录时间 - 降序</option>
+                            <option data-value="按 更新时间 - 升序">按 更新时间 - 升序</option>
+                            <option data-value="按 更新时间 - 降序">按 更新时间 - 降序</option>
+                        </select>
+                    </div>
+                    <div class="netdisk-setting-menu-item" type="checkbox">
+                        <p>Toast逆序弹出</p>
+                        <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+                          <input type="checkbox" data-key="qmsg-showreverse">
+                          <div class="knobs"><span></span></div><div class="layer"></div>
+                        </div>
+                    </div>
+                    <div class="netdisk-setting-menu-item" type="checkbox">
+                        <p>读取剪贴板</p>
+                        <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+                          <input type="checkbox" data-key="readClipboard">
+                          <div class="knobs"><span></span></div><div class="layer"></div>
+                        </div>
+                    </div>
+                    <div class="netdisk-setting-menu-item" type="checkbox">
+                        <p>PC端拖拽窗口</p>
+                        <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+                          <input type="checkbox" data-key="pcDrag">
+                          <div class="knobs"><span></span></div><div class="layer"></div>
+                        </div>
+                    </div>
+                    <div class="netdisk-setting-menu-item" type="checkbox">
+                        <p>存储匹配记录</p>
+                        <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+                          <input type="checkbox" data-key="saveMatchNetDisk">
+                          <div class="knobs"><span></span></div><div class="layer"></div>
+                        </div>
+                    </div>
+                </details>
+                ${netDiskSettingHTML}
+                </div>
+              </div>
+            </div>`;
+          return netDiskSettingHTML;
+        }
+        /**
+         * 设置input checkbox 复选框 是否选中事件
+         */
         function setSettingInputEvent() {
-          /* 设置复选框是否选中 */
           $(".netdisk-setting input").each((index, item) => {
             let data_key = item.getAttribute("data-key");
             let data_default = item.getAttribute("data-default");
@@ -3489,10 +3443,13 @@
                 let mutex = item.getAttribute("mutex");
                 $(item).on("click", function (event) {
                   if (mutex) {
-                    let mutexElement = $(mutex);
-                    let mutex_data_key = $(mutex).attr("data-key");
+                    let mutexNode = $(mutex);
+                    if (!mutexNode.length) {
+                      return;
+                    }
+                    let mutex_data_key = mutexNode.attr("data-key");
                     if (item.checked) {
-                      mutexElement.prop("checked", !item.checked);
+                      mutexNode.prop("checked", !item.checked);
                       GM_setValue(mutex_data_key, !item.checked);
                     }
                   }
@@ -3524,8 +3481,10 @@
             }
           });
         }
+        /**
+         * 设置 select元素 下拉列表的默认选项值
+         */
         function setSettingSelectEvent() {
-          /* 设置下拉列表的默认值 */
           $(".netdisk-setting select").change(function (event) {
             let data_key = event.target.getAttribute("data-key");
             let data_value =
@@ -3545,8 +3504,10 @@
               .attr("selected", true);
           });
         }
+        /**
+         * 设置 点击 label 弹出设置input range的默认值 事件
+         */
         function setSettingLabelEvent() {
-          /* 设置点击Label设置range为默认值 */
           $(NetDiskUI.uiSettingAlias.popsElement)
             .find("label[data-id*=netdisk-]")
             .on("click", function () {
@@ -3585,57 +3546,117 @@
               $(item).css("cursor", "pointer");
             });
         }
+        NetDiskUI.uiSettingAlias = pops.alert({
+          title: {
+            text: "设置",
+            position: "center",
+          },
+          content: {
+            text: getPopsSettingHTML(),
+            html: true,
+          },
+          btn: {
+            ok: {
+              enable: true,
+              callback: function (event) {
+                event.close();
+              },
+            },
+            close: {
+              callback: function (event) {
+                event.close();
+              },
+            },
+          },
+          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          class: "whitesevPopSetting",
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.setting_Phone.height
+            : NetDiskUI.popsStyle.setting_PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.setting_Phone.width
+            : NetDiskUI.popsStyle.setting_PC.width,
+          drag: GM_getValue("pcDrag", false),
+          mask: true,
+          forbiddenScroll: true,
+        });
         setSettingInputEvent();
         setSettingSelectEvent();
         setSettingLabelEvent();
       },
+      /**
+       * 设置 悬浮按钮所有事件
+       */
       setSuspensionEvent() {
-        /* 设置悬浮按钮事件 */
         let needDragEle = document.getElementById("whitesevSuspensionId");
         let that = this;
         let dragNode = new AnyTouch(needDragEle);
         let timerID = null;
         let isClicked = false;
-        let isDouble = false;
-        let click_deviation_x = 0; /* 点击元素，距离元素左上角的X轴偏移 */
-        let click_deviation_y = 0; /* 点击元素，距离元素左上角的Y轴偏移 */
+        let isDouble = false; /* 是否双击 */
+        let clickDeviation_X = 0; /* 点击元素，距离元素左上角的X轴偏移 */
+        let clickDeviation_Y = 0; /* 点击元素，距离元素左上角的Y轴偏移 */
+        /**
+         * 设置悬浮按钮 按下事件
+         */
         dragNode.on("pan", function (event) {
           if (!isClicked) {
             isClicked = true;
-            click_deviation_x = event.nativeEvent.offsetX
-              ? parseInt(event.nativeEvent.offsetX)
-              : parseInt(event.getOffset().x);
-            click_deviation_y = event.nativeEvent.offsetY
-              ? parseInt(event.nativeEvent.offsetY)
-              : parseInt(event.getOffset().y);
+            if (event.nativeEvent.offsetX) {
+              clickDeviation_X = parseInt(event.nativeEvent.offsetX);
+            } else {
+              clickDeviation_X = parseInt(event.getOffset().x);
+            }
+            if (event.nativeEvent.offsetY) {
+              clickDeviation_Y = parseInt(event.nativeEvent.offsetY);
+            } else {
+              clickDeviation_Y = parseInt(event.getOffset().y);
+            }
             $("#whitesevSuspensionId").css({
               cursor: "move",
               transition: "none",
             });
           }
+          /**
+           * 移动
+           */
           if (event.phase === "move") {
-            if (click_deviation_x > 250 || click_deviation_y > 250) {
+            /* 悬浮按钮大小不能超过250px */
+            if (clickDeviation_X > 250 || clickDeviation_Y > 250) {
               return;
             }
-            var maxL = $(window).width() - NetDiskUI.size;
-            var maxT = $(window).height() - NetDiskUI.size;
-            var x = event.x - click_deviation_x;
-            var y = event.y - click_deviation_y;
-            x = x < maxL ? x : maxL;
-            y = y < maxT ? y : maxT;
-            x = x < 0 ? 0 : x;
-            y = y < 0 ? 0 : y;
+            var clientMax_X =
+              $(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+            var clientMax_Y =
+              $(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+            var clientMove_X = event.x - clickDeviation_X; /* 当前移动的X轴 */
+            var clientMove_Y = event.y - clickDeviation_Y; /* 当前移动的Y轴 */
+            clientMove_X =
+              clientMove_X < clientMax_X
+                ? clientMove_X
+                : clientMax_X; /* 不允许超过最大X轴 */
+            clientMove_Y =
+              clientMove_Y < clientMax_Y
+                ? clientMove_Y
+                : clientMax_Y; /* 不允许超过最大Y轴 */
+            clientMove_X =
+              clientMove_X < 0 ? 0 : clientMove_X; /* 不允许小于0 */
+            clientMove_Y =
+              clientMove_Y < 0 ? 0 : clientMove_Y; /* 不允许小于0 */
             if (top.window == self.window) {
-              GM_setValue("suspensionX", x);
-              GM_setValue("suspensionY", y);
+              GM_setValue("suspensionX", clientMove_X);
+              GM_setValue("suspensionY", clientMove_Y);
             }
 
             $("#whitesevSuspensionId").css({
-              left: x,
-              top: y,
+              left: clientMove_X,
+              top: clientMove_Y,
             });
           }
 
+          /**
+           * 停止移动
+           */
           if (event.phase === "end") {
             isClicked = false;
             $("#whitesevSuspensionId").css("cursor", "auto");
@@ -3663,21 +3684,21 @@
             });
           }
         });
-
+        /**
+         * 设置悬浮按钮 点击/按下事件
+         */
         dragNode.on(["click", "tap"], function (event) {
           if (isDouble) {
-            /* 双 */
+            /* 判定为双击 */
             clearTimeout(timerID);
-            timerID = setTimeout(function () {
-              isDouble = false;
-              that.showSettingView();
-            }, 150);
+            that.showSettingView();
+            isDouble = false;
           } else {
             isDouble = true;
             timerID = setTimeout(function () {
               isDouble = false;
               NetDiskUI.view.show();
-            }, 150);
+            }, 200);
           }
         });
         $(window).on("click", function (event) {
@@ -3699,42 +3720,67 @@
         });
         $("#whitesevSuspensionId").on("contextmenu", function (event) {
           event.preventDefault();
-          let settingEle = $("#whitesevSuspensionContextMenu");
-          var maxL1 = $(window).width() - NetDiskUI.size;
-          var maxT1 = $(window).height() - NetDiskUI.size;
-          var x1 = event.clientX;
-          var y1 = event.clientY;
+          let suspensionNode = $("#whitesevSuspensionContextMenu");
+          var clientMax_X =
+            $(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+          var clientMax_Y =
+            $(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+          var clientMove_X = event.clientX;
+          var clientMove_Y = event.clientY;
           /* 不允许超出浏览器范围 */
-          x1 = x1 < 0 ? 0 : x1;
-          x1 = x1 < maxL1 ? x1 : maxL1;
-          y1 = y1 < 0 ? 0 : y1;
-          y1 = y1 < maxT1 ? y1 : maxT1;
-          settingEle.removeClass("whitesevSuspensionContextMenuHide");
-          settingEle.css({
-            left: x1,
-            top: y1,
+          clientMove_X = clientMove_X < 0 ? 0 : clientMove_X;
+          clientMove_X =
+            clientMove_X < clientMax_X ? clientMove_X : clientMax_X;
+          clientMove_Y = clientMove_Y < 0 ? 0 : clientMove_Y;
+          clientMove_Y =
+            clientMove_Y < clientMax_Y ? clientMove_Y : clientMax_Y;
+          suspensionNode.removeClass("whitesevSuspensionContextMenuHide");
+          suspensionNode.css({
+            left: clientMove_X,
+            top: clientMove_Y,
           });
         });
       },
+      /**
+       * 设置悬浮按钮位置
+       */
       setSuspensionDefaultPositionEvent() {
-        /* 设置悬浮按钮位置 */
-        let maxY = $(window).height() - NetDiskUI.size;
-        let defaultX = $(window).width() - NetDiskUI.size;
-        let defaultY = $(window).height() / 2 - NetDiskUI.size;
-        let setX = GM_getValue("suspensionX", defaultX);
-        let setY = GM_getValue("suspensionY", defaultY);
+        let clientMax_X =
+          $(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+        let clientMax_Y =
+          $(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+        let clientDefault_X = clientMax_X; /* 默认值 X轴 */
+        let clientDefault_Y =
+          $(window).height() / 2 - NetDiskUI.size; /* 默认值 Y轴 */
+        let userSetClient_X = GM_getValue(
+          "suspensionX",
+          clientDefault_X
+        ); /* 用户自己移动的X轴 */
+        let userSetClient_Y = GM_getValue(
+          "suspensionY",
+          clientDefault_Y
+        ); /* 用户自己移动的Y轴 */
 
-        setX = GM_getValue("isRight") ? defaultX : 0;
-        setY = setY < maxY ? setY : maxY; /* 超出高度那肯定是最底下了 */
-        setY = setY < 0 ? 0 : setY;
+        userSetClient_X = GM_getValue("isRight")
+          ? clientMax_X
+          : 0; /* 如果存在isRight 悬浮按钮放到最右边，否则最左边 */
+        userSetClient_Y =
+          userSetClient_Y < clientMax_Y
+            ? userSetClient_Y
+            : clientMax_Y; /* 如果超出最大的Y轴，以Y轴为默认值 */
+        userSetClient_Y =
+          userSetClient_Y < 0
+            ? 0
+            : userSetClient_Y; /* 如果用户设置的Y轴小于0,那设置0 */
         if (top.window == self.window) {
-          GM_setValue("suspensionX", setX);
-          GM_setValue("suspensionY", setY);
+          /* 不在iframe内修改 */
+          GM_setValue("suspensionX", userSetClient_X);
+          GM_setValue("suspensionY", userSetClient_Y);
         }
 
         $("#whitesevSuspensionId").css({
-          left: setX,
-          top: setY,
+          left: userSetClient_X,
+          top: userSetClient_Y,
         });
       },
       loadCSS() {
@@ -3801,16 +3847,54 @@
 					}
 				`);
       },
+      /**
+       * 监听浏览器页面大小改变
+       */
       resizeEvent() {
-        /* 界面大小改变 */
         $(window).resize(() => {
           this.setSuspensionDefaultPositionEvent();
         });
       },
-      randBg() {
-        /* 悬浮按钮背景轮播淡入淡出 */
+      /**
+       * 悬浮按钮背景轮播 效果为淡入淡出
+       * @returns
+       */
+      backgroundSwitch() {
         if (this.isRandBg) {
           return;
+        }
+        /**
+         * 获取随机背景的数组
+         * @returns {list}
+         */
+        function getRandBgList() {
+          let resultList = [];
+          NetDiskUI.matchIcon.forEach((item) => {
+            resultList = [...resultList, NetDiskUI.src.icon[item]];
+          });
+          return resultList;
+        }
+        /**
+         * 进行切换 淡入淡出
+         * @param {number} fadeTime 淡入\淡出的时间
+         * @param {string} currentBackgroundSrc 当前的背景资源
+         */
+        function startSwitch(fadeTime, currentBackgroundSrc) {
+          currentList = getRandBgList();
+          randBgNode.fadeOut(fadeTime, function () {
+            currentIndex++;
+            currentIndex = currentIndex < currentList.length ? currentIndex : 0;
+            currentBackgroundSrc = currentList[currentIndex];
+            randBgNode.css("background-image", `url(${currentBackgroundSrc})`);
+            randBgNode.fadeIn(fadeTime, function () {
+              setTimeout(() => {
+                startSwitch(
+                  parseInt(GM_getValue("randbg-time", switchBgTime)),
+                  currentBackgroundSrc
+                );
+              }, parseInt(GM_getValue("randbg-show-time", switchBgShowTime)));
+            });
+          });
         }
         let currentList = [];
         let currentIndex = 0;
@@ -3824,34 +3908,15 @@
           currentList.length < 2 ||
           GM_getValue("randbg-time", switchBgTime) <= 0
         ) {
+          /* 只有一个的话或淡入/淡出的时间<=0 就不进行背景切换 */
           return;
         }
         this.isRandBg = true;
-        function getRandBgList() {
-          let _result_list_ = [];
-          NetDiskUI.matchIcon.forEach((item) => {
-            _result_list_ = [..._result_list_, NetDiskUI.src.icon[item]];
-          });
-          return _result_list_;
-        }
-        function _show_(_time_, _bg_src_) {
-          currentList = getRandBgList();
-          randBgNode.fadeOut(_time_, function () {
-            currentIndex++;
-            currentIndex = currentIndex < currentList.length ? currentIndex : 0;
-            _bg_src_ = currentList[currentIndex];
-            randBgNode.css("background-image", `url(${_bg_src_})`);
-            randBgNode.fadeIn(_time_, function () {
-              setTimeout(() => {
-                _show_(
-                  parseInt(GM_getValue("randbg-time", switchBgTime)),
-                  _bg_src_
-                );
-              }, parseInt(GM_getValue("randbg-show-time", switchBgShowTime)));
-            });
-          });
-        }
-        _show_(parseInt(GM_getValue("randbg-time", switchBgTime)), randBgSrc);
+
+        startSwitch(
+          parseInt(GM_getValue("randbg-time", switchBgTime)),
+          randBgSrc
+        );
       },
     },
     /**
@@ -3926,6 +3991,12 @@
 				.netdisk-url a[isvisited=true]{
 					color: #8b8888 !important;
 				}
+        .netdisk-url a:active{
+          box-shadow: 0 0 0 1px #616161 inset;
+        }
+        .netdisk-url a:focus-visible{
+          outline: none;
+        }
 				.whitesevPop-content p[pop]{
 					text-indent: 0px;
 				}
@@ -3996,24 +4067,30 @@
         this.setNetDiskUrlClickEvent(".netdisk-url a");
       },
       getViewHTML(
-        _netdiskicon_,
-        _netdiskname_,
-        _sharecode_,
-        _accesscode_,
-        _uilink_
+        netDiskImgSrc,
+        netDiskName,
+        shareCode,
+        accessCode,
+        uiLinkText
       ) {
         return `
 				<div class="netdisk-url-box">
 					<div class="netdisk-url-div">
 						<div class="netdisk-icon">
-							<img src="${_netdiskicon_}">
+							<img src="${netDiskImgSrc}" data-netdisk="${netDiskName}">
 						</div>
 						<div class="netdisk-url">
-							<a href="javascript:;" isvisited="false" data-netdisk="${_netdiskname_}" data-sharecode="${_sharecode_}" data-accesscode="${_accesscode_}" data-open-enable-key="${_netdiskname_}-open-enable" data-static-enable-key="${_netdiskname_}-static-enable" data-scheme-enable-key="${_netdiskname_}-scheme-enable">${_uilink_}</a>
+							<a  href="javascript:;" 
+                  isvisited="false"
+                  data-netdisk="${netDiskName}"
+                  data-sharecode="${shareCode}"
+                  data-accesscode="${accessCode}"
+                  data-open-enable-key="${netDiskName}-open-enable"
+                  data-static-enable-key="${netDiskName}-static-enable"
+                  data-scheme-enable-key="${netDiskName}-scheme-enable">${uiLinkText}</a>
 						</div>
 					</div>
-				</div>
-				`;
+				</div>`;
       },
       /**
        * 设置网盘链接点击事件，要求，它是<a>元素且存在以下属性
@@ -4064,7 +4141,6 @@
        * @param {string} netDiskName
        * @param {string} shareCode
        * @param {string} accessCode
-       * @returns
        */
       addLinkView(netDiskName, shareCode, accessCode) {
         NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
@@ -4073,7 +4149,7 @@
           accessCode
         );
         if (!NetDiskUI.uiLinkAlias) {
-          return null;
+          return;
         }
         log.info([netDiskName, shareCode, accessCode]);
         let icon = NetDiskUI.src.icon[netDiskName];
@@ -4097,7 +4173,6 @@
        * @param {string} netDiskName
        * @param {string} shareCode
        * @param {string} accessCode
-       * @returns
        */
       changeLinkView(netDiskName, shareCode, accessCode) {
         NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
@@ -4106,7 +4181,7 @@
           accessCode
         );
         if (!NetDiskUI.uiLinkAlias) {
-          return null;
+          return;
         }
         let uiLink = NetDisk.handleLinkShow(netDiskName, shareCode, accessCode);
         let needChangeDOM = $(
@@ -4194,7 +4269,13 @@
             position: "center",
           },
           content: {
-            text: `<div class="netdisk-static-body"><div class="netdisk-static-filename"><a target="_blank" href="${downloadUrl}">${fileName}</a></div><div class="netdisk-static-filesize">${fileSize}</div></div>`,
+            text: `
+            <div class="netdisk-static-body">
+              <div class="netdisk-static-filename">
+                <a target="_blank" href="${downloadUrl}">${fileName}</a>
+              </div>
+              <div class="netdisk-static-filesize">${fileSize}</div>
+            </div>`,
             html: true,
           },
           btn: {
@@ -4347,75 +4428,19 @@
         let dataHTML = "";
         let that = this;
         data = this.orderNetDiskHistoryMatchData(data);
-        data.forEach((item, index) => {
-          let netDiskURL = NetDisk.handleLinkShow(
-            item.netDiskName,
-            item.shareCode,
-            item.accessCode
-          );
-          dataHTML += `
-          <li>
-            <div class="netdiskrecord-link">
-              <p>链接</p>
-              <a  href="javascript:;"
-                  isvisited="false"
-                  data-netdisk="${item.netDiskName}"
-                  data-sharecode="${item.shareCode}"
-                  data-accesscode="${item.accessCode}"
-                  data-open-enable-key="${item.netDiskName}-open-enable"
-                  data-static-enable-key="${item.netDiskName}-static-enable"
-                  data-scheme-enable-key="${
-                    item.netDiskName
-                  }-scheme-enable">${netDiskURL}</a>
-            </div>
-            <div class="netdiskrecord-icon">
-              <p>网盘</p>
-              <img src="${NetDiskUI.src.icon[item.netDiskName]}">
-            </div>
-            ${
-              item.url === item.topURL
-                ? `
-            <div class="netdiskrecord-url">
-              <p>网址</p>
-              <a href="${item.url}" target="_blank">${item.url}</a>
-            </div>
-            `
-                : `
-            <div class="netdiskrecord-url">
-              <p>网址</p>
-              <a href="${item.url}" target="_blank">${item.url}</a>
-            </div>
-            <div class="netdiskrecord-top-url">
-              <p>TOP网址</p>
-              <a href="${item.topURL}" target="_blank">${item.topURL}</a>
-            </div>
-            `
-            }
-            <div class="netdiskrecord-url-title">
-              <p>网址标题</p>
-              ${item.title}
-            </div>
-            <div class="netdiskrecord-add-time">
-              <p>记录时间</p>
-              ${Utils.getFormatTime(undefined, item.addTime)}
-            </div>
-            <div class="netdiskrecord-update-time">
-              <p>更新时间</p>
-              ${Utils.getFormatTime(undefined, item.updateTime)}
-            </div>
-            <div class="netdiskrecord-functions">
-              <p>功能</p>
-              <button class="btn-delete" data-json='${JSON.stringify(
-                item
-              )}'>删除</button>
-            </div>
-          </li>`;
-        });
+        for (let index = 0; index < 10; index++) {
+          if (data[index]) {
+            dataHTML += that.getTableHTML(data[index]);
+          }
+        }
         dataHTML = `
         <div class="netdiskrecord-search">
           <input type="text" placeholder="搜索链接/网址/网址标题，可正则搜索">
         </div>
-        <ul>${dataHTML}</ul>`;
+        <div class="netdiskrecord-table"><ul>${dataHTML}</ul></div>
+        <div class="netdiskrecord-page">
+
+        </div>`;
         pops.confirm({
           title: {
             text: "历史匹配记录",
@@ -4444,7 +4469,7 @@
             },
             other: {
               enable: true,
-              text: "清空所有",
+              text: `清空所有(${data.length})`,
               type: "xiaomi-primary",
               callback: (event) => {
                 pops.confirm({
@@ -4465,6 +4490,18 @@
                           ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
                         ).remove();
                         okEvent.close();
+                        $(
+                          ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page"
+                        ).html("");
+                        $(
+                          ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+                        ).text(
+                          $(
+                            ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+                          )
+                            .text()
+                            .replace(/[\d]+/gi, "0")
+                        );
                       },
                     },
                     cancel: {
@@ -4488,6 +4525,7 @@
           drag: GM_getValue("pcDrag", false),
           forbiddenScroll: true,
         });
+        this.setDataPaging(data);
         this.setEvent();
         this.setSearchEvent();
       },
@@ -4508,6 +4546,19 @@
           box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);
           margin: 20px 10px;
           padding: 10px;
+        }
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search{
+          height: 11%;
+        }
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table{
+          height: calc( 85% - 40px);
+          overflow: auto;
+        }
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-top: 10px;
         }
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input{
           border: none;
@@ -4543,10 +4594,10 @@
           font-size: 13px;
         }
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url{
-          
+          color: #000;
         }
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url{
-          
+          color: #000;
         }
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete{
           background: #263cf3;
@@ -4581,6 +4632,75 @@
         `);
       },
       /**
+       * 获取显示出的每一项的html
+       * @param {object} item
+       * @returns
+       */
+      getTableHTML(item) {
+        let netDiskURL = NetDisk.handleLinkShow(
+          item.netDiskName,
+          item.shareCode,
+          item.accessCode
+        );
+        return `
+        <li>
+          <div class="netdiskrecord-link">
+            <p>链接</p>
+            <a  href="javascript:;"
+                isvisited="false"
+                data-netdisk="${item.netDiskName}"
+                data-sharecode="${item.shareCode}"
+                data-accesscode="${item.accessCode}"
+                data-open-enable-key="${item.netDiskName}-open-enable"
+                data-static-enable-key="${item.netDiskName}-static-enable"
+                data-scheme-enable-key="${
+                  item.netDiskName
+                }-scheme-enable">${netDiskURL}</a>
+          </div>
+          <div class="netdiskrecord-icon">
+            <p>网盘</p>
+            <img src="${NetDiskUI.src.icon[item.netDiskName]}">
+          </div>
+          ${
+            item.url === item.topURL
+              ? `
+          <div class="netdiskrecord-url">
+            <p>网址</p>
+            <a href="${item.url}" target="_blank">${item.url}</a>
+          </div>
+          `
+              : `
+          <div class="netdiskrecord-url">
+            <p>网址</p>
+            <a href="${item.url}" target="_blank">${item.url}</a>
+          </div>
+          <div class="netdiskrecord-top-url">
+            <p>TOP网址</p>
+            <a href="${item.topURL}" target="_blank">${item.topURL}</a>
+          </div>
+          `
+          }
+          <div class="netdiskrecord-url-title">
+            <p>网址标题</p>
+            ${item.title}
+          </div>
+          <div class="netdiskrecord-add-time">
+            <p>记录时间</p>
+            ${Utils.getFormatTime(undefined, item.addTime)}
+          </div>
+          <div class="netdiskrecord-update-time">
+            <p>更新时间</p>
+            ${Utils.getFormatTime(undefined, item.updateTime)}
+          </div>
+          <div class="netdiskrecord-functions">
+            <p>功能</p>
+            <button class="btn-delete" data-json='${JSON.stringify(
+              item
+            )}'>删除</button>
+          </div>
+        </li>`;
+      },
+      /**
        * 设置只执行一次的事件
        * @returns
        */
@@ -4608,7 +4728,7 @@
                   ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
                 ),
                 content: {
-                  text: "搜索中...",
+                  text: "删除中...",
                 },
                 only: true,
               });
@@ -4617,10 +4737,58 @@
               this.closest("li")?.remove();
               that.deleteNetDiskHistoryMatchData(dataJSON);
               deleteLoading?.close();
+              let totalNumberText = $(
+                ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+              ).text();
+              let totalNumber = totalNumberText.match(/[\d]+/gi);
+              totalNumber = parseInt(totalNumber[totalNumber.length - 1]);
+              totalNumber--;
+              totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber);
+              $(".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other").text(
+                totalNumberText
+              );
             }
           );
         };
         setdeleteBtnEvent();
+      },
+      /**
+       * 设置分页
+       * @param {list} data
+       */
+      setDataPaging(data) {
+        let that = this;
+
+        let dataPaging = new DataPaging();
+        dataPaging.init({
+          data: data,
+          pageCount: 10,
+          pageStep: pops.isPhone() ? 2 : 4,
+          currentPage: 1,
+          pageChangeCallBack: function (page) {
+            let startIndex = (page - 1) * 10;
+            let dataHTML = "";
+            for (let index = 0; index < 10; index++) {
+              if (data[startIndex]) {
+                dataHTML += that.getTableHTML(data[startIndex]);
+              } else {
+                break;
+              }
+              startIndex++;
+            }
+            $(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+            )?.remove();
+            $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
+              $(dataHTML)
+            );
+          },
+        });
+        dataPaging.append(
+          document.querySelector(
+            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page"
+          )
+        );
       },
       /**
        * 设置搜索框的回车事件
@@ -4628,6 +4796,7 @@
       setSearchEvent() {
         let isSeaching = false; /* 当前搜索的状态 */
         let searchLoading = null; /* 搜索中的遮罩层 */
+        let that = this;
         function searchEvent() {
           if (isSeaching) {
             return;
@@ -4647,48 +4816,57 @@
               ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
             )
             .value.trim();
+          let data = that.getNetDiskHistoryMatchData();
+          data = that.orderNetDiskHistoryMatchData(data);
           if (inputText === "") {
             /* 输入空就关闭遮罩层且恢复style */
-            $(".whitesevPopNetDiskHistoryMatch .pops-confirm-content li").each(
-              (index, item) => {
-                if (item.getAttribute("class") === "netdiskrecord-search") {
-                  return;
-                }
-                item.removeAttribute("style");
+            let historyDataHTML = "";
+            data.forEach((item, index) => {
+              if (index > 9) {
+                return;
               }
+              historyDataHTML += that.getTableHTML(item);
+            });
+            $(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+            )?.remove();
+            $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
+              $(historyDataHTML)
             );
             searchLoading?.close();
             isSeaching = false;
+            that.setDataPaging(data);
             return;
           }
           let isFind = false; /* 找到的状态 */
-          $(".whitesevPopNetDiskHistoryMatch .pops-confirm-content li").each(
-            (index, item) => {
-              let linkNodeText = item.querySelector(
-                ".netdiskrecord-link a"
-              ).innerText;
-              let urlNodeText = item.querySelector(
-                ".netdiskrecord-url a"
-              ).innerText;
-              let topURLNodeText = item.querySelector(".netdiskrecord-top-url");
-              topURLNodeText = topURLNodeText ? topURLNodeText.innerText : "";
-              let urlTitleNodeText = item.querySelector(
-                ".netdiskrecord-url-title"
-              ).innerText;
-              if (
-                linkNodeText.match(new RegExp(inputText, "ig")) ||
-                urlNodeText.match(new RegExp(inputText, "ig")) ||
-                topURLNodeText.match(new RegExp(inputText, "ig")) ||
-                urlTitleNodeText.match(new RegExp(inputText, "ig"))
-              ) {
-                /* 匹配到 */
-                isFind = true;
-                item.removeAttribute("style");
-              } else {
-                item.setAttribute("style", "display:none;");
-              }
+
+          let isFindHTML = ""; /* 找到的链接文本 */
+          data.forEach((item) => {
+            let netDiskURL = NetDisk.handleLinkShow(
+              item.netDiskName,
+              item.shareCode,
+              item.accessCode
+            );
+            if (
+              netDiskURL.match(new RegExp(inputText, "ig")) ||
+              item.url.match(new RegExp(inputText, "ig")) ||
+              item.topURL.match(new RegExp(inputText, "ig")) ||
+              item.title.match(new RegExp(inputText, "ig"))
+            ) {
+              /* 匹配到 */
+              isFind = true;
+              isFindHTML += that.getTableHTML(item);
             }
+          });
+          $(
+            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+          )?.remove();
+          $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
+            $(isFindHTML)
           );
+          $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-page")
+            ?.children()
+            ?.remove();
           searchLoading?.close();
           searchLoading = null;
           isSeaching = false;
