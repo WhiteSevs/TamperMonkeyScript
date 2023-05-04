@@ -42,19 +42,19 @@
       mask: {
         zIndex: 1000000,
         style: `#force-mask{
-                    width: 100%;
-                    height: 100%;
-                    position: fixed;
-                    top: 0px;
-                    left: 0px;
-                    background: black;
-                    opacity: 0.6;
-                    z-index: 1000000;
-                    display: flex;
-                    align-content: center;
-                    justify-content: center;
-                    align-items: center;
-                }`,
+                  width: 100%;
+                  height: 100%;
+                  position: fixed;
+                  top: 0px;
+                  left: 0px;
+                  background: black;
+                  opacity: 0.6;
+                  z-index: 1000000;
+                  display: flex;
+                  align-content: center;
+                  justify-content: center;
+                  align-items: center;
+              }`,
       },
       confirm: {
         zIndex: 1000100,
@@ -116,8 +116,8 @@
       } else {
         $jq("#force-mask").html("");
       }
-      if(!zIndex){
-        $jq("#force-mask").css("z-index",Utils.getMaxZIndex() + 10);
+      if (!zIndex) {
+        $jq("#force-mask").css("z-index", Utils.getMaxZIndex() + 10);
       }
     },
     confirm: function (param_options) {
@@ -3122,7 +3122,9 @@
             blackViewHTML += getBlackListViewHTML(item);
           });
           $jq(".blackhome-user-list").append($jq(blackViewHTML));
-          $jq(".blackhome-user-filter input")[0].dispatchEvent(new Event('propertychange'));
+          $jq(".blackhome-user-filter input")[0].dispatchEvent(
+            new Event("propertychange")
+          );
         });
       }
 
