@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.6
+// @version      2.9.7
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -3012,43 +3012,40 @@
 				}
 				.blackhome-user-list{
 					height: 330px;
-					overflow-y: auto;
+          overflow-y: auto;
 				}
 				.blackhome-user-list .blackhome-user-item{
 					display: flex;
-					margin: 18px 0px;
+          margin: 15px 10px;
+          align-items: center;
 				}
-        .blackhome-user-name{
-          width: 80px;
-          text-align: center;
-        }
 				.blackhome-user-avatar-name{
-					margin-left: 8px;
-					margin-right: 8px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					flex-direction: column;
-					width: 28%;
+					width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
 				}
 				.blackhome-user-avatar-name img{
 					width: 55px;
-    			height: 55px;
-					border-radius: 80px;
+          height: 55px;
+          border-radius: 80px;
 				}
-				blackhome-user-avatar-name div{
-					margin-top: 8px;
-				}
+        .blackhome-user-name{
+          width: 80px;
+        }
 				.blackhome-user-text{
-					width: 68%;
+					width: 230px;
 				}
 				.blackhome-user-text div{
 					display: flex;
-					align-items: center;
 				}
 				.blackhome-user-text div p:nth-child(1){
-					min-width: 85px;
+					width: 85px;
 				}
+        .blackhome-user-text div p:nth-child(2){
+          width: 130px;
+        }
 				.blackhome-user-list .blackhome-user-action{
 					color: #53bcf5;
 				}
