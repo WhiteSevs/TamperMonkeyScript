@@ -2513,6 +2513,7 @@
           this.initPop();
           this.setSuspensionEvent();
           this.setSuspensionDefaultPositionEvent();
+          this.setSuspensionContextMenuEvent();
           this.resizeEvent();
 
           NetDiskUI.suspension.isShow = true;
@@ -2557,21 +2558,69 @@
 					</div>
 				</div>
 				`;
+        suspensionHTML = $(suspensionHTML);
+
+        let menuList = [
+          {
+            className: "whitesevSuspensionSetting",
+            text: "设置",
+          },
+          {
+            className: "whitesevPopNetDiskHistoryMatchMenu",
+            text: "历史匹配记录",
+          },
+        ];
         let menuHTML = `
 				<div id="whitesevSuspensionContextMenu" class="whitesevSuspensionContextMenuHide">
-					<ul>
-						<li class="whitesevSuspensionSetting" style="padding: 0px 10px;">
-						  设置
-						</li>
-            <li class="whitesevPopNetDiskHistoryMatchMenu" style="padding: 0px 10px;">
-						  历史匹配记录
-						</li>
-					</ul>
+          <style type="text/css">
+          #whitesevSuspensionContextMenu{
+						position: fixed;
+						z-index: 10000;
+    				text-align: center;
+						padding: 3px 0px;
+						border-radius: 3px;
+						font-size: 16px;
+						font-weight: 500;
+						background: #fff;
+            box-shadow: 0px 1px 6px 1px #cacaca;
+					}
+					#whitesevSuspensionContextMenu li:hover{
+						background: #dfdfdf;
+            cursor: pointer;
+					}
+					.whitesevSuspensionContextMenuHide{
+						display: none;
+					}
+          #whitesevSuspensionContextMenu ul{
+            margin: 0px;
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+          }
+          #whitesevSuspensionContextMenu ul li{
+            padding: 5px 10px;
+            display: unset;
+            width: -webkit-fill-available;
+            text-align: left;
+            margin: 2.5px 5px;
+            border-radius: 3px;
+          }
+          </style>
+					<ul></ul>
 				</div>
 				`;
-
-        $("body").append($(suspensionHTML)[0]);
-        $("body").append($(menuHTML)[0]);
+        menuHTML = $(menuHTML);
+        menuList.forEach((item) => {
+          menuHTML.find("ul").append(
+            $(`
+            <li class="${item.className}">${item.text}</li>
+          `)
+          );
+        });
+        $("body").append(suspensionHTML);
+        $("body").append(menuHTML);
       },
       /**
        * 所有的弹窗初始化设置
@@ -3702,23 +3751,7 @@
             }, 200);
           }
         });
-        $(window).on("click", function (event) {
-          let targetId = event.target.id;
-          let targetClassName = event.target.className;
-          if (targetId != "whitesevSuspensionContextMenu") {
-            $("#whitesevSuspensionContextMenu").addClass(
-              "whitesevSuspensionContextMenuHide"
-            );
-          }
-          if (targetClassName === "whitesevSuspensionSetting") {
-            log.info("打开设置界面");
-            that.showSettingView();
-          }
-          if (targetClassName === "whitesevPopNetDiskHistoryMatchMenu") {
-            log.info("打开历史匹配记录界面");
-            NetDiskUI.netDiskHistoryMatch.show();
-          }
-        });
+
         $("#whitesevSuspensionId").on("contextmenu", function (event) {
           event.preventDefault();
           let suspensionNode = $("#whitesevSuspensionContextMenu");
@@ -3784,6 +3817,29 @@
           top: userSetClient_Y,
         });
       },
+      /**
+       * 设置悬浮按钮右击菜单事件
+       */
+      setSuspensionContextMenuEvent() {
+        let that = this;
+        $(window).on("click", function (event) {
+          let targetId = event.target.id;
+          let targetClassName = event.target.className;
+          if (targetId != "whitesevSuspensionContextMenu") {
+            $("#whitesevSuspensionContextMenu").addClass(
+              "whitesevSuspensionContextMenuHide"
+            );
+          }
+          if (targetClassName === "whitesevSuspensionSetting") {
+            log.info("打开设置界面");
+            that.showSettingView();
+          }
+          if (targetClassName === "whitesevPopNetDiskHistoryMatchMenu") {
+            log.info("打开历史匹配记录界面");
+            NetDiskUI.netDiskHistoryMatch.show();
+          }
+        });
+      },
       loadCSS() {
         GM_addStyle(`
 					.whitesevSuspension{
@@ -3825,23 +3881,6 @@
 						transition:all 300ms linear;
 						background-color:#e4e4e4;
 						transform:scale(1.1);
-					}
-					#whitesevSuspensionContextMenu{
-						position: fixed;
-						z-index: 10000;
-    				text-align: center;
-						padding: 3px 0px;
-						border-radius: 3px;
-						font-size: 13px;
-						font-weight: 500;
-						background:#fff;
-					}
-					#whitesevSuspensionContextMenu li:hover{
-						background: #dfdfdf;
-            cursor: pointer;
-					}
-					.whitesevSuspensionContextMenuHide{
-						display: none;
 					}
 					.whitesevPop-content p[pop]{
 						height: 100%;
