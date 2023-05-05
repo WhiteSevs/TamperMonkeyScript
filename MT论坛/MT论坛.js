@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.7
+// @version      2.9.7.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -3020,31 +3020,32 @@
           align-items: center;
 				}
 				.blackhome-user-avatar-name{
-					width: 100%;
+					width: 90px;
+          min-width: 90px;
           display: flex;
           flex-direction: column;
           align-items: center;
           text-align: center;
 				}
 				.blackhome-user-avatar-name img{
-					width: 55px;
-          height: 55px;
-          border-radius: 80px;
+					width: 45px;
+          border-radius: 40px;
 				}
         .blackhome-user-name{
           width: 80px;
+          min-width: 80px;
         }
 				.blackhome-user-text{
-					width: 230px;
+	
 				}
 				.blackhome-user-text div{
 					display: flex;
 				}
 				.blackhome-user-text div p:nth-child(1){
-					width: 85px;
+          min-width: fit-content;
 				}
         .blackhome-user-text div p:nth-child(2){
-          width: 130px;
+          overflow-wrap: anywhere;
         }
 				.blackhome-user-list .blackhome-user-action{
 					color: #53bcf5;
