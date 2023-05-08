@@ -2492,16 +2492,16 @@
      * @returns {JSON}
      */
     function getToolTipNodeJSON() {
-      var _toolTipHTML = `<div class="pops-tip ${config.className}" data-guid="${guid}">${config.content}</div>`;
-      var _toolTipNode = popsUtils.parseTextToDOM(_toolTipHTML)[0];
-      var _toolTipArrowHTML = '<div class="pops-tip-arrow"></div>'; /* 箭头 */
-      var _toolTipArrowNode = popsUtils.parseTextToDOM(_toolTipArrowHTML)[0];
-      _toolTipNode.appendChild(_toolTipArrowNode);
+      var _toolTipHTML_ = `<div class="pops-tip ${config.className}" data-guid="${guid}">${config.content}</div>`;
+      var _toolTipNode_ = popsUtils.parseTextToDOM(_toolTipHTML_)[0];
+      var _toolTipArrowHTML_ = '<div class="pops-tip-arrow"></div>'; /* 箭头 */
+      var _toolTipArrowNode_ = popsUtils.parseTextToDOM(_toolTipArrowHTML_)[0];
+      _toolTipNode_.appendChild(_toolTipArrowNode_);
       return {
-        toolTipNode: _toolTipNode,
-        toolTipHTML: _toolTipHTML,
-        toolTipArrowHTML: _toolTipArrowHTML,
-        toolTipArrowNode: _toolTipArrowNode,
+        toolTipNode: _toolTipNode_,
+        toolTipHTML: _toolTipHTML_,
+        toolTipArrowHTML: _toolTipArrowHTML_,
+        toolTipArrowNode: _toolTipArrowNode_,
       };
     }
     config.location = config.location.toLowerCase();
