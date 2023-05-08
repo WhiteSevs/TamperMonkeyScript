@@ -10,7 +10,8 @@
   "use strict";
 
   if (typeof pops !== "undefined") {
-    throw "全局变量pops已被注册";
+    console.error(pops);
+    throw "window.pops已被注册";
   }
 
   let popsUtils = {
@@ -541,13 +542,12 @@
       });
       return result;
     },
-    upperElements(el) {
+    upperElements(element) {
       /* 检测元素是否在其它元素下面，在的话获取z-index，不在就null */
-      console.log(el);
-      var top = el.getBoundingClientRect().top,
-        left = el.getBoundingClientRect().left,
-        width = el.getBoundingClientRect().width,
-        height = el.getBoundingClientRect().height,
+      var top = element.getBoundingClientRect().top,
+        left = element.getBoundingClientRect().left,
+        width = element.getBoundingClientRect().width,
+        height = element.getBoundingClientRect().height,
         elemTL = document.elementFromPoint(left, top),
         elemTR = document.elementFromPoint(left + width - 1, top),
         elemBL = document.elementFromPoint(left, top + height - 1),
@@ -558,7 +558,7 @@
         ),
         elemsUpper = [];
       if (
-        elemTL != el &&
+        elemTL != element &&
         elemTL != null &&
         popsUtils.inArray("pops-mask", elemTL.classList) === -1 &&
         popsUtils.inArray("pops-loading", elemTL.classList) === -1
@@ -566,7 +566,7 @@
         elemsUpper.push(elemTL);
       }
       if (
-        elemTR != el &&
+        elemTR != element &&
         popsUtils.inArray(elemTR, elemsUpper) === -1 &&
         elemTR != null &&
         popsUtils.inArray("pops-mask", elemTR.classList) === -1 &&
@@ -576,7 +576,7 @@
       }
 
       if (
-        elemBL != el &&
+        elemBL != element &&
         popsUtils.inArray(elemBL, elemsUpper) === -1 &&
         elemBL != null &&
         popsUtils.inArray("pops-mask", elemBL.classList) === -1 &&
@@ -586,7 +586,7 @@
       }
 
       if (
-        elemBR != el &&
+        elemBR != element &&
         popsUtils.inArray(elemBR, elemsUpper) === -1 &&
         elemBR != null &&
         popsUtils.inArray("pops-mask", elemBR.classList) === -1 &&
@@ -596,7 +596,7 @@
       }
 
       if (
-        elemCENTER != el &&
+        elemCENTER != element &&
         popsUtils.inArray(elemCENTER, elemsUpper) === -1 &&
         elemCENTER != null &&
         popsUtils.inArray("pops-mask", elemCENTER.classList) === -1 &&
@@ -665,6 +665,211 @@
       return {
         allowScroll: allowScroll,
       };
+    },
+    jQuery: {
+      /**
+       * jQuery中的on绑定事件
+       * @param {HTMLElement} element 需要绑定的元素
+       * @param {String|Array} eventType 需要监听的事件
+       * @param {HTMLElement?} selector 子元素选择器
+       * @param {Function} callback 事件触发的回调函数
+       * @param {Boolean} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+       * @param {Boolean} once 表示事件是否只触发一次。默认为false
+       * @param {Boolean} passive 表示事件监听器是否不会调用preventDefault()。默认为false
+       * @returns {DOMUtils} - 原型链
+       * @function
+       */
+      on(
+        element,
+        eventType,
+        selector,
+        callback,
+        capture = false,
+        once = false,
+        passive = false
+      ) {
+        var eventTypeList = [];
+        if (Array.isArray(eventType)) {
+          eventTypeList = eventType;
+        } else if (typeof eventType === "string") {
+          eventTypeList = eventType.split(" ");
+        }
+        eventTypeList.forEach((_eventType_) => {
+          if (selector) {
+            element.addEventListener(
+              _eventType_,
+              function (event) {
+                var target = event.target;
+                while (target && target !== element) {
+                  if (target.matches(selector)) {
+                    callback.call(target, event);
+                  }
+                  target = target.parentNode;
+                }
+              },
+              capture,
+              once,
+              passive
+            );
+          } else {
+            element.addEventListener(
+              _eventType_,
+              callback,
+              capture,
+              once,
+              passive
+            );
+          }
+        });
+
+        if (callback && callback.delegate) {
+          element.setAttribute("data-delegate", selector);
+        }
+
+        var events = element.events || {};
+        events[eventType] = events[eventType] || [];
+        events[eventType].push({
+          selector: selector,
+          callback: callback,
+        });
+        element.events = events;
+
+        return this;
+      },
+      /**
+       * jQuery中的off取消绑定事件
+       * @param {HTMLElement} element 需要取消绑定的元素
+       * @param {String|Array} eventType 需要取消监听的事件
+       * @param {HTMLElement} selector 子元素选择器
+       * @param {Function} callback 事件触发的回调函数
+       * @param {Boolean} useCapture 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
+       * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+       * @returns
+       */
+      off(element, eventType, selector, callback, useCapture = false) {
+        let that = this;
+        var events = element.events || {};
+        if (!eventType) {
+          for (var type in events) {
+            that.off(element, type, null, null, useCapture);
+          }
+          return;
+        }
+        if (Array.isArray(eventType)) {
+          eventType.forEach(function (type) {
+            that.off(element, type, selector, callback, useCapture);
+          });
+          return;
+        }
+        var handlers = events[eventType] || [];
+        for (var i = 0; i < handlers.length; i++) {
+          if (
+            (!selector || handlers[i].selector === selector) &&
+            (!callback || handlers[i].callback === callback)
+          ) {
+            element.removeEventListener(
+              eventType,
+              handlers[i].callback,
+              useCapture
+            );
+            handlers.splice(i--, 1);
+          }
+        }
+        if (handlers.length === 0) {
+          delete events[eventType];
+        }
+        element.events = events;
+      },
+      /**
+       * 主动触发事件
+       * @param {HTMLElement} element 需要触发的元素
+       * @param {String|Array} eventType 需要触发的事件
+       * @returns
+       */
+      trigger(element, eventType) {
+        let that = this;
+        var events = element.events || {};
+        if (!eventType) {
+          for (var type in events) {
+            that.trigger(element, type);
+          }
+          return;
+        }
+        if (Array.isArray(eventType)) {
+          eventType.forEach(function (type) {
+            that.trigger(element, type);
+          });
+          return;
+        }
+        var event = document.createEvent("HTMLEvents");
+        event.initEvent(eventType, true, false);
+        element.dispatchEvent(event);
+      },
+      /**
+       * 实现jQuery中的$().offset();
+       * @param {HTMLElement} element
+       * @returns
+       */
+      offset(element) {
+        var rect = element.getBoundingClientRect();
+        var win = element.ownerDocument.defaultView;
+        return {
+          top: rect.top + win.pageYOffset,
+          left: rect.left + win.pageXOffset,
+        };
+      },
+      /**
+       * 获取元素的宽度
+       * @param {HTMLElement} element - 要获取宽度的元素
+       * @returns {Number} - 元素的宽度，单位为像素
+       */
+      width(element) {
+        var styles = window.getComputedStyle(element);
+        return (
+          element.clientWidth -
+          parseFloat(styles.paddingLeft) -
+          parseFloat(styles.paddingRight)
+        );
+      },
+      /**
+       * 获取元素的高度
+       * @param {HTMLElement} element - 要获取高度的元素
+       * @returns {Number} - 元素的高度，单位为像素
+       */
+      height(element) {
+        var styles = window.getComputedStyle(element);
+        return (
+          element.clientHeight -
+          parseFloat(styles.paddingTop) -
+          parseFloat(styles.paddingBottom)
+        );
+      },
+      /**
+       * 获取元素的外部宽度（包括边框和外边距）
+       * @param {HTMLElement} element - 要获取外部宽度的元素
+       * @returns {Number} - 元素的外部宽度，单位为像素
+       */
+      outerWidth(element) {
+        var style = getComputedStyle(element, null);
+        return (
+          element.offsetWidth +
+          parseFloat(style.marginLeft) +
+          parseFloat(style.marginRight)
+        );
+      },
+      /**
+       * 获取元素的外部高度（包括边框和外边距）
+       * @param {HTMLElement} element - 要获取外部高度的元素
+       * @returns {Number} - 元素的外部高度，单位为像素
+       */
+      outerHeight(element) {
+        var style = getComputedStyle(element, null);
+        return (
+          element.offsetHeight +
+          parseFloat(style.marginTop) +
+          parseFloat(style.marginBottom)
+        );
+      },
     },
   };
 
@@ -983,7 +1188,75 @@
     .pops-controls button.pops-control[type=max]:after,.pops-controls button.pops-control[type=max]:before{display:block;}
     .pops-controls button.pops-control[type=max]:after{position:absolute;top:4px;left:3px;box-sizing:initial;width:12px;height:8px;border:1px solid;border-top:2px solid;content:" ";}
     .pops-controls[type=max] button.pops-control[type=max]:before{position:absolute;top:2px;left:4px;box-sizing:initial;width:14px;height:11px;border-top:1px solid;border-right:1px solid;content:" ";}
-    `,
+    .pops-tip{position:absolute;padding:13px;max-width:400px;max-height:300px;border-radius:2px;background-color:#fff;box-shadow:0 1.5px 4px rgba(0,0,0,.24),0 1.5px 6px rgba(0,0,0,.12);color:#4e4e4e;font-size:14px;}
+    .pops-tip .pops-tip-arrow{position:absolute;top:100%;left:25%;overflow:hidden;width:50px;height:12.5px;transform:translateX(-50%);}
+    .pops-tip .pops-tip-arrow::after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
+    .pops-tip .pops-tip-arrow[data-position=bottom]{position:absolute;top:100%;left:25%;overflow:hidden;width:50px;height:12.5px;transform:translateX(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=bottom]:after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
+    .pops-tip .pops-tip-arrow[data-position=left]{top:50%;left:-12.5px;width:12.5px;height:50px;transform:translateY(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=left]:after{position:absolute;top:50%;left:100%;content:"";}
+    .pops-tip .pops-tip-arrow[data-position=right]{top:50%;right:-12.5px;left:auto;width:12.5px;height:50px;transform:translateY(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=right]:after{position:absolute;top:50%;left:0;content:"";}
+    .pops-tip .pops-tip-arrow[data-position=top]{top:-12.5px;left:25%;transform:translateX(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=top]:after{position:absolute;top:100%;left:50%;content:"";}
+    .pops-tip[data-motion]{-webkit-animation-duration:.25s;animation-duration:.25s;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;}
+    @-webkit-keyframes pops-motion-fadeInTop{0%{opacity:0;-webkit-transform:translateY(-30px);transform:translateY(-30px);}
+    100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
+    }
+    @keyframes pops-motion-fadeInTop{0%{opacity:0;transform:translateY(-30px);-ms-transform:translateY(-30px);}
+    100%{opacity:1;transform:translateX(0);-ms-transform:translateX(0);}
+    }
+    .pops-tip[data-motion=fadeInTop]{-webkit-animation-name:pops-motion-fadeInTop;animation-name:pops-motion-fadeInTop;animation-timing-function:cubic-bezier(.49,.49,.13,1.3);}
+    @-webkit-keyframes pops-motion-fadeOutTop{0%{opacity:10;-webkit-transform:translateY(0);transform:translateY(0);}
+    100%{opacity:0;-webkit-transform:translateY(-30px);transform:translateY(-30px);}
+    }
+    @keyframes pops-motion-fadeOutTop{0%{opacity:1;transform:translateY(0);-ms-transform:translateY(0);}
+    100%{opacity:0;transform:translateY(-30px);-ms-transform:translateY(-30px);}
+    }
+    .pops-tip[data-motion=fadeOutTop]{-webkit-animation-name:pops-motion-fadeOutTop;animation-name:pops-motion-fadeOutTop;animation-timing-function:cubic-bezier(.32,.37,.06,.87);}
+    @-webkit-keyframes pops-motion-fadeInBottom{0%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);}
+    100%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);}
+    }
+    @keyframes pops-motion-fadeInBottom{0%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);-ms-transform:translateY(20px);}
+    100%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);-ms-transform:translateY(0);}
+    }
+    .pops-tip[data-motion=fadeInBottom]{-webkit-animation-name:pops-motion-fadeInBottom;animation-name:pops-motion-fadeInBottom;}
+    @-webkit-keyframes pops-motion-fadeOutBottom{0%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);}
+    100%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);}
+    }
+    @keyframes pops-motion-fadeOutBottom{0%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);-ms-transform:translateY(0);}
+    100%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);-ms-transform:translateY(20px);}
+    }
+    .pops-tip[data-motion=fadeOutBottom]{-webkit-animation-name:pops-motion-fadeOutBottom;animation-name:pops-motion-fadeOutBottom;}
+    @-webkit-keyframes pops-motion-fadeInLeft{0%{opacity:0;-webkit-transform:translateX(-20px);transform:translateX(-20px);}
+    100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
+    }
+    @keyframes pops-motion-fadeInLeft{0%{opacity:0;-webkit-transform:translateX(-30px);transform:translateX(-30px);-ms-transform:translateX(-30px);}
+    100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
+    }
+    .pops-tip[data-motion=fadeInLeft]{-webkit-animation-name:pops-motion-fadeInLeft;animation-name:pops-motion-fadeInLeft;}
+    @-webkit-keyframes pops-motion-fadeOutLeft{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
+    100%{opacity:0;-webkit-transform:translateX(-30px);transform:translateX(-30px);}
+    }
+    @keyframes pops-motion-fadeOutLeft{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
+    100%{opacity:0;-webkit-transform:translateX(-20px);transform:translateX(-20px);-ms-transform:translateX(-20px);}
+    }
+    .pops-tip[data-motion=fadeOutLeft]{-webkit-animation-name:pops-motion-fadeOutLeft;animation-name:pops-motion-fadeOutLeft;}
+    @-webkit-keyframes pops-motion-fadeInRight{0%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);}
+    100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
+    }
+    @keyframes pops-motion-fadeInRight{0%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
+    100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
+    }
+    .pops-tip[data-motion=fadeInRight]{-webkit-animation-name:pops-motion-fadeInRight;animation-name:pops-motion-fadeInRight;}
+    @-webkit-keyframes pops-motion-fadeOutRight{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
+    100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);}
+    }
+    @keyframes pops-motion-fadeOutRight{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
+    100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
+    }
+    .pops-tip[data-motion=fadeOutRight]{-webkit-animation-name:pops-motion-fadeOutRight;animation-name:pops-motion-fadeOutRight;}
+`,
     cssElement: null,
     animation: [],
     init: false,
@@ -993,10 +1266,14 @@
       prompt: [],
       loading: [],
       iframe: [],
+      tooltip: [],
     },
   };
+
+  /**
+   * 初始化CSS、动画
+   */
   pops.init = function () {
-    /* 初始化CSS */
     let cssResourceNode = document.createElement("style");
     cssResourceNode.setAttribute("type", "text/css");
     cssResourceNode.setAttribute("data-insert-from", "pops");
@@ -1024,13 +1301,19 @@
     );
   };
 
-  pops.isPhone = () => {
-    /* 判断是否是手机访问 */
+  /**
+   * 通过navigator.userAgent判断是否是手机访问
+   * @returns {Boolean}
+   */
+  pops.isPhone = function () {
     return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
   };
 
+  /**
+   * 普通信息框
+   * @returns {JSON}
+   */
   pops.alert = function () {
-    /* 普通信息框 */
     if (this.config.init === false) {
       this.init();
     }
@@ -1236,8 +1519,11 @@
     };
   };
 
+  /**
+   * 询问框
+   * @returns {JSON}
+   */
   pops.confirm = function () {
-    /* 询问框 */
     if (this.config.init === false) {
       this.init();
     }
@@ -1503,8 +1789,11 @@
     };
   };
 
+  /**
+   * 输入框
+   * @returns {JSON}
+   */
   pops.prompt = function () {
-    /* 输入框 */
     if (this.config.init === false) {
       this.init();
     }
@@ -1788,8 +2077,11 @@
     };
   };
 
+  /**
+   * 加载层
+   * @returns {JSON}
+   */
   pops.loading = function () {
-    /* 加载层 */
     if (this.config.init === false) {
       this.init();
     }
@@ -1870,8 +2162,11 @@
     };
   };
 
+  /**
+   * iframe层
+   * @returns {JSON}
+   */
   pops.iframe = function () {
-    /* iframe层 */
     if (this.config.init === false) {
       this.init();
     }
@@ -2164,5 +2459,245 @@
     };
   };
 
+  /**
+   * 提示框
+   */
+  pops.tooltip = function () {
+    if (this.config.init === false) {
+      this.init();
+    }
+    var config = {
+      target: null,
+      content: "" /* 显示的文字 */,
+      location:
+        "top" /* 提示框弹出的方向 上、右、下、左(left,right,bottom,top)*/,
+      className: "" /* 添加自定义的className */,
+      animation: "pops-anim-fadein-zoom" /* 动画效果 */,
+      triggerShowEventName: "mouseenter" /* 触发显示事件的名称  */,
+      triggerCloseEventName: "mouseleave" /* 触发关闭事件的名称  */,
+      triggerShowEventCallBack: function () {} /* 触发显示事件的回调 */,
+      triggerCloseEventCallBack: function () {} /* 触发关闭事件的回调*/,
+      arrowHeight: 25 / 2,
+    };
+    config = popsUtils.assignJSON(
+      config,
+      arguments.length ? arguments[0] : undefined
+    );
+    if (!(config.target instanceof HTMLElement)) {
+      throw "目标必须是一个元素节点";
+    }
+    var that = this;
+    var guid = popsUtils.guid();
+    /**
+     * 获取相应的元素
+     * @returns {JSON}
+     */
+    function getToolTipNodeJSON() {
+      var _toolTipHTML = `<div class="pops-tip ${config.className}" data-guid="${guid}">${config.content}</div>`;
+      var _toolTipNode = popsUtils.parseTextToDOM(_toolTipHTML)[0];
+      var _toolTipArrowHTML = '<div class="pops-tip-arrow"></div>'; /* 箭头 */
+      var _toolTipArrowNode = popsUtils.parseTextToDOM(_toolTipArrowHTML)[0];
+      _toolTipNode.appendChild(_toolTipArrowNode);
+      return {
+        toolTipNode: _toolTipNode,
+        toolTipHTML: _toolTipHTML,
+        toolTipArrowHTML: _toolTipArrowHTML,
+        toolTipArrowNode: _toolTipArrowNode,
+      };
+    }
+    config.location = config.location.toLowerCase();
+    var toolTipNodeJSON = getToolTipNodeJSON();
+    var toolTipNode = toolTipNodeJSON.toolTipNode;
+    /**
+     * 进入动画
+     */
+    toolTipNode.addEventListener("mouseenter", function () {
+      if (parseInt(getComputedStyle(this)) > 0.5) {
+        this.style.animationPlayState = "paused";
+      }
+    });
+
+    /**
+     * 退出动画
+     */
+    toolTipNode.addEventListener("mouseleave", function () {
+      this.style.animationPlayState = "running";
+    });
+    function endEvent() {
+      /* 即使存在动画属性，但是当前设置的动画Out结束后移除元素 */
+      if (toolTipNode.getAttribute("data-motion").indexOf("In") !== -1) {
+        return;
+      }
+      toolTipNode.remove();
+    }
+    popsUtils.jQuery.on(
+      toolTipNode,
+      [
+        "webkitAnimationEnd",
+        "mozAnimationEnd",
+        "MSAnimationEnd",
+        "oanimationend",
+        "animationend",
+      ],
+      null,
+      endEvent
+    );
+    /**
+     * 设置 提示框的位置
+     */
+    function setToolTipPosition(positionDetails) {
+      let positionDetail = positionDetails[config.location.toUpperCase()];
+      if (positionDetail) {
+        toolTipNode.style.left = positionDetail.left + "px";
+        toolTipNode.style.top = positionDetail.top + "px";
+        toolTipNode.setAttribute("data-motion", positionDetail.motion);
+        toolTipNode
+          .querySelector(".pops-tip-arrow")
+          .setAttribute("data-position", positionDetail.arrow);
+      } else {
+        console.error("不存在该位置", config.location);
+      }
+    }
+
+    /**
+     * 获取 提示框的位置
+     */
+    function getToolTipPosition() {
+      return {
+        TOP: {
+          left:
+            popsUtils.jQuery.offset(config.target).left +
+            popsUtils.jQuery.outerWidth(config.target) / 2 -
+            popsUtils.jQuery.width(config.target) * 0.2 -
+            config.arrowHeight,
+          top:
+            popsUtils.jQuery.offset(config.target).top -
+            popsUtils.jQuery.outerHeight(toolTipNode) -
+            config.arrowHeight,
+          arrow: "bottom",
+          motion: "fadeInTop",
+        },
+        RIGHT: {
+          left:
+            popsUtils.jQuery.offset(config.target).left +
+            popsUtils.jQuery.outerWidth(config.target) +
+            config.arrowHeight,
+          top:
+            popsUtils.jQuery.offset(config.target).top +
+            popsUtils.jQuery.outerHeight(config.target) / 2 -
+            popsUtils.jQuery.outerHeight(toolTipNode) / 2,
+          arrow: "left",
+          motion: "fadeInRight",
+        },
+        BOTTOM: {
+          left:
+            popsUtils.jQuery.offset(config.target).left +
+            popsUtils.jQuery.outerWidth(config.target) / 2 -
+            popsUtils.jQuery.width(toolTipNode) * 0.2 -
+            config.arrowHeight,
+          top:
+            popsUtils.jQuery.offset(config.target).top +
+            popsUtils.jQuery.outerHeight(config.target) +
+            config.arrowHeight,
+          arrow: "top",
+          motion: "fadeInBottom",
+        },
+        LEFT: {
+          left:
+            popsUtils.jQuery.offset(config.target).left -
+            popsUtils.jQuery.outerWidth(toolTipNode) -
+            config.arrowHeight,
+          top:
+            popsUtils.jQuery.offset(config.target).top +
+            popsUtils.jQuery.outerHeight(config.target) / 2 -
+            popsUtils.jQuery.outerHeight(toolTipNode) / 2,
+          arrow: "right",
+          motion: "fadeInLeft",
+        },
+      };
+    }
+    /**
+     * 显示提示框
+     */
+    let showToolTipNode = function () {
+      document.body.appendChild(toolTipNode);
+      setToolTipPosition(getToolTipPosition());
+      config.triggerShowEventCallBack.bind(
+        config.triggerShowEventCallBack,
+        this.arguments
+      );
+    };
+    /**
+     * 关闭提示框
+     */
+    let closeToolTipNode = function () {
+      toolTipNode.setAttribute(
+        "data-motion",
+        toolTipNode.getAttribute("data-motion").replace("fadeIn", "fadeOut")
+      );
+      config.triggerCloseEventCallBack.bind(
+        config.triggerCloseEventCallBack,
+        this.arguments
+      );
+    };
+    /**
+     * 绑定 显示事件
+     */
+    function onShowEvent() {
+      popsUtils.jQuery.on(
+        config.target,
+        config.triggerShowEventName,
+        null,
+        showToolTipNode
+      );
+    }
+    /**
+     * 绑定 关闭事件
+     */
+    function onCloseEvent() {
+      popsUtils.jQuery.on(
+        config.target,
+        config.triggerCloseEventName,
+        null,
+        closeToolTipNode
+      );
+    }
+    /**
+     * 取消绑定 显示事件
+     */
+    function offShowEvent() {
+      popsUtils.jQuery.off(
+        config.target,
+        null,
+        config.triggerShowEventName,
+        showToolTipNode
+      );
+    }
+    /**
+     * 取消绑定 关闭事件
+     */
+    function offCloseEvent() {
+      popsUtils.jQuery.off(
+        config.target,
+        null,
+        config.triggerCloseEventName,
+        closeToolTipNode
+      );
+    }
+    onShowEvent();
+    onCloseEvent();
+    return {
+      guid: guid,
+      config: config,
+      off: () => {
+        offShowEvent();
+        offCloseEvent();
+      },
+      on: () => {
+        onShowEvent();
+        onCloseEvent();
+      },
+    };
+  };
   return pops;
 });
