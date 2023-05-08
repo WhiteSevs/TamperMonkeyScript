@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.5.5.10.00
+// @version      23.5.8.15.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -2357,8 +2357,8 @@
 
   const NetDiskUI = {
     matchIcon: new Set() /* 已匹配到的网盘图标字典 */,
-    size: 50 /* 高度和宽度 */,
-    opacity: 1 /* 按钮透明度 */,
+    size: parseInt(GM_getValue("size", 50)) /* 高度和宽度 */,
+    opacity: parseFloat(GM_getValue("opacity", 1)) /* 按钮透明度 */,
     isCreatedUISetting: false /* 是否 已创建设置界面 */,
     isHandling: false /* 是否 在处理页面链接中标识 */,
     isRandBg: false /* 是否 正在循环切换按钮背景 */,
@@ -2521,8 +2521,6 @@
         this.backgroundSwitch();
       },
       createUI() {
-        NetDiskUI.size = parseInt(GM_getValue("size", 50));
-        NetDiskUI.opacity = parseFloat(GM_getValue("opacity", 1));
         if (NetDiskUI.size < 15) {
           /* 大小不能小于 15px */
           GM_setValue("size", 15);
@@ -3786,26 +3784,28 @@
         let clientDefault_X = clientMax_X; /* 默认值 X轴 */
         let clientDefault_Y =
           $(window).height() / 2 - NetDiskUI.size; /* 默认值 Y轴 */
-        let userSetClient_X = GM_getValue(
-          "suspensionX",
-          clientDefault_X
-        ); /* 用户自己移动的X轴 */
+        let userSetClient_X = GM_getValue("suspensionX", clientDefault_X);
+
+        /* 用户自己移动的X轴 */
         let userSetClient_Y = GM_getValue(
           "suspensionY",
           clientDefault_Y
         ); /* 用户自己移动的Y轴 */
 
-        userSetClient_X = GM_getValue("isRight")
-          ? clientMax_X
-          : 0; /* 如果存在isRight 悬浮按钮放到最右边，否则最左边 */
-        userSetClient_Y =
-          userSetClient_Y < clientMax_Y
-            ? userSetClient_Y
-            : clientMax_Y; /* 如果超出最大的Y轴，以Y轴为默认值 */
-        userSetClient_Y =
-          userSetClient_Y < 0
-            ? 0
-            : userSetClient_Y; /* 如果用户设置的Y轴小于0,那设置0 */
+        /* 如果存在isRight 悬浮按钮放到最右边，否则最左边 */
+        if (GM_getValue("isRight")) {
+          userSetClient_X = clientMax_X;
+        } else {
+          userSetClient_X = 0;
+        }
+        /* 如果超出最大的Y轴，以Y轴为默认值 */
+        if (userSetClient_Y > clientMax_Y) {
+          userSetClient_Y = clientMax_Y;
+        } else if (userSetClient_Y < 0) {
+          /* 如果用户设置的Y轴小于0,那设置0 */
+          userSetClient_Y = 0;
+        }
+
         if (top.window == self.window) {
           /* 不在iframe内修改 */
           GM_setValue("suspensionX", userSetClient_X);
