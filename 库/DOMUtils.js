@@ -1,0 +1,720 @@
+/**
+ * 自己常用的元素节点工具类
+ * @copyright  GPL-3.0-only
+ * @author  WhiteSevs
+ * @version  1.0
+ * @namespace
+ **/
+(function (global, factory) {
+  typeof exports === "object" && typeof module !== "undefined"
+    ? (module.exports = factory())
+    : typeof define === "function" && define.amd
+    ? define(factory)
+    : ((global =
+        typeof globalThis !== "undefined" ? globalThis : global || self),
+      (global.DOMUtils = factory()));
+})(this, function () {
+  "use strict";
+  var DOMUtils = {};
+  /**
+   * 实现.attr()函数 获取或设置元素的属性值
+   * @param {HTMLElement} element 目标元素
+   * @param {string} attrName - 属性名
+   * @param {string} [attrValue] - 属性值（可选）
+   * @returns {string|undefined} - 如果传入了attrValue，则返回undefined；否则返回属性值
+   * */
+  DOMUtils.attr = function (element, attrName, attrValue) {
+    if (attrValue === undefined) {
+      return element.getAttribute(attrName);
+    } else {
+      element.setAttribute(attrName, attrValue);
+    }
+  };
+  /**
+   * 实现.css()函数 获取或设置元素的样式属性值
+   * @param {HTMLElement} element 目标元素
+   * @param {string|object} property - 样式属性名或包含多个属性名和属性值的对象
+   * @param {string} [value] - 样式属性值（可选）
+   * @returns {string|undefined} - 如果传入了value，则返回undefined；否则返回样式属性值
+   * */
+  DOMUtils.css = function (element, property, value) {
+    if (typeof property === "string") {
+      if (value === undefined) {
+        return element.style[property];
+      } else {
+        element.style[property] = value;
+      }
+    } else if (typeof property === "object") {
+      for (var prop in property) {
+        element.style[prop] = property[prop];
+      }
+    }
+  };
+  /**
+   * 实现.text()函数获取或设置元素的文本内容
+   * @param {HTMLElement} element 目标元素
+   * @param {string} [text] - 文本内容（可选）
+   * @returns {string|undefined} - 如果传入了text，则返回undefined；否则返回文本内容
+   * */
+  DOMUtils.text = function (element, text) {
+    if (text === undefined) {
+      return element.textContent;
+    } else {
+      element.textContent = text;
+    }
+  };
+  /**
+   * 实现.html()函数 获取或设置元素的HTML内容
+   * @param {HTMLElement} element 目标元素
+   * @param {string} [html] - HTML内容（可选）
+   * @returns {string|undefined} - 如果传入了html，则返回undefined；否则返回HTML内容
+   * */
+  DOMUtils.html = function (element, html) {
+    if (html === undefined) {
+      return element.innerHTML;
+    } else {
+      element.innerHTML = html;
+    }
+  };
+  /**
+   * 实现.click()函数 绑定或触发元素的click事件
+   * @param {HTMLElement} element 目标元素
+   * @param {function} [handler] - 事件处理函数（可选）
+   * @returns {DOMUtils} - 原型链
+   * @function
+   * */
+  DOMUtils.click = function (element, handler) {
+    if (handler === undefined) {
+      DOMUtils.trigger(element, "click");
+    } else {
+      DOMUtils.on(element, "click", null, handler);
+    }
+    return this;
+  };
+
+  /**
+   * 实现.blur()函数 绑定或触发元素的blur事件
+   * @param {HTMLElement} element 目标元素
+   * @param {function} [handler] - 事件处理函数（可选）
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.blur = function (element, handler) {
+    if (handler === undefined) {
+      DOMUtils.trigger(element, "blur");
+    } else {
+      DOMUtils.on(element, "blur", null, handler);
+    }
+    return this;
+  };
+  /**
+   * 实现.focus()函数 绑定或触发元素的focus事件
+   * @param {HTMLElement} element 目标元素
+   * @param {function} [handler] - 事件处理函数（可选）
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.focus = function (element, handler) {
+    if (handler === undefined) {
+      DOMUtils.trigger(element, "focus");
+    } else {
+      DOMUtils.on(element, "focus", null, handler);
+    }
+    return this;
+  };
+  /**
+   * 实现.val()函数 获取或设置元素的value属性值
+   * @param {HTMLElement} element 目标元素
+   * @param {string} [value] - value属性值（可选）
+   * @returns {string|undefined} - 如果传入了value，则返回undefined；否则返回value属性值
+   * */
+  DOMUtils.val = function (element, value) {
+    if (value === undefined) {
+      return element.value;
+    } else {
+      element.value = value;
+    }
+  };
+  /**
+   * 实现.prop()函数 获取或设置元素的属性值
+   * @param {HTMLElement} element 目标元素
+   * @param {string} propName - 属性名
+   * @param {string} [propValue] - 属性值（可选）
+   * @returns {string|undefined} - 如果传入了propValue，则返回undefined；否则返回属性值
+   * */
+  DOMUtils.prop = function (element, propName, propValue) {
+    if (propValue === undefined) {
+      return element[propName];
+    } else {
+      element[propName] = propValue;
+    }
+  };
+
+  /**
+   * 实现.removeAttr()函数 移除元素的属性
+   * @param {HTMLElement} element 目标元素
+   * @param {string} attrName - 属性名
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.removeAttr = function (element, attrName) {
+    element.removeAttribute(attrName);
+    return this;
+  };
+
+  /**
+   * 实现.removeProp()函数 移除元素的属性
+   * @param {HTMLElement} element 目标元素
+   * @param {string} propName - 属性名
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.removeProp = function (element, propName) {
+    delete element[propName];
+    return this;
+  };
+  /**
+   * 实现.addClass()函数 给元素添加class
+   * @param {HTMLElement} element 目标元素
+   * @param {string} className - class名
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.addClass = function (element, className) {
+    element.classList.add(className);
+    return this;
+  };
+  /**
+   * 实现.append()函数在元素内部末尾添加子元素或HTML字符串
+   * @param {HTMLElement} element 目标元素
+   * @param {object|string} content - 子元素或HTML字符串
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.append = function (element, content) {
+    if (typeof content === "string") {
+      element.insertAdjacentHTML("beforeend", content);
+    } else {
+      element.appendChild(content);
+    }
+    return this;
+  };
+
+  /**
+   * 实现.prepend()函数 在元素内部开头添加子元素或HTML字符串
+   * @param {HTMLElement} element 目标元素
+   * @param {object|string} content - 子元素或HTML字符串
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.prepend = function (element, content) {
+    if (typeof content === "string") {
+      element.insertAdjacentHTML("afterbegin", content);
+    } else {
+      element.insertBefore(content, element.firstChild);
+    }
+    return this;
+  };
+  /**
+   * 实现.after()函数 在元素后面添加兄弟元素或HTML字符串
+   * @param {HTMLElement} element 目标元素
+   * @param {object|string} content - 兄弟元素或HTML字符串
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.after = function (element, content) {
+    if (typeof content === "string") {
+      element.insertAdjacentHTML("afterend", content);
+    } else {
+      element.parentNode.insertBefore(content, element.nextSibling);
+    }
+    return this;
+  };
+
+  /**
+   * 实现.before()函数 在元素前面添加兄弟元素或HTML字符串
+   * @param {HTMLElement} element 目标元素
+   * @param {object|string} content - 兄弟元素或HTML字符串
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.before = function (element, content) {
+    if (typeof content === "string") {
+      element.insertAdjacentHTML("beforebegin", content);
+    } else {
+      element.parentNode.insertBefore(content, element);
+    }
+    return this;
+  };
+
+  /**
+   * 实现.remove()函数 移除元素
+   * @param {HTMLElement} element 目标元素
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.remove = function (element) {
+    element.parentNode.removeChild(element);
+    return this;
+  };
+  /**
+   * 实现.empty()函数 移除元素的所有子元素
+   * @param {HTMLElement} element 目标元素
+   * @returns {DOMUtils} - 原型链
+   * */
+  DOMUtils.empty = function (element) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+    return this;
+  };
+  /**
+   * jQuery中的on绑定事件
+   * @param {HTMLElement} element 需要绑定的元素
+   * @param {String|Array} eventType 需要监听的事件
+   * @param {HTMLElement?} selector 子元素选择器
+   * @param {Function} callback 事件触发的回调函数
+   * @param {Boolean} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+   * @param {Boolean} once 表示事件是否只触发一次。默认为false
+   * @param {Boolean} passive 表示事件监听器是否不会调用preventDefault()。默认为false
+   * @returns {DOMUtils} - 原型链
+   * @function
+   */
+  DOMUtils.on = function (
+    element,
+    eventType,
+    selector,
+    callback,
+    capture = false,
+    once = false,
+    passive = false
+  ) {
+    var eventTypeList = [];
+    if (Array.isArray(eventType)) {
+      eventTypeList = eventType;
+    } else if (typeof eventType === "string") {
+      eventTypeList = eventType.split(" ");
+    }
+    eventTypeList.forEach((_eventType_) => {
+      if (selector) {
+        element.addEventListener(
+          _eventType_,
+          function (event) {
+            var target = event.target;
+            while (target && target !== element) {
+              if (target.matches(selector)) {
+                callback.call(target, event);
+              }
+              target = target.parentNode;
+            }
+          },
+          capture,
+          once,
+          passive
+        );
+      } else {
+        element.addEventListener(_eventType_, callback, capture, once, passive);
+      }
+    });
+
+    if (callback && callback.delegate) {
+      element.setAttribute("data-delegate", selector);
+    }
+
+    var events = element.events || {};
+    events[eventType] = events[eventType] || [];
+    events[eventType].push({
+      selector: selector,
+      callback: callback,
+    });
+    element.events = events;
+
+    return this;
+  };
+  /**
+   * jQuery中的off取消绑定事件
+   * @param {HTMLElement} element 需要取消绑定的元素
+   * @param {String|Array} eventType 需要取消监听的事件
+   * @param {HTMLElement} selector 子元素选择器
+   * @param {Function} callback 事件触发的回调函数
+   * @param {Boolean} useCapture 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
+   * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.off = function (
+    element,
+    eventType,
+    selector,
+    callback,
+    useCapture = false
+  ) {
+    var events = element.events || {};
+    var eventTypeList = [];
+    if (!eventType) {
+      for (var type in events) {
+        eventTypeList = [...eventTypeList, type];
+      }
+    } else if (Array.isArray(eventType)) {
+      eventTypeList = eventType;
+    } else if (typeof eventType === "string") {
+      eventTypeList = eventType.split(" ");
+    }
+    eventTypeList.forEach((_eventType_) => {
+      var handlers = events[eventType] || [];
+      for (var i = 0; i < handlers.length; i++) {
+        if (
+          (!selector || handlers[i].selector === selector) &&
+          (!callback || handlers[i].callback === callback)
+        ) {
+          element.removeEventListener(
+            _eventType_,
+            handlers[i].callback,
+            useCapture
+          );
+          handlers.splice(i--, 1);
+        }
+      }
+    });
+
+    if (handlers.length === 0) {
+      delete events[eventType];
+    }
+    element.events = events;
+    return this;
+  };
+  /**
+   * 主动触发事件
+   * @param {HTMLElement} element 需要触发的元素
+   * @param {String|Array} eventType 需要触发的事件
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.trigger = function (element, eventType) {
+    var events = element.events || {};
+    var eventTypeList = [];
+    if (!eventType) {
+      for (var type in events) {
+        eventTypeList = [...eventTypeList, type];
+      }
+    } else if (Array.isArray(eventType)) {
+      eventTypeList = eventType;
+    } else if (typeof eventType === "string") {
+      eventTypeList = eventType.split(" ");
+    }
+    eventTypeList.forEach((_eventType_) => {
+      var event = document.createEvent("HTMLEvents");
+      event.initEvent(_eventType_, true, false);
+      element.dispatchEvent(event);
+    });
+    return this;
+  };
+  /**
+   * 实现jQuery中的$().offset();
+   * @param {HTMLElement} element
+   * @returns {Object}
+   */
+  DOMUtils.offset = function (element) {
+    var rect = element.getBoundingClientRect();
+    var win = element.ownerDocument.defaultView;
+    return {
+      top: rect.top + win.pageYOffset,
+      left: rect.left + win.pageXOffset,
+    };
+  };
+  /**
+   * 获取元素的宽度
+   * @param {HTMLElement} element - 要获取宽度的元素
+   * @returns {Number} - 元素的宽度，单位为像素
+   */
+  DOMUtils.width = function (element) {
+    var styles = window.getComputedStyle(element);
+    return (
+      element.clientWidth -
+      parseFloat(styles.paddingLeft) -
+      parseFloat(styles.paddingRight)
+    );
+  };
+  /**
+   * 获取元素的高度
+   * @param {HTMLElement} element - 要获取高度的元素
+   * @returns {Number} - 元素的高度，单位为像素
+   */
+  DOMUtils.height = function (element) {
+    var styles = window.getComputedStyle(element);
+    return (
+      element.clientHeight -
+      parseFloat(styles.paddingTop) -
+      parseFloat(styles.paddingBottom)
+    );
+  };
+  /**
+   * 获取元素的外部宽度（包括边框和外边距）
+   * @param {HTMLElement} element - 要获取外部宽度的元素
+   * @returns {Number} - 元素的外部宽度，单位为像素
+   */
+  DOMUtils.outerWidth = function (element) {
+    var style = getComputedStyle(element, null);
+    return (
+      element.offsetWidth +
+      parseFloat(style.marginLeft) +
+      parseFloat(style.marginRight)
+    );
+  };
+  /**
+   * 获取元素的外部高度（包括边框和外边距）
+   * @param {HTMLElement} element - 要获取外部高度的元素
+   * @returns {Number} - 元素的外部高度，单位为像素
+   */
+  DOMUtils.outerHeight = function (element) {
+    var style = getComputedStyle(element, null);
+    return (
+      element.offsetHeight +
+      parseFloat(style.marginTop) +
+      parseFloat(style.marginBottom)
+    );
+  };
+
+  /**
+   * 等待文档加载完成后执行指定的函数
+   * @param {Function} callback - 需要执行的函数
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.ready = function (callback) {
+    if (document.readyState !== "loading") {
+      callback();
+    } else {
+      DOMUtils.on(document, "DOMContentLoaded", null, callback);
+    }
+    return this;
+  };
+
+  /**
+   * 在一定时间内改变元素的样式属性，实现动画效果
+   * @param {HTMLElement} element - 需要进行动画的元素
+   * @param {Object} styles - 动画结束时元素的样式属性
+   * @param {Number} [duration=1000] - 动画持续时间，单位为毫秒
+   * @param {Function} [callback=null] - 动画结束后执行的函数
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.animate = function (
+    element,
+    styles,
+    duration = 1000,
+    callback = null
+  ) {
+    if (typeof duration !== "number" || duration <= 0) {
+      throw new TypeError("duration must be a positive number");
+    }
+    if (typeof callback !== "function" && callback !== null) {
+      throw new TypeError("callback must be a function or null");
+    }
+    if (typeof styles !== "object" || styles === null) {
+      throw new TypeError("styles must be an object");
+    }
+    if (Object.keys(styles).length === 0) {
+      throw new Error("styles must contain at least one property");
+    }
+    var start = performance.now();
+    var from = {};
+    var to = {};
+    for (var prop in styles) {
+      from[prop] = element.style[prop] || getComputedStyle(element)[prop];
+      to[prop] = styles[prop];
+    }
+    var timer = setInterval(function () {
+      var timePassed = performance.now() - start;
+      var progress = timePassed / duration;
+      if (progress > 1) {
+        progress = 1;
+      }
+      for (var prop in styles) {
+        element.style[prop] =
+          from[prop] + (to[prop] - from[prop]) * progress + "px";
+      }
+      if (progress === 1) {
+        clearInterval(timer);
+        if (callback) {
+          callback();
+        }
+      }
+    }, 10);
+    return this;
+  };
+
+  /**
+   * 将一个元素包裹在指定的HTML元素中
+   * @param {HTMLElement} element 要包裹的元素
+   * @param {string} wrapperHTML 要包裹的HTML元素的字符串表示形式
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.wrap = function (element, wrapperHTML) {
+    // 创建一个新的div元素，并将wrapperHTML作为其innerHTML
+    var wrapper = document.createElement("div");
+    wrapper.innerHTML = wrapperHTML;
+
+    // 将要包裹的元素插入到wrapper中
+    element.parentNode.insertBefore(wrapper, element);
+
+    // 将要包裹的元素移动到wrapper中
+    wrapper.insertBefore(element, wrapper.firstChild);
+    return this;
+  };
+  /**
+   * 获取当前元素的前一个兄弟元素
+   * @param {HTMLElement} element - 当前元素
+   * @returns {HTMLElement} - 前一个兄弟元素
+   */
+  DOMUtils.prev = function (element) {
+    return element.previousElementSibling;
+  };
+
+  /**
+   * 获取当前元素的后一个兄弟元素
+   * @param {HTMLElement} element - 当前元素
+   * @returns {HTMLElement} - 后一个兄弟元素
+   */
+  DOMUtils.next = function (element) {
+    return element.nextElementSibling;
+  };
+
+  /**
+   * 获取当前元素的所有兄弟元素
+   * @param {HTMLElement} element - 当前元素
+   * @returns {Array} - 所有兄弟元素
+   */
+  DOMUtils.siblings = function (element) {
+    return Array.from(element.parentNode.children).filter(
+      (child) => child !== element
+    );
+  };
+
+  /**
+   * 获取当前元素的父元素
+   * @param {HTMLElement} element - 当前元素
+   * @returns {HTMLElement} - 父元素
+   */
+  DOMUtils.parent = function (element) {
+    return element.parentNode;
+  };
+
+  /**
+   * 当鼠标移入或移出元素时触发事件
+   * @param {HTMLElement} element - 当前元素
+   * @param {Function} handler - 事件处理函数
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.hover = function (element, handler) {
+    DOMUtils.on(element, "mouseenter", null, handler);
+    DOMUtils.on(element, "mouseleave", null, handler);
+    return this;
+  };
+
+  /**
+   * 显示元素
+   * @param {HTMLElement} element - 当前元素
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.show = function (element) {
+    element.style.display = "";
+    return this;
+  };
+
+  /**
+   * 隐藏元素
+   * @param {HTMLElement} element - 当前元素
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.hide = function (element) {
+    element.style.display = "none";
+    return this;
+  };
+
+  /**
+   * 当按键松开时触发事件
+   * @param {HTMLElement} element - 当前元素
+   * @param {Function} handler - 事件处理函数
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.keyup = function (element, handler) {
+    DOMUtils.on(element, "keyup", null, handler);
+    return this;
+  };
+
+  /**
+   * 当按键按下时触发事件
+   * @param {HTMLElement} element - 当前元素
+   * @param {Function} handler - 事件处理函数
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.keydown = function (element, handler) {
+    DOMUtils.on(element, "keydown", null, handler);
+    return this;
+  };
+
+  /**
+   * 淡入元素
+   * @param {HTMLElement} element - 当前元素
+   * @param {Number} duration - 动画持续时间（毫秒）
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.fadeIn = function (element, duration = 400) {
+    element.style.opacity = 0;
+    element.style.display = "";
+    let start = null;
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      const progress = timestamp - start;
+      element.style.opacity = Math.min(progress / duration, 1);
+      if (progress < duration) {
+        window.requestAnimationFrame(step);
+      }
+    }
+    window.requestAnimationFrame(step);
+    return this;
+  };
+
+  /**
+   * 淡出元素
+   * @param {HTMLElement} element - 当前元素
+   * @param {Number} duration - 动画持续时间（毫秒）
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.fadeOut = function (element, duration = 400) {
+    element.style.opacity = 1;
+    let start = null;
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      const progress = timestamp - start;
+      element.style.opacity = Math.max(1 - progress / duration, 0);
+      if (progress < duration) {
+        window.requestAnimationFrame(step);
+      } else {
+        element.style.display = "none";
+      }
+    }
+    window.requestAnimationFrame(step);
+    return this;
+  };
+
+  /**
+   * 为指定元素的子元素绑定事件
+   * @param {HTMLElement} element - 当前元素
+   * @param {String} selector - 子元素选择器
+   * @param {String} type - 事件类型
+   * @param {Function} handler - 事件处理函数
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.delegate = function (element, selector, type, handler) {
+    element.addEventListener(type, (event) => {
+      const target = event.target.closest(selector);
+      if (target && element.contains(target)) {
+        handler.call(target, event);
+      }
+    });
+    return this;
+  };
+
+  /**
+   * 切换元素的显示和隐藏状态
+   * @param {HTMLElement} element - 当前元素
+   * @returns {DOMUtils} - 原型链
+   */
+  DOMUtils.toggle = function (element) {
+    if (element.style.display === "none") {
+      DOMUtils.show(element);
+    } else {
+      DOMUtils.hide(element);
+    }
+    return this;
+  };
+  return DOMUtils;
+});
