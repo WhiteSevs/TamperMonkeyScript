@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.7.1
+// @version      2.9.7.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -7943,10 +7943,10 @@
       }
       $jq("#comiis_foot_menu_beautify_big textarea").on(
         "input propertychange",
-        function (e) {
+        function (event) {
           /* 输入框内容改变，高度也改变事件 */
-          e.preventDefault();
-          let inputValue = e.target.value;
+          event.preventDefault();
+          let inputValue = event.target.value;
           if (inputValue != "") {
             btn_fabiao.attr("data-text", "true");
             $jq("#comiis_foot_menu_beautify li[data-attr='回帖'] input").attr(
@@ -7961,7 +7961,7 @@
             );
           }
           $jq(this).css("height", "70px");
-          $jq(this).css("height", e.target.scrollHeight - 20 + "px");
+          $jq(this).css("height", event.target.scrollHeight - 20 + "px");
         }
       );
 
@@ -8202,6 +8202,9 @@
           $jq("#comiis_foot_menu_beautify").hide();
           $jq("#comiis_foot_menu_beautify_big").show();
           $jq("#needmessage").focus();
+        }else if(document.querySelector("#popup2-popmenu")){
+          /* 当前存在弹出层 */
+          return;
         } else if (
           window.event &&
           !Utils.checkUserClickInNode(
@@ -12360,14 +12363,14 @@
         },
         hide: {
           key: "隐藏",
-          value: "[hide][/hide]",
+          value: "[hide]\n[/hide]",
           tagL: "]",
           tagR: "[",
           L: "[hide]",
           R: "[/hide]",
           cursorR: "[/hide]",
           cursorLength: 7,
-          quickUBBReplace: "[hide]replace[/hide]",
+          quickUBBReplace: "[hide]replace\n[/hide]",
         },
         quote: {
           key: "引用",
@@ -14655,14 +14658,6 @@
                 <p class="whitesev-mt-setting-name">显示用户的UID</p>
                 <div class="whitesev-mt-setting-checkbox">
                   <input type="checkbox" data-key="v15">
-                  <div class="knobs"><span></span></div>
-                  <div class="layer"></div>
-                </div>
-              </div>
-              <div class="whitesev-mt-setting-item">
-                <p class="whitesev-mt-setting-name">识别链接</p>
-                <div class="whitesev-mt-setting-checkbox">
-                  <input type="checkbox" data-key="v2">
                   <div class="knobs"><span></span></div>
                   <div class="layer"></div>
                 </div>
