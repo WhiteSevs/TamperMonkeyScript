@@ -17,7 +17,7 @@
   "use strict";
   var DOMUtils = {};
   /**
-   * 实现.attr()函数 获取或设置元素的属性值
+   * 获取或设置元素的属性值
    * @param {HTMLElement} element 目标元素
    * @param {string} attrName - 属性名
    * @param {string} [attrValue] - 属性值（可选）
@@ -31,7 +31,7 @@
     }
   };
   /**
-   * 实现.css()函数 获取或设置元素的样式属性值
+   * 获取或设置元素的样式属性值
    * @param {HTMLElement} element 目标元素
    * @param {string|object} property - 样式属性名或包含多个属性名和属性值的对象
    * @param {string} [value] - 样式属性值（可选）
@@ -51,7 +51,7 @@
     }
   };
   /**
-   * 实现.text()函数获取或设置元素的文本内容
+   * 获取或设置元素的文本内容
    * @param {HTMLElement} element 目标元素
    * @param {string} [text] - 文本内容（可选）
    * @returns {string|undefined} - 如果传入了text，则返回undefined；否则返回文本内容
@@ -64,7 +64,7 @@
     }
   };
   /**
-   * 实现.html()函数 获取或设置元素的HTML内容
+   * 获取或设置元素的HTML内容
    * @param {HTMLElement} element 目标元素
    * @param {string} [html] - HTML内容（可选）
    * @returns {string|undefined} - 如果传入了html，则返回undefined；否则返回HTML内容
@@ -77,7 +77,7 @@
     }
   };
   /**
-   * 实现.click()函数 绑定或触发元素的click事件
+   * 绑定或触发元素的click事件
    * @param {HTMLElement} element 目标元素
    * @param {function} [handler] - 事件处理函数（可选）
    * @returns {DOMUtils} - 原型链
@@ -93,7 +93,7 @@
   };
 
   /**
-   * 实现.blur()函数 绑定或触发元素的blur事件
+   * 绑定或触发元素的blur事件
    * @param {HTMLElement} element 目标元素
    * @param {function} [handler] - 事件处理函数（可选）
    * @returns {DOMUtils} - 原型链
@@ -107,7 +107,7 @@
     return this;
   };
   /**
-   * 实现.focus()函数 绑定或触发元素的focus事件
+   * 绑定或触发元素的focus事件
    * @param {HTMLElement} element 目标元素
    * @param {function} [handler] - 事件处理函数（可选）
    * @returns {DOMUtils} - 原型链
@@ -121,7 +121,7 @@
     return this;
   };
   /**
-   * 实现.val()函数 获取或设置元素的value属性值
+   * 获取或设置元素的value属性值
    * @param {HTMLElement} element 目标元素
    * @param {string} [value] - value属性值（可选）
    * @returns {string|undefined} - 如果传入了value，则返回undefined；否则返回value属性值
@@ -134,7 +134,7 @@
     }
   };
   /**
-   * 实现.prop()函数 获取或设置元素的属性值
+   * 获取或设置元素的属性值
    * @param {HTMLElement} element 目标元素
    * @param {string} propName - 属性名
    * @param {string} [propValue] - 属性值（可选）
@@ -149,7 +149,7 @@
   };
 
   /**
-   * 实现.removeAttr()函数 移除元素的属性
+   * 移除元素的属性
    * @param {HTMLElement} element 目标元素
    * @param {string} attrName - 属性名
    * @returns {DOMUtils} - 原型链
@@ -160,7 +160,7 @@
   };
 
   /**
-   * 实现.removeProp()函数 移除元素的属性
+   * 移除元素的属性
    * @param {HTMLElement} element 目标元素
    * @param {string} propName - 属性名
    * @returns {DOMUtils} - 原型链
@@ -170,7 +170,7 @@
     return this;
   };
   /**
-   * 实现.addClass()函数 给元素添加class
+   * 给元素添加class
    * @param {HTMLElement} element 目标元素
    * @param {string} className - class名
    * @returns {DOMUtils} - 原型链
@@ -180,7 +180,7 @@
     return this;
   };
   /**
-   * 实现.append()函数在元素内部末尾添加子元素或HTML字符串
+   * 函数在元素内部末尾添加子元素或HTML字符串
    * @param {HTMLElement} element 目标元素
    * @param {object|string} content - 子元素或HTML字符串
    * @returns {DOMUtils} - 原型链
@@ -195,7 +195,7 @@
   };
 
   /**
-   * 实现.prepend()函数 在元素内部开头添加子元素或HTML字符串
+   * 函数 在元素内部开头添加子元素或HTML字符串
    * @param {HTMLElement} element 目标元素
    * @param {object|string} content - 子元素或HTML字符串
    * @returns {DOMUtils} - 原型链
@@ -209,7 +209,7 @@
     return this;
   };
   /**
-   * 实现.after()函数 在元素后面添加兄弟元素或HTML字符串
+   * 在元素后面添加兄弟元素或HTML字符串
    * @param {HTMLElement} element 目标元素
    * @param {object|string} content - 兄弟元素或HTML字符串
    * @returns {DOMUtils} - 原型链
@@ -224,7 +224,7 @@
   };
 
   /**
-   * 实现.before()函数 在元素前面添加兄弟元素或HTML字符串
+   * 在元素前面添加兄弟元素或HTML字符串
    * @param {HTMLElement} element 目标元素
    * @param {object|string} content - 兄弟元素或HTML字符串
    * @returns {DOMUtils} - 原型链
@@ -239,7 +239,7 @@
   };
 
   /**
-   * 实现.remove()函数 移除元素
+   * 移除元素
    * @param {HTMLElement} element 目标元素
    * @returns {DOMUtils} - 原型链
    * */
@@ -248,7 +248,7 @@
     return this;
   };
   /**
-   * 实现.empty()函数 移除元素的所有子元素
+   * 移除元素的所有子元素
    * @param {HTMLElement} element 目标元素
    * @returns {DOMUtils} - 原型链
    * */
@@ -259,7 +259,7 @@
     return this;
   };
   /**
-   * jQuery中的on绑定事件
+   * 绑定事件
    * @param {HTMLElement} element 需要绑定的元素
    * @param {String|Array} eventType 需要监听的事件
    * @param {HTMLElement?} selector 子元素选择器
@@ -322,7 +322,7 @@
     return this;
   };
   /**
-   * jQuery中的off取消绑定事件
+   * 取消绑定事件
    * @param {HTMLElement} element 需要取消绑定的元素
    * @param {String|Array} eventType 需要取消监听的事件
    * @param {HTMLElement} selector 子元素选择器
@@ -398,7 +398,7 @@
     return this;
   };
   /**
-   * 实现jQuery中的$().offset();
+   * 设置或返回被选元素相对于文档的偏移坐标
    * @param {HTMLElement} element
    * @returns {Object}
    */
