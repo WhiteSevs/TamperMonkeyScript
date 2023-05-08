@@ -2467,12 +2467,11 @@
       this.init();
     }
     var config = {
-      target: null,
+      target: null /* 目标元素 */,
       content: "" /* 显示的文字 */,
       location:
         "top" /* 提示框弹出的方向 上、右、下、左(left,right,bottom,top)*/,
       className: "" /* 添加自定义的className */,
-      animation: "pops-anim-fadein-zoom" /* 动画效果 */,
       triggerShowEventName: "mouseenter" /* 触发显示事件的名称  */,
       triggerCloseEventName: "mouseleave" /* 触发关闭事件的名称  */,
       triggerShowEventCallBack: function () {} /* 触发显示事件的回调 */,
