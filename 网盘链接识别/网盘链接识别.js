@@ -349,9 +349,9 @@
     },
     /**
      * 删除某些需要忽略的text或html，如：设置、直链弹窗
-     * @param {string} text - 需要进行处理的字符串
+     * @param {String} text - 需要进行处理的字符串
      * @param {Boolean} isHTML - 是否是html属性
-     * @returns {string}
+     * @returns {String}
      */
     ignoreStrRemove(text, isHTML = false) {
       let ignoreNodeList = [
@@ -491,7 +491,7 @@
      * 对传入的url进行处理，返回accessCode
      * @param {String} netDiskName 网盘名称
      * @param {String} url
-     * @returns {string}
+     * @returns {String}
      * @example "https://xxx" || ""
      */
     handleAccessCode(netDiskName, url) {
@@ -577,7 +577,7 @@
       /**
        * 百度网盘
        * @constructor
-       * @returns {object}
+       * @returns {Object}
        */
       baidu: function () {
         let that = this;
@@ -637,7 +637,7 @@
       /**
        * 蓝奏云
        * @constructor
-       * @returns {object}
+       * @returns {Object}
        */
       lanzou: function () {
         /* 流程：判断是否是多文件
@@ -1058,7 +1058,7 @@
       /**
        * 天翼云
        * @constructor
-       * @returns {object}
+       * @returns {Object}
        */
       tianyiyun: function () {
         let that = this;
@@ -1296,7 +1296,7 @@
       /**
        * 文叔叔
        * @constructor
-       * @returns {object}
+       * @returns {Object}
        */
       wenshushu: function () {
         let that = this;
@@ -1459,7 +1459,7 @@
       /**
        * 123盘
        * @constructor
-       * @returns {object}
+       * @returns {Object}
        */
       _123pan: function () {
         let that = this;
@@ -1840,7 +1840,7 @@
       /**
        * 坚果云
        * @constructor
-       * @returns {object}
+       * @returns {Object}
        */
       jianguoyun: function () {
         let that = this;
@@ -2154,9 +2154,9 @@
     },
     /**
      * 网盘链接解析
-     * @param {string} netDiskName
-     * @param {string} shareCode
-     * @param {string} accessCode
+     * @param {String} netDiskName
+     * @param {String} shareCode
+     * @param {String} accessCode
      */
     async parse(netDiskName, shareCode, accessCode) {
       Qmsg.info("正在获取直链");
@@ -2170,8 +2170,8 @@
     },
     /**
      * 复制到剪贴板
-     * @param {string} accessCode
-     * @param {string} toastText 提示的文字
+     * @param {String} accessCode
+     * @param {String} toastText 提示的文字
      */
     setClipboard(accessCode, toastText = "提取码已复制") {
       GM_setClipboard(accessCode);
@@ -2179,8 +2179,8 @@
     },
     /**
      * 新标签页打开
-     * @param {string} url
-     * @param {string} accessCode
+     * @param {String} url
+     * @param {String} accessCode
      */
     blank(url, accessCode) {
       if (accessCode) {
@@ -2196,9 +2196,9 @@
     },
     /**
      * 对链接进行scheme过滤
-     * @param {string} netDiskName 网盘变量名
-     * @param {string} shareCode
-     * @param {string} accessCode
+     * @param {String} netDiskName 网盘变量名
+     * @param {String} shareCode
+     * @param {String} accessCode
      */
     scheme(netDiskName, shareCode, accessCode) {
       let url = NetDisk.regular[netDiskName].blank.replace(
@@ -2248,9 +2248,9 @@
     defaultExtra: "",
     /**
      *
-     * @param {string} enable_key 是否启用key
-     * @param {string} forward_key 转发的scheme
-     * @param {string} url 需要转发的url
+     * @param {String} enable_key 是否启用key
+     * @param {String} forward_key 转发的scheme
+     * @param {String} url 需要转发的url
      * @returns
      */
     handleUrl(enable_key, forward_key, url) {
@@ -2422,7 +2422,7 @@
        */
       netDiskView_Phone: {
         width: "88vw",
-        height: "60vh",
+        height: "50vh",
       },
       /**
        * 桌面端 单文件弹窗
@@ -2514,7 +2514,6 @@
           this.setSuspensionEvent();
           this.setSuspensionDefaultPositionEvent();
           this.setSuspensionContextMenuEvent();
-          this.resizeEvent();
 
           NetDiskUI.suspension.isShow = true;
         }
@@ -2749,24 +2748,6 @@
 						transition: 0.3s ease all;
 						z-index: 1;
 				}
-      /*
-				.netdisk-checkbox .knobs:before,
-				.netdisk-checkbox .knobs span{
-						position: absolute;
-						display: inline;
-						top: 5px;
-						left: 6px;
-						width: 20px;
-						height: 10px;
-						color: #fff;
-						font-size: 10px;
-						font-weight: bold;
-						text-align: center;
-						line-height: 1;
-						padding: 9px 4px;
-				}
-				另类写法居中
-      */
 				.netdisk-checkbox .knobs:before,
 				.netdisk-checkbox .knobs span{
 					position: relative;
@@ -2792,28 +2773,7 @@
 				.netdisk-checkbox .knobs:before{
 					transition: 0.3s ease all, left 0.5s cubic-bezier(0.18, 0.89, 0.35, 1.15);
 					z-index: 2;
-			}
-			/*
-				.netdisk-checkbox .knobs:before{
-					content: 'N';
-					display: inline;
-					top: -2px;
-					left: -10px;
-				}
-				.netdisk-checkbox input[type="checkbox"]:checked + .knobs:before{
-						content: 'Y';
-						display: inline;
-						position: inherit;
-						top: -2px;
-						left: 20px;
-				}
-
-				.netdisk-checkbox input[type="checkbox"]:checked + .knobs span{
-						left: 30px;
-						background-color: #03A9F4;
-				}
-        另类写法居中 
-      */
+			  }
 				.netdisk-checkbox input[type="checkbox"]:checked + .knobs span{
 					left: 70%;
 					background-color: #03A9F4;
@@ -2859,6 +2819,7 @@
         }
         /* select美化*/
 				`);
+        /* 给PC端的滚动条进行美化 */
         if (!pops.isPhone()) {
           GM_addStyle(`
 					.whitesevPop ::-webkit-scrollbar
@@ -2867,16 +2828,14 @@
 							height: 16px;
 							background-color: #ffffff;
 					}
-					/*定义滚动条轨道
-					内阴影+圆角*/
+					/*定义滚动条轨道 内阴影+圆角*/
 					.whitesevPop ::-webkit-scrollbar-track
 					{
 							-webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 25%);
 							border-radius:10px;
 							background-color: #f2f2f2;
 					}
-					/*定义滑块
-					内阴影+圆角*/
+					/*定义滑块 内阴影+圆角*/
 					.whitesevPop ::-webkit-scrollbar-thumb
 					{
 							border-radius: 16px;
@@ -2892,7 +2851,7 @@
       showSettingView() {
         /**
          * 获取设置界面的html
-         * @returns {string}
+         * @returns {String}
          */
         function getPopsSettingHTML() {
           let netDiskSettingHTML = "";
@@ -3888,14 +3847,6 @@
 				`);
       },
       /**
-       * 监听浏览器页面大小改变
-       */
-      resizeEvent() {
-        $(window).resize(() => {
-          this.setSuspensionDefaultPositionEvent();
-        });
-      },
-      /**
        * 悬浮按钮背景轮播 效果为淡入淡出
        * @returns
        */
@@ -3905,7 +3856,7 @@
         }
         /**
          * 获取随机背景的数组
-         * @returns {list}
+         * @returns {Array}
          */
         function getRandBgList() {
           let resultList = [];
@@ -3916,8 +3867,8 @@
         }
         /**
          * 进行切换 淡入淡出
-         * @param {number} fadeTime 淡入\淡出的时间
-         * @param {string} currentBackgroundSrc 当前的背景资源
+         * @param {Number} fadeTime 淡入\淡出的时间
+         * @param {String} currentBackgroundSrc 当前的背景资源
          */
         function startSwitch(fadeTime, currentBackgroundSrc) {
           currentList = getRandBgList();
@@ -4046,6 +3997,9 @@
 				}
 				`);
       },
+      /**
+       * 创建视图
+       */
       createView() {
         let viewAddHTML = "";
         NetDiskUI.matchIcon.forEach((netDiskName) => {
@@ -4106,6 +4060,15 @@
         });
         this.setNetDiskUrlClickEvent(".netdisk-url a");
       },
+      /**
+       * 获取视图html
+       * @param {String} netDiskImgSrc 网盘图标src
+       * @param {String} netDiskName 网盘
+       * @param {String} shareCode 
+       * @param {String} accessCode 
+       * @param {String} uiLinkText 显示出来的链接文本
+       * @returns {String}
+       */
       getViewHTML(
         netDiskImgSrc,
         netDiskName,
@@ -4141,7 +4104,7 @@
        * data-open-enable-key string
        * data-static-enable-key string
        * data-scheme-enable-key string
-       * @param {string} clickNodeSelector - 元素选择器
+       * @param {String} clickNodeSelector - 元素选择器
        */
       setNetDiskUrlClickEvent(clickNodeSelector) {
         function clickEvent(clickElement) {
@@ -4178,9 +4141,9 @@
       },
       /**
        * 添加新的链接
-       * @param {string} netDiskName
-       * @param {string} shareCode
-       * @param {string} accessCode
+       * @param {String} netDiskName
+       * @param {String} shareCode
+       * @param {String} accessCode
        */
       addLinkView(netDiskName, shareCode, accessCode) {
         NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
@@ -4210,9 +4173,9 @@
       },
       /**
        * 修改已存在的view
-       * @param {string} netDiskName
-       * @param {string} shareCode
-       * @param {string} accessCode
+       * @param {String} netDiskName
+       * @param {String} shareCode
+       * @param {String} accessCode
        */
       changeLinkView(netDiskName, shareCode, accessCode) {
         NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
@@ -4295,10 +4258,10 @@
       },
       /**
        * 单文件
-       * @param {string} title 标题
-       * @param {string} fileName 文件名
-       * @param {string} fileSize 文件大小
-       * @param {string} downloadUrl 文件链接
+       * @param {String} title 标题
+       * @param {String} fileName 文件名
+       * @param {String} fileSize 文件大小
+       * @param {String} downloadUrl 文件链接
        */
       oneFile(title, fileName, fileSize, downloadUrl) {
         this.addCSS();
@@ -4348,8 +4311,8 @@
       },
       /**
        * 多文件
-       * @param {string} title 标题
-       * @param {string} content 弹窗内容HTML或Text
+       * @param {String} title 标题
+       * @param {String} content 弹窗内容HTML或Text
        */
       moreFile(title, content) {
         this.addCSS();
@@ -4384,9 +4347,9 @@
     },
     /**
      * 需要重新输入新密码的弹窗
-     * @param {string} title 标题
-     * @param {string} netDiskName 网盘名
-     * @param {string} shareCode
+     * @param {String} title 标题
+     * @param {String} netDiskName 网盘名
+     * @param {String} shareCode
      * @param {Function} okCallBack
      */
     newAccessCodeView(
@@ -4673,7 +4636,7 @@
       },
       /**
        * 获取显示出的每一项的html
-       * @param {object} item
+       * @param {Object} item
        * @returns
        */
       getTableHTML(item) {
@@ -4794,7 +4757,7 @@
       },
       /**
        * 设置分页
-       * @param {list} data
+       * @param {Array} data
        */
       setDataPaging(data) {
         let that = this;
@@ -4947,9 +4910,9 @@
       },
       /**
        * 存储匹配到的链接
-       * @param {string} netDiskName
-       * @param {string} shareCode
-       * @param {string} accessCode
+       * @param {String} netDiskName
+       * @param {String} shareCode
+       * @param {String} accessCode
        * @returns
        */
       setNetDiskHistoryMatchData(netDiskName, shareCode, accessCode) {
@@ -5012,7 +4975,7 @@
       },
       /**
        * 删除存储的某个项
-       * @param {string} dataJSONText
+       * @param {String} dataJSONText
        */
       deleteNetDiskHistoryMatchData(dataJSONText) {
         let data = this.getNetDiskHistoryMatchData();
