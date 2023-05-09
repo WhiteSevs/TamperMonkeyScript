@@ -306,8 +306,13 @@
       case "confirm":
       case "prompt":
         operatebarNode.append(confirmBtnNode).append(cancelBtnNode);
-        confirmBtnNode.addClass("beleft");
-        cancelBtnNode.addClass("beright");
+        if(!details.buttons.reverse){
+          confirmBtnNode.addClass("beleft");
+          cancelBtnNode.addClass("beright");
+        }else{
+          confirmBtnNode.addClass("beright");
+          cancelBtnNode.addClass("beleft");
+        }
         break;
       default:
         operatebarNode.append(confirmBtnNode);
@@ -1168,41 +1173,14 @@
   .NZ-Motion--fadeOutRight{-webkit-animation-name:NZ-Motion--fadeOutRight;animation-name:NZ-Motion--fadeOutRight;}
 
   /* 自己定义的css start */
-  .NZ-MsgBox-alert{
-    top: 0 !important;
-    left: 0 !important;
-    right: 0;
-    bottom: 0;
-    display: inline-grid;
-    align-content: space-between;
-    margin: auto;
-    width: 80vw;
-    height: 82vh;
-    max-height: 520px;
-  }
-  .NZ-MsgBox-alert .distop{
-    display: none;
-  }
-  .NZ-MsgBox-alert .msgcontainer.typenone {
-    margin: 20px 10px 0 10px;
-    padding: 0;
-  }
-  .NZ-TipsBar-Container .tipbar .close{
-    opacity: .6;
-	  cursor: pointer;
-  }
-  .NZ-Toast{
-    padding: 22px 32px 19px 32px;
-  }
-  .NZ-Tooltips {
-    max-width: 300px;
-	  max-height: 200px;
-  }
-  .NZ-TipsBar-show--top{
-    -webkit-backface-visibility: visible!important;
-	  backface-visibility: visible!important;
-  }
-
+  .NZ-MsgBox-alert{top:0!important;right:0;bottom:0;left:0!important;display:inline-grid;margin:auto;width:80vw;height:82vh;max-height:520px;align-content:space-between;}
+  .NZ-MsgBox-alert .distop{display:none;}
+  .NZ-MsgBox-alert .msgcontainer.typenone{margin:20px 10px 0 10px;padding:0;}
+  .NZ-TipsBar-Container .tipbar .close{opacity:.6;cursor:pointer;}
+  .NZ-Toast{padding:22px 32px 19px 32px;}
+  .NZ-Tooltips{max-width:300px;max-height:200px;}
+  .NZ-TipsBar-show--top{-webkit-backface-visibility:visible!important;backface-visibility:visible!important;}
+  .NZ-MsgBox-alert .operatebar button.beright{border-bottom-left-radius:0;}
   /* 自己定义的css end */
   `;
   let cssResourceNode = $(`<style>${cssResource}</style>`);
