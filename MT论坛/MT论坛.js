@@ -4,7 +4,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.7.2
+// @version      2.9.7.3
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -468,6 +468,8 @@
       postForum: /forum.php\?mod=post&action=newthread/ /* 发布帖子 */,
       editForum: /forum.php\?mod=post&action=edit/ /* 编辑帖子 */,
       spacePost: /home.php\?mod=space.*?type=reply/ /* 个人空间-帖子 */,
+      formPostParam_ptid: /&ptid=([\d]+)/i, /* 帖子链接的ptid参数 */
+      formPostParam_pid: /&pid=([\d]+)/i, /* 帖子链接的pid参数 */
     },
     /**
      * 脚本开始执行的时间
@@ -8202,7 +8204,7 @@
           $jq("#comiis_foot_menu_beautify").hide();
           $jq("#comiis_foot_menu_beautify_big").show();
           $jq("#needmessage").focus();
-        }else if(document.querySelector("#popup2-popmenu")){
+        } else if (document.querySelector("#popup2-popmenu")) {
           /* 当前存在弹出层 */
           return;
         } else if (
@@ -14399,9 +14401,19 @@
       if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.spacePost], "v52")) {
         return;
       }
-
+      GM_addStyle(`
+      div.contrete-reply{
+          padding: 5px 10px;
+          border-top: 1px solid #f3f3f3;
+      }
+      div.contrete-reply a{
+          margin: 0px 10px;
+      }`);
+      /**
+       * 获取PC端的回复内容
+       * @returns {[Array]}
+       */
       function getPCReply() {
-        /* 获取PC端的回复内容 */
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: window.location.href,
@@ -14414,69 +14426,119 @@
             onload: (response) => {
               let pageHTML = $jq(response.responseText);
               let form = pageHTML.find("#delform tr.bw0_all+tr");
-              let arrayData = [];
-              Array.from(form).forEach((v, i) => {
+              let resultList = [];
+              Array.from(form).forEach((item) => {
                 let replyData = [];
-                let tdHTML = $jq($jq(v).find("td"));
-                let value = tdHTML?.html().replace(/^&nbsp;/, "");
-                replyData = replyData.concat(value);
+                let tagTDNode = $jq($jq(item).find("td"));
+                let tagTDValue = tagTDNode.html().replace(/^&nbsp;/, "");
+                replyData = replyData.concat(tagTDValue);
 
-                let nextHTML = $jq(v).next();
-
-                for (let j = 0; j < pageHTML.find("#delform tr")?.length; j++) {
+                let nextHTML = $jq(item).next();
+                /* bw0_all是每个帖子的标志位 */
+                for (
+                  let index = 0;
+                  index < pageHTML.find("#delform tr").length;
+                  index++
+                ) {
                   if (
                     nextHTML.attr("class") === "bw0_all" ||
-                    nextHTML.length == 0
+                    nextHTML.length === 0
                   ) {
                     break;
                   }
-                  let nextTdHTML = nextHTML?.find("td");
-                  let nextValue = nextTdHTML?.html().replace(/^&nbsp;/, "");
+                  let nextTdHTML = nextHTML.find("td");
+                  let nextValue = nextTdHTML.html().replace(/^&nbsp;/, "");
                   replyData = replyData.concat(nextValue);
                   nextHTML = nextHTML.next();
                 }
-                arrayData.push(replyData);
+                resultList.push(replyData);
               });
-              resolve(arrayData);
+              resolve(resultList);
             },
             onerror: () => {
-              console.log("网络异常,获取PC回复失败");
+              console.error("网络异常,获取PC回复失败");
               popup2.toast("网络异常,获取PC回复失败");
               resolve(null);
             },
             ontimeout: () => {
-              popup2.toast("请求超时");
+              console.error("网络异常,获取PC回复失败");
+              popup2.toast("请求超时,获取PC回复失败");
               resolve(null);
             },
           });
         });
       }
 
+      /**
+       * 获取当前页面所有帖子
+       * @returns {NodeList}
+       */
       function getFormList() {
-        /* 获取当前页面所有帖子 */
         return Utils.getNodeListValue(
           MT_CONFIG.element.comiisFormlist,
           MT_CONFIG.element.comiisPostli,
           MT_CONFIG.element.comiisMmlist
         );
       }
+      /**
+       * 格式化一下获取的PC端的回复的内容
+       * @param {Array} dataList
+       */
+      function formatPCReply(dataList) {
+        let resultJSON = {};
+        dataList.forEach((item) => {
+          let divItem = $jq(`<div>${item[0]}</div>`);
+          let url = divItem.find("a").prop("href");
+          let paramPtid = url.match(MT_CONFIG.urlRegexp.formPostParam_ptid);
+          let paramPid = url.match(MT_CONFIG.urlRegexp.formPostParam_pid);
+          if(!paramPtid){
+            popup2.toast("获取ptid失败")
+            return
+          }
+          if(!paramPid){
+            popup2.toast("获取pid失败")
+            return
+          }
+          paramPtid = paramPtid[paramPtid.length-1];
+          paramPid = paramPid[paramPid.length-1];
+          if(resultJSON[paramPtid]){
+            resultJSON[paramPtid]["data"] = [...resultJSON[paramPtid]["data"],...item];
+          }else{
+            resultJSON[paramPtid] = {
+              ptid:paramPtid,
+              pid:paramPid,
+              data:item
+            }
+          }
+          
+        });
+        return resultJSON;
+      }
       var pcReplyArray = await getPCReply();
       if (pcReplyArray == null) {
         return;
       }
+      var pcReplyJSON = formatPCReply(pcReplyArray);
+      console.log(pcReplyJSON);
       let formList = getFormList();
-      GM_addStyle(`
-            div.contrete-reply{
-                padding: 5px 10px;
-                border-top: 1px solid #f3f3f3;
-            }
-            div.contrete-reply a{
-                margin: 0px 10px;
-            }
-            `);
-      Array.from(formList).forEach((item, index) => {
-        Array.from(pcReplyArray[index]).forEach((item2, index2) => {
-          $jq(item).append($jq(`<div class="contrete-reply">${item2}</div>`));
+      formList.forEach((formListItem, formListItemIndex) => {
+        /* 点赞按钮 */
+        let praiseNode = formListItem.querySelector(
+          ".comiis_xznalist_bottom a"
+        );
+        let formTid = praiseNode.getAttribute("tid");
+        if (!formTid) {
+          popup2.toast("获取帖子tid失败");
+          console.error(formListItem);
+          return;
+        }
+        if(!pcReplyJSON[formTid]){
+          return;
+        }
+        pcReplyJSON[formTid]["data"].forEach((formListReplyHTMLItem) => {
+          $jq(formListItem).append(
+            $jq(`<div class="contrete-reply">${formListReplyHTMLItem}</div>`)
+          );
         });
       });
     },
