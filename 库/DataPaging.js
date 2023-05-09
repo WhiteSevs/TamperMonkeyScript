@@ -579,8 +579,7 @@ dataPaging.append(document.querySelector("body > div"));
         return;
       }
       CONFIG.lastBtn.callBack();
-      let allPageNode = DOM_CONFIG.getAllPageNode(dataPagingNode);
-      allPageNode = Array.from(allPageNode);
+      let allPageNode = Array.from(DOM_CONFIG.getAllPageNode(dataPagingNode));
       allPageNode.reverse();
       let pageCount = PAGE_CONFIG.maxPage;
       let index = 0;
@@ -589,11 +588,15 @@ dataPaging.append(document.querySelector("body > div"));
           break;
         }
         let item = allPageNode[index];
+        if(item == null){
+          break;
+        }
         if (index === 0) {
           DOM_CONFIG.setAttributeWithCurrentPage(item);
         } else {
           DOM_CONFIG.removeAttributeWithCurrentPage(item);
         }
+        
         DOM_CONFIG.setAttributeWithPageId(item, pageCount);
         item.innerText = pageCount;
         pageCount--;
