@@ -4,7 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @version      2.9.7.3
+// @description  更新日志: 小黑屋搜索过滤框增加css换行;修改小黑屋点击标题获取下一页的方式为点击底部的下一页按钮来获取下一页名单;更新NZMsgBox库版本为5.1.0;
+// @version      2.9.7.4
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -17,6 +18,7 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_info
 // @grant        GM_cookie
 // @run-at       document-start
 // @connect      helloimg.com
@@ -468,8 +470,8 @@
       postForum: /forum.php\?mod=post&action=newthread/ /* 发布帖子 */,
       editForum: /forum.php\?mod=post&action=edit/ /* 编辑帖子 */,
       spacePost: /home.php\?mod=space.*?type=reply/ /* 个人空间-帖子 */,
-      formPostParam_ptid: /&ptid=([\d]+)/i, /* 帖子链接的ptid参数 */
-      formPostParam_pid: /&pid=([\d]+)/i, /* 帖子链接的pid参数 */
+      formPostParam_ptid: /&ptid=([\d]+)/i /* 帖子链接的ptid参数 */,
+      formPostParam_pid: /&pid=([\d]+)/i /* 帖子链接的pid参数 */,
     },
     /**
      * 脚本开始执行的时间
@@ -3011,6 +3013,9 @@
 					margin: 8px 20px;
 					border: 0px;
 					border-bottom: 1px solid;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
 				}
 				.blackhome-user-list{
 					height: 330px;
@@ -3059,7 +3064,7 @@
 					color: #fc2a2a;
 				}
 				`);
-        $jq.NZ_MsgBox.alert({
+        $jq.NZ_MsgBox.confirm({
           title: "小黑屋名单",
           content: `
 					<div class="blackhome-user-filter"><input placeholder="搜索用户名/操作人员/UID(可正则)"></div>
@@ -3067,12 +3072,21 @@
           type: "",
           location: "center",
           buttons: {
+            autoClose: false,
+            reverse: true,
             confirm: {
-              text: "确定",
+              text: "下一页",
+            },
+            cancel: {
+              text: "关闭",
             },
           },
-          callback: function () {
-            blackCSSNode?.remove();
+          callback: function (status, closeCallBack) {
+            if (status) {
+              blackHomeNextPageEvent();
+            } else {
+              closeCallBack();
+            }
           },
         });
         let blackViewHTML = "";
@@ -3083,7 +3097,6 @@
         $jq(".blackhome-user-list").append(blackViewNode);
         setBlackHomeAvatarClickEvent(blackViewNode);
         setSearchPropertyChangeEvent();
-        setBlackHomeTitleClickEvent();
       }
 
       /**
@@ -3102,30 +3115,29 @@
       }
 
       /**
-       * 设置小黑屋标题的点击事件-点击触发获取下一页
+       * 获取下一页小黑屋名单
        */
-      function setBlackHomeTitleClickEvent() {
-        $jq(".msgtitle").on("click", async function () {
-          popup2.showLoadingMask();
-          popup2.toast("正在获取小黑屋名单中...");
-          console.log("下一页的cid: ", nextCid);
-          let blackList = await getBlackList(nextCid);
-          if (blackList.length === 0) {
-            popup2.toast("获取下一页小黑屋名单失败");
-            popup2.closeMask();
-            return;
-          }
+      async function blackHomeNextPageEvent() {
+        popup2.showLoadingMask();
+        popup2.toast("正在获取小黑屋名单中...");
+        console.log("下一页的cid: ", nextCid);
+        let blackList = await getBlackList(nextCid);
+        if (blackList.length === 0) {
+          popup2.toast("获取下一页小黑屋名单失败");
           popup2.closeMask();
-          popup2.closeToast();
-          let blackViewHTML = "";
-          blackList.forEach((item) => {
-            blackViewHTML += getBlackListViewHTML(item);
-          });
-          $jq(".blackhome-user-list").append($jq(blackViewHTML));
-          $jq(".blackhome-user-filter input")[0].dispatchEvent(
-            new Event("propertychange")
-          );
+          return;
+        }
+        popup2.closeMask();
+        popup2.closeToast();
+        let blackViewHTML = "";
+        blackList.forEach((item) => {
+          blackViewHTML += getBlackListViewHTML(item);
         });
+        popup2.toast(`成功获取 ${blackList.length}条数据`);
+        $jq(".blackhome-user-list").append($jq(blackViewHTML));
+        $jq(".blackhome-user-filter input")[0].dispatchEvent(
+          new Event("propertychange")
+        );
       }
 
       /**
@@ -14491,26 +14503,28 @@
           let url = divItem.find("a").prop("href");
           let paramPtid = url.match(MT_CONFIG.urlRegexp.formPostParam_ptid);
           let paramPid = url.match(MT_CONFIG.urlRegexp.formPostParam_pid);
-          if(!paramPtid){
-            popup2.toast("获取ptid失败")
-            return
+          if (!paramPtid) {
+            popup2.toast("获取ptid失败");
+            return;
           }
-          if(!paramPid){
-            popup2.toast("获取pid失败")
-            return
+          if (!paramPid) {
+            popup2.toast("获取pid失败");
+            return;
           }
-          paramPtid = paramPtid[paramPtid.length-1];
-          paramPid = paramPid[paramPid.length-1];
-          if(resultJSON[paramPtid]){
-            resultJSON[paramPtid]["data"] = [...resultJSON[paramPtid]["data"],...item];
-          }else{
+          paramPtid = paramPtid[paramPtid.length - 1];
+          paramPid = paramPid[paramPid.length - 1];
+          if (resultJSON[paramPtid]) {
+            resultJSON[paramPtid]["data"] = [
+              ...resultJSON[paramPtid]["data"],
+              ...item,
+            ];
+          } else {
             resultJSON[paramPtid] = {
-              ptid:paramPtid,
-              pid:paramPid,
-              data:item
-            }
+              ptid: paramPtid,
+              pid: paramPid,
+              data: item,
+            };
           }
-          
         });
         return resultJSON;
       }
@@ -14532,7 +14546,7 @@
           console.error(formListItem);
           return;
         }
-        if(!pcReplyJSON[formTid]){
+        if (!pcReplyJSON[formTid]) {
           return;
         }
         pcReplyJSON[formTid]["data"].forEach((formListReplyHTMLItem) => {
