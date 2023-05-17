@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.6.6
+// @version      0.6.7
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -314,6 +314,12 @@
               "data-title",
               "复制"
             );
+          });
+          /* 取消Ctrl+C的禁止 */
+          Utils.waitNode("#content_views").then(() => {
+            $("#content_views").on("copy", function (event) {
+              Utils.setClip(unsafeWindow.getSelection().toString());
+            });
           });
         },
         /**
