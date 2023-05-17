@@ -2011,7 +2011,7 @@
         otherCodeList = [...otherCodeList, "shift"];
       }
       if (typeof callback === "function") {
-        callback(keyName, otherCodeList,event);
+        callback(keyName, otherCodeList, event);
       }
     });
   };
@@ -2542,17 +2542,31 @@
     if (typeof text !== "string") {
       return;
     }
-    let chipBoardNode = document.createElement("input");
-    chipBoardNode.type = "text";
-    chipBoardNode.setAttribute("style", "opacity:0;position:absolute;");
-    chipBoardNode.id = "whitesevClipBoardInput";
-    document.body.append(chipBoardNode);
-    let clipBoardInputNode = document.querySelector("#whitesevClipBoardInput");
-    clipBoardInputNode.value = text;
-    clipBoardInputNode.removeAttribute("disabled");
-    clipBoardInputNode.select();
-    document.execCommand("copy");
-    clipBoardInputNode.remove();
+    // 获取剪贴板对象
+    const clipboard = navigator.clipboard;
+
+    // 复制文本到剪贴板
+    clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("复制成功");
+      })
+      .catch((err) => {
+        console.error("复制失败，使用第二种方式", err);
+        let chipBoardNode = document.createElement("input");
+        chipBoardNode.type = "text";
+        chipBoardNode.setAttribute("style", "opacity:0;position:absolute;");
+        chipBoardNode.id = "whitesevClipBoardInput";
+        document.body.append(chipBoardNode);
+        let clipBoardInputNode = document.querySelector(
+          "#whitesevClipBoardInput"
+        );
+        clipBoardInputNode.value = text;
+        clipBoardInputNode.removeAttribute("disabled");
+        clipBoardInputNode.select();
+        document.execCommand("copy");
+        clipBoardInputNode.remove();
+      });
   };
   /**
    * 同步延迟xxx毫秒
