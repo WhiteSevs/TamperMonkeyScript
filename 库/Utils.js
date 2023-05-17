@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.1
+ * @version  2.2
  **/
 (function (Utils) {
   /**
@@ -2539,8 +2539,9 @@
    * @example Utils.setClip("xxxx");
    **/
   Utils.setClip = function (text) {
-    if (typeof text !== "string") {
-      return;
+    if (typeof text !== "string" || typeof text !== "number") {
+      console.error(text);
+      throw new Error("复制的貌似不是string或number类型");
     }
     // 获取剪贴板对象
     const clipboard = navigator.clipboard;
