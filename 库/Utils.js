@@ -2539,8 +2539,8 @@
    * @example Utils.setClip("xxxx");
    **/
   Utils.setClip = function (text) {
-    if (typeof text !== "string" || typeof text !== "number") {
-      console.error(text);
+    if (typeof text !== "string" && typeof text !== "number") {
+      console.error(typeof text);
       throw new Error("复制的貌似不是string或number类型");
     }
     // 获取剪贴板对象
