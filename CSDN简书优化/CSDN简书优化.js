@@ -319,7 +319,10 @@
           Utils.waitNode("#content_views").then(() => {
             unsafeWindow.$("#content_views").unbind("copy");
             $("#content_views").off("copy").on("copy", function (event) {
+              event?.preventDefault();
+              event?.stopPropagation();
               Utils.setClip(unsafeWindow.getSelection().toString());
+              return false;
             });
           });
         },
