@@ -2605,6 +2605,7 @@
               clickShowIMGList = [...clickShowIMGList, IMG_URL];
 
               $jq(_item_).on("click", function () {
+                console.log("点击图片",_item_);
                 let _index_ = clickShowIMGList.findIndex((_img_) => {
                   return _img_ == IMG_URL;
                 });
