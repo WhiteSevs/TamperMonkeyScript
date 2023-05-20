@@ -226,7 +226,7 @@
     ) {
       return true;
     } else if (
-      targetNode.innerHTML.indexOf(window.event.target.innerHTML) !== -1
+      window.event.target.innerHTML.indexOf(targetNode.innerHTML) !== -1
     ) {
       /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
       return true;
