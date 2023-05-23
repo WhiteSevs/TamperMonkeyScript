@@ -802,6 +802,7 @@
          * @param {String} url
          */
         async function parseMBaiduFrom(url) {
+          return url
           if (
             typeof url !== "string" ||
             !url.match("^http(s|)://m.baidu.com/from=.+/bd_page_type")
