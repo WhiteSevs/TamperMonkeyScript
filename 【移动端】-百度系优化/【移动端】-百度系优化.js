@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.8.1
+// @version      0.8.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -44,7 +44,7 @@
 (function () {
   let log = new Utils.Log(GM_info);
   log.config({
-    logMaxCount: 20,
+    logMaxCount: 20000,
     autoClearConsole: true,
   });
   let httpx = new Utils.Httpx(GM_xmlhttpRequest);
@@ -127,7 +127,9 @@
     getLoadingNode(withIcon = false) {
       let parseHTML = $(this.html);
       if (withIcon) {
-        parseHTML.find(`.${this.loadingTextClassName}`)?.after($(this.iconHTML));
+        parseHTML
+          .find(`.${this.loadingTextClassName}`)
+          ?.after($(this.iconHTML));
       }
       return parseHTML;
     }
@@ -143,7 +145,10 @@
      * @param {Boolean} value
      */
     setIconVisible(value) {
-      $(`.${this.loadingIconClassName}`)?.css("display", value ? "unset" : "none");
+      $(`.${this.loadingIconClassName}`)?.css(
+        "display",
+        value ? "unset" : "none"
+      );
     }
     /**
      * 设置Loading的文本
@@ -725,9 +730,13 @@
       /* 百度搜索 */
       function replaceLink() {
         /* 替换链接 */
+        /**
+         * 为元素设置真实链接
+         * @param {jQDOM} jQDOM
+         * @param {String} url
+         */
         function setNodeAttrHref(jQDOM, url) {
-          /* 为元素设置真实链接 */
-          jQDOM.find("a").each((index, item) => {
+          jQDOM.find("a").each(async (index, item) => {
             let newUrl = realLink.has(item.href)
               ? realLink.get(item.href)
               : url;
@@ -750,6 +759,7 @@
                 log.error(error);
               }
             }
+            newUrl = await parseMBaiduFrom(item.href);
             if (
               newUrl === item.href ||
               newUrl == null ||
@@ -758,12 +768,14 @@
               return;
             }
             item.href = newUrl;
-            /* log.info("替换成新链接: "+url) */
+            log.info("替换成新链接: " + url);
           });
         }
-
+        /**
+         * 由于部分真实链接存储在 script 标签中，得取出
+         * @returns {Map}
+         */
         function getRealLinkJSON() {
-          /*  由于部分真实链接存储在 script 标签中，得取出 */
           let data = new Utils.Dictionary();
           $("script[id^='atom-data-']").each((index, item) => {
             let json_data = JSON.parse(item.innerHTML);
@@ -785,8 +797,41 @@
           return data;
         }
 
-        function parseDOMAttrOriginUrl(jQDOM) {
-          /* 解析DOM节点上隐藏在属性中的真正url */
+        /**
+         * 通过网络请求m.baidu.com/from....这种跳转链接的内容的具体链接
+         * @param {String} url
+         */
+        async function parseMBaiduFrom(url) {
+          if (
+            typeof url !== "string" ||
+            !url.match("^http(s|)://m.baidu.com/from=.+/bd_page_type")
+          ) {
+            return url;
+          }
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              "user-agent": Utils.getRandomPCUA(),
+            },
+          });
+          let respData = getResp.data;
+          if (getResp.status) {
+            let replaceURL = respData.responseText.match(/location.replace\("(.+)"\)/i);
+            if (replaceURL && replaceURL.length === 2) {
+              return replaceURL[replaceURL.length - 1];
+            } else {
+              return url;
+            }
+          } else {
+            return url;
+          }
+        }
+        /**
+         * 解析DOM节点上隐藏在属性中的真正url
+         * @param {jQuery} jQDOM
+         * @returns
+         */
+        async function parseDOMAttrOriginUrl(jQDOM) {
           let url = null;
           let dataLog = jQDOM.attr("data-log");
           if (dataLog) {
@@ -828,6 +873,7 @@
               }
             }
           }
+
           if (url !== "" || url != null) {
             url = decodeURI(url);
           } else {
@@ -934,13 +980,20 @@
           });
         }
 
+        /**
+         * 替换链接
+         */
         function replaceLink() {
-          /* 替换链接 */
-          $(".c-result.result").each((index, item) => {
+          $(".c-result.result").each(async (index, item) => {
             item = $(item);
-            let realLinkUrl =
-              parseDOMAttrOriginUrl(item); /* 根据已获取的真实链接取值 */
-            if (!realLinkUrl) {
+            let realLinkUrl = await parseDOMAttrOriginUrl(
+              item
+            ); /* 根据已获取的真实链接取值 */
+            if (
+              !realLinkUrl ||
+              realLinkUrl === "undefined" ||
+              realLink === "null"
+            ) {
               /* 未取到值 */
               return;
             }
