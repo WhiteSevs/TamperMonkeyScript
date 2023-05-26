@@ -1209,11 +1209,11 @@
       fetch: undefined,
       user: undefined,
       password: undefined,
-      onabort: () => {},
-      onerror: () => {},
-      ontimeout: () => {},
-      onloadstart: () => {},
-      onreadystatechange: () => {},
+      onabort: function () {},
+      onerror: function () {},
+      ontimeout: function () {},
+      onloadstart: function () {},
+      onreadystatechange: function () {},
     };
     /**
      * 处理发送请求的details，去除值为undefined、空function的值
@@ -1230,6 +1230,7 @@
             (details[keyName].toString() === nullFunc.toString() ||
               details[keyName].toString() === nullFunc2.toString()))
         ) {
+          console.log("删除设置的key "+keyName);
           delete details[keyName];
           return;
         }
@@ -1271,6 +1272,7 @@
      * @param {object} argumentsList 参数列表
      */
     function onErrorCallBack(details, resolve, response, argumentsList) {
+      console.log(details,defaultDetails,response,argumentsList);
       if (details.hasOwnProperty("onerror")) {
         details?.onerror?.apply(this, argumentsList);
       } else {
@@ -1344,6 +1346,7 @@
      * @param {object} response 响应
      */
     function onLoadCallBack(resolve, response) {
+      console.log(defaultDetails,response);
       resolve({
         status: true,
         data: response,
@@ -1379,22 +1382,22 @@
           user: details.user || defaultDetails.user,
           password: details.password || defaultDetails.password,
           onabort: function () {
-            onAbortCallBack.call(this, details, resolve, arguments);
+            onAbortCallBack(details, resolve, arguments);
           },
           onerror: function (response) {
-            onErrorCallBack.call(this, details, resolve, response, arguments);
+            onErrorCallBack(details, resolve, response, arguments);
           },
           onloadstart: function () {
-            onLoadStartCallBack.call(this, details, arguments);
+            onLoadStartCallBack(details, arguments);
           },
           onreadystatechange: function () {
-            onReadyStateChangeCallBack.call(this, details, arguments);
+            onReadyStateChangeCallBack(details, arguments);
           },
           ontimeout: function () {
-            onTimeoutCallBack.call(this, details, resolve, arguments);
+            onTimeoutCallBack(details, resolve, arguments);
           },
           onload: function (response) {
-            onLoadCallBack.call(this, resolve, response);
+            onLoadCallBack(resolve, response);
           },
         };
         requestDetails = handleRequestDetails(requestDetails);
@@ -1429,25 +1432,25 @@
           user: details.user || defaultDetails.user,
           password: details.password || defaultDetails.password,
           onabort: function () {
-            onAbortCallBack.call(this, details, resolve, arguments);
+            onAbortCallBack(details, resolve, arguments);
           },
           onerror: function (response) {
-            onErrorCallBack.call(this, details, resolve, response, arguments);
+            onErrorCallBack(details, resolve, response, arguments);
           },
           onloadstart: function () {
-            onLoadStartCallBack.call(this, details, arguments);
+            onLoadStartCallBack(details, arguments);
           },
           onprogress: function () {
-            onProgressCallBack.call(this, details, arguments);
+            onProgressCallBack(details, arguments);
           },
           onreadystatechange: function () {
-            onReadyStateChangeCallBack.call(this, details, arguments);
+            onReadyStateChangeCallBack(details, arguments);
           },
           ontimeout: function () {
-            onTimeoutCallBack.call(this, details, resolve, arguments);
+            onTimeoutCallBack(details, resolve, arguments);
           },
           onload: function (response) {
-            onLoadCallBack.call(this, resolve, response);
+            onLoadCallBack(resolve, response);
           },
         };
         requestDetails = handleRequestDetails(requestDetails);
@@ -1482,22 +1485,22 @@
           user: details.user || defaultDetails.user,
           password: details.password || defaultDetails.password,
           onabort: function () {
-            onAbortCallBack.call(this, details, resolve, arguments);
+            onAbortCallBack(details, resolve, arguments);
           },
           onerror: function (response) {
-            onErrorCallBack.call(this, details, resolve, response, arguments);
+            onErrorCallBack(details, resolve, response, arguments);
           },
           onloadstart: function () {
-            onLoadStartCallBack.call(this, details, arguments);
+            onLoadStartCallBack(details, arguments);
           },
           onreadystatechange: function () {
-            onReadyStateChangeCallBack.call(this, details, arguments);
+            onReadyStateChangeCallBack(details, arguments);
           },
           ontimeout: function () {
-            onTimeoutCallBack.call(this, details, resolve, arguments);
+            onTimeoutCallBack(details, resolve, arguments);
           },
           onload: function (response) {
-            onLoadCallBack.call(this, resolve, response);
+            onLoadCallBack(resolve, response);
           },
         };
         requestDetails = handleRequestDetails(requestDetails);
