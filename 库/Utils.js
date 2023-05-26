@@ -1230,7 +1230,6 @@
             (details[keyName].toString() === nullFunc.toString() ||
               details[keyName].toString() === nullFunc2.toString()))
         ) {
-          console.log("删除设置的key "+keyName);
           delete details[keyName];
           return;
         }
@@ -1272,7 +1271,6 @@
      * @param {object} argumentsList 参数列表
      */
     function onErrorCallBack(details, resolve, response, argumentsList) {
-      console.log(details,defaultDetails,response,argumentsList);
       if (details.hasOwnProperty("onerror")) {
         details?.onerror?.apply(this, argumentsList);
       } else {
@@ -1346,7 +1344,6 @@
      * @param {object} response 响应
      */
     function onLoadCallBack(resolve, response) {
-      console.log(defaultDetails,response);
       resolve({
         status: true,
         data: response,
