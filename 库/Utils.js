@@ -1218,7 +1218,7 @@
     /**
      * 处理发送请求的details，去除值为undefined、空function的值
      * @param {object} details
-     * @returns
+     * @returns {object}
      */
     function handleRequestDetails(details) {
       Object.keys(details).forEach((keyName) => {
