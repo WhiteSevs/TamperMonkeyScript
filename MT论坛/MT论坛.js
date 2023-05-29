@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 小黑屋搜索过滤框增加css换行;修改小黑屋点击标题获取下一页的方式为点击底部的下一页按钮来获取下一页名单;更新NZMsgBox库版本为5.1.0;
-// @version      2.9.7.4
+// @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;
+// @version      2.9.8
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -38,8 +38,10 @@
 
 (function () {
   "use strict";
+  /**
+   * 自定义新的popup
+   */
   const popup2 = {
-    /* 自定义新的popup */
     config: {
       mask: {
         zIndex: 1000000,
@@ -1034,6 +1036,38 @@
           });
         }
       };
+    },
+    /**
+     * 附件点击提醒
+     */
+    attachmentClickReminder() {
+      if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
+        return;
+      }
+      Utils.mutationObserver(document.documentElement, {
+        callback: () => {
+          document.querySelectorAll(".attnm a").forEach((item) => {
+            if (item.hasAttribute("href")) {
+              console.log("发现附件", item);
+              item.setAttribute("data-href", item.getAttribute("href"));
+              item.removeAttribute("href");
+              let attachmentName = item.innerText;
+              item.innerText = "【已拦截】" + attachmentName;
+              item.onclick = function () {
+                $jq.NZ_MsgBox.confirm({
+                  title: "提示",
+                  content: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+                  type: "warning",
+                  callback: function (resu) {
+                    console.log(resu);
+                  },
+                });
+              };
+            }
+          });
+        },
+        config: { childList: true, attributes: true },
+      });
     },
     collectionForumPost() {
       /* 悬浮按钮-添加收藏帖子功能 */
@@ -3006,7 +3040,43 @@
         signIn(formhash);
       }
     },
-
+    /**
+     * 附件点击提醒
+     */
+    attachmentClickReminder() {
+      if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.forumPost], "v57")) {
+        return;
+      }
+      Utils.mutationObserver(document.documentElement, {
+        callback: () => {
+          document
+            .querySelectorAll("ul.comiis_attach_box a")
+            .forEach((item) => {
+              if (item.hasAttribute("href")) {
+                console.log("发现附件", item);
+                item.setAttribute("data-href", item.getAttribute("href"));
+                item.removeAttribute("href");
+                let attachmentNameNode = item.querySelector("span.f_ok");
+                let attachmentName = attachmentNameNode.innerText;
+                attachmentNameNode.innerText = "【已拦截】" + attachmentName;
+                item.onclick = function () {
+                  popup2.confirm({
+                    text: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+                    ok: {
+                      callback: () => {
+                        console.log(item.getAttribute("data-href"));
+                        window.open(item.getAttribute("data-href"), "_blank");
+                        popup2.closeConfirm();
+                      },
+                    },
+                  });
+                };
+              }
+            });
+        },
+        config: { childList: true, attributes: true },
+      });
+    },
     /**
      * 自动点击同意-用户协议
      */
@@ -14951,6 +15021,14 @@
                 <p class="whitesev-mt-setting-name">在线用户查看</p>
                 <div class="whitesev-mt-setting-checkbox">
                   <input type="checkbox" data-key="v56">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">附件点击提醒</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v57">
                   <div class="knobs"><span></span></div>
                   <div class="layer"></div>
                 </div>
