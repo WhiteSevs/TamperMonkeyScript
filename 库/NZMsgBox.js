@@ -306,10 +306,10 @@
       case "confirm":
       case "prompt":
         operatebarNode.append(confirmBtnNode).append(cancelBtnNode);
-        if(!details.buttons.reverse){
+        if (!details.buttons.reverse) {
           confirmBtnNode.addClass("beleft");
           cancelBtnNode.addClass("beright");
-        }else{
+        } else {
           confirmBtnNode.addClass("beright");
           cancelBtnNode.addClass("beleft");
         }
