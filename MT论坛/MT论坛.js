@@ -5,7 +5,7 @@
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
 // @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;调整小黑屋的显示样式;
-// @version      2.9.8.2
+// @version      2.9.8.3
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -1044,27 +1044,37 @@
       if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
         return;
       }
+      /**
+       * 处理元素内的a标签的点击
+       * @param {HTMLElement} item
+       */
+      function handleClick(item) {
+        if (item.hasAttribute("href")) {
+          console.log("发现附件", item);
+          item.setAttribute("data-href", item.getAttribute("href"));
+          item.removeAttribute("href");
+          let attachmentName = item.innerText;
+          item.innerText = "【已拦截】" + attachmentName;
+          item.onclick = function () {
+            $jq.NZ_MsgBox.confirm({
+              title: "提示",
+              showIcon: true,
+              content: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+              type: "warning",
+              callback: function (resu) {
+                console.log(resu);
+              },
+            });
+          };
+        }
+      }
       Utils.mutationObserver(document.documentElement, {
         callback: () => {
           document.querySelectorAll(".attnm a").forEach((item) => {
-            if (item.hasAttribute("href")) {
-              console.log("发现附件", item);
-              item.setAttribute("data-href", item.getAttribute("href"));
-              item.removeAttribute("href");
-              let attachmentName = item.innerText;
-              item.innerText = "【已拦截】" + attachmentName;
-              item.onclick = function () {
-                $jq.NZ_MsgBox.confirm({
-                  title: "提示",
-                  showIcon: true,
-                  content: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
-                  type: "warning",
-                  callback: function (resu) {
-                    console.log(resu);
-                  },
-                });
-              };
-            }
+            handleClick(item);
+          });
+          document.querySelectorAll(".comiis_attach a").forEach((item) => {
+            handleClick(item);
           });
         },
         config: { childList: true, attributes: true },
@@ -3048,32 +3058,40 @@
       if (!MT_CONFIG.methodRunCheck([MT_CONFIG.urlRegexp.forumPost], "v57")) {
         return;
       }
+      /**
+       * 处理元素内的a标签的点击
+       * @param {HTMLElement} item
+       */
+      function handleClick(item) {
+        if (item.hasAttribute("href")) {
+          console.log("发现附件", item);
+          item.setAttribute("data-href", item.getAttribute("href"));
+          item.removeAttribute("href");
+          let attachmentNameNode = item.querySelector("span.f_ok");
+          let attachmentName = attachmentNameNode.innerText;
+          attachmentNameNode.innerText = "【已拦截】" + attachmentName;
+          item.onclick = function () {
+            popup2.confirm({
+              text: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+              ok: {
+                callback: () => {
+                  console.log(item.getAttribute("data-href"));
+                  window.open(item.getAttribute("data-href"), "_blank");
+                  popup2.closeConfirm();
+                },
+              },
+            });
+          };
+        }
+      }
       Utils.mutationObserver(document.documentElement, {
         callback: () => {
-          document
-            .querySelectorAll("ul.comiis_attach_box a")
-            .forEach((item) => {
-              if (item.hasAttribute("href")) {
-                console.log("发现附件", item);
-                item.setAttribute("data-href", item.getAttribute("href"));
-                item.removeAttribute("href");
-                let attachmentNameNode = item.querySelector("span.f_ok");
-                let attachmentName = attachmentNameNode.innerText;
-                attachmentNameNode.innerText = "【已拦截】" + attachmentName;
-                item.onclick = function () {
-                  popup2.confirm({
-                    text: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
-                    ok: {
-                      callback: () => {
-                        console.log(item.getAttribute("data-href"));
-                        window.open(item.getAttribute("data-href"), "_blank");
-                        popup2.closeConfirm();
-                      },
-                    },
-                  });
-                };
-              }
-            });
+          document.querySelectorAll(".attnm a").forEach((item) => {
+            handleClick(item);
+          });
+          document.querySelectorAll(".comiis_attach a").forEach((item) => {
+            handleClick(item);
+          });
         },
         config: { childList: true, attributes: true },
       });
@@ -3247,17 +3265,17 @@
       function setBlackHomeAvatarClickEvent(blackViewNode) {
         blackViewNode.on("click", ".blackhome-user img", function () {
           window.open(
-            `home.php?mod=space&uid=${this.closest(".blackhome-user-item").getAttribute(
-              "data-uid"
-            )}&do=profile`,
+            `home.php?mod=space&uid=${this.closest(
+              ".blackhome-user-item"
+            ).getAttribute("data-uid")}&do=profile`,
             "_blank"
           );
         });
         blackViewNode.on("click", ".blackhome-operator-user img", function () {
           window.open(
-            `home.php?mod=space&uid=${this.closest(".blackhome-user-item").getAttribute(
-              "data-operator-uid"
-            )}&do=profile`,
+            `home.php?mod=space&uid=${this.closest(
+              ".blackhome-user-item"
+            ).getAttribute("data-operator-uid")}&do=profile`,
             "_blank"
           );
         });
@@ -3416,7 +3434,10 @@
                     data-operator-uid="${value["operatorid"]}">
                   <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
-                      <img src="${MT_CONFIG.getAvatar(value["uid"],"small")}" loading="lazy">
+                      <img src="${MT_CONFIG.getAvatar(
+                        value["uid"],
+                        "small"
+                      )}" loading="lazy">
                       <div class="blackhome-user-info">
                         <p>${value["username"]}</p>
                         <p>${value["dateline"]}</p>
