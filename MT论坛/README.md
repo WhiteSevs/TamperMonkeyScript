@@ -59,7 +59,7 @@
 
 # 😡😡（重要）开启本脚本具体功能设置-本功能都是自己按需开启
 
-[![pSPOwXF.jpg](https://s1.ax1x.com/2023/01/03/pSPOwXF.jpg)](https://imgse.com/i/pSPOwXF)
+[![pSPOwXF.jpg](https://s1.ax1x.com/2023/01/03/pSPOwXF.jpg)]
 
 # 电脑版(需要开启显示在线状态在代码末尾有注释处，取消注释即可)
 
