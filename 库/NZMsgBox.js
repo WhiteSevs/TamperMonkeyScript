@@ -390,6 +390,12 @@
       msgBoxAlertNode
         .find("div.icon")
         .addClass("NZ-MsgBox--showicon NZ-MsgBox--motion");
+      /**
+       * 在4个defaultDetails内添加showIcon = false，用于控制图标是否显示
+       */
+      if (!details.showIcon) {
+        msgBoxAlertNode.find("div.icon").remove();
+      }
       showInit();
     }
     function showInit() {
@@ -864,6 +870,7 @@
     title: "",
     content: "",
     type: "none",
+    showIcon: false,
     aero: true,
     dragmove: true,
     inputMode: "text",
@@ -881,6 +888,7 @@
     location: "right",
     tipsort: "top",
     type: "",
+    showIcon: false,
     showtime: null,
     closebtn: true,
     processbar: true,
@@ -895,6 +903,7 @@
     location: "center",
     masklayer: false,
     showtime: null,
+    showIcon: false,
   };
   var defaultDetails_4 = {
     tiptarget: null,
@@ -904,6 +913,7 @@
     show: "mouseenter",
     hide: "mouseleave",
     theme: "",
+    showIcon: false,
   };
   /**
    * 计算页面index
