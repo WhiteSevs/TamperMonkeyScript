@@ -5,7 +5,7 @@
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
 // @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;调整小黑屋的显示样式;
-// @version      2.9.8.1
+// @version      2.9.8.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -3245,10 +3245,18 @@
        * @param {HTMLElement} blackViewNode 小黑屋元素节点
        */
       function setBlackHomeAvatarClickEvent(blackViewNode) {
-        blackViewNode.on("click", ".blackhome-user img,.blackhome-operator-user img", function (event) {
+        blackViewNode.on("click", ".blackhome-user img", function () {
           window.open(
             `home.php?mod=space&uid=${this.closest(".blackhome-user-item").getAttribute(
               "data-uid"
+            )}&do=profile`,
+            "_blank"
+          );
+        });
+        blackViewNode.on("click", ".blackhome-operator-user img", function () {
+          window.open(
+            `home.php?mod=space&uid=${this.closest(".blackhome-user-item").getAttribute(
+              "data-operator-uid"
             )}&do=profile`,
             "_blank"
           );
@@ -3404,7 +3412,8 @@
         return `<div class="blackhome-user-item" 
                     data-name="${value["username"]}"
                     data-uid="${value["uid"]}" 
-                    data-operator="${value["operator"]}">
+                    data-operator="${value["operator"]}"
+                    data-operator-uid="${value["operatorid"]}">
                   <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
                       <img src="${MT_CONFIG.getAvatar(value["uid"],"small")}" loading="lazy">
