@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;
-// @version      2.9.8
+// @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;调整小黑屋的显示样式;
+// @version      2.9.8.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -1056,6 +1056,7 @@
               item.onclick = function () {
                 $jq.NZ_MsgBox.confirm({
                   title: "提示",
+                  showIcon: true,
                   content: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
                   type: "warning",
                   callback: function (resu) {
@@ -3120,52 +3121,89 @@
           overflow: hidden;
           white-space: nowrap;
 				}
+
 				.blackhome-user-list{
-					height: 330px;
+					height: 350px;
           overflow-y: auto;
 				}
 				.blackhome-user-list .blackhome-user-item{
-					display: flex;
           margin: 15px 10px;
-          align-items: center;
+          padding: 10px;
+          border-radius: 8px;
+          box-shadow: 0rem 0rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #ffffff;
 				}
-				.blackhome-user-avatar-name{
-					width: 90px;
-          min-width: 90px;
+
+        
+				.blackhome-user{
           display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-				}
-				.blackhome-user-avatar-name img{
+        }
+				.blackhome-user img{
 					width: 45px;
-          border-radius: 40px;
+          height: 45px;
+          border-radius: 45px;
 				}
-        .blackhome-user-name{
-          width: 80px;
-          min-width: 80px;
+        .blackhome-user-info{
+          margin-left: 10px;
         }
-				.blackhome-user-text{
-	
-				}
-				.blackhome-user-text div{
-					display: flex;
-				}
-				.blackhome-user-text div p:nth-child(1){
-          min-width: fit-content;
-				}
-        .blackhome-user-text div p:nth-child(2){
-          overflow-wrap: anywhere;
+        .blackhome-user-info p:nth-child(1){
+          margin-bottom: 5px;
         }
-				.blackhome-user-list .blackhome-user-action{
-					color: #53bcf5;
-				}
-				.blackhome-user-list .blackhome-user-groupexpiry{
-					color: #3e01e3;
-				}
-				.blackhome-user-list .blackhome-user-operator{
-					color: #fc2a2a;
-				}
+        .blackhome-user-info p:nth-child(2){
+          font-size: 14px;
+        }
+				.blackhome-user-action{
+          display: flex;
+          margin: 10px 0px;
+        }
+        .blackhome-user-action p:nth-child(1),
+        .blackhome-user-action p:nth-child(2){
+          border: 1px solid #ff0000;
+          color: #ff0000;
+          border-radius: 4px;
+          padding: 2px 4px;
+          font-weight: 500;
+          font-size: 14px;
+          place-self: center;
+        }
+        .blackhome-user-action p:nth-child(2){
+          border: 1px solid #ff4b4b;
+          color: #ff4b4b;
+          margin-left: 8px;
+        }
+
+        .blackhome-user-uuid{
+          border: 1px solid #ff7600;
+          color: #ff7600;
+          border-radius: 4px;
+          padding: 2px 4px;
+          font-weight: 500;
+          font-size: 14px;
+          width: fit-content;
+          width: -moz-fit-content;
+          margin: 10px 0px;
+        }
+
+        .blackhome-operator{
+          padding: 10px;
+          background-color: #efefef;
+          border-radius: 6px;
+        }
+        .blackhome-operator-user{
+          display: flex;
+        }
+        .blackhome-operator-user img{
+          width: 35px;
+          height: 35px;
+          border-radius: 35px;
+        }
+        .blackhome-operator-user p{
+          align-self: center;
+          margin-left: 10px;
+        }
+        .blackhome-operator-user-info{
+          margin: 10px 0px;
+          font-weight: 500;
+        }
 				`);
         $jq.NZ_MsgBox.confirm({
           title: "小黑屋名单",
@@ -3207,9 +3245,9 @@
        * @param {HTMLElement} blackViewNode 小黑屋元素节点
        */
       function setBlackHomeAvatarClickEvent(blackViewNode) {
-        blackViewNode.on("click", ".blackhome-user-avatar-name", function () {
+        blackViewNode.on("click", ".blackhome-user img,.blackhome-operator-user img", function (event) {
           window.open(
-            `home.php?mod=space&uid=${this.parentElement.getAttribute(
+            `home.php?mod=space&uid=${this.closest(".blackhome-user-item").getAttribute(
               "data-uid"
             )}&do=profile`,
             "_blank"
@@ -3363,40 +3401,37 @@
        * @returns
        */
       function getBlackListViewHTML(value) {
-        return ` <div class="blackhome-user-item" 
-        data-name="${value["username"]}"
-        data-uid="${value["uid"]}" 
-        data-operator="${value["operator"]}">
-            <div class="blackhome-user-avatar-name">
-              <img src="${MT_CONFIG.getAvatar(
-                value["uid"],
-                "small"
-              )}" loading="lazy">
-              <div class="blackhome-user-name">${value["username"]}</div>
-            </div>
-            <div class="blackhome-user-text">
-              <div class="blackhome-user-dateline">
-                <p>操作时间：</p>
-                <p>${value["dateline"]}</p>
-              </div>
-              <div class="blackhome-user-action">
-                <p>操作行为：</p>
-                <p>${value["action"]}</p>
-              </div>
-              <div class="blackhome-user-groupexpiry">
-                <p>过期时间：</p>
-                <p>${value["groupexpiry"]}</p>
-              </div>
-              <div class="blackhome-user-operator">
-                <p>操作人员：</p>
-                <p>${value["operator"]}</p>
-              </div>
-              <div class="blackhome-user-reason">
-                <p>操作理由：</p>
-                <p>${value["reason"] === "" ? "无" : value["reason"]}</p>
-              </div>
-            </div>
-          </div>`;
+        return `<div class="blackhome-user-item" 
+                    data-name="${value["username"]}"
+                    data-uid="${value["uid"]}" 
+                    data-operator="${value["operator"]}">
+                  <div class="blackhome-user-avatar">
+                    <div class="blackhome-user">
+                      <img src="${MT_CONFIG.getAvatar(value["uid"],"small")}" loading="lazy">
+                      <div class="blackhome-user-info">
+                        <p>${value["username"]}</p>
+                        <p>${value["dateline"]}</p>
+                      </div>
+                    </div>
+                    <div class="blackhome-user-action">
+                      <p>${value["action"]}</p>
+                      <p>到期: ${value["groupexpiry"]}</p>
+                    </div>
+                    <div class="blackhome-user-uuid">UID: ${value["uid"]}</div>
+                    <div class="blackhome-operator">
+                      <div class="blackhome-operator-user">
+                        <img loading="lazy" src="${MT_CONFIG.getAvatar(
+                          value["operatorid"],
+                          "small"
+                        )}">
+                        <p>${value["operator"]}</p>
+                      </div>
+                      <div class="blackhome-operator-user-info">
+                      ${value["reason"]}
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
       }
       /**
        * 获取小黑屋名单列表
