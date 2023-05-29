@@ -529,6 +529,29 @@
       });
       return localResult && urlMatchResult;
     },
+    /**
+     * 图片预览黑名单
+     * 当前图片链接的主机名，匹配方式为 indexOf
+     * 当前图片链接的路径名，匹配方式为 match
+     */
+    blackListNoViewIMG: [
+      {
+        hostName: "avatar-bbs.mt2.cn",
+        pathName: "*",
+      },
+      {
+        hostName: "cdn-bbs.mt2.cn",
+        pathName: "^(/static(/|//)image|/template)",
+      },
+      {
+        hostName: "bbs.binmt.cc",
+        pathName: "^(/static(/|//)image|/template)",
+      },
+      {
+        hostName: "bbs.binmt.cc",
+        pathName: "/uc_server/avatar.php",
+      },
+    ],
   };
 
   /**
@@ -1227,18 +1250,20 @@
               imgParentNode.setAttribute("href", "javascript:;");
               imgParentNode.removeAttribute("target");
             }
-
-            if (
-              IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
-              (IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1 &&
-                IMG_URL_PATHNAME.match("^(/static/image|/template)")) ||
-              (IMG_URL_HOSTNAME.indexOf("bbs.binmt.cc") != -1 &&
-                IMG_URL_PATHNAME.indexOf("/uc_server/avatar.php") != -1)
-            ) {
+            let isMatching = false;
+            for (let item of MT_CONFIG.blackListNoViewIMG) {
               /* 图片黑名单 */
+              if (
+                IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 &&
+                IMG_URL_PATHNAME.match(item["pathName"])
+              ) {
+                isMatching = true;
+                break;
+              }
+            }
+            if (isMatching) {
               return;
             }
-
             clickShowIMGList = [...clickShowIMGList, IMG_URL];
             _item_.removeAttribute("onclick");
             _item_.setAttribute("onclick", "");
@@ -1494,6 +1519,10 @@
           user_avatar[i].getElementsByTagName("em")[1].outerText;
         var user_info = user_avatar[i].getElementsByTagName("tr")[0];
         var user_level_node = document.createElement("td");
+        user_level_node.setAttribute(
+          "style",
+          "border-left: 1px solid #e3e3e3;"
+        );
         switch (user_current_level) {
           case "幼儿园":
             user_level = "1级";
@@ -2591,21 +2620,24 @@
                 imgParentNode.setAttribute("href", "javascript:;");
                 imgParentNode.removeAttribute("target");
               }
-              if (
-                IMG_URL_HOSTNAME.indexOf("avatar-bbs.mt2.cn") != -1 ||
-                (IMG_URL_HOSTNAME.indexOf("cdn-bbs.mt2.cn") != -1 &&
-                  IMG_URL_PATHNAME.match("^(/static/image|/template)")) ||
-                (IMG_URL_HOSTNAME.indexOf("bbs.binmt.cc") != -1 &&
-                  IMG_URL_PATHNAME.indexOf("/uc_server/avatar.php") != -1)
-              ) {
+              let isMatching = false;
+              for (let item of MT_CONFIG.blackListNoViewIMG) {
                 /* 图片黑名单 */
+                if (
+                  IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 &&
+                  IMG_URL_PATHNAME.match(item["pathName"])
+                ) {
+                  isMatching = true;
+                  break;
+                }
+              }
+              if (isMatching) {
                 return;
               }
-
               clickShowIMGList = [...clickShowIMGList, IMG_URL];
 
               $jq(_item_).on("click", function () {
-                console.log("点击图片",_item_);
+                console.log("点击图片", _item_);
                 let _index_ = clickShowIMGList.findIndex((_img_) => {
                   return _img_ == IMG_URL;
                 });
