@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.8.2
+// @version      0.8.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
 // @match        *://m.baidu.com/*
@@ -698,7 +698,9 @@
 			div.common-widget-bottom-banner-changeId,
 			#downloadnativepopup,
 			.xiaoduVoiceCard,
-			.index-widget-guidebanner{
+			.index-widget-guidebanner,
+      #message-center-panel,
+      .xiaoduVoice-banner.-border-round{
 				display:none !important;
 			}
 		`,
@@ -726,10 +728,14 @@
 			}
 		`,
     },
+    /**
+     * 百度搜索
+     */
     search() {
-      /* 百度搜索 */
+      /**
+       * 替换链接
+       */
       function replaceLink() {
-        /* 替换链接 */
         /**
          * 为元素设置真实链接
          * @param {jQDOM} jQDOM
@@ -802,7 +808,7 @@
          * @param {String} url
          */
         async function parseMBaiduFrom(url) {
-          return url
+          return url;
           if (
             typeof url !== "string" ||
             !url.match("^http(s|)://m.baidu.com/from=.+/bd_page_type")
@@ -817,7 +823,9 @@
           });
           let respData = getResp.data;
           if (getResp.status) {
-            let replaceURL = respData.responseText.match(/location.replace\("(.+)"\)/i);
+            let replaceURL = respData.responseText.match(
+              /location.replace\("(.+)"\)/i
+            );
             if (replaceURL && replaceURL.length === 2) {
               return replaceURL[replaceURL.length - 1];
             } else {
@@ -885,8 +893,12 @@
           return url;
         }
 
+        /**
+         * 添加标识CSDN标签
+         * @param {jQuery} jQDOM
+         * @returns
+         */
         function addCSDNFlag(jQDOM) {
-          /* 添加标识CSDN标签 */
           if (jQDOM.find(".csdn-flag-component-box").length) {
             return;
           }
@@ -900,8 +912,10 @@
           log.success("插入CSDN下载提示标题");
         }
 
+        /**
+         * 移除广告、推广
+         */
         function removeAds() {
-          /* 移除广告、推广 */
           $(".icon-logo")?.first()?.remove(); /* 底部下一页前面图标删除 */
           $("#page-relative")?.remove(); /* 末尾 ===>>  大家都在搜  广告位 */
           $(
@@ -1069,8 +1083,10 @@
         replaceLink();
       }
 
+      /**
+       * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
+       */
       function redirectTopLink() {
-        /* 重定向顶部的链接，如全部、视频、图片、贴吧、咨询... */
         document.querySelectorAll(".se-head-tablink a").forEach((item) => {
           if (
             item.hasAttribute("data-sflink") &&
@@ -1082,8 +1098,10 @@
         });
       }
 
+      /**
+       * 删除script标签中的百度APP提示
+       */
       function replaceScriptBaiDuTip() {
-        /* 删除script标签中的百度APP提示 */
         $("script").each((index, item) => {
           if (item.text.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
             item?.remove();
@@ -1092,8 +1110,10 @@
         });
       }
 
+      /**
+       * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
+       */
       function clickOtherSearchEvent() {
-        /* 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度 */
         var suggestList = "#se-box .suggest-content";
         var suggestBtn = "#se-box .suggest-content button";
         var suggestList_HOME = "#index-box .suggest-content";
@@ -1174,9 +1194,162 @@
           return enterKeyDownEvent(event, searchInput_HOME);
         });
       }
+
+      /**
+       * 自动加载下一页
+       */
+      function autoLoadNextPage() {
+        var isloding_flag = false;
+        $("#page-controller").after(loadingView.getLoadingNode(true));
+        loadingView.setCSS();
+        $(window).on("scroll", async function () {
+          let userScrollHeight = Math.ceil(
+            $(window).scrollTop() + $(window).height() + 300
+          );
+          if (userScrollHeight >= $(document).height()) {
+            if (isloding_flag == false) {
+              loadingView.setVisible(true);
+              isloding_flag = true;
+
+              let next_page_url =
+                $(".new-nextpage").attr("href") ||
+                $(".new-nextpage-only").attr("href");
+              if (!next_page_url) {
+                log.info("获取不到下一页，怀疑已加载所有的搜索结果");
+                isloding_flag = false;
+                $(window).off("scroll");
+                log.info("取消绑定scroll", "#f400ff");
+                loadingView.destory();
+                return;
+              }
+              let params_pn = new URL(next_page_url).search.match(/[0-9]+/);
+              let next_page_textContent =
+                params_pn.length == 0
+                  ? "第 10 条"
+                  : "第 " + parseInt(params_pn[0]) + " 条";
+              log.info(
+                `正在请求${next_page_textContent}数据: ${next_page_url}`
+              );
+
+              loadingView.setText("Loading...", true);
+              let getResp = await httpx.get({
+                url: next_page_url,
+              });
+              let respData = getResp.data;
+              if (getResp.status) {
+                loadingView.setVisible(false);
+                let page_html = $(respData.response);
+                page_html.find("style").filter(function (index) {
+                  /* 插入vue打包的css需重新引入 */ if (
+                    this.hasAttribute("data-vue-ssr-id")
+                  ) {
+                    let dataVueSsrId = "data-vue-ssr-id";
+                    let dataVueSsrIdValue = this.getAttribute(dataVueSsrId);
+                    if (
+                      !document.querySelector(
+                        "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
+                      )
+                    ) {
+                      let cssDOM = GM_addStyle(this.innerHTML);
+                      cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
+                      log.info(`插入Vue的CSS id: ${dataVueSsrIdValue}`);
+                    }
+                  }
+                });
+                let search_result = page_html.find(".c-result.result");
+                let next_html_next_page_html =
+                  page_html.find("#page-controller");
+                let this_page_results = $("#results");
+                if (this_page_results != void 0) {
+                  $.each(search_result, (i, n) => {
+                    this_page_results.append(n);
+                  });
+                  $("#page-controller").html(next_html_next_page_html);
+                } else {
+                  log.info("已加载所有的搜索结果");
+                  $(window).off("scroll");
+                  log.info("取消绑定scroll", "#f400ff");
+                }
+                isloding_flag = false;
+                if (GM_Menu.get("baidu_search_sync_next_page_address")) {
+                  window.history.pushState("forward", null, next_page_url);
+                }
+              } else if (getResp.type === "onerror") {
+                if (next_page_url == undefined) {
+                  log.error("未获取到下一页的url");
+                } else {
+                  log.error("加载失败 👇");
+                  log.error(respData);
+                  loadingView.setText("加载失败");
+                }
+                isloding_flag = false;
+              } else if (getResp.type === "ontimeout") {
+                log.error("请求超时 👇");
+                loadingView.setText("请求超时");
+                isloding_flag = false;
+              } else {
+                log.error("未知错误");
+                loadingView.setText("未知错误");
+                isloding_flag = false;
+              }
+            } else {
+              let next_page_textContent =
+                $(".new-nowpage").length == 0
+                  ? "第 10 条"
+                  : "第 " +
+                    (parseInt(
+                      $(".new-nowpage")[0].textContent.match(/([0-9]+)/)
+                    ) +
+                      1) +
+                    " 条";
+              log.info(
+                "百度搜索",
+                `正在加载${next_page_textContent}中请稍后，请勿重复`
+              );
+            }
+          }
+        });
+      }
       if (this.current_url.match(/^http(s|):\/\/(m|www).baidu.com/g)) {
         log.info("插入CSS规则");
         GM_addStyle(this.css.search);
+        GM_Menu = new Utils.GM_Menu(
+          {
+            menu_autoloading: {
+              text: "自动展开下一页",
+              enable: false,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+            menu_showisdirect: {
+              text: "显示已重定向图标",
+              enable: true,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+            LOG: {
+              text: "控制台输出日志",
+              enable: false,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+            baidu_search_sync_next_page_address: {
+              text: "同步下一页地址",
+              enable: false,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+          },
+          true,
+          GM_getValue,
+          GM_setValue,
+          GM_registerMenuCommand,
+          GM_unregisterMenuCommand
+        );
         $(function () {
           var lock = false;
           Utils.waitNode("div#page.search-page").then((nodeList) => {
@@ -1221,20 +1394,29 @@
         log.info("插入CSS规则-主页");
       }
     },
+    /**
+     * 百家号
+     */
     baijiahao() {
-      /* 百家号 */
       if (this.current_url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
         GM_addStyle(this.css.baijiahao);
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度贴吧
+     */
     tieba() {
-      /* 百度贴吧 */
       function tiebaLoadComments() {
         /* 贴吧加载评论 */
         const tiebaConfig = {
+          /**
+           * 根据dom获取需要插入的评论的html
+           * @param {HTMLElement} element
+           * @param {Array} user_commands_list
+           * @returns
+           */
           getNewCommentInnerHTML: (element, user_commands_list) => {
-            /* 根据dom获取需要插入的评论的html */
             let data_field = JSON.parse(element.attributes["data-field"].value);
             if (Object.keys(data_field).length == 0) {
               return;
@@ -1360,79 +1542,81 @@
                     u_user_name +=
                       '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
                   }
-                  let newInnerHTML =
-                    '<div><div data-v-5b60f30b="" class="lzl-post-item" style="">' +
-                    '<div data-v-5b60f30b="" class="text-box">' +
-                    '<span data-v-5b60f30b="" class="link username">' +
-                    u_user_name +
-                    ": </span>" +
-                    '<div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text"><span data-v-ab14b3fe="" class="text-content">' +
-                    u_content +
-                    "</span></div>" +
-                    "</div>" +
-                    "</div></div>";
+                  let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
+                    <div data-v-5b60f30b="" class="text-box">
+                      <span data-v-5b60f30b="" class="link username">
+                        ${u_user_name}:{" "}
+                      </span>
+                      <div
+                        data-v-ab14b3fe=""
+                        data-v-5b60f30b=""
+                        class="thread-text lzl-post-text">
+                        <span data-v-ab14b3fe="" class="text-content">
+                          ${u_content}
+                        </span>
+                      </div>
+                    </div>
+                  </div>;
+                  `;
                   new_user_commands_innerHTML += newInnerHTML;
                 }
               );
             }
 
             if (new_user_commands_innerHTML) {
-              new_user_commands_innerHTML =
-                '<div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: auto;">' +
-                new_user_commands_innerHTML +
-                "</div>";
+              new_user_commands_innerHTML = `
+              <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: auto;">
+                ${new_user_commands_innerHTML}
+              </div>
+              `;
             }
-            let new_command_innerHTML =
-              `
-                            <div data-v-74eb13e2="" data-v-602e287c="" class="post-item" data-floor="` +
-              window.floor_num +
-              `" landlord=` +
-              is_landlord +
-              `>
-                                <div data-v-188c0e84="" data-v-74eb13e2="" class="user-line-wrapper user-line-post">
-                                    <div data-v-188c0e84="" class="user-line">
-                                        <div data-v-188c0e84="" class="tbfe-1px-border avatar"
-                                            data-src="` +
-              user_avator +
-              `"
-                                            lazy="loaded"
-                                            style="background-image: url(` +
-              user_avator +
-              `);">
-                                        </div>
-                                        <div data-v-188c0e84="" class="user-info">
-                                            <div data-v-188c0e84="" class="username">` +
-              user_name +
-              `</div>
-                                            <p data-v-188c0e84="" class="desc-info">
-                                                <span data-v-188c0e84="" class="floor-info">` +
-              user_floor +
-              `</span>
-                                                <span data-v-188c0e84="" class="time" style='margin-right: .08rem;'>` +
-              user_comment_time +
-              `</span>
-                                                <span data-v-188c0e84="" class="ip">` +
-              user_ip_position +
-              `</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div data-v-74eb13e2="" class="content">
-                                    <p data-v-ab14b3fe="" data-v-74eb13e2="" class="thread-text post-text">
-                                        <span data-v-ab14b3fe="" class="text-content">
-                                        ` +
-              user_command +
-              `
-                                        </span>
-                                    </p>
-                                    ` +
-              new_user_commands_innerHTML +
-              `
-                                    <div data-v-74eb13e2="" class="post-split-line"></div>
-                                </div>
-                            </div>
-                        `;
+            let new_command_innerHTML = `
+              <div
+                data-v-74eb13e2=""
+                data-v-602e287c=""
+                class="post-item"
+                data-floor="${window.floor_num}"
+                landlord=${is_landlord}>
+                <div
+                  data-v-188c0e84=""
+                  data-v-74eb13e2=""
+                  class="user-line-wrapper user-line-post">
+                  <div data-v-188c0e84="" class="user-line">
+                    <div
+                      data-v-188c0e84=""
+                      class="tbfe-1px-border avatar"
+                      data-src="${user_avator}"
+                      lazy="loaded"
+                      style="background-image: url(${user_avator});"></div>
+                    <div data-v-188c0e84="" class="user-info">
+                      <div data-v-188c0e84="" class="username">
+                        ${user_name}
+                      </div>
+                      <p data-v-188c0e84="" class="desc-info">
+                        <span data-v-188c0e84="" class="floor-info">
+                          ${user_floor}
+                        </span>
+                        <span data-v-188c0e84="" class="time" style="margin-right: .08rem;">
+                          ${user_comment_time}
+                        </span>
+                        <span data-v-188c0e84="" class="ip">
+                          ${user_ip_position}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div data-v-74eb13e2="" class="content">
+                  <p data-v-ab14b3fe="" data-v-74eb13e2="" class="thread-text post-text">
+                    <span data-v-ab14b3fe="" class="text-content">
+                      ${user_command}
+                    </span>
+                  </p>
+                  ${new_user_commands_innerHTML}
+                  <div data-v-74eb13e2="" class="post-split-line"></div>
+                </div>
+              </div>;
+              `;
             return new_command_innerHTML;
           },
           insertNewCommentInnerHTML: (_html_) => {
@@ -1523,8 +1707,12 @@
               }
             });
           },
+          /**
+           * 获取第一页的评论（不包括评论的评论）
+           * @param {string} url
+           * @returns
+           */
           getPageComment: async (url) => {
-            /* 获取第一页的评论（不包括评论的评论） */
             let getResp = await httpx.get({
               url: url,
               headers: {
@@ -1548,8 +1736,12 @@
               }
             }
           },
+          /**
+           * 获取第一页的评论的评论
+           * @param {string} url
+           * @returns
+           */
           getPageCommentList: async (url) => {
-            /* 获取第一页的评论的评论 */
             let getResp = await httpx.get({
               url: url,
               headers: {
@@ -1563,11 +1755,13 @@
               return data["data"]["comment_list"];
             } else if (getResp.type === "onerror") {
               log.error("取第一页的评论的评论数据失败 👇");
-              log.error(resp);
+              log.error(getResp);
             }
           },
+          /**
+           * 自动加载下一页的评论
+           */
           loadingNextCommand: () => {
-            /* 自动加载下一页的评论 */
             var isloding_flag = false;
             $(window).on("scroll", async function (event, isInit = false) {
               let userScrollHeight = Math.ceil(
@@ -1644,8 +1838,10 @@
               }
             });
           },
+          /**
+           * 自动加载上一页的评论
+           */
           loadingPrevCommand: () => {
-            /* 自动加载上一页的评论 */
             var isloding_flag = false;
             $(window).on("scroll", async function (event, isInit = false) {
               let userScrollHeight = Math.ceil(
@@ -1722,16 +1918,21 @@
               }
             });
           },
+          /**
+           * 插入加载中的html
+           */
           insertLoadingHTML: () => {
-            /* 插入加载中的html */
             if (!loadingView.isExists()) {
               log.info("插入loading");
               $(".main-page-wrap").append(loadingView.getLoadingNode());
               loadingView.setCSS();
             }
           },
+          /**
+           * 动态显示只看楼主
+           * @param {*} classlist
+           */
           displayCommand: (classlist) => {
-            /* 动态显示只看楼主 */
             if (Array.from(classlist).includes("white-only-lz-qx")) {
               $(".white-only-lz").removeClass("white-only-lz-qx");
               let lzReply = $(".post-item");
@@ -1750,8 +1951,11 @@
             }
           },
         };
+        /**
+         * 查看-正序
+         * @returns
+         */
         async function mainPositive() {
-          /* 正序 */
           window.param_tid = window.location.pathname.match(/([0-9]+)/g);
           if (window.param_tid) {
             window.param_tid = window.param_tid[0];
@@ -1821,8 +2025,11 @@
             log.error("贴吧：未找到本页参数p");
           }
         }
+        /**
+         * 查看-倒序
+         * @returns
+         */
         async function mainReverse() {
-          /* 倒序 */
           window.param_tid = window.location.pathname.match(/([0-9]+)/g);
           if (window.param_tid) {
             window.param_tid = window.param_tid[0];
@@ -2133,10 +2340,16 @@
           `
         );
       }
+      /**
+       * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
+       */
       function registerImagePreview() {
-        /* 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片) */
+        /**
+         * 查看图片
+         * @param {Array} imgList
+         * @param {Number} _index_
+         */
         function viewIMG(imgList = [], _index_ = 0) {
-          /* 查看图片 */
           let viewerULNodeHTML = "";
           imgList.forEach((item) => {
             viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
@@ -2315,28 +2528,53 @@
         }
       }
     },
+    /**
+     * 百度文库
+     */
     wenku() {
-      /* 百度文库 */
       if (this.current_url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         GM_addStyle(this.css.wenku);
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度经验
+     */
     jingyan() {
-      /* 百度经验 */
       if (this.current_url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
         GM_addStyle(this.css.jingyan);
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度百科
+     */
     baike() {
-      /* 百度百科 */
       if (this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
+        let page = 1;
         GM_addStyle(this.css.baike);
         log.info("插入CSS规则");
-        let page = 1;
+        GM_Menu = new Utils.GM_Menu(
+          {
+            baidu_baike_sync_next_page_address: {
+              text: "同步下一页地址",
+              enable: false,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+          },
+          true,
+          GM_getValue,
+          GM_setValue,
+          GM_registerMenuCommand,
+          GM_unregisterMenuCommand
+        );
+
+        /**
+         * 获取到的图片大小要重新设置
+         */
         function setImageWidthHeight() {
-          /* 获取到的图片大小要重新设置 */
           document.querySelectorAll(".col-para").forEach((item) => {
             item.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
             let content_img_item = item.querySelector(".content-img-item");
@@ -2355,8 +2593,10 @@
           });
         }
 
+        /**
+         * 获取到的要重新将图片链接插入到img标签中
+         */
         function insertUrlToImageNode() {
-          /* 获取到的要重新将图片链接插入到img标签中 */
           document.querySelectorAll(".lazy-img").forEach((item) => {
             item = $(item);
             let content_img = $(item.parent().parent().parent());
@@ -2368,8 +2608,10 @@
             }
           });
         }
+        /**
+         * 循环加载更多内容
+         */
         function loadMore() {
-          /* 循环加载更多内容 */
           Utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
             let nextTargetNode = document.querySelector("#J-gotoPC-top");
             let nextUrl = nextTargetNode.href;
@@ -2415,7 +2657,9 @@
                   $(".BK-main-content").append($(nextPageContent));
                   await Utils.sleep(350);
                 }
-                window.history.pushState("forward", null, respData.finalUrll);
+                if (GM_Menu.get("baidu_baike_sync_next_page_address")) {
+                  window.history.pushState("forward", null, respData.finalUrll);
+                }
                 page++;
               } else if (getResp.type === "onerror") {
                 log.error("请求失败 👇");
@@ -2446,42 +2690,136 @@
         loadMore();
       }
     },
+    /**
+     * 百度百科-他说
+     */
     baiketashuo() {
-      /* 百度百科-他说 */
+      /**
+       * 去除底部广告
+       */
+      function remove_bottom_ad() {
+        Utils.waitNode("#index_tashuo_list").then(() => {
+          Utils.mutationObserver(document.querySelector("#index_tashuo_list"), {
+            callback: (mutations, observer) => {
+              Array.from(
+                document.querySelector("#index_tashuo_list").children
+              ).forEach((item) => {
+                if (item.className !== "J-hot-item-container") {
+                  log.info(["存在广告-删除！", item]);
+                  item.remove();
+                }
+              });
+            },
+            config: { subtree: true, childList: true, attributes: true },
+          });
+        });
+      }
       if (this.current_url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
-        setTimeout(function () {
-          remove_bottom_ad();
-        }, 2000);
-
-        function remove_bottom_ad() {
-          /* 去除底部广告 */
-          let index_tashuo_list_bottom =
-            document.getElementById("index_tashuo_list").children;
-          for (let i = 0; i < index_tashuo_list_bottom.length; i++) {
-            let item = index_tashuo_list_bottom[i];
-            let class_name = item.className;
-            if (class_name != "J-hot-item-container") {
-              log.info("TA has ad，remove ！");
-              item.remove();
-              i--;
-            }
-          }
-        }
+        remove_bottom_ad();
       }
     },
+    /**
+     * 百度知道
+     */
     zhidao() {
-      /* 百度知道 */
       if (this.current_url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
         GM_addStyle(this.css.zhidao);
         log.info("插入CSS规则");
         $(".ec-ad")?.parent()?.remove();
+        GM_Menu = new Utils.GM_Menu(
+          {
+            baidu_zhidao_block_recommend_more_exciting_content: {
+              text: "屏蔽-推荐更多精彩内容",
+              enable: true,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+            baidu_zhidao_block_other_answers:{
+              text: "屏蔽-其他回答",
+              enable: true,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+            baidu_fanyi_auto_focus: {
+              text: "自动点击-展开更多回答",
+              enable: true,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+          },
+          true,
+          GM_getValue,
+          GM_setValue,
+          GM_registerMenuCommand,
+          GM_unregisterMenuCommand
+        );
+        if(GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")){
+          GM_addStyle(`
+          .feed-recommend-title,
+          #feed-recommend,
+          .mm-content-box.mm-content-line.feed-recommend{
+            display: none !important;
+          }`)
+        }
+        if(GM_Menu.get("baidu_zhidao_block_other_answers")){
+          GM_addStyle(`
+          .replies-container + div{
+            display: none !important;
+          }`)
+        }
+        if(GM_Menu.get("baidu_fanyi_auto_focus")){
+
+        }
       }
     },
+    /**
+     * 百度翻译
+     */
     fanyi() {
-      /* 百度翻译 */
       if (this.current_url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
         GM_addStyle(this.css.fanyi);
         log.info("插入CSS规则");
+        GM_Menu = new Utils.GM_Menu(
+          {
+            baidu_fanyi_recommended_shielding_bottom: {
+              text: "屏蔽底部推荐",
+              enable: true,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+            baidu_fanyi_auto_focus: {
+              text: "自动聚焦",
+              enable: true,
+              showText: (_text_, _enable_) => {
+                return (_enable_ ? "✅" : "❌") + " " + _text_;
+              },
+            },
+          },
+          true,
+          GM_getValue,
+          GM_setValue,
+          GM_registerMenuCommand,
+          GM_unregisterMenuCommand
+        );
+        if (GM_Menu.get("baidu_fanyi_recommended_shielding_bottom")) {
+          GM_addStyle(`
+          section.article.android-style{
+            display: none !important;
+          }`);
+        }
+        if (GM_Menu.get("baidu_fanyi_auto_focus")) {
+          Utils.waitNode("textarea#j-textarea").then(
+            () => {
+              setTimeout(()=>{
+                document.querySelector("textarea#j-textarea").focus();
+              },2500);
+            }
+          );
+        }
       }
       if (this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         GM_addStyle(this.css.fanyiapp);
@@ -2491,18 +2829,27 @@
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度图片
+     */
     image() {
       if (this.current_url.match(/^http(s|):\/\/image.baidu.com/g)) {
         GM_addStyle(this.css.image);
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度地图
+     */
     map() {
       if (this.current_url.match(/^http(s|):\/\/map.baidu.com/g)) {
         GM_addStyle(this.css.map);
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度知道
+     */
     mbd() {
       if (this.current_url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
         /* 
@@ -2513,6 +2860,9 @@
         log.info("插入CSS规则");
       }
     },
+    /**
+     * 百度知了好学
+     */
     xue() {
       if (this.current_url.match(/^http(s|):\/\/xue.baidu.com/g)) {
         GM_addStyle(this.css.xue);
@@ -2521,143 +2871,6 @@
     },
   };
 
-  function autoLoadNextPage() {
-    /* 百度搜索-自动加载下一页 */
-    var isloding_flag = false;
-    $("#page-controller").after(loadingView.getLoadingNode(true));
-    loadingView.setCSS();
-    $(window).on("scroll", async function () {
-      let userScrollHeight = Math.ceil(
-        $(window).scrollTop() + $(window).height() + 300
-      );
-      if (userScrollHeight >= $(document).height()) {
-        if (isloding_flag == false) {
-          loadingView.setVisible(true);
-          isloding_flag = true;
-
-          let next_page_url =
-            $(".new-nextpage").attr("href") ||
-            $(".new-nextpage-only").attr("href");
-          if (!next_page_url) {
-            log.info("获取不到下一页，怀疑已加载所有的搜索结果");
-            isloding_flag = false;
-            $(window).off("scroll");
-            log.info("取消绑定scroll", "#f400ff");
-            loadingView.destory();
-            return;
-          }
-          let params_pn = new URL(next_page_url).search.match(/[0-9]+/);
-          let next_page_textContent =
-            params_pn.length == 0
-              ? "第 10 条"
-              : "第 " + parseInt(params_pn[0]) + " 条";
-          log.info(`正在请求${next_page_textContent}数据: ${next_page_url}`);
-
-          loadingView.setText("Loading...", true);
-          let getResp = await httpx.get({
-            url: next_page_url,
-          });
-          let respData = getResp.data;
-          if (getResp.status) {
-            loadingView.setVisible(false);
-            let page_html = $(respData.response);
-            page_html.find("style").filter(function (index) {
-              /* 插入vue打包的css需重新引入 */ if (
-                this.hasAttribute("data-vue-ssr-id")
-              ) {
-                let dataVueSsrId = "data-vue-ssr-id";
-                let dataVueSsrIdValue = this.getAttribute(dataVueSsrId);
-                if (
-                  !document.querySelector(
-                    "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
-                  )
-                ) {
-                  let cssDOM = GM_addStyle(this.innerHTML);
-                  cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-                  log.info(`插入Vue的CSS id: ${dataVueSsrIdValue}`);
-                }
-              }
-            });
-            let search_result = page_html.find(".c-result.result");
-            let next_html_next_page_html = page_html.find("#page-controller");
-            let this_page_results = $("#results");
-            if (this_page_results != void 0) {
-              $.each(search_result, (i, n) => {
-                this_page_results.append(n);
-              });
-              $("#page-controller").html(next_html_next_page_html);
-            } else {
-              log.info("已加载所有的搜索结果");
-              $(window).off("scroll");
-              log.info("取消绑定scroll", "#f400ff");
-            }
-            isloding_flag = false;
-            window.history.pushState("forward", null, next_page_url);
-          } else if (getResp.type === "onerror") {
-            if (next_page_url == undefined) {
-              log.error("未获取到下一页的url");
-            } else {
-              log.error("加载失败 👇");
-              log.error(respData);
-              loadingView.setText("加载失败");
-            }
-            isloding_flag = false;
-          } else if (getResp.type === "ontimeout") {
-            log.error("请求超时 👇");
-            loadingView.setText("请求超时");
-            isloding_flag = false;
-          } else {
-            log.error("未知错误");
-            loadingView.setText("未知错误");
-            isloding_flag = false;
-          }
-        } else {
-          let next_page_textContent =
-            $(".new-nowpage").length == 0
-              ? "第 10 条"
-              : "第 " +
-                (parseInt($(".new-nowpage")[0].textContent.match(/([0-9]+)/)) +
-                  1) +
-                " 条";
-          log.info(
-            "百度搜索",
-            `正在加载${next_page_textContent}中请稍后，请勿重复`
-          );
-        }
-      }
-    });
-  }
-
-  var GM_Menu = new Utils.GM_Menu(
-    {
-      menu_autoloading: {
-        text: "自动展开下一页",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return (_enable_ ? "✅" : "❌") + " " + _text_;
-        },
-      },
-      menu_showisdirect: {
-        text: "显示已重定向图标",
-        enable: true,
-        showText: (_text_, _enable_) => {
-          return (_enable_ ? "✅" : "❌") + " " + _text_;
-        },
-      },
-      LOG: {
-        text: "控制台输出日志",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return (_enable_ ? "✅" : "❌") + " " + _text_;
-        },
-      },
-    },
-    true,
-    GM_getValue,
-    GM_setValue,
-    GM_registerMenuCommand,
-    GM_unregisterMenuCommand
-  );
   GM_addStyle(CSDN_FLAG_CSS);
   baidu.init();
 })();
