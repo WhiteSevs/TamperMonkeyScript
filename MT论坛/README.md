@@ -111,11 +111,11 @@
 
 ## 屏蔽用户/板块
 
-[![ZF407K.png](https://www.helloimg.com/images/2022/05/24/ZF407K.png)](https://www.helloimg.com/image/ZF407K)
+[![ZF407K.png](https://www.helloimg.com/images/2022/05/24/ZF407K.png)]
 
 ## 自动加载评论
 
-[![Co0DAX.gif](https://www.helloimg.com/images/2021/06/25/Co0DAX.gif)](https://www.helloimg.com/image/Co0DAX)
+[![Co0DAX.gif](https://www.helloimg.com/images/2021/06/25/Co0DAX.gif)]
 
 ## 手机版小黑屋
 
@@ -123,20 +123,20 @@
 
 ## 付费主题白嫖列表
 
-[![ZNuB0u.gif](https://www.helloimg.com/images/2022/08/14/ZNuB0u.gif)](https://www.helloimg.com/image/ZNuB0u)
+[![ZNuB0u.gif](https://www.helloimg.com/images/2022/08/14/ZNuB0u.gif)]
 
 ## 帖外图片预览
 
-[![ZNjyGQ.gif](https://www.helloimg.com/images/2022/08/14/ZNjyGQ.gif)](https://www.helloimg.com/image/ZNjyGQ)
+[![ZNjyGQ.gif](https://www.helloimg.com/images/2022/08/14/ZNjyGQ.gif)]
 
 ## 小窗口浏览
 
-[![ZNjjIC.gif](https://www.helloimg.com/images/2022/08/14/ZNjjIC.gif)](https://www.helloimg.com/image/ZNjjIC)
+[![ZNjjIC.gif](https://www.helloimg.com/images/2022/08/14/ZNjjIC.gif)]
 
 ## 快捷 UBB 代码插入
 
-[![ZajgN9.png](https://www.helloimg.com/images/2022/05/27/ZajgN9.png)](https://www.helloimg.com/image/ZajgN9)
+[![ZajgN9.png](https://www.helloimg.com/images/2022/05/27/ZajgN9.png)]
 
 ## 发帖、编辑、回复预览
 
-[![20220824_171420.gif](http://cdn.img.kggzs.cn/uploads/img/2022/46/20226306394c5bb50.gif)](http://cdn.img.kggzs.cn/uploads/img/2022/46/20226306394c5bb50.gif)
+[![20220824_171420.gif](http://cdn.img.kggzs.cn/uploads/img/2022/46/20226306394c5bb50.gif)]
