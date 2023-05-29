@@ -2735,7 +2735,7 @@
                 return (_enable_ ? "✅" : "❌") + " " + _text_;
               },
             },
-            baidu_zhidao_block_other_answers:{
+            baidu_zhidao_block_other_answers: {
               text: "屏蔽-其他回答",
               enable: true,
               showText: (_text_, _enable_) => {
@@ -2756,22 +2756,19 @@
           GM_registerMenuCommand,
           GM_unregisterMenuCommand
         );
-        if(GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")){
+        if (GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")) {
           GM_addStyle(`
           .feed-recommend-title,
           #feed-recommend,
           .mm-content-box.mm-content-line.feed-recommend{
             display: none !important;
-          }`)
+          }`);
         }
-        if(GM_Menu.get("baidu_zhidao_block_other_answers")){
+        if (GM_Menu.get("baidu_zhidao_block_other_answers")) {
           GM_addStyle(`
           .replies-container + div{
             display: none !important;
-          }`)
-        }
-        if(GM_Menu.get("baidu_fanyi_auto_focus")){
-
+          }`);
         }
       }
     },
@@ -2812,13 +2809,11 @@
           }`);
         }
         if (GM_Menu.get("baidu_fanyi_auto_focus")) {
-          Utils.waitNode("textarea#j-textarea").then(
-            () => {
-              setTimeout(()=>{
-                document.querySelector("textarea#j-textarea").focus();
-              },2500);
-            }
-          );
+          Utils.waitNode("textarea#j-textarea").then(() => {
+            setTimeout(() => {
+              document.querySelector("textarea#j-textarea").focus();
+            }, 2500);
+          });
         }
       }
       if (this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
