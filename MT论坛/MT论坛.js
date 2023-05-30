@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;调整小黑屋的显示样式;
-// @version      2.9.8.3
+// @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;调整小黑屋的显示样式;优化拦截附件的方式;
+// @version      2.9.8.4
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -1076,8 +1076,26 @@
           document.querySelectorAll(".comiis_attach a").forEach((item) => {
             handleClick(item);
           });
+          document.querySelectorAll("span[id*=attach_] a").forEach((item) => {
+            handleClick(item);
+          });
         },
-        config: { childList: true, attributes: true },
+        config: { childList: true, subtree: true },
+      });
+      Utils.waitNode(".attnm a").then(() => {
+        document.querySelectorAll(".attnm a").forEach((item) => {
+          handleClick(item);
+        });
+      });
+      Utils.waitNode(".comiis_attach a").then(() => {
+        document.querySelectorAll(".comiis_attach a").forEach((item) => {
+          handleClick(item);
+        });
+      });
+      Utils.waitNode("span[id*=attach_] a").then(() => {
+        document.querySelectorAll("span[id*=attach_] a").forEach((item) => {
+          handleClick(item);
+        });
       });
     },
     collectionForumPost() {
@@ -3093,7 +3111,17 @@
             handleClick(item);
           });
         },
-        config: { childList: true, attributes: true },
+        config: { childList: true, subtree: true },
+      });
+      Utils.waitNode(".attnm a").then(() => {
+        document.querySelectorAll(".attnm a").forEach((item) => {
+          handleClick(item);
+        });
+      });
+      Utils.waitNode(".comiis_attach a").then(() => {
+        document.querySelectorAll(".comiis_attach a").forEach((item) => {
+          handleClick(item);
+        });
       });
     },
     /**
@@ -3254,33 +3282,8 @@
         });
         let blackViewNode = $jq(blackViewHTML);
         $jq(".blackhome-user-list").append(blackViewNode);
-        setBlackHomeAvatarClickEvent(blackViewNode);
         setSearchPropertyChangeEvent();
       }
-
-      /**
-       * 设置小黑屋名单中的头像点击事件
-       * @param {HTMLElement} blackViewNode 小黑屋元素节点
-       */
-      function setBlackHomeAvatarClickEvent(blackViewNode) {
-        blackViewNode.on("click", ".blackhome-user img", function () {
-          window.open(
-            `home.php?mod=space&uid=${this.closest(
-              ".blackhome-user-item"
-            ).getAttribute("data-uid")}&do=profile`,
-            "_blank"
-          );
-        });
-        blackViewNode.on("click", ".blackhome-operator-user img", function () {
-          window.open(
-            `home.php?mod=space&uid=${this.closest(
-              ".blackhome-user-item"
-            ).getAttribute("data-operator-uid")}&do=profile`,
-            "_blank"
-          );
-        });
-      }
-
       /**
        * 获取下一页小黑屋名单
        */
@@ -3306,7 +3309,6 @@
           new Event("propertychange")
         );
       }
-
       /**
        * 设置搜索-过滤的值变化事件
        */
@@ -3434,10 +3436,14 @@
                     data-operator-uid="${value["operatorid"]}">
                   <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
-                      <img src="${MT_CONFIG.getAvatar(
-                        value["uid"],
-                        "small"
-                      )}" loading="lazy">
+                      <a data-href="home.php?mod=space&uid=${
+                        value["uid"]
+                      }&do=profile" onclick="window.open(this.getAttribute('data-href'),'_blank');return false;">
+                        <img src="${MT_CONFIG.getAvatar(
+                          value["uid"],
+                          "big"
+                        )}" loading="lazy">
+                      </a>
                       <div class="blackhome-user-info">
                         <p>${value["username"]}</p>
                         <p>${value["dateline"]}</p>
@@ -3450,10 +3456,14 @@
                     <div class="blackhome-user-uuid">UID: ${value["uid"]}</div>
                     <div class="blackhome-operator">
                       <div class="blackhome-operator-user">
-                        <img loading="lazy" src="${MT_CONFIG.getAvatar(
-                          value["operatorid"],
-                          "small"
-                        )}">
+                        <a data-href="home.php?mod=space&uid=${
+                          value["operatorid"]
+                        }&do=profile" onclick="window.open(this.getAttribute('data-href'),'_blank');return false;">
+                          <img loading="lazy" src="${MT_CONFIG.getAvatar(
+                            value["operatorid"],
+                            "big"
+                          )}">
+                        </a>
                         <p>${value["operator"]}</p>
                       </div>
                       <div class="blackhome-operator-user-info">
