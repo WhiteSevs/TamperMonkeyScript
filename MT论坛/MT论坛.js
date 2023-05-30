@@ -3282,6 +3282,7 @@
         });
         let blackViewNode = $jq(blackViewHTML);
         $jq(".blackhome-user-list").append(blackViewNode);
+        setBlackHomeAvatarClickEvent(blackViewNode);
         setSearchPropertyChangeEvent();
       }
       /**
@@ -3304,7 +3305,9 @@
           blackViewHTML += getBlackListViewHTML(item);
         });
         popup2.toast(`成功获取 ${blackList.length}条数据`);
-        $jq(".blackhome-user-list").append($jq(blackViewHTML));
+        let blackViewNode = $jq(blackViewHTML);
+        setBlackHomeAvatarClickEvent(blackViewNode);
+        $jq(".blackhome-user-list").append(blackViewNode);
         $jq(".blackhome-user-filter input")[0].dispatchEvent(
           new Event("propertychange")
         );
@@ -3424,6 +3427,28 @@
         });
       }
       /**
+       * 设置小黑屋名单中的头像点击事件
+       * @param {HTMLElement} blackViewNode 小黑屋元素节点
+       */
+      function setBlackHomeAvatarClickEvent(blackViewNode) {
+        blackViewNode.on("click", ".blackhome-user img", function () {
+          window.open(
+            `home.php?mod=space&uid=${this.closest(
+              ".blackhome-user-item"
+            ).getAttribute("data-uid")}&do=profile`,
+            "_blank"
+          );
+        });
+        blackViewNode.on("click", ".blackhome-operator-user img", function () {
+          window.open(
+            `home.php?mod=space&uid=${this.closest(
+              ".blackhome-user-item"
+            ).getAttribute("data-operator-uid")}&do=profile`,
+            "_blank"
+          );
+        });
+      }
+      /**
        * 获取小黑屋显示出的html
        * @param {Object} value
        * @returns
@@ -3436,14 +3461,10 @@
                     data-operator-uid="${value["operatorid"]}">
                   <div class="blackhome-user-avatar">
                     <div class="blackhome-user">
-                      <a data-href="home.php?mod=space&uid=${
-                        value["uid"]
-                      }&do=profile" onclick="window.open(this.getAttribute('data-href'),'_blank');return false;">
-                        <img src="${MT_CONFIG.getAvatar(
-                          value["uid"],
-                          "big"
-                        )}" loading="lazy">
-                      </a>
+                      <img src="${MT_CONFIG.getAvatar(
+                        value["uid"],
+                        "big"
+                      )}" loading="lazy">
                       <div class="blackhome-user-info">
                         <p>${value["username"]}</p>
                         <p>${value["dateline"]}</p>
@@ -3456,14 +3477,10 @@
                     <div class="blackhome-user-uuid">UID: ${value["uid"]}</div>
                     <div class="blackhome-operator">
                       <div class="blackhome-operator-user">
-                        <a data-href="home.php?mod=space&uid=${
-                          value["operatorid"]
-                        }&do=profile" onclick="window.open(this.getAttribute('data-href'),'_blank');return false;">
-                          <img loading="lazy" src="${MT_CONFIG.getAvatar(
-                            value["operatorid"],
-                            "big"
-                          )}">
-                        </a>
+                        <img loading="lazy" src="${MT_CONFIG.getAvatar(
+                          value["operatorid"],
+                          "big"
+                        )}">
                         <p>${value["operator"]}</p>
                       </div>
                       <div class="blackhome-operator-user-info">
