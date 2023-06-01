@@ -2,7 +2,7 @@
  * 原地址     https://www.jq22.com/jquery-info24191
  * 演示地址   https://www.jq22.com/yanshi24191
  * 更新时间   2023-03-11 00:55:14
- * 版本       5.1.1
+ * 版本       5.1.2
  * 作者       NEIL
  * 修改:      修正部分css在移动端的显示；
  *            修改居中的实现方式；
@@ -942,7 +942,11 @@
       layerindex = Math.max.apply(
         null,
         $.map($("body *"), function (nodeItem, n) {
-          if ($(nodeItem).css("position") != "static")
+          /* 不对position为static和display为none的元素进行获取它们的z-index */
+          if (
+            $(nodeItem).css("position") !== "static" &&
+            $(nodeItem).css("display") !== "none"
+          )
             return parseInt($(nodeItem).css("z-index")) || -1;
         })
       );
