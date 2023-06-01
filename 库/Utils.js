@@ -638,18 +638,23 @@
   };
 
   /**
-   * 获取页面中最大的z-index
-   * @return {String}	User-Agent
+   * 获取页面中最大的z-index再+1
    * @example
-   * 	Utils.getRandomPCUA();
-   * @return
-   * 	Mozilla/5.0....
+   * 	Utils.getMaxZIndex();
+   * @return {number}
+   * 	1001
    **/
   Utils.getMaxZIndex = function () {
-    let arr = [...document.all].map(
-      (e) => +window.getComputedStyle(e).zIndex || 0
-    );
-    return arr.length ? Math.max(...arr) + 1 : 0;
+    let nodeIndexList = [...document.all]
+      .map((element) => {
+        let nodeStyle = window.getComputedStyle(element);
+        /* 不对position为static和display为none的元素进行获取它们的z-index */
+        if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
+          return +nodeStyle.zIndex || 0;
+        }
+      })
+      .filter(Boolean);
+    return nodeIndexList.length ? Math.max(...nodeIndexList) + 1 : 0;
   };
 
   /**
