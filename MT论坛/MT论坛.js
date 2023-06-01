@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 新增桌面端|移动端的附件点击拦截提示功能，可在脚本设置中开启，开启后若访问帖子内存在附件，会在附件前面加上【已拦截】;更新NZMsgBox库版本为5.1.1;调整小黑屋的显示样式;优化拦截附件的方式;
-// @version      2.9.8.4
+// @description  更新日志: 修复弹窗的遮罩层的层级显示问题;快捷编辑框添加代码和密码UBB代码插入按钮;更新NZMsgBox版本为5.1.2;更新Utils版本为2.3;
+// @version      2.9.8.5
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -121,6 +121,7 @@
         $jq("#force-mask").html("");
       }
       if (!zIndex) {
+        /* 遮罩层z-index为最大的>10 */
         $jq("#force-mask").css("z-index", Utils.getMaxZIndex() + 10);
       }
     },
@@ -159,6 +160,7 @@
       }
       let bottomBtnHTML = "";
       let confirmHTML = "";
+      /* confirm层z-index为最大的>110 */
       let maxZIndex = Utils.getMaxZIndex() + 10;
       let confirmZIndex =
         popup2.config.confirm.zIndex > maxZIndex
@@ -255,7 +257,7 @@
       }
       let toastobj = $jq(
         `<div class="popup2-toast" style="z-index:${
-          Utils.getMaxZIndex() + 10
+          Utils.getMaxZIndex() + 120
         };">${options.text}</div>`
       );
       $jq("body").append(toastobj);
@@ -8201,6 +8203,11 @@
         },
       };
 
+      /**
+       * 处理错误的响应
+       * @param {*} response
+       * @returns
+       */
       function handle_error(response) {
         let return_status = false;
         let messagetext = $jq(response.lastChild.firstChild.nodeValue)
@@ -8402,25 +8409,25 @@
 
       $jq(document).on("click", function (event) {
         /* 全局点击事件 */
-        if (
+        if (document.querySelector(".popup2-popmenu")) {
+          /* 当前存在弹出层，不做反应 */
+          return;
+        } else if (
           document
             .querySelector("#comiis_foot_menu_beautify li[data-attr='回帖']")
             .outerHTML.indexOf(event.target.outerHTML) != -1
         ) {
-          /* 显示回帖内容 */
+          /* 当前点击的回复图标按钮，显示回帖内容 */
           $jq("#comiis_foot_menu_beautify").hide();
           $jq("#comiis_foot_menu_beautify_big").show();
           $jq("#needmessage").focus();
-        } else if (document.querySelector("#popup2-popmenu")) {
-          /* 当前存在弹出层 */
-          return;
         } else if (
           window.event &&
           !Utils.checkUserClickInNode(
             document.querySelector("#comiis_foot_menu_beautify_big")
           )
         ) {
-          /* 不在区域内 */
+          /* 当前点击的不在底部编辑框区域内 */
           $jq("#comiis_foot_menu_beautify").show();
           $jq("#comiis_foot_menu_beautify_big").hide();
           if (
@@ -12476,7 +12483,7 @@
           num: 4,
         },
         size: {
-          key: "size",
+          key: "大小",
           value: "[size=][/size]",
           tagL: "=",
           tagR: "]",
@@ -12487,7 +12494,7 @@
           quickUBBReplace: "[size=14]replace[/size]",
         },
         color: {
-          key: "color",
+          key: "颜色",
           value: "[color=][/color]",
           tagL: "=",
           tagR: "]",
@@ -12606,7 +12613,30 @@
       },
       insertQuickReplyUBB: () => {
         /* 快捷回复 */
-        $jq.each(mobile.quickUBB.code, function (index, value) {
+        let ubbCodeMap = mobile.quickUBB.code;
+        ubbCodeMap["code"] = {
+          key: "代码",
+          value: "[code][/code]",
+          tagL: "]",
+          tagR: "[",
+          L: "[code]",
+          R: "[/code]",
+          cursorL: "[code]",
+          cursorLength: 7,
+          quickUBBReplace: "[code]replace[/code]",
+        };
+        ubbCodeMap["password"] = {
+          key: "密码",
+          value: "[password][/password]",
+          tagL: "]",
+          tagR: "[",
+          L: "[password]",
+          R: "[/password]",
+          cursorL: "[password]",
+          cursorLength: 10,
+          quickUBBReplace: "[password]replace[/password]",
+        };
+        $jq.each(ubbCodeMap, function (index, value) {
           let ubbs = $jq(
             `<li class="quickUBBs"><a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a></li>`
           );
@@ -12662,6 +12692,7 @@
                 },
               },
             });
+            $jq(".quickinsertbbsdialog").focus();
           });
           $jq("#comiis_insert_ubb_tab div.comiis_post_urlico ul").append(
             ubbs[0]
