@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 修复弹窗的遮罩层的层级显示问题;快捷编辑框添加代码和密码UBB代码插入按钮;更新NZMsgBox版本为5.1.2;更新Utils版本为2.3;
-// @version      2.9.8.5
+// @description  更新日志: 修复因工具类Utils导致快捷回复点击回复后编辑框不关闭问题;修改【附件点击提醒】的效果为=>如果附件是需要金币购买才会拦截;
+// @version      2.9.8.6
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -368,7 +368,7 @@
         );
       },
       comiisFormlist: function () {
-        /* 导读中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */
+        /* 导读中最新、热门、精华、回复、抢沙发的各个帖子【list】 */
         return document.querySelectorAll(
           MT_CONFIG.elementQuerySelectorAll.comiisFormlist
         );
@@ -415,7 +415,7 @@
     elementQuerySelectorAll: {
       comiisVerify: "span.comiis_verify" /* 帖子内各个人的信息节点【list】 */,
       comiisFormlist:
-        "li.forumlist_li" /* 导读中最新、热门、精华、恢复、抢沙发的各个帖子【list】 */,
+        "li.forumlist_li" /* 导读中最新、热门、精华、回复、抢沙发的各个帖子【list】 */,
       comiisMmlist:
         ".comiis_mmlist" /* 帖子内评论，包括帖子内容主体，第一个就是主体【list】 */,
       comiisPostli:
@@ -666,7 +666,7 @@
       }
       if (typeof jQuery != "undefined") {
         if (jQuery.fn.jquery === "3.4.1") {
-          /* 恢复页面的jQuery失败，再试一次 */
+          /* 回复页面的jQuery失败，再试一次 */
           window.$jq = $.noConflict(true);
         }
         console.log(
@@ -1046,25 +1046,36 @@
       if (!window.location.href.match(MT_CONFIG.urlRegexp.forumPost)) {
         return;
       }
+
       /**
        * 处理元素内的a标签的点击
        * @param {HTMLElement} item
        */
       function handleClick(item) {
         if (item.hasAttribute("href")) {
-          console.log("发现附件", item);
-          item.setAttribute("data-href", item.getAttribute("href"));
-          item.removeAttribute("href");
+          let attachmentId = item.hasAttribute("id")
+            ? item.id
+            : item.parentElement.id;
+          let attachmentURL = item.getAttribute("href");
           let attachmentName = item.innerText;
+          let attachmentMenu = document.querySelector(`#${attachmentId}_menu`);
+          if (attachmentMenu.innerText.indexOf("金币") === -1) {
+            return;
+          }
+          console.log("发现附件", item);
+          console.log("该附件是金币附件，拦截！");
+          item.setAttribute("data-href", attachmentURL);
+          item.removeAttribute("href");
           item.innerText = "【已拦截】" + attachmentName;
           item.onclick = function () {
             $jq.NZ_MsgBox.confirm({
               title: "提示",
               showIcon: true,
-              content: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+              content: `<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
               type: "warning",
-              callback: function (resu) {
-                console.log(resu);
+              callback: function () {
+                console.log(attachmentURL);
+                window.open(attachmentURL, "_blank");
               },
             });
           };
@@ -3084,19 +3095,25 @@
        */
       function handleClick(item) {
         if (item.hasAttribute("href")) {
+          let attachmentURL = item.getAttribute("href");
+          let attachmentNameNode = item.querySelector("span.f_ok");
+          let attachmentDownloadInfo = item.querySelector(".attach_size");
+          if (attachmentDownloadInfo.innerText.indexOf("金币") === -1) {
+            return;
+          }
           console.log("发现附件", item);
+          console.log("该附件是金币附件，拦截！");
+          let attachmentName = attachmentNameNode.innerText;
           item.setAttribute("data-href", item.getAttribute("href"));
           item.removeAttribute("href");
-          let attachmentNameNode = item.querySelector("span.f_ok");
-          let attachmentName = attachmentNameNode.innerText;
           attachmentNameNode.innerText = "【已拦截】" + attachmentName;
           item.onclick = function () {
             popup2.confirm({
-              text: `<br />确定下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
+              text: `<br />确定花费2金币下载附件 <a style="color: #507daf !important;">${attachmentName}</a> ？<br /><br />`,
               ok: {
                 callback: () => {
-                  console.log(item.getAttribute("data-href"));
-                  window.open(item.getAttribute("data-href"), "_blank");
+                  console.log(attachmentURL);
+                  window.open(attachmentURL, "_blank");
                   popup2.closeConfirm();
                 },
               },
