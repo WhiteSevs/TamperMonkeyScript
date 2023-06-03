@@ -25,6 +25,7 @@
 // @connect      z4a.net
 // @connect      kggzs.cn
 // @connect      woozooo.com
+// @connect      *
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
