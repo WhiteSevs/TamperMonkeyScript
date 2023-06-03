@@ -5426,7 +5426,8 @@
                     element.id ===
                       "comiis_foot_menu_beautify" /* 底部回复框 */ ||
                     element.id === "comiis_head" /* 顶部一栏 */ ||
-                    element.className.indexOf("xtiper_win_fixed ") != -1
+                    (typeof element.className === "string" &&
+                      element.className.indexOf("xtiper_win_fixed ") != -1)
                   )
                     return true;
                 },
