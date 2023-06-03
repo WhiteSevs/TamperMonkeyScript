@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.3
+ * @version  2.4
  **/
 (function (Utils) {
   /**
@@ -226,6 +226,8 @@
     ) {
       return true;
     } else if (
+      window.event.target &&
+      typeof window.event.target.innerHTML === "string" &&
       window.event.target.innerHTML.indexOf(targetNode.innerHTML) !== -1
     ) {
       /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
