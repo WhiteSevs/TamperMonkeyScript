@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.5
+ * @version  2.6
  **/
 (function (Utils) {
   /**
@@ -1911,8 +1911,12 @@
     if (obj == null) {
       result = true;
     } else if (typeof obj === "object") {
-      if (Object.keys(obj).length === 0) {
-        result = true;
+      try {
+        if (Object.keys(obj).length === 0) {
+          result = true;
+        }
+      } catch (error) {
+        result = false;
       }
     } else if (typeof obj === "number") {
       result = obj === 0 ? true : false;
