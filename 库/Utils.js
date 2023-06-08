@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.4
+ * @version  2.5
  **/
 (function (Utils) {
   /**
@@ -284,37 +284,58 @@
    * 自定义字典，用于new
    * @example
    *let dictionary = new Utils.Dictionary();
+   *let dictionary2 = new Utils.Dictionary();
    *dictionary.set("xxx","xxx");
    *dictionary.get("xxx");
    *dictionary.has("xxx");
+   *dictionary.concat(dictionary2)
    **/
   Utils.Dictionary = function () {
     this.items = {};
+    /**
+     * 检查是否有某一个键
+     * @param {*} key 键
+     * @returns {boolean}
+     */
     this.has = function (key) {
-      /* 检查是否有某一个键 */
       return this.items.hasOwnProperty(key);
     };
+    /**
+     * 为字典添加某一个值
+     * @param {*} key 键
+     * @param {*} val 值，默认为""
+     */
     this.set = function (key, val = "") {
-      /* 为字典添加某一个值 */
       if (key === undefined) {
         throw new Error("Utils.Dictionary().set 参数 key 不能为空");
       }
       this.items[key] = val;
     };
+    /**
+     * 删除某一个键
+     * @param {*} key 键
+     * @returns {boolean}
+     */
     this.delete = function (key) {
-      /* 删除某一个键 */
       if (this.has(key)) {
         delete this.items[key];
         return true;
       }
       return false;
     };
+    /**
+     * 获取某个键的值
+     * @param {*} key 键
+     * @returns {any|undefined}
+     */
     this.get = function (key) {
-      /* 查找某一特定项 */
       return this.has(key) ? this.items[key] : undefined;
     };
+    /**
+     * 返回字典中的所有值
+     * @returns {array}
+     */
     this.values = function () {
-      /* 返回字典中的所有值 */
       var resultList = [];
       for (var prop in this.items) {
         if (this.has(prop)) {
@@ -323,21 +344,39 @@
       }
       return resultList;
     };
+    /**
+     * 清空字典
+     */
     this.clear = function () {
-      /* 清空字典 */
       this.items = {};
     };
+    /**
+     * 获取字典的长度
+     * @returns {number}
+     */
     this.size = function () {
-      /* 获取字典的长度 */
       return Object.keys(this.items).length;
     };
+    /**
+     * 获取字典所有的键
+     * @returns
+     */
     this.keys = function () {
-      /* 获取字典所有的键 */
       return Object.keys(this.items);
     };
+    /**
+     * 返回字典本身
+     * @returns
+     */
     this.getItems = function () {
-      /* 返回字典本身 */
       return this.items;
+    };
+    /**
+     * 合并另一个字典
+     * @param {Dictionary} data 需要合并的字典
+     */
+    this.concat = function (data) {
+      this.items = Utils.assignJSON(this.items, data.getItems());
     };
   };
 
@@ -541,8 +580,8 @@
    * @return
    * 	getArrayRandValue
    **/
-  Utils.getArrayRandValue = function (_array_) {
-    return _array_[Math.floor(Math.random() * _array_.length)];
+  Utils.getArrayRandValue = function (data) {
+    return data[Math.floor(Math.random() * data.length)];
   };
 
   /**
@@ -605,31 +644,39 @@
       );
     }
     var time = text == null ? new Date() : new Date(text);
-    function _checkTime_(i) {
-      /* 校验时间补0 */
-      if (i < 10) return "0" + i;
-      return i;
+    /**
+     * 校验时间补0
+     * @param {number} timeNum
+     * @returns
+     */
+    function checkTime(timeNum) {
+      if (timeNum < 10) return "0" + timeNum;
+      return timeNum;
     }
 
-    function _timeSystemChange_(_hour_) {
-      /* 时间制修改 24小时制转12小时制 */
-      return _hour_ > 12 ? _hour_ - 12 : _hour_;
+    /**
+     * 时间制修改 24小时制转12小时制
+     * @param {number} hourNum 小时
+     * @returns
+     */
+    function timeSystemChange(hourNum) {
+      return hourNum > 12 ? hourNum - 12 : hourNum;
     }
 
     var timeRegexp = {
       yyyy: time.getFullYear(),
       /* 年 */
-      MM: _checkTime_(time.getMonth() + 1),
+      MM: checkTime(time.getMonth() + 1),
       /* 月 */
-      dd: _checkTime_(time.getDate()),
+      dd: checkTime(time.getDate()),
       /* 日 */
-      HH: _checkTime_(time.getHours()),
+      HH: checkTime(time.getHours()),
       /* 时 (24小时制) */
-      hh: _checkTime_(_timeSystemChange_(time.getHours())),
+      hh: checkTime(timeSystemChange(time.getHours())),
       /* 时 (12小时制) */
-      mm: _checkTime_(time.getMinutes()),
+      mm: checkTime(time.getMinutes()),
       /* 分 */
-      ss: _checkTime_(time.getSeconds()),
+      ss: checkTime(time.getSeconds()),
       /* 秒 */
     };
     Object.keys(timeRegexp).forEach(function (key) {
@@ -787,7 +834,7 @@
   Utils.GM_Cookie = function () {
     /**
 	 * 获取Cookie
-	 * @param {Object} details 
+	 * @param {Object} paramDetails 
 		+ url string? 默认为当前的url
 		+ domain string? 默认为当前的域名(window.location.hostname)
 		+ name string? 需要检索的Cookie的名字
@@ -796,23 +843,23 @@
 		+ cookies object[] 
 		+ error string|undefined
 	*/
-    this.list = (details = {}, callback = () => {}) => {
-      var getReturn = [];
+    this.list = (paramDetails = {}, callback = () => {}) => {
+      var resultData = [];
       try {
-        var _details_ = {
+        var details = {
           url: window.location.href,
           domain: window.location.hostname,
           name: "",
           path: "/",
         };
-        details = Utils.assignJSON(_details_, details);
+        paramDetails = Utils.assignJSON(details, paramDetails);
         var cookies = document.cookie.split(";");
         cookies.forEach((item) => {
-          let nameRegexp = new RegExp("^" + details.name + "=", "g");
+          let nameRegexp = new RegExp("^" + paramDetails.name + "=", "g");
           item = item.trimStart();
           if (item.match(nameRegexp)) {
-            getReturn = [
-              ...getReturn,
+            resultData = [
+              ...resultData,
               {
                 domain: window.location.hostname,
                 expirationDate: undefined,
@@ -830,20 +877,20 @@
             return;
           }
         });
-        callback(getReturn, undefined);
+        callback(resultData, undefined);
       } catch (error) {
-        callback(getReturn, error);
+        callback(resultData, error);
       }
     };
 
     /**
      * 设置Cookie
-     * @param {Object} details
+     * @param {Object} paramDetails
      * @param {Function} callback
      */
-    this.set = (details = {}, callback = () => {}) => {
+    this.set = (paramDetails = {}, callback = () => {}) => {
       try {
-        var _details_ = {
+        var details = {
           url: window.location.href,
           name: "",
           value: "",
@@ -853,14 +900,14 @@
           httpOnly: false,
           expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
         };
-        details = Utils.assignJSON(_details_, details);
-        var life = details.expirationDate
-          ? details.expirationDate
+        paramDetails = Utils.assignJSON(details, paramDetails);
+        var life = paramDetails.expirationDate
+          ? paramDetails.expirationDate
           : Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30;
         var cookieStr =
-          details.name +
+          paramDetails.name +
           "=" +
-          decodeURIComponent(details.value) +
+          decodeURIComponent(paramDetails.value) +
           ";expires=" +
           new Date(life).toGMTString();
         document.cookie = cookieStr;
@@ -872,19 +919,19 @@
 
     /**
      * 删除Cookie
-     * @param {Object} details
+     * @param {Object} paramDetails
      * @param {Function} callback
      */
-    this.delete = (details = {}, callback = () => {}) => {
+    this.delete = (paramDetails = {}, callback = () => {}) => {
       try {
-        var _details_ = {
+        var details = {
           url: window.location.href,
           name: "",
           firstPartyDomain: "",
         };
-        details = Utils.assignJSON(_details_, details);
+        paramDetails = Utils.assignJSON(details, paramDetails);
         var cookieStr =
-          details.name +
+          paramDetails.name +
           "=" +
           decodeURIComponent("null") +
           ";expires=" +
@@ -1035,20 +1082,20 @@
     };
     /**
      * 新增菜单数据
-     * @param {Object} _menuInfoData_
+     * @param {Object} paramMenuInfoData
      */
-    this.add = function (_menuInfoData_) {
-      menuInfoData = [...menuInfoData, _menuInfoData_];
+    this.add = function (paramMenuInfoData) {
+      menuInfoData = [...menuInfoData, paramMenuInfoData];
       init();
       register();
     };
     /**
      * 更新菜单数据
-     * @param {Object} _menuInfoData_
+     * @param {Object} paramMenuInfoData
      */
-    this.update = function (_menuInfoData_) {
-      if (_menuInfoData_) {
-        Object.assign(menuInfoData, _menuInfoData_);
+    this.update = function (paramMenuInfoData) {
+      if (paramMenuInfoData) {
+        Object.assign(menuInfoData, paramMenuInfoData);
       }
       Object.keys(menuInfoData).forEach((menuId) => {
         this.delete(menuId);
@@ -1223,6 +1270,57 @@
       onreadystatechange: function () {},
     };
     /**
+     * 获取请求配置
+     * @param {object} method 当前请求方法，默认get
+     * @param {object} resolve promise回调
+     * @param {object} details 请求配置
+     * @returns {object}
+     */
+    function getRequestDefails(method, resolve, details) {
+      return {
+        url: details.url || defaultDetails.url,
+        method: method || "get",
+        timeout: details.timeout || defaultDetails.timeout,
+        async: details.async || defaultDetails.async,
+        responseType: details.responseType || defaultDetails.responseType,
+        headers: details.headers || defaultDetails.headers,
+        data: details.data || defaultDetails.data,
+        redirect: details.redirect || defaultDetails.redirect,
+        cookie: details.cookie || defaultDetails.cookie,
+        binary: details.binary || defaultDetails.binary,
+        nocache: details.nocache || defaultDetails.nocache,
+        revalidate: details.revalidate || defaultDetails.revalidate,
+        context: details.context || defaultDetails.context,
+        overrideMimeType:
+          details.overrideMimeType || defaultDetails.overrideMimeType,
+        anonymous: details.anonymous || defaultDetails.anonymous,
+        fetch: details.fetch || defaultDetails.fetch,
+        user: details.user || defaultDetails.user,
+        password: details.password || defaultDetails.password,
+        onabort: function () {
+          onAbortCallBack(details, resolve, arguments);
+        },
+        onerror: function (response) {
+          onErrorCallBack(details, resolve, response, arguments);
+        },
+        onloadstart: function () {
+          onLoadStartCallBack(details, arguments);
+        },
+        onprogress: function () {
+          onProgressCallBack(details, arguments);
+        },
+        onreadystatechange: function () {
+          onReadyStateChangeCallBack(details, arguments);
+        },
+        ontimeout: function () {
+          onTimeoutCallBack(details, resolve, arguments);
+        },
+        onload: function (response) {
+          onLoadCallBack(resolve, response);
+        },
+      };
+    }
+    /**
      * 处理发送请求的details，去除值为undefined、空function的值
      * @param {object} details
      * @returns {object}
@@ -1304,7 +1402,7 @@
       }
       resolve({
         status: false,
-        data: response,
+        data: argumentsList,
         msg: "请求超时",
         type: "ontimeout",
       });
@@ -1365,45 +1463,8 @@
      */
     this.get = function (details) {
       return new Promise((resolve) => {
-        let requestDetails = {
-          url: details.url || defaultDetails.url,
-          method: "get",
-          timeout: details.timeout || defaultDetails.timeout,
-          async: details.async || defaultDetails.async,
-          responseType: details.responseType || defaultDetails.responseType,
-          headers: details.headers || defaultDetails.headers,
-          data: details.data || defaultDetails.data,
-          redirect: details.redirect || defaultDetails.redirect,
-          cookie: details.cookie || defaultDetails.cookie,
-          binary: details.binary || defaultDetails.binary,
-          nocache: details.nocache || defaultDetails.nocache,
-          revalidate: details.revalidate || defaultDetails.revalidate,
-          context: details.context || defaultDetails.context,
-          overrideMimeType:
-            details.overrideMimeType || defaultDetails.overrideMimeType,
-          anonymous: details.anonymous || defaultDetails.anonymous,
-          fetch: details.fetch || defaultDetails.fetch,
-          user: details.user || defaultDetails.user,
-          password: details.password || defaultDetails.password,
-          onabort: function () {
-            onAbortCallBack(details, resolve, arguments);
-          },
-          onerror: function (response) {
-            onErrorCallBack(details, resolve, response, arguments);
-          },
-          onloadstart: function () {
-            onLoadStartCallBack(details, arguments);
-          },
-          onreadystatechange: function () {
-            onReadyStateChangeCallBack(details, arguments);
-          },
-          ontimeout: function () {
-            onTimeoutCallBack(details, resolve, arguments);
-          },
-          onload: function (response) {
-            onLoadCallBack(resolve, response);
-          },
-        };
+        let requestDetails = getRequestDefails("get", resolve, details);
+        delete requestDetails.onprogress;
         requestDetails = handleRequestDetails(requestDetails);
         _GM_xmlHttpRequest_(requestDetails);
       });
@@ -1415,48 +1476,7 @@
      */
     this.post = function (details) {
       return new Promise((resolve) => {
-        let requestDetails = {
-          url: details.url || defaultDetails.url,
-          method: "post",
-          timeout: details.timeout || defaultDetails.timeout,
-          async: details.async || defaultDetails.async,
-          responseType: details.responseType || defaultDetails.responseType,
-          headers: details.headers || defaultDetails.headers,
-          data: details.data || defaultDetails.data,
-          redirect: details.redirect || defaultDetails.redirect,
-          cookie: details.cookie || defaultDetails.cookie,
-          binary: details.binary || defaultDetails.binary,
-          nocache: details.nocache || defaultDetails.nocache,
-          revalidate: details.revalidate || defaultDetails.revalidate,
-          context: details.context || defaultDetails.context,
-          overrideMimeType:
-            details.overrideMimeType || defaultDetails.overrideMimeType,
-          anonymous: details.anonymous || defaultDetails.anonymous,
-          fetch: details.fetch || defaultDetails.fetch,
-          user: details.user || defaultDetails.user,
-          password: details.password || defaultDetails.password,
-          onabort: function () {
-            onAbortCallBack(details, resolve, arguments);
-          },
-          onerror: function (response) {
-            onErrorCallBack(details, resolve, response, arguments);
-          },
-          onloadstart: function () {
-            onLoadStartCallBack(details, arguments);
-          },
-          onprogress: function () {
-            onProgressCallBack(details, arguments);
-          },
-          onreadystatechange: function () {
-            onReadyStateChangeCallBack(details, arguments);
-          },
-          ontimeout: function () {
-            onTimeoutCallBack(details, resolve, arguments);
-          },
-          onload: function (response) {
-            onLoadCallBack(resolve, response);
-          },
-        };
+        let requestDetails = getRequestDefails("post", resolve, details);
         requestDetails = handleRequestDetails(requestDetails);
         _GM_xmlHttpRequest_(requestDetails);
       });
@@ -1468,45 +1488,46 @@
      */
     this.head = function (details) {
       return new Promise((resolve) => {
-        let requestDetails = {
-          url: details.url || defaultDetails.url,
-          method: "head",
-          timeout: details.timeout || defaultDetails.timeout,
-          async: details.async || defaultDetails.async,
-          responseType: details.responseType || defaultDetails.responseType,
-          headers: details.headers || defaultDetails.headers,
-          data: details.data || defaultDetails.data,
-          redirect: details.redirect || defaultDetails.redirect,
-          cookie: details.cookie || defaultDetails.cookie,
-          binary: details.binary || defaultDetails.binary,
-          nocache: details.nocache || defaultDetails.nocache,
-          revalidate: details.revalidate || defaultDetails.revalidate,
-          context: details.context || defaultDetails.context,
-          overrideMimeType:
-            details.overrideMimeType || defaultDetails.overrideMimeType,
-          anonymous: details.anonymous || defaultDetails.anonymous,
-          fetch: details.fetch || defaultDetails.fetch,
-          user: details.user || defaultDetails.user,
-          password: details.password || defaultDetails.password,
-          onabort: function () {
-            onAbortCallBack(details, resolve, arguments);
-          },
-          onerror: function (response) {
-            onErrorCallBack(details, resolve, response, arguments);
-          },
-          onloadstart: function () {
-            onLoadStartCallBack(details, arguments);
-          },
-          onreadystatechange: function () {
-            onReadyStateChangeCallBack(details, arguments);
-          },
-          ontimeout: function () {
-            onTimeoutCallBack(details, resolve, arguments);
-          },
-          onload: function (response) {
-            onLoadCallBack(resolve, response);
-          },
-        };
+        let requestDetails = getRequestDefails("head", resolve, details);
+        delete requestDetails.onprogress;
+        requestDetails = handleRequestDetails(requestDetails);
+        _GM_xmlHttpRequest_(requestDetails);
+      });
+    };
+
+    /**
+     * OPTIONS请求
+     * @param {object} details
+     */
+    this.options = function (details) {
+      return new Promise((resolve) => {
+        let requestDetails = getRequestDefails("options", resolve, details);
+        delete requestDetails.onprogress;
+        requestDetails = handleRequestDetails(requestDetails);
+        _GM_xmlHttpRequest_(requestDetails);
+      });
+    };
+
+    /**
+     * DELETE请求
+     * @param {object} details
+     */
+    this.delete = function (details) {
+      return new Promise((resolve) => {
+        let requestDetails = getRequestDefails("delete", resolve, details);
+        delete requestDetails.onprogress;
+        requestDetails = handleRequestDetails(requestDetails);
+        _GM_xmlHttpRequest_(requestDetails);
+      });
+    };
+
+    /**
+     * PUT请求
+     * @param {object} details
+     */
+    this.put = function (details) {
+      return new Promise((resolve) => {
+        let requestDetails = getRequestDefails("put", resolve, details);
         requestDetails = handleRequestDetails(requestDetails);
         _GM_xmlHttpRequest_(requestDetails);
       });
@@ -1874,7 +1895,10 @@
 
   /**
    * 判断对象或数据是否为空
-   * @param {Object} _obj_ - 需要判断的变量
+   * String类型，如 ""、"null"、"undefined"、"   "
+   * Number类型，如 0
+   * Object类型，如 {}
+   * @param {Object} obj - 需要判断的变量
    * @example
    * 	Utils.isNull({});
    * @return  true
@@ -1882,37 +1906,39 @@
    * 	Utils.isNull([]);
    * @return  true
    **/
-  Utils.isNull = function (_obj_) {
+  Utils.isNull = function (obj) {
     var result = false;
-    if (typeof _obj_ === "undefined") {
+    if (obj == null) {
       result = true;
-    } else if (typeof _obj_ === "object") {
-      if (Object.keys(_obj_).length === 0) {
+    } else if (typeof obj === "object") {
+      if (Object.keys(obj).length === 0) {
         result = true;
       }
-    } else if (typeof _obj_ === "number") {
-      result = _obj_ === 0 ? true : false;
+    } else if (typeof obj === "number") {
+      result = obj === 0 ? true : false;
+    } else if (typeof obj === "string") {
+      result = obj.trim() === "" || obj === "null" || obj === "undefined";
     }
     return result;
   };
 
   /**
    * JSON内所有的值转为Array数组
-   * @param {Object} _json_ JSON数据
+   * @param {Object} jsonData JSON数据
    * @return {Object} 返回数组
    * @example
    * 	Utils.jsonAllValueToArray({"Utils":"jsonToArray","return","Array"});
    * @return ['jsonToArray', 'Array']
    **/
-  Utils.jsonAllValueToArray = function (_json_) {
-    if (typeof _json_ !== "object") {
+  Utils.jsonAllValueToArray = function (jsonData) {
+    if (typeof jsonData !== "object") {
       throw new Error(
         "Utils.jsonAllValueToArray 参数 _json_ 必须为 object 类型"
       );
     }
     var retArray = [];
-    Object.keys(_json_).forEach(function (key) {
-      retArray = [...retArray, _json_[key]];
+    Object.keys(jsonData).forEach(function (key) {
+      retArray = [...retArray, jsonData[key]];
     });
     return retArray;
   };
@@ -2228,10 +2254,10 @@
     };
     /**
      * 配置Log对象的颜色
-     * @param {object} _details_ 配置信息
+     * @param {object} paramDetails 配置信息
      */
-    this.config = function (_details_) {
-      this.details = Object.assign(this.details, _details_);
+    this.config = function (paramDetails) {
+      this.details = Object.assign(this.details, paramDetails);
     };
   };
   /**
@@ -2476,11 +2502,11 @@
   };
   /**
    * 在canvas元素节点上绘制进度圆圈
-   * @param _config_ {Object} 配置信息
+   * @param paramConfig {Object} 配置信息
    * @example let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
    * 					progress.draw();
    * **/
-  Utils.Progress = function (_config_) {
+  Utils.Progress = function (paramConfig) {
     this.config = {
       canvasNode: null /* canvas元素节点 */,
       deg: 95 /* 绘制角度 */,
@@ -2493,7 +2519,7 @@
       circleRadius: 50 /* 圆半径 */,
       draw: () => {} /* 控制绘制 */,
     };
-    this.config = Utils.assignJSON(this.config, _config_);
+    this.config = Utils.assignJSON(this.config, paramConfig);
     if (!(this.config.canvasNode instanceof HTMLCanvasElement)) {
       throw new Error(
         "Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement"
@@ -2679,6 +2705,37 @@
       }
     }
   };
+
+  /**
+   * 字符串转Object
+   * @param {string} data
+   * @returns {object}
+   */
+  Utils.toEvalJSON = function (data) {
+    let result = {};
+    try {
+      result = window.eval("(" + this + ")");
+    } catch (error) {
+      result = {};
+    }
+    return result;
+  };
+
+  /**
+   * 字符串转JSON
+   * @param {string} data
+   * @returns {object}
+   */
+  Utils.toJSON = function (data) {
+    let result = {};
+    try {
+      result = JSON.parse(data);
+    } catch (error) {
+      result = {};
+    }
+    return result;
+  };
+
   /**
    * @function Utils.tryCatch
    * @description 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
