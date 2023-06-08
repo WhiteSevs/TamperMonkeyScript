@@ -1,3 +1,9 @@
+<!--
+ * @Date: 2023-01-09 10:10:53
+ * @LastEditors: WhiteSev 893177236@qq.com
+ * @LastEditTime: 2023-06-08 10:07:25
+ * @FilePath: \油猴\【移动端】-百度系优化\README.md
+-->
 ## 🎈 简介
 
 百度系列产品【优化】，只支持`手机`使用油猴食用本脚本，其中包括 👇
@@ -12,41 +18,43 @@
 - 百度翻译
 - 百度图片
 - 百度地图
+- 百度-爱企查
+- 百度好看
 
-大部分的只插入屏蔽 css，只有`百度搜索`和`百度贴吧`进行了更深的功能增加
+对`百度搜索`和`百度贴吧`进行了更深的功能增加
 
-## <center>🎃 百度搜索</center>
+## 🎃 百度搜索
 
-### <center>1.点击`TamperMonkey`->`【百度系】优化`->开启`自动展开下一页`功能，即可在搜索时滑动到最底部自动加载下一页</center>
+### 1.点击`TamperMonkey`->`【百度系】优化`->开启`自动展开下一页`功能，即可在搜索时滑动到最底部自动加载下一页
 
-<center>![image.png](https://www.z4a.net/images/2022/11/16/image.png)</center>
+![image.png](https://www.z4a.net/images/2022/11/16/image.png)
 
-<center>![-111111.gif](https://www.z4a.net/images/2022/11/16/-111111.gif)</center>
+![-111111.gif](https://www.z4a.net/images/2022/11/16/-111111.gif)
 
-### <center>2.点击`TamperMonkey`->`【百度系】优化`->开启`显示已重定向图标`功能，即可在搜索结果中左边显示已进行过处理，不会出现需要下载百度 APP 的提示的图标且免去了百度对该链接进行中转，如果没有出现`重`图标，可能该结果就是该网站地址，不需要处理</center>
+### 2.点击`TamperMonkey`->`【百度系】优化`->开启`显示已重定向图标`功能，即可在搜索结果中左边显示已进行过处理，不会出现需要下载百度 APP 的提示的图标且免去了百度对该链接进行中转，如果没有出现`重`图标，可能该结果就是该网站地址，不需要处理
 
-<center>![image7467a28d084664d7.png](https://www.z4a.net/images/2022/11/16/image7467a28d084664d7.png)</center>
+![image7467a28d084664d7.png](https://www.z4a.net/images/2022/11/16/image7467a28d084664d7.png)
 
-### <center>3.自动标识`CSDN资源下载`</center>
+### 3.自动标识`CSDN资源下载`
 
-<center>[![image8c9419b80e31e98e.png](https://www.z4a.net/images/2022/11/16/image8c9419b80e31e98e.png)](https://www.z4a.net/image/2S85E6)</center>
+[![image8c9419b80e31e98e.png](https://www.z4a.net/images/2022/11/16/image8c9419b80e31e98e.png)](https://www.z4a.net/image/2S85E6)
 
-## <center>🎃 百度贴吧</center>
+## 🎃 百度贴吧
 
-### <center>1.无需设置，自动加载评论</center>
+### 1.无需设置，自动加载评论
 
-<center>![-2022-11-16_15_38_26.gif](https://www.z4a.net/images/2022/11/16/-2022-11-16_15_38_26.gif)</center>
+![2022-11-16_15_38_26.gif](https://www.z4a.net/images/2022/11/16/-2022-11-16_15_38_26.gif)
 
-### <center>2.只看楼主(很可惜，该楼主暂未评论)</center>
+### 2.只看楼主(很可惜，该楼主暂未评论)
 
-<center>![-2022-11-16_15_40_01.gif](https://www.z4a.net/images/2022/11/16/-2022-11-16_15_40_01.gif)</center>
+![-2022-11-16_15_40_01.gif](https://www.z4a.net/images/2022/11/16/-2022-11-16_15_40_01.gif)
 
-### <center>3.正序/倒序</center>
+### 3.正序/倒序
 
-<center>![-2022-11-16_15_41_09.gif](https://www.z4a.net/images/2022/11/16/-2022-11-16_15_41_09.gif)</center>
+![-2022-11-16_15_41_09.gif](https://www.z4a.net/images/2022/11/16/-2022-11-16_15_41_09.gif)
 
-<center>等......</center>
+等......
 
-## <center>👓 末尾</center>
+## 👓 末尾
 
-<center>如果有不能屏蔽的东西，请反馈链接</center>
+如果有不能屏蔽的东西，请反馈链接
