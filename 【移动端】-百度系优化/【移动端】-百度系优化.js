@@ -3,9 +3,9 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.8.5
+// @version      0.8.6
 // @author       WhiteSevs
-// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】
+// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
 // @match        *://www.baidu.com/*
 // @match        *://baijiahao.baidu.com/*
@@ -21,6 +21,9 @@
 // @match        *://map.baidu.com/*
 // @match        *://xue.baidu.com/*
 // @match        *://mbd.baidu.com/*
+// @match        *://aiqicha.baidu.com/*
+// @match        *://pos.baidu.com/*
+// @match        *://haokan.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -357,11 +360,12 @@
   }
 
   var loadingView = new LoadingView();
-
+  var GM_Menu = null; /* 菜单 */
   var baidu = {
     current_url: window.location.href,
     init() {
       this.search();
+      this.searchHome();
       this.baijiahao();
       this.tieba();
       this.wenku();
@@ -370,10 +374,14 @@
       this.baiketashuo();
       this.zhidao();
       this.fanyi();
+      this.fanyiApp();
       this.image();
       this.map();
       this.mbd();
       this.xue();
+      this.aiqicha();
+      this.pos();
+      this.haokan();
     },
     css: {
       search: `
@@ -394,7 +402,9 @@
 			div[class*='rec-wrapper__'],
       .brand-entry,
       .barea-ad,
-      .swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform]{
+      .swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform],
+      div#page-bd div.recommend,
+      div.short-mini div[data-module="rec:undefined-undefined"]{
 				display:none !important;
 			}
 			.searchboxtop.newsearch-white-style .se-form {
@@ -591,7 +601,9 @@
 			.wk-student,
 			.search-pay-container,
 			.wk-student-defense,
-			.vip-rec-card-main{
+			.vip-rec-card-main,
+      .back-dialog,
+      div.middle-box-root{
 				display:none !important;
 			}
 			.bartop{
@@ -728,120 +740,221 @@
 				width: auto !important;
 			}
 		`,
+      aiqicha: `
+      div.header-down-app,
+      div.active-enter,
+      div.app-enter,
+      div.coupon-active,
+      div.cpc-adv-container,
+      div.detail-footer.detail-footer-test,
+      div.index-more[data-show-id="indexMoreExposure"]
+      {
+        display: none !important;
+      }
+      .bread-crumbs.has-down,
+      .border-bottom-line{
+        top: 0 !important;
+      }
+    `,
+      pos: `
+      html,body{
+        display: none !important;
+      }`,
+      haokan: `
+      div.share-origin.wx-share-launch,
+      div.open-app-top.share-origin-fixed.wx-share-launch,
+      div.open-app-bottom.wx-share-launch{
+        display: none !important;
+      }
+      `,
+    },
+    /**
+     * 百度搜索-主页
+     */
+    searchHome() {
+      if (
+        !this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) &&
+        !this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?ref=/g) &&
+        !this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
+      ) {
+        return;
+      }
+      GM_addStyle(this.css.searchHome);
+      log.info("插入CSS规则-主页");
     },
     /**
      * 百度搜索
      */
     search() {
+      if (!this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/.+/g)) {
+        return;
+      }
+
       /**
-       * 替换链接
+       * @param {Dictionary} originURLMap 链接字典
        */
-      function replaceLink() {
+      const handleItemURL = {
+        originURLMap: null,
         /**
-         * 为元素设置真实链接
-         * @param {jQDOM} jQDOM
-         * @param {String} url
+         * 为搜索结果每一条设置原始链接
+         * @param {jQuery} jQDOM
+         * @param {String} articleURL article的真实url
          */
-        function setNodeAttrHref(jQDOM, url) {
+        setArticleOriginUrl(jQDOM, articleURL) {
+          /* 处理超链接 */
           jQDOM.find("a").each(async (index, item) => {
-            let newUrl = realLink.has(item.href)
-              ? realLink.get(item.href)
-              : url;
-            let aTagDataIvk = item.getAttribute("data-ivk");
-            if (
-              aTagDataIvk !== "" &&
-              aTagDataIvk != null &&
-              aTagDataIvk !== "{}"
-            ) {
-              try {
-                aTagDataIvk = JSON.parse(aTagDataIvk);
-                if (aTagDataIvk["control"] != null) {
-                  newUrl = aTagDataIvk["control"]["default_url"]
-                    ? aTagDataIvk["control"]["default_url"]
-                    : aTagDataIvk["control"]["dataUrl"];
-                  /* log.info("A标签上存在隐藏的url: "+url) */
-                }
-              } catch (error) {
-                /* log.error("A标签上存在隐藏的url，但是替换失败") */
-                log.error(error);
-              }
+            if (handleItemURL.originURLMap.has(item.href)) {
+              articleURL = handleItemURL.originURLMap.get(item.href);
             }
-            newUrl = await parseMBaiduFrom(item.href);
-            if (
-              newUrl === item.href ||
-              newUrl == null ||
-              newUrl === "undefined"
-            ) {
+            let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl($(item));
+            if (!Utils.isNull(domOriginUrl)) {
+              articleURL = domOriginUrl;
+            }
+            if (Utils.isNull(articleURL) || articleURL === item.href) {
               return;
             }
-            item.href = newUrl;
-            log.info("替换成新链接: " + url);
+            item.href = articleURL;
+            log.info("替换成新链接: " + articleURL);
           });
-        }
+          /* 这个是百度笔记(可能) */
+          jQDOM
+            .find("div[data-aftclk][class*=img-container]")
+            .each((index, item) => {
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl($(item));
+              if (!Utils.isNull(domOriginUrl)) {
+                item.setAttribute("href", domOriginUrl);
+                item.setAttribute("rl-link-href", domOriginUrl);
+                log.info("替换成新链接2: " + domOriginUrl);
+              }
+            });
+          /* 对搜锁结果中存在的视频进行处理 */
+          jQDOM
+            .find("div.c-video-container div[data-aftclk]")
+            .each((index, item) => {
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl($(item));
+              if (!Utils.isNull(domOriginUrl)) {
+                item.setAttribute("href", domOriginUrl);
+                item.setAttribute("rl-link-href", domOriginUrl);
+                log.info("视频替换成新链接: " + domOriginUrl);
+              }
+            });
+          /* 对搜锁结果中存在的视频进行处理 */
+          jQDOM
+            .find('div[data-module="sc_pc"] div[rl-link-href]')
+            .each((index, item) => {
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl($(item));
+              if (!Utils.isNull(domOriginUrl)) {
+                item.setAttribute("href", domOriginUrl);
+                item.setAttribute("rl-link-href", domOriginUrl);
+                log.info("视频替换成新链接: " + domOriginUrl);
+              }
+            });
+            
+        },
+        /**
+         * 解析在JSON数据中的urlParams中真正的链接，如果不存在，返回undefined
+         * @param {object} data 传入 {"urlParams":{...}} 中的urlParams
+         * @returns {undefined|string}
+         */
+        parseURLParamsOriginURL(data) {
+          if (data["originUrl"]) {
+            return data["originUrl"];
+          } else if (data["log"]) {
+            /* 隐藏在log的mu中 */
+            let url = undefined;
+            try {
+              url = JSON.parse(data["log"])["mu"];
+              Utils.isNull(url) && (url = undefined);
+            } catch (error) {}
+            return url;
+          }
+        },
         /**
          * 由于部分真实链接存储在 script 标签中，得取出
+         * @param {jQuery} jqNode 目标元素
          * @returns {Map}
          */
-        function getRealLinkJSON() {
-          let data = new Utils.Dictionary();
-          $("script[id^='atom-data-']").each((index, item) => {
+        parseScriptDOMOriginUrlMap(jqNode) {
+          let urlMap = new Utils.Dictionary();
+          jqNode.find("script[id^='atom-data-']").each((index, item) => {
             let json_data = JSON.parse(item.innerHTML);
             if (json_data["data"]["resultAtomData"] == null) {
               return;
             }
-            json_data = json_data["data"]["resultAtomData"];
-            let site = json_data["content"]["site"];
-            if (site == null) {
-              return;
-            }
-            site["list"].forEach((item) => {
-              data.set(
-                item["urlParams"]["tcUrl"],
-                item["urlParams"]["originUrl"]
+            let resultAtomData = json_data["data"]["resultAtomData"];
+            if (
+              resultAtomData["abstract"] &&
+              resultAtomData["abstract"]["urlParams"] &&
+              resultAtomData["abstract"]["urlParams"]["tcUrl"]
+            ) {
+              let url = handleItemURL.parseURLParamsOriginURL(
+                resultAtomData["abstract"]["urlParams"]
               );
-            });
-          });
-          return data;
-        }
-
-        /**
-         * 通过网络请求m.baidu.com/from....这种跳转链接的内容的具体链接
-         * @param {String} url
-         */
-        async function parseMBaiduFrom(url) {
-          return url;
-          if (
-            typeof url !== "string" ||
-            !url.match("^http(s|)://m.baidu.com/from=.+/bd_page_type")
-          ) {
-            return url;
-          }
-          let getResp = await httpx.get({
-            url: url,
-            headers: {
-              "user-agent": Utils.getRandomPCUA(),
-            },
-          });
-          let respData = getResp.data;
-          if (getResp.status) {
-            let replaceURL = respData.responseText.match(
-              /location.replace\("(.+)"\)/i
-            );
-            if (replaceURL && replaceURL.length === 2) {
-              return replaceURL[replaceURL.length - 1];
-            } else {
-              return url;
+              if (url) {
+                urlMap.set(
+                  resultAtomData["abstract"]["urlParams"]["tcUrl"],
+                  url
+                );
+              }
             }
-          } else {
-            return url;
-          }
-        }
+            if (
+              resultAtomData["content"] &&
+              resultAtomData["content"]["abstract"] &&
+              resultAtomData["content"]["abstract"]["urlParams"] &&
+              resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
+            ) {
+              let url = handleItemURL.parseURLParamsOriginURL(
+                resultAtomData["content"]["abstract"]["urlParams"]
+              );
+              if (url) {
+                urlMap.set(
+                  resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"],
+                  url
+                );
+              }
+            }
+            if (
+              resultAtomData["content"] &&
+              resultAtomData["content"]["links"] &&
+              resultAtomData["content"]["links"]["list"]
+            ) {
+              resultAtomData["content"]["links"]["list"].forEach((item) => {
+                item.forEach((item2) => {
+                  if (item2["urlParams"]["tcUrl"]) {
+                    let url = handleItemURL.parseURLParamsOriginURL(
+                      item2["urlParams"]
+                    );
+                    if (url) {
+                      urlMap.set(item2["urlParams"]["tcUrl"], url);
+                    }
+                  }
+                });
+              });
+            }
+            if (
+              resultAtomData["content"] &&
+              resultAtomData["content"]["site"]
+            ) {
+              resultAtomData["content"]["site"]["list"].forEach((item) => {
+                if (item["urlParams"]["tcUrl"]) {
+                  let url = handleItemURL.parseURLParamsOriginURL(
+                    item["urlParams"]
+                  );
+                  if (url) {
+                    urlMap.set(item["urlParams"]["tcUrl"], url);
+                  }
+                }
+              });
+            }
+          });
+          return urlMap;
+        },
         /**
          * 解析DOM节点上隐藏在属性中的真正url
          * @param {jQuery} jQDOM
-         * @returns
+         * @returns {string|undefined}
          */
-        async function parseDOMAttrOriginUrl(jQDOM) {
+        parseDOMAttrOriginUrl(jQDOM) {
           let url = null;
           let dataLog = jQDOM.attr("data-log");
           if (dataLog) {
@@ -850,10 +963,46 @@
               url = dataLog.mu;
             } catch (error) {
               log.error("DOM的属性data-log不存在👇");
+              log.error(error);
+            }
+          }
+          if (Utils.isNull(url)) {
+            let dataIVK = jQDOM.attr("data-ivk");
+            if (dataIVK) {
+              try {
+                dataIVK = JSON.parse(dataIVK);
+                url = dataIVK.control.default_url || dataIVK.control.dataUrl;
+              } catch (error) {
+                log.error("DOM的属性data-ivk不存在👇");
+                log.error(error);
+              }
             }
           }
 
-          if (!url || url === "") {
+          if (Utils.isNull(url)) {
+            let rlLinkDataLog = jQDOM.attr("rl-link-data-log");
+            if (rlLinkDataLog) {
+              try {
+                rlLinkDataLog = JSON.parse(rlLinkDataLog);
+                if (Utils.isNull(rlLinkDataLog.mu) && rlLinkDataLog.extra) {
+                  try {
+                    let rlLinkDataLogExtra = JSON.parse(rlLinkDataLog.extra);
+                    url = rlLinkDataLogExtra.loc || rlLinkDataLogExtra.log_loc;
+                    url = decodeURIComponent(url);
+                  } catch (error) {
+                    log.error("DOM的属性rl-link-data-log的extra不存在👇");
+                    log.error(error);
+                  }
+                } else {
+                  url = rlLinkDataLog.mu;
+                }
+              } catch (error) {
+                log.error("DOM的属性rl-link-data-log不存在👇");
+                log.error(error);
+              }
+            }
+          }
+          if (Utils.isNull(url)) {
             let articleDataLog = jQDOM
               .find("article")
               ?.attr("rl-link-data-log");
@@ -862,44 +1011,47 @@
                 articleDataLog = JSON.parse(articleDataLog);
                 url = articleDataLog.mu;
               } catch (error) {
-                log.error(
-                  "百度搜索",
-                  "article DOM的属性的rl-link-data-log也不存在👇，获取真实链接失败"
-                );
+                log.error("article DOM的属性的rl-link-data-log不存在👇");
                 log.error(jQDOM);
               }
             }
           }
-
-          if (!url || url === "") {
-            let dataIVK = jQDOM.attr("data-ivk");
-            if (dataIVK) {
+          if (Utils.isNull(url)) {
+            let articleLinkDataIVK = jQDOM
+              .find("article")
+              ?.attr("rl-link-data-ivk");
+            if (articleLinkDataIVK) {
               try {
-                dataLog = JSON.parse(dataIVK);
-                url = dataLog.control.default_url;
+                articleLinkDataIVK = JSON.parse(articleLinkDataIVK);
+                url =
+                  articleLinkDataIVK.control.default_url ||
+                  articleLinkDataIVK.control.dataUrl;
               } catch (error) {
-                log.error("DOM的属性data-ivk不存在👇");
+                log.error("article DOM的属性rl-link-data-ivk不存在👇");
                 log.error(error);
               }
             }
           }
 
-          if (url !== "" || url != null) {
-            url = decodeURI(url);
-          } else {
+          if (Utils.isNull(url)) {
             url = null;
-            log.error("未找到真实链接");
-            log.error(jQDOM);
+            /* log.error(["未在元素节点中找到隐藏的原始URL", jQDOM]); */
+          } else {
+            /* 对每个中文字符进行编码 */
+            let chineseArr = url.match(/[\u4e00-\u9fa5]/g);
+            if (chineseArr) {
+              for (var i = 0; i < chineseArr.length; i++) {
+                url = url.replace(chineseArr[i], encodeURI(chineseArr[i]));
+              }
+            }
           }
           return url;
-        }
-
+        },
         /**
-         * 添加标识CSDN标签
+         * 给元素添加【CSDN】下载标识
          * @param {jQuery} jQDOM
-         * @returns
          */
-        function addCSDNFlag(jQDOM) {
+        addCSDNFlag(jQDOM) {
           if (jQDOM.find(".csdn-flag-component-box").length) {
             return;
           }
@@ -911,12 +1063,11 @@
               )
             );
           log.success("插入CSDN下载提示标题");
-        }
-
+        },
         /**
          * 移除广告、推广
          */
-        function removeAds() {
+        removeAds() {
           $(".icon-logo")?.first()?.remove(); /* 底部下一页前面图标删除 */
           $("#page-relative")?.remove(); /* 末尾 ===>>  大家都在搜  广告位 */
           $(
@@ -938,7 +1089,7 @@
               item?.remove();
               log.success("删除广告==>大家还在搜");
             }
-            if (item.text().substr(0, 5) == "大家还在搜") {
+            if (item.text().substr(0, 5) === "大家还在搜") {
               item?.remove();
               log.success("删除广告==>大家都在搜（能看到的）");
             }
@@ -961,7 +1112,7 @@
                 /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
               )
             ) {
-              addCSDNFlag(item);
+              handleItemURL.addCSDNFlag(item);
             }
             if (
               item.attr("srcid") &&
@@ -983,133 +1134,139 @@
               log.success("删除广告==>问一问");
             }
           });
-          $("span").each((index, item) => {
-            item = $(item);
-            let resultParentElement = item.parent().parent();
+          document.querySelectorAll("span").forEach((item) => {
+            let resultParentElement = item.parentElement.parentElement;
             if (
-              item.text().match(/百度APP内打开/) ||
-              resultParentElement.attr("data-from") === "etpl"
+              item.innerText.match(/百度APP内打开/) ||
+              resultParentElement.getAttribute("data-from") === "etpl"
             ) {
-              resultParentElement?.remove();
+              resultParentElement.remove();
               log.success("删除广告==>隐藏的广告，会在滚动时跳出来的");
             }
           });
-        }
-
+        },
+        /**
+         * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
+         */
+        redirectTopLink() {
+          document.querySelectorAll(".se-head-tablink a").forEach((item) => {
+            if (
+              item.hasAttribute("data-sflink") &&
+              !Utils.isNull(item.getAttribute("data-sflink")) &&
+              item.getAttribute("href") !== item.getAttribute("data-sflink")
+            ) {
+              log.success(
+                "重定向顶部按钮: " + item.outerText.trim(),
+                "#ba00f8"
+              );
+              item.href = item.getAttribute("data-sflink");
+            }
+          });
+        },
+        /**
+         * 删除script标签中的百度APP提示
+         */
+        replaceScriptBaiDuTip() {
+          document.querySelectorAll("script").forEach((item) => {
+            if (
+              item.innerText.match(/define\(\"@molecule\/aftclk\/index\",/g)
+            ) {
+              item.remove();
+              log.success("删除广告==>跳转百度app提示");
+            }
+          });
+        },
         /**
          * 替换链接
          */
-        function replaceLink() {
-          $(".c-result.result").each(async (index, item) => {
-            item = $(item);
-            let realLinkUrl = await parseDOMAttrOriginUrl(
-              item
-            ); /* 根据已获取的真实链接取值 */
-            if (
-              !realLinkUrl ||
-              realLinkUrl === "undefined" ||
-              realLink === "null"
-            ) {
-              /* 未取到值 */
-              return;
-            }
-            let articleElement = item.find("article");
-            if (articleElement.length === 0) {
-              return;
-            }
-            if (
-              item.attr("tpl") === "wenda_abstract" &&
-              item.attr("preventClick") == null
-            ) {
-              /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
-              item.attr("preventClick", "true");
-              item.on("click", function (event) {
-                event.preventDefault();
-                let clickNode = event.target;
-                if (
-                  clickNode.localName &&
-                  clickNode.localName === "sup" &&
-                  $(clickNode).attr("rl-type") === "stop"
-                ) {
-                  return;
-                } else {
-                  window?.stop();
-                  window.location.href = realLinkUrl;
-                }
-              });
-              return;
-            }
-            if (realLinkUrl.match(/http:\/\/www.internal.video.baidu.com/g)) {
-              let internalVideo = decodeURI(
-                articleElement.getAttribute("rl-link-data-log")
-              );
-              let internalVideoMatch = internalVideo.match(
-                /\/sf\?pd=video_pag(.*?)={/g
-              );
-              if (internalVideoMatch) {
-                internalVideoMatch = internalVideoMatch[0];
-                let newinternalVideo = internalVideoMatch.substring(
-                  0,
-                  internalVideoMatch.length - 2
-                );
-                setNodeAttrHref(item, newinternalVideo);
-                articleElement.attr("rl-link-href", newinternalVideo);
-              }
-            } else if (
-              realLinkUrl.match(/http:\/\/m.baidu.com\/productcard/g)
-            ) {
-              log.error("该链接不予替换: " + realLinkUrl);
-            } else {
-              setNodeAttrHref(item, realLinkUrl);
-              articleElement.attr("rl-link-href", realLinkUrl);
-            }
-
-            if (!realLinkUrl.match(/^http(s|):\/\/m.baidu.com\/from/g)) {
-              if (!GM_Menu.get("menu_showisdirect")) {
+        replaceLink() {
+          document
+            .querySelectorAll(".c-result.result")
+            .forEach(async (item) => {
+              item = $(item);
+              let resultItemOriginURL =
+                handleItemURL.parseDOMAttrOriginUrl(
+                  item
+                ); /* 根据已获取的真实链接取值 */
+              if (Utils.isNull(resultItemOriginURL)) {
+                /* 未取到值 */
                 return;
               }
-              if (item.find(".white-bdsearch-isredirecrt").length === 0) {
-                let title_text_element = item.find(".c-title-text");
-                let is_redirect_icon = document.createElement("div");
-                is_redirect_icon.className = "white-bdsearch-isredirecrt";
-                is_redirect_icon.innerHTML = "<span>重</span>";
-                title_text_element.prepend(is_redirect_icon);
+              let articleElement = item.find("article");
+              /* 不处理没有article标签的元素 */
+              if (articleElement.length === 0) {
+                return;
               }
-            }
-          });
-        }
+              if (
+                item.attr("tpl") === "wenda_abstract" &&
+                item.attr("preventClick") == null
+              ) {
+                /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
+                item.attr("preventClick", "true");
+                item.on("click", function (event) {
+                  event.preventDefault();
+                  let clickNode = event.target;
+                  if (
+                    clickNode.localName &&
+                    clickNode.localName === "sup" &&
+                    $(clickNode).attr("rl-type") === "stop"
+                  ) {
+                    return;
+                  } else {
+                    window.stop();
+                    window.location.href = resultItemOriginURL;
+                  }
+                });
+                return;
+              }
+              /* 视频 */
+              if (
+                resultItemOriginURL.match(
+                  /http:\/\/www.internal.video.baidu.com/g
+                )
+              ) {
+                let internalVideo = decodeURI(
+                  articleElement.getAttribute("rl-link-data-log")
+                );
+                let internalVideoMatch = internalVideo.match(
+                  /\/sf\?pd=video_pag(.*?)={/g
+                );
+                if (internalVideoMatch) {
+                  internalVideoMatch = internalVideoMatch[0];
+                  let newinternalVideo = internalVideoMatch.substring(
+                    0,
+                    internalVideoMatch.length - 2
+                  );
+                  log.info(`视频链接 ${newinternalVideo}`);
+                  handleItemURL.setArticleOriginUrl(item, newinternalVideo);
+                  articleElement.attr("rl-link-href", newinternalVideo);
+                }
+              } else if (
+                resultItemOriginURL.match(/http:\/\/m.baidu.com\/productcard/g)
+              ) {
+                log.error("该链接不予替换: " + resultItemOriginURL);
+              } else {
+                handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
+                articleElement.attr("rl-link-href", resultItemOriginURL);
+              }
 
-        let realLink = getRealLinkJSON();
-        removeAds();
-        replaceLink();
-      }
-
-      /**
-       * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
-       */
-      function redirectTopLink() {
-        document.querySelectorAll(".se-head-tablink a").forEach((item) => {
-          if (
-            item.hasAttribute("data-sflink") &&
-            item.getAttribute("href") != item.getAttribute("data-sflink")
-          ) {
-            log.success("重定向顶部按钮: " + item.outerText.trim(), "#ba00f8");
-            item.href = item.getAttribute("data-sflink");
-          }
-        });
-      }
-
-      /**
-       * 删除script标签中的百度APP提示
-       */
-      function replaceScriptBaiDuTip() {
-        $("script").each((index, item) => {
-          if (item.text.match(/define\(\"@molecule\/aftclk\/index\",/g)) {
-            item?.remove();
-            log.success("删除广告==>跳转百度app提示");
-          }
-        });
-      }
+              if (
+                !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
+              ) {
+                if (!GM_Menu.get("menu_showisdirect")) {
+                  return;
+                }
+                if (item.find(".white-bdsearch-isredirecrt").length === 0) {
+                  let title_text_element = item.find(".c-title-text");
+                  let is_redirect_icon = document.createElement("div");
+                  is_redirect_icon.className = "white-bdsearch-isredirecrt";
+                  is_redirect_icon.innerHTML = "<span>重</span>";
+                  title_text_element.prepend(is_redirect_icon);
+                }
+              }
+            });
+        },
+      };
 
       /**
        * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
@@ -1239,8 +1396,23 @@
               let respData = getResp.data;
               if (getResp.status) {
                 loadingView.setVisible(false);
-                let page_html = $(respData.response);
-                page_html.find("style").filter(function (index) {
+                let nextPageHTMLNode = $(respData.responseText);
+                let scriptAtomData = $("<div></div>");
+                nextPageHTMLNode.each((index, item) => {
+                  if (
+                    item.localName === "script" &&
+                    typeof item.id === "string" &&
+                    item.id.startsWith("atom-data")
+                  ) {
+                    scriptAtomData.append($(item));
+                  }
+                });
+                let nextPageScriptOriginUrlMap =
+                  handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
+                log.info(["下一页的网址Map", nextPageScriptOriginUrlMap]);
+                handleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
+
+                nextPageHTMLNode.find("style").filter(function () {
                   /* 插入vue打包的css需重新引入 */ if (
                     this.hasAttribute("data-vue-ssr-id")
                   ) {
@@ -1257,9 +1429,10 @@
                     }
                   }
                 });
-                let search_result = page_html.find(".c-result.result");
+
+                let search_result = nextPageHTMLNode.find(".c-result.result");
                 let next_html_next_page_html =
-                  page_html.find("#page-controller");
+                  nextPageHTMLNode.find("#page-controller");
                 let this_page_results = $("#results");
                 if (this_page_results != void 0) {
                   $.each(search_result, (i, n) => {
@@ -1311,103 +1484,102 @@
           }
         });
       }
-      if (this.current_url.match(/^http(s|):\/\/(m|www).baidu.com/g)) {
-        log.info("插入CSS规则");
-        GM_addStyle(this.css.search);
-        GM_Menu = new Utils.GM_Menu(
-          {
-            menu_autoloading: {
-              text: "自动展开下一页",
-              enable: false,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
-            },
-            menu_showisdirect: {
-              text: "显示已重定向图标",
-              enable: true,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
-            },
-            LOG: {
-              text: "控制台输出日志",
-              enable: false,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
-            },
-            baidu_search_sync_next_page_address: {
-              text: "同步下一页地址",
-              enable: false,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
+
+      log.info("插入CSS规则");
+      GM_addStyle(this.css.search);
+      GM_Menu = new Utils.GM_Menu(
+        {
+          menu_autoloading: {
+            text: "自动展开下一页",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          true,
-          GM_getValue,
-          GM_setValue,
-          GM_registerMenuCommand,
-          GM_unregisterMenuCommand
-        );
-        $(function () {
-          var lock = false;
-          Utils.waitNode("div#page.search-page").then((nodeList) => {
-            Utils.mutationObserver(nodeList[0], {
-              callback: async () => {
-                if (lock) {
-                  return;
-                }
-                lock = true;
-                try {
-                  replaceLink();
-                } catch (error) {
-                  log.error("替换为真实链接失败");
-                  log.error(error);
-                } finally {
-                  setTimeout(() => {
-                    lock = false;
-                  }, 600);
-                }
-              },
-              config: {
-                childList: true,
-                subtree: true,
-              },
-            });
+          menu_showisdirect: {
+            text: "显示已重定向图标",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          LOG: {
+            text: "控制台输出日志",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_search_sync_next_page_address: {
+            text: "同步下一页地址",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      $(function () {
+        var lock = false;
+        Utils.waitNode("div#page.search-page").then((nodeList) => {
+          Utils.mutationObserver(nodeList[0], {
+            callback: async () => {
+              if (lock) {
+                return;
+              }
+              lock = true;
+              try {
+                handleItemURL.replaceLink();
+              } catch (error) {
+                log.error("替换为真实链接失败");
+                log.error(error);
+              } finally {
+                setTimeout(() => {
+                  lock = false;
+                }, 600);
+              }
+            },
+            config: {
+              childList: true,
+              subtree: true,
+            },
           });
-          replaceScriptBaiDuTip();
-          redirectTopLink();
-          clickOtherSearchEvent();
-          replaceLink();
-          if (GM_Menu.get("menu_autoloading")) {
-            autoLoadNextPage();
-          }
         });
-      }
-      if (
-        this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) ||
-        this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?ref=/g) ||
-        this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
-      ) {
-        GM_addStyle(this.css.searchHome);
-        log.info("插入CSS规则-主页");
-      }
+        handleItemURL.originURLMap = handleItemURL.parseScriptDOMOriginUrlMap(
+          $(document)
+        );
+        handleItemURL.removeAds();
+        handleItemURL.replaceScriptBaiDuTip();
+        handleItemURL.redirectTopLink();
+        clickOtherSearchEvent();
+        handleItemURL.replaceLink();
+        if (GM_Menu.get("menu_autoloading")) {
+          autoLoadNextPage();
+        }
+      });
     },
     /**
      * 百家号
      */
     baijiahao() {
-      if (this.current_url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
-        GM_addStyle(this.css.baijiahao);
-        log.info("插入CSS规则");
+      if (!this.current_url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
+        return;
       }
+      GM_addStyle(this.css.baijiahao);
+      log.info("插入CSS规则");
     },
     /**
      * 百度贴吧
      */
     tieba() {
+      if (!this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
+        return;
+      }
       function tiebaLoadComments() {
         /* 贴吧加载评论 */
         const tiebaConfig = {
@@ -2513,188 +2685,272 @@
           }
         );
       }
-      if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
-        GM_addStyle(this.css.tieba);
-        log.info("插入CSS规则");
-        if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
-          tiebaLoadComments();
-          registerImagePreview();
-        }
-        if (
-          this.current_url.match(
-            /^http(s|):\/\/tieba.baidu.com\/mo\/q\/newtopic\/topicTemplate/g
-          )
-        ) {
-          redirectJump();
-        }
+      GM_addStyle(this.css.tieba);
+      log.info("插入CSS规则");
+      if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
+        tiebaLoadComments();
+        registerImagePreview();
+      }
+      if (
+        this.current_url.match(
+          /^http(s|):\/\/tieba.baidu.com\/mo\/q\/newtopic\/topicTemplate/g
+        )
+      ) {
+        redirectJump();
       }
     },
     /**
      * 百度文库
      */
     wenku() {
-      if (this.current_url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
-        GM_addStyle(this.css.wenku);
-        log.info("插入CSS规则");
+      if (!this.current_url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.wenku);
+      log.info("插入CSS规则");
+      GM_Menu = new Utils.GM_Menu(
+        {
+          baidu_wenku_block_member_picks: {
+            text: "屏蔽会员精选",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_wenku_blocking_app_featured: {
+            text: "屏蔽APP精选",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_wenku_blocking_related_documents: {
+            text: "屏蔽相关文档",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_wenku_blocking_bottom_toolbar: {
+            text: "屏蔽底部工具栏",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_wenku_shield_next_btn: {
+            text: "屏蔽下一篇按钮",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      /* 屏蔽会员精选 */
+      if (GM_Menu.get("baidu_wenku_block_member_picks")) {
+        GM_addStyle(`
+          div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]{
+            display: none !important;
+          }`);
+      }
+      /* 屏蔽APP精选 */
+      if (GM_Menu.get("baidu_wenku_blocking_app_featured")) {
+        GM_addStyle(`
+          div[class*="app-choice_"][data-ait-action="appChoiceNewShow"],
+          div.folder-wrap.invite-clipboard[data-clipboard-text]{
+            display: none !important;
+          }`);
+      }
+      /* 屏蔽相关文档 */
+      if (GM_Menu.get("baidu_wenku_blocking_related_documents")) {
+        GM_addStyle(`
+          div.fold-page-conversion,
+          div.newrecom-list.invite-clipboard[data-clipboard-text]{
+            display: none !important;
+          }`);
+      }
+      /* 屏蔽底部工具栏 */
+      if (GM_Menu.get("baidu_wenku_blocking_bottom_toolbar")) {
+        GM_addStyle(`
+          div.barbottom{
+            display: none !important;
+          }`);
+      }
+      /* 屏蔽下一篇按钮 */
+      if (GM_Menu.get("baidu_wenku_shield_next_btn")) {
+        GM_addStyle(`
+          div.next-page-container{
+            display: none !important;
+          }`);
       }
     },
     /**
      * 百度经验
      */
     jingyan() {
-      if (this.current_url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
-        GM_addStyle(this.css.jingyan);
-        log.info("插入CSS规则");
+      if (!this.current_url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
+        return;
       }
+      GM_addStyle(this.css.jingyan);
+      log.info("插入CSS规则");
     },
     /**
      * 百度百科
      */
     baike() {
-      if (this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
-        let page = 1;
-        GM_addStyle(this.css.baike);
-        log.info("插入CSS规则");
-        GM_Menu = new Utils.GM_Menu(
-          {
-            baidu_baike_sync_next_page_address: {
-              text: "同步下一页地址",
-              enable: false,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
+      if (!this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
+        return;
+      }
+      let page = 1;
+      GM_addStyle(this.css.baike);
+      log.info("插入CSS规则");
+      GM_Menu = new Utils.GM_Menu(
+        {
+          baidu_baike_sync_next_page_address: {
+            text: "同步下一页地址",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          true,
-          GM_getValue,
-          GM_setValue,
-          GM_registerMenuCommand,
-          GM_unregisterMenuCommand
-        );
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
 
-        /**
-         * 获取到的图片大小要重新设置
-         */
-        function setImageWidthHeight() {
-          document.querySelectorAll(".col-para").forEach((item) => {
-            item.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
-            let content_img_item = item.querySelector(".content-img-item");
-            let content_img_link = item.querySelector(".content-img-link");
-            let content_album = item.querySelector(".content-album");
-            content_album?.setAttribute("style", "");
-            if (content_album) {
-              content_img_item = item.querySelector(".content-album-item");
-              content_img_link = item.querySelector(".content-album-link");
-            }
-            content_img_item?.setAttribute(
-              "style",
-              "max-height: 39vw;max-width: 30vw;border-radius: 0.09rem;margin: 0 auto;overflow: hidden;"
-            );
-            content_img_link?.setAttribute("style", "width: 30vw;");
-          });
-        }
+      /**
+       * 获取到的图片大小要重新设置
+       */
+      function setImageWidthHeight() {
+        document.querySelectorAll(".col-para").forEach((item) => {
+          item.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
+          let content_img_item = item.querySelector(".content-img-item");
+          let content_img_link = item.querySelector(".content-img-link");
+          let content_album = item.querySelector(".content-album");
+          content_album?.setAttribute("style", "");
+          if (content_album) {
+            content_img_item = item.querySelector(".content-album-item");
+            content_img_link = item.querySelector(".content-album-link");
+          }
+          content_img_item?.setAttribute(
+            "style",
+            "max-height: 39vw;max-width: 30vw;border-radius: 0.09rem;margin: 0 auto;overflow: hidden;"
+          );
+          content_img_link?.setAttribute("style", "width: 30vw;");
+        });
+      }
 
-        /**
-         * 获取到的要重新将图片链接插入到img标签中
-         */
-        function insertUrlToImageNode() {
-          document.querySelectorAll(".lazy-img").forEach((item) => {
-            item = $(item);
-            let content_img = $(item.parent().parent().parent());
-            let img_url = content_img.attr("data-src")
-              ? content_img.attr("data-src")
-              : item.attr("data-url");
-            if (img_url != null) {
-              item.innerHTML = `<img src="${img_url}"></img>`;
-            }
-          });
-        }
-        /**
-         * 循环加载更多内容
-         */
-        function loadMore() {
-          Utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
-            let nextTargetNode = document.querySelector("#J-gotoPC-top");
-            let nextUrl = nextTargetNode.href;
-            let nextUrlObj = new URL(nextUrl);
-            let itemId = nextUrlObj.pathname.match(
-              new RegExp("/item/.+?/([0-9]+)", "i")
-            );
-            if (!itemId) {
-              log.error(nextUrl);
-              log.error("匹配id失败");
-              return;
-            }
-            loadingView.setCSS();
-            $(".BK-main-content").after(loadingView.getLoadingNode());
-            while (1) {
-              loadingView.setVisible(true);
-              let nextPageUrl = `https://baike.baidu.com${
-                nextUrlObj.pathname
-              }?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
-              log.info(nextPageUrl);
-              let getResp = await httpx.get({
-                url: nextPageUrl,
-                headers: {
-                  "User-Agent":
-                    "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/112.0.0.0",
-                },
-              });
-              let respData = getResp.data;
-              if (getResp.status) {
-                let respObj = $(respData.responseText);
-                let main_content = respObj.find(".BK-main-content");
-                let nextPageContent =
-                  main_content.prevObject[0].innerHTML.trim();
-                if (nextPageContent === `<a name="u0"></a>`) {
-                  log.info("已到达最大页" + (page - 1));
-                  insertUrlToImageNode();
-                  setImageWidthHeight();
-                  loadingView.setText("已到达最大页" + (page - 1));
-                  break;
-                } else {
-                  loadingView.setText("正在加载页 " + page, true);
-                  log.info(nextPageContent);
-                  $(".BK-main-content").append($(nextPageContent));
-                  await Utils.sleep(350);
-                }
-                if (GM_Menu.get("baidu_baike_sync_next_page_address")) {
-                  window.history.pushState("forward", null, respData.finalUrll);
-                }
-                page++;
-              } else if (getResp.type === "onerror") {
-                log.error("请求失败 👇");
-                log.error(respData);
+      /**
+       * 获取到的要重新将图片链接插入到img标签中
+       */
+      function insertUrlToImageNode() {
+        document.querySelectorAll(".lazy-img").forEach((item) => {
+          item = $(item);
+          let content_img = $(item.parent().parent().parent());
+          let img_url = content_img.attr("data-src")
+            ? content_img.attr("data-src")
+            : item.attr("data-url");
+          if (img_url != null) {
+            item.innerHTML = `<img src="${img_url}"></img>`;
+          }
+        });
+      }
+      /**
+       * 循环加载更多内容
+       */
+      function loadMore() {
+        Utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
+          let nextTargetNode = document.querySelector("#J-gotoPC-top");
+          let nextUrl = nextTargetNode.href;
+          let nextUrlObj = new URL(nextUrl);
+          let itemId = nextUrlObj.pathname.match(
+            new RegExp("/item/.+?/([0-9]+)", "i")
+          );
+          if (!itemId) {
+            log.error(nextUrl);
+            log.error("匹配id失败");
+            return;
+          }
+          loadingView.setCSS();
+          $(".BK-main-content").after(loadingView.getLoadingNode());
+          while (1) {
+            loadingView.setVisible(true);
+            let nextPageUrl = `https://baike.baidu.com${
+              nextUrlObj.pathname
+            }?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
+            log.info(nextPageUrl);
+            let getResp = await httpx.get({
+              url: nextPageUrl,
+              headers: {
+                "User-Agent":
+                  "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/112.0.0.0",
+              },
+            });
+            let respData = getResp.data;
+            if (getResp.status) {
+              let respObj = $(respData.responseText);
+              let main_content = respObj.find(".BK-main-content");
+              let nextPageContent = main_content.prevObject[0].innerHTML.trim();
+              if (nextPageContent === `<a name="u0"></a>`) {
+                log.info("已到达最大页" + (page - 1));
                 insertUrlToImageNode();
                 setImageWidthHeight();
-                loadingView.setText("请求失败");
-                loadingView.setIconVisible(false);
-                break;
-              } else if (getResp.type === "ontimeout") {
-                log.error("请求超时 👇");
-                insertUrlToImageNode();
-                setImageWidthHeight();
-                loadingView.setText("请求超时");
-                loadingView.setIconVisible(false);
+                loadingView.setText("已到达最大页" + (page - 1));
                 break;
               } else {
-                log.error("未知错误");
-                insertUrlToImageNode();
-                setImageWidthHeight();
-                loadingView.setText("未知错误");
-                loadingView.setIconVisible(false);
-                break;
+                loadingView.setText("正在加载页 " + page, true);
+                log.info(nextPageContent);
+                $(".BK-main-content").append($(nextPageContent));
+                await Utils.sleep(350);
               }
+              if (GM_Menu.get("baidu_baike_sync_next_page_address")) {
+                window.history.pushState("forward", null, respData.finalUrll);
+              }
+              page++;
+            } else if (getResp.type === "onerror") {
+              log.error("请求失败 👇");
+              log.error(respData);
+              insertUrlToImageNode();
+              setImageWidthHeight();
+              loadingView.setText("请求失败");
+              loadingView.setIconVisible(false);
+              break;
+            } else if (getResp.type === "ontimeout") {
+              log.error("请求超时 👇");
+              insertUrlToImageNode();
+              setImageWidthHeight();
+              loadingView.setText("请求超时");
+              loadingView.setIconVisible(false);
+              break;
+            } else {
+              log.error("未知错误");
+              insertUrlToImageNode();
+              setImageWidthHeight();
+              loadingView.setText("未知错误");
+              loadingView.setIconVisible(false);
+              break;
             }
-          });
-        }
-        loadMore();
+          }
+        });
       }
+      loadMore();
     },
     /**
      * 百度百科-他说
      */
     baiketashuo() {
+      if (!this.current_url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
+        return;
+      }
       /**
        * 去除底部广告
        */
@@ -2715,156 +2971,262 @@
           });
         });
       }
-      if (this.current_url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
-        remove_bottom_ad();
-      }
+      remove_bottom_ad();
     },
     /**
      * 百度知道
      */
     zhidao() {
-      if (this.current_url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
-        GM_addStyle(this.css.zhidao);
-        log.info("插入CSS规则");
-        $(".ec-ad")?.parent()?.remove();
-        GM_Menu = new Utils.GM_Menu(
-          {
-            baidu_zhidao_block_recommend_more_exciting_content: {
-              text: "屏蔽-推荐更多精彩内容",
-              enable: true,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
-            },
-            baidu_zhidao_block_other_answers: {
-              text: "屏蔽-其他回答",
-              enable: true,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
-            },
-            baidu_fanyi_auto_focus: {
-              text: "自动点击-展开更多回答",
-              enable: true,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
+      if (!this.current_url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.zhidao);
+      log.info("插入CSS规则");
+      $(".ec-ad")?.parent()?.remove();
+      GM_Menu = new Utils.GM_Menu(
+        {
+          baidu_zhidao_block_recommend_more_exciting_content: {
+            text: "屏蔽-推荐更多精彩内容",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          true,
-          GM_getValue,
-          GM_setValue,
-          GM_registerMenuCommand,
-          GM_unregisterMenuCommand
-        );
-        if (GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")) {
-          GM_addStyle(`
+          baidu_zhidao_block_other_answers: {
+            text: "屏蔽-其他回答",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_fanyi_auto_focus: {
+            text: "自动点击-展开更多回答",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      if (GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")) {
+        GM_addStyle(`
           .feed-recommend-title,
           #feed-recommend,
           .mm-content-box.mm-content-line.feed-recommend{
             display: none !important;
           }`);
-        }
-        if (GM_Menu.get("baidu_zhidao_block_other_answers")) {
-          GM_addStyle(`
+      }
+      if (GM_Menu.get("baidu_zhidao_block_other_answers")) {
+        GM_addStyle(`
           .replies-container + div{
             display: none !important;
           }`);
-        }
       }
     },
     /**
      * 百度翻译
      */
     fanyi() {
-      if (this.current_url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
-        GM_addStyle(this.css.fanyi);
-        log.info("插入CSS规则");
-        GM_Menu = new Utils.GM_Menu(
-          {
-            baidu_fanyi_recommended_shielding_bottom: {
-              text: "屏蔽底部推荐",
-              enable: true,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
-            },
-            baidu_fanyi_auto_focus: {
-              text: "自动聚焦",
-              enable: true,
-              showText: (_text_, _enable_) => {
-                return (_enable_ ? "✅" : "❌") + " " + _text_;
-              },
+      if (!this.current_url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.fanyi);
+      log.info("插入CSS规则");
+      GM_Menu = new Utils.GM_Menu(
+        {
+          baidu_fanyi_recommended_shielding_bottom: {
+            text: "屏蔽底部推荐",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          true,
-          GM_getValue,
-          GM_setValue,
-          GM_registerMenuCommand,
-          GM_unregisterMenuCommand
-        );
-        if (GM_Menu.get("baidu_fanyi_recommended_shielding_bottom")) {
-          GM_addStyle(`
-          section.article.android-style{
-            display: none !important;
-          }`);
-        }
-        if (GM_Menu.get("baidu_fanyi_auto_focus")) {
-          Utils.waitNode("textarea#j-textarea").then(() => {
-            setTimeout(() => {
-              document.querySelector("textarea#j-textarea").focus();
-            }, 2500);
-          });
-        }
+          baidu_fanyi_auto_focus: {
+            text: "自动聚焦",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      if (GM_Menu.get("baidu_fanyi_recommended_shielding_bottom")) {
+        GM_addStyle(`
+        section.article.android-style{
+          display: none !important;
+        }`);
       }
-      if (this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
-        GM_addStyle(this.css.fanyiapp);
-        Utils.waitNode("#page-content").then(() => {
-          $("#page-content")?.attr("style", "max-height:unset !important");
+      if (GM_Menu.get("baidu_fanyi_auto_focus")) {
+        Utils.waitNode("textarea#j-textarea").then(() => {
+          setTimeout(() => {
+            document.querySelector("textarea#j-textarea").focus();
+          }, 2500);
         });
-        log.info("插入CSS规则");
       }
+    },
+    /**
+     * 百度翻译-APP
+     */
+    fanyiApp() {
+      if (!this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.fanyiapp);
+      Utils.waitNode("#page-content").then(() => {
+        $("#page-content")?.attr("style", "max-height:unset !important");
+      });
+      log.info("插入CSS规则");
     },
     /**
      * 百度图片
      */
     image() {
-      if (this.current_url.match(/^http(s|):\/\/image.baidu.com/g)) {
-        GM_addStyle(this.css.image);
-        log.info("插入CSS规则");
+      if (!this.current_url.match(/^http(s|):\/\/image.baidu.com/g)) {
+        return;
       }
+      GM_addStyle(this.css.image);
+      log.info("插入CSS规则");
     },
     /**
      * 百度地图
      */
     map() {
-      if (this.current_url.match(/^http(s|):\/\/map.baidu.com/g)) {
-        GM_addStyle(this.css.map);
-        log.info("插入CSS规则");
+      if (!this.current_url.match(/^http(s|):\/\/map.baidu.com/g)) {
+        return;
       }
+      GM_addStyle(this.css.map);
+      log.info("插入CSS规则");
     },
     /**
      * 百度知道
      */
     mbd() {
-      if (this.current_url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
-        /* 
+      if (!this.current_url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
+        return;
+      }
+      /* 
         示例
         https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
         */
-        GM_addStyle(this.css.mbd);
-        log.info("插入CSS规则");
-      }
+      GM_addStyle(this.css.mbd);
+      log.info("插入CSS规则");
     },
     /**
      * 百度知了好学
      */
     xue() {
-      if (this.current_url.match(/^http(s|):\/\/xue.baidu.com/g)) {
-        GM_addStyle(this.css.xue);
-        log.info("插入CSS规则");
+      if (!this.current_url.match(/^http(s|):\/\/xue.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.xue);
+      log.info("插入CSS规则");
+    },
+    /**
+     * 百度-爱企查
+     */
+    aiqicha() {
+      if (!this.current_url.match(/^http(s|):\/\/aiqicha.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.aiqicha);
+      log.info("插入CSS规则");
+      unsafeWindow.localStorage.setItem(
+        "coupon_bottom_popup",
+        new Date().getTime()
+      );
+      GM_Menu = new Utils.GM_Menu(
+        {
+          baidu_aiqicha_shidld_carousel: {
+            text: "屏蔽轮播图",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_aiqicha_shidld_industry_host_news: {
+            text: "屏蔽行业热点新闻",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      /**
+       * 屏蔽轮播图
+       */
+      if (GM_Menu.get("baidu_aiqicha_shidld_carousel")) {
+        GM_addStyle(`
+        div.index-banner-container.van-swipe{
+          display: none !important;
+        }`);
+      }
+      /**
+       * 屏蔽行业热点新闻
+       */
+      if (GM_Menu.get("baidu_aiqicha_shidld_industry_host_news")) {
+        GM_addStyle(`
+        div.hot-news{
+          display: none !important;
+        }`);
       }
     },
+    /**
+     * 百度网盟推广
+     */
+    pos() {
+      if (!this.current_url.match(/^http(s|):\/\/pos.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.pos);
+      log.info("插入CSS规则");
+    },
+    /**
+     * 百度好看视频
+     */
+    haokan(){
+      if (!this.current_url.match(/^http(s|):\/\/haokan.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.haokan);
+      log.info("插入CSS规则");
+      GM_Menu = new Utils.GM_Menu(
+        {
+          baidu_haokan_shidld_may_also_like: {
+            text: "屏蔽猜你喜欢",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          }
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      if(GM_Menu.get("baidu_haokan_shidld_may_also_like")){
+        GM_addStyle(`
+        div.top-video-list-container{display: none !important};
+        `);
+      }
+    }
   };
 
   GM_addStyle(CSDN_FLAG_CSS);
