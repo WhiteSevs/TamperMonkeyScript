@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.8.6
+// @version      0.8.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -1188,6 +1188,7 @@
                 handleItemURL.parseDOMAttrOriginUrl(
                   item
                 ); /* 根据已获取的真实链接取值 */
+                
               if (Utils.isNull(resultItemOriginURL)) {
                 /* 未取到值 */
                 return;
@@ -1197,6 +1198,7 @@
               if (articleElement.length === 0) {
                 return;
               }
+   
               if (
                 item.attr("tpl") === "wenda_abstract" &&
                 item.attr("preventClick") == null
@@ -1214,11 +1216,12 @@
                     return;
                   } else {
                     window.stop();
-                    window.location.href = resultItemOriginURL;
+                    window.location.href = decodeURI(resultItemOriginURL);
                   }
                 });
                 return;
               }
+
               /* 视频 */
               if (
                 resultItemOriginURL.match(
