@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.6
+ * @version  2.7
  **/
 (function (Utils) {
   /**
@@ -582,6 +582,17 @@
    **/
   Utils.getArrayRandValue = function (data) {
     return data[Math.floor(Math.random() * data.length)];
+  };
+
+  /**
+   * 获取文本的字节长度
+   * @param {string} text
+   * @returns {number}
+   */
+  Utils.getByteLength = function (text) {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(text);
+    return bytes.length;
   };
 
   /**
