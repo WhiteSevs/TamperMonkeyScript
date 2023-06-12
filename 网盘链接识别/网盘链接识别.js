@@ -3432,7 +3432,7 @@
               : "";
             switch (item.getAttribute("type")) {
               case "checkbox":
-                item.checked = GM_getValue(data_key,false)
+                item.checked = GM_getValue(data_key, false);
                 let mutex = item.getAttribute("mutex");
                 $(item).on("click", function () {
                   GM_setValue(data_key, item.checked);

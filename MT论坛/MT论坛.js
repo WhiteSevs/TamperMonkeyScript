@@ -9147,6 +9147,7 @@
                 ) {
                   $jq("#needmessage")?.val(editHistoryText);
                   $jq("#needsubject")?.val(editHistorySubjectText);
+                  $jq("#needmessage")?.trigger("input");
                   popup2.closeConfirm();
                   popup2.toast("恢复成功");
                 } else {
@@ -9155,6 +9156,7 @@
                     callback: () => {
                       $jq("#needmessage")?.val(editHistoryText);
                       $jq("#needsubject")?.val(editHistorySubjectText);
+                      $jq("#needmessage")?.trigger("input");
                       popup2.closeConfirm();
                       popup2.toast("覆盖成功");
                     },
@@ -11321,56 +11323,69 @@
      */
     previewPostForum() {
       GM_addStyle(`
-            #comiis_mh_sub{
-                height:40px;
-            }
-            .gm_plugin_previewpostforum svg{
-    
-            }
-            .gm_plugin_previewpostforum_html .comiis_message_table{
-                margin-top: 10px;
-                font-weight: initial;
-                line-height: 24px;
-            }
-            .gm_plugin_previewpostforum_html .comiis_message_table a{
-                height: auto;
-                float: unset;
-                color: #507daf !important;
-            }
-            .gm_plugin_previewpostforum_html .comiis_message_table i{
-                text-align: unset;
-                font-size: unset;
-                line-height: unset;
-                padding-top: unset;
-                display: unset;
-
-            }
-            .comiis_postli.comiis_list_readimgs.nfqsqi{
-                width: 100vw;
-            }
-            .gm_plugin_previewpostforum_html.double-preview{
-                width: 50vw;
-            }
-            .gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style{
-                border-left: 1px solid;
-            }
-            `);
+        #comiis_mh_sub {
+          height: 40px;
+        }
+        .gm_plugin_word_count {
+          display: flex;
+        }
+        .gm_plugin_word_count::after {
+          content: "/20000";
+        }
+        .gm_plugin_previewpostforum svg {
+        }
+        .gm_plugin_previewpostforum_html .comiis_message_table {
+          margin-top: 10px;
+          font-weight: initial;
+          line-height: 24px;
+        }
+        .gm_plugin_previewpostforum_html .comiis_message_table a {
+          height: auto;
+          float: unset;
+          color: #507daf !important;
+        }
+        .gm_plugin_previewpostforum_html .comiis_message_table i {
+          text-align: unset;
+          font-size: unset;
+          line-height: unset;
+          padding-top: unset;
+          display: unset;
+        }
+        .comiis_postli.comiis_list_readimgs.nfqsqi {
+          width: 100vw;
+        }
+        .gm_plugin_previewpostforum_html.double-preview {
+          width: 50vw;
+        }
+        .gm_plugin_previewpostforum_html.double-preview
+          .comiis_over_box.comiis_input_style {
+          border-left: 1px solid;
+        }`);
       let open_double = GM_getValue(
         "preview_post_forum_by_double",
         "comiis_checkbox_close"
       );
 
-      function addMenu_preview() {
-        /* 添加底部菜单-预览 */
+      /**
+       * 添加底部菜单，包括预览、当前字数
+       */
+      function addBottomMenu() {
         $jq("#comiis_mh_sub .swiper-wrapper.comiis_post_ico").append(
           $jq(
             `<a href="javascript:;" class="swiper-slide gm_plugin_previewpostforum"><i class="comiis_font" style="display: flex;flex-direction: column;padding-top: 1px;"><svg t="1661243615511" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2399" width="22" height="22" fill="currentColor"><path d="M470.1 885.3H208.8V138.7h597.3v336c0 20.6 16.7 37.3 37.3 37.3 20.6 0 37.3-16.7 37.3-37.3v-336c0-41.2-33.4-74.7-74.7-74.7H208.8c-41.2 0-74.7 33.4-74.7 74.7v746.7c0 41.2 33.4 74.7 74.7 74.7h261.3c20.6 0 37.3-16.7 37.3-37.3 0.1-20.8-16.6-37.5-37.3-37.5z" p-id="2400"></path><path d="M641.3 496.5c-54.3 0-108.5 23.5-146.2 70.5-54.7 68.3-53.4 168.6 2.8 235.6 37.5 44.8 90.5 67.2 143.4 67.2 35.9 0 71.8-10.3 103-30.9l81.8 81.8c7.3 7.3 16.8 10.9 26.4 10.9 9.6 0 19.1-3.6 26.4-10.9 14.6-14.6 14.6-38.2 0-52.8l-81.8-81.8c48-72.5 40.1-171.1-23.7-234.9-36.5-36.4-84.3-54.7-132.1-54.7z m0 298.7c-36.5 0-72.9-17.6-95.3-52.9-22.6-35.6-22.6-82.5 0-118.1 22.4-35.3 58.9-52.9 95.3-52.9 36.5 0 72.9 17.6 95.3 52.9 22.6 35.6 22.6 82.5 0 118.1-22.4 35.2-58.8 52.9-95.3 52.9z" p-id="2401"></path></svg><em style="bottom: 1px;position: relative;">预览</em></i></a>`
           )
         );
+        $jq("#comiis_mh_sub .swiper-wrapper.comiis_post_ico").append(
+          $jq(
+            `<a href="javascript:;" class="swiper-slide gm_plugin_word_count"><p>0</p></a>`
+          )
+        );
       }
 
+      /**
+       * 添加底部菜单-高级-使用双列预览
+       */
       function addMenu_doubleColumnPreview() {
-        /* 添加底部菜单-高级-使用双列预览 */
         $jq("#htmlon")
           .parent()
           .append(
@@ -11397,8 +11412,10 @@
         });
       }
 
+      /**
+       * 添加底部菜单-高级-使用沉浸输入
+       */
       function addMenu_immersiveInput() {
-        /* 添加底部菜单-高级-使用沉浸输入 */
         $jq("#htmlon")
           .parent()
           .append(
@@ -11448,8 +11465,10 @@
         });
       }
 
+      /**
+       * 表情字典
+       */
       const smiliesDictionaries = {
-        /* 表情字典 */
         "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
         "[撇嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif",
         "[色]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif",
@@ -11777,8 +11796,11 @@
         "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png",
       };
 
-      function clickEvent(e) {
-        /* 预览按钮点击事件 */
+      /**
+       * 预览按钮点击事件
+       * @param {Event} e
+       */
+      function previewBtnClickEvent(e) {
         if ($jq("#polldatas").length) {
           /* 当前是投票帖子 */
           replaceVote();
@@ -11799,8 +11821,12 @@
         }
       }
 
+      /**
+       * 替换内容
+       * @param {string} text
+       * @returns
+       */
       function replaceText(text) {
-        /* 替换内容 */
         let attachimgmatch = text.match(
           /\[attachimg\]([\s\S]+?)\[\/attachimg\]/g
         );
@@ -12413,13 +12439,22 @@
           .before($jq(html));
       }
 
-      function keyUpEvent(e) {
-        /* 内容输入事件 */
-        let userInputText = e.target.value;
+      /**
+       * 内容输入事件
+       * @param {Event} event
+       */
+      function keyUpEvent(event) {
+        let userInputText = event.target.value;
         let replaecdText = replaceText(userInputText);
         $jq(
           ".gm_plugin_previewpostforum_html .comiis_message_table"
         )[0].innerHTML = replaecdText;
+        $jq(".gm_plugin_word_count p").text(userInputText.length);
+        if (userInputText.length > 20000) {
+          $jq(".gm_plugin_word_count p").attr("style", "color: red;");
+        } else {
+          $jq(".gm_plugin_word_count p").attr("style", "");
+        }
       }
 
       if (typeof unsafeWindow.comiis_addsmilies == "function") {
@@ -12430,7 +12465,7 @@
         };
       }
       addMenu_doubleColumnPreview();
-      addMenu_preview();
+      addBottomMenu();
       addMenu_immersiveInput();
       if (open_double) {
         /* box-shadow: -1px 0px 8px; */
@@ -12470,7 +12505,7 @@
       }
 
       $jq("#needmessage").on("propertychange input", keyUpEvent);
-      $jq(".gm_plugin_previewpostforum").on("click", clickEvent);
+      $jq(".gm_plugin_previewpostforum").on("click", previewBtnClickEvent);
     },
     /**
      * 编辑器中的ubb代码
