@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 修复因工具类Utils导致快捷回复点击回复后编辑框不关闭问题;修改【附件点击提醒】的效果为=>如果附件是需要金币购买才会拦截;
-// @version      2.9.8.6
+// @description  更新日志: 库Utils更新至2.7;【编辑器优化-完整】新增对当前输入内容的文本长度显示，系统限制帖子最高10-20000个字符;
+// @version      2.9.8.7
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @license      GPL-3.0-only
@@ -12445,15 +12445,17 @@
        */
       function keyUpEvent(event) {
         let userInputText = event.target.value;
+        let userInputTextLength = Utils.getByteLength(userInputText);
         let replaecdText = replaceText(userInputText);
         $jq(
           ".gm_plugin_previewpostforum_html .comiis_message_table"
         )[0].innerHTML = replaecdText;
-        $jq(".gm_plugin_word_count p").text(userInputText.length);
-        if (userInputText.length > 20000) {
-          $jq(".gm_plugin_word_count p").attr("style", "color: red;");
+        let wordCountDom = $jq(".gm_plugin_word_count p");
+        wordCountDom.text(userInputTextLength);
+        if (userInputTextLength > 20000 || userInputTextLength < 10) {
+          wordCountDom.attr("style", "color: red;");
         } else {
-          $jq(".gm_plugin_word_count p").attr("style", "");
+          wordCountDom.attr("style", "");
         }
       }
 
