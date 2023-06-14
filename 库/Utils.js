@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.7
+ * @version  2.8
  **/
 (function (Utils) {
   /**
@@ -1919,20 +1919,41 @@
    **/
   Utils.isNull = function (obj) {
     var result = false;
-    if (obj == null) {
-      result = true;
-    } else if (typeof obj === "object") {
-      try {
-        if (Object.keys(obj).length === 0) {
+    switch (typeof obj) {
+      case "undefined":
+      case "null":
+        result = true;
+        break;
+      case "object":
+        /* object类型的也可能是null */
+        if (obj == null) {
           result = true;
+        } else if (Array.isArray(obj)) {
+          /* 判断为数组 */
+          result = obj.length === 0 ? true : false;
+        } else {
+          result = Object.keys(obj).length === 0 ? true : false;
         }
-      } catch (error) {
-        result = false;
-      }
-    } else if (typeof obj === "number") {
-      result = obj === 0 ? true : false;
-    } else if (typeof obj === "string") {
-      result = obj.trim() === "" || obj === "null" || obj === "undefined";
+        break;
+      case "number":
+        result = obj === 0 ? true : false;
+        break;
+      case "string":
+        result =
+          obj.trim() === "" || obj === "null" || obj === "undefined"
+            ? true
+            : false;
+        break;
+      case "boolean":
+        result = !obj;
+        break;
+      case "function":
+        var funcStr = obj.toString().replace(/\s/g, "");
+        /* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}、 */
+        result = funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/)
+          ? false
+          : true;
+        break;
     }
     return result;
   };
