@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.8.9
+// @version      0.9.0
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -404,7 +404,9 @@
       .barea-ad,
       .swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform],
       div#page-bd div.recommend,
-      div.short-mini div[data-module="rec:undefined-undefined"]{
+      div.short-mini div[data-module="rec:undefined-undefined"],
+      /* 相关软件 */
+      div[srcid="sigma_celebrity_rela"]{
 				display:none !important;
 			}
 			.searchboxtop.newsearch-white-style .se-form {
