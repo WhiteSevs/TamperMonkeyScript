@@ -2775,10 +2775,11 @@
   /**
    * @function Utils.tryCatch
    * @description 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-   * @param {object|string} params - 函数参数（可选），可以是 object 或 string 类型。如果是 string 类型，则会被当做代码进行执行。
    * @return {function} - 返回一个对象，其中包含 error 和 run 两个方法。
+   * @example Utils.tryCatch().error().run();
+   * @example Utils.tryCatch().run();
    */
-  Utils.tryCatch = function (params) {
+  Utils.tryCatch = function () {
     // 定义变量和函数
     let func = null;
     let funcThis = null;
