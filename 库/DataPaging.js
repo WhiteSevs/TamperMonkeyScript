@@ -155,7 +155,7 @@ dataPaging.append(document.querySelector("body > div"));
      * @returns {HTMLElement|null}
      */
     getAttributeWithCurrentPage(dataPagingNode) {
-      return (dataPagingNode || this.dataPagingNode.dom).querySelector(
+      return (dataPagingNode || DOM_CONFIG.dataPagingNode.dom).querySelector(
         "a[data-current-page]"
       );
     },
@@ -186,7 +186,7 @@ dataPaging.append(document.querySelector("body > div"));
      * @param {HTMLElement|null} dataPagingNode
      */
     removeAllAttributeWithDisabled(dataPagingNode) {
-      (dataPagingNode || this.dataPagingNode.dom)
+      (dataPagingNode ||DOM_CONFIG.dataPagingNode.dom)
         .querySelectorAll("a[class][disabled]")
         .forEach((item) => {
           item.removeAttribute("disabled");
@@ -198,7 +198,7 @@ dataPaging.append(document.querySelector("body > div"));
      * @returns {HTMLElement|null}
      */
     getFirstPageNode(dataPagingNode) {
-      return (dataPagingNode || this.dataPagingNode.dom).querySelector(
+      return (dataPagingNode ||DOM_CONFIG.dataPagingNode.dom).querySelector(
         "a[page-id='1']"
       );
     },
@@ -208,7 +208,7 @@ dataPaging.append(document.querySelector("body > div"));
      * @returns {HTMLElement|null}
      */
     getLastPageNode(dataPagingNode) {
-      return (dataPagingNode || this.dataPagingNode.dom).querySelector(
+      return (dataPagingNode ||DOM_CONFIG.dataPagingNode.dom).querySelector(
         `a[page-id='${PAGE_CONFIG.maxPage}']`
       );
     },
@@ -218,7 +218,7 @@ dataPaging.append(document.querySelector("body > div"));
      * @returns {NodeList}
      */
     getAllPageNode(dataPagingNode) {
-      return (dataPagingNode || this.dataPagingNode.dom).querySelectorAll(
+      return (dataPagingNode ||DOM_CONFIG.dataPagingNode.dom).querySelectorAll(
         "a[page-id]"
       );
     },
@@ -382,7 +382,7 @@ dataPaging.append(document.querySelector("body > div"));
       }
     } else {
       /* 如果 当前页 + 限制显示的页码 大于等于 最大页，那么 从最后一页倒序着添加 */
-      if (currentPage + CONFIG.pageStep >= PAGE_CONFIG.maxPage) {
+      if (currentPage + CONFIG.pageStep > PAGE_CONFIG.maxPage) {
         currentPage = PAGE_CONFIG.maxPage;
         let needAppendNodeList = [];
         for (let i = 0; i < CONFIG.pageStep; i++) {
@@ -584,7 +584,7 @@ dataPaging.append(document.querySelector("body > div"));
       let pageCount = PAGE_CONFIG.maxPage;
       let index = 0;
       while (true) {
-        if (PAGE_CONFIG.maxPage - pageCount >= 3) {
+        if (PAGE_CONFIG.maxPage - pageCount > 3) {
           break;
         }
         let item = allPageNode[index];
