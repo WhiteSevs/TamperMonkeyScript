@@ -850,7 +850,6 @@
                 log.info("视频替换成新链接: " + domOriginUrl);
               }
             });
-            
         },
         /**
          * 解析在JSON数据中的urlParams中真正的链接，如果不存在，返回undefined
@@ -1189,7 +1188,7 @@
                 handleItemURL.parseDOMAttrOriginUrl(
                   item
                 ); /* 根据已获取的真实链接取值 */
-                
+
               if (Utils.isNull(resultItemOriginURL)) {
                 /* 未取到值 */
                 return;
@@ -1199,7 +1198,7 @@
               if (articleElement.length === 0) {
                 return;
               }
-   
+
               if (
                 item.attr("tpl") === "wenda_abstract" &&
                 item.attr("preventClick") == null
@@ -2996,7 +2995,7 @@
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          baidu_zhidao_block_related_issues:{
+          baidu_zhidao_block_related_issues: {
             text: "屏蔽-相关问题",
             enable: true,
             showText: (_text_, _enable_) => {
@@ -3038,7 +3037,7 @@
             display: none !important;
           }`);
       }
-      if(gm_menu.get("baidu_zhidao_block_related_issues")){
+      if (gm_menu.get("baidu_zhidao_block_related_issues")) {
         GM_addStyle(`
           div[id^=wahsd]{
             display: none !important;
@@ -3090,7 +3089,7 @@
           display: none !important;
         }`);
       }
-      if(gm_menu.get("baidu_fanyi_other_shielding_bottom")){
+      if (gm_menu.get("baidu_fanyi_other_shielding_bottom")) {
         GM_addStyle(`
         .trans-other-wrap.clearfix{
           display: none !important;
@@ -3229,7 +3228,7 @@
     /**
      * 百度好看视频
      */
-    haokan(){
+    haokan() {
       if (!this.current_url.match(/^http(s|):\/\/haokan.baidu.com/g)) {
         return;
       }
@@ -3243,7 +3242,7 @@
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
-          }
+          },
         },
         true,
         GM_getValue,
@@ -3251,12 +3250,12 @@
         GM_registerMenuCommand,
         GM_unregisterMenuCommand
       );
-      if(gm_menu.get("baidu_haokan_shidld_may_also_like")){
+      if (gm_menu.get("baidu_haokan_shidld_may_also_like")) {
         GM_addStyle(`
         div.top-video-list-container{display: none !important};
         `);
       }
-    }
+    },
   };
 
   GM_addStyle(CSDN_FLAG_CSS);
