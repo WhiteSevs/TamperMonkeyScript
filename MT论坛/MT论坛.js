@@ -5,7 +5,7 @@
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
 // @description  更新日志: 库Utils更新至2.8;【编辑器优化-完整】使用沉浸输入新增隐藏顶部信息;替换setInterval为mutationObserver;重命名部分代码，为部分函数添加注释;屏蔽用户/帖子合并为【我的屏蔽】;调整【在线用户】的显示样式;新增功能【积分商城商品上架提醒】;
-// @version      2.9.9.1
+// @version      2.9.9.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -13042,9 +13042,9 @@
                     deadLine: item.querySelector(
                       ".mall-info #time_hz span.time"
                     ).innerText,
-                    remainingQuantity: item.querySelector(
+                    remainingQuantity: parseInt(item.querySelector(
                       ".mall-info .mall-count .count-r"
-                    ).innerText,
+                    )?.innerText?.replace(/仅剩|件/ig,"")),
                   });
                 });
               resolve(dataList);
@@ -13089,10 +13089,12 @@
         for (const productItem of productList) {
           for (const localDataItem of localData) {
             if (
-              productItem["name"].match(new RegExp(localDataItem["name"]), "i")
+              productItem["name"].match(new RegExp(localDataItem["name"]), "i") &&
+              !isNaN(productItem["remainingQuantity"]) &&
+              productItem["remainingQuantity"] > 0
             ) {
               popups.confirm({
-                text: `<br />您设置的商品已上架在积分商城中，当前售价 ${productItem["price"]}金币，${productItem["remainingQuantity"]}，是否前往购买？<a style="color: red !important;">(如需关闭提醒，请删除该关键字)</a><br />`,
+                text: `<br />您设置的商品已上架在积分商城中，当前售价 ${productItem["price"]}金币，仅剩${productItem["remainingQuantity"]}件，是否前往购买？<a style="color: red !important;">(如需关闭提醒，请删除该关键字)</a><br />`,
                 ok: {
                   text: "前往购买",
                   callback: () => {
