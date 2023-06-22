@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.8
+ * @version  2.9
  **/
 (function (Utils) {
   /**
@@ -378,6 +378,24 @@
     this.concat = function (data) {
       this.items = Utils.assignJSON(this.items, data.getItems());
     };
+  };
+
+  /**
+   * 主动触发事件
+   * @param {HTMLElement} dom 元素
+   * @param {string|Array} eventName 事件名称，可以是字符串，也可是字符串格式的列表
+   */
+  Utils.dispatchEvent = function (dom, eventName) {
+    let eventNameList = [];
+    if (typeof eventName === "string") {
+      eventNameList = [eventName];
+    }
+    if (typeof eventName === "object" && eventName instanceof Array) {
+      eventNameList = [...eventName];
+    }
+    eventNameList.forEach((_eventName_) => {
+      dom.dispatchEvent(new Event(_eventName_));
+    });
   };
 
   /**
@@ -792,6 +810,26 @@
   };
 
   /**
+   * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance
+   * @param {HTMLElement} dom
+   * @returns {Object}
+   * @example Utils.getReactObj(document.querySelector("input")).reactProps.onChange({target:{value:"123"}});
+   */
+  Utils.getReactObj = function (dom) {
+    let result = {};
+    Object.keys(dom).forEach( domPropsName =>{
+      if(domPropsName.startsWith("__react")){
+        let propsName = domPropsName.replace(/__(.+)\$.+/i,"$1");
+        if(propsName in result){
+          new Error("重复属性 "+ domPropsName);
+        }else{
+          result[propsName] = dom[domPropsName];
+        }
+      }
+    })
+    return result;
+  };
+  /**
    * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
    * @param {String} cssText css字符串
    */
@@ -909,12 +947,12 @@
           path: "/",
           secure: true,
           httpOnly: false,
-          expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
+          expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30, // Expires in 30 days
         };
         paramDetails = Utils.assignJSON(details, paramDetails);
         var life = paramDetails.expirationDate
           ? paramDetails.expirationDate
-          : Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30;
+          : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
         var cookieStr =
           paramDetails.name +
           "=" +
@@ -1959,6 +1997,36 @@
   };
 
   /**
+   * 判断元素是否在页面中可见，可见为true，不可见为false
+   * @param {...HTMLElement|NodeList|HTMLElement} dom 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
+   * @returns {boolean}
+   */
+  Utils.isVisible = function (dom) {
+    let needCheckDomList = [];
+    if (dom instanceof Array || dom instanceof NodeList) {
+      needCheckDomList = [...dom];
+    }
+    let result = true;
+    for (const domItem of needCheckDomList) {
+      let domClientRect = domItem.getBoundingClientRect();
+      result =
+        domClientRect.bottom !== 0 &&
+        domClientRect.height !== 0 &&
+        domClientRect.left !== 0 &&
+        domClientRect.right !== 0 &&
+        domClientRect.top !== 0 &&
+        domClientRect.width !== 0 &&
+        domClientRect.x !== 0 &&
+        domClientRect.y !== 0;
+      if (!result) {
+        /* 有一个不可见就退出循环 */
+        break;
+      }
+    }
+    return result;
+  };
+
+  /**
    * JSON内所有的值转为Array数组
    * @param {Object} jsonData JSON数据
    * @return {Object} 返回数组
@@ -2934,13 +3002,13 @@
 
       /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
       Utils.mutationObserver(document.documentElement, {
+        config: { subtree: true, childList: true, attributes: true },
         callback: (mutations, observer) => {
           checkNodes();
           if (isReturn) {
             observer.disconnect();
           }
         },
-        config: { subtree: true, childList: true, attributes: true },
       });
     });
   };
