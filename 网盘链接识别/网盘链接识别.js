@@ -3160,7 +3160,7 @@
         matchLinkSet.add(item);
       });
       matchLinkSet.forEach((item) => {
-        console.log("处理中");
+        /* console.log("处理中"); */
         NetDisk.handleLink(netDiskName, netDiskIndex, item);
       });
       if (NetDisk.hasMatchLink) {
