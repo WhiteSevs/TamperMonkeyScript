@@ -817,16 +817,16 @@
    */
   Utils.getReactObj = function (dom) {
     let result = {};
-    Object.keys(dom).forEach( domPropsName =>{
-      if(domPropsName.startsWith("__react")){
-        let propsName = domPropsName.replace(/__(.+)\$.+/i,"$1");
-        if(propsName in result){
-          new Error("重复属性 "+ domPropsName);
-        }else{
+    Object.keys(dom).forEach((domPropsName) => {
+      if (domPropsName.startsWith("__react")) {
+        let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
+        if (propsName in result) {
+          new Error("重复属性 " + domPropsName);
+        } else {
           result[propsName] = dom[domPropsName];
         }
       }
-    })
+    });
     return result;
   };
   /**
@@ -1966,9 +1966,10 @@
         /* object类型的也可能是null */
         if (obj == null) {
           result = true;
-        } else if (Array.isArray(obj)) {
-          /* 判断为数组 */
+        } else if (Array.isArray(obj) || obj instanceof NodeList) {
           result = obj.length === 0 ? true : false;
+        } else if (obj instanceof Map || obj instanceof Set) {
+          result = obj.size === 0 ? true : false;
         } else {
           result = Object.keys(obj).length === 0 ? true : false;
         }
