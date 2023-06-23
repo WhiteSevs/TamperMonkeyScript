@@ -4820,8 +4820,8 @@
             }
           }
         );
-        $jq(document).on("change", "#filedata_kggzs", (e) => {
-          let chooseImageFiles = e.currentTarget.files;
+        $jq(document).on("change", "#filedata_kggzs", (event) => {
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -4983,8 +4983,8 @@
             }
           }
         );
-        $jq(document).on("change", "#filedata_hello", (e) => {
-          let chooseImageFiles = e.currentTarget.files;
+        $jq(document).on("change", "#filedata_hello", (event) => {
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -5046,11 +5046,11 @@
             Utils.tryCatch().run(completeFunction);
           });
         });
-        $jq(document).on("click", "#imglist_hello .delImg", async function (e) {
-          e.preventDefault();
+        $jq(document).on("click", "#imglist_hello .delImg", async function (event) {
+          event.preventDefault();
           popups.loadingMask();
           popups.toast("删除中，请稍后");
-          let id_encoded = e.currentTarget.getAttribute("id-encode");
+          let id_encoded = event.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
             popups.closeMask();
             popups.toast("获取id_encoded失败，请自行去Hello图床删除");
@@ -5148,8 +5148,8 @@
             }
           }
         );
-        $jq(document).on("change", "#filedata_z4a", async (e) => {
-          let chooseImageFiles = e.currentTarget.files;
+        $jq(document).on("change", "#filedata_z4a", async (event) => {
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -5211,11 +5211,11 @@
             Utils.tryCatch().run(completeFunction);
           });
         });
-        $jq(document).on("click", "#imglist_z4a .delImg", async function (e) {
-          e.preventDefault();
+        $jq(document).on("click", "#imglist_z4a .delImg", async function (event) {
+          event.preventDefault();
           popups.loadingMask();
           popups.toast("删除中，请稍后");
-          let id_encoded = e.currentTarget.getAttribute("id-encode");
+          let id_encoded = event.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
             popups.closeMask();
             popups.toast("获取id_encoded失败，请自行去Z4A图床删除");
@@ -5267,19 +5267,19 @@
         });
 
         $jq("#menu_chartbed_history").on("click", function () {
-          $jq.each($jq("#imglist_history li img"), (i, v) => {
-            if (!v.getAttribute("src")) {
-              v.setAttribute("src", v.getAttribute("data-src"));
+          $jq.each($jq("#imglist_history li img"), (index, item) => {
+            if (!item.getAttribute("src")) {
+              item.setAttribute("src", item.getAttribute("data-src"));
             }
           });
         });
-        $jq("#imglist_history").on("click", ".delImg", async (e) => {
-          e.preventDefault();
-          let _t_index = e.currentTarget.getAttribute("t-index");
+        $jq("#imglist_history").on("click", ".delImg", async (event) => {
+          event.preventDefault();
+          let _t_index = event.currentTarget.getAttribute("t-index");
           let imageItem = historyImages[_t_index];
           let web = imageItem["web"];
           let id_encoded = imageItem["id_encoded"];
-          e.currentTarget.parentElement.remove();
+          event.currentTarget.parentElement.remove();
           mobile.chartBed.storage.delete(web, id_encoded);
         });
       }
@@ -5706,10 +5706,10 @@
           `
         );
         $jq("#imglist .up_btn").append($jq("#filedata"));
-        $jq(document).on("click", "#imglist .up_btn a", function (e) {
+        $jq(document).on("click", "#imglist .up_btn a", function () {
           $jq(this).next().click();
         });
-        $jq(document).on("click", "#imglist .p_img a", function (e) {
+        $jq(document).on("click", "#imglist .p_img a", function () {
           let obj = $jq(this);
           if (obj.attr("onclick") == null) {
             let img_id = obj.find("img").attr("id").replace("aimg_", "");
@@ -5937,8 +5937,8 @@
             $jq("#filedata_kggzs").click();
           }
         );
-        $jq(document).on("change", "#filedata_kggzs", async (e) => {
-          let chooseImageFiles = e.currentTarget.files;
+        $jq(document).on("change", "#filedata_kggzs", async (event) => {
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -6139,9 +6139,9 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_kggzs .delImg", async (e) => {
-          e.preventDefault();
-          e.currentTarget.parentElement.remove();
+        $jq(document).on("click", "#imglist_kggzs .delImg", async (event) => {
+          event.preventDefault();
+          event.currentTarget.parentElement.remove();
           /* popups.toast('删除中，请稍后');
                     let id_encoded = e.currentTarget.getAttribute("id-encode");
                     if(!id_encoded){
@@ -6245,8 +6245,8 @@
             $jq("#filedata_hello").click();
           }
         );
-        $jq(document).on("change", "#filedata_hello", async (e) => {
-          let chooseImageFiles = e.currentTarget.files;
+        $jq(document).on("change", "#filedata_hello", async (event) => {
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -6446,11 +6446,11 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_hello .delImg", async function (e) {
-          e.preventDefault();
+        $jq(document).on("click", "#imglist_hello .delImg", async function (event) {
+          event.preventDefault();
           popups.loadingMask();
           popups.toast("删除中，请稍后");
-          let id_encoded = e.currentTarget.getAttribute("id-encode");
+          let id_encoded = event.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
             popups.closeMask();
             popups.toast("获取id_encoded失败，请自行去Hello图床删除");
@@ -6550,12 +6550,12 @@
             }
           });
         }
-        $jq(document).on("click", "#imglist_z4a .up_btn a", async function (e) {
+        $jq(document).on("click", "#imglist_z4a .up_btn a", async function () {
           $jq("#filedata_z4a").val("");
           $jq("#filedata_z4a").click();
         });
-        $jq(document).on("change", "#filedata_z4a", async (e) => {
-          let chooseImageFiles = e.currentTarget.files;
+        $jq(document).on("change", "#filedata_z4a", async (event) => {
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -6752,11 +6752,11 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_z4a .delImg", async function (e) {
-          e.preventDefault();
+        $jq(document).on("click", "#imglist_z4a .delImg", async function (event) {
+          event.preventDefault();
           popups.loadingMask();
           popups.toast("删除中，请稍后");
-          let id_encoded = e.currentTarget.getAttribute("id-encode");
+          let id_encoded = event.currentTarget.getAttribute("id-encode");
           if (!id_encoded) {
             popups.closeMask();
             popups.toast("获取id_encoded失败，请自行去Z4A图床删除");
@@ -6777,14 +6777,14 @@
 
       function chartbedByMT() {
         /* MT图床(限制了referer) */
-        $jq(document).on("click", "#imglist_mt .up_btn a", async function (e) {
+        $jq(document).on("click", "#imglist_mt .up_btn a", async function () {
           /* 点击上传图标 */
           $jq("#filedata_mt").val("");
           $jq("#filedata_mt").click();
         });
-        $jq(document).on("change", "#filedata_mt", async (e) => {
+        $jq(document).on("change", "#filedata_mt", async (event) => {
           /* 监听file控件内数据改变 */
-          let chooseImageFiles = e.currentTarget.files;
+          let chooseImageFiles = event.currentTarget.files;
           if (chooseImageFiles.length == 0) {
             return;
           }
@@ -7067,9 +7067,9 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_mt .delImg", async function (e) {
+        $jq(document).on("click", "#imglist_mt .delImg", async function (event) {
           /* 删除上传的图片-目前无法删除 */
-          e.preventDefault();
+          event.preventDefault();
           const id_encoded = $jq(this).attr("id-encode");
           $jq(this).parent().remove();
           mobile.chartBed.storage.delete("mt", id_encoded);
@@ -7088,7 +7088,7 @@
         $jq(document).on(
           "click",
           "li[id*='comiis_pictitle_tab_n_'][data-history]",
-          function (e) {
+          function () {
             if (GM_getValue("chartBedsImagesHistory") == undefined) {
               GM_setValue("chartBedsImagesHistory", []);
             }
@@ -7207,8 +7207,8 @@
           }
         );
 
-        $jq(document).on("click", "#imglist_history .delImg", function (e) {
-          e.preventDefault();
+        $jq(document).on("click", "#imglist_history .delImg", function (event) {
+          event.preventDefault();
           let obj = $jq(this);
           let _t_web = obj.attr("t-web");
           let _t_id = obj.attr("t-id");
@@ -9431,7 +9431,7 @@
         });
       });
 
-      $jq(window).on("resize", function (e) {
+      $jq(window).on("resize", function () {
         let needMessageSeeHeight =
           document.documentElement.clientHeight -
           document
@@ -10270,9 +10270,9 @@
           $jq(".msgcontainer .msgcon div").eq(index).remove();
           xtips.toast("删除成功");
         };
-        $jq(".dellanzoufile i.comiis_font").on("click", function (e) {
-          var t_id = e.target.parentElement.getAttribute("t-id");
-          var t_f_id = e.target.parentElement.getAttribute("t-f-id");
+        $jq(".dellanzoufile i.comiis_font").on("click", function (event) {
+          var t_id = event.target.parentElement.getAttribute("t-id");
+          var t_f_id = event.target.parentElement.getAttribute("t-f-id");
           var index = $jq(this).parent().parent().index();
           popups.confirm({
             text: "<p>确定删除该文件？</p>",
@@ -10396,8 +10396,8 @@
 
         $jq("#lanzouuploadfilebtn")
           .off("change")
-          .change(async (e) => {
-            let lanzouChooseFile = e.currentTarget.files[0];
+          .change(async (event) => {
+            let lanzouChooseFile = event.currentTarget.files[0];
             console.log(lanzouChooseFile);
             let uploadFileInfo = await lanzou.uploadFile(lanzouChooseFile);
             if (uploadFileInfo) {
@@ -10414,12 +10414,12 @@
 
         let anyTouchNode = new AnyTouch(document.getElementById(sheet));
 
-        anyTouchNode.on("tap", (e) => {
+        anyTouchNode.on("tap", (event) => {
           if (
             document
               .getElementById(sheet)
               .querySelector(".xtiper_bg")
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 点击背景不关闭小窗 */
             return;
@@ -10429,7 +10429,7 @@
               .querySelectorAll(
                 ".xtiper_sheet_ul.xtiper_sheet_center .xtiper_sheet_li"
               )[0]
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 用户 */
             xtip.confirm("确定退出登录吗？", {
@@ -10455,7 +10455,7 @@
               .querySelectorAll(
                 ".xtiper_sheet_ul.xtiper_sheet_center .xtiper_sheet_li"
               )[1]
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 上传 */
             $jq("#lanzouuploadfilebtn").val("");
@@ -10467,7 +10467,7 @@
               .querySelectorAll(
                 ".xtiper_sheet_ul.xtiper_sheet_center .xtiper_sheet_li"
               )[2]
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 查看历史上传 */
             anyTouchNode.off("tap");
@@ -10480,7 +10480,7 @@
               .querySelectorAll(
                 ".xtiper_sheet_ul.xtiper_sheet_center .xtiper_sheet_li"
               )[3]
-              .outerHTML.indexOf(e.target.outerHTML) != -1
+              .outerHTML.indexOf(event.target.outerHTML) != -1
           ) {
             /* 取消 */
             anyTouchNode.off("tap");
@@ -11179,18 +11179,18 @@
           let isFreeNotVisitedContentList = [];
           let isFreeContentList = [];
           let isPaidContentList = [];
-          $jq.each(data, (i, v) => {
+          $jq.each(data, (index, item) => {
             let timeColor = "#f91212";
             let leftRedBtn = "";
-            if (new Date().getTime() > v["expirationTimeStamp"]) {
+            if (new Date().getTime() > item["expirationTimeStamp"]) {
               /* 可白嫖 */
               timeColor = "#1e90ff";
-              if (v["isVisited"] == false) {
+              if (item["isVisited"] == false) {
                 leftRedBtn =
                   '<span class="icon_msgs bg_del" style="position: fixed;width: 10px;height: 10px;border-radius: 50%;margin: 10px 0px 0px -15px;"></span>';
                 notVisitedNums = notVisitedNums + 1;
               } else {
-                console.log(v);
+                console.log(item);
                 console.log("该帖子已经访问过");
               }
             }
@@ -11202,10 +11202,10 @@
                                         <div style="display: inline-flex;">
                                             ${leftRedBtn}
                                             <div style="width: 240px;">                 
-                                                <a href="javascript:void(0);" t-href="${v["url"]}" t-index="${i}" style="color: #1e90ff;">${v["title"]}</a>
-                                                <li style="margin: 5px 15px;color: ${timeColor};">${v["expirationTime"]}</li>
+                                                <a href="javascript:void(0);" t-href="${item["url"]}" t-index="${index}" style="color: #1e90ff;">${item["title"]}</a>
+                                                <li style="margin: 5px 15px;color: ${timeColor};">${item["expirationTime"]}</li>
                                             </div>
-                                            <div style="align-self: center;margin-left: 10px;" t-index="${i}" class="delsubjecttip">
+                                            <div style="align-self: center;margin-left: 10px;" t-index="${index}" class="delsubjecttip">
                                                 <i class="comiis_font" style="font-size: 24px;padding: 0px 6px;"></i>
                                             </div>
                                         </div>
@@ -11214,9 +11214,9 @@
                                 <tr style="height:15px;"></tr>
                             </tbody>
                             `,
-              timestamp: v["expirationTimeStamp"],
+              timestamp: item["expirationTimeStamp"],
             };
-            if (new Date().getTime() > v["expirationTimeStamp"]) {
+            if (new Date().getTime() > item["expirationTimeStamp"]) {
               /* 可白嫖 */
               if (leftRedBtn != "") {
                 isFreeNotVisitedContentList = [
@@ -11291,8 +11291,8 @@
           $jq(".msgcon").append(dialogIsFreeContent);
           $jq(".msgcon").append(dialogIsPaidContent);
           $jq(".msgcon").css("height", "400px");
-          $jq(".delsubjecttip i.comiis_font").on("click", (e) => {
-            var t_index = e.target.parentElement.getAttribute("t-index");
+          $jq(".delsubjecttip i.comiis_font").on("click", (event) => {
+            var t_index = event.target.parentElement.getAttribute("t-index");
             popups.confirm({
               text: "<p>确定移出付费主题白嫖列表？</p>",
               mask: true,
@@ -11301,7 +11301,7 @@
                   data.splice(t_index, 1);
                   console.log(data);
                   paymentSubjectReminderHome.setData(data);
-                  Utils.deleteParentNode(e.target, (dom) => {
+                  Utils.deleteParentNode(event.target, (dom) => {
                     return dom.localName === "tr" ? true : false;
                   });
                   popups.closeConfirm();
@@ -11310,23 +11310,23 @@
               only: true,
             });
           });
-          $jq("#paymentSubjectReminderIsFreeList").on("click", "a", (e) => {
-            var t_index = e.target.getAttribute("t-index");
-            var t_href = e.target.getAttribute("t-href");
+          $jq("#paymentSubjectReminderIsFreeList").on("click", "a", (event) => {
+            var t_index = event.target.getAttribute("t-index");
+            var t_href = event.target.getAttribute("t-href");
             console.log(t_index, t_href);
             data[t_index]["isVisited"] = true;
             paymentSubjectReminderHome.setData(data);
             window.open(t_href, "_blank");
-            e.target.setAttribute("style", "color: #000000;");
+            event.target.setAttribute("style", "color: #000000;");
             if (
-              e.target.parentElement.parentElement.children[0].className !=
+              event.target.parentElement.parentElement.children[0].className !=
               "icon_msgs bg_del"
             ) {
               return;
             }
-            e.target.parentElement.parentElement.children[0].remove();
+            event.target.parentElement.parentElement.children[0].remove();
             $jq("#paymentSubjectReminderIsFreeList").append(
-              e.target.parentElement.parentElement.parentElement.parentElement
+              event.target.parentElement.parentElement.parentElement.parentElement
                 .parentElement
             );
             let notVisitedNums = $jq(
@@ -11343,12 +11343,12 @@
               ).remove();
             }
           });
-          $jq("#paymentSubjectReminderIsPaidList").on("click", "a", (e) => {
-            var t_index = e.target.getAttribute("t-index");
-            var t_href = e.target.getAttribute("t-href");
+          $jq("#paymentSubjectReminderIsPaidList").on("click", "a", (event) => {
+            var t_index = event.target.getAttribute("t-index");
+            var t_href = event.target.getAttribute("t-href");
             console.log(t_index, t_href);
             window.open(t_href, "_blank");
-            e.target.setAttribute("style", "color: #000000;");
+            event.target.setAttribute("style", "color: #000000;");
           });
         },
       };
@@ -12028,7 +12028,7 @@
        * 预览按钮点击事件
        * @param {Event} e
        */
-      function previewBtnClickEvent(e) {
+      function previewBtnClickEvent() {
         if ($jq("#polldatas").length) {
           /* 当前是投票帖子 */
           replaceVote();
@@ -12591,8 +12591,8 @@
         let html = "";
         let choosehtml = "";
         console.log(chooseContent);
-        chooseContent.each((i, v) => {
-          if (i >= 20) {
+        chooseContent.each((index, item) => {
+          if (index >= 20) {
             /* 最多20个 */
             return;
           }
@@ -12602,16 +12602,16 @@
                     <li class="kmnop">
                         <input type="${maxchoices > 1 ? "checkbox" : "radio"}">
                         <label><i class="comiis_font f_d"></i>${
-                          v.value
+                          item.value
                         }</label>
                     </li>
                     <li class="poll_ok cl">
                         <span class="bg_b">
                             <em style="width:2%;background-color:${
-                              chooseColor[i]
+                              chooseColor[index]
                             }"></em>
                         </span>
-                        <em style="color:${chooseColor[i]}">0% (0)</em>
+                        <em style="color:${chooseColor[index]}">0% (0)</em>
                     </li>`;
         });
         html = `
@@ -13042,9 +13042,11 @@
                     deadLine: item.querySelector(
                       ".mall-info #time_hz span.time"
                     ).innerText,
-                    remainingQuantity: parseInt(item.querySelector(
-                      ".mall-info .mall-count .count-r"
-                    )?.innerText?.replace(/仅剩|件/ig,"")),
+                    remainingQuantity: parseInt(
+                      item
+                        .querySelector(".mall-info .mall-count .count-r")
+                        ?.innerText?.replace(/仅剩|件/gi, "")
+                    ),
                   });
                 });
               resolve(dataList);
@@ -13089,7 +13091,10 @@
         for (const productItem of productList) {
           for (const localDataItem of localData) {
             if (
-              productItem["name"].match(new RegExp(localDataItem["name"]), "i") &&
+              productItem["name"].match(
+                new RegExp(localDataItem["name"]),
+                "i"
+              ) &&
               !isNaN(productItem["remainingQuantity"]) &&
               productItem["remainingQuantity"] > 0
             ) {
@@ -13409,7 +13414,7 @@
           let ubbs = $jq(
             `<li class="quickUBBs"><a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a></li>`
           );
-          ubbs.on("click", (e) => {
+          ubbs.on("click", (event) => {
             let bottomEle = $jq(
               `#comiis_post_qydiv li[data-key='${value.key}']`
             );
@@ -13425,10 +13430,10 @@
               $jq(
                 "#comiis_post_tab div.comiis_post_urlico ul li a.comiis_xifont"
               ),
-              (i, v) => {
-                v.className = "comiis_xifont f_d";
-                if (v == e.target) {
-                  v.className = "comiis_xifont f_0";
+              (index, item) => {
+                item.className = "comiis_xifont f_d";
+                if (item == event.target) {
+                  item.className = "comiis_xifont f_0";
                 }
               }
             );
@@ -13728,10 +13733,10 @@
           moveCursorToCenterByTextWithLeft: function (leftMatchText, _length_) {
             var el = $jq(this)[0];
             var el_text = el.value;
-            for (let i = el.selectionStart - 1; i > 0; i--) {
-              let lTexts = el_text.substring(i - _length_, i);
+            for (let index = el.selectionStart - 1; index > 0; index--) {
+              let lTexts = el_text.substring(index - _length_, index);
               if (lTexts == leftMatchText) {
-                this.selectRange(i);
+                this.selectRange(index);
                 break;
               }
             }
@@ -13796,8 +13801,8 @@
 
       let $search_input = $jq(".ssclose.bg_e.f_e");
       if ($search_input) {
-        $search_input.click(function (e) {
-          e.preventDefault();
+        $search_input.click(function (event) {
+          event.preventDefault();
           $jq("#scform_srchtxt").val("");
         });
       } else {
@@ -14271,8 +14276,8 @@
               `div.${this.searchSelectClassName} ul.${this.searchSelectHintClassName} li`
             )
             .forEach((item, index) => {
-              ((v, i) => {
-                v.addEventListener(
+              ((item2) => {
+                item2.addEventListener(
                   "click",
                   function (event) {
                     event.stopPropagation();
@@ -14283,7 +14288,7 @@
                       that.parentDOM.dispatchEvent(new Event("blur"));
                     } else {
                       that.searchSelectDeleteItemClicked = true;
-                      var dataId = parseInt(v.getAttribute("data-id"));
+                      var dataId = parseInt(item2.getAttribute("data-id"));
                       console.log("删除 " + that.showList[dataId]);
                       that.list.forEach((item, index) => {
                         if (item === this.innerText) {
@@ -14293,7 +14298,7 @@
                       });
 
                       that.showList.splice(dataId, 1);
-                      v.remove();
+                      item2.remove();
                       document
                         .querySelectorAll(
                           `ul.${that.searchSelectHintClassName} li`
