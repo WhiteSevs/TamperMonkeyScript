@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至2.8;【编辑器优化-完整】使用沉浸输入新增隐藏顶部信息;替换setInterval为mutationObserver;重命名部分代码，为部分函数添加注释;屏蔽用户/帖子合并为【我的屏蔽】;调整【在线用户】的显示样式;新增功能【积分商城商品上架提醒】;
-// @version      2.9.9.2
+// @description  更新日志: 库Utils更新至3.0;
+// @version      2.9.9.3
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -748,7 +748,7 @@
       );
     }
     /* x浏览器，知不知道GM_xmlhttpRequest是跨域用的，还判断cors？多此一举 */
-    if (typeof mbrowser != "undefined") {
+    /* if (typeof mbrowser != "undefined") {
       window.GM_xmlhttpRequest_isRepair = false;
       let trans_id = uuid();
       let mbrowserUserScriptId = user_script_id;
@@ -792,7 +792,9 @@
         "background:#24272A; color:#ffffff",
         "color:#00a5ff"
       );
-    } else if (typeof GM_xmlhttpRequest === "undefined") {
+    } else 
+     */
+    if (typeof GM_xmlhttpRequest === "undefined") {
       window.GM_xmlhttpRequest_isRepair = true;
       isFailedFunction = isFailedFunction.concat("GM_xmlhttpRequest");
       console.log(
@@ -1476,15 +1478,15 @@
             responseType: "html",
             onload: function (response) {
               console.log(response);
-              var pageHTML = $jq(response.responseText);
-              var nextPageBtn = pageHTML.find(".pgbtn a");
-              pageHTML.find("#postlistreply")?.remove();
-              pageHTML.find(".bm_h.comiis_snvbt")?.remove();
+              var pageHTML = Utils.parseFromString(response.responseText);
+              var nextPageBtn = pageHTML.querySelector(".pgbtn a");
+              pageHTML.querySelector("#postlistreply")?.remove();
+              pageHTML.querySelector(".bm_h.comiis_snvbt")?.remove();
               resolve({
-                url: nextPageBtn ? $jq(nextPageBtn).attr("href") : null,
-                postlist: pageHTML.find("#postlist"),
-                pgbtn: pageHTML.find(".pgbtn"),
-                pgs: pageHTML.find(".pgs.mtm"),
+                url: nextPageBtn ? nextPageBtn.getAttribute("href") : null,
+                postlist: pageHTML.querySelector("#postlist"),
+                pgbtn: pageHTML.querySelector(".pgbtn"),
+                pgs: pageHTML.querySelector(".pgs.mtm"),
               });
             },
             onerror: function (response) {
@@ -2415,7 +2417,7 @@
         while (1) {
           if (window.location.href == "https://bbs.binmt.cc/#") {
             console.log("back！");
-            await Utils.asyncSetTimeOut("window.history.back();", 100);
+            await Utils.setTimeout("window.history.back();", 100);
             await Utils.sleep(100);
           } else {
             return;
@@ -3030,10 +3032,7 @@
         console.log(
           "账号cQWy_2132_lastvisit: ",
           mobile_lastvisit_cookie
-            ? Utils.getFormatTime(
-                "yyyy-MM-dd HH:mm:ss",
-                parseInt(mobile_lastvisit_cookie) * 1000
-              )
+            ? Utils.formatTime(parseInt(mobile_lastvisit_cookie) * 1000)
             : mobile_login_cookie
         );
         return pc_login || mobile_login_cookie || mobile_login_exitBtn;
@@ -3109,7 +3108,10 @@
           timeout: 5000,
           onload: (response) => {
             console.log(response);
-            GM_setValue("mt_sign", parseInt(Utils.getFormatTime("yyyyMMdd")));
+            GM_setValue(
+              "mt_sign",
+              parseInt(Utils.formatTime(undefined, "yyyyMMdd"))
+            );
             if (response.lastChild || response.type == "ajax") {
               /* ajax函数版本 */
               if (response.responseText == "") {
@@ -3265,14 +3267,14 @@
       }
 
       if (
-        Utils.getFormatTime("HH") == "23" &&
-        parseInt(Utils.getFormatTime("mm")) >= 55
+        Utils.formatTime(undefined, "HH") == "23" &&
+        parseInt(Utils.formatTime(undefined, "mm")) >= 55
       ) {
         /* 倒计时开启 */
         console.log("开启倒计时自动签到");
         let intervalId = setInterval(() => {
-          let current_time = Utils.getFormatTime("HH:mm:ss");
-          if (Utils.getFormatTime("hh:mm") == "00:00") {
+          let current_time = Utils.formatTime(undefined, "HH:mm:ss");
+          if (Utils.formatTime(undefined, "hh:mm") == "00:00") {
             signIn(formhash);
             clearInterval(intervalId);
           } else {
@@ -3281,7 +3283,10 @@
         }, 1000);
         return;
       }
-      if (GM_getValue("mt_sign") == parseInt(Utils.getFormatTime("yyyyMMdd"))) {
+      if (
+        GM_getValue("mt_sign") ==
+        parseInt(Utils.formatTime(undefined, "yyyyMMdd"))
+      ) {
         return;
       } else {
         signIn(formhash);
@@ -3810,21 +3815,12 @@
           } else {
             date = date[0];
           }
-          value["time"] = Utils.formatTextToTimeStamp(date);
+          value["time"] = Utils.formatToTimeStamp(date);
           blackList = blackList.concat(value);
         });
+        Utils.sortListByProperty(blackList, "time");
+        Utils.sortListByProperty(blackListWithNoTime, "time", false);
 
-        blackList.sort(
-          Utils.sortListByProperty((item) => {
-            return item["time"];
-          })
-        );
-
-        blackListWithNoTime.sort(
-          Utils.sortListByProperty((item) => {
-            return item["time"];
-          }, false)
-        );
         blackList = [...blackList, ...blackListWithNoTime];
         return blackList;
       }
@@ -3835,12 +3831,12 @@
        * @returns {Array}
        */
       function parseBlackListHTML(blackListHTML) {
-        let parseResult = Utils.jsonStrToObject(blackListHTML);
+        let parseResult = Utils.toEvalJSON(blackListHTML);
         let data = parseResult["data"]; /* 黑名单列表 */
         let cid = parseResult["message"].split("|"); /* cid */
         cid = cid[cid.length - 1];
         nextCid = cid;
-        data = Utils.jsonAllValueToArray(data);
+        data = Utils.parseObjectToArray(data);
         return data;
       }
       insertMobileBlackHomeButton();
@@ -4355,7 +4351,6 @@
           imageUri: null,
           json_data: null,
         };
-        console.log(imageFile);
         let form = new FormData();
         form.append("type", "file");
         form.append("action", "upload");
@@ -4828,8 +4823,9 @@
           popups.loadingMask();
           popups.toast("上传图片中...请稍后");
           console.log(`图片数量:${chooseImageFiles.length}`);
-          let uploadFileAwaitFunction = async (params) => {
-            let imageFile = chooseImageFiles[params[0]];
+          let uploadFileAwaitFunction = async (chooseImageFileItemIndex) => {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let uploadImageReturn = await uploadImage(imageFile);
             if (uploadImageReturn["json_data"] != null) {
               console.log(uploadImageReturn);
@@ -4876,7 +4872,7 @@
             popups.closeMask();
             $jq("#filedata_kggzs").val("");
           };
-          Utils.asyncArrayForEach(
+          Utils.waitArrayLoopToEnd(
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
@@ -4990,8 +4986,9 @@
           }
           popups.loadingMask();
           popups.toast("上传图片中...请稍后");
-          let uploadFileAwaitFunction = async (params) => {
-            let imageFile = chooseImageFiles[params[0]];
+          let uploadFileAwaitFunction = async (chooseImageFileItemIndex) => {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let uploadImageReturn = await mobile.chartBed.uploadImage(
               chartBedUrl,
               chartBedAuthToken,
@@ -5039,34 +5036,38 @@
             popups.closeMask();
             $jq("#filedata_hello").val("");
           };
-          Utils.asyncArrayForEach(
+          Utils.waitArrayLoopToEnd(
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
             Utils.tryCatch().run(completeFunction);
           });
         });
-        $jq(document).on("click", "#imglist_hello .delImg", async function (event) {
-          event.preventDefault();
-          popups.loadingMask();
-          popups.toast("删除中，请稍后");
-          let id_encoded = event.currentTarget.getAttribute("id-encode");
-          if (!id_encoded) {
+        $jq(document).on(
+          "click",
+          "#imglist_hello .delImg",
+          async function (event) {
+            event.preventDefault();
+            popups.loadingMask();
+            popups.toast("删除中，请稍后");
+            let id_encoded = event.currentTarget.getAttribute("id-encode");
+            if (!id_encoded) {
+              popups.closeMask();
+              popups.toast("获取id_encoded失败，请自行去Hello图床删除");
+              return;
+            }
+            let deleteStatus = await mobile.chartBed.deleteImage(
+              chartBedUrl,
+              chartBedAuthToken,
+              id_encoded
+            );
             popups.closeMask();
-            popups.toast("获取id_encoded失败，请自行去Hello图床删除");
-            return;
+            if (deleteStatus) {
+              $jq(this).parent().remove();
+              mobile.chartBed.storage.delete("hello", id_encoded);
+            }
           }
-          let deleteStatus = await mobile.chartBed.deleteImage(
-            chartBedUrl,
-            chartBedAuthToken,
-            id_encoded
-          );
-          popups.closeMask();
-          if (deleteStatus) {
-            $jq(this).parent().remove();
-            mobile.chartBed.storage.delete("hello", id_encoded);
-          }
-        });
+        );
       }
 
       function chatZ4AChartBed() {
@@ -5155,12 +5156,13 @@
           }
           popups.loadingMask();
           popups.toast("上传图片中...请稍后");
-          let uploadFileAwaitFunction = async (params) => {
-            console.log("上传图片：" + chooseImageFiles[params[0]]);
+          let uploadFileAwaitFunction = async (chooseImageFileItemIndex) => {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let uploadImageReturn = await mobile.chartBed.uploadImage(
               chartBedUrl,
               chartBedAuthToken,
-              chooseImageFiles[params[0]]
+              imageFile
             );
             if (uploadImageReturn["json_data"] != null) {
               let image_id_encoded =
@@ -5204,34 +5206,38 @@
             popups.closeMask();
             $jq("#filedata_z4a").val("");
           };
-          Utils.asyncArrayForEach(
+          Utils.waitArrayLoopToEnd(
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
             Utils.tryCatch().run(completeFunction);
           });
         });
-        $jq(document).on("click", "#imglist_z4a .delImg", async function (event) {
-          event.preventDefault();
-          popups.loadingMask();
-          popups.toast("删除中，请稍后");
-          let id_encoded = event.currentTarget.getAttribute("id-encode");
-          if (!id_encoded) {
+        $jq(document).on(
+          "click",
+          "#imglist_z4a .delImg",
+          async function (event) {
+            event.preventDefault();
+            popups.loadingMask();
+            popups.toast("删除中，请稍后");
+            let id_encoded = event.currentTarget.getAttribute("id-encode");
+            if (!id_encoded) {
+              popups.closeMask();
+              popups.toast("获取id_encoded失败，请自行去Z4A图床删除");
+              return;
+            }
+            let deleteStatus = await mobile.chartBed.deleteImage(
+              chartBedUrl,
+              chartBedAuthToken,
+              id_encoded
+            );
             popups.closeMask();
-            popups.toast("获取id_encoded失败，请自行去Z4A图床删除");
-            return;
+            if (deleteStatus) {
+              $jq(this).parent().remove();
+              mobile.chartBed.storage.delete("z4a", id_encoded);
+            }
           }
-          let deleteStatus = await mobile.chartBed.deleteImage(
-            chartBedUrl,
-            chartBedAuthToken,
-            id_encoded
-          );
-          popups.closeMask();
-          if (deleteStatus) {
-            $jq(this).parent().remove();
-            mobile.chartBed.storage.delete("z4a", id_encoded);
-          }
-        });
+        );
       }
 
       function chatHistoryChartBedImages() {
@@ -5373,8 +5379,7 @@
       const DB_NAME = "mt_db",
         DB_STORE_NAME = "custom_collection",
         DB_STORE_KEY_NAME =
-          "forum_post_" +
-          Utils.getFormatTime("yyyy_MM_dd_HH_mm_ss", collectTime);
+          "forum_post_" + Utils.formatTime(collectTime, "yyyy_MM_dd_HH_mm_ss");
       var db = new Utils.indexedDB(DB_NAME, DB_STORE_NAME);
 
       async function showView() {
@@ -5401,11 +5406,7 @@
           var customCollectionData = resolve["data"];
           if (customCollectionData.length) {
             console.log(customCollectionData);
-            customCollectionData.sort(
-              Utils.sortListByProperty((item) => {
-                return item["timestamp"];
-              }, true)
-            );
+            Utils.sortListByProperty(customCollectionData, "timestamp", true);
             console.log("排序后——快照：", customCollectionData);
             $jq(".msgcon").html("");
             $jq(".msgcon").append(
@@ -5471,7 +5472,7 @@
                 }
               });
               itemElement.find(".delsubjecttip").on("click", function () {
-                var _this = this;
+                let that = this;
                 popups.confirm({
                   text: "<p>确定删除该快照？</p>",
                   mask: true,
@@ -5496,9 +5497,7 @@
                           popups.toast({
                             text: "删除成功",
                           });
-                          Utils.deleteParentNode(_this, (dom) => {
-                            return dom.id === "autolist" ? true : false;
-                          });
+                          Utils.deleteParentNode(that, "#autolist");
                           popups.closeConfirm();
                         },
                         (err) => {
@@ -5599,10 +5598,7 @@
                     url: window.location.href,
                     title: document.title.replace(" - MT论坛", ""),
                     data: base64Image,
-                    time: Utils.getFormatTime(
-                      "yyyy-MM-dd HH:mm:ss",
-                      collectTime
-                    ),
+                    time: Utils.formatTime(collectTime),
                     timestamp: collectTime,
                   };
                   db.save(DB_STORE_KEY_NAME, data).then((resolve) => {
@@ -5645,7 +5641,7 @@
                 url: window.location.href,
                 title: document.title.replace(" - MT论坛", ""),
                 data: pageHTML,
-                time: Utils.getFormatTime("yyyy-MM-dd HH:mm:ss", collectTime),
+                time: Utils.formatTime(collectTime),
                 timestamp: collectTime,
               };
               db.save(DB_STORE_KEY_NAME, data).then((resolve) => {
@@ -5946,8 +5942,9 @@
           let needUploadImageArray = [];
           let needUploadImageFileArray = [];
 
-          let uploadFileAwaitFunction = async (params) => {
-            let imageFile = chooseImageFiles[params[0]];
+          let uploadFileAwaitFunction = async (chooseImageFileItemIndex) => {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let uploadImageReturn = await uploadImage(imageFile);
             if (uploadImageReturn["json_data"] != null) {
               console.log(uploadImageReturn);
@@ -6000,7 +5997,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.asyncFileToBase64(item);
+                  let image_base64 = await Utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6024,7 +6021,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.base64ToFile(
+                    Utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6043,7 +6040,7 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  Utils.asyncArrayForEach(
+                  Utils.waitArrayLoopToEnd(
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
@@ -6094,7 +6091,7 @@
                         console.log(
                           `图片数量:${needUploadImageFileArray.length}`
                         );
-                        Utils.asyncArrayForEach(
+                        Utils.waitArrayLoopToEnd(
                           needUploadImageFileArray,
                           uploadFileAwaitFunction
                         ).then(() => {
@@ -6109,7 +6106,7 @@
                     callback: () => {
                       Array.from(needUploadImageFileArray).forEach(
                         async (item, index) => {
-                          let base64Image = await Utils.asyncFileToBase64(item);
+                          let base64Image = await Utils.parseFileToBase64(item);
                           Utils.downloadBase64(item.name, base64Image);
                         }
                       );
@@ -6130,7 +6127,7 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              Utils.asyncArrayForEach(
+              Utils.waitArrayLoopToEnd(
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
@@ -6253,8 +6250,9 @@
           let needUploadImageArray = [];
           let needUploadImageFileArray = [];
 
-          let uploadFileAwaitFunction = async (params) => {
-            let imageFile = chooseImageFiles[params[0]];
+          let uploadFileAwaitFunction = async (chooseImageFileItemIndex) => {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let uploadImageReturn = await mobile.chartBed.uploadImage(
               chartBedUrl,
               chartBedAuthToken,
@@ -6307,7 +6305,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.asyncFileToBase64(item);
+                  let image_base64 = await Utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6331,7 +6329,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.base64ToFile(
+                    Utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6350,7 +6348,7 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  Utils.asyncArrayForEach(
+                  Utils.waitArrayLoopToEnd(
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
@@ -6398,7 +6396,7 @@
                           console.log(
                             `图片数量:${needUploadImageFileArray.length}`
                           );
-                          Utils.asyncArrayForEach(
+                          Utils.waitArrayLoopToEnd(
                             needUploadImageFileArray,
                             uploadFileAwaitFunction
                           ).then(() => {
@@ -6416,7 +6414,7 @@
                     callback: () => {
                       Array.from(needUploadImageFileArray).forEach(
                         async (item, index) => {
-                          let base64Image = await Utils.asyncFileToBase64(item);
+                          let base64Image = await Utils.parseFileToBase64(item);
                           Utils.downloadBase64(item.name, base64Image);
                         }
                       );
@@ -6437,7 +6435,7 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              Utils.asyncArrayForEach(
+              Utils.waitArrayLoopToEnd(
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
@@ -6446,27 +6444,31 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_hello .delImg", async function (event) {
-          event.preventDefault();
-          popups.loadingMask();
-          popups.toast("删除中，请稍后");
-          let id_encoded = event.currentTarget.getAttribute("id-encode");
-          if (!id_encoded) {
+        $jq(document).on(
+          "click",
+          "#imglist_hello .delImg",
+          async function (event) {
+            event.preventDefault();
+            popups.loadingMask();
+            popups.toast("删除中，请稍后");
+            let id_encoded = event.currentTarget.getAttribute("id-encode");
+            if (!id_encoded) {
+              popups.closeMask();
+              popups.toast("获取id_encoded失败，请自行去Hello图床删除");
+              return;
+            }
+            let deleteStatus = await mobile.chartBed.deleteImage(
+              chartBedUrl,
+              chartBedAuthToken,
+              id_encoded
+            );
             popups.closeMask();
-            popups.toast("获取id_encoded失败，请自行去Hello图床删除");
-            return;
+            if (deleteStatus) {
+              $jq(this).parent().remove();
+              mobile.chartBed.storage.delete("hello", id_encoded);
+            }
           }
-          let deleteStatus = await mobile.chartBed.deleteImage(
-            chartBedUrl,
-            chartBedAuthToken,
-            id_encoded
-          );
-          popups.closeMask();
-          if (deleteStatus) {
-            $jq(this).parent().remove();
-            mobile.chartBed.storage.delete("hello", id_encoded);
-          }
-        });
+        );
       }
 
       function chartbedByZ4a() {
@@ -6562,8 +6564,9 @@
           let needUploadImageArray = [];
           let needUploadImageFileArray = [];
 
-          let uploadFileAwaitFunction = async (params) => {
-            let imageFile = chooseImageFiles[params[0]];
+          let uploadFileAwaitFunction = async (chooseImageFileItemIndex) => {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let uploadImageReturn = await mobile.chartBed.uploadImage(
               chartBedUrl,
               chartBedAuthToken,
@@ -6615,7 +6618,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.asyncFileToBase64(item);
+                  let image_base64 = await Utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6639,7 +6642,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.base64ToFile(
+                    Utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6658,7 +6661,7 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  Utils.asyncArrayForEach(
+                  Utils.waitArrayLoopToEnd(
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
@@ -6707,7 +6710,7 @@
                         console.log(
                           `图片数量:${needUploadImageFileArray.length}`
                         );
-                        Utils.asyncArrayForEach(
+                        Utils.waitArrayLoopToEnd(
                           needUploadImageFileArray,
                           uploadFileAwaitFunction
                         ).then(() => {
@@ -6722,7 +6725,7 @@
                     callback: () => {
                       Array.from(needUploadImageFileArray).forEach(
                         async (item, index) => {
-                          let base64Image = await Utils.asyncFileToBase64(item);
+                          let base64Image = await Utils.parseFileToBase64(item);
                           Utils.downloadBase64(item.name, base64Image);
                         }
                       );
@@ -6743,7 +6746,7 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              Utils.asyncArrayForEach(
+              Utils.waitArrayLoopToEnd(
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
@@ -6752,27 +6755,31 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_z4a .delImg", async function (event) {
-          event.preventDefault();
-          popups.loadingMask();
-          popups.toast("删除中，请稍后");
-          let id_encoded = event.currentTarget.getAttribute("id-encode");
-          if (!id_encoded) {
+        $jq(document).on(
+          "click",
+          "#imglist_z4a .delImg",
+          async function (event) {
+            event.preventDefault();
+            popups.loadingMask();
+            popups.toast("删除中，请稍后");
+            let id_encoded = event.currentTarget.getAttribute("id-encode");
+            if (!id_encoded) {
+              popups.closeMask();
+              popups.toast("获取id_encoded失败，请自行去Z4A图床删除");
+              return;
+            }
+            let deleteStatus = await mobile.chartBed.deleteImage(
+              chartBedUrl,
+              chartBedAuthToken,
+              id_encoded
+            );
             popups.closeMask();
-            popups.toast("获取id_encoded失败，请自行去Z4A图床删除");
-            return;
+            if (deleteStatus) {
+              $jq(this).parent().remove();
+              mobile.chartBed.storage.delete("z4a", id_encoded);
+            }
           }
-          let deleteStatus = await mobile.chartBed.deleteImage(
-            chartBedUrl,
-            chartBedAuthToken,
-            id_encoded
-          );
-          popups.closeMask();
-          if (deleteStatus) {
-            $jq(this).parent().remove();
-            mobile.chartBed.storage.delete("z4a", id_encoded);
-          }
-        });
+        );
       }
 
       function chartbedByMT() {
@@ -6791,8 +6798,11 @@
           let needUploadImageArray = [];
           let needUploadImageFileArray = [];
 
+          /**
+           * 获取MT图床的CSRF参数
+           * @returns {Promise}
+           */
           function getCSRFToken() {
-            /* 获取MT图床的CSRF参数 */
             return new Promise((resolve) => {
               GM_xmlhttpRequest({
                 url: "https://img.binmt.cc/",
@@ -6806,13 +6816,12 @@
                 },
                 onload: (response) => {
                   console.log(response);
-                  let obj = $jq(response.responseText);
-                  let metaCSRFToken = obj
-                    ?.filter('meta[name="csrf-token"]')
-                    ?.attr("content");
+                  let respDoc = Utils.parseFromString(response.responseText);
+                  let metaCSRFToken = respDoc
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute("content");
                   console.log("获取的CSRF token：", metaCSRFToken);
-                  metaCSRFToken = metaCSRFToken == null ? null : metaCSRFToken;
-                  resolve(metaCSRFToken);
+                  resolve(metaCSRFToken || null);
                 },
                 onerror: (response) => {
                   console.log(response);
@@ -6826,8 +6835,14 @@
               });
             });
           }
+          /**
+           * 上传图片
+           * @param {string} csrfToken
+           * @param {File} imageFile
+           * @returns {Promise}
+           */
           function uploadImage(csrfToken, imageFile) {
-            let res_data = {
+            let resultData = {
               imageUri: null,
               json_data: null,
             };
@@ -6842,12 +6857,17 @@
                 async: false,
                 responseType: "json",
                 headers: {
-                  Accept: "application/json",
-                  "User-Agent": Utils.getRandomPCUA(),
+                  Accept: "application/json, text/javascript, */*; q=0.01",
+                  "User-Agent": Utils.getRandomAndroidUA(),
                   origin: "https://img.binmt.cc",
                   pragma: "no-cache",
+                  "Accept-Encoding": "gzip, deflate, br",
+                  "Accept-Language":
+                    "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
                   referer: "https://img.binmt.cc/",
+                  Pragma: "no-cache",
                   "x-csrf-token": csrfToken,
+                  "X-Requested-With": "XMLHttpRequest",
                 },
                 onload: (response) => {
                   let json_data = JSON.parse(response.responseText);
@@ -6864,20 +6884,20 @@
                     file_reader.onload = function () {
                       let imageUri =
                         this.result; /* 此时的图片已经存储到了result中	 */
-                      res_data["imageUri"] = imageUri;
-                      res_data["json_data"] = json_data;
-                      resolve(res_data);
+                      resultData["imageUri"] = imageUri;
+                      resultData["json_data"] = json_data;
+                      resolve(resultData);
                     };
                   } else {
                     console.log(json_data);
                     popups.toast(json_data["message"]);
-                    resolve(res_data);
+                    resolve(resultData);
                   }
                 },
                 onerror: (response) => {
                   console.log(response);
                   popups.toast("网络异常");
-                  resolve(res_data);
+                  resolve(resultData);
                 },
               });
             });
@@ -6886,8 +6906,9 @@
             popups.closeMask();
             $jq("#filedata_mt").val("");
           }
-          async function uploadFileAwaitFunction(params) {
-            let imageFile = chooseImageFiles[params[0]];
+          async function uploadFileAwaitFunction(chooseImageFileItemIndex) {
+            let imageFile = chooseImageFiles[chooseImageFileItemIndex];
+            console.log("上传图片：", imageFile);
             let csrfToken = await getCSRFToken();
             if (csrfToken == null) {
               popups.toast({
@@ -6946,7 +6967,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.asyncFileToBase64(item);
+                  let image_base64 = await Utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6970,7 +6991,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.base64ToFile(
+                    Utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6985,7 +7006,7 @@
                 popups.toast("上传水印图片中...请稍后");
 
                 console.log(`图片数量:${needUploadImageFileArray.length}`);
-                Utils.asyncArrayForEach(
+                Utils.waitArrayLoopToEnd(
                   needUploadImageFileArray,
                   uploadFileAwaitFunction
                 ).then(() => {
@@ -7029,7 +7050,7 @@
                     popups.toast("上传水印图片中...请稍后");
 
                     console.log(`图片数量:${needUploadImageFileArray.length}`);
-                    Utils.asyncArrayForEach(
+                    Utils.waitArrayLoopToEnd(
                       needUploadImageFileArray,
                       uploadFileAwaitFunction
                     ).then(() => {
@@ -7043,7 +7064,7 @@
                   callback: () => {
                     Array.from(needUploadImageFileArray).forEach(
                       async (item, index) => {
-                        let base64Image = await Utils.asyncFileToBase64(item);
+                        let base64Image = await Utils.parseFileToBase64(item);
                         Utils.downloadBase64(item.name, base64Image);
                       }
                     );
@@ -7059,7 +7080,7 @@
             popups.toast("上传图片中...请稍后");
 
             console.log(`图片数量:${chooseImageFiles.length}`);
-            Utils.asyncArrayForEach(
+            Utils.waitArrayLoopToEnd(
               chooseImageFiles,
               uploadFileAwaitFunction
             ).then(() => {
@@ -7067,13 +7088,17 @@
             });
           }
         });
-        $jq(document).on("click", "#imglist_mt .delImg", async function (event) {
-          /* 删除上传的图片-目前无法删除 */
-          event.preventDefault();
-          const id_encoded = $jq(this).attr("id-encode");
-          $jq(this).parent().remove();
-          mobile.chartBed.storage.delete("mt", id_encoded);
-        });
+        $jq(document).on(
+          "click",
+          "#imglist_mt .delImg",
+          async function (event) {
+            /* 删除上传的图片-目前无法删除 */
+            event.preventDefault();
+            const id_encoded = $jq(this).attr("id-encode");
+            $jq(this).parent().remove();
+            mobile.chartBed.storage.delete("mt", id_encoded);
+          }
+        );
       }
       function chartbedByHistory() {
         /* 所有图床历史上传过的图片 */
@@ -10593,7 +10618,7 @@
             });
           });
         }
-        var lock = new Utils.lockFunction(_loadNextComments_);
+        var lock = new Utils.funcLock(_loadNextComments_);
         function scroll_loadNextComments() {
           if (
             Math.ceil($jq(window).scrollTop() + $jq(window).height() + 150) >=
@@ -10715,7 +10740,7 @@
             lock.run();
           }
         }
-        var lock = new Utils.lockFunction(_loadPrevComments_);
+        var lock = new Utils.funcLock(_loadPrevComments_);
         $jq(window).on("scroll", scroll_loadPrevComments);
       }
 
@@ -11233,36 +11258,23 @@
           console.log("可白嫖但未访问：", isFreeNotVisitedContentList);
           console.log("可白嫖：", isFreeContentList);
           console.log("未到白嫖时间：", isPaidContentList);
-          isFreeNotVisitedContentList.sort(
-            Utils.sortListByProperty((item) => {
-              return item["expirationTimeStamp"];
-            }, false)
+          Utils.sortListByProperty(
+            isFreeNotVisitedContentList,
+            "expirationTimeStamp",
+            false
           );
-          isFreeContentList.sort(
-            Utils.sortListByProperty((item) => {
-              return item["timestamp"];
-            }, false)
-          );
-          isPaidContentList.sort(
-            Utils.sortListByProperty((item) => {
-              return item["timestamp"];
-            }, false)
-          );
+          Utils.sortListByProperty(isFreeContentList, "timestamp", false);
+          Utils.sortListByProperty(isPaidContentList, "timestamp", false);
+
           console.log("排序后——可白嫖但未访问：", isFreeNotVisitedContentList);
           console.log("排序后——可白嫖：", isFreeContentList);
           console.log("排序后——未到白嫖时间：", isPaidContentList);
           isFreeContent =
-            Utils.mergeArrayToString(isFreeNotVisitedContentList, (item) => {
-              return item["content"];
-            }) +
-            Utils.mergeArrayToString(isFreeContentList, (item) => {
-              return item["content"];
-            });
+            Utils.mergeArrayToString(isFreeNotVisitedContentList, "content") +
+            Utils.mergeArrayToString(isFreeContentList, "content");
           isPaidContent = Utils.mergeArrayToString(
             isPaidContentList,
-            (item) => {
-              return item["content"];
-            }
+            "content"
           );
           if (notVisitedNums > 0) {
             notVisitedTipContent = `<span class="icon_msgs bg_del f_f" style="
@@ -11301,9 +11313,7 @@
                   data.splice(t_index, 1);
                   console.log(data);
                   paymentSubjectReminderHome.setData(data);
-                  Utils.deleteParentNode(event.target, (dom) => {
-                    return dom.localName === "tr" ? true : false;
-                  });
+                  Utils.deleteParentNode(event.target, "tr");
                   popups.closeConfirm();
                 },
               },
@@ -11311,12 +11321,12 @@
             });
           });
           $jq("#paymentSubjectReminderIsFreeList").on("click", "a", (event) => {
-            var t_index = event.target.getAttribute("t-index");
-            var t_href = event.target.getAttribute("t-href");
-            console.log(t_index, t_href);
-            data[t_index]["isVisited"] = true;
+            var tIndex = event.target.getAttribute("t-index");
+            var tHref = event.target.getAttribute("t-href");
+            console.log(tIndex, tHref);
+            data[tIndex]["isVisited"] = true;
             paymentSubjectReminderHome.setData(data);
-            window.open(t_href, "_blank");
+            window.open(tHref, "_blank");
             event.target.setAttribute("style", "color: #000000;");
             if (
               event.target.parentElement.parentElement.children[0].className !=
@@ -11326,8 +11336,8 @@
             }
             event.target.parentElement.parentElement.children[0].remove();
             $jq("#paymentSubjectReminderIsFreeList").append(
-              event.target.parentElement.parentElement.parentElement.parentElement
-                .parentElement
+              event.target.parentElement.parentElement.parentElement
+                .parentElement.parentElement
             );
             let notVisitedNums = $jq(
               ".subjectcanvisit summary span.icon_msgs.bg_del.f_f"
@@ -11386,7 +11396,7 @@
                           setTipForumPostList
                         );
                         isRemove = true;
-                        Utils.asyncSetTimeOut("window.location.reload()", 1500);
+                        Utils.setTimeout("window.location.reload()", 1500);
                         return;
                       }
                     });
@@ -11423,8 +11433,7 @@
                 return;
               }
               let expirationTime = expirationTimeMatch[0];
-              let expirationTimeStamp =
-                Utils.formatTextToTimeStamp(expirationTime);
+              let expirationTimeStamp = Utils.formatToTimeStamp(expirationTime);
               setTipForumPostList = setTipForumPostList.concat({
                 url: window.location.href,
                 title: document.title.replace(" - MT论坛", ""),
@@ -12673,7 +12682,7 @@
        */
       function keyUpEvent(event) {
         let userInputText = event.target.value;
-        let userInputTextLength = Utils.getByteLength(userInputText);
+        let userInputTextLength = Utils.getTextLength(userInputText);
         let replaecdText = replaceText(userInputText);
         $jq(
           ".gm_plugin_previewpostforum_html .comiis_message_table"
@@ -14751,13 +14760,13 @@
               }
               popups.loadingMask();
               popups.toast("正在处理数据中...");
-              let baseBig = await Utils.asyncFileToBase64(
+              let baseBig = await Utils.parseFileToBase64(
                 $jq("#comiis_file_dynamic_avater_big").prop("files")[0]
               );
-              let baseMedium = await Utils.asyncFileToBase64(
+              let baseMedium = await Utils.parseFileToBase64(
                 $jq("#comiis_file_dynamic_avater_medium").prop("files")[0]
               );
-              let baseSmall = await Utils.asyncFileToBase64(
+              let baseSmall = await Utils.parseFileToBase64(
                 $jq("#comiis_file_dynamic_avater_small").prop("files")[0]
               );
               let base64Arr = [baseBig, baseMedium, baseSmall];
@@ -14997,13 +15006,16 @@
 						}
 						`);
           var latestPostForumHTML = "";
-          result.sort(
-            Utils.sortListByProperty((item) => {
+
+          Utils.sortListByProperty(
+            result,
+            (item) => {
               var forumPostNum = item["href"].match(/thread-(.+?)-/i);
               forumPostNum = forumPostNum[forumPostNum.length - 1];
               forumPostNum = parseInt(forumPostNum);
               return forumPostNum;
-            }, true)
+            },
+            true
           );
           console.log("导读内容", result);
           result.forEach((item) => {
