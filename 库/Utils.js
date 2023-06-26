@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  2.9
+ * @version  3.0
  **/
 (function (Utils) {
   /**
@@ -11,20 +11,19 @@
    * @param {object} source	源端
    * @example
    * 	Utils.assignJSON({"1":1,"2":{"3":3}}, {"2":{"3":4}});
-   * @return
+   * @returns
    * \{"1":1,"2":{"3":4}}
    **/
   Utils.assignJSON = function (target = {}, source = {}) {
-    for (var target_key in target) {
+    for (let target_key in target) {
       let targetValue = target[target_key];
       let sourceValue = source[target_key];
       if (typeof sourceValue !== "undefined") {
-        /* 右边值为Object */
-        /* 右边值不为元素节点 */
-        if (typeof sourceValue === "object" && !(sourceValue instanceof Node)) {
-          target[target_key] = Utils.assignJSON(targetValue, sourceValue);
-        } else {
+        if (Utils.isDOM(sourceValue)) {
           target[target_key] = sourceValue;
+        } else {
+          /* 右边值不为元素节点 */
+          target[target_key] = Utils.assignJSON(targetValue, sourceValue);
         }
       }
     }
@@ -32,190 +31,32 @@
   };
 
   /**
-   * 同步执行，等待数组内部执行完毕，注意，该内部不能同步
-   * @param {Object} arrayData	需要遍历的数组
-   * @param {Function} handleDataFunction	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
-   * @example
-   * 	await Utils.asyncArrayForEach([1,2,3],xxxFunction);
-   **/
-  Utils.asyncArrayForEach = function (arrayData, handleDataFunction) {
-    var that = this;
-    if (typeof arrayData !== "object") {
-      throw new Error(
-        "Utils.asyncArrayForEach 参数 arrayData 必须为 object 类型"
-      );
-    }
-    if (
-      typeof handleDataFunction !== "function" &&
-      typeof handleDataFunction !== "string"
-    ) {
-      throw new Error(
-        "Utils.asyncArrayForEach 参数 handleDataFunction 必须为 function|string 类型"
-      );
-    }
-    return Promise.all(
-      Array.from(arrayData).map(async (item, index) => {
-        await that.tryCatch(index, item).run(handleDataFunction);
-      })
-    );
-  };
-
-  /**
-   * 同步File对象转base64
-   * @param {Object} fileObj	需要转换的File对象
-   * @return {String} base64格式的数据
-   * @example
-   * 	await Utils.asyncFileToBase64(object);
-   * @return
-   * 	data:image/jpeg:base64/,xxxxxx
-   **/
-  Utils.asyncFileToBase64 = function (fileObj) {
-    var reader = new FileReader();
-    reader.readAsDataURL(fileObj);
-    return new Promise((resolve) => {
-      reader.onload = function (e) {
-        resolve(e.target.result);
-      };
-    });
-  };
-
-  /**
-   * 同步执行延时函数
-   * @param {Object|String} fnStr	需要延时的函数或字符串格式的函数
-   * @param {Number} delayTime	需要检测的元素
-   * @return {?undefined}	返回自定义类型数据或者无返回
-   * @example
-   * 	await Utils.asyncSetTimeOut(xxxFunction, 2500);
-   * @return
-   * 	xxx
-   * @example
-   * 	await Utils.asyncSetTimeOut("()=>{console.log(12345)}", 2500);
-   * @return
-   * 	undefined
-   **/
-  Utils.asyncSetTimeOut = function (fnStr, delayTime) {
-    var that = this;
-    if (typeof fnStr !== "function" && typeof fnStr !== "string") {
-      throw new Error(
-        "Utils.asyncSetTimeOut 参数 fnStr 必须为 function|string 类型"
-      );
-    }
-    if (typeof delayTime !== "number") {
-      throw new Error(
-        "Utils.asyncSetTimeOut 参数 delayTime 必须为 number 类型"
-      );
-    }
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(that.tryCatch().run(fnStr));
-      }, delayTime);
-    });
-  };
-
-  /**
-   * base64转blob
-   * @param {String} dataurl	base64的数据
-   * @return {String} blob的链接
-   * @example
-   * 	Utils.base64ToBlob("data:image/jpeg;base64,.....");
-   * @return
-   * 	blob://xxxxxxx
-   **/
-  Utils.base64ToBlob = function (dataurl) {
-    if (typeof dataurl !== "string") {
-      throw new Error("Utils.base64ToBlob 参数 dataurl 必须为 string 类型");
-    }
-    var arr = dataurl.split(","),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new Blob([u8arr], {
-      type: mime,
-    });
-  };
-
-  /**
-   * base64转File对象
-   * @param {String} dataurl	base64的数据
-   * @return {String}	blob的链接
-   * @example
-   * 	Utils.base64ToFile("data:image/jpeg;base64,.....");
-   * @return
-   * 	object
-   **/
-  Utils.base64ToFile = function (dataurl, fileName) {
-    if (typeof dataurl !== "string") {
-      throw new Error("Utils.base64ToFile 参数 dataurl 必须为 string 类型");
-    }
-    if (typeof fileName !== "string") {
-      throw new Error("Utils.base64ToFile 参数 fileName 必须为 string 类型");
-    }
-    var arr = dataurl.split(","),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], fileName, {
-      type: mime,
-    });
-  };
-
-  /**
-   * blob转File对象
-   * @param {String} theBlob	需要转换的blob的链接
-   * @param {String} fileName	转换成的File对象的文件名称
-   * @return {Object} File对象
-   * @example
-   * 	Utils.blobToFile("blob://xxxxx");
-   * @return
-   * 	object
-   **/
-  Utils.blobToFile = function (theBlob, fileName) {
-    if (typeof theBlob !== "string") {
-      throw new Error("Utils.blobToFile 参数 theBlob 必须为 string 类型");
-    }
-    if (typeof fileName !== "string") {
-      throw new Error("Utils.blobToFile 参数 fileName 必须为 string 类型");
-    }
-    theBlob.lastModifiedDate = new Date();
-    theBlob.name = fileName;
-    return theBlob;
-  };
-
-  /**
    * 【手机】检测点击的地方是否在该元素区域内
-   * @param {Object} obj	需要检测的元素
-   * @return {Boolean}	返回true或false
+   * @param {HTMLElement|Node} obj	需要检测的元素
+   * @returns {Boolean}	返回true或false
    * @example
    * 	Utils.checkUserClickInNode(document.querySelector(".xxx"));
    * @return
    * 	false
    **/
   Utils.checkUserClickInNode = function (targetNode) {
-    if (!(targetNode instanceof Node)) {
+    if (!Utils.isDOM(targetNode)) {
       throw new Error(
-        "Utils.checkUserClickInNode 参数 targetNode 必须为 Node 类型"
+        "Utils.checkUserClickInNode 参数 targetNode 必须为 HTMLElement|Node 类型"
       );
     }
-    var mouseClickPosX = Number(window.event.clientX); /* 鼠标相对屏幕横坐标 */
-    var mouseClickPosY = Number(window.event.clientY); /* 鼠标相对屏幕纵坐标 */
-    var elementPosXLeft = Number(
+    let mouseClickPosX = Number(window.event.clientX); /* 鼠标相对屏幕横坐标 */
+    let mouseClickPosY = Number(window.event.clientY); /* 鼠标相对屏幕纵坐标 */
+    let elementPosXLeft = Number(
       targetNode.getBoundingClientRect().left
     ); /* 要检测的元素的相对屏幕的横坐标最左边 */
-    var elementPosXRight = Number(
+    let elementPosXRight = Number(
       targetNode.getBoundingClientRect().right
     ); /* 要检测的元素的相对屏幕的横坐标最右边 */
-    var elementPosYTop = Number(
+    let elementPosYTop = Number(
       targetNode.getBoundingClientRect().top
     ); /* 要检测的元素的相对屏幕的纵坐标最上边 */
-    var elementPosYBottom = Number(
+    let elementPosYBottom = Number(
       targetNode.getBoundingClientRect().bottom
     ); /* 要检测的元素的相对屏幕的纵坐标最下边 */
     if (
@@ -239,43 +80,33 @@
 
   /**
    * 删除某个父元素，父元素可能在上层或上上层或上上上层...
-   * @param {Object} target	当前元素
-   * @param {Object} handleFunc	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
+   * @param {HTMLElement|Node} target	当前元素
+   * @param {string} targetSelector	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
    * @return {Boolean} 如果找到就删除返回true，如果未删除返回false
    * @example
-   * 	Utils.deleteParentNode(
-   * 		document.querySelector(".xxx"),(node)=>{
-   * 			return node.id="xxx" ? true:false
-   * 		}
-   * 	);
+   * 	Utils.deleteParentNode(document.querySelector("a"),".xxx");
    * @exampleReturn
    * 	true
    **/
-  Utils.deleteParentNode = function (target, handleFunc) {
+  Utils.deleteParentNode = function (target, targetSelector) {
     if (target == null) {
       throw new Error("Utils.deleteParentNode 参数 target 不能为 null");
     }
-    if (!(target instanceof Node)) {
-      throw new Error("Utils.deleteParentNode 参数 target 必须为 Node 类型");
-    }
-    if (typeof handleFunc !== "function") {
+    if (!Utils.isDOM(target)) {
       throw new Error(
-        "Utils.deleteParentNode 参数 handleFunc 必须为 function 类型"
+        "Utils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型"
       );
     }
-    var result = false;
-    var parentNode = target.parentElement;
-    while (!0) {
-      if (parentNode == null) {
-        return;
-      }
-      var handleStatus = handleFunc(parentNode);
-      if (handleStatus) {
-        result = true;
-        parentNode.remove();
-        break;
-      }
-      parentNode = parentNode.parentElement;
+    if (typeof targetSelector !== "string") {
+      throw new Error(
+        "Utils.deleteParentNode 参数 targetSelector 必须为 string 类型"
+      );
+    }
+    let result = false;
+    let needRemoveDOM = target.closest(targetSelector);
+    if (needRemoveDOM) {
+      needRemoveDOM.remove();
+      result = true;
     }
     return result;
   };
@@ -336,8 +167,8 @@
      * @returns {array}
      */
     this.values = function () {
-      var resultList = [];
-      for (var prop in this.items) {
+      let resultList = [];
+      for (let prop in this.items) {
         if (this.has(prop)) {
           resultList.push(this.items[prop]);
         }
@@ -390,7 +221,7 @@
     if (typeof eventName === "string") {
       eventNameList = [eventName];
     }
-    if (typeof eventName === "object" && eventName instanceof Array) {
+    if (Array.isArray(eventName)) {
       eventNameList = [...eventName];
     }
     eventNameList.forEach((_eventName_) => {
@@ -400,87 +231,41 @@
 
   /**
    * 下载base64格式的数据
-   * @param {String} base64Content	需要转换的base64数据
+   * @param {String} base64Data	需要转换的base64数据
    * @param {String} fileName	需要保存的文件名
    * @example
    * 	Utils.downloadBase64("data:image/jpeg:base64/,xxxxxx");
    **/
-  Utils.downloadBase64 = function (base64Content, fileName) {
-    if (typeof base64Content !== "string") {
+  Utils.downloadBase64 = function (base64Data, fileName) {
+    if (typeof base64Data !== "string") {
       throw new Error(
-        "Utils.downloadBase64 参数 base64Content 必须为 string 类型"
+        "Utils.downloadBase64 参数 base64Data 必须为 string 类型"
       );
     }
     if (typeof fileName !== "string") {
       throw new Error("Utils.downloadBase64 参数 fileName 必须为 string 类型");
     }
-    var aLink = document.createElement("a");
-    var blob = this.base64ToBlob(base64Content);
-    var evt = document.createEvent("HTMLEvents");
-    evt.initEvent(
-      "click",
-      true,
-      true
-    ); /* initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为 */
+    let aLink = document.createElement("a");
     aLink.download = fileName;
-    aLink.href = URL.createObjectURL(blob);
+    aLink.href = base64Data;
     aLink.click();
   };
 
   /**
-   * 获取某个父元素，父元素可能在上层或上上层或上上上层...
-   * 其实也可以使用元素自带的document.querySelector("div").closest("元素选择器")
-   * @param {Object} target	当前元素
-   * @param {Object} handleFunc	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
-   * @return {Boolean}	如果找到返回满足要求的父元素，如果未找到返回null
-   * @example
-   * 	Utils.findParentNode(document.querySelector(".xxx"),(node)=>{return node.id==="xxx"});
-   * @return
-   * 	Node;
-   **/
-  Utils.findParentNode = function (target, handleFunc) {
-    if (target == null) {
-      throw new Error("Utils.findParentNode 参数 target 不能为null");
-    }
-    if (!(target instanceof Node)) {
-      throw new Error("Utils.findParentNode 参数 target 必须为 Node 类型");
-    }
-    if (typeof handleFunc !== "function") {
-      throw new Error(
-        "Utils.findParentNode 参数 handleFunc 必须为 function 类型"
-      );
-    }
-    let result = null;
-    let parentNode = target.parentElement;
-    while (!0) {
-      if (parentNode == null) {
-        return;
-      }
-      let handleStatus = handleFunc(parentNode);
-      if (handleStatus) {
-        result = parentNode;
-        break;
-      }
-      parentNode = parentNode.parentElement;
-    }
-    return result;
-  };
-
-  /**
-   * 定位网页中字符串位置并标亮，注意，该字符串必须是能在网页中看得到的，隐藏的是无法定位的
+   * 定位网页中可见字符串的位置定位并高亮
    * @param {String} str	需要寻找的字符串
    * @param {Boolean} caseSensitive	区分大小写
    * @return {Boolean}
    * + 找到	===> true
    * + 找不到 ===> false
    * @example
-   * 	Utils.findWindowPageString("xxxxx");
+   * 	Utils.findVisibleText("xxxxx");
    * @return
    * 	true
    **/
-  Utils.findWindowPageString = function (str = "", caseSensitive = false) {
-    var TRange = null;
-    var strFound;
+  Utils.findVisibleText = function (str = "", caseSensitive = false) {
+    let TRange = null;
+    let strFound;
     if (window.find) {
       /* CODE FOR BROWSERS THAT SUPPORT window.find */
       strFound = self.find(str, caseSensitive, true, true, false);
@@ -511,43 +296,6 @@
   };
 
   /**
-   * 字符串格式的时间转时间戳
-   * @param {String} str	字符串格式的时间，例如：
-   * + 2022-11-21 00:00:00
-   * + 00:00:00
-   * @return {Number}
-   * 	返回时间戳
-   * @example
-   * 	Utils.formatTextToTimeStamp("2022-11-21 00:00:00");
-   * @return
-   * 	1668960000000
-   **/
-  Utils.formatTextToTimeStamp = function (text) {
-    /* 把字符串格式的时间（完整，包括日期和时间）格式化成时间戳 */
-    if (typeof text !== "string") {
-      throw new Error(
-        "Utils.formatTextToTimeStamp 参数 text 必须为 string 类型"
-      );
-    }
-    if (text.length === 8) {
-      /* 参数只有时间 */
-      var today = new Date();
-      text =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate() +
-        " " +
-        text;
-    }
-    text = text.substring(0, 19);
-    text = text.replace(/-/g, "/");
-    var timestamp = new Date(text).getTime();
-    return timestamp;
-  };
-
-  /**
    * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
    * @param {Number} bitSize	字节
    * @param {Boolean} addType	是否添加单位，默认添加
@@ -563,9 +311,9 @@
     if (isNaN(byteSize)) {
       throw new Error("Utils.formatByteToSize 参数 byteSize 格式不正确");
     }
-    var result = 0;
-    var resultType = "KB";
-    var sizeData = {};
+    let result = 0;
+    let resultType = "KB";
+    let sizeData = {};
     sizeData.KB = 1024;
     sizeData.MB = sizeData.KB * sizeData.KB;
     sizeData.GB = sizeData.MB * sizeData.KB;
@@ -587,30 +335,6 @@
     result = result.toFixed(2);
     result = addType ? result + resultType.toString() : parseFloat(result);
     return result;
-  };
-
-  /**
-   * 获取数组的随机值
-   * @param {String} array	数组数据
-   * @return {String}	返回数组的随机值
-   * @example
-   * 	Utils.getArrayRandValue(["Utils","getArrayRandValue"]);
-   * @return
-   * 	getArrayRandValue
-   **/
-  Utils.getArrayRandValue = function (data) {
-    return data[Math.floor(Math.random() * data.length)];
-  };
-
-  /**
-   * 获取文本的字节长度
-   * @param {string} text
-   * @returns {number}
-   */
-  Utils.getByteLength = function (text) {
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(text);
-    return bytes.length;
   };
 
   /**
@@ -643,9 +367,9 @@
     return resultArray;
   };
   /**
-   * 获取格式化后的Date类型时间
-   * @param {String} text	需要格式化的字符串或者时间戳
-   * @param {String} types	格式化成的显示类型
+   * 获取格式化后的时间
+   * @param {String|undefined} text	需要格式化的字符串或者时间戳
+   * @param {String|undefined} formatType	格式化成的显示类型
    * + yyyy 年
    * + MM 月
    * + dd 天
@@ -653,26 +377,28 @@
    * + hh 时 (12小时制)
    * + mm 分
    * + ss 秒
-   * @return {String}	返回格式化后的时间
+   * @returns {string}	返回格式化后的时间
    * @example
-   * 	Utils.getFormatTime("HH:mm:ss","2022-08-21 23:59:00");
+   * 	Utils.formatTime("2022-08-21 23:59:00","HH:mm:ss");
    * @return
    * 	23:59:00
    * @example
-   * 	Utils.getFormatTime("HH:mm:ss",1899187424988);
+   * 	Utils.formatTime(1899187424988,"HH:mm:ss");
    * @return
    * 	15:10:13
+   * @example
+   *  Utils.formatTime()
+   * @return
+   * 2023-1-1 00:00:00
    **/
-  Utils.getFormatTime = function (types = "yyyy-MM-dd HH:mm:ss", text) {
-    if (typeof types !== "string") {
-      throw new Error("Utils.getFormatTime 参数 types 必须为 string 类型");
-    }
+  Utils.formatTime = function (text, formatType = "yyyy-MM-dd HH:mm:ss") {
     if (text != null && typeof text !== "string" && typeof text !== "number") {
-      throw new Error(
-        "Utils.getFormatTime 参数 text 必须为 string|number 类型"
-      );
+      throw new Error("Utils.formatTime 参数 text 必须为 string|number 类型");
     }
-    var time = text == null ? new Date() : new Date(text);
+    if (typeof formatType !== "string") {
+      throw new Error("Utils.formatTime 参数 formatType 必须为 string 类型");
+    }
+    let time = text == null ? new Date() : new Date(text);
     /**
      * 校验时间补0
      * @param {number} timeNum
@@ -692,7 +418,7 @@
       return hourNum > 12 ? hourNum - 12 : hourNum;
     }
 
-    var timeRegexp = {
+    let timeRegexp = {
       yyyy: time.getFullYear(),
       /* 年 */
       MM: checkTime(time.getMonth() + 1),
@@ -709,10 +435,89 @@
       /* 秒 */
     };
     Object.keys(timeRegexp).forEach(function (key) {
-      var replaecRegexp = new RegExp(key, "g");
-      types = types.replace(replaecRegexp, timeRegexp[key]);
+      let replaecRegexp = new RegExp(key, "g");
+      formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
     });
-    return types;
+    return formatType;
+  };
+
+  /**
+   * 字符串格式的时间转时间戳
+   * @param {string} text	字符串格式的时间，例如：
+   * + 2022-11-21 00:00:00
+   * + 00:00:00
+   * @return {Number}
+   * 	返回时间戳
+   * @example
+   * 	Utils.formatToTimeStamp("2022-11-21 00:00:00");
+   * @return
+   * 	1668960000000
+   **/
+  Utils.formatToTimeStamp = function (text) {
+    /* 把字符串格式的时间（完整，包括日期和时间）格式化成时间 */
+    if (typeof text !== "string") {
+      throw new Error("Utils.formatToTimeStamp 参数 text 必须为 string 类型");
+    }
+    if (text.length === 8) {
+      /* 该字符串只有时分秒 */
+      let today = new Date();
+      text =
+        today.getFullYear() +
+        "-" +
+        (today.getMonth() + 1) +
+        "-" +
+        today.getDate() +
+        " " +
+        text;
+    }
+    text = text.substring(0, 19);
+    text = text.replace(/-/g, "/");
+    let timestamp = new Date(text).getTime();
+    return timestamp;
+  };
+
+  /**
+   * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
+   * @param {object} func - 需要执行的函数
+   * @param {object} scope - 函数作用域
+   * @example let lock = new Utils.funcLock(xxxx)
+   * 					--- 此处是循环内 ---
+   *          lock.run();
+   *          --- 此处是循环内 ---
+   * @example let lock = new Utils.funcLock(xxxx,true) -- 异步操作
+   * 					--- 此处是循环内 ---
+   *          await lock.run();
+   *          --- 此处是循环内 ---
+   **/
+  Utils.funcLock = function (func, scope) {
+    let flag = false;
+    let that = this;
+    scope = scope || this;
+    /**
+     * 锁
+     */
+    this.lock = function () {
+      flag = true;
+    };
+    /**
+     * 解锁
+     */
+    this.unlock = function () {
+      flag = false;
+    };
+    /**
+     * 执行
+     * @param  {...any} funArgs 参数
+     * @returns {Promise}
+     */
+    this.run = async function (...funArgs) {
+      if (flag) {
+        return;
+      }
+      that.lock();
+      await func.apply(scope, funArgs); /* arguments调用 */
+      that.unlock();
+    };
   };
 
   /**
@@ -723,15 +528,15 @@
    * 	1001
    **/
   Utils.getMaxZIndex = function () {
-    let nodeIndexList = [...document.all]
-      .map((element) => {
-        let nodeStyle = window.getComputedStyle(element);
-        /* 不对position为static和display为none的元素进行获取它们的z-index */
-        if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
-          return +nodeStyle.zIndex || 0;
-        }
-      })
-      .filter(Boolean);
+    let nodeIndexList = [];
+    document.querySelectorAll("*").forEach((element) => {
+      let nodeStyle = window.getComputedStyle(element);
+      /* 不对position为static和display为none的元素进行获取它们的z-index */
+      if (nodeStyle.position !== "static" && nodeStyle.display !== "none") {
+        nodeIndexList = nodeIndexList.concat(parseInt(nodeStyle.zIndex));
+      }
+    });
+    nodeIndexList = nodeIndexList.filter(Boolean); /* 过滤非Boolean类型 */
     return nodeIndexList.length ? Math.max(...nodeIndexList) + 1 : 0;
   };
 
@@ -761,11 +566,24 @@
       "M2003J15SC Build/RP1A.200720.011; wv",
       "MI 13 Build/OPR1.170623.027; wv",
     ];
-    let randomMobile = Utils.getArrayRandValue(mobileNameList);
+    let randomMobile = Utils.getRandomArrayValue(mobileNameList);
     let chromeVersion1 = Utils.getRandomNumber(100, 113);
     let chromeVersion2 = Utils.getRandomNumber(2272, 5304);
     let chromeVersion3 = Utils.getRandomNumber(1, 218);
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Mobile Safari/537.36`;
+  };
+
+  /**
+   * 获取数组的随机值
+   * @param {...any} array	数组数据
+   * @return {any}	返回数组的随机值
+   * @example
+   * 	Utils.getRandomArrayValue(["Utils","getRandomArrayValue"]);
+   * @return
+   * 	getRandomArrayValue
+   **/
+  Utils.getRandomArrayValue = function (array) {
+    return array[Math.floor(Math.random() * array.length)];
   };
 
   /**
@@ -789,8 +607,8 @@
     if (typeof number2 !== "number") {
       throw new Error("Utils.getRandNumber 参数 number2 必须为 number 类型");
     }
-    var leftNumber = number > number2 ? number2 : number;
-    var rightNumber = number > number2 ? number : number2;
+    let leftNumber = number > number2 ? number2 : number;
+    let rightNumber = number > number2 ? number : number2;
     return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
   };
 
@@ -829,6 +647,22 @@
     });
     return result;
   };
+
+  /**
+   * 获取文本的字符长度
+   * @param {string} text
+   * @returns {number}
+   * @example
+   * Utils.getTextLength("测试文本")
+   * @return
+   * 12
+   */
+  Utils.getTextLength = function (text) {
+    let encoder = new TextEncoder();
+    let bytes = encoder.encode(text);
+    return bytes.length;
+  };
+
   /**
    * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
    * @param {String} cssText css字符串
@@ -893,16 +727,16 @@
 		+ error string|undefined
 	*/
     this.list = (paramDetails = {}, callback = () => {}) => {
-      var resultData = [];
+      let resultData = [];
       try {
-        var details = {
+        let details = {
           url: window.location.href,
           domain: window.location.hostname,
           name: "",
           path: "/",
         };
         paramDetails = Utils.assignJSON(details, paramDetails);
-        var cookies = document.cookie.split(";");
+        let cookies = document.cookie.split(";");
         cookies.forEach((item) => {
           let nameRegexp = new RegExp("^" + paramDetails.name + "=", "g");
           item = item.trimStart();
@@ -939,7 +773,7 @@
      */
     this.set = (paramDetails = {}, callback = () => {}) => {
       try {
-        var details = {
+        let details = {
           url: window.location.href,
           name: "",
           value: "",
@@ -950,10 +784,10 @@
           expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30, // Expires in 30 days
         };
         paramDetails = Utils.assignJSON(details, paramDetails);
-        var life = paramDetails.expirationDate
+        let life = paramDetails.expirationDate
           ? paramDetails.expirationDate
           : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
-        var cookieStr =
+        let cookieStr =
           paramDetails.name +
           "=" +
           decodeURIComponent(paramDetails.value) +
@@ -973,13 +807,13 @@
      */
     this.delete = (paramDetails = {}, callback = () => {}) => {
       try {
-        var details = {
+        let details = {
           url: window.location.href,
           name: "",
           firstPartyDomain: "",
         };
         paramDetails = Utils.assignJSON(details, paramDetails);
-        var cookieStr =
+        let cookieStr =
           paramDetails.name +
           "=" +
           decodeURIComponent("null") +
@@ -1002,7 +836,7 @@
    * @param {Function} _GM_registerMenuCommand_ 传入油猴函数 GM_registerMenuCommand
    * @param {Function} _GM_unregisterMenuCommand_ 传入油猴函数 GM_unregisterMenuCommand
    * @example
-   * var gm_Menu = new Utils.GM_Menu({
+   * let gm_Menu = new Utils.GM_Menu({
    *    menu_key:{
    *      text: "测试按钮",
    *      enable: true,
@@ -1175,7 +1009,7 @@
    * 		funcName[String|must]:被Hook的函数名称
    * 		context[Object|opt]:目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1}
    * @example
-   *	var hook = new Utils.Hooks();
+   *	let hook = new Utils.Hooks();
    *	hook.initEnv();
    *	function myFunction(){
    *		console.log("我自己需要执行的函数");
@@ -1189,8 +1023,8 @@
   Utils.Hooks = function () {
     this.initEnv = function () {
       Function.prototype.hook = function (realFunc, hookFunc, context) {
-        var _context = null; //函数上下文
-        var _funcName = null; //函数名
+        let _context = null; //函数上下文
+        let _funcName = null; //函数名
 
         _context = context || window;
         _funcName = getFuncName(this);
@@ -1205,9 +1039,9 @@
         }
         function getFuncName(fn) {
           // 获取函数名
-          var strFunc = fn.toString();
-          var _regex = /function\s+(\w+)\s*\(/;
-          var patten = strFunc.match(_regex);
+          let strFunc = fn.toString();
+          let _regex = /function\s+(\w+)\s*\(/;
+          let patten = strFunc.match(_regex);
           if (patten) {
             return patten[1];
           }
@@ -1218,8 +1052,8 @@
             "_context[_funcName] = function " +
               _funcName +
               "(){\n" +
-              "var args = Array.prototype.slice.call(arguments,0);\n" +
-              "var obj = this;\n" +
+              "let args = Array.prototype.slice.call(arguments,0);\n" +
+              "let obj = this;\n" +
               "hookFunc.apply(obj,args);\n" +
               "return _context['realFunc_" +
               _funcName +
@@ -1234,8 +1068,8 @@
         }
       };
       Function.prototype.unhook = function (realFunc, funcName, context) {
-        var _context = null;
-        var _funcName = null;
+        let _context = null;
+        let _funcName = null;
         _context = context || window;
         _funcName = funcName;
         if (!_context[_funcName].prototype.isHooked) {
@@ -1318,6 +1152,15 @@
       onloadstart: function () {},
       onreadystatechange: function () {},
     };
+
+    /**
+     * 发送请求
+     * @param {Object} details
+     */
+    function request(details) {
+      _GM_xmlHttpRequest_(details);
+    }
+
     /**
      * 获取请求配置
      * @param {object} method 当前请求方法，默认get
@@ -1376,28 +1219,23 @@
      */
     function handleRequestDetails(details) {
       Object.keys(details).forEach((keyName) => {
-        let nullFunc = () => {};
-        let nullFunc2 = function () {};
         if (
           typeof details[keyName] === "undefined" ||
           (details[keyName] instanceof Function &&
-            (details[keyName].toString() === nullFunc.toString() ||
-              details[keyName].toString() === nullFunc2.toString()))
+            Utils.isNull(details[keyName]))
         ) {
           delete details[keyName];
           return;
         }
       });
-      if (
-        details.url == null ||
-        typeof details.url !== "string" ||
-        (typeof details.url === "string" && details.url.trim() === "")
-      ) {
-        console.log(details.url);
-        throw Error(`Utils.Httpx 参数 url当前值不符合要求`);
+      if (Utils.isNull(details.url)) {
+        throw Error(`Utils.Httpx 参数 url不符合要求: ${details.url}`);
       }
+      /* method值统一大写，兼容Via */
+      details.method = details.method.toUpperCase();
       return details;
     }
+
     /**
      * onabort请求被取消-触发
      * @param {object} details 配置
@@ -1405,10 +1243,10 @@
      * @param {object} argumentsList 参数列表
      */
     function onAbortCallBack(details, resolve, argumentsList) {
-      if (details.hasOwnProperty("onabort")) {
-        details?.onabort?.apply(this, argumentsList);
+      if ("onabort" in details) {
+        details.onabort(...argumentsList);
       } else {
-        defaultDetails?.onabort?.apply(this, argumentsList);
+        defaultDetails?.onabort(...argumentsList);
       }
       resolve({
         status: false,
@@ -1417,6 +1255,7 @@
         type: "onabort",
       });
     }
+
     /**
      * onerror请求异常-触发
      * @param {object} details 配置
@@ -1425,10 +1264,10 @@
      * @param {object} argumentsList 参数列表
      */
     function onErrorCallBack(details, resolve, response, argumentsList) {
-      if (details.hasOwnProperty("onerror")) {
-        details?.onerror?.apply(this, argumentsList);
+      if ("onerror" in details) {
+        details.onerror(...argumentsList);
       } else {
-        defaultDetails?.onerror?.apply(this, argumentsList);
+        defaultDetails?.onerror(...argumentsList);
       }
       resolve({
         status: false,
@@ -1444,10 +1283,10 @@
      * @param {object} argumentsList 参数列表
      */
     function onTimeoutCallBack(details, resolve, argumentsList) {
-      if (details.hasOwnProperty("ontimeout")) {
-        details?.ontimeout?.apply(this, argumentsList);
+      if ("ontimeout" in details) {
+        details.ontimeout(...argumentsList);
       } else {
-        defaultDetails?.ontimeout?.apply(this, argumentsList);
+        defaultDetails?.ontimeout(...argumentsList);
       }
       resolve({
         status: false,
@@ -1456,42 +1295,46 @@
         type: "ontimeout",
       });
     }
+
     /**
      * onloadstart请求开始-触发
      * @param {object} details 配置
      * @param {object} argumentsList 参数列表
      */
     function onLoadStartCallBack(details, argumentsList) {
-      if (details.hasOwnProperty("onloadstart")) {
-        details?.onloadstart?.apply(this, argumentsList);
+      if ("onloadstart" in details) {
+        details.onloadstart(...argumentsList);
       } else {
-        defaultDetails?.onloadstart?.apply(this, argumentsList);
+        defaultDetails?.onloadstart(...argumentsList);
       }
     }
+
     /**
      * onreadystatechange准备状态改变-触发
      * @param {object} details 配置
      * @param {object} argumentsList 参数列表
      */
     function onReadyStateChangeCallBack(details, argumentsList) {
-      if (details.hasOwnProperty("onreadystatechange")) {
-        details?.onreadystatechange?.apply(this, argumentsList);
+      if ("onreadystatechange" in details) {
+        details.onreadystatechange(...argumentsList);
       } else {
-        defaultDetails?.onreadystatechange?.apply(this, argumentsList);
+        defaultDetails?.onreadystatechange(...argumentsList);
       }
     }
+
     /**
      * onprogress上传进度-触发
      * @param {object} details 配置
      * @param {object} argumentsList 参数列表
      */
     function onProgressCallBack(details, argumentsList) {
-      if (details.hasOwnProperty("onprogress")) {
-        details?.onprogress?.apply(this, argumentsList);
+      if ("onprogress" in details) {
+        details.onprogress(...argumentsList);
       } else {
-        defaultDetails?.onprogress?.apply(this, argumentsList);
+        defaultDetails?.onprogress(...argumentsList);
       }
     }
+
     /**
      * onload加载完毕-触发
      * @param {object} resolve 回调
@@ -1505,55 +1348,57 @@
         type: "onload",
       });
     }
+
     /**
      * GET 请求
      * @param {object} details
-     * @returns {object}
+     * @returns {Promise}
      */
     this.get = function (details) {
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("get", resolve, details);
         delete requestDetails.onprogress;
         requestDetails = handleRequestDetails(requestDetails);
-        _GM_xmlHttpRequest_(requestDetails);
+        request(requestDetails);
       });
     };
     /**
      * POST 请求
      * @param {object} details
-     * @returns
+     * @returns {Promise}
      */
     this.post = function (details) {
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("post", resolve, details);
         requestDetails = handleRequestDetails(requestDetails);
-        _GM_xmlHttpRequest_(requestDetails);
+        request(requestDetails);
       });
     };
     /**
      * HEAD 请求
      * @param {object} details
-     * @returns
+     * @returns {Promise}
      */
     this.head = function (details) {
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("head", resolve, details);
         delete requestDetails.onprogress;
         requestDetails = handleRequestDetails(requestDetails);
-        _GM_xmlHttpRequest_(requestDetails);
+        request(requestDetails);
       });
     };
 
     /**
      * OPTIONS请求
      * @param {object} details
+     * @returns {Promise}
      */
     this.options = function (details) {
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("options", resolve, details);
         delete requestDetails.onprogress;
         requestDetails = handleRequestDetails(requestDetails);
-        _GM_xmlHttpRequest_(requestDetails);
+        request(requestDetails);
       });
     };
 
@@ -1566,21 +1411,27 @@
         let requestDetails = getRequestDefails("delete", resolve, details);
         delete requestDetails.onprogress;
         requestDetails = handleRequestDetails(requestDetails);
-        _GM_xmlHttpRequest_(requestDetails);
+        request(requestDetails);
       });
     };
 
     /**
      * PUT请求
      * @param {object} details
+     * @returns {Promise}
      */
     this.put = function (details) {
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("put", resolve, details);
         requestDetails = handleRequestDetails(requestDetails);
-        _GM_xmlHttpRequest_(requestDetails);
+        request(requestDetails);
       });
     };
+
+    /**
+     * 修改默认配置
+     * @param {Object} details
+     */
     this.config = function (details) {
       defaultDetails = Utils.assignJSON(defaultDetails, details);
     };
@@ -1804,7 +1655,7 @@
      */
     this.regexpGet = function (key) {
       let that = this;
-      var list = [];
+      let list = [];
       return new Promise((resolve, reject) => {
         /* 正则查询 */
         let dbName = that.dbName;
@@ -1828,7 +1679,7 @@
                 if (result.length !== 0) {
                   result.forEach((item, index) => {
                     if (item["key"].match(key)) {
-                      var concatList = item["value"];
+                      let concatList = item["value"];
                       concatList["key"] = item["key"];
                       list = [...list, concatList];
                     }
@@ -1932,6 +1783,166 @@
   };
 
   /**
+   * 判断对象是否是元素
+   * @param {any} obj
+   */
+  Utils.isDOM = function (obj) {
+    return obj instanceof HTMLElement || obj instanceof Node;
+  };
+
+  /**
+   * 判断对象是否是jQuery对象
+   * @param {any} obj
+   */
+  Utils.isJQuery = function (obj) {
+    let result = false;
+    if (typeof jQuery === "object" && obj instanceof jQuery) {
+      result = true;
+    }
+    if (typeof obj === "object") {
+      /* 也有种可能，这个jQuery对象是1.8.3版本的，页面中的jQuery是3.4.1版本的 */
+      let jQueryProps = [
+        "add",
+        "addBack",
+        "addClass",
+        "after",
+        "ajaxComplete",
+        "ajaxError",
+        "ajaxSend",
+        "ajaxStart",
+        "ajaxStop",
+        "ajaxSuccess",
+        "animate",
+        "append",
+        "appendTo",
+        "attr",
+        "before",
+        "bind",
+        "blur",
+        "change",
+        "children",
+        "clearQueue",
+        "click",
+        "clone",
+        "closest",
+        "constructor",
+        "contents",
+        "contextmenu",
+        "css",
+        "data",
+        "dblclick",
+        "delay",
+        "delegate",
+        "dequeue",
+        "each",
+        "empty",
+        "end",
+        "eq",
+        "extend",
+        "fadeIn",
+        "fadeOut",
+        "fadeTo",
+        "fadeToggle",
+        "filter",
+        "find",
+        "first",
+        "focus",
+        "focusin",
+        "focusout",
+        "get",
+        "has",
+        "hasClass",
+        "height",
+        "hide",
+        "hover",
+        "html",
+        "index",
+        "init",
+        "innerHeight",
+        "innerWidth",
+        "insertAfter",
+        "insertBefore",
+        "is",
+        "jquery",
+        "keydown",
+        "keypress",
+        "keyup",
+        "last",
+        "load",
+        "map",
+        "mousedown",
+        "mouseenter",
+        "mouseleave",
+        "mousemove",
+        "mouseout",
+        "mouseover",
+        "mouseup",
+        "next",
+        "nextAll",
+        "not",
+        "off",
+        "offset",
+        "offsetParent",
+        "on",
+        "one",
+        "outerHeight",
+        "outerWidth",
+        "parent",
+        "parents",
+        "position",
+        "prepend",
+        "prependTo",
+        "prev",
+        "prevAll",
+        "prevUntil",
+        "promise",
+        "prop",
+        "pushStack",
+        "queue",
+        "ready",
+        "remove",
+        "removeAttr",
+        "removeClass",
+        "removeData",
+        "removeProp",
+        "replaceAll",
+        "replaceWith",
+        "resize",
+        "scroll",
+        "scrollLeft",
+        "scrollTop",
+        "select",
+        "show",
+        "siblings",
+        "slice",
+        "slideDown",
+        "slideToggle",
+        "slideUp",
+        "sort",
+        "splice",
+        "text",
+        "toArray",
+        "toggle",
+        "toggleClass",
+        "trigger",
+        "triggerHandler",
+        "unbind",
+        "width",
+        "wrap",
+      ];
+      for (const jQueryPropsName of jQueryProps) {
+        if (!(jQueryPropsName in obj)) {
+          result = false;
+          /* console.log(jQueryPropsName); */
+          break;
+        } else {
+          result = true;
+        }
+      }
+    }
+    return result;
+  };
+  /**
    * 判断是否是手机访问
    * @return {Boolean} - 返回如果是手机true，否则false
    * @example
@@ -1950,13 +1961,16 @@
    * @param {Object} obj - 需要判断的变量
    * @example
    * 	Utils.isNull({});
-   * @return  true
-   * @example
    * 	Utils.isNull([]);
+   *  Utils.isNull(" ");
+   *  Utils.isNull(function(){});
+   *  Utils.isNull(()=>{}));
+   *  Utils.isNull("undefined");
+   *  Utils.isNull("null");
    * @return  true
    **/
   Utils.isNull = function (obj) {
-    var result = false;
+    let result = false;
     switch (typeof obj) {
       case "undefined":
       case "null":
@@ -1966,7 +1980,7 @@
         /* object类型的也可能是null */
         if (obj == null) {
           result = true;
-        } else if (Array.isArray(obj) || obj instanceof NodeList) {
+        } else if (Array.isArray(obj) || obj instanceof NodeList || obj instanceof FileList) {
           result = obj.length === 0 ? true : false;
         } else if (obj instanceof Map || obj instanceof Set) {
           result = obj.size === 0 ? true : false;
@@ -1987,11 +2001,11 @@
         result = !obj;
         break;
       case "function":
-        var funcStr = obj.toString().replace(/\s/g, "");
+        let funcStr = obj.toString().replace(/\s/g, "");
         /* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}、 */
         result = funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/)
-          ? false
-          : true;
+          ? true
+          : false;
         break;
     }
     return result;
@@ -1999,7 +2013,7 @@
 
   /**
    * 判断元素是否在页面中可见，可见为true，不可见为false
-   * @param {...HTMLElement|NodeList|HTMLElement} dom 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
+   * @param {...HTMLElement|NodeList} dom 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
    * @returns {boolean}
    */
   Utils.isVisible = function (dom) {
@@ -2028,40 +2042,35 @@
   };
 
   /**
-   * JSON内所有的值转为Array数组
-   * @param {Object} jsonData JSON数据
-   * @return {Object} 返回数组
-   * @example
-   * 	Utils.jsonAllValueToArray({"Utils":"jsonToArray","return","Array"});
-   * @return ['jsonToArray', 'Array']
-   **/
-  Utils.jsonAllValueToArray = function (jsonData) {
-    if (typeof jsonData !== "object") {
-      throw new Error(
-        "Utils.jsonAllValueToArray 参数 _json_ 必须为 object 类型"
-      );
-    }
-    var retArray = [];
-    Object.keys(jsonData).forEach(function (key) {
-      retArray = [...retArray, jsonData[key]];
-    });
-    return retArray;
+   * 判断是否是套壳浏览器环境
+   * 当前包括检测：X浏览器、Via浏览器
+   * @returns {Boolean}
+   */
+  Utils.isWebViewBrowser = function () {
+    return (
+      typeof window.via === "object" ||
+      typeof window.via_gm === "object" ||
+      typeof window.mbrowser === "object"
+    );
   };
 
   /**
-   * JSON格式的字符串转为JSON对象
-   * @param {String} text - JSON格式的字符串
-   * @return {Object} - 返回JSON对象
+   * 把Object内的value值全部取出成Array
+   * @param {Object} obj JSON数据
+   * @return {Object} 返回数组
    * @example
-   * 	Utils.jsonStrToObject('{"Utils":"jsonStrToObject","return","json"}');
-   * @return
-   * 	'{"Utils":"jsonStrToObject","return","json"}'
+   * 	Utils.parseObjectToArray({"Utils":"jsonToArray","return","Array"});
+   * @return ['jsonToArray', 'Array']
    **/
-  Utils.jsonStrToObject = function (text) {
-    if (typeof text !== "string") {
-      throw new Error("Utils.jsonStrToObject 参数 text 必须为 string 类型");
+  Utils.parseObjectToArray = function (obj) {
+    if (typeof obj !== "object") {
+      throw new Error("Utils.parseObjectToArray 参数 obj 必须为 object 类型");
     }
-    return window.eval("(" + text + ")");
+    let result = [];
+    Object.keys(obj).forEach(function (keyName) {
+      result = result.concat(obj[keyName]);
+    });
+    return result;
   };
 
   /**
@@ -2127,14 +2136,13 @@
    *
    **/
   Utils.listenKeyPress = function (listenObj, callback) {
-    if (!(listenObj instanceof Window) && !(listenObj instanceof Node)) {
+    if (!(listenObj instanceof Window) && !Utils.isDOM(listenObj)) {
       throw new Error(
         "Utils.listenKeyPress 参数 listenObj 必须为 Window|Node 类型"
       );
     }
     listenObj.addEventListener("keypress", function (event) {
-      event = event ? event : window.event;
-      let keyName = event.code ? event.code : event.key;
+      let keyName = event.code || event.key;
       let otherCodeList = [];
       if (event.ctrlKey) {
         otherCodeList = [...otherCodeList, "ctrl"];
@@ -2155,41 +2163,10 @@
   };
 
   /**
-   * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-   * @param {object} func - 需要执行的函数
-   * @param {object|undefined} funcArgs - 需要执行的函数的参数
-   * @example var lock = new Utils.lockFunction(xxxx)
-   * 					--- 此处是循环内 ---
-   *          lock.run();
-   *          --- 此处是循环内 ---
-   * @example var lock = new Utils.lockFunction(xxxx,true) -- 异步操作
-   * 					--- 此处是循环内 ---
-   *          await lock.run();
-   *          --- 此处是循环内 ---
-   **/
-  Utils.lockFunction = function (func) {
-    let flag = false;
-    this.lock = function () {
-      flag = true;
-    };
-    this.unlock = function () {
-      flag = false;
-    };
-    this.run = async function () {
-      if (flag) {
-        return;
-      }
-      this.lock();
-      await func(arguments); /* arguments调用 */
-      this.unlock();
-    };
-  };
-
-  /**
    * 日志对象
    * @param {Function} _GM_info_ 油猴管理器的API GM_info
    * @example
-   * var log = new Utils.Log(GM_info);
+   * let log = new Utils.Log(GM_info);
    * log.info("普通输出");
    * log.success("成功输出");
    * log.error("错误输出");
@@ -2278,7 +2255,7 @@
         logCount = 0;
       }
     };
-    this.tag = _GM_info_?.script?.name;
+    this.tag = _GM_info_?.script?.name || "GM_info缺失";
     /**
      * 控制台-普通输出
      * @param {any} msg
@@ -2366,23 +2343,35 @@
     };
   };
   /**
-   * 数组内数据部分字段合并成字符串
+   * 合并数组内的JSON的值字符串
+   * @param {[...any]} data 需要合并的数组
+   * @param {Function|string|undefined} handleFunc 处理的函数|JSON的key
+   * @returns {string}
    * @example Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
-   * @exampleResult 数组内数据部分字段合并成字符串->mergeArrayToString
+   * @return 数组内数据部分字段合并成字符串->mergeArrayToString
    **/
   Utils.mergeArrayToString = function (data, handleFunc) {
     if (!(data instanceof Array)) {
       throw new Error("Utils.mergeArrayToString 参数 data 必须为 Array 类型");
     }
-    if (typeof handleFunc !== "function") {
-      throw new Error(
-        "Utils.mergeArrayToString 参数 handleFunc 必须为 Function 类型"
-      );
-    }
     let content = "";
-    data.forEach((item) => {
-      content = content + handleFunc(item);
-    });
+    if (typeof handleFunc === "function") {
+      data.forEach((item) => {
+        content += handleFunc(item);
+      });
+    } else if (typeof handleFunc === "string") {
+      data.forEach((item) => {
+        content += item[handleFunc];
+      });
+    } else {
+      data.forEach((item) => {
+        Object.values(item)
+          .filter((item2) => typeof item2 === "string")
+          .forEach((item3) => {
+            content += item3;
+          });
+      });
+    }
     return content;
   };
 
@@ -2413,14 +2402,14 @@
     if (
       !(target instanceof Node) &&
       !(target instanceof NodeList) &&
-      !(jQuery != null && target instanceof jQuery)
+      !Utils.isJQuery(target)
     ) {
       throw new Error(
         "Utils.mutationObserver 参数 target 必须为 Node|NodeList|jQuery类型"
       );
     }
 
-    var default_obverser_config = {
+    let default_obverser_config = {
       /* 监听到元素有反馈，需执行的函数 */
       callback: () => {},
       config: {
@@ -2441,11 +2430,11 @@
       },
     };
     observer_config = this.assignJSON(default_obverser_config, observer_config);
-    var MutationObserver =
+    let MutationObserver =
       window.MutationObserver ||
       window.webkitMutationObserver ||
       window.MozMutationObserver;
-    var mutationObserver = new MutationObserver(function (mutations, observer) {
+    let mutationObserver = new MutationObserver(function (mutations, observer) {
       observer_config?.callback(mutations, observer);
     });
     if (target instanceof Node) {
@@ -2456,7 +2445,7 @@
       target.forEach((item) => {
         mutationObserver.observe(item, observer_config.config);
       });
-    } else if (jQuery && target instanceof jQuery) {
+    } else if (Utils.isJQuery(target)) {
       /* 传入的参数是jQuery对象 */
       target.each((index, item) => {
         mutationObserver.observe(item, observer_config.config);
@@ -2492,15 +2481,15 @@
     if (!(functionNameList instanceof Array)) {
       throw new Error("Utils.noConflict 参数 functionName 必须为 Array 类型");
     }
-    var needReleaseKey = "__" + needReleaseName;
+    let needReleaseKey = "__" + needReleaseName;
     function cloneObj(obj) {
       /* 复制对象 */
-      var newObj = {};
+      let newObj = {};
       if (obj instanceof Array) {
         newObj = [];
       }
-      for (var key in obj) {
-        var val = obj[key];
+      for (let key in obj) {
+        let val = obj[key];
         newObj[key] = typeof val === "object" ? cloneObj(val) : val;
       }
       return newObj;
@@ -2581,6 +2570,67 @@
   };
 
   /**
+   * base64转blob
+   * @param {String} dataUri	base64的数据
+   * @return {String} blob的链接
+   * @example
+   * 	Utils.parseBase64ToBlob("data:image/jpeg;base64,.....");
+   * @return
+   * 	blob://xxxxxxx
+   **/
+  Utils.parseBase64ToBlob = function (dataUri) {
+    if (typeof dataUri !== "string") {
+      throw new Error(
+        "Utils.parseBase64ToBlob 参数 dataUri 必须为 string 类型"
+      );
+    }
+    let dataUriSplit = dataUri.split(","),
+      dataUriMime = dataUriSplit[0].match(/:(.*?);/)[1],
+      dataUriBase64Str = atob(dataUriSplit[1]),
+      dataUriLength = dataUriBase64Str.length,
+      u8arr = new Uint8Array(dataUriLength);
+    while (dataUriLength--) {
+      u8arr[dataUriLength] = dataUriBase64Str.charCodeAt(dataUriLength);
+    }
+    return new Blob([u8arr], {
+      type: dataUriMime,
+    });
+  };
+
+  /**
+   * base64转File对象
+   * @param {String} dataUri	base64的数据
+   * @return {String}	blob的链接
+   * @example
+   * 	Utils.parseBase64ToFile("data:image/jpeg;base64,.....");
+   * @return
+   * 	object
+   **/
+  Utils.parseBase64ToFile = function (dataUri, fileName) {
+    if (typeof dataUri !== "string") {
+      throw new Error(
+        "Utils.parseBase64ToFile 参数 dataUri 必须为 string 类型"
+      );
+    }
+    if (typeof fileName !== "string") {
+      throw new Error(
+        "Utils.parseBase64ToFile 参数 fileName 必须为 string 类型"
+      );
+    }
+    let dataUriSplit = dataUri.split(","),
+      dataUriMime = dataUriSplit[0].match(/:(.*?);/)[1],
+      dataUriBase64Str = atob(dataUriSplit[1]),
+      dataUriLength = dataUriBase64Str.length,
+      u8arr = new Uint8Array(dataUriLength);
+    while (dataUriLength--) {
+      u8arr[dataUriLength] = dataUriBase64Str.charCodeAt(dataUriLength);
+    }
+    return new File([u8arr], fileName, {
+      type: dataUriMime,
+    });
+  };
+
+  /**
    * 将正则匹配到的结果取出最后一个值并转换成int格式
    * @param matchList 正则匹配的列表
    * @param defaultValue 正则匹配的列表为空时，或者正则匹配的列表最后一项不为Int，返回该默认值
@@ -2605,6 +2655,62 @@
     }
     return parseValue;
   };
+
+  /**
+   * blob转File对象
+   * @param {String} blobUrl	需要转换的blob的链接
+   * @param {String} fileName	转换成的File对象的文件名称
+   * @return {Object} File对象
+   * @example
+   * 	Utils.blobToFile("blob://xxxxx");
+   * @return
+   * 	object
+   **/
+  Utils.parseBlobToFile = function (blobUrl, fileName) {
+    const file = new File([blob], fileName, { type: blob.type });
+    return new Promise((resolve, reject) => {
+      fetch(blobUrl)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = blobToFile(blob, "example.txt");
+          resolve(file);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          reject(error);
+        });
+    });
+  };
+
+  /**
+   * 【异步函数】File对象转base64
+   * @param {Object} fileObj	需要转换的File对象
+   * @return {String} base64格式的数据
+   * @example
+   * 	await Utils.parseFileToBase64(object);
+   * @return
+   * 	data:image/jpeg:base64/,xxxxxx
+   **/
+  Utils.parseFileToBase64 = async function (fileObj) {
+    let reader = new FileReader();
+    reader.readAsDataURL(fileObj);
+    return new Promise((resolve) => {
+      reader.onload = function (event) {
+        resolve(event.target.result);
+      };
+    });
+  };
+
+  /**
+   * 解析字符串
+   * @param {string} text 要解析的 DOMString。它必须包含 HTML、xml、xhtml+xml 或 svg 文档。
+   * @param {string} mimeType 解析成的类型，包括：text/html、text/xml、application/xml、application/xhtml+xml、image/svg+xml
+   */
+  Utils.parseFromString = function (text, mimeType = "text/html") {
+    let parser = new DOMParser();
+    return parser.parseFromString(text, mimeType);
+  };
+
   /**
    * 在canvas元素节点上绘制进度圆圈
    * @param paramConfig {Object} 配置信息
@@ -2707,13 +2813,45 @@
         clipBoardInputNode.remove();
       });
   };
+
   /**
-   * 同步延迟xxx毫秒
-   * @param {number} delayTime - 需要遍历的数组
-   * @return {无返回值}
-   * @example await Utils.sleep(2500); - 同步延时2500毫秒
+   * 【异步函数】等待N秒执行函数
+   * @param {Function|String} func	待执行的函数(字符串)
+   * @param {Number} delayTime	延时时间(ms)
+   * @return {?undefined}	函数的返回值
+   * @example
+   * 	await Utils.setTimeout(xxxFunction, 2500);
+   * @return
+   * 	xxx
+   * @example
+   * 	await Utils.setTimeout("()=>{console.log(12345)}", 2500);
+   * @return
+   * 	undefined
    **/
-  Utils.sleep = function (delayTime) {
+  Utils.setTimeout = async function (func, delayTime = 0) {
+    let that = this;
+    if (typeof func !== "function" && typeof func !== "string") {
+      throw new Error(
+        "Utils.setTimeout 参数 fnStr 必须为 function|string 类型"
+      );
+    }
+    if (typeof delayTime !== "number") {
+      throw new Error("Utils.setTimeout 参数 delayTime 必须为 number 类型");
+    }
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(that.tryCatch().run(func));
+      }, delayTime);
+    });
+  };
+
+  /**
+   * 【异步函数】延迟xxx毫秒
+   * @param {number} delayTime - 延时时间(ms)
+   * @return {无返回值}
+   * @example await Utils.sleep(2500)
+   **/
+  Utils.sleep = async function (delayTime) {
     if (typeof delayTime !== "number") {
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
     }
@@ -2726,19 +2864,24 @@
 
   /**
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
-   * @param {string} getPropertyValueFunc - 数组内部项的某个属性的值的方法，参数为这个项
-   * @param {boolean} sortByDesc - 排序方式，true倒序(值最大排第一个，如:6、5、4、3...)，false为正序(值最小排第一个，如:1、2、3、4...)
+   * @param {Array|NodeList|Function} data 数据|获取数据的方法
+   * @param {string|Function} getPropertyValueFunc - 数组内部项的某个属性的值的方法，参数为这个项
+   * @param {boolean} sortByDesc - 排序方式，true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
    * @return {object} - 返回比较排序完成的数组
-   * @example [{"time":"2022-1-1"},{"time":"2022-2-2"}].sort(Utils.sortListByProperty((item)=>{return item["time"]}))
-   * @example [{"time":"2022-1-1"},{"time":"2022-2-2"}].sort(Utils.sortListByProperty((item)=>{return item["time"]},false))
+   * @example Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]})
+   * @example Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
    **/
   Utils.sortListByProperty = function (
+    data,
     getPropertyValueFunc,
     sortByDesc = true
   ) {
-    if (typeof getPropertyValueFunc !== "function") {
+    if (
+      typeof getPropertyValueFunc !== "function" &&
+      typeof getPropertyValueFunc !== "string"
+    ) {
       throw new Error(
-        "Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function 类型"
+        "Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function|string 类型"
       );
     }
     if (typeof sortByDesc !== "boolean") {
@@ -2746,10 +2889,20 @@
         "Utils.sortListByProperty 参数 sortByDesc 必须为 boolean 类型"
       );
     }
-
-    return function (after_obj, before_obj) {
-      var beforeValue = getPropertyValueFunc(before_obj); /*  前 */
-      var afterValue = getPropertyValueFunc(after_obj); /* 后 */
+    let getObjValue = function (obj) {
+      return typeof getPropertyValueFunc === "string"
+        ? obj[getPropertyValueFunc]
+        : getPropertyValueFunc(obj);
+    };
+    /**
+     * 排序方法
+     * @param {any} after_obj
+     * @param {any} before_obj
+     * @returns
+     */
+    let sortFunc = function (after_obj, before_obj) {
+      let beforeValue = getObjValue(before_obj); /*  前 */
+      let afterValue = getObjValue(after_obj); /* 后 */
       if (sortByDesc) {
         if (afterValue > beforeValue) {
           return -1;
@@ -2768,47 +2921,56 @@
         }
       }
     };
-  };
-
-  /**
-   * 对获取的元素列表进行排序
-   * @param {NodeList|jQuery} nodeListCallBack 获取元素列表，可以使用querySelectorAll或者jQuery的遍历
-   * @param {Function} valueCallBack 获取当前循环列表中元素的要比较的值
-   * @param {Boolean} reverse 元素升序(false)或降序(true)，默认-升序
-   * @example Utils.sortNodeListByProprety( ()=>{ document.querySelectorAll("table tr")}, (item)=>{return parseInt(item.getAttribute("data-value"));}, false);
-   */
-  Utils.sortNodeListByProprety = function (
-    nodeListCallBack,
-    valueCallBack,
-    reverse = false
-  ) {
-    let nodeList = nodeListCallBack();
-    let nodeListLength = nodeList.length;
-    for (var i = 0; i < nodeListLength - 1; i++) {
-      for (var j = 0; j < nodeListLength - 1 - i; j++) {
-        let beforeNode = nodeList[j];
-        let afterNode = nodeList[j + 1];
-        let beforeValue = valueCallBack(beforeNode);
-        let afterValue = valueCallBack(afterNode);
-        if (
-          (reverse == true && beforeValue < afterValue) ||
-          (reverse == false && beforeValue > afterValue)
-        ) {
-          /* 升序/降序 */
-          /* 相邻元素两两对比 */
-          let temp = beforeNode.nextElementSibling;
-          afterNode.after(beforeNode);
-          if (temp == null) {
-            /* 如果为空，那么是最后一个元素，使用append */
-            temp.parentNode.appendChild(afterNode);
-          } else {
-            /* 不为空，使用before */
-            temp.before(afterNode);
+    /**
+     * 排序元素方法
+     * @param {NodeList|jQuery} nodeList 元素列表
+     * @param {Function} getNodeListFunc 获取元素列表的函数
+     */
+    let sortNodeFunc = function (nodeList, getNodeListFunc) {
+      let nodeListLength = nodeList.length;
+      for (let i = 0; i < nodeListLength - 1; i++) {
+        for (let j = 0; j < nodeListLength - 1 - i; j++) {
+          let beforeNode = nodeList[j];
+          let afterNode = nodeList[j + 1];
+          let beforeValue = getObjValue(beforeNode); /*  前 */
+          let afterValue = getObjValue(afterNode); /* 后 */
+          if (
+            (sortByDesc == true && beforeValue < afterValue) ||
+            (sortByDesc == false && beforeValue > afterValue)
+          ) {
+            /* 升序/降序 */
+            /* 相邻元素两两对比 */
+            let temp = beforeNode.nextElementSibling;
+            afterNode.after(beforeNode);
+            if (temp == null) {
+              /* 如果为空，那么是最后一个元素，使用append */
+              temp.parentNode.appendChild(afterNode);
+            } else {
+              /* 不为空，使用before */
+              temp.before(afterNode);
+            }
+            nodeList = getNodeListFunc();
           }
-          nodeList = nodeListCallBack();
         }
       }
+    };
+    let result = data;
+    let getDataFunc = null;
+    if (data instanceof Function) {
+      getDataFunc = data;
+      data = data();
     }
+    if (data instanceof Array) {
+      result = Array.from(data).sort(sortFunc);
+    } else if (data instanceof NodeList || Utils.isJQuery(data)) {
+      sortNodeFunc(data, getDataFunc);
+      result = getDataFunc();
+    } else {
+      throw new Error(
+        "Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型"
+      );
+    }
+    return result;
   };
 
   /**
@@ -2853,7 +3015,7 @@
     let func = null;
     let funcThis = null;
     let handleErrorFunc = null;
-
+    let funcArgs = arguments;
     /**
      * @function tryCatchObj
      * @description 空函数，用于链式调用。
@@ -2900,10 +3062,7 @@
         if (typeof func === "string") {
           window.eval(func);
         } else {
-          result = func.apply(
-            funcThis,
-            Array.prototype.slice.call(arguments, 2)
-          );
+          result = func.apply(funcThis, funcArgs);
         }
       } catch (error) {
         console.log(
@@ -2916,10 +3075,7 @@
           if (typeof handleErrorFunc === "string") {
             result = window.eval(handleErrorFunc);
           } else {
-            result = handleErrorFunc.apply(
-              funcThis,
-              Array.prototype.slice.call(arguments, 2)
-            );
+            result = handleErrorFunc.apply(funcThis, funcArgs);
           }
         }
       }
@@ -2932,28 +3088,49 @@
 
   /**
    * 数组去重，去除重复的值
-   * @param {object} uniqueArrayData - 需要去重的数组
-   * @param {object} compareArrayData - 用来比较的数组
-   * @param {function} compareFun - 数组比较方法，如果值相同，去除该数据
-   * @return {object} - 返回去重完毕的数组
+   * @param {[...any]} uniqueArrayData 需要去重的数组
+   * @param {[...any]} compareArrayData 用来比较的数组
+   * @param {function} compareFun 数组比较方法，如果值相同，去除该数据
+   * @returns {Object} 返回去重完毕的数组
    * @example Utils.uniqueArray([1,2,3],[1,2],(item,item2)=>{return item===item2 ? true:false});
-   * @exampleResult [3]
+   * @return [3]
+   * @example Utils.uniqueArray([1,2,3],[1,2]);
+   * @return [3]
    * @example Utils.uniqueArray([{"key":1,"value":2},{"key":2}],[{"key":1}],(item,item2)=>{return item["key"] === item2["key"] ? true:false});
-   * @exampleResult [{"key": 2}]
+   * @return [{"key": 2}]
    **/
   Utils.uniqueArray = function (
     uniqueArrayData = [],
     compareArrayData = [],
-    compareFun
-  ) {
-    if (typeof compareFun !== "function") {
-      throw new Error("Utils.uniqueArray 参数 compareFun 必须为 function 类型");
+    compareFun = (item, item2) => {
+      return item === item2;
     }
+  ) {
     return Array.from(uniqueArrayData).filter(
       (item) =>
-        !Array.from(compareArrayData).some(function (ele) {
-          return compareFun(item, ele);
+        !Array.from(compareArrayData).some(function (item2) {
+          return compareFun(item, item2);
         })
+    );
+  };
+
+  /**
+   * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
+   * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
+   * @param {Function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
+   * @example
+   * 	await Utils.waitArrayLoopToEnd([func,func,func],xxxFunction);
+   **/
+  Utils.waitArrayLoopToEnd = function (data, handleFunc) {
+    if (typeof handleFunc !== "function" && typeof handleFunc !== "string") {
+      throw new Error(
+        "Utils.waitArrayLoopToEnd 参数 handleDataFunction 必须为 function|string 类型"
+      );
+    }
+    return Promise.all(
+      Array.from(data).map(async (item, index) => {
+        await Utils.tryCatch(index, item).run(handleFunc);
+      })
     );
   };
 
