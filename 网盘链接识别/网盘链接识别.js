@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.6.23.11.40
+// @version      23.6.26.14.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1852,8 +1852,8 @@
             console.log(fileInfo);
             let fileUploadTime = new Date(fileInfo["CreateAt"]).getTime();
             let fileLatestTime = new Date(fileInfo["UpdateAt"]).getTime();
-            fileUploadTime = Utils.getFormatTime(undefined, fileUploadTime);
-            fileLatestTime = Utils.getFormatTime(undefined, fileLatestTime);
+            fileUploadTime = Utils.formatTime(fileUploadTime);
+            fileLatestTime = Utils.formatTime(fileLatestTime);
             NetDiskUI.staticView.oneFile(
               "123盘单文件直链",
               fileInfo["FileName"],
@@ -1867,18 +1867,17 @@
             that.folderNumber = 0;
             await that.recursiveAlgorithm(infoLists);
             Qmsg.info("正在排序中...");
-            that.panelList.sort(
-              Utils.sortListByProperty((item) => {
-                let timeStamp = new Date(item["updateTime"]).getTime();
-                return timeStamp;
-              })
-            );
+
+            Utils.sortListByProperty(that.panelList, (item) => {
+              let timeStamp = new Date(item["updateTime"]).getTime();
+              return timeStamp;
+            });
             log.info(that.panelList);
             that.panelList.forEach((item) => {
               let fileUploadTime = new Date(item["createTime"]).getTime();
               let fileLatestTime = new Date(item["updateTime"]).getTime();
-              fileUploadTime = Utils.getFormatTime(undefined, fileUploadTime);
-              fileLatestTime = Utils.getFormatTime(undefined, fileLatestTime);
+              fileUploadTime = Utils.formatTime(fileUploadTime);
+              fileLatestTime = Utils.formatTime(fileLatestTime);
               if (item["fileSize"] === 0) {
                 /* 异常的 */
                 if (
@@ -2292,11 +2291,11 @@
             return;
           }
           let folderContent = "";
-          downloadList.sort(
-            Utils.sortListByProperty((item) => {
-              return item["mtime"];
-            })
-          );
+
+          Utils.sortListByProperty(downloadList, (item) => {
+            return item["mtime"];
+          });
+
           downloadList.forEach((item) => {
             folderContent = `${folderContent}
                 <div class="netdisk-static-body">
@@ -5071,7 +5070,7 @@
               event.target.parentElement.nextElementSibling.firstElementChild.getAttribute(
                 "data-sharecode"
               );
-            Utils.findWindowPageString(dataSharecode, true);
+            Utils.findVisibleText(dataSharecode, true);
           }
         );
       },
@@ -5648,11 +5647,11 @@
           </div>
           <div class="netdiskrecord-add-time">
             <p>记录时间</p>
-            ${Utils.getFormatTime(undefined, item.addTime)}
+            ${Utils.formatTime(item.addTime)}
           </div>
           <div class="netdiskrecord-update-time">
             <p>更新时间</p>
-            ${Utils.getFormatTime(undefined, item.updateTime)}
+            ${Utils.formatTime(item.updateTime)}
           </div>
           <div class="netdiskrecord-functions">
             <p>功能</p>
@@ -5914,10 +5913,8 @@
                           .closest("li")
                           .querySelector(
                             ".netdiskrecord-update-time"
-                          ).lastChild.textContent = Utils.getFormatTime(
-                          undefined,
-                          currentTime
-                        );
+                          ).lastChild.textContent =
+                          Utils.formatTime(currentTime);
                         event.target.setAttribute(
                           "data-accesscode",
                           userInputAccessCode
@@ -5951,10 +5948,13 @@
           localOrder.indexOf("记录时间") !== -1
             ? "addTime"
             : "updateTime"; /* 排序字段 */
-        data.sort(
-          Utils.sortListByProperty((item) => {
+
+        Utils.sortListByProperty(
+          data,
+          (item) => {
             return item[orderField];
-          }, isDesc)
+          },
+          isDesc
         );
         return data;
       },

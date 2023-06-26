@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ImmortalWrt-passwall优化
-// @version      0.3
+// @version      0.4
 // @description  openWrt使用luci-theme-argon主题的passwall优化部分设置，添加一键测速和排序，请根据自己的openwrt地址设置本脚本匹配域
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -346,7 +346,7 @@
         var loadingMsg = Qmsg.loading("排序中...", {
           autoClose: false,
         });
-        Utils.sortNodeListByProprety(
+        Utils.sortListByProperty(
           () => {
             return $(".cbi-section-table tr[id]");
           },
@@ -373,7 +373,7 @@
         var loadingMsg = Qmsg.loading("排序中...", {
           autoClose: false,
         });
-        Utils.sortNodeListByProprety(
+        Utils.sortListByProperty(
           () => {
             return $(".cbi-section-table tr[id]");
           },

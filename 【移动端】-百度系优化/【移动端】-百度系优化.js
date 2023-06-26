@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.0
+// @version      0.9.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -2561,9 +2561,7 @@
             log.info(imgNode);
             if (imgNode.parentElement.className === "img-box") {
               /* 帖子主体内的图片 */
-              let parentMain = Utils.findParentNode(imgNode, (node) => {
-                return node.className === "img-sudoku main-img-sudoku";
-              });
+              let parentMain = imgNode.closest(".img-sudoku.main-img-sudoku");
               log.info(parentMain);
               if (!parentMain) {
                 viewIMG([imgSrc]);
