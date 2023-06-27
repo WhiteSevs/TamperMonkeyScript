@@ -1,20 +1,18 @@
 // ==UserScript==
-// @name        GreasyFork优化
-// @version      0.1
-// @description  自动登录、快捷寻找自己库被其他脚本引用
+// @name         GreasyFork优化
+// @version      0.2
+// @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
-// @icon        https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
-// @match       http*://*.greasyfork.org/*
+// @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
+// @match        http*://*.greasyfork.org/*
 // @run-at       document-start
-// @license      GPL-3.0-only
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_deleteValue
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
-// @grant        GM_info
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
-// @connect      *
 // @connect      greasyfork.org
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js
@@ -108,12 +106,113 @@
     GM_unregisterMenuCommand
   );
 
+  if (window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+    /* 用户界面 */
+    log.success(["用户界面", GM_Menu]);
+    GM_Menu.add({
+      updateSettingsAndSynchronize_scriptList: {
+        text: "⚙ 更新设置并同步【脚本列表】",
+        callback: () => {
+          let scriptUrlList = [];
+          document
+            .querySelectorAll("#user-script-list-section li a.script-link")
+            .forEach((item) => {
+              scriptUrlList = scriptUrlList.concat(
+                greasyforkConfig.getAdminUrl(item.href)
+              );
+            });
+          if (Utils.isNull(scriptUrlList)) {
+            Qmsg.error("未获取到【脚本列表】");
+          } else {
+            Qmsg.success(
+              "获取【脚本列表】 " + scriptUrlList.length + " 个，准备更新"
+            );
+            setTimeout(() => {
+              window.location.href = scriptUrlList[0];
+            }, 2500);
+          }
+          GM_setValue("isUpdate", true);
+          GM_setValue("nextUrlList", scriptUrlList);
+          GM_setValue("nextUrlIndex", 0);
+        },
+      },
+      updateSettingsAndSynchronize_unlistedScriptList: {
+        text: "⚙ 更新设置并同步【未上架的脚本】",
+        callback: () => {
+          let unlistedScriptUrlList = [];
+          document
+            .querySelectorAll("#user-unlisted-script-list li a.script-link")
+            .forEach((item) => {
+              unlistedScriptUrlList = unlistedScriptUrlList.concat(
+                greasyforkConfig.getAdminUrl(item.href)
+              );
+            });
+          if (Utils.isNull(unlistedScriptUrlList)) {
+            Qmsg.error("未获取到【未上架的脚本】");
+          } else {
+            Qmsg.success(
+              "获取【未上架的脚本】 " +
+                unlistedScriptUrlList.length +
+                " 个，准备更新"
+            );
+            setTimeout(() => {
+              window.location.href = unlistedScriptUrlList[0];
+            }, 2500);
+          }
+          GM_setValue("isUpdate", true);
+          GM_setValue("nextUrlList", unlistedScriptUrlList);
+          GM_setValue("nextUrlIndex", 0);
+        },
+      },
+      updateSettingsAndSynchronize_libraryScriptList: {
+        text: "⚙ 更新设置并同步【库】",
+        callback: () => {
+          let libraryScriptUrlList = [];
+          document
+            .querySelectorAll("#user-library-script-list li a.script-link")
+            .forEach((item) => {
+              libraryScriptUrlList = libraryScriptUrlList.concat(
+                greasyforkConfig.getAdminUrl(item.href)
+              );
+            });
+          if (Utils.isNull(libraryScriptUrlList)) {
+            Qmsg.error("未获取到【库】");
+          } else {
+            Qmsg.success(
+              "获取【库】 " + libraryScriptUrlList.length + " 个，准备更新"
+            );
+            setTimeout(() => {
+              window.location.href = libraryScriptUrlList[0];
+            }, 2500);
+          }
+          GM_setValue("isUpdate", true);
+          GM_setValue("nextUrlList", libraryScriptUrlList);
+          GM_setValue("nextUrlIndex", 0);
+        },
+      },
+    });
+  }
   /**
    * GreasyFork的
    * 配置
    */
   let greasyforkConfig = {
-    codeSearchURL: "https://greasyfork.org/zh-CN/scripts/code-search?c=",
+    /**
+     * 获取代码搜索地址
+     * @param {string} url
+     * @returns {string}
+     */
+    getCodeSearchUrl(url) {
+      return "https://greasyfork.org/zh-CN/scripts/code-search?c=" + url;
+    },
+    /**
+     * 获取管理地址
+     * @param {string} url
+     * @returns {string}
+     */
+    getAdminUrl(url) {
+      return url + "/admin";
+    },
   };
 
   /**
@@ -203,14 +302,85 @@
         url = url.replace(/\?version.*/gi, "");
         url = url.replace(/^http(s|):\/\//gi, "");
         url = encodeURI(url);
-        window.location.href = greasyforkConfig.codeSearchURL + url;
+        window.location.href = greasyforkConfig.getCodeSearchUrl(url);
       });
     });
+  }
+
+  /**
+   * 更新脚本
+   */
+  function updateScript() {
+    let nextUrlInfo = {
+      /**
+       * @type {[...string]} 需要更新的地址列表
+       */
+      nextUrlList: GM_getValue("nextUrlList", []),
+      /**
+       * @type {Number} 当前的地址列表下标
+       */
+      nextUrlIndex: GM_getValue("nextUrlIndex", 0),
+      /**
+       * @type {string|null} 下一个的URL
+       */
+      nextUrl: null,
+      /**
+       * @type {string} 当前url
+       */
+      currentUrl: decodeURIComponent(window.location.href),
+      /**
+       * @type {boolean} 是否是更新中
+       */
+      isUpdate: GM_getValue("isUpdate", false),
+    };
+    nextUrlInfo.nextUrl = decodeURIComponent(
+      nextUrlInfo.nextUrlList[nextUrlInfo.nextUrlIndex]
+    );
+    if (!nextUrlInfo.isUpdate) {
+      /* 标志位不是更新中 */
+      return;
+    }
+    if (!nextUrlInfo.nextUrlList.length) {
+      /* 没获取到更新列表 */
+      return;
+    }
+    if (nextUrlInfo.currentUrl === nextUrlInfo.nextUrl) {
+      nextUrlInfo.nextUrlIndex++;
+      nextUrlInfo.nextUrl = decodeURIComponent(
+        nextUrlInfo.nextUrlList[nextUrlInfo.nextUrlIndex]
+      );
+      if (nextUrlInfo.nextUrlIndex >= nextUrlInfo.nextUrlList.length) {
+        Qmsg.success("当前为最后一个，结束");
+        GM_deleteValue("nextUrlList");
+        GM_deleteValue("nextUrlIndex");
+        GM_deleteValue("isUpdate");
+      } else {
+        console.log("下一个的下标", nextUrlInfo.nextUrlIndex);
+        console.log("下一个: ", nextUrlInfo.nextUrl);
+        Qmsg.success("下一个: " + nextUrlInfo.nextUrl);
+        GM_setValue("nextUrlIndex", nextUrlInfo.nextUrlIndex);
+      }
+      console.log("点击同步按钮");
+      setTimeout(() => {
+        let btnUpdateAndSync = document.querySelector(
+          "input[name='update-and-sync']"
+        ); /* 更新设置并立即同步按钮 */
+        btnUpdateAndSync.click();
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        Qmsg.success(
+          `进度 ${nextUrlInfo.nextUrlIndex}/${nextUrlInfo.nextUrlList.length}`
+        );
+        window.location.href = nextUrlInfo.nextUrl;
+      }, 1000);
+    }
   }
   $(function () {
     if (GM_Menu.get("autoLogin")) {
       autoLogin();
     }
     setFindCodeSearchBtn();
+    updateScript();
   });
 })();
