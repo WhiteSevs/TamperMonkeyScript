@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.6.26.14.00
+// @version      23.6.27.13.25
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -5895,7 +5895,7 @@
                           item["shareCode"] === shareCode &&
                           item["accessCode"] === accessCode
                         ) {
-                          item = Utils.assignJSON(item, {
+                          item = Utils.assign(item, {
                             accessCode: userInputAccessCode,
                             updateTime: currentTime,
                           });
@@ -6087,32 +6087,20 @@
   var GM_Menu = new Utils.GM_Menu(
     {
       showSetting: {
-        text: "打开设置界面",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return `⚙ ${_text_}`;
-        },
+        text: "⚙ 打开设置界面",
         callback: () => {
           NetDiskUI.suspension.initPop();
           NetDiskUI.suspension.showSettingView();
         },
       },
       showNetDiskHistoryMatch: {
-        text: "打开历史匹配记录",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return `⚙ ${_text_}`;
-        },
+        text: "⚙ 打开历史匹配记录",
         callback: () => {
           NetDiskUI.netDiskHistoryMatch.show();
         },
       },
       repairHistoryMatchLocalData: {
-        text: "修复版本＜23.5.30.10.00历史匹配记录的数据",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return `🔧 ${_text_}`;
-        },
+        text: "🔧 修复版本＜23.5.30.10.00历史匹配记录的数据",
         callback: () => {
           let localData = GM_getValue(NetDiskUI.netDiskHistoryMatch.storageKey);
           let repairCount = 0;
