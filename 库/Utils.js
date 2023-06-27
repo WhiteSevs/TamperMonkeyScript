@@ -2,28 +2,27 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  3.0
+ * @version  3.1
  **/
 (function (Utils) {
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @param {object} target	目标端
    * @param {object} source	源端
-   * @example
-   * 	Utils.assignJSON({"1":1,"2":{"3":3}}, {"2":{"3":4}});
-   * @returns
-   * \{"1":1,"2":{"3":4}}
+   * @example Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
+   * @returns \{"1":1,"2":{"3":4}}
    **/
-  Utils.assignJSON = function (target = {}, source = {}) {
-    for (let target_key in target) {
-      let targetValue = target[target_key];
-      let sourceValue = source[target_key];
-      if (typeof sourceValue !== "undefined") {
-        if (Utils.isDOM(sourceValue)) {
-          target[target_key] = sourceValue;
+  Utils.assign = function (target = {}, source = {}) {
+    for (let targetKeyName in target) {
+      let targetValue = target[targetKeyName];
+      if (targetKeyName in source) {
+        let sourceValue = source[targetKeyName];
+        if (typeof sourceValue === "object" && !Utils.isDOM(sourceValue)) {
+          /* 源端的值是object类型，且不是元素对象 */
+          target[targetKeyName] = Utils.assign(targetValue, sourceValue);
         } else {
-          /* 右边值不为元素节点 */
-          target[target_key] = Utils.assignJSON(targetValue, sourceValue);
+          /* 直接赋值 */
+          target[targetKeyName] = sourceValue;
         }
       }
     }
@@ -207,7 +206,7 @@
      * @param {Dictionary} data 需要合并的字典
      */
     this.concat = function (data) {
-      this.items = Utils.assignJSON(this.items, data.getItems());
+      this.items = Utils.assign(this.items, data.getItems());
     };
   };
 
@@ -735,7 +734,7 @@
           name: "",
           path: "/",
         };
-        paramDetails = Utils.assignJSON(details, paramDetails);
+        paramDetails = Utils.assign(details, paramDetails);
         let cookies = document.cookie.split(";");
         cookies.forEach((item) => {
           let nameRegexp = new RegExp("^" + paramDetails.name + "=", "g");
@@ -783,7 +782,7 @@
           httpOnly: false,
           expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30, // Expires in 30 days
         };
-        paramDetails = Utils.assignJSON(details, paramDetails);
+        paramDetails = Utils.assign(details, paramDetails);
         let life = paramDetails.expirationDate
           ? paramDetails.expirationDate
           : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
@@ -812,7 +811,7 @@
           name: "",
           firstPartyDomain: "",
         };
-        paramDetails = Utils.assignJSON(details, paramDetails);
+        paramDetails = Utils.assign(details, paramDetails);
         let cookieStr =
           paramDetails.name +
           "=" +
@@ -915,9 +914,16 @@
       );
     }
     let that = this;
-    let menuInfoData = []; /* 注册的菜单的id */
+    /**
+     * 注册的菜单的id
+     * @type {...string}
+     */
+    let menuIdList = [];
+    /**
+     * 初始化数据
+     */
     let init = function () {
-      /* 初始化数据 */
+      menuIdList = [];
       Object.keys(data).forEach((menuId) => {
         let value = _GM_getValue_(menuId);
         if (value == null) {
@@ -928,23 +934,24 @@
       });
     };
 
+    /**
+     * 注册油猴菜单
+     */
     let register = function () {
-      /* 注册油猴菜单 */
-      Object.keys(data).forEach((menuId) => {
-        let item = data[menuId];
+      Object.keys(data).forEach((menuInfoItemKey) => {
+        let item = data[menuInfoItemKey];
         let text = item["text"]; /* 文本 */
-        let enable = item["enable"]; /* 用户开启的状态 */
+        let enable = Boolean(item["enable"]); /* 用户开启的状态 */
         let showText =
           typeof item["showText"] === "function"
             ? item["showText"](text, enable)
             : text; /* 油猴菜单上显示的文本 */
         let clickCallBack = item["callback"]; /* 用户点击后的回调 */
-        let menuInfo = null;
-        menuInfo = _GM_registerMenuCommand_(showText, function () {
+        let menuId = _GM_registerMenuCommand_(showText, function () {
           let menuEnable = enable ? false : true;
-          _GM_setValue_(menuId, menuEnable);
+          _GM_setValue_(menuInfoItemKey, menuEnable);
           if (typeof clickCallBack === "function") {
-            clickCallBack(menuId, menuEnable);
+            clickCallBack(menuInfoItemKey, menuEnable);
           }
           if (autoReload) {
             window.location.reload();
@@ -952,43 +959,43 @@
             that.update();
           }
         });
-        menuInfoData = [...menuInfoData, menuInfo];
+        menuIdList = [...menuIdList, menuId];
       });
     };
     /**
      * 获取键值开启状态
-     * @param {String} menuId
-     * @returns true | false
+     * @param {string} menuId
+     * @returns {Boolean}
      */
     this.get = function (menuId) {
       return data[menuId]["enable"];
     };
     /**
      * 新增菜单数据
-     * @param {Object} paramMenuInfoData
+     * @param {Object} paramData
      */
-    this.add = function (paramMenuInfoData) {
-      menuInfoData = [...menuInfoData, paramMenuInfoData];
+    this.add = function (paramData) {
+      Object.assign(data, paramData);
       init();
       register();
     };
     /**
      * 更新菜单数据
-     * @param {Object} paramMenuInfoData
+     * @param {Object} paramData
      */
-    this.update = function (paramMenuInfoData) {
-      if (paramMenuInfoData) {
-        Object.assign(menuInfoData, paramMenuInfoData);
+    this.update = function (paramData) {
+      if (paramData) {
+        menuIdList = Utils.assign(menuIdList, paramData);
       }
-      Object.keys(menuInfoData).forEach((menuId) => {
-        this.delete(menuId);
+      Object.keys(menuIdList).forEach((menuId) => {
+        that.delete(menuId);
       });
       init();
       register();
     };
     /**
      * 卸载菜单
-     * @param {String} menuId 菜单键
+     * @param {string} menuId 已注册的菜单id
      */
     this.delete = function (menuId) {
       _GM_unregisterMenuCommand_(menuId);
@@ -1220,7 +1227,7 @@
     function handleRequestDetails(details) {
       Object.keys(details).forEach((keyName) => {
         if (
-          typeof details[keyName] === "undefined" ||
+          details[keyName] == null ||
           (details[keyName] instanceof Function &&
             Utils.isNull(details[keyName]))
         ) {
@@ -1433,7 +1440,7 @@
      * @param {Object} details
      */
     this.config = function (details) {
-      defaultDetails = Utils.assignJSON(defaultDetails, details);
+      defaultDetails = Utils.assign(defaultDetails, details);
     };
   };
   /**
@@ -1980,7 +1987,11 @@
         /* object类型的也可能是null */
         if (obj == null) {
           result = true;
-        } else if (Array.isArray(obj) || obj instanceof NodeList || obj instanceof FileList) {
+        } else if (
+          Array.isArray(obj) ||
+          obj instanceof NodeList ||
+          obj instanceof FileList
+        ) {
           result = obj.length === 0 ? true : false;
         } else if (obj instanceof Map || obj instanceof Set) {
           result = obj.size === 0 ? true : false;
@@ -2730,7 +2741,7 @@
       circleRadius: 50 /* 圆半径 */,
       draw: () => {} /* 控制绘制 */,
     };
-    this.config = Utils.assignJSON(this.config, paramConfig);
+    this.config = Utils.assign(this.config, paramConfig);
     if (!(this.config.canvasNode instanceof HTMLCanvasElement)) {
       throw new Error(
         "Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement"
@@ -2831,9 +2842,7 @@
   Utils.setTimeout = async function (func, delayTime = 0) {
     let that = this;
     if (typeof func !== "function" && typeof func !== "string") {
-      throw new Error(
-        "Utils.setTimeout 参数 fnStr 必须为 function|string 类型"
-      );
+      throw new Error("Utils.setTimeout 参数 func 必须为 function|string 类型");
     }
     if (typeof delayTime !== "number") {
       throw new Error("Utils.setTimeout 参数 delayTime 必须为 number 类型");
@@ -2974,39 +2983,28 @@
   };
 
   /**
-   * 字符串转Object
-   * @param {string} data
-   * @returns {object}
-   */
-  Utils.toEvalJSON = function (data) {
-    let result = {};
-    try {
-      result = window.eval("(" + this + ")");
-    } catch (error) {
-      result = {};
-    }
-    return result;
-  };
-
-  /**
-   * 字符串转JSON
+   * 字符串转Object对象，类似'{"test":""}' => {"test":""}
    * @param {string} data
    * @returns {object}
    */
   Utils.toJSON = function (data) {
     let result = {};
-    try {
-      result = JSON.parse(data);
-    } catch (error) {
-      result = {};
-    }
+    Utils.tryCatch()
+      .config({ log: false })
+      .error(() => {
+        Utils.tryCatch().run(() => {
+          result = window.eval("(" + data + ")");
+        });
+      })
+      .run(() => {
+        result = JSON.parse(data);
+      });
     return result;
   };
 
   /**
-   * @function Utils.tryCatch
-   * @description 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-   * @return {function} - 返回一个对象，其中包含 error 和 run 两个方法。
+   * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+   * @return {{run:Function,config:Function,error:Function}} - 返回一个对象，其中包含 error 和 run 两个方法。
    * @example Utils.tryCatch().error().run();
    * @example Utils.tryCatch().run();
    */
@@ -3015,6 +3013,9 @@
     let func = null;
     let funcThis = null;
     let handleErrorFunc = null;
+    let defaultDetails = {
+      log: true,
+    };
     let funcArgs = arguments;
     /**
      * @function tryCatchObj
@@ -3023,8 +3024,15 @@
     function tryCatchObj() {}
 
     /**
-     * @method error
-     * @description 设置错误处理函数。
+     * 配置
+     * @param {object} paramDetails
+     */
+    tryCatchObj.config = function (paramDetails) {
+      defaultDetails = Utils.assign(defaultDetails, paramDetails);
+      return tryCatchObj;
+    };
+    /**
+     * 设置错误处理函数。
      * @param {function|string} handler - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @return {function} - 返回 tryCatchObj 函数。
      */
@@ -3034,8 +3042,7 @@
     };
 
     /**
-     * @method run
-     * @description 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+     * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @param {function|string} fn - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {object|null} fnThis - 待执行函数的作用域，用于apply指定
      * @return {any|function} - 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
@@ -3049,8 +3056,7 @@
     };
 
     /**
-     * @function executeTryCatch
-     * @description 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+     * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @param {function|string} func - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {function|string|null} handleErrorFunc - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {object|null} funcThis - 待执行函数的作用域，用于apply指定
@@ -3065,12 +3071,14 @@
           result = func.apply(funcThis, funcArgs);
         }
       } catch (error) {
-        console.log(
-          `%c ${func?.name ? func?.name : func + "出现错误"} `,
-          "color: #f20000"
-        );
-        console.log(`%c 错误原因：${error}`, "color: #f20000");
-        console.trace(func);
+        if (defaultDetails.log) {
+          console.log(
+            `%c ${func?.name ? func?.name : func + "出现错误"} `,
+            "color: #f20000"
+          );
+          console.log(`%c 错误原因：${error}`, "color: #f20000");
+          console.trace(func);
+        }
         if (handleErrorFunc) {
           if (typeof handleErrorFunc === "string") {
             result = window.eval(handleErrorFunc);
@@ -3091,7 +3099,7 @@
    * @param {[...any]} uniqueArrayData 需要去重的数组
    * @param {[...any]} compareArrayData 用来比较的数组
    * @param {function} compareFun 数组比较方法，如果值相同，去除该数据
-   * @returns {Object} 返回去重完毕的数组
+   * @returns {object} 返回去重完毕的数组
    * @example Utils.uniqueArray([1,2,3],[1,2],(item,item2)=>{return item===item2 ? true:false});
    * @return [3]
    * @example Utils.uniqueArray([1,2,3],[1,2]);
