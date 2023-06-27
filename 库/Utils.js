@@ -2031,19 +2031,27 @@
     let needCheckDomList = [];
     if (dom instanceof Array || dom instanceof NodeList) {
       needCheckDomList = [...dom];
+    } else {
+      needCheckDomList = [dom];
     }
     let result = true;
     for (const domItem of needCheckDomList) {
-      let domClientRect = domItem.getBoundingClientRect();
-      result =
-        domClientRect.bottom !== 0 &&
-        domClientRect.height !== 0 &&
-        domClientRect.left !== 0 &&
-        domClientRect.right !== 0 &&
-        domClientRect.top !== 0 &&
-        domClientRect.width !== 0 &&
-        domClientRect.x !== 0 &&
-        domClientRect.y !== 0;
+      let domDisplay = window.getComputedStyle(domItem);
+      if (domDisplay.display === "none") {
+        result = false;
+      } else {
+        let domClientRect = domItem.getBoundingClientRect();
+        result = !(
+          domClientRect.bottom === 0 &&
+          domClientRect.height === 0 &&
+          domClientRect.left === 0 &&
+          domClientRect.right === 0 &&
+          domClientRect.top === 0 &&
+          domClientRect.width === 0 &&
+          domClientRect.x === 0 &&
+          domClientRect.y === 0
+        );
+      }
       if (!result) {
         /* 有一个不可见就退出循环 */
         break;
