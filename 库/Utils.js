@@ -2440,7 +2440,7 @@
         characterDataOldValue: undefined,
       },
     };
-    observer_config = this.assignJSON(default_obverser_config, observer_config);
+    observer_config = Utils.assign(default_obverser_config, observer_config);
     let MutationObserver =
       window.MutationObserver ||
       window.webkitMutationObserver ||
@@ -2875,7 +2875,7 @@
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
    * @param {Array|NodeList|Function} data 数据|获取数据的方法
    * @param {string|Function} getPropertyValueFunc - 数组内部项的某个属性的值的方法，参数为这个项
-   * @param {boolean} sortByDesc - 排序方式，true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
+   * @param {boolean} sortByDesc - 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
    * @return {object} - 返回比较排序完成的数组
    * @example Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]})
    * @example Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
@@ -2969,8 +2969,8 @@
       getDataFunc = data;
       data = data();
     }
-    if (data instanceof Array) {
-      result = Array.from(data).sort(sortFunc);
+    if (Array.isArray(data)) {
+      data.sort(sortFunc);
     } else if (data instanceof NodeList || Utils.isJQuery(data)) {
       sortNodeFunc(data, getDataFunc);
       result = getDataFunc();
