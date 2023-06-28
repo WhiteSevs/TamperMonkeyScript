@@ -29,11 +29,11 @@
 // @connect      *
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js
-// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js
-// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js
-// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js
-// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
+// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
+// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
+// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
+// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
 // ==/UserScript==
 
@@ -638,12 +638,12 @@
   /**
    * 检测引用库是否正确加载
    * @example	https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js
-   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js
-   * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js
-   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js
-   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js
+   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
+   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
+   * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
+   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
+   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -655,33 +655,33 @@
       {
         object: Viewer,
         name: "Viewer",
-        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js",
+        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654",
       },
       {
         object: xtip,
         name: "xtip",
-        url: "https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js",
+        url: "https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662",
       },
       {
         object: $jq.NZ_MsgBox,
         jQueryConflictName: "$jq",
         name: "NZ_MsgBox",
-        url: "https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js",
+        url: "https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421",
       },
       {
         object: Watermark,
         name: "Watermark",
-        url: "https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js",
+        url: "https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991",
       },
       {
         object: html2canvas,
         name: "html2canvas",
-        url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js",
+        url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607",
       },
       {
         object: Utils,
         name: "Utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907",
       },
     ];
     for (const libraryItem of libraries) {
