@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  3.2
+ * @version  3.3
  **/
 (function (Utils) {
   /**
@@ -313,6 +313,7 @@
     let result = 0;
     let resultType = "KB";
     let sizeData = {};
+    sizeData.B = 1;
     sizeData.KB = 1024;
     sizeData.MB = sizeData.KB * sizeData.KB;
     sizeData.GB = sizeData.MB * sizeData.KB;
@@ -520,6 +521,55 @@
   };
 
   /**
+   * 获取天数差异，如何获取某个时间与另一个时间相差的天数
+   * @param {number} timestamp1 时间戳(毫秒|秒)
+   * @param {number} timestamp2 时间戳(毫秒|秒)
+   * @param {string} type 返回的数字的表达的类型，比如：年、月、天、时、分、秒，默认天
+   * @returns {number}
+   */
+  Utils.getDaysDifference = function (
+    timestamp1 = new Date().getTime(),
+    timestamp2 = new Date().getTime(),
+    type = "天"
+  ) {
+    type = type.trim();
+    if (timestamp1.toString().length === 10) {
+      timestamp1 = timestamp1 * 1000;
+    }
+    if (timestamp2.toString().length === 10) {
+      timestamp2 = timestamp2 * 1000;
+    }
+    let smallTimeStamp = timestamp1 > timestamp2 ? timestamp2 : timestamp1;
+    let bigTimeStamp = timestamp1 > timestamp2 ? timestamp1 : timestamp2;
+    let oneSecond = 1000; /* 一秒的毫秒数 */
+    let oneMinute = 60 * oneSecond; /* 一分钟的毫秒数 */
+    let oneHour = 60 * oneMinute; /* 一小时的毫秒数 */
+    let oneDay = 24 * oneHour; /* 一天的毫秒数 */
+    let oneMonth = 30 * oneDay; /* 一个月的毫秒数(30天) */
+    let oneYear = 12 * oneMonth; /* 一年的毫秒数 */
+    let bigDate = new Date(bigTimeStamp);
+    let smallDate = new Date(smallTimeStamp);
+    let remainderValue = 1;
+    if (type === "年") {
+      remainderValue = oneYear;
+    } else if (type === "月") {
+      remainderValue = oneMonth;
+    } else if (type === "天") {
+      remainderValue = oneDay;
+    } else if (type === "时") {
+      remainderValue = oneHour;
+    } else if (type === "分") {
+      remainderValue = oneMinute;
+    } else if (type === "秒") {
+      remainderValue = oneSecond;
+    }
+    let diffValue = Math.round(
+      Math.abs((bigDate - smallDate) / remainderValue)
+    );
+    return diffValue;
+  };
+
+  /**
    * 获取页面中最大的z-index再+1
    * @example
    * 	Utils.getMaxZIndex();
@@ -662,6 +712,15 @@
     return bytes.length;
   };
 
+  /**
+   * 获取文本占据的空间大小，返回自动的单位，如12 Kb,14 K,20 MB，1 GB
+   * @param {string} text
+   * @param {boolean} addType 是否自动添加单位，默认true
+   * @returns {string}
+   */
+  Utils.getTextStorageSize = function (text, addType = true) {
+    return Utils.formatByteToSize(Utils.getTextLength(text), addType);
+  };
   /**
    * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
    * @param {String} cssText css字符串
