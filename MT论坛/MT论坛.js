@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至3.0;
-// @version      2.9.9.3
+// @description  更新日志: 库Utils更新至3.3;新增记录历史评论输入;删除0点定时签到功能;新增脚本菜单选项-每7天清理回复框记录的数据;
+// @version      3.0
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -169,7 +169,7 @@
       if (typeof paramOptions == "string") {
         options.text = paramOptions;
       } else {
-        options = Utils.assignJSON(options, paramOptions);
+        options = Utils.assign(options, paramOptions);
       }
       let bottomBtnHTML = "";
       let confirmHTML = "";
@@ -561,6 +561,20 @@
      */
     getFormHash: () => {
       return unsafeWindow.formhash;
+    },
+    /**
+     * 获取帖子id
+     * @param {string} url
+     * @returns {string|undefined}
+     */
+    getForumId: (url) => {
+      let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
+      let forumId = urlMatch;
+      if (forumId) {
+        forumId = forumId.filter(Boolean);
+        forumId = forumId[forumId.length - 1];
+      }
+      return forumId;
     },
     /**
      * 根据UID获取小|中|大头像
@@ -3265,24 +3279,6 @@
         });
         return;
       }
-
-      if (
-        Utils.formatTime(undefined, "HH") == "23" &&
-        parseInt(Utils.formatTime(undefined, "mm")) >= 55
-      ) {
-        /* 倒计时开启 */
-        console.log("开启倒计时自动签到");
-        let intervalId = setInterval(() => {
-          let current_time = Utils.formatTime(undefined, "HH:mm:ss");
-          if (Utils.formatTime(undefined, "hh:mm") == "00:00") {
-            signIn(formhash);
-            clearInterval(intervalId);
-          } else {
-            popups.toast(`倒计时: ${current_time}`);
-          }
-        }, 1000);
-        return;
-      }
       if (
         GM_getValue("mt_sign") ==
         parseInt(Utils.formatTime(undefined, "yyyyMMdd"))
@@ -3740,7 +3736,7 @@
       }
 
       /**
-       * 对小黑屋名单数组进行排序，并添加time属性
+       * 对小黑屋名单数组添加time值并排序(降序)
        * @param {Array} data
        * @returns {Array}
        */
@@ -3820,7 +3816,6 @@
         });
         Utils.sortListByProperty(blackList, "time");
         Utils.sortListByProperty(blackListWithNoTime, "time", false);
-
         blackList = [...blackList, ...blackListWithNoTime];
         return blackList;
       }
@@ -3831,7 +3826,7 @@
        * @returns {Array}
        */
       function parseBlackListHTML(blackListHTML) {
-        let parseResult = Utils.toEvalJSON(blackListHTML);
+        let parseResult = Utils.toJSON(blackListHTML);
         let data = parseResult["data"]; /* 黑名单列表 */
         let cid = parseResult["message"].split("|"); /* cid */
         cid = cid[cid.length - 1];
@@ -4037,7 +4032,7 @@
                 localData.forEach((item) => {
                   if (JSON.stringify(item) === defaultDataString) {
                     editStatus = true;
-                    item = Utils.assignJSON(item, newData);
+                    item = Utils.assign(item, newData);
                     return;
                   }
                 });
@@ -5356,6 +5351,36 @@
       Utils.tryCatch().run(chatHelloChartBed);
       Utils.tryCatch().run(chatZ4AChartBed);
       Utils.tryCatch().run(chatHistoryChartBedImages);
+    },
+    /**
+     * 每7天清理回复框记录的数据
+     */
+    clearLocalReplyData() {
+      if (!GM_getValue("v58")) {
+        return;
+      }
+      let lastClearReplyRecordDataTime = GM_getValue(
+        "lastClearReplyRecordDataTime"
+      );
+      if (lastClearReplyRecordDataTime) {
+        let daysDifference = Utils.getDaysDifference(
+          lastClearReplyRecordDataTime
+        );
+        console.log(
+          `上次清除的时间: ${Utils.formatTime(
+            lastClearReplyRecordDataTime
+          )} 间隔: ${daysDifference}天`
+        );
+        if (daysDifference < 7) {
+          /* 少于7天就不清除 */
+          return;
+        }
+      }
+      let db = new Utils.indexedDB("mt_reply_record", "input_text");
+      db.deleteAll().then((resolve) => {
+        console.log(resolve);
+        GM_setValue("lastClearReplyRecordDataTime", new Date().getTime());
+      });
     },
     /**
      * 帖子快照
@@ -7579,6 +7604,8 @@
           color: #638ffb !important;
         }
         `);
+
+      let db = new Utils.indexedDB("mt_reply_record", "input_text");
       let pl = $jq("#comiis_foot_memu .comiis_flex li")[1];
       let dz = $jq("#comiis_foot_memu .comiis_flex li")[2];
       let sc = $jq("#comiis_foot_memu .comiis_flex li")[3];
@@ -8361,8 +8388,8 @@
         function (event) {
           /* 输入框内容改变，高度也改变事件 */
           event.preventDefault();
-          let inputValue = event.target.value;
-          if (inputValue != "") {
+          let inputText = event.target.value;
+          if (!Utils.isNull(inputText)) {
             btn_fabiao.attr("data-text", "true");
             $jq("#comiis_foot_menu_beautify li[data-attr='回帖'] input").attr(
               "placeholder",
@@ -8474,6 +8501,7 @@
                 "placeholder",
                 "发帖千百度，文明第一步"
               );
+              deleteLocalReplyData();
             },
             error: function (response) {
               popups.closeMask();
@@ -8491,12 +8519,12 @@
           $jq.each($jq("#imglist input[type='hidden']"), (index, item) => {
             data = `${data}&${item.getAttribute("name")}=`;
           });
+          let replyUrl = $jq(
+            "#comiis_foot_menu_beautify_big .reply_user_content"
+          ).attr("data-reply-action");
           $jq.ajax({
             type: "POST",
-            url:
-              $jq("#comiis_foot_menu_beautify_big .reply_user_content").attr(
-                "data-reply-action"
-              ) + "&handlekey=fastposts&loc=1&inajax=1",
+            url: replyUrl + "&handlekey=fastposts&loc=1&inajax=1",
             data: data,
             timeout: 5000,
             dataType: "xml",
@@ -8521,6 +8549,7 @@
                 "发帖千百度，文明第一步"
               );
               $jq(document).scrollTop($jq(document).height());
+              deleteLocalReplyData(true, replyUrl);
             },
             error: (response) => {
               popups.closeMask();
@@ -8598,6 +8627,7 @@
               $jq("#needmessage").val(
                 obj.attr("data-text") ? obj.attr("data-text") : ""
               );
+              initLocalReplyData(true, reply_url);
             },
             error: (response) => {
               popups.closeMask();
@@ -8818,6 +8848,112 @@
         });
       });
 
+      $jq("#comiis_foot_menu_beautify_big textarea").on(
+        "input propertychange",
+        function (event) {
+          /* 记录输入的文本保存到indexDB中 */
+          let inputText = event.target.value;
+          let replyUserDom = event.target
+            .closest(".reply_area")
+            .querySelector(".reply_user_content");
+          let dataReplyUrl = replyUserDom.getAttribute("data-reply-url");
+          let data = {
+            url: window.location.href,
+            text: inputText,
+            replyUrl: Utils.isNull(dataReplyUrl) ? undefined : dataReplyUrl,
+            forumId: DOM_CONFIG.getForumId(window.location.href),
+          };
+          db.get("data").then((result) => {
+            let localDataIndex = result.data.findIndex((item) => {
+              return (
+                item.replyUrl === data.replyUrl && item.forumId === data.forumId
+              );
+            });
+            if (localDataIndex !== -1) {
+              if (Utils.isNull(inputText)) {
+                result.data.splice(localDataIndex, 1);
+              } else {
+                result.data[localDataIndex] = Utils.assign(
+                  result.data[localDataIndex],
+                  data
+                );
+              }
+            } else {
+              result.data = result.data.concat(data);
+            }
+
+            db.save("data", result.data).then((result2) => {
+              console.log(result2);
+            });
+          });
+        }
+      );
+
+      /**
+       * 把存储回复框的内容设置到输入框中
+       * @param {boolean} isUserReply 是否是来自点击回复的
+       * @param {string} replyUrl 回复的url
+       */
+      function initLocalReplyData(isUserReply = false, replyUrl = undefined) {
+        db.get("data").then((result) => {
+          let localReplyData = result.data.find((item) => {
+            if (isUserReply) {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                !Utils.isNull(item.replyUrl) &&
+                !Utils.isNull(replyUrl) &&
+                item.replyUrl === replyUrl
+              );
+            } else {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                Utils.isNull(item.replyUrl)
+              );
+            }
+          });
+          if (localReplyData) {
+            $jq("#comiis_foot_menu_beautify_big textarea").val(
+              localReplyData.text
+            );
+            Utils.dispatchEvent(
+              $jq("#comiis_foot_menu_beautify_big textarea")[0],
+              "input"
+            );
+          }
+        });
+      }
+
+      /**
+       * 删除存储的回复框的内容到indexedDB
+       * @param {boolean} isUserReply 是否是来自点击回复的
+       * @param {string} replyUrl 回复的url
+       */
+      function deleteLocalReplyData(isUserReply = false, replyUrl = undefined) {
+        db.get("data").then((result) => {
+          let localDataIndex = result.data.findIndex((item) => {
+            if (isUserReply) {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                !Utils.isNull(item.replyUrl) &&
+                !Utils.isNull(replyUrl) &&
+                item.replyUrl === replyUrl
+              );
+            } else {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                Utils.isNull(item.replyUrl)
+              );
+            }
+          });
+          if (localDataIndex !== -1) {
+            result.data.splice(localDataIndex, 1);
+            db.save("data", result.data).then((result2) => {
+              console.log(result2);
+            });
+          }
+        });
+      }
+
       function chartbedWaterMarkEvent() {
         /* 图床-水印-设置的各种事件 */
 
@@ -8960,6 +9096,7 @@
         mobileRepeatFunc.editorOptimizationOffDefaultBottomReplyBtnClickEvent
       );
       Utils.tryCatch().run(chartbedWaterMarkEvent);
+      Utils.tryCatch().run(initLocalReplyData);
     },
     /**
      * 编辑器优化-完整版
@@ -9225,7 +9362,7 @@
           window.location.href = window.location.href + "&special=1";
         });
       }
-
+      let db = new Utils.indexedDB("mt_reply_record", "input_text");
       let btn_del = $jq(".comiis_btnbox .comiis_btn.bg_del");
       let btn_save = $jq(".comiis_btnbox button#postsubmit:contains('保存')");
       let btn_post = $jq(".comiis_btnbox button#postsubmit:contains('发表')");
@@ -9396,6 +9533,7 @@
         );
         $jq("#comiis_head .header_y .new_btn_reply").on("click", function () {
           btn_reply.click();
+          deleteLocalReplyData();
         });
       }
 
@@ -9667,8 +9805,10 @@
           .fadeIn();
       });
 
+      /**
+       * 图床-设置的各种事件
+       */
       function setSettingViewEvent() {
-        /* 图床-设置的各种事件 */
         $jq(".removeChartBedAccount").on("click", function (event) {
           event.preventDefault();
           let node = $jq(this);
@@ -9870,8 +10010,117 @@
         );
       }
       $jq("#needmessage").attr("placeholder", "来吧，尽情发挥吧...");
+
+      /**
+       * 设置快捷回复框的内容
+       */
+      function initLocalReplyData() {
+        let isUserReply = window.location.href.indexOf("&repquote=") !== -1;
+        let replyUrl = window.location.href;
+        db.get("data").then((result) => {
+          let localReplyData = result.data.find((item) => {
+            if (isUserReply) {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                !Utils.isNull(item.replyUrl) &&
+                !Utils.isNull(replyUrl) &&
+                item.replyUrl === replyUrl
+              );
+            } else {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                Utils.isNull(item.replyUrl)
+              );
+            }
+          });
+          if (localReplyData) {
+            $jq("#needmessage").val(localReplyData.text);
+            Utils.dispatchEvent($jq("#needmessage")[0], "input");
+          }
+        });
+      }
+      /**
+       * 删除存储的回复框的内容到indexedDB
+       */
+      function deleteLocalReplyData() {
+        if (window.location.href.indexOf("&action=reply") === -1) {
+          return
+        }
+        let isUserReply = window.location.href.indexOf("&repquote=") !== -1;
+        let replyUrl = window.location.href;
+        db.get("data").then((result) => {
+          let localDataIndex = result.data.findIndex((item) => {
+            if (isUserReply) {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                !Utils.isNull(item.replyUrl) &&
+                !Utils.isNull(replyUrl) &&
+                item.replyUrl === replyUrl
+              );
+            } else {
+              return (
+                item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
+                Utils.isNull(item.replyUrl)
+              );
+            }
+          });
+          if (localDataIndex !== -1) {
+            result.data.splice(localDataIndex, 1);
+            db.save("data", result.data).then((result2) => {
+              console.log(result2);
+            });
+          }
+        });
+      }
+      /**
+       * 监听编辑框输入
+       */
+      function listenMessageChange() {
+        $jq("#needmessage").on("input propertychange", function (event) {
+          /* 记录输入的文本保存到indexDB中 */
+          let inputText = event.target.value;
+          let dataReplyUrl =
+            window.location.href.indexOf("&repquote=") !== -1
+              ? window.location.href
+              : undefined;
+          let data = {
+            url: window.location.href,
+            text: inputText,
+            replyUrl: dataReplyUrl,
+            forumId: DOM_CONFIG.getForumId(window.location.href),
+          };
+          db.get("data").then((result) => {
+            let localDataIndex = result.data.findIndex((item) => {
+              return (
+                item.replyUrl === data.replyUrl && item.forumId === data.forumId
+              );
+            });
+            if (localDataIndex !== -1) {
+              if (Utils.isNull(inputText)) {
+                result.data.splice(localDataIndex, 1);
+              } else {
+                result.data[localDataIndex] = Utils.assign(
+                  result.data[localDataIndex],
+                  data
+                );
+              }
+            } else {
+              result.data = result.data.concat(data);
+            }
+            db.save("data", result.data).then((result2) => {
+              console.log(result2);
+            });
+          });
+        });
+      }
+
       Utils.tryCatch().run(mobile.selectPostingSection);
       Utils.tryCatch().run(setSettingViewEvent);
+      if (window.location.href.indexOf("&action=reply") !== -1) {
+        /* 当前是回复编辑框 */
+        Utils.tryCatch().run(initLocalReplyData);
+        Utils.tryCatch().run(listenMessageChange);
+      }
     },
     /**
      * 蓝奏功能(登录、上传、查看历史上传、删除)
@@ -12936,7 +13185,7 @@
         localData.map((item) => {
           if (JSON.stringify(item) === oldDataString) {
             status = true;
-            item = Utils.assignJSON(item, newData);
+            item = Utils.assign(item, newData);
             return;
           }
         });
@@ -15499,6 +15748,20 @@
             GM_setValue(dataKey, this.checked);
           }
         );
+        let db = new Utils.indexedDB("mt_reply_record", "input_text");
+        db.get("data").then((result) => {
+          let settingNameDOM = document
+            .querySelector(
+              '.whitesev-mt-setting-checkbox input[data-key="v58"]'
+            )
+            .closest(".whitesev-mt-setting-item")
+            .querySelector(".whitesev-mt-setting-name");
+          settingNameDOM.innerHTML =
+            settingNameDOM.innerHTML +
+            `(${Utils.getTextStorageSize(
+              Utils.mergeArrayToString(result.data)
+            )})`;
+        });
       }
       /**
        * 设置 脚本设置界面的CSS
@@ -15847,6 +16110,14 @@
                 <p class="whitesev-mt-setting-name">附件点击提醒</p>
                 <div class="whitesev-mt-setting-checkbox">
                   <input type="checkbox" data-key="v57">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">每7天清理回复框记录的数据</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v58">
                   <div class="knobs"><span></span></div>
                   <div class="layer"></div>
                 </div>
