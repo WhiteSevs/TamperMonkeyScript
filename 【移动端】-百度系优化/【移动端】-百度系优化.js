@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.1
+// @version      0.9.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -1721,7 +1721,7 @@
                   let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
                     <div data-v-5b60f30b="" class="text-box">
                       <span data-v-5b60f30b="" class="link username">
-                        ${u_user_name}:{" "}
+                        ${u_user_name}
                       </span>
                       <div
                         data-v-ab14b3fe=""
@@ -1732,7 +1732,7 @@
                         </span>
                       </div>
                     </div>
-                  </div>;
+                  </div>
                   `;
                   new_user_commands_innerHTML += newInnerHTML;
                 }
@@ -1791,7 +1791,7 @@
                   ${new_user_commands_innerHTML}
                   <div data-v-74eb13e2="" class="post-split-line"></div>
                 </div>
-              </div>;
+              </div>
               `;
             return new_command_innerHTML;
           },
