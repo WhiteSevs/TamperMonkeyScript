@@ -34,7 +34,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
 // ==/UserScript==
 
 (function () {
