@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  3.1
+ * @version  3.2
  **/
 (function (Utils) {
   /**
@@ -1467,17 +1467,20 @@
    *  db.deleteAll().then(resolve=>{
    *      console.log(resolve,'清除数据库---->>>>>>name')
    *  })
-   *
+   * @param {string} dbName 数据存储名
+   * @param {string} storeName 表名
+   * @param {number} dbVersion indexDB的版本号
    **/
   Utils.indexedDB = function (
     dbName = "default_db",
-    storeName = "default_form"
+    storeName = "default_form",
+    dbVersion = 1
   ) {
-    this.dbName = dbName; /* 数据存储名 */
+    this.dbName = dbName;
     this.slqVersion =
       "1"; /* websql的版本号，由于ios的问题，版本号的写法不一样 */
-    this.dbVersion = 1; /* indexDB的版本号 */
-    this.storeName = storeName; /* store----即“表”的名字 */
+    this.dbVersion = dbVersion;
+    this.storeName = storeName;
     this.indexedDB =
       window.indexedDB ||
       window.mozIndexedDB ||
@@ -1504,6 +1507,7 @@
       delete: { code: 91004, msg: "删除数据失败" },
       deleteAll: { code: 91005, msg: "清空数据库失败" },
     };
+    let that = this;
     /**
      * 创建 “表”
      * @param {String} dbName 表名
@@ -1511,13 +1515,13 @@
      */
     this.createStore = function (dbName) {
       let txn, store;
-      if (this.indexedDB) {
+      if (that.indexedDB) {
         /* 如果是支持IndexDB的 */
-        txn = this.db[dbName].transaction(
-          this.storeName,
+        txn = that.db[dbName].transaction(
+          that.storeName,
           "readwrite"
         ); /* IndexDB的读写权限 */
-        store = txn.objectStore(this.storeName);
+        store = txn.objectStore(that.storeName);
       }
       return store;
     };
@@ -1527,7 +1531,6 @@
      * @param {String} dbName 数据库名
      */
     this.open = function (callback, dbName) {
-      let that = this;
       /* 打开数据库 */
       if (that.indexedDB) {
         /* 如果支持IndexDB */
@@ -1566,12 +1569,11 @@
     };
     /**
      * 保存数据到数据库
-     * @param {*} key 数据key
-     * @param {*} value 数据值
+     * @param {any} key 数据key
+     * @param {any} value 数据值
      * @returns
      */
     this.save = function (key, value) {
-      let that = this;
       if (that.indexedDB) {
         return new Promise((resolve, reject) => {
           let dbName = that.dbName;
@@ -1606,11 +1608,10 @@
     };
     /**
      * 根据key获取值
-     * @param {String} key 数据key
-     * @returns
+     * @param {string} key 数据key
+     * @returns {Promise}
      */
     this.get = function (key) {
-      let that = this;
       return new Promise((resolve, reject) => {
         let dbName = that.dbName;
         if (that.indexedDB) {
@@ -1657,11 +1658,10 @@
     };
     /**
      * 正则获取数据
-     * @param {String} key 数据键
+     * @param {string} key 数据键
      * @returns
      */
     this.regexpGet = function (key) {
-      let that = this;
       let list = [];
       return new Promise((resolve, reject) => {
         /* 正则查询 */
@@ -1714,11 +1714,10 @@
     };
     /**
      * 删除数据
-     * @param {String} key 数据键
+     * @param {string} key 数据键
      * @returns
      */
     this.delete = function (key) {
-      let that = this;
       return new Promise((resolve, reject) => {
         /* 根据key删除某条数据 */
         let dbName = that.dbName;
@@ -1761,7 +1760,6 @@
      * @returns
      */
     this.deleteAll = function () {
-      let that = this;
       return new Promise((resolve, reject) => {
         /* 清空数据库 */
         let dbName = that.dbName;
