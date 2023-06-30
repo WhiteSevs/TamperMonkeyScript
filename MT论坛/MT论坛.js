@@ -5,7 +5,7 @@
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
 // @description  更新日志: 库Utils更新至3.3;新增记录历史评论输入;删除0点定时签到功能;新增脚本菜单选项-每7天清理回复框记录的数据;
-// @version      3.0
+// @version      3.0.0.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -34,7 +34,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213187
 // ==/UserScript==
 
 (function () {
@@ -643,7 +643,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213187
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -681,7 +681,7 @@
       {
         object: Utils,
         name: "Utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213187",
       },
     ];
     for (const libraryItem of libraries) {
@@ -1484,7 +1484,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: url,
-            method: "get",
+            method: "GET",
             timeout: 5000,
             headers: {
               "User-Agent": Utils.getRandomPCUA(),
@@ -3114,8 +3114,8 @@
       function signIn(_formhash_) {
         console.log("发送签到请求");
         GM_xmlhttpRequest({
-          method: "get",
-          url: `/k_misign-sign.html?operation=qiandao&format=button&formhash=${_formhash_}&inajax=1&ajaxtarget=midaben_sign`,
+          method: "GET",
+          url: `https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=${_formhash_}&inajax=1&ajaxtarget=midaben_sign`,
           headers: {
             "User-Agent": Utils.getRandomPCUA(),
           },
@@ -6831,7 +6831,7 @@
             return new Promise((resolve) => {
               GM_xmlhttpRequest({
                 url: "https://img.binmt.cc/",
-                method: "get",
+                method: "GET",
                 async: false,
                 timeout: 5000,
                 headers: {
@@ -10285,7 +10285,7 @@
             GM_xmlhttpRequest({
               url: "https://up.woozooo.com/mlogin.php",
               timeout: 5000,
-              method: "get",
+              method: "GET",
               data: `task=3&uid=${encodeURI(
                 user
               )}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=`,
@@ -10333,7 +10333,7 @@
             GM_xmlhttpRequest({
               url: "https://up.woozooo.com/mlogin.php",
               timeout: 5000,
-              method: "post",
+              method: "POST",
               headers: {
                 "content-type": "application/x-www-form-urlencoded",
                 "User-Agent": Utils.getRandomPCUA(),
@@ -10394,7 +10394,7 @@
           return new Promise((resolve) => {
             GM_xmlhttpRequest({
               url: "https://up.woozooo.com/fileup.php",
-              method: "post",
+              method: "POST",
               data: formData,
               headers: {
                 Accept: "*/*",
@@ -10435,7 +10435,7 @@
           return new Promise((resolve) => {
             GM_xmlhttpRequest({
               url: `https://up.woozooo.com/doupload.php`,
-              method: "post",
+              method: "POST",
               timeout: 5000,
               data: `task=6&file_id=${file_id}`,
               headers: {
@@ -10477,7 +10477,7 @@
                 user
               )}`,
               timeout: 5000,
-              method: "get",
+              method: "POST",
               headers: {
                 "User-Agent": Utils.getRandomPCUA(),
               },
@@ -13280,7 +13280,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: "https://bbs.binmt.cc/keke_integralmall-keke_integralmall.html",
-            method: "get",
+            method: "GET",
             async: false,
             responseType: "html",
             timeout: 5000,
@@ -15302,6 +15302,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra}`,
+            method:"GET",
             async: false,
             responseType: "html",
             timeout: 5000,
@@ -15345,6 +15346,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
+            method:"GET",
             async: false,
             timeout: 5000,
             responseType: "html",
@@ -15520,8 +15522,8 @@
       let todayStarParent = $jq(".pg_k_misign .comiis_qdinfo");
       let todayStar = document.createElement("ul");
       GM_xmlhttpRequest({
-        url: "/k_misign-sign.html",
-        method: "get",
+        url: "https://bbs.binmt.cc/k_misign-sign.html",
+        method: "GET",
         async: false,
         timeout: 5000,
         headers: {
@@ -15599,7 +15601,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: window.location.href,
-            method: "get",
+            method: "GET",
             async: false,
             timeout: 5000,
             headers: {

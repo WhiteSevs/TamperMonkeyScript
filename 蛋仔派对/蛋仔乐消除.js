@@ -8,7 +8,7 @@
 // @match        https://party.163.com/h5/20230120/xxl/player/*
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1198446
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213187
 // @grant        GM_addStyle
 // @connect      163.com
 // @grant        GM_registerMenuCommand

@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.2
+// @version      0.9.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -14,6 +14,7 @@
 // @match        *://tanbi.baidu.com/*
 // @match        *://jingyan.baidu.com/*
 // @match        *://baike.baidu.com/*
+// @match        *://wapbaike.baidu.com/*
 // @match        *://zhidao.baidu.com/*
 // @match        *://fanyi.baidu.com/*
 // @match        *://fanyi-app.baidu.com/*
@@ -40,7 +41,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1211907
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213187
 // @run-at       document-start
 // ==/UserScript==
 
@@ -720,6 +721,7 @@
 		`,
       mbd: `
 			div.headDeflectorContainer,
+      #bdrainrwDragButton,
 			#page_wrapper .other div[class*='undefined'],
 			#page_wrapper .other > div[class=""]{
 				display: none !important;
@@ -1178,96 +1180,97 @@
         },
         /**
          * 替换链接
+         * @returns {Promise}
          */
-        replaceLink() {
-          document
-            .querySelectorAll(".c-result.result")
-            .forEach(async (item) => {
-              item = $(item);
-              let resultItemOriginURL =
-                handleItemURL.parseDOMAttrOriginUrl(
-                  item
-                ); /* 根据已获取的真实链接取值 */
+        async replaceLink() {
+          let searchResultList = Array.from(
+            document.querySelectorAll(".c-result.result")
+          );
+          for (const searchResultIndex in searchResultList) {
+            let item = $(searchResultList[searchResultIndex]);
+            let resultItemOriginURL =
+              handleItemURL.parseDOMAttrOriginUrl(
+                item
+              ); /* 根据已获取的真实链接取值 */
 
-              if (Utils.isNull(resultItemOriginURL)) {
-                /* 未取到值 */
-                return;
-              }
-              let articleElement = item.find("article");
-              /* 不处理没有article标签的元素 */
-              if (articleElement.length === 0) {
-                return;
-              }
+            if (Utils.isNull(resultItemOriginURL)) {
+              /* 未取到值 */
+              return;
+            }
+            let articleElement = item.find("article");
+            /* 不处理没有article标签的元素 */
+            if (articleElement.length === 0) {
+              return;
+            }
 
-              if (
-                item.attr("tpl") === "wenda_abstract" &&
-                item.attr("preventClick") == null
-              ) {
-                /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
-                item.attr("preventClick", "true");
-                item.on("click", function (event) {
-                  event.preventDefault();
-                  let clickNode = event.target;
-                  if (
-                    clickNode.localName &&
-                    clickNode.localName === "sup" &&
-                    $(clickNode).attr("rl-type") === "stop"
-                  ) {
-                    return;
-                  } else {
-                    window.stop();
-                    window.location.href = decodeURI(resultItemOriginURL);
-                  }
-                });
-                return;
-              }
-
-              /* 视频 */
-              if (
-                resultItemOriginURL.match(
-                  /http:\/\/www.internal.video.baidu.com/g
-                )
-              ) {
-                let internalVideo = decodeURI(
-                  articleElement.getAttribute("rl-link-data-log")
-                );
-                let internalVideoMatch = internalVideo.match(
-                  /\/sf\?pd=video_pag(.*?)={/g
-                );
-                if (internalVideoMatch) {
-                  internalVideoMatch = internalVideoMatch[0];
-                  let newinternalVideo = internalVideoMatch.substring(
-                    0,
-                    internalVideoMatch.length - 2
-                  );
-                  log.info(`视频链接 ${newinternalVideo}`);
-                  handleItemURL.setArticleOriginUrl(item, newinternalVideo);
-                  articleElement.attr("rl-link-href", newinternalVideo);
-                }
-              } else if (
-                resultItemOriginURL.match(/http:\/\/m.baidu.com\/productcard/g)
-              ) {
-                log.error("该链接不予替换: " + resultItemOriginURL);
-              } else {
-                handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
-                articleElement.attr("rl-link-href", resultItemOriginURL);
-              }
-
-              if (
-                !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
-              ) {
-                if (!gm_menu.get("menu_showisdirect")) {
+            if (
+              item.attr("tpl") === "wenda_abstract" &&
+              item.attr("preventClick") == null
+            ) {
+              /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
+              item.attr("preventClick", "true");
+              item.on("click", function (event) {
+                event.preventDefault();
+                let clickNode = event.target;
+                if (
+                  clickNode.localName &&
+                  clickNode.localName === "sup" &&
+                  $(clickNode).attr("rl-type") === "stop"
+                ) {
                   return;
+                } else {
+                  window.stop();
+                  window.location.href = decodeURI(resultItemOriginURL);
                 }
-                if (item.find(".white-bdsearch-isredirecrt").length === 0) {
-                  let title_text_element = item.find(".c-title-text");
-                  let is_redirect_icon = document.createElement("div");
-                  is_redirect_icon.className = "white-bdsearch-isredirecrt";
-                  is_redirect_icon.innerHTML = "<span>重</span>";
-                  title_text_element.prepend(is_redirect_icon);
-                }
+              });
+              return;
+            }
+
+            /* 视频 */
+            if (
+              resultItemOriginURL.match(
+                /^http(s|):\/\/www.internal.video.baidu.com/g
+              )
+            ) {
+              let internalVideo = decodeURI(
+                articleElement.getAttribute("rl-link-data-log")
+              );
+              let internalVideoMatch = internalVideo.match(
+                /\/sf\?pd=video_pag(.*?)={/g
+              );
+              if (internalVideoMatch) {
+                internalVideoMatch = internalVideoMatch[0];
+                let newinternalVideo = internalVideoMatch.substring(
+                  0,
+                  internalVideoMatch.length - 2
+                );
+                log.info(`视频链接 ${newinternalVideo}`);
+                handleItemURL.setArticleOriginUrl(item, newinternalVideo);
+                articleElement.attr("rl-link-href", newinternalVideo);
               }
-            });
+            } else if (
+              resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/productcard/g)
+            ) {
+              log.error("该链接不予替换: " + resultItemOriginURL);
+            } else {
+              handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
+              articleElement.attr("rl-link-href", resultItemOriginURL);
+            }
+            if (
+              !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
+            ) {
+              if (!gm_menu.get("menu_showisdirect")) {
+                return;
+              }
+              if (item.find(".white-bdsearch-isredirecrt").length === 0) {
+                let title_text_element = item.find(".c-title-text");
+                let is_redirect_icon = document.createElement("div");
+                is_redirect_icon.className = "white-bdsearch-isredirecrt";
+                is_redirect_icon.innerHTML = "<span>重</span>";
+                title_text_element.prepend(is_redirect_icon);
+              }
+            }
+          }
         },
       };
 
@@ -1360,136 +1363,115 @@
        * 自动加载下一页
        */
       function autoLoadNextPage() {
-        var isloding_flag = false;
+        /**
+         * 滚动事件
+         * @returns {Promise}
+         */
+        async function scrollEvent() {
+          if (!Utils.isNearBottom(300)) {
+            Utils.sleep(250);
+            return;
+          }
+          loadingView.setVisible(true);
+          let nextPageUrl =
+            $(".new-nextpage").attr("href") ||
+            $(".new-nextpage-only").attr("href");
+          if (!nextPageUrl) {
+            log.info("获取不到下一页，怀疑已加载所有的搜索结果");
+            removeNextPageScrollListener();
+            loadingView.destory();
+            return;
+          }
+          let params_pn = new URL(nextPageUrl).search.match(/[0-9]+/);
+          log.info(
+            `正在请求${
+              params_pn.length == 0
+                ? "第 10 条"
+                : "第 " + parseInt(params_pn[0]) + " 条"
+            }数据: ${nextPageUrl}`
+          );
+
+          loadingView.setText("Loading...", true);
+          let getResp = await httpx.get({
+            url: nextPageUrl,
+          });
+          let respData = getResp.data;
+          if (getResp.status) {
+            loadingView.setVisible(false);
+            let nextPageHTMLNode = Utils.parseFromString(respData.responseText);
+            let scriptAtomData = $("<div></div>");
+            nextPageHTMLNode
+              .querySelectorAll("script[id^=atom-data]")
+              .forEach((item) => {
+                scriptAtomData.append($(item));
+              });
+            let nextPageScriptOriginUrlMap =
+              handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
+            log.info(["下一页的网址Map", nextPageScriptOriginUrlMap]);
+            handleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
+
+            nextPageHTMLNode
+              .querySelectorAll("style[data-vue-ssr-id]")
+              .forEach((item) => {
+                /* 插入vue打包的css需重新引入 */
+                let dataVueSsrId = "data-vue-ssr-id";
+                let dataVueSsrIdValue = item.getAttribute(dataVueSsrId);
+                if (
+                  !document.querySelector(
+                    "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
+                  )
+                ) {
+                  let cssDOM = GM_addStyle(item.innerHTML);
+                  cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
+                  log.info(`插入Vue的CSS id: ${dataVueSsrIdValue}`);
+                }
+              });
+
+            let searchResultDOM =
+              nextPageHTMLNode.querySelectorAll(".c-result.result");
+            let nextPageControllerDOM =
+              nextPageHTMLNode.querySelector("#page-controller");
+            let currentResultsDOM = $("#results");
+            if (nextPageControllerDOM) {
+              searchResultDOM.forEach((item) => {
+                currentResultsDOM.append(item);
+              });
+              $("#page-controller").html(nextPageControllerDOM.innerHTML);
+            } else {
+              log.info("已加载所有的搜索结果");
+              removeNextPageScrollListener();
+            }
+            if (gm_menu.get("baidu_search_sync_next_page_address")) {
+              window.history.pushState("forward", null, nextPageUrl);
+            }
+          } else if (getResp.type === "onerror") {
+            if (nextPageUrl == undefined) {
+              log.error("未获取到下一页的url");
+            } else {
+              log.error("加载失败 👇");
+              log.error(respData);
+              loadingView.setText("加载失败");
+            }
+          } else if (getResp.type === "ontimeout") {
+            log.error("请求超时 👇");
+            loadingView.setText("请求超时");
+          } else {
+            log.error("未知错误");
+            loadingView.setText("未知错误");
+          }
+        }
+        function setNextPageScrollListener() {
+          document.addEventListener("scroll", funcLock.run);
+        }
+        function removeNextPageScrollListener() {
+          document.removeEventListener("scroll", funcLock.run);
+          log.info("取消绑定scroll", "#f400ff");
+        }
+        let funcLock = new Utils.funcLock(scrollEvent, this);
         $("#page-controller").after(loadingView.getLoadingNode(true));
         loadingView.setCSS();
-        $(window).on("scroll", async function () {
-          let userScrollHeight = Math.ceil(
-            $(window).scrollTop() + $(window).height() + 300
-          );
-          if (userScrollHeight >= $(document).height()) {
-            if (isloding_flag == false) {
-              loadingView.setVisible(true);
-              isloding_flag = true;
-
-              let next_page_url =
-                $(".new-nextpage").attr("href") ||
-                $(".new-nextpage-only").attr("href");
-              if (!next_page_url) {
-                log.info("获取不到下一页，怀疑已加载所有的搜索结果");
-                isloding_flag = false;
-                $(window).off("scroll");
-                log.info("取消绑定scroll", "#f400ff");
-                loadingView.destory();
-                return;
-              }
-              let params_pn = new URL(next_page_url).search.match(/[0-9]+/);
-              let next_page_textContent =
-                params_pn.length == 0
-                  ? "第 10 条"
-                  : "第 " + parseInt(params_pn[0]) + " 条";
-              log.info(
-                `正在请求${next_page_textContent}数据: ${next_page_url}`
-              );
-
-              loadingView.setText("Loading...", true);
-              let getResp = await httpx.get({
-                url: next_page_url,
-              });
-              let respData = getResp.data;
-              if (getResp.status) {
-                loadingView.setVisible(false);
-                let nextPageHTMLNode = $(respData.responseText);
-                let scriptAtomData = $("<div></div>");
-                nextPageHTMLNode.each((index, item) => {
-                  if (
-                    item.localName === "script" &&
-                    typeof item.id === "string" &&
-                    item.id.startsWith("atom-data")
-                  ) {
-                    scriptAtomData.append($(item));
-                  }
-                });
-                let nextPageScriptOriginUrlMap =
-                  handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
-                log.info(["下一页的网址Map", nextPageScriptOriginUrlMap]);
-                handleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
-
-                nextPageHTMLNode.find("style").filter(function () {
-                  /* 插入vue打包的css需重新引入 */ if (
-                    this.hasAttribute("data-vue-ssr-id")
-                  ) {
-                    let dataVueSsrId = "data-vue-ssr-id";
-                    let dataVueSsrIdValue = this.getAttribute(dataVueSsrId);
-                    if (
-                      !document.querySelector(
-                        "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
-                      )
-                    ) {
-                      let cssDOM = GM_addStyle(this.innerHTML);
-                      cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-                      log.info(`插入Vue的CSS id: ${dataVueSsrIdValue}`);
-                    }
-                  }
-                });
-
-                let search_result = nextPageHTMLNode.find(".c-result.result");
-                let next_html_next_page_html =
-                  nextPageHTMLNode.find("#page-controller");
-                let this_page_results = $("#results");
-                if (this_page_results != void 0) {
-                  $.each(search_result, (i, n) => {
-                    this_page_results.append(n);
-                  });
-                  $("#page-controller").html(next_html_next_page_html);
-                } else {
-                  log.info("已加载所有的搜索结果");
-                  $(window).off("scroll");
-                  log.info("取消绑定scroll", "#f400ff");
-                }
-                isloding_flag = false;
-                if (gm_menu.get("baidu_search_sync_next_page_address")) {
-                  window.history.pushState("forward", null, next_page_url);
-                }
-              } else if (getResp.type === "onerror") {
-                if (next_page_url == undefined) {
-                  log.error("未获取到下一页的url");
-                } else {
-                  log.error("加载失败 👇");
-                  log.error(respData);
-                  loadingView.setText("加载失败");
-                }
-                isloding_flag = false;
-              } else if (getResp.type === "ontimeout") {
-                log.error("请求超时 👇");
-                loadingView.setText("请求超时");
-                isloding_flag = false;
-              } else {
-                log.error("未知错误");
-                loadingView.setText("未知错误");
-                isloding_flag = false;
-              }
-            } else {
-              let next_page_textContent =
-                $(".new-nowpage").length == 0
-                  ? "第 10 条"
-                  : "第 " +
-                    (parseInt(
-                      $(".new-nowpage")[0].textContent.match(/([0-9]+)/)
-                    ) +
-                      1) +
-                    " 条";
-              log.info(
-                "百度搜索",
-                `正在加载${next_page_textContent}中请稍后，请勿重复`
-              );
-            }
-          }
-        });
+        setNextPageScrollListener();
       }
-
-      log.info("插入CSS规则");
-      GM_addStyle(this.css.search);
       gm_menu = new Utils.GM_Menu(
         {
           menu_autoloading: {
@@ -1520,6 +1502,13 @@
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
+          baidu_search_disable_autoplay_video: {
+            text: "禁止自动播放视频",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
         },
         true,
         GM_getValue,
@@ -1527,25 +1516,51 @@
         GM_registerMenuCommand,
         GM_unregisterMenuCommand
       );
+      if (!gm_menu.get("LOG")) {
+        log.error("禁止控制台输出日志");
+        log.disable();
+      }
+      if (gm_menu.get("baidu_search_disable_autoplay_video")) {
+        log.success("禁止百度搜索的视频自动播放");
+        let funcLock = new Utils.funcLock(
+          () => {
+            let videoPlayerList = document.querySelectorAll(
+              "[class*='-video-player']"
+            );
+            if (!Utils.isNull(videoPlayerList)) {
+              videoPlayerList.forEach((item) => {
+                item.remove();
+              });
+              log.success(["删除视频", videoPlayerList]);
+            }
+          },
+          undefined,
+          500
+        );
+        Utils.mutationObserver(document.documentElement, {
+          config: {
+            subtree: true,
+            childList: true,
+          },
+          callback: funcLock.run,
+        });
+      }
+      log.info("插入CSS规则");
+      GM_addStyle(this.css.search);
+
       $(function () {
-        var lock = false;
+        let searchUpdateRealLink = new Utils.funcLock(async () => {
+          try {
+            await handleItemURL.replaceLink();
+          } catch (error) {
+            log.error("替换为真实链接失败");
+            log.error(error);
+          }
+        },600);
         Utils.waitNode("div#page.search-page").then((nodeList) => {
           Utils.mutationObserver(nodeList[0], {
             callback: async () => {
-              if (lock) {
-                return;
-              }
-              lock = true;
-              try {
-                handleItemURL.replaceLink();
-              } catch (error) {
-                log.error("替换为真实链接失败");
-                log.error(error);
-              } finally {
-                setTimeout(() => {
-                  lock = false;
-                }, 600);
-              }
+              await searchUpdateRealLink.run();
             },
             config: {
               childList: true,
@@ -1553,6 +1568,11 @@
             },
           });
         });
+        Utils.waitNode("style[class^='vsearch-sigma-style']").then(nodeList=>{
+          /* 这个style标签就是某些搜索置顶的卡片 */
+          log.success(["删除sigma的CSS",nodeList]);
+          nodeList.forEach(item=>item.remove());
+        })
         handleItemURL.originURLMap = handleItemURL.parseScriptDOMOriginUrlMap(
           $(document)
         );
@@ -1560,7 +1580,7 @@
         handleItemURL.replaceScriptBaiDuTip();
         handleItemURL.redirectTopLink();
         clickOtherSearchEvent();
-        handleItemURL.replaceLink();
+        searchUpdateRealLink.run();
         if (gm_menu.get("menu_autoloading")) {
           autoLoadNextPage();
         }
@@ -1586,43 +1606,207 @@
       function tiebaLoadComments() {
         /* 贴吧加载评论 */
         const tiebaConfig = {
+          funcLock: null,
+          /**
+           * 判断是否在底部附近的误差值
+           * @type
+           */
+          isNearBottomValue: 250,
+          /**
+           * scroll事件触发 自动加载下一页的评论
+           */
+          nextPageScrollEvent: async () => {
+            if (!Utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
+              return;
+            }
+            loadingView.setText("Loading...", true);
+            loadingView.setVisible(true);
+            let timeStamp = Date.now();
+            let nextPageUrl = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
+            let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
+            log.info("请求下一页评论的url: " + nextPageUrl);
+            log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
+            let nextPageDOM = await tiebaConfig.getPageComment(nextPageUrl);
+            log.info("成功获取下一页评论");
+            let userCommentList = await tiebaConfig.getPageCommentList(
+              nextPageAllCommentUrl
+            );
+            log.info("成功获取下一页评论对应的数组");
+            if (!nextPageDOM || !userCommentList) {
+              loadingView.setText("未知错误，请看控制台");
+              log.error(nextPageDOM);
+              log.error(userCommentList);
+              tiebaConfig.removeScrollListener();
+              return;
+            }
+            let comments = nextPageDOM.querySelectorAll(
+              ".l_post.l_post_bright"
+            );
+            comments = Array.from(comments);
+            if (window.page == 1) {
+              /* 为第一页时，去除第一个，也就是主评论 */
+              comments.splice(0, 1);
+            }
+            comments.forEach((ele) => {
+              tiebaConfig.insertNewCommentInnerHTML(
+                tiebaConfig.getNewCommentInnerHTML(ele, userCommentList)
+              );
+              window.floor_num += 1;
+            });
+            if (
+              Array.from(
+                document.querySelector(".white-only-lz").classList
+              ).includes("white-only-lz-qx")
+            ) {
+              $(".post-item").each((index, ele) => {
+                let landlord = ele.getAttribute("landlord");
+                if (landlord == "0") {
+                  ele.classList.add("white-only-lz-none");
+                }
+              });
+            }
+            loadingView.setVisible(false);
+            if (window.page >= window.max_page) {
+              log.info("已加载所有的评论");
+              loadingView.setText("已加载所有的评论");
+              loadingView.setVisible(false);
+              tiebaConfig.removeScrollListener();
+            }
+            window.page++;
+          },
+          /**
+           * scroll事件触发 自动加载上一页的评论
+           */
+          prevPageScrollEvent: async () => {
+            if (!Utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
+              return;
+            }
+            loadingView.setText("Loading...", true);
+            loadingView.setVisible(true);
+            let timeStamp = Date.now();
+            let pageUrl = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
+            let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
+            log.info("请求上一页评论的url: " + pageUrl);
+            log.info("贴子所有评论的url: " + pageAllCommentUrl);
+            let nextPageDOM = await tiebaConfig.getPageComment(pageUrl);
+            log.info("成功获取上一页评论");
+            let userCommentList = await tiebaConfig.getPageCommentList(
+              pageAllCommentUrl
+            );
+            log.info("成功获取下一页评论对应的数组");
+            if (!nextPageDOM || !userCommentList) {
+              loadingView.setText("未知错误，请看控制台");
+              log.error(nextPageDOM);
+              log.error(userCommentList);
+              tiebaConfig.removeScrollListener();
+              return;
+            }
+            let comments = nextPageDOM.querySelectorAll(
+              ".l_post.l_post_bright"
+            );
+            comments = Array.from(comments);
+            if (window.page == 1) {
+              /* 为第一页时，去除第一个，也就是主评论 */
+              comments.splice(0, 1);
+            }
+            comments.reverse();
+            comments.forEach((ele) => {
+              tiebaConfig.insertNewCommentInnerHTML(
+                tiebaConfig.getNewCommentInnerHTML(ele, userCommentList)
+              );
+              window.floor_num++;
+            });
+            if (
+              Array.from($(".white-only-lz")[0].classList).includes(
+                "white-only-lz-qx"
+              )
+            ) {
+              let lzReply = $(".post-item");
+              Array.from(lzReply).forEach((ele) => {
+                let landlord = ele.getAttribute("landlord");
+                if (landlord == "0") {
+                  ele.classList.add("white-only-lz-none");
+                }
+              });
+            }
+            loadingView.setVisible(false);
+            if (window.page <= 1) {
+              log.info("已加载所有的评论");
+              loadingView.setText("已加载所有的评论");
+              loadingView.setVisible(false);
+              tiebaConfig.removeScrollListener();
+            }
+            window.page--;
+          },
+          /**
+           * 设置自动加载下一页的scrol事件
+           */
+          setNextPageScrollListener() {
+            tiebaConfig.funcLock = new Utils.funcLock(
+              tiebaConfig.nextPageScrollEvent,
+              this
+            );
+            document.addEventListener("scroll", tiebaConfig.funcLock.run);
+            Utils.dispatchEvent(document, "scroll");
+            log.success("scroll监听事件【下一页】");
+          },
+          /**
+           * 设置自动加载上一页的scrol事件
+           */
+          setPrevPageScrollListener() {
+            tiebaConfig.funcLock = new Utils.funcLock(
+              tiebaConfig.prevPageScrollEvent,
+              this
+            );
+            document.addEventListener("scroll", tiebaConfig.funcLock.run);
+            Utils.dispatchEvent(document, "scroll");
+            log.success("scroll监听事件【上一页】");
+          },
+          /**
+           * 移除scoll事件
+           */
+          removeScrollListener() {
+            document.removeEventListener("scroll", tiebaConfig.funcLock.run);
+            log.success("取消绑定scroll", "#f400ff");
+          },
           /**
            * 根据dom获取需要插入的评论的html
            * @param {HTMLElement} element
-           * @param {Array} user_commands_list
-           * @returns
+           * @param {Array} userCommentList
+           * @returns {string}
            */
-          getNewCommentInnerHTML: (element, user_commands_list) => {
-            let data_field = JSON.parse(element.attributes["data-field"].value);
+          getNewCommentInnerHTML: (element, userCommentList) => {
+            let data_field = Utils.toJSON(element.getAttribute("data-field"));
             if (Object.keys(data_field).length == 0) {
               return;
             }
             let user_id = data_field["author"]["user_id"];
             let builderId = data_field["content"]["builderId"];
 
-            let user_command = data_field["content"]["content"];
-            let user_home_url =
-              element.querySelector(".p_author_face").attributes["href"].value;
+            let userComment = data_field["content"]["content"];
+            let userHomeUrl = element
+              .querySelector(".p_author_face")
+              .getAttribute("href");
             let user_landlord_name = data_field["author"]["user_name"];
-            let user_name = element.querySelector(".p_author_name");
-            if (user_name) {
-              user_name = user_name.textContent;
+            let userName = element.querySelector(".p_author_name");
+            if (userName) {
+              userName = userName.textContent;
             } else {
-              user_name = element.querySelector(".p_author_face > img")
-                .attributes["username"].value;
+              userName = element
+                .querySelector(".p_author_face > img")
+                .getAttribute("username");
             }
 
-            let user_avator =
-              element.querySelector(".p_author_face > img").attributes[
-                "data-tb-lazyload"
-              ] ||
-              element.querySelector(".p_author_face > img").attributes["src"];
-            user_avator = user_avator.value;
+            let userAvator =
+              element
+                .querySelector(".p_author_face > img")
+                .getAttribute("data-tb-lazyload") ||
+              element.querySelector(".p_author_face > img").getAttribute("src");
 
             let is_landlord = 0;
             if (user_id == builderId) {
-              user_name =
-                user_name +
+              userName =
+                userName +
                 '<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
               is_landlord = 1;
             }
@@ -1660,8 +1844,8 @@
               user_floor =
                 data_field["content"]["post_no"] + "楼"; /* 评论楼层 */
               user_comment_time = data_field["content"]["date"];
-              if (!user_command) {
-                user_command =
+              if (!userComment) {
+                userComment =
                   element.querySelector(".d_post_content").innerHTML;
               }
               if (user_ip_position) {
@@ -1707,9 +1891,9 @@
             }
 
             let post_id = data_field["content"]["post_id"];
-            let new_user_commands_innerHTML = "";
-            if (user_commands_list[post_id]) {
-              Array.from(user_commands_list[post_id].comment_info).forEach(
+            let newUserCommentHTML = "";
+            if (userCommentList[post_id]) {
+              Array.from(userCommentList[post_id].comment_info).forEach(
                 (result) => {
                   let u_user_name = result["show_nickname"];
                   let u_content = result["content"];
@@ -1720,33 +1904,26 @@
                   }
                   let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
                     <div data-v-5b60f30b="" class="text-box">
-                      <span data-v-5b60f30b="" class="link username">
-                        ${u_user_name}
-                      </span>
-                      <div
-                        data-v-ab14b3fe=""
-                        data-v-5b60f30b=""
-                        class="thread-text lzl-post-text">
-                        <span data-v-ab14b3fe="" class="text-content">
-                          ${u_content}
-                        </span>
+                      <span data-v-5b60f30b="" class="link username">${u_user_name}</span>
+                      <div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
+                        <span data-v-ab14b3fe="" class="text-content">${u_content}</span>
                       </div>
                     </div>
                   </div>
                   `;
-                  new_user_commands_innerHTML += newInnerHTML;
+                  newUserCommentHTML += newInnerHTML;
                 }
               );
             }
 
-            if (new_user_commands_innerHTML) {
-              new_user_commands_innerHTML = `
+            if (newUserCommentHTML) {
+              newUserCommentHTML = `
               <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: auto;">
-                ${new_user_commands_innerHTML}
+                ${newUserCommentHTML}
               </div>
               `;
             }
-            let new_command_innerHTML = `
+            let newCommentHTML = `
               <div
                 data-v-74eb13e2=""
                 data-v-602e287c=""
@@ -1761,12 +1938,12 @@
                     <div
                       data-v-188c0e84=""
                       class="tbfe-1px-border avatar"
-                      data-src="${user_avator}"
+                      data-src="${userAvator}"
                       lazy="loaded"
-                      style="background-image: url(${user_avator});"></div>
+                      style="background-image: url(${userAvator});"></div>
                     <div data-v-188c0e84="" class="user-info">
                       <div data-v-188c0e84="" class="username">
-                        ${user_name}
+                        ${userName}
                       </div>
                       <p data-v-188c0e84="" class="desc-info">
                         <span data-v-188c0e84="" class="floor-info">
@@ -1785,18 +1962,21 @@
                 <div data-v-74eb13e2="" class="content">
                   <p data-v-ab14b3fe="" data-v-74eb13e2="" class="thread-text post-text">
                     <span data-v-ab14b3fe="" class="text-content">
-                      ${user_command}
+                      ${userComment}
                     </span>
                   </p>
-                  ${new_user_commands_innerHTML}
+                  ${newUserCommentHTML}
                   <div data-v-74eb13e2="" class="post-split-line"></div>
                 </div>
               </div>
               `;
-            return new_command_innerHTML;
+            return newCommentHTML;
           },
+          /**
+           * 根据评论的html插入页面中
+           * @param {string} _html_
+           */
           insertNewCommentInnerHTML: (_html_) => {
-            /* 根据评论的html插入页面中 */
             if ($(".post-cut-guide").length) {
               $(".post-cut-guide").before(_html_);
             } else {
@@ -1829,11 +2009,15 @@
                         }`;
             GM_addStyle(quxiaoonlylz_css);
             $(".white-only-lz").on("click", (event) => {
-              tiebaConfig.displayCommand(event.currentTarget.classList);
+              tiebaConfig.displayComment(
+                Array.from(event.currentTarget.classList)
+              );
             });
           },
+          /**
+           * 插入 正序=倒序的按钮
+           */
           insertReverseBtn: () => {
-            /* 插入 正序=倒序的按钮 */
             let ele_parent = $("#replySwitch");
             let btnHTML = `
                         <div style="display: -webkit-box;
@@ -1864,7 +2048,7 @@
                         }`;
             GM_addStyle(btnCSS);
             $(".white-btn-comment-reverse").on("click", (event) => {
-              $(window).off("scroll");
+              tiebaConfig.removeScrollListener();
               $(".post-item")?.remove();
               if (
                 event.currentTarget.getAttribute("class") ===
@@ -1886,7 +2070,7 @@
           /**
            * 获取第一页的评论（不包括评论的评论）
            * @param {string} url
-           * @returns
+           * @returns {HTMLElement|undefined}
            */
           getPageComment: async (url) => {
             let getResp = await httpx.get({
@@ -1897,7 +2081,7 @@
             });
             let respData = getResp.data;
             if (getResp.status) {
-              return $(respData.responseText);
+              return Utils.parseFromString(respData.responseText);
             } else if (getResp.type === "onerror") {
               if (
                 typeof respData.error === "string" &&
@@ -1935,166 +2119,6 @@
             }
           },
           /**
-           * 自动加载下一页的评论
-           */
-          loadingNextCommand: () => {
-            var isloding_flag = false;
-            $(window).on("scroll", async function (event, isInit = false) {
-              let userScrollHeight = Math.ceil(
-                $(window).scrollTop() + $(window).height() + 250
-              );
-              if (userScrollHeight >= $(document).height() || isInit) {
-                if (isloding_flag) {
-                  log.info("正在请求中");
-                } else {
-                  isloding_flag = true;
-                  loadingView.setText("Loading...", true);
-                  loadingView.setVisible(true);
-                  let timeStamp = Date.now();
-                  let next_page_url = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
-                  let next_page_all_comment_url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
-                  log.info("请求下一页评论的url: " + next_page_url);
-                  log.info(
-                    "百度贴吧",
-                    "贴子所有评论的url: " + next_page_all_comment_url
-                  );
-                  let pageHTML = await tiebaConfig.getPageComment(
-                    next_page_url
-                  );
-                  log.info("成功获取下一页评论");
-                  let user_commands_list = await tiebaConfig.getPageCommentList(
-                    next_page_all_comment_url
-                  );
-                  log.info("成功获取下一页评论对应的数组");
-                  if (!pageHTML || !user_commands_list) {
-                    loadingView.setText("未知错误，请看控制台");
-                    $(window).off("scroll");
-                    log.success("取消绑定scroll", "#f400ff");
-                    return;
-                  }
-                  let commands = pageHTML.find(".l_post.l_post_bright");
-                  commands = Array.from(commands);
-                  if (window.page == 1) {
-                    /* 为第一页时，去除第一个，也就是主评论 */
-                    commands.splice(0, 1);
-                  }
-                  commands.forEach((ele) => {
-                    tiebaConfig.insertNewCommentInnerHTML(
-                      tiebaConfig.getNewCommentInnerHTML(
-                        ele,
-                        user_commands_list
-                      )
-                    );
-                    window.floor_num += 1;
-                  });
-                  if (
-                    Array.from($(".white-only-lz")[0].classList).includes(
-                      "white-only-lz-qx"
-                    )
-                  ) {
-                    let lzReply = $(".post-item");
-                    Array.from(lzReply).forEach((ele) => {
-                      let landlord = ele.getAttribute("landlord");
-                      if (landlord == "0") {
-                        ele.classList.add("white-only-lz-none");
-                      }
-                    });
-                  }
-                  loadingView.setVisible(false);
-                  if (window.page >= window.max_page) {
-                    log.info("已加载所有的评论");
-                    loadingView.setText("已加载所有的评论");
-                    loadingView.setVisible(false);
-                    $(window).off("scroll");
-                    log.success("取消绑定scroll", "#f400ff");
-                  }
-                  window.page++;
-                  isloding_flag = false;
-                }
-              }
-            });
-          },
-          /**
-           * 自动加载上一页的评论
-           */
-          loadingPrevCommand: () => {
-            var isloding_flag = false;
-            $(window).on("scroll", async function (event, isInit = false) {
-              let userScrollHeight = Math.ceil(
-                $(window).scrollTop() + $(window).height() + 250
-              );
-              if (userScrollHeight >= $(document).height() || isInit) {
-                if (isloding_flag) {
-                  log.info("正在请求中");
-                } else {
-                  isloding_flag = true;
-                  loadingView.setText("Loading...", true);
-                  loadingView.setVisible(true);
-                  let timeStamp = Date.now();
-                  let page_url = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
-                  let page_all_comment_url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
-                  log.info("请求上一页评论的url: " + page_url);
-                  log.info(
-                    "百度贴吧",
-                    "贴子所有评论的url: " + page_all_comment_url
-                  );
-                  let pageHTML = await tiebaConfig.getPageComment(page_url);
-                  log.info("成功获取上一页评论");
-                  let user_commands_list = await tiebaConfig.getPageCommentList(
-                    page_all_comment_url
-                  );
-                  log.info("成功获取下一页评论对应的数组");
-                  if (!pageHTML || !user_commands_list) {
-                    loadingView.setText("未知错误，请看控制台");
-                    $(window).off("scroll");
-                    log.success("取消绑定scroll", "#f400ff");
-                    return;
-                  }
-                  let commands = pageHTML.find(".l_post.l_post_bright");
-                  commands = Array.from(commands);
-                  if (window.page == 1) {
-                    /* 为第一页时，去除第一个，也就是主评论 */
-                    commands.splice(0, 1);
-                  }
-                  commands.reverse();
-                  commands.forEach((ele) => {
-                    tiebaConfig.insertNewCommentInnerHTML(
-                      tiebaConfig.getNewCommentInnerHTML(
-                        ele,
-                        user_commands_list,
-                        true
-                      )
-                    );
-                    window.floor_num++;
-                  });
-                  if (
-                    Array.from($(".white-only-lz")[0].classList).includes(
-                      "white-only-lz-qx"
-                    )
-                  ) {
-                    let lzReply = $(".post-item");
-                    Array.from(lzReply).forEach((ele) => {
-                      let landlord = ele.getAttribute("landlord");
-                      if (landlord == "0") {
-                        ele.classList.add("white-only-lz-none");
-                      }
-                    });
-                  }
-                  loadingView.setVisible(false);
-                  if (window.page <= 1) {
-                    log.info("已加载所有的评论");
-                    loadingView.setText("已加载所有的评论");
-                    loadingView.setVisible(false);
-                    $(window).off("scroll");
-                    log.info("取消绑定scroll", "#f400ff");
-                  }
-                  window.page--;
-                  isloding_flag = false;
-                }
-              }
-            });
-          },
-          /**
            * 插入加载中的html
            */
           insertLoadingHTML: () => {
@@ -2106,19 +2130,17 @@
           },
           /**
            * 动态显示只看楼主
-           * @param {*} classlist
+           * @param {Array} classlist
            */
-          displayCommand: (classlist) => {
-            if (Array.from(classlist).includes("white-only-lz-qx")) {
+          displayComment: (classlist) => {
+            if (classlist.includes("white-only-lz-qx")) {
               $(".white-only-lz").removeClass("white-only-lz-qx");
-              let lzReply = $(".post-item");
-              Array.from(lzReply).forEach((ele) => {
+              $(".post-item").each((index, ele) => {
                 ele.classList.remove("white-only-lz-none");
               });
             } else {
               $(".white-only-lz").addClass("white-only-lz-qx");
-              let lzReply = $(".post-item");
-              Array.from(lzReply).forEach((ele) => {
+              $(".post-item").each((index, ele) => {
                 let landlord = ele.getAttribute("landlord");
                 if (landlord == "0") {
                   ele.classList.add("white-only-lz-none");
@@ -2148,50 +2170,42 @@
               loadingView.setVisible(true);
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
               let pageUrl = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
-              let pageHTML = await tiebaConfig.getPageComment(pageUrl);
-              let user_commands_list = await tiebaConfig.getPageCommentList(
-                url
-              );
-              if (!pageHTML || !user_commands_list) {
+              let pageDOM = await tiebaConfig.getPageComment(pageUrl);
+              let userCommentList = await tiebaConfig.getPageCommentList(url);
+              if (!pageDOM || !userCommentList) {
                 loadingView.setText("获取评论失败");
                 log.error("新评论区获取失败");
                 return;
               }
               log.info("成功获取评论HTML");
-              window.max_page = pageHTML.find(".jump_input_bright");
-              if (window.max_page.length) {
+              let jumpInputBrightDOM =
+                pageDOM.querySelector(".jump_input_bright");
+              window.max_page = 1;
+              if (jumpInputBrightDOM) {
                 window.max_page = parseInt(
-                  max_page[0].attributes["max-page"].value
+                  jumpInputBrightDOM.getAttribute("max-page")
                 );
-                tiebaConfig.loadingNextCommand();
-                $(window).trigger("scroll", true);
+                tiebaConfig.setNextPageScrollListener();
                 log.info("当前为多页，执行监听");
               } else {
-                let commands = pageHTML.find(".l_post.l_post_bright");
-                window.max_page = 1;
-                commands = Array.from(commands);
-                Array.from(
-                  document.getElementsByClassName("post-item")
-                ).forEach((ele) => {
-                  ele.remove();
-                });
-                commands.shift();
-
+                let comments = pageDOM.querySelectorAll(
+                  ".l_post.l_post_bright"
+                );
+                comments = Array.from(comments);
+                document
+                  .querySelectorAll(".post-item")
+                  .forEach((ele) => ele.remove());
+                comments.shift();
                 window.floor_num = 1;
-                commands.forEach((element) => {
+                comments.forEach((element) => {
                   tiebaConfig.insertNewCommentInnerHTML(
-                    tiebaConfig.getNewCommentInnerHTML(
-                      element,
-                      user_commands_list,
-                      true
-                    )
+                    tiebaConfig.getNewCommentInnerHTML(element, userCommentList)
                   );
                   window.floor_num++;
                 });
                 loadingView.destory();
               }
               log.info(
-                "百度贴吧",
                 `共 ${window.max_page} 页评论，当前所在 ${window.page} 页`
               );
             } else {
@@ -2203,7 +2217,6 @@
         }
         /**
          * 查看-倒序
-         * @returns
          */
         async function mainReverse() {
           window.param_tid = window.location.pathname.match(/([0-9]+)/g);
@@ -2222,52 +2235,44 @@
               loadingView.setVisible(true);
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${window.param_tid}&fid=${window.param_forum_id}&pn=${window.page}&see_lz=0`;
               let pageUrl = `https://tieba.baidu.com/p/${window.param_tid}?pn=${window.page}`;
-              let pageHTML = await tiebaConfig.getPageComment(pageUrl);
-              let user_commands_list = await tiebaConfig.getPageCommentList(
-                url
-              );
-              if (!pageHTML || !user_commands_list) {
+              let pageDOM = await tiebaConfig.getPageComment(pageUrl);
+              let userCommentList = await tiebaConfig.getPageCommentList(url);
+              if (!pageDOM || !userCommentList) {
                 loadingView.setText("获取评论失败");
                 log.error("新评论区获取失败");
                 return;
               }
               log.info("成功获取评论HTML");
-              window.max_page = pageHTML.find(".jump_input_bright");
-              if (window.max_page.length) {
+              window.max_page = 1;
+              let jumpInputBrightDOM =
+                pageDOM.querySelector(".jump_input_bright");
+              if (jumpInputBrightDOM) {
                 window.max_page = parseInt(
-                  max_page[0].attributes["max-page"].value
+                  jumpInputBrightDOM.getAttribute("max-page")
                 );
                 window.page = window.max_page;
-                tiebaConfig.loadingPrevCommand();
-                $(window).trigger("scroll", true);
-                log.info("当前为多页，执行监听");
+                tiebaConfig.setPrevPageScrollListener();
+                log.info("当前为多页");
               } else {
-                let commands = pageHTML.find(".l_post.l_post_bright");
+                let comment = pageDOM.querySelectorAll(".l_post.l_post_bright");
                 window.max_page = 1;
-                commands = Array.from(commands);
-                Array.from(
-                  document.getElementsByClassName("post-item")
-                ).forEach((ele) => {
-                  ele.remove();
-                });
-                commands.shift();
+                comment = Array.from(comment);
+                document
+                  .querySelectorAll(".post-item")
+                  .forEach((ele) => ele.remove());
+                comment.shift();
 
                 window.floor_num = 1;
-                commands.reverse();
-                commands.forEach((element) => {
+                comment.reverse();
+                comment.forEach((element) => {
                   tiebaConfig.insertNewCommentInnerHTML(
-                    tiebaConfig.getNewCommentInnerHTML(
-                      element,
-                      user_commands_list,
-                      true
-                    )
+                    tiebaConfig.getNewCommentInnerHTML(element, userCommentList)
                   );
                   window.floor_num++;
                 });
                 loadingView.destory();
               }
               log.info(
-                "百度贴吧",
                 `共 ${window.max_page} 页评论，当前所在 ${window.page} 页`
               );
             } else {
@@ -2277,25 +2282,12 @@
             log.error(`贴吧：未找到本页参数p`);
           }
         }
-        let intervalNum = 0;
-        let intervalMaxNum = 60;
-        let interval = setInterval(() => {
-          if (intervalNum >= intervalMaxNum) {
-            log.error(
-              `贴吧：超次数，未找到recommend-item的属性data-banner-info`
-            );
-            clearInterval(interval);
-            return;
-          }
-          if ($(".recommend-item").attr("data-banner-info")) {
-            $(".post-item")?.remove();
-            mainPositive();
-            tiebaConfig.insertReverseBtn();
-            tiebaConfig.insertOnlyLZ();
-            clearInterval(interval);
-          }
-          intervalNum++;
-        }, 300);
+        Utils.waitNode(".recommend-item[data-banner-info]").then(() => {
+          $(".post-item")?.remove();
+          mainPositive();
+          tiebaConfig.insertReverseBtn();
+          tiebaConfig.insertOnlyLZ();
+        });
         /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
         GM_addStyle(`
                 .post-item[data-v-74eb13e2] {
@@ -2805,7 +2797,9 @@
      * 百度百科
      */
     baike() {
-      if (!this.current_url.match(/^http(s|):\/\/baike.baidu.com/g)) {
+      if (
+        !this.current_url.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)
+      ) {
         return;
       }
       let page = 1;
@@ -2870,17 +2864,18 @@
        */
       function loadMore() {
         Utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
-          let nextTargetNode = document.querySelector("#J-gotoPC-top");
-          let nextUrl = nextTargetNode.href;
-          let nextUrlObj = new URL(nextUrl);
+          let nextPageNode = document.querySelector("#J-gotoPC-top");
+          let nextPageUrl = nextPageNode.href;
+          let nextUrlObj = new URL(nextPageUrl);
           let itemId = nextUrlObj.pathname.match(
             new RegExp("/item/.+?/([0-9]+)", "i")
           );
           if (!itemId) {
-            log.error(nextUrl);
+            log.error(nextPageUrl);
             log.error("匹配id失败");
             return;
           }
+          log.success(`获取下一页地址: ${nextPageUrl}`);
           loadingView.setCSS();
           $(".BK-main-content").after(loadingView.getLoadingNode());
           while (1) {
@@ -2898,10 +2893,10 @@
             });
             let respData = getResp.data;
             if (getResp.status) {
-              let respObj = $(respData.responseText);
-              let main_content = respObj.find(".BK-main-content");
-              let nextPageContent = main_content.prevObject[0].innerHTML.trim();
-              if (nextPageContent === `<a name="u0"></a>`) {
+              let respObj = Utils.parseFromString(respData.responseText);
+              let main_content = respObj.querySelector(".BK-main-content");
+              nextPageContent = main_content.innerHTML;
+              if (main_content.children.length <= 2) {
                 log.info("已到达最大页" + (page - 1));
                 insertUrlToImageNode();
                 setImageWidthHeight();
@@ -3145,8 +3140,33 @@
         示例
         https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
         */
+      gm_menu = new Utils.GM_Menu(
+        {
+          baidu_mdb_block_exciting_recommendations: {
+            text: "屏蔽精彩推荐",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
+      if (gm_menu.get("baidu_mdb_block_exciting_recommendations")) {
+        log.success("屏蔽精彩推荐");
+        GM_addStyle(`
+        div[class^="relateTitle"],
+        .infinite-scroll-component__outerdiv{
+          display: none !important;
+        }
+        `);
+      }
     },
     /**
      * 百度知了好学
