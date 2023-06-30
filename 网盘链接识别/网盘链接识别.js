@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.6.30.17.00
+// @version      23.6.30.23.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -40,6 +40,7 @@
 // ==/UserScript==
 
 (function () {
+  const jQuery = $.noConflict(true);
   const log = new Utils.Log(GM_info);
   log.config({
     logMaxCount: 200000,
@@ -58,6 +59,8 @@
       log.error(["httpx-onerror", response]);
     },
   });
+  let GM_Menu = null;
+
   const NetDisk = {
     /**
      * 是否初始化
@@ -509,11 +512,11 @@
      */
     ignoreStrRemove(text, isHTML = false) {
       let ignoreNodeList = [
-        $(".whitesevPopOneFile") /* 单文件直链弹窗 */,
-        $(".whitesevPopMoreFile") /* 多文件直链弹窗 */,
-        $(".whitesevPop-whitesevPopSetting") /* 设置页面弹窗 */,
-        $(".whitesevPopNetDiskHistoryMatch") /* 历史存储记录弹窗 */,
-        $(
+        jQuery(".whitesevPopOneFile") /* 单文件直链弹窗 */,
+        jQuery(".whitesevPopMoreFile") /* 多文件直链弹窗 */,
+        jQuery(".whitesevPop-whitesevPopSetting") /* 设置页面弹窗 */,
+        jQuery(".whitesevPopNetDiskHistoryMatch") /* 历史存储记录弹窗 */,
+        jQuery(
           ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table"
         ) /* 历史存储记录弹窗 */,
       ];
@@ -540,14 +543,14 @@
       let matchTextRange = GM_getValue("pageMatchRange", "innerText");
       /* 对innerText 和 innerHTML进行match */
       if (matchTextRange.toLowerCase() === "all") {
-        this.pageText = this.ignoreStrRemove($("body").prop("innerText"));
+        this.pageText = this.ignoreStrRemove(jQuery("body").prop("innerText"));
         this.pageText += this.ignoreStrRemove(
-          $("body").prop("innerHTML"),
+          jQuery("body").prop("innerHTML"),
           true
         );
         this.pageText += clipboardText;
-
-        $.each(this.regular, (netDiskName, item) => {
+        Object.keys(this.regular).forEach(netDiskName =>{
+          let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
             NetDiskWorker.GM_matchWorker.postMessage({
               regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
@@ -562,21 +565,21 @@
               netDiskIndex: index,
             });
           });
-        });
+        })
       } else {
         if (matchTextRange.toLowerCase() === "innertext") {
           /* 对innerText进行match */
-          this.pageText = this.ignoreStrRemove($("body").prop("innerText"));
+          this.pageText = this.ignoreStrRemove(jQuery("body").prop("innerText"));
         } else {
           /* 对innerHTML进行match */
           this.pageText = this.ignoreStrRemove(
-            $("body").prop("innerHTML"),
+            jQuery("body").prop("innerHTML"),
             true
           );
         }
         this.pageText += clipboardText;
-
-        $.each(this.regular, (netDiskName, item) => {
+        Object.keys(this.regular).forEach(netDiskName=>{
+          let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
             NetDiskWorker.GM_matchWorker.postMessage({
               regexp: new RegExp(
@@ -588,7 +591,7 @@
               netDiskIndex: index,
             });
           });
-        });
+        })
       }
     },
     /**
@@ -3411,7 +3414,7 @@
           NetDiskUI.opacity = 1;
         }
         this.loadCSS();
-        let suspensionNode = $(`
+        let suspensionNode = jQuery(`
 				<div  class="whitesevSuspension"
               id="whitesevSuspensionId"
               style="
@@ -3426,7 +3429,7 @@
 				</div>
 				`);
 
-        $("body").append(suspensionNode);
+        jQuery("body").append(suspensionNode);
       },
       /**
        * 所有的弹窗初始化设置
@@ -4224,7 +4227,7 @@
          * 设置input checkbox 复选框 是否选中事件
          */
         function setSettingInputEvent() {
-          $(".netdisk-setting input").each((index, item) => {
+          jQuery(".netdisk-setting input").each((index, item) => {
             let data_key = item.getAttribute("data-key");
             let data_default = item.getAttribute("data-default");
             item.value = GM_getValue(data_key, data_default)
@@ -4234,9 +4237,9 @@
               case "checkbox":
                 item.checked = GM_getValue(data_key, false);
                 let mutex = item.getAttribute("mutex");
-                $(item).on("click", function () {
+                jQuery(item).on("click", function () {
                   GM_setValue(data_key, item.checked);
-                  let mutexNode = $(mutex);
+                  let mutexNode = jQuery(mutex);
                   if (mutex && mutexNode.length) {
                     /* 存在互斥的元素DOM,且当前checked为true，把互斥的DOM元素Checked设置为false */
                     let mutex_data_key = mutexNode.attr("data-key");
@@ -4248,15 +4251,15 @@
                 });
                 break;
               case "range":
-                $(item).on("input propertychange", (val) => {
-                  $(`.netdisk-setting label[data-id=netdisk-${data_key}]`).html(
+                jQuery(item).on("input propertychange", (val) => {
+                  jQuery(`.netdisk-setting label[data-id=netdisk-${data_key}]`).html(
                     `${item.getAttribute("data-content")}${item.value}`
                   );
-                  let itSize = $(".netdisk-setting input[data-key=size]").val();
-                  $("#whitesevSuspensionId").css({
+                  let itSize = jQuery(".netdisk-setting input[data-key=size]").val();
+                  jQuery("#whitesevSuspensionId").css({
                     width: `${itSize}px`,
                     height: `${itSize}px`,
-                    opacity: $(
+                    opacity: jQuery(
                       ".netdisk-setting input[data-key=opacity]"
                     ).val(),
                   });
@@ -4266,7 +4269,7 @@
                 });
 
               default:
-                $(item).on("input propertychange", (val) => {
+                jQuery(item).on("input propertychange", (val) => {
                   GM_setValue(data_key, item.value);
                 });
             }
@@ -4276,7 +4279,7 @@
          * 设置 select元素 下拉列表的默认选项值
          */
         function setSettingSelectEvent() {
-          $(".netdisk-setting select").change(function (event) {
+          jQuery(".netdisk-setting select").change(function (event) {
             let data_key = event.target.getAttribute("data-key");
             let data_value =
               event.target[event.target.selectedIndex].getAttribute(
@@ -4285,8 +4288,8 @@
             GM_setValue(data_key, data_value);
           });
 
-          $(".netdisk-setting-menu-item select").each((index, item) => {
-            item = $(item);
+          jQuery(".netdisk-setting-menu-item select").each((index, item) => {
+            item = jQuery(item);
             let dataKey = item.attr("data-key");
             let dataDefaultValue = item.attr("data-default");
             let getDataValue = GM_getValue(dataKey, dataDefaultValue);
@@ -4299,10 +4302,10 @@
          * 设置 点击 label 弹出设置input range的默认值 事件
          */
         function setSettingLabelEvent() {
-          $(NetDiskUI.uiSettingAlias.popsElement)
+          jQuery(NetDiskUI.uiSettingAlias.popsElement)
             .find("label[data-id*=netdisk-]")
             .on("click", function () {
-              let obj = $(this);
+              let obj = jQuery(this);
               let dataKey = obj.next().attr("data-key");
               let dataDefaultValue = obj.next().attr("data-default");
               let currentValue = obj.next().val();
@@ -4331,10 +4334,10 @@
                 forbiddenScroll: true,
               });
             });
-          $(NetDiskUI.uiSettingAlias.popsElement)
+          jQuery(NetDiskUI.uiSettingAlias.popsElement)
             .find("label[data-id*=netdisk-]")
             .each((index, item) => {
-              $(item).css("cursor", "pointer");
+              jQuery(item).css("cursor", "pointer");
             });
         }
         NetDiskUI.uiSettingAlias = pops.alert({
@@ -4403,7 +4406,7 @@
             } else {
               clickDeviation_Y = parseInt(event.getOffset().y);
             }
-            $("#whitesevSuspensionId").css({
+            jQuery("#whitesevSuspensionId").css({
               cursor: "move",
               transition: "none",
             });
@@ -4417,9 +4420,9 @@
               return;
             }
             var clientMax_X =
-              $(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+              jQuery(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
             var clientMax_Y =
-              $(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+              jQuery(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
             var clientMove_X = event.x - clickDeviation_X; /* 当前移动的X轴 */
             var clientMove_Y = event.y - clickDeviation_Y; /* 当前移动的Y轴 */
             clientMove_X =
@@ -4439,7 +4442,7 @@
               GM_setValue("suspensionY", clientMove_Y);
             }
 
-            $("#whitesevSuspensionId").css({
+            jQuery("#whitesevSuspensionId").css({
               left: clientMove_X,
               top: clientMove_Y,
             });
@@ -4450,13 +4453,13 @@
            */
           if (event.phase === "end") {
             isClicked = false;
-            $("#whitesevSuspensionId").css("cursor", "auto");
+            jQuery("#whitesevSuspensionId").css("cursor", "auto");
             let left_px = parseInt(
-              $("#whitesevSuspensionId").css("left").replace("px", "")
+              jQuery("#whitesevSuspensionId").css("left").replace("px", "")
             );
             let setCSSLeft = 0;
-            if (left_px >= $(window).width() / 2) {
-              setCSSLeft = $(window).width() - NetDiskUI.size;
+            if (left_px >= jQuery(window).width() / 2) {
+              setCSSLeft = jQuery(window).width() - NetDiskUI.size;
               if (top.window == self.window) {
                 GM_setValue("isRight", true);
               }
@@ -4469,7 +4472,7 @@
               GM_setValue("suspensionX", setCSSLeft);
             }
 
-            $("#whitesevSuspensionId").css({
+            jQuery("#whitesevSuspensionId").css({
               left: setCSSLeft,
               transition: "left 300ms ease 0s",
             });
@@ -4493,7 +4496,7 @@
           }
         });
 
-        $("#whitesevSuspensionId").on("contextmenu", function (event) {
+        jQuery("#whitesevSuspensionId").on("contextmenu", function (event) {
           NetDiskUI.view.showContextMenu(event, undefined, [
             {
               text: "设置",
@@ -4517,12 +4520,12 @@
        */
       setSuspensionDefaultPositionEvent() {
         let clientMax_X =
-          $(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+          jQuery(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
         let clientMax_Y =
-          $(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+          jQuery(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
         let clientDefault_X = clientMax_X; /* 默认值 X轴 */
         let clientDefault_Y =
-          $(window).height() / 2 - NetDiskUI.size; /* 默认值 Y轴 */
+          jQuery(window).height() / 2 - NetDiskUI.size; /* 默认值 Y轴 */
         let userSetClient_X = GM_getValue("suspensionX", clientDefault_X);
 
         /* 用户自己移动的X轴 */
@@ -4551,7 +4554,7 @@
           GM_setValue("suspensionY", userSetClient_Y);
         }
 
-        $("#whitesevSuspensionId").css({
+        jQuery("#whitesevSuspensionId").css({
           left: userSetClient_X,
           top: userSetClient_Y,
         });
@@ -4650,7 +4653,7 @@
         let switchBgShowTime = 1200; /* 淡入或淡出后的延迟切换时间 */
         currentList = getRandBgList();
         let randBgSrc = currentList[currentIndex];
-        let randBgNode = $(".whitesevSuspension .netdisk");
+        let randBgNode = jQuery(".whitesevSuspension .netdisk");
         randBgNode.css("background-image", `url(${randBgSrc})`);
         if (
           currentList.length < 2 ||
@@ -4762,7 +4765,8 @@
         let viewAddHTML = "";
         NetDiskUI.matchIcon.forEach((netDiskName) => {
           let netDisk = NetDisk.linkDict.get(netDiskName);
-          $.each(netDisk.getItems(), (shareCode, accessCodeDict) => {
+          Object.keys(netDisk.getItems()).forEach(shareCode => {
+            let accessCodeDict = netDisk.getItems()[shareCode];
             let uiLink = NetDisk.handleLinkShow(
               netDiskName,
               accessCodeDict["netDiskIndex"],
@@ -4919,7 +4923,7 @@
             );
           }
         }
-        $("body").on("click", clickNodeSelector, clickEvent);
+        jQuery("body").on("click", clickNodeSelector, clickEvent);
       },
       /**
        * 显示右键菜单，调用方式
@@ -4933,7 +4937,7 @@
         showTextList = []
       ) {
         event.preventDefault();
-        $(`#${menuNodeId}`).remove();
+        jQuery(`#${menuNodeId}`).remove();
         let menuNode = `
 				<div id="${menuNodeId}">
           <style type="text/css">
@@ -4972,9 +4976,9 @@
 					<ul></ul>
 				</div>
 				`;
-        menuNode = $(menuNode);
+        menuNode = jQuery(menuNode);
         showTextList.forEach((item) => {
-          let menuItem = $(`
+          let menuItem = jQuery(`
           <li>${item.text}</li>
         `);
           menuItem.on("click", function () {
@@ -4986,11 +4990,11 @@
           menuNode.find("ul").append(menuItem);
         });
         menuNode.hide();
-        $("body").append(menuNode);
+        jQuery("body").append(menuNode);
         var clientMax_X =
-          $(window).width() - menuNode.width(); /* 最大的X轴 指从左至右*/
+          jQuery(window).width() - menuNode.width(); /* 最大的X轴 指从左至右*/
         var clientMax_Y =
-          $(window).height() - menuNode.height(); /* 最大的Y轴 指从上至下 */
+          jQuery(window).height() - menuNode.height(); /* 最大的Y轴 指从上至下 */
         var clientMove_X = event.clientX;
         var clientMove_Y = event.clientY;
         /* 不允许超出浏览器范围 */
@@ -5006,10 +5010,10 @@
         let globalClickListen = function () {
           if (!Utils.checkUserClickInNode(menuNode[0])) {
             menuNode?.remove();
-            $(window).off("click", globalClickListen);
+            jQuery(window).off("click", globalClickListen);
           }
         };
-        $(window).on("click", globalClickListen);
+        jQuery(window).on("click", globalClickListen);
       },
       /**
        * 添加新的链接
@@ -5044,7 +5048,7 @@
           accessCode,
           uiLink
         );
-        let parentDOM = $(
+        let parentDOM = jQuery(
           NetDiskUI.uiLinkAlias.popsElement.querySelector(
             ".netdisk-url-box-all"
           )
@@ -5074,7 +5078,7 @@
           shareCode,
           accessCode
         );
-        let needChangeDOM = $(
+        let needChangeDOM = jQuery(
           NetDiskUI.uiLinkAlias.popsElement.querySelector(
             `.netdisk-url a[data-sharecode='${shareCode}'][data-netdisk-index='${netDiskIndex}']`
           )
@@ -5088,7 +5092,7 @@
        * 设置点击图标按钮导航至该网盘链接所在网页中位置
        */
       registerIconGotoPagePosition() {
-        $(document).on(
+        jQuery(document).on(
           "click",
           ".whitesevPop .netdisk-icon img",
           function (event) {
@@ -5104,7 +5108,7 @@
        * 设置全局监听url的右击菜单事件
        */
       registerNetDiskUrlContextMenu() {
-        $(document).on(
+        jQuery(document).on(
           "contextmenu",
           ".whitesevPop .netdisk-url a",
           function (event) {
@@ -5352,18 +5356,17 @@
               );
               let currentItemSelector = `.netdisk-url a[data-netdisk=${netDiskName}][data-sharecode=${shareCode}]`;
               let currentHistoryItemSelector = `.netdiskrecord-link a[data-netdisk=${netDiskName}][data-sharecode=${shareCode}]`;
-              $(currentItemSelector).attr(
+              jQuery(currentItemSelector).attr(
                 "data-accesscode",
                 userInputAccessCode
               );
-              $(currentItemSelector).html(uiLink);
-              console.log($(currentItemSelector));
+              jQuery(currentItemSelector).html(uiLink);
               /* 历史记录的弹出的 */
-              $(currentHistoryItemSelector).attr(
+              jQuery(currentHistoryItemSelector).attr(
                 "data-accesscode",
                 userInputAccessCode
               );
-              $(currentHistoryItemSelector).html(uiLink);
+              jQuery(currentHistoryItemSelector).html(uiLink);
               log.info(`${netDiskName} 重新输入的密码：${userInputAccessCode}`);
               okCallBack(userInputAccessCode);
               event.close();
@@ -5469,17 +5472,17 @@
                       enable: true,
                       callback: function (okEvent) {
                         that.clearNetDiskHistoryMatchData();
-                        $(
+                        jQuery(
                           ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
                         ).remove();
                         okEvent.close();
-                        $(
+                        jQuery(
                           ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page"
                         ).html("");
-                        $(
+                        jQuery(
                           ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
                         ).text(
-                          $(
+                          jQuery(
                             ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
                           )
                             .text()
@@ -5705,7 +5708,7 @@
          * 设置删除按钮点击事件
          */
         let setdeleteBtnEvent = function () {
-          $(document).on(
+          jQuery(document).on(
             "click",
             ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
             function () {
@@ -5719,19 +5722,19 @@
                 },
                 only: true,
               });
-              let clickNode = $(this);
+              let clickNode = jQuery(this);
               let dataJSON = clickNode.attr("data-json");
               this.closest("li")?.remove();
               that.deleteNetDiskHistoryMatchData(dataJSON);
               deleteLoading?.close();
-              let totalNumberText = $(
+              let totalNumberText = jQuery(
                 ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
               ).text();
               let totalNumber = totalNumberText.match(/[\d]+/gi);
               totalNumber = parseInt(totalNumber[totalNumber.length - 1]);
               totalNumber--;
               totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber);
-              $(".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other").text(
+              jQuery(".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other").text(
                 totalNumberText
               );
             }
@@ -5763,11 +5766,11 @@
               }
               startIndex++;
             }
-            $(
+            jQuery(
               ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
             )?.remove();
-            $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
-              $(dataHTML)
+            jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
+              jQuery(dataHTML)
             );
           },
         });
@@ -5814,11 +5817,11 @@
               }
               historyDataHTML += that.getTableHTML(item);
             });
-            $(
+            jQuery(
               ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
             )?.remove();
-            $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
-              $(historyDataHTML)
+            jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
+              jQuery(historyDataHTML)
             );
             searchLoading?.close();
             isSeaching = false;
@@ -5846,13 +5849,13 @@
               isFindHTML += that.getTableHTML(item);
             }
           });
-          $(
+          jQuery(
             ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
           )?.remove();
-          $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
-            $(isFindHTML)
+          jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
+            jQuery(isFindHTML)
           );
-          $(".whitesevPopNetDiskHistoryMatch .netdiskrecord-page")
+          jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-page")
             ?.children()
             ?.remove();
           searchLoading?.close();
@@ -5875,7 +5878,7 @@
        * 设置右击菜单事件
        */
       setContextMenuEvent() {
-        $(".whitesevPopNetDiskHistoryMatch").on(
+        jQuery(".whitesevPopNetDiskHistoryMatch").on(
           "contextmenu",
           ".netdiskrecord-link a",
           function (event) {
@@ -6110,7 +6113,7 @@
       NetDisk.matchPageLink(); /* 自执行一次，因为有的页面上没触发mutationObserver */
     },
   };
-  var GM_Menu = new Utils.GM_Menu(
+  GM_Menu = new Utils.GM_Menu(
     {
       showSetting: {
         text: "⚙ 打开设置界面",
@@ -6155,7 +6158,7 @@
     GM_registerMenuCommand,
     GM_unregisterMenuCommand
   );
-  $(document).ready(function () {
+  jQuery(document).ready(function () {
     NetDiskAutoFillAccessCode.default();
     NetDiskUI.monitorDOMInsert();
   });

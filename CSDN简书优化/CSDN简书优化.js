@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.6.8
+// @version      0.6.9
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -24,7 +24,8 @@
 // ==/UserScript==
 
 (function () {
-  let log = new Utils.Log(GM_info);
+  const jQuery = $.noConflict(true);
+  const log = new Utils.Log(GM_info);
   log.config({
     logMaxCount: 20,
     autoClearConsole: true,
@@ -32,16 +33,16 @@
   /**
    * 因为在有些页面上，比如：简书，当插入style元素到head中，该页面清除该元素
    */
-  let GM_addStyle = Utils.GM_addStyle;
+  const GM_addStyle = Utils.GM_addStyle;
   let GM_Menu = null;
   /**
    * 移除元素（未出现也可以等待出现）
    * @param {string} selectorText 元素选择器
    */
-  let waitForElementToRemove = function (selectorText = "") {
+  const waitForElementToRemove = function (selectorText = "") {
     Utils.waitNode(selectorText).then((dom) => {
       dom.forEach((item) => {
-        $(item).remove();
+        item.remove();
       });
     });
   };
@@ -277,7 +278,7 @@
          */
         removeClipboardHijacking() {
           log.info("去除剪贴板劫持");
-          $(".article-copyright")?.remove();
+          jQuery(".article-copyright")?.remove();
           if (unsafeWindow.articleType) {
             unsafeWindow.articleType = 0;
           }
@@ -301,15 +302,15 @@
          */
         unBlockCopy() {
           log.info("取消禁止复制");
-          $(document).on("click", ".hljs-button.signin", function () {
+          jQuery(document).on("click", ".hljs-button.signin", function () {
             /* 复制按钮 */
-            let btnNode = $(this);
+            let btnNode = jQuery(this);
             /* 需要复制的文本 */
             let copyText = btnNode.parent().text();
             Utils.setClip(copyText);
             btnNode.attr("data-title", "复制成功");
           });
-          $(document).on("mouseenter mouseleave", "pre", function () {
+          jQuery(document).on("mouseenter mouseleave", "pre", function () {
             this.querySelector(".hljs-button.signin")?.setAttribute(
               "data-title",
               "复制"
@@ -318,7 +319,7 @@
           /* 取消Ctrl+C的禁止 */
           Utils.waitNode("#content_views").then(() => {
             unsafeWindow.$("#content_views").unbind("copy");
-            $("#content_views")
+            jQuery("#content_views")
               .off("copy")
               .on("copy", function (event) {
                 event?.preventDefault();
@@ -336,8 +337,8 @@
             return;
           }
           log.info("点击代码块自动展开");
-          $(document).on("click", "pre", function () {
-            let clickNode = $(this);
+          jQuery(document).on("click", "pre", function () {
+            let clickNode = jQuery(this);
             clickNode.css("height", "auto");
             clickNode.find(".hide-preCode-box")?.remove();
           });
@@ -349,15 +350,15 @@
           /* 第一条评论 */
           log.info("恢复评论到正确位置-第一条评论");
           Utils.waitNode(".first-recommend-box").then((dom) => {
-            $(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
-              $(dom)
+            jQuery(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
+              jQuery(dom)
             );
           });
           log.info("恢复评论到正确位置-第二条评论");
           /* 第二条评论 */
           Utils.waitNode(".second-recommend-box").then((dom) => {
-            $(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
-              $(dom)
+            jQuery(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
+              jQuery(dom)
             );
           });
         },
@@ -366,12 +367,12 @@
          */
         identityCSDNDownload() {
           log.info("标识CSDN下载的链接");
-          $(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
+          jQuery(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
             (index, item) => {
               if (GM_Menu.get("removeCSDNDownloadPC")) {
                 item.remove();
               } else {
-                $(item).find(".content-box").css("border", "2px solid red");
+                jQuery(item).find(".content-box").css("border", "2px solid red");
               }
             }
           );
@@ -497,25 +498,25 @@
          */
         addGotoRecommandButton() {
           log.info("添加前往评论的按钮，在返回顶部的上面");
-          let gotoRecommandNode = $(`
+          let gotoRecommandNode = jQuery(`
           <a class="option-box" data-type="gorecommand">
             <span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>
           </a>
           `);
-          $(gotoRecommandNode).on("click", function () {
+          jQuery(gotoRecommandNode).on("click", function () {
             log.info("滚动到评论");
-            $("html, body").animate(
+            jQuery("html, body").animate(
               {
                 scrollTop:
-                  $("#toolBarBox").offset().top -
-                  $("#csdn-toolbar").height() -
+                  jQuery("#toolBarBox").offset().top -
+                  jQuery("#csdn-toolbar").height() -
                   8,
               },
               1000
             );
           });
           Utils.waitNode(".csdn-side-toolbar").then(() => {
-            $(".csdn-side-toolbar a").eq("-2").after(gotoRecommandNode);
+            jQuery(".csdn-side-toolbar a").eq("-2").after(gotoRecommandNode);
           });
         },
         /**
@@ -614,7 +615,7 @@
           this.showOrHideDirectory();
           this.showOrHideSidebar();
           let that = this;
-          $(document).ready(function () {
+          jQuery(document).ready(function () {
             that.removeClipboardHijacking();
             that.unBlockCopy();
             that.identityCSDNDownload();
@@ -768,8 +769,8 @@
           log.info("重构底部推荐");
           function refactoring() {
             /* 反复执行的重构函数 */
-            $(".container-fluid").each((index, item) => {
-              item = $(item);
+            jQuery(".container-fluid").each((index, item) => {
+              item = jQuery(item);
               var url = ""; /* 链接 */
               var title = ""; /* 标题 */
               var content = ""; /* 内容 */
@@ -784,7 +785,7 @@
                 if (item.find(".recommend-img").length) {
                   /* 如果有图片就加进去 */
                   item.find(".recommend-img").each((_index_, _item_) => {
-                    img += $(_item_).html();
+                    img += jQuery(_item_).html();
                   });
                 }
               } else {
@@ -824,9 +825,9 @@
               ) {
                 item.remove();
               }
-              /* $("#recommend")
+              /* jQuery("#recommend")
               .find(".recommend_list")
-              .before($("#first_recommend_list").find("dl").parent().html()); */
+              .before(jQuery("#first_recommend_list").find("dl").parent().html()); */
             });
           }
           Utils.waitNode("#recommend").then((nodeList) => {
@@ -847,8 +848,8 @@
          */
         recommendClickEvent() {
           log.info("设置底部推荐点击跳转事件");
-          $(document).on("click", ".GM-csdn-dl", function () {
-            let url = $(this).attr("data-url");
+          jQuery(document).on("click", ".GM-csdn-dl", function () {
+            let url = jQuery(this).attr("data-url");
             if (GM_Menu.get("openNewTab")) {
               window.open(url, "_blank");
             } else {
@@ -877,7 +878,7 @@
         run() {
           this.addCSS();
           let that = this;
-          $(document).ready(function () {
+          jQuery(document).ready(function () {
             that.removeAds();
             that.refactoringRecommendation();
           });
