@@ -1,10 +1,15 @@
 /**
- * 自己常用的工具类
- * @copyright  GPL-3.0-only
- * @author  WhiteSevs
- * @version  3.8.1
+ * 方便好用的工具类
+ * @copyright GPL-3.0-only
+ * @author WhiteSev
  **/
 (function (Utils) {
+  /**
+   * 工具类的版本
+   * @type {string}
+   */
+  Utils.version = "3.9";
+
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @param {object} target	目标端
@@ -2785,7 +2790,22 @@
   };
 
   /**
-   * 恢复/释放该对象内部方法，让它无效/有效
+   * 去除全局window下的Utils，返回控制权
+   * @returns {Utils}
+   * @example
+   * Utils.noConflict()
+   * > ...
+   */
+  Utils.noConflict = function () {
+    delete window.Utils;
+    if(typeof unsafeWindow === "object" && "Utils" in unsafeWindow){
+      delete unsafeWindow.Utils;
+    }
+    return Utils;
+  };
+
+  /**
+   * 恢复/释放该对象内的为function，让它无效/有效
    * @param {object} needReleaseObject 需要操作的对象
    * @param {string} needReleaseName 需要操作的对象的名字
    * @param {array} functionNameList 需要释放的方法，如果为空，默认全部方法
@@ -2794,29 +2814,29 @@
    * + false 恢复该对象下的某些方法
    * @example
     // 释放该方法
-    Utils.noConflict(console,"console",["log"],true);
+    Utils.noConflictFunc(console,"console",["log"],true);
     console.log;
     > () => {}
 
    * @example
     // 恢复该方法
-    Utils.noConflict(console,"console",["log"],false);
+    Utils.noConflictFunc(console,"console",["log"],false);
     console.log;
     > ƒ log() { [native code] }
 
    * @example
     // 释放所有方法
-    Utils.noConflict(console,"console",[],true);
+    Utils.noConflictFunc(console,"console",[],true);
     console.debug;
     > () => {}
 
    * @example
     // 恢复所有方法
-    Utils.noConflict(console,"console",[],false);
+    Utils.noConflictFunc(console,"console",[],false);
     console.debug;
     > ƒ log() { [native code] }
    **/
-  Utils.noConflict = function (
+  Utils.noConflictFunc = function (
     needReleaseObject,
     needReleaseName,
     functionNameList = [],
@@ -2824,15 +2844,26 @@
   ) {
     if (typeof needReleaseObject !== "object") {
       throw new Error(
-        "Utils.noConflict 参数 needReleaseObject 必须为 object 类型"
+        "Utils.noConflictFunc 参数 needReleaseObject 必须为 object 类型"
       );
     }
-    if (!(functionNameList instanceof Array)) {
-      throw new Error("Utils.noConflict 参数 functionName 必须为 Array 类型");
+    if (typeof needReleaseName !== "string") {
+      throw new Error(
+        "Utils.noConflictFunc 参数 needReleaseName 必须为 string 类型"
+      );
+    }
+    if (!Array.isArray(functionNameList)) {
+      throw new Error(
+        "Utils.noConflictFunc 参数 functionNameList 必须为 Array 类型"
+      );
     }
     let needReleaseKey = "__" + needReleaseName;
+    /**
+     * 复制对象
+     * @param {object} obj
+     * @returns {object}
+     */
     function cloneObj(obj) {
-      /* 复制对象 */
       let newObj = {};
       if (obj instanceof Array) {
         newObj = [];
@@ -2843,8 +2874,10 @@
       }
       return newObj;
     }
+    /**
+     * 释放所有
+     */
     function releaseAll() {
-      /* 释放所有 */
       if (typeof window[needReleaseKey] !== "undefined") {
         /* 已存在 */
         return;
@@ -2856,8 +2889,10 @@
         }
       });
     }
+    /**
+     * 释放单个
+     */
     function releaseOne() {
-      /* 释放单个 */
       Array.from(functionNameList).forEach((item) => {
         Object.values(needReleaseObject).forEach((value) => {
           if (typeof value === "function") {
@@ -2873,8 +2908,10 @@
         });
       });
     }
+    /**
+     * 恢复所有
+     */
     function recoveryAll() {
-      /* 恢复所有 */
       if (typeof window[needReleaseKey] === "undefined") {
         /* 未存在 */
         return;
@@ -2883,8 +2920,10 @@
       delete window[needReleaseKey];
     }
 
+    /**
+     * 恢复单个
+     */
     function recoveryOne() {
-      /* 恢复单个 */
       if (typeof window[needReleaseKey] === "undefined") {
         /* 未存在 */
         return;
