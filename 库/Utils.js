@@ -1262,6 +1262,7 @@
       ontimeout: function () {},
       onloadstart: function () {},
       onreadystatechange: function () {},
+      onprogress: function () {}
     };
 
     /**
@@ -1459,8 +1460,8 @@
         Utils.isNull(response.responseText) &&
         typeof response.response === "object"
       ) {
-        Utils.tryCatch().run(()=>{
-          response.responseText = JSON.stringify(response);
+        Utils.tryCatch().run(() => {
+          response.responseText = JSON.stringify(response.response);
         });
       }
       resolve({
