@@ -3,12 +3,21 @@
  * @copyright GPL-3.0-only
  * @author WhiteSev
  **/
-(function (Utils) {
-  /**
-   * 工具类的版本
-   * @type {string}
-   */
-  Utils.version = "3.9";
+(function () {
+  /* 在window下挂载的对象名 */
+  const GLOBAL_NAME_SPACE = "Utils";
+  const tempUtils =
+    typeof window[GLOBAL_NAME_SPACE] !== "undefined"
+      ? window[GLOBAL_NAME_SPACE]
+      : null;
+
+  const Utils = {
+    /**
+     * 工具类的版本
+     * @type {string}
+     */
+    version: "3.9",
+  };
 
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
@@ -654,7 +663,7 @@
    * @param {...any} array 数组数据
    * @returns {any}	返回数组的随机值
    * @example
-   * Utils.getRandomArrayValue(["Utils","getRandomArrayValue"]);
+   * Utils.getRandomArrayValue(["工具类","getRandomArrayValue"]);
    * > 'getRandomArrayValue'
    **/
   Utils.getRandomArrayValue = function (array) {
@@ -2363,7 +2372,7 @@
    * @param {Object} obj JSON数据
    * @return {Object} 返回数组
    * @example
-   * Utils.parseObjectToArray({"Utils":"jsonToArray","return","Array"});
+   * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
    * @return ['jsonToArray', 'Array']
    **/
   Utils.parseObjectToArray = function (obj) {
@@ -2793,13 +2802,13 @@
    * 去除全局window下的Utils，返回控制权
    * @returns {Utils}
    * @example
-   * Utils.noConflict()
+   * let utils = Utils.noConflict();
    * > ...
    */
   Utils.noConflict = function () {
-    delete window["Utils"];
-    if (typeof unsafeWindow === "object" && "Utils" in unsafeWindow) {
-      delete unsafeWindow["Utils"];
+    delete window[GLOBAL_NAME_SPACE];
+    if (tempUtils) {
+      window[GLOBAL_NAME_SPACE] = tempUtils;
     }
     return Utils;
   };
@@ -3597,4 +3606,6 @@
       });
     });
   };
-})((Utils = {}));
+
+  window[GLOBAL_NAME_SPACE] = Utils;
+})();
