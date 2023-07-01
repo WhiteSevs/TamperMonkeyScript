@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.7
+// @version      0.9.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -877,7 +877,7 @@
             /* 隐藏在log的mu中 */
             let url = undefined;
             try {
-              url = JSON.parse(data["log"])["mu"];
+              url = utils.toJSON(data["log"])["mu"];
               utils.isNull(url) && (url = undefined);
             } catch (error) {}
             return url;
@@ -891,7 +891,7 @@
         parseScriptDOMOriginUrlMap(jqNode) {
           let urlMap = new utils.Dictionary();
           jqNode.find("script[id^='atom-data-']").each((index, item) => {
-            let json_data = JSON.parse(item.innerHTML);
+            let json_data = utils.toJSON(item.innerHTML);
             if (json_data["data"]["resultAtomData"] == null) {
               return;
             }
@@ -973,7 +973,7 @@
           let dataLog = jQDOM.attr("data-log");
           if (dataLog) {
             try {
-              dataLog = JSON.parse(dataLog);
+              dataLog = utils.toJSON(dataLog);
               url = dataLog.mu;
             } catch (error) {
               log.error("DOM的属性data-log不存在👇");
@@ -984,7 +984,7 @@
             let dataIVK = jQDOM.attr("data-ivk");
             if (dataIVK) {
               try {
-                dataIVK = JSON.parse(dataIVK);
+                dataIVK = utils.toJSON(dataIVK);
                 url = dataIVK.control.default_url || dataIVK.control.dataUrl;
               } catch (error) {
                 log.error("DOM的属性data-ivk不存在👇");
@@ -997,10 +997,10 @@
             let rlLinkDataLog = jQDOM.attr("rl-link-data-log");
             if (rlLinkDataLog) {
               try {
-                rlLinkDataLog = JSON.parse(rlLinkDataLog);
+                rlLinkDataLog = utils.toJSON(rlLinkDataLog);
                 if (utils.isNull(rlLinkDataLog.mu) && rlLinkDataLog.extra) {
                   try {
-                    let rlLinkDataLogExtra = JSON.parse(rlLinkDataLog.extra);
+                    let rlLinkDataLogExtra = utils.toJSON(rlLinkDataLog.extra);
                     url = rlLinkDataLogExtra.loc || rlLinkDataLogExtra.log_loc;
                     url = decodeURIComponent(url);
                   } catch (error) {
@@ -1022,7 +1022,7 @@
               ?.attr("rl-link-data-log");
             if (articleDataLog) {
               try {
-                articleDataLog = JSON.parse(articleDataLog);
+                articleDataLog = utils.toJSON(articleDataLog);
                 url = articleDataLog.mu;
               } catch (error) {
                 log.error("article DOM的属性的rl-link-data-log不存在👇");
@@ -1036,7 +1036,7 @@
               ?.attr("rl-link-data-ivk");
             if (articleLinkDataIVK) {
               try {
-                articleLinkDataIVK = JSON.parse(articleLinkDataIVK);
+                articleLinkDataIVK = utils.toJSON(articleLinkDataIVK);
                 url =
                   articleLinkDataIVK.control.default_url ||
                   articleLinkDataIVK.control.dataUrl;
@@ -1094,7 +1094,7 @@
 
           jQuery(".c-result.result").each((index, item) => {
             item = jQuery(item);
-            let dataLog = JSON.parse(
+            let dataLog = utils.toJSON(
               item.attr("data-log")
             ); /* 获取属性上的LOG */
             let searchArticleOriginal_link = dataLog["mu"]; /* 真实链接 */
@@ -1169,6 +1169,9 @@
             if (
               item.hasAttribute("data-sflink") &&
               !utils.isNull(item.getAttribute("data-sflink")) &&
+              item
+                .getAttribute("href")
+                .startsWith("https://m.baidu.com/from=") &&
               item.getAttribute("href") !== item.getAttribute("data-sflink")
             ) {
               log.success(
@@ -1294,14 +1297,18 @@
        * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
        */
       function clickOtherSearchEvent() {
-        var suggestList = "#se-box .suggest-content";
-        var suggestBtn = "#se-box .suggest-content button";
-        var suggestList_HOME = "#index-box .suggest-content";
-        var suggestBtn_HOME = "#index-box .suggest-content button";
-        var searchInput = "#kw";
-        var searchBtn = "#se-bn";
-        var searchInput_HOME = "#index-kw";
-        var searchBtn_HOME = "#index-bn";
+        let suggestList = "#se-box .suggest-content";
+        let suggestListBtn = "#se-box .suggest-content button";
+        let suggestList2 = "#se-box2 .suggest-content";
+        let suggestListBtn2 = "#se-box2 .suggest-content button";
+        let suggestList_HOME = "#index-box .suggest-content";
+        let suggestListBtn_HOME = "#index-box .suggest-content button";
+        let searchInput = "#kw";
+        let searchInput2 = "#kw2";
+        let searchBtn = "#se-bn";
+        let searchBtn2 = "#se-bn2";
+        let searchInput_HOME = "#index-kw";
+        let searchBtn_HOME = "#index-bn";
         function mutationObserverFunction(btnElement) {
           log.success("设置搜索建议自定义click事件");
           jQuery(btnElement)?.on("click", function (event) {
@@ -1317,7 +1324,7 @@
           });
         }
         function searchBtnJump(event, searchInput) {
-          var searchInputElement = jQuery(searchInput);
+          let searchInputElement = jQuery(searchInput);
           event?.stopPropagation();
           event?.preventDefault();
           window?.stop();
@@ -1331,10 +1338,10 @@
 
         function enterKeyDownEvent(event, searchInput) {
           if (event.keyCode === 108 || event.keyCode === 13) {
-            var searchInputElement = jQuery(searchInput);
+            window?.stop();
+            let searchInputElement = jQuery(searchInput);
             event?.stopPropagation();
             event?.preventDefault();
-            window?.stop();
             let redirectURL =
               window.location.origin + "/s?word=" + searchInputElement.val();
             log.success("回车键跳转搜索 -> " + searchInputElement.val());
@@ -1344,32 +1351,55 @@
           }
           return true;
         }
+        /* 顶部搜索输入框点击后的搜索建议 */
         utils.waitNode(suggestList).then((nodeList) => {
           utils.mutationObserver(nodeList[0], {
             callback: () => {
-              mutationObserverFunction(suggestBtn);
+              /*  */
+              mutationObserverFunction(suggestListBtn);
             },
             config: { childList: true, attributes: true },
           });
         });
+        /* 底部搜索输入框点击后的搜索建议 */
+        utils.waitNode(suggestList2).then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
+            callback: () => {
+              mutationObserverFunction(suggestListBtn2);
+            },
+            config: { childList: true, attributes: true },
+          });
+        });
+        /* 百度主页的搜索输入框点击后的搜索建议 */
         utils.waitNode(suggestList_HOME).then((nodeList) => {
           utils.mutationObserver(nodeList[0], {
             callback: () => {
-              mutationObserverFunction(suggestBtn_HOME);
+              mutationObserverFunction(suggestListBtn_HOME);
             },
             config: { childList: true, attributes: true },
           });
         });
-
+        /* 顶部搜索按钮 */
         jQuery(searchBtn)?.on("click", function (event) {
           return searchBtnJump(event, searchInput);
         });
-        jQuery(searchBtn_HOME)?.on("click", function (event) {
-          return searchBtnJump(event, searchInput_HOME);
-        });
+        /* 顶部搜索输入框 */
         jQuery(searchInput)?.on("keydown", function (event) {
           return enterKeyDownEvent(event, searchInput);
         });
+        /* 底部搜索按钮 */
+        jQuery(searchBtn2)?.on("click", function (event) {
+          return searchBtnJump(event, searchInput2);
+        });
+        /* 底部部搜索输入框 */
+        jQuery(searchInput2)?.on("keydown", function (event) {
+          return enterKeyDownEvent(event, searchInput2);
+        });
+        /* 百度主页搜索按钮 */
+        jQuery(searchBtn_HOME)?.on("click", function (event) {
+          return searchBtnJump(event, searchInput_HOME);
+        });
+        /* 百度主页搜索输入框 */
         jQuery(searchInput_HOME)?.on("keydown", function (event) {
           return enterKeyDownEvent(event, searchInput_HOME);
         });
@@ -1588,13 +1618,13 @@
             },
           });
         });
-        utils.waitNode("style[class^='vsearch-sigma-style']").then(
-          (nodeList) => {
+        utils
+          .waitNode("style[class^='vsearch-sigma-style']")
+          .then((nodeList) => {
             /* 这个style标签就是某些搜索置顶的卡片 */
             log.success(["删除sigma的CSS", nodeList]);
             nodeList.forEach((item) => item.remove());
-          }
-        );
+          });
         handleItemURL.originURLMap = handleItemURL.parseScriptDOMOriginUrlMap(
           jQuery(document)
         );
@@ -1655,14 +1685,14 @@
             log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
             let nextPageDOM = await tiebaConfig.getPageComment(nextPageUrl);
             log.info("成功获取下一页评论");
-            let userCommentList = await tiebaConfig.getPageCommentList(
+            let pageCommentList = await tiebaConfig.getPageCommentList(
               nextPageAllCommentUrl
             );
             log.info("成功获取下一页评论对应的数组");
-            if (!nextPageDOM || !userCommentList) {
+            if (!nextPageDOM || !pageCommentList.commentList) {
               loadingView.setText("未知错误，请看控制台");
               log.error(nextPageDOM);
-              log.error(userCommentList);
+              log.error(pageCommentList);
               tiebaConfig.removeScrollListener();
               return;
             }
@@ -1676,7 +1706,7 @@
             }
             comments.forEach((ele) => {
               tiebaConfig.insertNewCommentInnerHTML(
-                tiebaConfig.getNewCommentInnerHTML(ele, userCommentList)
+                tiebaConfig.getNewCommentInnerHTML(ele, pageCommentList)
               );
               tiebaConfig.floor_num += 1;
             });
@@ -1717,14 +1747,14 @@
             log.info("贴子所有评论的url: " + pageAllCommentUrl);
             let nextPageDOM = await tiebaConfig.getPageComment(pageUrl);
             log.info("成功获取上一页评论");
-            let userCommentList = await tiebaConfig.getPageCommentList(
+            let pageCommentList = await tiebaConfig.getPageCommentList(
               pageAllCommentUrl
             );
             log.info("成功获取下一页评论对应的数组");
-            if (!nextPageDOM || !userCommentList) {
+            if (!nextPageDOM || !pageCommentList.commentList) {
               loadingView.setText("未知错误，请看控制台");
               log.error(nextPageDOM);
-              log.error(userCommentList);
+              log.error(pageCommentList);
               tiebaConfig.removeScrollListener();
               return;
             }
@@ -1737,9 +1767,9 @@
               comments.splice(0, 1);
             }
             comments.reverse();
-            comments.forEach((ele) => {
+            comments.forEach((element) => {
               tiebaConfig.insertNewCommentInnerHTML(
-                tiebaConfig.getNewCommentInnerHTML(ele, userCommentList)
+                tiebaConfig.getNewCommentInnerHTML(element, pageCommentList)
               );
               tiebaConfig.floor_num++;
             });
@@ -1799,10 +1829,10 @@
           /**
            * 根据dom获取需要插入的评论的html
            * @param {HTMLElement} element
-           * @param {Array} userCommentList
+           * @param { {commentList: any, userList: array}} pageCommentList
            * @returns {string}
            */
-          getNewCommentInnerHTML: (element, userCommentList) => {
+          getNewCommentInnerHTML: (element, pageCommentList) => {
             let data_field = utils.toJSON(element.getAttribute("data-field"));
             if (Object.keys(data_field).length == 0) {
               return;
@@ -1920,28 +1950,31 @@
 
             let post_id = data_field["content"]["post_id"];
             let newUserCommentHTML = "";
-            if (userCommentList[post_id]) {
-              Array.from(userCommentList[post_id].comment_info).forEach(
-                (result) => {
-                  let u_user_name = result["show_nickname"];
-                  let u_content = result["content"];
-                  let u_user_id = result["user_id"];
-                  if (builderId == u_user_id) {
-                    u_user_name +=
-                      '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
-                  }
-                  let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
+            if (pageCommentList.commentList[post_id]) {
+              Array.from(
+                pageCommentList.commentList[post_id].comment_info
+              ).forEach((result) => {
+                let u_user_name = result["show_nickname"];
+                let u_content = result["content"];
+                let u_user_id = result["user_id"];
+                let u_user_portrait =
+                  pageCommentList.userList[u_user_id]["portrait"];
+                let u_user_home_url = "/home/main?id=" + u_user_portrait;
+                if (builderId == u_user_id) {
+                  u_user_name +=
+                    '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
+                }
+                let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
                     <div data-v-5b60f30b="" class="text-box">
-                      <span data-v-5b60f30b="" class="link username">${u_user_name}</span>
+                      <span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
                       <div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
                         <span data-v-ab14b3fe="" class="text-content">${u_content}</span>
                       </div>
                     </div>
                   </div>
                   `;
-                  newUserCommentHTML += newInnerHTML;
-                }
-              );
+                newUserCommentHTML += newInnerHTML;
+              });
             }
 
             if (newUserCommentHTML) {
@@ -1966,11 +1999,12 @@
                     <div
                       data-v-188c0e84=""
                       class="tbfe-1px-border avatar"
+                      data-home-url="${userHomeUrl}"
                       data-src="${userAvator}"
                       lazy="loaded"
                       style="background-image: url(${userAvator});"></div>
                     <div data-v-188c0e84="" class="user-info">
-                      <div data-v-188c0e84="" class="username">
+                      <div data-v-188c0e84="" class="username" data-home-url="${userHomeUrl}">
                         ${userName}
                       </div>
                       <p data-v-188c0e84="" class="desc-info">
@@ -2005,10 +2039,50 @@
            * @param {string} _html_
            */
           insertNewCommentInnerHTML: (_html_) => {
+            let newCommentDOM = jQuery(_html_);
+            /* 评论，点击头像跳转到这个人的空间 */
+            newCommentDOM
+              .find(".tbfe-1px-border.avatar")
+              .each((index, item) => {
+                if (item.hasAttribute("data-home-url")) {
+                  item.onclick = function () {
+                    window.open(item.getAttribute("data-home-url"), "_blank");
+                  };
+                }
+              });
+            /* 评论，点击名字跳转到这个人的空间 */
+            newCommentDOM.find(".user-info .username").each((index, item) => {
+              if (item.hasAttribute("data-home-url")) {
+                item.onclick = function () {
+                  window.open(item.getAttribute("data-home-url"), "_blank");
+                };
+              }
+            });
+            /* 评论的回复，点击头像跳转到这个人的空间 */
+            newCommentDOM.find(".link.username").each((index, item) => {
+              if (item.hasAttribute("data-home-url")) {
+                item.onclick = function () {
+                  window.open(item.getAttribute("data-home-url"), "_blank");
+                };
+              }
+            });
+            /* 评论的回复的回复，点击头像跳转到这个人的空间 */
+            newCommentDOM.find("a.at").each((index, item) => {
+              item.removeAttribute("onclick");
+              item.removeAttribute("onmouseover");
+              item.removeAttribute("onmouseout");
+              if (item.hasAttribute("portrait")) {
+                item.setAttribute(
+                  "href",
+                  "/home/main?id=" + item.getAttribute("portrait")
+                );
+              }
+            });
+
             if (jQuery(".post-cut-guide").length) {
-              jQuery(".post-cut-guide").before(_html_);
+              jQuery(".post-cut-guide").before(newCommentDOM);
             } else {
-              jQuery(".pb-page-wrapper").append(_html_); /* 老版帖子 */
+              jQuery(".pb-page-wrapper").append(newCommentDOM); /* 老版帖子 */
             }
           },
           insertOnlyLZ: () => {
@@ -2127,7 +2201,7 @@
           /**
            * 获取第一页的评论的评论
            * @param {string} url
-           * @returns
+           * @returns {{commentList:array, userList:array} }
            */
           getPageCommentList: async (url) => {
             let getResp = await httpx.get({
@@ -2139,8 +2213,13 @@
             });
             let respData = getResp.data;
             if (getResp.status) {
-              let data = JSON.parse(respData.responseText);
-              return data["data"]["comment_list"];
+              let data = utils.toJSON(respData.responseText);
+              log.success("帖子评论信息");
+              log.success(data);
+              return {
+                commentList: data["data"]["comment_list"],
+                userList: data["data"]["user_list"],
+              };
             } else if (getResp.type === "onerror") {
               log.error("取第一页的评论的评论数据失败 👇");
               log.error(getResp);
@@ -2188,7 +2267,7 @@
             tiebaConfig.param_forum_id =
               jQuery(".recommend-item").attr("data-banner-info");
             if (tiebaConfig.param_forum_id) {
-              tiebaConfig.param_forum_id = JSON.parse(
+              tiebaConfig.param_forum_id = utils.toJSON(
                 tiebaConfig.param_forum_id
               )["forum_id"];
               let timeStamp = Date.now();
@@ -2199,8 +2278,8 @@
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaConfig.param_tid}&fid=${tiebaConfig.param_forum_id}&pn=${tiebaConfig.page}&see_lz=0`;
               let pageUrl = `https://tieba.baidu.com/p/${tiebaConfig.param_tid}?pn=${tiebaConfig.page}`;
               let pageDOM = await tiebaConfig.getPageComment(pageUrl);
-              let userCommentList = await tiebaConfig.getPageCommentList(url);
-              if (!pageDOM || !userCommentList) {
+              let pageCommentList = await tiebaConfig.getPageCommentList(url);
+              if (!pageDOM || !pageCommentList.commentList) {
                 loadingView.setText("获取评论失败");
                 log.error("新评论区获取失败");
                 return;
@@ -2227,7 +2306,7 @@
                 tiebaConfig.floor_num = 1;
                 comments.forEach((element) => {
                   tiebaConfig.insertNewCommentInnerHTML(
-                    tiebaConfig.getNewCommentInnerHTML(element, userCommentList)
+                    tiebaConfig.getNewCommentInnerHTML(element, pageCommentList)
                   );
                   tiebaConfig.floor_num++;
                 });
@@ -2253,7 +2332,7 @@
             tiebaConfig.param_forum_id =
               jQuery(".recommend-item").attr("data-banner-info");
             if (tiebaConfig.param_forum_id) {
-              tiebaConfig.param_forum_id = JSON.parse(
+              tiebaConfig.param_forum_id = utils.toJSON(
                 tiebaConfig.param_forum_id
               )["forum_id"];
               let timeStamp = Date.now();
@@ -2264,8 +2343,8 @@
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaConfig.param_tid}&fid=${tiebaConfig.param_forum_id}&pn=${tiebaConfig.page}&see_lz=0`;
               let pageUrl = `https://tieba.baidu.com/p/${tiebaConfig.param_tid}?pn=${tiebaConfig.page}`;
               let pageDOM = await tiebaConfig.getPageComment(pageUrl);
-              let userCommentList = await tiebaConfig.getPageCommentList(url);
-              if (!pageDOM || !userCommentList) {
+              let pageCommentList = await tiebaConfig.getPageCommentList(url);
+              if (!pageDOM || !pageCommentList.commentList) {
                 loadingView.setText("获取评论失败");
                 log.error("新评论区获取失败");
                 return;
@@ -2294,7 +2373,7 @@
                 comment.reverse();
                 comment.forEach((element) => {
                   tiebaConfig.insertNewCommentInnerHTML(
-                    tiebaConfig.getNewCommentInnerHTML(element, userCommentList)
+                    tiebaConfig.getNewCommentInnerHTML(element, pageCommentList)
                   );
                   tiebaConfig.floor_num++;
                 });
@@ -2634,7 +2713,7 @@
             log.error(clickNode);
             return false;
           }
-          dataTrack = JSON.parse(dataTrack);
+          dataTrack = utils.toJSON(dataTrack);
           let tid = dataTrack["tid"];
           if (tid == null) {
             log.error("未找到tid");
