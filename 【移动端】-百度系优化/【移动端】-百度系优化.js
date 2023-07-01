@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.5
+// @version      0.9.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -41,7 +41,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213695
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
 // @run-at       document-start
 // ==/UserScript==
 
@@ -65,7 +65,6 @@
     },
   });
   let GM_Menu = null; /* 菜单 */
-
 
   const CSDN_FLAG_CSS = `
     .csdn-flag-component-box .praise {
@@ -146,7 +145,10 @@
      * @param {Boolean} value
      */
     setVisible(value) {
-      jQuery(`.${this.loadingClassName}`)?.css("display", value ? "flex" : "none");
+      jQuery(`.${this.loadingClassName}`)?.css(
+        "display",
+        value ? "flex" : "none"
+      );
     }
     /**
      * 设置Loading图标显示/关闭
@@ -810,7 +812,9 @@
             if (handleItemURL.originURLMap.has(item.href)) {
               articleURL = handleItemURL.originURLMap.get(item.href);
             }
-            let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(jQuery(item));
+            let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
+              jQuery(item)
+            );
             if (!Utils.isNull(domOriginUrl)) {
               articleURL = domOriginUrl;
             }
@@ -824,7 +828,9 @@
           jQDOM
             .find("div[data-aftclk][class*=img-container]")
             .each((index, item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(jQuery(item));
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
+                jQuery(item)
+              );
               if (!Utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -835,7 +841,9 @@
           jQDOM
             .find("div.c-video-container div[data-aftclk]")
             .each((index, item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(jQuery(item));
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
+                jQuery(item)
+              );
               if (!Utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -846,7 +854,9 @@
           jQDOM
             .find('div[data-module="sc_pc"] div[rl-link-href]')
             .each((index, item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(jQuery(item));
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
+                jQuery(item)
+              );
               if (!Utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1072,7 +1082,9 @@
          */
         removeAds() {
           jQuery(".icon-logo")?.first()?.remove(); /* 底部下一页前面图标删除 */
-          jQuery("#page-relative")?.remove(); /* 末尾 ===>>  大家都在搜  广告位 */
+          jQuery(
+            "#page-relative"
+          )?.remove(); /* 末尾 ===>>  大家都在搜  广告位 */
           jQuery(
             ".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
           )?.remove(); /* 中间 ===>>  大家都在搜  广告位 */
@@ -1250,7 +1262,9 @@
                 articleElement.attr("rl-link-href", newinternalVideo);
               }
             } else if (
-              resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/productcard/g)
+              resultItemOriginURL.match(
+                /^http(s|):\/\/m.baidu.com\/productcard/g
+              )
             ) {
               log.error("该链接不予替换: " + resultItemOriginURL);
             } else {
@@ -1369,8 +1383,8 @@
          * @returns {Promise}
          */
         async function scrollEvent() {
-          if (!Utils.isNearBottom(300)) {
-            Utils.sleep(250);
+          if (!Utils.isNearBottom(window.innerHeight / 3)) {
+            Utils.sleep(150);
             return;
           }
           loadingView.setVisible(true);
@@ -1395,6 +1409,9 @@
           loadingView.setText("Loading...", true);
           let getResp = await httpx.get({
             url: nextPageUrl,
+            headers: {
+              "User-Agent": Utils.getRandomAndroidUA(),
+            },
           });
           let respData = getResp.data;
           if (getResp.status) {
@@ -1471,6 +1488,7 @@
         let funcLock = new Utils.funcLock(scrollEvent, this);
         jQuery("#page-controller").after(loadingView.getLoadingNode(true));
         loadingView.setCSS();
+        loadingView.setVisible(false);
         setNextPageScrollListener();
       }
       GM_Menu = new Utils.GM_Menu(
@@ -1536,7 +1554,7 @@
             }
           },
           undefined,
-          500
+          250
         );
         Utils.mutationObserver(document.documentElement, {
           config: {
@@ -1557,7 +1575,7 @@
             log.error("替换为真实链接失败");
             log.error(error);
           }
-        },600);
+        }, 600);
         Utils.waitNode("div#page.search-page").then((nodeList) => {
           Utils.mutationObserver(nodeList[0], {
             callback: async () => {
@@ -1569,11 +1587,13 @@
             },
           });
         });
-        Utils.waitNode("style[class^='vsearch-sigma-style']").then(nodeList=>{
-          /* 这个style标签就是某些搜索置顶的卡片 */
-          log.success(["删除sigma的CSS",nodeList]);
-          nodeList.forEach(item=>item.remove());
-        })
+        Utils.waitNode("style[class^='vsearch-sigma-style']").then(
+          (nodeList) => {
+            /* 这个style标签就是某些搜索置顶的卡片 */
+            log.success(["删除sigma的CSS", nodeList]);
+            nodeList.forEach((item) => item.remove());
+          }
+        );
         handleItemURL.originURLMap = handleItemURL.parseScriptDOMOriginUrlMap(
           jQuery(document)
         );
@@ -1608,7 +1628,7 @@
         /* 贴吧加载评论 */
         const tiebaConfig = {
           page: 1,
-          maxPage:1,
+          maxPage: 1,
           floor_num: 1,
           funcLock: null,
           param_tid: null,
@@ -1821,7 +1841,8 @@
             let user_floor = "";
             let user_comment_time = "1970-1-1 00:00:00";
             if (ele_tail_wrap) {
-              let childrenElement = jQuery(ele_tail_wrap).find("span.tail-info");
+              let childrenElement =
+                jQuery(ele_tail_wrap).find("span.tail-info");
               jQuery(ele_tail_wrap)
                 .find("span")
                 .filter(function (index) {
@@ -2166,9 +2187,9 @@
             tiebaConfig.param_forum_id =
               jQuery(".recommend-item").attr("data-banner-info");
             if (tiebaConfig.param_forum_id) {
-              tiebaConfig.param_forum_id = JSON.parse(tiebaConfig.param_forum_id)[
-                "forum_id"
-              ];
+              tiebaConfig.param_forum_id = JSON.parse(
+                tiebaConfig.param_forum_id
+              )["forum_id"];
               let timeStamp = Date.now();
               tiebaConfig.page = 1;
               tiebaConfig.insertLoadingHTML();
@@ -2231,9 +2252,9 @@
             tiebaConfig.param_forum_id =
               jQuery(".recommend-item").attr("data-banner-info");
             if (tiebaConfig.param_forum_id) {
-              tiebaConfig.param_forum_id = JSON.parse(tiebaConfig.param_forum_id)[
-                "forum_id"
-              ];
+              tiebaConfig.param_forum_id = JSON.parse(
+                tiebaConfig.param_forum_id
+              )["forum_id"];
               let timeStamp = Date.now();
               tiebaConfig.page = 1;
               tiebaConfig.insertLoadingHTML();
@@ -2631,7 +2652,9 @@
               event?.stopPropagation();
               event?.preventDefault();
               window?.stop();
-              window.location.href = `https://tieba.baidu.com/f?kw=${jQuery(this)
+              window.location.href = `https://tieba.baidu.com/f?kw=${jQuery(
+                this
+              )
                 .text()
                 .trim()
                 .replace(/吧$/g, "")}`;
