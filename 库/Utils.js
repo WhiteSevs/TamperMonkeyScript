@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  3.7
+ * @version  3.8
  **/
 (function (Utils) {
   /**
@@ -1262,7 +1262,7 @@
       ontimeout: function () {},
       onloadstart: function () {},
       onreadystatechange: function () {},
-      onprogress: function () {}
+      onprogress: function () {},
     };
 
     /**
@@ -1905,6 +1905,20 @@
   };
 
   /**
+   * 判断函数是否是Native
+   * @param {function} func
+   * @returns {boolean}
+   * + true 是Native
+   * + false 不是Native
+   * @example
+   * Utils.isNativeFunc(window.location.assign)
+   * > true
+   */
+  Utils.isNativeFunc = function (func) {
+    return func.toString() === "function () { [native code] }";
+  };
+
+  /**
    * 判断当前的位置是否位于页面底部附近
    * @param {number} nearValue 判断在页面底部的误差值，默认:50
    * @returns {boolean}
@@ -2274,18 +2288,67 @@
   };
 
   /**
-   * 判断是否是套壳浏览器环境
-   * 当前包括检测：X浏览器、Via浏览器
+   * 判断是否是Via浏览器环境
    * @returns {boolean}
-   * + true 是套壳浏览器
-   * + false 不是套壳浏览器
+   * + true 是Via
+   * + false 不是Via
+   * @example
+   * Utils.isWebView_Via()
+   * > false
    */
-  Utils.isWebViewBrowser = function () {
-    return (
-      typeof window.via === "object" ||
-      typeof window.via_gm === "object" ||
-      typeof window.mbrowser === "object"
-    );
+  Utils.isWebView_Via = function () {
+    let result = true;
+    if (typeof top.window.via === "object") {
+      for (const key in Object.values(top.window.via)) {
+        if (Object.hasOwnProperty.call(top.window.via, key)) {
+          let objValueFunc = top.window.via[key];
+          if (
+            typeof objValueFunc === "function" &&
+            Utils.isNativeFunc(objValueFunc)
+          ) {
+            result = true;
+          } else {
+            result = false;
+            break;
+          }
+        }
+      }
+    } else {
+      result = false;
+    }
+    return result;
+  };
+
+  /**
+   * 判断是否是X浏览器环境
+   * @returns {boolean}
+   * + true 是X浏览器
+   * + false 不是X浏览器
+   * @example
+   * Utils.isWebView_X()
+   * > false
+   */
+  Utils.isWebView_X = function () {
+    let result = true;
+    if (typeof top.window.mbrowser === "object") {
+      for (const key in Object.values(top.window.mbrowser)) {
+        if (Object.hasOwnProperty.call(top.window.mbrowser, key)) {
+          let objValueFunc = top.window.mbrowser[key];
+          if (
+            typeof objValueFunc === "function" &&
+            Utils.isNativeFunc(objValueFunc)
+          ) {
+            result = true;
+          } else {
+            result = false;
+            break;
+          }
+        }
+      }
+    } else {
+      result = false;
+    }
+    return result;
   };
 
   /**
