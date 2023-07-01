@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.7.1.13.50
+// @version      23.7.1.15.50
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -36,7 +36,7 @@
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1205376
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1187390
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213623
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213664
 // ==/UserScript==
 
 (function () {
@@ -549,7 +549,7 @@
           true
         );
         this.pageText += clipboardText;
-        Object.keys(this.regular).forEach(netDiskName =>{
+        Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
             NetDiskWorker.GM_matchWorker.postMessage({
@@ -565,11 +565,13 @@
               netDiskIndex: index,
             });
           });
-        })
+        });
       } else {
         if (matchTextRange.toLowerCase() === "innertext") {
           /* 对innerText进行match */
-          this.pageText = this.ignoreStrRemove(jQuery("body").prop("innerText"));
+          this.pageText = this.ignoreStrRemove(
+            jQuery("body").prop("innerText")
+          );
         } else {
           /* 对innerHTML进行match */
           this.pageText = this.ignoreStrRemove(
@@ -578,7 +580,7 @@
           );
         }
         this.pageText += clipboardText;
-        Object.keys(this.regular).forEach(netDiskName=>{
+        Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
             NetDiskWorker.GM_matchWorker.postMessage({
@@ -591,7 +593,7 @@
               netDiskIndex: index,
             });
           });
-        })
+        });
       }
     },
     /**
@@ -2638,6 +2640,13 @@
      * @returns
      */
     async getRedirectFinalUrl(url, userAgent) {
+      if (Utils.isWebView_X()) {
+        Qmsg.info("X浏览器不进行重定向");
+        return url;
+      } else if (Utils.isWebView_Via()) {
+        Qmsg.info("Via浏览器不进行重定向");
+        return url;
+      }
       Qmsg.success("获取重定向后的直链");
       log.info("开始获取重定向后的直链");
       let headResp = await httpx.head({
@@ -4252,10 +4261,12 @@
                 break;
               case "range":
                 jQuery(item).on("input propertychange", (val) => {
-                  jQuery(`.netdisk-setting label[data-id=netdisk-${data_key}]`).html(
-                    `${item.getAttribute("data-content")}${item.value}`
-                  );
-                  let itSize = jQuery(".netdisk-setting input[data-key=size]").val();
+                  jQuery(
+                    `.netdisk-setting label[data-id=netdisk-${data_key}]`
+                  ).html(`${item.getAttribute("data-content")}${item.value}`);
+                  let itSize = jQuery(
+                    ".netdisk-setting input[data-key=size]"
+                  ).val();
                   jQuery("#whitesevSuspensionId").css({
                     width: `${itSize}px`,
                     height: `${itSize}px`,
@@ -4422,7 +4433,8 @@
             var clientMax_X =
               jQuery(window).width() - NetDiskUI.size; /* 最大的X轴 指从左至右*/
             var clientMax_Y =
-              jQuery(window).height() - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+              jQuery(window).height() -
+              NetDiskUI.size; /* 最大的Y轴 指从上至下 */
             var clientMove_X = event.x - clickDeviation_X; /* 当前移动的X轴 */
             var clientMove_Y = event.y - clickDeviation_Y; /* 当前移动的Y轴 */
             clientMove_X =
@@ -4765,7 +4777,7 @@
         let viewAddHTML = "";
         NetDiskUI.matchIcon.forEach((netDiskName) => {
           let netDisk = NetDisk.linkDict.get(netDiskName);
-          Object.keys(netDisk.getItems()).forEach(shareCode => {
+          Object.keys(netDisk.getItems()).forEach((shareCode) => {
             let accessCodeDict = netDisk.getItems()[shareCode];
             let uiLink = NetDisk.handleLinkShow(
               netDiskName,
@@ -4994,7 +5006,8 @@
         var clientMax_X =
           jQuery(window).width() - menuNode.width(); /* 最大的X轴 指从左至右*/
         var clientMax_Y =
-          jQuery(window).height() - menuNode.height(); /* 最大的Y轴 指从上至下 */
+          jQuery(window).height() -
+          menuNode.height(); /* 最大的Y轴 指从上至下 */
         var clientMove_X = event.clientX;
         var clientMove_Y = event.clientY;
         /* 不允许超出浏览器范围 */
@@ -5734,9 +5747,9 @@
               totalNumber = parseInt(totalNumber[totalNumber.length - 1]);
               totalNumber--;
               totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber);
-              jQuery(".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other").text(
-                totalNumberText
-              );
+              jQuery(
+                ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+              ).text(totalNumberText);
             }
           );
         };
@@ -5769,9 +5782,9 @@
             jQuery(
               ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
             )?.remove();
-            jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
-              jQuery(dataHTML)
-            );
+            jQuery(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
+            ).append(jQuery(dataHTML));
           },
         });
         dataPaging.append(
@@ -5820,9 +5833,9 @@
             jQuery(
               ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
             )?.remove();
-            jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
-              jQuery(historyDataHTML)
-            );
+            jQuery(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
+            ).append(jQuery(historyDataHTML));
             searchLoading?.close();
             isSeaching = false;
             that.setDataPaging(data);
@@ -5852,9 +5865,9 @@
           jQuery(
             ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
           )?.remove();
-          jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul").append(
-            jQuery(isFindHTML)
-          );
+          jQuery(
+            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
+          ).append(jQuery(isFindHTML));
           jQuery(".whitesevPopNetDiskHistoryMatch .netdiskrecord-page")
             ?.children()
             ?.remove();
