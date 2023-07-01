@@ -34,7 +34,7 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213664
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213695
 // ==/UserScript==
 
 (function () {
@@ -643,7 +643,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213664
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213695
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -681,7 +681,7 @@
       {
         object: Utils,
         name: "Utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213664",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213695",
       },
     ];
     for (const libraryItem of libraries) {
@@ -10044,7 +10044,7 @@
        */
       function deleteLocalReplyData() {
         if (window.location.href.indexOf("&action=reply") === -1) {
-          return
+          return;
         }
         let isUserReply = window.location.href.indexOf("&repquote=") !== -1;
         let replyUrl = window.location.href;
@@ -15180,8 +15180,13 @@
             },
             onload: function (response) {
               console.log(response);
-              var respHTML = $jq(response.responseText);
-              var postForumList = respHTML.find(
+              if (response.status !== 200) {
+                popups.toast("获取轮播失败 状态码:" + response.status);
+                resolve([]);
+                return;
+              }
+              var respHTML = Utils.parseFromString(response.responseText);
+              var postForumList = respHTML.querySelectorAll(
                 'div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul'
               );
               if (postForumList.length === 0) {
@@ -15302,7 +15307,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `https://bbs.binmt.cc/k_misign-sign.html?operation=${urlextra}`,
-            method:"GET",
+            method: "GET",
             async: false,
             responseType: "html",
             timeout: 5000,
@@ -15346,7 +15351,7 @@
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `https://bbs.binmt.cc/k_misign-sign.html?operation=list&op=&page=${page}`,
-            method:"GET",
+            method: "GET",
             async: false,
             timeout: 5000,
             responseType: "html",
