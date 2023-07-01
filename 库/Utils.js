@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  3.5
+ * @version  3.6
  **/
 (function (Utils) {
   /**
@@ -1319,7 +1319,7 @@
           onTimeoutCallBack(details, resolve, arguments);
         },
         onload: function (response) {
-          onLoadCallBack(resolve, response);
+          onLoadCallBack(details, resolve, response);
         },
       };
     }
@@ -1448,10 +1448,21 @@
 
     /**
      * onload加载完毕-触发
+     * @param {object} details 配置
      * @param {object} resolve 回调
      * @param {object} response 响应
      */
-    function onLoadCallBack(resolve, response) {
+    function onLoadCallBack(details, resolve, response) {
+      /* X浏览器会因为设置了responseType导致不返回responseText */
+      if (
+        details.responseType === "json" &&
+        Utils.isNull(response.responseText) &&
+        typeof response.response === "object"
+      ) {
+        Utils.tryCatch().run(()=>{
+          response.responseText = JSON.stringify(response);
+        });
+      }
       resolve({
         status: true,
         data: response,
@@ -2577,7 +2588,7 @@
         .forEach((keyName) => {
           let value = {};
           value[keyName] = that[keyName];
-          recoveryList = [...recoveryList,value];
+          recoveryList = [...recoveryList, value];
           that[keyName] = () => {};
         });
     };
