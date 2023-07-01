@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.6
+// @version      0.9.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
 // @match        *://m.baidu.com/*
@@ -41,18 +41,19 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // @run-at       document-start
 // ==/UserScript==
 
 (function () {
+  const utils = Utils.noConflict();
   const jQuery = $.noConflict(true);
-  const log = new Utils.Log(GM_info);
+  const log = new utils.Log(GM_info);
   log.config({
     logMaxCount: 20000,
     autoClearConsole: true,
   });
-  const httpx = new Utils.Httpx(GM_xmlhttpRequest);
+  const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {
       log.error("请求取消");
@@ -815,10 +816,10 @@
             let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
               jQuery(item)
             );
-            if (!Utils.isNull(domOriginUrl)) {
+            if (!utils.isNull(domOriginUrl)) {
               articleURL = domOriginUrl;
             }
-            if (Utils.isNull(articleURL) || articleURL === item.href) {
+            if (utils.isNull(articleURL) || articleURL === item.href) {
               return;
             }
             item.href = articleURL;
@@ -831,7 +832,7 @@
               let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
                 jQuery(item)
               );
-              if (!Utils.isNull(domOriginUrl)) {
+              if (!utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
                 log.info("替换成新链接2: " + domOriginUrl);
@@ -844,7 +845,7 @@
               let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
                 jQuery(item)
               );
-              if (!Utils.isNull(domOriginUrl)) {
+              if (!utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
                 log.info("视频替换成新链接: " + domOriginUrl);
@@ -857,7 +858,7 @@
               let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
                 jQuery(item)
               );
-              if (!Utils.isNull(domOriginUrl)) {
+              if (!utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
                 log.info("视频替换成新链接: " + domOriginUrl);
@@ -877,7 +878,7 @@
             let url = undefined;
             try {
               url = JSON.parse(data["log"])["mu"];
-              Utils.isNull(url) && (url = undefined);
+              utils.isNull(url) && (url = undefined);
             } catch (error) {}
             return url;
           }
@@ -888,7 +889,7 @@
          * @returns {Map}
          */
         parseScriptDOMOriginUrlMap(jqNode) {
-          let urlMap = new Utils.Dictionary();
+          let urlMap = new utils.Dictionary();
           jqNode.find("script[id^='atom-data-']").each((index, item) => {
             let json_data = JSON.parse(item.innerHTML);
             if (json_data["data"]["resultAtomData"] == null) {
@@ -979,7 +980,7 @@
               log.error(error);
             }
           }
-          if (Utils.isNull(url)) {
+          if (utils.isNull(url)) {
             let dataIVK = jQDOM.attr("data-ivk");
             if (dataIVK) {
               try {
@@ -992,12 +993,12 @@
             }
           }
 
-          if (Utils.isNull(url)) {
+          if (utils.isNull(url)) {
             let rlLinkDataLog = jQDOM.attr("rl-link-data-log");
             if (rlLinkDataLog) {
               try {
                 rlLinkDataLog = JSON.parse(rlLinkDataLog);
-                if (Utils.isNull(rlLinkDataLog.mu) && rlLinkDataLog.extra) {
+                if (utils.isNull(rlLinkDataLog.mu) && rlLinkDataLog.extra) {
                   try {
                     let rlLinkDataLogExtra = JSON.parse(rlLinkDataLog.extra);
                     url = rlLinkDataLogExtra.loc || rlLinkDataLogExtra.log_loc;
@@ -1015,7 +1016,7 @@
               }
             }
           }
-          if (Utils.isNull(url)) {
+          if (utils.isNull(url)) {
             let articleDataLog = jQDOM
               .find("article")
               ?.attr("rl-link-data-log");
@@ -1029,7 +1030,7 @@
               }
             }
           }
-          if (Utils.isNull(url)) {
+          if (utils.isNull(url)) {
             let articleLinkDataIVK = jQDOM
               .find("article")
               ?.attr("rl-link-data-ivk");
@@ -1046,7 +1047,7 @@
             }
           }
 
-          if (Utils.isNull(url)) {
+          if (utils.isNull(url)) {
             url = null;
             /* log.error(["未在元素节点中找到隐藏的原始URL", jQDOM]); */
           } else {
@@ -1167,7 +1168,7 @@
           document.querySelectorAll(".se-head-tablink a").forEach((item) => {
             if (
               item.hasAttribute("data-sflink") &&
-              !Utils.isNull(item.getAttribute("data-sflink")) &&
+              !utils.isNull(item.getAttribute("data-sflink")) &&
               item.getAttribute("href") !== item.getAttribute("data-sflink")
             ) {
               log.success(
@@ -1206,7 +1207,7 @@
                 item
               ); /* 根据已获取的真实链接取值 */
 
-            if (Utils.isNull(resultItemOriginURL)) {
+            if (utils.isNull(resultItemOriginURL)) {
               /* 未取到值 */
               return;
             }
@@ -1343,16 +1344,16 @@
           }
           return true;
         }
-        Utils.waitNode(suggestList).then((nodeList) => {
-          Utils.mutationObserver(nodeList[0], {
+        utils.waitNode(suggestList).then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
             callback: () => {
               mutationObserverFunction(suggestBtn);
             },
             config: { childList: true, attributes: true },
           });
         });
-        Utils.waitNode(suggestList_HOME).then((nodeList) => {
-          Utils.mutationObserver(nodeList[0], {
+        utils.waitNode(suggestList_HOME).then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
             callback: () => {
               mutationObserverFunction(suggestBtn_HOME);
             },
@@ -1383,8 +1384,8 @@
          * @returns {Promise}
          */
         async function scrollEvent() {
-          if (!Utils.isNearBottom(window.innerHeight / 3)) {
-            Utils.sleep(150);
+          if (!utils.isNearBottom(window.innerHeight / 3)) {
+            utils.sleep(150);
             return;
           }
           loadingView.setVisible(true);
@@ -1410,13 +1411,13 @@
           let getResp = await httpx.get({
             url: nextPageUrl,
             headers: {
-              "User-Agent": Utils.getRandomAndroidUA(),
+              "User-Agent": utils.getRandomAndroidUA(),
             },
           });
           let respData = getResp.data;
           if (getResp.status) {
             loadingView.setVisible(false);
-            let nextPageHTMLNode = Utils.parseFromString(respData.responseText);
+            let nextPageHTMLNode = utils.parseFromString(respData.responseText);
             let scriptAtomData = jQuery("<div></div>");
             nextPageHTMLNode
               .querySelectorAll("script[id^=atom-data]")
@@ -1485,13 +1486,13 @@
           document.removeEventListener("scroll", funcLock.run);
           log.info("取消绑定scroll", "#f400ff");
         }
-        let funcLock = new Utils.funcLock(scrollEvent, this);
+        let funcLock = new utils.funcLock(scrollEvent, this);
         jQuery("#page-controller").after(loadingView.getLoadingNode(true));
         loadingView.setCSS();
         loadingView.setVisible(false);
         setNextPageScrollListener();
       }
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           menu_autoloading: {
             text: "自动展开下一页",
@@ -1541,12 +1542,12 @@
       }
       if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
         log.success("禁止百度搜索的视频自动播放");
-        let funcLock = new Utils.funcLock(
+        let funcLock = new utils.funcLock(
           () => {
             let videoPlayerList = document.querySelectorAll(
               "[class*='-video-player']"
             );
-            if (!Utils.isNull(videoPlayerList)) {
+            if (!utils.isNull(videoPlayerList)) {
               videoPlayerList.forEach((item) => {
                 item.remove();
               });
@@ -1556,7 +1557,7 @@
           undefined,
           250
         );
-        Utils.mutationObserver(document.documentElement, {
+        utils.mutationObserver(document.documentElement, {
           config: {
             subtree: true,
             childList: true,
@@ -1568,7 +1569,7 @@
       GM_addStyle(this.css.search);
 
       jQuery(function () {
-        let searchUpdateRealLink = new Utils.funcLock(async () => {
+        let searchUpdateRealLink = new utils.funcLock(async () => {
           try {
             await handleItemURL.replaceLink();
           } catch (error) {
@@ -1576,8 +1577,8 @@
             log.error(error);
           }
         }, 600);
-        Utils.waitNode("div#page.search-page").then((nodeList) => {
-          Utils.mutationObserver(nodeList[0], {
+        utils.waitNode("div#page.search-page").then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
             callback: async () => {
               await searchUpdateRealLink.run();
             },
@@ -1587,7 +1588,7 @@
             },
           });
         });
-        Utils.waitNode("style[class^='vsearch-sigma-style']").then(
+        utils.waitNode("style[class^='vsearch-sigma-style']").then(
           (nodeList) => {
             /* 这个style标签就是某些搜索置顶的卡片 */
             log.success(["删除sigma的CSS", nodeList]);
@@ -1642,7 +1643,7 @@
            * scroll事件触发 自动加载下一页的评论
            */
           nextPageScrollEvent: async () => {
-            if (!Utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
+            if (!utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
               return;
             }
             loadingView.setText("Loading...", true);
@@ -1704,7 +1705,7 @@
            * scroll事件触发 自动加载上一页的评论
            */
           prevPageScrollEvent: async () => {
-            if (!Utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
+            if (!utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
               return;
             }
             loadingView.setText("Loading...", true);
@@ -1768,24 +1769,24 @@
            * 设置自动加载下一页的scrol事件
            */
           setNextPageScrollListener() {
-            tiebaConfig.funcLock = new Utils.funcLock(
+            tiebaConfig.funcLock = new utils.funcLock(
               tiebaConfig.nextPageScrollEvent,
               this
             );
             document.addEventListener("scroll", tiebaConfig.funcLock.run);
-            Utils.dispatchEvent(document, "scroll");
+            utils.dispatchEvent(document, "scroll");
             log.success("scroll监听事件【下一页】");
           },
           /**
            * 设置自动加载上一页的scrol事件
            */
           setPrevPageScrollListener() {
-            tiebaConfig.funcLock = new Utils.funcLock(
+            tiebaConfig.funcLock = new utils.funcLock(
               tiebaConfig.prevPageScrollEvent,
               this
             );
             document.addEventListener("scroll", tiebaConfig.funcLock.run);
-            Utils.dispatchEvent(document, "scroll");
+            utils.dispatchEvent(document, "scroll");
             log.success("scroll监听事件【上一页】");
           },
           /**
@@ -1802,7 +1803,7 @@
            * @returns {string}
            */
           getNewCommentInnerHTML: (element, userCommentList) => {
-            let data_field = Utils.toJSON(element.getAttribute("data-field"));
+            let data_field = utils.toJSON(element.getAttribute("data-field"));
             if (Object.keys(data_field).length == 0) {
               return;
             }
@@ -2103,12 +2104,12 @@
             let getResp = await httpx.get({
               url: url,
               headers: {
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
             });
             let respData = getResp.data;
             if (getResp.status) {
-              return Utils.parseFromString(respData.responseText);
+              return utils.parseFromString(respData.responseText);
             } else if (getResp.type === "onerror") {
               if (
                 typeof respData.error === "string" &&
@@ -2133,7 +2134,7 @@
               url: url,
               headers: {
                 Accept: "application/json, text/javascript, */*; q=0.01",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
             });
             let respData = getResp.data;
@@ -2309,7 +2310,7 @@
             log.error(`贴吧：未找到本页参数p`);
           }
         }
-        Utils.waitNode(".recommend-item[data-banner-info]").then(() => {
+        utils.waitNode(".recommend-item[data-banner-info]").then(() => {
           jQuery(".post-item")?.remove();
           mainPositive();
           tiebaConfig.insertReverseBtn();
@@ -2553,7 +2554,7 @@
           let viewer = new Viewer(viewerULNode, {
             inline: false,
             url: "data-src",
-            zIndex: Utils.getMaxZIndex() + 100,
+            zIndex: utils.getMaxZIndex() + 100,
             hidden: () => {
               viewer.destroy();
             },
@@ -2644,7 +2645,7 @@
           window.location.href = `https://tieba.baidu.com/p/${tid}`;
           return false;
         });
-        Utils.waitNode(".thread-bottom .forum").then((nodeList) => {
+        utils.waitNode(".thread-bottom .forum").then((nodeList) => {
           log.success("设置贴吧种类正确跳转");
           log.success(nodeList);
           nodeList.forEach((item) => {
@@ -2662,8 +2663,8 @@
             };
           });
         });
-        Utils.waitNode(".topic-share-thread .list-content").then((nodeList) => {
-          Utils.mutationObserver(nodeList[0], {
+        utils.waitNode(".topic-share-thread .list-content").then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
             callback: (mutations) => {
               mutations.forEach((item) => {
                 item.addedNodes.forEach((item2) => {
@@ -2730,7 +2731,7 @@
       }
       GM_addStyle(this.css.wenku);
       log.info("插入CSS规则");
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_wenku_block_member_picks: {
             text: "屏蔽会员精选",
@@ -2834,7 +2835,7 @@
       let page = 1;
       GM_addStyle(this.css.baike);
       log.info("插入CSS规则");
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_baike_sync_next_page_address: {
             text: "同步下一页地址",
@@ -2892,7 +2893,7 @@
        * 循环加载更多内容
        */
       function loadMore() {
-        Utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
+        utils.waitNode(".BK-main-content", "#J-gotoPC-top").then(async () => {
           let nextPageNode = document.querySelector("#J-gotoPC-top");
           let nextPageUrl = nextPageNode.href;
           let nextUrlObj = new URL(nextPageUrl);
@@ -2922,7 +2923,7 @@
             });
             let respData = getResp.data;
             if (getResp.status) {
-              let respObj = Utils.parseFromString(respData.responseText);
+              let respObj = utils.parseFromString(respData.responseText);
               let main_content = respObj.querySelector(".BK-main-content");
               nextPageContent = main_content.innerHTML;
               if (main_content.children.length <= 2) {
@@ -2935,7 +2936,7 @@
                 loadingView.setText("正在加载页 " + page, true);
                 log.info(nextPageContent);
                 jQuery(".BK-main-content").append(jQuery(nextPageContent));
-                await Utils.sleep(350);
+                await utils.sleep(350);
               }
               if (GM_Menu.get("baidu_baike_sync_next_page_address")) {
                 window.history.pushState("forward", null, respData.finalUrll);
@@ -2980,8 +2981,8 @@
        * 去除底部广告
        */
       function remove_bottom_ad() {
-        Utils.waitNode("#index_tashuo_list").then(() => {
-          Utils.mutationObserver(document.querySelector("#index_tashuo_list"), {
+        utils.waitNode("#index_tashuo_list").then(() => {
+          utils.mutationObserver(document.querySelector("#index_tashuo_list"), {
             callback: (mutations, observer) => {
               Array.from(
                 document.querySelector("#index_tashuo_list").children
@@ -3008,7 +3009,7 @@
       GM_addStyle(this.css.zhidao);
       log.info("插入CSS规则");
       jQuery(".ec-ad")?.parent()?.remove();
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_zhidao_block_recommend_more_exciting_content: {
             text: "屏蔽-推荐更多精彩内容",
@@ -3075,7 +3076,7 @@
       }
       GM_addStyle(this.css.fanyi);
       log.info("插入CSS规则");
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_fanyi_recommended_shielding_bottom: {
             text: "屏蔽底部推荐",
@@ -3118,7 +3119,7 @@
         }`);
       }
       if (GM_Menu.get("baidu_fanyi_auto_focus")) {
-        Utils.waitNode("textarea#j-textarea").then(() => {
+        utils.waitNode("textarea#j-textarea").then(() => {
           setTimeout(() => {
             document.querySelector("textarea#j-textarea").focus();
           }, 2500);
@@ -3133,7 +3134,7 @@
         return;
       }
       GM_addStyle(this.css.fanyiapp);
-      Utils.waitNode("#page-content").then(() => {
+      utils.waitNode("#page-content").then(() => {
         jQuery("#page-content")?.attr("style", "max-height:unset !important");
       });
       log.info("插入CSS规则");
@@ -3169,7 +3170,7 @@
         示例
         https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
         */
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_mdb_block_exciting_recommendations: {
             text: "屏蔽精彩推荐",
@@ -3220,7 +3221,7 @@
         "coupon_bottom_popup",
         new Date().getTime()
       );
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_aiqicha_shidld_carousel: {
             text: "屏蔽轮播图",
@@ -3281,7 +3282,7 @@
       }
       GM_addStyle(this.css.haokan);
       log.info("插入CSS规则");
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           baidu_haokan_shidld_may_also_like: {
             text: "屏蔽猜你喜欢",

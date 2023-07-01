@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至3.3;新增记录历史评论输入;删除0点定时签到功能;新增脚本菜单选项-每7天清理回复框记录的数据;
-// @version      3.0.0.1
+// @description  更新日志: 库Utils更新至4.0;尝试兼容Via浏览器(Via的兼容性有待提高);已确认兼容X浏览器(可能部分不兼容);
+// @version      3.0.0.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -34,11 +34,12 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // ==/UserScript==
 
 (function () {
   "use strict";
+  const utils = Utils.noConflict();
   /**
    * 自定义新的popups弹窗代替popup
    */
@@ -130,7 +131,7 @@
       }
       if (!zIndex) {
         /* 遮罩层z-index为最大的>10 */
-        $jq("#force-mask").css("z-index", Utils.getMaxZIndex() + 10);
+        $jq("#force-mask").css("z-index", utils.getMaxZIndex() + 10);
       }
     },
     /**
@@ -169,12 +170,12 @@
       if (typeof paramOptions == "string") {
         options.text = paramOptions;
       } else {
-        options = Utils.assign(options, paramOptions);
+        options = utils.assign(options, paramOptions);
       }
       let bottomBtnHTML = "";
       let confirmHTML = "";
       /* confirm层z-index为最大的>110 */
-      let maxZIndex = Utils.getMaxZIndex() + 10;
+      let maxZIndex = utils.getMaxZIndex() + 10;
       let confirmZIndex =
         popups.config.confirm.zIndex > maxZIndex
           ? popups.config.confirm.zIndex
@@ -223,24 +224,24 @@
                 `)
         );
         jqConfirmHTML.find(".popups-confirm-other").on("click", function () {
-          Utils.tryCatch().run(options.other.callback);
+          utils.tryCatch().run(options.other.callback);
         });
       }
       $jq("body").append(jqConfirmHTML);
       jqConfirmHTML
         .find(`.popups-confirm-bottom-btn a:contains('${options.ok.text}')`)
         .on("click", () => {
-          Utils.tryCatch().run(options.ok.callback);
+          utils.tryCatch().run(options.ok.callback);
         });
       jqConfirmHTML
         .find(`.popups-confirm-bottom-btn a:contains('${options.cancel.text}')`)
         .on("click", () => {
-          Utils.tryCatch().run(options.cancel.callback);
+          utils.tryCatch().run(options.cancel.callback);
         });
       jqConfirmHTML
         .find(`.popups-confirm-bottom-btn a:contains('${options.other.text}')`)
         .on("click", () => {
-          Utils.tryCatch().run(options.other.callback);
+          utils.tryCatch().run(options.other.callback);
         });
       if (options.mask) {
         this.mask(maxZIndex);
@@ -274,7 +275,7 @@
       }
       let toastobj = $jq(
         `<div class="popups-toast" style="z-index:${
-          Utils.getMaxZIndex() + 120
+          utils.getMaxZIndex() + 120
         };">${options.text}</div>`
       );
       $jq("body").append(toastobj);
@@ -643,7 +644,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -679,9 +680,9 @@
         url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607",
       },
       {
-        object: Utils,
-        name: "Utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742",
+        object: utils,
+        name: "utils",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972",
       },
     ];
     for (const libraryItem of libraries) {
@@ -1032,7 +1033,7 @@
     }
     if (typeof GM_setClipboard === "undefined") {
       window.GM_setClipboard = (text) => {
-        Utils.setClip(text);
+        utils.setClip(text);
       };
       console.log(
         "check: %c GM_setClipboard %c √ 修复",
@@ -1061,7 +1062,7 @@
       );
     }
     if (typeof GM_cookie === "undefined") {
-      unsafeWindow.GM_cookie = new Utils.GM_Cookie();
+      unsafeWindow.GM_cookie = new utils.GM_Cookie();
       console.log(
         "check: %c GM_cookie %c √ 修复",
         "background:#24272A; color:#ffffff",
@@ -1101,7 +1102,7 @@
         if (typeof pc[key] !== "function" || notRunFunc.indexOf(key) != -1) {
           return;
         }
-        Utils.tryCatch().run(pc[key], this);
+        utils.tryCatch().run(pc[key], this);
       });
     },
     initPopups() {
@@ -1158,7 +1159,7 @@
           };
         }
       }
-      Utils.mutationObserver(document.documentElement, {
+      utils.mutationObserver(document.documentElement, {
         callback: () => {
           document.querySelectorAll(".attnm a").forEach((item) => {
             handleClick(item);
@@ -1172,17 +1173,17 @@
         },
         config: { childList: true, subtree: true },
       });
-      Utils.waitNode(".attnm a").then(() => {
+      utils.waitNode(".attnm a").then(() => {
         document.querySelectorAll(".attnm a").forEach((item) => {
           handleClick(item);
         });
       });
-      Utils.waitNode(".comiis_attach a").then(() => {
+      utils.waitNode(".comiis_attach a").then(() => {
         document.querySelectorAll(".comiis_attach a").forEach((item) => {
           handleClick(item);
         });
       });
-      Utils.waitNode("span[id*=attach_] a").then(() => {
+      utils.waitNode("span[id*=attach_] a").then(() => {
         document.querySelectorAll("span[id*=attach_] a").forEach((item) => {
           handleClick(item);
         });
@@ -1378,7 +1379,7 @@
         let viewer = new Viewer(viewerULNode, {
           inline: false,
           url: "data-src",
-          zIndex: Utils.getMaxZIndex() + 100,
+          zIndex: utils.getMaxZIndex() + 100,
           hidden: () => {
             viewer.destroy();
           },
@@ -1432,8 +1433,8 @@
         });
       }
       run();
-      Utils.waitNode("#postlist").then((nodeList) => {
-        Utils.mutationObserver(nodeList[0], {
+      utils.waitNode("#postlist").then((nodeList) => {
+        utils.mutationObserver(nodeList[0], {
           callback: () => {
             if (handling) {
               return;
@@ -1487,12 +1488,12 @@
             method: "GET",
             timeout: 5000,
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             responseType: "html",
             onload: function (response) {
               console.log(response);
-              var pageHTML = Utils.parseFromString(response.responseText);
+              var pageHTML = utils.parseFromString(response.responseText);
               var nextPageBtn = pageHTML.querySelector(".pgbtn a");
               pageHTML.querySelector("#postlistreply")?.remove();
               pageHTML.querySelector(".bm_h.comiis_snvbt")?.remove();
@@ -1559,14 +1560,14 @@
             console.error("获取下一页失败");
           }
         }
-        await Utils.sleep(50);
+        await utils.sleep(50);
         isHandling = false;
       };
       $jq(document).on("scroll", scrollEvent);
     },
     loadPCMenu() {
       /* 注册PC端油猴菜单 */
-      new Utils.GM_Menu(
+      new utils.GM_Menu(
         {
           detectUserOnlineStatus: {
             text: "探测用户在线状态",
@@ -1711,8 +1712,8 @@
     },
     runMobileFunc() {
       /* 执行手机端函数 */
-      Utils.tryCatch().run(mobileRepeatFunc.identifyLinks, mobileRepeatFunc);
-      Utils.tryCatch().run(mobile.autoSignIn, mobile);
+      utils.tryCatch().run(mobileRepeatFunc.identifyLinks, mobileRepeatFunc);
+      utils.tryCatch().run(mobile.autoSignIn, mobile);
     },
   };
 
@@ -1725,7 +1726,7 @@
         if (key === "main" || typeof mobileRepeatFunc[key] !== "function") {
           return;
         }
-        Utils.tryCatch().run(mobileRepeatFunc[key], this);
+        utils.tryCatch().run(mobileRepeatFunc[key], this);
       });
       unsafeWindow?.popup?.init();
     },
@@ -1780,7 +1781,7 @@
                 .replace(/\s*/g, "")
                 .replace(/来自/g, ""),
             };
-            if (Utils.isNull(postForumInfo.plate)) {
+            if (utils.isNull(postForumInfo.plate)) {
               postForumInfo.plate = document.querySelector(
                 "#comiis_wx_title_box"
               )?.innerText;
@@ -1800,7 +1801,7 @@
               shieldText = new RegExp(shieldText, "i");
               if (
                 typeof postForumInfo[shieldOption] === "string" &&
-                !Utils.isNull(postForumInfo[shieldOption]) &&
+                !utils.isNull(postForumInfo[shieldOption]) &&
                 postForumInfo[shieldOption].match(shieldText)
               ) {
                 console.log(
@@ -1848,7 +1849,7 @@
               shieldText = new RegExp(shieldText, "i");
               if (
                 typeof postForumInfo[shieldOption] === "string" &&
-                !Utils.isNull(postForumInfo[shieldOption]) &&
+                !utils.isNull(postForumInfo[shieldOption]) &&
                 postForumInfo[shieldOption].match(shieldText)
               ) {
                 console.log(
@@ -1900,7 +1901,7 @@
               shieldText = new RegExp(shieldText, "i");
               if (
                 typeof postForumInfo[shieldOption] === "string" &&
-                !Utils.isNull(postForumInfo[shieldOption]) &&
+                !utils.isNull(postForumInfo[shieldOption]) &&
                 postForumInfo[shieldOption].match(shieldText)
               ) {
                 console.log(
@@ -1921,7 +1922,7 @@
         GM_getValue("v6") &&
         window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)
       ) {
-        Utils.waitNode(".bottom_zhan.y").then((nodeList) => {
+        utils.waitNode(".bottom_zhan.y").then((nodeList) => {
           nodeList.forEach((item) => {
             var bottomZhanNode = item;
             if (bottomZhanNode.getAttribute("data-isaddreviews")) {
@@ -1949,7 +1950,7 @@
             </a>
             `);
             reviewsNode.on("click", function () {
-              Utils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then(
+              utils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then(
                 (nodeList2) => {
                   try {
                     nodeList2[0].innerText = "点评 " + reviewsUserName;
@@ -2153,7 +2154,7 @@
         let forumList = null;
         let isFind = false; /* 是否找到帖子 */
         let isFinding = false; /* 是否正在找到帖子 */
-        Utils.mutationObserver(document.documentElement, {
+        utils.mutationObserver(document.documentElement, {
           callback: (mutations, observer) => {
             /* 判断是否已找到 */
             if (isFind) {
@@ -2167,7 +2168,7 @@
               return;
             }
             isFinding = true;
-            forumList = Utils.getNodeListValue(
+            forumList = utils.getNodeListValue(
               DOM_CONFIG.element.comiisForumList,
               DOM_CONFIG.element.comiisPostli,
               DOM_CONFIG.element.comiisMmlist
@@ -2364,7 +2365,7 @@
        * @returns
        */
       function getForumList() {
-        return Utils.getNodeListValue(
+        return utils.getNodeListValue(
           DOM_CONFIG.element.comiisForumList,
           DOM_CONFIG.element.comiisPostli,
           DOM_CONFIG.element.comiisMmlist
@@ -2374,7 +2375,7 @@
       let isFind = false; /* 是否找到帖子 */
       let isFinding = false; /* 是否正在找到帖子 */
       let smallWindowId = null; /* 小窗对象 */
-      Utils.mutationObserver(document.documentElement, {
+      utils.mutationObserver(document.documentElement, {
         callback: (mutations, observer) => {
           /* 判断是否已找到 */
           if (isFind) {
@@ -2431,8 +2432,8 @@
         while (1) {
           if (window.location.href == "https://bbs.binmt.cc/#") {
             console.log("back！");
-            await Utils.setTimeout("window.history.back();", 100);
-            await Utils.sleep(100);
+            await utils.setTimeout("window.history.back();", 100);
+            await utils.sleep(100);
           } else {
             return;
           }
@@ -2645,7 +2646,7 @@
             let viewer = new Viewer(viewerULNode, {
               inline: false,
               url: "data-src",
-              zIndex: Utils.getMaxZIndex() + 100,
+              zIndex: utils.getMaxZIndex() + 100,
               hidden: () => {
                 viewer.destroy();
               },
@@ -2880,7 +2881,7 @@
         let viewer = new Viewer(viewerULNode, {
           inline: false,
           url: "data-src",
-          zIndex: Utils.getMaxZIndex() + 100,
+          zIndex: utils.getMaxZIndex() + 100,
           hidden: () => {
             viewer.destroy();
           },
@@ -2890,7 +2891,7 @@
         viewer.zoomTo(1);
         viewer.show();
       }
-      Utils.waitNode("div.comiis_postlist.kqide .comiis_postli").then(
+      utils.waitNode("div.comiis_postlist.kqide .comiis_postli").then(
         (nodeList) => {
           nodeList.forEach((item) => {
             if (item.getAttribute("isHandlingViewIMG")) {
@@ -2973,7 +2974,7 @@
           return;
         }
         if (key === "loadNextComments") {
-          Utils.tryCatch()
+          utils.tryCatch()
             .error(() => {
               $jq("#loading-comment-tip").text("加载评论失败");
             })
@@ -2981,7 +2982,7 @@
           return;
         }
         if (key === "loadPrevComments") {
-          Utils.tryCatch()
+          utils.tryCatch()
             .error(() => {
               $jq("#loading-comment-tip-prev").text("加载评论失败");
             })
@@ -2989,7 +2990,7 @@
           return;
         }
 
-        Utils.tryCatch().run(mobile[key], this);
+        utils.tryCatch().run(mobile[key], this);
         mobileRepeatFunc.main();
       });
       unsafeWindow.popups = popups;
@@ -3046,7 +3047,7 @@
         console.log(
           "账号cQWy_2132_lastvisit: ",
           mobile_lastvisit_cookie
-            ? Utils.formatTime(parseInt(mobile_lastvisit_cookie) * 1000)
+            ? utils.formatTime(parseInt(mobile_lastvisit_cookie) * 1000)
             : mobile_login_cookie
         );
         return pc_login || mobile_login_cookie || mobile_login_exitBtn;
@@ -3117,14 +3118,14 @@
           method: "GET",
           url: `https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=${_formhash_}&inajax=1&ajaxtarget=midaben_sign`,
           headers: {
-            "User-Agent": Utils.getRandomPCUA(),
+            "User-Agent": utils.getRandomPCUA(),
           },
           timeout: 5000,
           onload: (response) => {
             console.log(response);
             GM_setValue(
               "mt_sign",
-              parseInt(Utils.formatTime(undefined, "yyyyMMdd"))
+              parseInt(utils.formatTime(undefined, "yyyyMMdd"))
             );
             if (response.lastChild || response.type == "ajax") {
               /* ajax函数版本 */
@@ -3281,7 +3282,7 @@
       }
       if (
         GM_getValue("mt_sign") ==
-        parseInt(Utils.formatTime(undefined, "yyyyMMdd"))
+        parseInt(utils.formatTime(undefined, "yyyyMMdd"))
       ) {
         return;
       } else {
@@ -3327,7 +3328,7 @@
           };
         }
       }
-      Utils.mutationObserver(document.documentElement, {
+      utils.mutationObserver(document.documentElement, {
         callback: () => {
           document.querySelectorAll(".attnm a").forEach((item) => {
             handleClick(item);
@@ -3338,12 +3339,12 @@
         },
         config: { childList: true, subtree: true },
       });
-      Utils.waitNode(".attnm a").then(() => {
+      utils.waitNode(".attnm a").then(() => {
         document.querySelectorAll(".attnm a").forEach((item) => {
           handleClick(item);
         });
       });
-      Utils.waitNode(".comiis_attach a").then(() => {
+      utils.waitNode(".comiis_attach a").then(() => {
         document.querySelectorAll(".comiis_attach a").forEach((item) => {
           handleClick(item);
         });
@@ -3633,7 +3634,7 @@
             method: "GET",
             async: false,
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: (response) => {
               console.log(response);
@@ -3811,11 +3812,11 @@
           } else {
             date = date[0];
           }
-          value["time"] = Utils.formatToTimeStamp(date);
+          value["time"] = utils.formatToTimeStamp(date);
           blackList = blackList.concat(value);
         });
-        Utils.sortListByProperty(blackList, "time");
-        Utils.sortListByProperty(blackListWithNoTime, "time", false);
+        utils.sortListByProperty(blackList, "time");
+        utils.sortListByProperty(blackListWithNoTime, "time", false);
         blackList = [...blackList, ...blackListWithNoTime];
         return blackList;
       }
@@ -3826,12 +3827,12 @@
        * @returns {Array}
        */
       function parseBlackListHTML(blackListHTML) {
-        let parseResult = Utils.toJSON(blackListHTML);
+        let parseResult = utils.toJSON(blackListHTML);
         let data = parseResult["data"]; /* 黑名单列表 */
         let cid = parseResult["message"].split("|"); /* cid */
         cid = cid[cid.length - 1];
         nextCid = cid;
-        data = Utils.parseObjectToArray(data);
+        data = utils.parseObjectToArray(data);
         return data;
       }
       insertMobileBlackHomeButton();
@@ -3999,7 +4000,7 @@
               };
               let newDataString = JSON.stringify(newData);
               let defaultDataString = JSON.stringify(defaultData);
-              if (Utils.isNull(newData.text)) {
+              if (utils.isNull(newData.text)) {
                 popups.toast("请勿输入为空");
                 return;
               }
@@ -4032,7 +4033,7 @@
                 localData.forEach((item) => {
                   if (JSON.stringify(item) === defaultDataString) {
                     editStatus = true;
-                    item = Utils.assign(item, newData);
+                    item = utils.assign(item, newData);
                     return;
                   }
                 });
@@ -4265,7 +4266,7 @@
             timeout: 15000,
             responseType: "html",
             headers: {
-              "user-agent": Utils.getRandomPCUA(),
+              "user-agent": utils.getRandomPCUA(),
             },
             onload: (response) => {
               let token = response.responseText.match(
@@ -4308,7 +4309,7 @@
             data: `login-subject=${user}&password=${pwd}&auth_token=${auth_token}`,
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: (response) => {
               console.log(response);
@@ -4362,7 +4363,7 @@
             responseType: "json",
             headers: {
               Accept: "application/json",
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
               Referer: `${url}/`,
               Origin: url,
             },
@@ -4428,7 +4429,7 @@
             headers: {
               "Content-Type":
                 "application/x-www-form-urlencoded; charset=UTF-8",
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: (response) => {
               try {
@@ -4626,7 +4627,7 @@
               data: `email=${chartBedUser}&password=${chartBedPwd}`,
               headers: {
                 Accept: "application/json",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
                 if (code[response.status] != null) {
@@ -4672,7 +4673,7 @@
               responseType: "json",
               headers: {
                 Accept: "application/json",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
                 Authorization: `Bearer ${chartBedToken}`,
               },
               onload: (response) => {
@@ -4726,7 +4727,7 @@
               responseType: "json",
               headers: {
                 Accept: "application/json",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
                 Referer: `${chartBedUrl}/`,
                 Authorization: `Bearer ${chartBedToken}`,
                 Origin: chartBedUrl,
@@ -4867,11 +4868,11 @@
             popups.closeMask();
             $jq("#filedata_kggzs").val("");
           };
-          Utils.waitArrayLoopToEnd(
+          utils.waitArrayLoopToEnd(
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
-            Utils.tryCatch().run(completeFunction);
+            utils.tryCatch().run(completeFunction);
           });
         });
         $jq(document).on(
@@ -5031,11 +5032,11 @@
             popups.closeMask();
             $jq("#filedata_hello").val("");
           };
-          Utils.waitArrayLoopToEnd(
+          utils.waitArrayLoopToEnd(
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
-            Utils.tryCatch().run(completeFunction);
+            utils.tryCatch().run(completeFunction);
           });
         });
         $jq(document).on(
@@ -5201,11 +5202,11 @@
             popups.closeMask();
             $jq("#filedata_z4a").val("");
           };
-          Utils.waitArrayLoopToEnd(
+          utils.waitArrayLoopToEnd(
             chooseImageFiles,
             uploadFileAwaitFunction
           ).then(() => {
-            Utils.tryCatch().run(completeFunction);
+            utils.tryCatch().run(completeFunction);
           });
         });
         $jq(document).on(
@@ -5347,10 +5348,10 @@
       if (GM_getValue("chartBedsImagesHistory") == undefined) {
         GM_setValue("chartBedsImagesHistory", []);
       }
-      Utils.tryCatch().run(chatKGChartBed);
-      Utils.tryCatch().run(chatHelloChartBed);
-      Utils.tryCatch().run(chatZ4AChartBed);
-      Utils.tryCatch().run(chatHistoryChartBedImages);
+      utils.tryCatch().run(chatKGChartBed);
+      utils.tryCatch().run(chatHelloChartBed);
+      utils.tryCatch().run(chatZ4AChartBed);
+      utils.tryCatch().run(chatHistoryChartBedImages);
     },
     /**
      * 每7天清理回复框记录的数据
@@ -5363,11 +5364,11 @@
         "lastClearReplyRecordDataTime"
       );
       if (lastClearReplyRecordDataTime) {
-        let daysDifference = Utils.getDaysDifference(
+        let daysDifference = utils.getDaysDifference(
           lastClearReplyRecordDataTime
         );
         console.log(
-          `上次清除的时间: ${Utils.formatTime(
+          `上次清除的时间: ${utils.formatTime(
             lastClearReplyRecordDataTime
           )} 间隔: ${daysDifference}天`
         );
@@ -5376,7 +5377,7 @@
           return;
         }
       }
-      let db = new Utils.indexedDB("mt_reply_record", "input_text");
+      let db = new utils.indexedDB("mt_reply_record", "input_text");
       db.deleteAll().then((resolve) => {
         console.log(resolve);
         GM_setValue("lastClearReplyRecordDataTime", new Date().getTime());
@@ -5404,8 +5405,8 @@
       const DB_NAME = "mt_db",
         DB_STORE_NAME = "custom_collection",
         DB_STORE_KEY_NAME =
-          "forum_post_" + Utils.formatTime(collectTime, "yyyy_MM_dd_HH_mm_ss");
-      var db = new Utils.indexedDB(DB_NAME, DB_STORE_NAME);
+          "forum_post_" + utils.formatTime(collectTime, "yyyy_MM_dd_HH_mm_ss");
+      var db = new utils.indexedDB(DB_NAME, DB_STORE_NAME);
 
       async function showView() {
         /* 显示-快照列表(dialog) */
@@ -5431,7 +5432,7 @@
           var customCollectionData = resolve["data"];
           if (customCollectionData.length) {
             console.log(customCollectionData);
-            Utils.sortListByProperty(customCollectionData, "timestamp", true);
+            utils.sortListByProperty(customCollectionData, "timestamp", true);
             console.log("排序后——快照：", customCollectionData);
             $jq(".msgcon").html("");
             $jq(".msgcon").append(
@@ -5522,7 +5523,7 @@
                           popups.toast({
                             text: "删除成功",
                           });
-                          Utils.deleteParentNode(that, "#autolist");
+                          utils.deleteParentNode(that, "#autolist");
                           popups.closeConfirm();
                         },
                         (err) => {
@@ -5623,7 +5624,7 @@
                     url: window.location.href,
                     title: document.title.replace(" - MT论坛", ""),
                     data: base64Image,
-                    time: Utils.formatTime(collectTime),
+                    time: utils.formatTime(collectTime),
                     timestamp: collectTime,
                   };
                   db.save(DB_STORE_KEY_NAME, data).then((resolve) => {
@@ -5666,7 +5667,7 @@
                 url: window.location.href,
                 title: document.title.replace(" - MT论坛", ""),
                 data: pageHTML,
-                time: Utils.formatTime(collectTime),
+                time: utils.formatTime(collectTime),
                 timestamp: collectTime,
               };
               db.save(DB_STORE_KEY_NAME, data).then((resolve) => {
@@ -5770,7 +5771,7 @@
               data: `email=${chartBedUser}&password=${chartBedPwd}`,
               headers: {
                 Accept: "application/json",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
                 "Content-Type": "application/x-www-form-urlencoded",
               },
               onload: (response) => {
@@ -5817,7 +5818,7 @@
               responseType: "json",
               headers: {
                 Accept: "application/json",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
                 Authorization: `Bearer ${chartBedToken}`,
               },
               onload: (response) => {
@@ -5876,7 +5877,7 @@
               responseType: "json",
               headers: {
                 Accept: "application/json",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
                 Authorization: `Bearer ${chartBedToken}`,
               },
               onload: (response) => {
@@ -6022,7 +6023,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.parseFileToBase64(item);
+                  let image_base64 = await utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6046,7 +6047,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.parseBase64ToFile(
+                    utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6065,11 +6066,11 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  Utils.waitArrayLoopToEnd(
+                  utils.waitArrayLoopToEnd(
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
-                    Utils.tryCatch().run(completeFunction);
+                    utils.tryCatch().run(completeFunction);
                   });
                   return null;
                 });
@@ -6116,11 +6117,11 @@
                         console.log(
                           `图片数量:${needUploadImageFileArray.length}`
                         );
-                        Utils.waitArrayLoopToEnd(
+                        utils.waitArrayLoopToEnd(
                           needUploadImageFileArray,
                           uploadFileAwaitFunction
                         ).then(() => {
-                          Utils.tryCatch().run(completeFunction);
+                          utils.tryCatch().run(completeFunction);
                         });
                       });
                     },
@@ -6131,8 +6132,8 @@
                     callback: () => {
                       Array.from(needUploadImageFileArray).forEach(
                         async (item, index) => {
-                          let base64Image = await Utils.parseFileToBase64(item);
-                          Utils.downloadBase64(item.name, base64Image);
+                          let base64Image = await utils.parseFileToBase64(item);
+                          utils.downloadBase64(item.name, base64Image);
                         }
                       );
                     },
@@ -6142,7 +6143,7 @@
             });
           };
           if (GM_getValue("chartBedAddWaterMark")) {
-            Utils.tryCatch().run(waterMarkAwaitFunction);
+            utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             checkLogin().then((loginStatus) => {
               if (!loginStatus) {
@@ -6152,11 +6153,11 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              Utils.waitArrayLoopToEnd(
+              utils.waitArrayLoopToEnd(
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
-                Utils.tryCatch().run(completeFunction);
+                utils.tryCatch().run(completeFunction);
               });
             });
           }
@@ -6330,7 +6331,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.parseFileToBase64(item);
+                  let image_base64 = await utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6354,7 +6355,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.parseBase64ToFile(
+                    utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6373,11 +6374,11 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  Utils.waitArrayLoopToEnd(
+                  utils.waitArrayLoopToEnd(
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
-                    Utils.tryCatch().run(completeFunction);
+                    utils.tryCatch().run(completeFunction);
                   });
                 });
               } else {
@@ -6421,11 +6422,11 @@
                           console.log(
                             `图片数量:${needUploadImageFileArray.length}`
                           );
-                          Utils.waitArrayLoopToEnd(
+                          utils.waitArrayLoopToEnd(
                             needUploadImageFileArray,
                             uploadFileAwaitFunction
                           ).then(() => {
-                            Utils.tryCatch().run(completeFunction);
+                            utils.tryCatch().run(completeFunction);
                           });
                         } else {
                           console.log("登录失败");
@@ -6439,8 +6440,8 @@
                     callback: () => {
                       Array.from(needUploadImageFileArray).forEach(
                         async (item, index) => {
-                          let base64Image = await Utils.parseFileToBase64(item);
-                          Utils.downloadBase64(item.name, base64Image);
+                          let base64Image = await utils.parseFileToBase64(item);
+                          utils.downloadBase64(item.name, base64Image);
                         }
                       );
                     },
@@ -6450,7 +6451,7 @@
             });
           };
           if (GM_getValue("chartBedAddWaterMark", false)) {
-            Utils.tryCatch().run(waterMarkAwaitFunction);
+            utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             checkLogin().then((loginStatus) => {
               if (!loginStatus) {
@@ -6460,11 +6461,11 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              Utils.waitArrayLoopToEnd(
+              utils.waitArrayLoopToEnd(
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
-                Utils.tryCatch().run(completeFunction);
+                utils.tryCatch().run(completeFunction);
               });
             });
           }
@@ -6643,7 +6644,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.parseFileToBase64(item);
+                  let image_base64 = await utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -6667,7 +6668,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.parseBase64ToFile(
+                    utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -6686,11 +6687,11 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  Utils.waitArrayLoopToEnd(
+                  utils.waitArrayLoopToEnd(
                     needUploadImageFileArray,
                     uploadFileAwaitFunction
                   ).then(() => {
-                    Utils.tryCatch().run(completeFunction);
+                    utils.tryCatch().run(completeFunction);
                   });
                 });
               } else {
@@ -6735,11 +6736,11 @@
                         console.log(
                           `图片数量:${needUploadImageFileArray.length}`
                         );
-                        Utils.waitArrayLoopToEnd(
+                        utils.waitArrayLoopToEnd(
                           needUploadImageFileArray,
                           uploadFileAwaitFunction
                         ).then(() => {
-                          Utils.tryCatch().run(completeFunction);
+                          utils.tryCatch().run(completeFunction);
                         });
                       }
                     },
@@ -6750,8 +6751,8 @@
                     callback: () => {
                       Array.from(needUploadImageFileArray).forEach(
                         async (item, index) => {
-                          let base64Image = await Utils.parseFileToBase64(item);
-                          Utils.downloadBase64(item.name, base64Image);
+                          let base64Image = await utils.parseFileToBase64(item);
+                          utils.downloadBase64(item.name, base64Image);
                         }
                       );
                     },
@@ -6761,7 +6762,7 @@
             });
           };
           if (GM_getValue("chartBedAddWaterMark")) {
-            Utils.tryCatch().run(waterMarkAwaitFunction);
+            utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             checkLogin().then((loginStatus) => {
               if (!loginStatus) {
@@ -6771,11 +6772,11 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              Utils.waitArrayLoopToEnd(
+              utils.waitArrayLoopToEnd(
                 chooseImageFiles,
                 uploadFileAwaitFunction
               ).then(() => {
-                Utils.tryCatch().run(completeFunction);
+                utils.tryCatch().run(completeFunction);
               });
             });
           }
@@ -6835,13 +6836,13 @@
                 async: false,
                 timeout: 5000,
                 headers: {
-                  "User-Agent": Utils.getRandomPCUA(),
+                  "User-Agent": utils.getRandomPCUA(),
                   referer: "https://img.binmt.cc/",
                   origin: "https://img.binmt.cc",
                 },
                 onload: (response) => {
                   console.log(response);
-                  let respDoc = Utils.parseFromString(response.responseText);
+                  let respDoc = utils.parseFromString(response.responseText);
                   let metaCSRFToken = respDoc
                     .querySelector('meta[name="csrf-token"]')
                     ?.getAttribute("content");
@@ -6883,7 +6884,7 @@
                 responseType: "json",
                 headers: {
                   Accept: "application/json, text/javascript, */*; q=0.01",
-                  "User-Agent": Utils.getRandomAndroidUA(),
+                  "User-Agent": utils.getRandomAndroidUA(),
                   origin: "https://img.binmt.cc",
                   pragma: "no-cache",
                   "Accept-Encoding": "gzip, deflate, br",
@@ -6992,7 +6993,7 @@
               Array.from(chooseImageFiles).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await Utils.parseFileToBase64(item);
+                  let image_base64 = await utils.parseFileToBase64(item);
                   needUploadImageArray =
                     needUploadImageArray.concat(image_base64);
                   needUploadImageFileArray =
@@ -7016,7 +7017,7 @@
                     watermark.render("png")
                   );
                   needUploadImageFileArray = needUploadImageFileArray.concat(
-                    Utils.parseBase64ToFile(
+                    utils.parseBase64ToFile(
                       watermark.render("png"),
                       "WaterMark_" + item.name
                     )
@@ -7031,11 +7032,11 @@
                 popups.toast("上传水印图片中...请稍后");
 
                 console.log(`图片数量:${needUploadImageFileArray.length}`);
-                Utils.waitArrayLoopToEnd(
+                utils.waitArrayLoopToEnd(
                   needUploadImageFileArray,
                   uploadFileAwaitFunction
                 ).then(() => {
-                  Utils.tryCatch().run(completeFunction);
+                  utils.tryCatch().run(completeFunction);
                 });
                 return null;
               }
@@ -7075,11 +7076,11 @@
                     popups.toast("上传水印图片中...请稍后");
 
                     console.log(`图片数量:${needUploadImageFileArray.length}`);
-                    Utils.waitArrayLoopToEnd(
+                    utils.waitArrayLoopToEnd(
                       needUploadImageFileArray,
                       uploadFileAwaitFunction
                     ).then(() => {
-                      Utils.tryCatch().run(completeFunction);
+                      utils.tryCatch().run(completeFunction);
                     });
                   },
                 },
@@ -7089,8 +7090,8 @@
                   callback: () => {
                     Array.from(needUploadImageFileArray).forEach(
                       async (item, index) => {
-                        let base64Image = await Utils.parseFileToBase64(item);
-                        Utils.downloadBase64(item.name, base64Image);
+                        let base64Image = await utils.parseFileToBase64(item);
+                        utils.downloadBase64(item.name, base64Image);
                       }
                     );
                   },
@@ -7099,17 +7100,17 @@
             });
           }
           if (GM_getValue("chartBedAddWaterMark")) {
-            Utils.tryCatch().run(waterMarkAwaitFunction);
+            utils.tryCatch().run(waterMarkAwaitFunction);
           } else {
             popups.loadingMask();
             popups.toast("上传图片中...请稍后");
 
             console.log(`图片数量:${chooseImageFiles.length}`);
-            Utils.waitArrayLoopToEnd(
+            utils.waitArrayLoopToEnd(
               chooseImageFiles,
               uploadFileAwaitFunction
             ).then(() => {
-              Utils.tryCatch().run(completeFunction);
+              utils.tryCatch().run(completeFunction);
             });
           }
         });
@@ -7185,7 +7186,7 @@
             } else if (isAddHistoryImages.length < historyImages.length) {
               /* 其它地方增加了数据-更新结构 */
               console.log("其它地方增加了数据-更新结构");
-              var needAddData = Utils.uniqueArray(
+              var needAddData = utils.uniqueArray(
                 historyImages,
                 isAddHistoryImages,
                 (item, item2) => {
@@ -7233,7 +7234,7 @@
             } else if (isAddHistoryImages.length > historyImages.length) {
               /* 其它地方删除了数据，更新结构 */
               console.log("其它地方删除了数据，更新结构");
-              var needRemoveData = Utils.uniqueArray(
+              var needRemoveData = utils.uniqueArray(
                 isAddHistoryImages,
                 historyImages,
                 (item, item2) => {
@@ -7307,12 +7308,12 @@
 
       $jq(".swiper-wrapper.comiis_post_ico").append(imgBtn);
       $jq("#comiis_post_tab").append(jqMenu);
-      Utils.tryCatch().run(chartbedByBBSMT);
-      Utils.tryCatch().run(chartbedByKggzs);
-      Utils.tryCatch().run(chartbedByHello);
-      Utils.tryCatch().run(chartbedByZ4a);
-      Utils.tryCatch().run(chartbedByMT);
-      Utils.tryCatch().run(chartbedByHistory);
+      utils.tryCatch().run(chartbedByBBSMT);
+      utils.tryCatch().run(chartbedByKggzs);
+      utils.tryCatch().run(chartbedByHello);
+      utils.tryCatch().run(chartbedByZ4a);
+      utils.tryCatch().run(chartbedByMT);
+      utils.tryCatch().run(chartbedByHistory);
     },
     /**
      * 编辑器优化-简略
@@ -7605,7 +7606,7 @@
         }
         `);
 
-      let db = new Utils.indexedDB("mt_reply_record", "input_text");
+      let db = new utils.indexedDB("mt_reply_record", "input_text");
       let pl = $jq("#comiis_foot_memu .comiis_flex li")[1];
       let dz = $jq("#comiis_foot_memu .comiis_flex li")[2];
       let sc = $jq("#comiis_foot_memu .comiis_flex li")[3];
@@ -8389,7 +8390,7 @@
           /* 输入框内容改变，高度也改变事件 */
           event.preventDefault();
           let inputText = event.target.value;
-          if (!Utils.isNull(inputText)) {
+          if (!utils.isNull(inputText)) {
             btn_fabiao.attr("data-text", "true");
             $jq("#comiis_foot_menu_beautify li[data-attr='回帖'] input").attr(
               "placeholder",
@@ -8657,7 +8658,7 @@
           $jq("#needmessage").focus();
         } else if (
           window.event &&
-          !Utils.checkUserClickInNode(
+          !utils.checkUserClickInNode(
             document.querySelector("#comiis_foot_menu_beautify_big")
           )
         ) {
@@ -8860,7 +8861,7 @@
           let data = {
             url: window.location.href,
             text: inputText,
-            replyUrl: Utils.isNull(dataReplyUrl) ? undefined : dataReplyUrl,
+            replyUrl: utils.isNull(dataReplyUrl) ? undefined : dataReplyUrl,
             forumId: DOM_CONFIG.getForumId(window.location.href),
           };
           db.get("data").then((result) => {
@@ -8870,10 +8871,10 @@
               );
             });
             if (localDataIndex !== -1) {
-              if (Utils.isNull(inputText)) {
+              if (utils.isNull(inputText)) {
                 result.data.splice(localDataIndex, 1);
               } else {
-                result.data[localDataIndex] = Utils.assign(
+                result.data[localDataIndex] = utils.assign(
                   result.data[localDataIndex],
                   data
                 );
@@ -8900,14 +8901,14 @@
             if (isUserReply) {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                !Utils.isNull(item.replyUrl) &&
-                !Utils.isNull(replyUrl) &&
+                !utils.isNull(item.replyUrl) &&
+                !utils.isNull(replyUrl) &&
                 item.replyUrl === replyUrl
               );
             } else {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                Utils.isNull(item.replyUrl)
+                utils.isNull(item.replyUrl)
               );
             }
           });
@@ -8915,7 +8916,7 @@
             $jq("#comiis_foot_menu_beautify_big textarea").val(
               localReplyData.text
             );
-            Utils.dispatchEvent(
+            utils.dispatchEvent(
               $jq("#comiis_foot_menu_beautify_big textarea")[0],
               "input"
             );
@@ -8934,14 +8935,14 @@
             if (isUserReply) {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                !Utils.isNull(item.replyUrl) &&
-                !Utils.isNull(replyUrl) &&
+                !utils.isNull(item.replyUrl) &&
+                !utils.isNull(replyUrl) &&
                 item.replyUrl === replyUrl
               );
             } else {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                Utils.isNull(item.replyUrl)
+                utils.isNull(item.replyUrl)
               );
             }
           });
@@ -9090,13 +9091,13 @@
           .trigger("propertychange");
       }
 
-      Utils.tryCatch().run(mobile.editorChartBed);
-      Utils.tryCatch().run(mobile.quickUBB.insertQuickReplyUBB);
-      Utils.tryCatch().run(
+      utils.tryCatch().run(mobile.editorChartBed);
+      utils.tryCatch().run(mobile.quickUBB.insertQuickReplyUBB);
+      utils.tryCatch().run(
         mobileRepeatFunc.editorOptimizationOffDefaultBottomReplyBtnClickEvent
       );
-      Utils.tryCatch().run(chartbedWaterMarkEvent);
-      Utils.tryCatch().run(initLocalReplyData);
+      utils.tryCatch().run(chartbedWaterMarkEvent);
+      utils.tryCatch().run(initLocalReplyData);
     },
     /**
      * 编辑器优化-完整版
@@ -9114,9 +9115,9 @@
       ) {
         return;
       }
-      Utils.tryCatch().run(mobile.editorChartBed);
-      Utils.tryCatch().run(mobile.previewPostForum);
-      Utils.tryCatch().run(mobile.quickUBB.insertReplayUBB);
+      utils.tryCatch().run(mobile.editorChartBed);
+      utils.tryCatch().run(mobile.previewPostForum);
+      utils.tryCatch().run(mobile.quickUBB.insertReplayUBB);
       GM_addStyle(`
       .f_c, .f_c a, .ntc_body{
           color: #000000 !important;
@@ -9362,7 +9363,7 @@
           window.location.href = window.location.href + "&special=1";
         });
       }
-      let db = new Utils.indexedDB("mt_reply_record", "input_text");
+      let db = new utils.indexedDB("mt_reply_record", "input_text");
       let btn_del = $jq(".comiis_btnbox .comiis_btn.bg_del");
       let btn_save = $jq(".comiis_btnbox button#postsubmit:contains('保存')");
       let btn_post = $jq(".comiis_btnbox button#postsubmit:contains('发表')");
@@ -9538,10 +9539,10 @@
       }
 
       var recordHeight = 0;
-      Utils.waitNode(
+      utils.waitNode(
         "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
       ).then((nodeList) => {
-        Utils.mutationObserver(nodeList[0], {
+        utils.mutationObserver(nodeList[0], {
           callback: (mutations) => {
             var $tar = document.querySelector(
               "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
@@ -10022,20 +10023,20 @@
             if (isUserReply) {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                !Utils.isNull(item.replyUrl) &&
-                !Utils.isNull(replyUrl) &&
+                !utils.isNull(item.replyUrl) &&
+                !utils.isNull(replyUrl) &&
                 item.replyUrl === replyUrl
               );
             } else {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                Utils.isNull(item.replyUrl)
+                utils.isNull(item.replyUrl)
               );
             }
           });
           if (localReplyData) {
             $jq("#needmessage").val(localReplyData.text);
-            Utils.dispatchEvent($jq("#needmessage")[0], "input");
+            utils.dispatchEvent($jq("#needmessage")[0], "input");
           }
         });
       }
@@ -10053,14 +10054,14 @@
             if (isUserReply) {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                !Utils.isNull(item.replyUrl) &&
-                !Utils.isNull(replyUrl) &&
+                !utils.isNull(item.replyUrl) &&
+                !utils.isNull(replyUrl) &&
                 item.replyUrl === replyUrl
               );
             } else {
               return (
                 item.forumId === DOM_CONFIG.getForumId(window.location.href) &&
-                Utils.isNull(item.replyUrl)
+                utils.isNull(item.replyUrl)
               );
             }
           });
@@ -10096,10 +10097,10 @@
               );
             });
             if (localDataIndex !== -1) {
-              if (Utils.isNull(inputText)) {
+              if (utils.isNull(inputText)) {
                 result.data.splice(localDataIndex, 1);
               } else {
-                result.data[localDataIndex] = Utils.assign(
+                result.data[localDataIndex] = utils.assign(
                   result.data[localDataIndex],
                   data
                 );
@@ -10114,12 +10115,12 @@
         });
       }
 
-      Utils.tryCatch().run(mobile.selectPostingSection);
-      Utils.tryCatch().run(setSettingViewEvent);
+      utils.tryCatch().run(mobile.selectPostingSection);
+      utils.tryCatch().run(setSettingViewEvent);
       if (window.location.href.indexOf("&action=reply") !== -1) {
         /* 当前是回复编辑框 */
-        Utils.tryCatch().run(initLocalReplyData);
-        Utils.tryCatch().run(listenMessageChange);
+        utils.tryCatch().run(initLocalReplyData);
+        utils.tryCatch().run(listenMessageChange);
       }
     },
     /**
@@ -10291,7 +10292,7 @@
               )}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=`,
               /* headers不设置，使用手机headers */
               headers: {
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popups.closeMask();
@@ -10336,7 +10337,7 @@
               method: "POST",
               headers: {
                 "content-type": "application/x-www-form-urlencoded",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
               data: `task=3&uid=${encodeURI(
                 user
@@ -10398,7 +10399,7 @@
               data: formData,
               headers: {
                 Accept: "*/*",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popups.closeMask();
@@ -10441,7 +10442,7 @@
               headers: {
                 "Content-Type":
                   "application/x-www-form-urlencoded; charset=UTF-8",
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popups.closeMask();
@@ -10479,7 +10480,7 @@
               timeout: 5000,
               method: "POST",
               headers: {
-                "User-Agent": Utils.getRandomPCUA(),
+                "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
                 popups.closeMask();
@@ -10637,7 +10638,7 @@
           },
         });
         console.log(document.querySelector(".xinput.xful[type='password']"));
-        Utils.listenKeyPress(
+        utils.listenKeyPress(
           document.querySelector(".xinput.xful[type='password']"),
           (keyName, otherKey) => {
             if (keyName === "Enter") {
@@ -10867,7 +10868,7 @@
             });
           });
         }
-        var lock = new Utils.funcLock(_loadNextComments_);
+        var lock = new utils.funcLock(_loadNextComments_);
         function scroll_loadNextComments() {
           if (
             Math.ceil($jq(window).scrollTop() + $jq(window).height() + 150) >=
@@ -10900,7 +10901,7 @@
       }
       let commentsNum = parseInt(commentsEle.textContent);
       if (commentsNum >= 10) {
-        Utils.waitNode(".comiis_page.bg_f").then((next_page_dom) => {
+        utils.waitNode(".comiis_page.bg_f").then((next_page_dom) => {
           console.log("找到下一页元素！");
           autoLoadNextPageComments(next_page_dom[0]);
         });
@@ -10989,7 +10990,7 @@
             lock.run();
           }
         }
-        var lock = new Utils.funcLock(_loadPrevComments_);
+        var lock = new utils.funcLock(_loadPrevComments_);
         $jq(window).on("scroll", scroll_loadPrevComments);
       }
 
@@ -11202,7 +11203,7 @@
             method: "GET",
             timeout: 5000,
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: function (response) {
               console.log(response);
@@ -11247,19 +11248,19 @@
                 .find("#online div.bm_h span.xs1")
                 .text();
               console.log(onlineInfo);
-              result.totalOnline = Utils.parseInt(
+              result.totalOnline = utils.parseInt(
                 onlineInfo.match(/([0-9]*)\s*人在线/i),
                 0
               );
-              result.onlineUser = Utils.parseInt(
+              result.onlineUser = utils.parseInt(
                 onlineInfo.match(/([0-9]*)\s*会员/i),
                 0
               );
-              result.noRegisterUser = Utils.parseInt(
+              result.noRegisterUser = utils.parseInt(
                 onlineInfo.match(/([0-9]*)\s*位游客/i),
                 0
               );
-              result.invisibleUser = Utils.parseInt(
+              result.invisibleUser = utils.parseInt(
                 onlineInfo.match(/([0-9]*)\s*隐身/i),
                 0
               );
@@ -11324,17 +11325,17 @@
         return;
       }
       function repeatFunc() {
-        Utils.tryCatch().run(mobileRepeatFunc.showUserUID);
-        Utils.tryCatch().run(mobileRepeatFunc.ownShield);
-        Utils.tryCatch().run(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
-        Utils.tryCatch().run(mobileRepeatFunc.codeQuoteCopyBtn);
+        utils.tryCatch().run(mobileRepeatFunc.showUserUID);
+        utils.tryCatch().run(mobileRepeatFunc.ownShield);
+        utils.tryCatch().run(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
+        utils.tryCatch().run(mobileRepeatFunc.codeQuoteCopyBtn);
       }
-      Utils.waitNode(".comiis_forumlist").then(() => {
+      utils.waitNode(".comiis_forumlist").then(() => {
         repeatFunc();
       });
-      Utils.waitNode("#list_new_1 .comiis_forumlist > ul").then(() => {
+      utils.waitNode("#list_new_1 .comiis_forumlist > ul").then(() => {
         repeatFunc();
-        Utils.mutationObserver(
+        utils.mutationObserver(
           document.querySelector("#list_new_1 .comiis_forumlist > ul"),
           {
             config: {
@@ -11347,8 +11348,8 @@
           }
         );
       });
-      Utils.waitNode(".comiis_pms_box .comiis_pmlist ul li").then(() => {
-        Utils.tryCatch().run(mobileRepeatFunc.ownShield);
+      utils.waitNode(".comiis_pms_box .comiis_pmlist ul li").then(() => {
+        utils.tryCatch().run(mobileRepeatFunc.ownShield);
       });
     },
     /**
@@ -11507,21 +11508,21 @@
           console.log("可白嫖但未访问：", isFreeNotVisitedContentList);
           console.log("可白嫖：", isFreeContentList);
           console.log("未到白嫖时间：", isPaidContentList);
-          Utils.sortListByProperty(
+          utils.sortListByProperty(
             isFreeNotVisitedContentList,
             "expirationTimeStamp",
             false
           );
-          Utils.sortListByProperty(isFreeContentList, "timestamp", false);
-          Utils.sortListByProperty(isPaidContentList, "timestamp", false);
+          utils.sortListByProperty(isFreeContentList, "timestamp", false);
+          utils.sortListByProperty(isPaidContentList, "timestamp", false);
 
           console.log("排序后——可白嫖但未访问：", isFreeNotVisitedContentList);
           console.log("排序后——可白嫖：", isFreeContentList);
           console.log("排序后——未到白嫖时间：", isPaidContentList);
           isFreeContent =
-            Utils.mergeArrayToString(isFreeNotVisitedContentList, "content") +
-            Utils.mergeArrayToString(isFreeContentList, "content");
-          isPaidContent = Utils.mergeArrayToString(
+            utils.mergeArrayToString(isFreeNotVisitedContentList, "content") +
+            utils.mergeArrayToString(isFreeContentList, "content");
+          isPaidContent = utils.mergeArrayToString(
             isPaidContentList,
             "content"
           );
@@ -11562,7 +11563,7 @@
                   data.splice(t_index, 1);
                   console.log(data);
                   paymentSubjectReminderHome.setData(data);
-                  Utils.deleteParentNode(event.target, "tr");
+                  utils.deleteParentNode(event.target, "tr");
                   popups.closeConfirm();
                 },
               },
@@ -11645,7 +11646,7 @@
                           setTipForumPostList
                         );
                         isRemove = true;
-                        Utils.setTimeout("window.location.reload()", 1500);
+                        utils.setTimeout("window.location.reload()", 1500);
                         return;
                       }
                     });
@@ -11682,7 +11683,7 @@
                 return;
               }
               let expirationTime = expirationTimeMatch[0];
-              let expirationTimeStamp = Utils.formatToTimeStamp(expirationTime);
+              let expirationTimeStamp = utils.formatToTimeStamp(expirationTime);
               setTipForumPostList = setTipForumPostList.concat({
                 url: window.location.href,
                 title: document.title.replace(" - MT论坛", ""),
@@ -12931,7 +12932,7 @@
        */
       function keyUpEvent(event) {
         let userInputText = event.target.value;
-        let userInputTextLength = Utils.getTextLength(userInputText);
+        let userInputTextLength = utils.getTextLength(userInputText);
         let replaecdText = replaceText(userInputText);
         $jq(
           ".gm_plugin_previewpostforum_html .comiis_message_table"
@@ -13185,7 +13186,7 @@
         localData.map((item) => {
           if (JSON.stringify(item) === oldDataString) {
             status = true;
-            item = Utils.assign(item, newData);
+            item = utils.assign(item, newData);
             return;
           }
         });
@@ -13229,7 +13230,7 @@
           ok: {
             callback: () => {
               let productName = $jq("#productNameInput").val();
-              if (Utils.isNull(productName)) {
+              if (utils.isNull(productName)) {
                 popups.toast("请勿输入为空");
                 return;
               }
@@ -13285,7 +13286,7 @@
             responseType: "html",
             timeout: 5000,
             headers: {
-              "User-Agent": Utils.getRandomAndroidUA(),
+              "User-Agent": utils.getRandomAndroidUA(),
             },
             onload: function (response) {
               let dataList = [];
@@ -14923,7 +14924,7 @@
             method: "GET",
             timeout: 5000,
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: function (response) {
               resolve(response.responseText);
@@ -15009,13 +15010,13 @@
               }
               popups.loadingMask();
               popups.toast("正在处理数据中...");
-              let baseBig = await Utils.parseFileToBase64(
+              let baseBig = await utils.parseFileToBase64(
                 $jq("#comiis_file_dynamic_avater_big").prop("files")[0]
               );
-              let baseMedium = await Utils.parseFileToBase64(
+              let baseMedium = await utils.parseFileToBase64(
                 $jq("#comiis_file_dynamic_avater_medium").prop("files")[0]
               );
-              let baseSmall = await Utils.parseFileToBase64(
+              let baseSmall = await utils.parseFileToBase64(
                 $jq("#comiis_file_dynamic_avater_small").prop("files")[0]
               );
               let base64Arr = [baseBig, baseMedium, baseSmall];
@@ -15056,7 +15057,7 @@
                     "https://bbs.binmt.cc/home.php?mod=spacecp&ac=avatar",
                   accept:
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                  "User-Agent": Utils.getRandomPCUA(),
+                  "User-Agent": utils.getRandomPCUA(),
                 },
                 onload: function (response) {
                   let text = response.responseText;
@@ -15174,9 +15175,11 @@
             async: false,
             responseType: "html",
             headers: {
+              Referer:
+                "https://bbs.binmt.cc/forum.php?mod=guide&view=newthread&index=1",
               accept:
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-              "User-Agent": Utils.getRandomAndroidUA(),
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              "User-Agent": utils.getRandomAndroidUA(),
             },
             onload: function (response) {
               console.log(response);
@@ -15185,7 +15188,7 @@
                 resolve([]);
                 return;
               }
-              var respHTML = Utils.parseFromString(response.responseText);
+              var respHTML = utils.parseFromString(response.responseText);
               var postForumList = respHTML.querySelectorAll(
                 'div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul'
               );
@@ -15261,7 +15264,7 @@
 						`);
           var latestPostForumHTML = "";
 
-          Utils.sortListByProperty(
+          utils.sortListByProperty(
             result,
             (item) => {
               var forumPostNum = item["href"].match(/thread-(.+?)-/i);
@@ -15312,7 +15315,7 @@
             responseType: "html",
             timeout: 5000,
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: function (response) {
               let last_page = $jq(response.responseText).find(
@@ -15356,7 +15359,7 @@
             timeout: 5000,
             responseType: "html",
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: function (response) {
               let peoples = $jq(response.responseText).find(
@@ -15532,7 +15535,7 @@
         async: false,
         timeout: 5000,
         headers: {
-          "User-Agent": Utils.getRandomPCUA(),
+          "User-Agent": utils.getRandomPCUA(),
         },
         onload: (response) => {
           let html = $jq(response.responseText);
@@ -15610,7 +15613,7 @@
             async: false,
             timeout: 5000,
             headers: {
-              "User-Agent": Utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: (response) => {
               let pageHTML = $jq(response.responseText);
@@ -15663,7 +15666,7 @@
        * @returns {NodeList}
        */
       function getForumList() {
-        return Utils.getNodeListValue(
+        return utils.getNodeListValue(
           DOM_CONFIG.element.comiisForumList,
           DOM_CONFIG.element.comiisPostli,
           DOM_CONFIG.element.comiisMmlist
@@ -15755,7 +15758,7 @@
             GM_setValue(dataKey, this.checked);
           }
         );
-        let db = new Utils.indexedDB("mt_reply_record", "input_text");
+        let db = new utils.indexedDB("mt_reply_record", "input_text");
         db.get("data").then((result) => {
           let settingNameDOM = document
             .querySelector(
@@ -15765,8 +15768,8 @@
             .querySelector(".whitesev-mt-setting-name");
           settingNameDOM.innerHTML =
             settingNameDOM.innerHTML +
-            `(${Utils.getTextStorageSize(
-              Utils.mergeArrayToString(result.data)
+            `(${utils.getTextStorageSize(
+              utils.mergeArrayToString(result.data)
             )})`;
         });
       }
@@ -16156,14 +16159,14 @@
   const entrance = function () {
     if (!envIsMobile()) {
       console.log("PC端显示");
-      Utils.tryCatch().run(pc.repairPCNoLoadResource);
+      utils.tryCatch().run(pc.repairPCNoLoadResource);
       $jq(document).ready(function () {
         pc.main();
       });
     } else {
       console.log("移动端显示");
       $jq(document).ready(function () {
-        Utils.tryCatch().run(mobile.registerSettingView);
+        utils.tryCatch().run(mobile.registerSettingView);
         mobile.main();
       });
     }

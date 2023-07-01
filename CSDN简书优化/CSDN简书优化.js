@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.6.9
+// @version      0.7.0
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -20,12 +20,13 @@
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // ==/UserScript==
 
 (function () {
+  const utils = Utils.noConflict();
   const jQuery = $.noConflict(true);
-  const log = new Utils.Log(GM_info);
+  const log = new utils.Log(GM_info);
   log.config({
     logMaxCount: 20,
     autoClearConsole: true,
@@ -33,14 +34,14 @@
   /**
    * 因为在有些页面上，比如：简书，当插入style元素到head中，该页面清除该元素
    */
-  const GM_addStyle = Utils.GM_addStyle;
+  const GM_addStyle = utils.GM_addStyle;
   let GM_Menu = null;
   /**
    * 移除元素（未出现也可以等待出现）
    * @param {string} selectorText 元素选择器
    */
   const waitForElementToRemove = function (selectorText = "") {
-    Utils.waitNode(selectorText).then((dom) => {
+    utils.waitNode(selectorText).then((dom) => {
       dom.forEach((item) => {
         item.remove();
       });
@@ -113,7 +114,7 @@
           }`);
           waitForElementToRemove("div[role=main] aside");
           waitForElementToRemove("div._3Pnjry");
-          Utils.waitNode("div._gp-ck").then((dom) => {
+          utils.waitNode("div._gp-ck").then((dom) => {
             dom.forEach((item) => {
               item.style["width"] = "100%";
             });
@@ -133,10 +134,10 @@
          * 自动展开全文
          */
         autoExpandFullText() {
-          Utils.waitNode(`div#homepage div[class*="dialog-"]`).then(
+          utils.waitNode(`div#homepage div[class*="dialog-"]`).then(
             (nodeList) => {
               nodeList[0].style["visibility"] = "hidden";
-              Utils.mutationObserver(nodeList[0], {
+              utils.mutationObserver(nodeList[0], {
                 callback: (mutations) => {
                   if (mutations.length == 0) {
                     return;
@@ -217,7 +218,7 @@
        */
       run() {
         this.PC.jumpRedirect();
-        if (Utils.isPhone()) {
+        if (utils.isPhone()) {
           log.success("简书-移动端");
           this.Mobile.run();
         } else {
@@ -307,7 +308,7 @@
             let btnNode = jQuery(this);
             /* 需要复制的文本 */
             let copyText = btnNode.parent().text();
-            Utils.setClip(copyText);
+            utils.setClip(copyText);
             btnNode.attr("data-title", "复制成功");
           });
           jQuery(document).on("mouseenter mouseleave", "pre", function () {
@@ -317,14 +318,14 @@
             );
           });
           /* 取消Ctrl+C的禁止 */
-          Utils.waitNode("#content_views").then(() => {
+          utils.waitNode("#content_views").then(() => {
             unsafeWindow.$("#content_views").unbind("copy");
             jQuery("#content_views")
               .off("copy")
               .on("copy", function (event) {
                 event?.preventDefault();
                 event?.stopPropagation();
-                Utils.setClip(unsafeWindow.getSelection().toString());
+                utils.setClip(unsafeWindow.getSelection().toString());
                 return false;
               });
           });
@@ -349,14 +350,14 @@
         restoreComments() {
           /* 第一条评论 */
           log.info("恢复评论到正确位置-第一条评论");
-          Utils.waitNode(".first-recommend-box").then((dom) => {
+          utils.waitNode(".first-recommend-box").then((dom) => {
             jQuery(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
               jQuery(dom)
             );
           });
           log.info("恢复评论到正确位置-第二条评论");
           /* 第二条评论 */
-          Utils.waitNode(".second-recommend-box").then((dom) => {
+          utils.waitNode(".second-recommend-box").then((dom) => {
             jQuery(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
               jQuery(dom)
             );
@@ -515,7 +516,7 @@
               1000
             );
           });
-          Utils.waitNode(".csdn-side-toolbar").then(() => {
+          utils.waitNode(".csdn-side-toolbar").then(() => {
             jQuery(".csdn-side-toolbar a").eq("-2").after(gotoRecommandNode);
           });
         },
@@ -830,8 +831,8 @@
               .before(jQuery("#first_recommend_list").find("dl").parent().html()); */
             });
           }
-          Utils.waitNode("#recommend").then((nodeList) => {
-            Utils.mutationObserver(nodeList[0], {
+          utils.waitNode("#recommend").then((nodeList) => {
+            utils.mutationObserver(nodeList[0], {
               callback: () => {
                 setTimeout(() => {
                   refactoring();
@@ -889,7 +890,7 @@
        */
       run() {
         Optimization.csdn.PC.jumpRedirect();
-        if (Utils.isPhone()) {
+        if (utils.isPhone()) {
           log.success("移动端模式");
           this.Mobile.run();
         } else {
@@ -901,8 +902,8 @@
   };
 
   if (Optimization.csdn.locationMatch()) {
-    if (Utils.isPhone()) {
-      GM_Menu = new Utils.GM_Menu(
+    if (utils.isPhone()) {
+      GM_Menu = new utils.GM_Menu(
         {
           showDirect: {
             text: "手机-标识处理过的底部推荐文章",
@@ -942,7 +943,7 @@
         GM_unregisterMenuCommand
       );
     } else {
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           removeCSDNDownloadPC: {
             text: "电脑-移除文章底部的CSDN下载",
@@ -1033,8 +1034,8 @@
     }
     Optimization.csdn.run();
   } else if (Optimization.jianshu.locationMatch()) {
-    if (Utils.isPhone()) {
-      GM_Menu = new Utils.GM_Menu(
+    if (utils.isPhone()) {
+      GM_Menu = new utils.GM_Menu(
         {
           JianShuremoveFooterRecommendRead: {
             text: "手机-移除底部推荐阅读",
@@ -1054,7 +1055,7 @@
         GM_unregisterMenuCommand
       );
     } else {
-      GM_Menu = new Utils.GM_Menu(
+      GM_Menu = new utils.GM_Menu(
         {
           JianShuArticleCenter: {
             text: "电脑-全文居中",

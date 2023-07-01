@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ImmortalWrt-passwall优化
-// @version      0.4
+// @version      0.5
 // @description  openWrt使用luci-theme-argon主题的passwall优化部分设置，添加一键测速和排序，请根据自己的openwrt地址设置本脚本匹配域
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -18,12 +18,13 @@
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1198446
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // ==/UserScript==
 
 (function () {
-  let log = new Utils.Log(GM_info);
-  let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+  const utils = Utils.noConflict();
+  let log = new utils.Log(GM_info);
+  let httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {
       Qmsg.error("请求被取消");
@@ -325,7 +326,7 @@
                 `<font style="color: red" class="gm_use_time" data-time="9999999999">失败</font>`
               );
           }
-          await Utils.sleep(700);
+          await utils.sleep(700);
         }
         loadingMsg.close();
         Qmsg.success("节点全部测试完毕!");
@@ -346,7 +347,7 @@
         var loadingMsg = Qmsg.loading("排序中...", {
           autoClose: false,
         });
-        Utils.sortListByProperty(
+        utils.sortListByProperty(
           () => {
             return $(".cbi-section-table tr[id]");
           },
@@ -373,7 +374,7 @@
         var loadingMsg = Qmsg.loading("排序中...", {
           autoClose: false,
         });
-        Utils.sortListByProperty(
+        utils.sortListByProperty(
           () => {
             return $(".cbi-section-table tr[id]");
           },

@@ -17,11 +17,12 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // ==/UserScript==
 
 (function () {
-  var log = new Utils.Log(GM_info);
+  const utils = Utils.noConflict();
+  var log = new utils.Log(GM_info);
 
   /* 全局配置 */
   var GLOBAL_CONFIG = {
@@ -139,7 +140,7 @@
           delete menuJSON[keyName]["checkRegister"];
         }
       });
-      this._gm_menu_ = new Utils.GM_Menu(
+      this._gm_menu_ = new utils.GM_Menu(
         menuJSON,
         this._auto_reload_,
         GM_getValue,

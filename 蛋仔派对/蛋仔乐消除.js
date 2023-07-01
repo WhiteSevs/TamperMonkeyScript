@@ -8,7 +8,7 @@
 // @match        https://party.163.com/h5/20230120/xxl/player/*
 // @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1198446
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // @grant        GM_addStyle
 // @connect      163.com
 // @grant        GM_registerMenuCommand
@@ -23,7 +23,7 @@
 
 (function () {
   "use strict";
-
+  const utils = Utils.noConflict();
   let config = {
     score: 1566 /* 分数 */,
     scoreMax: 1600 /* 设置随机分数-最高 */,
@@ -203,11 +203,11 @@
    * 设置随机值
    */
   function setRandValue() {
-    config.delaytime = Utils.getRandomNumber(
+    config.delaytime = utils.getRandomNumber(
       config.delaytimeMin,
       config.delaytimeMax
     );
-    config.score = Utils.getRandomNumber(config.scoreMin, config.scoreMax);
+    config.score = utils.getRandomNumber(config.scoreMin, config.scoreMax);
   }
   async function auto() {
     config.loadingMsg = Qmsg.loading(getQmsgLoadingText(1), {
@@ -222,7 +222,7 @@
         config.loadingMsg.setHTML(getQmsgLoadingText(i + 1));
         let play_key = await gameStart();
         gameEnd(play_key);
-        await Utils.sleep(config.delaytime);
+        await utils.sleep(config.delaytime);
       } catch (error) {
         Qmsg.error("执行失败 " + error);
       }
@@ -231,7 +231,7 @@
     config.loadingMsg?.close();
     console.log("执行结束");
   }
-  new Utils.GM_Menu(
+  new utils.GM_Menu(
     {
       run: {
         text: "启动",
@@ -282,7 +282,7 @@
           for (let i = 0; i < config.shareCount; i++) {
             Qmsg.info(`第 ${i + 1} 次分享`);
             await gameShare();
-            await Utils.sleep(500);
+            await utils.sleep(500);
           }
           Qmsg.success("执行完毕");
         },

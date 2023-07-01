@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      0.3
+// @version      0.4
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -16,10 +16,11 @@
 // @connect      greasyfork.org
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1198446
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213742
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
 // ==/UserScript==
 
 (function () {
+  const utils = Utils.noConflict();
   Qmsg.config({
     position: "top",
     html: true,
@@ -28,8 +29,8 @@
     showClose: false,
     showReverse: false,
   });
-  let log = new Utils.Log(GM_info);
-  let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+  let log = new utils.Log(GM_info);
+  let httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {
       Qmsg.error("请求被取消");
@@ -43,7 +44,7 @@
     },
   });
 
-  let GM_Menu = new Utils.GM_Menu(
+  let GM_Menu = new utils.GM_Menu(
     {
       enterAccount_Password: {
         text: "录入账号/密码",
@@ -121,7 +122,7 @@
                 greasyforkConfig.getAdminUrl(item.href)
               );
             });
-          if (Utils.isNull(scriptUrlList)) {
+          if (utils.isNull(scriptUrlList)) {
             Qmsg.error("未获取到【脚本列表】");
           } else {
             Qmsg.success(
@@ -147,7 +148,7 @@
                 greasyforkConfig.getAdminUrl(item.href)
               );
             });
-          if (Utils.isNull(unlistedScriptUrlList)) {
+          if (utils.isNull(unlistedScriptUrlList)) {
             Qmsg.error("未获取到【未上架的脚本】");
           } else {
             Qmsg.success(
@@ -175,7 +176,7 @@
                 greasyforkConfig.getAdminUrl(item.href)
               );
             });
-          if (Utils.isNull(libraryScriptUrlList)) {
+          if (utils.isNull(libraryScriptUrlList)) {
             Qmsg.error("未获取到【库】");
           } else {
             Qmsg.success(
@@ -219,7 +220,7 @@
    * 自动登录
    */
   function autoLogin() {
-    Utils.waitNode("span.sign-in-link a[rel=nofollow]").then(async () => {
+    utils.waitNode("span.sign-in-link a[rel=nofollow]").then(async () => {
       let user = GM_getValue("user", null);
       let pwd = GM_getValue("pwd", null);
       if (!user) {
@@ -277,7 +278,7 @@
    * 设置代码搜索按钮(对于库)
    */
   function setFindCodeSearchBtn() {
-    Utils.waitNode("ul#script-links li.current span").then(() => {
+    utils.waitNode("ul#script-links li.current span").then(() => {
       let searchBtn = $(`
       <li><a href="javascript:;"><span>寻找引用</span></a></li>
      `);
