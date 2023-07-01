@@ -1915,7 +1915,9 @@
    * > true
    */
   Utils.isNativeFunc = function (func) {
-    return func.toString() === "function () { [native code] }";
+    return Boolean(
+      func.toString().match(/^function .*\(\) { \[native code\] }$/)
+    );
   };
 
   /**
