@@ -2798,7 +2798,7 @@
    */
   Utils.noConflict = function () {
     delete window.Utils;
-    if(typeof unsafeWindow === "object" && "Utils" in unsafeWindow){
+    if (typeof unsafeWindow === "object" && "Utils" in unsafeWindow) {
       delete unsafeWindow.Utils;
     }
     return Utils;
