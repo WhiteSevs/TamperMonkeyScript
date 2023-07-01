@@ -2,7 +2,7 @@
  * 自己常用的工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  3.8
+ * @version  3.8.1
  **/
 (function (Utils) {
   /**
