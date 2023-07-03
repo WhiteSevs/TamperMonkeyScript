@@ -3,9 +3,9 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.8
+// @version      0.9.9
 // @author       WhiteSevs
-// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】
+// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
 // @match        *://www.baidu.com/*
 // @match        *://baijiahao.baidu.com/*
@@ -25,6 +25,7 @@
 // @match        *://aiqicha.baidu.com/*
 // @match        *://pos.baidu.com/*
 // @match        *://haokan.baidu.com/*
+// @match        *://graph.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -387,6 +388,7 @@
       this.aiqicha();
       this.pos();
       this.haokan();
+      this.graph();
     },
     css: {
       search: `
@@ -771,6 +773,12 @@
       div.share-origin.wx-share-launch,
       div.open-app-top.share-origin-fixed.wx-share-launch,
       div.open-app-bottom.wx-share-launch{
+        display: none !important;
+      }
+      `,
+      graph: `
+      #app section.vf-home-booth div.vf-w-button.vf-home-booth-camera,
+      #viewport .graph-imagecut-banner-invoke{
         display: none !important;
       }
       `,
@@ -3382,6 +3390,126 @@
         div.top-video-list-container{display: none !important};
         `);
       }
+    },
+    /**
+     * 百度识图
+     */
+    graph() {
+      if (!this.current_url.match(/^http(s|):\/\/graph.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.graph);
+      log.info("插入CSS规则");
+      async function uploadImage(event) {
+        let uploadImageFile = event.target.files[0];
+        if (!uploadImageFile) {
+          alert("似乎并未正确上传图片？");
+          return;
+        }
+        let formData = new FormData();
+        formData.append("image", uploadImageFile);
+        formData.append("tn", "pc");
+        formData.append("from", "pc");
+        formData.append("image_source", "PC_UPLOAD_FILE");
+        formData.append("sdkParams", "undefined");
+        let postResp = await httpx.post({
+          url: `https://graph.baidu.com/upload?uptime=${Date.now()}`,
+          data: formData,
+          resposeType: "json",
+          headers: {
+            "user-agent": utils.getRandomPCUA(),
+            Origin: "https://graph.baidu.com",
+            Referer: "https://graph.baidu.com/pcpage/index?tpl_from=pc",
+            Accept: "*/*",
+          },
+        });
+        event.target.value = "";
+        log.success(postResp);
+        if (!postResp.status || postResp.data.status !== 200) {
+          alert("图片上传失败，详情请看控制台");
+          return;
+        }
+        let imageJSONData = utils.toJSON(postResp.data.responseText);
+        log.success(imageJSONData);
+        if (imageJSONData["status"] !== 0) {
+          alert("图片API返回信息中status不为0，详情请看控制台");
+        }
+        if (window.location.pathname === "/s") {
+          window.location.href = imageJSONData["data"]["url"];
+        } else {
+          window.open(imageJSONData["data"]["url"], "_blank");
+        }
+      }
+      /* 重构主页的识图一下 */
+      utils
+        .waitNode(
+          "#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
+        )
+        .then((nodeList) => {
+          let uploadImageDivDOM = jQuery(
+            `<div class="vf-home-booth-camera"></div>`
+          );
+          uploadImageDivDOM.css("position", "absolute");
+          uploadImageDivDOM.css("bottom", "-.42rem");
+          uploadImageDivDOM.css("left", "50%");
+          uploadImageDivDOM.css("width", "2.2rem");
+          uploadImageDivDOM.css("height", ".74rem");
+          uploadImageDivDOM.css(
+            "background-image",
+            "url(https://imgn0.bdstatic.com/image/mobile/n/static/wiseik/static/img/camera_5e72a3a.png)"
+          );
+          uploadImageDivDOM.css("background-repeat", "no-repeat");
+          uploadImageDivDOM.css("background-size", "cover");
+          uploadImageDivDOM.css("background-position", "top");
+          uploadImageDivDOM.css("-webkit-transform", "translateX(-50%)");
+          uploadImageDivDOM.css("-ms-transform", "translateX(-50%)");
+          uploadImageDivDOM.css("transform", "translateX(-50%)");
+          uploadImageDivDOM.css("-webkit-tap-highlight-color", "transparent");
+          uploadImageDivDOM.on("click", function () {
+            document.querySelector("input#whitesev-upload-image").click();
+          });
+          jQuery(nodeList).after(uploadImageDivDOM);
+        });
+      /* 如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题 */
+      utils.waitNode("#app .graph-noresult-text1").then(() => {
+        if (window.location.search.endsWith("&tpl_from=pc")) {
+          window.location.href = window.location.href.replace(
+            /&tpl_from=pc$/gi,
+            ""
+          );
+        }
+      });
+      /* 在已搜索出相关结果的界面中的重构【重拍】按钮 */
+      utils
+        .waitNode("#viewport .graph-imagecut-banner-ctn")
+        .then((nodeList) => {
+          let retakeDivDOM = jQuery(`<div class="retake-image">重拍</div>`);
+          retakeDivDOM.css("position", "absolute");
+          retakeDivDOM.css("top", "50%");
+          retakeDivDOM.css("right", "0");
+          retakeDivDOM.css("padding", "0 .17rem");
+          retakeDivDOM.css("font-size", "16px");
+          retakeDivDOM.css("line-height", "60px");
+          retakeDivDOM.css("color", "#000");
+          retakeDivDOM.css("-webkit-transform", "translateY(-50%)");
+          retakeDivDOM.css("transform", "translateY(-50%)");
+          retakeDivDOM.on("click", function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            document.querySelector("input#whitesev-upload-image").click();
+            jQuery("input#whitesev-upload-image").trigger("click");
+          });
+          setTimeout(() => {
+            jQuery(nodeList).append(retakeDivDOM);
+          }, 2000);
+        });
+      jQuery(function () {
+        let uploadImageInput = jQuery(
+          `<input id="whitesev-upload-image" type="file" accept="image/*" style="display: none">`
+        );
+        uploadImageInput.on("change", uploadImage);
+        jQuery(document.body).append(uploadImageInput);
+      });
     },
   };
 
