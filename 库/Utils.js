@@ -607,6 +607,54 @@
   };
 
   /**
+   * 获取最大值
+   * @returns {any}
+   * @example
+   * Utils.getMaxValue(1,3,5,7,9)
+   * > 9
+   * @example
+   * Utils.getMaxValue([1,3,5])
+   * > 5
+   * @example
+   * Utils.getMaxValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
+   * > 456
+   * @example
+   * Utils.getMaxValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
+   * > 2
+   */
+  Utils.getMaxValue = function () {
+    let result = [...arguments];
+    let newResult = [];
+    if (result.length > 1) {
+      if (
+        result.length === 2 &&
+        typeof result[0] === "object" &&
+        typeof result[1] === "function"
+      ) {
+        let data = result[0];
+        let handleDataFunc = result[1];
+        Object.keys(data).forEach((keyName) => {
+          newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
+        });
+      } else {
+        result.forEach((item) => {
+          if (!isNaN(parseFloat(item))) {
+            newResult = [...newResult, parseFloat(item)];
+          }
+        });
+      }
+      return Math.max(...newResult);
+    } else if (result.length === 1) {
+      result[0].forEach((item) => {
+        if (!isNaN(parseFloat(item))) {
+          newResult = [...newResult, parseFloat(item)];
+        }
+      });
+      return Math.max(...newResult);
+    }
+  };
+
+  /**
    * 获取页面中最大的z-index再+1
    * @returns {number}
    * @example
@@ -627,6 +675,54 @@
   };
 
   /**
+   * 获取最小值
+   * @returns {any}
+   * @example
+   * Utils.getMinValue(1,3,5,7,9)
+   * > 1
+   * @example
+   * Utils.getMinValue([1,3,5])
+   * > 1
+   * @example
+   * Utils.getMinValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
+   * > 123
+   * @example
+   * Utils.getMinValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
+   * > 0
+   */
+  Utils.getMinValue = function () {
+    let result = [...arguments];
+    let newResult = [];
+    if (result.length > 1) {
+      if (
+        result.length === 2 &&
+        typeof result[0] === "object" &&
+        typeof result[1] === "function"
+      ) {
+        let data = result[0];
+        let handleDataFunc = result[1];
+        Object.keys(data).forEach((keyName) => {
+          newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
+        });
+      } else {
+        result.forEach((item) => {
+          if (!isNaN(parseFloat(item))) {
+            newResult = [...newResult, parseFloat(item)];
+          }
+        });
+      }
+      return Math.min(...newResult);
+    } else if (result.length === 1) {
+      result[0].forEach((item) => {
+        if (!isNaN(parseFloat(item))) {
+          newResult = [...newResult, parseFloat(item)];
+        }
+      });
+      return Math.min(...newResult);
+    }
+  };
+
+  /**
    * 获取随机的安卓手机User-Agent
    * @return {string} 返回随机字符串
    * @example
@@ -634,7 +730,7 @@
    * > 'Mozilla/5.0 (Linux; Android 9; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
    **/
   Utils.getRandomAndroidUA = function () {
-    let androidVersion = Utils.getRandomNumber(9, 13);
+    let androidVersion = Utils.getRandomValue(9, 13);
     let mobileNameList = [
       "LDN-LX3",
       "RNE-L03",
@@ -651,49 +747,69 @@
       "M2003J15SC Build/RP1A.200720.011; wv",
       "MI 13 Build/OPR1.170623.027; wv",
     ];
-    let randomMobile = Utils.getRandomArrayValue(mobileNameList);
-    let chromeVersion1 = Utils.getRandomNumber(100, 113);
-    let chromeVersion2 = Utils.getRandomNumber(2272, 5304);
-    let chromeVersion3 = Utils.getRandomNumber(1, 218);
+    let randomMobile = Utils.getRandomValue(mobileNameList);
+    let chromeVersion1 = Utils.getRandomValue(100, 113);
+    let chromeVersion2 = Utils.getRandomValue(2272, 5304);
+    let chromeVersion3 = Utils.getRandomValue(1, 218);
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Mobile Safari/537.36`;
   };
 
   /**
-   * 获取数组的随机值
-   * @param {...any} array 数组数据
-   * @returns {any}	返回数组的随机值
+   * 获取随机值
+   * @returns {any}
    * @example
-   * Utils.getRandomArrayValue(["工具类","getRandomArrayValue"]);
-   * > 'getRandomArrayValue'
-   **/
-  Utils.getRandomArrayValue = function (array) {
-    return array[Math.floor(Math.random() * array.length)];
-  };
-
-  /**
-   * 获取两个数字区间的随机值
-   * @param {number} number 数字区间
-   * @param {number} number2 数字区间
-   * @returns {number} 返回两个数字区间的随机值
+   * Utils.getRandomValue([1,2,3])
+   * > 3
    * @example
-   * Utils.getRandomNumber(1,10);
-   * > 5
+   * Utils.getRandomValue({1:"结果1",2:"结果2",3:"结果3"}})
+   * > 结果2
    * @example
-   * Utils.getRandomNumber(10,1);
-   * > 8
-   **/
-  Utils.getRandomNumber = function (number, number2) {
-    if (typeof number !== "number") {
-      throw new Error("Utils.getRandNumber 参数 number 必须为 number 类型");
+   * Utils.getRandomValue(1,9)
+   * > 9
+   * @example
+   * Utils.getRandomValue(1,9,6,99)
+   * > 6
+   * @example
+   * Utils.getRandomValue({1:1},{2:2})
+   * > {1: 1}
+   * @example
+   * Utils.getRandomValue()
+   * > undefined
+   */
+  Utils.getRandomValue = function () {
+    let result = [...arguments];
+    if (result.length > 1) {
+      if (
+        result.length === 2 &&
+        typeof result[0] === "number" &&
+        typeof [1] === "number"
+      ) {
+        let leftNumber = result[0] > result[1] ? result[1] : result[0];
+        let rightNumber = result[0] > result[1] ? result[0] : result[1];
+        return (
+          Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber
+        );
+      } else {
+        return result[Math.floor(Math.random() * result.length)];
+      }
+    } else if (result.length === 1) {
+      let paramData = result[0];
+      if (Array.isArray(paramData)) {
+        return paramData[Math.floor(Math.random() * paramData.length)];
+      } else if (
+        typeof paramData === "object" &&
+        Object.keys(paramData).length > 0
+      ) {
+        let paramObjDataKey =
+          Object.keys(paramData)[
+            Math.floor(Math.random() * Object.keys(paramData).length)
+          ];
+        return paramData[paramObjDataKey];
+      } else {
+        return paramData;
+      }
     }
-    if (typeof number2 !== "number") {
-      throw new Error("Utils.getRandNumber 参数 number2 必须为 number 类型");
-    }
-    let leftNumber = number > number2 ? number2 : number;
-    let rightNumber = number > number2 ? number : number2;
-    return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
   };
-
   /**
    * 获取随机的电脑端User-Agent
    * @return {string} 返回随机字符串
@@ -702,9 +818,9 @@
    * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
    **/
   Utils.getRandomPCUA = function () {
-    let chromeVersion1 = Utils.getRandomNumber(100, 113);
-    let chromeVersion2 = Utils.getRandomNumber(2272, 5304);
-    let chromeVersion3 = Utils.getRandomNumber(1, 218);
+    let chromeVersion1 = Utils.getRandomValue(100, 113);
+    let chromeVersion2 = Utils.getRandomValue(2272, 5304);
+    let chromeVersion3 = Utils.getRandomValue(1, 218);
     return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Safari/537.36`;
   };
 
@@ -1318,8 +1434,8 @@
         onabort: function () {
           onAbortCallBack(details, resolve, arguments);
         },
-        onerror: function (response) {
-          onErrorCallBack(details, resolve, response, arguments);
+        onerror: function () {
+          onErrorCallBack(details, resolve, arguments);
         },
         onloadstart: function () {
           onLoadStartCallBack(details, arguments);
@@ -1333,8 +1449,8 @@
         ontimeout: function () {
           onTimeoutCallBack(details, resolve, arguments);
         },
-        onload: function (response) {
-          onLoadCallBack(details, resolve, response);
+        onload: function () {
+          onLoadCallBack(details, resolve, arguments);
         },
       };
     }
@@ -1370,9 +1486,9 @@
      */
     function onAbortCallBack(details, resolve, argumentsList) {
       if ("onabort" in details) {
-        details.onabort(...argumentsList);
-      } else {
-        defaultDetails?.onabort(...argumentsList);
+        details.onabort.apply(this, argumentsList);
+      } else if ("onabort" in defaultDetails) {
+        defaultDetails.onabort.apply(this, argumentsList);
       }
       resolve({
         status: false,
@@ -1386,18 +1502,17 @@
      * onerror请求异常-触发
      * @param {object} details 配置
      * @param {object} resolve 回调
-     * @param {object} response 响应
-     * @param {object} argumentsList 参数列表
+     * @param {object} argumentsList 响应的参数列表
      */
-    function onErrorCallBack(details, resolve, response, argumentsList) {
+    function onErrorCallBack(details, resolve, argumentsList) {
       if ("onerror" in details) {
-        details.onerror(...argumentsList);
-      } else {
-        defaultDetails?.onerror(...argumentsList);
+        details.onerror.apply(this, argumentsList);
+      } else if ("onerror" in defaultDetails) {
+        defaultDetails.onerror.apply(this, argumentsList);
       }
       resolve({
         status: false,
-        data: response,
+        data: argumentsList,
         msg: "请求异常",
         type: "onerror",
       });
@@ -1410,9 +1525,9 @@
      */
     function onTimeoutCallBack(details, resolve, argumentsList) {
       if ("ontimeout" in details) {
-        details.ontimeout(...argumentsList);
-      } else {
-        defaultDetails?.ontimeout(...argumentsList);
+        details.ontimeout.apply(this, argumentsList);
+      } else if ("ontimeout" in defaultDetails) {
+        defaultDetails.ontimeout.apply(this, argumentsList);
       }
       resolve({
         status: false,
@@ -1429,9 +1544,9 @@
      */
     function onLoadStartCallBack(details, argumentsList) {
       if ("onloadstart" in details) {
-        details.onloadstart(...argumentsList);
-      } else {
-        defaultDetails?.onloadstart(...argumentsList);
+        details.onloadstart.apply(this, argumentsList);
+      } else if ("onloadstart" in defaultDetails) {
+        defaultDetails.onloadstart.apply(this, argumentsList);
       }
     }
 
@@ -1442,9 +1557,9 @@
      */
     function onReadyStateChangeCallBack(details, argumentsList) {
       if ("onreadystatechange" in details) {
-        details.onreadystatechange(...argumentsList);
-      } else {
-        defaultDetails?.onreadystatechange(...argumentsList);
+        details.onreadystatechange.apply(this, argumentsList);
+      } else if ("onreadystatechange" in defaultDetails) {
+        defaultDetails.onreadystatechange.apply(this, argumentsList);
       }
     }
 
@@ -1455,9 +1570,9 @@
      */
     function onProgressCallBack(details, argumentsList) {
       if ("onprogress" in details) {
-        details.onprogress(...argumentsList);
-      } else {
-        defaultDetails?.onprogress(...argumentsList);
+        details.onprogress.apply(this, argumentsList);
+      } else if ("onprogress" in defaultDetails) {
+        defaultDetails.onprogress.apply(this, argumentsList);
       }
     }
 
@@ -1467,8 +1582,9 @@
      * @param {object} resolve 回调
      * @param {object} response 响应
      */
-    function onLoadCallBack(details, resolve, response) {
+    function onLoadCallBack(details, resolve, argumentsList) {
       /* X浏览器会因为设置了responseType导致不返回responseText */
+      let response = argumentsList[0];
       if (
         details.responseType === "json" &&
         Utils.isNull(response.responseText) &&
@@ -1478,12 +1594,16 @@
           response.responseText = JSON.stringify(response.response);
         });
       }
-      resolve({
-        status: true,
-        data: response,
-        msg: "请求完毕",
-        type: "onload",
-      });
+      if (response.status) {
+        resolve({
+          status: true,
+          data: response,
+          msg: "请求完毕",
+          type: "onload",
+        });
+      } else {
+        onErrorCallBack(details, resolve, argumentsList);
+      }
     }
 
     /**
