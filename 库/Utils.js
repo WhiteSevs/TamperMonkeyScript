@@ -1594,7 +1594,7 @@
           response.responseText = JSON.stringify(response.response);
         });
       }
-      if (response.status) {
+      if (response.status === 200) {
         resolve({
           status: true,
           data: response,
