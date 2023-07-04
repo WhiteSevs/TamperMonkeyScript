@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "4.0",
+    version: "4.1",
   };
 
   /**
