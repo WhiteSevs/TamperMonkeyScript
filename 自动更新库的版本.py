@@ -68,6 +68,7 @@ def replaceContent(path, dataList):
                 with open(file=file_path, mode="r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                 replaced_content = content
+                flag = False
                 for library in dataList:
                     pattern = f"""{library["url"]}(\?version=[\d]+|)"""
                     replacement = f"""{library["url"]}?version={library["version"]}"""
@@ -85,10 +86,11 @@ def replaceContent(path, dataList):
                             if oldVersion is not None:
                                 oldVersion = oldVersionMatch[0].replace(
                                     "version=", "")
-                        if oldVersion != library["version"]:
+                        if oldVersion != library["version"] and int(oldVersion) < int(library["version"]):
+                            flag = True
                             print(
                                 f"""{library["name"]} {len(patternMatch)}处 版本: {oldVersion} => {library["version"]}""")
-                if content != replaced_content:
+                if content != replaced_content and flag:
                     with open(file=file_path, mode="w", encoding="utf-8", errors="ignore") as f:
                         f.write(replaced_content)
                     file_path = re.sub(r'\.\/.+\\', '', file_path)
