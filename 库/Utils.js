@@ -2252,7 +2252,7 @@
    * > true
    **/
   Utils.isPhone = function () {
-    return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
+    return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(navigator.userAgent));
   };
 
   /**
