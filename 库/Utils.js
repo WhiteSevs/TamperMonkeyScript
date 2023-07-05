@@ -149,7 +149,7 @@
     this.items = {};
     /**
      * 检查是否有某一个键
-     * @param {*} key 键
+     * @param {any} key 键
      * @returns {boolean}
      */
     this.has = function (key) {
@@ -157,8 +157,8 @@
     };
     /**
      * 为字典添加某一个值
-     * @param {*} key 键
-     * @param {*} val 值，默认为""
+     * @param {any} key 键
+     * @param {any} val 值，默认为""
      */
     this.set = function (key, val = "") {
       if (key === undefined) {
@@ -168,7 +168,7 @@
     };
     /**
      * 删除某一个键
-     * @param {*} key 键
+     * @param {any} key 键
      * @returns {boolean}
      */
     this.delete = function (key) {
@@ -180,7 +180,7 @@
     };
     /**
      * 获取某个键的值
-     * @param {*} key 键
+     * @param {any} key 键
      * @returns {any|undefined}
      */
     this.get = function (key) {
@@ -188,7 +188,7 @@
     };
     /**
      * 返回字典中的所有值
-     * @returns {array}
+     * @returns {[...any]}
      */
     this.values = function () {
       let resultList = [];
@@ -2489,8 +2489,8 @@
 
   /**
    * 把Object内的value值全部取出成Array
-   * @param {Object} obj JSON数据
-   * @return {Object} 返回数组
+   * @param {object} obj JSON数据
+   * @return {object} 返回数组
    * @example
    * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
    * @return ['jsonToArray', 'Array']
