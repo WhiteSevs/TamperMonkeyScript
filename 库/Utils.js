@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "4.1",
+    version: "4.2",
   };
 
   /**
@@ -34,6 +34,14 @@
         }
    **/
   Utils.assign = function (target = {}, source = {}) {
+    if (Array.isArray(source)) {
+      let canTraverse = source.filter((item) => {
+        return typeof item === "object";
+      });
+      if (!canTraverse.length) {
+        return source;
+      }
+    }
     for (let targetKeyName in target) {
       let targetValue = target[targetKeyName];
       if (targetKeyName in source) {
@@ -237,12 +245,17 @@
 
   /**
    * 主动触发事件
-   * @param {HTMLElement} dom 元素
+   * @param {HTMLElement} element 元素
    * @param {string|[...string]} eventName 事件名称，可以是字符串，也可是字符串格式的列表
+   * @param {boolean} 是否使用Proxy代理
+   * + true 使用Proxy代理Event并设置获取isTrusted永远为True
+   * + false (默认) 不对Event进行Proxy代理
    * @example
    * Utils.dispatchEvent(document.querySelector("input","input"))
+   * @example
+   * Utils.dispatchEvent(document.querySelector("input","input"),true)
    */
-  Utils.dispatchEvent = function (dom, eventName) {
+  Utils.dispatchEvent = function (element, eventName, proxy = false) {
     let eventNameList = [];
     if (typeof eventName === "string") {
       eventNameList = [eventName];
@@ -251,7 +264,19 @@
       eventNameList = [...eventName];
     }
     eventNameList.forEach((_eventName_) => {
-      dom.dispatchEvent(new Event(_eventName_));
+      let eleEvent = new Event(_eventName_);
+      if (proxy) {
+        eleEvent = new Proxy(eleEvent, {
+          get: function (target, property) {
+            if (property === "isTrusted") {
+              return true;
+            } else {
+              return Reflect.get(target, property);
+            }
+          },
+        });
+      }
+      element.dispatchEvent(eleEvent);
     });
   };
 
@@ -604,6 +629,38 @@
       Math.abs((bigDate - smallDate) / remainderValue)
     );
     return diffValue;
+  };
+
+  /**
+   * 获取元素的选择器字符串
+   * @param {HTMLElement} element
+   * @returns {string}
+   * @example
+   * Utils.getElementSelector(document.querySelector("a"))
+   * > '.....'
+   */
+  Utils.getElementSelector = function (element) {
+    if (!element) return;
+    if (!element.parentElement) return;
+    /* 如果元素有id属性，则直接返回id选择器 */
+    if (element.id) return "#" + element.id;
+
+    /* 递归地获取父元素的选择器 */
+    let selector = Utils.getElementSelector(element.parentElement);
+    if (!selector) {
+      return element.tagName;
+    }
+    /* 如果有多个相同类型的兄弟元素，则需要添加索引 */
+    if (element.parentElement.querySelectorAll(element.tagName).length > 1) {
+      let index =
+        Array.prototype.indexOf.call(element.parentElement.children, element) +
+        1;
+      selector +=
+        " > " + element.tagName.toLowerCase() + ":nth-child(" + index + ")";
+    } else {
+      selector += " > " + element.tagName.toLowerCase();
+    }
+    return selector;
   };
 
   /**
@@ -2252,7 +2309,9 @@
    * > true
    **/
   Utils.isPhone = function () {
-    return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(navigator.userAgent));
+    return Boolean(
+      /(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(navigator.userAgent)
+    );
   };
 
   /**
@@ -2874,19 +2933,46 @@
       /* 监听到元素有反馈，需执行的函数 */
       callback: () => {},
       config: {
-        /* 当为 true 时，将会监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target。默认值为 false */
+        /**
+         * @type {boolean|undefined}
+         * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
+         * + false (默认) 不生效
+         */
         subtree: undefined,
-        /* 当为 true 时，监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）。默认值为 false。 */
+        /**
+         * @type {boolean|undefined}
+         * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
+         * + false (默认) 不生效
+         */
         childList: undefined,
-        /* 当为 true 时观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue，默认值则为 false */
+        /**
+         * @type {boolean|undefined}
+         * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
+         * + false (默认) 不生效
+         */
         attributes: undefined,
-        /* 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知 */
+        /**
+         * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
+         * @type {[...string]|undefined}
+         */
         attributeFilter: undefined,
-        /* 当为 true 时，记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情。默认值为 false */
+        /**
+         * @type {boolean|undefined}
+         * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
+         * + false (默认) 不生效
+         */
         attributeOldValue: undefined,
-        /* 当为 true 时，监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue，默认值则为 false */
+        /**
+         * @type {boolean|undefined}
+         * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
+         * + false (默认) 不生效
+         */
         characterData: undefined,
-        /* 当为 true 时，记录前一个被监听的节点中发生的文本变化。默认值为 false */
+        /**
+         * @type {boolean|undefined}
+         * + true 记录前一个被监听的节点中发生的文本变化
+         * + false (默认) 不生效
+         */
         characterDataOldValue: undefined,
       },
     };
@@ -3085,7 +3171,6 @@
       }
     }
   };
-
   /**
    * base64转blob
    * @param {string} dataUri base64的数据
@@ -3234,6 +3319,40 @@
   Utils.parseFromString = function (text, mimeType = "text/html") {
     let parser = new DOMParser();
     return parser.parseFromString(text, mimeType);
+  };
+
+  /**
+   * 阻止事件传递
+   * @param {HTMLElement} ele 要进行处理的元素
+   * @param {string|[...string]} eventNameList 要阻止的事件名|列表
+   * @param {Event|undefined} paramEvent 事件
+   * @example
+   * Utils.preventEvent(document.querySelector("a"),"click")
+   * @example
+   * Utils.preventEvent(event);
+   */
+  Utils.preventEvent = function (ele, eventNameList = []) {
+    function stopEvent(event) {
+      /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
+      event?.preventDefault();
+      /* 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素 */
+      event?.stopPropagation();
+      /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
+      event?.stopImmediatePropagation();
+      return false;
+    }
+    if (arguments.length === 1) {
+      return stopEvent(arguments[0]);
+    } else if (arguments.length === 2) {
+      if (typeof eventNameList === "string") {
+        eventNameList = [eventNameList];
+      }
+      eventNameList.forEach((eventName) => {
+        ele.addEventListener(eventName, function (event) {
+          return stopEvent(event);
+        });
+      });
+    }
   };
 
   /**
