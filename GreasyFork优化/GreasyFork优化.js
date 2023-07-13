@@ -16,7 +16,7 @@
 // @connect      greasyfork.org
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1198446
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374
 // ==/UserScript==
 
 (function () {
