@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      0.9.9
+// @version      1.0
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -42,7 +42,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1066,6 +1066,11 @@
                 url = url.replace(chineseArr[i], encodeURI(chineseArr[i]));
               }
             }
+          }
+          /* 因为链接中存在%25，需要正确替换成% */
+          if (!utils.isNull(url) && url.startsWith("https://m.baidu.com/sf?")) {
+            url = decodeURIComponent(url);
+            /* url = url.replaceAll("%25","%") */
           }
           return url;
         },
