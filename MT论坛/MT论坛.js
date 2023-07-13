@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至4.0;尝试兼容Via浏览器(Via的兼容性有待提高);已确认兼容X浏览器(可能部分不兼容);
-// @version      3.0.0.2
+// @description  更新日志: 库Utils更新至4.2;新增代码块高亮功能桌面端(桌面端需开启帖子浏览优化)和移动端(移动端需手动开启);
+// @version      3.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -34,7 +34,8 @@
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
+// @require      https://cdn.bootcdn.net/ajax/libs/highlight.js/11.7.0/es/highlight.min.js
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374
 // ==/UserScript==
 
 (function () {
@@ -634,6 +635,11 @@
         pathName: "/uc_server/avatar.php",
       },
     ],
+    /**
+     * 是否已设置hljs的高亮CSS
+     * @type {boolean}
+     */
+    isSetHljsCSS: false,
   };
 
   /**
@@ -644,7 +650,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -682,7 +688,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374",
       },
     ];
     for (const libraryItem of libraries) {
@@ -715,6 +721,131 @@
     }
   }
 
+  const CommonFunc = {
+    /**
+     * hljs的smali高亮
+     * @param {object} hljs
+     * @returns {object}
+     */
+    hljs_smali(hljs) {
+      var smali_instr_low_prio = [
+        "add",
+        "and",
+        "cmp",
+        "cmpg",
+        "cmpl",
+        "const",
+        "div",
+        "double",
+        "float",
+        "goto",
+        "if",
+        "int",
+        "long",
+        "move",
+        "mul",
+        "neg",
+        "new",
+        "nop",
+        "not",
+        "or",
+        "rem",
+        "return",
+        "shl",
+        "shr",
+        "sput",
+        "sub",
+        "throw",
+        "ushr",
+        "xor",
+      ];
+      var smali_instr_high_prio = [
+        "aget",
+        "aput",
+        "array",
+        "check",
+        "execute",
+        "fill",
+        "filled",
+        "goto/16",
+        "goto/32",
+        "iget",
+        "instance",
+        "invoke",
+        "iput",
+        "monitor",
+        "packed",
+        "sget",
+        "sparse",
+      ];
+      var smali_keywords = [
+        "transient",
+        "constructor",
+        "abstract",
+        "final",
+        "synthetic",
+        "public",
+        "private",
+        "protected",
+        "static",
+        "bridge",
+        "system",
+      ];
+      return {
+        aliases: ["smali"],
+        contains: [
+          {
+            className: "string",
+            begin: '"',
+            end: '"',
+            relevance: 0,
+          },
+          hljs.COMMENT("#", "$", {
+            relevance: 0,
+          }),
+          {
+            className: "keyword",
+            variants: [
+              { begin: "\\s*\\.end\\s[a-zA-Z0-9]*" },
+              { begin: "^[ ]*\\.[a-zA-Z]*", relevance: 0 },
+              { begin: "\\s:[a-zA-Z_0-9]*", relevance: 0 },
+              { begin: "\\s(" + smali_keywords.join("|") + ")" },
+            ],
+          },
+          {
+            className: "built_in",
+            variants: [
+              {
+                begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s",
+              },
+              {
+                begin:
+                  "\\s(" +
+                  smali_instr_low_prio.join("|") +
+                  ")((\\-|/)[a-zA-Z0-9]+)+\\s",
+                relevance: 10,
+              },
+              {
+                begin:
+                  "\\s(" +
+                  smali_instr_high_prio.join("|") +
+                  ")((\\-|/)[a-zA-Z0-9]+)*\\s",
+                relevance: 10,
+              },
+            ],
+          },
+          {
+            className: "class",
+            begin: "L[^(;:\n]*;",
+            relevance: 0,
+          },
+          {
+            begin: "[vp][0-9]+",
+          },
+        ],
+      };
+    },
+  };
   /**
    * 脚本环境的一些兼容，比如X浏览器
    * @returns true || false
@@ -818,8 +949,7 @@
         "background:#fff;"
       );
       window.GM_xmlhttpRequest = (requestData) => {
-        console.log(`$jq.ajax请求 url: ${requestData.url}`);
-        console.log("jq.ajax请求的数据: ", requestData);
+        console.log("$jq.ajax请求的数据: ", requestData);
         let headers_options = {};
         let headers_options_key = [
           "Accept-Charset",
@@ -859,25 +989,51 @@
           dataType: requestData.responseType,
           headers: headers_options,
           success: (response) => {
+            let resolveDetails = {};
             if (typeof response === "string") {
-              requestData.onload({ responseText: response, type: "ajax" });
+              resolveDetails = {
+                responseText: response,
+                type: "ajax",
+                status: 200,
+                readyState: 4,
+              };
             } else {
-              requestData.onload(response);
+              resolveDetails = response;
             }
+            console.log("$jq.ajax的success回调", resolveDetails);
+            requestData.onload(resolveDetails);
           },
-          error: (response) => {
-            if (response.status == 200) {
-              if (typeof response === "string") {
-                requestData.onload({ responseText: response, type: "ajax" });
-              } else {
-                requestData.onload(response);
-              }
+          error: (response, textStatus, errorThrown) => {
+            let resolveDetails = {};
+            if (response.status === 200 && typeof response === "string") {
+              resolveDetails = {
+                responseText: response,
+                type: "ajax",
+                status: 200,
+                readyState: 4,
+              };
+            } else if (
+              response.status !== 200 &&
+              typeof response === "string"
+            ) {
+              resolveDetails = {
+                responseText: response,
+                type: "ajax",
+                status: 404,
+                readyState: 4,
+              };
             } else {
-              if (typeof response === "string") {
-                requestData.onerror({ responseText: response, type: "ajax" });
-              } else {
-                requestData.onerror(response);
-              }
+              resolveDetails = response;
+            }
+            if (textStatus === "timeout") {
+              console.error("$jq.ajax的error回调", response);
+              requestData.ontimeout(resolveDetails);
+            } else if (resolveDetails.status === 200) {
+              console.log("$jq.ajax的error->success回调", response);
+              requestData.onload(resolveDetails);
+            } else {
+              console.error("$jq.ajax的error回调", response);
+              requestData.onerror(resolveDetails);
             }
           },
         });
@@ -1423,7 +1579,7 @@
             _item_.setAttribute("onclick", "");
             $jq(_item_).off("click");
             $jq(_item_).on("click", function (event) {
-              event.preventDefault();
+              utils.preventEvent(event);
               let _index_ = clickShowIMGList.findIndex((_img_) => {
                 return _img_ == IMG_URL;
               });
@@ -1636,6 +1792,127 @@
           leftInfoMetaNextElement.style.display = "none";
           leftInfoMetaNextElement = leftInfoMetaNextElement.nextElementSibling;
         }
+      });
+      GM_addStyle(`
+      .hljs ol{
+        margin: 0px 0 0 10px;
+        padding: 10px 10px;
+      }
+      .hljs li {
+          padding-left: 10px;
+          list-style-type: decimal-leading-zero;
+          font-family: Monaco,Consolas,'Lucida Console','Courier New',serif;
+          font-size: 12px;
+          line-height: 1.8em;
+      }
+      .hljs li:hover {
+        background: #2c313c;
+      }
+      .hljs li::marker {
+          unicode-bidi: isolate;
+          font-variant-numeric: tabular-nums;
+          text-transform: none;
+          text-indent: 0px !important;
+          text-align: start !important;
+          text-align-last: start !important;
+      }
+      .hljs em[onclick^=copycode] {
+        color: #fff;
+        background: #246fff;
+        margin: 5px 10px;
+        border-radius: 3px;
+        padding: 0px 5px;
+        cursor: pointer;
+        height: 32px;
+        line-height: 32px;
+        display: inline-flex;
+      }
+      .hljs .code-select-language{
+        height: 32px;
+        line-height: 32px;
+        font-size: 14px;
+        border: 1px solid #5c5c5c;
+        border-radius: 5px;
+        text-align: center;
+        outline: 0;
+      }
+      `);
+      $jq(document.head).append(
+        $jq(
+          `<link rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-d/highlight.js/11.4.0/styles/github-dark.min.css">`
+        )
+      );
+      unsafeWindow.hljs = hljs;
+      hljs.registerLanguage("smali", CommonFunc.hljs_smali);
+      let funcLock = new utils.funcLock(
+        () => {
+          function setElementHighlight(ele, language = "java") {
+            if (!ele.oldValue) {
+              ele.oldValue = ele.textContent;
+            }
+            ele.innerHTML = hljs
+              .highlight(ele.oldValue, { language: language })
+              .value.replace(/\\n$/gi, "");
+          }
+          document
+            .querySelectorAll("em[onclick^=copycode]")
+            .forEach((coypCodeElement) => {
+              if (
+                coypCodeElement.nextElementSibling &&
+                typeof coypCodeElement.nextElementSibling.className ===
+                  "string" &&
+                coypCodeElement.nextElementSibling.className ==
+                  "code-select-language"
+              ) {
+                return;
+              }
+              let codeLanguage = hljs.highlightAuto(
+                coypCodeElement.parentElement.querySelector("div[id^=code]")
+                  .textContent
+              ).language;
+              let selectElement = document.createElement("select");
+              let selectLanguageList = hljs.listLanguages().sort();
+              selectLanguageList = selectLanguageList.concat("自动检测");
+              let selectInnerHTML = "";
+              selectLanguageList.forEach((languageName) => {
+                if (languageName.startsWith("自动检测")) {
+                  selectInnerHTML += `<option data-value="${codeLanguage}" selected="selected">${languageName}(${codeLanguage})</option>`;
+                } else {
+                  selectInnerHTML += `<option data-value="${languageName}">${languageName}\</option>`;
+                }
+              });
+              selectElement.className = "code-select-language";
+              selectElement.innerHTML = selectInnerHTML;
+              selectElement.addEventListener("change", function () {
+                let changeCodeLanguage =
+                  this.selectedOptions[0].getAttribute("data-value");
+                console.log("切换代码块语言: ", changeCodeLanguage);
+                this.parentElement
+                  .querySelectorAll("li")
+                  .forEach((liElement) => {
+                    setElementHighlight(liElement, changeCodeLanguage);
+                  });
+              });
+              utils.preventEvent(selectElement, "click");
+              utils.preventEvent(coypCodeElement, "click");
+              coypCodeElement.insertAdjacentElement("afterend", selectElement);
+              utils.dispatchEvent(selectElement, "change");
+            });
+
+          let blockcodeElementList = document.querySelectorAll(".blockcode");
+          blockcodeElementList.forEach((ele) => (ele.className = "hljs"));
+        },
+        this,
+        500
+      );
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        callback() {
+          funcLock.run();
+        },
       });
     },
     quickReply() {
@@ -1950,15 +2227,15 @@
             </a>
             `);
             reviewsNode.on("click", function () {
-              utils.waitNode("div[id=ntcmsg_popmenu]>div>span.f_c").then(
-                (nodeList2) => {
+              utils
+                .waitNode("div[id=ntcmsg_popmenu]>div>span.f_c")
+                .then((nodeList2) => {
                   try {
                     nodeList2[0].innerText = "点评 " + reviewsUserName;
                   } catch (err) {
                     console.log("修改点评失败", err);
                   }
-                }
-              );
+                });
             });
             $jq(bottomZhanNode).prepend(reviewsNode);
           });
@@ -2736,55 +3013,172 @@
       }
     },
     /**
-     * 代码块复制按钮
+     * 代码块优化
      */
-    codeQuoteCopyBtn() {
+    codeQuoteOptimization() {
       if (
         !GM_getValue("v46") &&
         !window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)
       ) {
         return;
       }
+      if (!DOM_CONFIG.isSetHljsCSS) {
+        DOM_CONFIG.isSetHljsCSS = true;
+        $jq(document.head).append(
+          $jq(
+            `<link rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-d/highlight.js/11.4.0/styles/github-dark.min.css">`
+          )
+        );
+        hljs.registerLanguage("smali", CommonFunc.hljs_smali);
+        GM_addStyle(`
+        .hljs ol{
+          margin: 0px 0 0 10px;
+          padding: 10px 10px 10px 25px;
+        }
+        .hljs li {
+            padding-left: 10px;
+            list-style-type: decimal-leading-zero;
+            font-family: Monaco,Consolas,'Lucida Console','Courier New',serif;
+            font-size: 12px;
+            line-height: 1.8em;
+        }
+        .hljs li:hover {
+          background: #2c313c;
+        }
+        .hljs li::marker {
+            unicode-bidi: isolate;
+            font-variant-numeric: tabular-nums;
+            text-transform: none;
+            text-indent: 0px !important;
+            text-align: start !important;
+            text-align-last: start !important;
+        }
+        select.code-select-language{
+          height: 40px;
+          line-height: 40px;
+          font-size: 14px;
+          border: 1px solid #5c5c5c;
+          border-radius: 5px;
+          text-align: center;
+          outline: 0;
+          margin-left: 10px;
+        }
+        `);
+        GM_addStyle(`
+        .reader-copy-button{
+          background: #000;
+          background-size: cover;
+          background-repeat: no-repeat;
+          background-position: 0;
+          color: #fff;
+          line-height: 40px;
+          display: block;
+          text-align: center;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 15px;
+          width: 70px;
+          user-select: none;
+        }
+        .reader-copy-button i{
+          display: inline-block;
+          margin-right: 6px;
+          width: 16px;
+          height: 16px;
+          background-size: cover;
+          vertical-align: sub;
+          user-select: none;
+        }
+        `);
+        $jq(document).on("click",".reader-copy-button",function(event){
+          utils.preventEvent(event);
+          let codeElement = document.querySelector(event.target.getAttribute("data-code-selector"))
+          console.log("点击复制");
+          GM_setClipboard(codeElement.outerText || codeElement.innerText);
+          popups.toast("已复制到剪贴板");
+          return false;
+        })
+      }
       let comiis_blockcode = $jq(".comiis_blockcode.comiis_bodybg");
       $jq.each(comiis_blockcode, (index, value) => {
-        if (!value.getAttribute("data-copy")) {
-          value.setAttribute("data-copy", true);
-          let tempDivNode = document.createElement("div");
-          tempDivNode.setAttribute("style", "height: 34px;margin: 14px 0px;");
-          let btnSpanNode = document.createElement("span");
-          btnSpanNode.className = "reader-copy-button";
-          btnSpanNode.setAttribute(
-            "style",
-            "background: #000;background-size: cover;background-repeat: no-repeat;background-position: 0;color: #fff;line-height: 40px;display: block;position: absolute;text-align: center;border-radius: 5px;cursor: pointer;right: auto!important;font-size: 15px;width: 70px;user-select: none;"
-          );
-          btnSpanNode.innerHTML = `
-                    <i style="display: inline-block;margin-right: 6px;width: 16px;height: 16px;background-size: cover;vertical-align: sub;user-select: none;">
-                    <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>复制按钮</title>
-                        <defs>
-                            <rect id="path-1" x="0" y="0" width="16" height="16"></rect>
-                        </defs>
-                        <g id="阅读页复制-拦截" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g>
-                                <mask id="mask-2" fill="white">
-                                    <use xlink:href="#path-1"></use>
-                                </mask>
-                                <g id="矩形"></g>
-                                <path d="M4.11794319,3.55555556 L9.51168644,3.55555556 C10.4768443,3.55555556 11.2592593,4.33797056 11.2592593,5.30312837 L11.2592593,13.067242 C11.2592593,14.0323998 10.4768443,14.8148148 9.51168644,14.8148148 L4.11794319,14.8148148 C3.15278537,14.8148148 2.37037037,14.0323998 2.37037037,13.067242 L2.37037037,5.30312837 C2.37037037,4.33797056 3.15278537,3.55555556 4.11794319,3.55555556 Z" id="矩形" stroke="#DFDFDF" stroke-width="1.45631068" mask="url(#mask-2)"></path>
-                                <path d="M5.03703704,0.888888889 L12.1481481,0.888888889 C13.1299877,0.888888889 13.9259259,1.68482711 13.9259259,2.66666667 L13.9259259,12.7407407" id="形状" stroke="#DFDFDF" stroke-width="1.45631068" mask="url(#mask-2)"></path>
-                            </g>
-                        </g>
-                    </svg>
-                    </i>复制`;
-          tempDivNode.append(btnSpanNode);
-          tempDivNode.querySelector(".reader-copy-button").onclick = () => {
-            GM_setClipboard(value.outerText || value.innerText);
-            popups.toast("已复制代码");
-          };
-          value.before(tempDivNode);
-        } else {
-          console.log("已创建复制按钮");
+        if (value.getAttribute("data-copy")) {
+          return;
         }
+        value.setAttribute("data-copy", true);
+        let tempDivElement = $jq(`
+        <div style="height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;">
+          <span class="reader-copy-button">
+            <i>
+            <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <title>复制按钮</title>
+                <defs>
+                    <rect id="path-1" x="0" y="0" width="16" height="16"></rect>
+                </defs>
+                <g id="阅读页复制-拦截" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g>
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <g id="矩形"></g>
+                        <path d="M4.11794319,3.55555556 L9.51168644,3.55555556 C10.4768443,3.55555556 11.2592593,4.33797056 11.2592593,5.30312837 L11.2592593,13.067242 C11.2592593,14.0323998 10.4768443,14.8148148 9.51168644,14.8148148 L4.11794319,14.8148148 C3.15278537,14.8148148 2.37037037,14.0323998 2.37037037,13.067242 L2.37037037,5.30312837 C2.37037037,4.33797056 3.15278537,3.55555556 4.11794319,3.55555556 Z" id="矩形" stroke="#DFDFDF" stroke-width="1.45631068" mask="url(#mask-2)"></path>
+                        <path d="M5.03703704,0.888888889 L12.1481481,0.888888889 C13.1299877,0.888888889 13.9259259,1.68482711 13.9259259,2.66666667 L13.9259259,12.7407407" id="形状" stroke="#DFDFDF" stroke-width="1.45631068" mask="url(#mask-2)"></path>
+                    </g>
+                </g>
+            </svg>
+            </i>
+          复制
+          </span>
+        </div>
+        `);
+        $jq(value).before(tempDivElement);
+
+        /**
+         * 设置元素高亮
+         * @param {HTMLElement} ele
+         * @param {string} language 语言，默认为Java
+         */
+        function setElementHighlight(ele, language = "java") {
+          if (!ele.oldValue) {
+            ele.oldValue = ele.textContent;
+          }
+          ele.innerHTML = hljs
+            .highlight(ele.oldValue, { language: language })
+            .value.replace(/\\n$/gi, "");
+        }
+
+        /* 获取当前代码块的文本内容 */
+        let codeLanguage = hljs.highlightAuto(value.textContent).language;
+        let selectElementParentDiv = document.createElement("div");
+        let selectElement = document.createElement("select");
+        let selectLanguageList = hljs.listLanguages().sort();
+        selectLanguageList = selectLanguageList.concat("自动检测");
+        let selectInnerHTML = "";
+        selectLanguageList.forEach((languageName) => {
+          if (languageName.startsWith("自动检测")) {
+            selectInnerHTML += `<option data-value="${codeLanguage}" selected="selected">${languageName}(${codeLanguage})</option>`;
+          } else {
+            selectInnerHTML += `<option data-value="${languageName}">${languageName}\</option>`;
+          }
+        });
+        selectElement.className = "code-select-language";
+        selectElement.innerHTML = selectInnerHTML;
+        $jq(selectElement).on("change", function () {
+          let changeCodeLanguage =
+            this.selectedOptions[0].getAttribute("data-value");
+          selectElement.setAttribute("aria-label", changeCodeLanguage);
+          console.log("切换代码块语言: ", changeCodeLanguage);
+          value.querySelectorAll("li").forEach((liElement) => {
+            setElementHighlight(liElement, changeCodeLanguage);
+          });
+        });
+        utils.preventEvent(selectElement, "click");
+        selectElementParentDiv.appendChild(selectElement);
+        tempDivElement.append(selectElementParentDiv);
+        utils.dispatchEvent(selectElement, "change");
+        value.className = "hljs";
+        value.firstChild.removeAttribute("class");
+
+        tempDivElement.find(".reader-copy-button").attr("data-code-selector",utils.getElementSelector(value));
       });
     },
     /**
@@ -2891,8 +3285,9 @@
         viewer.zoomTo(1);
         viewer.show();
       }
-      utils.waitNode("div.comiis_postlist.kqide .comiis_postli").then(
-        (nodeList) => {
+      utils
+        .waitNode("div.comiis_postlist.kqide .comiis_postli")
+        .then((nodeList) => {
           nodeList.forEach((item) => {
             if (item.getAttribute("isHandlingViewIMG")) {
               /* 已处理过 */
@@ -2945,8 +3340,7 @@
             }
             item.setAttribute("isHandlingViewIMG", true);
           });
-        }
-      );
+        });
     },
   };
   /**
@@ -2974,7 +3368,8 @@
           return;
         }
         if (key === "loadNextComments") {
-          utils.tryCatch()
+          utils
+            .tryCatch()
             .error(() => {
               $jq("#loading-comment-tip").text("加载评论失败");
             })
@@ -2982,7 +3377,8 @@
           return;
         }
         if (key === "loadPrevComments") {
-          utils.tryCatch()
+          utils
+            .tryCatch()
             .error(() => {
               $jq("#loading-comment-tip-prev").text("加载评论失败");
             })
@@ -4868,18 +5264,17 @@
             popups.closeMask();
             $jq("#filedata_kggzs").val("");
           };
-          utils.waitArrayLoopToEnd(
-            chooseImageFiles,
-            uploadFileAwaitFunction
-          ).then(() => {
-            utils.tryCatch().run(completeFunction);
-          });
+          utils
+            .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+            .then(() => {
+              utils.tryCatch().run(completeFunction);
+            });
         });
         $jq(document).on(
           "click",
           "#imglist_kggzs .delImg",
           async function (event) {
-            event.preventDefault();
+            utils.preventEvent(event);
             event.currentTarget.parentElement.remove();
             /* popups.toast('删除中，请稍后');
                     let id_encoded = e.currentTarget.getAttribute("id-encode");
@@ -5032,18 +5427,17 @@
             popups.closeMask();
             $jq("#filedata_hello").val("");
           };
-          utils.waitArrayLoopToEnd(
-            chooseImageFiles,
-            uploadFileAwaitFunction
-          ).then(() => {
-            utils.tryCatch().run(completeFunction);
-          });
+          utils
+            .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+            .then(() => {
+              utils.tryCatch().run(completeFunction);
+            });
         });
         $jq(document).on(
           "click",
           "#imglist_hello .delImg",
           async function (event) {
-            event.preventDefault();
+            utils.preventEvent(event);
             popups.loadingMask();
             popups.toast("删除中，请稍后");
             let id_encoded = event.currentTarget.getAttribute("id-encode");
@@ -5202,18 +5596,17 @@
             popups.closeMask();
             $jq("#filedata_z4a").val("");
           };
-          utils.waitArrayLoopToEnd(
-            chooseImageFiles,
-            uploadFileAwaitFunction
-          ).then(() => {
-            utils.tryCatch().run(completeFunction);
-          });
+          utils
+            .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+            .then(() => {
+              utils.tryCatch().run(completeFunction);
+            });
         });
         $jq(document).on(
           "click",
           "#imglist_z4a .delImg",
           async function (event) {
-            event.preventDefault();
+            utils.preventEvent(event);
             popups.loadingMask();
             popups.toast("删除中，请稍后");
             let id_encoded = event.currentTarget.getAttribute("id-encode");
@@ -5276,7 +5669,7 @@
           });
         });
         $jq("#imglist_history").on("click", ".delImg", async (event) => {
-          event.preventDefault();
+          utils.preventEvent(event);
           let _t_index = event.currentTarget.getAttribute("t-index");
           let imageItem = historyImages[_t_index];
           let web = imageItem["web"];
@@ -6066,12 +6459,14 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  utils.waitArrayLoopToEnd(
-                    needUploadImageFileArray,
-                    uploadFileAwaitFunction
-                  ).then(() => {
-                    utils.tryCatch().run(completeFunction);
-                  });
+                  utils
+                    .waitArrayLoopToEnd(
+                      needUploadImageFileArray,
+                      uploadFileAwaitFunction
+                    )
+                    .then(() => {
+                      utils.tryCatch().run(completeFunction);
+                    });
                   return null;
                 });
               } else {
@@ -6117,12 +6512,14 @@
                         console.log(
                           `图片数量:${needUploadImageFileArray.length}`
                         );
-                        utils.waitArrayLoopToEnd(
-                          needUploadImageFileArray,
-                          uploadFileAwaitFunction
-                        ).then(() => {
-                          utils.tryCatch().run(completeFunction);
-                        });
+                        utils
+                          .waitArrayLoopToEnd(
+                            needUploadImageFileArray,
+                            uploadFileAwaitFunction
+                          )
+                          .then(() => {
+                            utils.tryCatch().run(completeFunction);
+                          });
                       });
                     },
                   },
@@ -6153,17 +6550,16 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              utils.waitArrayLoopToEnd(
-                chooseImageFiles,
-                uploadFileAwaitFunction
-              ).then(() => {
-                utils.tryCatch().run(completeFunction);
-              });
+              utils
+                .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+                .then(() => {
+                  utils.tryCatch().run(completeFunction);
+                });
             });
           }
         });
         $jq(document).on("click", "#imglist_kggzs .delImg", async (event) => {
-          event.preventDefault();
+          utils.preventEvent(event);
           event.currentTarget.parentElement.remove();
           /* popups.toast('删除中，请稍后');
                     let id_encoded = e.currentTarget.getAttribute("id-encode");
@@ -6374,12 +6770,14 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  utils.waitArrayLoopToEnd(
-                    needUploadImageFileArray,
-                    uploadFileAwaitFunction
-                  ).then(() => {
-                    utils.tryCatch().run(completeFunction);
-                  });
+                  utils
+                    .waitArrayLoopToEnd(
+                      needUploadImageFileArray,
+                      uploadFileAwaitFunction
+                    )
+                    .then(() => {
+                      utils.tryCatch().run(completeFunction);
+                    });
                 });
               } else {
                 let renderHTML = "";
@@ -6422,12 +6820,14 @@
                           console.log(
                             `图片数量:${needUploadImageFileArray.length}`
                           );
-                          utils.waitArrayLoopToEnd(
-                            needUploadImageFileArray,
-                            uploadFileAwaitFunction
-                          ).then(() => {
-                            utils.tryCatch().run(completeFunction);
-                          });
+                          utils
+                            .waitArrayLoopToEnd(
+                              needUploadImageFileArray,
+                              uploadFileAwaitFunction
+                            )
+                            .then(() => {
+                              utils.tryCatch().run(completeFunction);
+                            });
                         } else {
                           console.log("登录失败");
                         }
@@ -6461,12 +6861,11 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              utils.waitArrayLoopToEnd(
-                chooseImageFiles,
-                uploadFileAwaitFunction
-              ).then(() => {
-                utils.tryCatch().run(completeFunction);
-              });
+              utils
+                .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+                .then(() => {
+                  utils.tryCatch().run(completeFunction);
+                });
             });
           }
         });
@@ -6474,7 +6873,7 @@
           "click",
           "#imglist_hello .delImg",
           async function (event) {
-            event.preventDefault();
+            utils.preventEvent(event);
             popups.loadingMask();
             popups.toast("删除中，请稍后");
             let id_encoded = event.currentTarget.getAttribute("id-encode");
@@ -6687,12 +7086,14 @@
                   popups.toast("上传水印图片中...请稍后");
 
                   console.log(`图片数量:${needUploadImageFileArray.length}`);
-                  utils.waitArrayLoopToEnd(
-                    needUploadImageFileArray,
-                    uploadFileAwaitFunction
-                  ).then(() => {
-                    utils.tryCatch().run(completeFunction);
-                  });
+                  utils
+                    .waitArrayLoopToEnd(
+                      needUploadImageFileArray,
+                      uploadFileAwaitFunction
+                    )
+                    .then(() => {
+                      utils.tryCatch().run(completeFunction);
+                    });
                 });
               } else {
                 let renderHTML = "";
@@ -6736,12 +7137,14 @@
                         console.log(
                           `图片数量:${needUploadImageFileArray.length}`
                         );
-                        utils.waitArrayLoopToEnd(
-                          needUploadImageFileArray,
-                          uploadFileAwaitFunction
-                        ).then(() => {
-                          utils.tryCatch().run(completeFunction);
-                        });
+                        utils
+                          .waitArrayLoopToEnd(
+                            needUploadImageFileArray,
+                            uploadFileAwaitFunction
+                          )
+                          .then(() => {
+                            utils.tryCatch().run(completeFunction);
+                          });
                       }
                     },
                   },
@@ -6772,12 +7175,11 @@
               popups.toast("上传图片中...请稍后");
 
               console.log(`图片数量:${chooseImageFiles.length}`);
-              utils.waitArrayLoopToEnd(
-                chooseImageFiles,
-                uploadFileAwaitFunction
-              ).then(() => {
-                utils.tryCatch().run(completeFunction);
-              });
+              utils
+                .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+                .then(() => {
+                  utils.tryCatch().run(completeFunction);
+                });
             });
           }
         });
@@ -6785,7 +7187,7 @@
           "click",
           "#imglist_z4a .delImg",
           async function (event) {
-            event.preventDefault();
+            utils.preventEvent(event);
             popups.loadingMask();
             popups.toast("删除中，请稍后");
             let id_encoded = event.currentTarget.getAttribute("id-encode");
@@ -7032,12 +7434,14 @@
                 popups.toast("上传水印图片中...请稍后");
 
                 console.log(`图片数量:${needUploadImageFileArray.length}`);
-                utils.waitArrayLoopToEnd(
-                  needUploadImageFileArray,
-                  uploadFileAwaitFunction
-                ).then(() => {
-                  utils.tryCatch().run(completeFunction);
-                });
+                utils
+                  .waitArrayLoopToEnd(
+                    needUploadImageFileArray,
+                    uploadFileAwaitFunction
+                  )
+                  .then(() => {
+                    utils.tryCatch().run(completeFunction);
+                  });
                 return null;
               }
               let renderHTML = "";
@@ -7076,12 +7480,14 @@
                     popups.toast("上传水印图片中...请稍后");
 
                     console.log(`图片数量:${needUploadImageFileArray.length}`);
-                    utils.waitArrayLoopToEnd(
-                      needUploadImageFileArray,
-                      uploadFileAwaitFunction
-                    ).then(() => {
-                      utils.tryCatch().run(completeFunction);
-                    });
+                    utils
+                      .waitArrayLoopToEnd(
+                        needUploadImageFileArray,
+                        uploadFileAwaitFunction
+                      )
+                      .then(() => {
+                        utils.tryCatch().run(completeFunction);
+                      });
                   },
                 },
                 other: {
@@ -7106,12 +7512,11 @@
             popups.toast("上传图片中...请稍后");
 
             console.log(`图片数量:${chooseImageFiles.length}`);
-            utils.waitArrayLoopToEnd(
-              chooseImageFiles,
-              uploadFileAwaitFunction
-            ).then(() => {
-              utils.tryCatch().run(completeFunction);
-            });
+            utils
+              .waitArrayLoopToEnd(chooseImageFiles, uploadFileAwaitFunction)
+              .then(() => {
+                utils.tryCatch().run(completeFunction);
+              });
           }
         });
         $jq(document).on(
@@ -7119,7 +7524,7 @@
           "#imglist_mt .delImg",
           async function (event) {
             /* 删除上传的图片-目前无法删除 */
-            event.preventDefault();
+            utils.preventEvent(event);
             const id_encoded = $jq(this).attr("id-encode");
             $jq(this).parent().remove();
             mobile.chartBed.storage.delete("mt", id_encoded);
@@ -7259,7 +7664,7 @@
         );
 
         $jq(document).on("click", "#imglist_history .delImg", function (event) {
-          event.preventDefault();
+          utils.preventEvent(event);
           let obj = $jq(this);
           let _t_web = obj.attr("t-web");
           let _t_id = obj.attr("t-id");
@@ -8388,7 +8793,7 @@
         "input propertychange",
         function (event) {
           /* 输入框内容改变，高度也改变事件 */
-          event.preventDefault();
+          utils.preventEvent(event);
           let inputText = event.target.value;
           if (!utils.isNull(inputText)) {
             btn_fabiao.attr("data-text", "true");
@@ -8829,7 +9234,7 @@
 
       $jq(".removeChartBedAccount").on("click", function (event) {
         /* 删除 点击事件 */
-        event.preventDefault();
+        utils.preventEvent(event);
         let node = $jq(this);
         popups.confirm({
           text: "<p>确定删除保存的账号和密码？</p>",
@@ -9093,9 +9498,11 @@
 
       utils.tryCatch().run(mobile.editorChartBed);
       utils.tryCatch().run(mobile.quickUBB.insertQuickReplyUBB);
-      utils.tryCatch().run(
-        mobileRepeatFunc.editorOptimizationOffDefaultBottomReplyBtnClickEvent
-      );
+      utils
+        .tryCatch()
+        .run(
+          mobileRepeatFunc.editorOptimizationOffDefaultBottomReplyBtnClickEvent
+        );
       utils.tryCatch().run(chartbedWaterMarkEvent);
       utils.tryCatch().run(initLocalReplyData);
     },
@@ -9539,61 +9946,61 @@
       }
 
       var recordHeight = 0;
-      utils.waitNode(
-        "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
-      ).then((nodeList) => {
-        utils.mutationObserver(nodeList[0], {
-          callback: (mutations) => {
-            var $tar = document.querySelector(
-              "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
-            );
-            let height = window
-              .getComputedStyle($tar)
-              .getPropertyValue("height");
-            if (height === recordHeight) {
-              return;
-            }
-            recordHeight = height;
+      utils
+        .waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot")
+        .then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
+            callback: (mutations) => {
+              var $tar = document.querySelector(
+                "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
+              );
+              let height = window
+                .getComputedStyle($tar)
+                .getPropertyValue("height");
+              if (height === recordHeight) {
+                return;
+              }
+              recordHeight = height;
 
-            let needMessageSeeHeight =
-              document.documentElement.clientHeight -
-              document
-                .querySelector(
-                  "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
-                )
-                .getBoundingClientRect().height -
-              document.querySelector("#needmessage").getBoundingClientRect()
-                .top;
-            if (needMessageSeeHeight - 5 < 100) {
-              $jq("#needmessage").css("height", "100px");
-              $jq(
-                ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
-              ).css("height", "100px");
-            } else {
-              console.log(
-                "监测到底部菜单高度改变，修改输入框和预览框高度 ",
-                needMessageSeeHeight - 5
-              );
-              $jq("#needmessage").css(
-                "height",
-                needMessageSeeHeight - 5 + "px"
-              );
-              $jq(
-                ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
-              ).css("height", needMessageSeeHeight - 5 + "px");
-            }
-          },
-          config: {
-            childList: true,
-            /* 属性的变动 */
-            attributes: true,
-            /* 节点内容或节点文本的变动 */
-            characterData: true,
-            /* 是否将观察器应用于该节点的所有后代节点 */
-            subtree: true,
-          },
+              let needMessageSeeHeight =
+                document.documentElement.clientHeight -
+                document
+                  .querySelector(
+                    "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
+                  )
+                  .getBoundingClientRect().height -
+                document.querySelector("#needmessage").getBoundingClientRect()
+                  .top;
+              if (needMessageSeeHeight - 5 < 100) {
+                $jq("#needmessage").css("height", "100px");
+                $jq(
+                  ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
+                ).css("height", "100px");
+              } else {
+                console.log(
+                  "监测到底部菜单高度改变，修改输入框和预览框高度 ",
+                  needMessageSeeHeight - 5
+                );
+                $jq("#needmessage").css(
+                  "height",
+                  needMessageSeeHeight - 5 + "px"
+                );
+                $jq(
+                  ".gm_plugin_previewpostforum_html.double-preview .comiis_over_box"
+                ).css("height", needMessageSeeHeight - 5 + "px");
+              }
+            },
+            config: {
+              childList: true,
+              /* 属性的变动 */
+              attributes: true,
+              /* 节点内容或节点文本的变动 */
+              characterData: true,
+              /* 是否将观察器应用于该节点的所有后代节点 */
+              subtree: true,
+            },
+          });
         });
-      });
 
       $jq(window).on("resize", function () {
         let needMessageSeeHeight =
@@ -9811,7 +10218,7 @@
        */
       function setSettingViewEvent() {
         $jq(".removeChartBedAccount").on("click", function (event) {
-          event.preventDefault();
+          utils.preventEvent(event);
           let node = $jq(this);
           popups.confirm({
             text: "<p>确定删除保存的账号和密码？</p>",
@@ -10122,6 +10529,7 @@
         utils.tryCatch().run(initLocalReplyData);
         utils.tryCatch().run(listenMessageChange);
       }
+      utils.dispatchEvent($jq("#needmessage")[0], "input");
     },
     /**
      * 蓝奏功能(登录、上传、查看历史上传、删除)
@@ -11328,7 +11736,7 @@
         utils.tryCatch().run(mobileRepeatFunc.showUserUID);
         utils.tryCatch().run(mobileRepeatFunc.ownShield);
         utils.tryCatch().run(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
-        utils.tryCatch().run(mobileRepeatFunc.codeQuoteCopyBtn);
+        utils.tryCatch().run(mobileRepeatFunc.codeQuoteOptimization);
       }
       utils.waitNode(".comiis_forumlist").then(() => {
         repeatFunc();
@@ -14061,7 +14469,7 @@
       let $search_input = $jq(".ssclose.bg_e.f_e");
       if ($search_input) {
         $search_input.click(function (event) {
-          event.preventDefault();
+          utils.preventEvent(event);
           $jq("#scform_srchtxt").val("");
         });
       } else {
@@ -14539,7 +14947,7 @@
                 item2.addEventListener(
                   "click",
                   function (event) {
-                    event.stopPropagation();
+                    utils.preventEvent(event);
                     that.searchSelectDeleteItemClicked = false;
                     that.parentDOM.dispatchEvent(new Event("focus"));
                     if (event.target.localName === "li") {
@@ -15185,6 +15593,15 @@
               console.log(response);
               if (response.status !== 200) {
                 popups.toast("获取轮播失败 状态码:" + response.status);
+                resolve([]);
+                return;
+              }
+              if (
+                response.responseText.indexOf(
+                  '<script src="/_guard/auto.js"></script>'
+                ) !== -1
+              ) {
+                popups.toast("获取轮播失败 未知的auto.js文件");
                 resolve([]);
                 return;
               }
@@ -16037,7 +16454,7 @@
                 </div>
               </div>
               <div class="whitesev-mt-setting-item">
-                <p class="whitesev-mt-setting-name">代码块上方新增复制按钮</p>
+                <p class="whitesev-mt-setting-name">代码块优化</p>
                 <div class="whitesev-mt-setting-checkbox">
                   <input type="checkbox" data-key="v46">
                   <div class="knobs"><span></span></div>
