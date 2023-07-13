@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.7.2.0.31
+// @version      23.7.13.14.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -36,7 +36,7 @@
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1205376
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1187390
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1213972
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374
 // ==/UserScript==
 
 (function () {
@@ -2777,6 +2777,27 @@
             ?.click();
           document.querySelector("#sub")?.click();
         });
+        utils.waitNode("#f_pwd").then((nodeList) => {
+          utils.mutationObserver(nodeList[0], {
+            config: {
+              attributes: true,
+              attributeFilter: ["style"],
+            },
+            callback: (mutations, observer) => {
+              let inputElement = document.querySelector("#f_pwd #pwd");
+              if (!utils.isVisible(inputElement)) {
+                log.error("输入框不可见，不输入密码");
+                return;
+              }
+              observer.disconnect();
+              log.success("自动填入访问码并关闭观察者");
+              Qmsg.success("自动填入访问码");
+              inputElement.value = this.accessCode;
+              utils.dispatchEvent(inputElement, "input");
+              document.querySelector("#f_pwd #sub")?.click();
+            },
+          });
+        });
       }
     },
     /**
@@ -2841,8 +2862,9 @@
             .click();
         });
         /* 移动端 */
-        utils.waitNode("#app div.token-form input[type=text]").then(
-          (nodeList) => {
+        utils
+          .waitNode("#app div.token-form input[type=text]")
+          .then((nodeList) => {
             if (!utils.isVisible(nodeList[0])) {
               log.error("输入框不可见，不输入密码");
               return;
@@ -2851,8 +2873,7 @@
             nodeList[0].value = this.accessCode;
             utils.dispatchEvent(nodeList[0], "input");
             document.querySelector("div.token-form a.btn-token").click();
-          }
-        );
+          });
       }
     },
     /**
@@ -2913,8 +2934,9 @@
       if (window.location.hostname === "www.123pan.com") {
         /* 桌面端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("#app .ca-fot input.ant-input[type=text]").then(
-          (nodeList) => {
+        utils
+          .waitNode("#app .ca-fot input.ant-input[type=text]")
+          .then((nodeList) => {
             if (!utils.isVisible(nodeList[0])) {
               log.error("输入框不可见，不输入密码");
               return;
@@ -2926,14 +2948,14 @@
               },
             });
             nodeList[0].nextSibling.click();
-          }
-        );
+          });
 
         /* ------------------------------------ */
 
         /* 移动端 */
-        utils.waitNode("#app .appinput input.ant-input[type=text]").then(
-          (nodeList) => {
+        utils
+          .waitNode("#app .appinput input.ant-input[type=text]")
+          .then((nodeList) => {
             if (!utils.isVisible(nodeList[0])) {
               log.error("输入框不可见，不输入密码");
               return;
@@ -2945,8 +2967,7 @@
               },
             });
             nodeList[0].nextSibling.click();
-          }
-        );
+          });
       }
     },
     /**
@@ -2995,29 +3016,30 @@
       if (window.location.hostname === "pan.xunlei.com") {
         /* 桌面端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode(
-          "#__layout div.pass-input-wrap input.td-input__inner"
-        ).then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils
+          .waitNode("#__layout div.pass-input-wrap input.td-input__inner")
+          .then((nodeList) => {
+            if (!utils.isVisible(nodeList[0])) {
+              log.error("输入框不可见，不输入密码");
+              return;
+            }
             log.error("输入框不可见，不输入密码");
-            return;
-          }
-          log.error("输入框不可见，不输入密码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
-          utils.dispatchEvent(nodeList[0], "change");
-          setTimeout(() => {
-            document
-              .querySelector("#__layout div.pass-input-wrap button.td-button")
-              .click();
-          }, 500);
-        });
+            nodeList[0].value = this.accessCode;
+            utils.dispatchEvent(nodeList[0], "input");
+            utils.dispatchEvent(nodeList[0], "change");
+            setTimeout(() => {
+              document
+                .querySelector("#__layout div.pass-input-wrap button.td-button")
+                .click();
+            }, 500);
+          });
 
         /* ------------------------------------ */
 
         /* 移动端 */
-        utils.waitNode("#__layout div.pass-wrapper input.td-input__inner").then(
-          (nodeList) => {
+        utils
+          .waitNode("#__layout div.pass-wrapper input.td-input__inner")
+          .then((nodeList) => {
             if (!utils.isVisible(nodeList[0])) {
               log.error("输入框不可见，不输入密码");
               return;
@@ -3031,8 +3053,7 @@
                 .querySelector("#__layout div.pass-wrapper button.td-button")
                 .click();
             }, 500);
-          }
-        );
+          });
       }
     },
     /**
@@ -3089,23 +3110,23 @@
     kuake() {
       if (window.location.hostname === "pan.quark.cn") {
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode(
-          "#ice-container input.ant-input[class*=ShareReceive]"
-        ).then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
-            log.error("输入框不可见，不输入密码");
-            return;
-          }
-          Qmsg.success("自动填入访问码");
-          (
-            utils.getReactObj(nodeList[0]).reactProps ||
-            utils.getReactObj(nodeList[0]).reactEventHandlers
-          ).onChange({
-            target: {
-              value: this.accessCode,
-            },
+        utils
+          .waitNode("#ice-container input.ant-input[class*=ShareReceive]")
+          .then((nodeList) => {
+            if (!utils.isVisible(nodeList[0])) {
+              log.error("输入框不可见，不输入密码");
+              return;
+            }
+            Qmsg.success("自动填入访问码");
+            (
+              utils.getReactObj(nodeList[0]).reactProps ||
+              utils.getReactObj(nodeList[0]).reactEventHandlers
+            ).onChange({
+              target: {
+                value: this.accessCode,
+              },
+            });
           });
-        });
       }
     },
     /**
