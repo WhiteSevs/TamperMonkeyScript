@@ -3090,14 +3090,16 @@
           user-select: none;
         }
         `);
-        $jq(document).on("click",".reader-copy-button",function(event){
+        $jq(document).on("click", ".reader-copy-button", function (event) {
           utils.preventEvent(event);
-          let codeElement = document.querySelector(event.target.getAttribute("data-code-selector"))
+          let codeElement = document.querySelector(
+            event.target.getAttribute("data-code-selector")
+          );
           console.log("点击复制");
           GM_setClipboard(codeElement.outerText || codeElement.innerText);
           popups.toast("已复制到剪贴板");
           return false;
-        })
+        });
       }
       let comiis_blockcode = $jq(".comiis_blockcode.comiis_bodybg");
       $jq.each(comiis_blockcode, (index, value) => {
@@ -3178,7 +3180,9 @@
         value.className = "hljs";
         value.firstChild.removeAttribute("class");
 
-        tempDivElement.find(".reader-copy-button").attr("data-code-selector",utils.getElementSelector(value));
+        tempDivElement
+          .find(".reader-copy-button")
+          .attr("data-code-selector", utils.getElementSelector(value));
       });
     },
     /**
