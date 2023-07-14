@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "4.2",
+    version: "4.3",
   };
 
   /**
@@ -2691,6 +2691,7 @@
       "font-weight: bold; color: cornflowerblue",
     ];
     let details = {
+      tag: true /* 输出Tag信息 */,
       successColor: "blue" /* 成功颜色 */,
       errorColor: "red" /* 错误颜色 */,
       infoColor: "0" /* 信息颜色 */,
@@ -2770,18 +2771,40 @@
       let stackFunctionNamePosition = errorStackParse["functionPosition"];
       let callerName = stackFunctionName;
       if (typeof msg === "object") {
-        console.log(
-          `%c[${this.tag}%c-%c${callerName}%c]%c `,
-          ...msgColorDetails,
-          `color: ${color}`,
-          msg
-        );
+        /* 要输出的内容是个对象 */
+        if (details.tag) {
+          if (Array.isArray(msg) && msg.length < 5) {
+            console.log(
+              `%c[${this.tag}%c-%c${callerName}%c]%c `,
+              ...msgColorDetails,
+              `color: ${color}`,
+              ...msg
+            );
+          } else {
+            console.log(
+              `%c[${this.tag}%c-%c${callerName}%c]%c `,
+              ...msgColorDetails,
+              `color: ${color}`,
+              msg
+            );
+          }
+        } else {
+          if (Array.isArray(msg) && msg.length < 5) {
+            console.log(...msg);
+          } else {
+            console.log(msg);
+          }
+        }
       } else {
-        console.log(
-          `%c[${this.tag}%c-%c${callerName}%c]%c ${msg}`,
-          ...msgColorDetails,
-          `color: ${color}`
-        );
+        if (details.tag) {
+          console.log(
+            `%c[${this.tag}%c-%c${callerName}%c]%c ${msg}`,
+            ...msgColorDetails,
+            `color: ${color}`
+          );
+        } else {
+          console.log(`%c${msg}`, `color: ${color}`);
+        }
       }
       if (details.debug) {
         console.log(stackFunctionNamePosition);
