@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.0
+// @version      1.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -42,7 +42,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219374
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219821
 // @run-at       document-start
 // ==/UserScript==
 
@@ -53,6 +53,7 @@
   log.config({
     logMaxCount: 20000,
     autoClearConsole: true,
+    tag: true,
   });
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
@@ -1095,15 +1096,38 @@
          * 移除广告、推广
          */
         removeAds() {
-          jQuery(".icon-logo")?.first()?.remove(); /* 底部下一页前面图标删除 */
-          jQuery(
-            "#page-relative"
-          )?.remove(); /* 末尾 ===>>  大家都在搜  广告位 */
-          jQuery(
-            ".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
-          )?.remove(); /* 中间 ===>>  大家都在搜  广告位 */
-          jQuery("#pop-up")?.remove(); /* 跳转百度app提示 */
-          jQuery(".ec_wise_ad")?.parent()?.remove(); /* 顶部的部分商品广告 */
+          if (
+            GM_Menu.get("baidu_search_blocking_everyone_is_still_searching")
+          ) {
+            let pageRelativeElement = jQuery("#page-relative");
+            if (pageRelativeElement.length) {
+              log.success(
+                `删除广告位 ==> 末尾 大家都在搜 ${pageRelativeElement.length}个`
+              );
+              pageRelativeElement.remove();
+            }
+            let centerRecommandWarpperElement = jQuery(
+              ".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
+            );
+            if (centerRecommandWarpperElement.length) {
+              log.success(
+                `删除广告位 ==> 中间 大家都在搜 ${centerRecommandWarpperElement.length}个`
+              );
+              centerRecommandWarpperElement.remove();
+            }
+          }
+          let popUpElement = jQuery("#pop-up");
+          if (popUpElement.length) {
+            log.success(`删除 ==> 跳转百度app提示 ${popUpElement.length}个`);
+            popUpElement.remove();
+          }
+          let ecWiseAdElement = jQuery(".ec_wise_ad");
+          if (ecWiseAdElement.length) {
+            log.success(
+              `删除 ==> 顶部的部分商品广告 ${ecWiseAdElement.length}个`
+            );
+            ecWiseAdElement.parent().remove();
+          }
 
           jQuery(".c-result.result").each((index, item) => {
             item = jQuery(item);
@@ -1112,26 +1136,42 @@
             ); /* 获取属性上的LOG */
             let searchArticleOriginal_link = dataLog["mu"]; /* 真实链接 */
             if (
-              searchArticleOriginal_link.match(/recommend_list.baidu.com/g) ||
-              item.attr("tpl") === "recommend_list"
+              GM_Menu.get("baidu_search_blocking_everyone_is_still_searching")
             ) {
-              item?.remove();
-              log.success("删除广告==>大家还在搜");
-            }
-            if (item.text().substr(0, 5) === "大家还在搜") {
-              item?.remove();
-              log.success("删除广告==>大家都在搜（能看到的）");
-            }
-            if (item.find(".c-atom-afterclick-recomm-wrap").length) {
-              item.find(".c-atom-afterclick-recomm-wrap")?.remove();
-              log.success("删除广告==>大家还在搜:隐藏的(点击后，跳出来的)");
+              if (
+                searchArticleOriginal_link.match(/recommend_list.baidu.com/g) ||
+                item.attr("tpl") === "recommend_list"
+              ) {
+                item?.remove();
+                log.success("删除广告 ==> 大家还在搜");
+              }
+              if (item.text().substr(0, 5) === "大家还在搜") {
+                item?.remove();
+                log.success("删除广告 ==> 大家都在搜（能看到的）");
+              }
+              if (item.find(".c-atom-afterclick-recomm-wrap").length) {
+                item.find(".c-atom-afterclick-recomm-wrap")?.remove();
+                log.success("删除广告 ==> 大家还在搜:隐藏的(点击后，跳出来的)");
+              }
+              document.querySelectorAll("span").forEach((item) => {
+                let resultParentElement = item.parentElement.parentElement;
+                if (
+                  item.innerText.match(/百度APP内打开/) ||
+                  resultParentElement.getAttribute("data-from") === "etpl"
+                ) {
+                  resultParentElement.remove();
+                  log.success(
+                    "删除广告 ==> 百度APP内打开，隐藏的广告，会在滚动时跳出来的"
+                  );
+                }
+              });
             }
             let bottomLogoElement = item.find(".c-color-source"); /* 底部标识 */
             if (bottomLogoElement.length) {
               bottomLogoElement.each((_index_, _item_) => {
                 if (_item_.outerText.match(/百度(APP内打开|手机助手)/)) {
                   item.remove();
-                  log.success("删除广告==>百度APP内打开");
+                  log.success("删除广告 ==> 百度APP内打开|百度手机助手");
                 }
               });
             }
@@ -1148,29 +1188,19 @@
               item.attr("srcid").match(/(sigma|vid_fourfold)/g)
             ) {
               item.remove();
-              log.success("删除推荐==>xxx 相关 xxx");
+              log.success("删除推荐 ==> xxx 相关 xxx");
             }
             if (searchArticleOriginal_link.match(/expert.baidu.com/g)) {
               item?.remove();
-              log.success("删除广告==>百度健康");
+              log.success("删除广告 ==> 百度健康");
             }
             if (searchArticleOriginal_link.match(/author.baidu.com\/home\//g)) {
               item?.remove();
-              log.success("删除广告==>百家号聚合");
+              log.success("删除广告 ==> 百家号聚合");
             }
             if (dataLog["ensrcid"] == "wenda_inquiry") {
               item?.remove();
-              log.success("删除广告==>问一问");
-            }
-          });
-          document.querySelectorAll("span").forEach((item) => {
-            let resultParentElement = item.parentElement.parentElement;
-            if (
-              item.innerText.match(/百度APP内打开/) ||
-              resultParentElement.getAttribute("data-from") === "etpl"
-            ) {
-              resultParentElement.remove();
-              log.success("删除广告==>隐藏的广告，会在滚动时跳出来的");
+              log.success("删除广告 ==> 问一问");
             }
           });
         },
@@ -1204,7 +1234,7 @@
               item.innerText.match(/define\(\"@molecule\/aftclk\/index\",/g)
             ) {
               item.remove();
-              log.success("删除广告==>跳转百度app提示");
+              log.success("删除广告 ==> script元素 跳转百度app提示");
             }
           });
         },
@@ -1568,6 +1598,13 @@
           baidu_search_disable_autoplay_video: {
             text: "禁止自动播放视频",
             enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_search_blocking_everyone_is_still_searching: {
+            text: "【屏蔽】大家还在搜",
+            enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
