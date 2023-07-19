@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.7.0
+// @version      0.7.1
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -134,8 +134,9 @@
          * 自动展开全文
          */
         autoExpandFullText() {
-          utils.waitNode(`div#homepage div[class*="dialog-"]`).then(
-            (nodeList) => {
+          utils
+            .waitNode(`div#homepage div[class*="dialog-"]`)
+            .then((nodeList) => {
               nodeList[0].style["visibility"] = "hidden";
               utils.mutationObserver(nodeList[0], {
                 callback: (mutations) => {
@@ -161,8 +162,7 @@
                   subtree: true,
                 },
               });
-            }
-          );
+            });
         },
         /**
          * 去除简书拦截其它网址的url并自动跳转
@@ -204,7 +204,29 @@
             display: none !important;
           }`);
         },
+        /**
+         * 处理原型
+         */
+        handlePrototype() {
+          let originalAppendChild = Node.prototype.appendChild;
+          Node.prototype.appendChild = function (element) {
+            /* 允许添加的元素localName */
+            let allowElementLocalNameList = ["img"];
+            /* 不允许script标签加载包括jianshu.io的js资源，会让简书跳到广告页面 */
+            if (
+              element.src &&
+              !element.src.includes("jianshu.io") &&
+              !allowElementLocalNameList.includes(element.localName)
+            ) {
+              console.log("禁止添加的元素", element);
+              return null;
+            } else {
+              return originalAppendChild.call(this, element);
+            }
+          };
+        },
         run() {
+          Optimization.jianshu.Mobile.handlePrototype();
           this.addCSS();
           Optimization.jianshu.PC.removeClipboardHijacking();
           Optimization.jianshu.PC.autoExpandFullText();
@@ -351,16 +373,16 @@
           /* 第一条评论 */
           log.info("恢复评论到正确位置-第一条评论");
           utils.waitNode(".first-recommend-box").then((dom) => {
-            jQuery(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
-              jQuery(dom)
-            );
+            jQuery(
+              ".recommend-box.insert-baidu-box.recommend-box-style"
+            ).prepend(jQuery(dom));
           });
           log.info("恢复评论到正确位置-第二条评论");
           /* 第二条评论 */
           utils.waitNode(".second-recommend-box").then((dom) => {
-            jQuery(".recommend-box.insert-baidu-box.recommend-box-style").prepend(
-              jQuery(dom)
-            );
+            jQuery(
+              ".recommend-box.insert-baidu-box.recommend-box-style"
+            ).prepend(jQuery(dom));
           });
         },
         /**
@@ -368,15 +390,15 @@
          */
         identityCSDNDownload() {
           log.info("标识CSDN下载的链接");
-          jQuery(".recommend-item-box[data-url*='https://download.csdn.net/']").each(
-            (index, item) => {
-              if (GM_Menu.get("removeCSDNDownloadPC")) {
-                item.remove();
-              } else {
-                jQuery(item).find(".content-box").css("border", "2px solid red");
-              }
+          jQuery(
+            ".recommend-item-box[data-url*='https://download.csdn.net/']"
+          ).each((index, item) => {
+            if (GM_Menu.get("removeCSDNDownloadPC")) {
+              item.remove();
+            } else {
+              jQuery(item).find(".content-box").css("border", "2px solid red");
             }
-          );
+          });
         },
         /**
          * 全文居中
