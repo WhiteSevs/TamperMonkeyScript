@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2
+// @version      1.2.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -652,7 +652,6 @@
           transition: background .2s ease-in-out;
           overflow: hidden;
           text-overflow: ellipsis;
-          white-space: nowrap;
           padding-right: 32px;
       }
       div.${this.config.element.searchSelectClassName} ul.${
@@ -3597,10 +3596,12 @@
           return utils.toJSON(respData.responseText);
         },
         run() {
+          log.success("当前的地址: "+window.location.href);
           if (
             window.location.href.startsWith(
               "https://tieba.baidu.com/index/tbwise"
-            )
+            ) ||
+            window.location.href.startsWith("https://tieba.baidu.com/?source")
           ) {
             /* 当前是在主页中，搜索按钮判定为搜索吧 */
             log.success("当前是在首页");
