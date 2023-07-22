@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.1
+// @version      1.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -42,7 +42,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219821
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1223482
 // @run-at       document-start
 // ==/UserScript==
 
@@ -368,6 +368,711 @@
         }`);
     }
   }
+  /**
+   * 动态的搜索建议组件
+   */
+  class SearchSuggestion {
+    constructor(paramConfig) {
+      let that = this;
+      this.config = {
+        /**
+         * 目标input元素
+         * @type {Element}
+         */
+        targetElement: paramConfig.targetElement,
+        /**
+         * 搜索的数据
+         * @type {array}
+         */
+        data: paramConfig.data || [],
+        /**
+         * 用于显示的数据
+         * @type {array}
+         */
+        showData: paramConfig.showData || [],
+        /**
+         * 是否使用absoult显示建议框
+         * @type {boolean}
+         * + true 默认 position为absoulte
+         * + false position为fixed
+         */
+        isAbsoulte:
+          typeof paramConfig.isAbsoulte === "undefined"
+            ? true
+            : paramConfig.isAbsoulte,
+        /**
+         * 显示删除按钮
+         * @type {boolean}
+         * + true 默认 显示
+         * + false 不显示
+         */
+        showDeleteIcon:
+          typeof paramConfig.showDeleteIcon === "undefined"
+            ? true
+            : paramConfig.showDeleteIcon,
+        element: {
+          /**
+           * @type {string} div元素的className
+           */
+          searchSelectClassName:
+            (paramConfig.element &&
+              paramConfig.element.searchSelectClassName) ||
+            "WhiteSevsSearchSelect",
+          /**
+           * @type {string} ul元素的className
+           */
+          searchSelectHintClassName:
+            (paramConfig.element &&
+              paramConfig.element.searchSelectHintClassName) ||
+            "whiteSevSearchHint",
+          /**
+           * @type {string} div元素隐藏的className
+           */
+          searchSelectHideClassName:
+            (paramConfig.element &&
+              paramConfig.element.searchSelectHideClassName) ||
+            "WhiteSevsSearchSelectHide",
+        },
+        css: {
+          falInDuration:
+            (paramConfig.css && paramConfig.css.falInDuration) || 0.5,
+          falInTiming:
+            (paramConfig.css && paramConfig.css.falInTiming) || "linear",
+          falOutDuration:
+            (paramConfig.css && paramConfig.css.falOutDuration) || 0.5,
+          falOutTiming:
+            (paramConfig.css && paramConfig.css.falOutTiming) || "linear",
+          /**
+           * @type {number} 选择框距离输入框距离
+           */
+          PaddingTop: (paramConfig.css && paramConfig.css.PaddingTop) || 8,
+        },
+        /**
+         * 搜索没结果的html
+         * @type {string}
+         */
+        noSearchDataHTML:
+          paramConfig.noSearchDataHTML || '<li class="none">暂无其它数据</li>',
+        /**
+         * input元素内容改变时的回调，用于获取搜索建议列表
+         */
+        searchInputChangeCallBack:
+          paramConfig.searchInputChangeCallBack ||
+          function () {
+            return [];
+          },
+        /**
+         * 当前项点击的回调
+         * @param {string} 当前项点击的值
+         */
+        clickItemCallBack:
+          paramConfig.clickItemCallBack ||
+          function (text) {
+            that.setTargetInputValue(text);
+            that.config.targetElement.dispatchEvent(new Event("blur"));
+          },
+        /**
+         * 搜索项的删除回调
+         * @param {number} itemElementIndex 当前删除的项的下标
+         * @param {Element} itemElement 当前删除的项的元素
+         */
+        deleteItemCallBack:
+          paramConfig.deleteItemCallBack ||
+          function (itemElementIndex, itemElement) {
+            console.log("删除 ", that.config.showData[itemElementIndex]);
+            that.config.data.splice(dataId, 1);
+            that.config.showData.splice(dataId, 1);
+            itemElement.remove();
+            /* 把索引顺序重新排序一下 */
+            that.getSearchSelectItemElementList().forEach((item2, index2) => {
+              item2.setAttribute("data-id", index2);
+            });
+          },
+        /**
+         * 获取每一项的值，传入当前项，默认返回当前项
+         * @param {any} value
+         * @returns {any}
+         */
+        getItemValue:
+          paramConfig.getItemValue ||
+          function (value) {
+            return value;
+          },
+        /**
+         * 获取每一项的html，传入当前项，默认返回当前项
+         * @param {any} value
+         * @returns {any}
+         */
+        getItemHTML:
+          paramConfig.getItemHTML ||
+          function (value) {
+            return value;
+          },
+      };
+      /**
+       * 该对象执行中的存储的一些用于判断的flag或存储的数据
+       */
+      this.details = {
+        /**
+         * 当前点击的是否是删除按钮
+         * @type {boolean}
+         */
+        isDeleteClicked: false,
+      };
+      if (!this.getSearchSelectElement()) {
+        this.setSearchSelectElement();
+        this.setCSS();
+      }
+      this.setTargetInputEvent();
+      this.setItemEvent();
+      if (this.config.showData.length) {
+        this.update(this.config.showData);
+      }
+    }
+    /**
+     * 获取显示出搜索建议框的html
+     * @returns {string}
+     */
+    getSearchSelectHTML() {
+      return `
+      <div class="${this.config.element.searchSelectClassName}" style="display: none;">
+        <ul class="${this.config.element.searchSelectHintClassName}">
+            ${this.config.noSearchDataHTML}
+        </ul>
+      </div>`;
+    }
+    /**
+     * 获取显示出搜索建议框的每一项的html
+     * @param {any} item 当前项的值
+     * @param {number} index 当前项的下标
+     * @returns {string}
+     */
+    getSearchItemHTML(item, index) {
+      return `
+      <li 
+          class="item"
+          data-id="${index}"
+          data-value="${this.config.getItemValue(item)}">
+          ${this.config.getItemHTML(
+            item
+          )}${this.getSearchSelectDeleteIconHTML()}
+      </li>`;
+    }
+    /**
+     * 获取搜索建议框的元素
+     * @param {Element|undefined} doc
+     * @returns {Element|undefined}
+     */
+    getSearchSelectElement(doc) {
+      return (doc || document).querySelector(
+        "." + this.config.element.searchSelectClassName
+      );
+    }
+    /**
+     * 获取搜索建议框ul的元素
+     * @param {Element|undefined} doc
+     * @returns {Element|undefined}
+     */
+    getSearchSelectHintElement(doc) {
+      return (doc || document).querySelector(
+        "ul." + this.config.element.searchSelectHintClassName
+      );
+    }
+    /**
+     * 获取搜索建议框li的元素
+     * @param {Element|undefined} doc
+     * @returns {NodeList|undefined}
+     */
+    getSearchSelectItemElementList(doc) {
+      return (doc || document).querySelectorAll(
+        "ul." + this.config.element.searchSelectHintClassName + " li"
+      );
+    }
+    /**
+     * 获取删除按钮的html
+     * @returns {string}
+     */
+    getDeleteIconHTML() {
+      return `
+      <svg t="1669172591973" data-delete-search viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2719" width="16" height="16" style="position: absolute;right: 8px;">
+        <path data-delete-search d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z" p-id="2720" fill="#e3dfdd"></path>
+        <path data-delete-search d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z" p-id="2721" fill="#e3dfdd"></path>
+      </svg>
+      `;
+    }
+    /**
+     * 设置css
+     */
+    setCSS() {
+      let css = `
+      <style>
+      div.${this.config.element.searchSelectClassName}{
+          position: ${this.config.isAbsoulte ? "absolute" : "fixed"};
+          z-index: ${utils.getMaxZIndex()};
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 0;
+          margin-top: ${
+            this.config.targetElement.getBoundingClientRect().bottom +
+            this.config.css.PaddingTop
+          }px;
+      }
+      div.${this.config.element.searchSelectHideClassName}{
+          display: none;
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }{
+          width: ${this.config.targetElement.getBoundingClientRect().width}px;
+          left: ${this.config.targetElement.getBoundingClientRect().left}px;
+          max-height: 300px;
+          overflow-x: hidden;
+          overflow-y: auto;
+          padding: 5px 0;
+          background-color: #fff;
+          box-sizing: border-box;
+          border-radius: 4px;
+          box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
+          position: absolute;
+          z-index: inherit;
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      } li{
+          margin: 0;
+          line-height: normal;
+          padding: 7px 16px;
+          clear: both;
+          color: #515a6e;
+          font-size: 14px!important;
+          list-style: none;
+          cursor: pointer;
+          transition: background .2s ease-in-out;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          padding-right: 32px;
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      } li:hover{
+          background-color: rgba(0, 0, 0, .1);
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      } .none{
+          padding: 0 16px;
+          text-align: center;
+          color: #ccc;
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      } .active{
+          color: #57a3f3;
+      }
+      /*定义滚动条高宽及背景
+      高宽分别对应横竖滚动条的尺寸*/
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }::-webkit-scrollbar {
+          width: 5px;
+          height: 5px;
+          background-color: #fff;
+      }
+      /*定义滚动条轨道
+      内阴影+圆角*/
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }::-webkit-scrollbar-track {
+          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          border-radius: 2px;
+          background-color: #fff;
+      }
+      /*定义滑块
+      内阴影+圆角*/
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }::-webkit-scrollbar-thumb {
+          border-radius: 2px;
+          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          background-color: #ccc;
+      }
+      @keyframes searchSelectFalIn {
+          from {
+              opacity: 0;
+              display:none;
+          }
+          to {
+              display:block;
+              opacity: 1;
+          }
+      }
+      @keyframes searchSelectFalOut {
+          from {
+              display:block;
+              opacity: 1;
+          }
+          to {
+              opacity: 0;
+              display:none;
+          }
+      }
+  </style>`;
+      document.body.appendChild(this.parseTextToElement(css));
+    }
+    /**
+     * 把搜索元素添加到页面中
+     */
+    setSearchSelectElement() {
+      document.body.appendChild(
+        this.parseTextToElement(this.getSearchSelectHTML())
+      );
+    }
+    /**
+     * 字符串转元素
+     * @param {string} text
+     * @returns {Element}
+     */
+    parseTextToElement(text) {
+      text = text
+        .replace(/^[\n|\s]*/g, "")
+        .replace(/[\n|\s]*$/g, ""); /* 去除前后的换行和空格 */
+      let objE = document.createElement("div");
+      objE.innerHTML = text;
+      let result = objE.children.length == 1 ? objE.children[0] : objE.children;
+      return result;
+    }
+    /**
+     * 添加正在搜索中
+     */
+    addSearching() {
+      this.getSearchSelectHintElement().appendChild(
+        this.parseTextToElement(`<li class="searching">正在搜索中...</li>`)
+      );
+    }
+    /**
+     * 删除正在搜索中的提示
+     */
+    removeSearching() {
+      this.getSearchSelectHintElement().querySelector("li.searching")?.remove();
+    }
+    /**
+     * 删除已有的搜索结果
+     */
+    removeAllSearch() {
+      this.getSearchSelectItemElementList().forEach((item) => item.remove());
+    }
+    /**
+     * 动态设置搜索建议框的宽度，因为目标输入框元素可能是动态隐藏的
+     */
+    changeSelectCSS() {
+      this.getSearchSelectHintElement().style.width =
+        this.config.targetElement.getBoundingClientRect().width + "px";
+      this.getSearchSelectHintElement().style.left =
+        this.config.targetElement.getBoundingClientRect().left + "px";
+    }
+    /**
+     * 获取后面的删除按钮html
+     * @returns {string}
+     */
+    getSearchSelectDeleteIconHTML() {
+      if (this.config.showDeleteIcon) {
+        return `
+        <svg data-delete-search t="1669172591973" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2719" width="16" height="16" style="position: absolute;right: 8px;">
+          <path data-delete-search d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z" p-id="2720" fill="#e3dfdd"></path>
+          <path data-delete-search d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z" p-id="2721" fill="#e3dfdd"></path>
+        </svg>`;
+      } else {
+        return "";
+      }
+    }
+    /**
+     * 更新页面显示的搜索结果
+     * @param {array} data
+     */
+    update(data) {
+      if (!Array.isArray(data)) {
+        console.log(data);
+        throw "传入的数据不是数组";
+      }
+      let that = this;
+      this.config.showData = this.arrayDistinct(data);
+      this.removeAllSearch();
+      let parentUlDOM = this.getSearchSelectHintElement();
+      if (!this.config.showData.length) {
+        this.clear();
+        if (this.config.targetElement.value === "") {
+          this.config.data.forEach((item, index) => {
+            parentUlDOM.appendChild(
+              that.parseTextToElement(that.getSearchItemHTML(item, index))
+            );
+          });
+          this.setItemEvent();
+        } else {
+          this.config.targetElement.dispatchEvent(new Event("focus"));
+        }
+      } else {
+        this.config.showData.forEach((item, index) => {
+          parentUlDOM.appendChild(
+            that.parseTextToElement(that.getSearchItemHTML(item, index))
+          );
+        });
+        this.setItemEvent();
+      }
+    }
+    /**
+     * 数组去重
+     * @param {array} data
+     * @returns {array}
+     */
+    arrayDistinct(data = []) {
+      let result = [];
+      data = new Set(data);
+      for (let item of data.values()) {
+        result = [item, ...result];
+      }
+      return result;
+    }
+    /**
+     * 清空当前的建议
+     */
+    clear() {
+      this.config.showData = [];
+      this.removeAllSearch();
+      this.getSearchSelectHintElement().appendChild(
+        this.parseTextToElement(this.config.noSearchDataHTML)
+      );
+    }
+    /**
+     * 隐藏建议框
+     */
+    hide() {
+      this.getSearchSelectElement().setAttribute("style", "display: none;");
+    }
+    /**
+     * 显示建议框
+     */
+    show() {
+      this.getSearchSelectElement().removeAttribute("style");
+    }
+    /**
+     * 设置目标输入框的值
+     * @param {string} value
+     */
+    setTargetInputValue(value) {
+      this.config.targetElement.value = value;
+    }
+    /**
+     * 设置目标输入框的各种事件
+     */
+    setTargetInputEvent() {
+      let that = this;
+      function _focus_event_(event) {
+        that.getSearchSelectElement().setAttribute(
+          "style",
+          `
+                    -moz-animation: searchSelectFalIn ${
+                      that.config.css.falInDuration
+                    }s 1 ${that.config.css.falInTiming};
+                    -webkit-animation: searchSelectFalIn ${
+                      that.config.css.falInDuration
+                    }s 1 ${that.config.css.falInTiming};
+                    -o-animation: searchSelectFalIn ${
+                      that.config.css.falInDuration
+                    }s 1 ${that.config.css.falInTiming};
+                    -ms-animation: searchSelectFalIn ${
+                      that.config.css.falInDuration
+                    }s 1 ${that.config.css.falInTiming};
+                    margin-top: ${
+                      that.config.targetElement.getBoundingClientRect().bottom +
+                      that.config.css.PaddingTop
+                    }px;
+                    `
+        );
+
+        that.changeSelectCSS();
+      }
+      function _blur_event_(event) {
+        setTimeout(() => {
+          if (that.details.isDeleteClicked) {
+            return;
+          }
+          if (
+            getComputedStyle(that.getSearchSelectElement()).display === "none"
+          ) {
+            return;
+          }
+          that.getSearchSelectElement().setAttribute(
+            "style",
+            `
+              -moz-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
+              that.falOutTiming
+            };
+              -webkit-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
+              that.falOutTiming
+            };
+              -o-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
+              that.falOutTiming
+            };
+              -ms-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
+              that.falOutTiming
+            };
+              margin-top: ${
+                that.config.targetElement.getBoundingClientRect().bottom +
+                that.config.css.PaddingTop
+              }px;
+                        `
+          );
+          setTimeout(() => {
+            that
+              .getSearchSelectElement()
+              .setAttribute("style", "display:none;");
+          }, that.falOutDuration * 1000);
+        }, 100);
+      }
+      async function _propertychange_event_(event) {
+        that.config.targetElement.dispatchEvent(new Event("focus"));
+        let getListResult = await that.getList(event.target.value);
+        that.update(getListResult);
+      }
+      /* 禁用输入框自动提示 */
+      this.config.targetElement.setAttribute("autocomplete", "off");
+      /* 输入框获取焦点事件 */
+      this.config.targetElement.addEventListener(
+        "focus",
+        function (event) {
+          _focus_event_(event);
+        },
+        true
+      );
+      /* 输入框点击事件 */
+      this.config.targetElement.addEventListener(
+        "click",
+        function (event) {
+          event.target.dispatchEvent(new Event("focus"));
+        },
+        true
+      );
+      /* 输入框失去焦点事件 */
+      this.config.targetElement.addEventListener(
+        "blur",
+        function (event) {
+          _blur_event_(event);
+        },
+        false
+      );
+      /* 输入框内容改变事件 */
+      this.config.targetElement.addEventListener(
+        "input",
+        function (event) {
+          _propertychange_event_(event);
+        },
+        true
+      );
+      const userDocumentClickEvent = function () {
+        let checkDOM = that.getSearchSelectHintElement();
+        let mouseClickPosX = Number(
+          window.event.clientX
+        ); /* 鼠标相对屏幕横坐标 */
+        let mouseClickPosY = Number(
+          window.event.clientY
+        ); /* 鼠标相对屏幕纵坐标 */
+        let elementPosXLeft = Number(
+          checkDOM.getBoundingClientRect().left
+        ); /* 要检测的元素的相对屏幕的横坐标最左边 */
+        let elementPosXRight = Number(
+          checkDOM.getBoundingClientRect().right
+        ); /* 要检测的元素的相对屏幕的横坐标最右边 */
+        let elementPosYTop = Number(
+          checkDOM.getBoundingClientRect().top
+        ); /* 要检测的元素的相对屏幕的纵坐标最上边 */
+        let elementPosYBottom = Number(
+          checkDOM.getBoundingClientRect().bottom
+        ); /* 要检测的元素的相对屏幕的纵坐标最下边 */
+        if (
+          !(
+            mouseClickPosX >= elementPosXLeft &&
+            mouseClickPosX <= elementPosXRight &&
+            mouseClickPosY >= elementPosYTop &&
+            mouseClickPosY <= elementPosYBottom
+          ) &&
+          !(
+            checkDOM.innerHTML.includes(window.event.target.innerHTML) ||
+            that.config.targetElement.innerHTML.includes(
+              window.event.target.innerHTML
+            )
+          )
+        ) {
+          /* 不在点击范围内或元素上，隐藏 */
+          that.details.isDeleteClicked = false;
+          that.config.targetElement.dispatchEvent(new Event("blur"));
+        }
+      };
+      document.addEventListener("touchstart", userDocumentClickEvent);
+      document.addEventListener("click", userDocumentClickEvent);
+    }
+    /**
+     * 设置搜索建议各个项的事件
+     */
+    setItemEvent() {
+      let that = this;
+      this.getSearchSelectItemElementList().forEach((item, index) => {
+        ((item2) => {
+          item2.addEventListener(
+            "click",
+            function (event) {
+              utils.preventEvent(event);
+              that.details.isDeleteClicked = false;
+              that.config.targetElement.dispatchEvent(new Event("focus"));
+              let clickElement = event.target;
+              if (
+                clickElement.hasAttribute("data-delete-search") &&
+                (clickElement.localName === "svg" ||
+                  clickElement.localName === "path")
+              ) {
+                /* 是删除按钮 */
+                that.details.isDeleteClicked = true;
+                let dataId = parseInt(item2.getAttribute("data-id"));
+                that.config.deleteItemCallBack(dataId, item2);
+                if (that.config.data.length === 0) {
+                  that.clear();
+                }
+              } else {
+                that.config.clickItemCallBack(this.getAttribute("data-value"));
+              }
+            },
+            true
+          );
+        })(item, index);
+      });
+    }
+    /**
+     * 获取数组数据
+     * @param {string} text
+     * @returns
+     */
+    getList(text) {
+      let event = {};
+      let that = this;
+      event.text = text;
+      event.targetElement = this.targetElement;
+      event.data = this.config.data;
+      event.showData = this.config.showData;
+      this.removeSearching();
+      this.addSearching();
+      return new Promise(async (resolve) => {
+        let result = await that.config.searchInputChangeCallBack(event);
+        if (this.config.targetElement.value !== "" && result.length == 0) {
+          this.config.targetElement.dispatchEvent(new Event("focus"));
+        }
+        that.removeSearching();
+        resolve(result);
+      });
+    }
+  }
+
   const baidu = {
     current_url: window.location.href,
     init() {
@@ -1063,7 +1768,7 @@
             /* 对每个中文字符进行编码 */
             let chineseArr = url.match(/[\u4e00-\u9fa5]/g);
             if (chineseArr) {
-              for (var i = 0; i < chineseArr.length; i++) {
+              for (let i = 0; i < chineseArr.length; i++) {
                 url = url.replace(chineseArr[i], encodeURI(chineseArr[i]));
               }
             }
@@ -1705,9 +2410,12 @@
       if (!this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
         return;
       }
+      /**
+       * 贴吧加载评论
+       */
       function tiebaLoadComments() {
         /* 贴吧加载评论 */
-        const tiebaConfig = {
+        const tiebaCommentConfig = {
           page: 1,
           maxPage: 1,
           floor_num: 1,
@@ -1723,19 +2431,21 @@
            * scroll事件触发 自动加载下一页的评论
            */
           nextPageScrollEvent: async () => {
-            if (!utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
+            if (!utils.isNearBottom(tiebaCommentConfig.isNearBottomValue)) {
               return;
             }
             loadingView.setText("Loading...", true);
             loadingView.setVisible(true);
             let timeStamp = Date.now();
-            let nextPageUrl = `https://tieba.baidu.com/p/${tiebaConfig.param_tid}?pn=${tiebaConfig.page}`;
-            let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaConfig.param_tid}&fid=${tiebaConfig.param_forum_id}&pn=${tiebaConfig.page}&see_lz=0`;
+            let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+            let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
             log.info("请求下一页评论的url: " + nextPageUrl);
             log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
-            let nextPageDOM = await tiebaConfig.getPageComment(nextPageUrl);
+            let nextPageDOM = await tiebaCommentConfig.getPageComment(
+              nextPageUrl
+            );
             log.info("成功获取下一页评论");
-            let pageCommentList = await tiebaConfig.getPageCommentList(
+            let pageCommentList = await tiebaCommentConfig.getPageCommentList(
               nextPageAllCommentUrl
             );
             log.info("成功获取下一页评论对应的数组");
@@ -1743,22 +2453,22 @@
               loadingView.setText("未知错误，请看控制台");
               log.error(nextPageDOM);
               log.error(pageCommentList);
-              tiebaConfig.removeScrollListener();
+              tiebaCommentConfig.removeScrollListener();
               return;
             }
             let comments = nextPageDOM.querySelectorAll(
               ".l_post.l_post_bright"
             );
             comments = Array.from(comments);
-            if (tiebaConfig.page == 1) {
+            if (tiebaCommentConfig.page == 1) {
               /* 为第一页时，去除第一个，也就是主评论 */
               comments.splice(0, 1);
             }
             comments.forEach((ele) => {
-              tiebaConfig.insertNewCommentInnerHTML(
-                tiebaConfig.getNewCommentInnerHTML(ele, pageCommentList)
+              tiebaCommentConfig.insertNewCommentInnerHTML(
+                tiebaCommentConfig.getNewCommentInnerHTML(ele, pageCommentList)
               );
-              tiebaConfig.floor_num += 1;
+              tiebaCommentConfig.floor_num += 1;
             });
             if (
               Array.from(
@@ -1773,31 +2483,31 @@
               });
             }
             loadingView.setVisible(false);
-            if (tiebaConfig.page >= tiebaConfig.maxPage) {
+            if (tiebaCommentConfig.page >= tiebaCommentConfig.maxPage) {
               log.info("已加载所有的评论");
               loadingView.setText("已加载所有的评论");
               loadingView.setVisible(false);
-              tiebaConfig.removeScrollListener();
+              tiebaCommentConfig.removeScrollListener();
             }
-            tiebaConfig.page++;
+            tiebaCommentConfig.page++;
           },
           /**
            * scroll事件触发 自动加载上一页的评论
            */
           prevPageScrollEvent: async () => {
-            if (!utils.isNearBottom(tiebaConfig.isNearBottomValue)) {
+            if (!utils.isNearBottom(tiebaCommentConfig.isNearBottomValue)) {
               return;
             }
             loadingView.setText("Loading...", true);
             loadingView.setVisible(true);
             let timeStamp = Date.now();
-            let pageUrl = `https://tieba.baidu.com/p/${tiebaConfig.param_tid}?pn=${tiebaConfig.page}`;
-            let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaConfig.param_tid}&fid=${tiebaConfig.param_forum_id}&pn=${tiebaConfig.page}&see_lz=0`;
+            let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+            let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
             log.info("请求上一页评论的url: " + pageUrl);
             log.info("贴子所有评论的url: " + pageAllCommentUrl);
-            let nextPageDOM = await tiebaConfig.getPageComment(pageUrl);
+            let nextPageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
             log.info("成功获取上一页评论");
-            let pageCommentList = await tiebaConfig.getPageCommentList(
+            let pageCommentList = await tiebaCommentConfig.getPageCommentList(
               pageAllCommentUrl
             );
             log.info("成功获取下一页评论对应的数组");
@@ -1805,23 +2515,26 @@
               loadingView.setText("未知错误，请看控制台");
               log.error(nextPageDOM);
               log.error(pageCommentList);
-              tiebaConfig.removeScrollListener();
+              tiebaCommentConfig.removeScrollListener();
               return;
             }
             let comments = nextPageDOM.querySelectorAll(
               ".l_post.l_post_bright"
             );
             comments = Array.from(comments);
-            if (tiebaConfig.page == 1) {
+            if (tiebaCommentConfig.page == 1) {
               /* 为第一页时，去除第一个，也就是主评论 */
               comments.splice(0, 1);
             }
             comments.reverse();
             comments.forEach((element) => {
-              tiebaConfig.insertNewCommentInnerHTML(
-                tiebaConfig.getNewCommentInnerHTML(element, pageCommentList)
+              tiebaCommentConfig.insertNewCommentInnerHTML(
+                tiebaCommentConfig.getNewCommentInnerHTML(
+                  element,
+                  pageCommentList
+                )
               );
-              tiebaConfig.floor_num++;
+              tiebaCommentConfig.floor_num++;
             });
             if (
               Array.from(jQuery(".white-only-lz")[0].classList).includes(
@@ -1837,23 +2550,26 @@
               });
             }
             loadingView.setVisible(false);
-            if (tiebaConfig.page <= 1) {
+            if (tiebaCommentConfig.page <= 1) {
               log.info("已加载所有的评论");
               loadingView.setText("已加载所有的评论");
               loadingView.setVisible(false);
-              tiebaConfig.removeScrollListener();
+              tiebaCommentConfig.removeScrollListener();
             }
-            tiebaConfig.page--;
+            tiebaCommentConfig.page--;
           },
           /**
            * 设置自动加载下一页的scrol事件
            */
           setNextPageScrollListener() {
-            tiebaConfig.funcLock = new utils.funcLock(
-              tiebaConfig.nextPageScrollEvent,
+            tiebaCommentConfig.funcLock = new utils.funcLock(
+              tiebaCommentConfig.nextPageScrollEvent,
               this
             );
-            document.addEventListener("scroll", tiebaConfig.funcLock.run);
+            document.addEventListener(
+              "scroll",
+              tiebaCommentConfig.funcLock.run
+            );
             utils.dispatchEvent(document, "scroll");
             log.success("scroll监听事件【下一页】");
           },
@@ -1861,11 +2577,14 @@
            * 设置自动加载上一页的scrol事件
            */
           setPrevPageScrollListener() {
-            tiebaConfig.funcLock = new utils.funcLock(
-              tiebaConfig.prevPageScrollEvent,
+            tiebaCommentConfig.funcLock = new utils.funcLock(
+              tiebaCommentConfig.prevPageScrollEvent,
               this
             );
-            document.addEventListener("scroll", tiebaConfig.funcLock.run);
+            document.addEventListener(
+              "scroll",
+              tiebaCommentConfig.funcLock.run
+            );
             utils.dispatchEvent(document, "scroll");
             log.success("scroll监听事件【上一页】");
           },
@@ -1873,7 +2592,10 @@
            * 移除scoll事件
            */
           removeScrollListener() {
-            document.removeEventListener("scroll", tiebaConfig.funcLock.run);
+            document.removeEventListener(
+              "scroll",
+              tiebaCommentConfig.funcLock.run
+            );
             log.success("取消绑定scroll", "#f400ff");
           },
           /**
@@ -2039,7 +2761,7 @@
                 data-v-74eb13e2=""
                 data-v-602e287c=""
                 class="post-item"
-                data-floor="${tiebaConfig.floor_num}"
+                data-floor="${tiebaCommentConfig.floor_num}"
                 landlord=${is_landlord}>
                 <div
                   data-v-188c0e84=""
@@ -2135,8 +2857,10 @@
               jQuery(".pb-page-wrapper").append(newCommentDOM); /* 老版帖子 */
             }
           },
+          /**
+           * 插入只看楼主的按钮
+           */
           insertOnlyLZ: () => {
-            /* 插入只看楼主的按钮 */
             let ele_parent = jQuery("#replySwitch");
             let onlyLzInnerHTML = `
                         <div style="display: -webkit-box;
@@ -2161,7 +2885,7 @@
                         }`;
             GM_addStyle(quxiaoonlylz_css);
             jQuery(".white-only-lz").on("click", (event) => {
-              tiebaConfig.displayComment(
+              tiebaCommentConfig.displayComment(
                 Array.from(event.currentTarget.classList)
               );
             });
@@ -2200,7 +2924,7 @@
                         }`;
             GM_addStyle(btnCSS);
             jQuery(".white-btn-comment-reverse").on("click", (event) => {
-              tiebaConfig.removeScrollListener();
+              tiebaCommentConfig.removeScrollListener();
               jQuery(".post-item")?.remove();
               if (
                 event.currentTarget.getAttribute("class") ===
@@ -2308,27 +3032,29 @@
         };
         /**
          * 查看-正序
-         * @returns
          */
         async function mainPositive() {
-          tiebaConfig.param_tid = window.location.pathname.match(/([0-9]+)/g);
-          if (tiebaConfig.param_tid) {
-            tiebaConfig.param_tid = tiebaConfig.param_tid[0];
-            tiebaConfig.param_forum_id =
+          tiebaCommentConfig.param_tid =
+            window.location.pathname.match(/([0-9]+)/g);
+          if (tiebaCommentConfig.param_tid) {
+            tiebaCommentConfig.param_tid = tiebaCommentConfig.param_tid[0];
+            tiebaCommentConfig.param_forum_id =
               jQuery(".recommend-item").attr("data-banner-info");
-            if (tiebaConfig.param_forum_id) {
-              tiebaConfig.param_forum_id = utils.toJSON(
-                tiebaConfig.param_forum_id
+            if (tiebaCommentConfig.param_forum_id) {
+              tiebaCommentConfig.param_forum_id = utils.toJSON(
+                tiebaCommentConfig.param_forum_id
               )["forum_id"];
               let timeStamp = Date.now();
-              tiebaConfig.page = 1;
-              tiebaConfig.insertLoadingHTML();
+              tiebaCommentConfig.page = 1;
+              tiebaCommentConfig.insertLoadingHTML();
               loadingView.setText("Loading...", true);
               loadingView.setVisible(true);
-              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaConfig.param_tid}&fid=${tiebaConfig.param_forum_id}&pn=${tiebaConfig.page}&see_lz=0`;
-              let pageUrl = `https://tieba.baidu.com/p/${tiebaConfig.param_tid}?pn=${tiebaConfig.page}`;
-              let pageDOM = await tiebaConfig.getPageComment(pageUrl);
-              let pageCommentList = await tiebaConfig.getPageCommentList(url);
+              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
+              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+              let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
+              let pageCommentList = await tiebaCommentConfig.getPageCommentList(
+                url
+              );
               if (!pageDOM || !pageCommentList.commentList) {
                 loadingView.setText("获取评论失败");
                 log.error("新评论区获取失败");
@@ -2337,12 +3063,12 @@
               log.info("成功获取评论HTML");
               let jumpInputBrightDOM =
                 pageDOM.querySelector(".jump_input_bright");
-              tiebaConfig.maxPage = 1;
+              tiebaCommentConfig.maxPage = 1;
               if (jumpInputBrightDOM) {
-                tiebaConfig.maxPage = parseInt(
+                tiebaCommentConfig.maxPage = parseInt(
                   jumpInputBrightDOM.getAttribute("max-page")
                 );
-                tiebaConfig.setNextPageScrollListener();
+                tiebaCommentConfig.setNextPageScrollListener();
                 log.info("当前为多页，执行监听");
               } else {
                 let comments = pageDOM.querySelectorAll(
@@ -2353,17 +3079,20 @@
                   .querySelectorAll(".post-item")
                   .forEach((ele) => ele.remove());
                 comments.shift();
-                tiebaConfig.floor_num = 1;
+                tiebaCommentConfig.floor_num = 1;
                 comments.forEach((element) => {
-                  tiebaConfig.insertNewCommentInnerHTML(
-                    tiebaConfig.getNewCommentInnerHTML(element, pageCommentList)
+                  tiebaCommentConfig.insertNewCommentInnerHTML(
+                    tiebaCommentConfig.getNewCommentInnerHTML(
+                      element,
+                      pageCommentList
+                    )
                   );
-                  tiebaConfig.floor_num++;
+                  tiebaCommentConfig.floor_num++;
                 });
                 loadingView.destory();
               }
               log.info(
-                `共 ${tiebaConfig.maxPage} 页评论，当前所在 ${tiebaConfig.page} 页`
+                `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
               );
             } else {
               log.error("贴吧：获取参数data-banner-info失败");
@@ -2376,61 +3105,67 @@
          * 查看-倒序
          */
         async function mainReverse() {
-          tiebaConfig.param_tid = window.location.pathname.match(/([0-9]+)/g);
-          if (tiebaConfig.param_tid) {
-            tiebaConfig.param_tid = tiebaConfig.param_tid[0];
-            tiebaConfig.param_forum_id =
+          tiebaCommentConfig.param_tid =
+            window.location.pathname.match(/([0-9]+)/g);
+          if (tiebaCommentConfig.param_tid) {
+            tiebaCommentConfig.param_tid = tiebaCommentConfig.param_tid[0];
+            tiebaCommentConfig.param_forum_id =
               jQuery(".recommend-item").attr("data-banner-info");
-            if (tiebaConfig.param_forum_id) {
-              tiebaConfig.param_forum_id = utils.toJSON(
-                tiebaConfig.param_forum_id
+            if (tiebaCommentConfig.param_forum_id) {
+              tiebaCommentConfig.param_forum_id = utils.toJSON(
+                tiebaCommentConfig.param_forum_id
               )["forum_id"];
               let timeStamp = Date.now();
-              tiebaConfig.page = 1;
-              tiebaConfig.insertLoadingHTML();
+              tiebaCommentConfig.page = 1;
+              tiebaCommentConfig.insertLoadingHTML();
               loadingView.setText("Loading...", true);
               loadingView.setVisible(true);
-              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaConfig.param_tid}&fid=${tiebaConfig.param_forum_id}&pn=${tiebaConfig.page}&see_lz=0`;
-              let pageUrl = `https://tieba.baidu.com/p/${tiebaConfig.param_tid}?pn=${tiebaConfig.page}`;
-              let pageDOM = await tiebaConfig.getPageComment(pageUrl);
-              let pageCommentList = await tiebaConfig.getPageCommentList(url);
+              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
+              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+              let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
+              let pageCommentList = await tiebaCommentConfig.getPageCommentList(
+                url
+              );
               if (!pageDOM || !pageCommentList.commentList) {
                 loadingView.setText("获取评论失败");
                 log.error("新评论区获取失败");
                 return;
               }
               log.info("成功获取评论HTML");
-              tiebaConfig.maxPage = 1;
+              tiebaCommentConfig.maxPage = 1;
               let jumpInputBrightDOM =
                 pageDOM.querySelector(".jump_input_bright");
               if (jumpInputBrightDOM) {
-                tiebaConfig.maxPage = parseInt(
+                tiebaCommentConfig.maxPage = parseInt(
                   jumpInputBrightDOM.getAttribute("max-page")
                 );
-                tiebaConfig.page = tiebaConfig.maxPage;
-                tiebaConfig.setPrevPageScrollListener();
+                tiebaCommentConfig.page = tiebaCommentConfig.maxPage;
+                tiebaCommentConfig.setPrevPageScrollListener();
                 log.info("当前为多页");
               } else {
                 let comment = pageDOM.querySelectorAll(".l_post.l_post_bright");
-                tiebaConfig.maxPage = 1;
+                tiebaCommentConfig.maxPage = 1;
                 comment = Array.from(comment);
                 document
                   .querySelectorAll(".post-item")
                   .forEach((ele) => ele.remove());
                 comment.shift();
 
-                tiebaConfig.floor_num = 1;
+                tiebaCommentConfig.floor_num = 1;
                 comment.reverse();
                 comment.forEach((element) => {
-                  tiebaConfig.insertNewCommentInnerHTML(
-                    tiebaConfig.getNewCommentInnerHTML(element, pageCommentList)
+                  tiebaCommentConfig.insertNewCommentInnerHTML(
+                    tiebaCommentConfig.getNewCommentInnerHTML(
+                      element,
+                      pageCommentList
+                    )
                   );
-                  tiebaConfig.floor_num++;
+                  tiebaCommentConfig.floor_num++;
                 });
                 loadingView.destory();
               }
               log.info(
-                `共 ${tiebaConfig.maxPage} 页评论，当前所在 ${tiebaConfig.page} 页`
+                `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
               );
             } else {
               log.error(`贴吧：获取参数data-banner-info失败`);
@@ -2442,8 +3177,8 @@
         utils.waitNode(".recommend-item[data-banner-info]").then(() => {
           jQuery(".post-item")?.remove();
           mainPositive();
-          tiebaConfig.insertReverseBtn();
-          tiebaConfig.insertOnlyLZ();
+          tiebaCommentConfig.insertReverseBtn();
+          tiebaCommentConfig.insertOnlyLZ();
         });
         /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
         GM_addStyle(`
@@ -2694,11 +3429,11 @@
           viewer.show();
         }
         jQuery(document).on("click", "img", function (event) {
-          let imgNode = event.target;
+          let cliclElement = event.target;
           let imgSrc =
-            imgNode.getAttribute("data-src") || imgNode.getAttribute("src");
+            cliclElement.getAttribute("data-src") || cliclElement.getAttribute("src");
           if (
-            imgNode.parentElement.getAttribute("data-viewer-action") === "view"
+            cliclElement.parentElement.getAttribute("data-viewer-action") === "view"
           ) {
             return;
           }
@@ -2707,10 +3442,10 @@
             imgSrc.match(/^http(s|):\/\/tiebapic.baidu.com\/forum/g)
           ) {
             log.info(`点击图片👇`);
-            log.info(imgNode);
-            if (imgNode.parentElement.className === "img-box") {
+            log.info(cliclElement);
+            if (cliclElement.parentElement.className === "img-box") {
               /* 帖子主体内的图片 */
-              let parentMain = imgNode.closest(".img-sudoku.main-img-sudoku");
+              let parentMain = cliclElement.closest(".img-sudoku.main-img-sudoku");
               log.info(parentMain);
               if (!parentMain) {
                 viewIMG([imgSrc]);
@@ -2726,9 +3461,9 @@
               log.info("图片列表👇");
               log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-            } else if (imgNode.parentElement.className === "text-content") {
+            } else if (cliclElement.parentElement.className === "text-content") {
               /* 评论区内的图片 */
-              let parentMain = imgNode.parentElement;
+              let parentMain = cliclElement.parentElement;
               let lazyImgList = [];
               log.info(parentMain);
               parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
@@ -2837,6 +3572,164 @@
           }
         );
       }
+
+      /* 贴吧搜索 */
+      const tiebaSearchConfig = {
+        /**
+         * 获取搜索建议
+         * @param {string} queryText 搜索内容
+         * @returns {Promise}
+         */
+        async getSuggestion(queryText = "") {
+          let getResp = await httpx.get({
+            url: `https://tieba.baidu.com/suggestion?query=${queryText}&ie=utf-8&_=${new Date().getTime()}`,
+            headers: {
+              "User-Agent": utils.getRandomPCUA(),
+              Accept: "application/json, text/javascript, */*; q=0.01",
+              Host: "tieba.baidu.com",
+              Referer: window.location.href,
+            },
+          });
+          if (!getResp.status) {
+            return;
+          }
+          let respData = getResp.data;
+          return utils.toJSON(respData.responseText);
+        },
+        run() {
+          if (
+            window.location.href.startsWith(
+              "https://tieba.baidu.com/index/tbwise"
+            )
+          ) {
+            /* 当前是在主页中，搜索按钮判定为搜索吧 */
+            log.success("当前是在首页");
+            utils.waitNode("div.more-btn-desc").then((nodeList) => {
+              nodeList[0].outerHTML = `
+              <input type="search" id="tieba-search" placeholder="请输入搜索内容..." style="display: none;padding: 0 10px;height: 32px;line-height: 32px;font-size: 14px;border-radius: 5px;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;-o-appearance: none;appearance: none;border: 1px solid #000000;outline: none;flex: 1;margin: 0px 40px;" autocomplete="off">
+              <div class="more-btn-desc" style="margin-right: 13px;font-size: .15rem;font-weight: 700;color: #614ec2;">搜索</div>
+              `;
+              document
+                .querySelector("div.more-btn-desc")
+                .addEventListener("click", function () {
+                  let searchInputElement =
+                    document.querySelector("#tieba-search");
+                  let searchText = searchInputElement.value.trim();
+                  /* 搜索框隐藏的话就显示出来 */
+                  if (getComputedStyle(searchInputElement).display === "none") {
+                    searchInputElement.previousElementSibling.style.display =
+                      "none";
+                    searchInputElement.style.display = "block";
+                  } else {
+                    /* 已显示出来的话就跳转搜索 */
+                    if (utils.isNull(searchText)) {
+                      alert("请勿输入空内容");
+                      return;
+                    }
+                    window.location.href =
+                      "https://tieba.baidu.com/f?ie=utf-8&kw=" + searchText;
+                  }
+                });
+              GM_addStyle(`
+              .WhiteSevsSearchSelect .forum_item{
+                /* height: 32px;
+                padding: 6px 8px;
+                line-height: 16px; */
+                display: flex;
+                text-wrap: wrap;
+              }
+              .WhiteSevsSearchSelect .forum_image{
+                float: left;
+                width: 32px;
+                height: 32px;
+              }
+              .WhiteSevsSearchSelect .forum_right{
+                /* height: 32px; */
+                float: left;
+                margin-left: 8px;
+                color: #999;
+                width: 88%;
+              }
+              .WhiteSevsSearchSelect .forum_name{
+                color: #000;
+                font-size: 14px;
+                font-weight: 700;
+              }
+              .WhiteSevsSearchSelect .forum_name::after{
+                content:"吧";
+              }
+              `);
+              let searchSuggestion = new SearchSuggestion({
+                isAbsoulte: false,
+                showDeleteIcon: false,
+                targetElement: document.querySelector("#tieba-search"),
+                getItemValue: function (item) {
+                  return item.fname;
+                },
+                getItemHTML: function (itemData) {
+                  return `
+                  <div class="forum_item">
+                    <img class="forum_image" src="${itemData.fpic}">
+                    <div class="forum_right">
+                      <div class="forum_name">${itemData.fname}</div>
+                      <div class="forum_desc">${itemData.forum_desc}</div>
+                    </div>
+                  </div>`;
+                },
+                searchInputChangeCallBack: async (info) => {
+                  /* 
+                  {
+                      "text": "r",
+                      "data": [],
+                      "showData": []
+                  }
+                  */
+                  let searchText = info.text;
+                  let result = [];
+                  log.success("搜索中...");
+                  let suggestionData = await tiebaSearchConfig.getSuggestion(
+                    searchText
+                  );
+                  if (utils.isNull(suggestionData)) {
+                    return result;
+                  }
+                  console.log(suggestionData);
+                  result = suggestionData.query_match.search_data || [];
+                  return result;
+                },
+                clickItemCallBack: (text) => {
+                  window.location.href =
+                    "https://tieba.baidu.com/f?ie=utf-8&kw=" + text;
+                },
+              });
+              log.success("初始化默认搜索...");
+              searchSuggestion.config
+                .searchInputChangeCallBack({
+                  text: "",
+                  data: [],
+                  showData: [],
+                })
+                .then((result) => {
+                  if (result.length) {
+                    searchSuggestion.update(result);
+                  }
+                });
+            });
+          } else {
+            /* 当前是在吧内，搜索按钮判定为跳转到搜索具体内容界面 */
+            log.success("当前是在吧内");
+            utils.waitNode("div.more-btn-desc").then((nodeList) => {
+              nodeList[0].outerHTML =
+                '<div class="more-btn-desc" style="margin-right: 13px;font-size: .15rem;font-weight: 700;color: #614ec2;">搜索</div>';
+              document
+                .querySelector("div.more-btn-desc")
+                .addEventListener("click", function () {
+                  window.open("https://tieba.baidu.com/f/search/res", "_blank");
+                });
+            });
+          }
+        },
+      };
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
@@ -2850,6 +3743,7 @@
       ) {
         redirectJump();
       }
+      tiebaSearchConfig.run();
     },
     /**
      * 百度文库
