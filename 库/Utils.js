@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "4.3",
+    version: "2023-7-22",
   };
 
   /**
@@ -88,6 +88,7 @@
     let elementPosYBottom = Number(
       targetNode.getBoundingClientRect().bottom
     ); /* 要检测的元素的相对屏幕的纵坐标最下边 */
+    let clickNodeHTML = window.event?.target?.innerHTML;
     if (
       mouseClickPosX >= elementPosXLeft &&
       mouseClickPosX <= elementPosXRight &&
@@ -96,9 +97,8 @@
     ) {
       return true;
     } else if (
-      window.event.target &&
-      typeof window.event.target.innerHTML === "string" &&
-      window.event.target.innerHTML.indexOf(targetNode.innerHTML) !== -1
+      clickNodeHTML &&
+      targetNode.innerHTML.includes(clickNodeHTML)
     ) {
       /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
       return true;
