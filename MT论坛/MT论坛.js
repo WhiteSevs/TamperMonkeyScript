@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至4.2;新增代码块高亮功能桌面端(桌面端需开启帖子浏览优化)和移动端(移动端需手动开启);修复高亮的库的正确引用地址;
-// @version      3.1.1
+// @description  更新日志: 库Utils更新至2023-7-22;修复当在快捷回复框中点击插入UUB后点击取消/确认会使回复框缩回的问题;
+// @version      3.1.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -35,7 +35,7 @@
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219821
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1223482
 // ==/UserScript==
 
 (function () {
@@ -376,6 +376,15 @@
   };
 
   /**
+   * 临时存储的flag判断
+   */
+  const TEMP_FLAG = {
+    /**
+     * 当前是否是编辑器-快捷插入UUB弹窗的点击
+     */
+    isUBBCodeInsertClick: false,
+  };
+  /**
    * 定义页面元素选择器
    */
   const DOM_CONFIG = {
@@ -650,7 +659,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219821
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1223482
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -688,7 +697,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1219821",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1223482",
       },
     ];
     for (const libraryItem of libraries) {
@@ -9053,8 +9062,12 @@
 
       $jq(document).on("click", function (event) {
         /* 全局点击事件 */
-        if (document.querySelector(".popups-popmenu")) {
-          /* 当前存在弹出层，不做反应 */
+        if (
+          document.querySelector(".popups-popmenu") ||
+          TEMP_FLAG.isUBBCodeInsertClick
+        ) {
+          /* 当前存在弹出层，不做处理 */
+          TEMP_FLAG.isUBBCodeInsertClick = false;
           return;
         } else if (
           document
@@ -9364,9 +9377,10 @@
         });
       }
 
+      /**
+       * 图床-水印-设置的各种事件
+       */
       function chartbedWaterMarkEvent() {
-        /* 图床-水印-设置的各种事件 */
-
         $jq("label[for='autowatermarkdefault']").on("click", function () {
           let obj = $jq(this);
           let code_obj = obj.find("code");
@@ -13960,8 +13974,10 @@
           quickUBBReplace: "[email=replace]replace[/email]",
         },
       },
+      /**
+       * 快捷回复
+       */
       insertQuickReplyUBB: () => {
-        /* 快捷回复 */
         let ubbCodeMap = mobile.quickUBB.code;
         ubbCodeMap["code"] = {
           key: "代码",
@@ -14017,10 +14033,18 @@
                             }</style>`,
               mask: true,
               only: true,
+              cancel: {
+                callback: () => {
+                  TEMP_FLAG.isUBBCodeInsertClick = true;
+                  popups.closeMask();
+                  popups.closeConfirm();
+                },
+              },
               ok: {
                 callback: () => {
+                  TEMP_FLAG.isUBBCodeInsertClick = true;
                   let userInput = $jq(".quickinsertbbsdialog").val();
-                  if (userInput.trim() == "") {
+                  if (userInput.trim() === "") {
                     popups.toast({
                       text: "输入框不能为空或纯空格",
                     });
@@ -14048,8 +14072,10 @@
           );
         });
       },
+      /**
+       * 具体回复
+       */
       insertReplayUBB: () => {
-        /* 具体回复 */
         let insertDOM = $jq(".comiis_post_urlico");
         if (!insertDOM) {
           console.log("未找到插入元素");
@@ -14264,7 +14290,7 @@
                   ? 0 + parseInt(b).toString(16)
                   : parseInt(b).toString(16);
               wr_rgb = wr_rgb.toUpperCase();
-              wr_code += `"[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
+              wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
             } else {
               wr_code += wr_text.charAt(i - 1);
             }
