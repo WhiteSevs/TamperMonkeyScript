@@ -60,31 +60,31 @@
 ![pCqsjKJ.png](https://s1.ax1x.com/2023/07/23/pCqsjKJ.png)
 ![pCqsOv4.png](https://s1.ax1x.com/2023/07/23/pCqsOv4.png)
 
-## 自定义商城商品关键字提醒
+## 2.自定义商城商品关键字提醒
 
 ![pCqypUx.png](https://s1.ax1x.com/2023/07/23/pCqypUx.png)
 
-## 2.自动加载评论
+## 3.自动加载评论
 
 ![Co0DAX.gif](https://www.helloimg.com/images/2021/06/25/Co0DAX.gif)
 
-## 3.手机版小黑屋
+## 4.手机版小黑屋
 
 ![2a74682a53db0663a98dfb8eb4b43939.gif](https://www.z4a.net/images/2023/07/23/2a74682a53db0663a98dfb8eb4b43939.gif)
 
-## 4.付费主题白嫖列表
+## 5.付费主题白嫖列表
 
 ![ZNuB0u.gif](https://www.helloimg.com/images/2022/08/14/ZNuB0u.gif)
 
-## 5.帖外图片预览
+## 6.帖外图片预览
 
 ![ZNjyGQ.gif](https://www.helloimg.com/images/2022/08/14/ZNjyGQ.gif)
 
-## 6.小窗口浏览
+## 7.小窗口浏览
 
 ![5f815af373a243e83184fe04c9b7c3bd.gif](https://www.z4a.net/images/2023/07/23/5f815af373a243e83184fe04c9b7c3bd.gif)
 
 
-## 7.发帖、编辑、回复预览
+## 8.发帖、编辑、回复预览
 
 ![cd701edc7826bed99b96be39ae21c498.gif](https://www.z4a.net/images/2023/07/23/cd701edc7826bed99b96be39ae21c498.gif)
