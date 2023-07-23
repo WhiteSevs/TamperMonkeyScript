@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至2023-7-22;修复当在快捷回复框中点击插入UUB后点击取消/确认会使回复框缩回的问题;
-// @version      3.1.2
+// @description  更新日志: 库Utils更新至2023-7-22;修复当在快捷回复框中点击插入UUB后点击取消/确认会使回复框缩回的问题;修复快捷回复框不能自动保存输入的内容;
+// @version      3.1.3
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -8823,6 +8823,40 @@
           }
           $jq(this).css("height", "70px");
           $jq(this).css("height", event.target.scrollHeight - 20 + "px");
+          /* 记录输入的文本保存到indexDB中 */
+          let replyUserDom = event.target
+            .closest(".reply_area")
+            .querySelector(".reply_user_content");
+          let dataReplyUrl = replyUserDom.getAttribute("data-reply-url");
+          let data = {
+            url: window.location.href,
+            text: inputText,
+            replyUrl: utils.isNull(dataReplyUrl) ? undefined : dataReplyUrl,
+            forumId: DOM_CONFIG.getForumId(window.location.href),
+          };
+          db.get("data").then((result) => {
+            let localDataIndex = result.data.findIndex((item) => {
+              return (
+                item.replyUrl === data.replyUrl && item.forumId === data.forumId
+              );
+            });
+            if (localDataIndex !== -1) {
+              if (utils.isNull(inputText)) {
+                result.data.splice(localDataIndex, 1);
+              } else {
+                result.data[localDataIndex] = utils.assign(
+                  result.data[localDataIndex],
+                  data
+                );
+              }
+            } else {
+              result.data = result.data.concat(data);
+            }
+
+            db.save("data", result.data).then((result2) => {
+              console.log(result2);
+            });
+          });
         }
       );
 
@@ -9270,47 +9304,6 @@
           only: true,
         });
       });
-
-      $jq("#comiis_foot_menu_beautify_big textarea").on(
-        "input propertychange",
-        function (event) {
-          /* 记录输入的文本保存到indexDB中 */
-          let inputText = event.target.value;
-          let replyUserDom = event.target
-            .closest(".reply_area")
-            .querySelector(".reply_user_content");
-          let dataReplyUrl = replyUserDom.getAttribute("data-reply-url");
-          let data = {
-            url: window.location.href,
-            text: inputText,
-            replyUrl: utils.isNull(dataReplyUrl) ? undefined : dataReplyUrl,
-            forumId: DOM_CONFIG.getForumId(window.location.href),
-          };
-          db.get("data").then((result) => {
-            let localDataIndex = result.data.findIndex((item) => {
-              return (
-                item.replyUrl === data.replyUrl && item.forumId === data.forumId
-              );
-            });
-            if (localDataIndex !== -1) {
-              if (utils.isNull(inputText)) {
-                result.data.splice(localDataIndex, 1);
-              } else {
-                result.data[localDataIndex] = utils.assign(
-                  result.data[localDataIndex],
-                  data
-                );
-              }
-            } else {
-              result.data = result.data.concat(data);
-            }
-
-            db.save("data", result.data).then((result2) => {
-              console.log(result2);
-            });
-          });
-        }
-      );
 
       /**
        * 把存储回复框的内容设置到输入框中
