@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2.2
+// @version      1.2.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -1267,13 +1267,18 @@
 			.followSuper,
 			#searchwordSdk ~ div:nth-child(n+4),
 			#searchwordSdk,
-			div#commentModule div div span:last-child{
+			div#commentModule div div span:last-child,
+      /* 顶部打开APP横幅 */
+      #headDeflectorContainer,
+      /* 展开全文 */
+      .foldMaskWrapper{
 				display:none !important;
 			}
 			body.scrollHide{
 				overflow:auto !important;
 			}
-			.mainContent{
+			.mainContent,
+      #mainContentContainer{
 				height:  auto !important;
 			}
 		`,
@@ -3430,9 +3435,11 @@
         jQuery(document).on("click", "img", function (event) {
           let cliclElement = event.target;
           let imgSrc =
-            cliclElement.getAttribute("data-src") || cliclElement.getAttribute("src");
+            cliclElement.getAttribute("data-src") ||
+            cliclElement.getAttribute("src");
           if (
-            cliclElement.parentElement.getAttribute("data-viewer-action") === "view"
+            cliclElement.parentElement.getAttribute("data-viewer-action") ===
+            "view"
           ) {
             return;
           }
@@ -3444,7 +3451,9 @@
             log.info(cliclElement);
             if (cliclElement.parentElement.className === "img-box") {
               /* 帖子主体内的图片 */
-              let parentMain = cliclElement.closest(".img-sudoku.main-img-sudoku");
+              let parentMain = cliclElement.closest(
+                ".img-sudoku.main-img-sudoku"
+              );
               log.info(parentMain);
               if (!parentMain) {
                 viewIMG([imgSrc]);
@@ -3460,7 +3469,9 @@
               log.info("图片列表👇");
               log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-            } else if (cliclElement.parentElement.className === "text-content") {
+            } else if (
+              cliclElement.parentElement.className === "text-content"
+            ) {
               /* 评论区内的图片 */
               let parentMain = cliclElement.parentElement;
               let lazyImgList = [];
@@ -3596,20 +3607,24 @@
           return utils.toJSON(respData.responseText);
         },
         run() {
-          log.success("当前的地址: "+window.location.href);
-          if (
-            !window.location.href.startsWith("https://tieba.baidu.com/p/")
-          ) {
-            /* 当前是在主页中，搜索按钮判定为搜索吧 */
-            log.success("当前是在首页");
-            utils.waitNode("div.more-btn-desc").then((nodeList) => {
-              nodeList[0].outerHTML = `
+          this.setSuggestionCSS();
+          utils.waitNode("div.more-btn-desc").then((nodeList) => {
+            nodeList[0].outerHTML = `
               <input type="search" id="tieba-search" placeholder="请输入搜索内容..." style="display: none;padding: 0 10px;height: 32px;line-height: 32px;font-size: 14px;border-radius: 5px;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;-o-appearance: none;appearance: none;border: 1px solid #000000;outline: none;flex: 1;margin: 0px 40px;" autocomplete="off">
               <div class="more-btn-desc" style="margin-right: 13px;font-size: .15rem;font-weight: 700;color: #614ec2;">搜索</div>
               `;
-              document
-                .querySelector("div.more-btn-desc")
-                .addEventListener("click", function () {
+            document
+              .querySelector("div.more-btn-desc")
+              .addEventListener("click", function () {
+                if (
+                  window.location.href.startsWith("https://tieba.baidu.com/p/")
+                ) {
+                  /* 当前是在吧内，搜索按钮判定为跳转到搜索具体内容界面 */
+                  log.success("当前是在吧内");
+                  window.open("https://tieba.baidu.com/f/search/res", "_blank");
+                } else {
+                  /* 当前是在主页中，搜索按钮判定为搜索吧 */
+                  log.success("当前是在首页");
                   let searchInputElement =
                     document.querySelector("#tieba-search");
                   let searchText = searchInputElement.value.trim();
@@ -3627,8 +3642,68 @@
                     window.location.href =
                       "https://tieba.baidu.com/f?ie=utf-8&kw=" + searchText;
                   }
-                });
-              GM_addStyle(`
+                }
+              });
+
+            let searchSuggestion = new SearchSuggestion({
+              isAbsoulte: false,
+              showDeleteIcon: false,
+              targetElement: document.querySelector("#tieba-search"),
+              getItemValue: function (item) {
+                return item.fname;
+              },
+              getItemHTML: function (itemData) {
+                return `
+                  <div class="forum_item">
+                    <img class="forum_image" src="${itemData.fpic}">
+                    <div class="forum_right">
+                      <div class="forum_name">${itemData.fname}</div>
+                      <div class="forum_desc">${itemData.forum_desc}</div>
+                    </div>
+                  </div>`;
+              },
+              searchInputChangeCallBack: async (info) => {
+                /* 
+                  {
+                      "text": "r",
+                      "data": [],
+                      "showData": []
+                  }
+                  */
+                let searchText = info.text;
+                let result = [];
+                log.success("搜索中...");
+                let suggestionData = await tiebaSearchConfig.getSuggestion(
+                  searchText
+                );
+                if (utils.isNull(suggestionData)) {
+                  return result;
+                }
+                console.log(suggestionData);
+                result = suggestionData.query_match.search_data || [];
+                return result;
+              },
+              clickItemCallBack: (text) => {
+                window.location.href =
+                  "https://tieba.baidu.com/f?ie=utf-8&kw=" + text;
+              },
+            });
+            log.success("初始化默认搜索...");
+            searchSuggestion.config
+              .searchInputChangeCallBack({
+                text: "",
+                data: [],
+                showData: [],
+              })
+              .then((result) => {
+                if (result.length) {
+                  searchSuggestion.update(result);
+                }
+              });
+          });
+        },
+        setSuggestionCSS() {
+          GM_addStyle(`
               .WhiteSevsSearchSelect .forum_item{
                 /* height: 32px;
                 padding: 6px 8px;
@@ -3657,75 +3732,6 @@
                 content:"吧";
               }
               `);
-              let searchSuggestion = new SearchSuggestion({
-                isAbsoulte: false,
-                showDeleteIcon: false,
-                targetElement: document.querySelector("#tieba-search"),
-                getItemValue: function (item) {
-                  return item.fname;
-                },
-                getItemHTML: function (itemData) {
-                  return `
-                  <div class="forum_item">
-                    <img class="forum_image" src="${itemData.fpic}">
-                    <div class="forum_right">
-                      <div class="forum_name">${itemData.fname}</div>
-                      <div class="forum_desc">${itemData.forum_desc}</div>
-                    </div>
-                  </div>`;
-                },
-                searchInputChangeCallBack: async (info) => {
-                  /* 
-                  {
-                      "text": "r",
-                      "data": [],
-                      "showData": []
-                  }
-                  */
-                  let searchText = info.text;
-                  let result = [];
-                  log.success("搜索中...");
-                  let suggestionData = await tiebaSearchConfig.getSuggestion(
-                    searchText
-                  );
-                  if (utils.isNull(suggestionData)) {
-                    return result;
-                  }
-                  console.log(suggestionData);
-                  result = suggestionData.query_match.search_data || [];
-                  return result;
-                },
-                clickItemCallBack: (text) => {
-                  window.location.href =
-                    "https://tieba.baidu.com/f?ie=utf-8&kw=" + text;
-                },
-              });
-              log.success("初始化默认搜索...");
-              searchSuggestion.config
-                .searchInputChangeCallBack({
-                  text: "",
-                  data: [],
-                  showData: [],
-                })
-                .then((result) => {
-                  if (result.length) {
-                    searchSuggestion.update(result);
-                  }
-                });
-            });
-          } else {
-            /* 当前是在吧内，搜索按钮判定为跳转到搜索具体内容界面 */
-            log.success("当前是在吧内");
-            utils.waitNode("div.more-btn-desc").then((nodeList) => {
-              nodeList[0].outerHTML =
-                '<div class="more-btn-desc" style="margin-right: 13px;font-size: .15rem;font-weight: 700;color: #614ec2;">搜索</div>';
-              document
-                .querySelector("div.more-btn-desc")
-                .addEventListener("click", function () {
-                  window.open("https://tieba.baidu.com/f/search/res", "_blank");
-                });
-            });
-          }
         },
       };
       GM_addStyle(this.css.tieba);
