@@ -527,53 +527,6 @@
   };
 
   /**
-   * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-   * @param {Function|string} func 需要执行的函数
-   * @param {Function|undefined} scope 函数作用域
-   * @param {number} unLockDelayTime 延迟xx毫秒后解锁，默认0
-   * @example
-    let lock = new Utils.funcLock(()=>{console.log(1)}))
-    lock.run();
-    > 1
-   * @example
-    let lock = new Utils.funcLock(()=>{console.log(1)}),true) -- 异步操作
-    await lock.run();
-    > 1
-   **/
-  Utils.funcLock = function (func, scope, unLockDelayTime = 0) {
-    let flag = false;
-    let that = this;
-    scope = scope || this;
-    /**
-     * 锁
-     */
-    this.lock = function () {
-      flag = true;
-    };
-    /**
-     * 解锁
-     */
-    this.unlock = function () {
-      setTimeout(() => {
-        flag = false;
-      }, unLockDelayTime);
-    };
-    /**
-     * 执行
-     * @param  {...any} funArgs 参数
-     * @returns {Promise}
-     */
-    this.run = async function (...funArgs) {
-      if (flag) {
-        return;
-      }
-      that.lock();
-      await func.apply(scope, funArgs); /* arguments调用 */
-      that.unlock();
-    };
-  };
-
-  /**
    * gbk格式的url编码,来自https://greasyfork.org/zh-CN/scripts/427726-gbk-url-js
    * @example
    * let gbkEncoder = new Utils.GBKEncoder();
@@ -2760,6 +2713,53 @@
         callback(keyName, otherCodeList, event);
       }
     });
+  };
+
+  /**
+   * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
+   * @param {Function|string} func 需要执行的函数
+   * @param {Function|undefined} scope 函数作用域
+   * @param {number} unLockDelayTime 延迟xx毫秒后解锁，默认0
+   * @example
+    let lock = new Utils.LockFunction(()=>{console.log(1)}))
+    lock.run();
+    > 1
+   * @example
+    let lock = new Utils.LockFunction(()=>{console.log(1)}),true) -- 异步操作
+    await lock.run();
+    > 1
+   **/
+  Utils.LockFunction = function (func, scope, unLockDelayTime = 0) {
+    let flag = false;
+    let that = this;
+    scope = scope || this;
+    /**
+     * 锁
+     */
+    this.lock = function () {
+      flag = true;
+    };
+    /**
+     * 解锁
+     */
+    this.unlock = function () {
+      setTimeout(() => {
+        flag = false;
+      }, unLockDelayTime);
+    };
+    /**
+     * 执行
+     * @param  {...any} funArgs 参数
+     * @returns {Promise}
+     */
+    this.run = async function (...funArgs) {
+      if (flag) {
+        return;
+      }
+      that.lock();
+      await func.apply(scope, funArgs); /* arguments调用 */
+      that.unlock();
+    };
   };
 
   /**
