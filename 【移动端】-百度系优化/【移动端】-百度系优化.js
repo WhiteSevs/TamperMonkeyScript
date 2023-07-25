@@ -42,7 +42,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1223482
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1225092
 // @run-at       document-start
 // ==/UserScript==
 
@@ -931,6 +931,9 @@
           }, that.falOutDuration * 1000);
         }, 100);
       }
+      function _click_event(event) {
+        event.target.dispatchEvent(new Event("focus"));
+      }
       async function _propertychange_event_(event) {
         that.config.targetElement.dispatchEvent(new Event("focus"));
         let getListResult = await that.getList(event.target.value);
@@ -939,35 +942,15 @@
       /* 禁用输入框自动提示 */
       this.config.targetElement.setAttribute("autocomplete", "off");
       /* 输入框获取焦点事件 */
-      this.config.targetElement.addEventListener(
-        "focus",
-        function (event) {
-          _focus_event_(event);
-        },
-        true
-      );
+      this.config.targetElement.addEventListener("focus", _focus_event_, true);
       /* 输入框点击事件 */
-      this.config.targetElement.addEventListener(
-        "click",
-        function (event) {
-          event.target.dispatchEvent(new Event("focus"));
-        },
-        true
-      );
+      this.config.targetElement.addEventListener("click", _click_event, true);
       /* 输入框失去焦点事件 */
-      this.config.targetElement.addEventListener(
-        "blur",
-        function (event) {
-          _blur_event_(event);
-        },
-        false
-      );
+      this.config.targetElement.addEventListener("blur", _blur_event_, false);
       /* 输入框内容改变事件 */
       this.config.targetElement.addEventListener(
         "input",
-        function (event) {
-          _propertychange_event_(event);
-        },
+        _propertychange_event_,
         true
       );
       const userDocumentClickEvent = function () {
@@ -1011,7 +994,37 @@
       };
       document.addEventListener("touchstart", userDocumentClickEvent);
       document.addEventListener("click", userDocumentClickEvent);
+
+      this.removeTargetInputEvent = function () {
+        this.config.targetElement.removeAttribute("autocomplete");
+        this.config.targetElement.removeEventListener(
+          "focus",
+          _focus_event_,
+          true
+        );
+        this.config.targetElement.removeEventListener(
+          "click",
+          _click_event,
+          true
+        );
+        this.config.targetElement.removeEventListener(
+          "blur",
+          _blur_event_,
+          false
+        );
+        this.config.targetElement.removeEventListener(
+          "input",
+          _propertychange_event_,
+          true
+        );
+        document.removeEventListener("touchstart", userDocumentClickEvent);
+        document.removeEventListener("click", userDocumentClickEvent);
+      };
     }
+    /**
+     * 移除目标输入框的各种事件
+     */
+    removeTargetInputEvent() {}
     /**
      * 设置搜索建议各个项的事件
      */
@@ -2262,13 +2275,13 @@
           }
         }
         function setNextPageScrollListener() {
-          document.addEventListener("scroll", funcLock.run);
+          document.addEventListener("scroll", lockFunction.run);
         }
         function removeNextPageScrollListener() {
-          document.removeEventListener("scroll", funcLock.run);
+          document.removeEventListener("scroll", lockFunction.run);
           log.info("取消绑定scroll", "#f400ff");
         }
-        let funcLock = new utils.funcLock(scrollEvent, this);
+        let lockFunction = new utils.LockFunction(scrollEvent, this);
         jQuery("#page-controller").after(loadingView.getLoadingNode(true));
         loadingView.setCSS();
         loadingView.setVisible(false);
@@ -2331,7 +2344,7 @@
       }
       if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
         log.success("禁止百度搜索的视频自动播放");
-        let funcLock = new utils.funcLock(
+        let funcLock = new utils.LockFunction(
           () => {
             let videoPlayerList = document.querySelectorAll(
               "[class*='-video-player']"
@@ -2358,7 +2371,7 @@
       GM_addStyle(this.css.search);
 
       jQuery(function () {
-        let searchUpdateRealLink = new utils.funcLock(async () => {
+        let searchUpdateRealLink = new utils.LockFunction(async () => {
           try {
             await handleItemURL.replaceLink();
           } catch (error) {
@@ -2414,630 +2427,610 @@
       if (!this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
         return;
       }
-      /**
-       * 贴吧加载评论
-       */
-      function tiebaLoadComments() {
-        /* 贴吧加载评论 */
-        const tiebaCommentConfig = {
-          page: 1,
-          maxPage: 1,
-          floor_num: 1,
-          funcLock: null,
-          param_tid: null,
-          param_forum_id: null,
-          /**
-           * 判断是否在底部附近的误差值
-           * @type
-           */
-          isNearBottomValue: 250,
-          /**
-           * scroll事件触发 自动加载下一页的评论
-           */
-          nextPageScrollEvent: async () => {
-            if (!utils.isNearBottom(tiebaCommentConfig.isNearBottomValue)) {
-              return;
-            }
-            loadingView.setText("Loading...", true);
-            loadingView.setVisible(true);
-            let timeStamp = Date.now();
-            let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
-            let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
-            log.info("请求下一页评论的url: " + nextPageUrl);
-            log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
-            let nextPageDOM = await tiebaCommentConfig.getPageComment(
-              nextPageUrl
+      /* 贴吧加载评论 */
+      const tiebaCommentConfig = {
+        page: 1,
+        maxPage: 1,
+        floor_num: 1,
+        funcLock: null,
+        param_tid: null,
+        param_forum_id: null,
+        /**
+         * 判断是否在底部附近的误差值
+         * @type
+         */
+        isNearBottomValue: 250,
+        /**
+         * scroll事件触发 自动加载下一页的评论
+         */
+        nextPageScrollEvent: async () => {
+          if (!utils.isNearBottom(tiebaCommentConfig.isNearBottomValue)) {
+            return;
+          }
+          loadingView.setText("Loading...", true);
+          loadingView.setVisible(true);
+          let timeStamp = Date.now();
+          let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+          let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
+          log.info("请求下一页评论的url: " + nextPageUrl);
+          log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
+          let nextPageDOM = await tiebaCommentConfig.getPageComment(
+            nextPageUrl
+          );
+          log.info("成功获取下一页评论");
+          let pageCommentList = await tiebaCommentConfig.getPageCommentList(
+            nextPageAllCommentUrl
+          );
+          log.info("成功获取下一页评论对应的数组");
+          if (!nextPageDOM || !pageCommentList.commentList) {
+            loadingView.setText("未知错误，请看控制台");
+            log.error(nextPageDOM);
+            log.error(pageCommentList);
+            tiebaCommentConfig.removeScrollListener();
+            return;
+          }
+          let comments = nextPageDOM.querySelectorAll(".l_post.l_post_bright");
+          comments = Array.from(comments);
+          if (tiebaCommentConfig.page == 1) {
+            /* 为第一页时，去除第一个，也就是主评论 */
+            comments.splice(0, 1);
+          }
+          comments.forEach((ele) => {
+            tiebaCommentConfig.insertNewCommentInnerHTML(
+              tiebaCommentConfig.getNewCommentInnerHTML(ele, pageCommentList)
             );
-            log.info("成功获取下一页评论");
-            let pageCommentList = await tiebaCommentConfig.getPageCommentList(
-              nextPageAllCommentUrl
-            );
-            log.info("成功获取下一页评论对应的数组");
-            if (!nextPageDOM || !pageCommentList.commentList) {
-              loadingView.setText("未知错误，请看控制台");
-              log.error(nextPageDOM);
-              log.error(pageCommentList);
-              tiebaCommentConfig.removeScrollListener();
-              return;
-            }
-            let comments = nextPageDOM.querySelectorAll(
-              ".l_post.l_post_bright"
-            );
-            comments = Array.from(comments);
-            if (tiebaCommentConfig.page == 1) {
-              /* 为第一页时，去除第一个，也就是主评论 */
-              comments.splice(0, 1);
-            }
-            comments.forEach((ele) => {
-              tiebaCommentConfig.insertNewCommentInnerHTML(
-                tiebaCommentConfig.getNewCommentInnerHTML(ele, pageCommentList)
-              );
-              tiebaCommentConfig.floor_num += 1;
+            tiebaCommentConfig.floor_num += 1;
+          });
+          if (
+            Array.from(
+              document.querySelector(".white-only-lz").classList
+            ).includes("white-only-lz-qx")
+          ) {
+            jQuery(".post-item").each((index, ele) => {
+              let landlord = ele.getAttribute("landlord");
+              if (landlord == "0") {
+                ele.classList.add("white-only-lz-none");
+              }
             });
-            if (
-              Array.from(
-                document.querySelector(".white-only-lz").classList
-              ).includes("white-only-lz-qx")
-            ) {
-              jQuery(".post-item").each((index, ele) => {
-                let landlord = ele.getAttribute("landlord");
-                if (landlord == "0") {
-                  ele.classList.add("white-only-lz-none");
-                }
-              });
-            }
+          }
+          loadingView.setVisible(false);
+          if (tiebaCommentConfig.page >= tiebaCommentConfig.maxPage) {
+            log.info("已加载所有的评论");
+            loadingView.setText("已加载所有的评论");
             loadingView.setVisible(false);
-            if (tiebaCommentConfig.page >= tiebaCommentConfig.maxPage) {
-              log.info("已加载所有的评论");
-              loadingView.setText("已加载所有的评论");
-              loadingView.setVisible(false);
-              tiebaCommentConfig.removeScrollListener();
-            }
-            tiebaCommentConfig.page++;
-          },
-          /**
-           * scroll事件触发 自动加载上一页的评论
-           */
-          prevPageScrollEvent: async () => {
-            if (!utils.isNearBottom(tiebaCommentConfig.isNearBottomValue)) {
-              return;
-            }
-            loadingView.setText("Loading...", true);
-            loadingView.setVisible(true);
-            let timeStamp = Date.now();
-            let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
-            let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
-            log.info("请求上一页评论的url: " + pageUrl);
-            log.info("贴子所有评论的url: " + pageAllCommentUrl);
-            let nextPageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
-            log.info("成功获取上一页评论");
-            let pageCommentList = await tiebaCommentConfig.getPageCommentList(
-              pageAllCommentUrl
-            );
-            log.info("成功获取下一页评论对应的数组");
-            if (!nextPageDOM || !pageCommentList.commentList) {
-              loadingView.setText("未知错误，请看控制台");
-              log.error(nextPageDOM);
-              log.error(pageCommentList);
-              tiebaCommentConfig.removeScrollListener();
-              return;
-            }
-            let comments = nextPageDOM.querySelectorAll(
-              ".l_post.l_post_bright"
-            );
-            comments = Array.from(comments);
-            if (tiebaCommentConfig.page == 1) {
-              /* 为第一页时，去除第一个，也就是主评论 */
-              comments.splice(0, 1);
-            }
-            comments.reverse();
-            comments.forEach((element) => {
-              tiebaCommentConfig.insertNewCommentInnerHTML(
-                tiebaCommentConfig.getNewCommentInnerHTML(
-                  element,
-                  pageCommentList
-                )
-              );
-              tiebaCommentConfig.floor_num++;
-            });
-            if (
-              Array.from(jQuery(".white-only-lz")[0].classList).includes(
-                "white-only-lz-qx"
+            tiebaCommentConfig.removeScrollListener();
+          }
+          tiebaCommentConfig.page++;
+        },
+        /**
+         * scroll事件触发 自动加载上一页的评论
+         */
+        prevPageScrollEvent: async () => {
+          if (!utils.isNearBottom(tiebaCommentConfig.isNearBottomValue)) {
+            return;
+          }
+          loadingView.setText("Loading...", true);
+          loadingView.setVisible(true);
+          let timeStamp = Date.now();
+          let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+          let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
+          log.info("请求上一页评论的url: " + pageUrl);
+          log.info("贴子所有评论的url: " + pageAllCommentUrl);
+          let nextPageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
+          log.info("成功获取上一页评论");
+          let pageCommentList = await tiebaCommentConfig.getPageCommentList(
+            pageAllCommentUrl
+          );
+          log.info("成功获取下一页评论对应的数组");
+          if (!nextPageDOM || !pageCommentList.commentList) {
+            loadingView.setText("未知错误，请看控制台");
+            log.error(nextPageDOM);
+            log.error(pageCommentList);
+            tiebaCommentConfig.removeScrollListener();
+            return;
+          }
+          let comments = nextPageDOM.querySelectorAll(".l_post.l_post_bright");
+          comments = Array.from(comments);
+          if (tiebaCommentConfig.page == 1) {
+            /* 为第一页时，去除第一个，也就是主评论 */
+            comments.splice(0, 1);
+          }
+          comments.reverse();
+          comments.forEach((element) => {
+            tiebaCommentConfig.insertNewCommentInnerHTML(
+              tiebaCommentConfig.getNewCommentInnerHTML(
+                element,
+                pageCommentList
               )
-            ) {
-              let lzReply = jQuery(".post-item");
-              Array.from(lzReply).forEach((ele) => {
-                let landlord = ele.getAttribute("landlord");
-                if (landlord == "0") {
-                  ele.classList.add("white-only-lz-none");
-                }
-              });
-            }
+            );
+            tiebaCommentConfig.floor_num++;
+          });
+          if (
+            Array.from(jQuery(".white-only-lz")[0].classList).includes(
+              "white-only-lz-qx"
+            )
+          ) {
+            let lzReply = jQuery(".post-item");
+            Array.from(lzReply).forEach((ele) => {
+              let landlord = ele.getAttribute("landlord");
+              if (landlord == "0") {
+                ele.classList.add("white-only-lz-none");
+              }
+            });
+          }
+          loadingView.setVisible(false);
+          if (tiebaCommentConfig.page <= 1) {
+            log.info("已加载所有的评论");
+            loadingView.setText("已加载所有的评论");
             loadingView.setVisible(false);
-            if (tiebaCommentConfig.page <= 1) {
-              log.info("已加载所有的评论");
-              loadingView.setText("已加载所有的评论");
-              loadingView.setVisible(false);
-              tiebaCommentConfig.removeScrollListener();
-            }
-            tiebaCommentConfig.page--;
-          },
-          /**
-           * 设置自动加载下一页的scrol事件
-           */
-          setNextPageScrollListener() {
-            tiebaCommentConfig.funcLock = new utils.funcLock(
-              tiebaCommentConfig.nextPageScrollEvent,
-              this
-            );
-            document.addEventListener(
-              "scroll",
-              tiebaCommentConfig.funcLock.run
-            );
-            utils.dispatchEvent(document, "scroll");
-            log.success("scroll监听事件【下一页】");
-          },
-          /**
-           * 设置自动加载上一页的scrol事件
-           */
-          setPrevPageScrollListener() {
-            tiebaCommentConfig.funcLock = new utils.funcLock(
-              tiebaCommentConfig.prevPageScrollEvent,
-              this
-            );
-            document.addEventListener(
-              "scroll",
-              tiebaCommentConfig.funcLock.run
-            );
-            utils.dispatchEvent(document, "scroll");
-            log.success("scroll监听事件【上一页】");
-          },
-          /**
-           * 移除scoll事件
-           */
-          removeScrollListener() {
+            tiebaCommentConfig.removeScrollListener();
+          }
+          tiebaCommentConfig.page--;
+        },
+        /**
+         * 设置自动加载下一页的scrol事件
+         */
+        setNextPageScrollListener() {
+          tiebaCommentConfig.funcLock = new utils.LockFunction(
+            tiebaCommentConfig.nextPageScrollEvent,
+            this
+          );
+          document.addEventListener("scroll", tiebaCommentConfig.funcLock.run);
+          utils.dispatchEvent(document, "scroll");
+          log.success("scroll监听事件【下一页】");
+        },
+        /**
+         * 设置自动加载上一页的scrol事件
+         */
+        setPrevPageScrollListener() {
+          tiebaCommentConfig.funcLock = new utils.LockFunction(
+            tiebaCommentConfig.prevPageScrollEvent,
+            this
+          );
+          document.addEventListener("scroll", tiebaCommentConfig.funcLock.run);
+          utils.dispatchEvent(document, "scroll");
+          log.success("scroll监听事件【上一页】");
+        },
+        /**
+         * 移除scoll事件
+         */
+        removeScrollListener() {
+          if (tiebaCommentConfig.funcLock) {
             document.removeEventListener(
               "scroll",
               tiebaCommentConfig.funcLock.run
             );
             log.success("取消绑定scroll", "#f400ff");
-          },
-          /**
-           * 根据dom获取需要插入的评论的html
-           * @param {HTMLElement} element
-           * @param { {commentList: any, userList: array}} pageCommentList
-           * @returns {string}
-           */
-          getNewCommentInnerHTML: (element, pageCommentList) => {
-            let data_field = utils.toJSON(element.getAttribute("data-field"));
-            if (Object.keys(data_field).length == 0) {
-              return;
-            }
-            let user_id = data_field["author"]["user_id"];
-            let builderId = data_field["content"]["builderId"];
+          }
+        },
+        /**
+         * 根据dom获取需要插入的评论的html
+         * @param {HTMLElement} element
+         * @param { {commentList: any, userList: array}} pageCommentList
+         * @returns {string}
+         */
+        getNewCommentInnerHTML: (element, pageCommentList) => {
+          let data_field = utils.toJSON(element.getAttribute("data-field"));
+          if (Object.keys(data_field).length == 0) {
+            return;
+          }
+          let user_id = data_field["author"]["user_id"];
+          let builderId = data_field["content"]["builderId"];
 
-            let userComment = data_field["content"]["content"];
-            let userHomeUrl = element
-              .querySelector(".p_author_face")
-              .getAttribute("href");
-            let user_landlord_name = data_field["author"]["user_name"];
-            let userName = element.querySelector(".p_author_name");
-            if (userName) {
-              userName = userName.textContent;
-            } else {
-              userName = element
-                .querySelector(".p_author_face > img")
-                .getAttribute("username");
-            }
+          let userComment = data_field["content"]["content"];
+          let userHomeUrl = element
+            .querySelector(".p_author_face")
+            .getAttribute("href");
+          let user_landlord_name = data_field["author"]["user_name"];
+          let userName = element.querySelector(".p_author_name");
+          if (userName) {
+            userName = userName.textContent;
+          } else {
+            userName = element
+              .querySelector(".p_author_face > img")
+              .getAttribute("username");
+          }
 
-            let userAvator =
-              element
-                .querySelector(".p_author_face > img")
-                .getAttribute("data-tb-lazyload") ||
-              element.querySelector(".p_author_face > img").getAttribute("src");
+          let userAvator =
+            element
+              .querySelector(".p_author_face > img")
+              .getAttribute("data-tb-lazyload") ||
+            element.querySelector(".p_author_face > img").getAttribute("src");
 
-            let is_landlord = 0;
-            if (user_id == builderId) {
-              userName =
-                userName +
-                '<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
-              is_landlord = 1;
-            }
-            let ele_tail_wrap = element.querySelector(".post-tail-wrap");
-            let user_ip_position = ele_tail_wrap;
-            let user_floor = "";
-            let user_comment_time = "1970-1-1 00:00:00";
-            if (ele_tail_wrap) {
-              let childrenElement =
-                jQuery(ele_tail_wrap).find("span.tail-info");
-              jQuery(ele_tail_wrap)
-                .find("span")
-                .filter(function (index) {
-                  if (!this.getAttribute("class")) {
-                    user_ip_position = this.textContent;
-                    if (user_ip_position.match("来自|禁言")) {
-                      user_ip_position = "";
-                    }
-                    return this;
+          let is_landlord = 0;
+          if (user_id == builderId) {
+            userName =
+              userName +
+              '<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
+            is_landlord = 1;
+          }
+          let ele_tail_wrap = element.querySelector(".post-tail-wrap");
+          let user_ip_position = ele_tail_wrap;
+          let user_floor = "";
+          let user_comment_time = "1970-1-1 00:00:00";
+          if (ele_tail_wrap) {
+            let childrenElement = jQuery(ele_tail_wrap).find("span.tail-info");
+            jQuery(ele_tail_wrap)
+              .find("span")
+              .filter(function (index) {
+                if (!this.getAttribute("class")) {
+                  user_ip_position = this.textContent;
+                  if (user_ip_position.match("来自|禁言")) {
+                    user_ip_position = "";
                   }
-                });
-              if (childrenElement.length == 3 || childrenElement.length == 2) {
-                user_floor =
-                  childrenElement[childrenElement.length - 2].textContent;
-                user_comment_time =
-                  childrenElement[childrenElement.length - 1].textContent;
-              } else {
-                log.error("获取PC端的数据楼层和时间信息失败👇");
-                log.error(childrenElement);
-                user_floor = "";
-                user_comment_time = "";
-              }
-            } else {
-              ele_tail_wrap = element.querySelector(".acore_reply_tail");
-              user_ip_position = data_field["content"]["ip_address"];
+                  return this;
+                }
+              });
+            if (childrenElement.length == 3 || childrenElement.length == 2) {
               user_floor =
-                data_field["content"]["post_no"] + "楼"; /* 评论楼层 */
-              user_comment_time = data_field["content"]["date"];
-              if (!userComment) {
-                userComment =
-                  element.querySelector(".d_post_content").innerHTML;
-              }
-              if (user_ip_position) {
-                user_ip_position = "IP属地:" + user_ip_position;
-              }
-            }
-            let currentTime = new Date(); /* 结束时间 */
-            let timeDifference =
-              currentTime.getTime() -
-              new Date(
-                user_comment_time.replace(/-/g, "/")
-              ).getTime(); /* 时间差的毫秒数 */
-
-            /* ------------------------------ */
-
-            /* 计算出相差天数 */
-            let days = Math.floor(timeDifference / (24 * 3600 * 1000));
-            if (days > 0) {
-              user_comment_time = days + "天前";
+                childrenElement[childrenElement.length - 2].textContent;
+              user_comment_time =
+                childrenElement[childrenElement.length - 1].textContent;
             } else {
-              /* 计算出小时数 */
-              let leave1 =
-                timeDifference %
-                (24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
-              let hours = Math.floor(leave1 / (3600 * 1000));
-              if (hours > 0) {
-                user_comment_time = hours + "小时前";
+              log.error("获取PC端的数据楼层和时间信息失败👇");
+              log.error(childrenElement);
+              user_floor = "";
+              user_comment_time = "";
+            }
+          } else {
+            ele_tail_wrap = element.querySelector(".acore_reply_tail");
+            user_ip_position = data_field["content"]["ip_address"];
+            user_floor = data_field["content"]["post_no"] + "楼"; /* 评论楼层 */
+            user_comment_time = data_field["content"]["date"];
+            if (!userComment) {
+              userComment = element.querySelector(".d_post_content").innerHTML;
+            }
+            if (user_ip_position) {
+              user_ip_position = "IP属地:" + user_ip_position;
+            }
+          }
+          let currentTime = new Date(); /* 结束时间 */
+          let timeDifference =
+            currentTime.getTime() -
+            new Date(
+              user_comment_time.replace(/-/g, "/")
+            ).getTime(); /* 时间差的毫秒数 */
+
+          /* ------------------------------ */
+
+          /* 计算出相差天数 */
+          let days = Math.floor(timeDifference / (24 * 3600 * 1000));
+          if (days > 0) {
+            user_comment_time = days + "天前";
+          } else {
+            /* 计算出小时数 */
+            let leave1 =
+              timeDifference % (24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
+            let hours = Math.floor(leave1 / (3600 * 1000));
+            if (hours > 0) {
+              user_comment_time = hours + "小时前";
+            } else {
+              /* 计算相差分钟数 */
+              let leave2 =
+                leave1 % (3600 * 1000); /* 计算小时数后剩余的毫秒数 */
+              let minutes = Math.floor(leave2 / (60 * 1000));
+              if (minutes > 0) {
+                user_comment_time = minutes + "分钟前";
               } else {
-                /* 计算相差分钟数 */
-                let leave2 =
-                  leave1 % (3600 * 1000); /* 计算小时数后剩余的毫秒数 */
-                let minutes = Math.floor(leave2 / (60 * 1000));
-                if (minutes > 0) {
-                  user_comment_time = minutes + "分钟前";
-                } else {
-                  /* 计算相差秒数 */
-                  let leave3 =
-                    leave2 % (60 * 1000); /* 计算分钟数后剩余的毫秒数 */
-                  let seconds = Math.round(leave3 / 1000);
-                  user_comment_time = seconds + "秒前";
-                }
+                /* 计算相差秒数 */
+                let leave3 =
+                  leave2 % (60 * 1000); /* 计算分钟数后剩余的毫秒数 */
+                let seconds = Math.round(leave3 / 1000);
+                user_comment_time = seconds + "秒前";
               }
             }
+          }
 
-            let post_id = data_field["content"]["post_id"];
-            let newUserCommentHTML = "";
-            if (pageCommentList.commentList[post_id]) {
-              Array.from(
-                pageCommentList.commentList[post_id].comment_info
-              ).forEach((result) => {
-                let u_user_name = result["show_nickname"];
-                let u_content = result["content"];
-                let u_user_id = result["user_id"];
-                let u_user_portrait =
-                  pageCommentList.userList[u_user_id]["portrait"];
-                let u_user_home_url = "/home/main?id=" + u_user_portrait;
-                if (builderId == u_user_id) {
-                  u_user_name +=
-                    '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
-                }
-                let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
-                    <div data-v-5b60f30b="" class="text-box">
-                      <span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
-                      <div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
-                        <span data-v-ab14b3fe="" class="text-content">${u_content}</span>
-                      </div>
+          let post_id = data_field["content"]["post_id"];
+          let newUserCommentHTML = "";
+          if (pageCommentList.commentList[post_id]) {
+            Array.from(
+              pageCommentList.commentList[post_id].comment_info
+            ).forEach((result) => {
+              let u_user_name = result["show_nickname"];
+              let u_content = result["content"];
+              let u_user_id = result["user_id"];
+              let u_user_portrait =
+                pageCommentList.userList[u_user_id]["portrait"];
+              let u_user_home_url = "/home/main?id=" + u_user_portrait;
+              if (builderId == u_user_id) {
+                u_user_name +=
+                  '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
+              }
+              let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
+                  <div data-v-5b60f30b="" class="text-box">
+                    <span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
+                    <div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
+                      <span data-v-ab14b3fe="" class="text-content">${u_content}</span>
                     </div>
                   </div>
-                  `;
-                newUserCommentHTML += newInnerHTML;
-              });
-            }
+                </div>
+                `;
+              newUserCommentHTML += newInnerHTML;
+            });
+          }
 
-            if (newUserCommentHTML) {
-              newUserCommentHTML = `
-              <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: auto;">
-                ${newUserCommentHTML}
-              </div>
-              `;
-            }
-            let newCommentHTML = `
+          if (newUserCommentHTML) {
+            newUserCommentHTML = `
+            <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: auto;">
+              ${newUserCommentHTML}
+            </div>
+            `;
+          }
+          let newCommentHTML = `
+            <div
+              data-v-74eb13e2=""
+              data-v-602e287c=""
+              class="post-item"
+              data-floor="${tiebaCommentConfig.floor_num}"
+              landlord=${is_landlord}>
               <div
+                data-v-188c0e84=""
                 data-v-74eb13e2=""
-                data-v-602e287c=""
-                class="post-item"
-                data-floor="${tiebaCommentConfig.floor_num}"
-                landlord=${is_landlord}>
-                <div
-                  data-v-188c0e84=""
-                  data-v-74eb13e2=""
-                  class="user-line-wrapper user-line-post">
-                  <div data-v-188c0e84="" class="user-line">
-                    <div
-                      data-v-188c0e84=""
-                      class="tbfe-1px-border avatar"
-                      data-home-url="${userHomeUrl}"
-                      data-src="${userAvator}"
-                      lazy="loaded"
-                      style="background-image: url(${userAvator});"></div>
-                    <div data-v-188c0e84="" class="user-info">
-                      <div data-v-188c0e84="" class="username" data-home-url="${userHomeUrl}">
-                        ${userName}
-                      </div>
-                      <p data-v-188c0e84="" class="desc-info">
-                        <span data-v-188c0e84="" class="floor-info">
-                          ${user_floor}
-                        </span>
-                        <span data-v-188c0e84="" class="time" style="margin-right: .08rem;">
-                          ${user_comment_time}
-                        </span>
-                        <span data-v-188c0e84="" class="ip">
-                          ${user_ip_position}
-                        </span>
-                      </p>
+                class="user-line-wrapper user-line-post">
+                <div data-v-188c0e84="" class="user-line">
+                  <div
+                    data-v-188c0e84=""
+                    class="tbfe-1px-border avatar"
+                    data-home-url="${userHomeUrl}"
+                    data-src="${userAvator}"
+                    lazy="loaded"
+                    style="background-image: url(${userAvator});"></div>
+                  <div data-v-188c0e84="" class="user-info">
+                    <div data-v-188c0e84="" class="username" data-home-url="${userHomeUrl}">
+                      ${userName}
                     </div>
+                    <p data-v-188c0e84="" class="desc-info">
+                      <span data-v-188c0e84="" class="floor-info">
+                        ${user_floor}
+                      </span>
+                      <span data-v-188c0e84="" class="time" style="margin-right: .08rem;">
+                        ${user_comment_time}
+                      </span>
+                      <span data-v-188c0e84="" class="ip">
+                        ${user_ip_position}
+                      </span>
+                    </p>
                   </div>
                 </div>
-                <div data-v-74eb13e2="" class="content">
-                  <p data-v-ab14b3fe="" data-v-74eb13e2="" class="thread-text post-text">
-                    <span data-v-ab14b3fe="" class="text-content">
-                      ${userComment}
-                    </span>
-                  </p>
-                  ${newUserCommentHTML}
-                  <div data-v-74eb13e2="" class="post-split-line"></div>
-                </div>
               </div>
-              `;
-            return newCommentHTML;
-          },
-          /**
-           * 根据评论的html插入页面中
-           * @param {string} _html_
-           */
-          insertNewCommentInnerHTML: (_html_) => {
-            let newCommentDOM = jQuery(_html_);
-            /* 评论，点击头像跳转到这个人的空间 */
-            newCommentDOM
-              .find(".tbfe-1px-border.avatar")
-              .each((index, item) => {
-                if (item.hasAttribute("data-home-url")) {
-                  item.onclick = function () {
-                    window.open(item.getAttribute("data-home-url"), "_blank");
-                  };
-                }
-              });
-            /* 评论，点击名字跳转到这个人的空间 */
-            newCommentDOM.find(".user-info .username").each((index, item) => {
-              if (item.hasAttribute("data-home-url")) {
-                item.onclick = function () {
-                  window.open(item.getAttribute("data-home-url"), "_blank");
-                };
-              }
-            });
-            /* 评论的回复，点击头像跳转到这个人的空间 */
-            newCommentDOM.find(".link.username").each((index, item) => {
-              if (item.hasAttribute("data-home-url")) {
-                item.onclick = function () {
-                  window.open(item.getAttribute("data-home-url"), "_blank");
-                };
-              }
-            });
-            /* 评论的回复的回复，点击头像跳转到这个人的空间 */
-            newCommentDOM.find("a.at").each((index, item) => {
-              item.removeAttribute("onclick");
-              item.removeAttribute("onmouseover");
-              item.removeAttribute("onmouseout");
-              if (item.hasAttribute("portrait")) {
-                item.setAttribute(
-                  "href",
-                  "/home/main?id=" + item.getAttribute("portrait")
-                );
-              }
-            });
-
-            if (jQuery(".post-cut-guide").length) {
-              jQuery(".post-cut-guide").before(newCommentDOM);
-            } else {
-              jQuery(".pb-page-wrapper").append(newCommentDOM); /* 老版帖子 */
-            }
-          },
-          /**
-           * 插入只看楼主的按钮
-           */
-          insertOnlyLZ: () => {
-            let ele_parent = jQuery("#replySwitch");
-            let onlyLzInnerHTML = `
-                        <div style="display: -webkit-box;
-                            display: -webkit-flex;
-                            display: -ms-flexbox;
-                            display: flex;
-                            -webkit-box-align: center;
-                            -webkit-align-items: center;
-                            -ms-flex-align: center;
-                            align-items: center;
-                            line-height: .24rem;
-                            border-radius: .14rem;
-                            font-size: .13rem;
-                            color: #614ec2;" class="white-only-lz">只看楼主</div>`;
-            ele_parent.append(onlyLzInnerHTML);
-            let quxiaoonlylz_css = `
-                        .white-only-lz-qx:before {
-                            content: "取消";
-                        }
-                        .white-only-lz-none {
-                            display: none;
-                        }`;
-            GM_addStyle(quxiaoonlylz_css);
-            jQuery(".white-only-lz").on("click", (event) => {
-              tiebaCommentConfig.displayComment(
-                Array.from(event.currentTarget.classList)
-              );
-            });
-          },
-          /**
-           * 插入 正序=倒序的按钮
-           */
-          insertReverseBtn: () => {
-            let ele_parent = jQuery("#replySwitch");
-            let btnHTML = `
-                        <div style="display: -webkit-box;
-                            display: -webkit-flex;
-                            display: -ms-flexbox;
-                            display: flex;
-                            -webkit-box-align: center;
-                            -webkit-align-items: center;
-                            -ms-flex-align: center;
-                            align-items: center;
-                            line-height: .24rem;
-                            border-radius: .14rem;
-                            font-size: .13rem;
-                            color: #614ec2;
-                            width: auto;
-                            margin-left: auto;
-                            margin-right: 15px;" class="white-btn-comment-reverse"></div>`;
-            ele_parent.append(btnHTML);
-            let btnCSS = `
-                        .white-btn-comment:before {
-                            content: "正序";
-                        }
-                        .white-btn-comment-reverse:before {
-                            content: "倒序";
-                        }
-                        .white-btn-comment-reverse-none {
-                            display: none;
-                        }`;
-            GM_addStyle(btnCSS);
-            jQuery(".white-btn-comment-reverse").on("click", (event) => {
-              tiebaCommentConfig.removeScrollListener();
-              jQuery(".post-item")?.remove();
-              if (
-                event.currentTarget.getAttribute("class") ===
-                "white-btn-comment"
-              ) {
-                event.currentTarget.setAttribute(
-                  "class",
-                  "white-btn-comment-reverse"
-                );
-                mainPositive();
-                log.info("获取评论===>正序");
-              } else {
-                event.currentTarget.setAttribute("class", "white-btn-comment");
-                mainReverse();
-                log.info("获取评论===>倒序");
-              }
-            });
-          },
-          /**
-           * 获取第一页的评论（不包括评论的评论）
-           * @param {string} url
-           * @returns {HTMLElement|undefined}
-           */
-          getPageComment: async (url) => {
-            let getResp = await httpx.get({
-              url: url,
-              headers: {
-                "User-Agent": utils.getRandomPCUA(),
-              },
-            });
-            let respData = getResp.data;
-            if (getResp.status) {
-              return utils.parseFromString(respData.responseText);
-            } else if (getResp.type === "onerror") {
-              if (
-                typeof respData.error === "string" &&
-                respData.error.match("wappass.baidu.com")
-              ) {
-                let url = respData.error.match(/"(.*?)"/)[1];
-                log.error("触发百度校验: " + url);
-                window.location.href = url;
-              } else {
-                log.error("获取评论数据失败 👇");
-                log.error(respData);
-              }
-            }
-          },
-          /**
-           * 获取第一页的评论的评论
-           * @param {string} url
-           * @returns {{commentList:array, userList:array} }
-           */
-          getPageCommentList: async (url) => {
-            let getResp = await httpx.get({
-              url: url,
-              headers: {
-                Accept: "application/json, text/javascript, */*; q=0.01",
-                "User-Agent": utils.getRandomPCUA(),
-              },
-            });
-            let respData = getResp.data;
-            if (getResp.status) {
-              let data = utils.toJSON(respData.responseText);
-              log.success("帖子评论信息");
-              log.success(data);
-              return {
-                commentList: data["data"]["comment_list"],
-                userList: data["data"]["user_list"],
+              <div data-v-74eb13e2="" class="content">
+                <p data-v-ab14b3fe="" data-v-74eb13e2="" class="thread-text post-text">
+                  <span data-v-ab14b3fe="" class="text-content">
+                    ${userComment}
+                  </span>
+                </p>
+                ${newUserCommentHTML}
+                <div data-v-74eb13e2="" class="post-split-line"></div>
+              </div>
+            </div>
+            `;
+          return newCommentHTML;
+        },
+        /**
+         * 根据评论的html插入页面中
+         * @param {string} _html_
+         */
+        insertNewCommentInnerHTML: (_html_) => {
+          let newCommentDOM = jQuery(_html_);
+          /* 评论，点击头像跳转到这个人的空间 */
+          newCommentDOM.find(".tbfe-1px-border.avatar").each((index, item) => {
+            if (item.hasAttribute("data-home-url")) {
+              item.onclick = function () {
+                window.open(item.getAttribute("data-home-url"), "_blank");
               };
-            } else if (getResp.type === "onerror") {
-              log.error("取第一页的评论的评论数据失败 👇");
-              log.error(getResp);
             }
-          },
-          /**
-           * 插入加载中的html
-           */
-          insertLoadingHTML: () => {
-            if (!loadingView.isExists()) {
-              log.info("插入loading");
-              jQuery(".main-page-wrap").append(loadingView.getLoadingNode());
-              loadingView.setCSS();
+          });
+          /* 评论，点击名字跳转到这个人的空间 */
+          newCommentDOM.find(".user-info .username").each((index, item) => {
+            if (item.hasAttribute("data-home-url")) {
+              item.onclick = function () {
+                window.open(item.getAttribute("data-home-url"), "_blank");
+              };
             }
-          },
-          /**
-           * 动态显示只看楼主
-           * @param {Array} classlist
-           */
-          displayComment: (classlist) => {
-            if (classlist.includes("white-only-lz-qx")) {
-              jQuery(".white-only-lz").removeClass("white-only-lz-qx");
-              jQuery(".post-item").each((index, ele) => {
-                ele.classList.remove("white-only-lz-none");
-              });
+          });
+          /* 评论的回复，点击头像跳转到这个人的空间 */
+          newCommentDOM.find(".link.username").each((index, item) => {
+            if (item.hasAttribute("data-home-url")) {
+              item.onclick = function () {
+                window.open(item.getAttribute("data-home-url"), "_blank");
+              };
+            }
+          });
+          /* 评论的回复的回复，点击头像跳转到这个人的空间 */
+          newCommentDOM.find("a.at").each((index, item) => {
+            item.removeAttribute("onclick");
+            item.removeAttribute("onmouseover");
+            item.removeAttribute("onmouseout");
+            if (item.hasAttribute("portrait")) {
+              item.setAttribute(
+                "href",
+                "/home/main?id=" + item.getAttribute("portrait")
+              );
+            }
+          });
+
+          if (jQuery(".post-cut-guide").length) {
+            jQuery(".post-cut-guide").before(newCommentDOM);
+          } else {
+            jQuery(".pb-page-wrapper").append(newCommentDOM); /* 老版帖子 */
+          }
+        },
+        /**
+         * 插入只看楼主的按钮
+         */
+        insertOnlyLZ: () => {
+          let ele_parent = jQuery("#replySwitch");
+          let onlyLzInnerHTML = `
+                      <div style="display: -webkit-box;
+                          display: -webkit-flex;
+                          display: -ms-flexbox;
+                          display: flex;
+                          -webkit-box-align: center;
+                          -webkit-align-items: center;
+                          -ms-flex-align: center;
+                          align-items: center;
+                          line-height: .24rem;
+                          border-radius: .14rem;
+                          font-size: .13rem;
+                          color: #614ec2;" class="white-only-lz">只看楼主</div>`;
+          ele_parent.append(onlyLzInnerHTML);
+          let quxiaoonlylz_css = `
+                      .white-only-lz-qx:before {
+                          content: "取消";
+                      }
+                      .white-only-lz-none {
+                          display: none;
+                      }`;
+          GM_addStyle(quxiaoonlylz_css);
+          jQuery(".white-only-lz").on("click", (event) => {
+            tiebaCommentConfig.displayComment(
+              Array.from(event.currentTarget.classList)
+            );
+          });
+        },
+        /**
+         * 插入 正序=倒序的按钮
+         */
+        insertReverseBtn: () => {
+          let ele_parent = jQuery("#replySwitch");
+          let btnHTML = `
+                      <div style="display: -webkit-box;
+                          display: -webkit-flex;
+                          display: -ms-flexbox;
+                          display: flex;
+                          -webkit-box-align: center;
+                          -webkit-align-items: center;
+                          -ms-flex-align: center;
+                          align-items: center;
+                          line-height: .24rem;
+                          border-radius: .14rem;
+                          font-size: .13rem;
+                          color: #614ec2;
+                          width: auto;
+                          margin-left: auto;
+                          margin-right: 15px;" class="white-btn-comment-reverse"></div>`;
+          ele_parent.append(btnHTML);
+          let btnCSS = `
+                      .white-btn-comment:before {
+                          content: "正序";
+                      }
+                      .white-btn-comment-reverse:before {
+                          content: "倒序";
+                      }
+                      .white-btn-comment-reverse-none {
+                          display: none;
+                      }`;
+          GM_addStyle(btnCSS);
+          jQuery(".white-btn-comment-reverse").on("click", (event) => {
+            tiebaCommentConfig.removeScrollListener();
+            jQuery(".post-item")?.remove();
+            if (
+              event.currentTarget.getAttribute("class") === "white-btn-comment"
+            ) {
+              event.currentTarget.setAttribute(
+                "class",
+                "white-btn-comment-reverse"
+              );
+              tiebaCommentConfig.mainPositive();
+              log.info("获取评论===>正序");
             } else {
-              jQuery(".white-only-lz").addClass("white-only-lz-qx");
-              jQuery(".post-item").each((index, ele) => {
-                let landlord = ele.getAttribute("landlord");
-                if (landlord == "0") {
-                  ele.classList.add("white-only-lz-none");
-                }
-              });
+              event.currentTarget.setAttribute("class", "white-btn-comment");
+              tiebaCommentConfig.mainReverse();
+              log.info("获取评论===>倒序");
             }
-          },
-        };
+          });
+        },
+        /**
+         * 获取第一页的评论（不包括评论的评论）
+         * @param {string} url
+         * @returns {HTMLElement|undefined}
+         */
+        getPageComment: async (url) => {
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              "User-Agent": utils.getRandomPCUA(),
+            },
+          });
+          let respData = getResp.data;
+          if (getResp.status) {
+            return utils.parseFromString(respData.responseText);
+          } else if (getResp.type === "onerror") {
+            if (
+              typeof respData.error === "string" &&
+              respData.error.match("wappass.baidu.com")
+            ) {
+              let url = respData.error.match(/"(.*?)"/)[1];
+              log.error("触发百度校验: " + url);
+              window.location.href = url;
+            } else {
+              log.error("获取评论数据失败 👇");
+              log.error(respData);
+            }
+          }
+        },
+        /**
+         * 获取第一页的评论的评论
+         * @param {string} url
+         * @returns {{commentList:array, userList:array} }
+         */
+        getPageCommentList: async (url) => {
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              Accept: "application/json, text/javascript, */*; q=0.01",
+              "User-Agent": utils.getRandomPCUA(),
+            },
+          });
+          let respData = getResp.data;
+          if (getResp.status) {
+            let data = utils.toJSON(respData.responseText);
+            log.success("帖子评论信息");
+            log.success(data);
+            return {
+              commentList: data["data"]["comment_list"],
+              userList: data["data"]["user_list"],
+            };
+          } else if (getResp.type === "onerror") {
+            log.error("取第一页的评论的评论数据失败 👇");
+            log.error(getResp);
+          }
+        },
+        /**
+         * 插入加载中的html
+         */
+        insertLoadingHTML: () => {
+          if (!loadingView.isExists()) {
+            log.info("插入loading");
+            jQuery(".main-page-wrap").append(loadingView.getLoadingNode());
+            loadingView.setCSS();
+          }
+        },
+        /**
+         * 动态显示只看楼主
+         * @param {Array} classlist
+         */
+        displayComment: (classlist) => {
+          if (classlist.includes("white-only-lz-qx")) {
+            jQuery(".white-only-lz").removeClass("white-only-lz-qx");
+            jQuery(".post-item").each((index, ele) => {
+              ele.classList.remove("white-only-lz-none");
+            });
+          } else {
+            jQuery(".white-only-lz").addClass("white-only-lz-qx");
+            jQuery(".post-item").each((index, ele) => {
+              let landlord = ele.getAttribute("landlord");
+              if (landlord == "0") {
+                ele.classList.add("white-only-lz-none");
+              }
+            });
+          }
+        },
         /**
          * 查看-正序
          */
-        async function mainPositive() {
+        async mainPositive() {
           tiebaCommentConfig.param_tid =
             window.location.pathname.match(/([0-9]+)/g);
           if (tiebaCommentConfig.param_tid) {
@@ -3104,11 +3097,11 @@
           } else {
             log.error("贴吧：未找到本页参数p");
           }
-        }
+        },
         /**
          * 查看-倒序
          */
-        async function mainReverse() {
+        async mainReverse() {
           tiebaCommentConfig.param_tid =
             window.location.pathname.match(/([0-9]+)/g);
           if (tiebaCommentConfig.param_tid) {
@@ -3177,233 +3170,235 @@
           } else {
             log.error(`贴吧：未找到本页参数p`);
           }
-        }
-        utils.waitNode(".recommend-item[data-banner-info]").then(() => {
-          jQuery(".post-item")?.remove();
-          mainPositive();
-          tiebaCommentConfig.insertReverseBtn();
-          tiebaCommentConfig.insertOnlyLZ();
-        });
-        /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
-        GM_addStyle(`
-                .post-item[data-v-74eb13e2] {
-                    overflow: hidden;
-                    margin: .16rem .13rem 0;
-                }
-                .post-item .user-line-post[data-v-74eb13e2] {
-                    margin-bottom: .06rem;
-                }
-                .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: -ms-flexbox;
-                    display: flex;
-                }
-                .user-line-wrapper[data-v-188c0e84] {
-                    -webkit-box-pack: justify;
-                    -webkit-justify-content: space-between;
-                    -ms-flex-pack: justify;
-                    justify-content: space-between;
-                }
-                .post-item .content[data-v-74eb13e2] {
-                    padding-left: .44rem;
-                }
-                .user-line[data-v-188c0e84] {
-                    -webkit-box-align: center;
-                    -webkit-align-items: center;
-                    -ms-flex-align: center;
-                    align-items: center;
-                    -webkit-box-pack: left;
-                    -webkit-justify-content: left;
-                    -ms-flex-pack: left;
-                    justify-content: left;
-                }
-                .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: -ms-flexbox;
-                    display: flex;
-                }
-                .user-line .avatar[data-v-188c0e84] {
-                    position: relative;
-                    -webkit-box-sizing: border-box;
-                    box-sizing: border-box;
-                    width: .36rem;
-                    height: .36rem;
-                    margin-right: .08rem;
-                    border-radius: 50%;
-                    background-repeat: no-repeat;
-                    background-position: 50%;
-                    background-size: cover;
-                    -webkit-box-flex: 0;
-                    -webkit-flex: none;
-                    -ms-flex: none;
-                    flex: none;
-                }
-                .tbfe-1px-border {
-                    position: relative;
-                    border-radius: .08rem;
-                    font-size: 0;
-                }
-                .user-line .user-info[data-v-188c0e84] {
-                    position: relative;
-                    overflow: hidden;
-                    -webkit-box-flex: 0;
-                    -webkit-flex: none;
-                    -ms-flex: none;
-                    flex: none;
-                }
-                .user-line .avatar[data-v-188c0e84]:after {
-                    border-radius: 50%;
-                }
-                .tbfe-1px-border:after {
-                    content: "";
-                    position: absolute;
-                    z-index: 100;
-                    top: 0;
-                    left: 0;
-                    -webkit-box-sizing: border-box;
-                    box-sizing: border-box;
-                    border: 1px solid rgba(0,0,0,.12);
-                    -webkit-transform-origin: 0 0;
-                    -ms-transform-origin: 0 0;
-                    transform-origin: 0 0;
-                    pointer-events: none;
-                }
-                .user-line .user-info .username[data-v-188c0e84] {
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-align: center;
-                    -webkit-align-items: center;
-                    -ms-flex-align: center;
-                    align-items: center;
-                    overflow: hidden;
-                    font-size: .15rem;
-                    line-height: .21rem;
-                    white-space: nowrap;
-                    -o-text-overflow: ellipsis;
-                    text-overflow: ellipsis;
-                    color: #141414;
-                    font-weight: 400;
-                }
-                .user-line .user-info .desc-info[data-v-188c0e84] {
-                    display: -webkit-box;
-                    display: -webkit-flex;
-                    display: -ms-flexbox;
-                    display: flex;
-                    -webkit-box-align: center;
-                    -webkit-align-items: center;
-                    -ms-flex-align: center;
-                    align-items: center;
-                    font-size: .12rem;
-                    line-height: .18rem;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    -o-text-overflow: ellipsis;
-                    text-overflow: ellipsis;
-                    color: #a3a2a8;
-                }
-                .user-line .user-info .floor-info[data-v-188c0e84], .user-line .user-info .forum-info[data-v-188c0e84] {
-                    margin-right: .08rem;
-                }
-                .post-item .content .post-text[data-v-74eb13e2] {
-                    font-size: .16rem;
-                    line-height: .24rem;
-                }
-                .thread-text[data-v-ab14b3fe] {
-                    font-size: .13rem;
-                    line-height: .21rem;
-                    color: #141414;
-                    text-align: justify;
-                    word-break: break-all;
-                }
-                .post-item .content .lzl-post[data-v-74eb13e2] {
-                    margin-top: .06rem;
-                }
-                .lzl-post[data-v-5b60f30b] {
-                    padding: .08rem .12rem;
-                    background: #f8f7fd;
-                    border-radius: .08rem;
-                }
-                .post-item .content .post-split-line[data-v-74eb13e2] {
-                    margin-top: .12rem;
-                    background-color: #ededf0;
-                    height: 1px;
-                    width: 200%;
-                    -webkit-transform: scale(.5);
-                    -ms-transform: scale(.5);
-                    transform: scale(.5);
-                    -webkit-transform-origin: top left;
-                    -ms-transform-origin: top left;
-                    transform-origin: top left;
-                }
-                .lzl-post .lzl-post-item[data-v-5b60f30b]:first-child {
-                    margin-top: 0;
-                }
-                .lzl-post .lzl-post-item[data-v-5b60f30b] {
-                    margin-top: .04rem;
-                }
-                .lzl-post .lzl-post-item .text-box[data-v-5b60f30b] {
-                    font-size: .13rem;
-                    line-height: .2rem;
-                }
-                .lzl-post .lzl-post-item .text-box .link[data-v-5b60f30b] {
-                    display: -webkit-inline-box;
-                    display: -webkit-inline-flex;
-                    display: -ms-inline-flexbox;
-                    display: inline-flex;
-                    -webkit-box-align: center;
-                    -webkit-align-items: center;
-                    -ms-flex-align: center;
-                    align-items: center;
-                    font-weight: 600;
-                    color: #a4a1a8;
-                }
-                .lzl-post .lzl-post-item .lzl-post-text[data-v-5b60f30b] {
-                    display: inline;
-                }
-                .thread-text[data-v-ab14b3fe] {
-                    font-size: .13rem;
-                    line-height: .26rem;
-                    color: #141414;
-                    text-align: justify;
-                    word-break: break-all;
-                }
-                .lzl-post .lzl-post-item .text-box .link .landlord[data-v-5b60f30b] {
-                    width: .28rem;
-                    height: .28rem;
-                    margin-left: .04rem;
-                }
-                .user-line .user-info .username .landlord[data-v-188c0e84] {
-                    width: .28rem;
-                    height: .28rem;
-                    margin-left: .04rem
-                }
-                `);
-        GM_addStyle(
-          `
-          .thread-text .BDE_Smiley {
-              width: .2rem;
-              height: .2rem;
-              vertical-align: middle;
-          }
-          .thread-text .BDE_Image{
-              margin-top: 8px;
-              max-width: 350px;
-              cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
-              height: auto;
-              width: auto;
-              width: 100%;
-          }
-          .text-content .at{
-              font-weight: 600;
-              color: #a3a1a9;
-          }
-          `
-        );
+        },
+        run() {
+          utils.waitNode(".recommend-item[data-banner-info]").then(() => {
+            jQuery(".post-item")?.remove();
+            tiebaCommentConfig.mainPositive();
+            tiebaCommentConfig.insertReverseBtn();
+            tiebaCommentConfig.insertOnlyLZ();
+          });
+          /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
+          GM_addStyle(`
+      .post-item[data-v-74eb13e2] {
+          overflow: hidden;
+          margin: .16rem .13rem 0;
       }
+      .post-item .user-line-post[data-v-74eb13e2] {
+          margin-bottom: .06rem;
+      }
+      .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+      }
+      .user-line-wrapper[data-v-188c0e84] {
+          -webkit-box-pack: justify;
+          -webkit-justify-content: space-between;
+          -ms-flex-pack: justify;
+          justify-content: space-between;
+      }
+      .post-item .content[data-v-74eb13e2] {
+          padding-left: .44rem;
+      }
+      .user-line[data-v-188c0e84] {
+          -webkit-box-align: center;
+          -webkit-align-items: center;
+          -ms-flex-align: center;
+          align-items: center;
+          -webkit-box-pack: left;
+          -webkit-justify-content: left;
+          -ms-flex-pack: left;
+          justify-content: left;
+      }
+      .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+      }
+      .user-line .avatar[data-v-188c0e84] {
+          position: relative;
+          -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+          width: .36rem;
+          height: .36rem;
+          margin-right: .08rem;
+          border-radius: 50%;
+          background-repeat: no-repeat;
+          background-position: 50%;
+          background-size: cover;
+          -webkit-box-flex: 0;
+          -webkit-flex: none;
+          -ms-flex: none;
+          flex: none;
+      }
+      .tbfe-1px-border {
+          position: relative;
+          border-radius: .08rem;
+          font-size: 0;
+      }
+      .user-line .user-info[data-v-188c0e84] {
+          position: relative;
+          overflow: hidden;
+          -webkit-box-flex: 0;
+          -webkit-flex: none;
+          -ms-flex: none;
+          flex: none;
+      }
+      .user-line .avatar[data-v-188c0e84]:after {
+          border-radius: 50%;
+      }
+      .tbfe-1px-border:after {
+          content: "";
+          position: absolute;
+          z-index: 100;
+          top: 0;
+          left: 0;
+          -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+          border: 1px solid rgba(0,0,0,.12);
+          -webkit-transform-origin: 0 0;
+          -ms-transform-origin: 0 0;
+          transform-origin: 0 0;
+          pointer-events: none;
+      }
+      .user-line .user-info .username[data-v-188c0e84] {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+          -webkit-box-align: center;
+          -webkit-align-items: center;
+          -ms-flex-align: center;
+          align-items: center;
+          overflow: hidden;
+          font-size: .15rem;
+          line-height: .21rem;
+          white-space: nowrap;
+          -o-text-overflow: ellipsis;
+          text-overflow: ellipsis;
+          color: #141414;
+          font-weight: 400;
+      }
+      .user-line .user-info .desc-info[data-v-188c0e84] {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+          -webkit-box-align: center;
+          -webkit-align-items: center;
+          -ms-flex-align: center;
+          align-items: center;
+          font-size: .12rem;
+          line-height: .18rem;
+          overflow: hidden;
+          white-space: nowrap;
+          -o-text-overflow: ellipsis;
+          text-overflow: ellipsis;
+          color: #a3a2a8;
+      }
+      .user-line .user-info .floor-info[data-v-188c0e84], .user-line .user-info .forum-info[data-v-188c0e84] {
+          margin-right: .08rem;
+      }
+      .post-item .content .post-text[data-v-74eb13e2] {
+          font-size: .16rem;
+          line-height: .24rem;
+      }
+      .thread-text[data-v-ab14b3fe] {
+          font-size: .13rem;
+          line-height: .21rem;
+          color: #141414;
+          text-align: justify;
+          word-break: break-all;
+      }
+      .post-item .content .lzl-post[data-v-74eb13e2] {
+          margin-top: .06rem;
+      }
+      .lzl-post[data-v-5b60f30b] {
+          padding: .08rem .12rem;
+          background: #f8f7fd;
+          border-radius: .08rem;
+      }
+      .post-item .content .post-split-line[data-v-74eb13e2] {
+          margin-top: .12rem;
+          background-color: #ededf0;
+          height: 1px;
+          width: 200%;
+          -webkit-transform: scale(.5);
+          -ms-transform: scale(.5);
+          transform: scale(.5);
+          -webkit-transform-origin: top left;
+          -ms-transform-origin: top left;
+          transform-origin: top left;
+      }
+      .lzl-post .lzl-post-item[data-v-5b60f30b]:first-child {
+          margin-top: 0;
+      }
+      .lzl-post .lzl-post-item[data-v-5b60f30b] {
+          margin-top: .04rem;
+      }
+      .lzl-post .lzl-post-item .text-box[data-v-5b60f30b] {
+          font-size: .13rem;
+          line-height: .2rem;
+      }
+      .lzl-post .lzl-post-item .text-box .link[data-v-5b60f30b] {
+          display: -webkit-inline-box;
+          display: -webkit-inline-flex;
+          display: -ms-inline-flexbox;
+          display: inline-flex;
+          -webkit-box-align: center;
+          -webkit-align-items: center;
+          -ms-flex-align: center;
+          align-items: center;
+          font-weight: 600;
+          color: #a4a1a8;
+      }
+      .lzl-post .lzl-post-item .lzl-post-text[data-v-5b60f30b] {
+          display: inline;
+      }
+      .thread-text[data-v-ab14b3fe] {
+          font-size: .13rem;
+          line-height: .26rem;
+          color: #141414;
+          text-align: justify;
+          word-break: break-all;
+      }
+      .lzl-post .lzl-post-item .text-box .link .landlord[data-v-5b60f30b] {
+          width: .28rem;
+          height: .28rem;
+          margin-left: .04rem;
+      }
+      .user-line .user-info .username .landlord[data-v-188c0e84] {
+          width: .28rem;
+          height: .28rem;
+          margin-left: .04rem
+      }
+      `);
+          GM_addStyle(
+            `
+.thread-text .BDE_Smiley {
+    width: .2rem;
+    height: .2rem;
+    vertical-align: middle;
+}
+.thread-text .BDE_Image{
+    margin-top: 8px;
+    max-width: 350px;
+    cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
+    height: auto;
+    width: auto;
+    width: 100%;
+}
+.text-content .at{
+    font-weight: 600;
+    color: #a3a1a9;
+}
+`
+          );
+        },
+      };
       /**
        * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
        */
@@ -3585,6 +3580,8 @@
 
       /* 贴吧搜索 */
       const tiebaSearchConfig = {
+        isSetClickEvent: false,
+        searchSuggestion: null,
         /**
          * 获取搜索建议
          * @param {string} queryText 搜索内容
@@ -3619,33 +3616,19 @@
                 if (
                   window.location.href.startsWith("https://tieba.baidu.com/p/")
                 ) {
-                  /* 当前是在吧内，搜索按钮判定为跳转到搜索具体内容界面 */
-                  log.success("当前是在吧内");
-                  window.open("https://tieba.baidu.com/f/search/res", "_blank");
+                  /* 当前是在吧内，搜索按钮判定搜索贴子 */
+                  if(!tiebaSearchConfig.isSetClickEvent){
+                    tiebaSearchConfig.isSetClickEvent = true;
+                    tiebaSearchConfig.postsSearch();
+                  }
+                  
                 } else {
                   /* 当前是在主页中，搜索按钮判定为搜索吧 */
-                  log.success("当前是在首页");
-                  let searchInputElement =
-                    document.querySelector("#tieba-search");
-                  let searchText = searchInputElement.value.trim();
-                  /* 搜索框隐藏的话就显示出来 */
-                  if (getComputedStyle(searchInputElement).display === "none") {
-                    searchInputElement.previousElementSibling.style.display =
-                      "none";
-                    searchInputElement.style.display = "block";
-                  } else {
-                    /* 已显示出来的话就跳转搜索 */
-                    if (utils.isNull(searchText)) {
-                      alert("请勿输入空内容");
-                      return;
-                    }
-                    window.location.href =
-                      "https://tieba.baidu.com/f?ie=utf-8&kw=" + searchText;
-                  }
+                  tiebaSearchConfig.frontPageSeach();
                 }
               });
 
-            let searchSuggestion = new SearchSuggestion({
+            this.searchSuggestion = new SearchSuggestion({
               isAbsoulte: false,
               showDeleteIcon: false,
               targetElement: document.querySelector("#tieba-search"),
@@ -3679,7 +3662,7 @@
                 if (utils.isNull(suggestionData)) {
                   return result;
                 }
-                console.log(suggestionData);
+                log.success(suggestionData);
                 result = suggestionData.query_match.search_data || [];
                 return result;
               },
@@ -3689,7 +3672,7 @@
               },
             });
             log.success("初始化默认搜索...");
-            searchSuggestion.config
+            tiebaSearchConfig.searchSuggestion.config
               .searchInputChangeCallBack({
                 text: "",
                 data: [],
@@ -3697,7 +3680,7 @@
               })
               .then((result) => {
                 if (result.length) {
-                  searchSuggestion.update(result);
+                  tiebaSearchConfig.searchSuggestion.update(result);
                 }
               });
           });
@@ -3733,11 +3716,385 @@
               }
               `);
         },
+        /**
+         * 帖子外搜索(也就是首页搜索吧)
+         */
+        frontPageSeach() {
+          log.success("当前是在首页");
+          let searchInputElement = document.querySelector("#tieba-search");
+          let searchText = searchInputElement.value.trim();
+          /* 搜索框隐藏的话就显示出来 */
+          if (getComputedStyle(searchInputElement).display === "none") {
+            searchInputElement.previousElementSibling.style.display = "none";
+            searchInputElement.style.display = "block";
+          } else {
+            /* 已显示出来的话就跳转搜索 */
+            if (utils.isNull(searchText)) {
+              alert("请勿输入空内容");
+              return;
+            }
+            window.location.href =
+              "https://tieba.baidu.com/f?ie=utf-8&kw=" + searchText;
+          }
+        },
+        /**
+         * 帖子内搜索(搜索帖子)
+         * */
+        postsSearch() {
+          let that = this;
+          let gbkEncoder = new utils.GBKEncoder();
+          let nextPageUrl = null;
+          let lockFunction = null;
+          /**
+           * 0 按时间顺序
+           * 1 按时间倒序
+           * 2 按相关性顺序
+           * 3 只看主题贴
+           */
+          let searchModel = 1;
+          /**
+           * 获取搜索结果
+           * @param {string} [qw=""] 搜索的关键字
+           * @param {number} [pn=0] 当前页码
+           * @param {number} [sm=0]
+           * 0 按时间顺序
+           * 1 按时间倒序 如果加上only_thread为1，就是只看主题贴
+           * 2 按相关性顺序
+           * @returns {Promise}
+           */
+          async function getSearchResult(qw = "", pn = 0, sm = 1) {
+            if (sm === 3) {
+              sm = "1&only_thread=1";
+            }
+            let url = "";
+            let originText = "";
+            if (arguments.length === 1) {
+              url = arguments[0];
+              log.success(`请求的下一页url: ${url}`);
+            } else {
+              originText = qw;
+              qw = gbkEncoder.encode(qw);
+              log.success(`搜索内容gbk编码转换: ${originText} => ${qw}`);
+              url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${sm}`;
+            }
+            log.success(`当前请求第 ${new URLSearchParams(url).get("pn")} 页`);
+            let getResp = await httpx.get({
+              url: url,
+              headers: {
+                "User-Agent": utils.getRandomPCUA(),
+                Referer: url,
+                Host: "tieba.baidu.com",
+                Accept:
+                  "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              },
+            });
+            if (!getResp.status) {
+              if (getResp.data.responseText === "") {
+                log.error(getResp);
+                return "获取内容为空，可能触发了百度验证，请刷新网页再试";
+              }
+              log.error(getResp);
+              return;
+            }
+            log.success(getResp);
+            let respData = getResp.data;
+            let searchDoc = utils.parseFromString(respData.responseText);
+            if (searchDoc.querySelector(".search_noresult")) {
+              return "抱歉，没有找到与“" + originText + "”相关的结果。";
+            }
+            let result = [];
+            nextPageUrl = searchDoc.querySelector(".pager-search a.next")?.href;
+            searchDoc
+              .querySelectorAll(".s_main .s_post_list .s_post")
+              .forEach((item) => {
+                if (item.id === "post_user") {
+                  return;
+                }
+                let url = item.querySelector("span.p_title a").href;
+                let title = item.querySelector("span.p_title a").innerHTML;
+                let content = item.querySelector(".p_content").innerHTML;
+                /* 来自哪个贴吧 */
+                let forum = item.querySelector(
+                  "a.p_forum font.p_violet"
+                ).textContent;
+                let author = (
+                  item.querySelector("a[href^='/home'] font.p_violet") ||
+                  item.querySelectorAll("font.p_violet")[1]
+                ).textContent;
+                let authorHomeUrl =
+                  "https://tieba.baidu.com/home/main?un=" +
+                  gbkEncoder.encode(author);
+                let time = item.querySelector(".p_date").textContent;
+                result = [
+                  ...result,
+                  {
+                    url: url,
+                    title: title,
+                    content: content,
+                    forum: forum,
+                    author: author,
+                    authorHomeUrl: authorHomeUrl,
+                    time: time,
+                  },
+                ];
+              });
+            return result;
+          }
+          function getItemHTML(item) {
+            return `
+                    <div class="s_post">
+                      <span class="p_title">
+                        <a href="${item["url"]}" target="_blank">${item["title"]}</a>
+                      </span>
+                      <div class="p_content">${item["content"]}</div>
+                      <div>
+                        <a class="p_forum" href="https://tieba.baidu.com/f?kw=${item["forum"]}" target="_blank">
+                          <font class="p_violet">${item["forum"]}</font>
+                        </a>
+                      </div>
+                      <div>
+                        <a class="p_author" href="${item["authorHomeUrl"]}" target="_blank">
+                          <font class="p_violet">${item["author"]}</font>
+                        </a>
+                      </div>
+                      <div>
+                        <font class="p_date">${item["time"]}</font>
+                      </div>
+                    </div>`;
+          }
+          function setCSS() {
+            GM_addStyle(`
+            .s_post,
+            .s_order {
+              margin: 25px;
+            }
+            .s_post .p_title{
+                
+            }
+            .s_post .p_content{
+                
+            }
+            .s_post em{
+              color: #e10900;
+              font-style: normal;
+            }
+            .s_post a.p_forum::before{
+              content:"贴吧：";
+              color: #000000;
+            }
+            .s_post a.p_author::before{
+              content:"作者：";
+              color: #000000;
+            }
+            .s_post font.p_date::before{
+              content:"时间：";
+              color: #000000;
+            }
+            .s_post font.p_date{
+                color: green;
+            }
+            .s_order a{
+              color: -webkit-link;
+            }
+            `);
+          }
+
+          /**
+           * 设置搜索结果模式
+           * @param {jQuery} jQueryOrderElement 
+           */
+          function setCurrentOrderHTML(jQueryOrderElement){
+            for (const iterator of jQueryOrderElement.find("a")) {
+              let targetElement = jQuery(iterator);
+              let targetElementHTML = targetElement.html();
+              let flag = false;
+              if (
+                (targetElementHTML.includes("按时间顺序") &&
+                  searchModel === 0) ||
+                (targetElementHTML.includes("按时间倒序") &&
+                  searchModel === 1) ||
+                (targetElementHTML.includes("按相关性顺序") &&
+                  searchModel === 2) ||
+                (targetElementHTML.includes("只看主题贴") && searchModel === 3)
+              ) {
+                flag = true;
+              }
+              if (flag) {
+                log.success(`当前搜索模式-${targetElementHTML}`);
+                targetElement.replaceWith(`<b>${targetElementHTML}</b>`);
+                break;
+              }
+            }
+          }
+          /**
+           * 设置搜索结果模式点击事件
+           */
+          function setOrderClickEvent() {
+            jQuery(document).on("click", ".s_order a", function () {
+              let clickOrderElement = jQuery(this);
+              let clickOrderHTML = clickOrderElement.html();
+              jQuery(".s_order b").replaceWith(
+                `<a>${jQuery(".s_order b").html()}</a>`
+              );
+              clickOrderElement.replaceWith(`<b>${clickOrderHTML}</b>`);
+              console.log();
+              if (clickOrderHTML.includes("按时间顺序")) {
+                searchModel = 0;
+                log.success("设置当前搜索模式-按时间顺序");
+              } else if (clickOrderHTML.includes("按相关性顺序")) {
+                searchModel = 2;
+                log.success("设置当前搜索模式-按相关性顺序");
+              } else if (clickOrderHTML.includes("只看主题贴")) {
+                searchModel = 3;
+                log.success("设置当前搜索模式-只看主题贴");
+              } else {
+                searchModel = 1;
+                log.success("设置当前搜索模式-按时间倒序");
+              }
+              nextPageUrl = null;
+              removeScrollListener();
+              document.querySelector(".more-btn-desc").click();
+            });
+          }
+          async function _click_event_() {
+            tiebaCommentConfig.removeScrollListener();
+            let contentElement = jQuery(".main-thread-content-margin");
+            jQuery("#replySwitch").remove();
+            jQuery(".post-item").remove();
+            contentElement.html("");
+            searchInputElement.focus();
+            let searchText = searchInputElement.value.trim();
+            if (utils.isNull(searchText)) {
+              alert("请勿输入纯空格或空内容");
+              return;
+            }
+            loadingView.setVisible(true);
+            let searchResult = await getSearchResult(
+              searchText,
+              undefined,
+              searchModel
+            );
+            tiebaCommentConfig.removeScrollListener();
+            if (!searchResult) {
+              loadingView.setVisible(false);
+              alert("请求失败，详情请看控制台");
+              return;
+            }
+            if (
+              typeof searchResult === "string" &&
+              (searchResult.startsWith("抱歉") ||
+                searchResult.startsWith("获取内容为空"))
+            ) {
+              contentElement.html("");
+              alert(searchResult+" 已重置搜索模式为-按时间倒序");
+              searchModel = 1;
+              loadingView.setVisible(false);
+              return;
+            }
+            contentElement.html("");
+            log.success(searchResult);
+            let orderElement = jQuery(`
+            <div class="s_order">
+              排序结果：
+              <a>按时间倒序</a>
+              <span class="split_line">|</span>
+              <a>按时间顺序</a>
+              <span class="split_line">|</span>
+              <a>按相关性顺序</a>
+              <span class="split_line">|</span>
+              <a>只看主题贴</a>
+              <span class="split_line">|</span>
+            </div>
+            `);
+            setCurrentOrderHTML(orderElement);
+            contentElement.append(orderElement);
+            searchResult.forEach((item) => {
+              contentElement.append(getItemHTML(item));
+            });
+            loadingView.setVisible(false);
+            if (nextPageUrl) {
+              addScrollListener();
+            }
+          }
+          /**
+           * 添加滚动监听
+           */
+          function addScrollListener() {
+            document.addEventListener("scroll",lockFunction.run)
+            log.success("添加scroll事件监听");
+          }
+          /**
+           * 移除滚动监听
+           */
+          function removeScrollListener() {
+            document.removeEventListener("scroll", lockFunction.run);
+            log.success("移除scroll事件监听");
+          }
+          /**
+           * 滚动事件
+           */
+          async function _scroll_event_() {
+            if (!utils.isNearBottom()) {
+              return;
+            }
+            loadingView.setVisible(true);
+            if (!nextPageUrl) {
+              removeScrollListener();
+              log.success("已到达最后一页");
+              loadingView.setVisible(false);
+              return;
+            }
+            let contentElement = jQuery(".main-thread-content-margin");
+            let searchResult = await getSearchResult(nextPageUrl);
+            if (!searchResult) {
+              loadingView.setVisible(false);
+              alert("请求下一页失败，详情请看控制台");
+              return;
+            }
+            if (
+              typeof searchResult === "string" &&
+              (searchResult.startsWith("抱歉") ||
+                searchResult.startsWith("获取内容为空"))
+            ) {
+              loadingView.setVisible(false);
+              alert(searchResult);
+              return;
+            }
+            log.success(searchResult);
+            searchResult.forEach((item) => {
+              contentElement.append(getItemHTML(item));
+            });
+            loadingView.setVisible(false);
+            if (!nextPageUrl) {
+              removeScrollListener();
+              log.success("已到达最后一页");
+              return;
+            }
+          }
+          log.success("当前是在吧内");
+          lockFunction = new utils.LockFunction(_scroll_event_, this);
+          tiebaCommentConfig.removeScrollListener();
+          this.searchSuggestion.removeTargetInputEvent();
+          let searchInputElement = document.querySelector("#tieba-search");
+          /* 搜索框显示出来 */
+          searchInputElement.previousElementSibling.style.display = "none";
+          searchInputElement.style.display = "block";
+          document
+            .querySelector(".more-btn-desc")
+            .addEventListener("click", _click_event_);
+          utils.listenKeyPress(searchInputElement, (keyName,otherKey,event) => {
+            if (keyName === "Enter") {
+              _click_event_(event);
+            }
+          });
+          setOrderClickEvent();
+          setCSS();
+        },
       };
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
-        tiebaLoadComments();
+        tiebaCommentConfig.run();
         registerImagePreview();
       }
       if (
