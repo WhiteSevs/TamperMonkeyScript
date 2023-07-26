@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2.5
+// @version      1.2.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -42,7 +42,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1225629
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1225827
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1534,6 +1534,17 @@
       const handleItemURL = {
         originURLMap: null,
         /**
+         * 判断链接是否是百度的中转链接
+         * @param {string} url
+         * @returns {boolean}
+         * + true 是百度的中转链接
+         * + false 不是百度的中转链接
+         */
+        isBaiDuTransferStation(url) {
+          url = decodeURIComponent(url);
+          return url.startsWith("https://m.baidu.com/from");
+        },
+        /**
          * 为搜索结果每一条设置原始链接
          * @param {jQuery} jQDOM
          * @param {String} articleURL article的真实url
@@ -1716,7 +1727,28 @@
             if (dataIVK) {
               try {
                 dataIVK = utils.toJSON(dataIVK);
-                url = dataIVK.control.default_url || dataIVK.control.dataUrl;
+                if (
+                  dataIVK?.control?.default_url &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    dataIVK?.control?.default_url
+                  )
+                ) {
+                  url = dataIVK?.control?.default_url;
+                } else if (
+                  dataIVK?.control?.dataUrl &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    dataIVK?.control?.dataUrl
+                  )
+                ) {
+                  url = dataIVK?.control?.dataUrl;
+                } else if (
+                  dataIVK?.control?.ext?.url &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    dataIVK?.control?.ext?.url
+                  )
+                ) {
+                  url = dataIVK?.control?.ext?.url;
+                }
               } catch (error) {
                 log.error("DOM的属性data-ivk不存在👇");
                 log.error(error);
@@ -1732,8 +1764,21 @@
                 if (utils.isNull(rlLinkDataLog.mu) && rlLinkDataLog.extra) {
                   try {
                     let rlLinkDataLogExtra = utils.toJSON(rlLinkDataLog.extra);
-                    url = rlLinkDataLogExtra.loc || rlLinkDataLogExtra.log_loc;
-                    url = decodeURIComponent(url);
+                    if (
+                      rlLinkDataLogExtra.loc &&
+                      !handleItemURL.isBaiDuTransferStation(
+                        rlLinkDataLogExtra.loc
+                      )
+                    ) {
+                      url = decodeURIComponent(rlLinkDataLogExtra.loc);
+                    } else if (
+                      rlLinkDataLogExtra.log_loc &&
+                      !handleItemURL.isBaiDuTransferStation(
+                        rlLinkDataLogExtra.log_loc
+                      )
+                    ) {
+                      url = decodeURIComponent(rlLinkDataLogExtra.log_loc);
+                    }
                   } catch (error) {
                     log.error("DOM的属性rl-link-data-log的extra不存在👇");
                     log.error(error);
@@ -1747,6 +1792,41 @@
               }
             }
           }
+
+          if (utils.isNull(url)) {
+            let rlLinkDataIvk = jQDOM.attr("rl-link-data-ivk");
+            if (rlLinkDataIvk) {
+              try {
+                rlLinkDataIvk = utils.toJSON(rlLinkDataIvk);
+                if (
+                  rlLinkDataIvk?.control?.default_url &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    rlLinkDataIvk?.control?.default_url
+                  )
+                ) {
+                  url = rlLinkDataIvk?.control?.default_url;
+                } else if (
+                  rlLinkDataIvk?.control?.invoke_url &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    rlLinkDataIvk?.control?.invoke_url
+                  )
+                ) {
+                  url = rlLinkDataIvk?.control?.invoke_url;
+                } else if (
+                  rlLinkDataIvk?.control?.ext?.url &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    rlLinkDataIvk?.control?.ext?.url
+                  )
+                ) {
+                  url = rlLinkDataIvk?.control?.ext?.url;
+                }
+              } catch (error) {
+                log.error("DOM的属性rl-link-data-ivk不存在👇");
+                log.error(error);
+              }
+            }
+          }
+
           if (utils.isNull(url)) {
             let articleDataLog = jQDOM
               .find("article")
@@ -1768,9 +1848,21 @@
             if (articleLinkDataIVK) {
               try {
                 articleLinkDataIVK = utils.toJSON(articleLinkDataIVK);
-                url =
-                  articleLinkDataIVK.control.default_url ||
-                  articleLinkDataIVK.control.dataUrl;
+                if (
+                  articleLinkDataIVK?.control?.default_url &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    articleLinkDataIVK?.control?.default_url
+                  )
+                ) {
+                  url = articleLinkDataIVK?.control?.default_url;
+                } else if (
+                  articleLinkDataIVK?.control?.dataUrl &&
+                  !handleItemURL.isBaiDuTransferStation(
+                    articleLinkDataIVK?.control?.dataUrl
+                  )
+                ) {
+                  url = articleLinkDataIVK?.control?.dataUrl;
+                }
               } catch (error) {
                 log.error("article DOM的属性rl-link-data-ivk不存在👇");
                 log.error(error);
@@ -1934,9 +2026,7 @@
             if (
               item.hasAttribute("data-sflink") &&
               !utils.isNull(item.getAttribute("data-sflink")) &&
-              item
-                .getAttribute("href")
-                .startsWith("https://m.baidu.com/from=") &&
+              handleItemURL.isBaiDuTransferStation(item.getAttribute("href")) &&
               item.getAttribute("href") !== item.getAttribute("data-sflink")
             ) {
               /* log.success(
@@ -1983,7 +2073,26 @@
             if (articleElement.length === 0) {
               continue;
             }
-
+            if (
+              !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
+            ) {
+              if (!GM_Menu.get("menu_showisdirect")) {
+                continue;
+              }
+              if (item.find(".white-bdsearch-isredirecrt").length === 0) {
+                let title_text_element = item.find(".c-title-text");
+                !title_text_element.length &&
+                  (title_text_element = item.find("p.cu-title"));
+                !title_text_element.length &&
+                  (title_text_element = item.find(
+                    "div[class^=header-wrapper]"
+                  ));
+                let is_redirect_icon = document.createElement("div");
+                is_redirect_icon.className = "white-bdsearch-isredirecrt";
+                is_redirect_icon.innerHTML = "<span>重</span>";
+                title_text_element.prepend(is_redirect_icon);
+              }
+            }
             if (
               item.attr("tpl") === "wenda_abstract" &&
               item.attr("preventClick") == null
@@ -2039,24 +2148,10 @@
               handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
               articleElement.attr("rl-link-href", resultItemOriginURL);
             }
-            if (
-              !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
-            ) {
-              if (!GM_Menu.get("menu_showisdirect")) {
-                continue;
-              }
-              if (item.find(".white-bdsearch-isredirecrt").length === 0) {
-                let title_text_element = item.find(".c-title-text");
-                let is_redirect_icon = document.createElement("div");
-                is_redirect_icon.className = "white-bdsearch-isredirecrt";
-                is_redirect_icon.innerHTML = "<span>重</span>";
-                title_text_element.prepend(is_redirect_icon);
-              }
-            }
           }
         },
       };
-
+      /* unsafeWindow.handleItemURL = handleItemURL; */
       /**
        * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
        */
@@ -3615,11 +3710,10 @@
                   window.location.href.startsWith("https://tieba.baidu.com/p/")
                 ) {
                   /* 当前是在吧内，搜索按钮判定搜索贴子 */
-                  if(!tiebaSearchConfig.isSetClickEvent){
+                  if (!tiebaSearchConfig.isSetClickEvent) {
                     tiebaSearchConfig.isSetClickEvent = true;
                     tiebaSearchConfig.postsSearch();
                   }
-                  
                 } else {
                   /* 当前是在主页中，搜索按钮判定为搜索吧 */
                   tiebaSearchConfig.frontPageSeach();
@@ -3899,9 +3993,9 @@
 
           /**
            * 设置搜索结果模式
-           * @param {jQuery} jQueryOrderElement 
+           * @param {jQuery} jQueryOrderElement
            */
-          function setCurrentOrderHTML(jQueryOrderElement){
+          function setCurrentOrderHTML(jQueryOrderElement) {
             for (const iterator of jQueryOrderElement.find("a")) {
               let targetElement = jQuery(iterator);
               let targetElementHTML = targetElement.html();
@@ -3983,7 +4077,7 @@
                 searchResult.startsWith("获取内容为空"))
             ) {
               contentElement.html("");
-              alert(searchResult+" 已重置搜索模式为-按时间倒序");
+              alert(searchResult + " 已重置搜索模式为-按时间倒序");
               searchModel = 1;
               loadingView.setVisible(false);
               return;
@@ -4017,7 +4111,7 @@
            * 添加滚动监听
            */
           function addScrollListener() {
-            document.addEventListener("scroll",lockFunction.run)
+            document.addEventListener("scroll", lockFunction.run);
             log.success("添加scroll事件监听");
           }
           /**
@@ -4079,11 +4173,14 @@
           document
             .querySelector(".more-btn-desc")
             .addEventListener("click", _click_event_);
-          utils.listenKeyPress(searchInputElement, (keyName,otherKey,event) => {
-            if (keyName === "Enter") {
-              _click_event_(event);
+          utils.listenKeyPress(
+            searchInputElement,
+            (keyName, otherKey, event) => {
+              if (keyName === "Enter") {
+                _click_event_(event);
+              }
             }
-          });
+          );
           setOrderClickEvent();
           setCSS();
         },
