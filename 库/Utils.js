@@ -3769,6 +3769,7 @@
         });
       })
       .run(() => {
+        data = data.replaceAll("&quot;",'"');
         result = JSON.parse(data);
       });
     return result;
