@@ -3560,7 +3560,7 @@
    * @example
    * Utils.registerTrustClickEvent()
    */
-  Utils.registerTrustClickEvent = function(){
+  Utils.registerTrustClickEvent = function () {
     function trustEvent(event) {
       return new Proxy(event, {
         get: function (target, property) {
@@ -3582,8 +3582,7 @@
       }
       return originalListener.apply(this, arguments);
     };
-  }
-
+  };
 
   /**
    * 复制到剪贴板
@@ -3838,12 +3837,29 @@
     Utils.tryCatch()
       .config({ log: false })
       .error(() => {
-        Utils.tryCatch().run(() => {
-          result = window.eval("(" + data + ")");
-        });
+        Utils.tryCatch()
+          .error(() => {
+            result = window.eval("(" + data + ")");
+          })
+          .run(() => {
+            if (
+              data &&
+              /^[\],:{}\s]*$/.test(
+                data
+                  .replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+                  .replace(
+                    /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
+                    "]"
+                  )
+                  .replace(/(?:^|:|,)(?:\s*\[)+/g, "")
+              )
+            ) {
+              result = new Function("return " + data)();
+            }
+          });
       })
       .run(() => {
-        data = data.replaceAll("&quot;", '"');
+        data = data.trim();
         result = JSON.parse(data);
       });
     return result;
