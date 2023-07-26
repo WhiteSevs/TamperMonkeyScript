@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2.6
+// @version      1.2.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -1929,6 +1929,13 @@
               );
               centerRecommandWarpperElement.remove();
             }
+            let relativewordsElement = jQuery("#relativewords");
+            if (relativewordsElement.length) {
+              log.success(
+                `删除广告位 ==> 简单搜索加载下一页出现的 大家都在搜 ${relativewordsElement.length}个`
+              );
+              relativewordsElement.remove();
+            }
           }
           let popUpElement = jQuery("#pop-up");
           if (popUpElement.length) {
@@ -2268,13 +2275,19 @@
        * 自动加载下一页
        */
       function autoLoadNextPage() {
+        let isSearchCraftUA = navigator.userAgent.includes("SearchCraft");
+        let isVia = utils.isWebView_Via();
         /**
          * 滚动事件
          * @returns {Promise}
          */
         async function scrollEvent() {
           if (!utils.isNearBottom(window.innerHeight / 3)) {
-            utils.sleep(150);
+            await utils.sleep(150);
+            return;
+          }
+          if (isSearchCraftUA && isVia) {
+            document.querySelector("span.se-infiniteload-more")?.click();
             return;
           }
           loadingView.setVisible(true);
@@ -2290,7 +2303,7 @@
           let params_pn = new URL(nextPageUrl).search.match(/[0-9]+/);
           log.info(
             `正在请求${
-              params_pn.length == 0
+              params_pn.length === 0
                 ? "第 10 条"
                 : "第 " + parseInt(params_pn[0]) + " 条"
             }数据: ${nextPageUrl}`
@@ -2353,7 +2366,7 @@
               window.history.pushState("forward", null, nextPageUrl);
             }
           } else if (getResp.type === "onerror") {
-            if (nextPageUrl == undefined) {
+            if (utils.isNull(nextPageUrl)) {
               log.error("未获取到下一页的url");
             } else {
               log.error("加载失败 👇");
@@ -2381,6 +2394,7 @@
         loadingView.setVisible(false);
         setNextPageScrollListener();
       }
+
       GM_Menu = new utils.GM_Menu(
         {
           menu_autoloading: {
@@ -2425,6 +2439,13 @@
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
+          baidu_repair_url_address_error: {
+            text: "修复地址栏错误404",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
         },
         true,
         GM_getValue,
@@ -2435,6 +2456,17 @@
       if (!GM_Menu.get("LOG")) {
         log.error("禁止控制台输出日志");
         log.disable();
+      }
+      if (GM_Menu.get("baidu_repair_url_address_error")) {
+        let current_url = decodeURIComponent(window.location.href);
+        if (
+          current_url.startsWith(
+            window.location.origin + "/" + window.location.origin
+          )
+        ) {
+          let regular = new RegExp(window.location.origin + "/");
+          window.location.href = current_url.replace(regular, "");
+        }
       }
       if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
         log.success("禁止百度搜索的视频自动播放");
@@ -2472,10 +2504,15 @@
             log.error(error);
           }
         }, 600);
+        let removeAdsLockFunction = new utils.LockFunction(
+          handleItemURL.removeAds,
+          600
+        );
         utils.waitNode("div#page.search-page").then((nodeList) => {
           utils.mutationObserver(nodeList[0], {
             callback: async () => {
               await searchUpdateRealLink.run();
+              removeAdsLockFunction.run();
             },
             config: {
               childList: true,
