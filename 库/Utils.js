@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-7-26",
+    version: "2023-7-26 17:15:00",
   };
 
   /**
@@ -3556,6 +3556,36 @@
   };
 
   /**
+   * 劫持使isTrust为true的真实点击事件，注入时刻，ducument-start
+   * @example
+   * Utils.registerTrustClickEvent()
+   */
+  Utils.registerTrustClickEvent = function(){
+    function trustEvent(event) {
+      return new Proxy(event, {
+        get: function (target, property) {
+          if (property === "isTrusted") {
+            return true;
+          } else {
+            return Reflect.get(target, property);
+          }
+        },
+      });
+    }
+    const originalListener = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function () {
+      if (this === document && arguments[0] === "click") {
+        const fn = arguments[1];
+        arguments[1] = function (e) {
+          fn.call(this, trustEvent(e));
+        };
+      }
+      return originalListener.apply(this, arguments);
+    };
+  }
+
+
+  /**
    * 复制到剪贴板
    * @param {string|number} text - 需要复制到剪贴板的文本
    * @example
@@ -3634,6 +3664,50 @@
         resolve();
       }, delayTime);
     });
+  };
+
+  /**
+   * 滑块拖动验证
+   * @param {selector|Element} 选择器|元素
+   * @param {offsetX} 水平拖动长度，默认浏览器宽度
+   * @example
+   * Utils.slide("#xxxx");
+   */
+  Utils.slide = function (selector, offsetX = window.innerWidth) {
+    function initMouseEvent(eventName, offSetX, offSetY) {
+      let win = unsafeWindow || window;
+      let mouseEvent = document.createEvent("MouseEvents");
+      mouseEvent.initMouseEvent(
+        eventName,
+        true,
+        true,
+        win,
+        0,
+        offSetX,
+        offSetY,
+        offSetX,
+        offSetY,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null
+      );
+      return mouseEvent;
+    }
+    let slider =
+      typeof selector === "string"
+        ? document.querySelector(selector)
+        : selector;
+    let rect = slider.getBoundingClientRect(),
+      x0 = rect.x || rect.left,
+      y0 = rect.y || rect.top,
+      x1 = x0 + offsetX,
+      y1 = y0;
+    slider.dispatchEvent(initMouseEvent("mousedown", x0, y0));
+    slider.dispatchEvent(initMouseEvent("mousemove", x1, y1));
+    slider.dispatchEvent(initMouseEvent("mouseout", x1, y1));
   };
 
   /**
@@ -3769,7 +3843,7 @@
         });
       })
       .run(() => {
-        data = data.replaceAll("&quot;",'"');
+        data = data.replaceAll("&quot;", '"');
         result = JSON.parse(data);
       });
     return result;
