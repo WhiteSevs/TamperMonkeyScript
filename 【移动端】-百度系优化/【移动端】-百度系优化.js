@@ -2469,9 +2469,9 @@
           );
           if (
             new_current_url.startsWith("http") &&
-            window.location.href.startsWith(judgment_url)
+            current_url.startsWith(judgment_url)
           ) {
-            let new_url = window.location.href.replace(judgment_url, "");
+            let new_url = current_url.replace(judgment_url, "");
             window.location.href = new_url;
             return;
           }
