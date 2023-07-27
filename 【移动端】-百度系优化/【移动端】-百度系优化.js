@@ -2285,7 +2285,6 @@
          */
         async function scrollEvent() {
           if (!utils.isNearBottom(window.innerHeight / 3)) {
-            await utils.sleep(150);
             return;
           }
           if (isSearchCraftUA && isVia) {
