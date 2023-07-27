@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2.7
+// @version      1.2.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -2459,14 +2459,24 @@
       }
       if (GM_Menu.get("baidu_repair_url_address_error")) {
         let current_url = decodeURIComponent(window.location.href);
-        if (
-          current_url.startsWith(
-            window.location.origin + "/" + window.location.origin
-          )
-        ) {
-          let regular = new RegExp(window.location.origin + "/");
-          window.location.href = current_url.replace(regular, "");
-        }
+        let current_url_split = current_url
+          .replace(window.location.origin, "")
+          .split("");
+        let judgment_url = window.location.origin;
+        current_url_split.forEach((item, index) => {
+          let new_current_url = utils.mergeArrayToString(
+            current_url_split.slice(index)
+          );
+          if (
+            new_current_url.startsWith("http") &&
+            window.location.href.startsWith(judgment_url)
+          ) {
+            let new_url = window.location.href.replace(judgment_url, "");
+            window.location.href = new_url;
+            return;
+          }
+          judgment_url += item;
+        });
       }
       if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
         log.success("禁止百度搜索的视频自动播放");
