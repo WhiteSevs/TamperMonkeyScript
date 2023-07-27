@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      0.4
+// @version      0.5
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -377,11 +377,26 @@
       }, 1000);
     }
   }
+
+  /**
+   * 修复图片显示问题
+   */
+  function repairImgShow() {
+    if (window.innerWidth < window.innerHeight) {
+      GM_addStyle(`
+      img.lum-img{
+        width: 100% !important;
+        height: 100% !important;
+      }
+      `);
+    }
+  }
   $(function () {
     if (GM_Menu.get("autoLogin")) {
       autoLogin();
     }
     setFindCodeSearchBtn();
     updateScript();
+    repairImgShow();
   });
 })();
