@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      0.5
+// @version      0.6
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -236,6 +236,7 @@
         Qmsg.error("获取csrf-token失败");
         return;
       }
+      let loginTip = Qmsg.loading("正在登录中...");
       let postResp = await httpx.post({
         url: "https://greasyfork.org/zh-CN/users/sign_in",
         data: encodeURI(
@@ -250,6 +251,7 @@
             "https://greasyfork.org/zh-CN/users/sign_in?return_to=%2Fzh-CN",
         },
       });
+      loginTip.destroy();
       if (!postResp.status) {
         log.error(postResp);
         Qmsg.success("登录失败，请在控制台查看原因");
