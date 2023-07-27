@@ -3,13 +3,14 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2.8
+// @version      1.2.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
 // @match        *://www.baidu.com/*
 // @match        *://baijiahao.baidu.com/*
 // @match        *://tieba.baidu.com/*
+// @match        *://www.tieba.com/*
 // @match        *://wk.baidu.com/*
 // @match        *://tanbi.baidu.com/*
 // @match        *://jingyan.baidu.com/*
@@ -29,6 +30,7 @@
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
+// @connect      www.tieba.com
 // @connect      baike.baidu.com
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
@@ -2564,7 +2566,9 @@
      * 百度贴吧
      */
     tieba() {
-      if (!this.current_url.match(/^http(s|):\/\/tieba.baidu.com/g)) {
+      if (
+        !this.current_url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)
+      ) {
         return;
       }
       /* 贴吧加载评论 */
@@ -3922,7 +3926,7 @@
               headers: {
                 "User-Agent": utils.getRandomPCUA(),
                 Referer: url,
-                Host: "tieba.baidu.com",
+                Host: window.location.hostname,
                 Accept:
                   "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
               },
@@ -4234,13 +4238,13 @@
       };
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
-      if (this.current_url.match(/^http(s|):\/\/tieba.baidu.com\/p\//g)) {
+      if (this.current_url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)) {
         tiebaCommentConfig.run();
         registerImagePreview();
       }
       if (
         this.current_url.match(
-          /^http(s|):\/\/tieba.baidu.com\/mo\/q\/newtopic\/topicTemplate/g
+          /^http(s|):\/\/(tieba.baidu|www.tieba).com\/mo\/q\/newtopic\/topicTemplate/g
         )
       ) {
         redirectJump();
