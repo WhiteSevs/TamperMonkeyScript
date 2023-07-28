@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-7-26 17:15:00",
+    version: "2023-7-28",
   };
 
   /**
@@ -3666,13 +3666,15 @@
   };
 
   /**
-   * 滑块拖动验证
-   * @param {selector|Element} 选择器|元素
-   * @param {offsetX} 水平拖动长度，默认浏览器宽度
+   * 向右拖动滑块
+   * @param {string|Element|Node} selector 选择器|元素
+   * @param {number} offsetX 水平拖动长度，默认浏览器宽度
    * @example
-   * Utils.slide("#xxxx");
+   * Utils.dragSlider("#xxxx");
+   * @example
+   * Utils.dragSlider("#xxxx",100);
    */
-  Utils.slide = function (selector, offsetX = window.innerWidth) {
+  Utils.dragSlider = function (selector, offsetX = window.innerWidth) {
     function initMouseEvent(eventName, offSetX, offSetY) {
       let win = unsafeWindow || window;
       let mouseEvent = document.createEvent("MouseEvents");
@@ -3695,18 +3697,25 @@
       );
       return mouseEvent;
     }
-    let slider =
+    let sliderElement =
       typeof selector === "string"
         ? document.querySelector(selector)
         : selector;
-    let rect = slider.getBoundingClientRect(),
+    if (
+      !(sliderElement instanceof Node) ||
+      !(sliderElement instanceof Element)
+    ) {
+      throw new Error("Utils.dragSlider 参数selector 必须为Node/Element类型");
+    }
+    let rect = sliderElement.getBoundingClientRect(),
       x0 = rect.x || rect.left,
       y0 = rect.y || rect.top,
       x1 = x0 + offsetX,
       y1 = y0;
-    slider.dispatchEvent(initMouseEvent("mousedown", x0, y0));
-    slider.dispatchEvent(initMouseEvent("mousemove", x1, y1));
-    slider.dispatchEvent(initMouseEvent("mouseout", x1, y1));
+    sliderElement.dispatchEvent(initMouseEvent("mousedown", x0, y0));
+    sliderElement.dispatchEvent(initMouseEvent("mousemove", x1, y1));
+    sliderElement.dispatchEvent(initMouseEvent("mouseleave", x1, y1));
+    sliderElement.dispatchEvent(initMouseEvent("mouseout", x1, y1));
   };
 
   /**
@@ -3995,6 +4004,31 @@
   };
 
   /**
+   * 观察对象的set、get
+   * @param {object} obj 观察的对象
+   * @param {string} propertyName 观察的对象的属性名
+   * @param {Function} setCallBack 触发set的回调
+   * @param {Function} getCallBack 触发get的回调
+   * @example
+   * Utils.watchObj(window,"test",(value)=>{console.log("test出现，值是",value)},()=>{return 111;});
+   *
+   * window.test = 1;
+   * > test出现，值是 1
+   * console.log(window.test);
+   * > 111;
+   */
+  Utils.watchObj = function (obj, propertyName, setCallBack, getCallBack) {
+    Object.defineProperty(obj, propertyName, {
+      set(value) {
+        setCallBack(value);
+      },
+      get() {
+        return getCallBack();
+      },
+    });
+  };
+
+  /**
    * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
    * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
    * @param {Function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
@@ -4065,6 +4099,33 @@
           if (isReturn) {
             observer.disconnect();
           }
+        },
+      });
+    });
+  };
+
+  /**
+   * 定时检查对象是否存在
+   * @param {object} checkObj 检查的对象
+   * @param {string} checkPropertyName 检查的对象的属性名
+   * @param {Promise}
+   * @example
+   * await Utils.waitObj(window,"test");
+   * console.log("test success set");
+   *
+   * window.test = 1;
+   * > "test success set"
+   *
+   */
+  Utils.waitObj = function (checkObj, checkPropertyName) {
+    return new Promise((resolve) => {
+      if (checkPropertyName in checkObj) {
+        resolve(checkObj[checkPropertyName]);
+        return;
+      }
+      Object.defineProperty(checkObj, checkPropertyName, {
+        set: function (value) {
+          resolve(value);
         },
       });
     });
