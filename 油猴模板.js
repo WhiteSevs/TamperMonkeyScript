@@ -22,10 +22,10 @@
 
 (function () {
   const utils = Utils.noConflict();
-  var log = new utils.Log(GM_info);
+  const log = new utils.Log(GM_info);
 
   /* 全局配置 */
-  var GLOBAL_CONFIG = {
+  const GLOBAL_CONFIG = {
     /* 命名空间 */
     nameSpace: "GLOBAL_CONFIG",
     /* config数据 */
@@ -33,7 +33,7 @@
   };
 
   /* 在document-start就插入的CSS */
-  var GLOBAL_CSS = {
+  const GLOBAL_CSS = {
     /* 命名空间 */
     nameSpace: "GLOBAL_CSS",
     /* CSS数据 */
@@ -61,7 +61,7 @@
   };
 
   /* 全局执行函数，存在DOM未加载和加载完毕执行的函数 */
-  var GLOBAL_RUN = {
+  const GLOBAL_RUN = {
     /* 命名空间 */
     nameSpace: "GLOBAL_RUN",
     /**
@@ -107,10 +107,10 @@
   };
 
   /* 全局通用API函数 */
-  var GLOBAL_API = {};
+  const GLOBAL_API = {};
 
   /* 注册到window的全局函数，比如替换GM_addStyle */
-  var GLOBAL_WINDOW = {
+  const GLOBAL_WINDOW = {
     init() {
       Object.keys(this).forEach((keyName) => {
         if (keyName.toLowerCase() === "init") {
@@ -122,7 +122,7 @@
   };
 
   /* 注册到tampermonkey的菜单项 */
-  var GLOBAL_GM_MENU = {
+  const GLOBAL_GM_MENU = {
     /* GM_Menu对象 */
     _gm_menu_: null,
     /* 点击后自动刷新网页 */
@@ -158,18 +158,18 @@
 
   /* 桌面端执行，设置的函数开头必须为domStart_或者domReady_ */
   /* 每个函数都会传入一个添加CSS的函数，调用该函数添加CSS，不直接使用GM_addStyle了 */
-  var ENTRANCE_DESKTOP = {
+  const ENTRANCE_DESKTOP = {
     /* 命名空间 */
     nameSpace: "ENTRANCE_DESKTOP",
     /* 配置 */
     config: {},
     init() {
       /* 不被执行的keyName */
-      var notExecFunctionNameList = ["config", "init"];
+      let notExecFunctionNameList = ["config", "init"];
       /* dom start执行的函数 */
-      var needExecFunctionNameListByDomStart = [];
+      let needExecFunctionNameListByDomStart = [];
       /* dom ready执行的函数 */
-      var needExecFunctionNameListByDOMReady = [];
+      let needExecFunctionNameListByDOMReady = [];
       Object.keys(this).forEach((functionName) => {
         if (
           notExecFunctionNameList.indexOf(functionName) !== -1 ||
@@ -202,17 +202,17 @@
 
   /* 移动端执行，设置的函数开头必须为domStart_或者domReady_ */
   /* 每个函数都会传入一个添加CSS的函数，调用该函数添加CSS，不直接使用GM_addStyle了 */
-  var ENTRANCE_MOBILE = {
+  const ENTRANCE_MOBILE = {
     /* 命名空间 */
     nameSpace: "ENTRANCE_MOBILE",
     config: {},
     init() {
       /* 不被执行的keyName */
-      var notExecFunctionNameList = ["config", "init"];
+      let notExecFunctionNameList = ["config", "init"];
       /* dom start执行的函数 */
-      var needExecFunctionNameListByDomStart = [];
+      let needExecFunctionNameListByDomStart = [];
       /* dom ready执行的函数 */
-      var needExecFunctionNameListByDOMReady = [];
+      let needExecFunctionNameListByDOMReady = [];
       Object.keys(this).forEach((functionName) => {
         if (
           notExecFunctionNameList.indexOf(functionName) !== -1 ||
