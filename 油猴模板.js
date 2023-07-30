@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name         自动生成的脚本
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
+// @icon         https://favicon.yandex.net/favicon/v2/<$URL$>
 // @version      0.1
 // @description  自动生成的描述
 // @author       WhiteSevs
