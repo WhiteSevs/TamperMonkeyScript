@@ -52,7 +52,7 @@
   /**
    * GreasyFork的配置
    */
-  const GreasyforkConfig = {
+  const GreasyforkApi = {
     /**
      * 获取代码搜索地址
      * @param {string} url
@@ -160,7 +160,7 @@
               .querySelectorAll("#user-script-list-section li a.script-link")
               .forEach((item) => {
                 scriptUrlList = scriptUrlList.concat(
-                  GreasyforkConfig.getAdminUrl(item.href)
+                  GreasyforkApi.getAdminUrl(item.href)
                 );
               });
             if (utils.isNull(scriptUrlList)) {
@@ -186,7 +186,7 @@
               .querySelectorAll("#user-unlisted-script-list li a.script-link")
               .forEach((item) => {
                 unlistedScriptUrlList = unlistedScriptUrlList.concat(
-                  GreasyforkConfig.getAdminUrl(item.href)
+                  GreasyforkApi.getAdminUrl(item.href)
                 );
               });
             if (utils.isNull(unlistedScriptUrlList)) {
@@ -214,7 +214,7 @@
               .querySelectorAll("#user-library-script-list li a.script-link")
               .forEach((item) => {
                 libraryScriptUrlList = libraryScriptUrlList.concat(
-                  GreasyforkConfig.getAdminUrl(item.href)
+                  GreasyforkApi.getAdminUrl(item.href)
                 );
               });
             if (utils.isNull(libraryScriptUrlList)) {
@@ -237,7 +237,7 @@
     /**
      * 入口
      */
-    run() {
+    init() {
       this.initMenu();
       this.handleUserMenu();
     },
@@ -335,7 +335,7 @@
           url = url.replace(/\?version.*/gi, "");
           url = url.replace(/^http(s|):\/\//gi, "");
           url = encodeURI(url);
-          window.location.href = GreasyforkConfig.getCodeSearchUrl(url);
+          window.location.href = GreasyforkApi.getCodeSearchUrl(url);
         });
       });
     },
@@ -427,7 +427,7 @@
 
 
   /* -----------------↓执行入口↓----------------- */
-  GreasyforkMenu.run();
+  GreasyforkMenu.init();
   $(function () {
     if (GreasyforkMenu.menu.get("autoLogin")) {
       GreasyforkBusiness.autoLogin();
