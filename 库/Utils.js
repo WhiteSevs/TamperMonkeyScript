@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-7-28",
+    version: "2023-8-1",
   };
 
   /**
@@ -3420,6 +3420,25 @@
           reject(error);
         });
     });
+  };
+
+  /**
+   * 解析CDATA格式的内容字符串
+   * @param {string} [text=""] 传入CDATA字符串
+   * @returns {string} 返回解析出的内容
+   * @example
+   * let xml = "<root><![CDATA[This is some CDATA content.]]></root>";
+   * console.log(Utils.parseCDATA(xml));
+   * > This is some CDATA content.
+   */
+  Utils.parseCDATA = function (text = "") {
+    let result = "";
+    let cdataRegexp = /<\!\[CDATA\[([\s\S]*)\]\]>/;
+    let cdataMatch = cdataRegexp.exec(text.trim());
+    if (cdataMatch && cdataMatch.length > 1) {
+      result = cdataMatch[cdataMatch.length - 1];
+    }
+    return result;
   };
 
   /**
