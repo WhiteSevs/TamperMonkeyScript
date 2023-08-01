@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 库Utils更新至2023-7-22;修复当在快捷回复框中点击插入UUB后点击取消/确认会使回复框缩回的问题;修复快捷回复框不能自动保存输入的内容;
-// @version      3.1.3
+// @description  更新日志: 更新签到提示;
+// @version      3.1.4
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -3538,7 +3538,7 @@
             );
             if (response.lastChild || response.type == "ajax") {
               /* ajax函数版本 */
-              if (response.responseText == "") {
+              if (response.responseText === "") {
                 popups.toast({
                   text: "签到: 成功",
                   delayTime: 4000,
@@ -3547,14 +3547,14 @@
               }
 
               let signInContent = response.lastChild.firstChild.nodeValue;
-              if (signInContent.indexOf("您已经被列入黑名单") != -1) {
+              if (signInContent.includes("您已经被列入黑名单")) {
                 popups.toast({
                   text: "签到: 您已经被列入黑名单",
                   delayTime: 4000,
                 });
                 return;
               }
-              if (signInContent.indexOf("今日已签" != -1)) {
+              if (signInContent.includes("今日已签")) {
                 popups.toast({
                   text: "签到: 今日已签",
                   delayTime: 4000,
@@ -3570,17 +3570,22 @@
               let CDATA_Node = $jq(`<div>${CDATA}</div>`);
               let content = CDATA_Node.text();
               console.log(content);
-              if (content.indexOf("您已经被列入黑名单") != -1) {
+              if (content.includes("您已经被列入黑名单")) {
                 popups.toast({
                   text: "签到: 您已经被列入黑名单",
                   delayTime: 4000,
                 });
                 return;
-              }
-              if (content.indexOf("今日已签") != -1) {
+              } else if (content.includes("今日已签")) {
                 popups.toast({
                   text: "签到: 今日已签",
                   delayTime: 4000,
+                });
+                return;
+              } else if (content.includes("绑定手机号后才可以签到")) {
+                popups.toast({
+                  text: "签到: 绑定手机号后才可以签到",
+                  delayTime: 6000,
                 });
                 return;
               }
@@ -3606,7 +3611,7 @@
                 delayTime: 4000,
               });
             }
-            if (typeof response == "string") {
+            if (typeof response === "string") {
               /* 无油猴函数的版本的签到成功是没有返回值的 */
               popups.toast({
                 text: "签到: 成功",
