@@ -3564,8 +3564,8 @@
             } else {
               /* GM_xmlhttpRequest版本 */
               let CDATA = utils.parseCDATA(response.responseText)
-              let CDATA_Node = $jq(`<div>${CDATA}</div>`);
-              let content = CDATA_Node.text();
+              let CDATAElement = $jq(`<div>${CDATA}</div>`);
+              let content = CDATAElement.text();
               console.log(content);
               if (content.includes("您已经被列入黑名单")) {
                 popups.toast({
@@ -3586,8 +3586,8 @@
                 });
                 return;
               }
-              let signIn_con = CDATA_Node.find(".con"); /* 签到奖励 */
-              let signIn_line = CDATA_Node.find(".line"); /* 签到排名 */
+              let signIn_con = CDATAElement.find(".con"); /* 签到奖励 */
+              let signIn_line = CDATAElement.find(".line"); /* 签到排名 */
               if (signIn_con.length && signIn_line.length) {
                 let con = signIn_con.text().match(/([0-9]+)金币/);
                 let line = signIn_line.text().match(/([0-9]+)/);
