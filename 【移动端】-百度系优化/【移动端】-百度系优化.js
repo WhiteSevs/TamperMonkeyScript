@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.2.9
+// @version      1.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -116,6 +116,7 @@
 
   class LoadingView {
     constructor() {
+      this.loadingViewElement = null;
       this.loadingClassName = "whitesev-page-isloading";
       this.loadingTextClassName = "whitesev-isloading-text";
       this.loadingIconClassName = "whitesev-isloading-icon";
@@ -134,36 +135,83 @@
     /**
      * 获取经过jQuery转换过的Loading的HTML
      * @param {Boolean} withIcon
-     * @returns {jQuery}
+     * @returns {Element}
      */
-    getLoadingNode(withIcon = false) {
-      let parseHTML = jQuery(this.html);
+    getParseLoadingNode(withIcon = false) {
+      let ele = document.createElement("div");
+      ele.innerHTML = this.html;
+      let resultEle = ele.children[0];
       if (withIcon) {
-        parseHTML
-          .find(`.${this.loadingTextClassName}`)
-          ?.after(jQuery(this.iconHTML));
+        let iconEle = document.createElement("div");
+        iconEle.innerHTML = this.iconHTML;
+        resultEle.appendChild(iconEle.children[0]);
       }
-      return parseHTML;
+      return resultEle;
     }
     /**
-     * 设置Loading显示/关闭 true显示|false关闭
-     * @param {Boolean} value
+     * 设置环境中的LoadingView在DOM中的对象
+     * @param {Element} ele
      */
-    setVisible(value) {
-      jQuery(`.${this.loadingClassName}`)?.css(
-        "display",
-        value ? "flex" : "none"
+    setLoadingViewElement(ele) {
+      this.loadingViewElement = ele;
+    }
+    /**
+     * 获取实例化的loadingView
+     * @returns {Element|undefined}
+     */
+    getLoadingViewElement() {
+      if (!this.loadingViewElement) {
+        throw new Error("请先使用setLoadingViewElement设置元素");
+      }
+      return this.loadingViewElement;
+    }
+    /**
+     * 获取实例化的loadingView的icon
+     * @returns {Element|undefined}
+     */
+    getLoadingViewIconElement() {
+      return this.getLoadingViewElement().querySelector(
+        `.${this.loadingIconClassName}`
       );
     }
     /**
-     * 设置Loading图标显示/关闭
-     * @param {Boolean} value
+     * 在元素后面添加兄弟元素或HTML字符串
+     * @param {HTMLElement} element - 目标元素
+     * @param {object|string} content - 兄弟元素或HTML字符串
+     * @returns {DOMUtils} - 原型链
+     * */
+    after(element, content) {
+      if (typeof content === "string") {
+        element.insertAdjacentHTML("afterend", content);
+      } else {
+        element.parentNode.insertBefore(content, element.nextSibling);
+      }
+    }
+    /**
+     * 显示LoadingView
      */
-    setIconVisible(value) {
-      jQuery(`.${this.loadingIconClassName}`)?.css(
-        "display",
-        value ? "unset" : "none"
-      );
+    show() {
+      this.getLoadingViewElement().style.display = "flex";
+    }
+    /**
+     * 隐藏LoadingView
+     */
+    hide() {
+      this.getLoadingViewElement().style.display = "none";
+    }
+    /**
+     * 显示LoadingView的图标icon
+     */
+    showIcon() {
+      let iconElement = this.getLoadingViewIconElement();
+      iconElement && (iconElement.style.display = "unset");
+    }
+    /**
+     * 隐藏LoadingView的图标icon
+     */
+    hideIcon() {
+      let iconElement = this.getLoadingViewIconElement();
+      iconElement && (iconElement.style.display = "none");
     }
     /**
      * 设置Loading的文本
@@ -171,14 +219,18 @@
      * @param {Boolean} withIcon 设置Icon图标
      */
     setText(text, withIcon = false) {
-      jQuery(`.${this.loadingTextClassName}`)?.html(`<span>${text}</span>`);
+      this.getLoadingViewElement().innerHTML = `<span>${text}</span>`;
       if (withIcon) {
-        if (jQuery(`.${this.loadingIconClassName}`).length === 0) {
-          jQuery(`.${this.loadingTextClassName}`)?.after(this.iconHTML);
+        let iconElement = this.getLoadingViewIconElement();
+        if (!iconElement) {
+          let iconEle = document.createElement("div");
+          iconEle.innerHTML = this.iconHTML;
+          iconElement = iconEle.children[0];
+          this.getLoadingViewElement().appendChild(iconElement);
         }
-        jQuery(`.${this.loadingIconClassName}`)?.css("display", "unset");
+        iconElement.style.display = "unset";
       } else {
-        jQuery(`.${this.loadingIconClassName}`)?.remove();
+        this.getLoadingViewIconElement()?.remove();
       }
     }
     /**
@@ -186,34 +238,41 @@
      */
     destory() {
       /* 销毁 */
-      jQuery(`.${this.loadingClassName}`)?.remove();
+      this.getLoadingViewElement()?.remove();
+      this.loadingViewElement = null;
     }
     /**
      * 判断Loading是否已加载到页面中
-     * @returns true|false
+     * @returns {boolean}
+     * + true 存在
+     * + false 不存在
      */
     isExists() {
-      return jQuery(`.${this.loadingClassName}`).length == 0 ? false : true;
+      return Boolean(document.querySelector(`.${this.loadingClassName}`));
     }
     /**
      * 判断Loading是否存在Loading图标
      * @returns true|false
      */
     isExistsIcon() {
-      return jQuery(`.${this.loadingIconClassName}`).length == 0 ? false : true;
+      return Boolean(this.getLoadingViewIconElement());
     }
     /**
      * 判断Loading中的文本是否存在
      * @returns true|false
      */
     isExistsText() {
-      return jQuery(`.${this.loadingTextClassName}`).length == 0 ? false : true;
+      return Boolean(
+        this.getLoadingViewElement().querySelector(
+          `.${this.loadingTextClassName}`
+        )
+      );
     }
     /**
      * 加载需要的CSS
      */
     setCSS() {
-      GM_addStyle(`
+      let cssText = `
         .${this.loadingClassName}{
           margin: 0.08rem;
           background: #fff;
@@ -367,7 +426,20 @@
             100% {
                 -ms-transform: rotate(360deg)
             }
-        }`);
+        }`;
+      let cssNode = document.createElement("style");
+      cssNode.setAttribute("type", "text/css");
+      cssNode.innerHTML = cssText;
+      if (document.documentElement.childNodes.length === 0) {
+        /* 插入body后 */
+        document.documentElement.appendChild(cssNode);
+      } else {
+        /* 插入head前面 */
+        document.documentElement.insertBefore(
+          cssNode,
+          document.documentElement.childNodes[0]
+        );
+      }
     }
   }
   /**
@@ -1530,10 +1602,11 @@
         return;
       }
 
-      /**
-       * @param {Dictionary} originURLMap 链接字典
-       */
       const handleItemURL = {
+        /**
+         * 是否显示 重 图标
+         */
+        showIsDirectIcon: false,
         originURLMap: null,
         /**
          * 判断链接是否是百度的中转链接
@@ -2085,21 +2158,22 @@
             if (
               !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
             ) {
-              if (!GM_Menu.get("menu_showisdirect")) {
+              if (!handleItemURL.showIsDirectIcon) {
                 continue;
               }
               if (item.find(".white-bdsearch-isredirecrt").length === 0) {
-                let title_text_element = item.find(".c-title-text");
-                !title_text_element.length &&
-                  (title_text_element = item.find("p.cu-title"));
-                !title_text_element.length &&
-                  (title_text_element = item.find(
-                    "div[class^=header-wrapper]"
-                  ));
+                let title_text_element =
+                  item[0].querySelector(".c-title-text") ||
+                  item[0].querySelector("p.cu-title") ||
+                  item[0].querySelector("div[class^=header-wrapper]") ||
+                  item[0].querySelector(".c-title");
                 let is_redirect_icon = document.createElement("div");
                 is_redirect_icon.className = "white-bdsearch-isredirecrt";
                 is_redirect_icon.innerHTML = "<span>重</span>";
-                title_text_element.prepend(is_redirect_icon);
+                title_text_element.insertBefore(
+                  is_redirect_icon,
+                  title_text_element.firstChild
+                );
               }
             }
             if (
@@ -2291,7 +2365,7 @@
             document.querySelector("span.se-infiniteload-more")?.click();
             return;
           }
-          loadingView.setVisible(true);
+          loadingView.show();
           let nextPageUrl =
             jQuery(".new-nextpage").attr("href") ||
             jQuery(".new-nextpage-only").attr("href");
@@ -2319,7 +2393,8 @@
           });
           let respData = getResp.data;
           if (getResp.status) {
-            loadingView.setVisible(false);
+            log.success("响应的finalUrl: " + respData["finalUrl"]);
+            loadingView.hide();
             let nextPageHTMLNode = utils.parseFromString(respData.responseText);
             let scriptAtomData = jQuery("<div></div>");
             nextPageHTMLNode
@@ -2329,7 +2404,7 @@
               });
             let nextPageScriptOriginUrlMap =
               handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
-            log.info(["下一页的网址Map", nextPageScriptOriginUrlMap]);
+            log.info(["下一页的网址Map", nextPageScriptOriginUrlMap.items]);
             handleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
 
             nextPageHTMLNode
@@ -2371,15 +2446,17 @@
               log.error("未获取到下一页的url");
             } else {
               log.error("加载失败 👇");
-              log.error(respData);
               loadingView.setText("加载失败");
             }
+            log.error(respData);
           } else if (getResp.type === "ontimeout") {
             log.error("请求超时 👇");
             loadingView.setText("请求超时");
+            log.error(respData);
           } else {
             log.error("未知错误");
             loadingView.setText("未知错误");
+            log.error(respData);
           }
         }
         function setNextPageScrollListener() {
@@ -2390,9 +2467,11 @@
           log.info("取消绑定scroll", "#f400ff");
         }
         let lockFunction = new utils.LockFunction(scrollEvent, this);
-        jQuery("#page-controller").after(loadingView.getLoadingNode(true));
+        let loadingViewNode = loadingView.getParseLoadingNode(true);
+        jQuery("#page-controller").after(loadingViewNode);
+        loadingView.setLoadingViewElement(loadingViewNode);
         loadingView.setCSS();
-        loadingView.setVisible(false);
+        loadingView.hide();
         setNextPageScrollListener();
       }
 
@@ -2504,6 +2583,7 @@
           callback: funcLock.run,
         });
       }
+      handleItemURL.showIsDirectIcon = GM_Menu.get("menu_showisdirect");
       log.info("插入CSS规则");
       GM_addStyle(this.css.search);
       jQuery(function () {
@@ -2591,7 +2671,7 @@
             return;
           }
           loadingView.setText("Loading...", true);
-          loadingView.setVisible(true);
+          loadingView.show();
           let timeStamp = Date.now();
           let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
           let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
@@ -2636,11 +2716,11 @@
               }
             });
           }
-          loadingView.setVisible(false);
+          loadingView.hide();
           if (tiebaCommentConfig.page >= tiebaCommentConfig.maxPage) {
             log.info("已加载所有的评论");
             loadingView.setText("已加载所有的评论");
-            loadingView.setVisible(false);
+            loadingView.hide();
             tiebaCommentConfig.removeScrollListener();
           }
           tiebaCommentConfig.page++;
@@ -2653,7 +2733,7 @@
             return;
           }
           loadingView.setText("Loading...", true);
-          loadingView.setVisible(true);
+          loadingView.show();
           let timeStamp = Date.now();
           let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
           let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
@@ -2701,11 +2781,11 @@
               }
             });
           }
-          loadingView.setVisible(false);
+          loadingView.hide();
           if (tiebaCommentConfig.page <= 1) {
             log.info("已加载所有的评论");
             loadingView.setText("已加载所有的评论");
-            loadingView.setVisible(false);
+            loadingView.hide();
             tiebaCommentConfig.removeScrollListener();
           }
           tiebaCommentConfig.page--;
@@ -3146,7 +3226,10 @@
         insertLoadingHTML: () => {
           if (!loadingView.isExists()) {
             log.info("插入loading");
-            jQuery(".main-page-wrap").append(loadingView.getLoadingNode());
+
+            let loadingViewNode = loadingView.getParseLoadingNode(true);
+            jQuery(".main-page-wrap").append(loadingViewNode);
+            loadingView.setLoadingViewElement(loadingViewNode);
             loadingView.setCSS();
           }
         },
@@ -3188,7 +3271,7 @@
               tiebaCommentConfig.page = 1;
               tiebaCommentConfig.insertLoadingHTML();
               loadingView.setText("Loading...", true);
-              loadingView.setVisible(true);
+              loadingView.show();
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
               let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
               let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
@@ -3259,7 +3342,7 @@
               tiebaCommentConfig.page = 1;
               tiebaCommentConfig.insertLoadingHTML();
               loadingView.setText("Loading...", true);
-              loadingView.setVisible(true);
+              loadingView.show();
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
               let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
               let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
@@ -3895,16 +3978,22 @@
            */
           let searchModel = 1;
           /**
+           * 0 吧内搜索
+           * 1 全吧搜索
+           */
+          let searchType = 0;
+          /**
            * 获取搜索结果
            * @param {string} [qw=""] 搜索的关键字
            * @param {number} [pn=0] 当前页码
-           * @param {number} [sm=0]
+           * @param {number} [sm=0] 搜索结果排序
+           * @param {string} [kw=""] 搜索的目标吧，留空是全部
            * 0 按时间顺序
            * 1 按时间倒序 如果加上only_thread为1，就是只看主题贴
            * 2 按相关性顺序
            * @returns {Promise}
            */
-          async function getSearchResult(qw = "", pn = 0, sm = 1) {
+          async function getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
             if (sm === 3) {
               sm = "1&only_thread=1";
             }
@@ -3916,8 +4005,10 @@
             } else {
               originText = qw;
               qw = gbkEncoder.encode(qw);
+              kw = gbkEncoder.decode(kw);
+              kw = gbkEncoder.encode(kw);
               log.success(`搜索内容gbk编码转换: ${originText} => ${qw}`);
-              url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${sm}`;
+              url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=${kw}&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${sm}`;
             }
             log.success(`当前请求第 ${new URLSearchParams(url).get("pn")} 页`);
             let getResp = await httpx.get({
@@ -3949,7 +4040,7 @@
             searchDoc
               .querySelectorAll(".s_main .s_post_list .s_post")
               .forEach((item) => {
-                if (item.id === "post_user") {
+                if (item.id === "post_user" || item.id === "no_head") {
                   return;
                 }
                 let url = item.querySelector("span.p_title a").href;
@@ -4007,7 +4098,8 @@
           function setCSS() {
             GM_addStyle(`
             .s_post,
-            .s_order {
+            .s_order,
+            .s_search {
               margin: 25px;
             }
             .s_post .p_title{
@@ -4067,6 +4159,14 @@
                 break;
               }
             }
+            if (searchType === 1) {
+              jQueryOrderElement.find("#searchtb").prop("checked", true);
+              log.success("当前搜索类型-全吧搜索");
+            } else if (searchType === 0) {
+              log.success("当前搜索类型-吧内搜索");
+            } else {
+              log.error("未知的搜索类型，请排查");
+            }
           }
           /**
            * 设置搜索结果模式点击事件
@@ -4096,6 +4196,21 @@
               removeScrollListener();
               document.querySelector(".more-btn-desc").click();
             });
+            jQuery(document).on(
+              "change",
+              ".s_search input[type='radio']",
+              function () {
+                if (this.id === "searchtb") {
+                  searchType = 1;
+                  log.success("切换搜索模式-全吧搜索");
+                } else if (this.id === "nowtb") {
+                  searchType = 0;
+                  log.success("切换搜索模式-吧内搜索");
+                } else {
+                  log.error("未知的搜索类型，请排查");
+                }
+              }
+            );
           }
           async function _click_event_() {
             tiebaCommentConfig.removeScrollListener();
@@ -4109,15 +4224,32 @@
               alert("请勿输入纯空格或空内容");
               return;
             }
-            loadingView.setVisible(true);
+            loadingView.show();
+            let currentForum = "";
+            if (searchType === 0) {
+              let searchParams = new URLSearchParams(window.location.href);
+              currentForum =
+                searchParams.get("kw") ||
+                document
+                  .querySelector(".forum-block")
+                  ?.textContent?.trim()
+                  ?.replace(/吧$/g, "");
+              if (utils.isNull(currentForum)) {
+                loadingView.hide();
+                alert("获取当前吧失败");
+                return;
+              }
+              log.success("当前搜索的范围吧：" + currentForum);
+            }
             let searchResult = await getSearchResult(
               searchText,
               undefined,
-              searchModel
+              searchModel,
+              currentForum
             );
             tiebaCommentConfig.removeScrollListener();
             if (!searchResult) {
-              loadingView.setVisible(false);
+              loadingView.hide();
               alert("请求失败，详情请看控制台");
               return;
             }
@@ -4129,12 +4261,19 @@
               contentElement.html("");
               alert(searchResult + " 已重置搜索模式为-按时间倒序");
               searchModel = 1;
-              loadingView.setVisible(false);
+              loadingView.hide();
               return;
             }
             contentElement.html("");
             log.success(searchResult);
             let orderElement = jQuery(`
+            <div class="s_search">
+              搜索类型：
+              <input id="nowtb" name="tb" type="radio"checked="checked">
+              <label for="nowtb">吧内搜索</label>
+              <input id="searchtb" name="tb" type="radio">
+              <label for="searchtb">全吧搜索</label>
+            </div>
             <div class="s_order">
               排序结果：
               <a>按时间倒序</a>
@@ -4152,7 +4291,7 @@
             searchResult.forEach((item) => {
               contentElement.append(getItemHTML(item));
             });
-            loadingView.setVisible(false);
+            loadingView.hide();
             if (nextPageUrl) {
               addScrollListener();
             }
@@ -4178,17 +4317,17 @@
             if (!utils.isNearBottom()) {
               return;
             }
-            loadingView.setVisible(true);
+            loadingView.show();
             if (!nextPageUrl) {
               removeScrollListener();
               log.success("已到达最后一页");
-              loadingView.setVisible(false);
+              loadingView.show();
               return;
             }
             let contentElement = jQuery(".main-thread-content-margin");
             let searchResult = await getSearchResult(nextPageUrl);
             if (!searchResult) {
-              loadingView.setVisible(false);
+              loadingView.hide();
               alert("请求下一页失败，详情请看控制台");
               return;
             }
@@ -4197,7 +4336,7 @@
               (searchResult.startsWith("抱歉") ||
                 searchResult.startsWith("获取内容为空"))
             ) {
-              loadingView.setVisible(false);
+              loadingView.hide();
               alert(searchResult);
               return;
             }
@@ -4205,7 +4344,7 @@
             searchResult.forEach((item) => {
               contentElement.append(getItemHTML(item));
             });
-            loadingView.setVisible(false);
+            loadingView.hide();
             if (!nextPageUrl) {
               removeScrollListener();
               log.success("已到达最后一页");
@@ -4237,7 +4376,11 @@
       };
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
-      if (this.current_url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)) {
+      if (
+        this.current_url.match(
+          /^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g
+        )
+      ) {
         tiebaCommentConfig.run();
         registerImagePreview();
       }
@@ -4435,9 +4578,12 @@
           }
           log.success(`获取下一页地址: ${nextPageUrl}`);
           loadingView.setCSS();
-          jQuery(".BK-main-content").after(loadingView.getLoadingNode());
+
+          let loadingViewNode = loadingView.getParseLoadingNode(true);
+          jQuery(".BK-main-content").after(loadingViewNode);
+          loadingView.setLoadingViewElement(loadingViewNode);
           while (1) {
-            loadingView.setVisible(true);
+            loadingView.show();
             let nextPageUrl = `https://baike.baidu.com${
               nextUrlObj.pathname
             }?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
@@ -4476,21 +4622,21 @@
               insertUrlToImageNode();
               setImageWidthHeight();
               loadingView.setText("请求失败");
-              loadingView.setIconVisible(false);
+              loadingView.hideIcon();
               break;
             } else if (getResp.type === "ontimeout") {
               log.error("请求超时 👇");
               insertUrlToImageNode();
               setImageWidthHeight();
               loadingView.setText("请求超时");
-              loadingView.setIconVisible(false);
+              loadingView.hideIcon();
               break;
             } else {
               log.error("未知错误");
               insertUrlToImageNode();
               setImageWidthHeight();
               loadingView.setText("未知错误");
-              loadingView.setIconVisible(false);
+              loadingView.hideIcon();
               break;
             }
           }
