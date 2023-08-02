@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.1
+// @version      1.3.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -3226,11 +3226,11 @@
         insertLoadingHTML: () => {
           if (!loadingView.isExists()) {
             log.info("插入loading");
-
-            let loadingViewNode = loadingView.getParseLoadingNode(true);
-            jQuery(".main-page-wrap").append(loadingViewNode);
-            loadingView.setLoadingViewElement(loadingViewNode);
             loadingView.setCSS();
+            let loadingViewNode = loadingView.getParseLoadingNode(true);
+            loadingView.setLoadingViewElement(loadingViewNode);
+            loadingView.hide();
+            jQuery(".main-page-wrap").append(loadingViewNode);
           }
         },
         /**
@@ -3269,7 +3269,6 @@
               )["forum_id"];
               let timeStamp = Date.now();
               tiebaCommentConfig.page = 1;
-              tiebaCommentConfig.insertLoadingHTML();
               loadingView.setText("Loading...", true);
               loadingView.show();
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
@@ -3312,7 +3311,7 @@
                   );
                   tiebaCommentConfig.floor_num++;
                 });
-                loadingView.destory();
+                loadingView.hide();
               }
               log.info(
                 `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
@@ -3340,7 +3339,6 @@
               )["forum_id"];
               let timeStamp = Date.now();
               tiebaCommentConfig.page = 1;
-              tiebaCommentConfig.insertLoadingHTML();
               loadingView.setText("Loading...", true);
               loadingView.show();
               let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
@@ -3385,7 +3383,7 @@
                   );
                   tiebaCommentConfig.floor_num++;
                 });
-                loadingView.destory();
+                loadingView.hide();
               }
               log.info(
                 `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
@@ -3398,6 +3396,9 @@
           }
         },
         run() {
+          utils.waitNode(".main-page-wrap").then(()=>{
+            tiebaCommentConfig.insertLoadingHTML();
+          })
           utils.waitNode(".recommend-item[data-banner-info]").then(() => {
             jQuery(".post-item")?.remove();
             tiebaCommentConfig.mainPositive();
