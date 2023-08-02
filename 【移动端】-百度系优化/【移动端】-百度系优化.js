@@ -4264,6 +4264,7 @@
               alert("请勿输入纯空格或空内容");
               return;
             }
+            loadingView.setText("Loading...",true);
             loadingView.show();
             if (searchType === 0) {
               if (utils.isNull(currentForum)) {
