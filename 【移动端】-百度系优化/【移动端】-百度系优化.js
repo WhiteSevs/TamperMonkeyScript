@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3
+// @version      1.3.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -3839,10 +3839,22 @@
             document
               .querySelector("div.more-btn-desc")
               .addEventListener("click", function () {
+                let searchParams = new URLSearchParams(window.location.search);
                 if (
-                  window.location.href.startsWith("https://tieba.baidu.com/p/")
+                  window.location.pathname === "/f" &&
+                  utils.isNotNull(searchParams.get("kw"))
                 ) {
                   /* 当前是在吧内，搜索按钮判定搜索贴子 */
+                  loadingView.setCSS();
+                  let loadingViewNode = loadingView.getParseLoadingNode(true);
+                  jQuery("div.tb-page__main").after(loadingViewNode);
+                  loadingView.setLoadingViewElement(loadingViewNode);
+                  tiebaSearchConfig.isSetClickEvent = true;
+                  tiebaSearchConfig.postsSearch();
+                } else if (
+                  window.location.href.startsWith("https://tieba.baidu.com/p/")
+                ) {
+                  /* 当前是在帖子内，搜索按钮判定搜索贴子 */
                   if (!tiebaSearchConfig.isSetClickEvent) {
                     tiebaSearchConfig.isSetClickEvent = true;
                     tiebaSearchConfig.postsSearch();
@@ -3850,6 +3862,14 @@
                 } else {
                   /* 当前是在主页中，搜索按钮判定为搜索吧 */
                   tiebaSearchConfig.frontPageSeach();
+                  utils.listenKeyPress(
+                    document.querySelector("#tieba-search"),
+                    (keyName) => {
+                      if (keyName === "Enter") {
+                        tiebaSearchConfig.frontPageSeach();
+                      }
+                    }
+                  );
                 }
               });
 
@@ -4010,7 +4030,8 @@
               log.success(`搜索内容gbk编码转换: ${originText} => ${qw}`);
               url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=${kw}&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${sm}`;
             }
-            log.success(`当前请求第 ${new URLSearchParams(url).get("pn")} 页`);
+
+            log.success(`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`);
             let getResp = await httpx.get({
               url: url,
               headers: {
@@ -4214,7 +4235,25 @@
           }
           async function _click_event_() {
             tiebaCommentConfig.removeScrollListener();
+            let currentForum = "";
+            let searchParams = new URLSearchParams(window.location.search);
+            currentForum = searchParams.get("kw");
+            if (utils.isNull(currentForum)) {
+              currentForum = document
+                .querySelector(".forum-block")
+                ?.textContent?.trim()
+                ?.replace(/吧$/g, "");
+            }
+            if (utils.isNull(currentForum)) {
+              currentForum = document
+                .querySelector("h1.tb-forum-user__title")
+                ?.textContent?.trim()
+                ?.replace(/吧$/g, "");
+            }
             let contentElement = jQuery(".main-thread-content-margin");
+            if (!contentElement.length) {
+              contentElement = jQuery(".tb-page__main");
+            }
             jQuery("#replySwitch").remove();
             jQuery(".post-item").remove();
             contentElement.html("");
@@ -4225,15 +4264,7 @@
               return;
             }
             loadingView.show();
-            let currentForum = "";
             if (searchType === 0) {
-              let searchParams = new URLSearchParams(window.location.href);
-              currentForum =
-                searchParams.get("kw") ||
-                document
-                  .querySelector(".forum-block")
-                  ?.textContent?.trim()
-                  ?.replace(/吧$/g, "");
               if (utils.isNull(currentForum)) {
                 loadingView.hide();
                 alert("获取当前吧失败");
@@ -4259,9 +4290,9 @@
                 searchResult.startsWith("获取内容为空"))
             ) {
               contentElement.html("");
-              alert(searchResult + " 已重置搜索模式为-按时间倒序");
               searchModel = 1;
               loadingView.hide();
+              alert(searchResult + " 已重置搜索模式为-按时间倒序");
               return;
             }
             contentElement.html("");
@@ -4325,6 +4356,9 @@
               return;
             }
             let contentElement = jQuery(".main-thread-content-margin");
+            if (!contentElement.length) {
+              contentElement = jQuery(".tb-page__main");
+            }
             let searchResult = await getSearchResult(nextPageUrl);
             if (!searchResult) {
               loadingView.hide();
