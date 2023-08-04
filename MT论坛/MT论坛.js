@@ -13719,7 +13719,7 @@
             ok: {
               callback: () => {
                 deleteLocalData(data);
-                itemDOM.parent().remove();
+                itemDOM.remove();
                 popups.closeMask();
                 popups.closeConfirm();
                 popups.toast("删除成功");
@@ -14295,7 +14295,7 @@
               ok: {
                 callback: () => {
                   CustomizeUserLabels.deleteLocalData(data);
-                  itemDOM.parent().remove();
+                  itemDOM.remove();
                   popups.closeMask();
                   popups.closeConfirm();
                   popups.toast("删除成功");
