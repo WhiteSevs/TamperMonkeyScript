@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-1",
+    version: "2023-8-4",
   };
 
   /**
@@ -2388,7 +2388,7 @@
    * > true
    */
   Utils.isNotNull = function () {
-    return !Utils.isNull(arguments);
+    return !Utils.isNull.apply(this, arguments);
   };
 
   /**
@@ -3961,7 +3961,9 @@
       let result = undefined;
       try {
         if (typeof func === "string") {
-          window.eval(func);
+          (function () {
+            eval(func);
+          }).apply(funcThis, funcArgs);
         } else {
           result = func.apply(funcThis, funcArgs);
         }
@@ -3976,9 +3978,11 @@
         }
         if (handleErrorFunc) {
           if (typeof handleErrorFunc === "string") {
-            result = window.eval(handleErrorFunc);
+            result = function () {
+              return eval(handleErrorFunc);
+            }.apply(funcThis, [...funcArgs, error]);
           } else {
-            result = handleErrorFunc.apply(funcThis, funcArgs);
+            result = handleErrorFunc.apply(funcThis, [...funcArgs, error]);
           }
         }
       }
