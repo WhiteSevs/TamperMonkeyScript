@@ -3,9 +3,9 @@
 // @icon         https://bbs.binmt.cc/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
-// @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、屏蔽用户、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床等
-// @description  更新日志: 更新签到提示;更新库版本->2023-8-1;
-// @version      3.1.4.1
+// @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
+// @description  更新日志: 新增功能【自定义用户标签】->在【我的屏蔽】和【积分商城商品上架提醒】功能的下面可设置;更新Utils库版本->2023-8-4;
+// @version      3.1.5
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -35,7 +35,7 @@
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1228713
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1230385
 // ==/UserScript==
 
 (function () {
@@ -659,7 +659,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1228713
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1230385
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -697,7 +697,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1228713",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1230385",
       },
     ];
     for (const libraryItem of libraries) {
@@ -2548,6 +2548,194 @@
       }
     },
     /**
+     * 显示用户的标签，比如UID或自定义的
+     */
+    showUserLabels() {
+      let customizeUserLabelsList = GM_getValue("customizeUserLabelsList", []);
+      if (!customizeUserLabelsList.length) {
+        console.log("未设置用户自定义标签");
+        return;
+      }
+      if (
+        window.location.href.match(DOM_CONFIG.urlRegexp.forumPostGuideUrl) ||
+        window.location.href.match(DOM_CONFIG.urlRegexp.forumPost) ||
+        window.location.href.match(DOM_CONFIG.urlRegexp.plateUrl) ||
+        window.location.href.match(DOM_CONFIG.urlRegexp.searchUrl) ||
+        window.location.href.match(
+          /bbs.binmt.cc\/home.php\?mod=space&do=thread&view=me/
+        ) ||
+        window.location.href.match(
+          /home.php\?mod=space&uid=.+&do=thread&view=me/
+        )
+      ) {
+        /**
+         * 处理显示用户自定义标签
+         */
+        const handleShowUserLabels = {
+          forumList: null,
+          isSetCSS: false,
+          /**
+           * 是否找到帖子
+           */
+          isFind: false,
+          /**
+           * 是否正在找到帖子
+           */
+          isFinding: false,
+          /**
+           * 设置样式
+           */
+          setCSS() {
+            if (this.isSetCSS) {
+              return;
+            }
+            GM_addStyle(`
+            .comiis_postli_top.bg_f.b_t h2{
+                height: auto;
+            }`);
+            GM_addStyle(`
+            .postli_top_tximg + h2{
+                height: auto;
+            }
+          `);
+          },
+          /**
+           * 根据超链接元素获取UID
+           * @param {Element} ele 
+           * @returns 
+           */
+          matchUIDByArray(ele) {
+            for (let i = 0; i < ele.length; i++) {
+              let url = ele[i].href;
+              let uid = url.match(DOM_CONFIG.urlRegexp.MTUid);
+              if (uid) {
+                return uid[1];
+              }
+            }
+            return null;
+          },
+          handleForum() {
+            $jq.each(handleShowUserLabels.forumList, (index, value) => {
+              let user_label_ele = value.querySelector(
+                "a.mt_custom_user_labels"
+              );
+              if (user_label_ele) {
+                return;
+              }
+              let hyperLinkElement = value.getElementsByTagName("a");
+              let MT_UID = null;
+              MT_UID = handleShowUserLabels.matchUIDByArray(hyperLinkElement);
+              if (utils.isNull(MT_UID)) {
+                return;
+              }
+              MT_UID = parseInt(MT_UID);
+              let findUserLabelsList = [];
+              customizeUserLabelsList.forEach((item) => {
+                if (MT_UID === item["uid"]) {
+                  findUserLabelsList = [...findUserLabelsList, item];
+                }
+              });
+              if (!findUserLabelsList.length) {
+                return;
+              }
+              let mtUidDomInsertElement =
+                value.getElementsByClassName("top_lev")[0];
+              let uid_control_height = getComputedStyle(
+                mtUidDomInsertElement,
+                null
+              )["height"];
+              let uid_control_margin = getComputedStyle(
+                mtUidDomInsertElement,
+                null
+              )["margin"];
+              let uid_control_padding = getComputedStyle(
+                mtUidDomInsertElement,
+                null
+              )["padding"];
+              let uid_control_line_height = getComputedStyle(
+                mtUidDomInsertElement,
+                null
+              )["line-height"];
+              let uid_control_font = getComputedStyle(
+                mtUidDomInsertElement,
+                null
+              )["font"];
+              findUserLabelsList.forEach((item) => {
+                let labelElement = document.createElement("a");
+                let labelBgColor = item["color"];
+                labelElement.className = "mt_custom_user_labels";
+                labelElement.style = `
+                              font: ${uid_control_font};
+                              background: ${labelBgColor};
+                              color: white;
+                              float: left;
+                              margin: ${uid_control_margin};
+                              padding: ${uid_control_padding};
+                              height: ${uid_control_height};
+                              line-height: ${uid_control_line_height};
+                              border-radius: 1.5px;
+                              ${item["style"]}`;
+
+                labelElement.innerHTML = item["labels"];
+                if (utils.isNotNull(item["js"])) {
+                  labelElement.onclick = function () {
+                    let that = this;
+                    utils
+                      .tryCatch()
+                      .error(function (error) {
+                        popups.confirm({
+                          title: "执行JS失败",
+                          text: `<p style="max-height: ${
+                            window.innerHeight * 0.7 > 300
+                              ? window.innerHeight * 0.7
+                              : 300
+                          }px;overflow-y: auto;">${error.toString()}</p>`,
+                        });
+                      })
+                      .run(item["js"], that);
+                  };
+                }
+                mtUidDomInsertElement.parentElement.append(labelElement);
+              });
+            });
+          },
+          run() {
+            let that = this;
+            this.setCSS();
+            utils.mutationObserver(document.documentElement, {
+              callback: (mutations, observer) => {
+                /* 判断是否已找到 */
+                if (that.isFind) {
+                  that.handleForum();
+                  /* console.log("成功找到帖子DOM"); */
+                  observer.disconnect();
+                  return;
+                }
+                /* 正在寻找中 */
+                if (that.isFinding) {
+                  return;
+                }
+                that.isFinding = true;
+                that.forumList = utils.getNodeListValue(
+                  DOM_CONFIG.element.comiisForumList,
+                  DOM_CONFIG.element.comiisPostli,
+                  DOM_CONFIG.element.comiisMmlist
+                );
+                that.isFind = Boolean(that.forumList.length);
+                !that.isFind && (that.forumList = null);
+                setTimeout(() => {
+                  that.isFinding = false;
+                }, 250);
+              },
+              config: { subtree: true, childList: true },
+            });
+          },
+        };
+
+        handleShowUserLabels.run();
+      }
+    },
+    /**
      * 页面小窗浏览帖子
      */
     pageSmallWindowBrowsingForumPost() {
@@ -3563,7 +3751,7 @@
               }
             } else {
               /* GM_xmlhttpRequest版本 */
-              let CDATA = utils.parseCDATA(response.responseText)
+              let CDATA = utils.parseCDATA(response.responseText);
               let CDATAElement = $jq(`<div>${CDATA}</div>`);
               let content = CDATAElement.text();
               console.log(content);
@@ -11747,6 +11935,7 @@
       }
       function repeatFunc() {
         utils.tryCatch().run(mobileRepeatFunc.showUserUID);
+        utils.tryCatch().run(mobileRepeatFunc.showUserLabels);
         utils.tryCatch().run(mobileRepeatFunc.ownShield);
         utils.tryCatch().run(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
         utils.tryCatch().run(mobileRepeatFunc.codeQuoteOptimization);
@@ -13476,7 +13665,6 @@
         </div>`;
 
         $jq(".comiis_myinfo").append($jq(productReminderBtnHTML));
-        $jq(".comiis_myinfo").append($jq('<div class="styli_h cl"></div>'));
       }
       /**
        * 为DOM元素设置事件
@@ -13810,6 +13998,397 @@
           }
         }
       })();
+    },
+    /**
+     * 自定义用户标签
+     */
+    customizeUserLabels() {
+      const CustomizeUserLabels = {
+        init() {
+          this.setDom();
+          this.appendSpaceDom();
+          this.setDomEvent();
+        },
+        /**
+         * 初始化DOM元素到页面中
+         */
+        setDom() {
+          GM_addStyle(`
+  #customizeUserLabels{
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+  #customizeUserLabels .styli_tit i{
+    color: #c70ea6 !important;
+  }
+  #customizeUserLabels a.comiis_flex{
+    border-top: 1px solid #efefef !important;
+  }
+  #customizeUserLabelsInput,
+  #customizeUserUIDInput,
+  #customizeUserLabelsStyleInput,
+  #customizeUserLabelsColorInput,
+  #customizeUserLabelsJSInput{
+    width: -webkit-fill-available;
+    height: 30px;
+    margin: 8px 20px;
+    border: 0px;
+    border-bottom: 1px solid;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  #customizeUserLabelsStyleInput,
+  #customizeUserLabelsJSInput{
+    height: 200px;
+    white-space: pre-wrap;
+  }
+  .CustomizeUserLabelsItem,
+  .CustomizeUserLabelsFlex{
+    display: flex;
+    align-items: center;
+  }
+  .CustomizeUserLabelsItem i[data-flag]{
+    font-size: 24px;
+    padding: 0px 6px;
+  }
+  .CustomizeUserLabelsFlex{
+    width: 100%;
+    margin: 16px 10px;
+  }
+  .dialog-input-userlabels{
+    display: flex;
+    align-items: baseline;
+    text-align: left;
+  }
+  .dialog-input-userlabels p{
+    width: 100px;
+  }
+  `);
+          GM_addStyle(`
+  .NZ-MsgBox-alert .productItem{
+    display: flex;
+    align-items: center;
+  }
+  .NZ-MsgBox-alert .productDivFlex{
+    display: flex;
+    align-items: center;
+    margin: 16px 10px;
+    width: 100%;
+  }
+  .NZ-MsgBox-alert .productItem i.comiis_font{
+    font-size: 24px;
+    padding: 0px 6px;
+  }`);
+          const customizeUserLabelsBtnHTML = `
+  <div id="customizeUserLabels" class="comiis_myinfo_list bg_f cl">
+    <a href="javascript:;" class="comiis_flex comiis_styli bg_f b_t cl">
+      <div class="styli_tit f_c">
+        <i class="comiis_font f_e"></i>
+      </div>
+      <div class="flex">自定义用户标签</div>
+      <div class="styli_ico">
+        <i class="comiis_font f_e"></i>
+      </div>
+    </a>
+  </div>`;
+
+          $jq(".comiis_myinfo").append($jq(customizeUserLabelsBtnHTML));
+        },
+        /**
+         * 添加空格横栏
+         */
+        appendSpaceDom() {
+          $jq(".comiis_myinfo").append($jq('<div class="styli_h cl"></div>'));
+        },
+        /**
+         * 为DOM元素设置事件
+         */
+        setDomEvent() {
+          $jq("#customizeUserLabels").on("click", function () {
+            $jq.NZ_MsgBox.confirm({
+              title: "自定义用户标签",
+              content: "<center>检索中...</center>",
+              type: "",
+              location: "center",
+              buttons: {
+                autoClose: false,
+                reverse: true,
+                confirm: {
+                  text: "添加",
+                },
+                cancel: {
+                  text: "关闭",
+                },
+              },
+              callback: function (status, closeCallBack) {
+                if (status) {
+                  CustomizeUserLabels.setAddBtnClickEvent();
+                } else {
+                  closeCallBack();
+                }
+              },
+            });
+            CustomizeUserLabels.setViewData();
+          });
+        },
+        /**
+         * 为弹出的视图设置数据
+         */
+        setViewData() {
+          let data = CustomizeUserLabels.getData();
+          if (data.length === 0) {
+            $jq(".NZ-MsgBox-alert .msgcon").html("<center>暂无数据</center>");
+            return;
+          }
+          let dataDOM = $jq(`<li></li>`);
+          data.forEach((item) => {
+            let itemDOM = $jq(`
+          <div class="CustomizeUserLabelsItem" data-json='${JSON.stringify(
+            item
+          )}'>
+            <div class="CustomizeUserLabelsFlex">
+              <p data-uid>${item["uid"]}</p>
+            </div>
+            <i class="comiis_font f14 z" data-flag="edit"></i>
+            <i class="comiis_font" data-flag="delete"></i>
+          </div>`);
+            CustomizeUserLabels.setEditClickEvent(itemDOM, item);
+            CustomizeUserLabels.setDeleteClickEvent(itemDOM, item);
+            dataDOM.append(itemDOM);
+          });
+          $jq(".NZ-MsgBox-alert .msgcon").html(dataDOM);
+        },
+
+        /**
+         * 弹出的视图的添加按钮的点击事件
+         * @param {Object} defaultData 默认数据
+         * @param {Boolean} isEdit 是否是编辑模式
+         */
+        setAddBtnClickEvent(
+          defaultData = { uid: "", labels: [], color: "", style: "", js: "" },
+          isEdit = false
+        ) {
+          popups.confirm({
+            text: `
+          <div style="max-height: ${
+            window.innerHeight * 0.66 > 300
+              ? parseInt(window.innerHeight * 0.66)
+              : 300
+          }px;overflow-y: auto;">
+            <div class="dialog-input-userlabels">
+              <p>UID</p><input id="customizeUserUIDInput" name="text" placeholder="请输入用户UID" autocomplete="off">
+            </div>
+            <div class="dialog-input-userlabels">
+              <p>标签</p><input id="customizeUserLabelsInput" name="text" placeholder="示例：标签一" autocomplete="off">
+            </div>
+            <div class="dialog-input-userlabels">
+              <p>颜色</p><input id="customizeUserLabelsColorInput" type="color">
+            </div>
+            <div class="dialog-input-userlabels">
+              <p>CSS</p><textarea id="customizeUserLabelsStyleInput" name="text" placeholder="自定义标签CSS，示例：border-radius: 5px;" autocomplete="off"></textarea>
+            </div>
+            <div class="dialog-input-userlabels">
+              <p>JS</p><textarea id="customizeUserLabelsJSInput" name="text" placeholder="自定义标签的点击事件，示例：window.open('https://www.baidu.com','_blank')" autocomplete="off"></textarea>
+            </div>
+          </div>
+        `,
+            ok: {
+              callback: () => {
+                let newData = {
+                  uid: 0,
+                  labels: [],
+                  color: "",
+                  style: "",
+                  js: "",
+                };
+                let inputUID = $jq("#customizeUserUIDInput").val().trim();
+                let inputLabels = $jq("#customizeUserLabelsInput").val().trim();
+                let inputColor = $jq("#customizeUserLabelsColorInput")
+                  .val()
+                  .trim();
+                let inputStyle = $jq("#customizeUserLabelsStyleInput")
+                  .val()
+                  .trim();
+                let inputJS = $jq("#customizeUserLabelsJSInput").val();
+                if (utils.isNull(inputUID)) {
+                  popups.toast("请输入用户UID");
+                  return;
+                }
+                if (utils.isNull(inputLabels)) {
+                  popups.toast("请输入自定义用户标签");
+                  return;
+                }
+                inputUID = parseInt(inputUID);
+                if (isNaN(inputUID)) {
+                  popups.toast("请输入正确的UID");
+                  return;
+                }
+                newData.uid = inputUID;
+                newData.labels = inputLabels;
+                newData.color = inputColor;
+                newData.style = inputStyle;
+                newData.js = inputJS;
+                console.log(newData);
+                let localData = CustomizeUserLabels.getData();
+                let localDataString = JSON.stringify(localData);
+                let sameData = localData.filter((item) => {
+                  return JSON.stringify(item) === localDataString;
+                });
+                if (sameData.length && !isEdit) {
+                  popups.toast("已存在相同的，请勿重复添加");
+                  return;
+                }
+                if (isEdit) {
+                  let changeDataStatus = CustomizeUserLabels.changeLocalData(
+                    defaultData,
+                    newData
+                  );
+                  if (changeDataStatus) {
+                    popups.toast("修改成功");
+                  } else {
+                    popups.toast("修改失败");
+                    return;
+                  }
+                } else {
+                  let addDataStatus = CustomizeUserLabels.setLocalData(newData);
+                  if (addDataStatus) {
+                    popups.toast("添加成功");
+                  } else {
+                    popups.toast("已存在相同的数据");
+                    return;
+                  }
+                }
+                popups.closeMask();
+                popups.closeConfirm();
+                CustomizeUserLabels.setViewData();
+              },
+            },
+          });
+          $jq("#customizeUserUIDInput").val(defaultData["uid"]);
+          $jq("#customizeUserLabelsInput").val(defaultData["labels"]);
+          $jq("#customizeUserLabelsColorInput").val(defaultData["color"]);
+          $jq("#customizeUserLabelsStyleInput").val(defaultData["style"]);
+          $jq("#customizeUserLabelsJSInput").val(defaultData["js"]);
+          $jq("#customizeUserUIDInput").focus();
+        },
+
+        /**
+         * 设置编辑按钮点击事件
+         * @param {HTMLElement} itemDOM 元素
+         * @param {Object} data 数据
+         */
+        setEditClickEvent(itemDOM, data) {
+          itemDOM.on("click", "i[data-flag='edit']", function () {
+            CustomizeUserLabels.setAddBtnClickEvent(data, true);
+          });
+        },
+        /**
+         * 设置删除按钮点击事件
+         * @param {HTMLElement} itemDOM 元素
+         * @param {Object} data 数据
+         */
+        setDeleteClickEvent(itemDOM, data) {
+          itemDOM.on("click", "i[data-flag='delete']", function () {
+            popups.confirm({
+              text: "确定删除该条数据？",
+              ok: {
+                callback: () => {
+                  CustomizeUserLabels.deleteLocalData(data);
+                  itemDOM.parent().remove();
+                  popups.closeMask();
+                  popups.closeConfirm();
+                  popups.toast("删除成功");
+                },
+              },
+            });
+          });
+        },
+        /**
+        /**
+         * 获取本地数据
+         * @returns {Array}
+         */
+        getData() {
+          return GM_getValue("customizeUserLabelsList", []);
+        },
+        /**
+         * 设置本地数据
+         * @param {any} data
+         */
+        setData(data) {
+          GM_setValue("customizeUserLabelsList", data);
+        },
+        /**
+         * 修改本地数据
+         * @param {Object} oldData 旧数据，{name:""}
+         * @param {Object} newData 新数据, {name:""}
+         * @returns {Boolean} 是否修改成功
+         */
+        changeLocalData(oldData, newData) {
+          let localData = CustomizeUserLabels.getData();
+          let status = false;
+          let oldDataString = JSON.stringify(oldData);
+          localData.map((item) => {
+            if (JSON.stringify(item) === oldDataString) {
+              status = true;
+              item = utils.assign(item, newData);
+              return;
+            }
+          });
+          if (status) {
+            CustomizeUserLabels.setData(localData);
+          }
+          return status;
+        },
+        /**
+         * 设置本地数据
+         * @param {object} data 数据，{name:""}
+         * @returns {boolean} 是否添加成功
+         */
+        setLocalData(data) {
+          let localData = CustomizeUserLabels.getData();
+          let dataString = JSON.stringify(data);
+          let status = true;
+          console.log(data);
+          localData.forEach((item) => {
+            if (JSON.stringify(item) === dataString) {
+              status = false;
+              return;
+            }
+          });
+          if (status) {
+            localData = localData.concat(data);
+            CustomizeUserLabels.setData(localData);
+          }
+          return status;
+        },
+        /**
+         * 删除本地数据
+         * @param {Object} data 需要被删除的数据，{name:""}
+         * @returns {Boolean} 是否删除成功
+         */
+        deleteLocalData(data) {
+          let localData = CustomizeUserLabels.getData();
+          let status = false;
+          let dataString = JSON.stringify(data);
+          localData = localData.filter((item) => {
+            if (JSON.stringify(item) === dataString) {
+              status = true;
+              return false;
+            } else {
+              return true;
+            }
+          });
+          if (status) {
+            CustomizeUserLabels.setData(localData);
+          }
+          return status;
+        },
+      };
+      if (DOM_CONFIG.methodRunCheck([DOM_CONFIG.urlRegexp.homeSpaceUrl])) {
+        CustomizeUserLabels.init();
+      }
     },
     /**
      * 编辑器中的ubb代码
