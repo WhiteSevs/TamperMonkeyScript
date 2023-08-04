@@ -4288,7 +4288,7 @@
             }
             if (
               typeof searchResult === "string" &&
-              (searchResult.startsWith("抱歉") ||
+              (searchResult.startsWith("抱歉") || 
                 searchResult.startsWith("获取内容为空"))
             ) {
               contentElement.html("");
