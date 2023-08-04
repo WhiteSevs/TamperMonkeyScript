@@ -2601,8 +2601,8 @@
           },
           /**
            * 根据超链接元素获取UID
-           * @param {Element} ele 
-           * @returns 
+           * @param {Element} ele
+           * @returns
            */
           matchUIDByArray(ele) {
             for (let i = 0; i < ele.length; i++) {
