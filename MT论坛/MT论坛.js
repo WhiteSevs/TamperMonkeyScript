@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 新增功能【自定义用户标签】->在【我的屏蔽】和【积分商城商品上架提醒】功能的下面可设置;更新Utils库版本->2023-8-4;
-// @version      3.1.5
+// @description  更新日志: 修复蓝奏云无法上传问题;调整部分CSS样式显示问题;
+// @version      3.1.6
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -10997,17 +10997,20 @@
           popups.loadingMask();
           let formData = new FormData();
           formData.append("task", 1);
+          formData.append("vie", 2);
           formData.append("ve", 2);
           formData.append("id", "WU_FILE_0");
           formData.append("folder_id_bb_n", -1);
           formData.append("upload_file", file);
           return new Promise((resolve) => {
             GM_xmlhttpRequest({
-              url: "https://up.woozooo.com/fileup.php",
+              url: "https://up.woozooo.com/html5up.php",
               method: "POST",
               data: formData,
               headers: {
                 Accept: "*/*",
+                "Host":"up.woozooo.com",
+                "Origin":"https://up.woozooo.com",
                 "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
@@ -13616,8 +13619,7 @@
       function setDom() {
         GM_addStyle(`
         #productReminder{
-          border-top-left-radius: 0px;
-          border-top-right-radius: 0px;
+          border-radius: 0px;
         }
         #productReminder .styli_tit i{
           color: #2376b7 !important;
