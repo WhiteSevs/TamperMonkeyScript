@@ -16,7 +16,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-4",
+    version: "2023-8-6",
   };
 
   /**
@@ -249,10 +249,8 @@
    * + false (默认) 不对Event进行Proxy代理
    * @example
    * Utils.dispatchEvent(document.querySelector("input","input"))
-   * @example
-   * Utils.dispatchEvent(document.querySelector("input","input"),true)
    */
-  Utils.dispatchEvent = function (element, eventName, proxy = false) {
+  Utils.dispatchEvent = function (element, eventName) {
     let eventNameList = [];
     if (typeof eventName === "string") {
       eventNameList = [eventName];
@@ -262,17 +260,6 @@
     }
     eventNameList.forEach((_eventName_) => {
       let eleEvent = new Event(_eventName_);
-      if (proxy) {
-        eleEvent = new Proxy(eleEvent, {
-          get: function (target, property) {
-            if (property === "isTrusted") {
-              return true;
-            } else {
-              return Reflect.get(target, property);
-            }
-          },
-        });
-      }
       element.dispatchEvent(eleEvent);
     });
   };
