@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.2
+// @version      1.3.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -2158,10 +2158,10 @@
             if (
               !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
             ) {
-              if (!handleItemURL.showIsDirectIcon) {
-                continue;
-              }
-              if (item.find(".white-bdsearch-isredirecrt").length === 0) {
+              if (
+                handleItemURL.showIsDirectIcon &&
+                item.find(".white-bdsearch-isredirecrt").length === 0
+              ) {
                 let title_text_element =
                   item[0].querySelector(".c-title-text") ||
                   item[0].querySelector("p.cu-title") ||
@@ -3396,9 +3396,9 @@
           }
         },
         run() {
-          utils.waitNode(".main-page-wrap").then(()=>{
+          utils.waitNode(".main-page-wrap").then(() => {
             tiebaCommentConfig.insertLoadingHTML();
-          })
+          });
           utils.waitNode(".recommend-item[data-banner-info]").then(() => {
             jQuery(".post-item")?.remove();
             tiebaCommentConfig.mainPositive();
@@ -4032,7 +4032,11 @@
               url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=${kw}&qw=${qw}&un=&rn=10&pn=${pn}&sd=&ed=&sm=${sm}`;
             }
 
-            log.success(`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`);
+            log.success(
+              `当前请求第 ${new URLSearchParams(new URL(url).search).get(
+                "pn"
+              )} 页`
+            );
             let getResp = await httpx.get({
               url: url,
               headers: {
@@ -4264,7 +4268,7 @@
               alert("请勿输入纯空格或空内容");
               return;
             }
-            loadingView.setText("Loading...",true);
+            loadingView.setText("Loading...", true);
             loadingView.show();
             if (searchType === 0) {
               if (utils.isNull(currentForum)) {
@@ -4288,7 +4292,7 @@
             }
             if (
               typeof searchResult === "string" &&
-              (searchResult.startsWith("抱歉") || 
+              (searchResult.startsWith("抱歉") ||
                 searchResult.startsWith("获取内容为空"))
             ) {
               contentElement.html("");
