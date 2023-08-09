@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.5
+// @version      1.3.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -1631,10 +1631,6 @@
          * 是否显示 重 图标
          */
         showIsDirectIcon: false,
-        /**
-         *
-         */
-        refactorEveryoneIsStillSearching: false,
         originURLMap: null,
         /**
          * 判断链接是否是百度的中转链接
@@ -2040,84 +2036,14 @@
               relativewordsElement.remove();
             }
           } else {
-            if (handleItemURL.refactorEveryoneIsStillSearching) {
-              jQuery("#page-relative").each((index, item) => {
-                if (item.hasAttribute("gm-refactor-everyone-search")) {
-                  return;
-                }
-                item.removeAttribute("class");
-                item.removeAttribute("id");
-                item.setAttribute("gm-refactor-everyone-search", true);
-                item
-                  .querySelectorAll(".rw-list-container .rw-list-new")
-                  .forEach((searchItemEle) => {
-                    let searchText = searchItemEle.textContent.trim();
-                    searchItemEle.innerHTML = `
-                    <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
-                      <span>${searchText}</span>
-                    </a>`;
-                    searchItemEle.style.setProperty("padding", "0.06rem");
-                  });
-                item.querySelector("div.c-line-clamp1")?.remove();
-                if (!item.closest("#results")) {
-                  document.querySelector("#results").appendChild(item);
-                }
-                jQuery(item).on("click", "a", function (event) {
-                  utils.preventEvent(event);
-                  window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
-                });
-              });
-              jQuery('.c-result.result[tpl="recommend_list"]').each(
-                (index, recommendElement) => {
-                  if (
-                    recommendElement.hasAttribute(
-                      "gm-refactor-everyone-search-2"
-                    )
-                  ) {
-                    return;
-                  }
-                  if (
-                    !recommendElement.querySelector(
-                      "div.c-gap-inner-bottom-small"
-                    )
-                  ) {
-                    return;
-                  }
-                  recommendElement.setAttribute(
-                    "gm-refactor-everyone-search-2",
-                    true
-                  );
-                  let rwListContainerHTML = "";
-                  recommendElement
-                    .querySelectorAll("div.c-gap-inner-bottom-small")
-                    .forEach((item) => {
-                      let searchText = item.textContent.trim();
-                      rwListContainerHTML += `
-                  <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;">
-                    <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
-                      <span>${searchText}</span>
-                    </a>
-                  </div>`;
-                    });
-                  recommendElement.innerHTML = `
-                <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
-                  <div class="rw-little-title">
-                    <div class="c-row">
-                      <div class="c-color little-title c-span10 c-row-youth c-row-gap-zero-two-youth c-fwb">大家还在搜</div>
-                      <div class="func-btn">
-                        <div class="func-btn-bg"><i class="c-icon c-color-gray"></i></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="rw-list-container rw-list-container2" style="
-                  display: inline-table;display: -webkit-inline-box;
-              ">${rwListContainerHTML}</div>
-                </div>`;
-                  jQuery(recommendElement).on("click", "a", function (event) {
-                    utils.preventEvent(event);
-                    window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
-                  });
-                }
+            if (handleEveryOneSearch.refactorEveryoneIsStillSearching) {
+              handleEveryOneSearch.handleBottom(
+                document.querySelectorAll("#page-relative")
+              );
+              handleEveryOneSearch.handleCenter(
+                document.querySelectorAll(
+                  '.c-result.result[tpl="recommend_list"]'
+                )
               );
             }
           }
@@ -2343,28 +2269,179 @@
           }
         },
       };
+
+      const handleEveryOneSearch = {
+        /**
+         * 是否重构大家都在搜
+         */
+        refactorEveryoneIsStillSearching: false,
+        /**
+         * 处理底部的
+         * @param {Element} bottomElement
+         */
+        handleBottom(bottomElement) {
+          bottomElement.forEach((item) => {
+            if (item.hasAttribute("gm-refactor-everyone-search-bottom")) {
+              return;
+            }
+            item.removeAttribute("class");
+            item.removeAttribute("id");
+            item.setAttribute("gm-refactor-everyone-search-bottom", true);
+            item
+              .querySelectorAll(".rw-list-container .rw-list-new")
+              .forEach((searchItemEle) => {
+                let searchText = searchItemEle.textContent.trim();
+                searchItemEle.innerHTML = `
+                <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
+                  <span>${searchText}</span>
+                </a>`;
+                searchItemEle.style.setProperty("padding", "0.06rem");
+              });
+            item.querySelector("div.c-line-clamp1")?.remove();
+            if (!item.closest("#results")) {
+              document.querySelector("#results").appendChild(item);
+            }
+            jQuery(item).on("click", "a", function (event) {
+              utils.preventEvent(event);
+              window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
+            });
+          });
+        },
+        /**
+         * 处理中间的
+         * @param {Element} centerElement
+         */
+        handleCenter(centerElement) {
+          centerElement.forEach((recommendElement) => {
+            if (
+              recommendElement.hasAttribute(
+                "gm-refactor-everyone-search-center"
+              )
+            ) {
+              return;
+            }
+            if (
+              !recommendElement.querySelector("div.c-gap-inner-bottom-small")
+            ) {
+              return;
+            }
+            recommendElement.setAttribute(
+              "gm-refactor-everyone-search-center",
+              true
+            );
+            let rwListContainerHTML = "";
+            recommendElement
+              .querySelectorAll("div.c-gap-inner-bottom-small")
+              .forEach((item) => {
+                let searchText = item.textContent.trim();
+                rwListContainerHTML += `
+              <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;">
+                <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
+                  <span>${searchText}</span>
+                </a>
+              </div>`;
+              });
+            recommendElement.innerHTML = `
+            <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
+              <div class="rw-little-title">
+                <div class="c-row">
+                  <div class="c-color little-title c-span10 c-row-youth c-row-gap-zero-two-youth c-fwb">大家还在搜</div>
+                  <div class="func-btn">
+                    <div class="func-btn-bg"><i class="c-icon c-color-gray"></i></div>
+                  </div>
+                </div>
+              </div>
+              <div class="rw-list-container rw-list-container2" style="
+              display: inline-table;display: -webkit-inline-box;
+          ">${rwListContainerHTML}</div>
+            </div>`;
+            jQuery(recommendElement).on("click", "a", function (event) {
+              utils.preventEvent(event);
+              window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
+            });
+          });
+        },
+      };
+
       /* unsafeWindow.handleItemURL = handleItemURL; */
       /**
        * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
        */
-      function clickOtherSearchEvent() {
-        let suggestList = "#se-box .suggest-content";
-        let suggestListBtn = "#se-box .suggest-content button";
-        let suggestList2 = "#se-box2 .suggest-content";
-        let suggestListBtn2 = "#se-box2 .suggest-content button";
-        let suggestList_HOME = "#index-box .suggest-content";
-        let suggestListBtn_HOME = "#index-box .suggest-content button";
-        let searchInput = "#kw";
-        let searchInput2 = "#kw2";
-        let searchBtn = "#se-bn";
-        let searchBtn2 = "#se-bn2";
-        let searchInput_HOME = "#index-kw";
-        let searchBtn_HOME = "#index-bn";
-        function mutationObserverFunction(btnElement) {
+      const handleInputEvent = {
+        run() {
+          let suggestList = "#se-box .suggest-content";
+          let suggestListBtn = "#se-box .suggest-content button";
+          let suggestList2 = "#se-box2 .suggest-content";
+          let suggestListBtn2 = "#se-box2 .suggest-content button";
+          let suggestList_HOME = "#index-box .suggest-content";
+          let suggestListBtn_HOME = "#index-box .suggest-content button";
+          let searchInput = "#kw";
+          let searchInput2 = "#kw2";
+          let searchBtn = "#se-bn";
+          let searchBtn2 = "#se-bn2";
+          let searchInput_HOME = "#index-kw";
+          let searchBtn_HOME = "#index-bn";
+          /* 顶部搜索输入框点击后的搜索建议 */
+          utils.waitNode(suggestList).then((nodeList) => {
+            utils.mutationObserver(nodeList[0], {
+              callback: () => {
+                /*  */
+                handleInputEvent.mutationObserverFunction(suggestListBtn);
+              },
+              config: { childList: true, attributes: true },
+            });
+          });
+          /* 底部搜索输入框点击后的搜索建议 */
+          utils.waitNode(suggestList2).then((nodeList) => {
+            utils.mutationObserver(nodeList[0], {
+              callback: () => {
+                handleInputEvent.mutationObserverFunction(suggestListBtn2);
+              },
+              config: { childList: true, attributes: true },
+            });
+          });
+          /* 百度主页的搜索输入框点击后的搜索建议 */
+          utils.waitNode(suggestList_HOME).then((nodeList) => {
+            utils.mutationObserver(nodeList[0], {
+              callback: () => {
+                handleInputEvent.mutationObserverFunction(suggestListBtn_HOME);
+              },
+              config: { childList: true, attributes: true },
+            });
+          });
+          /* 顶部搜索按钮 */
+          jQuery(searchBtn)?.on("click", function (event) {
+            return handleInputEvent.searchBtnJump(event, searchInput);
+          });
+          /* 顶部搜索输入框 */
+          jQuery(searchInput)?.on("keydown", function (event) {
+            return handleInputEvent.enterKeyDownEvent(event, searchInput);
+          });
+          /* 底部搜索按钮 */
+          jQuery(searchBtn2)?.on("click", function (event) {
+            return handleInputEvent.searchBtnJump(event, searchInput2);
+          });
+          /* 底部部搜索输入框 */
+          jQuery(searchInput2)?.on("keydown", function (event) {
+            return handleInputEvent.enterKeyDownEvent(event, searchInput2);
+          });
+          /* 百度主页搜索按钮 */
+          jQuery(searchBtn_HOME)?.on("click", function (event) {
+            return handleInputEvent.searchBtnJump(event, searchInput_HOME);
+          });
+          /* 百度主页搜索输入框 */
+          jQuery(searchInput_HOME)?.on("keydown", function (event) {
+            return handleInputEvent.enterKeyDownEvent(event, searchInput_HOME);
+          });
+        },
+        /**
+         * 设置搜索建议自定义click事件
+         * @param {Element} btnElement
+         */
+        mutationObserverFunction(btnElement) {
           log.success("设置搜索建议自定义click事件");
           jQuery(btnElement)?.on("click", function (event) {
-            event?.stopPropagation();
-            event?.preventDefault();
+            utils.preventEvent(event);
             window?.stop();
             let redirectURL =
               window.location.origin + "/s?word=" + jQuery(this).text();
@@ -2373,11 +2450,16 @@
             window.location.href = redirectURL;
             return false;
           });
-        }
-        function searchBtnJump(event, searchInput) {
+        },
+        /**
+         * 搜索按钮点击跳转
+         * @param {Event} event
+         * @param {Element} searchInput
+         * @returns
+         */
+        searchBtnJump(event, searchInput) {
           let searchInputElement = jQuery(searchInput);
-          event?.stopPropagation();
-          event?.preventDefault();
+          utils.preventEvent(event);
           window?.stop();
           let redirectURL =
             window.location.origin + "/s?word=" + searchInputElement.val();
@@ -2385,14 +2467,18 @@
           log.success(redirectURL);
           window.location.href = redirectURL;
           return false;
-        }
-
-        function enterKeyDownEvent(event, searchInput) {
+        },
+        /**
+         * 判决回车搜索事件
+         * @param {Event} event
+         * @param {Element} searchInput
+         * @returns
+         */
+        enterKeyDownEvent(event, searchInput) {
           if (event.keyCode === 108 || event.keyCode === 13) {
             window?.stop();
             let searchInputElement = jQuery(searchInput);
-            event?.stopPropagation();
-            event?.preventDefault();
+            utils.preventEvent(event);
             let redirectURL =
               window.location.origin + "/s?word=" + searchInputElement.val();
             log.success("回车键跳转搜索 -> " + searchInputElement.val());
@@ -2401,60 +2487,8 @@
             return false;
           }
           return true;
-        }
-        /* 顶部搜索输入框点击后的搜索建议 */
-        utils.waitNode(suggestList).then((nodeList) => {
-          utils.mutationObserver(nodeList[0], {
-            callback: () => {
-              /*  */
-              mutationObserverFunction(suggestListBtn);
-            },
-            config: { childList: true, attributes: true },
-          });
-        });
-        /* 底部搜索输入框点击后的搜索建议 */
-        utils.waitNode(suggestList2).then((nodeList) => {
-          utils.mutationObserver(nodeList[0], {
-            callback: () => {
-              mutationObserverFunction(suggestListBtn2);
-            },
-            config: { childList: true, attributes: true },
-          });
-        });
-        /* 百度主页的搜索输入框点击后的搜索建议 */
-        utils.waitNode(suggestList_HOME).then((nodeList) => {
-          utils.mutationObserver(nodeList[0], {
-            callback: () => {
-              mutationObserverFunction(suggestListBtn_HOME);
-            },
-            config: { childList: true, attributes: true },
-          });
-        });
-        /* 顶部搜索按钮 */
-        jQuery(searchBtn)?.on("click", function (event) {
-          return searchBtnJump(event, searchInput);
-        });
-        /* 顶部搜索输入框 */
-        jQuery(searchInput)?.on("keydown", function (event) {
-          return enterKeyDownEvent(event, searchInput);
-        });
-        /* 底部搜索按钮 */
-        jQuery(searchBtn2)?.on("click", function (event) {
-          return searchBtnJump(event, searchInput2);
-        });
-        /* 底部部搜索输入框 */
-        jQuery(searchInput2)?.on("keydown", function (event) {
-          return enterKeyDownEvent(event, searchInput2);
-        });
-        /* 百度主页搜索按钮 */
-        jQuery(searchBtn_HOME)?.on("click", function (event) {
-          return searchBtnJump(event, searchInput_HOME);
-        });
-        /* 百度主页搜索输入框 */
-        jQuery(searchInput_HOME)?.on("keydown", function (event) {
-          return enterKeyDownEvent(event, searchInput_HOME);
-        });
-      }
+        },
+      };
 
       /**
        * 自动加载下一页
@@ -2549,6 +2583,12 @@
             }
             if (GM_Menu.get("baidu_search_sync_next_page_address")) {
               window.history.pushState("forward", null, nextPageUrl);
+            }
+            /* 处理下一页的【大家还在搜】 */
+            if (handleEveryOneSearch.refactorEveryoneIsStillSearching) {
+              handleEveryOneSearch.handleBottom(
+                nextPageHTMLNode.querySelectorAll("#page-relative")
+              );
             }
           } else if (getResp.type === "onerror") {
             if (utils.isNull(nextPageUrl)) {
@@ -2673,7 +2713,7 @@
       }
 
       handleItemURL.showIsDirectIcon = GM_Menu.get("menu_showisdirect");
-      handleItemURL.refactorEveryoneIsStillSearching = GM_Menu.get(
+      handleEveryOneSearch.refactorEveryoneIsStillSearching = GM_Menu.get(
         "baidu_search_refactor_everyone_is_still_searching"
       );
       log.info("插入CSS规则");
@@ -2716,7 +2756,7 @@
         handleItemURL.removeAds();
         handleItemURL.replaceScriptBaiDuTip();
         handleItemURL.redirectTopLink();
-        clickOtherSearchEvent();
+        handleInputEvent.run();
         searchUpdateRealLink.run();
         if (GM_Menu.get("menu_autoloading")) {
           autoLoadNextPage();
