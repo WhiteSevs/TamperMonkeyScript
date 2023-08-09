@@ -1,4 +1,4 @@
-## 🏆声明
+# 🏆声明
 
 本脚本没有`百度网盘`、`夸克`、`城通`的`直链解析`功能，主体是`识别链接`，其中`百度网盘`只有跳转第三方解析百度网盘链接，第三方网站需自行填写！此功能只为方便跳转而已！
 
@@ -7,6 +7,7 @@
 **本脚本名称是 `网盘链接识别`，不是`解析`!!!**
 
 ## 🎁演示GIF
+
 [![网盘链接识别演示.gif](https://www.helloimg.com/images/2023/03/16/o1qyfv.gif)](https://www.helloimg.com/images/2023/03/16/o1qyfv.gif)
 
 ## 🌈 使用方式
@@ -21,7 +22,7 @@
 |                             | 手机             |  双击                 |
 | 显示历史匹配记录             |  PC/手机         | 设置中打开            |
 | 访问链接                     |  PC             | 链接界面/历史匹配记录界面右击链接  |
- 
+
 ## 🌍 介绍
 
 - `手机，电脑均可使用`
@@ -32,7 +33,6 @@
 - 可自行设置页面文本延时检测时间(`0.6`秒~`5`秒,默认`0.8`秒)，建议如果是视频网站比如`bilibili`，加入黑名单，播放视频会卡
 - 可点击间隔的字符(`innerText`)或间隔的字符(`innerHTML`)，恢复默认值
 - 可设置打开`存储匹配记录`，开启后所有匹配到的网盘链接都可以在设置中`打开历史匹配记录`打开，可以查看到匹配的`网盘链接`、`网站`、`搜索过滤`等
-
 
 ## 📢 总设置
 
@@ -140,16 +140,18 @@
 
 ## 磁力链接(magnet)
 
-- 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：新标签页打开
 - 功能：调用 scheme 打开，如果开启，在下方 scheme 转发设置 scheme 链接，具体请看后面的帮助
 
 ## 🔧 帮助
 
-#### 1.百度云直链获取的网站配置，主要是使用了开源项目`https://github.com/yuantuo666/baiduwp-php`的网站
+### 1.百度网盘配置
+
+百度网盘链接解析的配置，主要是使用了开源项目`https://github.com/yuantuo666/baiduwp-php`的网站
 
 |       参数       |                               值                               |
 | :--------------: | :------------------------------------------------------------: |
-|     网址-Url     |       网站的 url，末尾带/，如：https://www.example.com/        |
+|     网址-Url     |       网站的 url，末尾带/，如：<https://www.example.com/>        |
 |     参数-Key     |                       该项目一般是 surl                        |
 |     密码-Key     |                        该项目一般是 pwd                        |
 |     密钥-Key     |                     该项目一般是 Password                      |
@@ -158,35 +160,57 @@
 
 [![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)](https://www.helloimg.com/image/ZPJRUv)
 
-#### 2.scheme 调用方式
+### 2.scheme 调用方式
 
 首先开启该设置后，需要在手机上装特定的 app
-https://baiqi.lanzoul.com/b066di6gb
+<https://baiqi.lanzoul.com/b066di6gb>
 密码:bzyb
 
-该链接格式为`jumpwsv://go?package={#package#}&activity={#activity#}&intentAction={#intentAction#}&intentData={#intentAction#}&intentExtra={#intentExtra#}`
-其中`{#intentExtra#}`可以为空，若使用，则为`{"参数1":"值1","参数2":"值2"}`，`{#intentAction#}`会自动替换成 url
+该链接格式为`jumpwsv://go?package={#package#}&activity={#activity#}&intentAction={#intentAction#}&intentData=网盘链接&intentExtra={#intentExtra#}`
+
+
+|       参数       |                               值                               |
+| :--------------: | :------------------------------------------------------------: |
+|    {#package#}      |       App包名                                                  |
+|    {#activity#}     |       App的Activity入口                                        |
+|    {#intentAction#} |   Activity Action Intent常量，一般是android.intent.action.VIEW  |
+|    {#intentExtra#}  |   可以为空，若使用，则为`{"参数1":"值1","参数2":"值2"}`，注意`&`换成`{-and-}`，`#`换成`{-number-}`                 |
+
 下面几个是示例 scheme 链接，可以直接复制粘贴到里面去
 
-```
-# 使用IDM+下载该链接
+- 使用IDM+下载该链接
+
+```text
 jumpwsv://go?package=idm.internet.download.manager.plus&activity=idm.internet.download.manager.UrlHandlerDownloader&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+```
 
-# 使用IDM+内部浏览器访问该链接
+- 使用IDM+内部浏览器访问该链接
+
+```text
 jumpwsv://go?package=idm.internet.download.manager.plus&activity=acr.browser.lightning.activity.BrowserLauncher&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+```
 
-# 使用IDM+内部浏览器隐身访问该链接
+- 使用IDM+内部浏览器隐身访问该链接
+
+```text
 jumpwsv://go?package=idm.internet.download.manager.plus&activity=acr.browser.lightning.activity.IncognitoActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+```
 
-# 使用ADM下载该链接
+- 使用ADM下载该链接
+
+```text
 jumpwsv://go?package=com.dv.adm&activity=com.dv.get.AEditor&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+```
 
-# 使用ADM内部浏览器访问该链接
+- 使用ADM内部浏览器访问该链接
+
+```text
 jumpwsv://go?package=com.dv.adm&activity=com.dv.get.WebBrow&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
+```
 
-# 使用手机版迅雷下载该链接(可以是magnet格式)
+- 使用手机版迅雷下载该链接(可以是magnet格式)
+
+```text
 jumpwsv://go?package=com.xunlei.downloadprovider
 &activity=com.xunlei.downloadprovider.launch.dispatch.mocklink.LinkDLBtFileExplorerActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
-
-
 ```
