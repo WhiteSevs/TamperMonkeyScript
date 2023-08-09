@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.4
+// @version      1.3.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -1205,10 +1205,7 @@
       div#page-bd div.recommend,
       div.short-mini div[data-module="rec:undefined-undefined"],
       /* 相关软件 */
-      div[srcid="sigma_celebrity_rela"],
-      /* 大家还在搜 小尾巴(百度APP内搜索) */
-      #page-relative .c-line-clamp1,
-      .c-result.result[tpl="recommend_list"] .c-line-clamp1{
+      div[srcid="sigma_celebrity_rela"]{
 				display:none !important;
 			}
 			.searchboxtop.newsearch-white-style .se-form {
@@ -1319,7 +1316,31 @@
 			.c-result-content div[class*="tieba-newxml-thread-comment-user__"] span{
 				margin-right: .08rem;
 			}
-			
+			.whitesev-gm-refactor-everyone-searching{
+        width: 100%;
+        box-sizing: border-box;
+        height: 2.857em;
+        line-height: 2.857;
+        background-color: #f5f6f9;
+        border-color: #f5f6f9;
+        padding: 0 .08rem;
+        vertical-align: middle;
+        outline: 0;
+        font-size: 14px;
+        overflow: hidden;
+        border-radius: 9px;
+        text-align: center;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        -webkit-box-orient: horizontal;
+        -webkit-box-align: stretch;
+        display: block;
+        -webkit-justify-content: space-between;
+        -webkit-align-items: stretch;
+        -webkit-flex-wrap: nowrap;
+      }
 		`,
       searchHome: `
 			html,
@@ -2024,37 +2045,80 @@
                 if (item.hasAttribute("gm-refactor-everyone-search")) {
                   return;
                 }
+                item.removeAttribute("class");
+                item.removeAttribute("id");
                 item.setAttribute("gm-refactor-everyone-search", true);
                 item
                   .querySelectorAll(".rw-list-container .rw-list-new")
                   .forEach((searchItemEle) => {
                     let searchText = searchItemEle.textContent.trim();
-                    searchItemEle.innerHTML = `<a href="https://m.baidu.com/s?word=${searchText}" target="_self" class="c-fwb c-slink c-blocka c-slink-new-strong rw-mar rw-item-new rw-item-new2 c-content-text-youth fix-right-label search-link">
-                <span>${searchText}</span>
-                </a>`;
+                    searchItemEle.innerHTML = `
+                    <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
+                      <span>${searchText}</span>
+                    </a>`;
+                    searchItemEle.style.setProperty("padding", "0.06rem");
                   });
-              });
-              jQuery(
-                '.c-result.result[tpl="recommend_list"] div.c-gap-inner-bottom-small'
-              ).each((index, item) => {
-                if (item.hasAttribute("gm-refactor-everyone-search-2")) {
-                  return;
+                item.querySelector("div.c-line-clamp1")?.remove();
+                if (!item.closest("#results")) {
+                  document.querySelector("#results").appendChild(item);
                 }
-                item = jQuery(item);
-                item.attr("gm-refactor-everyone-search-2", true);
-                let searchText = item.text();
-                item.html(`<a target="_self" onclick="return false;" class="c-fwb c-slink c-blocka c-slink-new-strong rw-mar rw-item-new rw-item-new2 c-content-text-youth fix-right-label search-link">
-                <span>${searchText}</span>
-                </a>`);
-                item.on("click", function (event) {
+                jQuery(item).on("click", "a", function (event) {
                   utils.preventEvent(event);
-                  window.open(
-                    `https://m.baidu.com/s?word=${searchText}`,
-                    "_self"
-                  );
-                  return false;
+                  window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
                 });
               });
+              jQuery('.c-result.result[tpl="recommend_list"]').each(
+                (index, recommendElement) => {
+                  if (
+                    recommendElement.hasAttribute(
+                      "gm-refactor-everyone-search-2"
+                    )
+                  ) {
+                    return;
+                  }
+                  if (
+                    !recommendElement.querySelector(
+                      "div.c-gap-inner-bottom-small"
+                    )
+                  ) {
+                    return;
+                  }
+                  recommendElement.setAttribute(
+                    "gm-refactor-everyone-search-2",
+                    true
+                  );
+                  let rwListContainerHTML = "";
+                  recommendElement
+                    .querySelectorAll("div.c-gap-inner-bottom-small")
+                    .forEach((item) => {
+                      let searchText = item.textContent.trim();
+                      rwListContainerHTML += `
+                  <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;">
+                    <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
+                      <span>${searchText}</span>
+                    </a>
+                  </div>`;
+                    });
+                  recommendElement.innerHTML = `
+                <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
+                  <div class="rw-little-title">
+                    <div class="c-row">
+                      <div class="c-color little-title c-span10 c-row-youth c-row-gap-zero-two-youth c-fwb">大家还在搜</div>
+                      <div class="func-btn">
+                        <div class="func-btn-bg"><i class="c-icon c-color-gray"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="rw-list-container rw-list-container2" style="
+                  display: inline-table;display: -webkit-inline-box;
+              ">${rwListContainerHTML}</div>
+                </div>`;
+                  jQuery(recommendElement).on("click", "a", function (event) {
+                    utils.preventEvent(event);
+                    window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
+                  });
+                }
+              );
             }
           }
           let popUpElement = jQuery("#pop-up");
