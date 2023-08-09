@@ -1205,7 +1205,10 @@
       div#page-bd div.recommend,
       div.short-mini div[data-module="rec:undefined-undefined"],
       /* 相关软件 */
-      div[srcid="sigma_celebrity_rela"]{
+      div[srcid="sigma_celebrity_rela"],
+      /* 大家还在搜 小尾巴(百度APP内搜索) */
+      #page-relative .c-line-clamp1,
+      .c-result.result[tpl="recommend_list"] .c-line-clamp1{
 				display:none !important;
 			}
 			.searchboxtop.newsearch-white-style .se-form {
@@ -1607,6 +1610,10 @@
          * 是否显示 重 图标
          */
         showIsDirectIcon: false,
+        /**
+         *
+         */
+        refactorEveryoneIsStillSearching: false,
         originURLMap: null,
         /**
          * 判断链接是否是百度的中转链接
@@ -2010,6 +2017,44 @@
                 `删除广告位 ==> 简单搜索加载下一页出现的 大家都在搜 ${relativewordsElement.length}个`
               );
               relativewordsElement.remove();
+            }
+          } else {
+            if (handleItemURL.refactorEveryoneIsStillSearching) {
+              jQuery("#page-relative").each((index, item) => {
+                if (item.hasAttribute("gm-refactor-everyone-search")) {
+                  return;
+                }
+                item.setAttribute("gm-refactor-everyone-search", true);
+                item
+                  .querySelectorAll(".rw-list-container .rw-list-new")
+                  .forEach((searchItemEle) => {
+                    let searchText = searchItemEle.textContent.trim();
+                    searchItemEle.innerHTML = `<a href="https://m.baidu.com/s?word=${searchText}" target="_self" class="c-fwb c-slink c-blocka c-slink-new-strong rw-mar rw-item-new rw-item-new2 c-content-text-youth fix-right-label search-link">
+                <span>${searchText}</span>
+                </a>`;
+                  });
+              });
+              jQuery(
+                '.c-result.result[tpl="recommend_list"] div.c-gap-inner-bottom-small'
+              ).each((index, item) => {
+                if (item.hasAttribute("gm-refactor-everyone-search-2")) {
+                  return;
+                }
+                item = jQuery(item);
+                item.attr("gm-refactor-everyone-search-2", true);
+                let searchText = item.text();
+                item.html(`<a target="_self" onclick="return false;" class="c-fwb c-slink c-blocka c-slink-new-strong rw-mar rw-item-new rw-item-new2 c-content-text-youth fix-right-label search-link">
+                <span>${searchText}</span>
+                </a>`);
+                item.on("click", function (event) {
+                  utils.preventEvent(event);
+                  window.open(
+                    `https://m.baidu.com/s?word=${searchText}`,
+                    "_self"
+                  );
+                  return false;
+                });
+              });
             }
           }
           let popUpElement = jQuery("#pop-up");
@@ -2519,9 +2564,9 @@
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          baidu_repair_url_address_error: {
-            text: "修复地址栏错误404",
-            enable: false,
+          baidu_search_refactor_everyone_is_still_searching: {
+            text: "【重构】大家还在搜",
+            enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
@@ -2536,27 +2581,6 @@
       if (!GM_Menu.get("LOG")) {
         log.error("禁止控制台输出日志");
         log.disable();
-      }
-      if (GM_Menu.get("baidu_repair_url_address_error")) {
-        let current_url = decodeURIComponent(window.location.href);
-        let current_url_split = current_url
-          .replace(window.location.origin, "")
-          .split("");
-        let judgment_url = window.location.origin;
-        current_url_split.forEach((item, index) => {
-          let new_current_url = utils.mergeArrayToString(
-            current_url_split.slice(index)
-          );
-          if (
-            new_current_url.startsWith("http") &&
-            current_url.startsWith(judgment_url)
-          ) {
-            let new_url = current_url.replace(judgment_url, "");
-            window.location.href = new_url;
-            return;
-          }
-          judgment_url += item;
-        });
       }
       if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
         log.success("禁止百度搜索的视频自动播放");
@@ -2583,7 +2607,11 @@
           callback: funcLock.run,
         });
       }
+
       handleItemURL.showIsDirectIcon = GM_Menu.get("menu_showisdirect");
+      handleItemURL.refactorEveryoneIsStillSearching = GM_Menu.get(
+        "baidu_search_refactor_everyone_is_still_searching"
+      );
       log.info("插入CSS规则");
       GM_addStyle(this.css.search);
       jQuery(function () {
