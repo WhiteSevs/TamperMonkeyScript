@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.7.13.14.30
+// @version      23.8.9.9.01
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -2139,6 +2139,7 @@
         };
         /**
          * 获取单文件下载链接
+         * 123云盘新增了验证，无法获取下载直链
          * @param {String} Etag
          * @param {String} FileID
          * @param {String} S3keyFlag
@@ -2154,7 +2155,7 @@
           Size
         ) {
           let postResp = await httpx.post({
-            url: "http://www.123pan.com/a/api/share/download/info",
+            url: "https://www.123pan.com/a/api/share/download/info",
             data: JSON.stringify({
               Etag: Etag,
               FileID: FileID,
@@ -2162,9 +2163,13 @@
               ShareKey: ShareKey,
               Size: Size,
             }),
+            responseType: "json",
             headers: {
+              "Content-Type": "application/json;charset=UTF-8",
+              Host: "www.123pan.com",
               accept: "*/*",
               "user-agent": utils.getRandomPCUA(),
+              Referer: "https://www.123pan.com/s/" + ShareKey,
             },
           });
           if (!postResp.status) {
@@ -2562,10 +2567,10 @@
     },
     /**
      * 网盘链接解析
-     * @param {String} netDiskName 网盘名称
-     * @param {Number} netDiskIndex 网盘名称索引下标
-     * @param {String} shareCode
-     * @param {String} accessCode
+     * @param {string} netDiskName 网盘名称
+     * @param {number} netDiskIndex 网盘名称索引下标
+     * @param {string} shareCode
+     * @param {string} accessCode
      */
     async parse(netDiskName, netDiskIndex, shareCode, accessCode) {
       Qmsg.info("正在获取直链");
@@ -2579,10 +2584,10 @@
     },
     /**
      * 复制到剪贴板
-     * @param {String} netDiskName
-     * @param {String} shareCode
-     * @param {String} accessCode
-     * @param {String} toastText 提示的文字
+     * @param {string} netDiskName
+     * @param {string} shareCode
+     * @param {string} accessCode
+     * @param {string} toastText 提示的文字
      */
     setClipboard(
       netDiskName,
@@ -2599,11 +2604,31 @@
       Qmsg.success(toastText);
     },
     /**
+     * 复制到剪贴板
+     * @param {string} netDiskName
+     * @param {number} netDiskIndex
+     * @param {string} shareCode
+     * @param {string} accessCode
+     * @param {string} toastText 提示的文字
+     */
+    copyText(
+      netDiskName,
+      netDiskIndex,
+      shareCode,
+      accessCode,
+      toastText = "已复制"
+    ) {
+      GM_setClipboard(
+        NetDisk.handleLinkShow(netDiskName, netDiskIndex, shareCode, accessCode)
+      );
+      Qmsg.success(toastText);
+    },
+    /**
      * 新标签页打开
-     * @param {String} url
-     * @param {String} netDiskName
-     * @param {String} shareCode
-     * @param {String} accessCode
+     * @param {string} url
+     * @param {string} netDiskName
+     * @param {string} shareCode
+     * @param {string} accessCode
      */
     blank(url, netDiskName, shareCode, accessCode) {
       if (accessCode) {
@@ -2619,10 +2644,10 @@
     },
     /**
      * 对链接进行scheme过滤
-     * @param {String} netDiskName 网盘名称
-     * @param {Number} netDiskIndex 网盘名称索引下标
-     * @param {String} shareCode
-     * @param {String} accessCode
+     * @param {string} netDiskName 网盘名称
+     * @param {number} netDiskIndex 网盘名称索引下标
+     * @param {string} shareCode
+     * @param {string} accessCode
      */
     scheme(netDiskName, netDiskIndex, shareCode, accessCode) {
       let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
@@ -3934,27 +3959,27 @@
               key: "magnet",
               checkbox_oneStatic: false,
               checkbox_oneOrMoreStatic: false,
-              checkbox_openBlank: false,
+              checkbox_openBlank: true,
               checkbox_static_scheme: false,
               text_static_scheme_forward: false,
               range_innerText: false,
               range_innerText_default_value: 0,
               range_innerHTML: false,
               range_innerHTML_default_value: 0,
-              firstHTML: `
-            <div class="netdisk-setting-menu-item" type="checkbox">
-                <p>调用scheme</p>
-                <div class="netdisk-checkbox">
-                  <input type="checkbox" data-key="magnet-scheme-enable">
-                  <div class="knobs"><span></span></div><div class="layer"></div>
-                </div>
-            </div>
-            <div class="netdisk-setting-menu-item" type="scheme">
-                <p>scheme转发</p>
-                <input type="text" data-key="magnet-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
-            </div>
-            `,
-              endHTML: "",
+              firstHTML: "",
+              endHTML: `
+              <div class="netdisk-setting-menu-item" type="checkbox">
+                  <p>调用scheme</p>
+                  <div class="netdisk-checkbox">
+                    <input type="checkbox" data-key="magnet-scheme-enable">
+                    <div class="knobs"><span></span></div><div class="layer"></div>
+                  </div>
+              </div>
+              <div class="netdisk-setting-menu-item" type="scheme">
+                  <p>scheme转发</p>
+                  <input type="text" data-key="magnet-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
+              </div>
+              `,
             },
             {
               type: "坚果云",
@@ -4949,11 +4974,11 @@
               accessCode
             );
           } else {
-            NetDiskParse.setClipboard(
+            NetDiskParse.copyText(
               netDiskName,
+              netDiskIndex,
               shareCode,
-              accessCode,
-              "已复制"
+              accessCode
             );
           }
         }
