@@ -2862,7 +2862,7 @@
         /**
          * 获取zip文件的下载链接
          * @param {string} guid
-         * @param {string} id
+         * @param {string} title 标题
          * @returns {string|undefined}
          */
         this.getZipFileDownloadUrl = async function (guid = "", title = "") {
