@@ -2787,7 +2787,7 @@
           }
           let respData = getResp.data;
           let resultJSON = utils.toJSON(respData.responseText);
-          log.info(["转换的JSON",resultJSON]);
+          log.info(["转换的JSON", resultJSON]);
           let code = resultJSON["code"];
           let message = resultJSON["message"];
           if (code !== "0000") {
@@ -2869,7 +2869,7 @@
           }
           let respData = getResp.data;
           let resultJSON = utils.toJSON(respData.responseText);
-          log.info(["转换的JSON",resultJSON]);
+          log.info(["转换的JSON", resultJSON]);
           if (resultJSON["code"] === "0000") {
             return resultJSON["data"]["downloadUrl"];
           } else {
