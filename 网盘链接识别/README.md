@@ -90,6 +90,7 @@
 ## ![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=32](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=32) 奶牛快传
 
 - 功能：新标签页打开，如果有密码，复制到剪贴板
+- 功能：奶牛快传单文件直链解析
 - 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
 - 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
 - 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
