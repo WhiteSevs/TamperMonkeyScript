@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.8.9.9.01
+// @version      23.8.11.13.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1792,7 +1792,7 @@
       /**
        * 123盘
        * @constructor
-       * @returns {Object}
+       * @returns {object}
        */
       _123pan: function () {
         let that = this;
@@ -2139,7 +2139,7 @@
         };
         /**
          * 获取单文件下载链接
-         * 123云盘新增了验证，无法获取下载直链
+         * 123云盘新增了下载验证
          * @param {String} Etag
          * @param {String} FileID
          * @param {String} S3keyFlag
@@ -2154,8 +2154,10 @@
           ShareKey,
           Size
         ) {
+          let authK_V = that.getFileDownloadAuth();
+          log.success("获取下载链接加密参数：" + authK_V);
           let postResp = await httpx.post({
-            url: "https://www.123pan.com/a/api/share/download/info",
+            url: `https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`,
             data: JSON.stringify({
               Etag: Etag,
               FileID: FileID,
@@ -2165,11 +2167,14 @@
             }),
             responseType: "json",
             headers: {
+              "App-Version": "3",
+              Platform: "web",
               "Content-Type": "application/json;charset=UTF-8",
               Host: "www.123pan.com",
               accept: "*/*",
               "user-agent": utils.getRandomPCUA(),
               Referer: "https://www.123pan.com/s/" + ShareKey,
+              Origin: "https://www.123pan.com",
             },
           });
           if (!postResp.status) {
@@ -2188,6 +2193,168 @@
               code: jsonData["code"],
             };
           }
+        };
+        /**
+         * 获取单文件下载链接的加密参数
+         * 感谢：https://github.com/qaiu/netdisk-fast-download/
+         */
+        this.getFileDownloadAuth = function () {
+          /*
+            https://statics.123pan.com/share-static/dist/umi.fb72555e.js
+            eaefamemdead
+            eaefameidldy
+            _0x4f141a(1690439821|5790548|/b/api/share/download/info|web|3|1946841013) = 秘钥
+
+            _0x1e2592 1690439821 时间戳
+            _0x48562f 5790548 随机码
+            _0x1e37d5  /b/api/share/download/info
+            _0x4e2d74 web
+            _0x56f040 3
+            _0x43bdc6 1946841013 加密时间HASH戳
+
+            >>>>
+            _0x43bdc6=''['concat'](_0x1e2592, '-')['concat'](_0x48562f, '-')['concat'](_0x406c4e)
+            加密时间HASH戳 = 时间戳-随机码-秘钥
+          */
+
+          function _0x1b5d95(_0x278d1a) {
+            var _0x839b57,
+              _0x4ed4dc =
+                arguments["length"] > 0x2 && void 0x0 !== arguments[0x2]
+                  ? arguments[0x2]
+                  : 0x8;
+            if (0x0 === arguments["length"]) return null;
+            "object" === typeof _0x278d1a
+              ? (_0x839b57 = _0x278d1a)
+              : (0xa === ("" + _0x278d1a)["length"] &&
+                  (_0x278d1a = 0x3e8 * parseInt(_0x278d1a)),
+                (_0x839b57 = new Date(_0x278d1a)));
+            var _0xc5c54a =
+                _0x278d1a + 0xea60 * new Date(_0x278d1a)["getTimezoneOffset"](),
+              _0x3732dc = _0xc5c54a + 0x36ee80 * _0x4ed4dc;
+            return (
+              (_0x839b57 = new Date(_0x3732dc)),
+              {
+                y: _0x839b57["getFullYear"](),
+                m:
+                  _0x839b57["getMonth"]() + 0x1 < 0xa
+                    ? "0" + (_0x839b57["getMonth"]() + 0x1)
+                    : _0x839b57["getMonth"]() + 0x1,
+                d:
+                  _0x839b57["getDate"]() < 0xa
+                    ? "0" + _0x839b57["getDate"]()
+                    : _0x839b57["getDate"](),
+                h:
+                  _0x839b57["getHours"]() < 0xa
+                    ? "0" + _0x839b57["getHours"]()
+                    : _0x839b57["getHours"](),
+                f:
+                  _0x839b57["getMinutes"]() < 0xa
+                    ? "0" + _0x839b57["getMinutes"]()
+                    : _0x839b57["getMinutes"](),
+              }
+            );
+          }
+
+          function _0x4f141a(_0x4075b1) {
+            for (
+              var _0x4eddcb =
+                  arguments["length"] > 0x1 && void 0x0 !== arguments[0x1]
+                    ? arguments[0x1]
+                    : 0xa,
+                _0x2fc680 = function () {
+                  for (
+                    var _0x515c63, _0x361314 = [], _0x4cbdba = 0x0;
+                    _0x4cbdba < 0x100;
+                    _0x4cbdba++
+                  ) {
+                    _0x515c63 = _0x4cbdba;
+                    for (var _0x460960 = 0x0; _0x460960 < 0x8; _0x460960++)
+                      _0x515c63 =
+                        0x1 & _0x515c63
+                          ? 0xedb88320 ^ (_0x515c63 >>> 0x1)
+                          : _0x515c63 >>> 0x1;
+                    _0x361314[_0x4cbdba] = _0x515c63;
+                  }
+                  return _0x361314;
+                },
+                _0x4aed86 = _0x2fc680(),
+                _0x5880f0 = _0x4075b1,
+                _0x492393 = -0x1,
+                _0x25d82c = 0x0;
+              _0x25d82c < _0x5880f0["length"];
+              _0x25d82c++
+            )
+              _0x492393 =
+                (_0x492393 >>> 0x8) ^
+                _0x4aed86[0xff & (_0x492393 ^ _0x5880f0.charCodeAt(_0x25d82c))];
+            return (
+              (_0x492393 = (-0x1 ^ _0x492393) >>> 0x0),
+              _0x492393.toString(_0x4eddcb)
+            );
+          }
+
+          function getSign(_0x1e37d5) {
+            var _0x4e2d74 = "web";
+            var _0x56f040 = 3;
+            var _0x1e2592 = Math.round(
+              (new Date().getTime() +
+                0x3c * new Date().getTimezoneOffset() * 0x3e8 +
+                28800000) /
+                0x3e8
+            ).toString();
+            var key = "a,d,e,f,g,h,l,m,y,i,j,n,o,p,k,q,r,s,t,u,b,c,v,w,s,z";
+            var _0x48562f = Math["round"](0x989680 * Math["random"]());
+
+            var _0x2f7dfc;
+            var _0x35a889;
+            var _0x36f983;
+            var _0x3b043d;
+            var _0x5bc73b;
+            var _0x4b30b2;
+            var _0x32399e;
+            var _0x25d94e;
+            var _0x373490;
+            for (var _0x1c540f in ((_0x2f7dfc = key.split(",")),
+            (_0x35a889 = _0x1b5d95(_0x1e2592)),
+            (_0x36f983 = _0x35a889["y"]),
+            (_0x3b043d = _0x35a889["m"]),
+            (_0x5bc73b = _0x35a889["d"]),
+            (_0x4b30b2 = _0x35a889["h"]),
+            (_0x32399e = _0x35a889["f"]),
+            (_0x25d94e = [
+              _0x36f983,
+              _0x3b043d,
+              _0x5bc73b,
+              _0x4b30b2,
+              _0x32399e,
+            ].join("")),
+            (_0x373490 = []),
+            _0x25d94e))
+              _0x373490["push"](_0x2f7dfc[Number(_0x25d94e[_0x1c540f])]);
+            var _0x43bdc6;
+            var _0x406c4e;
+            return (
+              (_0x43bdc6 = _0x4f141a(_0x373490["join"](""))),
+              (_0x406c4e = _0x4f141a(
+                ""
+                  ["concat"](_0x1e2592, "|")
+                  ["concat"](_0x48562f, "|")
+                  ["concat"](_0x1e37d5, "|")
+                  ["concat"](_0x4e2d74, "|")
+                  ["concat"](_0x56f040, "|")
+                  ["concat"](_0x43bdc6)
+              )),
+              [
+                _0x43bdc6,
+                ""
+                  ["concat"](_0x1e2592, "-")
+                  ["concat"](_0x48562f, "-")
+                  ["concat"](_0x406c4e),
+              ]
+            );
+          }
+          return getSign("/a/api/share/download/info");
         };
         /**
          * 将直链的param参数解析成真正的直链
@@ -2214,7 +2381,7 @@
       /**
        * 坚果云
        * @constructor
-       * @returns {Object}
+       * @returns {object}
        */
       jianguoyun: function () {
         let that = this;
@@ -2562,6 +2729,154 @@
           }
         };
 
+        return this;
+      },
+      /**
+       * 奶牛快传
+       * 感谢：https://github.com/qaiu/netdisk-fast-download
+       * @constructor
+       * @returns {object}
+       */
+      nainiu: function () {
+        let that = this;
+        this.default = async function (netDiskIndex, shareCode, accessCode) {
+          log.info([netDiskIndex, shareCode, accessCode]);
+          that.netDiskIndex = netDiskIndex;
+          that.shareCode = shareCode;
+          that.accessCode = accessCode;
+          that.panelList = [];
+          that.panelContent = "";
+          let checkLinkValidityInfo = await that.checkLinkValidity();
+          if (!checkLinkValidityInfo) {
+            return;
+          }
+          let downloadUrl = await that.getDownloadUrl(
+            checkLinkValidityInfo["guid"],
+            checkLinkValidityInfo["id"]
+          );
+          if (!downloadUrl) {
+            return;
+          }
+          NetDiskUI.staticView.oneFile(
+            "奶牛快传单文件直链",
+            checkLinkValidityInfo["fileName"],
+            checkLinkValidityInfo["fileSize"],
+            downloadUrl,
+            checkLinkValidityInfo["fileUploadTime"],
+            checkLinkValidityInfo["fileLatestTime"]
+          );
+        };
+
+        /**
+         * 校验链接有效性并解析获取信息
+         * @returns {object|boolean}
+         */
+        this.checkLinkValidity = async function () {
+          let url = `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${that.shareCode}`;
+
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              "user-agent": utils.getRandomPCUA(),
+              referer: "`https://cowtransfer.com",
+            },
+          });
+          log.info(getResp);
+          if (!getResp.status) {
+            return false;
+          }
+          let respData = getResp.data;
+          let resultJSON = utils.toJSON(respData.responseText);
+          log.info(["转换的JSON",resultJSON]);
+          let code = resultJSON["code"];
+          let message = resultJSON["message"];
+          if (code !== "0000") {
+            Qmsg.error(message);
+            return false;
+          } else {
+            let needPassword = resultJSON["data"]["needPassword"];
+            let zipDownload = resultJSON["data"]["zipDownload"];
+            if (needPassword && utils.isNull(that.accessCode)) {
+              Qmsg.error("密码缺失!");
+              NetDiskUI.newAccessCodeView(
+                "密码缺失",
+                "nainiu",
+                that.netDiskIndex,
+                that.shareCode,
+                (userInputAccessCode) => {
+                  that.default(
+                    that.netDiskIndex,
+                    that.shareCode,
+                    userInputAccessCode
+                  );
+                }
+              );
+              return false;
+            } else if (zipDownload) {
+              /* 压缩包下载 */
+              Qmsg.success("该文件为压缩包");
+              return {
+                zipDownload: zipDownload,
+                guid: resultJSON["data"]["guid"],
+                fileSize: utils.formatByteToSize(
+                  resultJSON["data"]["firstFolder"]["size"]
+                ),
+                fileName: resultJSON["data"]["firstFolder"]["title"],
+                fileUploadTime: utils.formatTime(
+                  resultJSON["data"]["firstFolder"]["created_at"]
+                ),
+                fileLatestTime: utils.formatTime(
+                  resultJSON["data"]["firstFolder"]["updated_at"]
+                ),
+              };
+            } else {
+              return {
+                zipDownload: zipDownload,
+                guid: resultJSON["data"]["guid"],
+                id: resultJSON["data"]["firstFile"]["id"],
+                fileSize: utils.formatByteToSize(
+                  resultJSON["data"]["firstFile"]["file_info"]["size"]
+                ),
+                fileName: resultJSON["data"]["firstFile"]["file_info"]["title"],
+                fileUploadTime: utils.formatTime(
+                  resultJSON["data"]["firstFile"]["created_at"]
+                ),
+                fileLatestTime: utils.formatTime(
+                  resultJSON["data"]["firstFile"]["updated_at"]
+                ),
+              };
+            }
+          }
+        };
+        /**
+         * 获取下载链接
+         * @param {string} guid
+         * @param {string} id
+         * @returns {string|undefined}
+         */
+        this.getDownloadUrl = async function (guid = "", id = "") {
+          let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&fileId=${id}`;
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              "user-agent": utils.getRandomPCUA(),
+              referer: "`https://cowtransfer.com",
+            },
+          });
+          log.info(getResp);
+          if (!getResp.status) {
+            return;
+          }
+          let respData = getResp.data;
+          let resultJSON = utils.toJSON(respData.responseText);
+          log.info(["转换的JSON",resultJSON]);
+          if (resultJSON["code"] === "0000") {
+            return resultJSON["data"]["downloadUrl"];
+          } else {
+            Qmsg.error(`奶牛快传-获取直链：${resultJSON["message"]}`);
+            return;
+          }
+        };
         return this;
       },
     },
@@ -3852,7 +4167,7 @@
             {
               type: "奶牛",
               key: "nainiu",
-              checkbox_oneStatic: false,
+              checkbox_oneStatic: true,
               checkbox_oneOrMoreStatic: false,
               checkbox_openBlank: true,
               checkbox_static_scheme: false,
