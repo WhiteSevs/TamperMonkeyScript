@@ -2199,158 +2199,124 @@
          * 感谢：https://github.com/qaiu/netdisk-fast-download/
          */
         this.getFileDownloadAuth = function () {
-          /*
-            https://statics.123pan.com/share-static/dist/umi.fb72555e.js
-            eaefamemdead
-            eaefameidldy
-            _0x4f141a(1690439821|5790548|/b/api/share/download/info|web|3|1946841013) = 秘钥
-
-            _0x1e2592 1690439821 时间戳
-            _0x48562f 5790548 随机码
-            _0x1e37d5  /b/api/share/download/info
-            _0x4e2d74 web
-            _0x56f040 3
-            _0x43bdc6 1946841013 加密时间HASH戳
-
-            >>>>
-            _0x43bdc6=''['concat'](_0x1e2592, '-')['concat'](_0x48562f, '-')['concat'](_0x406c4e)
-            加密时间HASH戳 = 时间戳-随机码-秘钥
-          */
-
-          function _0x1b5d95(_0x278d1a) {
-            var _0x839b57,
-              _0x4ed4dc =
+          function encry_time(param) {
+            var param_time,
+              param_other =
                 arguments["length"] > 0x2 && void 0x0 !== arguments[0x2]
                   ? arguments[0x2]
                   : 0x8;
             if (0x0 === arguments["length"]) return null;
-            "object" === typeof _0x278d1a
-              ? (_0x839b57 = _0x278d1a)
-              : (0xa === ("" + _0x278d1a)["length"] &&
-                  (_0x278d1a = 0x3e8 * parseInt(_0x278d1a)),
-                (_0x839b57 = new Date(_0x278d1a)));
-            var _0xc5c54a =
-                _0x278d1a + 0xea60 * new Date(_0x278d1a)["getTimezoneOffset"](),
-              _0x3732dc = _0xc5c54a + 0x36ee80 * _0x4ed4dc;
+            "object" === typeof param
+              ? (param_time = param)
+              : (0xa === ("" + param)["length"] &&
+                  (param = 0x3e8 * parseInt(param)),
+                (param_time = new Date(param)));
+            var param_timezoneoffset =
+                param + 0xea60 * new Date(param)["getTimezoneOffset"](),
+              param_time_n = param_timezoneoffset + 0x36ee80 * param_other;
             return (
-              (_0x839b57 = new Date(_0x3732dc)),
+              (param_time = new Date(param_time_n)),
               {
-                y: _0x839b57["getFullYear"](),
+                y: param_time["getFullYear"](),
                 m:
-                  _0x839b57["getMonth"]() + 0x1 < 0xa
-                    ? "0" + (_0x839b57["getMonth"]() + 0x1)
-                    : _0x839b57["getMonth"]() + 0x1,
+                  param_time["getMonth"]() + 0x1 < 0xa
+                    ? "0" + (param_time["getMonth"]() + 0x1)
+                    : param_time["getMonth"]() + 0x1,
                 d:
-                  _0x839b57["getDate"]() < 0xa
-                    ? "0" + _0x839b57["getDate"]()
-                    : _0x839b57["getDate"](),
+                  param_time["getDate"]() < 0xa
+                    ? "0" + param_time["getDate"]()
+                    : param_time["getDate"](),
                 h:
-                  _0x839b57["getHours"]() < 0xa
-                    ? "0" + _0x839b57["getHours"]()
-                    : _0x839b57["getHours"](),
+                  param_time["getHours"]() < 0xa
+                    ? "0" + param_time["getHours"]()
+                    : param_time["getHours"](),
                 f:
-                  _0x839b57["getMinutes"]() < 0xa
-                    ? "0" + _0x839b57["getMinutes"]()
-                    : _0x839b57["getMinutes"](),
+                  param_time["getMinutes"]() < 0xa
+                    ? "0" + param_time["getMinutes"]()
+                    : param_time["getMinutes"](),
               }
             );
           }
 
-          function _0x4f141a(_0x4075b1) {
+          function encry_join(param) {
             for (
-              var _0x4eddcb =
+              var a =
                   arguments["length"] > 0x1 && void 0x0 !== arguments[0x1]
                     ? arguments[0x1]
                     : 0xa,
-                _0x2fc680 = function () {
-                  for (
-                    var _0x515c63, _0x361314 = [], _0x4cbdba = 0x0;
-                    _0x4cbdba < 0x100;
-                    _0x4cbdba++
-                  ) {
-                    _0x515c63 = _0x4cbdba;
-                    for (var _0x460960 = 0x0; _0x460960 < 0x8; _0x460960++)
-                      _0x515c63 =
-                        0x1 & _0x515c63
-                          ? 0xedb88320 ^ (_0x515c63 >>> 0x1)
-                          : _0x515c63 >>> 0x1;
-                    _0x361314[_0x4cbdba] = _0x515c63;
+                funcRun = function () {
+                  for (var b, c = [], d = 0x0; d < 0x100; d++) {
+                    b = d;
+                    for (var index = 0x0; index < 0x8; index++)
+                      b = 0x1 & b ? 0xedb88320 ^ (b >>> 0x1) : b >>> 0x1;
+                    c[d] = b;
                   }
-                  return _0x361314;
+                  return c;
                 },
-                _0x4aed86 = _0x2fc680(),
-                _0x5880f0 = _0x4075b1,
-                _0x492393 = -0x1,
-                _0x25d82c = 0x0;
-              _0x25d82c < _0x5880f0["length"];
-              _0x25d82c++
+                _funcRun_ = funcRun(),
+                _param = param,
+                _param_1 = -0x1,
+                _param_0 = 0x0;
+              _param_0 < _param["length"];
+              _param_0++
             )
-              _0x492393 =
-                (_0x492393 >>> 0x8) ^
-                _0x4aed86[0xff & (_0x492393 ^ _0x5880f0.charCodeAt(_0x25d82c))];
-            return (
-              (_0x492393 = (-0x1 ^ _0x492393) >>> 0x0),
-              _0x492393.toString(_0x4eddcb)
-            );
+              _param_1 =
+                (_param_1 >>> 0x8) ^
+                _funcRun_[0xff & (_param_1 ^ _param.charCodeAt(_param_0))];
+            return (_param_1 = (-0x1 ^ _param_1) >>> 0x0), _param_1.toString(a);
           }
 
-          function getSign(_0x1e37d5) {
-            var _0x4e2d74 = "web";
-            var _0x56f040 = 3;
-            var _0x1e2592 = Math.round(
+          function getSign(urlPath) {
+            var param_web = "web";
+            var param_type = 3;
+            var param_time = Math.round(
               (new Date().getTime() +
                 0x3c * new Date().getTimezoneOffset() * 0x3e8 +
                 28800000) /
                 0x3e8
             ).toString();
             var key = "a,d,e,f,g,h,l,m,y,i,j,n,o,p,k,q,r,s,t,u,b,c,v,w,s,z";
-            var _0x48562f = Math["round"](0x989680 * Math["random"]());
+            var randomRoundNum = Math["round"](0x989680 * Math["random"]());
 
-            var _0x2f7dfc;
-            var _0x35a889;
-            var _0x36f983;
-            var _0x3b043d;
-            var _0x5bc73b;
-            var _0x4b30b2;
-            var _0x32399e;
-            var _0x25d94e;
-            var _0x373490;
-            for (var _0x1c540f in ((_0x2f7dfc = key.split(",")),
-            (_0x35a889 = _0x1b5d95(_0x1e2592)),
-            (_0x36f983 = _0x35a889["y"]),
-            (_0x3b043d = _0x35a889["m"]),
-            (_0x5bc73b = _0x35a889["d"]),
-            (_0x4b30b2 = _0x35a889["h"]),
-            (_0x32399e = _0x35a889["f"]),
-            (_0x25d94e = [
-              _0x36f983,
-              _0x3b043d,
-              _0x5bc73b,
-              _0x4b30b2,
-              _0x32399e,
-            ].join("")),
-            (_0x373490 = []),
-            _0x25d94e))
-              _0x373490["push"](_0x2f7dfc[Number(_0x25d94e[_0x1c540f])]);
-            var _0x43bdc6;
-            var _0x406c4e;
+            var number_split;
+            var time_a;
+            var time_y;
+            var time_m;
+            var time_d;
+            var time_h;
+            var time_f;
+            var time_array;
+            var time_push;
+            for (var number_item in ((number_split = key.split(",")),
+            (time_a = encry_time(param_time)),
+            (time_y = time_a["y"]),
+            (time_m = time_a["m"]),
+            (time_d = time_a["d"]),
+            (time_h = time_a["h"]),
+            (time_f = time_a["f"]),
+            (time_array = [time_y, time_m, time_d, time_h, time_f].join("")),
+            (time_push = []),
+            time_array))
+              time_push["push"](number_split[Number(time_array[number_item])]);
+            var param_no;
+            var param_join_s;
             return (
-              (_0x43bdc6 = _0x4f141a(_0x373490["join"](""))),
-              (_0x406c4e = _0x4f141a(
+              (param_no = encry_join(time_push["join"](""))),
+              (param_join_s = encry_join(
                 ""
-                  ["concat"](_0x1e2592, "|")
-                  ["concat"](_0x48562f, "|")
-                  ["concat"](_0x1e37d5, "|")
-                  ["concat"](_0x4e2d74, "|")
-                  ["concat"](_0x56f040, "|")
-                  ["concat"](_0x43bdc6)
+                  ["concat"](param_time, "|")
+                  ["concat"](randomRoundNum, "|")
+                  ["concat"](urlPath, "|")
+                  ["concat"](param_web, "|")
+                  ["concat"](param_type, "|")
+                  ["concat"](param_no)
               )),
               [
-                _0x43bdc6,
+                param_no,
                 ""
-                  ["concat"](_0x1e2592, "-")
-                  ["concat"](_0x48562f, "-")
-                  ["concat"](_0x406c4e),
+                  ["concat"](param_time, "-")
+                  ["concat"](randomRoundNum, "-")
+                  ["concat"](param_join_s),
               ]
             );
           }
@@ -2369,8 +2335,14 @@
           let params = decodeURL.search.replace(/^\?params=/gi, "");
           params = params.split("&")[0];
           try {
-            let atobURL = atob(params);
-            return decodeURI(atobURL);
+            let newDecodeUrl = decodeURIComponent(atob(params));
+            let atobURLObj = new URLSearchParams(newDecodeUrl);
+            if (atobURLObj.get("auto_redirect")) {
+              atobURLObj.set("auto_redirect", "1");
+              return decodeURIComponent(atobURLObj.toString());
+            } else {
+              return newDecodeUrl;
+            }
           } catch (error) {
             log.error(error);
             return url;
