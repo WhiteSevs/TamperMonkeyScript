@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.8.11.13.30
+// @version      23.8.11.18.45
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -24,6 +24,7 @@
 // @connect      123pan.com
 // @connect      wenshushu.cn
 // @connect      jianguoyun.com
+// @connect      cowtransfer.com
 // @exclude      /^http(s|):\/\/s1\.hdslb\.com\/.*$/
 // @exclude      /^http(s|):\/\/(message|www)\.bilibili\.com\/.*$/
 // @exclude      /^http(s|):\/\/.*\.mail\.qq\.com\/.*$/
@@ -2722,10 +2723,18 @@
           if (!checkLinkValidityInfo) {
             return;
           }
-          let downloadUrl = await that.getDownloadUrl(
-            checkLinkValidityInfo["guid"],
-            checkLinkValidityInfo["id"]
-          );
+          let downloadUrl = null;
+          if (checkLinkValidityInfo["zipDownload"]) {
+            downloadUrl = await that.getZipFileDownloadUrl(
+              checkLinkValidityInfo["guid"],
+              checkLinkValidityInfo["fileName"]
+            );
+          } else {
+            downloadUrl = await that.getDownloadUrl(
+              checkLinkValidityInfo["guid"],
+              checkLinkValidityInfo["id"]
+            );
+          }
           if (!downloadUrl) {
             return;
           }
@@ -2828,6 +2837,36 @@
          */
         this.getDownloadUrl = async function (guid = "", id = "") {
           let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&fileId=${id}`;
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              "user-agent": utils.getRandomPCUA(),
+              referer: "`https://cowtransfer.com",
+            },
+          });
+          log.info(getResp);
+          if (!getResp.status) {
+            return;
+          }
+          let respData = getResp.data;
+          let resultJSON = utils.toJSON(respData.responseText);
+          log.info(["转换的JSON", resultJSON]);
+          if (resultJSON["code"] === "0000") {
+            return resultJSON["data"]["downloadUrl"];
+          } else {
+            Qmsg.error(`奶牛快传-获取直链：${resultJSON["message"]}`);
+            return;
+          }
+        };
+
+        /**
+         * 获取zip文件的下载链接
+         * @param {string} guid
+         * @param {string} id
+         * @returns {string|undefined}
+         */
+        this.getZipFileDownloadUrl = async function (guid = "", title = "") {
+          let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&title=${title}`;
           let getResp = await httpx.get({
             url: url,
             headers: {
