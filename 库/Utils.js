@@ -6,7 +6,8 @@
 (function () {
   /* 在window下挂载的对象名 */
   const GLOBAL_NAME_SPACE = "Utils";
-  const tempUtils =
+  /* 如果window下存在着Utils，临时保存该对象 */
+  const originalUtils =
     typeof window[GLOBAL_NAME_SPACE] !== "undefined"
       ? window[GLOBAL_NAME_SPACE]
       : null;
@@ -16,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-6",
+    version: "2023-8-13",
   };
 
   /**
@@ -383,8 +384,8 @@
    * 应用场景: 当你想要获取数组形式的元素时，它可能是其它的选择器，那么需要按照先后顺序填入参数
    * 第一个是优先级最高的，依次下降，如果都没有，返回空列表
    * 支持document.querySelectorAll、$("")、()=>{return document.querySelectorAll("")}
-   * @param {...NodeList|Function} NodeList
-   * @returns {...HTMLElement}
+   * @param {...NodeList|function} NodeList
+   * @returns {...Element}
    * @example
    * Utils.getNodeListValue(document.querySelectorAll("div.xxx"),document.querySelectorAll("a.xxx"));
    * > [...div,div,div]
@@ -1040,12 +1041,12 @@
   Utils.GM_Cookie = function () {
     /**
 	 * 获取Cookie
-	 * @param {Object} paramDetails 
+	 * @param {object} paramDetails 
 		+ url string? 默认为当前的url
 		+ domain string? 默认为当前的域名(window.location.hostname)
 		+ name string? 需要检索的Cookie的名字
 		+ path string? 需要检索的Cookie的路径，默认为"/"
-	* @param {Function} callback 
+	* @param {function} callback 
 		+ cookies object[] 
 		+ error string|undefined
 	*/
@@ -1091,8 +1092,8 @@
 
     /**
      * 设置Cookie
-     * @param {Object} paramDetails
-     * @param {Function} callback
+     * @param {object} paramDetails
+     * @param {function} callback
      */
     this.set = (paramDetails = {}, callback = () => {}) => {
       try {
@@ -1125,8 +1126,8 @@
 
     /**
      * 删除Cookie
-     * @param {Object} paramDetails
-     * @param {Function} callback
+     * @param {object} paramDetails
+     * @param {function} callback
      */
     this.delete = (paramDetails = {}, callback = () => {}) => {
       try {
@@ -1153,28 +1154,43 @@
   /**
    * 注册油猴菜单
    * @param {object} data 传递的菜单数据
+   * 示例：
+   * {
+   *   text:"", // 菜单按钮文本
+   *   enable: true, // 菜单按钮的选项是否为开启状态
+   *   accessKey: "a",
+   *   autoClose: false, // 点击菜单项后是否应关闭弹出菜单
+   *   showText: function(text, enable){
+   *     // 点击菜单后显示的文本，参数text是上面的text值，enable是当前菜单是否开启
+   *   },
+   *   callback: function(key, status, event){
+   *     // 菜单的点击回调，参数key是当前的键名，status是点击的状态enable，event是MouseEvent|KeyboardEvent
+   *   }
+   * }
    * @param {boolean} autoReload 点击该菜单后数据改变后自动重载页面,
    * + true (默认) 开启点击菜单后自动刷新网页
    * + false 关闭点击菜单后自动刷新网页
-   * @param {Function} _GM_getValue_ 传入油猴函数 GM_getValue
-   * @param {Function} _GM_setValue_ 传入油猴函数 GM_setValue
-   * @param {Function} _GM_registerMenuCommand_ 传入油猴函数 GM_registerMenuCommand
-   * @param {Function} _GM_unregisterMenuCommand_ 传入油猴函数 GM_unregisterMenuCommand
+   * @param {function} _GM_getValue_ 传入油猴函数 GM_getValue
+   * @param {function} _GM_setValue_ 传入油猴函数 GM_setValue
+   * @param {function} _GM_registerMenuCommand_ 传入油猴函数 GM_registerMenuCommand
+   * @param {function} _GM_unregisterMenuCommand_ 传入油猴函数 GM_unregisterMenuCommand
    * @example
     let gm_Menu = new Utils.GM_Menu(
       {
         menu_key:{
           text: "测试按钮",
           enable: true,
+          accessKey: "a",
+          autoClose: false,
           showText: (text,enable) =>  {
             return "[" + (enable ? "√" : "×") + "]" + text;
           },
-          callback: (key,status)  =>  {
+          callback: (key,status,event)  =>  {
             console.log("点击菜单，值修改为",status);
           }
         }
       },
-      true,
+      false,
       GM_getValue,
       GM_setValue,
       GM_registerMenuCommand,
@@ -1280,18 +1296,47 @@
             ? item["showText"](text, enable)
             : text; /* 油猴菜单上显示的文本 */
         let clickCallBack = item["callback"]; /* 用户点击后的回调 */
-        let menuId = _GM_registerMenuCommand_(showText, function () {
-          let menuEnable = enable ? false : true;
-          _GM_setValue_(menuInfoItemKey, menuEnable);
+        let menuOptions = {};
+        if (typeof item["autoClose"] !== "undefined") {
+          /* 点击菜单项后是否应关闭弹出菜单 */
+          menuOptions["autoClose"] = item["autoClose"];
+        }
+        if (typeof item["accessKey"] !== "undefined") {
+          /* 菜单项的可选访问键 */
+          menuOptions["accessKey"] = item["accessKey"];
+        }
+        let callbackFunc = function (event) {
+          _GM_setValue_(menuInfoItemKey, enable);
           if (typeof clickCallBack === "function") {
-            clickCallBack(menuInfoItemKey, menuEnable);
+            clickCallBack(menuInfoItemKey, enable, event);
           }
           if (autoReload) {
             window.location.reload();
           } else {
             that.update();
           }
-        });
+        };
+        let menuId = null;
+        let menuOptionsLength = Object.keys(menuOptions).length;
+        if (menuOptionsLength === 0) {
+          menuId = _GM_registerMenuCommand_.apply(this, [
+            showText,
+            callbackFunc,
+          ]);
+        } else if (menuOptionsLength === 1 && "accessKey" in menuOptions) {
+          menuId = _GM_registerMenuCommand_.apply(this, [
+            showText,
+            callbackFunc,
+            menuOptions["accessKey"],
+          ]);
+        } else {
+          /* 这个是版本 > 4.20.6186才会有的选项 */
+          menuId = _GM_registerMenuCommand_.apply(this, [
+            showText,
+            callbackFunc,
+            menuOptions,
+          ]);
+        }
         menuIdList = [...menuIdList, menuId];
       });
     };
@@ -1885,8 +1930,8 @@
     };
     /**
      * 打开数据库
-     * @param {Function} callback  回调
-     * @param {String} dbName 数据库名
+     * @param {function} callback  回调
+     * @param {string} dbName 数据库名
      */
     this.open = function (callback, dbName) {
       /* 打开数据库 */
@@ -2617,8 +2662,8 @@
 
   /**
    * 监听某个元素键盘按键事件或window全局按键事件
-   * @param {Window|Node|HTMLElement} listenObj 需要监听的对象，可以是全局Window或者某个元素
-   * @param {Function|undefined} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+   * @param {Window|Node|Element} listenObj 需要监听的对象，可以是全局Window或者某个元素
+   * @param {function|undefined} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
    * @example 
       Utils.listenKeyPress(window,(keyName,otherKey,event)=>{
           if(keyName === "Enter"){
@@ -2704,8 +2749,8 @@
 
   /**
    * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-   * @param {Function|string} func 需要执行的函数
-   * @param {Function|undefined} scope 函数作用域
+   * @param {function|string} func 需要执行的函数
+   * @param {function|undefined} scope 函数作用域
    * @param {number} unLockDelayTime 延迟xx毫秒后解锁，默认0
    * @example
     let lock = new Utils.LockFunction(()=>{console.log(1)}))
@@ -2751,7 +2796,7 @@
 
   /**
    * 日志对象
-   * @param {Function} _GM_info_ 油猴管理器的API GM_info
+   * @param {function} _GM_info_ 油猴管理器的API GM_info
    * @example
     let log = new Utils.Log(GM_info);
     log.info("普通输出");
@@ -2987,7 +3032,7 @@
   /**
    * 合并数组内的JSON的值字符串
    * @param {[...any]} data 需要合并的数组
-   * @param {Function|string|undefined} handleFunc 处理的函数|JSON的key
+   * @param {function|string|undefined} handleFunc 处理的函数|JSON的key
    * @returns {string}
    * @example
    * Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
@@ -3133,8 +3178,8 @@
    */
   Utils.noConflict = function () {
     delete window[GLOBAL_NAME_SPACE];
-    if (tempUtils) {
-      window[GLOBAL_NAME_SPACE] = tempUtils;
+    if (originalUtils) {
+      window[GLOBAL_NAME_SPACE] = originalUtils;
     }
     return Utils;
   };
@@ -3630,7 +3675,7 @@
 
   /**
    * 【异步函数】等待N秒执行函数
-   * @param {Function|string} func	待执行的函数(字符串)
+   * @param {function|string} func	待执行的函数(字符串)
    * @param {number} delayTime	延时时间(ms)
    * @return {?undefined}	函数的返回值
    * @example
@@ -3726,8 +3771,8 @@
 
   /**
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
-   * @param {Array|NodeList|Function} data 数据|获取数据的方法
-   * @param {string|Function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
+   * @param {[...any]|NodeList|function} data 数据|获取数据的方法
+   * @param {string|function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
    * @param {boolean} sortByDesc 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
    * @return {object} 返回比较排序完成的数组
    * @example
@@ -3790,7 +3835,7 @@
     /**
      * 排序元素方法
      * @param {NodeList|jQuery} nodeList 元素列表
-     * @param {Function} getNodeListFunc 获取元素列表的函数
+     * @param {function} getNodeListFunc 获取元素列表的函数
      */
     let sortNodeFunc = function (nodeList, getNodeListFunc) {
       let nodeListLength = nodeList.length;
@@ -3882,7 +3927,7 @@
 
   /**
    * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-   * @return {{run:Function,config:Function,error:Function}} - 返回一个对象，其中包含 error 和 run 两个方法。
+   * @return {{run:function,config:function,error:function}} - 返回一个对象，其中包含 error 和 run 两个方法。
    * @example
    * Utils.tryCatch().error().run(()=>{console.log(1)});
    * > 1
@@ -4017,8 +4062,8 @@
    * 观察对象的set、get
    * @param {object} obj 观察的对象
    * @param {string} propertyName 观察的对象的属性名
-   * @param {Function} setCallBack 触发set的回调
-   * @param {Function} getCallBack 触发get的回调
+   * @param {function} setCallBack 触发set的回调
+   * @param {function} getCallBack 触发get的回调
    * @example
    * Utils.watchObj(window,"test",(value)=>{console.log("test出现，值是",value)},()=>{return 111;});
    *
@@ -4041,7 +4086,7 @@
   /**
    * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
    * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
-   * @param {Function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
+   * @param {function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
    * @example
    * await Utils.waitArrayLoopToEnd([func,func,func],xxxFunction);
    **/
