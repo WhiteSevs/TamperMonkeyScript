@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.8.11.18.45
+// @version      23.8.14.14.45
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -22,6 +22,7 @@
 // @connect      lanzoug.com
 // @connect      189.cn
 // @connect      123pan.com
+// @connect      123pan.cn
 // @connect      wenshushu.cn
 // @connect      jianguoyun.com
 // @connect      cowtransfer.com
@@ -37,7 +38,7 @@
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1205376
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1187390
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1230385
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1234703
 // ==/UserScript==
 
 (function () {
@@ -942,7 +943,7 @@
             return;
           }
           let respData = getResp.data;
-          if (respData.status !== 200 || respData.readyState !== 4) {
+          if (respData.readyState !== 4) {
             log.error(respData);
             Qmsg.error("请求失败，请重试");
             return;
@@ -1014,7 +1015,7 @@
           let respData = getResp.data;
           log.info("by_tp ↓");
           log.info(respData);
-          if (respData.status == 200 && respData.readyState == 4) {
+          if (respData.readyState === 4) {
             await that.getLink(respData);
           } else {
             Qmsg.error("请求失败，请重试");
@@ -1068,8 +1069,8 @@
             }
             let respData = postResp.data;
             log.info(respData);
-            if (respData.status == 200 && respData.readyState == 4) {
-              let json_data = JSON.parse(respData.responseText);
+            if (respData.readyState === 4) {
+              let json_data = utils.toJSON(respData.responseText);
               let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
               let zt = json_data["zt"];
               if ("密码不正确".indexOf(json_data["inf"]) != -1) {
@@ -1161,7 +1162,7 @@
           }
           let respData = getResp.data;
           log.info(respData);
-          if (respData.status !== 200 || respData.readyState !== 4) {
+          if (respData.readyState !== 4) {
             Qmsg.error("请求失败，请重试");
             return;
           }
@@ -1194,7 +1195,7 @@
           }
           let postRespData = postResp.data;
           log.info(postRespData);
-          let json_data = JSON.parse(postRespData.responseText);
+          let json_data = utils.toJSON(postRespData.responseText);
           let zt = json_data["zt"];
           let info = json_data["info"];
           if (zt === 4) {
@@ -1369,9 +1370,9 @@
           }
           let postData = postResp.data;
           log.info(postData);
-          let jsonData = JSON.parse(postData.responseText);
-          if (postData.status == 200 && jsonData.res_code == 0) {
-            log.info(jsonData);
+          let jsonData = utils.toJSON(postData.responseText);
+          if (jsonData.res_code == 0) {
+            log.info(["解析的JSON信息", jsonData]);
             that.isFolder = jsonData.isFolder;
             if (that.isFolder) {
               log.info("该链接是文件夹");
@@ -1427,7 +1428,7 @@
         };
         /**
          * 暂不需要获取cookie
-         * @returns {String} ""
+         * @returns {string} ""
          */
         this.getCookie = function () {
           let cookie = "";
@@ -1435,10 +1436,11 @@
         };
         /**
          * 获取shareId
+         * @returns {Promise}
          */
         this.getShareId = async function () {
           let getResp = await httpx.get({
-            url: `https://cloud.189.cn/api/open/share/checkAccessCode.action?noCache=0.44175365295952296&shareCode=${that.shareCode}&accessCode=${that.accessCode}`,
+            url: `https://cloud.189.cn/api/open/share/checkAccessCode.action?shareCode=${that.shareCode}&accessCode=${that.accessCode}`,
             headers: {
               accept: "application/json;charset=UTF-8",
               "cache-control": "no-cache",
@@ -1452,8 +1454,8 @@
           }
           let respData = getResp.data;
           log.info(respData);
-          let jsonData = JSON.parse(respData.responseText);
-          if (respData.status === 200 && jsonData["res_message"] === "成功") {
+          let jsonData = utils.toJSON(respData.responseText);
+          if (jsonData["res_code"] === 0) {
             that.shareId = jsonData["shareId"];
             await that.getDownloadUrl();
           } else {
@@ -1463,10 +1465,11 @@
         };
         /**
          * 获取下载链接
+         * @returns {Promise}
          */
         this.getDownloadUrl = async function () {
           let getResp = await httpx.get({
-            url: `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?noCache=0.8242175875972797&fileId=${that.fileId}&dt=1&shareId=${that.shareId}`,
+            url: `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?noCache=0.6537236244516991&fileId=${that.fileId}&dt=1&shareId=${that.shareId}`,
             headers: {
               accept: "application/json;charset=UTF-8",
               "cache-control": "no-cache",
@@ -1475,15 +1478,23 @@
             },
             cookie: that.getCookie(),
             responseType: "json",
+            onerror: function () {},
           });
+          log.info(getResp);
           if (!getResp.status) {
+            let errorResultJSON = utils.toJSON(getResp.data[0].responseText);
+            if (errorResultJSON["errorCode"] === "InvalidSessionKey") {
+              that.gotoLogin(that.code["InvalidSessionKey"]);
+            } else {
+              Qmsg.error("请求异常");
+            }
             return;
           }
           let respData = getResp.data;
-          let jsonData = JSON.parse(respData.responseText);
+          let jsonData = utils.toJSON(respData.responseText);
           log.info(jsonData);
-          if (respData.status == 200 && jsonData.res_code == 0) {
-            let download_url = jsonData.fileDownloadUrl;
+          if (jsonData["res_code"] === 0) {
+            let download_url = jsonData["fileDownloadUrl"];
             download_url = NetDiskFilterScheme.handleUrl(
               "tianyiyun-scheme-enable",
               "tianyiyun-scheme-forward",
@@ -1501,84 +1512,7 @@
             "InvalidSessionKey" === jsonData["res_code"] ||
             "InvalidSessionKey" === jsonData["errorCode"]
           ) {
-            var loginPops = pops.confirm({
-              title: {
-                position: "center",
-                text: "天翼云",
-              },
-              content: {
-                text: that.code[jsonData.errorCode],
-                html: false,
-              },
-              btn: {
-                reverse: true,
-                position: "end",
-                ok: {
-                  text: "前往",
-                  enable: true,
-                  callback: () => {
-                    pops.iframe({
-                      title: {
-                        text: "天翼云登录",
-                      },
-                      loading: {
-                        text: "加载中...",
-                      },
-                      btn: {
-                        close: {
-                          callback: () => {
-                            loginPops?.close();
-                            var waitRegister = pops.loading({
-                              parent: document.body,
-                              only: false,
-                              content: {
-                                text: "等待5s，登录的账号注册Cookies",
-                              },
-                              animation: GM_getValue(
-                                "popsAnimation",
-                                "pops-anim-fadein-zoom"
-                              ),
-                            });
-                            var registerTianYiYunCookies = GM_openInTab(
-                              "https://cloud.189.cn/web/main/",
-                              { active: false, setParent: true }
-                            );
-                            setTimeout(() => {
-                              registerTianYiYunCookies?.close();
-                              waitRegister?.close();
-                              that.getDownloadUrl();
-                            }, 5000);
-                          },
-                        },
-                      },
-                      url: "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/Fredirect.html",
-                      height: pops.isPhone()
-                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.height
-                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
-                      width: pops.isPhone()
-                        ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.width
-                        : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
-                      drag: GM_getValue("pcDrag", false),
-                      animation: GM_getValue(
-                        "popsAnimation",
-                        "pops-anim-fadein-zoom"
-                      ),
-                      sandbox: true,
-                    });
-                  },
-                },
-              },
-              animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-              mask: true,
-              drag: GM_getValue("pcDrag", false),
-              height: pops.isPhone()
-                ? NetDiskUI.popsStyle.tianyiyunIframeLogin_Phone.height
-                : NetDiskUI.popsStyle.tianyiyunIframeLogin_PC.height,
-              forbiddenScroll: true,
-              width: pops.isPhone()
-                ? NetDiskUI.popsStyle.tianyiyunIframeLogin_Phone.width
-                : NetDiskUI.popsStyle.tianyiyunIframeLogin_PC.width,
-            });
+            that.gotoLogin(that.code["InvalidSessionKey"]);
           } else if (that.code.hasOwnProperty(jsonData["res_code"])) {
             Qmsg.error(that.code[jsonData["res_code"]]);
           } else {
@@ -1587,6 +1521,89 @@
           }
         };
 
+        /**
+         * 天翼云登录弹窗
+         */
+        this.gotoLogin = function (text = "") {
+          let closeCallback = function () {
+            loginPops?.close();
+            let waitRegister = pops.loading({
+              parent: document.body,
+              only: false,
+              content: {
+                text: "等待5s，登录的账号注册Cookies",
+              },
+              animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+            });
+            let registerTianYiYunCookies = GM_openInTab(
+              "https://cloud.189.cn/web/main/",
+              { active: false, setParent: true }
+            );
+            setTimeout(() => {
+              registerTianYiYunCookies?.close();
+              waitRegister?.close();
+              that.getDownloadUrl();
+            }, 5000);
+          };
+          let loginPops = pops.confirm({
+            title: {
+              position: "center",
+              text: "天翼云",
+            },
+            content: {
+              text: text,
+              html: false,
+            },
+            btn: {
+              reverse: true,
+              position: "end",
+              ok: {
+                text: "前往",
+                enable: true,
+                callback: () => {
+                  pops.iframe({
+                    title: {
+                      text: "天翼云登录",
+                    },
+                    loading: {
+                      text: "加载中...",
+                    },
+                    btn: {
+                      close: {
+                        callback: () => {
+                          closeCallback();
+                        },
+                      },
+                    },
+                    url: "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/Fredirect.html",
+                    height: pops.isPhone()
+                      ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.height
+                      : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
+                    width: pops.isPhone()
+                      ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.width
+                      : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
+                    drag: GM_getValue("pcDrag", false),
+                    animation: GM_getValue(
+                      "popsAnimation",
+                      "pops-anim-fadein-zoom"
+                    ),
+                    sandbox: true,
+                  });
+                },
+              },
+            },
+            animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+            mask: true,
+            drag: GM_getValue("pcDrag", false),
+            height: pops.isPhone()
+              ? NetDiskUI.popsStyle.tianyiyunIframeLogin_Phone.height
+              : NetDiskUI.popsStyle.tianyiyunIframeLogin_PC.height,
+            forbiddenScroll: true,
+            width: pops.isPhone()
+              ? NetDiskUI.popsStyle.tianyiyunIframeLogin_Phone.width
+              : NetDiskUI.popsStyle.tianyiyunIframeLogin_PC.width,
+          });
+        };
         return this;
       },
       /**
@@ -1628,8 +1645,8 @@
             return;
           }
           let respData = postResp.data;
-          let jsonData = JSON.parse(respData.responseText);
-          if (respData.status == 200 && jsonData["code"] == 0) {
+          let jsonData = utils.toJSON(respData.responseText);
+          if (jsonData["code"] === 0) {
             that.token = jsonData["data"]["token"];
             await that.getPid();
           } else if (jsonData["code"] in that.code) {
@@ -1664,8 +1681,8 @@
             return;
           }
           let respData = postResp.data;
-          let jsonData = JSON.parse(respData.responseText);
-          if (respData.status == 200 && jsonData["code"] == 0) {
+          let jsonData = utils.toJSON(respData.responseText);
+          if (jsonData["code"] === 0) {
             let bid = jsonData["data"]["boxid"];
             let pid = jsonData["data"]["ufileid"];
             await that.getFileNList(bid, pid);
@@ -1711,8 +1728,8 @@
             return;
           }
           let respData = postResp.data;
-          let jsonData = JSON.parse(respData.responseText);
-          if (respData.status == 200 && jsonData["code"] == 0) {
+          let jsonData = utils.toJSON(respData.responseText);
+          if (jsonData["code"] === 0) {
             if (jsonData["data"]["fileList"][0]["type"] === 2) {
               Qmsg.error("该链接为多层级文件嵌套，跳转");
               NetDiskParse.blank(
@@ -1763,8 +1780,8 @@
           }
           log.success(postResp);
           let respData = postResp.data;
-          let jsonData = JSON.parse(respData.responseText);
-          if (respData.status == 200 && jsonData["code"] == 0) {
+          let jsonData = utils.toJSON(respData.responseText);
+          if (jsonData["code"] == 0) {
             let download_url = jsonData["data"]["url"];
             if (download_url === "") {
               Qmsg.error("对方的分享流量不足");
@@ -1951,7 +1968,7 @@
           );
           if (g_initialPropsMatch) {
             log.info(g_initialPropsMatch);
-            let g_initialProps = JSON.parse(
+            let g_initialProps = utils.toJSON(
               `{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`
             );
             log.info(g_initialProps);
@@ -1986,8 +2003,8 @@
         };
         /**
          * 获取文件
-         * @param {*} parentFileId
-         * @returns
+         * @param {number} parentFileId
+         * @returns {Promise}
          */
         this.getFiles = async function (parentFileId = 0) {
           let url = `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${that.shareCode}&SharePwd=${that.accessCode}&ParentFileId=${parentFileId}&Page=1`;
@@ -2000,31 +2017,34 @@
             },
           });
           log.info(getResp);
-          if (getResp.status) {
-            let respData = getResp.data;
-            let json_data = JSON.parse(respData.responseText);
-            if (respData.status === 200 && json_data["code"] === 0) {
-              let infoList = json_data["data"]["InfoList"];
-              return infoList;
-            } else if (json_data["code"] == 5103) {
-              NetDiskUI.newAccessCodeView(
-                undefined,
-                "_123pan",
-                that.netDiskIndex,
-                that.shareCode,
-                (userInputAccessCode) => {
-                  that.default(
-                    that.netDiskIndex,
-                    that.shareCode,
-                    userInputAccessCode
-                  );
-                }
-              );
-            } else if (that.code[json_data["code"]]) {
-              Qmsg.error(that.code[json_data["code"]]);
-            } else {
-              Qmsg.error(json_data["message"]);
-            }
+          if (!getResp.status) {
+            return;
+          }
+          let respData = getResp.data;
+          let json_data = utils.toJSON(respData.responseText);
+          if (json_data["code"] === 0) {
+            let infoList = json_data["data"]["InfoList"];
+            return infoList;
+          } else if (json_data["code"] === 5103) {
+            NetDiskUI.newAccessCodeView(
+              undefined,
+              "_123pan",
+              that.netDiskIndex,
+              that.shareCode,
+              (userInputAccessCode) => {
+                that.default(
+                  that.netDiskIndex,
+                  that.shareCode,
+                  userInputAccessCode
+                );
+              }
+            );
+          } else if (that.code[json_data["code"]]) {
+            Qmsg.error(that.code[json_data["code"]]);
+          } else if ("message" in json_data) {
+            Qmsg.error(json_data["message"]);
+          } else {
+            Qmsg.error("123盘：未知的JSON格式");
           }
         };
         /**
@@ -2041,13 +2061,14 @@
               referer: `https://www.123pan.com/s/${that.shareCode}`,
             },
           });
-          if (getResp.status) {
-            let respData = getResp.data;
-            log.info(respData);
-            let jsonData = JSON.parse(respData.responseText);
-            if (respData.status == 200 && jsonData["code"] == 0) {
-              return jsonData["data"]["InfoList"];
-            }
+          if (!getResp.status) {
+            return;
+          }
+          let respData = getResp.data;
+          log.info(respData);
+          let jsonData = utils.toJSON(respData.responseText);
+          if (jsonData["code"] == 0) {
+            return jsonData["data"]["InfoList"];
           }
         };
         /**
@@ -2182,10 +2203,10 @@
             return;
           }
           let postData = postResp.data;
-          let jsonData = JSON.parse(postData.responseText);
+          let jsonData = utils.toJSON(postData.responseText);
           log.info(jsonData);
           if (jsonData["code"] == 0) {
-            jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(
+            jsonData["data"]["DownloadURL"] = await that.decodeDownloadUrl(
               jsonData["data"]["DownloadURL"]
             );
             return jsonData;
@@ -2328,7 +2349,7 @@
          * @param {String} url
          * @returns
          */
-        this.decodeDownloadUrl = function (url) {
+        this.decodeDownloadUrl = async function (url) {
           if (url === "") {
             return "";
           }
@@ -2336,14 +2357,27 @@
           let params = decodeURL.search.replace(/^\?params=/gi, "");
           params = params.split("&")[0];
           try {
-            let newDecodeUrl = decodeURIComponent(atob(params));
-            let atobURLObj = new URLSearchParams(newDecodeUrl);
-            if (atobURLObj.get("auto_redirect")) {
-              atobURLObj.set("auto_redirect", "1");
-              return decodeURIComponent(atobURLObj.toString());
-            } else {
+            let newDecodeUrl = decodeURI(atob(params));
+            Qmsg.info("正在获取重定向直链");
+            let getResp = await httpx.get({
+              url: newDecodeUrl,
+              responseType: "json",
+              "user-agent": utils.getRandomAndroidUA(),
+              Referer: "https://www.123pan.com/s/" + that.shareCode,
+              Origin: "https://www.123pan.com",
+              onerror: function () {},
+            });
+            log.info(getResp);
+            if (!getResp.status && getResp.data[0].status !== 210) {
+              /* 很奇怪，123盘返回的状态码是210 */
               return newDecodeUrl;
             }
+            let respData = getResp.data[0];
+            let resultJSON = utils.toJSON(respData.responseText);
+            let newURL = new URL(resultJSON.data.redirect_url);
+            newURL.searchParams.set("auto_redirect", 1);
+            log.success(resultJSON);
+            return newURL.toString();
           } catch (error) {
             log.error(error);
             return url;
@@ -2613,21 +2647,16 @@
             return;
           }
           let respData = getResp.data;
-          log.info("请求信息");
-          log.info(respData);
-          try {
-            let resultJSON = JSON.parse(respData.responseText);
-            log.info(resultJSON);
-            if (resultJSON.hasOwnProperty("errorCode")) {
-              Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
-              return;
-            } else {
-              return resultJSON["url"];
-            }
-          } catch (error) {
-            log.error(error);
-            Qmsg.error("坚果云: 处理下载链接异常");
+          log.info(["请求信息", respData]);
+          let resultJSON = utils.toJSON(respData.responseText);
+          log.info(["解析JSON", resultJSON]);
+          if (resultJSON.hasOwnProperty("errorCode")) {
+            Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
             return;
+          } else if (resultJSON.hasOwnProperty("url")) {
+            return resultJSON["url"];
+          } else {
+            Qmsg.error("坚果云: 处理下载链接异常");
           }
         };
         /**
@@ -2654,22 +2683,16 @@
             return;
           }
           let respData = getResp.data;
-
-          log.info("请求信息");
-          log.info(respData);
-          try {
-            let resultJSON = JSON.parse(respData.responseText);
-            log.info(resultJSON);
-            if (resultJSON.hasOwnProperty("errorCode")) {
-              Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
-              return;
-            } else {
-              return resultJSON["url"];
-            }
-          } catch (error) {
-            log.error(error);
-            Qmsg.error("坚果云: 处理下载链接异常");
+          log.info(["请求信息", respData]);
+          let resultJSON = utils.toJSON(respData.responseText);
+          log.info(resultJSON);
+          if (resultJSON.hasOwnProperty("errorCode")) {
+            Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
             return;
+          } else if (resultJSON.hasOwnProperty("url")) {
+            return resultJSON["url"];
+          } else {
+            Qmsg.error("坚果云: 处理下载链接异常");
           }
         };
         /**
@@ -2689,16 +2712,13 @@
             return;
           }
           let respData = getResp.data;
-          log.info("请求信息");
-          log.info(respData);
-          try {
-            let resultJSON = JSON.parse(respData.responseText);
-            log.info(resultJSON);
+          log.info(["请求信息", respData]);
+          let resultJSON = utils.toJSON(respData.responseText);
+          log.info(resultJSON);
+          if ("objects" in resultJSON) {
             return resultJSON["objects"];
-          } catch (error) {
-            log.error(error);
+          } else {
             Qmsg.error("坚果云: 处理多文件信息异常");
-            return;
           }
         };
 
