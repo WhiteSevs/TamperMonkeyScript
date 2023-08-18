@@ -5,6 +5,8 @@ import httpx
 
 import winreg
 
+# 不更新的js文件名
+notUpdateFileNameList = ["蛋仔乐消除"]
 
 def get_ie_proxy():
     try:
@@ -63,6 +65,12 @@ def replaceContent(path, dataList):
         for file in files:
             if file.endswith(".js"):
                 file_path = os.path.join(root, file)
+                fileName = re.sub(r'\.\/.+\\', '', file_path)
+                fileName = re.sub(r'\.\/', '', fileName)
+                fileName = re.sub(r'\.js$', '', fileName)
+                for notUpdateFileName in notUpdateFileNameList:
+                  if notUpdateFileName in fileName:
+                      continue
                 content = ""
                 replaced_content = ""
                 with open(file=file_path, mode="r", encoding="utf-8", errors="ignore") as f:
@@ -93,8 +101,7 @@ def replaceContent(path, dataList):
                 if content != replaced_content and flag:
                     with open(file=file_path, mode="w", encoding="utf-8", errors="ignore") as f:
                         f.write(replaced_content)
-                    file_path = re.sub(r'\.\/.+\\', '', file_path)
-                    print("当前文件: "+file_path)
+                    print("当前文件: "+fileName)
                     print("")
                     print("")
 
