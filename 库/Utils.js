@@ -409,6 +409,7 @@
     }
     return resultArray;
   };
+
   /**
    * 获取格式化后的时间
    * @param {string|undefined} text	需要格式化的字符串或者时间戳
@@ -625,6 +626,49 @@
       return str;
     };
     return this;
+  };
+
+  /**
+   * 获取NodeList或Array对象中的最后一个的值
+   * @param {NodeList|Array} targetObj
+   * @returns {any}
+   * @example
+   * Utils.getArrayLastValue(document.querySelectorAll("div"));
+   * > div
+   * @example
+   * Utils.getArrayLastValue([1,2,3,4,5]);
+   * > 5
+   */
+  Utils.getArrayLastValue = function (targetObj) {
+    return targetObj[targetObj.length - 1];
+  };
+
+  /**
+   * 使用场景：当想获取的元素可能是不同的选择器的时候，按顺序优先级获取
+   * 参数类型可以是Element或者是Function
+   * @returns {any} 如果都没有的话，返回null
+   * @example
+   * // 如果a.aaa不存在的话，取a.bbb，这里假设a.aaa不存在
+   * Utils.getArrayRealValue(document.querySelector("a.aaa"),document.querySelector("a.bbb"));
+   * > a.bbb
+   * @example
+   * Utils.getArrayRealValue(()=>{return document.querySelector("a.aaa").href},()=>{document.querySelector("a.bbb").getAttribute("data-href")});
+   * > javascript:;
+   */
+  Utils.getArrayRealValue = function () {
+    let result = null;
+    for (let i = 0; i < arguments.length; i++) {
+      let item = arguments[i];
+      if (typeof item === "function") {
+        /* 方法 */
+        item = item();
+      }
+      if (item != null) {
+        result = item;
+        break;
+      }
+    }
+    return result;
   };
 
   /**
@@ -890,7 +934,7 @@
       if (
         result.length === 2 &&
         typeof result[0] === "number" &&
-        typeof [1] === "number"
+        typeof result[1] === "number"
       ) {
         let leftNumber = result[0] > result[1] ? result[1] : result[0];
         let rightNumber = result[0] > result[1] ? result[0] : result[1];
