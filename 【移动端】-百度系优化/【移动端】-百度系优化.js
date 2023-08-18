@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.6
+// @version      1.3.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -44,7 +44,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1228713
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1236867
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1986,6 +1986,15 @@
             url = decodeURIComponent(url);
             /* url = url.replaceAll("%25","%") */
           }
+          /* 有些url是错误的， */
+          if (utils.isNotNull(url)) {
+            if (
+              url.startsWith("http://nourl.baidu.com") ||
+              url.startsWith("https://nourl.baidu.com")
+            ) {
+              url = "";
+            }
+          }
           return url;
         },
         /**
@@ -2277,7 +2286,7 @@
         refactorEveryoneIsStillSearching: false,
         /**
          * 处理底部的
-         * @param {Element} bottomElement
+         * @param {NodeList} bottomElement
          */
         handleBottom(bottomElement) {
           bottomElement.forEach((item) => {
@@ -2309,7 +2318,7 @@
         },
         /**
          * 处理中间的
-         * @param {Element} centerElement
+         * @param {NodeList} centerElement
          */
         handleCenter(centerElement) {
           centerElement.forEach((recommendElement) => {
@@ -2493,19 +2502,64 @@
       /**
        * 自动加载下一页
        */
-      function autoLoadNextPage() {
-        let isSearchCraftUA = navigator.userAgent.includes("SearchCraft");
-        let isVia = utils.isWebView_Via();
+      const handleNextPage = {
+        /**
+         * 滚动事件对象
+         */
+        scrollLockFunction: null,
+        /**
+         * 是否是简单UA
+         */
+        isSearchCraftUA: false,
+        /**
+         * 是否是Via
+         */
+        isVia: false,
+        init() {
+          this.isSearchCraftUA = navigator.userAgent.includes("SearchCraft");
+          this.isVia = utils.isWebView_Via();
+          this.scrollLockFunction = new utils.LockFunction(
+            this.scrollEvent,
+            this
+          );
+          let loadingViewNode = loadingView.getParseLoadingNode(true);
+          jQuery("#page-controller").after(loadingViewNode);
+          loadingView.setLoadingViewElement(loadingViewNode);
+          loadingView.setCSS();
+          loadingView.hide();
+          this.setNextPageScrollListener();
+        },
+        /**
+         * 设置滚动事件
+         */
+        setNextPageScrollListener() {
+          document.addEventListener("scroll", this.scrollLockFunction.run);
+        },
+        /**
+         * 移除滚动事件
+         */
+        removeNextPageScrollListener() {
+          document.removeEventListener("scroll", this.scrollLockFunction.run);
+          log.info("取消绑定scroll", "#f400ff");
+        },
         /**
          * 滚动事件
          * @returns {Promise}
          */
-        async function scrollEvent() {
+        async scrollEvent() {
           if (!utils.isNearBottom(window.innerHeight / 3)) {
             return;
           }
-          if (isSearchCraftUA && isVia) {
-            document.querySelector("span.se-infiniteload-more")?.click();
+          if (handleNextPage.isSearchCraftUA && handleNextPage.isVia) {
+            let nextPageBtnElement = document.querySelector(
+              "span.se-infiniteload-more"
+            );
+            if (nextPageBtnElement) {
+              nextPageBtnElement.click();
+            } else {
+              log.error("简单搜索UA的下一页按钮获取失败");
+              alert("简单搜索UA的下一页按钮获取失败");
+            }
             return;
           }
           loadingView.show();
@@ -2514,7 +2568,7 @@
             jQuery(".new-nextpage-only").attr("href");
           if (!nextPageUrl) {
             log.info("获取不到下一页，怀疑已加载所有的搜索结果");
-            removeNextPageScrollListener();
+            handleNextPage.removeNextPageScrollListener();
             loadingView.destory();
             return;
           }
@@ -2579,7 +2633,7 @@
               jQuery("#page-controller").html(nextPageControllerDOM.innerHTML);
             } else {
               log.info("已加载所有的搜索结果");
-              removeNextPageScrollListener();
+              handleNextPage.removeNextPageScrollListener();
             }
             if (GM_Menu.get("baidu_search_sync_next_page_address")) {
               window.history.pushState("forward", null, nextPageUrl);
@@ -2607,22 +2661,8 @@
             loadingView.setText("未知错误");
             log.error(respData);
           }
-        }
-        function setNextPageScrollListener() {
-          document.addEventListener("scroll", lockFunction.run);
-        }
-        function removeNextPageScrollListener() {
-          document.removeEventListener("scroll", lockFunction.run);
-          log.info("取消绑定scroll", "#f400ff");
-        }
-        let lockFunction = new utils.LockFunction(scrollEvent, this);
-        let loadingViewNode = loadingView.getParseLoadingNode(true);
-        jQuery("#page-controller").after(loadingViewNode);
-        loadingView.setLoadingViewElement(loadingViewNode);
-        loadingView.setCSS();
-        loadingView.hide();
-        setNextPageScrollListener();
-      }
+        },
+      };
 
       GM_Menu = new utils.GM_Menu(
         {
@@ -2759,7 +2799,7 @@
         handleInputEvent.run();
         searchUpdateRealLink.run();
         if (GM_Menu.get("menu_autoloading")) {
-          autoLoadNextPage();
+          handleNextPage.init();
         }
       });
     },
@@ -3791,10 +3831,7 @@
           let imgSrc =
             cliclElement.getAttribute("data-src") ||
             cliclElement.getAttribute("src");
-          if (
-            cliclElement.parentElement.getAttribute("data-viewer-action") ===
-            "view"
-          ) {
+          if (cliclElement.parentElement.className === "viewer-canvas") {
             return;
           }
           if (
@@ -4264,7 +4301,7 @@
                 
             }
             .s_post .p_content{
-                
+              overflow-wrap: break-word;
             }
             .s_post em{
               color: #e10900;
