@@ -892,7 +892,7 @@
           },
           sign: {
             match:
-              /var[\s]*(posign|postsign)[\s]*=[\s]*'(.+?)';/ /* 蓝奏设置了密码的单文件请求需要的sign值 */,
+              /var[\s]*(posign|postsign|vidksek)[\s]*=[\s]*'(.+?)';/ /* 蓝奏设置了密码的单文件请求需要的sign值 */,
           },
           fileName: {
             match: /<title>(.*)<\/title>/ /* 蓝奏文件名 */,
