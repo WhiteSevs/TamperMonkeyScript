@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.8.19.11.53
+// @version      23.8.19.12.15
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -3028,8 +3028,12 @@
      * @returns
      */
     async getRedirectFinalUrl(url, userAgent) {
-      if (utils.isWebView_X()) {
-        Qmsg.info("X浏览器不进行重定向");
+      if (
+        utils.isWebView_X() &&
+        window.mbrowser.getVersionCode &&
+        window.mbrowser.getVersionCode() <= 775
+      ) {
+        Qmsg.info("X浏览器版本号<=775，不进行重定向");
         return url;
       } else if (utils.isWebView_Via()) {
         Qmsg.info("Via浏览器不进行重定向");
