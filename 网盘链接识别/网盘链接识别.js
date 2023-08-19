@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.8.14.14.45
+// @version      23.8.19.11.53
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -18,8 +18,9 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @connect      *
-// @connect      lanzoux.com
 // @connect      lanzoug.com
+// @connect      lanzouk.com
+// @connect      lanzoux.com
 // @connect      189.cn
 // @connect      123pan.com
 // @connect      123pan.cn
@@ -86,10 +87,10 @@
     regular: {
       baidu: [
         {
-          link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+          link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_baidu", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
-          link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
+          link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_baidu", 300)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
           shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi /* 链接参数 */,
@@ -899,9 +900,12 @@
           size: {
             match: /<span class=\"mtt\">\((.*)\)<\/span>/ /* 蓝奏文件大小 */,
           },
+          loadDownHost: {
+            match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i /* 蓝奏文件直链host */,
+          },
           loadDown: {
             match:
-              /var[\s]*(loaddown|oreferr|spototo|domianload)[\s]*=[\s]*'(.+?)';/i /* 蓝奏文件直链 */,
+              /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i /* 蓝奏文件直链 */,
           },
           uploadTime: {
             match:
@@ -1113,36 +1117,41 @@
               Qmsg.error("请求失败，请重试");
             }
           } else {
-            let loaddown = pageText.match(that.regexp.loadDown.match);
-            if (loaddown == null) {
-              loaddown = pageText.match(/cppat[\s]*\+[\s]*'(.+?)'/i);
+            let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
+            let loadDown = pageText.match(that.regexp.loadDown.match);
+            if (utils.isNull(loadDownHost)) {
+              Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者");
+              return;
             }
-            if (loaddown != null) {
-              let downloadUrl = `https://develope.lanzoug.com/file/${
-                loaddown[loaddown.length - 1]
-              }`;
-              log.info([fileName, fileSize, downloadUrl]);
-              downloadUrl = await NetDiskParse.getRedirectFinalUrl(
-                downloadUrl,
-                utils.getRandomAndroidUA()
-              );
-              log.info(downloadUrl);
+            if (utils.isNull(loadDown)) {
+              loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
+            }
+            if (utils.isNull(loadDown)) {
+              Qmsg.error("蓝奏云直链：获取sign失败，请反馈开发者");
+              return;
+            }
+            let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${
+              loadDown[loadDown.length - 1]
+            }`;
+            log.info([fileName, fileSize, downloadUrl]);
+            downloadUrl = await NetDiskParse.getRedirectFinalUrl(
+              downloadUrl,
+              utils.getRandomAndroidUA()
+            );
+            log.info(downloadUrl);
 
-              downloadUrl = NetDiskFilterScheme.handleUrl(
-                "lanzou-static-scheme-enable",
-                "lanzou-static-scheme-forward",
-                downloadUrl
-              );
-              NetDiskUI.staticView.oneFile(
-                "蓝奏云单文件直链",
-                fileName,
-                fileSize,
-                downloadUrl,
-                fileUploadTime
-              );
-            } else {
-              Qmsg.error("获取sign失败");
-            }
+            downloadUrl = NetDiskFilterScheme.handleUrl(
+              "lanzou-static-scheme-enable",
+              "lanzou-static-scheme-forward",
+              downloadUrl
+            );
+            NetDiskUI.staticView.oneFile(
+              "蓝奏云单文件直链",
+              fileName,
+              fileSize,
+              downloadUrl,
+              fileUploadTime
+            );
           }
         };
         /**
@@ -1271,16 +1280,17 @@
           let respData = getResp.data;
           if (getResp.status) {
             let pageText = respData.responseText;
-            let loaddown = pageText.match(that.regexp.loadDown.match);
-            if (loaddown == null) {
-              loaddown = pageText.match(/cppat[\s]*\+[\s]*'(.+?)'/i);
+            let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
+            let loadDown = pageText.match(that.regexp.loadDown.match);
+            if (utils.isNull(loadDown)) {
+              loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
             }
             let submit_url = "javascript:;";
             let downloadUrl = "";
-            if (loaddown != null) {
-              let needRedirectDownloadUrl = `https://develope.lanzoug.com/file/${
-                loaddown[loaddown.length - 1]
-              }`;
+            if (utils.isNotNull(loadDownHost) && utils.isNotNull(loadDown)) {
+              let needRedirectDownloadUrl = `${
+                loadDownHost[loadDownHost.length - 1]
+              }${loadDown[loadDown.length - 1]}`;
               downloadUrl = await NetDiskParse.getRedirectFinalUrl(
                 needRedirectDownloadUrl,
                 utils.getRandomAndroidUA()
@@ -1293,6 +1303,12 @@
               );
             } else if (pageText.match("来晚啦...文件取消分享了</div>")) {
               fileSize = "来晚啦...文件取消分享了";
+            } else if (utils.isNull(loadDownHost)) {
+              log.error(pageText);
+              fileSize = "获取sign的域名失败，请反馈开发者";
+            } else if (utils.isNull(loadDown)) {
+              log.error(pageText);
+              fileSize = "获取sign失败，请反馈开发者";
             } else {
               fileSize = "解析直链失败";
             }
