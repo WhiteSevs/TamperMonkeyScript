@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.9
+// @version      1.4.0
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -2722,7 +2722,7 @@
         GM_registerMenuCommand,
         GM_unregisterMenuCommand
       );
-      unsafeWindow.GM_Menu = GM_Menu
+      unsafeWindow.GM_Menu = GM_Menu;
       if (!GM_Menu.get("baidu_search_show_log")) {
         log.error("禁止控制台输出日志");
         log.disable();
@@ -2753,7 +2753,9 @@
         });
       }
 
-      handleItemURL.showIsDirectIcon = GM_Menu.get("baidu_search_show_redirected_icon");
+      handleItemURL.showIsDirectIcon = GM_Menu.get(
+        "baidu_search_show_redirected_icon"
+      );
       handleEveryOneSearch.refactorEveryoneIsStillSearching = GM_Menu.get(
         "baidu_search_refactor_everyone_is_still_searching"
       );
@@ -3828,22 +3830,22 @@
           viewer.show();
         }
         jQuery(document).on("click", "img", function (event) {
-          let cliclElement = event.target;
+          let clickElement = event.target;
           let imgSrc =
-            cliclElement.getAttribute("data-src") ||
-            cliclElement.getAttribute("src");
-          if (cliclElement.parentElement.className === "viewer-canvas") {
+            clickElement.getAttribute("data-src") ||
+            clickElement.getAttribute("src");
+          if (
+            clickElement.parentElement.className === "viewer-canvas" ||
+            clickElement.parentElement.hasAttribute("data-viewer-action")
+          ) {
             return;
           }
-          if (
-            imgSrc &&
-            imgSrc.match(/^http(s|):\/\/tiebapic.baidu.com\/forum/g)
-          ) {
+          if (imgSrc?.match(/^http(s|):\/\/tiebapic.baidu.com\/forum/g)) {
             log.info(`点击图片👇`);
-            log.info(cliclElement);
-            if (cliclElement.parentElement.className === "img-box") {
+            log.info(clickElement);
+            if (clickElement.parentElement.className === "img-box") {
               /* 帖子主体内的图片 */
-              let parentMain = cliclElement.closest(
+              let parentMain = clickElement.closest(
                 ".img-sudoku.main-img-sudoku"
               );
               log.info(parentMain);
@@ -3862,10 +3864,10 @@
               log.info(lazyImgList);
               viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
             } else if (
-              cliclElement.parentElement.className === "text-content"
+              clickElement.parentElement.className === "text-content"
             ) {
               /* 评论区内的图片 */
-              let parentMain = cliclElement.parentElement;
+              let parentMain = clickElement.parentElement;
               let lazyImgList = [];
               log.info(parentMain);
               parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
