@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 修复蓝奏云无法上传问题;调整部分CSS样式显示问题;
-// @version      3.1.6
+// @description  更新日志: 更新Utils库至2023-8-21;调整当前未登录情况时自动清空签到记录;
+// @version      3.1.7
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -3615,44 +3615,45 @@
     },
     /**
      * 每请求一页，自动签到
-     * @returns
+     * @returns {Promise}
      */
-    autoSignIn() {
+    async autoSignIn() {
       /**
        * 检测是否登录
-       * @returns
+       * @returns {Promise}
        */
       async function checkLogin() {
-        /* 桌面端登录 */
-        let pc_login = document.querySelector("#comiis_key");
-        /* 移动端的退出按钮，不登录是不会出现的 */
-        let mobile_login_exitBtn = document.querySelector(
-          ".sidenv_exit a[href*='member.php?mod=logging&action=logout']"
-        );
-        /* 登录Cookie，通过移动端登录，该Cookie不会HttpOnly，但是通过桌面端和调用QQ登录会 */
-        let mobile_login_cookie = await getCookie("cQWy_2132_auth");
         /* 最后访问Cookie */
         let mobile_lastvisit_cookie = await getCookie("cQWy_2132_lastvisit");
-        console.log("桌面端登录: ", pc_login);
-        console.log("移动端登录: ", mobile_login_exitBtn);
-        console.log(
-          "账号cQWy_2132_auth: ",
-          mobile_login_cookie
-            ? mobile_login_cookie.slice(0, 8) + "..."
-            : mobile_login_cookie
-        );
         console.log(
           "账号cQWy_2132_lastvisit: ",
           mobile_lastvisit_cookie
             ? utils.formatTime(parseInt(mobile_lastvisit_cookie) * 1000)
             : mobile_login_cookie
         );
-        return pc_login || mobile_login_cookie || mobile_login_exitBtn;
+        if (envIsMobile()) {
+          /* 移动端的退出按钮，不登录是不会出现的 */
+          let mobile_login_exitBtn = document.querySelector(
+            ".sidenv_exit a[href*='member.php?mod=logging&action=logout']"
+          );
+          /* 登录Cookie，通过移动端登录，该Cookie不会HttpOnly，但是通过桌面端和调用QQ登录会 */
+          let mobile_login_cookie = await getCookie("cQWy_2132_auth");
+          mobile_login_cookie &&
+            (mobile_login_cookie = mobile_login_cookie.slice(0, 8) + "...");
+          console.log("移动端登录: ", mobile_login_exitBtn);
+          console.log("账号cQWy_2132_auth: ", mobile_login_cookie);
+          return mobile_login_exitBtn || mobile_login_cookie;
+        } else {
+          /* 桌面端登录 */
+          let pc_login = document.querySelector("#comiis_key");
+          console.log("桌面端登录: ", pc_login);
+          return pc_login;
+        }
       }
       /**
        * 获取Cookie，使用了GM_cookie，可能在某些油猴管理器上不兼容
-       * @param {String} cookieName 需要获取的Cookie名字
-       * @returns {String|undefined}
+       * @param {string} cookieName 需要获取的Cookie名字
+       * @returns {string|undefined}
        */
       function getCookie(cookieName) {
         return new Promise((resolve) => {
@@ -3669,8 +3670,11 @@
           });
         });
       }
+      /**
+       * 获取账号的formhash
+       * @returns {string}
+       */
       function getFormHash() {
-        /* 获取账号的formhash */
         let inputFormHash = top.document.querySelector("input[name=formhash]");
         let sidenv_exit = top.document.querySelector(
           "div[class=sidenv_exit]>a"
@@ -3861,8 +3865,9 @@
         $jq(".comiis_head.f_top")?.append(deleteLocalStorageSignInfo);
       }
 
-      if (!checkLogin()) {
+      if (!(await checkLogin())) {
         popups.toast("当前尚未登录账号");
+        GM_deleteValue("mt_sign");
         return;
       }
 
@@ -3874,6 +3879,7 @@
           return;
         }
         console.log("获取账号formhash失败");
+        GM_deleteValue("mt_sign");
         popups.toast({
           text: "获取账号formhash失败",
         });
@@ -11009,8 +11015,8 @@
               data: formData,
               headers: {
                 Accept: "*/*",
-                "Host":"up.woozooo.com",
-                "Origin":"https://up.woozooo.com",
+                Host: "up.woozooo.com",
+                Origin: "https://up.woozooo.com",
                 "User-Agent": utils.getRandomPCUA(),
               },
               onload: (response) => {
