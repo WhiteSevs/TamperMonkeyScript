@@ -17,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-18",
+    version: "2023-8-21",
   };
 
   /**
@@ -1318,11 +1318,7 @@
     let init = function () {
       menuIdList = [];
       Object.keys(data).forEach((menuId) => {
-        let value = _GM_getValue_(menuId);
-        if (value == null) {
-          _GM_setValue_(menuId, data[menuId].enable);
-          value = _GM_getValue_(menuId);
-        }
+        let value = Boolean(_GM_getValue_(menuId, data[menuId]["enable"]));
         data[menuId]["enable"] = value;
       });
     };
@@ -1331,13 +1327,15 @@
      * 注册油猴菜单
      */
     let register = function () {
-      Object.keys(data).forEach((menuInfoItemKey) => {
-        let item = data[menuInfoItemKey];
+      Object.keys(data).forEach((menuLocalDataItemKey) => {
+        let item = data[menuLocalDataItemKey]; /* 本地存储的键名 */
         let text = item["text"]; /* 文本 */
-        let enable = Boolean(item["enable"]); /* 用户开启的状态 */
+        let defaultEnable = Boolean(
+          _GM_getValue_(menuLocalDataItemKey, item["enable"])
+        ); /* 菜单默认开启的状态 */
         let showText =
           typeof item["showText"] === "function"
-            ? item["showText"](text, enable)
+            ? item["showText"](text, defaultEnable)
             : text; /* 油猴菜单上显示的文本 */
         let clickCallBack = item["callback"]; /* 用户点击后的回调 */
         let menuOptions = {};
@@ -1350,9 +1348,10 @@
           menuOptions["accessKey"] = item["accessKey"];
         }
         let callbackFunc = function (event) {
-          _GM_setValue_(menuInfoItemKey, enable);
+          let localEnable = Boolean(_GM_getValue_(menuLocalDataItemKey));
+          _GM_setValue_(menuLocalDataItemKey, !localEnable);
           if (typeof clickCallBack === "function") {
-            clickCallBack(menuInfoItemKey, enable, event);
+            clickCallBack(menuLocalDataItemKey, localEnable, event);
           }
           if (autoReload) {
             window.location.reload();
@@ -1360,28 +1359,26 @@
             that.update();
           }
         };
-        let menuId = null;
         let menuOptionsLength = Object.keys(menuOptions).length;
         if (menuOptionsLength === 0) {
-          menuId = _GM_registerMenuCommand_.apply(this, [
-            showText,
-            callbackFunc,
-          ]);
+          let menuId = _GM_registerMenuCommand_(showText, callbackFunc);
+          menuIdList = menuIdList.concat(menuId);
         } else if (menuOptionsLength === 1 && "accessKey" in menuOptions) {
-          menuId = _GM_registerMenuCommand_.apply(this, [
+          let menuId = _GM_registerMenuCommand_(
             showText,
             callbackFunc,
-            menuOptions["accessKey"],
-          ]);
+            menuOptions["accessKey"]
+          );
+          menuIdList = menuIdList.concat(menuId);
         } else {
           /* 这个是版本 > 4.20.6186才会有的选项 */
-          menuId = _GM_registerMenuCommand_.apply(this, [
+          let menuId = _GM_registerMenuCommand_(
             showText,
             callbackFunc,
-            menuOptions,
-          ]);
+            menuOptions
+          );
+          menuIdList = menuIdList.concat(menuId);
         }
-        menuIdList = [...menuIdList, menuId];
       });
     };
     /**
@@ -1407,11 +1404,12 @@
      */
     this.update = function (paramData) {
       if (paramData) {
-        menuIdList = Utils.assign(menuIdList, paramData);
+        data = Utils.assign(data, paramData);
       }
-      Object.keys(menuIdList).forEach((menuId) => {
+      Object.values(menuIdList).forEach((menuId) => {
         that.delete(menuId);
       });
+      menuIdList = [];
       init();
       register();
     };
@@ -3976,7 +3974,7 @@
    * Utils.tryCatch().error().run(()=>{console.log(1)});
    * > 1
    * @example
-   * Utils.tryCatch().error().run(()=>{throw new Error('测试错误')});
+   * Utils.tryCatch().config({log:true}).error((error)=>{console.log(error)}).run(()=>{throw new Error('测试错误')});
    * > ()=>{throw new Error('测试错误')}出现错误
    */
   Utils.tryCatch = function () {
