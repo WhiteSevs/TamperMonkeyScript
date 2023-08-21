@@ -5,7 +5,7 @@
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @description  更新日志: 更新Utils库至2023-8-21;调整当前未登录情况时自动清空签到记录;
-// @version      3.1.7
+// @version      3.1.7.1
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -3753,6 +3753,21 @@
                 });
                 return;
               }
+              if (signInContent.includes("绑定手机号后才可以签到")) {
+                popups.toast({
+                  text: "签到: 绑定手机号后才可以签到",
+                  delayTime: 6000,
+                });
+                return;
+              }
+              popups.confirm({
+                title: "签到的响应内容",
+                text: response.responseText || response?.firstChild?.innerHTML,
+              });
+              popups.toast({
+                text: "签到: 未知结果,请查看控制台信息",
+                delayTime: 4000,
+              });
             } else {
               /* GM_xmlhttpRequest版本 */
               let CDATA = utils.parseCDATA(response.responseText);
@@ -3795,6 +3810,10 @@
 
                 return;
               }
+              popups.confirm({
+                title: "签到的响应内容",
+                text: response.responseText,
+              });
               popups.toast({
                 text: "签到: 未知结果,请查看控制台信息",
                 delayTime: 4000,
@@ -16213,7 +16232,7 @@
                   '<script src="/_guard/auto.js"></script>'
                 ) !== -1
               ) {
-                popups.toast("获取轮播失败 未知的auto.js文件");
+                popups.toast("获取轮播失败 未知的/_guard/auto.js文件");
                 resolve([]);
                 return;
               }
