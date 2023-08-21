@@ -17,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-21",
+    version: "2023-8-21 14:00:00",
   };
 
   /**
@@ -49,7 +49,11 @@
         let sourceValue = source[targetKeyName];
         if (typeof sourceValue === "object" && !Utils.isDOM(sourceValue)) {
           /* 源端的值是object类型，且不是元素对象 */
-          target[targetKeyName] = Utils.assign(targetValue, sourceValue);
+          if (Object.keys(sourceValue).length) {
+            target[targetKeyName] = Utils.assign(targetValue, sourceValue);
+          } else {
+            target[targetKeyName] = sourceValue;
+          }
         } else {
           /* 直接赋值 */
           target[targetKeyName] = sourceValue;
@@ -1103,12 +1107,17 @@
           name: "",
           path: "/",
         };
-        paramDetails = Utils.assign(details, paramDetails);
+        details = Utils.assign(details, paramDetails);
         let cookies = document.cookie.split(";");
         cookies.forEach((item) => {
-          let nameRegexp = new RegExp("^" + paramDetails.name + "=", "g");
           item = item.trimStart();
-          if (item.match(nameRegexp)) {
+          let itemName = item.split("=")[0];
+          let itemValue = item.replace(new RegExp("^" + itemName + "="), "");
+          let nameRegexp =
+            details.name instanceof RegExp
+              ? details.name
+              : new RegExp("^" + details.name, "g");
+          if (itemName.match(nameRegexp)) {
             resultData = [
               ...resultData,
               {
@@ -1116,19 +1125,18 @@
                 expirationDate: undefined,
                 hostOnly: true,
                 httpOnly: false,
-                name: item,
+                name: itemName,
                 path: "/",
                 sameSite: "unspecified",
                 secure: true,
                 session: false,
-                value: decodeURIComponent(item.replace(nameRegexp, "")),
+                value: itemValue,
               },
             ];
-
             return;
           }
         });
-        callback(resultData, undefined);
+        callback(resultData);
       } catch (error) {
         callback(resultData, error);
       }
@@ -1151,16 +1159,17 @@
           httpOnly: false,
           expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30, // Expires in 30 days
         };
-        paramDetails = Utils.assign(details, paramDetails);
-        let life = paramDetails.expirationDate
-          ? paramDetails.expirationDate
+        details = Utils.assign(details, paramDetails);
+        let life = details.expirationDate
+          ? details.expirationDate
           : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
         let cookieStr =
-          paramDetails.name +
+          details.name +
           "=" +
-          decodeURIComponent(paramDetails.value) +
+          decodeURIComponent(details.value) +
           ";expires=" +
-          new Date(life).toGMTString();
+          new Date(life).toGMTString() +
+          "; path=/";
         document.cookie = cookieStr;
         callback();
       } catch (error) {
@@ -1180,13 +1189,9 @@
           name: "",
           firstPartyDomain: "",
         };
-        paramDetails = Utils.assign(details, paramDetails);
+        details = Utils.assign(details, paramDetails);
         let cookieStr =
-          paramDetails.name +
-          "=" +
-          decodeURIComponent("null") +
-          ";expires=" +
-          new Date().toGMTString();
+          details.name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = cookieStr;
         callback();
       } catch (error) {
