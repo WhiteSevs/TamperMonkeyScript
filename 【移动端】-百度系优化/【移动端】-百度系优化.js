@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.3.8
+// @version      1.3.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -44,7 +44,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1236867
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1238322
 // @run-at       document-start
 // ==/UserScript==
 
@@ -2666,21 +2666,21 @@
 
       GM_Menu = new utils.GM_Menu(
         {
-          menu_autoloading: {
+          baidu_search_automatically_expand_next_page: {
             text: "自动展开下一页",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          menu_showisdirect: {
-            text: "显示已重定向图标",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
-          LOG: {
+          baidu_search_show_redirected_icon: {
+            text: "显示已重定向图标",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baidu_search_show_log: {
             text: "控制台输出日志",
             enable: false,
             showText: (_text_, _enable_) => {
@@ -2722,7 +2722,8 @@
         GM_registerMenuCommand,
         GM_unregisterMenuCommand
       );
-      if (!GM_Menu.get("LOG")) {
+      unsafeWindow.GM_Menu = GM_Menu
+      if (!GM_Menu.get("baidu_search_show_log")) {
         log.error("禁止控制台输出日志");
         log.disable();
       }
@@ -2752,7 +2753,7 @@
         });
       }
 
-      handleItemURL.showIsDirectIcon = GM_Menu.get("menu_showisdirect");
+      handleItemURL.showIsDirectIcon = GM_Menu.get("baidu_search_show_redirected_icon");
       handleEveryOneSearch.refactorEveryoneIsStillSearching = GM_Menu.get(
         "baidu_search_refactor_everyone_is_still_searching"
       );
@@ -2798,7 +2799,7 @@
         handleItemURL.redirectTopLink();
         handleInputEvent.run();
         searchUpdateRealLink.run();
-        if (GM_Menu.get("menu_autoloading")) {
+        if (GM_Menu.get("baidu_search_automatically_expand_next_page")) {
           handleNextPage.init();
         }
       });
