@@ -8,6 +8,7 @@ import winreg
 # 不更新的js文件名
 notUpdateFileNameList = ["蛋仔乐消除"]
 
+
 def get_ie_proxy():
     try:
         # 打开注册表
@@ -60,6 +61,18 @@ def handleLibraryData(libraryIdList):
     return result
 
 
+""" 检测文件名是否是可以更新的文件 """
+
+
+def checkIsUpdateFile(fileName):
+    isUpdate = True
+    for notUpdateFileName in notUpdateFileNameList:
+        if notUpdateFileName.strip() in fileName.strip():
+            isUpdate = False
+            break
+    return isUpdate
+
+
 def replaceContent(path, dataList):
     for root, dirs, files in os.walk(path):
         for file in files:
@@ -68,9 +81,8 @@ def replaceContent(path, dataList):
                 fileName = re.sub(r'\.\/.+\\', '', file_path)
                 fileName = re.sub(r'\.\/', '', fileName)
                 fileName = re.sub(r'\.js$', '', fileName)
-                for notUpdateFileName in notUpdateFileNameList:
-                  if notUpdateFileName in fileName:
-                      continue
+                if not checkIsUpdateFile(fileName):
+                    continue
                 content = ""
                 replaced_content = ""
                 with open(file=file_path, mode="r", encoding="utf-8", errors="ignore") as f:
