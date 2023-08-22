@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.0
+// @version      1.4.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -44,7 +44,7 @@
 // @grant        unsafeWindow
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1238458
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1239026
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1371,14 +1371,12 @@
 			.layer-wrap,
 			.openImg,
 			.oPadding,
-			.infinite-scroll-component__outerdiv,
 			.bottomTTSStruct,
 			.undefined,
 			.headDeflectorContainer,
 			.followSuper,
-			#searchwordSdk ~ div:nth-child(n+4),
 			#searchwordSdk,
-			div#commentModule div div span:last-child,
+			div#commentModule > div > div > span:nth-child(2),
       /* 顶部打开APP横幅 */
       #headDeflectorContainer,
       /* 展开全文 */
@@ -2695,7 +2693,7 @@
             },
           },
           baidu_search_disable_autoplay_video: {
-            text: "禁止自动播放视频",
+            text: "【禁止】自动播放视频",
             enable: false,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
@@ -2815,6 +2813,65 @@
       }
       GM_addStyle(this.css.baijiahao);
       log.info("插入CSS规则");
+      GM_Menu = new utils.GM_Menu(
+        {
+          baijiahao_shield_recommended_article: {
+            text: "【屏蔽】推荐文章",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baijiahao_shield_user_comment: {
+            text: "【屏蔽】用户评论",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+          baijiahao_shield_user_comment_input_box: {
+            text: "【屏蔽】评论输入框",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
+        },
+
+        true,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+      if (GM_Menu.get("baijiahao_shield_recommended_article")) {
+        GM_addStyle(`
+			  .infinite-scroll-component__outerdiv,
+        div#page_wrapper > div > div:nth-child(5){
+          display: none !important;
+        }
+        /* 电脑端的文章居中 */
+        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1){
+          width: auto !important;
+        }
+        /* 电脑端的右边的推荐-屏蔽 */
+        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2){
+          display: none !important;
+        }
+        `);
+      }
+      if (GM_Menu.get("baijiahao_shield_user_comment")) {
+        GM_addStyle(`
+        #commentModule{
+          display: none !important;
+        }`);
+      }
+      if (GM_Menu.get("baijiahao_shield_user_comment_input_box")) {
+        GM_addStyle(`
+        div#wise-invoke-interact-bar{
+          display: none !important;
+        }`);
+      }
     },
     /**
      * 百度贴吧
@@ -4617,35 +4674,35 @@
       GM_Menu = new utils.GM_Menu(
         {
           baidu_wenku_block_member_picks: {
-            text: "屏蔽会员精选",
+            text: "【屏蔽】会员精选",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_wenku_blocking_app_featured: {
-            text: "屏蔽APP精选",
+            text: "【屏蔽】APP精选",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_wenku_blocking_related_documents: {
-            text: "屏蔽相关文档",
+            text: "【屏蔽】相关文档",
             enable: false,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_wenku_blocking_bottom_toolbar: {
-            text: "屏蔽底部工具栏",
+            text: "【屏蔽】底部工具栏",
             enable: false,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_wenku_shield_next_btn: {
-            text: "屏蔽下一篇按钮",
+            text: "【屏蔽】下一篇按钮",
             enable: false,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
@@ -4898,21 +4955,21 @@
       GM_Menu = new utils.GM_Menu(
         {
           baidu_zhidao_block_recommend_more_exciting_content: {
-            text: "屏蔽-推荐更多精彩内容",
+            text: "【屏蔽】推荐更多精彩内容",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_zhidao_block_related_issues: {
-            text: "屏蔽-相关问题",
+            text: "【屏蔽】相关问题",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_zhidao_block_other_answers: {
-            text: "屏蔽-其他回答",
+            text: "【屏蔽】其他回答",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
@@ -4965,21 +5022,21 @@
       GM_Menu = new utils.GM_Menu(
         {
           baidu_fanyi_recommended_shielding_bottom: {
-            text: "屏蔽底部推荐",
+            text: "【屏蔽】底部推荐",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_fanyi_other_shielding_bottom: {
-            text: "屏蔽底部其它",
+            text: "【屏蔽】底部其它",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_fanyi_auto_focus: {
-            text: "自动聚焦",
+            text: "自动聚焦输入框",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
@@ -5059,7 +5116,7 @@
       GM_Menu = new utils.GM_Menu(
         {
           baidu_mdb_block_exciting_recommendations: {
-            text: "屏蔽精彩推荐",
+            text: "【屏蔽】精彩推荐",
             enable: false,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
@@ -5110,14 +5167,14 @@
       GM_Menu = new utils.GM_Menu(
         {
           baidu_aiqicha_shidld_carousel: {
-            text: "屏蔽轮播图",
+            text: "【屏蔽】轮播图",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
           baidu_aiqicha_shidld_industry_host_news: {
-            text: "屏蔽行业热点新闻",
+            text: "【屏蔽】行业热点新闻",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
@@ -5171,7 +5228,7 @@
       GM_Menu = new utils.GM_Menu(
         {
           baidu_haokan_shidld_may_also_like: {
-            text: "屏蔽猜你喜欢",
+            text: "【屏蔽】猜你喜欢",
             enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
