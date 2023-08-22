@@ -17,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-21 14:00:00",
+    version: "2023-8-22",
   };
 
   /**
@@ -1293,22 +1293,22 @@
   ) {
     if (typeof _GM_getValue_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue，且传入该参数"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue，且在第3个位置传入该对象"
       );
     }
     if (typeof _GM_setValue_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_setValue，且传入该参数"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_setValue，且在第4个位置传入该对象"
       );
     }
     if (typeof _GM_registerMenuCommand_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_registerMenuCommand，且传入该参数"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_registerMenuCommand，且在第5个位置传入该对象"
       );
     }
     if (typeof _GM_unregisterMenuCommand_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_unregisterMenuCommand，且传入该参数"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_unregisterMenuCommand，且在第6个位置传入该对象"
       );
     }
     let that = this;
@@ -1353,7 +1353,9 @@
           menuOptions["accessKey"] = item["accessKey"];
         }
         let callbackFunc = function (event) {
-          let localEnable = Boolean(_GM_getValue_(menuLocalDataItemKey));
+          let localEnable = Boolean(
+            _GM_getValue_(menuLocalDataItemKey, defaultEnable)
+          );
           _GM_setValue_(menuLocalDataItemKey, !localEnable);
           if (typeof clickCallBack === "function") {
             clickCallBack(menuLocalDataItemKey, localEnable, event);
