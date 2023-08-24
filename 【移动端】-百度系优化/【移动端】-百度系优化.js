@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.1
+// @version      1.4.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -72,34 +72,6 @@
   let GM_Menu = null; /* 菜单 */
 
   const CSDN_FLAG_CSS = `
-    .csdn-flag-component-box .praise {
-        padding-right: 20px;
-        background: #ff5722;
-        text-indent: 1em;
-        border-top-left-radius: 50px;
-        border-top-right-radius: 50px;
-        border-bottom-left-radius: 50px;
-        border-bottom-right-radius: 50px;
-        background: -webkit-linear-gradient(left,#ff5722,#f78d6b);
-        background: -o-linear-gradient(right,#ff5722,#f78d6b);
-        background: -moz-linear-gradient(right,#ff5722,#f78d6b);
-        background: linear-gradient(to right,#ff5722,#f78d6b);
-    }
-    .csdn-flag-component-box .praise,.csdn-flag-component-box .share {
-        /*width: 110px;
-        height: 34px;
-        line-height: 34px;*/
-        height:auto;
-        line-height:normal;
-        color: #fff;
-        background: #ff0505;
-        border-radius: 5px;
-        padding: 2px;
-    }
-    .csdn-flag-component-box a {
-        display: inline-block;
-        font-size: 14px;
-    }
     .csdn-flag-component-box {
         /*margin: 0 auto;
         text-align: center;
@@ -111,6 +83,34 @@
         position: relative;
         width: 260px;
         margin: 5px 0px;
+    }
+    .csdn-flag-component-box a {
+        display: inline-block;
+        font-size: 14px;
+    }
+    .csdn-flag-component-box .praise {
+        padding-right: 20px;
+        background: #ff5722;
+        border-top-left-radius: 50px;
+        border-top-right-radius: 50px;
+        border-bottom-left-radius: 50px;
+        border-bottom-right-radius: 50px;
+        background: -webkit-linear-gradient(left,#ff5722,#f78d6b);
+        background: -o-linear-gradient(right,#ff5722,#f78d6b);
+        background: -moz-linear-gradient(right,#ff5722,#f78d6b);
+        background: linear-gradient(to right,#ff5722,#f78d6b);
+    }
+    .csdn-flag-component-box .praise,
+    .csdn-flag-component-box .share {
+        /*width: 110px;
+        height: 34px;
+        line-height: 34px;*/
+        height:auto;
+        line-height:normal;
+        color: #fff;
+        background: #ff0505;
+        border-radius: 5px;
+        padding: 2px 4px;
     }
 `;
 
@@ -1548,7 +1548,11 @@
 			div.headDeflectorContainer,
       #bdrainrwDragButton,
 			#page_wrapper .other div[class*='undefined'],
-			#page_wrapper .other > div[class=""]{
+			#page_wrapper .other > div[class=""],
+      /* 底部按钮-百度APP内播放 */
+      div.common-wrap.single-pd,
+      /* 顶部横幅-APP内播放 */
+      div#app div.guid-new{
 				display: none !important;
 			}
 		`,
@@ -1996,6 +2000,19 @@
           return url;
         },
         /**
+         * 获取每一项的标题元素
+         * @param {jQuery} jQDOM 目标项
+         * @returns {Element|undefined}
+         */
+        getItemTitleElement(jQDOM) {
+          return (
+            jQDOM[0].querySelector(".c-title-text") ||
+            jQDOM[0].querySelector("p.cu-title") ||
+            jQDOM[0].querySelector("div[class^=header-wrapper]") ||
+            jQDOM[0].querySelector(".c-title")
+          );
+        },
+        /**
          * 给元素添加【CSDN】下载标识
          * @param {jQuery} jQDOM
          */
@@ -2003,14 +2020,16 @@
           if (jQDOM.find(".csdn-flag-component-box").length) {
             return;
           }
-          jQDOM
-            .find(".c-title-text")
-            ?.append(
+          let title_text_element = handleItemURL.getItemTitleElement(jQDOM);
+          if (title_text_element) {
+            title_text_element.appendChild(
               jQuery(
                 `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
-              )
+              )[0]
             );
-          log.success("插入CSDN下载提示标题");
+
+            log.success("插入CSDN下载提示标题");
+          }
         },
         /**
          * 移除广告、推广
@@ -2205,10 +2224,7 @@
                 item.find(".white-bdsearch-isredirecrt").length === 0
               ) {
                 let title_text_element =
-                  item[0].querySelector(".c-title-text") ||
-                  item[0].querySelector("p.cu-title") ||
-                  item[0].querySelector("div[class^=header-wrapper]") ||
-                  item[0].querySelector(".c-title");
+                  handleItemURL.getItemTitleElement(item);
                 let is_redirect_icon = document.createElement("div");
                 is_redirect_icon.className = "white-bdsearch-isredirecrt";
                 is_redirect_icon.innerHTML = "<span>重</span>";
@@ -5135,7 +5151,8 @@
         log.success("屏蔽精彩推荐");
         GM_addStyle(`
         div[class^="relateTitle"],
-        .infinite-scroll-component__outerdiv{
+        .infinite-scroll-component__outerdiv,
+        div#fuseVideo + div[class]{
           display: none !important;
         }
         `);
