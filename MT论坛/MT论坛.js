@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 更新Utils库至2023-8-21;调整当前未登录情况时自动清空签到记录;
-// @version      3.1.7.1
+// @description  更新日志: 修复某些情况下使用Hello/Z4A图床上传图片但是失败无提示问题;
+// @version      3.1.7.2
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -4993,8 +4993,16 @@
             },
             onload: (response) => {
               console.log(response);
-              let json_data = JSON.parse(response.responseText);
-              console.log(json_data);
+              let json_data = null;
+              try {
+                json_data = JSON.parse(response.responseText);
+                console.log(json_data);
+              } catch (error) {
+                popups.toast("上传失败，请看控制台：" + error);
+                resolve(res_data);
+                return;
+              }
+
               let status_code = json_data["status_code"];
               if (status_code == 200) {
                 popups.toast("上传成功");
@@ -5029,7 +5037,7 @@
               }
             },
             onerror: (response) => {
-              console.log(response.responseText);
+              console.log(response);
               popups.toast("网络异常");
               resolve(res_data);
             },
