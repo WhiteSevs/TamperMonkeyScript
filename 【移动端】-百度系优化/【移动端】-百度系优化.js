@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.2
+// @version      1.4.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
 // @match        *://m.baidu.com/*
@@ -2068,7 +2068,7 @@
               );
               handleEveryOneSearch.handleCenter(
                 document.querySelectorAll(
-                  '.c-result.result[tpl="recommend_list"]'
+                  '.c-result.result[tpl^="recommend_list"]'
                 )
               );
             }
@@ -2344,7 +2344,10 @@
               return;
             }
             if (
-              !recommendElement.querySelector("div.c-gap-inner-bottom-small")
+              !recommendElement.querySelector("div.c-gap-inner-bottom-small") &&
+              !recommendElement.querySelector(
+                "div.cos-row div.cos-col"
+              )
             ) {
               return;
             }
@@ -2353,17 +2356,23 @@
               true
             );
             let rwListContainerHTML = "";
-            recommendElement
-              .querySelectorAll("div.c-gap-inner-bottom-small")
-              .forEach((item) => {
-                let searchText = item.textContent.trim();
-                rwListContainerHTML += `
+            let innerBottomSmallElementList = recommendElement.querySelectorAll(
+              "div.c-gap-inner-bottom-small"
+            );
+            if (!innerBottomSmallElementList.length) {
+              innerBottomSmallElementList = recommendElement.querySelectorAll(
+                "div.cos-row div.cos-col"
+              );
+            }
+            innerBottomSmallElementList.forEach((item) => {
+              let searchText = item.textContent.trim();
+              rwListContainerHTML += `
               <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;">
                 <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
                   <span>${searchText}</span>
                 </a>
               </div>`;
-              });
+            });
             recommendElement.innerHTML = `
             <div m-service="relative" data-tpl="san" id="relativewords" class="se-relativewords c-container se-relativewords-new c-bg-color-white">
               <div class="rw-little-title">
