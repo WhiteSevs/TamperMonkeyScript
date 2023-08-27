@@ -2345,9 +2345,7 @@
             }
             if (
               !recommendElement.querySelector("div.c-gap-inner-bottom-small") &&
-              !recommendElement.querySelector(
-                "div.cos-row div.cos-col"
-              )
+              !recommendElement.querySelector("div.cos-row div.cos-col")
             ) {
               return;
             }
