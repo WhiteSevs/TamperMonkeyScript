@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.8.21.9.40
+// @version      23.8.27.10.40
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1355,7 +1355,7 @@
           ShareInfoNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在",
           FileTooLarge: "抱歉，文件太大，不支持下载",
           InvalidSessionKey:
-            "天翼云Session已失效，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才能进行登录)",
+            "天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)",
         };
         this.default = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
@@ -1377,8 +1377,8 @@
               "content-type": "application/x-www-form-urlencoded",
               "user-agent":
                 "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Mobile Safari/537.36 Edg/94.0.992.38",
-              referer: "https://h5.cloud.189.cn/",
-              origin: "https://h5.cloud.189.cn",
+              referer: "https://cloud.189.cn/",
+              origin: "https://cloud.189.cn",
             },
           });
           if (!postResp.status) {
@@ -1539,29 +1539,10 @@
 
         /**
          * 天翼云登录弹窗
+         * @param {string} text 弹窗的显示的内容
          */
         this.gotoLogin = function (text = "") {
-          let closeCallback = function () {
-            loginPops?.close();
-            let waitRegister = pops.loading({
-              parent: document.body,
-              only: false,
-              content: {
-                text: "等待5s，登录的账号注册Cookies",
-              },
-              animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-            });
-            let registerTianYiYunCookies = GM_openInTab(
-              "https://cloud.189.cn/web/main/",
-              { active: false, setParent: true }
-            );
-            setTimeout(() => {
-              registerTianYiYunCookies?.close();
-              waitRegister?.close();
-              that.getDownloadUrl();
-            }, 5000);
-          };
-          let loginPops = pops.confirm({
+          pops.confirm({
             title: {
               position: "center",
               text: "天翼云",
@@ -1577,34 +1558,10 @@
                 text: "前往",
                 enable: true,
                 callback: () => {
-                  pops.iframe({
-                    title: {
-                      text: "天翼云登录",
-                    },
-                    loading: {
-                      text: "加载中...",
-                    },
-                    btn: {
-                      close: {
-                        callback: () => {
-                          closeCallback();
-                        },
-                      },
-                    },
-                    url: "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/Fredirect.html",
-                    height: pops.isPhone()
-                      ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.height
-                      : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
-                    width: pops.isPhone()
-                      ? NetDiskUI.popsStyle.tianyiyunLoginLoading_Phone.width
-                      : NetDiskUI.popsStyle.tianyiyunLoginLoading_PC.height,
-                    drag: GM_getValue("pcDrag", false),
-                    animation: GM_getValue(
-                      "popsAnimation",
-                      "pops-anim-fadein-zoom"
-                    ),
-                    sandbox: true,
-                  });
+                  window.open(
+                    "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/main",
+                    "_blank"
+                  );
                 },
               },
             },
