@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      0.8
+// @version      0.9
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -45,8 +45,6 @@
     },
   });
   /* -----------------↑公共配置↑----------------- */
-
-
 
   /* -----------------↓函数区域↓----------------- */
   /**
@@ -421,10 +419,33 @@
         `);
       }
     },
+    /**
+     * 修复代码的行号显示不够问题
+     * 超过1w行不会高亮代码
+     */
+    repairCodeLineNumber() {
+      if (!window.location.pathname.split("/")?.includes("code")) {
+        return;
+      }
+      utils
+        .waitNode("#script-content div.code-container pre.prettyprint ol")
+        .then((nodeList) => {
+          if (nodeList[0].childElementCount >= 1000) {
+            log.success(
+              `当前代码行数${nodeList[0].childElementCount}行，超过1000行，优化行号显示问题`
+            );
+            GM_addStyle(`
+          pre.prettyprint{
+            padding-left: 10px;
+            font-family: Monaco,Consolas,'Lucida Console','Courier New',serif;
+            font-size: 12px;
+          }
+          `);
+          }
+        });
+    },
   };
   /* -----------------↑函数区域↑----------------- */
-
-
 
   /* -----------------↓执行入口↓----------------- */
   GreasyforkMenu.init();
@@ -435,6 +456,7 @@
     GreasyforkBusiness.setFindCodeSearchBtn();
     GreasyforkBusiness.updateScript();
     GreasyforkBusiness.repairImgShow();
+    GreasyforkBusiness.repairCodeLineNumber();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
