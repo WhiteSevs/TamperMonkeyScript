@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      0.9
+// @version      1.0
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -117,13 +117,14 @@
             },
           },
           clearAccount_Password: {
-            text: "清空账号/密码",
+            text: "⚙ 清空账号/密码",
             enable: false,
-            showText: (_text_, _enable_) => {
-              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
-            },
             callback: () => {
-              Qmsg.success("已清空账号/密码");
+              if (confirm("确定清空账号和密码？")) {
+                GM_deleteValue("user");
+                GM_deleteValue("pwd");
+                Qmsg.success("已清空账号/密码");
+              }
             },
           },
           autoLogin: {
