@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.2.10.00
+// @version      23.9.2.14.50
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1510,17 +1510,17 @@
           let jsonData = utils.toJSON(respData.responseText);
           log.info(jsonData);
           if (jsonData["res_code"] === 0) {
-            let download_url = jsonData["fileDownloadUrl"];
-            download_url = NetDiskFilterScheme.handleUrl(
+            let downloadUrl = jsonData["fileDownloadUrl"];
+            downloadUrl = NetDiskFilterScheme.handleUrl(
               "tianyiyun-scheme-enable",
               "tianyiyun-scheme-forward",
-              download_url
+              downloadUrl
             );
             NetDiskUI.staticView.oneFile(
               "天翼云单文件直链",
               that.fileName,
               utils.formatByteToSize(that.fileSize),
-              download_url,
+              downloadUrl,
               that.fileCreateDate,
               that.fileLastOpTime
             );
@@ -1755,21 +1755,21 @@
           let respData = postResp.data;
           let jsonData = utils.toJSON(respData.responseText);
           if (jsonData["code"] == 0) {
-            let download_url = jsonData["data"]["url"];
-            if (download_url === "") {
+            let downloadUrl = jsonData["data"]["url"];
+            if (downloadUrl === "") {
               Qmsg.error("对方的分享流量不足");
             } else {
-              download_url = NetDiskFilterScheme.handleUrl(
+              downloadUrl = NetDiskFilterScheme.handleUrl(
                 "wenshushu-static-scheme-enable",
                 "wenshushu-static-scheme-forward",
-                download_url
+                downloadUrl
               );
               /* 文叔叔没有上传时间信息(暂时是这样的) */
               NetDiskUI.staticView.oneFile(
                 "文叔叔单文件直链",
                 file_name,
                 file_size,
-                download_url
+                downloadUrl
               );
             }
           } else if (jsonData["data"] in that.code) {
@@ -3019,6 +3019,21 @@
         url = url.replaceAll("{#accessCode#}", accessCode);
       }
       return url;
+    },
+    /**
+     * 在iframe内访问资源，但是可能页面存在同源策略，会导致iframe不生效
+     * @param {string} url
+     */
+    iframeDownload(url = "") {
+      let downloadIframe = document.createElement("iframe");
+      downloadIframe.onload = function () {
+        downloadUrl.onload = null;
+        downloadIframe.remove();
+      };
+      downloadIframe.src = url;
+      downloadIframe.style.display = "none";
+      downloadIframe.style.height = "0";
+      document.body.appendChild(downloadIframe);
     },
   };
 
@@ -4597,7 +4612,10 @@
             switch (item.getAttribute("type")) {
               case "checkbox":
                 let defaultChecked = false;
-                if (typeof data_default === "string" && data_default === "true") {
+                if (
+                  typeof data_default === "string" &&
+                  data_default === "true"
+                ) {
                   defaultChecked = true;
                 }
                 item.checked = GM_getValue(data_key, defaultChecked);
@@ -4617,8 +4635,8 @@
                 break;
               case "range":
                 item.value = GM_getValue(data_key, data_default)
-              ? GM_getValue(data_key, data_default)
-              : "";
+                  ? GM_getValue(data_key, data_default)
+                  : "";
                 jQuery(item).on("input propertychange", (val) => {
                   jQuery(
                     `.netdisk-setting label[data-id=netdisk-${data_key}]`
@@ -4640,8 +4658,8 @@
 
               default:
                 item.value = GM_getValue(data_key, data_default)
-              ? GM_getValue(data_key, data_default)
-              : "";
+                  ? GM_getValue(data_key, data_default)
+                  : "";
                 jQuery(item).on("input propertychange", (val) => {
                   GM_setValue(data_key, item.value);
                 });
@@ -5635,12 +5653,10 @@
             ok: {
               text: "下载",
               callback: (event) => {
-                window.open(
-                  event.popsElement
-                    .querySelector(".netdisk-static-filename a")
-                    .getAttribute("href"),
-                  "_blank"
-                );
+                let downloadUrl = event.popsElement
+                  .querySelector(".netdisk-static-filename a")
+                  .getAttribute("href");
+                window.open(downloadUrl, "_blank");
               },
             },
           },
