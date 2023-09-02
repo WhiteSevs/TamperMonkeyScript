@@ -43,6 +43,7 @@
 - 读取剪贴板内容，识别网盘链接
 - 设置 PC 端可拖拽窗口
 - 设置`自动输入访问码`，可通过`右击`或`长按`出现的菜单选项`访问链接`，如果存在访问码，将自动填入访问码，目前存在部分网盘未实现自动填入(没找到这个网盘的存在链接的)
+- 设置`获取重定向后的直链`，可对某些网盘直链解析链接进行重定向后的链接获取
 
 ## ![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=32](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=32) 百度网盘
 
