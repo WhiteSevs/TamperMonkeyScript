@@ -17,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-8-22",
+    version: "2023-9-2",
   };
 
   /**
@@ -1351,6 +1351,10 @@
         if (typeof item["accessKey"] !== "undefined") {
           /* 菜单项的可选访问键 */
           menuOptions["accessKey"] = item["accessKey"];
+        }
+        if (typeof item["title"] !== "undefined") {
+          /* 菜单项的鼠标悬浮上的工具提示 */
+          menuOptions["title"] = item["title"];
         }
         let callbackFunc = function (event) {
           let localEnable = Boolean(
