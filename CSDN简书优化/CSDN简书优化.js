@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.7.2
+// @version      0.7.3
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -272,7 +272,13 @@
             .article-show-more,
             #csdn-toolbar-profile-nologin,
             .guide-rr-first,
-            #recommend-item-box-tow{
+            #recommend-item-box-tow,
+            /* 发文章得原力分图片提示 */
+            div.csdn-toolbar-creative-mp,
+            /* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */
+            #toolBarBox div.write-guide-buttom-box,
+            /* 觉得还不错? 一键收藏 */
+            ul.toolbox-list div.tool-active-list{
                 display: none !important;
             }
             .comment-list-box{
@@ -325,7 +331,8 @@
          */
         unBlockCopy() {
           log.info("取消禁止复制");
-          jQuery(document).on("click", ".hljs-button.signin", function () {
+          jQuery(document).on("click", ".hljs-button", function (event) {
+            utils.preventEvent(event);
             /* 复制按钮 */
             let btnNode = jQuery(this);
             /* 需要复制的文本 */
@@ -334,7 +341,7 @@
             btnNode.attr("data-title", "复制成功");
           });
           jQuery(document).on("mouseenter mouseleave", "pre", function () {
-            this.querySelector(".hljs-button.signin")?.setAttribute(
+            this.querySelector(".hljs-button")?.setAttribute(
               "data-title",
               "复制"
             );
@@ -345,11 +352,14 @@
             jQuery("#content_views")
               .off("copy")
               .on("copy", function (event) {
-                event?.preventDefault();
-                event?.stopPropagation();
+                utils.preventEvent(event);
                 utils.setClip(unsafeWindow.getSelection().toString());
                 return false;
               });
+          });
+          /* 删除所有复制按钮的原有的复制事件 */
+          jQuery(".hljs-button").each((_, item) => {
+            item.removeAttribute("onclick");
           });
         },
         /**
@@ -573,6 +583,48 @@
           `);
         },
         /**
+         * 屏蔽右侧悬浮按钮
+         */
+        csdnShieldfloatingButton() {
+          if (!GM_Menu.get("csdnShieldfloatingButton")) {
+            return;
+          }
+          log.info("屏蔽右侧悬浮按钮");
+          GM_addStyle(`
+          div.csdn-side-toolbar{
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 屏蔽底部推荐文章
+         */
+        csdnShieldBottomRecommendArticle() {
+          if (!GM_Menu.get("csdnShieldBottomRecommendArticle")) {
+            return;
+          }
+          log.info("屏蔽底部推荐文章");
+          GM_addStyle(`
+          main > div.recommend-box {
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 屏蔽底部悬浮工具栏
+         */
+        csdnShieldBottomFloatingToolbar() {
+          if (!GM_Menu.get("csdnShieldBottomFloatingToolbar")) {
+            return;
+          }
+          log.info("屏蔽底部悬浮工具栏");
+          GM_addStyle(`
+          #toolBarBox {
+            display: none !important;
+          }
+          `);
+        },
+        /**
          * 显示/隐藏目录
          */
         showOrHideDirectory() {
@@ -635,6 +687,9 @@
           this.articleCenter();
           this.shieldLoginDialog();
           this.autoExpandContent();
+          this.csdnShieldfloatingButton();
+          this.csdnShieldBottomRecommendArticle();
+          this.csdnShieldBottomFloatingToolbar();
           this.showOrHideDirectory();
           this.showOrHideSidebar();
           let that = this;
@@ -921,9 +976,170 @@
         }
       },
     },
-  };
+    huaWeiCSDN: {
+      /**
+       * 判断是否是CSDN
+       */
+      locationMatch() {
+        return Boolean(/huaweicloud.csdn.net/i.test(window.location.origin));
+      },
+      PC: {
+        addCSS() {
+          GM_addStyle(`
+          /* 底部免费抽xxx奖品广告 */
+          div.siderbar-box,
+          /* 华为开发者联盟加入社区 */
+          div.user-desc.user-desc-fix,
+          /* 点击阅读全文 */
+          div.article-show-more{
+            display: none !important;
+          }
 
-  if (Optimization.csdn.locationMatch()) {
+          /* 自动展开全文 */
+          .main-content .user-article{
+            height: auto !important;
+            overflow: auto !important;
+          }
+          `);
+        },
+        run() {
+          this.addCSS();
+          this.huaweiCSDNShieldCloudDeveloperTaskChallengeEvent();
+          this.huaweiCSDNShieldLeftFloatingButton();
+          this.huaweiCSDNBlockRightColumn();
+          this.huaweiCSDNBlockRecommendedContentAtTheBottom();
+          this.huaweiCSDNShieldTheBottomForMoreRecommendations();
+        },
+        /**
+         * 屏蔽云开发者任务挑战活动
+         */
+        huaweiCSDNShieldCloudDeveloperTaskChallengeEvent() {
+          let GM_cookie = new utils.GM_Cookie();
+          GM_cookie.set({ name: "show_join_group_index", value: 1 });
+          log.success("屏蔽云开发者任务挑战活动");
+        },
+        /**
+         * 屏蔽左侧悬浮按钮
+         */
+        huaweiCSDNShieldLeftFloatingButton() {
+          if (!GM_Menu.get("huaweiCSDNShieldLeftFloatingButton")) {
+            return;
+          }
+          log.success(
+            "屏蔽左侧悬浮按钮，包括当前阅读量、点赞按钮、评论按钮、分享按钮"
+          );
+          GM_addStyle(`
+          div.toolbar-wrapper.article-interact-bar{
+            display: none !important;
+          }`);
+        },
+        /**
+         * 屏蔽右侧栏
+         */
+        huaweiCSDNBlockRightColumn() {
+          if (!GM_Menu.get("huaweiCSDNBlockRightColumn")) {
+            return;
+          }
+          log.success("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签");
+          GM_addStyle(`
+          div.page-home-right.dp-aside-right{
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 屏蔽底部推荐内容
+         */
+        huaweiCSDNBlockRecommendedContentAtTheBottom() {
+          if (!GM_Menu.get("huaweiCSDNBlockRecommendedContentAtTheBottom")) {
+            return;
+          }
+          log.success("屏蔽底部推荐内容");
+          GM_addStyle(`
+          div.recommend-card-box{
+            display: none !important;
+          }`);
+        },
+        /**
+         * 屏蔽底部更多推荐
+         */
+        huaweiCSDNShieldTheBottomForMoreRecommendations() {
+          if (!GM_Menu.get("huaweiCSDNShieldTheBottomForMoreRecommendations")) {
+            return;
+          }
+          log.success("屏蔽底部更多推荐");
+          GM_addStyle(`
+          div.more-article{
+            display: none !important;
+          }`);
+        },
+      },
+    },
+  };
+  if (Optimization.huaWeiCSDN.locationMatch()) {
+    GM_Menu = new utils.GM_Menu(
+      {
+        huaweiCSDNShieldCloudDeveloperTaskChallengeEvent: {
+          text: "电脑-屏蔽云开发者任务挑战活动",
+          enable: true,
+          showText: (_text_, _enable_) => {
+            return (_enable_ ? "✅" : "❌") + " " + _text_;
+          },
+          callback: () => {
+            window.location.reload();
+          },
+        },
+        huaweiCSDNShieldLeftFloatingButton: {
+          text: "电脑-屏蔽左侧悬浮按钮",
+          enable: false,
+          title: "包括当前阅读量、点赞按钮、评论按钮、分享按钮",
+          showText: (_text_, _enable_) => {
+            return (_enable_ ? "✅" : "❌") + " " + _text_;
+          },
+          callback: () => {
+            window.location.reload();
+          },
+        },
+        huaweiCSDNBlockRightColumn: {
+          text: "电脑-屏蔽右侧",
+          enable: false,
+          title: "包括相关产品-活动日历-运营活动-热门标签",
+          showText: (_text_, _enable_) => {
+            return (_enable_ ? "✅" : "❌") + " " + _text_;
+          },
+          callback: () => {
+            window.location.reload();
+          },
+        },
+        huaweiCSDNBlockRecommendedContentAtTheBottom: {
+          text: "电脑-屏蔽底部推荐内容",
+          enable: false,
+          showText: (_text_, _enable_) => {
+            return (_enable_ ? "✅" : "❌") + " " + _text_;
+          },
+          callback: () => {
+            window.location.reload();
+          },
+        },
+        huaweiCSDNShieldTheBottomForMoreRecommendations: {
+          text: "电脑-屏蔽底部更多推荐",
+          enable: false,
+          showText: (_text_, _enable_) => {
+            return (_enable_ ? "✅" : "❌") + " " + _text_;
+          },
+          callback: () => {
+            window.location.reload();
+          },
+        },
+      },
+      false,
+      GM_getValue,
+      GM_setValue,
+      GM_registerMenuCommand,
+      GM_unregisterMenuCommand
+    );
+    Optimization.huaWeiCSDN.PC.run();
+  } else if (Optimization.csdn.locationMatch()) {
     if (utils.isPhone()) {
       GM_Menu = new utils.GM_Menu(
         {
@@ -968,18 +1184,8 @@
       GM_Menu = new utils.GM_Menu(
         {
           removeCSDNDownloadPC: {
-            text: "电脑-移除文章底部的CSDN下载",
+            text: "电脑-屏蔽底部推荐文章的CSDN下载",
             enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          articleCenter: {
-            text: "电脑-全文居中",
-            enable: true,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
@@ -995,7 +1201,7 @@
             },
             callback: (_key_, _enable_) => {
               if (!_enable_) {
-                window.GM_CSS_GM_shieldLoginDialog.forEach((item) => {
+                window.GM_CSS_GM_shieldLoginDialog?.forEach((item) => {
                   item.remove();
                 });
               } else {
@@ -1014,6 +1220,46 @@
                   ];
                 }
               }
+            },
+          },
+          csdnShieldfloatingButton: {
+            text: "电脑-屏蔽右侧悬浮按钮",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
+          csdnShieldBottomRecommendArticle: {
+            text: "电脑-屏蔽底部推荐文章",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
+          csdnShieldBottomFloatingToolbar: {
+            text: "电脑-屏蔽底部悬浮工具栏",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
+          articleCenter: {
+            text: "电脑-全文居中",
+            enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
             },
           },
           autoExpandContent: {
@@ -1054,6 +1300,14 @@
         GM_unregisterMenuCommand
       );
     }
+    GM_Menu.add({
+      gotoCSDNCKnow: {
+        text: "⚙ 前往C知道",
+        callback() {
+          window.open("https://so.csdn.net/so/ai?", "_blank");
+        },
+      },
+    });
     Optimization.csdn.run();
   } else if (Optimization.jianshu.locationMatch()) {
     if (utils.isPhone()) {
