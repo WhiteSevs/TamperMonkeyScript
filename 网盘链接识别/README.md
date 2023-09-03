@@ -59,7 +59,7 @@
 | [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云 | √ | | |  |20|300|
 | [![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16)](https://www.wenshushu.cn/) 文叔叔 | √ | √ | | √ |20|300|
 | [![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16)](https://cowtransfer.com/) 奶牛快传 | √ | √ | | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123云盘 | √ | √ | √ | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123云盘(文件>100MB则需登录) | √ | √ | √ | √ |20|300|
 | [![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16)](https://www.weiyun.com/) 腾讯微云 | √ |  |  |  |20|300|
 | [![https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16)](https://pan.xunlei.com/) 迅雷网盘 | √ |  |  |  |20|300|
 | [![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16)](http://www.115.com/) 115网盘 | √ |  |  |  |20|300|
