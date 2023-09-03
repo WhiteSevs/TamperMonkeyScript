@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.3.13.30
+// @version      23.9.3.23.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -787,9 +787,9 @@
         let that = this;
         /**
          * 入口
-         * @param {Number} netDiskIndex 网盘名称索引下标
-         * @param {String} shareCode
-         * @param {String} accessCode
+         * @param {number} netDiskIndex 网盘名称索引下标
+         * @param {string} shareCode
+         * @param {string} accessCode
          * @returns
          */
         this.default = function (netDiskIndex, shareCode, accessCode) {
@@ -854,7 +854,7 @@
        * 多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，
        * 参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]}
        * @constructor
-       * @returns {Object}
+       * @returns {object}
        */
       lanzou: function () {
         let that = this;
@@ -1803,6 +1803,7 @@
           that.accessCode = accessCode;
           that.panelList = [];
           that.panelContent = "";
+          that.Authorization = GM_getValue("_123pan_User_Authorization");
           let checkLinkValidityStatus = await that.checkLinkValidity();
           if (!checkLinkValidityStatus) {
             return;
@@ -1834,6 +1835,9 @@
                   downloadInfo["data"]["DownloadURL"]
                 );
                 fileSize = utils.formatByteToSize(fileInfo["Size"]);
+              } else if (downloadInfo && downloadInfo["code"] === 401) {
+                downloadUrl = "javascript:;";
+                fileSize = "请登录后下载";
               } else {
                 downloadUrl = "javascript:;";
                 fileSize = "获取下载链接失败";
@@ -1846,7 +1850,6 @@
               );
               fileSize = utils.formatByteToSize(fileInfo["Size"]);
             }
-            console.log(fileInfo);
             let fileUploadTime = new Date(fileInfo["CreateAt"]).getTime();
             let fileLatestTime = new Date(fileInfo["UpdateAt"]).getTime();
             fileUploadTime = utils.formatTime(fileUploadTime);
@@ -2100,6 +2103,17 @@
                       updateTime: item["UpdateAt"],
                     },
                   ];
+                } else if (downloadInfo && downloadInfo["code"] === 401) {
+                  that.panelList = [
+                    ...that.panelList,
+                    {
+                      url: "请登录后下载",
+                      fileName: fileName,
+                      fileSize: 0,
+                      createTime: item["CreateAt"],
+                      updateTime: item["UpdateAt"],
+                    },
+                  ];
                 } else {
                   that.panelList = [
                     ...that.panelList,
@@ -2150,6 +2164,19 @@
           Size
         ) {
           let authK_V = that.getFileDownloadAuth();
+          let headers = {
+            "App-Version": "3",
+            Platform: "web",
+            "Content-Type": "application/json;charset=UTF-8",
+            Host: "www.123pan.com",
+            accept: "*/*",
+            "user-agent": utils.getRandomPCUA(),
+            Referer: "https://www.123pan.com/s/" + ShareKey,
+            Origin: "https://www.123pan.com",
+          };
+          if (that.Authorization) {
+            headers["Authorization"] = "Bearer " + that.Authorization;
+          }
           log.success("获取下载链接加密参数：" + authK_V);
           let postResp = await httpx.post({
             url: `https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`,
@@ -2161,16 +2188,7 @@
               Size: Size,
             }),
             responseType: "json",
-            headers: {
-              "App-Version": "3",
-              Platform: "web",
-              "Content-Type": "application/json;charset=UTF-8",
-              Host: "www.123pan.com",
-              accept: "*/*",
-              "user-agent": utils.getRandomPCUA(),
-              Referer: "https://www.123pan.com/s/" + ShareKey,
-              Origin: "https://www.123pan.com",
-            },
+            headers: headers,
           });
           if (!postResp.status) {
             return;
@@ -3109,6 +3127,40 @@
   };
 
   /**
+   * 网盘鉴权处理获取
+   */
+  const NetDiskAuthorization = {
+    netDisk: {
+      /**
+       * 123网盘，一般用于>100MB的文件直链获取
+       */
+      _123pan: function () {
+        if (window.location.hostname !== "www.123pan.com") {
+          return;
+        }
+        /* 没在设置中开启直链获取就不获取鉴权信息 */
+        if (!GM_getValue("_123pan-static-enable")) {
+          return;
+        }
+        let authorToken = unsafeWindow.localStorage.getItem("authorToken");
+        if (utils.isNull(authorToken)) {
+          return;
+        }
+        /* 去除左右的引号 */
+        authorToken = authorToken.replace(/^\"/, "").replace(/\"$/, "");
+        log.success("获取123网盘已登录用户的authorToken值👇");
+        log.success(authorToken);
+        GM_setValue("_123pan_User_Authorization", authorToken);
+      },
+    },
+    default() {
+      Object.keys(NetDiskAuthorization.netDisk).forEach((keyName) => {
+        this.netDisk[keyName]();
+      });
+    },
+  };
+
+  /**
    * android scheme调用
    */
   const NetDiskFilterScheme = {
@@ -3173,7 +3225,16 @@
       if (utils.isNull(this.accessCode)) {
         return;
       }
-      if (window.location.href.indexOf(this.shareCode) === -1) {
+      /* 百度如果shareCode第一位是1的话，新版本会在href中去除这个1 */
+      if (this.netDiskName === "baidu" && this.shareCode.startsWith("1")) {
+        if (
+          !window.location.href.includes(
+            this.shareCode.slice(1, this.shareCode.length)
+          )
+        ) {
+          return;
+        }
+      } else if (!window.location.href.includes(this.shareCode)) {
         return;
       }
       if (this.netDiskName in NetDiskAutoFillAccessCode) {
@@ -3183,7 +3244,25 @@
     /**
      * 百度网盘
      */
-    baidu() {},
+    baidu() {
+      if (
+        window.location.hostname === "pan.baidu.com" &&
+        window.location.pathname === "/share/init" &&
+        window.location.search.startsWith("?surl=")
+      ) {
+        log.success(["自动填写链接", this.tempData]);
+        utils.waitNode("div.verify-form #accessCode").then((nodeList) => {
+          if (!utils.isVisible(nodeList[0])) {
+            log.error("输入框不可见，不输入密码");
+            return;
+          }
+          Qmsg.success("自动填入访问码");
+          nodeList[0].value = this.accessCode;
+          utils.dispatchEvent(nodeList[0], "input");
+          document.querySelector("div.verify-form #submitBtn")?.click();
+        });
+      }
+    },
     /**
      * 蓝奏云
      */
@@ -6657,6 +6736,7 @@
   );
   jQuery(document).ready(function () {
     NetDiskAutoFillAccessCode.default();
+    NetDiskAuthorization.default();
     NetDiskUI.monitorDOMInsert();
   });
 })();
