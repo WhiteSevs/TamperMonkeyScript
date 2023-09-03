@@ -2,8 +2,8 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.2.14.50
-// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、magnet格式,支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
+// @version      23.9.3.13.30
+// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
 // @run-at       document-body
@@ -35,7 +35,7 @@
 // @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
 // @require	     https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1198446
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1244762
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1205376
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1187390
@@ -718,7 +718,7 @@
      * @param {Number} netDiskIndex 网盘名称索引下标
      * @param {String} shareCode
      * @param {String} accessCode
-     * @returns
+     * @returns {string}
      */
     handleLinkShow(netDiskName, netDiskIndex, shareCode, accessCode) {
       let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
@@ -2407,8 +2407,8 @@
         };
         /**
          * 解析多文件信息
-         * @param {String} hash 文件hash值
-         * @param {String} fileName 文件名
+         * @param {string} hash 文件hash值
+         * @param {string} fileName 文件名
          * @returns
          */
         this.parseMoreFile = async function (hash = "", fileName = "") {
@@ -2417,6 +2417,7 @@
             return;
           }
           let downloadList = [];
+          Qmsg.success("正在遍历多文件信息");
           for (let i = 0; i < folderInfo.length; i++) {
             let item = folderInfo[i];
             let downloadUrl = await that.getDirLink(
@@ -2602,8 +2603,9 @@
         };
         /**
          * 获取下载链接
-         * @param {String} fileHash 文件hash值
-         * @param {String} fileName 文件名
+         * @param {string} fileHash 文件hash值
+         * @param {string} fileName 文件名
+         * @returns {Promise}
          */
         this.getFileLink = async function (fileHash = "", fileName = "") {
           fileName = encodeURIComponent(fileName);
@@ -2615,8 +2617,20 @@
             headers: {
               "User-Agent": utils.getRandomPCUA(),
             },
+            onerror: function () {},
           });
           if (!getResp.status) {
+            if (utils.isNotNull(getResp.data[0]?.responseText)) {
+              let errorData = utils.toJSON(getResp.data[0].responseText);
+              log.error(["坚果云", errorData]);
+              if (errorData["errorCode"] === "UnAuthorized") {
+                that.gotoLogin();
+              } else {
+                Qmsg.error(errorData["detailMsg"]);
+              }
+            } else {
+              Qmsg.error("请求异常");
+            }
             return;
           }
           let respData = getResp.data;
@@ -2634,10 +2648,10 @@
         };
         /**
          * 获取文件夹下的文件下载链接
-         * @param {String} fileHash
-         * @param {String} fileName
-         * @param {String} filePath
-         * @returns
+         * @param {string} fileHash
+         * @param {string} fileName
+         * @param {string} filePath
+         * @returns {Promise}
          */
         this.getDirLink = async function (
           fileHash = "",
@@ -2651,8 +2665,20 @@
             headers: {
               "User-Agent": utils.getRandomPCUA(),
             },
+            onerror: function () {},
           });
           if (!getResp.status) {
+            if (utils.isNotNull(getResp.data[0]?.responseText)) {
+              let errorData = utils.toJSON(getResp.data[0].responseText);
+              log.error(["坚果云", errorData]);
+              if (errorData["errorCode"] === "UnAuthorized") {
+                that.gotoLogin();
+              } else {
+                Qmsg.error(errorData["detailMsg"]);
+              }
+            } else {
+              Qmsg.error("请求异常");
+            }
             return;
           }
           let respData = getResp.data;
@@ -2670,7 +2696,7 @@
         };
         /**
          * 获取文件夹信息
-         * @param {String} hash
+         * @param {string} hash
          * @returns
          */
         this.getFolderInfo = async function (hash = "") {
@@ -2694,7 +2720,34 @@
             Qmsg.error("坚果云: 处理多文件信息异常");
           }
         };
-
+        /**
+         * 前往登录
+         */
+        this.gotoLogin = function () {
+          pops.confirm({
+            mask: true,
+            title: {
+              text: "提示",
+              position: "center",
+            },
+            content: {
+              text: `解析失败，原因：当前尚未登录坚果云，是否前往登录？`,
+            },
+            btn: {
+              reverse: true,
+              position: "end",
+              ok: {
+                text: "前往",
+                callback: function (_event_) {
+                  window.open(
+                    "https://www.jianguoyun.com/d/login#from=https%3A%2F%2Fwww.jianguoyun.com%2F",
+                    "_blank"
+                  );
+                },
+              },
+            },
+          });
+        };
         return this;
       },
       /**
@@ -2731,6 +2784,11 @@
           if (!downloadUrl) {
             return;
           }
+          downloadUrl = NetDiskFilterScheme.handleUrl(
+            "nainiu-static-scheme-enable",
+            "nainiu-static-scheme-forward",
+            downloadUrl
+          );
           NetDiskUI.staticView.oneFile(
             "奶牛快传单文件直链",
             checkLinkValidityInfo["fileName"],
@@ -2938,7 +2996,12 @@
       toastText = "已复制"
     ) {
       GM_setClipboard(
-        NetDisk.handleLinkShow(netDiskName, netDiskIndex, shareCode, accessCode)
+        NetDiskParse.getBlankUrl(
+          netDiskName,
+          netDiskIndex,
+          shareCode,
+          accessCode
+        )
       );
       Qmsg.success(toastText);
     },
@@ -2953,36 +3016,41 @@
       if (accessCode) {
         NetDiskParse.setClipboard(netDiskName, shareCode, accessCode);
       }
+      log.success(["新标签页打开", arguments]);
       document
         .querySelector("meta[name='referrer']")
         ?.setAttribute(
           "content",
           "no-referrer"
         ); /* 百度网盘会拒绝referrer不安全访问 */
-      window.open(url);
+      window.open(url, "_blank");
     },
     /**
-     * 对链接进行scheme过滤
+     * 将链接转为Scheme格式并打开
      * @param {string} netDiskName 网盘名称
      * @param {number} netDiskIndex 网盘名称索引下标
      * @param {string} shareCode
      * @param {string} accessCode
      */
-    scheme(netDiskName, netDiskIndex, shareCode, accessCode) {
-      let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
-      let url = netDiskMatchRegular.blank.replace(/{#shareCode#}/gi, shareCode);
+    openScheme(netDiskName, netDiskIndex, shareCode, accessCode) {
+      let url = NetDiskParse.getBlankUrl(
+        netDiskName,
+        netDiskIndex,
+        shareCode,
+        accessCode
+      );
       url = NetDiskFilterScheme.handleUrl(
         `${netDiskName}-scheme-enable`,
         `${netDiskName}-scheme-forward`,
         url
       );
-      window.open(url);
+      window.open(url, "_blank");
     },
     /**
      * 获取重定向后的直链
      * @param {string} url
      * @param {string} userAgent 用户代理字符串
-     * @returns
+     * @returns {Promise}
      */
     async getRedirectFinalUrl(url, userAgent) {
       if (!GM_getValue("getTheDirectLinkAfterRedirection", true)) {
@@ -3009,14 +3077,17 @@
      * @param {number} netDiskIndex
      * @param {string|undefined} shareCode
      * @param {string|undefined} accessCode
+     * @returns {string}
      */
     getBlankUrl(netDiskName, netDiskIndex, shareCode, accessCode) {
       let url = NetDisk.regular[netDiskName][netDiskIndex].blank;
       if (shareCode) {
         url = url.replaceAll("{#shareCode#}", shareCode);
       }
-      if (accessCode) {
+      if (accessCode && accessCode !== "") {
         url = url.replaceAll("{#accessCode#}", accessCode);
+      } else {
+        url = url.replace(/( |提取码:|{#accessCode#}|\?pwd=)/gi, "");
       }
       return url;
     },
@@ -3049,10 +3120,10 @@
     defaultExtra: "",
     /**
      *
-     * @param {String} enable_key 是否启用key
-     * @param {String} forward_key 转发的scheme
-     * @param {String} url 需要转发的url
-     * @returns
+     * @param {string} enable_key 是否启用key
+     * @param {string} forward_key 转发的scheme
+     * @param {string} url 需要转发的url
+     * @returns {string}
      */
     handleUrl(enable_key, forward_key, url) {
       if (!GM_getValue(enable_key, false)) {
@@ -4171,8 +4242,8 @@
               checkbox_oneStatic: true,
               checkbox_oneOrMoreStatic: false,
               checkbox_openBlank: true,
-              checkbox_static_scheme: false,
-              text_static_scheme_forward: false,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
@@ -4271,7 +4342,7 @@
               endHTML: "",
             },
             {
-              type: "磁力magnet",
+              type: "BT磁力",
               key: "magnet",
               checkbox_oneStatic: false,
               checkbox_oneOrMoreStatic: false,
@@ -4285,14 +4356,14 @@
               firstHTML: "",
               endHTML: `
               <div class="netdisk-setting-menu-item" type="checkbox">
-                  <p>调用scheme</p>
+                  <p>Scheme转发</p>
                   <div class="netdisk-checkbox">
                     <input type="checkbox" data-key="magnet-scheme-enable">
                     <div class="knobs"><span></span></div><div class="layer"></div>
                   </div>
               </div>
               <div class="netdisk-setting-menu-item" type="scheme">
-                  <p>scheme转发</p>
+                  <p>Scheme链接</p>
                   <input type="text" data-key="magnet-scheme-forward" placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
               </div>
               `,
@@ -4384,7 +4455,7 @@
                 item.checkbox_static_scheme
                   ? `
               <div class="netdisk-setting-menu-item" type="checkbox">
-                  <p>直链调用scheme</p>
+                  <p>Scheme转发直链</p>
                   <div class="netdisk-checkbox">
                     <input  type="checkbox" 
                             data-key="${item.key}-static-scheme-enable">
@@ -4398,7 +4469,7 @@
                 item.text_static_scheme_forward
                   ? `
               <div class="netdisk-setting-menu-item" type="scheme">
-                  <p>scheme直链转发</p>
+                  <p>Scheme链接</p>
                   <input  type="text" 
                       data-key="${item.key}-static-scheme-forward"
                       placeholder="如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx">
@@ -5300,7 +5371,7 @@
               accessCode
             );
           } else if (schemeEnable) {
-            NetDiskParse.scheme(
+            NetDiskParse.openScheme(
               netDiskName,
               netDiskIndex,
               shareCode,
@@ -5506,6 +5577,22 @@
           ".whitesevPop .netdisk-url a",
           function (event) {
             NetDiskUI.view.showContextMenu(event, undefined, [
+              {
+                text: "复制链接",
+                callback: function () {
+                  let netDiskName = event.target.getAttribute("data-netdisk");
+                  let netDiskIndex =
+                    event.target.getAttribute("data-netdisk-index");
+                  let shareCode = event.target.getAttribute("data-sharecode");
+                  let accessCode = event.target.getAttribute("data-accesscode");
+                  NetDiskParse.copyText(
+                    netDiskName,
+                    netDiskIndex,
+                    shareCode,
+                    accessCode
+                  );
+                },
+              },
               {
                 text: "访问链接",
                 callback: function () {
@@ -6275,6 +6362,22 @@
           function (event) {
             NetDiskUI.view.showContextMenu(event, undefined, [
               {
+                text: "复制链接",
+                callback: function () {
+                  let netDiskName = event.target.getAttribute("data-netdisk");
+                  let netDiskIndex =
+                    event.target.getAttribute("data-netdisk-index");
+                  let shareCode = event.target.getAttribute("data-sharecode");
+                  let accessCode = event.target.getAttribute("data-accesscode");
+                  NetDiskParse.copyText(
+                    netDiskName,
+                    netDiskIndex,
+                    shareCode,
+                    accessCode
+                  );
+                },
+              },
+              {
                 text: "访问链接",
                 callback: function () {
                   let netDiskName = event.target.getAttribute("data-netdisk");
@@ -6282,9 +6385,12 @@
                     event.target.getAttribute("data-netdisk-index");
                   let shareCode = event.target.getAttribute("data-sharecode");
                   let accessCode = event.target.getAttribute("data-accesscode");
-                  let url = NetDisk.regular[netDiskName][netDiskIndex].blank
-                    .replace(/{#shareCode#}/gi, shareCode)
-                    .replace(/{#accessCode#}/gi, accessCode);
+                  let url = NetDiskParse.getBlankUrl(
+                    netDiskName,
+                    netDiskIndexm,
+                    shareCode,
+                    accessCode
+                  );
                   NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
                 },
               },
