@@ -3432,6 +3432,7 @@
             },
           });
           let respData = getResp.data;
+          log.success(["获取第一页的评论", respData]);
           if (getResp.status) {
             return utils.parseFromString(respData.responseText);
           } else if (getResp.type === "onerror") {
@@ -3464,8 +3465,7 @@
           let respData = getResp.data;
           if (getResp.status) {
             let data = utils.toJSON(respData.responseText);
-            log.success("帖子评论信息");
-            log.success(data);
+            log.success(["帖子评论信息JSON", data]);
             return {
               commentList: data["data"]["comment_list"],
               userList: data["data"]["user_list"],
