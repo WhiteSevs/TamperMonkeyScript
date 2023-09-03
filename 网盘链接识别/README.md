@@ -14,14 +14,19 @@
 
 识别出链接时，页面侧边栏会出现一个悬浮按钮。
 
-| 功能                        | 设备             |  操作                 |
-| ------------                | :--:             | ------------------:  |
-| 显示链接界面                 |  PC              | 点击                 |
-|                             | 手机             |  点击                 |
-| 显示设置界面                 |  PC              | 双击/右击后点击设置   |
-|                             | 手机             |  双击                 |
-| 显示历史匹配记录             |  PC/手机         | 设置中打开            |
-| 访问链接                     |  PC             | 链接界面/历史匹配记录界面右击链接  |
+| 功能 | 设备 | 操作 |
+| --- | :--: | ---  |
+| 显示链接界面 | PC | `点击` |
+| | 手机 | `点击` |
+| 显示设置界面 | PC | `双击/右击`后点击设置 |
+| | 手机 |  `双击` |
+| 显示历史匹配记录 | PC/手机 | 设置中打开 |
+| 复制链接 | PC | 链接界面/历史匹配记录界面`右击链接`  |
+| | 手机 | 链接界面/历史匹配记录界面`长按链接` |
+| 访问链接 | PC | 链接界面/历史匹配记录界面`右击链接`  |
+| | 手机 | 链接界面/历史匹配记录界面`长按链接` |
+| 修改访问码 | PC | 链接界面/历史匹配记录界面`右击链接`  |
+| | 手机 | 链接界面/历史匹配记录界面`长按链接` |
 
 ## 🌍 介绍
 
@@ -45,111 +50,30 @@
 - 设置`自动输入访问码`，可通过`右击`或`长按`出现的菜单选项`访问链接`，如果存在访问码，将自动填入访问码，目前存在部分网盘未实现自动填入(没找到这个网盘的存在链接的)
 - 设置`获取重定向后的直链`，可对某些网盘直链解析链接进行重定向后的链接获取
 
-## ![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=32](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=32) 百度网盘
-
-- 功能：配置了解析网站可以直接跳转到已解析界面
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=32) 蓝奏云
-
-- 功能：单/多文件直链解析
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.ctwork.com.cn/?size=32](https://favicon.yandex.net/favicon/v2/https://www.ctwork.com.cn/?size=32) 天翼云
-
-- 功能：单文件直链解析（需要登录）
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://caiyun.feixin.10086.cn/?size=32](https://favicon.yandex.net/favicon/v2/https://caiyun.feixin.10086.cn/?size=32) 中国移动云盘(原:和彩云)
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=32) 阿里云
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=32](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=32) 文叔叔
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：文叔叔单文件直链解析，多文件暂不支持（太多了，还不如打开自己选择下载的）
-- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=32](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=32) 奶牛快传
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：奶牛快传单文件直链解析
-- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=32) 123云盘
-
-- 功能：设置里有启用蓝奏云直链解析，含多文件
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：直链调用 scheme，开启后需要在下方填 scheme 链接，默认为 IDM+调用下载，并且需要装特定的 app，直链不通过浏览器下载，而是通过 scheme 方式传递给安卓 app，由 scheme 链接决定它的作用，详情请看后面的帮助
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=32) 腾讯微云
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/http://yun.xunlei.com/?size=32](https://favicon.yandex.net/favicon/v2/http://yun.xunlei.com/?size=32) 迅雷网盘
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=32](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=32) 115网盘
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.400gb.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.400gb.com/?size=32) 城通网盘（部分 1）
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://www.400gb.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.400gb.com/?size=32) 城通网盘（部分 2）
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## ![https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=32](https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=32) 夸克网盘
-
-- 功能：新标签页打开，如果有密码，复制到剪贴板
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerText`)，默认值`20`
-- 功能：可设置匹配提取码与网盘链接直接间隔的字符(`innerHTML`)，默认值`300`
-
-## 磁力链接(magnet)
-
-- 功能：新标签页打开
-- 功能：调用 scheme 打开，如果开启，在下方 scheme 转发设置 scheme 链接，具体请看后面的帮助
+| 网盘  | 新标签页打开 | 单文件解析| 多文件解析 | Scheme转发直链 | 提取码`innerText`间隔(默认) | 提取码`innerHTML`间隔(默认) | 其它功能|
+|---|:---:|:---:|:---:|:---:|:---:|:---:| --- |
+| [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/) 百度网盘 | √ | | | |20| 300| 自行配置第三方网站解析 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16)](https://www.lanzoux.com/) 蓝奏云 | √ | √ | √ | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16)](https://cloud.189.cn/) 天翼云 | √ | √(需登录) | | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16)](https://yun.139.com/) 中国移动云盘(原:和彩云) | √ | | |  |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云 | √ | | |  |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16)](https://www.wenshushu.cn/) 文叔叔 | √ | √ | | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16)](https://cowtransfer.com/) 奶牛快传 | √ | √ | | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123云盘 | √ | √ | √ | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16)](https://www.weiyun.com/) 腾讯微云 | √ |  |  |  |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16)](https://pan.xunlei.com/) 迅雷网盘 | √ |  |  |  |20|300|
+| [![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16)](http://www.115.com/) 115网盘 | √ |  |  |  |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16)](https://www.ctfile.com/) 城通网盘 | √ |  |  |  |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16)](https://pan.quark.cn/) 夸克网盘 | √ |  |  | |20|300|
+| 🚖BT磁力 | √ |  |  | √ | | | 支持Scheme转发 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16)](https://www.jianguoyun.com/) 坚果云(需登录) | √ | √ |  | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16](https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16)](https://onedrive.live.com/) OneDrive | √ |  |  | √ |20|300|
 
 ## 🔧 帮助
 
 ### 1.百度网盘配置
 
-百度网盘链接解析的配置，主要是使用了开源项目`https://github.com/yuantuo666/baiduwp-php`的网站
+百度网盘链接解析的配置，主要是使用了开源项目[https://github.com/yuantuo666/baiduwp-php](https://github.com/yuantuo666/baiduwp-php)的网站
 
 |       参数       |                               值                               |
 | :--------------: | :------------------------------------------------------------: |
@@ -162,7 +86,7 @@
 
 [![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)](https://www.helloimg.com/image/ZPJRUv)
 
-### 2.scheme 调用方式
+### 2.Scheme 调用方式
 
 首先开启该设置后，需要在手机上装特定的 app
 <https://baiqi.lanzoul.com/b066di6gb>
@@ -170,13 +94,12 @@
 
 该链接格式为`jumpwsv://go?package={#package#}&activity={#activity#}&intentAction={#intentAction#}&intentData=网盘链接&intentExtra={#intentExtra#}`
 
-
-|       参数       |                               值                               |
-| :--------------: | :------------------------------------------------------------: |
-|    {#package#}      |       App包名                                                  |
-|    {#activity#}     |       App的Activity入口                                        |
-|    {#intentAction#} |   Activity Action Intent常量，一般是android.intent.action.VIEW  |
-|    {#intentExtra#}  |   可以为空，若使用，则为`{"参数1":"值1","参数2":"值2"}`，注意`&`换成`{-and-}`，`#`换成`{-number-}`                 |
+| 参数 | 值 |
+| :---: | :---: |
+| {#package#} | App包名 |
+| {#activity#} | App的Activity入口 |
+| {#intentAction#} | Activity Action Intent常量，一般是android.intent.action.VIEW |
+| {#intentExtra#} | 可以为空，若使用，则为`{"参数1":"值1","参数2":"值2"}`，注意`&`换成`{-and-}`，`#`换成`{-number-}` |
 
 下面几个是示例 scheme 链接，可以直接复制粘贴到里面去
 
@@ -216,3 +139,7 @@ jumpwsv://go?package=com.dv.adm&activity=com.dv.get.WebBrow&intentAction=android
 jumpwsv://go?package=com.xunlei.downloadprovider
 &activity=com.xunlei.downloadprovider.launch.dispatch.mocklink.LinkDLBtFileExplorerActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
+
+### 3.什么是提取码`innerText`/`innerHTML`间隔？
+
+网盘链接分为两块，`分享码`和`提取码`，其中，由于网站的网盘链接的多样性，`分享码`和`提取码`之间可能存在很长的干扰的字符串，设置间隔即为设置容错最大干扰的字符串的长度。
