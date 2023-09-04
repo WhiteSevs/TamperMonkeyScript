@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.3.23.00
+// @version      23.9.4.11.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1366,7 +1366,7 @@
         };
         /**
          * 获取下载参数
-         * @returns
+         * @returns {Promise}
          */
         this.getDownloadParams = async function () {
           let postResp = await httpx.post({
@@ -1380,8 +1380,16 @@
               referer: "https://cloud.189.cn/",
               origin: "https://cloud.189.cn",
             },
+            onerror: function () {},
           });
           if (!postResp.status) {
+            let errorData = utils.toJSON(postResp.data[0].responseText);
+            log.error(["获取下载参数失败的JSON信息", errorData]);
+            if (errorData["res_code"] in that.code) {
+              Qmsg.error(that.code[errorData["res_code"]]);
+            } else {
+              Qmsg.error(errorData["res_message"]);
+            }
             return;
           }
           let postData = postResp.data;
