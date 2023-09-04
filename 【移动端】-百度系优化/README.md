@@ -4,24 +4,25 @@
 
 |     网站     | 菜单按钮 |  其它功能 |
 | ------------ |   :--:  |  :------------------  |
-|     [百度搜索](https://m.baidu/com/) | 自动展开下一页、显示已重定向图标、控制台输出日志、同步下一页地址、【禁止】自动播放视频、【屏蔽】大家还在搜、【重构】大家还在搜|   去除广告、自动处理链接为真实链接、拦截输入框的点击建议弹出的弹窗、对百度搜索主页重构 |
-|     [百家号](https://baijiahao.baidu.com/)   | 【屏蔽】推荐文章、【屏蔽】用户评论、【屏蔽】评论输入框 | 去除广告 |
-|     [百度贴吧](https://tieba.baidu.com/) |             | 去除广告、自动加载下一页评论、页面顶部新增搜索功能（当在主页时是搜索吧、在帖子或吧内时是搜索帖子）、优化图片预览效果 |
-|     [百度文库](https://wenku.baidu.com/) | 【屏蔽】会员精选、【屏蔽】APP精选、【屏蔽】相关文档、【屏蔽】底部工具栏、【屏蔽】下一篇按钮 | 去除广告 |
-|     [百度经验](https://jingyan.baidu.com/) |             | 去除广告 |
-|     [百度百科](https://baike.baidu.com/) | 同步下一页地址 | 去除广告、自动加载更多下一页内容、修复图片显示错位问题 |
-|     [百度百科-他说](https://baike.baidu.com/tashuo/home) |             | 去除底部广告 |
-|     [百度知道](https://zhidao.baidu.com/) | 【屏蔽】推荐更多精彩内容、【屏蔽】相关问题、【屏蔽】其他回答、自动点击-展开更多回答 | 去除广告 |
-|     [百度翻译](https://fanyi.baidu.com/) | 【屏蔽】底部推荐、【屏蔽】底部其它、自动聚焦输入框 | 去除广告 |
-|     [百度翻译-APP](https://fanyi-app.baidu.com) |             | 去除广告 |
-|     [百度图片](https://image.baidu.com/) |             | 去除广告 |
-|     [百度地图](https://map.baidu.com/) |             | 去除广告 |
-|     [百度知道(mbd)](https://mbd.baidu.com/ma/tips?appKey=eot71qyZ0ino8W34o3XG6aQ9YdAn4R1m) | 【屏蔽】精彩推荐 | 去除广告 |
-|     [百度知了好学](https://xue.baidu.com/) |             | 去除广告 |
-|  [百度-爱企查](https://aiqicha.baidu.com/) | 【屏蔽】轮播图、【屏蔽】行业热点新闻 | 去除广告 |
-|     [百度网盟推广](https://pos.baidu.com/) |             | 去除广告 |
-|     [百度好看视频](https://haokan.baidu.com/) | 【屏蔽】猜你喜欢 | 去除广告 |
-|     [百度识图](https://shitu.baidu.com/) |             | 去除广告、重构页面的上传图片搜索功能 |
+|     [![https://favicon.yandex.net/favicon/v2/https://m.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://m.baidu.com/?size=16)](https://m.baidu.com/)百度搜索 | 自动展开下一页、显示已重定向图标、控制台输出日志、同步下一页地址、【禁止】自动播放视频、【屏蔽】大家还在搜、【重构】大家还在搜|   去除广告、自动处理链接为真实链接、拦截输入框的点击建议弹出的弹窗、对百度搜索主页重构 |
+|     [![https://favicon.yandex.net/favicon/v2/https://baijiahao.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://baijiahao.baidu.com/?size=16)](https://baijiahao.baidu.com/)百家号   | 【屏蔽】推荐文章、【屏蔽】用户评论、【屏蔽】评论输入框 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16)](https://tieba.baidu.com/)百度贴吧 |             | 去除广告、自动加载下一页评论、页面顶部新增搜索功能（当在主页时是搜索吧、在帖子或吧内时是搜索帖子）、优化图片预览效果 |
+|     [![https://favicon.yandex.net/favicon/v2/https://wenku.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://wenku.baidu.com/?size=16)](https://wenku.baidu.com/)百度文库 | 【屏蔽】会员精选、【屏蔽】APP精选、【屏蔽】相关文档、【屏蔽】底部工具栏、【屏蔽】下一篇按钮 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://jingyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://jingyan.baidu.com/?size=16)](https://jingyan.baidu.com/)百度经验 |             | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/?size=16)](https://baike.baidu.com/)百度百科 | 同步下一页地址 | 去除广告、自动加载更多下一页内容、修复图片显示错位问题 |
+|     [![https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/tashuo/home/?size=16](https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/tashuo/home/?size=16)](https://baike.baidu.com/tashuo/home/)百度百科-他说 |             | 去除底部广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://zhidao.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://zhidao.baidu.com/?size=16)](https://zhidao.baidu.com/)百度知道 | 【屏蔽】推荐更多精彩内容、【屏蔽】相关问题、【屏蔽】其他回答、自动点击-展开更多回答 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://fanyi.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://fanyi.baidu.com/?size=16)](https://fanyi.baidu.com/)百度翻译 | 【屏蔽】底部推荐、【屏蔽】底部其它、自动聚焦输入框 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://fanyi-app.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://fanyi-app.baidu.com/?size=16)](https://fanyi-app.baidu.com/)百度翻译-APP |             | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://image.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://image.baidu.com/?size=16)](https://image.baidu.com/)百度图片  |             | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://map.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://map.baidu.com/?size=16)](https://map.baidu.com/)百度地图 |             | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://mbd.baidu.com/ma/tips?appKey=eot71qyZ0ino8W34o3XG6aQ9YdAn4R1m/?size=16](https://favicon.yandex.net/favicon/v2/https://mbd.baidu.com/ma/tips?appKey=eot71qyZ0ino8W34o3XG6aQ9YdAn4R1m/?size=16)](https://mbd.baidu.com/ma/tips?appKey=eot71qyZ0ino8W34o3XG6aQ9YdAn4R1m/)百度知道(mbd) | 【屏蔽】精彩推荐 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://xue.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://xue.baidu.com/?size=16)](https://xue.baidu.com/)百度知了好学 |             | 去除广告 |
+|  [![https://favicon.yandex.net/favicon/v2/https://aiqicha.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://aiqicha.baidu.com/?size=16)](https://aiqicha.baidu.com/)百度-爱企查 | 【屏蔽】轮播图、【屏蔽】行业热点新闻 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://pos.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pos.baidu.com/?size=16)](https://pos.baidu.com/)百度网盟推广 |             | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://haokan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://haokan.baidu.com/?size=16)](https://haokan.baidu.com/)百度好看视频 | 【屏蔽】猜你喜欢 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://shitu.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://shitu.baidu.com/?size=16)](https://shitu.baidu.com/)百度识图 |             | 去除广告、重构页面的上传图片搜索功能 |
+|     [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/)百度网盘 |             | 去除广告 |
 
 对`百度搜索`、`百度贴吧`、`百度识图`添加了新功能
 
