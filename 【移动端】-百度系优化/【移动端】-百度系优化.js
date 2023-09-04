@@ -3,9 +3,9 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.3
+// @version      1.4.4
 // @author       WhiteSevs
-// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】
+// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
 // @match        *://www.baidu.com/*
 // @match        *://baijiahao.baidu.com/*
@@ -27,6 +27,7 @@
 // @match        *://pos.baidu.com/*
 // @match        *://haokan.baidu.com/*
 // @match        *://graph.baidu.com/*
+// @match        *://pan.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -1181,6 +1182,7 @@
       this.pos();
       this.haokan();
       this.graph();
+      this.pan();
     },
     css: {
       search: `
@@ -1602,6 +1604,18 @@
       graph: `
       #app section.vf-home-booth div.vf-w-button.vf-home-booth-camera,
       #viewport .graph-imagecut-banner-invoke{
+        display: none !important;
+      }
+      `,
+      pan: `
+      /* 失败页底部广告推荐 */
+      div.share-error-ad,
+      /* 左侧导航栏底部下载百度网盘APP横栏 */
+      #app div.download-app,
+      /* 失败页-小飞机送惊喜 */
+      div.errorWrap div.share-plane,
+      /* 保存到网盘右上角的领红包图标 */
+      img.sharelist-savebutton-hb-tip{
         display: none !important;
       }
       `,
@@ -5390,6 +5404,16 @@
         uploadImageInput.on("change", uploadImage);
         jQuery(document.body).append(uploadImageInput);
       });
+    },
+    /**
+     * 百度网盘
+     */
+    pan(){
+      if (!this.current_url.match(/^http(s|):\/\/pan.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.pan);
+      log.info("插入CSS规则");
     },
   };
 
