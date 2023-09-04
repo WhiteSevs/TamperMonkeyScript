@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.7.3
+// @version      0.7.4
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -81,7 +81,10 @@
           .self-flow-ad,
           #free-reward-panel,
           div[id*='AdFive'],
-          #index-aside-download-qrbox{
+          #index-aside-download-qrbox,
+          .baidu-app-download-2eIkf_1,
+          /* 底部的"小礼物走一走，来简书关注我"、赞赏支持和更多精彩内容，就在简书APP */
+          div[role="main"] > div > section:first-child > div:nth-last-child(2){
             display:none !important;
           }
           body.reader-day-mode.normal-size {
@@ -98,12 +101,18 @@
           }
           footer > div > div{
             justify-content: center;
-          }`);
+          }
+          /* 修复底部最后编辑于：。。。在某些套壳浏览器上的错位问题 */
+          #note-show .content .show-content-free .note-meta-time{
+            margin-top: 0px !important;
+          }
+          `);
         },
         /**
          * 全文居中
          */
         articleCenter() {
+          log.success("全文居中");
           GM_addStyle(`
           div[role=main] aside,
           div._3Pnjry{
@@ -124,6 +133,7 @@
          * 去除剪贴板劫持
          */
         removeClipboardHijacking() {
+          log.success("去除剪贴板劫持");
           const stopNativePropagation = (event) => {
             event.stopPropagation();
           };
@@ -144,6 +154,7 @@
                     return;
                   }
                   if (mutations[0].target.style["display"] != "none") {
+                    log.success("自动展开全文");
                     document
                       .querySelector(
                         'div#homepage div[class*="dialog-"] .cancel'
@@ -182,12 +193,54 @@
             window.location.href = newURL;
           }
         },
+        /**
+         * 屏蔽相关文章
+         */
+        shieldRelatedArticles() {
+          log.success("屏蔽相关文章");
+          GM_addStyle(`
+          div[role="main"] > div > section:nth-child(2){
+            display: none !important;
+          }
+          `)
+        },
+        /**
+         * 屏蔽评论区
+         */
+        shieldUserComments() {
+          log.success("屏蔽评论区");
+          GM_addStyle(`
+          div#note-page-comment{
+            display: none !important;
+          }
+          `)
+        },
+        /**
+         * 屏蔽推荐阅读
+         */
+        shieldRecommendedReading() {
+          log.success("屏蔽推荐阅读");
+          GM_addStyle(`
+          div[role="main"] > div > section:last-child{
+            display: none !important;
+          }
+          `)
+        },
         run() {
           this.addCSS();
           this.removeClipboardHijacking();
           this.autoExpandFullText();
           if (GM_Menu.get("JianShuArticleCenter")) {
             this.articleCenter();
+          }
+          if (GM_Menu.get("JianShuShieldRelatedArticles")) {
+            this.shieldRelatedArticles();
+          }
+          if (GM_Menu.get("JianShuShieldUserComments")) {
+            this.shieldUserComments();
+          }
+          if (GM_Menu.get("JianShuShieldRecommendedReading")) {
+            this.shieldRecommendedReading();
           }
         },
       },
@@ -199,6 +252,7 @@
          * 手机-移除底部推荐阅读
          */
         removeFooterRecommendRead() {
+          log.success("移除底部推荐阅读");
           GM_addStyle(`
           #recommended-notes{
             display: none !important;
@@ -208,6 +262,7 @@
          * 处理原型
          */
         handlePrototype() {
+          log.success("处理原型添加script标签");
           let originalAppendChild = Node.prototype.appendChild;
           Node.prototype.appendChild = function (element) {
             /* 允许添加的元素localName */
@@ -218,20 +273,34 @@
               !element.src.includes("jianshu.io") &&
               !allowElementLocalNameList.includes(element.localName)
             ) {
-              console.log("禁止添加的元素", element);
+              log.success(["禁止添加的元素", element]);
               return null;
             } else {
               return originalAppendChild.call(this, element);
             }
           };
         },
+        /**
+         * 屏蔽评论区
+         */
+        shieldUserComments() {
+          log.success("屏蔽评论区");
+          GM_addStyle(`
+          #comment-main{
+            display: none !important;
+          }
+          `);
+        },
         run() {
-          Optimization.jianshu.Mobile.handlePrototype();
+          this.handlePrototype();
           this.addCSS();
           Optimization.jianshu.PC.removeClipboardHijacking();
           Optimization.jianshu.PC.autoExpandFullText();
           if (GM_Menu.get("JianShuremoveFooterRecommendRead")) {
             this.removeFooterRecommendRead();
+          }
+          if (GM_Menu.get("JianShuShieldUserComments")) {
+            this.shieldUserComments();
           }
         },
       },
@@ -1323,6 +1392,15 @@
               window.location.reload();
             },
           },
+          JianShuShieldUserComments: {
+            text: "手机-屏蔽评论区",
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
         },
         false,
         GM_getValue,
@@ -1336,6 +1414,36 @@
           JianShuArticleCenter: {
             text: "电脑-全文居中",
             enable: true,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
+          JianShuShieldRelatedArticles: {
+            text: "电脑-屏蔽相关文章",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
+          JianShuShieldUserComments: {
+            text: "电脑-屏蔽评论区",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback: () => {
+              window.location.reload();
+            },
+          },
+          JianShuShieldRecommendedReading: {
+            text: "电脑-屏蔽推荐阅读",
+            enable: false,
             showText: (_text_, _enable_) => {
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
