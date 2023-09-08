@@ -15,15 +15,18 @@
       (global.DOMUtils = factory()));
 })(this, function () {
   "use strict";
-  var DOMUtils = {};
+  const DOMUtils = {};
   /**
    * 获取或设置元素的属性值
-   * @param {HTMLElement} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} attrName - 属性名
    * @param {string} [attrValue] - 属性值（可选）
    * @returns {string|undefined} - 如果传入了attrValue，则返回undefined；否则返回属性值
    * */
   DOMUtils.attr = function (element, attrName, attrValue) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (attrValue === undefined) {
       return element.getAttribute(attrName);
     } else {
@@ -32,12 +35,15 @@
   };
   /**
    * 获取或设置元素的样式属性值
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string|object} property - 样式属性名或包含多个属性名和属性值的对象
    * @param {string} [value] - 样式属性值（可选）
    * @returns {string|undefined} - 如果传入了value，则返回undefined；否则返回样式属性值
    * */
   DOMUtils.css = function (element, property, value) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (typeof property === "string") {
       if (value === undefined) {
         return element.style[property];
@@ -45,18 +51,21 @@
         element.style[property] = value;
       }
     } else if (typeof property === "object") {
-      for (var prop in property) {
+      for (let prop in property) {
         element.style[prop] = property[prop];
       }
     }
   };
   /**
    * 获取或设置元素的文本内容
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|element} element 目标元素
    * @param {string} [text] - 文本内容（可选）
    * @returns {string|undefined} - 如果传入了text，则返回undefined；否则返回文本内容
    * */
   DOMUtils.text = function (element, text) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (text === undefined) {
       return element.textContent;
     } else {
@@ -65,11 +74,14 @@
   };
   /**
    * 获取或设置元素的HTML内容
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string} [html] - HTML内容（可选）
    * @returns {string|undefined} - 如果传入了html，则返回undefined；否则返回HTML内容
    * */
   DOMUtils.html = function (element, html) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (html === undefined) {
       return element.innerHTML;
     } else {
@@ -78,12 +90,15 @@
   };
   /**
    * 绑定或触发元素的click事件
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {function} [handler] - 事件处理函数（可选）
    * @returns {DOMUtils} - 原型链
    * @function
    * */
   DOMUtils.click = function (element, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (handler === undefined) {
       DOMUtils.trigger(element, "click");
     } else {
@@ -94,11 +109,14 @@
 
   /**
    * 绑定或触发元素的blur事件
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {function} [handler] - 事件处理函数（可选）
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.blur = function (element, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (handler === undefined) {
       DOMUtils.trigger(element, "blur");
     } else {
@@ -108,11 +126,14 @@
   };
   /**
    * 绑定或触发元素的focus事件
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {function} [handler] - 事件处理函数（可选）
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.focus = function (element, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (handler === undefined) {
       DOMUtils.trigger(element, "focus");
     } else {
@@ -122,25 +143,45 @@
   };
   /**
    * 获取或设置元素的value属性值
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string} [value] - value属性值（可选）
    * @returns {string|undefined} - 如果传入了value，则返回undefined；否则返回value属性值
    * */
   DOMUtils.val = function (element, value) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (value === undefined) {
-      return element.value;
+      if (
+        element.localName === "input" &&
+        (element.type === "checkbox" || element.type === "radio")
+      ) {
+        return element.checked;
+      } else {
+        return element.value;
+      }
     } else {
-      element.value = value;
+      if (
+        element.localName === "input" &&
+        (element.type === "checkbox" || element.type === "radio")
+      ) {
+        element.checked = !!value;
+      } else {
+        element.value = value;
+      }
     }
   };
   /**
    * 获取或设置元素的属性值
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string} propName - 属性名
    * @param {string} [propValue] - 属性值（可选）
    * @returns {string|undefined} - 如果传入了propValue，则返回undefined；否则返回属性值
    * */
   DOMUtils.prop = function (element, propName, propValue) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (propValue === undefined) {
       return element[propName];
     } else {
@@ -150,42 +191,92 @@
 
   /**
    * 移除元素的属性
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string} attrName - 属性名
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.removeAttr = function (element, attrName) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.removeAttribute(attrName);
     return this;
   };
 
   /**
+   * 移除元素class名
+   * @param {Element|string} element 目标元素
+   * @param {string} className class名
+   * @returns {DOMUtils} 原型链
+   */
+  DOMUtils.removeClass = function (element, className) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    element.classList.remove(className);
+    return this;
+  };
+
+  /**
    * 移除元素的属性
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string} propName - 属性名
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.removeProp = function (element, propName) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     delete element[propName];
     return this;
   };
+
+  /**
+   * 将一个元素替换为另一个元素
+   * @param {Element|string} element 目标元素
+   * @param {Element|string} newElement 新元素
+   * @returns {DOMUtils} 原型链
+   */
+  DOMUtils.replaceWith = function (element, newElement) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    if (typeof newElement === "string") {
+      newElement = DOMUtils.parseHTML(newElement);
+    }
+    if (element instanceof NodeList || element instanceof Array) {
+      element.forEach((item) => {
+        DOMUtils.replaceWith(item, newElement);
+      });
+    } else {
+      element.parentElement.replaceChild(newElement, element);
+    }
+    return this;
+  };
+
   /**
    * 给元素添加class
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {string} className - class名
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.addClass = function (element, className) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.classList.add(className);
     return this;
   };
   /**
    * 函数在元素内部末尾添加子元素或HTML字符串
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {object|string} content - 子元素或HTML字符串
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.append = function (element, content) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (typeof content === "string") {
       element.insertAdjacentHTML("beforeend", content);
     } else {
@@ -196,11 +287,14 @@
 
   /**
    * 函数 在元素内部开头添加子元素或HTML字符串
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {object|string} content - 子元素或HTML字符串
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.prepend = function (element, content) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (typeof content === "string") {
       element.insertAdjacentHTML("afterbegin", content);
     } else {
@@ -210,49 +304,67 @@
   };
   /**
    * 在元素后面添加兄弟元素或HTML字符串
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {object|string} content - 兄弟元素或HTML字符串
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.after = function (element, content) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (typeof content === "string") {
       element.insertAdjacentHTML("afterend", content);
     } else {
-      element.parentNode.insertBefore(content, element.nextSibling);
+      element.parentElement.insertBefore(content, element.nextSibling);
     }
     return this;
   };
 
   /**
    * 在元素前面添加兄弟元素或HTML字符串
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @param {object|string} content - 兄弟元素或HTML字符串
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.before = function (element, content) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (typeof content === "string") {
       element.insertAdjacentHTML("beforebegin", content);
     } else {
-      element.parentNode.insertBefore(content, element);
+      element.parentElement.insertBefore(content, element);
     }
     return this;
   };
 
   /**
    * 移除元素
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string|NodeList} element 目标元素
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.remove = function (element) {
-    element.parentNode.removeChild(element);
+    if (typeof element === "string") {
+      element = document.querySelectorAll(element);
+    }
+    if (element instanceof NodeList || element instanceof Array) {
+      element.forEach(function (item) {
+        DOMUtils.remove(item);
+      });
+    } else {
+      element.remove();
+    }
     return this;
   };
   /**
    * 移除元素的所有子元素
-   * @param {HTMLElement} element 目标元素
+   * @param {Element|string} element 目标元素
    * @returns {DOMUtils} - 原型链
    * */
   DOMUtils.empty = function (element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -260,7 +372,7 @@
   };
   /**
    * 绑定事件
-   * @param {HTMLElement} element 需要绑定的元素
+   * @param {Element|string} element 需要绑定的元素
    * @param {String|Array} eventType 需要监听的事件
    * @param {HTMLElement?} selector 子元素选择器
    * @param {Function} callback 事件触发的回调函数
@@ -279,23 +391,31 @@
     once = false,
     passive = false
   ) {
-    var eventTypeList = [];
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let eventTypeList = [];
     if (Array.isArray(eventType)) {
       eventTypeList = eventType;
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
+    }
+    if (typeof selector === "function") {
+      /* 这是为没有selector的情况 */
+      callback = selector;
+      selector = null;
+    }
+    if (element == null) {
+      return this;
     }
     eventTypeList.forEach((_eventType_) => {
       if (selector) {
         element.addEventListener(
           _eventType_,
           function (event) {
-            var target = event.target;
-            while (target && target !== element) {
-              if (target.matches(selector)) {
-                callback.call(target, event);
-              }
-              target = target.parentNode;
+            let target = event.target;
+            if (target.matches(selector)) {
+              callback.call(target, event);
             }
           },
           capture,
@@ -303,7 +423,15 @@
           passive
         );
       } else {
-        element.addEventListener(_eventType_, callback, capture, once, passive);
+        element.addEventListener(
+          _eventType_,
+          function (event) {
+            callback.call(event.target, event);
+          },
+          capture,
+          once,
+          passive
+        );
       }
     });
 
@@ -311,7 +439,7 @@
       element.setAttribute("data-delegate", selector);
     }
 
-    var events = element.events || {};
+    let events = element.events || {};
     events[eventType] = events[eventType] || [];
     events[eventType].push({
       selector: selector,
@@ -323,7 +451,7 @@
   };
   /**
    * 取消绑定事件
-   * @param {HTMLElement} element 需要取消绑定的元素
+   * @param {Element|string} element 需要取消绑定的元素
    * @param {String|Array} eventType 需要取消监听的事件
    * @param {HTMLElement} selector 子元素选择器
    * @param {Function} callback 事件触发的回调函数
@@ -338,10 +466,13 @@
     callback,
     useCapture = false
   ) {
-    var events = element.events || {};
-    var eventTypeList = [];
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let events = element.events || {};
+    let eventTypeList = [];
     if (!eventType) {
-      for (var type in events) {
+      for (let type in events) {
         eventTypeList = [...eventTypeList, type];
       }
     } else if (Array.isArray(eventType)) {
@@ -350,8 +481,8 @@
       eventTypeList = eventType.split(" ");
     }
     eventTypeList.forEach((_eventType_) => {
-      var handlers = events[eventType] || [];
-      for (var i = 0; i < handlers.length; i++) {
+      let handlers = events[eventType] || [];
+      for (let i = 0; i < handlers.length; i++) {
         if (
           (!selector || handlers[i].selector === selector) &&
           (!callback || handlers[i].callback === callback)
@@ -374,15 +505,18 @@
   };
   /**
    * 主动触发事件
-   * @param {HTMLElement} element 需要触发的元素
+   * @param {Element|string} element 需要触发的元素
    * @param {String|Array} eventType 需要触发的事件
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.trigger = function (element, eventType) {
-    var events = element.events || {};
-    var eventTypeList = [];
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let events = element.events || {};
+    let eventTypeList = [];
     if (!eventType) {
-      for (var type in events) {
+      for (let type in events) {
         eventTypeList = [...eventTypeList, type];
       }
     } else if (Array.isArray(eventType)) {
@@ -391,7 +525,7 @@
       eventTypeList = eventType.split(" ");
     }
     eventTypeList.forEach((_eventType_) => {
-      var event = document.createEvent("HTMLEvents");
+      let event = document.createEvent("HTMLEvents");
       event.initEvent(_eventType_, true, false);
       element.dispatchEvent(event);
     });
@@ -399,12 +533,15 @@
   };
   /**
    * 设置或返回被选元素相对于文档的偏移坐标
-   * @param {HTMLElement} element
+   * @param {Element|string} element
    * @returns {Object}
    */
   DOMUtils.offset = function (element) {
-    var rect = element.getBoundingClientRect();
-    var win = element.ownerDocument.defaultView;
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let rect = element.getBoundingClientRect();
+    let win = element.ownerDocument.defaultView;
     return {
       top: rect.top + win.pageYOffset,
       left: rect.left + win.pageXOffset,
@@ -412,11 +549,14 @@
   };
   /**
    * 获取元素的宽度
-   * @param {HTMLElement} element - 要获取宽度的元素
+   * @param {Element|string} element - 要获取宽度的元素
    * @returns {Number} - 元素的宽度，单位为像素
    */
   DOMUtils.width = function (element) {
-    var styles = window.getComputedStyle(element);
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let styles = window.getComputedStyle(element);
     return (
       element.clientWidth -
       parseFloat(styles.paddingLeft) -
@@ -425,11 +565,14 @@
   };
   /**
    * 获取元素的高度
-   * @param {HTMLElement} element - 要获取高度的元素
+   * @param {Element|string} element - 要获取高度的元素
    * @returns {Number} - 元素的高度，单位为像素
    */
   DOMUtils.height = function (element) {
-    var styles = window.getComputedStyle(element);
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let styles = window.getComputedStyle(element);
     return (
       element.clientHeight -
       parseFloat(styles.paddingTop) -
@@ -438,11 +581,14 @@
   };
   /**
    * 获取元素的外部宽度（包括边框和外边距）
-   * @param {HTMLElement} element - 要获取外部宽度的元素
+   * @param {Element|string} element - 要获取外部宽度的元素
    * @returns {Number} - 元素的外部宽度，单位为像素
    */
   DOMUtils.outerWidth = function (element) {
-    var style = getComputedStyle(element, null);
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let style = getComputedStyle(element, null);
     return (
       element.offsetWidth +
       parseFloat(style.marginLeft) +
@@ -451,11 +597,14 @@
   };
   /**
    * 获取元素的外部高度（包括边框和外边距）
-   * @param {HTMLElement} element - 要获取外部高度的元素
+   * @param {Element|string} element - 要获取外部高度的元素
    * @returns {Number} - 元素的外部高度，单位为像素
    */
   DOMUtils.outerHeight = function (element) {
-    var style = getComputedStyle(element, null);
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    let style = getComputedStyle(element, null);
     return (
       element.offsetHeight +
       parseFloat(style.marginTop) +
@@ -479,7 +628,7 @@
 
   /**
    * 在一定时间内改变元素的样式属性，实现动画效果
-   * @param {HTMLElement} element - 需要进行动画的元素
+   * @param {Element|string} element - 需要进行动画的元素
    * @param {Object} styles - 动画结束时元素的样式属性
    * @param {Number} [duration=1000] - 动画持续时间，单位为毫秒
    * @param {Function} [callback=null] - 动画结束后执行的函数
@@ -491,6 +640,9 @@
     duration = 1000,
     callback = null
   ) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (typeof duration !== "number" || duration <= 0) {
       throw new TypeError("duration must be a positive number");
     }
@@ -503,20 +655,20 @@
     if (Object.keys(styles).length === 0) {
       throw new Error("styles must contain at least one property");
     }
-    var start = performance.now();
-    var from = {};
-    var to = {};
-    for (var prop in styles) {
+    let start = performance.now();
+    let from = {};
+    let to = {};
+    for (let prop in styles) {
       from[prop] = element.style[prop] || getComputedStyle(element)[prop];
       to[prop] = styles[prop];
     }
-    var timer = setInterval(function () {
-      var timePassed = performance.now() - start;
-      var progress = timePassed / duration;
+    let timer = setInterval(function () {
+      let timePassed = performance.now() - start;
+      let progress = timePassed / duration;
       if (progress > 1) {
         progress = 1;
       }
-      for (var prop in styles) {
+      for (let prop in styles) {
         element.style[prop] =
           from[prop] + (to[prop] - from[prop]) * progress + "px";
       }
@@ -532,17 +684,20 @@
 
   /**
    * 将一个元素包裹在指定的HTML元素中
-   * @param {HTMLElement} element 要包裹的元素
+   * @param {Element|string} element 要包裹的元素
    * @param {string} wrapperHTML 要包裹的HTML元素的字符串表示形式
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.wrap = function (element, wrapperHTML) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     // 创建一个新的div元素，并将wrapperHTML作为其innerHTML
-    var wrapper = document.createElement("div");
+    let wrapper = document.createElement("div");
     wrapper.innerHTML = wrapperHTML;
 
     // 将要包裹的元素插入到wrapper中
-    element.parentNode.insertBefore(wrapper, element);
+    element.parentElement.insertBefore(wrapper, element);
 
     // 将要包裹的元素移动到wrapper中
     wrapper.insertBefore(element, wrapper.firstChild);
@@ -550,49 +705,104 @@
   };
   /**
    * 获取当前元素的前一个兄弟元素
-   * @param {HTMLElement} element - 当前元素
-   * @returns {HTMLElement} - 前一个兄弟元素
+   * @param {Element|string} element - 当前元素
+   * @returns {Element} - 前一个兄弟元素
    */
   DOMUtils.prev = function (element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     return element.previousElementSibling;
   };
 
   /**
    * 获取当前元素的后一个兄弟元素
-   * @param {HTMLElement} element - 当前元素
-   * @returns {HTMLElement} - 后一个兄弟元素
+   * @param {Element|string} element - 当前元素
+   * @returns {Element} - 后一个兄弟元素
    */
   DOMUtils.next = function (element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     return element.nextElementSibling;
   };
 
   /**
    * 获取当前元素的所有兄弟元素
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @returns {Array} - 所有兄弟元素
    */
   DOMUtils.siblings = function (element) {
-    return Array.from(element.parentNode.children).filter(
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    return Array.from(element.parentElement.children).filter(
       (child) => child !== element
     );
   };
 
   /**
    * 获取当前元素的父元素
-   * @param {HTMLElement} element - 当前元素
-   * @returns {HTMLElement} - 父元素
+   * @param {Element|NodeList|string} element - 当前元素
+   * @returns {Element|Array} - 父元素
    */
   DOMUtils.parent = function (element) {
-    return element.parentNode;
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    if (element instanceof NodeList || element instanceof Array) {
+      let resultArray = [];
+      element.forEach((item) => {
+        resultArray = resultArray.concat(this.parent(item));
+      });
+      return resultArray;
+    } else {
+      return element.parentElement;
+    }
+  };
+
+  /**
+   * 将字符串转为Element元素
+   * @param {string} html
+   * @param {boolean} useParser 是否使用DOMParser来生成元素，有些时候通过DOMParser生成的元素有点问题
+   * @param {boolean} isComplete 是否是完整的
+   * @returns {Element}
+   */
+  DOMUtils.parseHTML = function (html, useParser = false, isComplete = false) {
+    function parseHTMLByDOMParser() {
+      let parser = new DOMParser();
+      if (isComplete) {
+        return parser.parseFromString(html, "text/html");
+      } else {
+        return parser.parseFromString(html, "text/html").body.firstChild;
+      }
+    }
+    function parseHTMLByCreateDom() {
+      let tempDIV = document.createElement("div");
+      tempDIV.innerHTML = html;
+      if (isComplete) {
+        return tempDIV;
+      } else {
+        return tempDIV.firstChild;
+      }
+    }
+    if (useParser) {
+      return parseHTMLByDOMParser();
+    } else {
+      return parseHTMLByCreateDom();
+    }
   };
 
   /**
    * 当鼠标移入或移出元素时触发事件
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @param {Function} handler - 事件处理函数
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.hover = function (element, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     DOMUtils.on(element, "mouseenter", null, handler);
     DOMUtils.on(element, "mouseleave", null, handler);
     return this;
@@ -600,59 +810,74 @@
 
   /**
    * 显示元素
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.show = function (element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.style.display = "";
     return this;
   };
 
   /**
    * 隐藏元素
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.hide = function (element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.style.display = "none";
     return this;
   };
 
   /**
    * 当按键松开时触发事件
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @param {Function} handler - 事件处理函数
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.keyup = function (element, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     DOMUtils.on(element, "keyup", null, handler);
     return this;
   };
 
   /**
    * 当按键按下时触发事件
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @param {Function} handler - 事件处理函数
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.keydown = function (element, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     DOMUtils.on(element, "keydown", null, handler);
     return this;
   };
 
   /**
    * 淡入元素
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @param {Number} duration - 动画持续时间（毫秒）
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.fadeIn = function (element, duration = 400) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.style.opacity = 0;
     element.style.display = "";
     let start = null;
     function step(timestamp) {
       if (!start) start = timestamp;
-      const progress = timestamp - start;
+      let progress = timestamp - start;
       element.style.opacity = Math.min(progress / duration, 1);
       if (progress < duration) {
         window.requestAnimationFrame(step);
@@ -664,16 +889,19 @@
 
   /**
    * 淡出元素
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @param {Number} duration - 动画持续时间（毫秒）
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.fadeOut = function (element, duration = 400) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.style.opacity = 1;
     let start = null;
     function step(timestamp) {
       if (!start) start = timestamp;
-      const progress = timestamp - start;
+      let progress = timestamp - start;
       element.style.opacity = Math.max(1 - progress / duration, 0);
       if (progress < duration) {
         window.requestAnimationFrame(step);
@@ -687,15 +915,18 @@
 
   /**
    * 为指定元素的子元素绑定事件
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @param {String} selector - 子元素选择器
    * @param {String} type - 事件类型
    * @param {Function} handler - 事件处理函数
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.delegate = function (element, selector, type, handler) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     element.addEventListener(type, (event) => {
-      const target = event.target.closest(selector);
+      let target = event.target.closest(selector);
       if (target && element.contains(target)) {
         handler.call(target, event);
       }
@@ -705,10 +936,13 @@
 
   /**
    * 切换元素的显示和隐藏状态
-   * @param {HTMLElement} element - 当前元素
+   * @param {Element|string} element - 当前元素
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.toggle = function (element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
     if (element.style.display === "none") {
       DOMUtils.show(element);
     } else {
