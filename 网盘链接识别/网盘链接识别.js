@@ -39,6 +39,7 @@
 // @connect      lanzoux.com
 // @connect      lanzoue.com
 // @connect      lanzouv.com
+// @connect      lanosso.com
 // @connect      189.cn
 // @connect      123pan.com
 // @connect      123pan.cn
