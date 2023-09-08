@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 修复某些情况下使用Hello/Z4A图床上传图片但是失败无提示问题;
-// @version      3.1.7.2
+// @description  更新日志: 更新jQuery库至3.6.0;修复某些情况下获取小黑屋名单的失败无提示的问题;
+// @version      3.1.7.3
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -27,7 +27,7 @@
 // @connect      kggzs.cn
 // @connect      woozooo.com
 // @connect      *
-// @require      https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
+// @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
 // @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
@@ -873,7 +873,7 @@
         "background:#24272A; color:#ffffff",
         "color:#00a5ff"
       );
-      if ($jq.fn.jquery != "3.4.1") {
+      if ($jq.fn.jquery != "3.6.0") {
         console.log(
           "jQuery加载错误,如果是非油猴加载本脚本方式,请放到网页加载完毕后执行"
         );
@@ -881,7 +881,7 @@
         return false;
       }
       if (typeof jQuery != "undefined") {
-        if (jQuery.fn.jquery === "3.4.1") {
+        if (jQuery.fn.jquery === "3.6.0") {
           /* 回复页面的jQuery失败，再试一次 */
           window.$jq = $.noConflict(true);
         }
@@ -4348,7 +4348,7 @@
         return new Promise(async (resolve) => {
           popups.toast("正在获取小黑屋名单中...");
           let result = await getBlackListPageInfoHTML(cid);
-          if (result === "") {
+          if (result === "" || result.startsWith("<script")) {
             resolve([]);
             return;
           }

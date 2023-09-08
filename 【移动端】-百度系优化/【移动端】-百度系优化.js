@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.4
+// @version      1.4.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -43,7 +43,7 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_info
 // @grant        unsafeWindow
-// @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
+// @require	     https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1244325
 // @run-at       document-start
