@@ -2,7 +2,7 @@
  * 自己常用的元素节点工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.2
+ * @version  1.3
  * @namespace
  **/
 (function (global, factory) {
@@ -337,6 +337,9 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
+    if (element == null) {
+      return this;
+    }
     if (typeof content === "string") {
       element.insertAdjacentHTML("beforeend", content);
     } else {
@@ -355,6 +358,9 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
+    if (element == null) {
+      return this;
+    }
     if (typeof content === "string") {
       element.insertAdjacentHTML("afterbegin", content);
     } else {
@@ -371,6 +377,9 @@
   DOMUtils.after = function (element, content) {
     if (typeof element === "string") {
       element = document.querySelector(element);
+    }
+    if (element == null) {
+      return this;
     }
     if (typeof content === "string") {
       element.insertAdjacentHTML("afterend", content);
@@ -389,6 +398,9 @@
   DOMUtils.before = function (element, content) {
     if (typeof element === "string") {
       element = document.querySelector(element);
+    }
+    if (element == null) {
+      return this;
     }
     if (typeof content === "string") {
       element.insertAdjacentHTML("beforebegin", content);
