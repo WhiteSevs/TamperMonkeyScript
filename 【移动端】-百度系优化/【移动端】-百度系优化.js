@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.5
+// @version      1.4.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -43,15 +43,14 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_info
 // @grant        unsafeWindow
-// @require	     https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1244325
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247898
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1247897
 // @run-at       document-start
 // ==/UserScript==
 
 (function () {
   const utils = Utils.noConflict();
-  const jQuery = $.noConflict(true);
   const log = new utils.Log(GM_info);
   log.config({
     logMaxCount: 20000,
@@ -70,7 +69,8 @@
       log.error(["httpx-onerror 请求异常", response]);
     },
   });
-  let GM_Menu = null; /* 菜单 */
+  /* 菜单 */
+  let GM_Menu = null;
 
   const CSDN_FLAG_CSS = `
     .csdn-flag-component-box {
@@ -134,7 +134,7 @@
       </div>`;
     }
     /**
-     * 获取经过jQuery转换过的Loading的HTML
+     * 获取经过转换过的Loading的HTML
      * @param {Boolean} withIcon
      * @returns {Element}
      */
@@ -1480,10 +1480,13 @@
 			.yitiao-container,
 			.BK-content-load,
 			#J-tashuo-button-fixed,
-			#J-super-layer-promote{
+			#J-super-layer-promote,
+      /* 底部的参考资料展开图标 */
+      #J-reference-unfold{
 				display:none !important;
 			}
-			#J-other-content{
+			#J-other-content,
+      #J-reference li.reference-hide{
 				display:block !important;
 			}
 		`,
@@ -1554,9 +1557,17 @@
       /* 底部按钮-百度APP内播放 */
       div.common-wrap.single-pd,
       /* 顶部横幅-APP内播放 */
-      div#app div.guid-new{
+      div#app div.guid-new,
+      /* 顶部横幅-APP内阅读 */
+      #headDeflectorContainer,
+      /* 底部 打开百度APP，阅读体验更佳 */
+      #page_wrapper div[class^="foldMaskWrapper-"]{
 				display: none !important;
 			}
+      /* 展开阅读 */
+      #page_wrapper #dynamicItem{
+        height: auto !important;
+      }
 		`,
       xue: `
 			.sc-dkcEsn,
@@ -1661,18 +1672,16 @@
         },
         /**
          * 为搜索结果每一条设置原始链接
-         * @param {jQuery} jQDOM
-         * @param {String} articleURL article的真实url
+         * @param {Element} targetNode
+         * @param {string} articleURL article的真实url
          */
-        setArticleOriginUrl(jQDOM, articleURL) {
+        setArticleOriginUrl(targetNode, articleURL) {
           /* 处理超链接 */
-          jQDOM.find("a").each(async (index, item) => {
+          targetNode.querySelectorAll("a").forEach(async (item) => {
             if (handleItemURL.originURLMap.has(item.href)) {
               articleURL = handleItemURL.originURLMap.get(item.href);
             }
-            let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
-              jQuery(item)
-            );
+            let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
             if (!utils.isNull(domOriginUrl)) {
               articleURL = domOriginUrl;
             }
@@ -1683,12 +1692,10 @@
             log.info("替换成新链接: " + articleURL);
           });
           /* 这个是百度笔记(可能) */
-          jQDOM
-            .find("div[data-aftclk][class*=img-container]")
-            .each((index, item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
-                jQuery(item)
-              );
+          targetNode
+            .querySelectorAll("div[data-aftclk][class*=img-container]")
+            .forEach((item) => {
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
               if (!utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1696,12 +1703,10 @@
               }
             });
           /* 对搜索结果中存在的视频进行处理 */
-          jQDOM
-            .find("div.c-video-container div[data-aftclk]")
-            .each((index, item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
-                jQuery(item)
-              );
+          targetNode
+            .querySelectorAll("div.c-video-container div[data-aftclk]")
+            .forEach((item) => {
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
               if (!utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1709,12 +1714,10 @@
               }
             });
           /* 对搜索结果中存在的视频进行处理 */
-          jQDOM
-            .find('div[data-module="sc_pc"] div[rl-link-href]')
-            .each((index, item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(
-                jQuery(item)
-              );
+          targetNode
+            .querySelectorAll('div[data-module="sc_pc"] div[rl-link-href]')
+            .forEach((item) => {
+              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
               if (!utils.isNull(domOriginUrl)) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1742,92 +1745,94 @@
         },
         /**
          * 由于部分真实链接存储在 script 标签中，得取出
-         * @param {jQuery} jqNode 目标元素
+         * @param {Element} targetNode 目标元素
          * @returns {Map}
          */
-        parseScriptDOMOriginUrlMap(jqNode) {
+        parseScriptDOMOriginUrlMap(targetNode) {
           let urlMap = new utils.Dictionary();
-          jqNode.find("script[id^='atom-data-']").each((index, item) => {
-            let json_data = utils.toJSON(item.innerHTML);
-            if (json_data["data"]["resultAtomData"] == null) {
-              return;
-            }
-            let resultAtomData = json_data["data"]["resultAtomData"];
-            if (
-              resultAtomData["abstract"] &&
-              resultAtomData["abstract"]["urlParams"] &&
-              resultAtomData["abstract"]["urlParams"]["tcUrl"]
-            ) {
-              let url = handleItemURL.parseURLParamsOriginURL(
-                resultAtomData["abstract"]["urlParams"]
-              );
-              if (url) {
-                urlMap.set(
-                  resultAtomData["abstract"]["urlParams"]["tcUrl"],
-                  url
-                );
+          targetNode
+            .querySelectorAll("script[id^='atom-data-']")
+            .forEach((item) => {
+              let json_data = utils.toJSON(item.innerHTML);
+              if (json_data["data"]["resultAtomData"] == null) {
+                return;
               }
-            }
-            if (
-              resultAtomData["content"] &&
-              resultAtomData["content"]["abstract"] &&
-              resultAtomData["content"]["abstract"]["urlParams"] &&
-              resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
-            ) {
-              let url = handleItemURL.parseURLParamsOriginURL(
-                resultAtomData["content"]["abstract"]["urlParams"]
-              );
-              if (url) {
-                urlMap.set(
-                  resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"],
-                  url
+              let resultAtomData = json_data["data"]["resultAtomData"];
+              if (
+                resultAtomData["abstract"] &&
+                resultAtomData["abstract"]["urlParams"] &&
+                resultAtomData["abstract"]["urlParams"]["tcUrl"]
+              ) {
+                let url = handleItemURL.parseURLParamsOriginURL(
+                  resultAtomData["abstract"]["urlParams"]
                 );
+                if (url) {
+                  urlMap.set(
+                    resultAtomData["abstract"]["urlParams"]["tcUrl"],
+                    url
+                  );
+                }
               }
-            }
-            if (
-              resultAtomData["content"] &&
-              resultAtomData["content"]["links"] &&
-              resultAtomData["content"]["links"]["list"]
-            ) {
-              resultAtomData["content"]["links"]["list"].forEach((item) => {
-                item.forEach((item2) => {
-                  if (item2["urlParams"]["tcUrl"]) {
+              if (
+                resultAtomData["content"] &&
+                resultAtomData["content"]["abstract"] &&
+                resultAtomData["content"]["abstract"]["urlParams"] &&
+                resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
+              ) {
+                let url = handleItemURL.parseURLParamsOriginURL(
+                  resultAtomData["content"]["abstract"]["urlParams"]
+                );
+                if (url) {
+                  urlMap.set(
+                    resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"],
+                    url
+                  );
+                }
+              }
+              if (
+                resultAtomData["content"] &&
+                resultAtomData["content"]["links"] &&
+                resultAtomData["content"]["links"]["list"]
+              ) {
+                resultAtomData["content"]["links"]["list"].forEach((item) => {
+                  item.forEach((item2) => {
+                    if (item2["urlParams"]["tcUrl"]) {
+                      let url = handleItemURL.parseURLParamsOriginURL(
+                        item2["urlParams"]
+                      );
+                      if (url) {
+                        urlMap.set(item2["urlParams"]["tcUrl"], url);
+                      }
+                    }
+                  });
+                });
+              }
+              if (
+                resultAtomData["content"] &&
+                resultAtomData["content"]["site"]
+              ) {
+                resultAtomData["content"]["site"]["list"].forEach((item) => {
+                  if (item["urlParams"]["tcUrl"]) {
                     let url = handleItemURL.parseURLParamsOriginURL(
-                      item2["urlParams"]
+                      item["urlParams"]
                     );
                     if (url) {
-                      urlMap.set(item2["urlParams"]["tcUrl"], url);
+                      urlMap.set(item["urlParams"]["tcUrl"], url);
                     }
                   }
                 });
-              });
-            }
-            if (
-              resultAtomData["content"] &&
-              resultAtomData["content"]["site"]
-            ) {
-              resultAtomData["content"]["site"]["list"].forEach((item) => {
-                if (item["urlParams"]["tcUrl"]) {
-                  let url = handleItemURL.parseURLParamsOriginURL(
-                    item["urlParams"]
-                  );
-                  if (url) {
-                    urlMap.set(item["urlParams"]["tcUrl"], url);
-                  }
-                }
-              });
-            }
-          });
+              }
+            });
           return urlMap;
         },
         /**
          * 解析DOM节点上隐藏在属性中的真正url
-         * @param {jQuery} jQDOM
+         * @param {Element} targetNode
          * @returns {string|undefined}
          */
-        parseDOMAttrOriginUrl(jQDOM) {
+        parseDOMAttrOriginUrl(targetNode) {
           let url = null;
-          let dataLog = jQDOM.attr("data-log");
+          let dataLog = targetNode.getAttribute("data-log");
           if (dataLog) {
             try {
               dataLog = utils.toJSON(dataLog);
@@ -1838,7 +1843,7 @@
             }
           }
           if (utils.isNull(url)) {
-            let dataIVK = jQDOM.attr("data-ivk");
+            let dataIVK = targetNode.getAttribute("data-ivk");
             if (dataIVK) {
               try {
                 dataIVK = utils.toJSON(dataIVK);
@@ -1872,7 +1877,7 @@
           }
 
           if (utils.isNull(url)) {
-            let rlLinkDataLog = jQDOM.attr("rl-link-data-log");
+            let rlLinkDataLog = targetNode.getAttribute("rl-link-data-log");
             if (rlLinkDataLog) {
               try {
                 rlLinkDataLog = utils.toJSON(rlLinkDataLog);
@@ -1909,7 +1914,7 @@
           }
 
           if (utils.isNull(url)) {
-            let rlLinkDataIvk = jQDOM.attr("rl-link-data-ivk");
+            let rlLinkDataIvk = targetNode.getAttribute("rl-link-data-ivk");
             if (rlLinkDataIvk) {
               try {
                 rlLinkDataIvk = utils.toJSON(rlLinkDataIvk);
@@ -1943,23 +1948,23 @@
           }
 
           if (utils.isNull(url)) {
-            let articleDataLog = jQDOM
-              .find("article")
-              ?.attr("rl-link-data-log");
+            let articleDataLog = targetNode
+              .querySelector("article")
+              ?.getAttribute("rl-link-data-log");
             if (articleDataLog) {
               try {
                 articleDataLog = utils.toJSON(articleDataLog);
                 url = articleDataLog.mu;
               } catch (error) {
                 log.error("article DOM的属性的rl-link-data-log不存在👇");
-                log.error(jQDOM);
+                log.error(targetNode);
               }
             }
           }
           if (utils.isNull(url)) {
-            let articleLinkDataIVK = jQDOM
-              .find("article")
-              ?.attr("rl-link-data-ivk");
+            let articleLinkDataIVK = targetNode
+              .querySelector("article")
+              ?.getAttribute("rl-link-data-ivk");
             if (articleLinkDataIVK) {
               try {
                 articleLinkDataIVK = utils.toJSON(articleLinkDataIVK);
@@ -2015,33 +2020,32 @@
         },
         /**
          * 获取每一项的标题元素
-         * @param {jQuery} jQDOM 目标项
+         * @param {Element} targetNode 目标项
          * @returns {Element|undefined}
          */
-        getItemTitleElement(jQDOM) {
+        getItemTitleElement(targetNode) {
           return (
-            jQDOM[0].querySelector(".c-title-text") ||
-            jQDOM[0].querySelector("p.cu-title") ||
-            jQDOM[0].querySelector("div[class^=header-wrapper]") ||
-            jQDOM[0].querySelector(".c-title")
+            targetNode.querySelector(".c-title-text") ||
+            targetNode.querySelector("p.cu-title") ||
+            targetNode.querySelector("div[class^=header-wrapper]") ||
+            targetNode.querySelector(".c-title")
           );
         },
         /**
          * 给元素添加【CSDN】下载标识
-         * @param {jQuery} jQDOM
+         * @param {Element} targetNode
          */
-        addCSDNFlag(jQDOM) {
-          if (jQDOM.find(".csdn-flag-component-box").length) {
+        addCSDNFlag(targetNode) {
+          if (targetNode.querySelector(".csdn-flag-component-box")) {
             return;
           }
-          let title_text_element = handleItemURL.getItemTitleElement(jQDOM);
+          let title_text_element =
+            handleItemURL.getItemTitleElement(targetNode);
           if (title_text_element) {
-            title_text_element.appendChild(
-              jQuery(
-                `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
-              )[0]
+            DOMUtils.append(
+              title_text_element,
+              `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
             );
-
             log.success("插入CSDN下载提示标题");
           }
         },
@@ -2052,28 +2056,30 @@
           if (
             GM_Menu.get("baidu_search_blocking_everyone_is_still_searching")
           ) {
-            let pageRelativeElement = jQuery("#page-relative");
+            let pageRelativeElement =
+              document.querySelectorAll("#page-relative");
             if (pageRelativeElement.length) {
               log.success(
                 `删除广告位 ==> 末尾 大家都在搜 ${pageRelativeElement.length}个`
               );
-              pageRelativeElement.remove();
+              DOMUtils.remove(pageRelativeElement);
             }
-            let centerRecommandWarpperElement = jQuery(
+            let centerRecommandWarpperElement = document.querySelectorAll(
               ".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
             );
             if (centerRecommandWarpperElement.length) {
               log.success(
                 `删除广告位 ==> 中间 大家都在搜 ${centerRecommandWarpperElement.length}个`
               );
-              centerRecommandWarpperElement.remove();
+              DOMUtils.remove(centerRecommandWarpperElement);
             }
-            let relativewordsElement = jQuery("#relativewords");
+            let relativewordsElement =
+              document.querySelectorAll("#relativewords");
             if (relativewordsElement.length) {
               log.success(
                 `删除广告位 ==> 简单搜索加载下一页出现的 大家都在搜 ${relativewordsElement.length}个`
               );
-              relativewordsElement.remove();
+              DOMUtils.remove(relativewordsElement);
             }
           } else {
             if (handleEveryOneSearch.refactorEveryoneIsStillSearching) {
@@ -2087,23 +2093,22 @@
               );
             }
           }
-          let popUpElement = jQuery("#pop-up");
+          let popUpElement = document.querySelectorAll("#pop-up");
           if (popUpElement.length) {
             log.success(`删除 ==> 跳转百度app提示 ${popUpElement.length}个`);
-            popUpElement.remove();
+            DOMUtils.remove(popUpElement);
           }
-          let ecWiseAdElement = jQuery(".ec_wise_ad");
+          let ecWiseAdElement = document.querySelectorAll(".ec_wise_ad");
           if (ecWiseAdElement.length) {
             log.success(
               `删除 ==> 顶部的部分商品广告 ${ecWiseAdElement.length}个`
             );
-            ecWiseAdElement.parent().remove();
+            DOMUtils.remove(DOMUtils.parent(ecWiseAdElement));
           }
 
-          jQuery(".c-result.result").each((index, item) => {
-            item = jQuery(item);
+          document.querySelectorAll(".c-result.result").forEach((item) => {
             let dataLog = utils.toJSON(
-              item.attr("data-log")
+              item.getAttribute("data-log")
             ); /* 获取属性上的LOG */
             let searchArticleOriginal_link = dataLog["mu"]; /* 真实链接 */
             if (
@@ -2111,17 +2116,17 @@
             ) {
               if (
                 searchArticleOriginal_link.match(/recommend_list.baidu.com/g) ||
-                item.attr("tpl") === "recommend_list"
+                item.getAttribute("tpl") === "recommend_list"
               ) {
                 item?.remove();
                 log.success("删除广告 ==> 大家还在搜");
               }
-              if (item.text().substr(0, 5) === "大家还在搜") {
+              if (item.textContent.substr(0, 5) === "大家还在搜") {
                 item?.remove();
                 log.success("删除广告 ==> 大家都在搜（能看到的）");
               }
-              if (item.find(".c-atom-afterclick-recomm-wrap").length) {
-                item.find(".c-atom-afterclick-recomm-wrap")?.remove();
+              if (item.querySelector(".c-atom-afterclick-recomm-wrap")) {
+                item.querySelector(".c-atom-afterclick-recomm-wrap")?.remove();
                 log.success("删除广告 ==> 大家还在搜:隐藏的(点击后，跳出来的)");
               }
               document.querySelectorAll("span").forEach((item) => {
@@ -2137,9 +2142,10 @@
                 }
               });
             }
-            let bottomLogoElement = item.find(".c-color-source"); /* 底部标识 */
+            let bottomLogoElement =
+              item.querySelectorAll(".c-color-source"); /* 底部标识 */
             if (bottomLogoElement.length) {
-              bottomLogoElement.each((_index_, _item_) => {
+              bottomLogoElement.forEach((_item_) => {
                 if (_item_.outerText.match(/百度(APP内打开|手机助手)/)) {
                   item.remove();
                   log.success("删除广告 ==> 百度APP内打开|百度手机助手");
@@ -2154,10 +2160,7 @@
             ) {
               handleItemURL.addCSDNFlag(item);
             }
-            if (
-              item.attr("srcid") &&
-              item.attr("srcid").match(/(sigma|vid_fourfold)/g)
-            ) {
+            if (item.getAttribute("srcid")?.match(/(sigma|vid_fourfold)/g)) {
               item.remove();
               log.success("删除推荐 ==> xxx 相关 xxx");
             }
@@ -2216,7 +2219,7 @@
             document.querySelectorAll(".c-result.result")
           );
           for (const searchResultIndex in searchResultList) {
-            let item = jQuery(searchResultList[searchResultIndex]);
+            let item = searchResultList[searchResultIndex];
             let resultItemOriginURL =
               handleItemURL.parseDOMAttrOriginUrl(
                 item
@@ -2225,9 +2228,9 @@
               /* 未取到值 */
               continue;
             }
-            let articleElement = item.find("article");
+            let articleElement = item.querySelector("article");
             /* 不处理没有article标签的元素 */
-            if (articleElement.length === 0) {
+            if (!articleElement) {
               continue;
             }
             if (
@@ -2235,7 +2238,7 @@
             ) {
               if (
                 handleItemURL.showIsDirectIcon &&
-                item.find(".white-bdsearch-isredirecrt").length === 0
+                !item.querySelector(".white-bdsearch-isredirecrt")
               ) {
                 let title_text_element =
                   handleItemURL.getItemTitleElement(item);
@@ -2249,18 +2252,18 @@
               }
             }
             if (
-              item.attr("tpl") === "wenda_abstract" &&
-              item.attr("preventClick") == null
+              item.getAttribute("tpl") === "wenda_abstract" &&
+              item.getAttribute("preventClick") == null
             ) {
               /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
-              item.attr("preventClick", "true");
-              item.on("click", function (event) {
+              item.setAttribute("preventClick", "true");
+              DOMUtils.on(item, "click", function (event) {
                 utils.preventEvent(event);
                 let clickNode = event.target;
                 if (
                   clickNode.localName &&
                   clickNode.localName === "sup" &&
-                  jQuery(clickNode).attr("rl-type") === "stop"
+                  clickNode.getAttribute("rl-type") === "stop"
                 ) {
                   return;
                 } else {
@@ -2291,7 +2294,7 @@
                 );
                 log.info(`视频链接 ${newinternalVideo}`);
                 handleItemURL.setArticleOriginUrl(item, newinternalVideo);
-                articleElement.attr("rl-link-href", newinternalVideo);
+                articleElement.setAttribute("rl-link-href", newinternalVideo);
               }
             } else if (
               resultItemOriginURL.match(
@@ -2301,7 +2304,7 @@
               log.error("该链接不予替换: " + resultItemOriginURL);
             } else {
               handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
-              articleElement.attr("rl-link-href", resultItemOriginURL);
+              articleElement.setAttribute("rl-link-href", resultItemOriginURL);
             }
           }
         },
@@ -2338,7 +2341,7 @@
             if (!item.closest("#results")) {
               document.querySelector("#results").appendChild(item);
             }
-            jQuery(item).on("click", "a", function (event) {
+            DOMUtils.on(item, "click", "a", function (event) {
               utils.preventEvent(event);
               window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
             });
@@ -2399,7 +2402,7 @@
               display: inline-table;display: -webkit-inline-box;
           ">${rwListContainerHTML}</div>
             </div>`;
-            jQuery(recommendElement).on("click", "a", function (event) {
+            DOMUtils.on(recommendElement, "click", "a", function (event) {
               utils.preventEvent(event);
               window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
             });
@@ -2454,27 +2457,27 @@
             });
           });
           /* 顶部搜索按钮 */
-          jQuery(searchBtn)?.on("click", function (event) {
+          DOMUtils.on(searchBtn, "click", function (event) {
             return handleInputEvent.searchBtnJump(event, searchInput);
           });
           /* 顶部搜索输入框 */
-          jQuery(searchInput)?.on("keydown", function (event) {
+          DOMUtils.on(searchInput, "keydown", function (event) {
             return handleInputEvent.enterKeyDownEvent(event, searchInput);
           });
           /* 底部搜索按钮 */
-          jQuery(searchBtn2)?.on("click", function (event) {
+          DOMUtils.on(searchBtn2, "click", function (event) {
             return handleInputEvent.searchBtnJump(event, searchInput2);
           });
           /* 底部部搜索输入框 */
-          jQuery(searchInput2)?.on("keydown", function (event) {
+          DOMUtils.on(searchInput2, "keydown", function (event) {
             return handleInputEvent.enterKeyDownEvent(event, searchInput2);
           });
           /* 百度主页搜索按钮 */
-          jQuery(searchBtn_HOME)?.on("click", function (event) {
+          DOMUtils.on(searchBtn_HOME, "click", function (event) {
             return handleInputEvent.searchBtnJump(event, searchInput_HOME);
           });
           /* 百度主页搜索输入框 */
-          jQuery(searchInput_HOME)?.on("keydown", function (event) {
+          DOMUtils.on(searchInput_HOME, "keydown", function (event) {
             return handleInputEvent.enterKeyDownEvent(event, searchInput_HOME);
           });
         },
@@ -2484,12 +2487,12 @@
          */
         mutationObserverFunction(btnElement) {
           log.success("设置搜索建议自定义click事件");
-          jQuery(btnElement)?.on("click", function (event) {
+          DOMUtils.on(btnElement, "click", function (event) {
             utils.preventEvent(event);
             window?.stop();
-            let redirectURL =
-              window.location.origin + "/s?word=" + jQuery(this).text();
-            log.success("点击按钮跳转搜索 -> " + jQuery(this).text());
+            let searchText = event.target.textContent;
+            let redirectURL = window.location.origin + "/s?word=" + searchText;
+            log.success("点击按钮跳转搜索 -> " + searchText);
             log.success(redirectURL);
             window.location.href = redirectURL;
             return false;
@@ -2498,16 +2501,15 @@
         /**
          * 搜索按钮点击跳转
          * @param {Event} event
-         * @param {Element} searchInput
+         * @param {Element} searchInputElement
          * @returns
          */
-        searchBtnJump(event, searchInput) {
-          let searchInputElement = jQuery(searchInput);
+        searchBtnJump(event, searchInputElement) {
           utils.preventEvent(event);
           window?.stop();
           let redirectURL =
-            window.location.origin + "/s?word=" + searchInputElement.val();
-          log.success("点击按钮跳转搜索 -> " + searchInputElement.val());
+            window.location.origin + "/s?word=" + searchInputElement.value;
+          log.success("点击按钮跳转搜索 -> " + searchInputElement.value);
           log.success(redirectURL);
           window.location.href = redirectURL;
           return false;
@@ -2515,17 +2517,16 @@
         /**
          * 判决回车搜索事件
          * @param {Event} event
-         * @param {Element} searchInput
+         * @param {Element} searchInputElement
          * @returns
          */
-        enterKeyDownEvent(event, searchInput) {
+        enterKeyDownEvent(event, searchInputElement) {
           if (event.keyCode === 108 || event.keyCode === 13) {
             window?.stop();
-            let searchInputElement = jQuery(searchInput);
             utils.preventEvent(event);
             let redirectURL =
-              window.location.origin + "/s?word=" + searchInputElement.val();
-            log.success("回车键跳转搜索 -> " + searchInputElement.val());
+              window.location.origin + "/s?word=" + searchInputElement.value;
+            log.success("回车键跳转搜索 -> " + searchInputElement.value);
             log.success(redirectURL);
             window.location.href = redirectURL;
             return false;
@@ -2558,7 +2559,10 @@
             this
           );
           let loadingViewNode = loadingView.getParseLoadingNode(true);
-          jQuery("#page-controller").after(loadingViewNode);
+          DOMUtils.after(
+            document.querySelector("#page-controller"),
+            loadingViewNode
+          );
           loadingView.setLoadingViewElement(loadingViewNode);
           loadingView.setCSS();
           loadingView.hide();
@@ -2599,8 +2603,8 @@
           }
           loadingView.show();
           let nextPageUrl =
-            jQuery(".new-nextpage").attr("href") ||
-            jQuery(".new-nextpage-only").attr("href");
+            document.querySelector(".new-nextpage")?.getAttribute("href") ||
+            document.querySelector(".new-nextpage-only")?.getAttribute("href");
           if (!nextPageUrl) {
             log.info("获取不到下一页，怀疑已加载所有的搜索结果");
             handleNextPage.removeNextPageScrollListener();
@@ -2627,12 +2631,16 @@
           if (getResp.status) {
             log.success("响应的finalUrl: " + respData["finalUrl"]);
             loadingView.hide();
-            let nextPageHTMLNode = utils.parseFromString(respData.responseText);
-            let scriptAtomData = jQuery("<div></div>");
+            let nextPageHTMLNode = DOMUtils.parseHTML(
+              respData.responseText,
+              true,
+              true
+            );
+            let scriptAtomData = DOMUtils.createElement("div");
             nextPageHTMLNode
               .querySelectorAll("script[id^=atom-data]")
               .forEach((item) => {
-                scriptAtomData.append(jQuery(item));
+                scriptAtomData.appendChild(item);
               });
             let nextPageScriptOriginUrlMap =
               handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
@@ -2660,12 +2668,15 @@
               nextPageHTMLNode.querySelectorAll(".c-result.result");
             let nextPageControllerDOM =
               nextPageHTMLNode.querySelector("#page-controller");
-            let currentResultsDOM = jQuery("#results");
+            let currentResultsDOM = document.querySelector("#results");
             if (nextPageControllerDOM) {
               searchResultDOM.forEach((item) => {
-                currentResultsDOM.append(item);
+                currentResultsDOM.appendChild(item);
               });
-              jQuery("#page-controller").html(nextPageControllerDOM.innerHTML);
+              DOMUtils.html(
+                document.querySelector("#page-controller"),
+                nextPageControllerDOM.innerHTML
+              );
             } else {
               log.info("已加载所有的搜索结果");
               handleNextPage.removeNextPageScrollListener();
@@ -2796,7 +2807,7 @@
       );
       log.info("插入CSS规则");
       GM_addStyle(this.css.search);
-      jQuery(function () {
+      DOMUtils.ready(function () {
         let searchUpdateRealLink = new utils.LockFunction(async () => {
           try {
             await handleItemURL.replaceLink();
@@ -2828,9 +2839,8 @@
             log.success(["删除sigma的CSS", nodeList]);
             nodeList.forEach((item) => item.remove());
           });
-        handleItemURL.originURLMap = handleItemURL.parseScriptDOMOriginUrlMap(
-          jQuery(document)
-        );
+        handleItemURL.originURLMap =
+          handleItemURL.parseScriptDOMOriginUrlMap(document);
         handleItemURL.removeAds();
         handleItemURL.replaceScriptBaiDuTip();
         handleItemURL.redirectTopLink();
@@ -2968,17 +2978,17 @@
             comments.splice(0, 1);
           }
           comments.forEach((ele) => {
-            tiebaCommentConfig.insertNewCommentInnerHTML(
-              tiebaCommentConfig.getNewCommentInnerHTML(ele, pageCommentList)
+            tiebaCommentConfig.insertNewCommentInnerElement(
+              tiebaCommentConfig.getNewCommentInnerElement(ele, pageCommentList)
             );
             tiebaCommentConfig.floor_num += 1;
           });
           if (
-            Array.from(
-              document.querySelector(".white-only-lz").classList
-            ).includes("white-only-lz-qx")
+            document
+              .querySelector(".white-only-lz")
+              .classList.contains("white-only-lz-qx")
           ) {
-            jQuery(".post-item").each((index, ele) => {
+            document.querySelectorAll(".post-item").forEach((ele) => {
               let landlord = ele.getAttribute("landlord");
               if (landlord == "0") {
                 ele.classList.add("white-only-lz-none");
@@ -3029,8 +3039,8 @@
           }
           comments.reverse();
           comments.forEach((element) => {
-            tiebaCommentConfig.insertNewCommentInnerHTML(
-              tiebaCommentConfig.getNewCommentInnerHTML(
+            tiebaCommentConfig.insertNewCommentInnerElement(
+              tiebaCommentConfig.getNewCommentInnerElement(
                 element,
                 pageCommentList
               )
@@ -3038,12 +3048,11 @@
             tiebaCommentConfig.floor_num++;
           });
           if (
-            Array.from(jQuery(".white-only-lz")[0].classList).includes(
-              "white-only-lz-qx"
-            )
+            document
+              .querySelector(".white-only-lz")
+              .classList.contains("white-only-lz-qx")
           ) {
-            let lzReply = jQuery(".post-item");
-            Array.from(lzReply).forEach((ele) => {
+            document.querySelectorAll(".post-item").forEach((ele) => {
               let landlord = ele.getAttribute("landlord");
               if (landlord == "0") {
                 ele.classList.add("white-only-lz-none");
@@ -3099,9 +3108,9 @@
          * 根据dom获取需要插入的评论的html
          * @param {HTMLElement} element
          * @param { {commentList: any, userList: array}} pageCommentList
-         * @returns {string}
+         * @returns {Element|undefined}
          */
-        getNewCommentInnerHTML: (element, pageCommentList) => {
+        getNewCommentInnerElement: (element, pageCommentList) => {
           let data_field = utils.toJSON(element.getAttribute("data-field"));
           if (Object.keys(data_field).length == 0) {
             return;
@@ -3141,18 +3150,21 @@
           let user_floor = "";
           let user_comment_time = "1970-1-1 00:00:00";
           if (ele_tail_wrap) {
-            let childrenElement = jQuery(ele_tail_wrap).find("span.tail-info");
-            jQuery(ele_tail_wrap)
-              .find("span")
-              .filter(function (index) {
-                if (!this.getAttribute("class")) {
-                  user_ip_position = this.textContent;
+            let childrenElement =
+              ele_tail_wrap.querySelectorAll("span.tail-info");
+            Array.from(ele_tail_wrap.querySelectorAll("span")).forEach(
+              function (item) {
+                if (utils.isNotNull(user_ip_position)) {
+                  return;
+                }
+                if (!item.getAttribute("class")) {
+                  user_ip_position = item.textContent;
                   if (user_ip_position.match("来自|禁言")) {
                     user_ip_position = "";
                   }
-                  return this;
                 }
-              });
+              }
+            );
             if (childrenElement.length == 3 || childrenElement.length == 2) {
               user_floor =
                 childrenElement[childrenElement.length - 2].textContent;
@@ -3249,13 +3261,13 @@
             </div>
             `;
           }
-          let newCommentHTML = `
-            <div
-              data-v-74eb13e2=""
-              data-v-602e287c=""
-              class="post-item"
-              data-floor="${tiebaCommentConfig.floor_num}"
-              landlord=${is_landlord}>
+          let newCommentElement = DOMUtils.createElement("div", {
+            "data-v-74eb13e2": "",
+            "data-v-602e287c": "",
+            class: "post-item",
+            "data-floor": tiebaCommentConfig.floor_num,
+            landlord: is_landlord,
+            innerHTML: `
               <div
                 data-v-188c0e84=""
                 data-v-74eb13e2=""
@@ -3295,34 +3307,40 @@
                 ${newUserCommentHTML}
                 <div data-v-74eb13e2="" class="post-split-line"></div>
               </div>
-            </div>
-            `;
-          return newCommentHTML;
+              `,
+          });
+          return newCommentElement;
         },
         /**
          * 根据评论的html插入页面中
-         * @param {string} _html_
+         * @param {Element|undefined} newCommentDOM
          */
-        insertNewCommentInnerHTML: (_html_) => {
-          let newCommentDOM = jQuery(_html_);
+        insertNewCommentInnerElement: (newCommentDOM) => {
+          if (newCommentDOM == null) {
+            return;
+          }
           /* 评论，点击头像跳转到这个人的空间 */
-          newCommentDOM.find(".tbfe-1px-border.avatar").each((index, item) => {
-            if (item.hasAttribute("data-home-url")) {
-              item.onclick = function () {
-                window.open(item.getAttribute("data-home-url"), "_blank");
-              };
-            }
-          });
+          newCommentDOM
+            .querySelectorAll(".tbfe-1px-border.avatar")
+            .forEach((item) => {
+              if (item.hasAttribute("data-home-url")) {
+                item.onclick = function () {
+                  window.open(item.getAttribute("data-home-url"), "_blank");
+                };
+              }
+            });
           /* 评论，点击名字跳转到这个人的空间 */
-          newCommentDOM.find(".user-info .username").each((index, item) => {
-            if (item.hasAttribute("data-home-url")) {
-              item.onclick = function () {
-                window.open(item.getAttribute("data-home-url"), "_blank");
-              };
-            }
-          });
+          newCommentDOM
+            .querySelectorAll(".user-info .username")
+            .forEach((item) => {
+              if (item.hasAttribute("data-home-url")) {
+                item.onclick = function () {
+                  window.open(item.getAttribute("data-home-url"), "_blank");
+                };
+              }
+            });
           /* 评论的回复，点击头像跳转到这个人的空间 */
-          newCommentDOM.find(".link.username").each((index, item) => {
+          newCommentDOM.querySelectorAll(".link.username").forEach((item) => {
             if (item.hasAttribute("data-home-url")) {
               item.onclick = function () {
                 window.open(item.getAttribute("data-home-url"), "_blank");
@@ -3330,7 +3348,7 @@
             }
           });
           /* 评论的回复的回复，点击头像跳转到这个人的空间 */
-          newCommentDOM.find("a.at").each((index, item) => {
+          newCommentDOM.querySelectorAll("a.at").forEach((item) => {
             item.removeAttribute("onclick");
             item.removeAttribute("onmouseover");
             item.removeAttribute("onmouseout");
@@ -3342,31 +3360,39 @@
             }
           });
 
-          if (jQuery(".post-cut-guide").length) {
-            jQuery(".post-cut-guide").before(newCommentDOM);
+          if (document.querySelector(".post-cut-guide")) {
+            DOMUtils.before(
+              document.querySelector(".post-cut-guide"),
+              newCommentDOM
+            );
           } else {
-            jQuery(".pb-page-wrapper").append(newCommentDOM); /* 老版帖子 */
+            document
+              .querySelector(".pb-page-wrapper")
+              .appendChild(newCommentDOM); /* 老版帖子 */
           }
         },
         /**
          * 插入只看楼主的按钮
          */
         insertOnlyLZ: () => {
-          let ele_parent = jQuery("#replySwitch");
-          let onlyLzInnerHTML = `
-                      <div style="display: -webkit-box;
-                          display: -webkit-flex;
-                          display: -ms-flexbox;
-                          display: flex;
-                          -webkit-box-align: center;
-                          -webkit-align-items: center;
-                          -ms-flex-align: center;
-                          align-items: center;
-                          line-height: .24rem;
-                          border-radius: .14rem;
-                          font-size: .13rem;
-                          color: #614ec2;" class="white-only-lz">只看楼主</div>`;
-          ele_parent.append(onlyLzInnerHTML);
+          let ele_parent = document.querySelector("#replySwitch");
+          let onlyLzInnerElement = DOMUtils.createElement("div", {
+            style: `display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            line-height: .24rem;
+            border-radius: .14rem;
+            font-size: .13rem;
+            color: #614ec2;`,
+            class: "white-only-lz",
+            textContent: "只看楼主",
+          });
+          ele_parent.appendChild(onlyLzInnerElement);
           let quxiaoonlylz_css = `
                       .white-only-lz-qx:before {
                           content: "取消";
@@ -3375,34 +3401,40 @@
                           display: none;
                       }`;
           GM_addStyle(quxiaoonlylz_css);
-          jQuery(".white-only-lz").on("click", (event) => {
-            tiebaCommentConfig.displayComment(
-              Array.from(event.currentTarget.classList)
-            );
-          });
+          DOMUtils.on(
+            document.querySelector(".white-only-lz"),
+            "click",
+            (event) => {
+              tiebaCommentConfig.displayComment(
+                Array.from(event.currentTarget.classList)
+              );
+            }
+          );
         },
         /**
          * 插入 正序=倒序的按钮
          */
         insertReverseBtn: () => {
-          let ele_parent = jQuery("#replySwitch");
-          let btnHTML = `
-                      <div style="display: -webkit-box;
-                          display: -webkit-flex;
-                          display: -ms-flexbox;
-                          display: flex;
-                          -webkit-box-align: center;
-                          -webkit-align-items: center;
-                          -ms-flex-align: center;
-                          align-items: center;
-                          line-height: .24rem;
-                          border-radius: .14rem;
-                          font-size: .13rem;
-                          color: #614ec2;
-                          width: auto;
-                          margin-left: auto;
-                          margin-right: 15px;" class="white-btn-comment-reverse"></div>`;
-          ele_parent.append(btnHTML);
+          let ele_parent = document.querySelector("#replySwitch");
+          let btnElement = DOMUtils.createElement("div", {
+            style: `display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            line-height: .24rem;
+            border-radius: .14rem;
+            font-size: .13rem;
+            color: #614ec2;
+            width: auto;
+            margin-left: auto;
+            margin-right: 15px;`,
+            class: "white-btn-comment-reverse",
+          });
+          ele_parent.appendChild(btnElement);
           let btnCSS = `
                       .white-btn-comment:before {
                           content: "正序";
@@ -3414,9 +3446,9 @@
                           display: none;
                       }`;
           GM_addStyle(btnCSS);
-          jQuery(".white-btn-comment-reverse").on("click", (event) => {
+          DOMUtils.on(".white-btn-comment-reverse", "click", (event) => {
             tiebaCommentConfig.removeScrollListener();
-            jQuery(".post-item")?.remove();
+            DOMUtils.remove(".post-item");
             if (
               event.currentTarget.getAttribute("class") === "white-btn-comment"
             ) {
@@ -3448,7 +3480,7 @@
           let respData = getResp.data;
           log.success(["获取第一页的评论", respData]);
           if (getResp.status) {
-            return utils.parseFromString(respData.responseText);
+            return DOMUtils.parseHTML(respData.responseText, true, true);
           } else if (getResp.type === "onerror") {
             if (
               typeof respData.error === "string" &&
@@ -3499,7 +3531,9 @@
             let loadingViewNode = loadingView.getParseLoadingNode(true);
             loadingView.setLoadingViewElement(loadingViewNode);
             loadingView.hide();
-            jQuery(".main-page-wrap").append(loadingViewNode);
+            document
+              .querySelector(".main-page-wrap")
+              .appendChild(loadingViewNode);
           }
         },
         /**
@@ -3508,13 +3542,17 @@
          */
         displayComment: (classlist) => {
           if (classlist.includes("white-only-lz-qx")) {
-            jQuery(".white-only-lz").removeClass("white-only-lz-qx");
-            jQuery(".post-item").each((index, ele) => {
+            document
+              .querySelector(".white-only-lz")
+              .classList.remove("white-only-lz-qx");
+            document.querySelectorAll(".post-item").forEach((ele) => {
               ele.classList.remove("white-only-lz-none");
             });
           } else {
-            jQuery(".white-only-lz").addClass("white-only-lz-qx");
-            jQuery(".post-item").each((index, ele) => {
+            document
+              .querySelector(".white-only-lz")
+              .classList.add("white-only-lz-qx");
+            document.querySelectorAll(".post-item").forEach((ele) => {
               let landlord = ele.getAttribute("landlord");
               if (landlord == "0") {
                 ele.classList.add("white-only-lz-none");
@@ -3530,8 +3568,9 @@
             window.location.pathname.match(/([0-9]+)/g);
           if (tiebaCommentConfig.param_tid) {
             tiebaCommentConfig.param_tid = tiebaCommentConfig.param_tid[0];
-            tiebaCommentConfig.param_forum_id =
-              jQuery(".recommend-item").attr("data-banner-info");
+            tiebaCommentConfig.param_forum_id = document
+              .querySelector(".recommend-item")
+              ?.getAttribute("data-banner-info");
             if (tiebaCommentConfig.param_forum_id) {
               tiebaCommentConfig.param_forum_id = utils.toJSON(
                 tiebaCommentConfig.param_forum_id
@@ -3572,8 +3611,8 @@
                 comments.shift();
                 tiebaCommentConfig.floor_num = 1;
                 comments.forEach((element) => {
-                  tiebaCommentConfig.insertNewCommentInnerHTML(
-                    tiebaCommentConfig.getNewCommentInnerHTML(
+                  tiebaCommentConfig.insertNewCommentInnerElement(
+                    tiebaCommentConfig.getNewCommentInnerElement(
                       element,
                       pageCommentList
                     )
@@ -3600,8 +3639,9 @@
             window.location.pathname.match(/([0-9]+)/g);
           if (tiebaCommentConfig.param_tid) {
             tiebaCommentConfig.param_tid = tiebaCommentConfig.param_tid[0];
-            tiebaCommentConfig.param_forum_id =
-              jQuery(".recommend-item").attr("data-banner-info");
+            tiebaCommentConfig.param_forum_id = document
+              .querySelector(".recommend-item")
+              ?.getAttribute("data-banner-info");
             if (tiebaCommentConfig.param_forum_id) {
               tiebaCommentConfig.param_forum_id = utils.toJSON(
                 tiebaCommentConfig.param_forum_id
@@ -3644,8 +3684,8 @@
                 tiebaCommentConfig.floor_num = 1;
                 comment.reverse();
                 comment.forEach((element) => {
-                  tiebaCommentConfig.insertNewCommentInnerHTML(
-                    tiebaCommentConfig.getNewCommentInnerHTML(
+                  tiebaCommentConfig.insertNewCommentInnerElement(
+                    tiebaCommentConfig.getNewCommentInnerElement(
                       element,
                       pageCommentList
                     )
@@ -3669,7 +3709,7 @@
             tiebaCommentConfig.insertLoadingHTML();
           });
           utils.waitNode(".recommend-item[data-banner-info]").then(() => {
-            jQuery(".post-item")?.remove();
+            DOMUtils.remove(".post-item");
             tiebaCommentConfig.mainPositive();
             tiebaCommentConfig.insertReverseBtn();
             tiebaCommentConfig.insertOnlyLZ();
@@ -3909,7 +3949,9 @@
           imgList.forEach((item) => {
             viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
           });
-          let viewerULNode = jQuery(`<ul>${viewerULNodeHTML}</ul>`)[0];
+          let viewerULNode = DOMUtils.createElement("ul", {
+            innerHTML: viewerULNodeHTML,
+          });
           let viewer = new Viewer(viewerULNode, {
             inline: false,
             url: "data-src",
@@ -3923,7 +3965,7 @@
           viewer.zoomTo(1);
           viewer.show();
         }
-        jQuery(document).on("click", "img", function (event) {
+        DOMUtils.on(document, "click", "img", function (event) {
           let clickElement = event.target;
           let imgSrc =
             clickElement.getAttribute("data-src") ||
@@ -3985,12 +4027,11 @@
        */
       function redirectJump() {
         log.info("话题热榜-阻止默认跳转");
-        jQuery(document).on("click", ".topic-share-item", function (event) {
-          event?.stopPropagation();
-          event?.preventDefault();
+        DOMUtils.on(document, "click", ".topic-share-item", function (event) {
+          utils.preventEvent(event);
           window?.stop();
-          let clickNode = jQuery(this);
-          let dataTrack = clickNode.attr("data-track");
+          let clickNode = event.target;
+          let dataTrack = clickNode.getAttribute("data-track");
           if (dataTrack == null) {
             log.error("未找到data-track");
             log.error(clickNode);
@@ -4012,13 +4053,11 @@
           log.success(nodeList);
           nodeList.forEach((item) => {
             item.ontouchstart = function (event) {
-              event?.stopPropagation();
-              event?.preventDefault();
+              utils.preventEvent(event);
               window?.stop();
-              window.location.href = `https://tieba.baidu.com/f?kw=${jQuery(
-                this
+              window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
+                event.target
               )
-                .text()
                 .trim()
                 .replace(/吧$/g, "")}`;
               return false;
@@ -4038,13 +4077,11 @@
                     log.success(item2);
                     item2.querySelector(".thread-bottom .forum").ontouchstart =
                       function (event) {
-                        event?.stopPropagation();
-                        event?.preventDefault();
+                        utils.preventEvent(event);
                         window?.stop();
-                        window.location.href = `https://tieba.baidu.com/f?kw=${jQuery(
-                          this
+                        window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
+                          event.target
                         )
-                          .text()
                           .trim()
                           .replace(/吧$/g, "")}`;
                         return false;
@@ -4060,13 +4097,12 @@
           });
         });
 
-        jQuery(document).on(
+        DOMUtils.on(
+          document,
           "touchstart",
           ".topic-share-item .forum",
           function (event) {
-            event?.stopPropagation();
-            event?.preventDefault();
-            return false;
+            return utils.preventEvent(event);
           }
         );
       }
@@ -4114,7 +4150,10 @@
                   /* 当前是在吧内，搜索按钮判定搜索贴子 */
                   loadingView.setCSS();
                   let loadingViewNode = loadingView.getParseLoadingNode(true);
-                  jQuery("div.tb-page__main").after(loadingViewNode);
+                  DOMUtils.after(
+                    document.querySelector("div.tb-page__main"),
+                    loadingViewNode
+                  );
                   loadingView.setLoadingViewElement(loadingViewNode);
                   tiebaSearchConfig.isSetClickEvent = true;
                   tiebaSearchConfig.postsSearch();
@@ -4306,9 +4345,11 @@
             let getResp = await httpx.get({
               url: url,
               headers: {
-                "User-Agent": utils.getRandomPCUA(),
-                Referer: url,
-                Host: window.location.hostname,
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language":
+                  "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+                Referer: window.location.href,
+                Host: "tieba.baidu.com",
                 Accept:
                   "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
               },
@@ -4316,14 +4357,26 @@
             if (!getResp.status) {
               if (getResp.data.responseText === "") {
                 log.error(getResp);
-                return "获取内容为空，可能触发了百度验证，请刷新网页再试";
+                return "获取内容为空，可能触发了百度校验，请刷新网页再试";
+              } else if (
+                getResp.data[0] &&
+                getResp.data[0]?.responseText?.match("wappass.baidu.com")
+              ) {
+                let url = getResp.data[0].responseText.match(/href="(.*?)"/)[1];
+                log.error("触发百度校验: " + url);
+                window.location.href = url;
+                return "触发百度校验";
               }
               log.error(getResp);
               return;
             }
             log.success(getResp);
             let respData = getResp.data;
-            let searchDoc = utils.parseFromString(respData.responseText);
+            let searchDoc = DOMUtils.parseHTML(
+              respData.responseText,
+              true,
+              true
+            );
             if (searchDoc.querySelector(".search_noresult")) {
               return "抱歉，没有找到与“" + originText + "”相关的结果。";
             }
@@ -4427,12 +4480,12 @@
 
           /**
            * 设置搜索结果模式
-           * @param {jQuery} jQueryOrderElement
+           * @param {Element} searchElement
+           * @param {Element} orderElement
            */
-          function setCurrentOrderHTML(jQueryOrderElement) {
-            for (const iterator of jQueryOrderElement.find("a")) {
-              let targetElement = jQuery(iterator);
-              let targetElementHTML = targetElement.html();
+          function setCurrentOrderHTML(searchElement, orderElement) {
+            for (const targetElement of orderElement.querySelectorAll("a")) {
+              let targetElementHTML = DOMUtils.html(targetElement);
               let flag = false;
               if (
                 (targetElementHTML.includes("按时间顺序") &&
@@ -4447,12 +4500,15 @@
               }
               if (flag) {
                 log.success(`当前搜索模式-${targetElementHTML}`);
-                targetElement.replaceWith(`<b>${targetElementHTML}</b>`);
+                DOMUtils.replaceWith(
+                  targetElement,
+                  `<b>${targetElementHTML}</b>`
+                );
                 break;
               }
             }
             if (searchType === 1) {
-              jQueryOrderElement.find("#searchtb").prop("checked", true);
+              DOMUtils.val(searchElement.querySelector("#searchtb"), true);
               log.success("当前搜索类型-全吧搜索");
             } else if (searchType === 0) {
               log.success("当前搜索类型-吧内搜索");
@@ -4464,11 +4520,13 @@
            * 设置搜索结果模式点击事件
            */
           function setOrderClickEvent() {
-            jQuery(document).on("click", ".s_order a", function () {
-              let clickOrderElement = jQuery(this);
-              let clickOrderHTML = clickOrderElement.html();
-              jQuery(".s_order b").replaceWith(
-                `<a>${jQuery(".s_order b").html()}</a>`
+            DOMUtils.on(document, "click", ".s_order a", function (event) {
+              let clickOrderElement = event.target;
+              let clickOrderHTML = DOMUtils.html(clickOrderElement);
+              let orderBElement = document.querySelector(".s_order b");
+              DOMUtils.replaceWith(
+                orderBElement,
+                `<a>${DOMUtils.html(orderBElement)}</a>`
               );
               clickOrderElement.replaceWith(`<b>${clickOrderHTML}</b>`);
               if (clickOrderHTML.includes("按时间顺序")) {
@@ -4488,14 +4546,15 @@
               removeScrollListener();
               document.querySelector(".more-btn-desc").click();
             });
-            jQuery(document).on(
+            DOMUtils.on(
+              document,
               "change",
               ".s_search input[type='radio']",
-              function () {
-                if (this.id === "searchtb") {
+              function (event) {
+                if (event.target.id === "searchtb") {
                   searchType = 1;
                   log.success("切换搜索模式-全吧搜索");
-                } else if (this.id === "nowtb") {
+                } else if (event.target.id === "nowtb") {
                   searchType = 0;
                   log.success("切换搜索模式-吧内搜索");
                 } else {
@@ -4521,13 +4580,15 @@
                 ?.textContent?.trim()
                 ?.replace(/吧$/g, "");
             }
-            let contentElement = jQuery(".main-thread-content-margin");
-            if (!contentElement.length) {
-              contentElement = jQuery(".tb-page__main");
+            let contentElement = document.querySelector(
+              ".main-thread-content-margin"
+            );
+            if (!contentElement) {
+              contentElement = document.querySelector(".tb-page__main");
             }
-            jQuery("#replySwitch").remove();
-            jQuery(".post-item").remove();
-            contentElement.html("");
+            DOMUtils.remove("#replySwitch");
+            DOMUtils.remove(".post-item");
+            DOMUtils.html(contentElement, "");
             searchInputElement.focus();
             let searchText = searchInputElement.value.trim();
             if (utils.isNull(searchText)) {
@@ -4561,23 +4622,26 @@
               (searchResult.startsWith("抱歉") ||
                 searchResult.startsWith("获取内容为空"))
             ) {
-              contentElement.html("");
+              DOMUtils.html(contentElement, "");
               searchModel = 1;
               loadingView.hide();
               alert(searchResult + " 已重置搜索模式为-按时间倒序");
               return;
             }
-            contentElement.html("");
+            DOMUtils.html(contentElement, "");
             log.success(searchResult);
-            let orderElement = jQuery(`
-            <div class="s_search">
+            let searchElement = DOMUtils.createElement("div", {
+              class: "s_search",
+              innerHTML: `
               搜索类型：
               <input id="nowtb" name="tb" type="radio"checked="checked">
               <label for="nowtb">吧内搜索</label>
               <input id="searchtb" name="tb" type="radio">
-              <label for="searchtb">全吧搜索</label>
-            </div>
-            <div class="s_order">
+              <label for="searchtb">全吧搜索</label>`,
+            });
+            let orderElement = DOMUtils.createElement("div", {
+              class: "s_order",
+              innerHTML: `
               排序结果：
               <a>按时间倒序</a>
               <span class="split_line">|</span>
@@ -4587,12 +4651,13 @@
               <span class="split_line">|</span>
               <a>只看主题贴</a>
               <span class="split_line">|</span>
-            </div>
-            `);
-            setCurrentOrderHTML(orderElement);
-            contentElement.append(orderElement);
+              `,
+            });
+            setCurrentOrderHTML(searchElement, orderElement);
+            DOMUtils.append(contentElement, searchElement);
+            DOMUtils.append(contentElement, orderElement);
             searchResult.forEach((item) => {
-              contentElement.append(getItemHTML(item));
+              DOMUtils.append(contentElement, getItemHTML(item));
             });
             loadingView.hide();
             if (nextPageUrl) {
@@ -4627,9 +4692,11 @@
               loadingView.show();
               return;
             }
-            let contentElement = jQuery(".main-thread-content-margin");
-            if (!contentElement.length) {
-              contentElement = jQuery(".tb-page__main");
+            let contentElement = document.querySelector(
+              ".main-thread-content-margin"
+            );
+            if (!contentElement) {
+              contentElement = document.querySelector(".tb-page__main");
             }
             let searchResult = await getSearchResult(nextPageUrl);
             if (!searchResult) {
@@ -4648,7 +4715,7 @@
             }
             log.success(searchResult);
             searchResult.forEach((item) => {
-              contentElement.append(getItemHTML(item));
+              DOMUtils.append(contentElement, getItemHTML(item));
             });
             loadingView.hide();
             if (!nextPageUrl) {
@@ -4856,11 +4923,10 @@
        */
       function insertUrlToImageNode() {
         document.querySelectorAll(".lazy-img").forEach((item) => {
-          item = jQuery(item);
-          let content_img = jQuery(item.parent().parent().parent());
-          let img_url = content_img.attr("data-src")
-            ? content_img.attr("data-src")
-            : item.attr("data-url");
+          let content_img = item.parentElement.parentElement.parentElement;
+          let img_url = content_img.getAttribute("data-src")
+            ? content_img.getAttribute("data-src")
+            : item.getAttribute("data-url");
           if (img_url != null) {
             item.innerHTML = `<img src="${img_url}"></img>`;
           }
@@ -4886,7 +4952,11 @@
           loadingView.setCSS();
 
           let loadingViewNode = loadingView.getParseLoadingNode(true);
-          jQuery(".BK-main-content").after(loadingViewNode);
+          console.log(document.querySelector(".BK-main-content"));
+          DOMUtils.after(
+            document.querySelector(".BK-main-content"),
+            loadingViewNode
+          );
           loadingView.setLoadingViewElement(loadingViewNode);
           while (1) {
             loadingView.show();
@@ -4903,7 +4973,11 @@
             });
             let respData = getResp.data;
             if (getResp.status) {
-              let respObj = utils.parseFromString(respData.responseText);
+              let respObj = DOMUtils.parseHTML(
+                respData.responseText,
+                true,
+                true
+              );
               let main_content = respObj.querySelector(".BK-main-content");
               nextPageContent = main_content.innerHTML;
               if (main_content.children.length <= 2) {
@@ -4915,7 +4989,11 @@
               } else {
                 loadingView.setText("正在加载页 " + page, true);
                 log.info(nextPageContent);
-                jQuery(".BK-main-content").append(jQuery(nextPageContent));
+                DOMUtils.append(
+                  document.querySelector(".BK-main-content"),
+                  nextPageContent
+                );
+                // 等待350ms，防止被百度识别为机器人
                 await utils.sleep(350);
               }
               if (GM_Menu.get("baidu_baike_sync_next_page_address")) {
@@ -4988,7 +5066,9 @@
       }
       GM_addStyle(this.css.zhidao);
       log.info("插入CSS规则");
-      jQuery(".ec-ad")?.parent()?.remove();
+      if (document.querySelector(".ec-ad")) {
+        DOMUtils.remove(DOMUtils.parent(document.querySelectorAll(".ec-ad")));
+      }
       GM_Menu = new utils.GM_Menu(
         {
           baidu_zhidao_block_recommend_more_exciting_content: {
@@ -5114,8 +5194,8 @@
         return;
       }
       GM_addStyle(this.css.fanyiapp);
-      utils.waitNode("#page-content").then(() => {
-        jQuery("#page-content")?.attr("style", "max-height:unset !important");
+      utils.waitNode("#page-content").then((nodeList) => {
+        nodeList[0].setAttribute("style", "max-height:unset !important");
       });
       log.info("插入CSS规则");
     },
@@ -5159,6 +5239,13 @@
               return (_enable_ ? "✅" : "❌") + " " + _text_;
             },
           },
+          baidu_mdb_shield_bottom_toolbar: {
+            text: "【屏蔽】底部工具栏",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+          },
         },
         true,
         GM_getValue,
@@ -5169,11 +5256,21 @@
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
       if (GM_Menu.get("baidu_mdb_block_exciting_recommendations")) {
-        log.success("屏蔽精彩推荐");
+        log.success(
+          GM_Menu.getText("baidu_mdb_block_exciting_recommendations")
+        );
         GM_addStyle(`
         div[class^="relateTitle"],
         .infinite-scroll-component__outerdiv,
         div#fuseVideo + div[class]{
+          display: none !important;
+        }
+        `);
+      }
+      if (GM_Menu.get("baidu_mdb_shield_bottom_toolbar")) {
+        log.success(GM_Menu.getText("baidu_mdb_shield_bottom_toolbar"));
+        GM_addStyle(`
+        div#wise-invoke-interact-bar{
           display: none !important;
         }
         `);
@@ -5340,29 +5437,30 @@
           "#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
         )
         .then((nodeList) => {
-          let uploadImageDivDOM = jQuery(
-            `<div class="vf-home-booth-camera"></div>`
-          );
-          uploadImageDivDOM.css("position", "absolute");
-          uploadImageDivDOM.css("bottom", "-.42rem");
-          uploadImageDivDOM.css("left", "50%");
-          uploadImageDivDOM.css("width", "2.2rem");
-          uploadImageDivDOM.css("height", ".74rem");
-          uploadImageDivDOM.css(
-            "background-image",
-            "url(https://imgn0.bdstatic.com/image/mobile/n/static/wiseik/static/img/camera_5e72a3a.png)"
-          );
-          uploadImageDivDOM.css("background-repeat", "no-repeat");
-          uploadImageDivDOM.css("background-size", "cover");
-          uploadImageDivDOM.css("background-position", "top");
-          uploadImageDivDOM.css("-webkit-transform", "translateX(-50%)");
-          uploadImageDivDOM.css("-ms-transform", "translateX(-50%)");
-          uploadImageDivDOM.css("transform", "translateX(-50%)");
-          uploadImageDivDOM.css("-webkit-tap-highlight-color", "transparent");
-          uploadImageDivDOM.on("click", function () {
+          let uploadImageDivDOM = DOMUtils.createElement("div", {
+            class: "vf-home-booth-camera",
+          });
+          DOMUtils.css({
+            position: "absolute",
+            bottom: "-.42rem",
+            left: "50%",
+            width: "2.2rem",
+            height: ".74rem",
+            "background-image":
+              "url(https://imgn0.bdstatic.com/image/mobile/n/static/wiseik/static/img/camera_5e72a3a.png)",
+            "background-repeat": "no-repeat",
+            "background-size": "cover",
+            "background-position": "top",
+            "-webkit-transform": "translateX(-50%)",
+            "-ms-transform": "translateX(-50%)",
+            transform: "translateX(-50%)",
+            "-webkit-tap-highlight-color": "transparent",
+          });
+          DOMUtils.on(uploadImageDivDOM, "click", function () {
             document.querySelector("input#whitesev-upload-image").click();
           });
-          jQuery(nodeList).after(uploadImageDivDOM);
+
+          DOMUtils.after(nodeList[0], uploadImageDivDOM);
         });
       /* 如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题 */
       utils.waitNode("#app .graph-noresult-text1").then(() => {
@@ -5377,38 +5475,48 @@
       utils
         .waitNode("#viewport .graph-imagecut-banner-ctn")
         .then((nodeList) => {
-          let retakeDivDOM = jQuery(`<div class="retake-image">重拍</div>`);
-          retakeDivDOM.css("position", "absolute");
-          retakeDivDOM.css("top", "50%");
-          retakeDivDOM.css("right", "0");
-          retakeDivDOM.css("padding", "0 .17rem");
-          retakeDivDOM.css("font-size", "16px");
-          retakeDivDOM.css("line-height", "60px");
-          retakeDivDOM.css("color", "#000");
-          retakeDivDOM.css("-webkit-transform", "translateY(-50%)");
-          retakeDivDOM.css("transform", "translateY(-50%)");
-          retakeDivDOM.on("click", function (event) {
-            event.stopPropagation();
-            event.preventDefault();
+          let retakeDivDOM = DOMUtils.createElement("div", {
+            class: "retake-image",
+            textContent: "重拍",
+          });
+          DOMUtils.css({
+            position: "absolute",
+            top: "50%",
+            right: "0",
+            padding: "0 .17rem",
+            "font-size": "16px",
+            "line-height": "60px",
+            color: "#000",
+            "-webkit-transform": "translateY(-50%)",
+            transform: "translateY(-50%)",
+          });
+          DOMUtils.on(retakeDivDOM, "click", function (event) {
+            utils.preventEvent(event);
             document.querySelector("input#whitesev-upload-image").click();
-            jQuery("input#whitesev-upload-image").trigger("click");
+            DOMUtils.trigger(
+              document.querySelector("input#whitesev-upload-image"),
+              "click"
+            );
           });
           setTimeout(() => {
-            jQuery(nodeList).append(retakeDivDOM);
+            DOMUtils.append(nodeList[0], retakeDivDOM);
           }, 2000);
         });
-      jQuery(function () {
-        let uploadImageInput = jQuery(
-          `<input id="whitesev-upload-image" type="file" accept="image/*" style="display: none">`
-        );
-        uploadImageInput.on("change", uploadImage);
-        jQuery(document.body).append(uploadImageInput);
+      DOMUtils.ready(function () {
+        let uploadImageInput = DOMUtils.createElement("input", {
+          id: "whitesev-upload-image",
+          type: "file",
+          accept: "image/*",
+          style: "display: none",
+        });
+        DOMUtils.on(uploadImageInput, "change", uploadImage);
+        DOMUtils.append(document.body, uploadImageInput);
       });
     },
     /**
      * 百度网盘
      */
-    pan(){
+    pan() {
       if (!this.current_url.match(/^http(s|):\/\/pan.baidu.com/g)) {
         return;
       }
