@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      1.1
+// @version      1.3
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -14,9 +14,9 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @connect      greasyfork.org
-// @require	     https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1244762
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1244325
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247772
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1247774
 // ==/UserScript==
 
 (function () {
@@ -287,9 +287,13 @@
           Qmsg.success("登录失败，请在控制台查看原因");
           return;
         }
-        let parseLoginHTMLNode = $(postResp.data.responseText);
+        let parseLoginHTMLNode = DOMUtils.parseHTML(
+          postResp.data.responseText,
+          true,
+          true
+        );
         if (
-          parseLoginHTMLNode.find(
+          parseLoginHTMLNode.querySelectorAll(
             ".sign-out-link a[rel=nofollow][data-method='delete']"
           ).length
         ) {
@@ -310,11 +314,11 @@
      */
     setFindCodeSearchBtn() {
       utils.waitNode("ul#script-links li.current span").then(() => {
-        let searchBtn = $(`
-        <li><a href="javascript:;"><span>寻找引用</span></a></li>
-       `);
-        $("ul#script-links").append(searchBtn);
-        searchBtn.on("click", async function () {
+        let searchBtn = DOMUtils.createElement("li", {
+          innerHTML: `<a href="javascript:;"><span>寻找引用</span></a>`,
+        });
+        DOMUtils.append(document.querySelector("ul#script-links"), searchBtn);
+        DOMUtils.on(searchBtn, "click", async function () {
           let scriptId = window.location.pathname.match(/scripts\/([\d]+)/i);
           if (!scriptId) {
             log.error([scriptId, window.location.pathname]);
@@ -450,7 +454,7 @@
 
   /* -----------------↓执行入口↓----------------- */
   GreasyforkMenu.init();
-  $(function () {
+  DOMUtils.ready(function () {
     if (GreasyforkMenu.menu.get("autoLogin")) {
       GreasyforkBusiness.autoLogin();
     }
