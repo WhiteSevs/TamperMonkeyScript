@@ -46,7 +46,7 @@
       tempElement.innerHTML = property;
       return tempElement;
     }
-    if(property == null){
+    if (property == null) {
       return tempElement;
     }
     Object.keys(property).forEach((key) => {
@@ -734,10 +734,21 @@
    * @returns {DOMUtils} - 原型链
    */
   DOMUtils.ready = function (callback) {
-    if (document.readyState !== "loading") {
+    function completed() {
+      document.removeEventListener("DOMContentLoaded", completed);
+      window.removeEventListener("load", completed);
       callback();
+    }
+    if (
+      document.readyState === "complete" ||
+      (document.readyState !== "loading" && !document.documentElement.doScroll)
+    ) {
+      window.setTimeout(callback);
     } else {
-      DOMUtils.on(document, "DOMContentLoaded", null, callback);
+      /* 监听DOMContentLoaded事件 */
+      document.addEventListener("DOMContentLoaded", completed);
+      /* 监听load事件 */
+      window.addEventListener("load", completed);
     }
     return this;
   };
@@ -842,7 +853,6 @@
     }
     return element.nextElementSibling;
   };
-
 
   /**
    * 获取当前元素的所有兄弟元素
