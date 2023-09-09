@@ -2,7 +2,7 @@
  * 自己常用的元素节点工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.1
+ * @version  1.2
  * @namespace
  **/
 (function (global, factory) {
