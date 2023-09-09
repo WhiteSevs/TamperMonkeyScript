@@ -17,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-9-9",
+    version: "2023-9-10",
   };
 
   /**
@@ -1401,6 +1401,26 @@
       return data[menuId]["enable"];
     };
     /**
+     * 根据键值获取text值
+     * @param {string} menuId
+     * @returns {string}
+     */
+    this.getText = function (menuId) {
+      return data[menuId]["text"];
+    };
+    /**
+     * 根据键值获取showText值
+     * @param {string} menuId
+     * @returns {string}
+     */
+    this.getShowText = function (menuId) {
+      if (typeof data[menuId]["showText"] === "function") {
+        return data[menuId]["showText"](this.getText(menuId), this.get(menuId));
+      } else {
+        return this.getText(menuId);
+      }
+    };
+    /**
      * 新增菜单数据
      * @param {Object} paramData
      */
@@ -1813,10 +1833,19 @@
 
     /**
      * GET 请求
-     * @param {object} details
      * @returns {Promise}
      */
-    this.get = function (details) {
+    this.get = function () {
+      let details = {};
+      if (typeof arguments[0] === "string") {
+        details.url = arguments[0];
+        if (typeof arguments[1] === "object") {
+          details = arguments[1];
+          details.url = arguments[0];
+        }
+      } else {
+        details = arguments[0];
+      }
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("get", resolve, details);
         delete requestDetails.onprogress;
@@ -1826,10 +1855,19 @@
     };
     /**
      * POST 请求
-     * @param {object} details
      * @returns {Promise}
      */
-    this.post = function (details) {
+    this.post = function () {
+      let details = {};
+      if (typeof arguments[0] === "string") {
+        details.url = arguments[0];
+        if (typeof arguments[1] === "object") {
+          details = arguments[1];
+          details.url = arguments[0];
+        }
+      } else {
+        details = arguments[0];
+      }
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("post", resolve, details);
         requestDetails = handleRequestDetails(requestDetails);
@@ -1838,10 +1876,19 @@
     };
     /**
      * HEAD 请求
-     * @param {object} details
      * @returns {Promise}
      */
-    this.head = function (details) {
+    this.head = function () {
+      let details = {};
+      if (typeof arguments[0] === "string") {
+        details.url = arguments[0];
+        if (typeof arguments[1] === "object") {
+          details = arguments[1];
+          details.url = arguments[0];
+        }
+      } else {
+        details = arguments[0];
+      }
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("head", resolve, details);
         delete requestDetails.onprogress;
@@ -1852,10 +1899,19 @@
 
     /**
      * OPTIONS请求
-     * @param {object} details
      * @returns {Promise}
      */
-    this.options = function (details) {
+    this.options = function () {
+      let details = {};
+      if (typeof arguments[0] === "string") {
+        details.url = arguments[0];
+        if (typeof arguments[1] === "object") {
+          details = arguments[1];
+          details.url = arguments[0];
+        }
+      } else {
+        details = arguments[0];
+      }
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("options", resolve, details);
         delete requestDetails.onprogress;
@@ -1866,9 +1922,19 @@
 
     /**
      * DELETE请求
-     * @param {object} details
+     * @returns {Promise}
      */
-    this.delete = function (details) {
+    this.delete = function () {
+      let details = {};
+      if (typeof arguments[0] === "string") {
+        details.url = arguments[0];
+        if (typeof arguments[1] === "object") {
+          details = arguments[1];
+          details.url = arguments[0];
+        }
+      } else {
+        details = arguments[0];
+      }
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("delete", resolve, details);
         delete requestDetails.onprogress;
@@ -1879,10 +1945,19 @@
 
     /**
      * PUT请求
-     * @param {object} details
      * @returns {Promise}
      */
-    this.put = function (details) {
+    this.put = function () {
+      let details = {};
+      if (typeof arguments[0] === "string") {
+        details.url = arguments[0];
+        if (typeof arguments[1] === "object") {
+          details = arguments[1];
+          details.url = arguments[0];
+        }
+      } else {
+        details = arguments[0];
+      }
       return new Promise((resolve) => {
         let requestDetails = getRequestDefails("put", resolve, details);
         requestDetails = handleRequestDetails(requestDetails);
