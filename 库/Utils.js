@@ -17,7 +17,7 @@
      * 工具类的版本
      * @type {string}
      */
-    version: "2023-9-2",
+    version: "2023-9-9",
   };
 
   /**
@@ -4180,18 +4180,27 @@
       let isReturn = false;
 
       /* 检查所有选择器是否匹配到节点 */
-      const checkNodes = () => {
-        const selectNodes = nodeSelectors.map((selector) => [
-          ...document.querySelectorAll(selector),
-        ]);
-        if (selectNodes.flat().length !== 0) {
-          if (!isReturn) {
-            isReturn = true;
-            if (nodeSelectors.length === 1) {
-              resolve(selectNodes.flat());
-            } else {
-              resolve(selectNodes);
-            }
+      const checkNodes = (observer) => {
+        let isFind = true;
+        let selectNodes = [];
+        for (let i = 0; i < nodeSelectors.length; i++) {
+          const selector = nodeSelectors[i];
+          const nodeList = document.querySelectorAll(selector);
+          selectNodes = selectNodes.concat(nodeList);
+          if (nodeList.length === 0) {
+            /* 没找到，直接退出循环 */
+            isFind = false;
+            break;
+          }
+        }
+        if (isFind) {
+          isReturn = true;
+          observer?.disconnect();
+          /* 如果只有一个选择器，那么返回第一个 */
+          if (selectNodes.length === 1) {
+            resolve(selectNodes[0]);
+          } else {
+            resolve(selectNodes);
           }
         }
       };
@@ -4203,10 +4212,10 @@
       Utils.mutationObserver(document.documentElement, {
         config: { subtree: true, childList: true, attributes: true },
         callback: (mutations, observer) => {
-          checkNodes();
           if (isReturn) {
-            observer.disconnect();
+            return;
           }
+          checkNodes(observer);
         },
       });
     });
