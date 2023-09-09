@@ -29,13 +29,13 @@
 // @connect      *
 // @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
 // @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1244325
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247772
 // ==/UserScript==
 
 (function () {
@@ -654,12 +654,12 @@
   /**
    * 检测引用库是否正确加载
    * @example	https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654
+   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
    * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1244325
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247772
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -671,7 +671,7 @@
       {
         object: Viewer,
         name: "Viewer",
-        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1170654",
+        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770",
       },
       {
         object: xtip,
@@ -697,7 +697,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1244325",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247772",
       },
     ];
     for (const libraryItem of libraries) {
