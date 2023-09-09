@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.6
+// @version      1.4.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,7 +45,7 @@
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247898
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1247897
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1247918
 // @run-at       document-start
 // ==/UserScript==
 
@@ -158,7 +158,7 @@
     }
     /**
      * 获取实例化的loadingView
-     * @returns {Element|undefined}
+     * @returns {?Element}
      */
     getLoadingViewElement() {
       if (!this.loadingViewElement) {
@@ -1649,7 +1649,7 @@
      * 百度搜索
      */
     search() {
-      if (!this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/.+/g)) {
+      if (!this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/.*/g)) {
         return;
       }
 
@@ -1728,7 +1728,7 @@
         /**
          * 解析在JSON数据中的urlParams中真正的链接，如果不存在，返回undefined
          * @param {object} data 传入 {"urlParams":{...}} 中的urlParams
-         * @returns {undefined|string}
+         * @returns {?string}
          */
         parseURLParamsOriginURL(data) {
           if (data["originUrl"]) {
@@ -1828,7 +1828,7 @@
         /**
          * 解析DOM节点上隐藏在属性中的真正url
          * @param {Element} targetNode
-         * @returns {string|undefined}
+         * @returns {?string}
          */
         parseDOMAttrOriginUrl(targetNode) {
           let url = null;
@@ -2021,7 +2021,7 @@
         /**
          * 获取每一项的标题元素
          * @param {Element} targetNode 目标项
-         * @returns {Element|undefined}
+         * @returns {?Element}
          */
         getItemTitleElement(targetNode) {
           return (
@@ -2416,86 +2416,117 @@
        */
       const handleInputEvent = {
         run() {
-          let suggestList = "#se-box .suggest-content";
-          let suggestListBtn = "#se-box .suggest-content button";
-          let suggestList2 = "#se-box2 .suggest-content";
-          let suggestListBtn2 = "#se-box2 .suggest-content button";
-          let suggestList_HOME = "#index-box .suggest-content";
-          let suggestListBtn_HOME = "#index-box .suggest-content button";
-          let searchInput = "#kw";
-          let searchInput2 = "#kw2";
-          let searchBtn = "#se-bn";
-          let searchBtn2 = "#se-bn2";
-          let searchInput_HOME = "#index-kw";
-          let searchBtn_HOME = "#index-bn";
+          let suggestListSelector = "#se-box .suggest-content";
+          let suggestListBtnSelectorList = "#se-box .suggest-content button";
+          let suggestList2Selector = "#se-box2 .suggest-content";
+          let suggestListBtn2SelectorList = "#se-box2 .suggest-content button";
+          let suggestList_HOME_Selector = "#index-box .suggest-content";
+          let suggestListBtn_HOME_SelectorList =
+            "#index-box .suggest-content button";
+          let searchInputSelector = "#kw";
+          let searchInput2Selector = "#kw2";
+          let searchBtnSelector = "#se-bn";
+          let searchBtn2Selector = "#se-bn2";
+          let searchInput_HOME_Selector = "#index-kw";
+          let searchBtn_HOME_Selector = "#index-bn";
           /* 顶部搜索输入框点击后的搜索建议 */
-          utils.waitNode(suggestList).then((nodeList) => {
+          utils.waitNode(suggestListSelector).then((nodeList) => {
             utils.mutationObserver(nodeList[0], {
               callback: () => {
-                /*  */
-                handleInputEvent.mutationObserverFunction(suggestListBtn);
+                handleInputEvent.mutationObserverFunction(
+                  suggestListBtnSelectorList
+                );
               },
               config: { childList: true, attributes: true },
             });
           });
           /* 底部搜索输入框点击后的搜索建议 */
-          utils.waitNode(suggestList2).then((nodeList) => {
+          utils.waitNode(suggestList2Selector).then((nodeList) => {
             utils.mutationObserver(nodeList[0], {
               callback: () => {
-                handleInputEvent.mutationObserverFunction(suggestListBtn2);
+                handleInputEvent.mutationObserverFunction(
+                  suggestListBtn2SelectorList
+                );
               },
               config: { childList: true, attributes: true },
             });
           });
           /* 百度主页的搜索输入框点击后的搜索建议 */
-          utils.waitNode(suggestList_HOME).then((nodeList) => {
+          utils.waitNode(suggestList_HOME_Selector).then((nodeList) => {
             utils.mutationObserver(nodeList[0], {
               callback: () => {
-                handleInputEvent.mutationObserverFunction(suggestListBtn_HOME);
+                handleInputEvent.mutationObserverFunction(
+                  suggestListBtn_HOME_SelectorList
+                );
               },
               config: { childList: true, attributes: true },
             });
           });
           /* 顶部搜索按钮 */
-          DOMUtils.on(searchBtn, "click", function (event) {
-            return handleInputEvent.searchBtnJump(event, searchInput);
+          DOMUtils.on(searchBtnSelector, "click", function (event) {
+            return handleInputEvent.searchBtnJump(
+              event,
+              document.querySelector(searchInputSelector)
+            );
           });
           /* 顶部搜索输入框 */
-          DOMUtils.on(searchInput, "keydown", function (event) {
-            return handleInputEvent.enterKeyDownEvent(event, searchInput);
+          DOMUtils.on(searchInputSelector, "keydown", function (event) {
+            return handleInputEvent.enterKeyDownEvent(
+              event,
+              document.querySelector(searchInputSelector)
+            );
           });
           /* 底部搜索按钮 */
-          DOMUtils.on(searchBtn2, "click", function (event) {
-            return handleInputEvent.searchBtnJump(event, searchInput2);
+          DOMUtils.on(searchBtn2Selector, "click", function (event) {
+            return handleInputEvent.searchBtnJump(
+              event,
+              document.querySelector(searchInput2Selector)
+            );
           });
           /* 底部部搜索输入框 */
-          DOMUtils.on(searchInput2, "keydown", function (event) {
-            return handleInputEvent.enterKeyDownEvent(event, searchInput2);
-          });
+          DOMUtils.on(
+            document.querySelector(searchInput2Selector),
+            "keydown",
+            function (event) {
+              return handleInputEvent.enterKeyDownEvent(
+                event,
+                document.querySelector(searchInput2Selector)
+              );
+            }
+          );
           /* 百度主页搜索按钮 */
-          DOMUtils.on(searchBtn_HOME, "click", function (event) {
-            return handleInputEvent.searchBtnJump(event, searchInput_HOME);
+          DOMUtils.on(searchBtn_HOME_Selector, "click", function (event) {
+            return handleInputEvent.searchBtnJump(
+              event,
+              document.querySelector(searchInput_HOME_Selector)
+            );
           });
           /* 百度主页搜索输入框 */
-          DOMUtils.on(searchInput_HOME, "keydown", function (event) {
-            return handleInputEvent.enterKeyDownEvent(event, searchInput_HOME);
+          DOMUtils.on(searchInput_HOME_Selector, "keydown", function (event) {
+            return handleInputEvent.enterKeyDownEvent(
+              event,
+              document.querySelector(searchInput_HOME_Selector)
+            );
           });
         },
         /**
          * 设置搜索建议自定义click事件
-         * @param {Element} btnElement
+         * @param {string} elementSelector
          */
-        mutationObserverFunction(btnElement) {
+        mutationObserverFunction(elementSelector) {
           log.success("设置搜索建议自定义click事件");
-          DOMUtils.on(btnElement, "click", function (event) {
-            utils.preventEvent(event);
-            window?.stop();
-            let searchText = event.target.textContent;
-            let redirectURL = window.location.origin + "/s?word=" + searchText;
-            log.success("点击按钮跳转搜索 -> " + searchText);
-            log.success(redirectURL);
-            window.location.href = redirectURL;
-            return false;
+          document.querySelectorAll(elementSelector).forEach((item) => {
+            DOMUtils.on(item, "click", function (event) {
+              utils.preventEvent(event);
+              window?.stop();
+              let searchText = event.target.textContent;
+              let redirectURL =
+                window.location.origin + "/s?word=" + searchText;
+              log.success("点击按钮跳转搜索 -> " + searchText);
+              log.success(redirectURL);
+              window.location.href = redirectURL;
+              return false;
+            });
           });
         },
         /**
@@ -3108,7 +3139,7 @@
          * 根据dom获取需要插入的评论的html
          * @param {HTMLElement} element
          * @param { {commentList: any, userList: array}} pageCommentList
-         * @returns {Element|undefined}
+         * @returns {?Element}
          */
         getNewCommentInnerElement: (element, pageCommentList) => {
           let data_field = utils.toJSON(element.getAttribute("data-field"));
@@ -3313,7 +3344,7 @@
         },
         /**
          * 根据评论的html插入页面中
-         * @param {Element|undefined} newCommentDOM
+         * @param {?Element} newCommentDOM
          */
         insertNewCommentInnerElement: (newCommentDOM) => {
           if (newCommentDOM == null) {
@@ -3468,7 +3499,7 @@
         /**
          * 获取第一页的评论（不包括评论的评论）
          * @param {string} url
-         * @returns {HTMLElement|undefined}
+         * @returns {?HTMLElement}
          */
         getPageComment: async (url) => {
           let getResp = await httpx.get({
