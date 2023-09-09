@@ -2,7 +2,7 @@
  * 自己常用的元素节点工具类
  * @copyright  GPL-3.0-only
  * @author  WhiteSevs
- * @version  1.0
+ * @version  1.1
  * @namespace
  **/
 (function (global, factory) {
@@ -33,6 +33,32 @@
       element.setAttribute(attrName, attrValue);
     }
   };
+
+  /**
+   * 创建元素
+   * @param {string} tagName 元素类型
+   * @param {object} property 元素属性
+   * @returns {Element}
+   */
+  DOMUtils.createElement = function (tagName, property) {
+    let tempElement = document.createElement(tagName);
+    if (typeof property === "string") {
+      tempElement.innerHTML = property;
+      return tempElement;
+    }
+    if(property == null){
+      return tempElement;
+    }
+    Object.keys(property).forEach((key) => {
+      if (key in tempElement && typeof property[key] !== "object") {
+        tempElement[key] = property[key];
+      } else {
+        tempElement.setAttribute(key, property[key]);
+      }
+    });
+    return tempElement;
+  };
+
   /**
    * 获取或设置元素的样式属性值
    * @param {Element|string} element 目标元素
@@ -41,6 +67,23 @@
    * @returns {string|undefined} - 如果传入了value，则返回undefined；否则返回样式属性值
    * */
   DOMUtils.css = function (element, property, value) {
+    /**
+     * 把纯数字没有px的加上
+     */
+    function handlePixe(propertyName, propertyValue) {
+      let allowAddPixe = ["width", "height", "top", "left", "right", "bottom"];
+      if (typeof propertyValue === "number") {
+        propertyValue = propertyValue.toString();
+      }
+      if (
+        typeof propertyValue === "string" &&
+        allowAddPixe.includes(propertyName) &&
+        propertyValue.match(/[0-9]$/gi)
+      ) {
+        propertyValue = propertyValue + "px";
+      }
+      return propertyValue;
+    }
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
@@ -48,11 +91,24 @@
       if (value === undefined) {
         return element.style[property];
       } else {
-        element.style[property] = value;
+        if (value === "string" && value.includes("!important")) {
+          element.style.setProperty(property, value, "important");
+        } else {
+          value = handlePixe(property, value);
+          element.style.setProperty(property, value);
+        }
       }
     } else if (typeof property === "object") {
       for (let prop in property) {
-        element.style[prop] = property[prop];
+        if (
+          typeof property[prop] === "string" &&
+          property[prop].includes("!important")
+        ) {
+          element.style.setProperty(prop, property[prop], "important");
+        } else {
+          property[prop] = handlePixe(prop, property[prop]);
+          element.style.setProperty(prop, property[prop]);
+        }
       }
     }
   };
@@ -69,7 +125,9 @@
     if (text === undefined) {
       return element.textContent;
     } else {
-      element.textContent = text;
+      if ("textContent" in element) {
+        element.textContent = text;
+      }
     }
   };
   /**
@@ -85,7 +143,9 @@
     if (html === undefined) {
       return element.innerHTML;
     } else {
-      element.innerHTML = html;
+      if ("innerHTML" in element) {
+        element.innerHTML = html;
+      }
     }
   };
   /**
@@ -242,7 +302,7 @@
       element = document.querySelector(element);
     }
     if (typeof newElement === "string") {
-      newElement = DOMUtils.parseHTML(newElement);
+      newElement = DOMUtils.parseHTML(newElement, false, false);
     }
     if (element instanceof NodeList || element instanceof Array) {
       element.forEach((item) => {
@@ -394,6 +454,9 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
+    if (element == null) {
+      return this;
+    }
     let eventTypeList = [];
     if (Array.isArray(eventType)) {
       eventTypeList = eventType;
@@ -404,9 +467,6 @@
       /* 这是为没有selector的情况 */
       callback = selector;
       selector = null;
-    }
-    if (element == null) {
-      return this;
     }
     eventTypeList.forEach((_eventType_) => {
       if (selector) {
@@ -495,11 +555,10 @@
           handlers.splice(i--, 1);
         }
       }
+      if (handlers.length === 0) {
+        delete events[eventType];
+      }
     });
-
-    if (handlers.length === 0) {
-      delete events[eventType];
-    }
     element.events = events;
     return this;
   };
@@ -525,8 +584,7 @@
       eventTypeList = eventType.split(" ");
     }
     eventTypeList.forEach((_eventType_) => {
-      let event = document.createEvent("HTMLEvents");
-      event.initEvent(_eventType_, true, false);
+      let event = new Event(_eventType_);
       element.dispatchEvent(event);
     });
     return this;
@@ -541,10 +599,10 @@
       element = document.querySelector(element);
     }
     let rect = element.getBoundingClientRect();
-    let win = element.ownerDocument.defaultView;
+    let win = window;
     return {
-      top: rect.top + win.pageYOffset,
-      left: rect.left + win.pageXOffset,
+      top: rect.top + win.scrollY,
+      left: rect.left + win.scrollX,
     };
   };
   /**
@@ -553,15 +611,41 @@
    * @returns {Number} - 元素的宽度，单位为像素
    */
   DOMUtils.width = function (element) {
+    if (element == window) {
+      return window.document.documentElement.clientWidth;
+    }
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    let styles = window.getComputedStyle(element);
-    return (
+    if (element.nodeType === 9) {
+      /* 文档节点 */
+      return Math.max(
+        element.body.scrollWidth,
+        element.documentElement.scrollWidth,
+        element.body.offsetWidth,
+        element.documentElement.offsetWidth,
+        element.documentElement.clientWidth
+      );
+    }
+    let oldCSS_display = element.style.display;
+    let oldCSS_visibility = element.style.visibility;
+    let oldCSS_position = element.style.position;
+    element.style.display = "block";
+    element.style.visibility = "hidden";
+    element.style.position = "absolute";
+    let view = element.ownerDocument.defaultView;
+    if (!view || !view.opener) {
+      view = window;
+    }
+    let styles = view.getComputedStyle(element);
+    let elementWidth =
       element.clientWidth -
       parseFloat(styles.paddingLeft) -
-      parseFloat(styles.paddingRight)
-    );
+      parseFloat(styles.paddingRight);
+    element.style.display = oldCSS_display;
+    element.style.visibility = oldCSS_visibility;
+    element.style.position = oldCSS_position;
+    return elementWidth;
   };
   /**
    * 获取元素的高度
@@ -569,15 +653,41 @@
    * @returns {Number} - 元素的高度，单位为像素
    */
   DOMUtils.height = function (element) {
+    if (element == window) {
+      return window.document.documentElement.clientHeight;
+    }
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    let styles = window.getComputedStyle(element);
-    return (
+    if (element.nodeType === 9) {
+      /* 文档节点 */
+      return Math.max(
+        element.body.scrollHeight,
+        element.documentElement.scrollHeight,
+        element.body.offsetHeight,
+        element.documentElement.offsetHeight,
+        element.documentElement.clientHeight
+      );
+    }
+    let oldCSS_display = element.style.display;
+    let oldCSS_visibility = element.style.visibility;
+    let oldCSS_position = element.style.position;
+    element.style.display = "block";
+    element.style.visibility = "hidden";
+    element.style.position = "absolute";
+    let view = element.ownerDocument.defaultView;
+    if (!view || !view.opener) {
+      view = window;
+    }
+    let styles = view.getComputedStyle(element);
+    let elementHeight =
       element.clientHeight -
       parseFloat(styles.paddingTop) -
-      parseFloat(styles.paddingBottom)
-    );
+      parseFloat(styles.paddingBottom);
+    element.style.display = oldCSS_display;
+    element.style.visibility = oldCSS_visibility;
+    element.style.position = oldCSS_position;
+    return elementHeight;
   };
   /**
    * 获取元素的外部宽度（包括边框和外边距）
@@ -585,6 +695,9 @@
    * @returns {Number} - 元素的外部宽度，单位为像素
    */
   DOMUtils.outerWidth = function (element) {
+    if (element == window) {
+      return window.innerWidth;
+    }
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
@@ -601,6 +714,9 @@
    * @returns {Number} - 元素的外部高度，单位为像素
    */
   DOMUtils.outerHeight = function (element) {
+    if (element == window) {
+      return window.innerHeight;
+    }
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
@@ -726,6 +842,7 @@
     }
     return element.nextElementSibling;
   };
+
 
   /**
    * 获取当前元素的所有兄弟元素
@@ -866,24 +983,31 @@
    * 淡入元素
    * @param {Element|string} element - 当前元素
    * @param {Number} duration - 动画持续时间（毫秒）
+   * @param {Function} callback 动画结束的回调
    * @returns {DOMUtils} - 原型链
    */
-  DOMUtils.fadeIn = function (element, duration = 400) {
+  DOMUtils.fadeIn = function (element, duration = 400, callback) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
     element.style.opacity = 0;
     element.style.display = "";
     let start = null;
+    let timer = null;
     function step(timestamp) {
       if (!start) start = timestamp;
       let progress = timestamp - start;
       element.style.opacity = Math.min(progress / duration, 1);
       if (progress < duration) {
         window.requestAnimationFrame(step);
+      } else {
+        if (callback && typeof callback === "function") {
+          callback();
+        }
+        window.cancelAnimationFrame(timer);
       }
     }
-    window.requestAnimationFrame(step);
+    timer = window.requestAnimationFrame(step);
     return this;
   };
 
@@ -891,14 +1015,16 @@
    * 淡出元素
    * @param {Element|string} element - 当前元素
    * @param {Number} duration - 动画持续时间（毫秒）
+   * @param {Function} callback 动画结束的回调
    * @returns {DOMUtils} - 原型链
    */
-  DOMUtils.fadeOut = function (element, duration = 400) {
+  DOMUtils.fadeOut = function (element, duration = 400, callback) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
     element.style.opacity = 1;
     let start = null;
+    let timer = null;
     function step(timestamp) {
       if (!start) start = timestamp;
       let progress = timestamp - start;
@@ -907,9 +1033,13 @@
         window.requestAnimationFrame(step);
       } else {
         element.style.display = "none";
+        if (typeof callback === "function") {
+          callback();
+        }
+        window.cancelAnimationFrame(timer);
       }
     }
-    window.requestAnimationFrame(step);
+    timer = window.requestAnimationFrame(step);
     return this;
   };
 
