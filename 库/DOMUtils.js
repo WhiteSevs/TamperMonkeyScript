@@ -11,7 +11,7 @@
     : ((global =
         typeof globalThis !== "undefined" ? globalThis : global || self),
       (global.DOMUtils = factory(global.DOMUtils)));
-})(this, function (oldDOMUtilsObj) {
+})(this, function (AnotherDOMUtils) {
   const DOMUtils = {};
   /**
    * @type {string} 元素工具类的版本
@@ -23,6 +23,15 @@
    * @param {string} attrName 属性名
    * @param {string} [attrValue] 属性值（可选）
    * @returns {?string} 如果传入了attrValue，则返回undefined；否则返回属性值
+   * @example
+   * // 获取a.xx元素的href属性
+   * DOMUtils.attr(document.querySelector("a.xx"),"href");
+   * DOMUtils.attr("a.xx","href");
+   * > https://xxxx....
+   * @example
+   * // 修改a.xx元素的href属性为abcd
+   * DOMUtils.attr(document.querySelector("a.xx"),"href","abcd");
+   * DOMUtils.attr("a.xx","href","abcd");
    * */
   DOMUtils.attr = function (element, attrName, attrValue) {
     if (typeof element === "string") {
@@ -43,6 +52,14 @@
    * @param {string} tagName 元素类型
    * @param {object} property 元素属性
    * @returns {Element}
+   * @example
+   * // 创建一个DIV元素，且属性class为xxx
+   * DOMUtils.createElement("div",{ class:"xxx" });
+   * > <div class="xxx"></div>
+   * @example
+   * // 创建一个DIV元素
+   * DOMUtils.createElement("div");
+   * > <div></div>
    */
   DOMUtils.createElement = function (tagName, property) {
     let tempElement = document.createElement(tagName);
@@ -69,13 +86,40 @@
    * @param {string|object} property 样式属性名或包含多个属性名和属性值的对象
    * @param {string} [value] 样式属性值（可选）
    * @returns {?string} 如果传入了value，则返回undefined；否则返回样式属性值
+   * @example
+   * // 获取元素a.xx的CSS属性display
+   * DOMUtils.css(document.querySelector("a.xx"),"display");
+   * DOMUtils.css("a.xx","display");
+   * > "none"
+   * @example
+   * // 设置元素a.xx的CSS属性display为block
+   * DOMUtils.css(document.querySelector("a.xx"),"display","block");
+   * DOMUtils.css(document.querySelector("a.xx"),"display","block !important");
+   * DOMUtils.css(document.querySelector("a.xx"),{ display: "block" }});
+   * DOMUtils.css(document.querySelector("a.xx"),{ display: "block !important" }});
+   * DOMUtils.css("a.xx","display","block");
+   * DOMUtils.css("a.xx","display","block !important");
+   * @example
+   * // 设置元素a.xx的CSS属性top为10px
+   * DOMUtils.css(document.querySelector("a.xx"),"top","10px");
+   * DOMUtils.css(document.querySelector("a.xx"),"top",10);
+   * DOMUtils.css(document.querySelector("a.xx"),{ top: "10px" });
+   * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
    * */
   DOMUtils.css = function (element, property, value) {
     /**
      * 把纯数字没有px的加上
      */
     function handlePixe(propertyName, propertyValue) {
-      let allowAddPixe = ["width", "height", "top", "left", "right", "bottom"];
+      let allowAddPixe = [
+        "width",
+        "height",
+        "top",
+        "left",
+        "right",
+        "bottom",
+        "font-size",
+      ];
       if (typeof propertyValue === "number") {
         propertyValue = propertyValue.toString();
       }
@@ -96,7 +140,7 @@
     }
     if (typeof property === "string") {
       if (value === undefined) {
-        return element.style[property];
+        return getComputedStyle(element).getPropertyValue(property);
       } else {
         if (value === "string" && value.includes("!important")) {
           element.style.setProperty(property, value, "important");
@@ -124,6 +168,11 @@
    * @param {Element|element} element 目标元素
    * @param {string} [text] 文本内容（可选）
    * @returns {?string} 如果传入了text，则返回undefined；否则返回文本内容
+   * @example
+   * // 设置元素a.xx的文本内容为abcd
+   * DOMUtils.text(document.querySelector("a.xx"),"abcd")
+   * DOMUtils.text("a.xx","abcd")
+   * DOMUtils.html("a.xx",document.querySelector("b"))
    * */
   DOMUtils.text = function (element, text) {
     if (typeof element === "string") {
@@ -135,6 +184,9 @@
     if (text === undefined) {
       return element.textContent || element.innerText;
     } else {
+      if (text instanceof Node || text instanceof Element) {
+        text = text.textContent || text.innerText;
+      }
       if ("textContent" in element) {
         element.textContent = text;
       } else if ("innerText" in element) {
@@ -145,8 +197,13 @@
   /**
    * 获取或设置元素的HTML内容
    * @param {Element|string} element 目标元素
-   * @param {string} [html] HTML内容（可选）
+   * @param {Element|string} [html] HTML内容|元素（可选）
    * @returns {?string} 如果传入了html，则返回undefined；否则返回HTML内容
+   * @example
+   * // 设置元素a.xx的文本内容为<b>abcd</b>
+   * DOMUtils.html(document.querySelector("a.xx"),"<b>abcd</b>")
+   * DOMUtils.html("a.xx","<b>abcd</b>")
+   * DOMUtils.html("a.xx",document.querySelector("b"))
    * */
   DOMUtils.html = function (element, html) {
     if (typeof element === "string") {
@@ -158,6 +215,9 @@
     if (html == null) {
       return element.innerHTML;
     } else {
+      if (html instanceof Node || html instanceof Element) {
+        html = html.innerHTML;
+      }
       if ("innerHTML" in element) {
         element.innerHTML = html;
       }
@@ -167,6 +227,13 @@
    * 绑定或触发元素的click事件
    * @param {Element|string} element 目标元素
    * @param {function} [handler] 事件处理函数（可选）
+   * @example
+   * // 触发元素a.xx的click事件
+   * DOMUtils.click(document.querySelector("a.xx"))
+   * DOMUtils.click("a.xx")
+   * DOMUtils.click("a.xx"，function(){
+   *  console.log("触发click事件成功")
+   * })
    * */
   DOMUtils.click = function (element, handler) {
     if (typeof element === "string") {
@@ -186,6 +253,13 @@
    * 绑定或触发元素的blur事件
    * @param {Element|string} element 目标元素
    * @param {function} [handler] 事件处理函数（可选）
+   * @example
+   * // 触发元素a.xx的blur事件
+   * DOMUtils.blur(document.querySelector("a.xx"))
+   * DOMUtils.blur("a.xx")
+   * DOMUtils.blur("a.xx"，function(){
+   *  console.log("触发blur事件成功")
+   * })
    * */
   DOMUtils.blur = function (element, handler) {
     if (typeof element === "string") {
@@ -204,6 +278,13 @@
    * 绑定或触发元素的focus事件
    * @param {Element|string} element 目标元素
    * @param {?function} [handler] 事件处理函数（可选）
+   * @example
+   * // 触发元素a.xx的focus事件
+   * DOMUtils.focus(document.querySelector("a.xx"))
+   * DOMUtils.focus("a.xx")
+   * DOMUtils.focus("a.xx"，function(){
+   *  console.log("触发focus事件成功")
+   * })
    * */
   DOMUtils.focus = function (element, handler) {
     if (typeof element === "string") {
@@ -223,6 +304,15 @@
    * @param {Element|string} element 目标元素
    * @param {string} [value] value属性值（可选）
    * @returns {string|undefined} 如果传入了value，则返回undefined；否则返回value属性值
+   * @example
+   * // 获取元素input.xx的复选框值
+   * DOMUtils.val(document.querySelector("input.xx"))
+   * DOMUtils.val("input.xx")
+   * > true
+   * @example
+   * // 修改元素input.xx的复选框值为true
+   * DOMUtils.val(document.querySelector("input.xx"),true)
+   * DOMUtils.val("input.xx",true)
    * */
   DOMUtils.val = function (element, value) {
     if (typeof element === "string") {
@@ -257,6 +347,15 @@
    * @param {string} propName 属性名
    * @param {string} [propValue] 属性值（可选）
    * @returns {string|undefined} 如果传入了propValue，则返回undefined；否则返回属性值
+   * @example
+   * // 获取元素a.xx的属性data-value
+   * DOMUtils.val(document.querySelector("a.xx"),"data-value")
+   * DOMUtils.val("a.xx","data-value")
+   * > undefined
+   * @example
+   * // 设置元素a.xx的属性data-value为1
+   * DOMUtils.val(document.querySelector("a.xx"),"data-value",1)
+   * DOMUtils.val("a.xx","data-value",1)
    * */
   DOMUtils.prop = function (element, propName, propValue) {
     if (typeof element === "string") {
@@ -276,6 +375,10 @@
    * 移除元素的属性
    * @param {Element|string} element 目标元素
    * @param {string} attrName 属性名
+   * @example
+   * // 移除元素a.xx的属性data-value
+   * DOMUtils.removeAttr(document.querySelector("a.xx"),"data-value")
+   * DOMUtils.removeAttr("a.xx","data-value")
    * */
   DOMUtils.removeAttr = function (element, attrName) {
     if (typeof element === "string") {
@@ -292,12 +395,19 @@
    * @param {Element|string} element 目标元素
    * @param {string} className class名
    * @returns {DOMUtils} 原型链
+   * @example
+   * // 移除元素a.xx的className为xx
+   * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
+   * DOMUtils.removeClass("a.xx","xx")
    */
   DOMUtils.removeClass = function (element, className) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
     if (element == null) {
+      return;
+    }
+    if (className == null) {
       return;
     }
     element.classList.remove(className);
@@ -307,6 +417,10 @@
    * 移除元素的属性
    * @param {Element|string} element 目标元素
    * @param {string} propName 属性名
+   * @example
+   * // 移除元素a.xx的href属性
+   * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
+   * DOMUtils.removeProp("a.xx","href")
    * */
   DOMUtils.removeProp = function (element, propName) {
     if (typeof element === "string") {
@@ -323,6 +437,10 @@
    * @param {Element|string} element 目标元素
    * @param {Element|string} newElement 新元素
    * @returns {DOMUtils} 原型链
+   * @example
+   * // 替换元素a.xx为b.xx
+   * DOMUtils.replaceWith(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
    */
   DOMUtils.replaceWith = function (element, newElement) {
     if (typeof element === "string") {
@@ -347,6 +465,10 @@
    * 给元素添加class
    * @param {Element|string} element 目标元素
    * @param {string} className class名
+   * @example
+   * // 元素a.xx的className添加_vue_
+   * DOMUtils.addClass(document.querySelector("a.xx"),"_vue_")
+   * DOMUtils.addClass("a.xx","_vue_")
    * */
   DOMUtils.addClass = function (element, className) {
     if (typeof element === "string") {
@@ -361,6 +483,10 @@
    * 函数在元素内部末尾添加子元素或HTML字符串
    * @param {Element|string} element 目标元素
    * @param {object|string} content 子元素或HTML字符串
+   * @example
+   * // 元素a.xx的内部末尾添加一个元素
+   * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.append("a.xx","'<b class="xx"></b>")
    * */
   DOMUtils.append = function (element, content) {
     if (typeof element === "string") {
@@ -380,6 +506,10 @@
    * 函数 在元素内部开头添加子元素或HTML字符串
    * @param {Element|string} element 目标元素
    * @param {object|string} content 子元素或HTML字符串
+   * @example
+   * // 元素a.xx内部开头添加一个元素
+   * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
    * */
   DOMUtils.prepend = function (element, content) {
     if (typeof element === "string") {
@@ -398,6 +528,10 @@
    * 在元素后面添加兄弟元素或HTML字符串
    * @param {Element|string} element 目标元素
    * @param {object|string} content 兄弟元素或HTML字符串
+   * @example
+   * // 元素a.xx后面添加一个元素
+   * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.after("a.xx","'<b class="xx"></b>")
    * */
   DOMUtils.after = function (element, content) {
     if (typeof element === "string") {
@@ -417,6 +551,10 @@
    * 在元素前面添加兄弟元素或HTML字符串
    * @param {Element|string} element 目标元素
    * @param {object|string} content 兄弟元素或HTML字符串
+   * @example
+   * // 元素a.xx前面添加一个元素
+   * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.before("a.xx","'<b class="xx"></b>")
    * */
   DOMUtils.before = function (element, content) {
     if (typeof element === "string") {
@@ -435,6 +573,11 @@
   /**
    * 移除元素
    * @param {Element|string|NodeList} element 目标元素
+   * @example
+   * // 元素a.xx前面添加一个元素
+   * DOMUtils.remove(document.querySelector("a.xx"))
+   * DOMUtils.remove(document.querySelectorAll("a.xx"))
+   * DOMUtils.remove("a.xx")
    * */
   DOMUtils.remove = function (element) {
     if (typeof element === "string") {
@@ -454,6 +597,10 @@
   /**
    * 移除元素的所有子元素
    * @param {Element|string} element 目标元素
+   * @example
+   * // 移除元素a.xx元素的所有子元素
+   * DOMUtils.empty(document.querySelector("a.xx"))
+   * DOMUtils.empty("a.xx")
    * */
   DOMUtils.empty = function (element) {
     if (typeof element === "string") {
@@ -475,6 +622,27 @@
    * @param {Boolean} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
    * @param {Boolean} once 表示事件是否只触发一次。默认为false
    * @param {Boolean} passive 表示事件监听器是否不会调用preventDefault()。默认为false
+   * @example
+   * // 监听元素a.xx的click事件
+   * DOMUtils.on(document.querySelector("a.xx"),"click",(event)=>{
+   *    console.log("事件触发",event)
+   * })
+   * DOMUtils.on("a.xx","click",(event)=>{
+   *    console.log("事件触发",event)
+   * })
+   * @example
+   * // 监听元素a.xx的click、tap、hover事件
+   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
+   *    console.log("事件触发",event)
+   * })
+   * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
+   *    console.log("事件触发",event)
+   * })
+   * @example
+   * // 监听全局document下的子元素a.xx的click事件
+   * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
+   *    console.log("事件触发",event)
+   * })
    */
   DOMUtils.on = function (
     element,
@@ -545,10 +713,19 @@
    * 取消绑定事件
    * @param {Element|string} element 需要取消绑定的元素
    * @param {string|Array} eventType 需要取消监听的事件
-   * @param {HTMLElement} selector 子元素选择器
+   * @param {?string} selector 子元素选择器
    * @param {Function} callback 事件触发的回调函数
    * @param {Boolean} useCapture 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
    * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+   * @example
+   * // 取消监听元素a.xx的click事件
+   * DOMUtils.off(document.querySelector("a.xx"),"click")
+   * DOMUtils.off("a.xx","click")
+   * // 取消监听元素a.xx的click、tap、hover事件
+   * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.off("a.xx",["click","tap","hover"])
+   * // 取消监听全局下的a.xx的点击事件
+   * DOMUtils.off(document,"click","a.xx")
    */
   DOMUtils.off = function (
     element,
@@ -599,6 +776,13 @@
    * 主动触发事件
    * @param {Element|string} element 需要触发的元素
    * @param {String|Array} eventType 需要触发的事件
+   * @example
+   * // 触发元素a.xx的click事件
+   * DOMUtils.trigger(document.querySelector("a.xx"),"click")
+   * DOMUtils.trigger("a.xx","click")
+   * // 触发元素a.xx的click、tap、hover事件
+   * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.trigger("a.xx",["click","tap","hover"])
    */
   DOMUtils.trigger = function (element, eventType) {
     if (typeof element === "string") {
@@ -627,6 +811,11 @@
    * 设置或返回被选元素相对于文档的偏移坐标
    * @param {Element|string} element
    * @returns {Object}
+   * @example
+   * // 获取元素a.xx的对于文档的偏移坐标
+   * DOMUtils.offset(document.querySelector("a.xx"))
+   * DOMUtils.offset("a.xx")
+   * > 0
    */
   DOMUtils.offset = function (element) {
     if (typeof element === "string") {
@@ -646,6 +835,18 @@
    * 获取元素的宽度
    * @param {Element|string} element 要获取宽度的元素
    * @returns {Number} 元素的宽度，单位为像素
+   * @example
+   * // 获取元素a.xx的宽度
+   * DOMUtils.width(document.querySelector("a.xx"))
+   * DOMUtils.width("a.xx")
+   * > 100
+   * // 获取window的宽度
+   * DOMUtils.width(window)
+   * > 400
+   * @example
+   * // 设置元素a.xx的宽度为200
+   * DOMUtils.width(document.querySelector("a.xx"),200)
+   * DOMUtils.width("a.xx",200)
    */
   DOMUtils.width = function (element) {
     if (element == window) {
@@ -691,6 +892,18 @@
    * 获取元素的高度
    * @param {Element|string} element 要获取高度的元素
    * @returns {Number} 元素的高度，单位为像素
+   * @example
+   * // 获取元素a.xx的高度
+   * DOMUtils.height(document.querySelector("a.xx"))
+   * DOMUtils.height("a.xx")
+   * > 100
+   * // 获取window的高度
+   * DOMUtils.height(window)
+   * > 700
+   * @example
+   * // 设置元素a.xx的高度为200
+   * DOMUtils.height(document.querySelector("a.xx"),200)
+   * DOMUtils.height("a.xx",200)
    */
   DOMUtils.height = function (element) {
     if (element == window) {
@@ -736,6 +949,14 @@
    * 获取元素的外部宽度（包括边框和外边距）
    * @param {Element|string} element 要获取外部宽度的元素
    * @returns {Number} 元素的外部宽度，单位为像素
+   * @example
+   * // 获取元素a.xx的外部宽度
+   * DOMUtils.outerWidth(document.querySelector("a.xx"))
+   * DOMUtils.outerWidth("a.xx")
+   * > 100
+   * // 获取window的外部宽度
+   * DOMUtils.outerWidth(window)
+   * > 400
    */
   DOMUtils.outerWidth = function (element) {
     if (element == window) {
@@ -758,6 +979,14 @@
    * 获取元素的外部高度（包括边框和外边距）
    * @param {Element|string} element 要获取外部高度的元素
    * @returns {Number} 元素的外部高度，单位为像素
+   * @example
+   * // 获取元素a.xx的外部高度
+   * DOMUtils.outerHeight(document.querySelector("a.xx"))
+   * DOMUtils.outerHeight("a.xx")
+   * > 100
+   * // 获取window的外部高度
+   * DOMUtils.outerHeight(window)
+   * > 700
    */
   DOMUtils.outerHeight = function (element) {
     if (element == window) {
@@ -780,6 +1009,10 @@
   /**
    * 等待文档加载完成后执行指定的函数
    * @param {Function} callback 需要执行的函数
+   * @example
+   * DOMUtils.ready(function(){
+   *   console.log("文档加载完毕")
+   * })
    */
   DOMUtils.ready = function (callback) {
     function completed() {
@@ -806,6 +1039,11 @@
    * @param {Object} styles 动画结束时元素的样式属性
    * @param {Number} [duration=1000] 动画持续时间，单位为毫秒
    * @param {Function} [callback=null] 动画结束后执行的函数
+   * @example
+   * // 监听元素a.xx的从显示变为隐藏
+   * DOMUtils.animate(document.querySelector("a.xx"),{ top:100},1000,function(){
+   *   console.log("已往上位移100px")
+   * })
    */
   DOMUtils.animate = function (
     element,
@@ -861,6 +1099,9 @@
    * 将一个元素包裹在指定的HTML元素中
    * @param {Element|string} element 要包裹的元素
    * @param {string} wrapperHTML 要包裹的HTML元素的字符串表示形式
+   * @example
+   * // 将a.xx元素外面包裹一层div
+   * DOMUtils.wrap(document.querySelector("a.xx"),"<div></div>")
    */
   DOMUtils.wrap = function (element, wrapperHTML) {
     if (typeof element === "string") {
@@ -873,16 +1114,22 @@
     let wrapper = document.createElement("div");
     wrapper.innerHTML = wrapperHTML;
 
-    // 将要包裹的元素插入到wrapper中
+    wrapper = wrapper.firstChild;
+    // 将要包裹的元素插入目标元素前面
     element.parentElement.insertBefore(wrapper, element);
 
     // 将要包裹的元素移动到wrapper中
-    wrapper.insertBefore(element, wrapper.firstChild);
+    wrapper.appendChild(element);
   };
   /**
    * 获取当前元素的前一个兄弟元素
    * @param {Element|string} element 当前元素
-   * @returns {Element} 前一个兄弟元素
+   * @returns {?Element} 前一个兄弟元素
+   * @example
+   * // 获取a.xx元素前一个兄弟元素
+   * DOMUtils.prev(document.querySelector("a.xx"))
+   * DOMUtils.prev("a.xx")
+   * > <div ...>....</div>
    */
   DOMUtils.prev = function (element) {
     if (typeof element === "string") {
@@ -897,7 +1144,12 @@
   /**
    * 获取当前元素的后一个兄弟元素
    * @param {Element|string} element 当前元素
-   * @returns {Element} 后一个兄弟元素
+   * @returns {?Element} 后一个兄弟元素
+   * @example
+   * // 获取a.xx元素前一个兄弟元素
+   * DOMUtils.next(document.querySelector("a.xx"))
+   * DOMUtils.next("a.xx")
+   * > <div ...>....</div>
    */
   DOMUtils.next = function (element) {
     if (typeof element === "string") {
@@ -911,14 +1163,15 @@
 
   /**
    * 释放原有的DOMUtils控制权
-   * @returns
+   * @example
+   * let DOMUtils = window.DOMUtils.noConflict()
    */
   DOMUtils.noConflict = function () {
     if (window.DOMUtils) {
       delete window.DOMUtils;
     }
-    if (oldDOMUtilsObj) {
-      window.DOMUtils = oldDOMUtilsObj;
+    if (AnotherDOMUtils) {
+      window.DOMUtils = AnotherDOMUtils;
     }
     return DOMUtils;
   };
@@ -926,7 +1179,12 @@
   /**
    * 获取当前元素的所有兄弟元素
    * @param {Element|string} element 当前元素
-   * @returns {Array} 所有兄弟元素
+   * @returns {?Array} 所有兄弟元素
+   * @example
+   * // 获取a.xx元素所有兄弟元素
+   * DOMUtils.siblings(document.querySelector("a.xx"))
+   * DOMUtils.siblings("a.xx")
+   * > (3) [div.logo-wrapper, div.forum-block, div.more-btn-desc]
    */
   DOMUtils.siblings = function (element) {
     if (typeof element === "string") {
@@ -943,7 +1201,12 @@
   /**
    * 获取当前元素的父元素
    * @param {Element|NodeList|string} element 当前元素
-   * @returns {Element|Array} 父元素
+   * @returns {?Element|Array} 父元素
+   * @example
+   * // 获取a.xx元素的父元素
+   * DOMUtils.parent(document.querySelector("a.xx"))
+   * DOMUtils.parent("a.xx")
+   * > <div ...>....</div>
    */
   DOMUtils.parent = function (element) {
     if (typeof element === "string") {
@@ -969,6 +1232,22 @@
    * @param {boolean} useParser 是否使用DOMParser来生成元素，有些时候通过DOMParser生成的元素有点问题
    * @param {boolean} isComplete 是否是完整的
    * @returns {Element}
+   * @example
+   * // 将字符串转为Element元素
+   * DOMUtils.parseHTML("<a href='xxxx'></a>")
+   * > <a href="xxxx"></a>
+   * @example
+   * // 使用DOMParser将字符串转为Element元素
+   * DOMUtils.parseHTML("<a href='xxxx'></a>",true)
+   * > <a href="xxxx"></a>
+   * @example
+   * // 由于需要转换的元素是多个元素，将字符串转为完整的Element元素
+   * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",false, true)
+   * > <div><a href="xxxx"></a><a href='xxxx'></a></div>
+   * @example
+   * // 由于需要转换的元素是多个元素，使用DOMParser将字符串转为完整的Element元素
+   * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
+   * > #document
    */
   DOMUtils.parseHTML = function (html, useParser = false, isComplete = false) {
     function parseHTMLByDOMParser() {
@@ -999,6 +1278,14 @@
    * 当鼠标移入或移出元素时触发事件
    * @param {Element|string} element 当前元素
    * @param {Function} handler 事件处理函数
+   * @example
+   * // 监听a.xx元素的移入或移出
+   * DOMUtils.hover(document.querySelector("a.xx"),()=>{
+   *   console.log("移入/移除");
+   * })
+   * DOMUtils.hover("a.xx",()=>{
+   *   console.log("移入/移除");
+   * })
    */
   DOMUtils.hover = function (element, handler) {
     if (typeof element === "string") {
@@ -1014,6 +1301,10 @@
   /**
    * 显示元素
    * @param {Element|string} element 当前元素
+   * @example
+   * // 显示a.xx元素
+   * DOMUtils.show(document.querySelector("a.xx"))
+   * DOMUtils.show("a.xx")
    */
   DOMUtils.show = function (element) {
     if (typeof element === "string") {
@@ -1028,6 +1319,10 @@
   /**
    * 隐藏元素
    * @param {Element|string} element 当前元素
+   * @example
+   * // 隐藏a.xx元素
+   * DOMUtils.hide(document.querySelector("a.xx"))
+   * DOMUtils.hide("a.xx")
    */
   DOMUtils.hide = function (element) {
     if (typeof element === "string") {
@@ -1043,6 +1338,14 @@
    * 当按键松开时触发事件
    * @param {Element|string} element 当前元素
    * @param {Function} handler 事件处理函数
+   * @example
+   * // 监听a.xx元素的按键松开
+   * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
+   *   console.log("按键松开");
+   * })
+   * DOMUtils.keyup("a.xx",()=>{
+   *   console.log("按键松开");
+   * })
    */
   DOMUtils.keyup = function (element, handler) {
     if (typeof element === "string") {
@@ -1058,6 +1361,14 @@
    * 当按键按下时触发事件
    * @param {Element|string} element 当前元素
    * @param {Function} handler 事件处理函数
+   * @example
+   * // 监听a.xx元素的按键按下
+   * DOMUtils.keydown(document.querySelector("a.xx"),()=>{
+   *   console.log("按键按下");
+   * })
+   * DOMUtils.keydown("a.xx",()=>{
+   *   console.log("按键按下");
+   * })
    */
   DOMUtils.keydown = function (element, handler) {
     if (typeof element === "string") {
@@ -1072,8 +1383,16 @@
   /**
    * 淡入元素
    * @param {Element|string} element 当前元素
-   * @param {Number} duration 动画持续时间（毫秒）
+   * @param {Number} [duration=400] 动画持续时间（毫秒），默认400毫秒
    * @param {Function} callback 动画结束的回调
+   * @example
+   * // 元素a.xx淡入
+   * DOMUtils.fadeIn(document.querySelector("a.xx"),2500,()=>{
+   *   console.log("淡入完毕");
+   * })
+   * DOMUtils.fadeIn("a.xx",undefined,()=>{
+   *   console.log("淡入完毕");
+   * })
    */
   DOMUtils.fadeIn = function (element, duration = 400, callback) {
     if (typeof element === "string") {
@@ -1105,8 +1424,16 @@
   /**
    * 淡出元素
    * @param {Element|string} element 当前元素
-   * @param {Number} duration 动画持续时间（毫秒）
+   * @param {Number} [duration=400] 动画持续时间（毫秒），默认400毫秒
    * @param {Function} callback 动画结束的回调
+   * @example
+   * // 元素a.xx淡出
+   * DOMUtils.fadeOut(document.querySelector("a.xx"),2500,()=>{
+   *   console.log("淡出完毕");
+   * })
+   * DOMUtils.fadeOut("a.xx",undefined,()=>{
+   *   console.log("淡出完毕");
+   * })
    */
   DOMUtils.fadeOut = function (element, duration = 400, callback) {
     if (typeof element === "string") {
@@ -1136,30 +1463,12 @@
   };
 
   /**
-   * 为指定元素的子元素绑定事件
-   * @param {Element|string} element 当前元素
-   * @param {String} selector 子元素选择器
-   * @param {String} type 事件类型
-   * @param {Function} handler 事件处理函数
-   */
-  DOMUtils.delegate = function (element, selector, type, handler) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
-    if (element == null) {
-      return;
-    }
-    element.addEventListener(type, (event) => {
-      let target = event.target.closest(selector);
-      if (target && element.contains(target)) {
-        handler.call(target, event);
-      }
-    });
-  };
-
-  /**
    * 切换元素的显示和隐藏状态
    * @param {Element|string} element 当前元素
+   * @example
+   * // 如果元素a.xx当前是隐藏，则显示，如果是显示，则隐藏
+   * DOMUtils.toggle(document.querySelector("a.xx"))
+   * DOMUtils.toggle("a.xx")
    */
   DOMUtils.toggle = function (element) {
     if (typeof element === "string") {
