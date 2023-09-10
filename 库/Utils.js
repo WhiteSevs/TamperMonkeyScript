@@ -17,7 +17,7 @@
     /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
     global.Utils = factory(global.Utils);
   }
-})(this, function (AnotherUtils) {
+})(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   const Utils = {};
   /**
    * @type {string} 工具类的版本
