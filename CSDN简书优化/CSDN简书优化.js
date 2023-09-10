@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      0.7.6
+// @version      0.7.7
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        http*://*.csdn.net/*
@@ -19,12 +19,19 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247898
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1247918
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248100
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248101
 // ==/UserScript==
 
 (function () {
-  const utils = Utils.noConflict();
+  /**
+   * @type {import("../库/Utils")}
+   */
+  const utils = window.Utils.noConflict();
+  /**
+   * @type {import("../库/DOMUtils")}
+   */
+  const DOMUtils = window.DOMUtils.noConflict();
   const log = new utils.Log(GM_info);
   log.config({
     logMaxCount: 20,

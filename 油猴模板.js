@@ -17,12 +17,19 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require	     https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247898
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248100
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248101
 // ==/UserScript==
 
 (function () {
-  const utils = Utils.noConflict();
+  /**
+   * @type {import("../库/Utils")}
+   */
+  const utils = window.Utils.noConflict();
+  /**
+   * @type {import("../库/DOMUtils")}
+   */
+  const DOMUtils = window.DOMUtils.noConflict();
   const log = new utils.Log(GM_info);
 
   /* 全局配置 */

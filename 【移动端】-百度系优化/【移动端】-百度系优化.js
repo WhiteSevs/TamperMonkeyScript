@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.7
+// @version      1.4.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -44,13 +44,20 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247898
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1247918
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248100
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248101
 // @run-at       document-start
 // ==/UserScript==
 
 (function () {
-  const utils = Utils.noConflict();
+  /**
+   * @type {import("../库/Utils")}
+   */
+  const utils = window.Utils.noConflict();
+  /**
+   * @type {import("../库/DOMUtils")}
+   */
+  const DOMUtils = window.DOMUtils.noConflict();
   const log = new utils.Log(GM_info);
   log.config({
     logMaxCount: 20000,

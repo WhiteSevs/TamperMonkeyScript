@@ -18,11 +18,14 @@
 // @run-at       document-start
 // @require	     https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.1/jquery.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1244762
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1247898
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248100
 // ==/UserScript==
 
 (function () {
-  const utils = Utils.noConflict();
+  /**
+   * @type {import("../库/Utils")}
+   */
+  const utils = window.Utils.noConflict();
   let log = new utils.Log(GM_info);
   let httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
