@@ -11,12 +11,12 @@
     : ((global =
         typeof globalThis !== "undefined" ? globalThis : global || self),
       (global.Utils = factory(global.Utils)));
-})(this, function (oldUtilsObj) {
+})(this, function (AnotherUtils) {
   const Utils = {};
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-10";
+  Utils.version = "2023-9-10 13:20:00";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @param {object} target	目标端
@@ -1830,9 +1830,8 @@
 
     /**
      * GET 请求
-     * @returns {Promise}
      */
-    this.get = function () {
+    this.get = async function () {
       let details = {};
       if (typeof arguments[0] === "string") {
         details.url = arguments[0];
@@ -1852,9 +1851,8 @@
     };
     /**
      * POST 请求
-     * @returns {Promise}
      */
-    this.post = function () {
+    this.post = async function () {
       let details = {};
       if (typeof arguments[0] === "string") {
         details.url = arguments[0];
@@ -1873,9 +1871,8 @@
     };
     /**
      * HEAD 请求
-     * @returns {Promise}
      */
-    this.head = function () {
+    this.head = async function () {
       let details = {};
       if (typeof arguments[0] === "string") {
         details.url = arguments[0];
@@ -1896,9 +1893,8 @@
 
     /**
      * OPTIONS请求
-     * @returns {Promise}
      */
-    this.options = function () {
+    this.options = async function () {
       let details = {};
       if (typeof arguments[0] === "string") {
         details.url = arguments[0];
@@ -1919,9 +1915,8 @@
 
     /**
      * DELETE请求
-     * @returns {Promise}
      */
-    this.delete = function () {
+    this.delete = async function () {
       let details = {};
       if (typeof arguments[0] === "string") {
         details.url = arguments[0];
@@ -1942,9 +1937,8 @@
 
     /**
      * PUT请求
-     * @returns {Promise}
      */
-    this.put = function () {
+    this.put = async function () {
       let details = {};
       if (typeof arguments[0] === "string") {
         details.url = arguments[0];
@@ -2099,9 +2093,8 @@
      * 保存数据到数据库
      * @param {any} key 数据key
      * @param {any} value 数据值
-     * @returns
      */
-    this.save = function (key, value) {
+    this.save = async function (key, value) {
       if (that.indexedDB) {
         return new Promise((resolve, reject) => {
           let dbName = that.dbName;
@@ -2137,9 +2130,8 @@
     /**
      * 根据key获取值
      * @param {string} key 数据key
-     * @returns {Promise}
      */
-    this.get = function (key) {
+    this.get = async function (key) {
       return new Promise((resolve, reject) => {
         let dbName = that.dbName;
         if (that.indexedDB) {
@@ -2187,9 +2179,8 @@
     /**
      * 正则获取数据
      * @param {string} key 数据键
-     * @returns
      */
-    this.regexpGet = function (key) {
+    this.regexpGet = async function (key) {
       let list = [];
       return new Promise((resolve, reject) => {
         /* 正则查询 */
@@ -2243,9 +2234,8 @@
     /**
      * 删除数据
      * @param {string} key 数据键
-     * @returns
      */
-    this.delete = function (key) {
+    this.delete = async function (key) {
       return new Promise((resolve, reject) => {
         /* 根据key删除某条数据 */
         let dbName = that.dbName;
@@ -2285,9 +2275,8 @@
     };
     /**
      * 删除所有数据
-     * @returns
      */
-    this.deleteAll = function () {
+    this.deleteAll = async function () {
       return new Promise((resolve, reject) => {
         /* 清空数据库 */
         let dbName = that.dbName;
@@ -3305,8 +3294,8 @@
     if (window.Utils) {
       delete window.Utils;
     }
-    if (oldUtilsObj) {
-      window.DOMUtils = oldUtilsObj;
+    if (AnotherUtils) {
+      window.DOMUtils = AnotherUtils;
     }
     return Utils;
   };
@@ -3559,19 +3548,17 @@
   /**
    * blob转File对象
    * @param {string} blobUrl	需要转换的blob的链接
-   * @param {string} fileName	转换成的File对象的文件名称
-   * @return {object} File对象
+   * @param {string} [fileName="example"]	转换成的File对象的文件名称
    * @example
-   * Utils.blobToFile("blob://xxxxx");
+   * Utils.parseBlobToFile("blob://xxxxx");
    * > object
    **/
-  Utils.parseBlobToFile = function (blobUrl, fileName) {
-    const file = new File([blob], fileName, { type: blob.type });
+  Utils.parseBlobToFile = async function (blobUrl, fileName = "example") {
     return new Promise((resolve, reject) => {
       fetch(blobUrl)
         .then((response) => response.blob())
         .then((blob) => {
-          const file = blobToFile(blob, "example.txt");
+          const file = new File([blob], fileName, { type: blob.type });
           resolve(file);
         })
         .catch((error) => {
@@ -3603,7 +3590,6 @@
   /**
    * 【异步函数】File对象转base64
    * @param {object} fileObj	需要转换的File对象
-   * @return {string} base64格式的数据
    * @example
    * await Utils.parseFileToBase64(object);
    * > 'data:image/jpeg:base64/,xxxxxx'
@@ -3804,7 +3790,7 @@
    * 【异步函数】等待N秒执行函数
    * @param {function|string} func	待执行的函数(字符串)
    * @param {number} delayTime	延时时间(ms)
-   * @return {?undefined}	函数的返回值
+   * @Return	函数的返回值
    * @example
    * await Utils.setTimeout(()=>{}, 2500);
    * > ƒ tryCatchObj() {}
@@ -4241,7 +4227,7 @@
       let aNodeList = nodeList[1];
     })
    */
-  Utils.waitNode = function (...nodeSelectors) {
+  Utils.waitNode = async function (...nodeSelectors) {
     /* 检查每个参数是否为字符串类型 */
     for (const nodeSelector of nodeSelectors) {
       if (typeof nodeSelector !== "string") {
@@ -4308,17 +4294,21 @@
    * > "test success set"
    *
    */
-  Utils.waitObj = function (checkObj, checkPropertyName) {
+  Utils.waitObj = async function (checkObj, checkPropertyName) {
     return new Promise((resolve) => {
       if (checkPropertyName in checkObj) {
         resolve(checkObj[checkPropertyName]);
-        return;
+      } else {
+        Object.defineProperty(checkObj, checkPropertyName, {
+          set: function (value) {
+            try {
+              resolve(value);
+            } catch (error) {
+              console.error("Error setting property:", error);
+            }
+          },
+        });
       }
-      Object.defineProperty(checkObj, checkPropertyName, {
-        set: function (value) {
-          resolve(value);
-        },
-      });
     });
   };
 
