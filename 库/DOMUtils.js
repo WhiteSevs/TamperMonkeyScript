@@ -18,7 +18,6 @@
     global.DOMUtils = factory(global.DOMUtils);
   }
 })(this, function (AnotherDOMUtils) {
-  /* 在window下挂载的对象名 */
   const DOMUtils = {};
   /**
    * @type {string} 元素工具类的版本
