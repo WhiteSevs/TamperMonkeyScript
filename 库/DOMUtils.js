@@ -676,8 +676,26 @@
           _eventType_,
           function (event) {
             let target = event.target;
+            let totalParent =
+              element == window ? document.documentElement : element;
             if (target.matches(selector)) {
+              /* 当前目标可以被selector所匹配到 */
               callback.call(target, event);
+              return;
+            } else if (
+              target.closest(selector) &&
+              totalParent.contains(target.closest(selector))
+            ) {
+              /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+              let closestElement = target.closest(selector);
+              /* event的target值不能直接修改 */
+              Object.defineProperty(event, "target", {
+                get: function () {
+                  return closestElement;
+                },
+              });
+              callback.call(closestElement, event);
+              return;
             }
           },
           capture,
