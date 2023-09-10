@@ -4,13 +4,19 @@
  * @author WhiteSev
  **/
 (function (global, factory) {
-  typeof exports === "object" && typeof module !== "undefined"
-    ? (module.exports = factory())
-    : typeof define === "function" && define.amd
-    ? define(factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      (global.Utils = factory(global.Utils)));
+  /**
+   * 不使用define
+   * typeof define === "function" && define.amd
+   * define(factory)
+   */
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    /* 适用于NodeJs或typeScript */
+    module.exports = factory();
+  } else {
+    global = typeof globalThis !== "undefined" ? globalThis : global || self;
+    /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
+    global.Utils = factory(global.Utils);
+  }
 })(this, function (AnotherUtils) {
   const Utils = {};
   /**
@@ -19,6 +25,7 @@
   Utils.version = "2023-9-10 13:20:00";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
+   * @function
    * @param {object} target	目标端
    * @param {object} source	源端
    * @returns {object}
