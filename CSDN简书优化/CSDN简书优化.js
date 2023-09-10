@@ -6,9 +6,9 @@
 // @version      0.7.7
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
-// @match        http*://*.csdn.net/*
-// @match        http*://*.jianshu.com/*
-// @match        http*://*.jianshu.io/*
+// @match        *://*.csdn.net/*
+// @match        *://*.jianshu.com/*
+// @match        *://*.jianshu.io/*
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_getValue
@@ -20,7 +20,7 @@
 // @run-at       document-start
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248100
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248101
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248196
 // ==/UserScript==
 
 (function () {
