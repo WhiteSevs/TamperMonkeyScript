@@ -3,23 +3,20 @@
  * @copyright GPL-3.0-only
  * @author WhiteSev
  **/
-(function () {
-  /* 在window下挂载的对象名 */
-  const GLOBAL_NAME_SPACE = "Utils";
-  /* 如果window下存在着Utils，临时保存该对象 */
-  const originalUtils =
-    typeof window[GLOBAL_NAME_SPACE] !== "undefined"
-      ? window[GLOBAL_NAME_SPACE]
-      : null;
-
-  const Utils = {
-    /**
-     * 工具类的版本
-     * @type {string}
-     */
-    version: "2023-9-10",
-  };
-
+(function (global, factory) {
+  typeof exports === "object" && typeof module !== "undefined"
+    ? (module.exports = factory())
+    : typeof define === "function" && define.amd
+    ? define(factory)
+    : ((global =
+        typeof globalThis !== "undefined" ? globalThis : global || self),
+      (global.Utils = factory(global.Utils)));
+})(this, function (oldUtilsObj) {
+  const Utils = {};
+  /**
+   * @type {string} 工具类的版本
+   */
+  Utils.version = "2023-9-10";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @param {object} target	目标端
@@ -3305,9 +3302,11 @@
    * > ...
    */
   Utils.noConflict = function () {
-    delete window[GLOBAL_NAME_SPACE];
-    if (originalUtils) {
-      window[GLOBAL_NAME_SPACE] = originalUtils;
+    if (window.Utils) {
+      delete window.Utils;
+    }
+    if (oldUtilsObj) {
+      window.DOMUtils = oldUtilsObj;
     }
     return Utils;
   };
@@ -4323,5 +4322,5 @@
     });
   };
 
-  window[GLOBAL_NAME_SPACE] = Utils;
-})();
+  return Utils;
+});
