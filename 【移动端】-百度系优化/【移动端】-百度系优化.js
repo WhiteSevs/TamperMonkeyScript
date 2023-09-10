@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.4.8
+// @version      1.4.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,7 +45,7 @@
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248100
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248101
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248196
 // @run-at       document-start
 // ==/UserScript==
 
@@ -2348,7 +2348,11 @@
             if (!item.closest("#results")) {
               document.querySelector("#results").appendChild(item);
             }
-            DOMUtils.on(item, "click", "a", function (event) {
+            DOMUtils.on(item, "click", "div.rw-list-new", function (event) {
+              let searchText = event.target
+                .querySelector("span")
+                .textContent.trim();
+              log.success("底部 点击大家还在搜 ==> " + searchText);
               utils.preventEvent(event);
               window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
             });
@@ -2409,10 +2413,19 @@
               display: inline-table;display: -webkit-inline-box;
           ">${rwListContainerHTML}</div>
             </div>`;
-            DOMUtils.on(recommendElement, "click", "a", function (event) {
-              utils.preventEvent(event);
-              window.location.href = `https://m.baidu.com/s?word=${event.target.textContent.trim()}`;
-            });
+            DOMUtils.on(
+              recommendElement,
+              "click",
+              "div.rw-list-new",
+              function (event) {
+                let searchText = event.target
+                  .querySelector("span")
+                  .textContent.trim();
+                log.success("中间 点击大家还在搜 ==> " + searchText);
+                utils.preventEvent(event);
+                window.location.href = `https://m.baidu.com/s?word=${searchText}`;
+              }
+            );
           });
         },
       };
@@ -4618,12 +4631,10 @@
                 ?.textContent?.trim()
                 ?.replace(/吧$/g, "");
             }
-            let contentElement = document.querySelector(
-              ".main-thread-content-margin"
-            );
-            if (!contentElement) {
-              contentElement = document.querySelector(".tb-page__main");
-            }
+            let contentElement =
+              document.querySelector(".main-thread-content-margin") ||
+              document.querySelector(".main-thread-content") ||
+              document.querySelector(".tb-page__main");
             DOMUtils.remove("#replySwitch");
             DOMUtils.remove(".post-item");
             DOMUtils.html(contentElement, "");
@@ -4730,12 +4741,10 @@
               loadingView.show();
               return;
             }
-            let contentElement = document.querySelector(
-              ".main-thread-content-margin"
-            );
-            if (!contentElement) {
-              contentElement = document.querySelector(".tb-page__main");
-            }
+            let contentElement =
+              document.querySelector(".main-thread-content-margin") ||
+              document.querySelector(".main-thread-content") ||
+              document.querySelector(".tb-page__main");
             let searchResult = await getSearchResult(nextPageUrl);
             if (!searchResult) {
               loadingView.hide();
