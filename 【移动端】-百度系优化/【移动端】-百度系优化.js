@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.0
+// @version      1.5.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -1357,8 +1357,8 @@
 			div#header{
 				height: calc( 100vh - 120px );
 			}
-			form#index-form{ /* fixed垂直水平居中 */
-				position: fixed;
+			form#index-form{
+				position: static;
 				top:0;
 				right:0;
 				bottom:0;
@@ -1375,6 +1375,10 @@
 			div#navs{
 				display: none !important;
 			}
+      /* 图片logo往下移40px */
+      #logo{
+          padding-top: 40px;
+      }
 		`,
       baijiahao: `
 			.layer-wrap,
@@ -2945,7 +2949,8 @@
       if (GM_Menu.get("baijiahao_shield_recommended_article")) {
         GM_addStyle(`
 			  .infinite-scroll-component__outerdiv,
-        div#page_wrapper > div > div:nth-child(5){
+        div#page_wrapper > div > div:nth-child(5),
+        div:has(+ .infinite-scroll-component__outerdiv) {
           display: none !important;
         }
         /* 电脑端的文章居中 */
@@ -2970,6 +2975,17 @@
           display: none !important;
         }`);
       }
+
+      let originalAppendChild = Node.prototype.appendChild;
+      Node.prototype.appendChild = function (element) {
+        if (
+          element.localName === "script" &&
+          element?.src?.includes("landing-share")
+        ) {
+          return;
+        }
+        return originalAppendChild.call(this, element);
+      };
     },
     /**
      * 百度贴吧
