@@ -74,6 +74,7 @@ let DataPaging = {};
       firstBtnNode: {
         localName: "a",
         className: "pg-first",
+        svgHTML: `<svg t="1694497357294" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4758" width="20"><path d="M730.639277 211.376748l60.943177 60.943176-301.698894 301.698893L428.940384 513.075641z" p-id="4759"></path><path d="M730.496772 814.924547l60.943176-60.943176-301.698893-301.698893L428.797879 513.225654z" p-id="4760"></path><path d="M298.666667 213.333333h85.333333v597.333334H298.666667z" p-id="4761"></path></svg>`,
         get: () => {
           return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
             `${this.DOM_CONFIG.firstBtnNode.localName}.${this.DOM_CONFIG.firstBtnNode.className}`
@@ -84,6 +85,7 @@ let DataPaging = {};
       prevBtnNode: {
         localName: "a",
         className: "pg-prev",
+        svgHTML: `<svg t="1694497840770" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5272" width="20"><path d="M620.322607 151.04875l60.943176 60.943176-362.038672 362.038672L258.283935 513.087422z" p-id="5273"></path><path d="M620.180101 875.252545l60.943177-60.943176-362.038672-362.038672L258.141429 513.213873z" p-id="5274"></path></svg>`,
         get: () => {
           return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
             `${this.DOM_CONFIG.prevBtnNode.localName}.${this.DOM_CONFIG.prevBtnNode.className}`
@@ -94,6 +96,7 @@ let DataPaging = {};
       nextBtnNode: {
         localName: "a",
         className: "pg-next",
+        svgHTML: `<svg t="1694497949481" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5465" width="20"><path d="M403.399239 151.02258l-60.943177 60.943177 362.038672 362.038672L765.437911 513.061252z" p-id="5466"></path><path d="M403.576858 875.263008l-60.943176-60.943176 362.038672-362.038672L765.61553 513.224336z" p-id="5467"></path></svg>`,
         get: () => {
           return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
             `${this.DOM_CONFIG.nextBtnNode.localName}.${this.DOM_CONFIG.nextBtnNode.className}`
@@ -104,6 +107,7 @@ let DataPaging = {};
       lastBtnNode: {
         localName: "a",
         className: "pg-last",
+        svgHTML: `<svg t="1694498035538" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2299" width="20"><path d="M516.266667 490.666667L256 230.4 315.733333 170.666667l320 320L315.733333 810.666667 256 750.933333l260.266667-260.266666zM678.4 170.666667h85.333333v640h-85.333333V170.666667z" p-id="2300"></path></svg>`,
         get: () => {
           return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
             `${this.DOM_CONFIG.lastBtnNode.localName}.${this.DOM_CONFIG.lastBtnNode.className}`
@@ -235,31 +239,18 @@ let DataPaging = {};
         text-align: center;
         display: inline-block;
       }
-      /* 第一页 */
-      #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.firstBtnNode.className}::before {
-        content: "\u21E4";
-      }
-      /* 上一页 */
-      #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.prevBtnNode.className}::before {
-        content: "\u2190";
-      }
-      /* 下一页 */
-      #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.nextBtnNode.className}::before {
-        content: "\u2192";
-      }
-      /* 最后一页 */
-      #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.lastBtnNode.className}::before {
-        content: "\u21E5";
-      }
       #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.firstBtnNode.className},
       #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.prevBtnNode.className},
       #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.nextBtnNode.className},
       #${this.DOM_CONFIG.dataPagingNode.id} .${this.DOM_CONFIG.lastBtnNode.className} {
         font-family: Arial, sans-serif;
-        display: inline-block;
-        text-align: center;
         color: #333;
         font-size: 22px;
+        fill: currentColor;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
       }
       #${this.DOM_CONFIG.dataPagingNode.id} a,
       #${this.DOM_CONFIG.dataPagingNode.id} span {
@@ -267,7 +258,7 @@ let DataPaging = {};
         height: 40px;
         border: 1px solid #ebebeb;
         margin-left: -1px;
-        color: #8a8a8a;
+        color: #000000;
         line-height: 40px;
         float: left;
         font-size: 15px;
@@ -284,6 +275,7 @@ let DataPaging = {};
       }
       #${this.DOM_CONFIG.dataPagingNode.id} a {
         cursor: pointer;
+        user-select: none;
       }
       #${this.DOM_CONFIG.dataPagingNode.id} a[data-current-page] {
         background-color: #222a35;
@@ -314,18 +306,26 @@ let DataPaging = {};
       );
       that.DOM_CONFIG.dataPagingNode.dom = dataPagingNode;
       dataPagingNode.id = that.DOM_CONFIG.dataPagingNode.id;
+      /* 第一页 */
       let firstBtnNode = document.createElement(
         that.DOM_CONFIG.firstBtnNode.localName
-      ); /* 第一页 */
+      );
+      firstBtnNode.innerHTML = that.DOM_CONFIG.firstBtnNode.svgHTML;
+      /* 上一页 */
       let prevBtnNode = document.createElement(
         that.DOM_CONFIG.prevBtnNode.localName
-      ); /* 上一页 */
+      );
+      prevBtnNode.innerHTML = that.DOM_CONFIG.prevBtnNode.svgHTML;
+      /* 下一页 */
       let nextBtnNode = document.createElement(
         that.DOM_CONFIG.nextBtnNode.localName
-      ); /* 下一页 */
+      );
+      nextBtnNode.innerHTML = that.DOM_CONFIG.nextBtnNode.svgHTML;
+      /* 最后一页 */
       let lastBtnNode = document.createElement(
         that.DOM_CONFIG.lastBtnNode.localName
-      ); /* 最后一页 */
+      );
+      lastBtnNode.innerHTML = that.DOM_CONFIG.lastBtnNode.svgHTML;
       firstBtnNode.className = that.DOM_CONFIG.firstBtnNode.className;
       prevBtnNode.className = that.DOM_CONFIG.prevBtnNode.className;
       nextBtnNode.className = that.DOM_CONFIG.nextBtnNode.className;
