@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      1.6
-// @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库
+// @version      1.7
+// @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
 // @match        http*://*.greasyfork.org/*
@@ -14,6 +14,7 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @connect      greasyfork.org
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1244762
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249091
@@ -25,6 +26,10 @@
    * @type {import("../库/Utils")}
    */
   const utils = window.Utils.noConflict();
+  /**
+   * @type {import("../库/DOMUtils")}
+   */
+  const DOMUtils = window.DOMUtils.noConflict();
   Qmsg.config({
     position: "top",
     html: true,
@@ -452,6 +457,76 @@
           }
         });
     },
+    /**
+     * 优化图片浏览
+     */
+    optimizeImageBrowsing() {
+      GM_addStyle(`
+      @media (max-width: 460px) {
+        .lum-lightbox-image-wrapper {
+            display:flex;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch
+        }
+    
+        .lum-lightbox-caption {
+            width: 100%;
+            position: absolute;
+            bottom: 0
+        }
+    
+        .lum-lightbox-position-helper {
+            margin: auto
+        }
+    
+        .lum-lightbox-inner img {
+            max-width:100%;
+            max-height:100%;
+        }
+      }
+      `);
+      /**
+       * 查看图片
+       * @param {Array} imgList
+       * @param {Number} _index_
+       */
+      function viewIMG(imgList = [], _index_ = 0) {
+        let viewerULNodeHTML = "";
+        imgList.forEach((item) => {
+          viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+        });
+        let viewerULNode = DOMUtils.createElement("ul", {
+          innerHTML: viewerULNodeHTML,
+        });
+        /**
+         * @type {import("../库/Viewer")}
+         */
+        let viewer = new Viewer(viewerULNode, {
+          inline: false,
+          url: "data-src",
+          zIndex: utils.getMaxZIndex() + 100,
+          hidden: () => {
+            viewer.destroy();
+          },
+        });
+        _index_ = _index_ < 0 ? 0 : _index_;
+        viewer.view(_index_);
+        viewer.zoomTo(1);
+        viewer.show();
+      }
+      DOMUtils.on(document, "click", "img", function (event) {
+        let clickElement = event.target;
+        if (clickElement?.parentElement?.localName === "a") {
+          return;
+        }
+        let imgSrc =
+          clickElement.getAttribute("src") ||
+          clickElement.getAttribute("data-src") ||
+          clickElement.getAttribute("alt");
+        log.success(["点击浏览图片👉", imgSrc]);
+        viewIMG([imgSrc]);
+      });
+    },
   };
   /* -----------------↑函数区域↑----------------- */
 
@@ -465,6 +540,7 @@
     GreasyforkBusiness.updateScript();
     GreasyforkBusiness.repairImgShow();
     GreasyforkBusiness.repairCodeLineNumber();
+    GreasyforkBusiness.optimizeImageBrowsing();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
