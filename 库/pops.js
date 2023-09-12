@@ -1,18 +1,19 @@
 (function (global, factory) {
-  typeof exports === "object" && typeof module !== "undefined"
-    ? (module.exports = factory())
-    : typeof define === "function" && define.amd
-    ? define(factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      (global.pops = factory()));
-})(this, function () {
-  "use strict";
-
-  if (typeof pops !== "undefined") {
-    console.error(pops);
-    throw "window.pops已被注册";
+  /**
+   * 不使用define
+   * typeof define === "function" && define.amd
+   * define(factory)
+   */
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    /* 适用于NodeJs或typeScript */
+    module.exports = factory();
+  } else {
+    global = typeof globalThis !== "undefined" ? globalThis : global || self;
+    /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
+    global.pops = factory(global.pops);
   }
+})(typeof window !== "undefined" ? window : this, function (AnotherPops) {
+  "use strict";
 
   let popsUtils = {
     /* 工具类 */
@@ -875,7 +876,7 @@
 
   var pops = {};
   pops.config = {
-    version: "0.0.6",
+    version: "0.0.7",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -2697,6 +2698,21 @@
         onCloseEvent();
       },
     };
+  };
+
+  /**
+   * 释放原有的pops控制权
+   * @example
+   * let pops = window.pops.noConflict()
+   */
+  pops.noConflict = function () {
+    if (window.pops) {
+      delete window.pops;
+    }
+    if (AnotherPops) {
+      window.pops = AnotherPops;
+    }
+    return pops;
   };
   return pops;
 });

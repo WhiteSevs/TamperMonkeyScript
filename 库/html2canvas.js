@@ -4,14 +4,20 @@
  * Released under MIT License
  */
 (function (global, factory) {
-  typeof exports === "object" && typeof module !== "undefined"
-    ? (module.exports = factory())
-    : typeof define === "function" && define.amd
-    ? define(factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      (global.html2canvas = factory()));
-})(this, function () {
+  /**
+   * 不使用define
+   * typeof define === "function" && define.amd
+   * define(factory)
+   */
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    /* 适用于NodeJs或typeScript */
+    module.exports = factory();
+  } else {
+    global = typeof globalThis !== "undefined" ? globalThis : global || self;
+    /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
+    global.html2canvas = factory();
+  }
+})(typeof window !== "undefined" ? window : this, function () {
   "use strict";
 
   /*! *****************************************************************************
@@ -7181,43 +7187,49 @@
                   if (isInlineBase64Image(src) || useCORS) {
                     img.crossOrigin = "anonymous";
                   }
-                  if(typeof GM_xmlhttpRequest === "function" && !isInlineBase64Image(src)){
+                  if (
+                    typeof GM_xmlhttpRequest === "function" &&
+                    !isInlineBase64Image(src)
+                  ) {
                     GM_xmlhttpRequest({
-                      url:src,
-                      method:"get",
-                      responseType:"arraybuffer",
-                      timeout:_this._options.imageTimeout,
-                      onload:(resp)=>{
-                        if(resp.readyState === 4 && resp.status === 200){
+                      url: src,
+                      method: "get",
+                      responseType: "arraybuffer",
+                      timeout: _this._options.imageTimeout,
+                      onload: (resp) => {
+                        if (resp.readyState === 4 && resp.status === 200) {
                           let content_type = "image/jpeg";
-                          let content_type_list = resp.responseHeaders.split("\n");
-                          content_type_list.forEach(item=>{
-                            if(item.startsWith("content-type: ")){
-                              content_type = item.replace("content-type: ","");
+                          let content_type_list =
+                            resp.responseHeaders.split("\n");
+                          content_type_list.forEach((item) => {
+                            if (item.startsWith("content-type: ")) {
+                              content_type = item.replace("content-type: ", "");
                               return;
                             }
-                          })
-                          var imageBinary = '';
-                          var imageBytes = new Uint8Array( resp.response );
+                          });
+                          var imageBinary = "";
+                          var imageBytes = new Uint8Array(resp.response);
                           var imageLen = imageBytes.byteLength;
                           for (var i = 0; i < imageLen; i++) {
-                            imageBinary += String.fromCharCode( imageBytes[ i ] );
+                            imageBinary += String.fromCharCode(imageBytes[i]);
                           }
-                          let imageBase64 = 'data:'+content_type+';base64,' + window.btoa( imageBinary );
-                          img.src =  imageBase64
-                        }else{
-                          img.src =  src;
+                          let imageBase64 =
+                            "data:" +
+                            content_type +
+                            ";base64," +
+                            window.btoa(imageBinary);
+                          img.src = imageBase64;
+                        } else {
+                          img.src = src;
                         }
-                        
                       },
-                      onerror:()=>{
+                      onerror: () => {
                         img.src = src;
-                      }
-                  })
-                  }else{
+                      },
+                    });
+                  } else {
                     img.src = src;
                   }
-                  
 
                   if (_this._options.imageTimeout > 0) {
                     setTimeout(function () {

@@ -479,14 +479,20 @@
  */
 
 (function (global, factory) {
-  typeof exports === "object" && typeof module !== "undefined"
-    ? (module.exports = factory())
-    : typeof define === "function" && define.amd
-    ? define(factory)
-    : ((global =
-        typeof globalThis !== "undefined" ? globalThis : global || self),
-      (global.Viewer = factory()));
-})(this, function () {
+  /**
+   * 不使用define
+   * typeof define === "function" && define.amd
+   * define(factory)
+   */
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    /* 适用于NodeJs或typeScript */
+    module.exports = factory();
+  } else {
+    global = typeof globalThis !== "undefined" ? globalThis : global || self;
+    /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
+    global.Viewer = factory();
+  }
+})(typeof window !== "undefined" ? window : this, function () {
   "use strict";
 
   function ownKeys(e, r) {
