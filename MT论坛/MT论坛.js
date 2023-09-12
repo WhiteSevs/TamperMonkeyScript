@@ -29,13 +29,13 @@
 // @connect      *
 // @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
-// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
+// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248292
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087
 // ==/UserScript==
 
 (function () {
@@ -657,12 +657,12 @@
   /**
    * 检测引用库是否正确加载
    * @example	https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
+   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
    * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
-   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248292
+   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -674,7 +674,7 @@
       {
         object: Viewer,
         name: "Viewer",
-        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770",
+        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086",
       },
       {
         object: xtip,
@@ -695,12 +695,12 @@
       {
         object: html2canvas,
         name: "html2canvas",
-        url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1149607",
+        url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089",
       },
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248292",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087",
       },
     ];
     for (const libraryItem of libraries) {

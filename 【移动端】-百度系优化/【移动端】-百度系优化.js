@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.1
+// @version      1.5.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -43,9 +43,9 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_info
 // @grant        unsafeWindow
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1247770
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248292
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248298
+// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249091
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1168,7 +1168,7 @@
   }
 
   const baidu = {
-    current_url: window.location.href,
+    currentUrl: window.location.href,
     init() {
       this.search();
       this.searchHome();
@@ -1349,6 +1349,11 @@
         -webkit-justify-content: space-between;
         -webkit-align-items: stretch;
         -webkit-flex-wrap: nowrap;
+      }
+
+      /* 让搜索中某些视频的阶段可以横向滚动 */
+      div[class^="new-summary-container_"]{
+        overflow: auto;
       }
 		`,
       searchHome: `
@@ -1647,9 +1652,10 @@
      */
     searchHome() {
       if (
-        !this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) &&
-        !this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?ref=/g) &&
-        !this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/\?tn=/g)
+        !this.currentUrl.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) &&
+        !this.currentUrl.match(
+          /^http(s|):\/\/(m|www).baidu.com\/(\?ref=|\?tn=|\?from=)/g
+        )
       ) {
         return;
       }
@@ -1660,7 +1666,7 @@
      * 百度搜索
      */
     search() {
-      if (!this.current_url.match(/^http(s|):\/\/(m|www).baidu.com\/.*/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/(m|www).baidu.com\/.*/g)) {
         return;
       }
 
@@ -1764,11 +1770,11 @@
           targetNode
             .querySelectorAll("script[id^='atom-data-']")
             .forEach((item) => {
-              let json_data = utils.toJSON(item.innerHTML);
-              if (json_data["data"]["resultAtomData"] == null) {
+              let jsonData = utils.toJSON(item.innerHTML);
+              if (jsonData["data"]["resultAtomData"] == null) {
                 return;
               }
-              let resultAtomData = json_data["data"]["resultAtomData"];
+              let resultAtomData = jsonData["data"]["resultAtomData"];
               if (
                 resultAtomData["abstract"] &&
                 resultAtomData["abstract"]["urlParams"] &&
@@ -2910,7 +2916,7 @@
      * 百家号
      */
     baijiahao() {
-      if (!this.current_url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.baijiahao);
@@ -2992,7 +2998,7 @@
      */
     tieba() {
       if (
-        !this.current_url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)
+        !this.currentUrl.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)
       ) {
         return;
       }
@@ -4813,15 +4819,13 @@
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (
-        this.current_url.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g
-        )
+        this.currentUrl.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)
       ) {
         tiebaCommentConfig.run();
         registerImagePreview();
       }
       if (
-        this.current_url.match(
+        this.currentUrl.match(
           /^http(s|):\/\/(tieba.baidu|www.tieba).com\/mo\/q\/newtopic\/topicTemplate/g
         )
       ) {
@@ -4833,7 +4837,7 @@
      * 百度文库
      */
     wenku() {
-      if (!this.current_url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.wenku);
@@ -4924,7 +4928,7 @@
      * 百度经验
      */
     jingyan() {
-      if (!this.current_url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.jingyan);
@@ -4934,9 +4938,7 @@
      * 百度百科
      */
     baike() {
-      if (
-        !this.current_url.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)
-      ) {
+      if (!this.currentUrl.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)) {
         return;
       }
       let page = 1;
@@ -5095,7 +5097,7 @@
      * 百度百科-他说
      */
     baiketashuo() {
-      if (!this.current_url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
         return;
       }
       /**
@@ -5124,7 +5126,7 @@
      * 百度知道
      */
     zhidao() {
-      if (!this.current_url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.zhidao);
@@ -5194,7 +5196,7 @@
      * 百度翻译
      */
     fanyi() {
-      if (!this.current_url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.fanyi);
@@ -5253,7 +5255,7 @@
      * 百度翻译-APP
      */
     fanyiApp() {
-      if (!this.current_url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.fanyiapp);
@@ -5266,7 +5268,7 @@
      * 百度图片
      */
     image() {
-      if (!this.current_url.match(/^http(s|):\/\/image.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/image.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.image);
@@ -5276,7 +5278,7 @@
      * 百度地图
      */
     map() {
-      if (!this.current_url.match(/^http(s|):\/\/map.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/map.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.map);
@@ -5286,7 +5288,7 @@
      * 百度知道
      */
     mbd() {
-      if (!this.current_url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/mbd.baidu.com/g)) {
         return;
       }
       /* 
@@ -5343,7 +5345,7 @@
      * 百度知了好学
      */
     xue() {
-      if (!this.current_url.match(/^http(s|):\/\/xue.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/xue.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.xue);
@@ -5353,7 +5355,7 @@
      * 百度-爱企查
      */
     aiqicha() {
-      if (!this.current_url.match(/^http(s|):\/\/aiqicha.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/aiqicha.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.aiqicha);
@@ -5408,7 +5410,7 @@
      * 百度网盟推广
      */
     pos() {
-      if (!this.current_url.match(/^http(s|):\/\/pos.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/pos.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.pos);
@@ -5418,7 +5420,7 @@
      * 百度好看视频
      */
     haokan() {
-      if (!this.current_url.match(/^http(s|):\/\/haokan.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/haokan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.haokan);
@@ -5449,7 +5451,7 @@
      * 百度识图
      */
     graph() {
-      if (!this.current_url.match(/^http(s|):\/\/graph.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/graph.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.graph);
@@ -5580,7 +5582,7 @@
      * 百度网盘
      */
     pan() {
-      if (!this.current_url.match(/^http(s|):\/\/pan.baidu.com/g)) {
+      if (!this.currentUrl.match(/^http(s|):\/\/pan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.pan);
