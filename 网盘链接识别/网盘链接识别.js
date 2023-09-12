@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.10.21.00
+// @version      23.9.12.14.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -55,10 +55,10 @@
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1244762
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
-// @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1205376
-// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1187390
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1248292
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1248298
+// @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
+// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1249088
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249091
 // ==/UserScript==
 
 (function () {
@@ -6212,6 +6212,8 @@
           width: 28px;
           height: 28px;
           font-size: 13px;
+          border-radius: 10px;
+          box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);
         }
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url{
           color: #000;
@@ -6388,8 +6390,7 @@
       setDataPaging(data) {
         let that = this;
 
-        let dataPaging = new DataPaging();
-        dataPaging.init({
+        let dataPaging = new DataPaging({
           data: data,
           pageCount: 10,
           pageStep: pops.isPhone() ? 2 : 4,
