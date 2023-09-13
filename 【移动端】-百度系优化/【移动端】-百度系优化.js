@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.3
+// @version      1.5.4
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -44,11 +44,10 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249087
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249091
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249715
 // @run-at       document-start
 // ==/UserScript==
-
 (function () {
   /**
    * @type {import("../库/Utils")}
@@ -3205,7 +3204,7 @@
               .getAttribute("username");
           }
 
-          let userAvator =
+          let userAvatar =
             element
               .querySelector(".p_author_face > img")
               .getAttribute("data-tb-lazyload") ||
@@ -3257,9 +3256,6 @@
             if (!userComment) {
               userComment = element.querySelector(".d_post_content").innerHTML;
             }
-            if (user_ip_position) {
-              user_ip_position = "IP属地:" + user_ip_position;
-            }
           }
           let currentTime = new Date(); /* 结束时间 */
           let timeDifference =
@@ -3297,7 +3293,11 @@
               }
             }
           }
-
+          let userAvatarObj = new URL(userAvatar);
+          let userPortrait = userAvatarObj.pathname.match(/\/item\/(.+)/i);
+          if (userPortrait) {
+            userPortrait = userPortrait[1];
+          }
           let post_id = data_field["content"]["post_id"];
           let newUserCommentHTML = "";
           if (pageCommentList.commentList[post_id]) {
@@ -3329,7 +3329,7 @@
 
           if (newUserCommentHTML) {
             newUserCommentHTML = `
-            <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: auto;">
+            <div data-v-5b60f30b="" data-v-74eb13e2="" class="lzl-post lzl-post" style="max-height: 2.35rem;overflow-y: hidden;">
               ${newUserCommentHTML}
             </div>
             `;
@@ -3338,6 +3338,19 @@
             "data-v-74eb13e2": "",
             "data-v-602e287c": "",
             class: "post-item",
+            "data-whitesev": {
+              userId: user_id,
+              userPostId: post_id,
+              userPortrait: userPortrait,
+              userFloor: parseInt(user_floor),
+              userComment: userComment,
+              userHomeUrl: userHomeUrl,
+              userAvatar: userAvatar,
+              userName: userName,
+              userCommentTime: user_comment_time,
+              userIpPosition: user_ip_position,
+              pageCommentList: pageCommentList,
+            },
             "data-floor": tiebaCommentConfig.floor_num,
             landlord: is_landlord,
             innerHTML: `
@@ -3350,9 +3363,9 @@
                     data-v-188c0e84=""
                     class="tbfe-1px-border avatar"
                     data-home-url="${userHomeUrl}"
-                    data-src="${userAvator}"
+                    data-src="${userAvatar}"
                     lazy="loaded"
-                    style="background-image: url(${userAvator});"></div>
+                    style="background-image: url(${userAvatar});"></div>
                   <div data-v-188c0e84="" class="user-info">
                     <div data-v-188c0e84="" class="username" data-home-url="${userHomeUrl}">
                       ${userName}
@@ -3392,6 +3405,12 @@
           if (newCommentDOM == null) {
             return;
           }
+          newCommentDOM.querySelectorAll("a").forEach((item) => {
+            item.setAttribute("data-href", item.href);
+            item.removeAttribute("href");
+            item.removeAttribute("target");
+          });
+
           /* 评论，点击头像跳转到这个人的空间 */
           newCommentDOM
             .querySelectorAll(".tbfe-1px-border.avatar")
@@ -3413,15 +3432,15 @@
               }
             });
           /* 评论的回复，点击头像跳转到这个人的空间 */
-          newCommentDOM.querySelectorAll(".link.username").forEach((item) => {
+          /* newCommentDOM.querySelectorAll(".link.username").forEach((item) => {
             if (item.hasAttribute("data-home-url")) {
               item.onclick = function () {
                 window.open(item.getAttribute("data-home-url"), "_blank");
               };
             }
-          });
+          }); */
           /* 评论的回复的回复，点击头像跳转到这个人的空间 */
-          newCommentDOM.querySelectorAll("a.at").forEach((item) => {
+          /* newCommentDOM.querySelectorAll("a.at").forEach((item) => {
             item.removeAttribute("onclick");
             item.removeAttribute("onmouseover");
             item.removeAttribute("onmouseout");
@@ -3431,7 +3450,7 @@
                 "/home/main?id=" + item.getAttribute("portrait")
               );
             }
-          });
+          }); */
 
           if (document.querySelector(".post-cut-guide")) {
             DOMUtils.before(
@@ -3442,6 +3461,589 @@
             document
               .querySelector(".pb-page-wrapper")
               .appendChild(newCommentDOM); /* 老版帖子 */
+          }
+          /* 如果评论存在不可见的，添加一个 查看全部xx条回复 */
+          let lzlPostElement =
+            newCommentDOM.querySelector(".lzl-post.lzl-post");
+          if (lzlPostElement) {
+            let lzlPostElementHeight = DOMUtils.height(lzlPostElement);
+            let lzlPostItemList =
+              lzlPostElement.querySelectorAll(".lzl-post-item");
+            let currentLzlPostElementHeight = 0;
+            let addSeeAllReply = false;
+            for (const lzlPostItem of lzlPostItemList) {
+              currentLzlPostElementHeight += DOMUtils.height(lzlPostItem);
+              if (currentLzlPostElementHeight > lzlPostElementHeight) {
+                addSeeAllReply = true;
+                break;
+              }
+            }
+            if (addSeeAllReply) {
+              let lzlCommentNums =
+                newCommentDOM["data-whitesev"]["pageCommentList"][
+                  "commentList"
+                ][newCommentDOM["data-whitesev"]["userPostId"]]["comment_num"];
+              let seeAllReplyElement = DOMUtils.createElement("div", {
+                class: "whitesev-see-all-reply",
+                style: "color: #6251B3;margin-top: 5px 0 0 10px;",
+                innerHTML: `
+                查看全部${lzlCommentNums}条回复
+                `,
+              });
+              DOMUtils.on(seeAllReplyElement, "click", function () {
+                lzlPostElement.click();
+              });
+              DOMUtils.after(lzlPostElement, seeAllReplyElement);
+            }
+            DOMUtils.on(lzlPostElement, "click", function () {
+              log.success(`点击查看全部回复`);
+              tiebaCommentConfig.showReplyDialog(lzlPostElement);
+            });
+          }
+        },
+        /**
+         * 初始化评论的弹窗的所有设置包括CSS
+         */
+        initReplyDialog() {
+          log.success("初始化回复的弹窗");
+          GM_addStyle(`
+          /* 主 */
+          #whitesev-reply-dialog{
+            z-index: 99999;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          /* 背景 */
+          .whitesev-reply-dialog-bg{
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,.5);
+            transition-timing-function: ease-in;
+            transition-duration: .1s;
+            transition-property: background-color,opacity;
+          }
+          /* 内容容器 */
+          .whitesev-reply-dialog-sheet{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            z-index: 2;
+            width: 100%;
+            background-color: #fff;
+            transition: .1s ease-in;
+            transition-property: transform;
+            transform: translate(0,100%);
+            border-radius: 10px 10px 0px 0px;
+          }
+          /* 关闭 */
+          .whitesev-reply-dialog-close{
+            position: absolute;
+          }
+          /* 标题 */
+          .whitesev-reply-dialog-sheet-title{
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 15px;
+            color: #222;
+            line-height: 20px;
+            text-align: center;
+            border-bottom: 1px solid #dbdbdb;
+          }
+          /* 内容 */
+          .whitesev-reply-dialog-sheet-content{
+            height: 100%;
+            overflow-y: auto;
+          }
+          /* 内容中主内容和其它内容 */
+          .whitesev-reply-dialog-sheet-main-content,
+          .whitesev-reply-dialog-sheet-other-content{
+            margin: 20px 10px 10px 10px;
+          }
+          /* 内容中其它内容 */
+          .whitesev-reply-dialog-sheet-ohter-content{
+
+          }
+          /* 弹出 */
+          #whitesev-reply-dialog[data-on] .whitesev-reply-dialog-bg{
+            transition-timing-function: ease-in;
+            transition-duration: .2s;
+          }
+          #whitesev-reply-dialog[data-on] .whitesev-reply-dialog-bg{
+            background-color: rgba(0,0,0,.5);
+          }
+          #whitesev-reply-dialog[data-on] .whitesev-reply-dialog-sheet{
+            transition: .2s ease-in;
+            transform: translate(0,0);
+          }
+
+          /* 头像 */
+          .whitesev-reply-dialog-avatar {
+            position: relative;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            width: .36rem;
+            height: .36rem;
+            margin-right: .08rem;
+            border-radius: 50%;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-size: cover;
+            -webkit-box-flex: 0;
+            -webkit-flex: none;
+            -ms-flex: none;
+            flex: none;
+          }
+          
+          /* 用户行 */
+          .whitesev-reply-dialog-user-line {
+              display: flex;
+              align-items: center;
+          }
+          .whitesev-reply-dialog-user-line,
+          .whitesev-reply-dialog-user-comment,
+          .whitesev-reply-dialog-user-desc-info {
+              margin-bottom: 8px;
+          }
+          /* 评论 */
+          .whitesev-reply-dialog-user-comment {
+              margin-left: .44rem;
+          }
+          /* 评论的贴吧自带表情 */
+          .whitesev-reply-dialog-user-comment img.BDE_Smiley{
+            width: .2rem;
+            height: .2rem;
+            vertical-align: middle;
+          }
+          /* 评论的贴吧自己上传的图片 */
+          .whitesev-reply-dialog-user-comment img:not(.BDE_Smiley){
+            margin-top: 8px;
+            max-width: 350px;
+            cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
+            height: auto;
+            width: auto;
+            width: 100%;
+          }
+          /* 底部信息 */
+          .whitesev-reply-dialog-user-desc-info{
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              margin-left: .44rem;
+              border-bottom: 1px solid #dfdfdf;
+          }
+          .whitesev-reply-dialog-user-desc-info span{
+              margin-right: .08rem;
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              -webkit-box-align: center;
+              -webkit-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              font-size: .12rem;
+              line-height: .18rem;
+              overflow: hidden;
+              white-space: nowrap;
+              -o-text-overflow: ellipsis;
+              text-overflow: ellipsis;
+              color: #a3a2a8;
+          }
+          /* 第xx楼 */
+          .whitesev-reply-dialog-user-desc-info span[data-floor-info]::before {
+              content:"第"
+          }
+          .whitesev-reply-dialog-user-desc-info span[data-floor-info]::after {
+              content:"楼"
+          }
+          /* 中间行 */
+          .whitesev-reply-dialog-sheet-main-content-bottom-line {
+            background: #ebebeb;
+            height: 6px;
+          }
+          /* 隐藏顶部主回复的底部边框 */
+          .whitesev-reply-dialog-sheet-main-content .whitesev-reply-dialog-user-desc-info{
+              border-bottom: none;
+          }
+          /* 其它回复中的最后一个 */
+          .whitesev-reply-dialog-sheet-other-content > div:last-child{
+            padding-bottom: 40px;
+          }
+          /* 其它回复的每一项 */
+          .whitesev-reply-dialog-sheet-other-content-item{
+            margin-top: 12px;
+          }
+          /* 其它回复的底部边框 */
+          .whitesev-reply-dialog-sheet-other-content-item .whitesev-reply-dialog-user-desc-info{
+            padding-bottom: 12px;
+          }
+          /* xx条回复 */
+          .whitesev-reply-dialog-sheet-comment-num {
+            margin-top: -10px;
+            margin-bottom: 20px;
+          }
+          /* 查看全部xx条回复 */
+          .whitesev-see-all-reply{
+            padding-top: 10px;
+          }
+          `);
+        },
+        /**
+         * 显示评论的弹窗
+         */
+        showReplyDialog(element) {
+          let contentElement = element.closest(
+            "div.post-item[data-v-74eb13e2]"
+          );
+          let data = {};
+          if (contentElement && contentElement["data-whitesev"]) {
+            data = contentElement["data-whitesev"];
+          }
+          log.success(["data-whitesev数据", data]);
+          /* 当前评论数据信息JSON */
+          let currentCommentData =
+            data["pageCommentList"]["commentList"][data["userPostId"]][
+              "comment_info"
+            ];
+          log.success(["当前评论数据信息JSON", currentCommentData]);
+          /* 楼中楼评论的总共数量 */
+          let currentCommentListNum =
+            data["pageCommentList"]["commentList"][data["userPostId"]][
+              "comment_num"
+            ];
+          /* 用户信息JSON */
+          let userList = data["pageCommentList"]["userList"];
+          let mainUserAvatar = data["userAvatar"];
+          let otherCommentsHTML = "";
+          let userAvatarHostName = new URL(mainUserAvatar).hostname;
+          let userAvatarPath = new URL(mainUserAvatar).pathname.split("/")[1];
+          log.success(["头像加密值路径是", userAvatarPath]);
+          currentCommentData.forEach((item) => {
+            /* 用户信息 */
+            let itemUserInfo = userList[item["user_id"]];
+            /* 用户id值 */
+            let userPortrait = itemUserInfo["portrait"];
+            /* 获取时间差 */
+            let itemUserCommentTime =
+              utils.getDaysDifference(
+                item["now_time"] * 1000,
+                undefined,
+                "auto"
+              ) + "前";
+            /* 用户ip？好像没有 */
+            let itemUserCommentIp = "";
+            if (item["location"] && item["location"]["name"]) {
+              itemUserCommentIp = item["location"]["name"];
+            }
+            let itemUserAvatar = `https://${userAvatarHostName}/${userAvatarPath}/sys/portrait/item/${userPortrait}`;
+            otherCommentsHTML += `
+            <div class="whitesev-reply-dialog-sheet-other-content-item">
+              <div class="whitesev-reply-dialog-user-line" data-portrait="${userPortrait}">
+                <div class="whitesev-reply-dialog-avatar" style="background-image: url(${itemUserAvatar});"></div>
+                <div class="whitesev-reply-dialog-user-info">
+                  <div class="whitesev-reply-dialog-user-username">${item["show_nickname"]}</div>
+                </div>
+              </div>
+              <div class="whitesev-reply-dialog-user-comment">${item["content"]}</div>
+              <div class="whitesev-reply-dialog-user-desc-info">
+                  <span data-time="">${itemUserCommentTime}</span>
+                  <span data-ip="">${itemUserCommentIp}</span>
+              </div>
+            </div>
+            `;
+          });
+          log.success(["显示评论的弹窗", data]);
+          let dialog = DOMUtils.createElement("div", {
+            id: "whitesev-reply-dialog",
+            innerHTML: `
+            <div class="whitesev-reply-dialog-bg"></div>
+            <div class="whitesev-reply-dialog-sheet" style="height: ${
+              DOMUtils.height(document.documentElement) * 0.92
+            }px;">
+              <div class="whitesev-reply-dialog-sheet-title">
+                <div class="whitesev-reply-dialog-close">
+                  <svg t="1694574625629" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2306" width="20" height="20"><path d="M576 512l277.333333 277.333333-64 64-277.333333-277.333333L234.666667 853.333333 170.666667 789.333333l277.333333-277.333333L170.666667 234.666667 234.666667 170.666667l277.333333 277.333333L789.333333 170.666667 853.333333 234.666667 576 512z" fill="#444444" p-id="2307"></path></svg>
+                </div>
+                ${data.userFloor}楼的回复
+              </div>
+              <div class="whitesev-reply-dialog-sheet-content">
+              <div class="whitesev-reply-dialog-sheet-main-content">
+                  <div class="whitesev-reply-dialog-user-line" data-portrait="${
+                    data["userPortrait"]
+                  }">
+                    <div class="whitesev-reply-dialog-avatar" style="background-image: url(${
+                      data["userAvatar"]
+                    });"></div>
+                    <div class="whitesev-reply-dialog-user-info">
+                      <div class="whitesev-reply-dialog-user-username">${
+                        data["userName"]
+                      }</div>
+                    </div>
+                  </div>
+                  <div class="whitesev-reply-dialog-user-comment">${
+                    data["userComment"]
+                  }</div>
+                  <div class="whitesev-reply-dialog-user-desc-info" style="border-bottom: none;">
+                      <span data-floor-info="">${data["userFloor"]}</span>
+                      <span data-time="">${data["userCommentTime"]}</span>
+                      <span data-ip="">${data["userIpPosition"]}</span>
+                  </div>
+              </div>
+              <div class="whitesev-reply-dialog-sheet-main-content-bottom-line"></div>
+              <div class="whitesev-reply-dialog-sheet-other-content">
+                <div class="whitesev-reply-dialog-sheet-comment-num">${currentCommentListNum}条回复</div>
+                ${otherCommentsHTML}
+              </div>
+              </div>
+            </div>
+            `,
+          });
+          /* 关闭图标的点击事件 */
+          DOMUtils.on(
+            dialog.querySelector(".whitesev-reply-dialog-close"),
+            "click",
+            function () {
+              dialog.removeAttribute("data-on");
+              DOMUtils.on(
+                dialog,
+                "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend",
+                function () {
+                  DOMUtils.off(
+                    dialog,
+                    "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
+                  );
+                  log.success("解锁全局滚动");
+                  document.documentElement.style.overflowY = "";
+                  dialog.remove();
+                }
+              );
+            }
+          );
+          /* 处理评论的头像点击新标签页打开主页 */
+          DOMUtils.on(
+            dialog,
+            "click",
+            ".whitesev-reply-dialog-avatar",
+            function (event) {
+              window.open(
+                "/home/main?id=" +
+                  event.target
+                    .closest(".whitesev-reply-dialog-user-line")
+                    .getAttribute("data-portrait"),
+                "_blank"
+              );
+            }
+          );
+          /* 处理评论的名字点击新标签页打开主页 */
+          DOMUtils.on(
+            dialog,
+            "click",
+            ".whitesev-reply-dialog-user-info",
+            function (event) {
+              window.open(
+                "/home/main?id=" +
+                  event.target
+                    .closest(".whitesev-reply-dialog-user-line")
+                    .getAttribute("data-portrait"),
+                "_blank"
+              );
+            }
+          );
+          /* 点击遮罩层则关闭弹窗 */
+          DOMUtils.on(
+            dialog.querySelector(".whitesev-reply-dialog-bg"),
+            "click",
+            function () {
+              dialog.querySelector(".whitesev-reply-dialog-close").click();
+            }
+          );
+          const lzlLoadingView = new LoadingView();
+          /* 初始页数为2 */
+          let lzlPage = 2;
+          /* 处理楼中楼的滚动加载更多回复 */
+          let lzlReplyCommentScrollEvent = async function (event) {
+            let scrollElement = event.target;
+            if (
+              scrollElement.scrollTop + scrollElement.clientHeight + 50 <
+              scrollElement.scrollHeight
+            ) {
+              return;
+            }
+            log.success("加载更多回复");
+            lzlLoadingView.show();
+            let replyInfo = await tiebaCommentConfig.getLzlCommentReply(
+              tiebaCommentConfig.param_tid,
+              data["userPostId"],
+              lzlPage
+            );
+            log.success(replyInfo);
+            if (replyInfo === "暂无更多回复") {
+              log.success("暂无更多回复");
+              lzlLoadingView.setText("暂无更多回复");
+              DOMUtils.off(
+                dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
+                "scroll"
+              );
+              log.error("取消绑定楼中楼scroll监听事件【下一页】");
+              return;
+            } else if (typeof replyInfo === "string") {
+              lzlLoadingView.setText(replyInfo);
+              return;
+            }
+            if (!replyInfo["nextPage"]) {
+              log.success("暂无更多回复");
+              lzlLoadingView.setText("暂无更多回复");
+              DOMUtils.off(
+                dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
+                "scroll"
+              );
+              log.error("取消绑定楼中楼scroll监听事件【下一页】");
+              return;
+            }
+            lzlPage = replyInfo["nextPage"];
+            replyInfo["data"].forEach((item) => {
+              let lastCommentHTML = `
+              <div class="whitesev-reply-dialog-sheet-other-content-item">
+                <div class="whitesev-reply-dialog-user-line" data-portrait="${item["userPortrait"]}">
+                  <div class="whitesev-reply-dialog-avatar" style="background-image: url(${item["userAvatar"]});"></div>
+                  <div class="whitesev-reply-dialog-user-info">
+                    <div class="whitesev-reply-dialog-user-username">${item["userName"]}</div>
+                  </div>
+                </div>
+                <div class="whitesev-reply-dialog-user-comment">${item["userReplyContent"]}</div>
+                <div class="whitesev-reply-dialog-user-desc-info">
+                    <span data-time="">${item["userReplyTime"]}</span>
+                    <span data-ip=""></span>
+                </div>
+              </div>
+              `;
+              if (scrollElement.querySelector(".whitesev-page-isloading")) {
+                DOMUtils.before(
+                  scrollElement.querySelector(".whitesev-page-isloading"),
+                  lastCommentHTML
+                );
+              } else {
+                DOMUtils.append(
+                  scrollElement.querySelector(
+                    ".whitesev-reply-dialog-sheet-other-content"
+                  ),
+                  lastCommentHTML
+                );
+              }
+            });
+          };
+          let lzlScrollEventLock = new utils.LockFunction(
+            lzlReplyCommentScrollEvent,
+            this
+          );
+          DOMUtils.on(
+            dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
+            "scroll",
+            lzlScrollEventLock.run
+          );
+          log.success("绑定楼中楼scroll监听事件【下一页】");
+          document.documentElement.style.overflowY = "hidden";
+          log.success("锁定全局滚动");
+          document.body.appendChild(dialog);
+          lzlLoadingView.setLoadingViewElement(
+            lzlLoadingView.getParseLoadingNode(false)
+          );
+          DOMUtils.append(
+            dialog.querySelector(".whitesev-reply-dialog-sheet-other-content"),
+            lzlLoadingView.getLoadingViewElement()
+          );
+          lzlLoadingView
+            .getLoadingViewElement()
+            .style.setProperty("color", "#c5c5c5");
+          lzlLoadingView
+            .getLoadingViewElement()
+            .style.setProperty("font-size", "14px");
+          lzlLoadingView.setText("加载更多");
+          lzlLoadingView.hide();
+          /* 延迟显示 */
+          setTimeout(() => {
+            dialog.setAttribute("data-on", true);
+          }, 0);
+        },
+        /**
+         * 获取楼中楼评论
+         * @param {string} tid 帖子id
+         * @param {string} pid 回复主体id
+         * @param {string|Number} pn 当前页
+         * @returns {Promise}
+         */
+        async getLzlCommentReply(tid = "", pid = "", pn = 1) {
+          let getResp = await httpx.get({
+            url: `https://tieba.baidu.com/p/comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}`,
+            headers: {
+              "USer-Agent": utils.getRandomPCUA(),
+              Host: "tieba.baidu.com",
+              Referer: window.location.href,
+            },
+          });
+          if (!getResp.status) {
+            log.error(getResp);
+            return "请求失败";
+          }
+          let respData = getResp.data;
+          log.success(respData);
+          let parseDOM = DOMUtils.parseHTML(respData.responseText, false, true);
+          let lzlPostList = parseDOM.querySelectorAll("li.lzl_single_post");
+          if (!lzlPostList.length) {
+            return "暂无更多回复";
+          }
+          let result = {
+            data: [],
+          };
+          lzlPostList.forEach((item) => {
+            let dataFieldJSON = utils.toJSON(item.getAttribute("data-field"));
+            let userName = dataFieldJSON["showname"];
+            let userPostId = dataFieldJSON["spid"];
+            let userPortrait = dataFieldJSON["portrait"];
+            let userHomeUrl = item.querySelector("a[data-field]").href;
+            let userAvatar = item.querySelector("a[data-field] img").src;
+            let userReplyContent = item.querySelector(
+              "span.lzl_content_main"
+            ).innerHTML;
+            let userReplyTime = item.querySelector("span.lzl_time").innerHTML;
+            userReplyTime = utils.formatToTimeStamp(userReplyTime);
+            userReplyTime =
+              utils.getDaysDifference(
+                new Date().getTime(),
+                userReplyTime,
+                "auto"
+              ) + "前";
+            result["data"].push({
+              userName: userName,
+              userPostId: userPostId,
+              userPortrait: userPortrait,
+              userHomeUrl: userHomeUrl,
+              userAvatar: userAvatar,
+              userReplyContent: userReplyContent,
+              userReplyTime: userReplyTime,
+            });
+          });
+          parseDOM.querySelectorAll("p.j_pager a").forEach((item) => {
+            if (item.textContent.trim() === "下一页") {
+              result["nextPage"] = parseInt(
+                item.getAttribute("href").replace("#", "")
+              );
+            }
+          });
+          if (!result["data"].length) {
+            return "解析回复失败";
+          } else {
+            return result;
           }
         },
         /**
@@ -3783,6 +4385,7 @@
           });
           utils.waitNode(".recommend-item[data-banner-info]").then(() => {
             DOMUtils.remove(".post-item");
+            tiebaCommentConfig.initReplyDialog();
             tiebaCommentConfig.mainPositive();
             tiebaCommentConfig.insertReverseBtn();
             tiebaCommentConfig.insertOnlyLZ();
@@ -3873,7 +4476,8 @@
           transform-origin: 0 0;
           pointer-events: none;
       }
-      .user-line .user-info .username[data-v-188c0e84] {
+      .user-line .user-info .username[data-v-188c0e84],
+      #whitesev-reply-dialog .whitesev-reply-dialog-user-username {
           display: -webkit-box;
           display: -webkit-flex;
           display: -ms-flexbox;
@@ -3979,10 +4583,15 @@
           height: .28rem;
           margin-left: .04rem;
       }
-      .user-line .user-info .username .landlord[data-v-188c0e84] {
+      .user-line .user-info .username .landlord[data-v-188c0e84],
+      #whitesev-reply-dialog .landlord[data-v-188c0e84]{
           width: .28rem;
           height: .28rem;
           margin-left: .04rem
+      }
+      /* 修改@的颜色 */
+      .text-content .at{
+        color: #614FBC !important;
       }
       `);
           GM_addStyle(
@@ -4049,7 +4658,9 @@
           ) {
             return;
           }
-          if (imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+          if (
+            imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)
+          ) {
             log.info(`点击图片👇`);
             log.info(clickElement);
             if (clickElement.parentElement.className === "img-box") {
