@@ -23,6 +23,29 @@
    * @type {string} 元素工具类的版本
    */
   DOMUtils.version = "2023-9-13";
+
+  let globalUtils = {
+    /**
+     * 用于显示元素并获取它的高度宽度等其它属性
+     * @param {Element} element
+     * @returns {{recovery: Function}} - 恢复
+     */
+    showElement: function (element) {
+      let oldCSS_display = element.style.display;
+      let oldCSS_visibility = element.style.visibility;
+      let oldCSS_position = element.style.position;
+      element.style.display = "block";
+      element.style.visibility = "hidden";
+      element.style.position = "absolute";
+      return {
+        recovery() {
+          element.style.display = oldCSS_display;
+          element.style.visibility = oldCSS_visibility;
+          element.style.position = oldCSS_position;
+        },
+      };
+    },
+  };
   /**
    * 获取或设置元素的属性值
    * @param {HTMLElement|string} element 目标元素
@@ -886,12 +909,7 @@
         element.documentElement.clientWidth
       );
     }
-    let oldCSS_display = element.style.display;
-    let oldCSS_visibility = element.style.visibility;
-    let oldCSS_position = element.style.position;
-    element.style.display = "block";
-    element.style.visibility = "hidden";
-    element.style.position = "absolute";
+    let handleElement = globalUtils.showElement(element);
     let view = element.ownerDocument.defaultView;
     if (!view || !view.opener) {
       view = window;
@@ -907,9 +925,7 @@
     }
     let elementWidth =
       element.clientWidth - elementPaddingLeft - elementPaddingRight;
-    element.style.display = oldCSS_display;
-    element.style.visibility = oldCSS_visibility;
-    element.style.position = oldCSS_position;
+    handleElement.recovery();
     return elementWidth;
   };
   /**
@@ -949,12 +965,7 @@
         element.documentElement.clientHeight
       );
     }
-    let oldCSS_display = element.style.display;
-    let oldCSS_visibility = element.style.visibility;
-    let oldCSS_position = element.style.position;
-    element.style.display = "block";
-    element.style.visibility = "hidden";
-    element.style.position = "absolute";
+    let handleElement = globalUtils.showElement(element);
     let view = element.ownerDocument.defaultView;
     if (!view || !view.opener) {
       view = window;
@@ -970,9 +981,7 @@
     }
     let elementHeight =
       element.clientHeight - elementPaddingTop - elementPaddingBottom;
-    element.style.display = oldCSS_display;
-    element.style.visibility = oldCSS_visibility;
-    element.style.position = oldCSS_position;
+    handleElement.recovery();
     return elementHeight;
   };
   /**
@@ -998,6 +1007,7 @@
     if (element == null) {
       return;
     }
+    let handleElement = globalUtils.showElement(element);
     let style = getComputedStyle(element, null);
     let elementMarginLeft = parseFloat(style.marginLeft);
     let elementMarginRight = parseFloat(style.marginRight);
@@ -1007,6 +1017,7 @@
     if (isNaN(elementMarginRight)) {
       elementMarginRight = 0;
     }
+    handleElement.recovery();
     return element.offsetWidth + elementMarginLeft + elementMarginRight;
   };
   /**
@@ -1032,6 +1043,7 @@
     if (element == null) {
       return;
     }
+    let handleElement = globalUtils.showElement(element);
     let style = getComputedStyle(element, null);
     let elementMarginTop = parseFloat(style.marginTop);
     let elementMarginBottom = parseFloat(style.marginBottom);
@@ -1041,6 +1053,7 @@
     if (isNaN(elementMarginBottom)) {
       elementMarginBottom = 0;
     }
+    handleElement.recovery();
     return element.offsetHeight + elementMarginTop + elementMarginBottom;
   };
 
