@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.2
+// @version      1.5.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -4418,14 +4418,12 @@
             let getResp = await httpx.get({
               url: url,
               headers: {
-                "Accept-Encoding": "gzip, deflate, br",
-                "Accept-Language":
-                  "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
                 Referer: window.location.href,
                 Host: "tieba.baidu.com",
                 Accept:
                   "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
               },
+              responseType: "html",
             });
             if (!getResp.status) {
               if (getResp.data.responseText === "") {
