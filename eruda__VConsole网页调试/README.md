@@ -1,8 +1,9 @@
 ### 选择调试工具
 
 支持油猴的浏览器的菜单中进行切换工具
+代码中的压缩的代码是`erdua`和`VConsole`压缩后格式化的，只修改了注册全局变量的方式。
 
-### Erdua
+### erdua
 
 - [![npm version](https://img.shields.io/npm/v/eruda?style=flat-square)](https://www.npmjs.com/package/erdua)
 - 项目主页
