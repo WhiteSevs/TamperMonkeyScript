@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-10";
+  DOMUtils.version = "2023-9-13";
   /**
    * 获取或设置元素的属性值
    * @param {HTMLElement|string} element 目标元素
@@ -77,7 +77,7 @@
       return tempElement;
     }
     Object.keys(property).forEach((key) => {
-      if (key in tempElement && typeof property[key] !== "object") {
+      if (key in tempElement || typeof property[key] === "object") {
         tempElement[key] = property[key];
       } else {
         tempElement.setAttribute(key, property[key]);
@@ -676,52 +676,46 @@
       callback = selector;
       selector = null;
     }
-    eventTypeList.forEach((_eventType_) => {
+    let originCallBack = callback;
+    let ownCallBack = function (event) {
       if (selector) {
-        element.addEventListener(
-          _eventType_,
-          function (event) {
-            let target = event.target;
-            let totalParent =
-              element == window ? document.documentElement : element;
-            if (target.matches(selector)) {
-              /* 当前目标可以被selector所匹配到 */
-              callback.call(target, event);
-              return;
-            } else if (
-              target.closest(selector) &&
-              totalParent.contains(target.closest(selector))
-            ) {
-              /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-              let closestElement = target.closest(selector);
-              /* event的target值不能直接修改 */
-              Object.defineProperty(event, "target", {
-                get: function () {
-                  return closestElement;
-                },
-              });
-              callback.call(closestElement, event);
-              return;
-            }
-          },
-          capture,
-          once,
-          passive
-        );
+        let target = event.target;
+        let totalParent =
+          element == window ? document.documentElement : element;
+        if (target.matches(selector)) {
+          /* 当前目标可以被selector所匹配到 */
+          originCallBack.call(target, event);
+          return;
+        } else if (
+          target.closest(selector) &&
+          totalParent.contains(target.closest(selector))
+        ) {
+          /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+          let closestElement = target.closest(selector);
+          /* event的target值不能直接修改 */
+          Object.defineProperty(event, "target", {
+            get: function () {
+              return closestElement;
+            },
+          });
+          originCallBack.call(closestElement, event);
+          return;
+        }
       } else {
-        element.addEventListener(
-          _eventType_,
-          function (event) {
-            callback.call(event.target, event);
-          },
-          capture,
-          once,
-          passive
-        );
+        originCallBack.call(event.target, event);
       }
+    };
+    eventTypeList.forEach((_eventType_) => {
+      element.addEventListener(
+        _eventType_,
+        ownCallBack,
+        capture,
+        once,
+        passive
+      );
     });
 
-    if (callback && callback.delegate) {
+    if (originCallBack && originCallBack.delegate) {
       element.setAttribute("data-delegate", selector);
     }
 
@@ -729,7 +723,7 @@
     events[eventType] = events[eventType] || [];
     events[eventType].push({
       selector: selector,
-      callback: callback,
+      callback: ownCallBack,
     });
     element.events = events;
   };
@@ -903,10 +897,16 @@
       view = window;
     }
     let styles = view.getComputedStyle(element);
+    let elementPaddingLeft = parseFloat(styles.paddingLeft);
+    let elementPaddingRight = parseFloat(styles.paddingRight);
+    if (isNaN(elementPaddingLeft)) {
+      elementPaddingLeft = 0;
+    }
+    if (isNaN(elementPaddingRight)) {
+      elementPaddingRight = 0;
+    }
     let elementWidth =
-      element.clientWidth -
-      parseFloat(styles.paddingLeft) -
-      parseFloat(styles.paddingRight);
+      element.clientWidth - elementPaddingLeft - elementPaddingRight;
     element.style.display = oldCSS_display;
     element.style.visibility = oldCSS_visibility;
     element.style.position = oldCSS_position;
@@ -960,10 +960,16 @@
       view = window;
     }
     let styles = view.getComputedStyle(element);
+    let elementPaddingTop = parseFloat(styles.paddingTop);
+    let elementPaddingBottom = parseFloat(styles.paddingBottom);
+    if (isNaN(elementPaddingTop)) {
+      elementPaddingTop = 0;
+    }
+    if (isNaN(elementPaddingBottom)) {
+      elementPaddingBottom = 0;
+    }
     let elementHeight =
-      element.clientHeight -
-      parseFloat(styles.paddingTop) -
-      parseFloat(styles.paddingBottom);
+      element.clientHeight - elementPaddingTop - elementPaddingBottom;
     element.style.display = oldCSS_display;
     element.style.visibility = oldCSS_visibility;
     element.style.position = oldCSS_position;
@@ -993,11 +999,15 @@
       return;
     }
     let style = getComputedStyle(element, null);
-    return (
-      element.offsetWidth +
-      parseFloat(style.marginLeft) +
-      parseFloat(style.marginRight)
-    );
+    let elementMarginLeft = parseFloat(style.marginLeft);
+    let elementMarginRight = parseFloat(style.marginRight);
+    if (isNaN(elementMarginLeft)) {
+      elementMarginLeft = 0;
+    }
+    if (isNaN(elementMarginRight)) {
+      elementMarginRight = 0;
+    }
+    return element.offsetWidth + elementMarginLeft + elementMarginRight;
   };
   /**
    * 获取元素的外部高度（包括边框和外边距）
@@ -1023,11 +1033,15 @@
       return;
     }
     let style = getComputedStyle(element, null);
-    return (
-      element.offsetHeight +
-      parseFloat(style.marginTop) +
-      parseFloat(style.marginBottom)
-    );
+    let elementMarginTop = parseFloat(style.marginTop);
+    let elementMarginBottom = parseFloat(style.marginBottom);
+    if (isNaN(elementMarginTop)) {
+      elementMarginTop = 0;
+    }
+    if (isNaN(elementMarginBottom)) {
+      elementMarginBottom = 0;
+    }
+    return element.offsetHeight + elementMarginTop + elementMarginBottom;
   };
 
   /**
