@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.4
+// @version      1.5.4.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,7 +45,7 @@
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249715
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249783
 // @run-at       document-start
 // ==/UserScript==
 (function () {
@@ -3458,9 +3458,11 @@
               newCommentDOM
             );
           } else {
-            document
-              .querySelector(".pb-page-wrapper")
-              .appendChild(newCommentDOM); /* 老版帖子 */
+            /* 老版帖子 */
+            DOMUtils.append(
+              document.querySelector(".pb-page-wrapper"),
+              newCommentDOM
+            );
           }
           /* 如果评论存在不可见的，添加一个 查看全部xx条回复 */
           let lzlPostElement =
@@ -3472,7 +3474,7 @@
             let currentLzlPostElementHeight = 0;
             let addSeeAllReply = false;
             for (const lzlPostItem of lzlPostItemList) {
-              currentLzlPostElementHeight += DOMUtils.height(lzlPostItem);
+              currentLzlPostElementHeight += DOMUtils.outerHeight(lzlPostItem);
               if (currentLzlPostElementHeight > lzlPostElementHeight) {
                 addSeeAllReply = true;
                 break;
@@ -3695,6 +3697,7 @@
           /* 查看全部xx条回复 */
           .whitesev-see-all-reply{
             padding-top: 10px;
+            padding-left: 10px;
           }
           `);
         },
