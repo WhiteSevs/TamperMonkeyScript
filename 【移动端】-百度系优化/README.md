@@ -48,6 +48,10 @@
 
 ![https://picshack.net/ib/FUFzuk8nt5.gif](https://picshack.net/ib/FUFzuk8nt5.gif)
 
+### 2. 点击楼中楼回复区域可查看更多回复
+
+![https://picshack.net/ib/vlaPTLvwGs.gif](https://picshack.net/ib/vlaPTLvwGs.gif)
+
 ## 🎃 百度识图
 
 1. 修复[百度识图](https://graph.baidu.com/view/home)的`识图一下`点击会跳转到让下载百度APP的问题，可直接上传图片，原理：调用PC端的上传接口。
