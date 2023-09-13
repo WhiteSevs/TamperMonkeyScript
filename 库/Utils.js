@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-10 13:20:00";
+  Utils.version = "2023-9-13";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -681,9 +681,9 @@
 
   /**
    * 获取天数差异，如何获取某个时间与另一个时间相差的天数
-   * @param {number} timestamp1 时间戳(毫秒|秒)
-   * @param {number} timestamp2 时间戳(毫秒|秒)
-   * @param {string} type 返回的数字的表达的类型，比如：年、月、天、时、分、秒，默认天
+   * @param {number} timestamp1 时间戳(毫秒|秒)，不区分哪个更大
+   * @param {number} timestamp2 时间戳(毫秒|秒)，不区分哪个更大
+   * @param {string} type 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
    * @returns {number}
    * @example
    * Utils.getDaysDifference(new Date().getTime());
@@ -731,6 +731,33 @@
     let diffValue = Math.round(
       Math.abs((bigDate - smallDate) / remainderValue)
     );
+    if (type === "auto") {
+      let timeDifference = bigTimeStamp - smallTimeStamp;
+      diffValue = Math.floor(timeDifference / (24 * 3600 * 1000));
+      if (diffValue > 0) {
+        diffValue = diffValue + "天";
+      } else {
+        /* 计算出小时数 */
+        let leave1 =
+          timeDifference % (24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
+        let hours = Math.floor(leave1 / (3600 * 1000));
+        if (hours > 0) {
+          diffValue = hours + "小时";
+        } else {
+          /* 计算相差分钟数 */
+          let leave2 = leave1 % (3600 * 1000); /* 计算小时数后剩余的毫秒数 */
+          let minutes = Math.floor(leave2 / (60 * 1000));
+          if (minutes > 0) {
+            diffValue = minutes + "分钟";
+          } else {
+            /* 计算相差秒数 */
+            let leave3 = leave2 % (60 * 1000); /* 计算分钟数后剩余的毫秒数 */
+            let seconds = Math.round(leave3 / 1000);
+            diffValue = seconds + "秒";
+          }
+        }
+      }
+    }
     return diffValue;
   };
 
