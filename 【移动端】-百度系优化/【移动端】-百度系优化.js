@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.4.1
+// @version      1.5.4.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -3870,6 +3870,18 @@
               dialog.querySelector(".whitesev-reply-dialog-close").click();
             }
           );
+          /* 去除楼中楼回复@的超链接错误跳转 */
+          dialog
+            .querySelectorAll(".whitesev-reply-dialog-user-comment a[portrait]")
+            .forEach((item) => {
+              item.setAttribute(
+                "href",
+                "/home/main?id=" + item.getAttribute("portrait")
+              );
+              item.removeAttribute("onclick");
+              item.removeAttribute("onmouseover");
+              item.removeAttribute("onmouseout");
+            });
           const lzlLoadingView = new LoadingView();
           /* 初始页数为2 */
           let lzlPage = 2;
@@ -3944,11 +3956,26 @@
                 );
               }
             });
+            /* 去除楼中楼回复@的超链接错误跳转 */
+            scrollElement
+              .querySelectorAll(
+                ".whitesev-reply-dialog-user-comment a[portrait]"
+              )
+              .forEach((item) => {
+                item.setAttribute(
+                  "href",
+                  "/home/main?id=" + item.getAttribute("portrait")
+                );
+                item.removeAttribute("onclick");
+                item.removeAttribute("onmouseover");
+                item.removeAttribute("onmouseout");
+              });
           };
           let lzlScrollEventLock = new utils.LockFunction(
             lzlReplyCommentScrollEvent,
             this
           );
+          /* 监听楼中楼内滚动 */
           DOMUtils.on(
             dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
             "scroll",
@@ -3957,6 +3984,7 @@
           log.success("绑定楼中楼scroll监听事件【下一页】");
           document.documentElement.style.overflowY = "hidden";
           log.success("锁定全局滚动");
+          /* 插入楼中楼弹窗 */
           document.body.appendChild(dialog);
           lzlLoadingView.setLoadingViewElement(
             lzlLoadingView.getParseLoadingNode(false)
