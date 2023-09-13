@@ -2,7 +2,7 @@
 // @name         eruda__VConsole网页调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475228-eruda-vconsole%E7%BD%91%E9%A1%B5%E8%B0%83%E8%AF%95
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475228-eruda-vconsole%E7%BD%91%E9%A1%B5%E8%B0%83%E8%AF%95/feedback
-// @version      2023.9.13
+// @version      2023.9.13.1
 // @author       WhiteSevs
 // @description  自行选择是eruda或者VConsole进行网页调试
 // @license      MIT
@@ -24,11 +24,17 @@
   const WINDOW_DEBUG_Eruda = "WhiteSev_Debug_eruda";
   const WINDOW_DEBUG_VConsole = "WhiteSev_Debug_VConsole";
   let currentWin = this || self;
-  Object.defineProperty(window, "window", {
-    get() {
-      return currentWin;
-    },
-  });
+  try {
+    /* 应对在TamperMonkey环境中 */
+    Object.defineProperty(window, "window", {
+      get() {
+        return currentWin;
+      },
+    });
+  } catch (error) {
+    console.error("当前可能不在TamperMonkey环境中")
+  }
+  
   /**
    * 初始化Eruda
    */
