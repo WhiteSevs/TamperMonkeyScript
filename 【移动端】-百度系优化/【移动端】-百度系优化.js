@@ -4049,7 +4049,7 @@
           ) {
             return;
           }
-          if (imgSrc?.match(/^http(s|):\/\/tiebapic.baidu.com\/forum/g)) {
+          if (imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
             log.info(`点击图片👇`);
             log.info(clickElement);
             if (clickElement.parentElement.className === "img-box") {
