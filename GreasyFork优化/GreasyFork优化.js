@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         GreasyFork优化
-// @version      1.7
+// @version      1.8
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -517,6 +517,12 @@
       DOMUtils.on(document, "click", "img", function (event) {
         let clickElement = event.target;
         if (clickElement?.parentElement?.localName === "a") {
+          return;
+        }
+        if (
+          clickElement?.parentElement?.className === "viewer-canvas" ||
+          clickElement?.parentElement?.hasAttribute("data-viewer-action")
+        ) {
           return;
         }
         let imgSrc =
