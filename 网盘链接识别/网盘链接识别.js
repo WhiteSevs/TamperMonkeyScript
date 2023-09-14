@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.13.17.30
+// @version      23.9.14.10.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -693,7 +693,7 @@
         (shareCodeMatch != null && shareCodeMatch.length === 0)
       ) {
         log.error(`根据链接获取shareCode失败`);
-        log.error([arguments, netDiskMatchRegular.shareCode]);
+        log.error([[...arguments], netDiskMatchRegular.shareCode]);
         return "";
       }
 
@@ -2911,7 +2911,22 @@
                   resultJSON["data"]["firstFolder"]["updated_at"]
                 ),
               };
-            } else {
+            } else if(resultJSON["data"]["firstFile"] == null){
+              /* 文件夹类型 */
+              Qmsg.error("该链接为文件夹类型");
+              NetDiskParse.blank(
+                NetDiskParse.getBlankUrl(
+                  "nainiu",
+                  that.netDiskIndex,
+                  that.shareCode,
+                  that.accessCode
+                ),
+                "nainiu",
+                that.shareCode,
+                that.accessCode
+              );
+              return false;
+            } {
               return {
                 zipDownload: zipDownload,
                 guid: resultJSON["data"]["guid"],
@@ -3066,7 +3081,7 @@
       if (accessCode) {
         NetDiskParse.setClipboard(netDiskName, shareCode, accessCode);
       }
-      log.success(["新标签页打开", arguments]);
+      log.success(["新标签页打开", [...arguments]]);
       document
         .querySelector("meta[name='referrer']")
         ?.setAttribute(
