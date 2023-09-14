@@ -2,7 +2,7 @@
 // @name            eruda_VConsole_网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://greasyfork.org/zh-CN/scripts/475228/feedback
-// @version         2023.9.13.1
+// @version         2023.9.14
 // @author          WhiteSevs
 // @description     自行选择是eruda或者VConsole进行网页调试
 // @license         MIT
@@ -43206,7 +43206,7 @@
   let GM_Menu = new utils.GM_Menu(
     {
       currentDebug: {
-        text: "⚙ 当前调试工具",
+        text: "⚙ 切换调试工具",
         enable: true,
         showText(_text_, _enable_) {
           return `${_text_}【${_enable_ ? "eruda" : "VConsole"}】`;
@@ -43223,23 +43223,23 @@
     GM_unregisterMenuCommand
   );
   if (GM_Menu.get("currentDebug")) {
-    console.log("当前调用工具 ===> eruda");
+    console.log("当前调试工具 ===> eruda");
     initEruda();
-    let erdua = currentWin[WINDOW_DEBUG_Eruda];
-    if (!erdua) {
-      alert("调试工具【erdua】注册全局失败，请反馈开发者");
+    let eruda = currentWin[WINDOW_DEBUG_Eruda];
+    if (!eruda) {
+      alert("调试工具【eruda】注册全局失败，请反馈开发者");
       return;
     }
-    erdua.init();
+    eruda.init();
     GM_Menu.add({
-      erdua_version: {
+      eruda_version: {
         text: "版本",
         enable: false,
         showText(text, enable) {
-          return `${text}：${erdua.version}`;
+          return `${text}：${eruda.version}`;
         },
       },
-      goto_erdua_home_url: {
+      goto_eruda_home_url: {
         text: "⚙ 前往项目地址",
         enable: false,
         callback() {
@@ -43248,7 +43248,7 @@
       },
     });
   } else {
-    console.log("当前调用工具 ===> VConsole");
+    console.log("当前调试工具 ===> VConsole");
     initVConsole();
     let vConsole = currentWin[WINDOW_DEBUG_VConsole];
     if (!vConsole) {
