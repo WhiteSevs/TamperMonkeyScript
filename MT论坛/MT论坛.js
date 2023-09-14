@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 更新WhiteSevsUtils库至2023-9-13版本;
-// @version      3.1.7.4
+// @description  更新日志: 新增对签到失败的另一种情况进行Toast提示;
+// @version      3.1.7.5
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -3763,6 +3763,13 @@
                 });
                 return;
               }
+              if(response.responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")){
+                popups.toast({
+                  text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
+                  delayTime: 6000,
+                });
+                return;
+              };
               popups.confirm({
                 title: "签到的响应内容",
                 text: response.responseText || response?.firstChild?.innerHTML,
@@ -3796,6 +3803,13 @@
                 });
                 return;
               }
+              if(response.responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")){
+                popups.toast({
+                  text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
+                  delayTime: 6000,
+                });
+                return;
+              };
               let signIn_con = CDATAElement.find(".con"); /* 签到奖励 */
               let signIn_line = CDATAElement.find(".line"); /* 签到排名 */
               if (signIn_con.length && signIn_line.length) {
