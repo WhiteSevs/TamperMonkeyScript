@@ -1,19 +1,19 @@
 // ==UserScript==
-// @name         eruda__VConsole网页调试
-// @namespace    https://greasyfork.org/zh-CN/scripts/475228-eruda-vconsole%E7%BD%91%E9%A1%B5%E8%B0%83%E8%AF%95
-// @supportURL   https://greasyfork.org/zh-CN/scripts/475228-eruda-vconsole%E7%BD%91%E9%A1%B5%E8%B0%83%E8%AF%95/feedback
-// @version      2023.9.13.1
-// @author       WhiteSevs
-// @description  自行选择是eruda或者VConsole进行网页调试
-// @license      MIT
-// @match        *://*/*
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714
-// @run-at       document-start
-// @grant        GM_registerMenuCommand
-// @grant        GM_unregisterMenuCommand
-// @grant        GM_getValue
-// @grant        GM_setValue
-// @grant        GM_deleteValue
+// @name            eruda_VConsole_网页调试
+// @namespace       https://greasyfork.org/zh-CN/scripts/475228
+// @supportURL      https://greasyfork.org/zh-CN/scripts/475228/feedback
+// @version         2023.9.13.1
+// @author          WhiteSevs
+// @description     自行选择是eruda或者VConsole进行网页调试
+// @license         MIT
+// @match           *://*/*
+// @run-at          document-start
+// @grant           GM_registerMenuCommand
+// @grant           GM_unregisterMenuCommand
+// @grant           GM_getValue
+// @grant           GM_setValue
+// @grant           GM_deleteValue
+// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714
 // ==/UserScript==
 
 (function () {
