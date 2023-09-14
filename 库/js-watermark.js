@@ -7,9 +7,23 @@
  * @description JavaScript 图片文字水印、图片图片水印生成工具，生成 base64 编码图片。
  */
 
-let Watermark = function () {};
-(function (Watermark) {
+(function (global, factory) {
+  /**
+   * 不使用define
+   * typeof define === "function" && define.amd
+   * define(factory)
+   */
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    /* 适用于NodeJs或typeScript */
+    module.exports = factory();
+  } else {
+    global = typeof globalThis !== "undefined" ? globalThis : global || self;
+    /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
+    global.Watermark = factory(global.Watermark);
+  }
+})(typeof window !== "undefined" ? window : this, function (AnotherWatermark) {
   "use strict";
+  let Watermark = function () {};
   /**
    * @author zhangxinxu(.com)
    * @licence MIT
@@ -233,10 +247,10 @@ let Watermark = function () {};
 
   /* 通过 file 对象载入图片文件-异步 */
   Watermark.prototype.setFile = function (file) {
-    let self = this;
+    let that = this;
     return new Promise(async (res) => {
       var fileReader = await loadFile(file);
-      await self.setImage(fileReader.target.result);
+      await that.setImage(fileReader.target.result);
       res(true);
     });
   };
@@ -244,23 +258,23 @@ let Watermark = function () {};
   /* 通过 base64 载入图片文件-异步 */
   Watermark.prototype.setImage = function (src) {
     this.dataUrl = src;
-    let self = this;
+    let that = this;
     return new Promise(async (res) => {
       var image = await loadImage(src);
-      self.sizes = {
+      that.sizes = {
         width: image.width,
         height: image.height,
       };
 
       var canvas = document.createElement("canvas");
 
-      canvas.width = self.sizes.width;
-      canvas.height = self.sizes.height;
+      canvas.width = that.sizes.width;
+      canvas.height = that.sizes.height;
       var ctx = canvas.getContext("2d");
 
       ctx.drawImage(image, 0, 0);
       image = null;
-      self.canvas = canvas;
+      that.canvas = canvas;
       res(true);
     });
   };
@@ -277,24 +291,24 @@ let Watermark = function () {};
 
   /* 清空水印 */
   Watermark.prototype.clearMark = function () {
-    let self = this;
-    if (typeof self.canvas === "undefined") {
+    let that = this;
+    if (typeof that.canvas === "undefined") {
       return;
     }
 
     function _clearMark_() {
-      var ctx = self.canvas.getContext("2d");
+      var ctx = that.canvas.getContext("2d");
       /* 清空画布 */
-      ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
-      var w = self.canvas.width;
-      var h = self.canvas.height;
-      self.canvas.width = w;
-      self.canvas.height = h;
+      ctx.clearRect(0, 0, that.canvas.width, that.canvas.height);
+      var w = that.canvas.width;
+      var h = that.canvas.height;
+      that.canvas.width = w;
+      that.canvas.height = h;
       /* 清除path路径 */
       ctx.beginPath();
       /* 重绘 */
       var image = new Image();
-      image.src = self.dataUrl;
+      image.src = that.dataUrl;
       ctx.drawImage(image, 0, 0);
       image = null;
     }
@@ -698,11 +712,26 @@ let Watermark = function () {};
 
   /* 绘制图片Blob Url-异步 */
   Watermark.prototype.renderBlob = function () {
-    let self = this;
+    let that = this;
     return new Promise((res) => {
-      self.canvas.toBlob(function (blob) {
+      that.canvas.toBlob(function (blob) {
         res(window.URL.createObjectURL(blob));
       });
     });
   };
-})(Watermark);
+
+  /**
+   * 释放控制权
+   * @returns {Watermark}
+   */
+  Watermark.prototype.noConflict = function () {
+    if (window.Watermark) {
+      delete window.Watermark;
+    }
+    if (AnotherWatermark) {
+      window.Watermark = AnotherWatermark;
+    }
+    return Watermark;
+  };
+  return Watermark;
+});
