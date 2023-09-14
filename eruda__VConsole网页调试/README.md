@@ -5,7 +5,8 @@
 
 ### erdua
 
-- [![npm version](https://img.shields.io/npm/v/eruda?style=flat-square)](https://www.npmjs.com/package/erdua)
+- 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg)](https://www.npmjs.com/package/erdua)
+- 当前版本：`3.0.1`
 - 项目主页
 [https://github.com/liriliri/eruda](https://github.com/liriliri/eruda)
 - 项目最新地址
@@ -13,7 +14,8 @@
 
 ### VConsole
 
-- [![npm version](https://img.shields.io/npm/v/vconsole/latest.svg)](https://www.npmjs.com/package/vconsole)
+- 最新版本：[![npm version](https://img.shields.io/npm/v/vconsole/latest.svg)](https://www.npmjs.com/package/vconsole)
+- 当前版本：`3.15.1`
 - 项目主页
 [https://github.com/Tencent/vConsole](https://github.com/Tencent/vConsole)
 - 项目最新地址
