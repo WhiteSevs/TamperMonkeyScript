@@ -32,9 +32,9 @@
       },
     });
   } catch (error) {
-    console.error("当前可能不在TamperMonkey环境中")
+    console.error("当前可能不在TamperMonkey环境中");
   }
-  
+
   /**
    * 初始化Eruda
    */
@@ -43292,7 +43292,7 @@
         },
         callback() {
           let userSet_vConsole_maxLogNumber =
-          prompt("请输入日志上限数量，默认：1000");
+            prompt("请输入日志上限数量，默认：1000");
           userSet_vConsole_maxLogNumber = parseInt(
             userSet_vConsole_maxLogNumber
           );
