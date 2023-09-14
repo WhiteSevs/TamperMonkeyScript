@@ -3763,13 +3763,17 @@
                 });
                 return;
               }
-              if(response.responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")){
+              if (
+                response.responseText.includes(
+                  "您当前的访问请求当中含有非法字符，已经被系统拒绝"
+                )
+              ) {
                 popups.toast({
                   text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
                   delayTime: 6000,
                 });
                 return;
-              };
+              }
               popups.confirm({
                 title: "签到的响应内容",
                 text: response.responseText || response?.firstChild?.innerHTML,
@@ -3803,13 +3807,17 @@
                 });
                 return;
               }
-              if(response.responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")){
+              if (
+                response.responseText.includes(
+                  "您当前的访问请求当中含有非法字符，已经被系统拒绝"
+                )
+              ) {
                 popups.toast({
                   text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
                   delayTime: 6000,
                 });
                 return;
-              };
+              }
               let signIn_con = CDATAElement.find(".con"); /* 签到奖励 */
               let signIn_line = CDATAElement.find(".line"); /* 签到排名 */
               if (signIn_con.length && signIn_line.length) {
