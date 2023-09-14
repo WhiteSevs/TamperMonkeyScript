@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.4.2
+// @version      1.5.4.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -3294,9 +3294,13 @@
             }
           }
           let userAvatarObj = new URL(userAvatar);
-          let userPortrait = userAvatarObj.pathname.match(/\/item\/(.+)/i);
-          if (userPortrait) {
-            userPortrait = userPortrait[1];
+          let userPortrait = data_field["author"]["portrait"];
+          if (!userPortrait) {
+            let userAvatarObjMatch =
+              userAvatarObj.pathname.match(/\/item\/(.+)/i);
+            if (userAvatarObjMatch) {
+              userPortrait = userAvatarObjMatch[1];
+            }
           }
           let post_id = data_field["content"]["post_id"];
           let newUserCommentHTML = "";
@@ -3748,7 +3752,12 @@
             if (item["location"] && item["location"]["name"]) {
               itemUserCommentIp = item["location"]["name"];
             }
+            if (userAvatarHostName === "imgsa.baidu.com") {
+              userAvatarHostName = "gss0.bdstatic.com";
+              userAvatarPath = "6LZ1dD3d1sgCo2Kml5_Y_D3";
+            }
             let itemUserAvatar = `https://${userAvatarHostName}/${userAvatarPath}/sys/portrait/item/${userPortrait}`;
+
             otherCommentsHTML += `
             <div class="whitesev-reply-dialog-sheet-other-content-item">
               <div class="whitesev-reply-dialog-user-line" data-portrait="${userPortrait}">
