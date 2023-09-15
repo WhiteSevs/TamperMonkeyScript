@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-13";
+  DOMUtils.version = "2023-9-15";
 
   let globalUtils = {
     /**
@@ -704,7 +704,9 @@
       if (selector) {
         let target = event.target;
         let totalParent =
-          element == window ? document.documentElement : element;
+          element == window || element?.window == window
+            ? document.documentElement
+            : element;
         if (target.matches(selector)) {
           /* 当前目标可以被selector所匹配到 */
           originCallBack.call(target, event);
@@ -890,7 +892,7 @@
    * DOMUtils.width("a.xx",200)
    */
   DOMUtils.width = function (element) {
-    if (element == window) {
+    if (element == window || element?.window == window) {
       return window.document.documentElement.clientWidth;
     }
     if (typeof element === "string") {
@@ -946,7 +948,7 @@
    * DOMUtils.height("a.xx",200)
    */
   DOMUtils.height = function (element) {
-    if (element == window) {
+    if (element == window || element?.window == window) {
       return window.document.documentElement.clientHeight;
     }
     if (typeof element === "string") {
@@ -998,7 +1000,7 @@
    * > 400
    */
   DOMUtils.outerWidth = function (element) {
-    if (element == window) {
+    if (element == window || element?.window == window) {
       return window.innerWidth;
     }
     if (typeof element === "string") {
@@ -1034,7 +1036,7 @@
    * > 700
    */
   DOMUtils.outerHeight = function (element) {
-    if (element == window) {
+    if (element == window || element?.window == window) {
       return window.innerHeight;
     }
     if (typeof element === "string") {
