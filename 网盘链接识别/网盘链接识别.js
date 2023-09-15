@@ -58,7 +58,7 @@
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1249088
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1250551
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249783
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1250648
 // ==/UserScript==
 
 (function () {
