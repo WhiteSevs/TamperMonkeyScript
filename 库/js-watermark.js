@@ -23,6 +23,9 @@
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherWatermark) {
   "use strict";
+  /**
+   * @class
+   */
   let Watermark = function () {};
   /**
    * @author zhangxinxu(.com)
@@ -187,7 +190,12 @@
     context.textBaseline = baseline;
   };
 
-  /* 加载file对象 */
+  /**
+   * 加载File对象
+   *
+   * @param {object} file
+   * @async
+   */
   function loadFile(file) {
     let fileReader = new FileReader();
     return new Promise((res) => {
@@ -197,7 +205,13 @@
       fileReader.readAsDataURL(file);
     });
   }
-  /* 加载Image对象 */
+
+  /**
+   * 加载Image对象
+   *
+   * @param {?string} src
+   * @async
+   */
   function loadImage(src) {
     let image = new Image();
 
@@ -208,7 +222,13 @@
       image.src = src;
     });
   }
-  /* 检查坐标是否重复 */
+  /**
+   * 检查坐标是否重复
+   * @param {Array} arrayData
+   * @param {number} x
+   * @param {number} y
+   * @returns {boolean}
+   */
   function checkInArrayByPos(arrayData, x, y) {
     let flag = false;
     Array.from(arrayData).forEach((item) => {
@@ -219,7 +239,12 @@
     });
     return flag;
   }
-  /* 获取文字占据的宽度，高度 */
+  /**
+   * 获取文字占据的宽度，高度
+   * @param {string} char
+   * @param {object} style
+   * @returns {{height:Number,width:Number}}
+   */
   function getCharSizeByCanvas(char, style = {}) {
     let textCanvas = document.createElement("canvas");
     textCanvas.style.positon = "ablsolute";
@@ -236,7 +261,10 @@
     };
     return result;
   }
-  /* 获取随机值 */
+  /**
+   * 获取随机值
+   * @param {Array} arr
+   */
   function getRandValue(arr) {
     if (arr instanceof Array) {
       return arr[Math.floor(Math.random() * arr.length)];
@@ -244,8 +272,11 @@
       return arr;
     }
   }
-
-  /* 通过 file 对象载入图片文件-异步 */
+  /**
+   * 通过 file 对象载入图片文件-异步
+   * @async
+   * @param {object} file
+   */
   Watermark.prototype.setFile = function (file) {
     let that = this;
     return new Promise(async (res) => {
@@ -254,8 +285,11 @@
       res(true);
     });
   };
-
-  /* 通过 base64 载入图片文件-异步 */
+  /**
+   * 通过 base64 载入图片文件-异步
+   * @param {string} src
+   * @async
+   */
   Watermark.prototype.setImage = function (src) {
     this.dataUrl = src;
     let that = this;
@@ -279,17 +313,25 @@
     });
   };
 
-  /* 获取是否存在图片对象 */
+  /**
+   * 获取是否存在图片对象
+   * @returns {boolean}
+   */
   Watermark.prototype.hasImage = function () {
     return !!this.dataUrl;
   };
 
-  /* 获取当前图片尺寸 */
+  /**
+   * 获取当前图片尺寸
+   * @returns {number}
+   */
   Watermark.prototype.getSize = function () {
     return this.sizes;
   };
 
-  /* 清空水印 */
+  /**
+   * 清空水印
+   */
   Watermark.prototype.clearMark = function () {
     let that = this;
     if (typeof that.canvas === "undefined") {
@@ -315,7 +357,10 @@
     _clearMark_();
   };
 
-  /* 添加文字水印(全屏) */
+  /**
+   * 添加文字水印(全屏)
+   * @param {object} opts
+   */
   Watermark.prototype.addText = function (opts) {
     var options = {
       text: ["Call By waterMark.addText"],
@@ -459,7 +504,10 @@
     }
   };
 
-  /* 添加像素文字水印(单个) */
+  /**
+   * 添加像素文字水印(单个)
+   * @param {object} opts
+   */
   Watermark.prototype.addPixelText = function (opts) {
     var options = {
       text: "像素文字水印",
@@ -541,7 +589,11 @@
     });
   };
 
-  /* 添加图片水印(全屏) */
+  /**
+   * 添加图片水印(全屏)
+   * @param {object} opts
+   * @returns
+   */
   Watermark.prototype.addImage = function (opts) {
     if (opts.imageArray == null) {
       alert("参数缺少imageArray");
@@ -699,18 +751,28 @@
     }
   };
 
-  /* 获得原图 */
+  /**
+   * 获得原图
+   * @returns {?string}
+   */
   Watermark.prototype.getPreview = function () {
     return this.dataUrl;
   };
 
-  /* 绘制图片 */
+  /**
+   * 绘制图片
+   * @param {string} type png|jpeg
+   * @returns
+   */
   Watermark.prototype.render = function (type) {
     type = type === "png" ? "png" : "jpeg";
     return this.canvas.toDataURL("image/" + type);
   };
 
-  /* 绘制图片Blob Url-异步 */
+  /**
+   * 绘制图片Blob Url-异步
+   * @async
+   */
   Watermark.prototype.renderBlob = function () {
     let that = this;
     return new Promise((res) => {
