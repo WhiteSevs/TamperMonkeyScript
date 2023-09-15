@@ -209,7 +209,402 @@
  * License: Mozilla Public License Version 2.0
  */
 
-!(function (window, undefined) {
+(function (global, factory) {
+  /**
+   * 不使用define
+   * typeof define === "function" && define.amd
+   * define(factory)
+   */
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    /* 适用于NodeJs或typeScript */
+    module.exports = factory();
+  } else {
+    global = typeof globalThis !== "undefined" ? globalThis : global || self;
+    /* 适用于浏览器中，且this对象是window，如果this是其它，那么会在其它对象下注册对象 */
+    global.xtip = factory(global.xtip);
+  }
+})(typeof window !== "undefined" ? window : this, function (AnotherXtip) {
+  let xtip = {};
+  xtip.ver = "2.7.1";
+  xtip.msg = function (tip, config) {
+    if (!tip) {
+      return false;
+    }
+    config = config || {};
+    let o = {};
+    o.model = "msg";
+    o.tip = tip;
+    o.times = config.times || 2;
+    o.type = config.type || "black";
+    o.pos = config.pos || "middle";
+    o.icon = config.icon || "";
+    o.zindex = config.zindex || 99999;
+
+    return this.run(o);
+  };
+  xtip.danmu = function (tip, config) {
+    if (!tip) {
+      return false;
+    }
+    config = config || {};
+    let o = {};
+    o.model = "danmu";
+    o.tip = tip;
+    o.type = config.type || "black";
+    o.icon = config.icon || "";
+    o.light = config.light != null ? config.light : false;
+    o.zindex = config.zindex || 99999;
+
+    return this.run(o);
+  };
+  xtip.tips = function (tip, element, config) {
+    if (!tip || !element) {
+      return false;
+    }
+    config = config || {};
+    let o = {};
+    o.model = "tips";
+    o.tip = tip;
+    if (typeof element == "string") {
+      let fir = element.substr(0, 1);
+      if (fir == "#") {
+        element = element.substr(1, element.length);
+      }
+    }
+    o.element = element;
+    o.bgcolor = config.bgcolor || "#000000";
+    if (config.color) {
+      o.color = config.color;
+    } else {
+      let reg = /rgba\((255\,){3}[0-9.]+/;
+      let rgba = reg.test(o.bgcolor);
+      if (
+        o.bgcolor == "#fff" ||
+        o.bgcolor == "#ffffff" ||
+        o.bgcolor == "white" ||
+        o.bgcolor == "rgb(255, 255, 255)" ||
+        o.bgcolor == "rgba(255, 255, 255)" ||
+        rgba === true
+      ) {
+        o.color = "#333333";
+      } else {
+        o.color = "#ffffff";
+      }
+    }
+    o.times = config.times || 2;
+    o.pos = config.pos || "right";
+    o.closeBtn = config.closeBtn || false;
+    o.zindex = config.zindex || 99999;
+
+    return this.run(o);
+  };
+  xtip.alert = function (tip, config) {
+    config = config || {};
+    let o = {};
+    o.type = "alert";
+    o.tip = tip || "";
+    o.icon = config.icon || "";
+    o.title = config.title || "提示";
+    if (config.btn) {
+      o.btn = typeof config.btn == "string" ? [config.btn] : [config.btn[0]];
+    } else {
+      o.btn = ["确定"];
+    }
+    o.btn1 = config.btn1 != null ? config.btn1 : null;
+    o.btnbg = [];
+    o.times = config.times || 0;
+    o.shade = config.shade != null ? config.shade : true;
+    if (o.shade === true) {
+      o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
+    } else {
+      o.shadeClose = false;
+    }
+
+    return this.win(o);
+  };
+  xtip.confirm = function (tip, config) {
+    config = config || {};
+    let o = {};
+    o.type = "confirm";
+    o.tip = tip || "";
+    o.icon = config.icon || "warning";
+    o.title = config.title || "警告";
+    o.btn = config.btn || ["确定", "取消"];
+    if (o.btn && o.btn.length > 2) {
+      let newbtn = [];
+      for (let i = 0; i < 2; i++) {
+        newbtn.push(o.btn[i]);
+      }
+      o.btn = newbtn;
+    }
+    o.btn1 = config.btn1 != null ? config.btn1 : null;
+    o.btn2 = config.btn2 != null ? config.btn2 : null;
+    o.btnbg = [true, false];
+    o.shade = config.shade != null ? config.shade : true;
+    if (o.shade === true) {
+      o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
+    } else {
+      o.shadeClose = false;
+    }
+
+    return this.win(o);
+  };
+  xtip.win = function (config) {
+    if (!config) {
+      return false;
+    }
+    let o = {};
+    o.model = "win";
+    o.tip = config.tip || "";
+    o.times = config.times || 0;
+    o.type = config.type || "confirm";
+    o.icon = config.icon || "";
+    o.title = config.title || "提示";
+    o.shade = config.shade != null ? config.shade : true;
+    if (o.shade === true) {
+      o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
+    } else {
+      o.shadeClose = false;
+    }
+    o.lock = config.lock || false;
+    o.btn = config.btn || null;
+    if (o.btn && o.btn.length > 4) {
+      let newbtn = [];
+      for (let i = 0; i < 4; i++) {
+        newbtn.push(o.btn[i]);
+      }
+      o.btn = newbtn;
+    }
+    o.btn1 = config.btn1 != null ? config.btn1 : null;
+    o.btn2 = config.btn2 != null ? config.btn2 : null;
+    o.btn3 = config.btn3 != null ? config.btn3 : null;
+    o.btn4 = config.btn4 != null ? config.btn4 : null;
+    o.btnbg = config.btnbg || [];
+    o.width = config.width || "";
+    o.maxWidth = config.maxWidth || "";
+    o.end = typeof config.end == "function" ? config.end : null;
+    o.min = config.min != null ? config.min : false;
+    o.move = true;
+    o.app = false;
+    o.zindex = config.zindex || 99999;
+    o.success = config.success || null;
+
+    return this.run(o);
+  };
+  xtip.photo = function (content, config) {
+    if (!content) {
+      return false;
+    }
+    config = config || {};
+    let o = {};
+    o.type = "photo";
+    o.title = config.title || "";
+    o.autoHeight = config.height ? false : true;
+    o.width = config.width || "600px";
+    o.height = config.height || "400px";
+    o.content = content;
+    o.app = config.app != null ? config.app : false;
+    o.lock = true;
+    o.reset = true;
+    o.index = config.index || 1;
+    o.iftitle = config.iftitle != null ? config.iftitle : true;
+    o.iforder = config.iforder != null ? config.iforder : true;
+
+    return this.open(o);
+  };
+  xtip.photoApp = function (content, config) {
+    if (!content) {
+      return false;
+    }
+    config = config || {};
+    let o = {};
+    o.type = "photo";
+    o.width = "100%";
+    o.height = "100%";
+    o.bgcolor = "rgba(0, 0, 0, 1)";
+    o.title = false;
+    o.move = false;
+    o.shade = true;
+    o.shadeClose = false;
+    o.closeBtn = true;
+    o.content = content;
+    o.photoapp = true;
+    o.lock = true;
+    o.reset = true;
+    o.index = config.index || 1;
+    o.iftitle = config.iftitle != null ? config.iftitle : true;
+    o.iforder = config.iforder != null ? config.iforder : true;
+
+    return this.open(o);
+  };
+  xtip.open = function (config) {
+    if (!config == null || !config.type || !config.content) {
+      return false;
+    }
+    let o = {};
+    o.model = "open";
+    o.type = config.type;
+    o.content = config.content;
+    o.id = config.id || "";
+    o.title = config.title || "";
+    if (config.autoHeight) {
+      o.autoHeight = config.autoHeight;
+    } else {
+      o.autoHeight = config.height ? false : true;
+    }
+    o.width = config.width || "600px";
+    o.height = config.height || "400px";
+    o.maxWidth = config.maxWidth || "";
+    o.maxHeight = config.maxHeight || "";
+    o.x = config.x || "";
+    o.y = config.y || "";
+    o.x = sizef(o.x);
+    o.y = sizef(o.y);
+    function sizef(str) {
+      if (str) {
+        if (!isNaN(str)) {
+          return Number(str);
+        } else {
+          let reg = /\-?[0-9\.]*(px|%)*/,
+            match,
+            num;
+          if (str) {
+            match = str.match(reg);
+            if (!match[1] || (match[1] && match[1] == "px")) {
+              match[0] = match[0].replace(/px/g, "");
+              num = Number(match[0]);
+            } else {
+              num = "";
+            }
+            return num;
+          }
+        }
+      } else {
+        return "";
+      }
+    }
+
+    o.bgcolor = config.bgcolor || "";
+    let reg = /rgba\((0\,){3}[0-9.]+/;
+    let rgba = reg.test(o.bgcolor);
+    if (
+      o.bgcolor == "#000" ||
+      o.bgcolor == "#000000" ||
+      o.bgcolor == "black" ||
+      o.bgcolor == "rgb(0, 0, 0)" ||
+      o.bgcolor == "rgba(0, 0, 0)" ||
+      rgba === true
+    ) {
+      o.color = "#ffffff";
+    } else {
+      o.color = "";
+    }
+    o.shade = config.shade != null ? config.shade : true;
+    if (o.shade === true) {
+      o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
+    } else {
+      o.shadeClose = false;
+    }
+    o.end = typeof config.end == "function" ? config.end : null;
+    o.min = config.min != null ? config.min : false;
+    o.max = config.max != null ? config.max : false;
+    o.closeBtn = config.closeBtn != null ? config.closeBtn : true;
+    o.move = config.move != null ? config.move : true;
+    o.lock = config.lock != null ? config.lock : false;
+    o.over = config.over != null ? config.over : true;
+    o.index = config.index || 1;
+    o.app = config.app != null ? config.app : false;
+    if (o.app === true) {
+      if (o.type == "photo") {
+        return this.photoApp(o.content, o.index);
+      } else {
+        o.height = config.height || "";
+        o.lock = true;
+        o.shade = true;
+        o.shadeClose = true;
+      }
+    }
+    o.reset = config.reset != null ? config.reset : true;
+    o.zindex = config.zindex || 99999;
+    o.photoapp = config.photoapp || false;
+    o.iftitle = config.iftitle != null ? config.iftitle : true;
+    o.iforder = config.iforder != null ? config.iforder : true;
+    o.success = config.success || null;
+
+    return this.run(o);
+  };
+  xtip.load = function (tip, config) {
+    config = config || {};
+    let o = {};
+    o.model = "load";
+    o.tip = tip || "";
+    o.times = config.times || 0;
+    o.lock = config.lock != null ? config.lock : false;
+    o.zindex = config.zindex || 99999;
+    o.closeBtn = config.closeBtn != null ? config.closeBtn : false;
+
+    return this.run(o);
+  };
+  xtip.sheet = function (config) {
+    if (!config || !config.btn) {
+      return false;
+    }
+    let o = {};
+    o.model = "sheet";
+    o.title = config.title || "";
+    o.align = config.align || "center";
+    let btn = new Array();
+    for (let i = 0; i < 8; i++) {
+      if (config.btn[i]) {
+        btn[i] = config.btn[i];
+      }
+    }
+    o.btn = btn;
+    o.btn1 = config.btn1 || null;
+    o.btn2 = config.btn2 || null;
+    o.btn3 = config.btn3 || null;
+    o.btn4 = config.btn4 || null;
+    o.btn5 = config.btn5 || null;
+    o.btn6 = config.btn6 || null;
+    o.btn7 = config.btn7 || null;
+    o.btn8 = config.btn8 || null;
+
+    o.force = config.force || "";
+    o.btnClose = config.btnClose || "取消";
+    o.lock = true;
+    o.shadeClose = true;
+    o.end = typeof config.end == "function" ? config.end : null;
+    o.zindex = config.zindex || 99999;
+
+    return this.run(o);
+  };
+  //核心方法
+  xtip.run = function (options) {
+    let x = new Xclass(options);
+    return x.mainid;
+  };
+  xtip.close = function (closeid) {
+    let o = {};
+    o.model = "close";
+    o.closeid = closeid;
+
+    return this.run(o);
+  };
+  xtip.closeAll = function () {
+    let o = {};
+    o.model = "closeAll";
+
+    return this.run(o);
+  };
+  xtip.noConflict = function () {
+    if (window.xtip) {
+      delete window.xtip;
+    }
+    if (AnotherXtip) {
+      window.xtip = AnotherXtip;
+    }
+    return xtip;
+  };
   let Xclass = function (config) {
     let that = this;
 
@@ -2076,391 +2471,5 @@
     that.setSize("height", px);
   };
 
-  window.xtip = {
-    ver: "2.7.1",
-
-    msg: function (tip, config) {
-      if (!tip) {
-        return false;
-      }
-      config = config || {};
-      let o = {};
-      o.model = "msg";
-      o.tip = tip;
-      o.times = config.times || 2;
-      o.type = config.type || "black";
-      o.pos = config.pos || "middle";
-      o.icon = config.icon || "";
-      o.zindex = config.zindex || 99999;
-
-      return this.run(o);
-    },
-
-    danmu: function (tip, config) {
-      if (!tip) {
-        return false;
-      }
-      config = config || {};
-      let o = {};
-      o.model = "danmu";
-      o.tip = tip;
-      o.type = config.type || "black";
-      o.icon = config.icon || "";
-      o.light = config.light != null ? config.light : false;
-      o.zindex = config.zindex || 99999;
-
-      return this.run(o);
-    },
-
-    tips: function (tip, element, config) {
-      if (!tip || !element) {
-        return false;
-      }
-      config = config || {};
-      let o = {};
-      o.model = "tips";
-      o.tip = tip;
-      if (typeof element == "string") {
-        let fir = element.substr(0, 1);
-        if (fir == "#") {
-          element = element.substr(1, element.length);
-        }
-      }
-      o.element = element;
-      o.bgcolor = config.bgcolor || "#000000";
-      if (config.color) {
-        o.color = config.color;
-      } else {
-        let reg = /rgba\((255\,){3}[0-9.]+/;
-        let rgba = reg.test(o.bgcolor);
-        if (
-          o.bgcolor == "#fff" ||
-          o.bgcolor == "#ffffff" ||
-          o.bgcolor == "white" ||
-          o.bgcolor == "rgb(255, 255, 255)" ||
-          o.bgcolor == "rgba(255, 255, 255)" ||
-          rgba === true
-        ) {
-          o.color = "#333333";
-        } else {
-          o.color = "#ffffff";
-        }
-      }
-      o.times = config.times || 2;
-      o.pos = config.pos || "right";
-      o.closeBtn = config.closeBtn || false;
-      o.zindex = config.zindex || 99999;
-
-      return this.run(o);
-    },
-
-    alert: function (tip, config) {
-      config = config || {};
-      let o = {};
-      o.type = "alert";
-      o.tip = tip || "";
-      o.icon = config.icon || "";
-      o.title = config.title || "提示";
-      if (config.btn) {
-        o.btn = typeof config.btn == "string" ? [config.btn] : [config.btn[0]];
-      } else {
-        o.btn = ["确定"];
-      }
-      o.btn1 = config.btn1 != null ? config.btn1 : null;
-      o.btnbg = [];
-      o.times = config.times || 0;
-      o.shade = config.shade != null ? config.shade : true;
-      if (o.shade === true) {
-        o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
-      } else {
-        o.shadeClose = false;
-      }
-
-      return this.win(o);
-    },
-
-    confirm: function (tip, config) {
-      config = config || {};
-      let o = {};
-      o.type = "confirm";
-      o.tip = tip || "";
-      o.icon = config.icon || "warning";
-      o.title = config.title || "警告";
-      o.btn = config.btn || ["确定", "取消"];
-      if (o.btn && o.btn.length > 2) {
-        let newbtn = [];
-        for (let i = 0; i < 2; i++) {
-          newbtn.push(o.btn[i]);
-        }
-        o.btn = newbtn;
-      }
-      o.btn1 = config.btn1 != null ? config.btn1 : null;
-      o.btn2 = config.btn2 != null ? config.btn2 : null;
-      o.btnbg = [true, false];
-      o.shade = config.shade != null ? config.shade : true;
-      if (o.shade === true) {
-        o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
-      } else {
-        o.shadeClose = false;
-      }
-
-      return this.win(o);
-    },
-
-    win: function (config) {
-      if (!config) {
-        return false;
-      }
-      let o = {};
-      o.model = "win";
-      o.tip = config.tip || "";
-      o.times = config.times || 0;
-      o.type = config.type || "confirm";
-      o.icon = config.icon || "";
-      o.title = config.title || "提示";
-      o.shade = config.shade != null ? config.shade : true;
-      if (o.shade === true) {
-        o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
-      } else {
-        o.shadeClose = false;
-      }
-      o.lock = config.lock || false;
-      o.btn = config.btn || null;
-      if (o.btn && o.btn.length > 4) {
-        let newbtn = [];
-        for (let i = 0; i < 4; i++) {
-          newbtn.push(o.btn[i]);
-        }
-        o.btn = newbtn;
-      }
-      o.btn1 = config.btn1 != null ? config.btn1 : null;
-      o.btn2 = config.btn2 != null ? config.btn2 : null;
-      o.btn3 = config.btn3 != null ? config.btn3 : null;
-      o.btn4 = config.btn4 != null ? config.btn4 : null;
-      o.btnbg = config.btnbg || [];
-      o.width = config.width || "";
-      o.maxWidth = config.maxWidth || "";
-      o.end = typeof config.end == "function" ? config.end : null;
-      o.min = config.min != null ? config.min : false;
-      o.move = true;
-      o.app = false;
-      o.zindex = config.zindex || 99999;
-      o.success = config.success || null;
-
-      return this.run(o);
-    },
-
-    photo: function (content, config) {
-      if (!content) {
-        return false;
-      }
-      config = config || {};
-      let o = {};
-      o.type = "photo";
-      o.title = config.title || "";
-      o.autoHeight = config.height ? false : true;
-      o.width = config.width || "600px";
-      o.height = config.height || "400px";
-      o.content = content;
-      o.app = config.app != null ? config.app : false;
-      o.lock = true;
-      o.reset = true;
-      o.index = config.index || 1;
-      o.iftitle = config.iftitle != null ? config.iftitle : true;
-      o.iforder = config.iforder != null ? config.iforder : true;
-
-      return this.open(o);
-    },
-
-    photoApp: function (content, config) {
-      if (!content) {
-        return false;
-      }
-      config = config || {};
-      let o = {};
-      o.type = "photo";
-      o.width = "100%";
-      o.height = "100%";
-      o.bgcolor = "rgba(0, 0, 0, 1)";
-      o.title = false;
-      o.move = false;
-      o.shade = true;
-      o.shadeClose = false;
-      o.closeBtn = true;
-      o.content = content;
-      o.photoapp = true;
-      o.lock = true;
-      o.reset = true;
-      o.index = config.index || 1;
-      o.iftitle = config.iftitle != null ? config.iftitle : true;
-      o.iforder = config.iforder != null ? config.iforder : true;
-
-      return this.open(o);
-    },
-
-    open: function (config) {
-      if (!config == null || !config.type || !config.content) {
-        return false;
-      }
-      let o = {};
-      o.model = "open";
-      o.type = config.type;
-      o.content = config.content;
-      o.id = config.id || "";
-      o.title = config.title || "";
-      if (config.autoHeight) {
-        o.autoHeight = config.autoHeight;
-      } else {
-        o.autoHeight = config.height ? false : true;
-      }
-      o.width = config.width || "600px";
-      o.height = config.height || "400px";
-      o.maxWidth = config.maxWidth || "";
-      o.maxHeight = config.maxHeight || "";
-      o.x = config.x || "";
-      o.y = config.y || "";
-      o.x = sizef(o.x);
-      o.y = sizef(o.y);
-      function sizef(str) {
-        if (str) {
-          if (!isNaN(str)) {
-            return Number(str);
-          } else {
-            let reg = /\-?[0-9\.]*(px|%)*/,
-              match,
-              num;
-            if (str) {
-              match = str.match(reg);
-              if (!match[1] || (match[1] && match[1] == "px")) {
-                match[0] = match[0].replace(/px/g, "");
-                num = Number(match[0]);
-              } else {
-                num = "";
-              }
-              return num;
-            }
-          }
-        } else {
-          return "";
-        }
-      }
-
-      o.bgcolor = config.bgcolor || "";
-      let reg = /rgba\((0\,){3}[0-9.]+/;
-      let rgba = reg.test(o.bgcolor);
-      if (
-        o.bgcolor == "#000" ||
-        o.bgcolor == "#000000" ||
-        o.bgcolor == "black" ||
-        o.bgcolor == "rgb(0, 0, 0)" ||
-        o.bgcolor == "rgba(0, 0, 0)" ||
-        rgba === true
-      ) {
-        o.color = "#ffffff";
-      } else {
-        o.color = "";
-      }
-      o.shade = config.shade != null ? config.shade : true;
-      if (o.shade === true) {
-        o.shadeClose = config.shadeClose != null ? config.shadeClose : true;
-      } else {
-        o.shadeClose = false;
-      }
-      o.end = typeof config.end == "function" ? config.end : null;
-      o.min = config.min != null ? config.min : false;
-      o.max = config.max != null ? config.max : false;
-      o.closeBtn = config.closeBtn != null ? config.closeBtn : true;
-      o.move = config.move != null ? config.move : true;
-      o.lock = config.lock != null ? config.lock : false;
-      o.over = config.over != null ? config.over : true;
-      o.index = config.index || 1;
-      o.app = config.app != null ? config.app : false;
-      if (o.app === true) {
-        if (o.type == "photo") {
-          return this.photoApp(o.content, o.index);
-        } else {
-          o.height = config.height || "";
-          o.lock = true;
-          o.shade = true;
-          o.shadeClose = true;
-        }
-      }
-      o.reset = config.reset != null ? config.reset : true;
-      o.zindex = config.zindex || 99999;
-      o.photoapp = config.photoapp || false;
-      o.iftitle = config.iftitle != null ? config.iftitle : true;
-      o.iforder = config.iforder != null ? config.iforder : true;
-      o.success = config.success || null;
-
-      return this.run(o);
-    },
-
-    load: function (tip, config) {
-      config = config || {};
-      let o = {};
-      o.model = "load";
-      o.tip = tip || "";
-      o.times = config.times || 0;
-      o.lock = config.lock != null ? config.lock : false;
-      o.zindex = config.zindex || 99999;
-      o.closeBtn = config.closeBtn != null ? config.closeBtn : false;
-
-      return this.run(o);
-    },
-
-    sheet: function (config) {
-      if (!config || !config.btn) {
-        return false;
-      }
-      let o = {};
-      o.model = "sheet";
-      o.title = config.title || "";
-      o.align = config.align || "center";
-      let btn = new Array();
-      for (let i = 0; i < 8; i++) {
-        if (config.btn[i]) {
-          btn[i] = config.btn[i];
-        }
-      }
-      o.btn = btn;
-      o.btn1 = config.btn1 || null;
-      o.btn2 = config.btn2 || null;
-      o.btn3 = config.btn3 || null;
-      o.btn4 = config.btn4 || null;
-      o.btn5 = config.btn5 || null;
-      o.btn6 = config.btn6 || null;
-      o.btn7 = config.btn7 || null;
-      o.btn8 = config.btn8 || null;
-
-      o.force = config.force || "";
-      o.btnClose = config.btnClose || "取消";
-      o.lock = true;
-      o.shadeClose = true;
-      o.end = typeof config.end == "function" ? config.end : null;
-      o.zindex = config.zindex || 99999;
-
-      return this.run(o);
-    },
-
-    //核心方法
-    run: function (options) {
-      let x = new Xclass(options);
-      return x.mainid;
-    },
-
-    close: function (closeid) {
-      let o = {};
-      o.model = "close";
-      o.closeid = closeid;
-
-      return this.run(o);
-    },
-
-    closeAll: function () {
-      let o = {};
-      o.model = "closeAll";
-
-      return this.run(o);
-    },
-  };
-})(window);
+  return xtip;
+});
