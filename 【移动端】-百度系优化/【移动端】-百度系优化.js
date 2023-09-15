@@ -4026,7 +4026,7 @@
           let getResp = await httpx.get({
             url: `https://tieba.baidu.com/p/comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}`,
             headers: {
-              "USer-Agent": utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
               Host: "tieba.baidu.com",
               Referer: window.location.href,
             },
