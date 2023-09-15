@@ -15,7 +15,7 @@
 // @grant        GM_unregisterMenuCommand
 // @connect      greasyfork.org
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1244762
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1250638
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1250551
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1249783
 // ==/UserScript==
