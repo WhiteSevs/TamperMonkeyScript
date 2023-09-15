@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-13";
+  Utils.version = "2023-9-14";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -3329,7 +3329,7 @@
       delete window.Utils;
     }
     if (AnotherUtils) {
-      window.DOMUtils = AnotherUtils;
+      window.Utils = AnotherUtils;
     }
     return Utils;
   };
