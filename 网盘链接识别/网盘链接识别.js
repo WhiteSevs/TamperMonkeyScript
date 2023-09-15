@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.15.17.10
+// @version      23.9.15.18.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1249088
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1250551
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1250648
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1250683
 // ==/UserScript==
 
 (function () {
@@ -5041,9 +5041,9 @@
               return;
             }
             var clientMax_X =
-              DOMUtils.width(window) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+              DOMUtils.width(globalThis) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
             var clientMax_Y =
-              DOMUtils.height(window) -
+              DOMUtils.height(globalThis) -
               NetDiskUI.size; /* 最大的Y轴 指从上至下 */
             var clientMove_X = event.x - clickDeviation_X; /* 当前移动的X轴 */
             var clientMove_Y = event.y - clickDeviation_Y; /* 当前移动的Y轴 */
@@ -5082,8 +5082,8 @@
               DOMUtils.css(needDragEle, "left").replace("px", "")
             );
             let setCSSLeft = 0;
-            if (left_px >= DOMUtils.width(window) / 2) {
-              setCSSLeft = DOMUtils.width(window) - NetDiskUI.size;
+            if (left_px >= DOMUtils.width(globalThis) / 2) {
+              setCSSLeft = DOMUtils.width(globalThis) - NetDiskUI.size;
               if (top.window == self.window) {
                 GM_setValue("isRight", true);
               }
@@ -5144,12 +5144,12 @@
        */
       setSuspensionDefaultPositionEvent() {
         let clientMax_X =
-          DOMUtils.width(window) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+          DOMUtils.width(globalThis) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
         let clientMax_Y =
-          DOMUtils.height(window) - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+          DOMUtils.height(globalThis) - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
         let clientDefault_X = clientMax_X; /* 默认值 X轴 */
         let clientDefault_Y =
-          DOMUtils.height(window) / 2 - NetDiskUI.size; /* 默认值 Y轴 */
+          DOMUtils.height(globalThis) / 2 - NetDiskUI.size; /* 默认值 Y轴 */
         let userSetClient_X = GM_getValue("suspensionX", clientDefault_X);
 
         /* 用户自己移动的X轴 */
@@ -5624,11 +5624,11 @@
           view = window;
         }
         let clientMax_X =
-          DOMUtils.width(window) -
+          DOMUtils.width(globalThis) -
           DOMUtils.width(menuNode) -
           1; /* 最大的X轴 指从左至右*/
         let clientMax_Y =
-          DOMUtils.height(window) -
+          DOMUtils.height(globalThis) -
           DOMUtils.height(menuNode) -
           8; /* 最大的Y轴 指从上至下 */
         let clientMove_X = event.clientX;
