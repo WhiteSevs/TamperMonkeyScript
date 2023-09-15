@@ -704,7 +704,7 @@
       if (selector) {
         let target = event.target;
         let totalParent =
-          element == window || element?.window == window
+          element == globalThis
             ? document.documentElement
             : element;
         if (target.matches(selector)) {
@@ -892,7 +892,7 @@
    * DOMUtils.width("a.xx",200)
    */
   DOMUtils.width = function (element) {
-    if (element == window || element?.window == window) {
+    if (element == globalThis) {
       return window.document.documentElement.clientWidth;
     }
     if (typeof element === "string") {
@@ -948,7 +948,7 @@
    * DOMUtils.height("a.xx",200)
    */
   DOMUtils.height = function (element) {
-    if (element == window || element?.window == window) {
+    if (element == globalThis) {
       return window.document.documentElement.clientHeight;
     }
     if (typeof element === "string") {
@@ -1000,7 +1000,7 @@
    * > 400
    */
   DOMUtils.outerWidth = function (element) {
-    if (element == window || element?.window == window) {
+    if (element == globalThis) {
       return window.innerWidth;
     }
     if (typeof element === "string") {
@@ -1036,7 +1036,7 @@
    * > 700
    */
   DOMUtils.outerHeight = function (element) {
-    if (element == window || element?.window == window) {
+    if (element == globalThis) {
       return window.innerHeight;
     }
     if (typeof element === "string") {
