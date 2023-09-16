@@ -2,11 +2,11 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.15.18.30
+// @version      23.9.16.18.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
-// @run-at       document-body
+// @run-at       document-end
 // @license      GPL-3.0-only
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -17,6 +17,7 @@
 // @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        unsafeWindow
 // @connect      *
 // @connect      lanzous.com
 // @connect      lanzouc.com
@@ -2923,7 +2924,7 @@
                   resultJSON["data"]["firstFolder"]["updated_at"]
                 ),
               };
-            } else if(resultJSON["data"]["firstFile"] == null){
+            } else if (resultJSON["data"]["firstFile"] == null) {
               /* 文件夹类型 */
               Qmsg.error("该链接为文件夹类型");
               NetDiskParse.blank(
@@ -2938,7 +2939,8 @@
                 that.accessCode
               );
               return false;
-            } {
+            }
+            {
               return {
                 zipDownload: zipDownload,
                 guid: resultJSON["data"]["guid"],
@@ -5041,7 +5043,8 @@
               return;
             }
             var clientMax_X =
-              DOMUtils.width(globalThis) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
+              DOMUtils.width(globalThis) -
+              NetDiskUI.size; /* 最大的X轴 指从左至右*/
             var clientMax_Y =
               DOMUtils.height(globalThis) -
               NetDiskUI.size; /* 最大的Y轴 指从上至下 */
@@ -5146,7 +5149,8 @@
         let clientMax_X =
           DOMUtils.width(globalThis) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
         let clientMax_Y =
-          DOMUtils.height(globalThis) - NetDiskUI.size; /* 最大的Y轴 指从上至下 */
+          DOMUtils.height(globalThis) -
+          NetDiskUI.size; /* 最大的Y轴 指从上至下 */
         let clientDefault_X = clientMax_X; /* 默认值 X轴 */
         let clientDefault_Y =
           DOMUtils.height(globalThis) / 2 - NetDiskUI.size; /* 默认值 Y轴 */
