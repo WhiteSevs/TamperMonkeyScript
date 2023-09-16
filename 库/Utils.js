@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-14";
+  Utils.version = "2023-9-15";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -3784,40 +3784,58 @@
 
   /**
    * 复制到剪贴板
-   * @param {string|number} text - 需要复制到剪贴板的文本
+   * @async
+   * @param {string|number} data - 需要复制到剪贴板的文本
+   * @param {{type:string,mimetype:string}|string} info
    * @example
    * Utils.setClip("xxxx");
+   * @example
+   * Utils.setClip("xxxx","html");
+   * @example
+   * Utils.setClip("xxxx","text/plain");
    **/
-  Utils.setClip = function (text) {
-    if (typeof text !== "string" && typeof text !== "number") {
-      console.error(typeof text);
-      throw new Error("复制的貌似不是string或number类型");
+  Utils.setClip = async function (data, info = "text/plain") {
+    if (typeof data !== "string" && typeof data !== "number") {
+      console.error(typeof data);
+      throw new Error("data 必须是string或者number类型");
     }
-    // 获取剪贴板对象
-    const clipboard = navigator.clipboard;
-
-    // 复制文本到剪贴板
-    clipboard
-      .writeText(text)
-      .then(() => {
-        console.log("复制成功");
-      })
-      .catch((err) => {
-        console.error("复制失败，使用第二种方式", err);
-        let chipBoardNode = document.createElement("input");
-        chipBoardNode.type = "text";
-        chipBoardNode.setAttribute("style", "opacity:0;position:absolute;");
-        chipBoardNode.id = "whitesevClipBoardInput";
-        document.body.append(chipBoardNode);
-        let clipBoardInputNode = document.querySelector(
-          "#whitesevClipBoardInput"
-        );
-        clipBoardInputNode.value = text;
-        clipBoardInputNode.removeAttribute("disabled");
-        clipBoardInputNode.select();
-        document.execCommand("copy");
-        clipBoardInputNode.remove();
-      });
+    let textType = typeof info === "object" ? info.type : info;
+    if (textType.includes("html")) {
+      textType = "text/html";
+    } else {
+      textType = "text/plain";
+    }
+    let textBlob = new Blob([data], { type: textType });
+    return new Promise((resolve) => {
+      window.addEventListener(
+        "focus",
+        () => {
+          navigator.clipboard
+            .write([
+              new ClipboardItem({
+                [textType]: textBlob,
+              }),
+            ])
+            .then(() => {
+              resolve();
+            })
+            .catch((err) => {
+              console.error("复制失败，使用第二种方式，error👉", err);
+              let copyElement = document.createElement("input");
+              copyElement.value = data;
+              copyElement.setAttribute("type", "text");
+              copyElement.setAttribute("style", "opacity:0;position:absolute;");
+              copyElement.setAttribute("readonly", "readonly");
+              document.body.append(copyElement);
+              copyElement.select();
+              document.execCommand("copy");
+              copyElement.remove();
+              resolve();
+            });
+        },
+        { once: true }
+      );
+    });
   };
 
   /**
