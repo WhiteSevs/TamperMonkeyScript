@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-15";
+  Utils.version = "2023-9-17";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -3785,19 +3785,35 @@
   /**
    * 复制到剪贴板
    * @async
-   * @param {string|number} data - 需要复制到剪贴板的文本
+   * @param {any} data - 需要复制到剪贴板的文本
    * @param {{type:string,mimetype:string}|string} info
    * @example
+   * Utils.setClip({1:2});
+   * > {"1":2}
+   * @example
+   * Utils.setClip( ()=>{
+   *   console.log(1)
+   * });
+   * > ()=>{console.log(1)}
+   * @example
    * Utils.setClip("xxxx");
+   * > xxxx
    * @example
    * Utils.setClip("xxxx","html");
+   * > xxxx
    * @example
    * Utils.setClip("xxxx","text/plain");
+   * > xxxx
    **/
   Utils.setClip = async function (data, info = "text/plain") {
-    if (typeof data !== "string" && typeof data !== "number") {
-      console.error(typeof data);
-      throw new Error("data 必须是string或者number类型");
+    if (typeof data === "object") {
+      if (data instanceof Element) {
+        data = data.outerHTML;
+      } else {
+        data = JSON.stringify(data);
+      }
+    } else {
+      data = data.toLocaleString();
     }
     let textType = typeof info === "object" ? info.type : info;
     if (textType.includes("html")) {
