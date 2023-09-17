@@ -3813,7 +3813,7 @@
         data = JSON.stringify(data);
       }
     } else {
-      data = data.toLocaleString();
+      data = data.toString();
     }
     let textType = typeof info === "object" ? info.type : info;
     if (textType.includes("html")) {
