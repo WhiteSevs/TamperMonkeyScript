@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-15";
+  DOMUtils.version = "2023-9-18";
 
   let globalUtils = {
     /**
@@ -644,7 +644,7 @@
   };
   /**
    * 绑定事件
-   * @param {Element|string} element 需要绑定的元素
+   * @param {Element|string|NodeList|Array} element 需要绑定的元素
    * @param {string|Array} eventType 需要监听的事件
    * @param {HTMLElement?} selector 子元素选择器
    * @param {Function} callback 事件触发的回调函数
@@ -683,10 +683,16 @@
     passive = false
   ) {
     if (typeof element === "string") {
-      element = document.querySelector(element);
+      element = document.querySelectorAll(element);
     }
     if (element == null) {
       return;
+    }
+    let elementList = [];
+    if (element instanceof NodeList || Array.isArray(element)) {
+      elementList = [...element];
+    } else {
+      elementList = [element];
     }
     let eventTypeList = [];
     if (Array.isArray(eventType)) {
@@ -699,58 +705,58 @@
       callback = selector;
       selector = null;
     }
-    let originCallBack = callback;
-    let ownCallBack = function (event) {
-      if (selector) {
-        let target = event.target;
-        let totalParent =
-          element == globalThis
-            ? document.documentElement
-            : element;
-        if (target.matches(selector)) {
-          /* 当前目标可以被selector所匹配到 */
-          originCallBack.call(target, event);
-          return;
-        } else if (
-          target.closest(selector) &&
-          totalParent.contains(target.closest(selector))
-        ) {
-          /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-          let closestElement = target.closest(selector);
-          /* event的target值不能直接修改 */
-          Object.defineProperty(event, "target", {
-            get: function () {
-              return closestElement;
-            },
-          });
-          originCallBack.call(closestElement, event);
-          return;
+    elementList.forEach((elementItem) => {
+      let originCallBack = callback;
+      let ownCallBack = function (event) {
+        if (selector) {
+          let target = event.target;
+          let totalParent =
+            elementItem == globalThis ? document.documentElement : elementItem;
+          if (target.matches(selector)) {
+            /* 当前目标可以被selector所匹配到 */
+            originCallBack.call(target, event);
+            return;
+          } else if (
+            target.closest(selector) &&
+            totalParent.contains(target.closest(selector))
+          ) {
+            /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+            let closestElement = target.closest(selector);
+            /* event的target值不能直接修改 */
+            Object.defineProperty(event, "target", {
+              get: function () {
+                return closestElement;
+              },
+            });
+            originCallBack.call(closestElement, event);
+            return;
+          }
+        } else {
+          originCallBack.call(event.target, event);
         }
-      } else {
-        originCallBack.call(event.target, event);
+      };
+      eventTypeList.forEach((_eventType_) => {
+        elementItem.addEventListener(
+          _eventType_,
+          ownCallBack,
+          capture,
+          once,
+          passive
+        );
+      });
+
+      if (originCallBack && originCallBack.delegate) {
+        elementItem.setAttribute("data-delegate", selector);
       }
-    };
-    eventTypeList.forEach((_eventType_) => {
-      element.addEventListener(
-        _eventType_,
-        ownCallBack,
-        capture,
-        once,
-        passive
-      );
-    });
 
-    if (originCallBack && originCallBack.delegate) {
-      element.setAttribute("data-delegate", selector);
-    }
-
-    let events = element.events || {};
-    events[eventType] = events[eventType] || [];
-    events[eventType].push({
-      selector: selector,
-      callback: ownCallBack,
+      let events = elementItem.events || {};
+      events[eventType] = events[eventType] || [];
+      events[eventType].push({
+        selector: selector,
+        callback: ownCallBack,
+      });
+      elementItem.events = events;
     });
-    element.events = events;
   };
   /**
    * 取消绑定事件
