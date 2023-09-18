@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-17";
+  Utils.version = "2023-9-18";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -3812,7 +3812,7 @@
       } else {
         data = JSON.stringify(data);
       }
-    } else {
+    } else if (typeof data !== "string") {
       data = data.toString();
     }
     let textType = typeof info === "object" ? info.type : info;
@@ -3822,35 +3822,59 @@
       textType = "text/plain";
     }
     let textBlob = new Blob([data], { type: textType });
+    let clipboardObject = navigator.clipboard;
+    /**
+     * 第二种方式进行复制
+     * @param {(value: any) => void} _resolve_ 回调
+     * @param {string} _copyText_ 复制的文字
+     */
+    function anotherCopy(_resolve_, _copyText_) {
+      let copyElement = document.createElement("textarea");
+      copyElement.value = _copyText_;
+      copyElement.setAttribute("type", "text");
+      copyElement.setAttribute("style", "opacity:0;position:absolute;");
+      copyElement.setAttribute("readonly", "readonly");
+      document.body.append(copyElement);
+      copyElement.select();
+      document.execCommand("copy");
+      copyElement.remove();
+      _resolve_();
+    }
+    /**
+     * 运行复制
+     * @param {(value: any) => void} _resolve_ 回调
+     */
+    function runCopy(_resolve_) {
+      if (clipboardObject) {
+        clipboardObject
+          .write([
+            new ClipboardItem({
+              [textType]: textBlob,
+            }),
+          ])
+          .then(() => {
+            _resolve_();
+          })
+          .catch((err) => {
+            console.error("复制失败，使用第二种方式，error👉", err);
+            anotherCopy(_resolve_, data);
+          });
+      } else {
+        anotherCopy(_resolve_, data);
+      }
+    }
     return new Promise((resolve) => {
-      window.addEventListener(
-        "focus",
-        () => {
-          navigator.clipboard
-            .write([
-              new ClipboardItem({
-                [textType]: textBlob,
-              }),
-            ])
-            .then(() => {
-              resolve();
-            })
-            .catch((err) => {
-              console.error("复制失败，使用第二种方式，error👉", err);
-              let copyElement = document.createElement("input");
-              copyElement.value = data;
-              copyElement.setAttribute("type", "text");
-              copyElement.setAttribute("style", "opacity:0;position:absolute;");
-              copyElement.setAttribute("readonly", "readonly");
-              document.body.append(copyElement);
-              copyElement.select();
-              document.execCommand("copy");
-              copyElement.remove();
-              resolve();
-            });
-        },
-        { once: true }
-      );
+      if (document.hasFocus()) {
+        runCopy(resolve);
+      } else {
+        window.addEventListener(
+          "focus",
+          () => {
+            runCopy(resolve);
+          },
+          { once: true }
+        );
+      }
     });
   };
 
