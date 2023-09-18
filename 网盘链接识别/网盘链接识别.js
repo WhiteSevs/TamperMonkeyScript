@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.17.10.00
+// @version      23.9.18.12.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -11,6 +11,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
+// @grant        GM_download
 // @grant        GM_addStyle
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -52,12 +53,12 @@
 // @exclude      /^http(s|):\/\/.*\.vscode-cdn\.net\/.*$/
 // @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1250638
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
-// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1249088
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1251653
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1250683
+// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1252080
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1252079
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1252082
 // ==/UserScript==
 
 (function () {
@@ -138,6 +139,8 @@
             "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}" /* 用于显示的链接 */,
           blank:
             "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}" /* 新标签页打开的链接 */,
+          copyUrl:
+            "链接：https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}\n密码：{#accessCode#}" /* 用于复制到剪贴板的链接 */,
         },
       ],
       lanzou: [
@@ -157,6 +160,8 @@
           accessCode: /([0-9a-zA-Z]{3,})/gi,
           uiLinkShow: "lanzoux.com/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://www.lanzoux.com/{#shareCode#}",
+          copyUrl:
+            "链接：https://www.lanzoux.com/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       tianyiyun: [
@@ -175,6 +180,8 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cloud.189.cn/t/{#shareCode#}",
+          copyUrl:
+            "链接：https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       hecaiyun: [
@@ -191,6 +198,8 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://caiyun.139.com/m/i?{#shareCode#}",
+          copyUrl:
+            "链接：https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       aliyun: [
@@ -209,6 +218,8 @@
           acceesCodeNotMatch: /^(font)/gi,
           uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://aliyundrive.com/s/{#shareCode#}",
+          copyUrl:
+            "链接：https://aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       wenshushu: [
@@ -227,6 +238,8 @@
           accessCode: /[0-9a-zA-Z]{4}/gi,
           uiLinkShow: "wss.ink/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://wss.ink/f/{#shareCode#}",
+          copyUrl:
+            "链接：https://wss.ink/f/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       nainiu: [
@@ -243,6 +256,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "cowtransfer.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cowtransfer.com/s/{#shareCode#}",
+          copyUrl:
+            "链接：https://cowtransfer.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       _123pan: [
@@ -259,6 +274,8 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://123pan.com/s/{#shareCode#}",
+          copyUrl:
+            "链接：https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       weiyun: [
@@ -277,6 +294,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://share.weiyun.com/{#shareCode#}",
+          copyUrl:
+            "链接：https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       xunlei: [
@@ -293,6 +312,8 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "pan.xunlei.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.xunlei.com/s/{#shareCode#}",
+          copyUrl:
+            "链接：https://pan.xunlei.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       _115pan: [
@@ -309,6 +330,8 @@
           accessCode: /(\?password=|)([0-9a-zA-Z]{4})/i,
           uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://115.com/s/{#shareCode#}",
+          copyUrl:
+            "链接：https://115.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       chengtong: [
@@ -326,6 +349,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://url95.ctfile.com/d/{#shareCode#}",
+          copyUrl:
+            "链接：https://url95.ctfile.com/d/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `pan.jc-box.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -341,6 +366,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "pan.jc-box.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://pan.jc-box.com/d/{#shareCode#}",
+          copyUrl:
+            "链接：http://pan.jc-box.com/d/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `download.jamcz.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -357,6 +384,8 @@
           uiLinkShow:
             "download.jamcz.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://download.jamcz.com/d/{#shareCode#}",
+          copyUrl:
+            "链接：http://download.jamcz.com/d/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `(2k.us/file/|u062.com/file/|545c.com/file/|t00y.com/file/)[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -373,6 +402,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://u062.com/file/{#shareCode#}",
+          copyUrl:
+            "链接：https://u062.com/file/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `ctfile.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -388,6 +419,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "url95.ctfile.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://url95.ctfile.com/f/{#shareCode#}",
+          copyUrl:
+            "链接：https://url95.ctfile.com/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `(pan.jc-box.com|545c.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -403,6 +436,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "pan.jc-box.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://pan.jc-box.com/f/{#shareCode#}",
+          copyUrl:
+            "链接：http://pan.jc-box.com/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `down.jc-box.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -418,6 +453,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "down.jc-box.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://down.jc-box.com/f/{#shareCode#}",
+          copyUrl:
+            "链接：http://down.jc-box.com/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `download.cx05.cc/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -433,6 +470,8 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "download.cx05.cc/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://download.cx05.cc/f/{#shareCode#}",
+          copyUrl:
+            "链接：http://download.cx05.cc/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `(089u|474b).com/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -448,6 +487,8 @@
           accessCode: /([0-9a-zA-Z]{6})/gi,
           uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://089u.com/dir/{#shareCode#}",
+          copyUrl:
+            "链接：https://089u.com/dir/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       kuake: [
@@ -464,6 +505,8 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.quark.cn/s/{#shareCode#}",
+          copyUrl:
+            "链接：https://pan.quark.cn/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       magnet: [
@@ -476,6 +519,7 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
           blank: "magnet:?xt=urn:btih:{#shareCode#}",
+          copyUrl: "magnet:?xt=urn:btih:{#shareCode#}",
         },
       ],
       jianguoyun: [
@@ -492,6 +536,8 @@
           accessCode: /([0-9a-zA-Z]+)/gi,
           uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://www.jianguoyun.com/p/{#shareCode#}",
+          copyUrl:
+            "链接：https://www.jianguoyun.com/p/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       onedrive: [
@@ -513,6 +559,8 @@
             "10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#} 提取码: {#accessCode#}",
           blank:
             "https://10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#}",
+          copyUrl:
+            "链接：https://10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           name: "hurstheads",
@@ -532,6 +580,8 @@
             "hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#} 提取码: {#accessCode#}",
           blank:
             "https://hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#}?e={#accessCode#}",
+          copyUrl:
+            "链接：https://hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#}?e={#accessCode#}\n密码：{#accessCode#}",
         },
       ],
     },
@@ -546,9 +596,9 @@
     },
     /**
      * 删除某些需要忽略的text或html，如：设置、直链弹窗
-     * @param {String} text - 需要进行处理的字符串
-     * @param {Boolean} isHTML - 是否是html属性
-     * @returns {String}
+     * @param {string} text - 需要进行处理的字符串
+     * @param {boolean} isHTML - 是否是html属性
+     * @returns {string}
      */
     ignoreStrRemove(text, isHTML = false) {
       let ignoreNodeList = [
@@ -637,9 +687,9 @@
     },
     /**
      * 处理链接，将匹配到的链接转为参数和密码存入字典中
-     * @param {String} netDiskName 网盘名称
-     * @param {Number} netDiskIndex 网盘名称的索引下标
-     * @param {String} url
+     * @param {string} netDiskName 网盘名称
+     * @param {number} netDiskIndex 网盘名称的索引下标
+     * @param {string} url
      */
     handleLink(netDiskName, netDiskIndex, url) {
       /* 当前字典 */
@@ -690,9 +740,9 @@
     },
     /**
      * 对传入的url进行处理，返回shareCode
-     * @param {String} netDiskName 网盘名称
-     * @param {Number} netDiskIndex 网盘名称索引下标
-     * @param {String} url 链接
+     * @param {string} netDiskName 网盘名称
+     * @param {number} netDiskIndex 网盘名称索引下标
+     * @param {string} url 链接
      * @returns
      */
     handleShareCode(netDiskName, netDiskIndex, url) {
@@ -722,10 +772,10 @@
     },
     /**
      * 对传入的url进行处理，返回accessCode
-     * @param {String} netDiskName 网盘名称
-     * @param {Number} netDiskIndex 网盘名称索引下标
-     * @param {String} url 链接
-     * @returns {String} "xxxx" || ""
+     * @param {string} netDiskName 网盘名称
+     * @param {number} netDiskIndex 网盘名称索引下标
+     * @param {string} url 链接
+     * @returns {string} "xxxx" || ""
      */
     handleAccessCode(netDiskName, netDiskIndex, url) {
       /* 当前执行正则匹配的规则 */
@@ -749,10 +799,10 @@
     },
     /**
      * 获取在弹窗中显示出的链接
-     * @param {String} netDiskName 网盘名称，指NetDisk.regular的内部键名
-     * @param {Number} netDiskIndex 网盘名称索引下标
-     * @param {String} shareCode
-     * @param {String} accessCode
+     * @param {string} netDiskName 网盘名称，指NetDisk.regular的内部键名
+     * @param {number} netDiskIndex 网盘名称索引下标
+     * @param {string} shareCode
+     * @param {string} accessCode
      * @returns {string}
      */
     handleLinkShow(netDiskName, netDiskIndex, shareCode, accessCode) {
@@ -816,7 +866,7 @@
       /**
        * 百度网盘
        * @constructor
-       * @returns {Object}
+       * @returns {object}
        */
       baidu: function () {
         let that = this;
@@ -949,9 +999,9 @@
         };
         /**
          * 入口
-         * @param {Number} netDiskIndex
-         * @param {String} shareCode
-         * @param {String} accessCode
+         * @param {number} netDiskIndex
+         * @param {string} shareCode
+         * @param {string} accessCode
          */
         this.default = async function (netDiskIndex, shareCode, accessCode) {
           that.netDiskIndex = netDiskIndex;
@@ -964,7 +1014,7 @@
         };
         /**
          * 获取文件链接
-         * @param {Boolean} getShareCodeByPageAgain
+         * @param {boolean} getShareCodeByPageAgain
          * @returns
          */
         this.getFileLink = async function (getShareCodeByPageAgain = false) {
@@ -1008,7 +1058,7 @@
         };
         /**
          * 页面检查，看看是否存在文件失效情况
-         * @param {Object} response
+         * @param {object} response
          * @returns
          */
         this.checkPageCode = function (response) {
@@ -1025,7 +1075,7 @@
         };
         /**
          * 判断是否是多文件的链接
-         * @param {Object} response
+         * @param {object} response
          * @returns
          */
         this.isMoreFile = function (response) {
@@ -1062,7 +1112,7 @@
         };
         /**
          * 获取链接
-         * @param {Object} response
+         * @param {object} response
          * @returns
          */
         this.getLink = async function (response) {
@@ -1140,13 +1190,13 @@
                   "lanzou-static-scheme-forward",
                   downloadUrl
                 );
-                NetDiskUI.staticView.oneFile(
-                  "蓝奏云单文件直链",
-                  fileName,
-                  fileSize,
-                  downloadUrl,
-                  fileUploadTime
-                );
+                NetDiskUI.staticView.oneFile({
+                  title: "蓝奏云单文件直链",
+                  fileName: fileName,
+                  fileSize: fileSize,
+                  downloadUrl: downloadUrl,
+                  fileUploadTime: fileUploadTime,
+                });
               }
             } else {
               Qmsg.error("请求失败，请重试");
@@ -1180,13 +1230,13 @@
               "lanzou-static-scheme-forward",
               downloadUrl
             );
-            NetDiskUI.staticView.oneFile(
-              "蓝奏云单文件直链",
-              fileName,
-              fileSize,
-              downloadUrl,
-              fileUploadTime
-            );
+            NetDiskUI.staticView.oneFile({
+              title: "蓝奏云单文件直链",
+              fileName: fileName,
+              fileSize: fileSize,
+              downloadUrl: downloadUrl,
+              fileUploadTime: fileUploadTime,
+            });
           }
         };
         /**
@@ -1247,7 +1297,7 @@
           } else if (zt === 1) {
             Qmsg.success("获取文件夹成功，解析文件直链中...");
             var folder = json_data["text"]; /* 获取多文件的数组信息 */
-            var folderContent = ""; /* 弹出内容 */
+            var folderList = []; /* 弹出内容 */
             log.info(`本链接一共${folder.length}个文件`);
             for (let i = 0; i < folder.length; i++) {
               let item = folder[i];
@@ -1257,16 +1307,16 @@
               let uploadTime = item.time;
               log.info(`第${i + 1}个开始解析`);
 
-              let content = await that.parseMoreFile(
+              let folderInfo = await that.parseMoreFile(
                 _shareCode_,
                 fileName,
                 fileSize,
                 uploadTime
               );
               log.info(`第${i + 1}个解析完毕`);
-              folderContent += content;
+              folderList.push(folderInfo);
             }
-            NetDiskUI.staticView.moreFile("蓝奏云多文件直链", folderContent);
+            NetDiskUI.staticView.moreFile("蓝奏云多文件直链", folderList);
           } else if ("密码不正确".indexOf(info) !== -1) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
@@ -1290,11 +1340,11 @@
         };
         /**
          * 多文件解析并返回html
-         * @param {String} paramShareCode 解析多文件获取的shareCode
-         * @param {String} fileName 文件名
-         * @param {String} fileSize 文件大小
-         * @param {String} fileUploadTime 文件上传时间
-         * @returns {String}
+         * @param {string} paramShareCode 解析多文件获取的shareCode
+         * @param {string} fileName 文件名
+         * @param {string} fileSize 文件大小
+         * @param {string} fileUploadTime 文件上传时间
+         * @async
          */
         this.parseMoreFile = async function (
           paramShareCode,
@@ -1303,7 +1353,7 @@
           fileUploadTime
         ) {
           /* 根据获取到的json中多文件链接来获取单文件直链 */
-          let resultContent = "";
+          let resultInfo = {};
           let getResp = await httpx.get({
             url: that.handleUrl.tp(paramShareCode),
             headers: {
@@ -1336,40 +1386,33 @@
                 "lanzou-static-scheme-forward",
                 downloadUrl
               );
+              resultInfo["success"] = true;
+              resultInfo["downloadUrl"] = submit_url;
             } else if (pageText.match("来晚啦...文件取消分享了</div>")) {
+              resultInfo["success"] = false;
               fileSize = "来晚啦...文件取消分享了";
             } else if (utils.isNull(loadDownHost)) {
               log.error(pageText);
+              resultInfo["success"] = false;
               fileSize = "获取sign的域名失败，请反馈开发者";
             } else if (utils.isNull(loadDown)) {
               log.error(pageText);
+              resultInfo["success"] = false;
               fileSize = "获取sign失败，请反馈开发者";
             } else {
+              resultInfo["success"] = false;
               fileSize = "解析直链失败";
             }
-            resultContent = `
-                <div class="netdisk-static-body">
-                  <div class="netdisk-static-filename">
-                    <a target="${
-                      submit_url === "javascript:;" ? "" : "_blank"
-                    }" href="${submit_url}">${fileName}</a>
-                  </div>
-                  <div class="netdisk-static-filesize">${fileSize}</div>
-                  <div class="netdisk-static-fileuploadtime">${fileUploadTime}</div>
-                </div>
-              `;
+            resultInfo["fileName"] = fileName;
+            resultInfo["fileSize"] = fileSize;
+            resultInfo["fileUploadTime"] = fileUploadTime;
           } else {
             log.error(respData);
-            resultContent = `
-                <div class="netdisk-static-body">
-                  <div class="netdisk-static-filename">
-                    <a href="javascript:;">${fileName}</a>
-                  </div>
-                  <div class="netdisk-static-filesize">解析失败，${getResp.msg}</div>
-                </div>
-              `;
+            resultInfo["success"] = false;
+            resultInfo["fileName"] = fileName;
+            resultInfo["fileSize"] = `解析失败，${getResp.msg}`;
           }
-          return resultContent;
+          return resultInfo;
         };
 
         return this;
@@ -1377,7 +1420,7 @@
       /**
        * 天翼云
        * @constructor
-       * @returns {Object}
+       * @returns {object}
        */
       tianyiyun: function () {
         let that = this;
@@ -1559,14 +1602,14 @@
               "tianyiyun-scheme-forward",
               downloadUrl
             );
-            NetDiskUI.staticView.oneFile(
-              "天翼云单文件直链",
-              that.fileName,
-              utils.formatByteToSize(that.fileSize),
-              downloadUrl,
-              that.fileCreateDate,
-              that.fileLastOpTime
-            );
+            NetDiskUI.staticView.oneFile({
+              title: "天翼云单文件直链",
+              fileName: that.fileName,
+              fileSize: utils.formatByteToSize(that.fileSize),
+              downloadUrl: downloadUrl,
+              fileUploadTime: that.fileCreateDate,
+              fileLatestTime: that.fileLastOpTime,
+            });
           } else if (
             "InvalidSessionKey" === jsonData["res_code"] ||
             "InvalidSessionKey" === jsonData["errorCode"]
@@ -1625,7 +1668,7 @@
       /**
        * 文叔叔
        * @constructor
-       * @returns {Object}
+       * @returns {object}
        */
       wenshushu: function () {
         let that = this;
@@ -1770,7 +1813,7 @@
         };
         /**
          * 获取下载链接
-         * @param {Object} data
+         * @param {object} data
          * @returns {Promise}
          */
         this.getDownloadUrl = async function (data) {
@@ -1808,12 +1851,12 @@
                 downloadUrl
               );
               /* 文叔叔没有上传时间信息(暂时是这样的) */
-              NetDiskUI.staticView.oneFile(
-                "文叔叔单文件直链",
-                file_name,
-                file_size,
-                downloadUrl
-              );
+              NetDiskUI.staticView.oneFile({
+                title: "文叔叔单文件直链",
+                fileName: file_name,
+                fileSize: file_size,
+                downloadUrl: downloadUrl,
+              });
             }
           } else if (jsonData["data"] in that.code) {
             Qmsg.error(that.code[jsonData["data"]]);
@@ -1845,7 +1888,6 @@
           that.shareCode = shareCode;
           that.accessCode = accessCode;
           that.panelList = [];
-          that.panelContent = "";
           that.Authorization = GM_getValue("_123pan_User_Authorization");
           let checkLinkValidityStatus = await that.checkLinkValidity();
           if (!checkLinkValidityStatus) {
@@ -1897,14 +1939,14 @@
             let fileLatestTime = new Date(fileInfo["UpdateAt"]).getTime();
             fileUploadTime = utils.formatTime(fileUploadTime);
             fileLatestTime = utils.formatTime(fileLatestTime);
-            NetDiskUI.staticView.oneFile(
-              "123盘单文件直链",
-              fileInfo["FileName"],
-              fileSize,
-              downloadUrl,
-              fileUploadTime,
-              fileLatestTime
-            );
+            NetDiskUI.staticView.oneFile({
+              title: "123盘单文件直链",
+              fileName: fileInfo["FileName"],
+              fileSize: fileSize,
+              downloadUrl: downloadUrl,
+              fileUploadTime: fileUploadTime,
+              fileLatestTime: fileLatestTime,
+            });
           } else {
             Qmsg.info("正在递归文件");
             that.folderNumber = 0;
@@ -1916,55 +1958,43 @@
               return timeStamp;
             });
             log.info(that.panelList);
+            let dataDownload = [];
             that.panelList.forEach((item) => {
               let fileUploadTime = new Date(item["createTime"]).getTime();
               let fileLatestTime = new Date(item["updateTime"]).getTime();
               fileUploadTime = utils.formatTime(fileUploadTime);
               fileLatestTime = utils.formatTime(fileLatestTime);
+              let dataDownloadInfo = {
+                fileName: item["fileName"],
+                fileUploadTime,
+                fileLatestTime,
+              };
               if (item["fileSize"] === 0) {
                 /* 异常的 */
+                dataDownloadInfo["success"] = false;
                 if (
                   typeof item["url"] === "string" &&
                   !item["url"].startsWith("http")
                 ) {
-                  that.panelContent += `
-                  <div class="netdisk-static-body">
-                      <div class="netdisk-static-filename">
-                          <a href="javascript:;">${item["fileName"]}</a>
-                      </div>
-                      <div class="netdisk-static-filesize">${item["url"]}</div>
-                      <div class="netdisk-static-fileuploadtime">${fileUploadTime}</div>
-                      <div class="netdisk-static-filelatesttime">${fileLatestTime}</div>
-                  </div>`;
+                  dataDownloadInfo["fileSize"] = item["url"];
                 } else {
-                  that.panelContent += `
-                  <div class="netdisk-static-body">
-                      <div class="netdisk-static-filename">
-                          <a href="javascript:;">${item["fileName"]}</a>
-                      </div>
-                      <div class="netdisk-static-filesize">获取直链失败</div>
-                  </div>`;
+                  dataDownloadInfo["fileSize"] = "获取直链失败";
                 }
               } else {
                 /* 正常的 */
-                that.panelContent += `
-                <div class="netdisk-static-body">
-                    <div class="netdisk-static-filename">
-                        <a target="_blank" href="${item["url"]}">${item["fileName"]}</a>
-                    </div>
-                    <div class="netdisk-static-filesize">${item["fileSize"]}</div>
-                    <div class="netdisk-static-fileuploadtime">${fileUploadTime}</div>
-                      <div class="netdisk-static-filelatesttime">${fileLatestTime}</div>
-                </div>`;
+                dataDownloadInfo["success"] = true;
+                dataDownloadInfo["downloadUrl"] = item["url"];
+                dataDownloadInfo["fileSize"] = item["fileSize"];
               }
+              dataDownload.push(dataDownloadInfo);
             });
-            NetDiskUI.staticView.moreFile("123盘多文件直链", that.panelContent);
+            NetDiskUI.staticView.moreFile("123盘多文件直链", dataDownload);
             log.info("递归完毕");
           }
         };
         /**
          * 校验链接有效性
-         * @returns {Boolean}
+         * @returns {boolean}
          */
         this.checkLinkValidity = async function () {
           Qmsg.info("正在校验链接有效性");
@@ -2068,7 +2098,7 @@
         };
         /**
          * 递归算法使用的请求
-         * @param {String} parentFileId
+         * @param {string} parentFileId
          * @returns
          */
         this.getFilesByRec = async function (parentFileId) {
@@ -2192,11 +2222,11 @@
         /**
          * 获取单文件下载链接
          * 123云盘新增了下载验证
-         * @param {String} Etag
-         * @param {String} FileID
-         * @param {String} S3keyFlag
-         * @param {String} ShareKey
-         * @param {String} Size
+         * @param {string} Etag
+         * @param {string} FileID
+         * @param {string} S3keyFlag
+         * @param {string} ShareKey
+         * @param {string} Size
          * @returns
          */
         this.getFileDownloadInfo = async function (
@@ -2380,7 +2410,7 @@
         };
         /**
          * 将直链的param参数解析成真正的直链
-         * @param {String} url
+         * @param {string} url
          * @returns
          */
         this.decodeDownloadUrl = async function (url) {
@@ -2458,12 +2488,12 @@
             );
             log.info(downloadUrl);
             /* 坚果云盘没有上传时间信息(暂时是这样的) */
-            NetDiskUI.staticView.oneFile(
-              "坚果云盘单文件直链",
-              downloadParams["name"],
-              fileSize,
-              downloadUrl
-            );
+            NetDiskUI.staticView.oneFile({
+              title: "坚果云盘单文件直链",
+              fileName: downloadParams["name"],
+              fileSize: fileSize,
+              downloadUrl: downloadUrl,
+            });
           }
         };
         /**
@@ -2510,24 +2540,22 @@
           if (downloadList.length == 0) {
             return;
           }
-          let folderContent = "";
+          let folderList = [];
 
           utils.sortListByProperty(downloadList, (item) => {
             return item["mtime"];
           });
 
           downloadList.forEach((item) => {
-            folderContent = `${folderContent}
-                <div class="netdisk-static-body">
-                  <div class="netdisk-static-filename">
-                    <a target="_blank" href="${item["url"]}">${item["name"]}</a>
-                  </div>
-                  <div class="netdisk-static-filesize">${item["size"]}</div>
-                </div>
-                `;
+            folderList.push({
+              success: true,
+              fileName: item["name"],
+              fileSize: item["size"],
+              downloadUrl: item["url"],
+            });
           });
           /* 坚果云盘没有上传时间信息(暂时是这样的) */
-          NetDiskUI.staticView.moreFile("坚果云多文件直链", folderContent);
+          NetDiskUI.staticView.moreFile("坚果云多文件直链", folderList);
         };
         /**
          * 获取下载链接所需要的hash值和name
@@ -2850,19 +2878,78 @@
             "nainiu-static-scheme-forward",
             downloadUrl
           );
-          NetDiskUI.staticView.oneFile(
-            "奶牛快传单文件直链",
-            checkLinkValidityInfo["fileName"],
-            checkLinkValidityInfo["fileSize"],
-            downloadUrl,
-            checkLinkValidityInfo["fileUploadTime"],
-            checkLinkValidityInfo["fileLatestTime"]
-          );
+          NetDiskUI.staticView.oneFile({
+            title: "奶牛快传单文件直链",
+            fileName: checkLinkValidityInfo["fileName"],
+            fileType: checkLinkValidityInfo["fileType"],
+            fileSize: checkLinkValidityInfo["fileSize"],
+            downloadUrl: downloadUrl,
+            fileUploadTime: checkLinkValidityInfo["fileUploadTime"],
+            fileLatestTime: checkLinkValidityInfo["fileLatestTime"],
+            clickCallBack: (_fileDetails_) => {
+              Qmsg.info(
+                `调用【GM_download】下载：${checkLinkValidityInfo["fileName"]}`
+              );
+              if (typeof GM_download === "undefined") {
+                Qmsg.error("当前脚本环境缺失API 【GM_download】");
+                return;
+              }
+              GM_download({
+                url: downloadUrl,
+                name: _fileDetails_["fileName"],
+                headers: {
+                  Referer: "https://cowtransfer.com/",
+                },
+                onload: () => {
+                  Qmsg.success(
+                    `下载 ${checkLinkValidityInfo["fileName"]} 已完成`
+                  );
+                },
+                onerror: function (error) {
+                  log.error(["下载失败error👉", error]);
+                  if (typeof error === "object" && error["error"]) {
+                    Qmsg.error(
+                      `下载 ${checkLinkValidityInfo["fileName"]} 失败或已取消 原因：${error["error"]}`,
+                      {
+                        timeout: 6000,
+                      }
+                    );
+                  } else {
+                    Qmsg.error(
+                      `下载 ${checkLinkValidityInfo["fileName"]} 失败或已取消`
+                    );
+                  }
+                },
+                ontimeout: () => {
+                  Qmsg.error(
+                    `下载 ${checkLinkValidityInfo["fileName"]} 请求超时`
+                  );
+                },
+              });
+            },
+          });
         };
 
         /**
          * 校验链接有效性并解析获取信息
-         * @returns {object|boolean}
+         * @returns {boolean| {
+         * zipDownload: boolean,
+         * guid:string,
+         * fileSize: string,
+         * fileName: string,
+         * fileUploadTime: number,
+         * fileLatestTime: number,
+         * } | {
+         * zipDownload: boolean,
+         * guid:string,
+         * id: string,
+         * fileSize: string,
+         * fileType: string,
+         * fileName: string,
+         * fileUploadTime: number,
+         * fileLatestTime: number,
+         *
+         * }}
          */
         this.checkLinkValidity = async function () {
           let url = `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${that.shareCode}`;
@@ -2947,6 +3034,8 @@
                   resultJSON["data"]["firstFile"]["file_info"]["size"]
                 ),
                 fileName: resultJSON["data"]["firstFile"]["file_info"]["title"],
+                fileType:
+                  resultJSON["data"]["firstFile"]["file_info"]["format"],
                 fileUploadTime: utils.formatTime(
                   resultJSON["data"]["firstFile"]["created_at"]
                 ),
@@ -3073,7 +3162,7 @@
       toastText = "已复制"
     ) {
       utils.setClip(
-        NetDiskParse.getBlankUrl(
+        NetDiskParse.getCopyUrlInfo(
           netDiskName,
           netDiskIndex,
           shareCode,
@@ -3157,16 +3246,36 @@
      * @returns {string}
      */
     getBlankUrl(netDiskName, netDiskIndex, shareCode, accessCode) {
-      let url = NetDisk.regular[netDiskName][netDiskIndex].blank;
+      let blankUrl = NetDisk.regular[netDiskName][netDiskIndex]["blank"];
       if (shareCode) {
-        url = url.replaceAll("{#shareCode#}", shareCode);
+        blankUrl = blankUrl.replaceAll("{#shareCode#}", shareCode);
       }
       if (accessCode && accessCode !== "") {
-        url = url.replaceAll("{#accessCode#}", accessCode);
+        blankUrl = blankUrl.replaceAll("{#accessCode#}", accessCode);
       } else {
-        url = url.replace(/( |提取码:|{#accessCode#}|\?pwd=)/gi, "");
+        blankUrl = blankUrl.replace(/( |提取码:|{#accessCode#}|\?pwd=)/gi, "");
       }
-      return url;
+      return blankUrl;
+    },
+    /**
+     * 获取用于复制到剪贴板的网盘信息
+     * @param {string} netDiskName
+     * @param {number} netDiskIndex
+     * @param {string|undefined} shareCode
+     * @param {string|undefined} accessCode
+     * @returns {string}
+     */
+    getCopyUrlInfo(netDiskName, netDiskIndex, shareCode, accessCode) {
+      let copyUrl = NetDisk.regular[netDiskName][netDiskIndex]["copyUrl"];
+      if (shareCode) {
+        copyUrl = copyUrl.replaceAll("{#shareCode#}", shareCode);
+      }
+      if (accessCode && accessCode !== "") {
+        copyUrl = copyUrl.replaceAll("{#accessCode#}", accessCode);
+      } else {
+        copyUrl = copyUrl.replace("\n密码：{#accessCode#}", "");
+      }
+      return copyUrl;
     },
     /**
      * 在iframe内访问资源，但是可能页面存在同源策略，会导致iframe不生效
@@ -3262,7 +3371,7 @@
      */
     tempData: GM_getValue("tempNetDiskInfo"),
     /**
-     * @type {Boolean|undefined} 自动输入访问码是否开启
+     * @type {boolean|undefined} 自动输入访问码是否开启
      */
     enable: GM_getValue("autoFillAccessCode"),
     shareCode: null,
@@ -3787,9 +3896,9 @@
     },
     /**
      * worker处理文件匹配后的回调
-     * @param {String} matchLink
-     * @param {String} netDiskName
-     * @param {Number} netDiskIndex
+     * @param {string} matchLink
+     * @param {string} netDiskName
+     * @param {number} netDiskIndex
      */
     successCallBack(matchLink, netDiskName, netDiskIndex) {
       /* 匹配为空，释放锁 */
@@ -3819,7 +3928,7 @@
     },
     /**
      * Worker失败回调
-     * @param {Object} error
+     * @param {object} error
      */
     errorCallBack(error) {
       NetDiskUI.isHandling = false;
@@ -3887,14 +3996,14 @@
        */
       oneFileStaticView_PC: {
         width: "50vw",
-        height: "220px",
+        height: "240px",
       },
       /**
        * 移动端 单文件弹窗
        */
       oneFileStaticView_Phone: {
         width: "88vw",
-        height: "220px",
+        height: "240px",
       },
       /**
        * 桌面端 多文件弹窗
@@ -4241,7 +4350,7 @@
       showSettingView() {
         /**
          * 获取设置界面的html
-         * @returns {String}
+         * @returns {string}
          */
         function getPopsSettingHTML() {
           let netDiskSettingHTML = "";
@@ -4918,47 +5027,41 @@
          * 设置 点击 label 弹出设置input range的默认值 事件
          */
         function setSettingLabelEvent() {
-          DOMUtils.on(
-            NetDiskUI.uiSettingAlias.popsElement.querySelector(
-              "label[data-id*=netdisk-]"
-            ),
-            "click",
-            function (event) {
-              let obj = event.target;
-              let nextObj = DOMUtils.next(obj);
-              let dataKey = nextObj.getAttribute("data-key");
-              let dataDefaultValue = nextObj.getAttribute("data-default");
-              let currentValue = nextObj.value;
-              pops.confirm({
-                mask: true,
-                title: {
-                  text: "提示",
-                  position: "center",
-                },
-                content: {
-                  text: `当前设置的值为:${currentValue}，是否修改为默认值:${dataDefaultValue} ？`,
-                },
-                btn: {
-                  ok: {
-                    callback: function (_event_) {
-                      log.info(
-                        `当前 ==> ${currentValue}，默认值 ==> ${dataDefaultValue}`
-                      );
-                      GM_setValue(dataKey, dataDefaultValue);
-                      DOMUtils.val(nextObj, dataDefaultValue);
-                      DOMUtils.trigger(nextObj, "propertychange");
-                      _event_.close();
-                    },
-                  },
-                },
-                forbiddenScroll: true,
-              });
-            }
-          );
           NetDiskUI.uiSettingAlias.popsElement
             .querySelectorAll("label[data-id*=netdisk-]")
             .forEach((item) => {
               item.style.setProperty("cursor", "pointer");
+              DOMUtils.on(item, "click", function (event) {
+                let obj = event.target;
+                let nextObj = DOMUtils.next(obj);
+                let dataKey = nextObj.getAttribute("data-key");
+                let dataDefaultValue = nextObj.getAttribute("data-default");
+                let currentValue = nextObj.value;
+                pops.confirm({
+                  mask: true,
+                  title: {
+                    text: "提示",
+                    position: "center",
+                  },
+                  content: {
+                    text: `当前设置的值为:${currentValue}，是否修改为默认值:${dataDefaultValue} ？`,
+                  },
+                  btn: {
+                    ok: {
+                      callback: function (_event_) {
+                        log.info(
+                          `当前 ==> ${currentValue}，默认值 ==> ${dataDefaultValue}`
+                        );
+                        GM_setValue(dataKey, dataDefaultValue);
+                        DOMUtils.val(nextObj, dataDefaultValue);
+                        DOMUtils.trigger(nextObj, "propertychange");
+                        _event_.close();
+                      },
+                    },
+                  },
+                  forbiddenScroll: true,
+                });
+              });
             });
         }
         NetDiskUI.uiSettingAlias = pops.alert({
@@ -5253,8 +5356,8 @@
         }
         /**
          * 进行切换 淡入淡出
-         * @param {Number} fadeTime 淡入\淡出的时间
-         * @param {String} currentBackgroundSrc 当前的背景资源
+         * @param {number} fadeTime 淡入\淡出的时间
+         * @param {string} currentBackgroundSrc 当前的背景资源
          */
         function startSwitch(fadeTime, currentBackgroundSrc) {
           currentList = getRandBgList();
@@ -5456,13 +5559,13 @@
       },
       /**
        * 获取视图html
-       * @param {String} netDiskImgSrc 网盘图标src
-       * @param {String} netDiskName 网盘名称
-       * @param {Number} netDiskIndex 网盘名称索引下标
-       * @param {String} shareCode
-       * @param {String} accessCode
-       * @param {String} uiLinkText 显示出来的链接文本
-       * @returns {String}
+       * @param {string} netDiskImgSrc 网盘图标src
+       * @param {string} netDiskName 网盘名称
+       * @param {number} netDiskIndex 网盘名称索引下标
+       * @param {string} shareCode
+       * @param {string} accessCode
+       * @param {string} uiLinkText 显示出来的链接文本
+       * @returns {string}
        */
       getViewHTML(
         netDiskImgSrc,
@@ -5558,7 +5661,7 @@
       /**
        * 显示右键菜单，调用方式
        * @param {Event} event
-       * @param {String} menuNodeId 右键菜单元素的id
+       * @param {string} menuNodeId 右键菜单元素的id
        * @param {Array} showTextList 右键菜单的内容，如：[{"text":"","callback":()=>{}}]
        */
       showContextMenu(
@@ -5655,10 +5758,10 @@
       },
       /**
        * 添加新的链接
-       * @param {String} netDiskName 网盘名称
-       * @param {Number} netDiskIndex 网盘名称索引下标
-       * @param {String} shareCode
-       * @param {String} accessCode
+       * @param {string} netDiskName 网盘名称
+       * @param {number} netDiskIndex 网盘名称索引下标
+       * @param {string} shareCode
+       * @param {string} accessCode
        */
       addLinkView(netDiskName, netDiskIndex, shareCode, accessCode) {
         NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
@@ -5695,10 +5798,10 @@
       },
       /**
        * 修改已存在的view
-       * @param {String} netDiskName 网盘名称
-       * @param {Number} netDiskIndex 网盘名称索引下标
-       * @param {String} shareCode
-       * @param {String} accessCode
+       * @param {string} netDiskName 网盘名称
+       * @param {number} netDiskIndex 网盘名称索引下标
+       * @param {string} shareCode
+       * @param {string} accessCode
        */
       changeLinkView(netDiskName, netDiskIndex, shareCode, accessCode) {
         NetDiskUI.netDiskHistoryMatch.setNetDiskHistoryMatchData(
@@ -5863,27 +5966,45 @@
         }
       },
       /**
-       * 单文件
-       * @param {String} title 标题
-       * @param {String} fileName 文件名
-       * @param {String} fileSize 文件大小
-       * @param {String} downloadUrl 文件链接
-       * @param {String} fileUploadTime 文件上传时间
-       * @param {String} fileLatestTime 文件最新时间
+       * 单文件直链弹窗
+       * @param {{
+       * title:string,
+       * fileName:string,
+       * fileType:?string,
+       * fileSize:?string,
+       * downloadUrl:string,
+       * fileUploadTime:?string,
+       * fileLatestTime:?string
+       * clickCallBack: ?(_fileDetails_:{
+       * title:string,
+       * fileName:string,
+       * fileType:?string,
+       * fileSize:?string,
+       * downloadUrl:string,
+       * fileUploadTime:?string,
+       * fileLatestTime:?string,
+       * })=>{}
+       * }} fileDetails 配置
        */
-      oneFile(
-        title,
-        fileName,
-        fileSize,
-        downloadUrl,
-        fileUploadTime,
-        fileLatestTime
-      ) {
+      oneFile(fileDetails) {
         this.addCSS();
-        Qmsg.success("成功获取直链");
+        log.success(["成功获取单文件直链", fileDetails]);
+        Qmsg.success("成功获取单文件直链");
+        let title = fileDetails["title"];
+        let fileName = fileDetails["fileName"];
+        let fileType = fileDetails["fileType"];
+        let fileSize = fileDetails["fileSize"];
+        let downloadUrl = fileDetails["downloadUrl"];
+        let fileUploadTime = fileDetails["fileUploadTime"];
+        let fileLatestTime = fileDetails["fileLatestTime"];
+        let clickCallBack = fileDetails["clickCallBack"];
         fileUploadTime = fileUploadTime === "" ? null : fileUploadTime;
         fileLatestTime = fileLatestTime === "" ? null : fileLatestTime;
-        pops.confirm({
+        if (fileType && !fileName.endsWith("." + fileType)) {
+          fileName = fileName + "." + fileType;
+          fileDetails["fileName"] = fileName;
+        }
+        let confirmElement = pops.confirm({
           title: {
             text: title,
             position: "center",
@@ -5894,7 +6015,11 @@
               <div class="netdisk-static-filename">
                 <a target="_blank" href="${downloadUrl}">${fileName}</a>
               </div>
-              <div class="netdisk-static-filesize">${fileSize}</div>
+              ${
+                fileSize
+                  ? `<div class="netdisk-static-filesize">${fileSize}</div>`
+                  : ""
+              }
               ${
                 fileUploadTime
                   ? `<div class="netdisk-static-fileuploadtime">${fileUploadTime}</div>`
@@ -5914,10 +6039,14 @@
             ok: {
               text: "下载",
               callback: (event) => {
-                let downloadUrl = event.popsElement
-                  .querySelector(".netdisk-static-filename a")
-                  .getAttribute("href");
-                window.open(downloadUrl, "_blank");
+                if (typeof clickCallBack === "function") {
+                  clickCallBack(fileDetails);
+                } else {
+                  let downloadUrl = event.popsElement
+                    .querySelector(".netdisk-static-filename a")
+                    .getAttribute("href");
+                  window.open(downloadUrl, "_blank");
+                }
               },
             },
           },
@@ -5933,22 +6062,96 @@
           drag: GM_getValue("pcDrag", false),
           forbiddenScroll: true,
         });
+        if (clickCallBack) {
+          let linkElement = confirmElement.element.querySelector(
+            "div.netdisk-static-filename a"
+          );
+          linkElement.setAttribute("href", "javascript:;");
+          linkElement.removeAttribute("target");
+          DOMUtils.on(linkElement, "click", function () {
+            clickCallBack(
+              fileName,
+              fileType,
+              fileSize,
+              downloadUrl,
+              fileUploadTime,
+              fileLatestTime
+            );
+          });
+        }
       },
       /**
-       * 多文件
-       * @param {String} title 标题
-       * @param {String} content 弹窗内容HTML或Text
+       * 多文件直链弹窗
+       * @param {string} title 标题
+       * @param {Array} [downloadInfoList=[]] 弹窗内容HTML或Text
+       * @param {?Function} clickCallBack 超链接的点击事件
        */
-      moreFile(title, content) {
+      moreFile(title, downloadInfoList = [], clickCallBack) {
         this.addCSS();
         Qmsg.success("成功获取多文件直链");
-        pops.alert({
+        let showHTML = "";
+        log.success(["多文件直链信息", downloadInfoList]);
+        downloadInfoList.forEach((info) => {
+          /* 该链接是否是成功的 */
+          let success = info["success"];
+          /* 文件名 */
+          let fileName = info["fileName"];
+          /* 文件大小 */
+          let fileSize = info["fileSize"];
+          /* 文件链接 */
+          let downloadUrl = info["downloadUrl"]?.trim();
+          /* 文件上传时间 */
+          let fileUploadTime = info["fileUploadTime"];
+          /* 文件最新时间 */
+          let fileLatestTime = info["fileLatestTime"];
+          if (success) {
+            showHTML += `
+            <div class="netdisk-static-body">
+              <div class="netdisk-static-filename">
+                    <a target="${
+                      downloadUrl === "javascript:;" ? "" : "_blank"
+                    }" href="${downloadUrl}" data-download='${JSON.stringify(
+              info
+            )}'>${fileName}</a>
+                  </div>
+              ${
+                fileSize
+                  ? `<div class="netdisk-static-filesize">${fileSize}</div>`
+                  : ""
+              }
+              ${
+                fileUploadTime
+                  ? `<div class="netdisk-static-fileuploadtime">${fileUploadTime}</div>`
+                  : ""
+              }
+              ${
+                fileLatestTime
+                  ? `<div class="netdisk-static-filelatesttime">${fileLatestTime}</div>`
+                  : ""
+              }
+            </div>
+            `;
+          } else {
+            showHTML += `
+            <div class="netdisk-static-body">
+              <div class="netdisk-static-filename">
+                <a href="javascript:;">${fileName}</a>
+              </div>
+              ${
+                fileSize
+                  ? `<div class="netdisk-static-filesize">${fileSize}</div>`
+                  : ""
+              }
+            </div>`;
+          }
+        });
+        let alertElement = pops.alert({
           title: {
             text: title,
             position: "center",
           },
           content: {
-            text: content,
+            text: showHTML,
             html: true,
           },
           btn: {
@@ -5968,14 +6171,29 @@
           drag: GM_getValue("pcDrag", false),
           forbiddenScroll: true,
         });
+        if (clickCallBack) {
+          log.success("设置当前直链弹窗超链接自定义点击事件");
+          alertElement.element
+            .querySelectorAll("div.netdisk-static-filename a")
+            .forEach((item) => {
+              item.setAttribute("href", "javascript:;");
+              item.removeAttribute("target");
+            });
+          DOMUtils.on(alertElement.element, "click", "a", function (event) {
+            /* 该链接是否是成功的 */ let dataDownload = utils.toJSON(
+              event.target.getAttribute("data-download")
+            );
+            clickCallBack(event, dataDownload);
+          });
+        }
       },
     },
     /**
      * 需要重新输入新密码的弹窗
-     * @param {String} title 标题
-     * @param {String} netDiskName 网盘名称
-     * @param {Number} netDiskIndex 网盘名称索引下标
-     * @param {String} shareCode
+     * @param {string} title 标题
+     * @param {string} netDiskName 网盘名称
+     * @param {number} netDiskIndex 网盘名称索引下标
+     * @param {string} shareCode
      * @param {Function} okCallBack
      */
     newAccessCodeView(
@@ -6284,7 +6502,7 @@
       },
       /**
        * 获取显示出的每一项的html
-       * @param {Object} item
+       * @param {object} item
        * @param {number} index item的索引
        * @returns
        */
@@ -6685,10 +6903,10 @@
       },
       /**
        * 存储匹配到的链接
-       * @param {String} netDiskName 网盘名称
-       * @param {Number} netDiskIndex 网盘名称索引下标
-       * @param {String} shareCode
-       * @param {String} accessCode
+       * @param {string} netDiskName 网盘名称
+       * @param {number} netDiskIndex 网盘名称索引下标
+       * @param {string} shareCode
+       * @param {string} accessCode
        * @returns
        */
       setNetDiskHistoryMatchData(
@@ -6758,7 +6976,7 @@
       },
       /**
        * 删除存储的某个项
-       * @param {String} dataJSONText
+       * @param {string} dataJSONText
        */
       deleteNetDiskHistoryMatchData(dataJSONText) {
         let data = this.getNetDiskHistoryMatchData();
