@@ -876,7 +876,7 @@
 
   var pops = {};
   pops.config = {
-    version: "0.0.7",
+    version: "0.0.8",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -1312,7 +1312,15 @@
 
   /**
    * 普通信息框
-   * @returns {JSON}
+   * @returns {{
+   * guid: string,
+   * element: Element,
+   * popsElement: Element,
+   * maskElement: Element,
+   * close: Function,
+   * hide: Function,
+   * show: Function,
+   * }}
    */
   pops.alert = function () {
     if (this.config.init === false) {
@@ -1522,7 +1530,15 @@
 
   /**
    * 询问框
-   * @returns {JSON}
+   * @returns {{
+   * guid: string,
+   * element: Element,
+   * popsElement: Element,
+   * maskElement: Element,
+   * close: Function,
+   * hide: Function,
+   * show: Function,
+   * }}
    */
   pops.confirm = function () {
     if (this.config.init === false) {
@@ -1792,7 +1808,15 @@
 
   /**
    * 输入框
-   * @returns {JSON}
+   * @returns {{
+   * guid: string,
+   * element: Element,
+   * popsElement: Element,
+   * maskElement: Element,
+   * close: Function,
+   * hide: Function,
+   * show: Function,
+   * }}
    */
   pops.prompt = function () {
     if (this.config.init === false) {
@@ -2080,7 +2104,15 @@
 
   /**
    * 加载层
-   * @returns {JSON}
+   * @returns {{
+   * guid: string,
+   * element: Element,
+   * popsElement: Element,
+   * maskElement: Element,
+   * close: Function,
+   * hide: Function,
+   * show: Function,
+   * }}
    */
   pops.loading = function () {
     if (this.config.init === false) {
@@ -2165,7 +2197,15 @@
 
   /**
    * iframe层
-   * @returns {JSON}
+   * @returns {{
+   * guid: string,
+   * element: Element,
+   * popsElement: Element,
+   * maskElement: Element,
+   * close: Function,
+   * hide: Function,
+   * show: Function,
+   * }}
    */
   pops.iframe = function () {
     if (this.config.init === false) {
@@ -2462,6 +2502,21 @@
 
   /**
    * 提示框
+   * @returns {{
+   * guid: string,
+   * config: {target: null,
+   * content:string,
+   * location:string,
+   * className:string,
+   * triggerShowEventName:string,
+   * triggerCloseEventName:string,
+   * triggerShowEventCallBack:Function,
+   * triggerCloseEventCallBack:Function,
+   * arrowHeight: number
+   * },
+   * off: Function,
+   * on: Function,
+   * }}
    */
   pops.tooltip = function () {
     if (this.config.init === false) {
