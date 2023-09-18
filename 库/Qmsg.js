@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-11-18 13:38:41
  * @LastEditors: WhiteSev 893177236@qq.com
- * @LastEditTime: 2023-09-15 16:40:54
+ * @LastEditTime: 2023-09-18 11:35:52
  * @原地址: https://www.jq22.com/jquery-info23550
  * @说明: 修改config配置{"position":"topleft|top|topright|centerleft|center|centerright|bottomleft|bottomright|bottom"} 九宫格，
  * 		  九个位置弹出，修改原center为显示中间，top代替原center
@@ -25,22 +25,18 @@
 })(typeof window !== "undefined" ? window : this, function (global) {
   "use strict";
 
-  /* assign 兼容处理 */
-  if (typeof Object.assign != "function") {
+  if (typeof Object.assign !== "function") {
     Object.assign = function (target) {
-      if (target == null) {
-        throw new TypeError("Cannot convert undefined or null to object");
-      }
       target = Object(target);
-      for (var index = 1; index < arguments.length; index++) {
-        var source = arguments[index];
-        if (source != null) {
-          for (var key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-              target[key] = source[key];
+      if (arguments.length > 1) {
+        let sourceList = [...arguments].splice(1, arguments.length - 1);
+        sourceList.forEach((sourceItem) => {
+          for (var sourceKey in sourceItem) {
+            if (Object.prototype.hasOwnProperty.call(sourceItem, sourceKey)) {
+              target[sourceKey] = sourceItem[sourceKey];
             }
           }
-        }
+        });
       }
       return target;
     };
@@ -111,16 +107,19 @@
   /**
    * 全局默认配置
    * 可在引入js之前通过QMSG_GLOBALS.DEFAULTS进行配置
-   * position {String} 位置，仅支持'center','right','left',默认'center'
-   * showReverse {Boolean} 弹出顺序是否逆反，true|false，默认false
-   * showMoreContent {Boolean} 是否使内容进行换行显示，true|false，默认false
-   * showIcon {Boolean} 是否显示左边的icon图标, true|false，默认true
-   * type {String} 类型，支持'info','warning','success','error','loading'
-   * showClose {Boolean} 是否显示关闭图标，默认为false不显示
-   * timeout {Number} 多久后自动关闭，单位ms,默认2500
-   * autoClose {Boolean} 是否自动关闭，默认true,注意在type为loading的时候自动关闭为false
-   * content {String} 提示的内容
-   * onClose {Function} 关闭的回调函数
+   * @param {boolean} animation 是否使用动画，默认true
+   * @param {boolean} autoClose 是否自动关闭，默认true,注意在type为loading的时候自动关闭为false
+   * @param {string} content 显示的内容
+   * @param {boolean} html 内容是否是html，默认false
+   * @param {string} position 位置，仅支持'center','right','left',默认'center'
+   * @param {boolean} showClose 是否显示关闭图标，默认为false不显示
+   * @param {number} maxNums 最大显示的数量，默认为5
+   * @param {?Function} onClose 关闭的回调函数
+   * @param {boolean} showIcon 是否显示左边的icon图标,默认true
+   * @param {boolean} showMoreContent 是否使内容进行换行显示，默认false
+   * @param {boolean} showReverse 弹出顺序是否逆反，默认false
+   * @param {number} timeout 最大显示的时长(ms)，默认为2500ms
+   * @param {string} type 类型，支持'info','warning','success','error','loading'
    */
   var DEFAULTS = Object.assign(
     {
@@ -204,17 +203,20 @@
    * 每条消息的构造函数
    * @param {Objetc} opts 配置参数，参考DEFAULTS
    */
-  function Msg(opts, uuid) {
+  function Msg(opts = {}, uuid) {
     var oMsg = this;
-    oMsg.settings = Object.assign({}, DEFAULTS, opts || {});
+    oMsg.settings = Object.assign({}, DEFAULTS, DEFAULTS, opts);
     oMsg.uuid = uuid;
     var timeout = oMsg.settings.timeout;
-    timeout =
+    if (
       timeout &&
-      parseInt(timeout >= 0) &&
-      parseInt(timeout) <= Math.NEGATIVE_INFINITY
-        ? parseInt(timeout)
-        : DEFAULTS.timeout;
+      parseInt(timeout) >= 0 &&
+      parseInt(timeout) <= Number.MAX_VALUE
+    ) {
+      timeout = parseInt(timeout);
+    } else {
+      timeout = DEFAULTS.timeout;
+    }
     oMsg.timeout = timeout;
     oMsg.settings.timeout = timeout;
     oMsg.timer = null;
@@ -318,7 +320,7 @@
     );
     if (oMsg.settings.autoClose) {
       // 自动关闭
-      setTimeout(
+      oMsg.timer = setTimeout(
         function () {
           this.close();
         }.bind(oMsg),
@@ -440,7 +442,17 @@
     $count.innerHTML = oMsg.count;
     $count.style.animationName = "";
     $count.style.animationName = "MessageShake";
+    /* 重置定时器 */
+    clearTimeout(oMsg.timer);
     oMsg.timeout = oMsg.settings.timeout || DEFAULTS.timeout;
+    if (oMsg.settings.autoClose) {
+      oMsg.timer = setTimeout(
+        function () {
+          this.close();
+        }.bind(oMsg),
+        oMsg.timeout
+      );
+    }
   }
 
   /**
@@ -520,7 +532,7 @@
   }
 
   var Qmsg = {
-    version: "0.0.3" /* 版本 */,
+    version: "0.0.4" /* 版本 */,
     oMsgs: [] /* 实例数组 */,
     maxNums: DEFAULTS.maxNums || 5 /* 最大数量 */,
     config: function (cfg) {
@@ -529,34 +541,68 @@
       this.maxNums =
         DEFAULTS.maxNums && DEFAULTS.maxNums > 0
           ? parseInt(DEFAULTS.maxNums)
-          : 3;
-    } /* 配置 */,
+          : 5;
+    },
+    /**
+     * 信息
+     * @param {string} txt 内容
+     * @param {object} config 配置
+     * @returns {Msg}
+     */
     info: function (txt, config) {
       var params = mergeArgs(txt, config);
       params.type = "info";
       return judgeReMsg.call(this, params);
     },
+    /**
+     * 警告
+     * @param {string} txt 内容
+     * @param {object} config 配置
+     * @returns {Msg}
+     */
     warning: function (txt, config) {
       var params = mergeArgs(txt, config);
       params.type = "warning";
       return judgeReMsg.call(this, params);
     },
+    /**
+     * 成功
+     * @param {string} txt 内容
+     * @param {object} config 配置
+     * @returns {Msg}
+     */
     success: function (txt, config) {
       var params = mergeArgs(txt, config);
       params.type = "success";
       return judgeReMsg.call(this, params);
     },
+    /**
+     * 失败
+     * @param {string} txt 内容
+     * @param {object} config 配置
+     * @returns {Msg}
+     */
     error: function (txt, config) {
       var params = mergeArgs(txt, config);
       params.type = "error";
       return judgeReMsg.call(this, params);
     },
+    /**
+     * 加载中
+     * @param {string} txt 内容
+     * @param {object} config 配置
+     * @returns {Msg}
+     */
     loading: function (txt, config) {
       var params = mergeArgs(txt, config);
       params.type = "loading";
       params.autoClose = false;
       return judgeReMsg.call(this, params);
     },
+    /**
+     * 根据uuid删除Qmsg实例和元素
+     * @param {string} uuid
+     */
     remove: function (uuid) {
       this.oMsgs.forEach((item, index) => {
         if (item.uuid === uuid) {
@@ -565,6 +611,9 @@
         }
       });
     },
+    /**
+     * 关闭当前页面中所有的Qmsg
+     */
     closeAll: function () {
       /* 使用splice会改变数组长度，先获取长度 */
       let oMsgsLength = this.oMsgs.length;
