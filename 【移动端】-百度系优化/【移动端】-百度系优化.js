@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      1.5.4.4
+// @version      2023.9.18
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -44,8 +44,8 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1251653
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1250683
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1252079
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1252082
 // @run-at       document-start
 // ==/UserScript==
 (function () {
@@ -253,6 +253,14 @@
       this.loadingViewElement = null;
     }
     /**
+     * 删除页面中所有的loadingView
+     */
+    removeAll() {
+      document
+        .querySelectorAll("." + this.loadingClassName)
+        .forEach((item) => item.remove());
+    }
+    /**
      * 判断Loading是否已加载到页面中
      * @returns {boolean}
      * + true 存在
@@ -263,14 +271,14 @@
     }
     /**
      * 判断Loading是否存在Loading图标
-     * @returns true|false
+     * @returns {boolean}
      */
     isExistsIcon() {
       return Boolean(this.getLoadingViewIconElement());
     }
     /**
      * 判断Loading中的文本是否存在
-     * @returns true|false
+     * @returns {boolean}
      */
     isExistsText() {
       return Boolean(
@@ -280,9 +288,23 @@
       );
     }
     /**
+     * 判断页面中是否存在CSS的style
+     * @returns {boolean}
+     */
+    isExistsCSS() {
+      return Boolean(
+        document.querySelector(
+          "style[data-from='loadingView'][type='text/css'][data-author='whitesev']"
+        )
+      );
+    }
+    /**
      * 加载需要的CSS
      */
     setCSS() {
+      if (this.isExistsCSS()) {
+        return;
+      }
       let cssText = `
         .${this.loadingClassName}{
           margin: 0.08rem;
@@ -440,6 +462,8 @@
         }`;
       let cssNode = document.createElement("style");
       cssNode.setAttribute("type", "text/css");
+      cssNode.setAttribute("data-from", "loadingView");
+      cssNode.setAttribute("data-author", "whitesev");
       cssNode.innerHTML = cssText;
       if (document.documentElement.childNodes.length === 0) {
         /* 插入body后 */
@@ -3299,8 +3323,8 @@
               }
             }
           }
-          if(userAvatar.startsWith("//")){
-            userAvatar = "https:"+userAvatar;
+          if (userAvatar.startsWith("//")) {
+            userAvatar = "https:" + userAvatar;
           }
           let userAvatarObj = new URL(userAvatar);
           let userPortrait = data_field["author"]["portrait"];
@@ -4872,9 +4896,10 @@
               <input type="search" id="tieba-search" placeholder="请输入搜索内容..." style="display: none;padding: 0 10px;height: 32px;line-height: 32px;font-size: 14px;border-radius: 5px;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;-o-appearance: none;appearance: none;border: 1px solid #000000;outline: none;flex: 1;margin: 0px 40px;" autocomplete="off">
               <div class="more-btn-desc" style="margin-right: 13px;font-size: .15rem;font-weight: 700;color: #614ec2;">搜索</div>
               `;
-            document
-              .querySelector("div.more-btn-desc")
-              .addEventListener("click", function () {
+            DOMUtils.on(
+              document.querySelector("div.more-btn-desc"),
+              "click",
+              function () {
                 let searchParams = new URLSearchParams(window.location.search);
                 if (
                   window.location.pathname === "/f" &&
@@ -4882,6 +4907,7 @@
                 ) {
                   /* 当前是在吧内，搜索按钮判定搜索贴子 */
                   loadingView.setCSS();
+                  loadingView.removeAll();
                   let loadingViewNode = loadingView.getParseLoadingNode(true);
                   DOMUtils.after(
                     document.querySelector("div.tb-page__main"),
@@ -4910,7 +4936,8 @@
                     }
                   );
                 }
-              });
+              }
+            );
 
             this.searchSuggestion = new SearchSuggestion({
               isAbsoulte: false,
@@ -5673,7 +5700,6 @@
           }
           log.success(`获取下一页地址: ${nextPageUrl}`);
           loadingView.setCSS();
-
           let loadingViewNode = loadingView.getParseLoadingNode(true);
           console.log(document.querySelector(".BK-main-content"));
           DOMUtils.after(
