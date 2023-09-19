@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.18
+// @version      2023.9.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -1717,6 +1717,28 @@
           return url.startsWith("https://m.baidu.com/from");
         },
         /**
+         * 判断链接是否是黑名单链接，不进行处理
+         * @param {string} url
+         * @returns {boolean}
+         * + true 是黑名单url
+         * + false 不是黑名单url
+         */
+        isBlackList(url) {
+          let blackList = [
+            new RegExp("^http(s|)://m.baidu.com/productcard", "g"),
+            new RegExp("^http(s|)://ks.baidu.com"),
+          ];
+          let flag = false;
+          for (let index = 0; index < blackList.length; index++) {
+            let blackUrlRegexp = blackList[index];
+            if (url.match(blackUrlRegexp)) {
+              flag = true;
+              break;
+            }
+          }
+          return flag;
+        },
+        /**
          * 为搜索结果每一条设置原始链接
          * @param {Element} targetNode
          * @param {string} articleURL article的真实url
@@ -1734,6 +1756,9 @@
             if (utils.isNull(articleURL) || articleURL === item.href) {
               return;
             }
+            if (handleItemURL.isBlackList(articleURL)) {
+              return;
+            }
             item.href = articleURL;
             log.info("替换成新链接: " + articleURL);
           });
@@ -1742,7 +1767,10 @@
             .querySelectorAll("div[data-aftclk][class*=img-container]")
             .forEach((item) => {
               let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
-              if (!utils.isNull(domOriginUrl)) {
+              if (
+                !utils.isNull(domOriginUrl) &&
+                !handleItemURL.isBlackList(domOriginUrl)
+              ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
                 log.info("替换成新链接2: " + domOriginUrl);
@@ -1753,10 +1781,13 @@
             .querySelectorAll("div.c-video-container div[data-aftclk]")
             .forEach((item) => {
               let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
-              if (!utils.isNull(domOriginUrl)) {
+              if (
+                !utils.isNull(domOriginUrl) &&
+                !handleItemURL.isBlackList(domOriginUrl)
+              ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
-                log.info("视频替换成新链接: " + domOriginUrl);
+                log.info("视频替换成新链接1: " + domOriginUrl);
               }
             });
           /* 对搜索结果中存在的视频进行处理 */
@@ -1764,10 +1795,13 @@
             .querySelectorAll('div[data-module="sc_pc"] div[rl-link-href]')
             .forEach((item) => {
               let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
-              if (!utils.isNull(domOriginUrl)) {
+              if (
+                !utils.isNull(domOriginUrl) &&
+                !handleItemURL.isBlackList(domOriginUrl)
+              ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
-                log.info("视频替换成新链接: " + domOriginUrl);
+                log.info("视频替换成新链接2: " + domOriginUrl);
               }
             });
         },
@@ -2279,6 +2313,11 @@
             if (!articleElement) {
               continue;
             }
+            /* 不对黑名单链接进行处理 */
+            if (handleItemURL.isBlackList(resultItemOriginURL)) {
+              log.error("黑名单链接不进行替换👉" + resultItemOriginURL);
+              continue;
+            }
             if (
               !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
             ) {
@@ -2338,20 +2377,13 @@
                   0,
                   internalVideoMatch.length - 2
                 );
+                resultItemOriginURL = newinternalVideo;
                 log.info(`视频链接 ${newinternalVideo}`);
-                handleItemURL.setArticleOriginUrl(item, newinternalVideo);
-                articleElement.setAttribute("rl-link-href", newinternalVideo);
               }
-            } else if (
-              resultItemOriginURL.match(
-                /^http(s|):\/\/m.baidu.com\/productcard/g
-              )
-            ) {
-              log.error("该链接不予替换: " + resultItemOriginURL);
-            } else {
-              handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
-              articleElement.setAttribute("rl-link-href", resultItemOriginURL);
             }
+            /* 替换链接 */
+            handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
+            articleElement.setAttribute("rl-link-href", resultItemOriginURL);
           }
         },
       };
