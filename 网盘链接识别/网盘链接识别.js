@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.18.12.00
+// @version      23.9.19.23.00
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1252080
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1252079
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1252082
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1253067
 // ==/UserScript==
 
 (function () {
@@ -959,42 +959,82 @@
         };
         this.regexp = {
           unicode: {
-            match: /[%\u4e00-\u9fa5]+/g /* 判断该链接是否是中文 */,
+            /**
+             * 判断该链接是否是中文
+             */
+            match: /[%\u4e00-\u9fa5]+/g,
             tip: "中文链接",
             isUnicode: false,
           },
+          /**
+           * 蓝奏文件取消分享
+           */
           noFile: {
-            match: /div>来晚啦...文件取消分享了<\/div>/g /* 蓝奏文件取消分享 */,
+            match: /div>来晚啦...文件取消分享了<\/div>/g,
             tip: "来晚啦...文件取消分享了",
           },
+          /**
+           * 蓝奏文件链接错误
+           */
           noExists: {
-            match: /div>文件不存在，或已删除<\/div>/g /* 蓝奏文件链接错误 */,
+            match: /div>文件不存在，或已删除<\/div>/g,
             tip: "文件不存在，或已删除",
           },
+          /**
+           * 2023-9-19 蓝奏云修改分享规则，需要vip用户才可以分享 apk、ipa 链接
+           */
+          needVipToShare: {
+            match: /class="fbox">非会员.+请先开通会员/gi,
+            tip: "该链接为非会员用户分享的文件，目前无法下载",
+          },
+          /**
+           * 蓝奏多文件
+           */
           moreFile: {
-            match:
-              /<span id=\"filemore\" onclick=\"more\(\);\">/g /* 蓝奏多文件 */,
+            match: /<span id=\"filemore\" onclick=\"more\(\);\">/g,
           },
+          /**
+           * 蓝奏设置了密码的单文件请求需要的sign值
+           */
           sign: {
-            match:
-              /var[\s]*(posign|postsign|vidksek)[\s]*=[\s]*'(.+?)';/ /* 蓝奏设置了密码的单文件请求需要的sign值 */,
+            match: /var[\s]*(posign|postsign|vidksek)[\s]*=[\s]*'(.+?)';/,
           },
+          /**
+           * 蓝奏文件名
+           */
           fileName: {
-            match: /<title>(.*)<\/title>/ /* 蓝奏文件名 */,
+            match: /<title>(.*)<\/title>/,
           },
+          /**
+           * 蓝奏文件大小
+           */
           size: {
-            match: /<span class=\"mtt\">\((.*)\)<\/span>/ /* 蓝奏文件大小 */,
+            match: /<span class=\"mtt\">\((.*)\)<\/span>/,
           },
+          /**
+           * 蓝奏文件直链host
+           */
           loadDownHost: {
-            match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i /* 蓝奏文件直链host */,
+            match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i,
           },
+          /**
+           * 蓝奏文件直链
+           */
           loadDown: {
             match:
-              /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i /* 蓝奏文件直链 */,
+              /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i,
           },
+          /**
+           * 蓝奏云之苹果使用类型的文件
+           */
+          appleDown: {
+            match: /var[\s]*appitem[\s]*=[\s]*'(.+?)'/i,
+          },
+          /**
+           * 蓝奏云文件上传时间
+           */
           uploadTime: {
-            match:
-              /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i /* 蓝奏云文件上传时间 */,
+            match: /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i,
           },
         };
         /**
@@ -1041,10 +1081,8 @@
             return;
           }
           if (that.isMoreFile(respData)) {
-            log.info("该链接为多文件");
             await that.getMoreFile();
           } else {
-            log.info("该链接为单文件");
             log.info(respData);
             if (getShareCodeByPageAgain) {
               let shareCodeNewMatch = respData.responseText.match(
@@ -1059,7 +1097,9 @@
         /**
          * 页面检查，看看是否存在文件失效情况
          * @param {object} response
-         * @returns
+         * @returns {boolean}
+         * + true 未失效
+         * + false 已失效
          */
         this.checkPageCode = function (response) {
           let pageText = response.responseText;
@@ -1071,20 +1111,28 @@
             Qmsg.error(that.regexp.noExists.tip);
             return false;
           }
+          if (pageText.match(that.regexp.needVipToShare.match)) {
+            Qmsg.error(that.regexp.needVipToShare.tip);
+            return false;
+          }
           return true;
         };
         /**
          * 判断是否是多文件的链接
          * @param {object} response
-         * @returns
+         * @returns {boolean}
+         * + true 多文件
+         * + false 单文件
          */
         this.isMoreFile = function (response) {
           let pageText = response.responseText;
           if (pageText.match(that.regexp.moreFile.match)) {
             log.info("该链接为多文件");
             return true;
+          } else {
+            log.info("该链接为单文件");
+            return false;
           }
-          return false;
         };
         /**
          * 访问蓝奏tp获取sign
@@ -1204,15 +1252,26 @@
           } else {
             let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
             let loadDown = pageText.match(that.regexp.loadDown.match);
-            if (utils.isNull(loadDownHost)) {
-              Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者");
-              return;
-            }
+            let appleDown = pageText.match(that.regexp.appleDown.match);
             if (utils.isNull(loadDown)) {
               loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
             }
+            if (utils.isNull(loadDownHost) && appleDown) {
+              appleDown = appleDown[appleDown.length - 1];
+              loadDownHost = [appleDown];
+              loadDown = [""];
+              log.success(["多文件-当前链接猜测为苹果的文件", appleDown]);
+            }
+            if (utils.isNull(loadDownHost)) {
+              Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者", {
+                timeout: 3500,
+              });
+              return;
+            }
             if (utils.isNull(loadDown)) {
-              Qmsg.error("蓝奏云直链：获取sign失败，请反馈开发者");
+              Qmsg.error("蓝奏云直链：获取sign失败，请反馈开发者", {
+                timeout: 3500,
+              });
               return;
             }
             let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${
@@ -1367,8 +1426,15 @@
             let pageText = respData.responseText;
             let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
             let loadDown = pageText.match(that.regexp.loadDown.match);
+            let appleDown = pageText.match(that.regexp.appleDown.match);
             if (utils.isNull(loadDown)) {
               loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
+            }
+            if (utils.isNull(loadDown) && appleDown) {
+              appleDown = appleDown[appleDown.length - 1];
+              loadDownHost = [appleDown];
+              loadDown = [""];
+              log.success(["多文件-当前链接猜测为苹果的文件", appleDown]);
             }
             let submit_url = "javascript:;";
             let downloadUrl = "";
