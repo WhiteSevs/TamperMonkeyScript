@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-18";
+  DOMUtils.version = "2023-9-19";
 
   let globalUtils = {
     /**
@@ -89,6 +89,10 @@
    * // 创建一个DIV元素
    * DOMUtils.createElement("div");
    * > <div></div>
+   * @example
+   * // 创建一个DIV元素
+   * DOMUtils.createElement("div","测试");
+   * > <div>测试</div>
    */
   DOMUtils.createElement = function (tagName, property) {
     let tempElement = document.createElement(tagName);
