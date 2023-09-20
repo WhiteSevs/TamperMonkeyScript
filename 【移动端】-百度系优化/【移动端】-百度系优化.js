@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.19
+// @version      2023.9.20
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -44,8 +44,8 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1252079
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1253067
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1253311
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1253312
 // @run-at       document-start
 // ==/UserScript==
 (function () {
@@ -6172,6 +6172,12 @@
       }
       GM_addStyle(this.css.graph);
       log.info("插入CSS规则");
+      /**
+       * 上传图片
+       * @async
+       * @param {Event} event
+       * @returns
+       */
       async function uploadImage(event) {
         let uploadImageFile = event.target.files[0];
         if (!uploadImageFile) {
@@ -6221,7 +6227,7 @@
           let uploadImageDivDOM = DOMUtils.createElement("div", {
             class: "vf-home-booth-camera",
           });
-          DOMUtils.css({
+          DOMUtils.css(uploadImageDivDOM, {
             position: "absolute",
             bottom: "-.42rem",
             left: "50%",
@@ -6243,6 +6249,42 @@
 
           DOMUtils.after(nodeList[0], uploadImageDivDOM);
         });
+      /* 重构主页的往下滑动右下角出现的搜索图标按钮 */
+      utils.waitNode(".vf-home.view-page").then((nodeList) => {
+        let divHomeCamera = DOMUtils.createElement("div", {
+          class: "vf-home-camera",
+        });
+        DOMUtils.css(divHomeCamera, {
+          display: "none",
+          position: "fixed",
+          right: ".1rem",
+          bottom: ".48rem",
+          height: ".74rem",
+          width: ".74rem",
+          "border-radius": "3px",
+          background:
+            "url(https://imgn0.bdstatic.com/image/mobile/n/static/wiseik/static/img/cameraBtn_c19ac1e.png) no-repeat 50%/100% auto",
+          "text-align": "center",
+        });
+        DOMUtils.on(divHomeCamera, "click", function () {
+          document.querySelector("input#whitesev-upload-image").click();
+        });
+        DOMUtils.append(nodeList[0], divHomeCamera);
+        utils.watchObject(
+          nodeList[0].__vue__,
+          "showBottomCamera",
+          () => {
+            return false;
+          },
+          (_value_) => {
+            if (_value_) {
+              DOMUtils.show(divHomeCamera);
+            } else {
+              DOMUtils.hide(divHomeCamera);
+            }
+          }
+        );
+      });
       /* 如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题 */
       utils.waitNode("#app .graph-noresult-text1").then(() => {
         if (window.location.search.endsWith("&tpl_from=pc")) {
@@ -6260,7 +6302,7 @@
             class: "retake-image",
             textContent: "重拍",
           });
-          DOMUtils.css({
+          DOMUtils.css(retakeDivDOM, {
             position: "absolute",
             top: "50%",
             right: "0",
