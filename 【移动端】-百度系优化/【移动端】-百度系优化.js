@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.20.16
+// @version      2023.9.21
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -48,6 +48,7 @@
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1253312
 // @run-at       document-start
 // ==/UserScript==
+
 (function () {
   /**
    * @type {import("../库/Viewer")}
@@ -2675,7 +2676,12 @@
          * 是否是Via
          */
         isVia: false,
+        /**
+         * 当前页
+         */
+        currentPage: 1,
         init() {
+          this.initPageLineCSS();
           this.isSearchCraftUA = navigator.userAgent.includes("SearchCraft");
           this.isVia = utils.isWebView_Via();
           this.scrollLockFunction = new utils.LockFunction(
@@ -2707,7 +2713,7 @@
         },
         /**
          * 滚动事件
-         * @returns {Promise}
+         * @async
          */
         async scrollEvent() {
           if (!utils.isNearBottom(window.innerHeight / 3)) {
@@ -2743,7 +2749,7 @@
                 : "第 " + parseInt(params_pn[0]) + " 条"
             }数据: ${nextPageUrl}`
           );
-
+          handleNextPage.currentPage = parseInt(params_pn[0] / 10);
           loadingView.setText("Loading...", true);
           let getResp = await httpx.get({
             url: nextPageUrl,
@@ -2794,6 +2800,11 @@
               nextPageHTMLNode.querySelector("#page-controller");
             let currentResultsDOM = document.querySelector("#results");
             if (nextPageControllerDOM) {
+              /* 用于划分显示分页 */
+              currentResultsDOM.appendChild(
+                handleNextPage.getPageLineElement(handleNextPage.currentPage)
+              );
+              /* 每一条搜索结果拼接在后面 */
               searchResultDOM.forEach((item) => {
                 currentResultsDOM.appendChild(item);
               });
@@ -2831,6 +2842,59 @@
             loadingView.setText("未知错误");
             log.error(respData);
           }
+        },
+        /**
+         * 初始化页码的CSS
+         */
+        initPageLineCSS() {
+          GM_addStyle(`
+          .whitesev-page-info {
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+          }
+          
+          .whitesev-page-info .whitesev-new-pagenav {
+            display: block;
+            width: auto;
+            color: #333;
+            z-index: 1;
+            text-decoration: none;
+            position: relative;
+            height: 52px;
+            line-height: 52px;
+            margin: .08rem;
+            background: #fff;
+            word-wrap: break-word;
+            border: 0;
+            border-radius: 0.06rem;
+            text-align: center;
+            text-align: -webkit-center;
+            font-weight: bold;
+          }
+          
+          .whitesev-page-info p::before {
+            content:"第";
+            margin-right: 10px;
+          }
+          .whitesev-page-info p::after {
+            content:"页";
+            margin-left: 10px;
+          }
+          `);
+        },
+        /**
+         * 获取自定义页码元素
+         * @param {string|number} _pageText_ 页码
+         * @returns {HTMLElement}
+         */
+        getPageLineElement(_pageText_) {
+          return DOMUtils.createElement("div", {
+            class: "whitesev-page-info result-op",
+            innerHTML: `
+              <div class="whitesev-new-pagenav">
+                <p>${_pageText_}</p>
+              </div>
+            `,
+          });
         },
       };
 
