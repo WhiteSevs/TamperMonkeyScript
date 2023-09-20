@@ -1660,6 +1660,7 @@
       graph: `
       #app section.vf-home-booth div.vf-w-button.vf-home-booth-camera,
       #viewport .graph-imagecut-banner-invoke,
+      /* 往下滑动右下角的搜索图标按钮 */
       #app .vf-home-camera{
         display: none !important;
       }
