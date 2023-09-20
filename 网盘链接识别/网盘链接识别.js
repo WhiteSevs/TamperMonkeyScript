@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.19.23.00
+// @version      23.9.20.16.25
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -101,7 +101,6 @@
     },
   });
   let GM_Menu = null;
-
   const NetDisk = {
     /**
      * 是否初始化
@@ -637,7 +636,7 @@
         this.isInit = true;
       }
       /* 选择的进行匹配的项 all、innerText、innerHTML */
-      let matchTextRange = GM_getValue("pageMatchRange", "innerText");
+      let matchTextRange = GM_getValue("pageMatchRange", "all");
       /* 对innerText 和 innerHTML进行match */
       if (matchTextRange.toLowerCase() === "all") {
         this.pageText = this.ignoreStrRemove(document.body.innerText);
@@ -5083,7 +5082,15 @@
             .forEach((item) => {
               let dataKey = item.getAttribute("data-key");
               let dataDefaultValue = item.getAttribute("data-default");
-              let getDataValue = GM_getValue(dataKey, dataDefaultValue);
+              let getDataValue = GM_getValue(dataKey);
+              if (getDataValue == null && dataDefaultValue != null) {
+                /* 存储中不存在该值，设置默认值 */
+                log.success(
+                  `存储中不存在该值，设置默认值 key:：${dataKey} value：${dataDefaultValue}`
+                );
+                GM_setValue(dataKey, dataDefaultValue);
+                getDataValue = GM_getValue(dataKey);
+              }
               item
                 .querySelector(`option[data-value='${getDataValue}']`)
                 .setAttribute("selected", true);
