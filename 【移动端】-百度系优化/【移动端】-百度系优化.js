@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.20
+// @version      2023.9.20.16
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -3019,17 +3019,18 @@
         GM_addStyle(`
 			  .infinite-scroll-component__outerdiv,
         div#page_wrapper > div > div:nth-child(5),
-        div:has(+ .infinite-scroll-component__outerdiv) {
-          display: none !important;
-        }
-        /* 电脑端的文章居中 */
-        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1){
-          width: auto !important;
-        }
+        div:has(+ .infinite-scroll-component__outerdiv),
+        /* 电脑端的左边的按钮-屏蔽 */
+        #ssr-content > :last-child ,
         /* 电脑端的右边的推荐-屏蔽 */
         #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2){
           display: none !important;
         }
+        /* 电脑端的文章居中 */
+        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1){
+          width: 55% !important;
+        }
+        
         `);
       }
       if (GM_Menu.get("baijiahao_shield_user_comment")) {
