@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-18";
+  Utils.version = "2023-9-20";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -69,7 +69,7 @@
 
   /**
    * 【手机】检测点击的地方是否在该元素区域内
-   * @param {HTMLElement|Node} obj	需要检测的元素
+   * @param {Element|Node} obj	需要检测的元素
    * @returns {boolean}
    * + true 点击在元素上
    * + false 未点击在元素上
@@ -80,7 +80,7 @@
   Utils.checkUserClickInNode = function (targetNode) {
     if (!Utils.isDOM(targetNode)) {
       throw new Error(
-        "Utils.checkUserClickInNode 参数 targetNode 必须为 HTMLElement|Node 类型"
+        "Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型"
       );
     }
     let mouseClickPosX = Number(window.event.clientX); /* 鼠标相对屏幕横坐标 */
@@ -115,7 +115,7 @@
 
   /**
    * 删除某个父元素，父元素可能在上层或上上层或上上上层...
-   * @param {HTMLElement|Node} target	当前元素
+   * @param {Element|Node} target	当前元素
    * @param {string} targetSelector	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
    * @returns {boolean}
    * + true 已删除
@@ -297,11 +297,11 @@
 
   /**
    * 定位网页中可见字符串的位置定位并高亮
-   * @param {string} str	需要寻找的字符串
-   * @param {boolean} caseSensitive
+   * @param {string} [str=""]	需要寻找的字符串
+   * @param {boolean} [caseSensitive=false]
    * + true 区分大小写
    * + false (默认) 不区分大小写
-   * @return {boolean}
+   * @returns {boolean}
    * + true 找到
    * + false 未找到
    * @example
@@ -343,7 +343,7 @@
   /**
    * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
    * @param {number} bitSize 字节
-   * @param {boolean} addType
+   * @param {boolean} [addType=true]
    * + true (默认) 添加单位
    * + false 不添加单位
    * @returns {string|number}
@@ -420,8 +420,8 @@
 
   /**
    * 获取格式化后的时间
-   * @param {string|undefined} text	需要格式化的字符串或者时间戳
-   * @param {string|undefined} formatType	格式化成的显示类型
+   * @param {string} [text= new Date()]	需要格式化的字符串或者时间戳
+   * @param {string} [formatType = "yyyy-MM-dd HH:mm:ss"]	格式化成的显示类型
    * + yyyy 年
    * + MM 月
    * + dd 天
@@ -440,7 +440,10 @@
    * Utils.formatTime()
    * > '2023-1-1 00:00:00'
    **/
-  Utils.formatTime = function (text, formatType = "yyyy-MM-dd HH:mm:ss") {
+  Utils.formatTime = function (
+    text = new Date(),
+    formatType = "yyyy-MM-dd HH:mm:ss"
+  ) {
     if (text != null && typeof text !== "string" && typeof text !== "number") {
       throw new Error("Utils.formatTime 参数 text 必须为 string|number 类型");
     }
@@ -495,7 +498,7 @@
    * @param {string} text	字符串格式的时间，例如：
    * + 2022-11-21 00:00:00
    * + 00:00:00
-   * @return {number} 返回时间戳
+   * @returns {number} 返回时间戳
    * @example
    * Utils.formatToTimeStamp("2022-11-21 00:00:00");
    * > 1668960000000
@@ -681,9 +684,9 @@
 
   /**
    * 获取天数差异，如何获取某个时间与另一个时间相差的天数
-   * @param {number} timestamp1 时间戳(毫秒|秒)，不区分哪个更大
-   * @param {number} timestamp2 时间戳(毫秒|秒)，不区分哪个更大
-   * @param {string} type 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
+   * @param {number} [timestamp1= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
+   * @param {number} [timestamp2= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
+   * @param {string} [type= "天"] 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
    * @returns {number}
    * @example
    * Utils.getDaysDifference(new Date().getTime());
@@ -764,7 +767,7 @@
   /**
    * 获取元素的选择器字符串
    * @param {HTMLElement} element
-   * @returns {string}
+   * @returns {string|undefined}
    * @example
    * Utils.getElementSelector(document.querySelector("a"))
    * > '.....'
@@ -911,7 +914,7 @@
 
   /**
    * 获取随机的安卓手机User-Agent
-   * @return {string} 返回随机字符串
+   * @returns {string} 返回随机字符串
    * @example
    * Utils.getRandomAndroidUA();
    * > 'Mozilla/5.0 (Linux; Android 9; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
@@ -999,7 +1002,7 @@
   };
   /**
    * 获取随机的电脑端User-Agent
-   * @return {string} 返回随机字符串
+   * @returns {string} 返回随机字符串
    * @example
    * Utils.getRandomPCUA();
    * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
@@ -1013,20 +1016,20 @@
 
   /**
    * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance
-   * @param {HTMLElement} dom 需要获取的目标元素
+   * @param {HTMLElement} element 需要获取的目标元素
    * @returns {object}
    * @example
    * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
    */
-  Utils.getReactObj = function (dom) {
+  Utils.getReactObj = function (element) {
     let result = {};
-    Object.keys(dom).forEach((domPropsName) => {
+    Object.keys(element).forEach((domPropsName) => {
       if (domPropsName.startsWith("__react")) {
         let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
         if (propsName in result) {
           new Error("重复属性 " + domPropsName);
         } else {
-          result[propsName] = dom[domPropsName];
+          result[propsName] = element[domPropsName];
         }
       }
     });
@@ -1050,7 +1053,7 @@
   /**
    * 获取文本占据的空间大小，返回自动的单位，如12 Kb,14 K,20 MB，1 GB
    * @param {string} text 目标字符串
-   * @param {boolean} addType
+   * @param {boolean} [addType=true]
    * + true (默认) 自动添加单位
    * + false 不添加单位
    * @returns {string}
@@ -1586,6 +1589,7 @@
    * 为减少代码量和回调，把GM_xmlhttpRequest封装
    * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
    * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
+   * @param {Function} _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest（必须）
    * @example
     let httpx = new Utils.Httpx(GM_xmlhttpRequest);
     let postResp = await httpx.post({
@@ -1626,34 +1630,103 @@
       );
     }
     let defaultDetails = {
+      /**
+       * @type {string} 网址
+       */
       url: undefined,
+      /**
+       * @type {number|undefined} 超时时间，默认5000，可为空
+       */
       timeout: 5000,
+      /**
+       * @type {boolean} 是否异步，默认false，可为空
+       */
       async: false,
+      /**
+       * @type {"arraybuffer"|"blob"|"json"|"stream"|"document"} 响应类型，默认document，可为空
+       */
       responseType: undefined,
+      /**
+       * @type {object|undefined} 请求头，可为空
+       */
       headers: undefined,
+      /**
+       * @type {string|undefined} 当使用post时，该值会生效，可为空
+       */
       data: undefined,
+      /**
+       * @type {"follow"|"error"|"manual"} 当触发重定向的使用规则，默认follow，可为空
+       */
       redirect: undefined,
+      /**
+       * @type {string|undefined} 自定义Cookie，可为空
+       */
       cookie: undefined,
+      /**
+       * @type {any|undefined} 以二进制模式发送数据字符串，可为空
+       */
       binary: undefined,
+      /**
+       * @type {boolean|undefined} 是否缓存资源，默认true，可为空
+       */
       nocache: undefined,
+      /**
+       * @type {boolean|undefined} 是否重新验证可能缓存的内容，默认true，可为空
+       */
       revalidate: undefined,
+      /**
+       * @type {object|undefined} 将该对象添加到响应的属性中，可为空
+       */
       context: undefined,
+      /**
+       * @type {string|undefined} 重写mimeType，可为空
+       */
       overrideMimeType: undefined,
+      /**
+       * @type {boolean|undefined} 是否匿名不发送Cookie，默认为false，可为空
+       */
       anonymous: undefined,
+      /**
+       * @type {boolean|undefined} 是否使用fetch来发送请求，默认为false，可为空
+       */
       fetch: undefined,
+      /**
+       * @type {string|undefined} 身份验证的用户名
+       */
       user: undefined,
+      /**
+       * @type {string|undefined} 身份验证的密码
+       */
       password: undefined,
+      /**
+       * @type {function|undefined} 当请求被取消或中断，触发该回调，可为空
+       */
       onabort: function () {},
+      /**
+       * @type {function|undefined} 当请求异常，触发该回调，如404，可为空
+       */
       onerror: function () {},
+      /**
+       * @type {function|undefined} 当请求超时，触发该回调，可为空
+       */
       ontimeout: function () {},
+      /**
+       * @type {function|undefined} 当请求开始，触发该回调，可为空
+       */
       onloadstart: function () {},
+      /**
+       * @type {function|undefined} 当请求状态改变，触发该回调，可为空
+       */
       onreadystatechange: function () {},
+      /**
+       * @type {function|undefined} 当请求上传文件进度改变，触发该回调，可为空
+       */
       onprogress: function () {},
     };
 
     /**
      * 发送请求
-     * @param {Object} details
+     * @param {defaultDetails} details
      */
     function request(details) {
       _GM_xmlHttpRequest_(details);
@@ -1663,7 +1736,7 @@
      * 获取请求配置
      * @param {object} method 当前请求方法，默认get
      * @param {object} resolve promise回调
-     * @param {object} details 请求配置
+     * @param {defaultDetails} details 请求配置
      * @returns {object}
      */
     function getRequestDefails(method, resolve, details) {
@@ -1712,7 +1785,7 @@
     }
     /**
      * 处理发送请求的details，去除值为undefined、空function的值
-     * @param {object} details
+     * @param {defaultDetails} details
      * @returns {object}
      */
     function handleRequestDetails(details) {
@@ -1736,7 +1809,7 @@
 
     /**
      * onabort请求被取消-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} resolve 回调
      * @param {object} argumentsList 参数列表
      */
@@ -1756,7 +1829,7 @@
 
     /**
      * onerror请求异常-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} resolve 回调
      * @param {object} argumentsList 响应的参数列表
      */
@@ -1775,7 +1848,7 @@
     }
     /**
      * ontimeout请求超时-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} resolve 回调
      * @param {object} argumentsList 参数列表
      */
@@ -1795,7 +1868,7 @@
 
     /**
      * onloadstart请求开始-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} argumentsList 参数列表
      */
     function onLoadStartCallBack(details, argumentsList) {
@@ -1808,7 +1881,7 @@
 
     /**
      * onreadystatechange准备状态改变-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} argumentsList 参数列表
      */
     function onReadyStateChangeCallBack(details, argumentsList) {
@@ -1821,7 +1894,7 @@
 
     /**
      * onprogress上传进度-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} argumentsList 参数列表
      */
     function onProgressCallBack(details, argumentsList) {
@@ -1834,7 +1907,7 @@
 
     /**
      * onload加载完毕-触发
-     * @param {object} details 配置
+     * @param {defaultDetails} details 配置
      * @param {object} resolve 回调
      * @param {object} response 响应
      */
@@ -1864,6 +1937,8 @@
 
     /**
      * GET 请求
+     * @async
+     * @param {...defaultDetails|string} arguments
      */
     this.get = async function () {
       let details = {};
@@ -1885,6 +1960,8 @@
     };
     /**
      * POST 请求
+     * @async
+     * @param {...defaultDetails|string} arguments
      */
     this.post = async function () {
       let details = {};
@@ -1905,6 +1982,8 @@
     };
     /**
      * HEAD 请求
+     * @async
+     * @param {...defaultDetails|string} arguments
      */
     this.head = async function () {
       let details = {};
@@ -1927,6 +2006,8 @@
 
     /**
      * OPTIONS请求
+     * @async
+     * @param {...defaultDetails|string} arguments
      */
     this.options = async function () {
       let details = {};
@@ -1949,6 +2030,8 @@
 
     /**
      * DELETE请求
+     * @async
+     * @param {...defaultDetails|string} arguments
      */
     this.delete = async function () {
       let details = {};
@@ -1971,6 +2054,8 @@
 
     /**
      * PUT请求
+     * @async
+     * @param {...defaultDetails|string} arguments
      */
     this.put = async function () {
       let details = {};
@@ -1991,8 +2076,8 @@
     };
 
     /**
-     * 修改默认配置
-     * @param {Object} details
+     * 覆盖当前配置
+     * @param {defaultDetails} details
      */
     this.config = function (details) {
       defaultDetails = Utils.assign(defaultDetails, details);
@@ -2023,9 +2108,9 @@
     db.deleteAll().then(resolve=>{
         console.log(resolve,'清除数据库---->>>>>>name')
     })
-   * @param {string} dbName 数据存储名
-   * @param {string} storeName 表名
-   * @param {number} dbVersion indexDB的版本号
+   * @param {string} [dbName="default_db"] 数据存储名
+   * @param {string} [storeName="default_form"] 表名
+   * @param {number} [dbVersion=1] indexDB的版本号
    **/
   Utils.indexedDB = function (
     dbName = "default_db",
@@ -2356,7 +2441,7 @@
 
   /**
    * 判断当前的位置是否位于页面底部附近
-   * @param {number} nearValue 判断在页面底部的误差值，默认:50
+   * @param {number} [nearValue=50] 判断在页面底部的误差值，默认:50
    * @returns {boolean}
    * + true 在底部附近
    * + false 不在底部附近
@@ -2380,7 +2465,11 @@
    * > true
    */
   Utils.isDOM = function (obj) {
-    return obj instanceof HTMLElement || obj instanceof Node;
+    return (
+      obj instanceof HTMLElement ||
+      obj instanceof Node ||
+      obj instanceof Element
+    );
   };
 
   /**
@@ -2544,7 +2633,7 @@
 
   /**
    * 判断当前设备是否是移动端
-   * @return {boolean}
+   * @returns {boolean}
    * + true 是移动端
    * + false 不是移动端
    * @example
@@ -2668,8 +2757,8 @@
 
   /**
    * 判断元素是否在页面中可见
-   * @param {[...HTMLElement]|NodeList} dom 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
-   * @param {boolean} inView
+   * @param {[...HTMLElement]|NodeList} element 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
+   * @param {boolean} [inView=false]
    * + true 在窗口可视区域
    * + false 不在窗口可视区域
    * @returns {boolean}
@@ -2679,12 +2768,12 @@
    * Utils.isVisible(document.documentElement)
    * > true
    */
-  Utils.isVisible = function (dom, inView = false) {
+  Utils.isVisible = function (element, inView = false) {
     let needCheckDomList = [];
-    if (dom instanceof Array || dom instanceof NodeList) {
-      needCheckDomList = [...dom];
+    if (element instanceof Array || element instanceof NodeList) {
+      needCheckDomList = [...element];
     } else {
-      needCheckDomList = [dom];
+      needCheckDomList = [element];
     }
     let result = true;
     for (const domItem of needCheckDomList) {
@@ -2790,20 +2879,20 @@
   };
 
   /**
-   * 把Object内的value值全部取出成Array
-   * @param {object} obj JSON数据
-   * @return {object} 返回数组
+   * 把对象内的value值全部取出成数组
+   * @param {object} target 目标对象
+   * @returns {object} 返回数组
    * @example
    * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
-   * @return ['jsonToArray', 'Array']
+   * > ['jsonToArray', 'Array']
    **/
-  Utils.parseObjectToArray = function (obj) {
-    if (typeof obj !== "object") {
+  Utils.parseObjectToArray = function (target) {
+    if (typeof target !== "object") {
       throw new Error("Utils.parseObjectToArray 参数 obj 必须为 object 类型");
     }
     let result = [];
-    Object.keys(obj).forEach(function (keyName) {
-      result = result.concat(obj[keyName]);
+    Object.keys(target).forEach(function (keyName) {
+      result = result.concat(target[keyName]);
     });
     return result;
   };
@@ -2899,7 +2988,7 @@
    * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
    * @param {function|string} func 需要执行的函数
    * @param {function|undefined} scope 函数作用域
-   * @param {number} unLockDelayTime 延迟xx毫秒后解锁，默认0
+   * @param {number} [unLockDelayTime=0] 延迟xx毫秒后解锁，默认0
    * @example
     let lock = new Utils.LockFunction(()=>{console.log(1)}))
     lock.run();
@@ -2944,7 +3033,7 @@
 
   /**
    * 日志对象
-   * @param {function} _GM_info_ 油猴管理器的API GM_info
+   * @param {object|undefined} _GM_info_ 油猴管理器的API GM_info
    * @example
     let log = new Utils.Log(GM_info);
     log.info("普通输出");
@@ -3214,7 +3303,15 @@
   /**
    * 监听页面元素改变并处理
    * @param {object|Node|HTMLElement} target 需要监听的元素，如果不存在，可以等待它出现
-   * @param {object} observer_config MutationObserver的配置
+   * @param {{
+   * subtree: boolean|undefined,
+   * childList: boolean|undefined,
+   * attributes: boolean|undefined,
+   * attributeFilter: [...string]|undefined,
+   * attributeOldValue: boolean|undefined,
+   * characterData: boolean|undefined,
+   * characterDataOldValue: boolean|undefined,
+   * }} observer_config MutationObserver的配置
    * @example
     Utils.mutationObserver(document.querySelector("div.xxxx"),{
       "callback":(mutations, observer)=>{},
@@ -3338,8 +3435,8 @@
    * 恢复/释放该对象内的为function，让它无效/有效
    * @param {object} needReleaseObject 需要操作的对象
    * @param {string} needReleaseName 需要操作的对象的名字
-   * @param {array} functionNameList 需要释放的方法，如果为空，默认全部方法
-   * @param {boolean} release
+   * @param {array} [functionNameList=[]] 需要释放的方法，如果为空，默认全部方法
+   * @param {boolean} [release=true]
    * + true (默认) 释放该对象下的某些方法
    * + false 恢复该对象下的某些方法
    * @example
@@ -3489,7 +3586,7 @@
   /**
    * base64转blob
    * @param {string} dataUri base64的数据
-   * @return {string} blob的链接
+   * @returns {string} blob的链接
    * @example
    * Utils.parseBase64ToBlob("data:image/jpeg;base64,.....");
    * > blob://xxxxxxx
@@ -3516,12 +3613,13 @@
   /**
    * base64转File对象
    * @param {string} dataUri	base64的数据
-   * @return {string}	blob的链接
+   * @param {string} [fileName="example"] 文件名，默认为example
+   * @returns {File} blob的链接
    * @example
    * Utils.parseBase64ToFile("data:image/jpeg;base64,.....","测试文件");
    * > object
    **/
-  Utils.parseBase64ToFile = function (dataUri, fileName) {
+  Utils.parseBase64ToFile = function (dataUri, fileName = "example") {
     if (typeof dataUri !== "string") {
       throw new Error(
         "Utils.parseBase64ToFile 参数 dataUri 必须为 string 类型"
@@ -3547,8 +3645,8 @@
 
   /**
    * 将正则匹配到的结果取出最后一个值并转换成int格式
-   * @param {[...any]} matchList 正则匹配的列表
-   * @param {number|string} defaultValue 正则匹配的列表为空时，或者正则匹配的列表最后一项不为Int，返回该默认值
+   * @param {[...any]} [matchList=[]] 正则匹配的列表
+   * @param {number|string} [defaultValue=0] 正则匹配的列表为空时，或者正则匹配的列表最后一项不为Int，返回该默认值0
    * @example
    * Utils.parseInt(["dadaadada123124","123124"],0);
    * > 123124
@@ -3581,8 +3679,10 @@
 
   /**
    * blob转File对象
+   * @async
    * @param {string} blobUrl	需要转换的blob的链接
-   * @param {string} [fileName="example"]	转换成的File对象的文件名称
+   * @param {string} [fileName="example"]	转换成的File对象的文件名称，默认为example
+   * @async
    * @example
    * Utils.parseBlobToFile("blob://xxxxx");
    * > object
@@ -3623,6 +3723,7 @@
 
   /**
    * 【异步函数】File对象转base64
+   * @async
    * @param {object} fileObj	需要转换的File对象
    * @example
    * await Utils.parseFileToBase64(object);
@@ -3641,7 +3742,7 @@
   /**
    * 解析字符串
    * @param {string} text 要解析的 DOMString。它必须包含 HTML、xml、xhtml+xml 或 svg 文档。
-   * @param {string} mimeType 解析成的类型，包括：text/html、text/xml、application/xml、application/xhtml+xml、image/svg+xml
+   * @param {string} mimeType 解析成的类型，包括：text/html（默认）、text/xml、application/xml、application/xhtml+xml、image/svg+xml
    * @returns {HTMLElement|XMLDocument|SVGElement}
    * @example
    * Utils.parseFromString("<p>123<p>");
@@ -3688,7 +3789,17 @@
 
   /**
    * 在canvas元素节点上绘制进度圆圈
-   * @param {object} paramConfig 配置信息
+   * @param {{
+   * canvasNode : ?HTMLCanvasElement,
+   * deg: number,
+   * progress: number,
+   * lineWidth: number,
+   * lineBgColor: string,
+   * lineColor: string,
+   * fontSize: string,
+   * circleRadius: string,
+   * draw: ?Function
+   * }} paramConfig 配置信息
    * @example
     let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
     progress.draw();
@@ -3880,9 +3991,10 @@
 
   /**
    * 【异步函数】等待N秒执行函数
+   * @async
    * @param {function|string} func	待执行的函数(字符串)
    * @param {number} delayTime	延时时间(ms)
-   * @Return	函数的返回值
+   * @returns	函数的返回值
    * @example
    * await Utils.setTimeout(()=>{}, 2500);
    * > ƒ tryCatchObj() {}
@@ -3906,6 +4018,7 @@
 
   /**
    * 【异步函数】延迟xxx毫秒
+   * @async
    * @param {number} delayTime 延时时间(ms)
    * @example
    * await Utils.sleep(2500)
@@ -3924,7 +4037,7 @@
   /**
    * 向右拖动滑块
    * @param {string|Element|Node} selector 选择器|元素
-   * @param {number} offsetX 水平拖动长度，默认浏览器宽度
+   * @param {number} [offsetX= window.innerWidth] 水平拖动长度，默认浏览器宽度
    * @example
    * Utils.dragSlider("#xxxx");
    * @example
@@ -3978,8 +4091,8 @@
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
    * @param {[...any]|NodeList|function} data 数据|获取数据的方法
    * @param {string|function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
-   * @param {boolean} sortByDesc 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
-   * @return {object} 返回比较排序完成的数组
+   * @param {boolean} [sortByDesc=true] 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
+   * @returns {object} 返回比较排序完成的数组
    * @example
    * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]})
    * > [{time: '2022-2-2'},{time: '2022-1-1'}]
@@ -4132,7 +4245,7 @@
 
   /**
    * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-   * @return {{run:function,config:function,error:function}} - 返回一个对象，其中包含 error 和 run 两个方法。
+   * @returns {{run:function,config:function,error:function}} - 返回一个对象，其中包含 error 和 run 两个方法。
    * @example
    * Utils.tryCatch().error().run(()=>{console.log(1)});
    * > 1
@@ -4166,7 +4279,7 @@
     /**
      * 设置错误处理函数。
      * @param {function|string} handler - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-     * @return {function} - 返回 tryCatchObj 函数。
+     * @returns {function} - 返回 tryCatchObj 函数。
      */
     tryCatchObj.error = function (handler) {
       handleErrorFunc = handler;
@@ -4177,7 +4290,7 @@
      * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @param {function|string} fn - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {object|null} fnThis - 待执行函数的作用域，用于apply指定
-     * @return {any|function} - 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
+     * @returns {any|function} - 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
      * @throws {Error} - 如果传入参数不符合要求，则会抛出相应类型的错误。
      */
     tryCatchObj.run = function (fn, fnThis) {
@@ -4192,7 +4305,7 @@
      * @param {function|string} func - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {function|string|null} handleErrorFunc - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {object|null} funcThis - 待执行函数的作用域，用于apply指定
-     * @return {any|undefined} - 如果函数有返回值，则返回该返回值；否则返回 undefined。
+     * @returns {any|undefined} - 如果函数有返回值，则返回该返回值；否则返回 undefined。
      */
     function executeTryCatch(func, handleErrorFunc, funcThis) {
       let result = undefined;
@@ -4267,29 +4380,36 @@
    * 观察对象的set、get
    * @param {object} obj 观察的对象
    * @param {string} propertyName 观察的对象的属性名
-   * @param {function} setCallBack 触发set的回调
-   * @param {function} getCallBack 触发get的回调
+   * @param {function} getCallBack 触发get的回调，可以自定义返回特定值
+   * @param {function} setCallBack 触发set的回调，参数为将要设置的value
    * @example
-   * Utils.watchObj(window,"test",(value)=>{console.log("test出现，值是",value)},()=>{return 111;});
+   * Utils.watchObject(window,"test",()=>{return 111;},(value)=>{console.log("test出现，值是",value)});
    *
    * window.test = 1;
    * > test出现，值是 1
    * console.log(window.test);
    * > 111;
    */
-  Utils.watchObj = function (obj, propertyName, setCallBack, getCallBack) {
+  Utils.watchObject = function (obj, propertyName, getCallBack, setCallBack) {
     Object.defineProperty(obj, propertyName, {
-      set(value) {
-        setCallBack(value);
-      },
       get() {
-        return getCallBack();
+        if (typeof getCallBack === "function") {
+          return getCallBack(value);
+        } else {
+          return obj[propertyName];
+        }
+      },
+      set(value) {
+        if (typeof setCallBack === "function") {
+          setCallBack(value);
+        }
       },
     });
   };
 
   /**
    * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
+   * @async
    * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
    * @param {function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
    * @example
@@ -4310,6 +4430,7 @@
 
   /**
    * 等待指定节点出现，支持多个 selector
+   * @async
    * @param {...string} nodeSelectors - 一个或多个节点选择器，必须为字符串类型
    * @returns {Promise} 返回一个 Promise 对象，成功时返回节点数组，如[ [...nodes], [...nodes] ]
    * 如果参数 nodeSelectors 只有一个的话，返回 [...nodes]
@@ -4374,21 +4495,22 @@
   };
 
   /**
-   * 定时检查对象是否存在
+   * 等待对象上的属性出现
+   * @async
    * @param {object} checkObj 检查的对象
-   * @param {string} checkPropertyName 检查的对象的属性名
+   * @param {any} checkPropertyName 检查的对象的属性名
    * @param {Promise}
    * @example
-   * await Utils.waitObj(window,"test");
+   * await Utils.waitProperty(window,"test");
    * console.log("test success set");
    *
    * window.test = 1;
    * > "test success set"
    *
    */
-  Utils.waitObj = async function (checkObj, checkPropertyName) {
+  Utils.waitProperty = async function (checkObj, checkPropertyName) {
     return new Promise((resolve) => {
-      if (checkPropertyName in checkObj) {
+      if (Object.hasOwnProperty.call(checkObj, checkPropertyName)) {
         resolve(checkObj[checkPropertyName]);
       } else {
         Object.defineProperty(checkObj, checkPropertyName, {

@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-19";
+  DOMUtils.version = "2023-9-20";
 
   let globalUtils = {
     /**
@@ -309,7 +309,7 @@
   };
   /**
    * 绑定或触发元素的focus事件
-   * @param {Element|string} element 目标元素
+   * @param {Element|string|window} element 目标元素
    * @param {?function} [handler] 事件处理函数（可选）
    * @example
    * // 触发元素a.xx的focus事件
@@ -827,7 +827,7 @@
   };
   /**
    * 主动触发事件
-   * @param {Element|string} element 需要触发的元素
+   * @param {Element|string|window} element 需要触发的元素
    * @param {String|Array} eventType 需要触发的事件
    * @example
    * // 触发元素a.xx的click事件
