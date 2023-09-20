@@ -1,8 +1,11 @@
 // ==UserScript==
 // @name         GreasyFork优化
+// @namespace    https://greasyfork.org/zh-CN/scripts/475722
+// @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
 // @version      2023.9.18
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
+// @license      MIT
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
 // @match        http*://*.greasyfork.org/*
 // @run-at       document-start
