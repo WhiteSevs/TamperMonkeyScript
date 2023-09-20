@@ -1659,7 +1659,8 @@
       `,
       graph: `
       #app section.vf-home-booth div.vf-w-button.vf-home-booth-camera,
-      #viewport .graph-imagecut-banner-invoke{
+      #viewport .graph-imagecut-banner-invoke,
+      #app .vf-home-camera{
         display: none !important;
       }
       `,
@@ -6252,7 +6253,7 @@
       /* 重构主页的往下滑动右下角出现的搜索图标按钮 */
       utils.waitNode(".vf-home.view-page").then((nodeList) => {
         let divHomeCamera = DOMUtils.createElement("div", {
-          class: "vf-home-camera",
+          class: "whitesev-vf-home-camera",
         });
         DOMUtils.css(divHomeCamera, {
           display: "none",
