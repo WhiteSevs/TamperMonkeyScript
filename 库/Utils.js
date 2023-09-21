@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-20";
+  Utils.version = "2023-9-21";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -420,7 +420,7 @@
 
   /**
    * 获取格式化后的时间
-   * @param {string} [text= new Date()]	需要格式化的字符串或者时间戳
+   * @param {string|number} [text= new Date()]	需要格式化的字符串或者时间戳
    * @param {string} [formatType = "yyyy-MM-dd HH:mm:ss"]	格式化成的显示类型
    * + yyyy 年
    * + MM 月
@@ -444,12 +444,6 @@
     text = new Date(),
     formatType = "yyyy-MM-dd HH:mm:ss"
   ) {
-    if (text != null && typeof text !== "string" && typeof text !== "number") {
-      throw new Error("Utils.formatTime 参数 text 必须为 string|number 类型");
-    }
-    if (typeof formatType !== "string") {
-      throw new Error("Utils.formatTime 参数 formatType 必须为 string 类型");
-    }
     let time = text == null ? new Date() : new Date(text);
     /**
      * 校验时间补0
