@@ -3298,13 +3298,16 @@
    * 监听页面元素改变并处理
    * @param {object|Node|HTMLElement} target 需要监听的元素，如果不存在，可以等待它出现
    * @param {{
-   * subtree: boolean|undefined,
-   * childList: boolean|undefined,
-   * attributes: boolean|undefined,
-   * attributeFilter: [...string]|undefined,
-   * attributeOldValue: boolean|undefined,
-   * characterData: boolean|undefined,
-   * characterDataOldValue: boolean|undefined,
+   * config:{
+   *   subtree: boolean|undefined,
+   *   childList: boolean|undefined,
+   *   attributes: boolean|undefined,
+   *   attributeFilter: [...string]|undefined,
+   *   attributeOldValue: boolean|undefined,
+   *   characterData: boolean|undefined,
+   *   characterDataOldValue: boolean|undefined,
+   * },
+   * callback: (mutations, observer)=>{}
    * }} observer_config MutationObserver的配置
    * @example
     Utils.mutationObserver(document.querySelector("div.xxxx"),{
