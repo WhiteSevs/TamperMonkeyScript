@@ -278,28 +278,32 @@
           return;
         }
         let loginTip = Qmsg.loading("正在登录中...");
-        let postResp = await httpx.post({
-          url: "https://greasyfork.org/zh-CN/users/sign_in",
-          data: encodeURI(
-            `authenticity_token=${csrfToken.getAttribute(
-              "content"
-            )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
-          ),
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        loginTip.destroy();
-        if (!postResp.status) {
-          log.error(postResp);
-          Qmsg.success("登录失败，请在控制台查看原因");
+        let postResp = null;
+        try {
+          postResp = await fetch("https://greasyfork.org/zh-CN/users/sign_in", {
+            method: "POST",
+            body: encodeURI(
+              `authenticity_token=${csrfToken.getAttribute(
+                "content"
+              )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
+            ),
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          });
+        } catch (error) {
+          log.error(error);
+          Qmsg.error("请求失败，请在控制台查看原因");
           return;
         }
-        let parseLoginHTMLNode = DOMUtils.parseHTML(
-          postResp.data.responseText,
-          true,
-          true
-        );
+        loginTip.destroy();
+        if (!postResp.ok) {
+          log.error(postResp);
+          Qmsg.error("登录失败，请在控制台查看原因");
+          return;
+        }
+        let respText = await postResp.text();
+        let parseLoginHTMLNode = DOMUtils.parseHTML(respText, true, true);
         if (
           parseLoginHTMLNode.querySelectorAll(
             ".sign-out-link a[rel=nofollow][data-method='delete']"
@@ -334,15 +338,28 @@
             return;
           }
           scriptId = scriptId[scriptId.length - 1];
-          let getResp = await httpx.get({
-            url: `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
-            responseType: "json",
-          });
-          if (!getResp.status) {
-            Qmsg.error("请求脚本信息JSON失败");
+          let getResp = null;
+          try {
+            getResp = await fetch(
+              `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
+              {
+                responseType: "json",
+              }
+            );
+          } catch (error) {
+            Qmsg.error("请求失败，请在控制台查看原因");
             return;
           }
-          let url = getResp.data.response.code_url;
+          if (!getResp.ok) {
+            Qmsg.error("获取脚本信息JSON失败");
+            return;
+          }
+          let respData = await getResp.json();
+          if (!respData) {
+            Qmsg.error("解析fetch的JSON失败");
+            return;
+          }
+          let url = respData.code_url;
           url = url.replace(/\?version.*/gi, "");
           url = url.replace(/^http(s|):\/\//gi, "");
           url = encodeURI(url);
