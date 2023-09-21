@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.9.18
+// @version      2023.9.21
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @license      MIT
@@ -286,10 +286,7 @@
             )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
           ),
           headers: {
-            "content-type": "application/x-www-form-urlencoded",
-            origin: "https://greasyfork.org",
-            referer:
-              "https://greasyfork.org/zh-CN/users/sign_in?return_to=%2Fzh-CN",
+            "Content-Type": "application/x-www-form-urlencoded",
           },
         });
         loginTip.destroy();
