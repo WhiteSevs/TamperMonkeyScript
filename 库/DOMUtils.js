@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-20";
+  DOMUtils.version = "2023-9-22";
 
   let globalUtils = {
     /**
@@ -648,7 +648,7 @@
   };
   /**
    * 绑定事件
-   * @param {Element|string|NodeList|Array} element 需要绑定的元素
+   * @param {Element|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window|globalThis
    * @param {string|Array} eventType 需要监听的事件
    * @param {HTMLElement?} selector 子元素选择器
    * @param {Function} callback 事件触发的回调函数
@@ -752,19 +752,28 @@
       if (originCallBack && originCallBack.delegate) {
         elementItem.setAttribute("data-delegate", selector);
       }
-
-      let events = elementItem.events || {};
-      events[eventType] = events[eventType] || [];
-      events[eventType].push({
-        selector: selector,
-        callback: ownCallBack,
-      });
-      elementItem.events = events;
+      if (elementItem == globalThis) {
+        let events = elementItem["DOMUtilsGlobalEvents"] || {};
+        events[eventType] = events[eventType] || [];
+        events[eventType].push({
+          selector: selector,
+          callback: ownCallBack,
+        });
+        elementItem["DOMUtilsGlobalEvents"] = events;
+      } else {
+        let events = elementItem.events || {};
+        events[eventType] = events[eventType] || [];
+        events[eventType].push({
+          selector: selector,
+          callback: ownCallBack,
+        });
+        elementItem.events = events;
+      }
     });
   };
   /**
    * 取消绑定事件
-   * @param {Element|string} element 需要取消绑定的元素
+   * @param {Element|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组|window|globalThis
    * @param {string|Array} eventType 需要取消监听的事件
    * @param {?string} selector 子元素选择器
    * @param {Function} callback 事件触发的回调函数
@@ -788,12 +797,17 @@
     useCapture = false
   ) {
     if (typeof element === "string") {
-      element = document.querySelector(element);
+      element = document.querySelectorAll(element);
     }
     if (element == null) {
       return;
     }
-    let events = element.events || {};
+    let elementList = [];
+    if (element instanceof NodeList || Array.isArray(element)) {
+      elementList = [...element];
+    } else {
+      elementList = [element];
+    }
     let eventTypeList = [];
     if (!eventType) {
       for (let type in events) {
@@ -804,30 +818,42 @@
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
     }
-    eventTypeList.forEach((_eventType_) => {
-      let handlers = events[eventType] || [];
-      for (let i = 0; i < handlers.length; i++) {
-        if (
-          (!selector || handlers[i].selector === selector) &&
-          (!callback || handlers[i].callback === callback)
-        ) {
-          element.removeEventListener(
-            _eventType_,
-            handlers[i].callback,
-            useCapture
-          );
-          handlers.splice(i--, 1);
-        }
+    elementList.forEach((elementItem) => {
+      let events = {};
+      if (elementItem == globalThis) {
+        events = elementItem["DOMUtilsGlobalEvents"] || {};
+      } else {
+        events = elementItem.events || {};
       }
-      if (handlers.length === 0) {
-        delete events[eventType];
+      eventTypeList.forEach((_eventType_) => {
+        let handlers = events[eventType] || [];
+        for (let i = 0; i < handlers.length; i++) {
+          if (
+            (!selector || handlers[i].selector === selector) &&
+            (!callback || handlers[i].callback === callback)
+          ) {
+            elementItem.removeEventListener(
+              _eventType_,
+              handlers[i].callback,
+              useCapture
+            );
+            handlers.splice(i--, 1);
+          }
+        }
+        if (handlers.length === 0) {
+          delete events[eventType];
+        }
+      });
+      if (elementItem == globalThis) {
+        elementItem["DOMUtilsGlobalEvents"] = events;
+      } else {
+        elementItem.events = events;
       }
     });
-    element.events = events;
   };
   /**
    * 主动触发事件
-   * @param {Element|string|window} element 需要触发的元素
+   * @param {Element|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window|globalThis
    * @param {String|Array} eventType 需要触发的事件
    * @example
    * // 触发元素a.xx的click事件
@@ -844,7 +870,12 @@
     if (element == null) {
       return;
     }
-    let events = element.events || {};
+    let elementList = [];
+    if (element instanceof NodeList || Array.isArray(element)) {
+      elementList = [...element];
+    } else {
+      elementList = [element];
+    }
     let eventTypeList = [];
     if (!eventType) {
       for (let type in events) {
@@ -855,9 +886,18 @@
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
     }
-    eventTypeList.forEach((_eventType_) => {
-      let event = new Event(_eventType_);
-      element.dispatchEvent(event);
+
+    elementList.forEach((elementItem) => {
+      let events = {};
+      if (elementItem == globalThis) {
+        events = elementItem["DOMUtilsGlobalEvents"] || {};
+      } else {
+        events = elementItem.events || {};
+      }
+      eventTypeList.forEach((_eventType_) => {
+        let event = new Event(_eventType_);
+        elementItem.dispatchEvent(event);
+      });
     });
   };
   /**
