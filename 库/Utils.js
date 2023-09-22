@@ -1230,7 +1230,14 @@
 
   /**
    * 注册油猴菜单
-   * @param {object} data 传递的菜单数据
+   * @param {{
+   *  text: string,
+   *  enable: boolean|undefined,
+   *  accessKey: string|undefined,
+   *  autoClose: boolean|undefined,
+   *  showText: (text:string,enable:boolean)=>{},
+   *  callback: (key:string, status:boolean, event:Event)=>{}
+   * }} data 传递的菜单数据
    * 示例：
    * {
    *   text:"", // 菜单按钮文本
