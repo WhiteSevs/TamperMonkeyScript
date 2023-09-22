@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-21";
+  Utils.version = "2023-9-22";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1456,8 +1456,39 @@
       }
     };
     /**
+     * 根据键值获取accessKey值
+     * @param {string} menuId
+     * @returns {?string}
+     */
+    this.getAccessKey = function (menuId) {
+      return data[menuId]["accessKey"];
+    };
+    /**
+     * 根据键值获取autoClose值
+     * @param {string} menuId
+     * @returns {?boolean}
+     */
+    this.getAutoClose = function (menuId) {
+      return data[menuId]["autoClose"];
+    };
+    /**
+     * 根据键值获取callback值
+     * @param {string} menuId
+     * @returns {Function}
+     */
+    this.getCallBack = function (menuId) {
+      return data[menuId]["callback"];
+    };
+    /**
      * 新增菜单数据
-     * @param {Object} paramData
+     * @param {{
+     *  text: string,
+     *  enable: boolean|undefined,
+     *  accessKey: string|undefined,
+     *  autoClose: boolean|undefined,
+     *  showText: (text:string,enable:boolean)=>{},
+     *  callback: (key:string, status:boolean, event:Event)=>{}
+     * }} paramData
      */
     this.add = function (paramData) {
       Object.assign(data, paramData);
@@ -1466,7 +1497,14 @@
     };
     /**
      * 更新菜单数据
-     * @param {Object} paramData
+     * @param {{
+     *  text: string,
+     *  enable: boolean|undefined,
+     *  accessKey: string|undefined,
+     *  autoClose: boolean|undefined,
+     *  showText: (text:string,enable:boolean)=>{},
+     *  callback: (key:string, status:boolean, event:Event)=>{}
+     * }} paramData
      */
     this.update = function (paramData) {
       if (paramData) {
