@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.21.10
+// @version      2023.9.22
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -28,6 +28,7 @@
 // @match        *://haokan.baidu.com/*
 // @match        *://graph.baidu.com/*
 // @match        *://pan.baidu.com/*
+// @match        *://yiyan.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -45,7 +46,7 @@
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1253979
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1253312
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1254388
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1218,6 +1219,7 @@
       this.haokan();
       this.graph();
       this.pan();
+      this.yiyan();
     },
     css: {
       search: `
@@ -1679,6 +1681,9 @@
       img.sharelist-savebutton-hb-tip{
         display: none !important;
       }
+      `,
+      yiyan: `
+      
       `,
     },
     /**
@@ -3891,7 +3896,12 @@
               userAvatarPath = "6LZ1dD3d1sgCo2Kml5_Y_D3";
             }
             let itemUserAvatar = `https://${userAvatarHostName}/${userAvatarPath}/sys/portrait/item/${userPortrait}`;
-
+            if (userAvatarPath === "sys") {
+              itemUserAvatar = itemUserAvatar.replace(
+                "/sys/sys/portrait/item/",
+                "/sys/portrait/item/"
+              );
+            }
             otherCommentsHTML += `
             <div class="whitesev-reply-dialog-sheet-other-content-item">
               <div class="whitesev-reply-dialog-user-line" data-portrait="${userPortrait}">
@@ -4224,7 +4234,11 @@
          * 插入只看楼主的按钮
          */
         insertOnlyLZ: () => {
-          let ele_parent = document.querySelector("#replySwitch");
+          let replySwitchElement = document.querySelector("#replySwitch");
+          if (!replySwitchElement) {
+            log.error("元素#replySwitch不存在");
+            return;
+          }
           let onlyLzInnerElement = DOMUtils.createElement("div", {
             style: `display: -webkit-box;
             display: -webkit-flex;
@@ -4241,7 +4255,7 @@
             class: "white-only-lz",
             textContent: "只看楼主",
           });
-          ele_parent.appendChild(onlyLzInnerElement);
+          replySwitchElement.appendChild(onlyLzInnerElement);
           let quxiaoonlylz_css = `
                       .white-only-lz-qx:before {
                           content: "取消";
@@ -4264,7 +4278,11 @@
          * 插入 正序=倒序的按钮
          */
         insertReverseBtn: () => {
-          let ele_parent = document.querySelector("#replySwitch");
+          let replySwitchElement = document.querySelector("#replySwitch");
+          if (!replySwitchElement) {
+            log.error("元素#replySwitch不存在");
+            return;
+          }
           let btnElement = DOMUtils.createElement("div", {
             style: `display: -webkit-box;
             display: -webkit-flex;
@@ -4283,7 +4301,7 @@
             margin-right: 15px;`,
             class: "white-btn-comment-reverse",
           });
-          ele_parent.appendChild(btnElement);
+          replySwitchElement.appendChild(btnElement);
           let btnCSS = `
                       .white-btn-comment:before {
                           content: "正序";
@@ -4566,229 +4584,226 @@
           });
           /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
           GM_addStyle(`
-      .post-item[data-v-74eb13e2] {
-          overflow: hidden;
-          margin: .16rem .13rem 0;
-      }
-      .post-item .user-line-post[data-v-74eb13e2] {
-          margin-bottom: .06rem;
-      }
-      .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-          display: -webkit-box;
-          display: -webkit-flex;
-          display: -ms-flexbox;
-          display: flex;
-      }
-      .user-line-wrapper[data-v-188c0e84] {
-          -webkit-box-pack: justify;
-          -webkit-justify-content: space-between;
-          -ms-flex-pack: justify;
-          justify-content: space-between;
-      }
-      .post-item .content[data-v-74eb13e2] {
-          padding-left: .44rem;
-      }
-      .user-line[data-v-188c0e84] {
-          -webkit-box-align: center;
-          -webkit-align-items: center;
-          -ms-flex-align: center;
-          align-items: center;
-          -webkit-box-pack: left;
-          -webkit-justify-content: left;
-          -ms-flex-pack: left;
-          justify-content: left;
-      }
-      .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-          display: -webkit-box;
-          display: -webkit-flex;
-          display: -ms-flexbox;
-          display: flex;
-      }
-      .user-line .avatar[data-v-188c0e84] {
-          position: relative;
-          -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-          width: .36rem;
-          height: .36rem;
-          margin-right: .08rem;
-          border-radius: 50%;
-          background-repeat: no-repeat;
-          background-position: 50%;
-          background-size: cover;
-          -webkit-box-flex: 0;
-          -webkit-flex: none;
-          -ms-flex: none;
-          flex: none;
-      }
-      .tbfe-1px-border {
-          position: relative;
-          border-radius: .08rem;
-          font-size: 0;
-      }
-      .user-line .user-info[data-v-188c0e84] {
-          position: relative;
-          overflow: hidden;
-          -webkit-box-flex: 0;
-          -webkit-flex: none;
-          -ms-flex: none;
-          flex: none;
-      }
-      .user-line .avatar[data-v-188c0e84]:after {
-          border-radius: 50%;
-      }
-      .tbfe-1px-border:after {
-          content: "";
-          position: absolute;
-          z-index: 100;
-          top: 0;
-          left: 0;
-          -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-          border: 1px solid rgba(0,0,0,.12);
-          -webkit-transform-origin: 0 0;
-          -ms-transform-origin: 0 0;
-          transform-origin: 0 0;
-          pointer-events: none;
-      }
-      .user-line .user-info .username[data-v-188c0e84],
-      #whitesev-reply-dialog .whitesev-reply-dialog-user-username {
-          display: -webkit-box;
-          display: -webkit-flex;
-          display: -ms-flexbox;
-          display: flex;
-          -webkit-box-align: center;
-          -webkit-align-items: center;
-          -ms-flex-align: center;
-          align-items: center;
-          overflow: hidden;
-          font-size: .15rem;
-          line-height: .21rem;
-          white-space: nowrap;
-          -o-text-overflow: ellipsis;
-          text-overflow: ellipsis;
-          color: #141414;
-          font-weight: 400;
-      }
-      .user-line .user-info .desc-info[data-v-188c0e84] {
-          display: -webkit-box;
-          display: -webkit-flex;
-          display: -ms-flexbox;
-          display: flex;
-          -webkit-box-align: center;
-          -webkit-align-items: center;
-          -ms-flex-align: center;
-          align-items: center;
-          font-size: .12rem;
-          line-height: .18rem;
-          overflow: hidden;
-          white-space: nowrap;
-          -o-text-overflow: ellipsis;
-          text-overflow: ellipsis;
-          color: #a3a2a8;
-      }
-      .user-line .user-info .floor-info[data-v-188c0e84], .user-line .user-info .forum-info[data-v-188c0e84] {
-          margin-right: .08rem;
-      }
-      .post-item .content .post-text[data-v-74eb13e2] {
-          font-size: .16rem;
-          line-height: .24rem;
-      }
-      .thread-text[data-v-ab14b3fe] {
-          font-size: .13rem;
-          line-height: .21rem;
-          color: #141414;
-          text-align: justify;
-          word-break: break-all;
-      }
-      .post-item .content .lzl-post[data-v-74eb13e2] {
-          margin-top: .06rem;
-      }
-      .lzl-post[data-v-5b60f30b] {
-          padding: .08rem .12rem;
-          background: #f8f7fd;
-          border-radius: .08rem;
-      }
-      .post-item .content .post-split-line[data-v-74eb13e2] {
-          margin-top: .12rem;
-          background-color: #ededf0;
-          height: 1px;
-          width: 200%;
-          -webkit-transform: scale(.5);
-          -ms-transform: scale(.5);
-          transform: scale(.5);
-          -webkit-transform-origin: top left;
-          -ms-transform-origin: top left;
-          transform-origin: top left;
-      }
-      .lzl-post .lzl-post-item[data-v-5b60f30b]:first-child {
-          margin-top: 0;
-      }
-      .lzl-post .lzl-post-item[data-v-5b60f30b] {
-          margin-top: .04rem;
-      }
-      .lzl-post .lzl-post-item .text-box[data-v-5b60f30b] {
-          font-size: .13rem;
-          line-height: .2rem;
-      }
-      .lzl-post .lzl-post-item .text-box .link[data-v-5b60f30b] {
-          display: -webkit-inline-box;
-          display: -webkit-inline-flex;
-          display: -ms-inline-flexbox;
-          display: inline-flex;
-          -webkit-box-align: center;
-          -webkit-align-items: center;
-          -ms-flex-align: center;
-          align-items: center;
-          font-weight: 600;
-          color: #a4a1a8;
-      }
-      .lzl-post .lzl-post-item .lzl-post-text[data-v-5b60f30b] {
-          display: inline;
-      }
-      .thread-text[data-v-ab14b3fe] {
-          font-size: .13rem;
-          line-height: .26rem;
-          color: #141414;
-          text-align: justify;
-          word-break: break-all;
-      }
-      .lzl-post .lzl-post-item .text-box .link .landlord[data-v-5b60f30b] {
-          width: .28rem;
-          height: .28rem;
-          margin-left: .04rem;
-      }
-      .user-line .user-info .username .landlord[data-v-188c0e84],
-      #whitesev-reply-dialog .landlord[data-v-188c0e84]{
-          width: .28rem;
-          height: .28rem;
-          margin-left: .04rem
-      }
-      /* 修改@的颜色 */
-      .text-content .at{
-        color: #614FBC !important;
-      }
-      `);
-          GM_addStyle(
-            `
-.thread-text .BDE_Smiley {
-    width: .2rem;
-    height: .2rem;
-    vertical-align: middle;
-}
-.thread-text .BDE_Image{
-    margin-top: 8px;
-    max-width: 350px;
-    cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
-    height: auto;
-    width: auto;
-    width: 100%;
-}
-.text-content .at{
-    font-weight: 600;
-    color: #a3a1a9;
-}
-`
-          );
+          .post-item[data-v-74eb13e2] {
+              overflow: hidden;
+              margin: .16rem .13rem 0;
+          }
+          .post-item .user-line-post[data-v-74eb13e2] {
+              margin-bottom: .06rem;
+          }
+          .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+          }
+          .user-line-wrapper[data-v-188c0e84] {
+              -webkit-box-pack: justify;
+              -webkit-justify-content: space-between;
+              -ms-flex-pack: justify;
+              justify-content: space-between;
+          }
+          .post-item .content[data-v-74eb13e2] {
+              padding-left: .44rem;
+          }
+          .user-line[data-v-188c0e84] {
+              -webkit-box-align: center;
+              -webkit-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              -webkit-box-pack: left;
+              -webkit-justify-content: left;
+              -ms-flex-pack: left;
+              justify-content: left;
+          }
+          .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+          }
+          .user-line .avatar[data-v-188c0e84] {
+              position: relative;
+              -webkit-box-sizing: border-box;
+              box-sizing: border-box;
+              width: .36rem;
+              height: .36rem;
+              margin-right: .08rem;
+              border-radius: 50%;
+              background-repeat: no-repeat;
+              background-position: 50%;
+              background-size: cover;
+              -webkit-box-flex: 0;
+              -webkit-flex: none;
+              -ms-flex: none;
+              flex: none;
+          }
+          .tbfe-1px-border {
+              position: relative;
+              border-radius: .08rem;
+              font-size: 0;
+          }
+          .user-line .user-info[data-v-188c0e84] {
+              position: relative;
+              overflow: hidden;
+              -webkit-box-flex: 0;
+              -webkit-flex: none;
+              -ms-flex: none;
+              flex: none;
+          }
+          .user-line .avatar[data-v-188c0e84]:after {
+              border-radius: 50%;
+          }
+          .tbfe-1px-border:after {
+              content: "";
+              position: absolute;
+              z-index: 100;
+              top: 0;
+              left: 0;
+              -webkit-box-sizing: border-box;
+              box-sizing: border-box;
+              border: 1px solid rgba(0,0,0,.12);
+              -webkit-transform-origin: 0 0;
+              -ms-transform-origin: 0 0;
+              transform-origin: 0 0;
+              pointer-events: none;
+          }
+          .user-line .user-info .username[data-v-188c0e84],
+          #whitesev-reply-dialog .whitesev-reply-dialog-user-username {
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              -webkit-box-align: center;
+              -webkit-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              overflow: hidden;
+              font-size: .15rem;
+              line-height: .21rem;
+              white-space: nowrap;
+              -o-text-overflow: ellipsis;
+              text-overflow: ellipsis;
+              color: #141414;
+              font-weight: 400;
+          }
+          .user-line .user-info .desc-info[data-v-188c0e84] {
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              -webkit-box-align: center;
+              -webkit-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              font-size: .12rem;
+              line-height: .18rem;
+              overflow: hidden;
+              white-space: nowrap;
+              -o-text-overflow: ellipsis;
+              text-overflow: ellipsis;
+              color: #a3a2a8;
+          }
+          .user-line .user-info .floor-info[data-v-188c0e84], .user-line .user-info .forum-info[data-v-188c0e84] {
+              margin-right: .08rem;
+          }
+          .post-item .content .post-text[data-v-74eb13e2] {
+              display: unset;
+              font-size: .16rem;
+              line-height: .24rem;
+          }
+          .thread-text[data-v-ab14b3fe] {
+              font-size: .13rem;
+              line-height: .21rem;
+              color: #141414;
+              text-align: justify;
+              word-break: break-all;
+          }
+          .post-item .content .lzl-post[data-v-74eb13e2] {
+              margin-top: .06rem;
+          }
+          .lzl-post[data-v-5b60f30b] {
+              padding: .08rem .12rem;
+              background: #f8f7fd;
+              border-radius: .08rem;
+          }
+          .post-item .content .post-split-line[data-v-74eb13e2] {
+              margin-top: .12rem;
+              background-color: #ededf0;
+              height: 1px;
+              width: 200%;
+              -webkit-transform: scale(.5);
+              -ms-transform: scale(.5);
+              transform: scale(.5);
+              -webkit-transform-origin: top left;
+              -ms-transform-origin: top left;
+              transform-origin: top left;
+          }
+          .lzl-post .lzl-post-item[data-v-5b60f30b]:first-child {
+              margin-top: 0;
+          }
+          .lzl-post .lzl-post-item[data-v-5b60f30b] {
+              margin-top: .04rem;
+          }
+          .lzl-post .lzl-post-item .text-box[data-v-5b60f30b] {
+              font-size: .13rem;
+              line-height: .2rem;
+          }
+          .lzl-post .lzl-post-item .text-box .link[data-v-5b60f30b] {
+              display: -webkit-inline-box;
+              display: -webkit-inline-flex;
+              display: -ms-inline-flexbox;
+              display: inline-flex;
+              -webkit-box-align: center;
+              -webkit-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              font-weight: 600;
+              color: #a4a1a8;
+          }
+          .lzl-post .lzl-post-item .lzl-post-text[data-v-5b60f30b] {
+              display: inline;
+          }
+          .thread-text[data-v-ab14b3fe] {
+              font-size: .13rem;
+              line-height: .26rem;
+              color: #141414;
+              text-align: justify;
+              word-break: break-all;
+          }
+          .lzl-post .lzl-post-item .text-box .link .landlord[data-v-5b60f30b] {
+              width: .28rem;
+              height: .28rem;
+              margin-left: .04rem;
+          }
+          .user-line .user-info .username .landlord[data-v-188c0e84],
+          #whitesev-reply-dialog .landlord[data-v-188c0e84]{
+              width: .28rem;
+              height: .28rem;
+              margin-left: .04rem
+          }
+          /* 修改@的颜色 */
+          .text-content .at{
+            color: #614FBC !important;
+          }`);
+          GM_addStyle(`
+          .thread-text .BDE_Smiley {
+              width: .2rem;
+              height: .2rem;
+              vertical-align: middle;
+          }
+          .thread-text .BDE_Image{
+              margin-top: 8px;
+              max-width: 350px;
+              cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
+              height: auto;
+              width: auto;
+              width: 100%;
+          }
+          .text-content .at{
+              font-weight: 600;
+              color: #a3a1a9;
+          }`);
         },
       };
       /**
@@ -4965,14 +4980,16 @@
         );
       }
 
-      /* 贴吧搜索 */
+      /**
+       * 贴吧搜索
+       */
       const tiebaSearchConfig = {
         isSetClickEvent: false,
         searchSuggestion: null,
         /**
          * 获取搜索建议
          * @param {string} queryText 搜索内容
-         * @returns {Promise}
+         * @async
          */
         async getSuggestion(queryText = "") {
           let getResp = await httpx.get({
@@ -5057,6 +5074,14 @@
                     </div>
                   </div>`;
               },
+              /**
+               * 输入框内容改变触发的事件
+               * @param {{
+               * text: string,
+               * data: array,
+               * showData: array
+               * }} info
+               */
               searchInputChangeCallBack: async (info) => {
                 /* 
                   {
@@ -6414,6 +6439,84 @@
       }
       GM_addStyle(this.css.pan);
       log.info("插入CSS规则");
+    },
+    /**
+     * 文心一言
+     */
+    yiyan() {
+      if (!this.currentUrl.match(/^http(s|):\/\/yiyan.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.yiyan);
+      log.info("插入CSS规则");
+      GM_Menu = new utils.GM_Menu(
+        {
+          baidu_yiyan_remove_ai_mask: {
+            text: "【屏蔽水印】AI生成内容仅供参考",
+            enable: false,
+            showText: (_text_, _enable_) => {
+              return (_enable_ ? "✅" : "❌") + " " + _text_;
+            },
+            callback() {
+              window.location.reload();
+            },
+          },
+        },
+        false,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      );
+
+      const webSiteHandle = {
+        /**
+         * 处理sharw-root
+         */
+        handleShadowRoot() {
+          let oldShadow = Element.prototype.attachShadow;
+          Element.prototype.attachShadow = function (...args) {
+            const shadowRoot = oldShadow.call(this, ...args);
+            this._shadowRoot = shadowRoot;
+            return shadowRoot;
+          };
+        },
+        /**
+         * 去除背景水印-AI生成内容仅供参考
+         */
+        removeAIMaskBg() {
+          utils.mutationObserver(document.body, {
+            config: {
+              subtree: true,
+              childList: true,
+            },
+            callback() {
+              let maskElement = document.querySelector(
+                "body>div[id]:not([id='root'])"
+              );
+              if (!maskElement) {
+                return;
+              }
+              let _shadowRoot = maskElement["_shadowRoot"];
+              if (!_shadowRoot) {
+                log.error("获取_shadowRoot失败");
+                return;
+              }
+              _shadowRoot.appendChild(
+                DOMUtils.createElement(
+                  "style",
+                  "div[id^='mask']{display: none !important;}"
+                )
+              );
+            },
+          });
+        },
+      };
+      webSiteHandle.handleShadowRoot();
+      if (GM_Menu.get("baidu_yiyan_remove_ai_mask")) {
+        log.success(GM_Menu.getShowText("baidu_yiyan_remove_ai_mask"));
+        webSiteHandle.removeAIMaskBg();
+      }
     },
   };
 
