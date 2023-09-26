@@ -2,7 +2,7 @@
 // @name         调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475424
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475424/feedback
-// @version      2023.9.20
+// @version      2023.9.26
 // @description  用于调试油猴和相关API
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -35,8 +35,8 @@
 // @grant        GM.ChromeXt
 // @connect      *
 // @run-at       document-start
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1254413
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1254388
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
 (function () {
