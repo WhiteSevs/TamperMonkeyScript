@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.9.22
+// @version      2023.9.26
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @license      MIT
@@ -19,8 +19,8 @@
 // @connect      greasyfork.org
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1254413
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1254388
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
 (function () {
@@ -87,7 +87,12 @@
     /**
      * @class
      */
-    menu: null,
+    menu: new utils.GM_Menu({
+      GM_getValue,
+      GM_setValue,
+      GM_registerMenuCommand,
+      GM_unregisterMenuCommand,
+    }),
     /**
      * 当前是否已登录
      */
@@ -96,69 +101,63 @@
      * 初始化菜单对象
      */
     initMenu() {
-      this.menu = new utils.GM_Menu(
+      this.menu.add([
         {
-          enterAccount_Password: {
-            text: "录入账号/密码",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              let user = GM_getValue("user");
-              if (user) {
-                return `账号:${user} 点击重新录入`;
-              } else {
-                return "录入账号/密码";
-              }
-            },
-            callback: () => {
-              let user = prompt("请输入GreasyFork的账号");
-              if (!user) {
-                Qmsg.error("取消输入账号");
-                return;
-              }
-              if (user && user.trim() === "") {
-                Qmsg.error("输入为空或纯空格");
-                return;
-              }
-              let pwd = prompt("请输入GreasyFork的密码");
+          key: "enterAccount_Password",
+          text: "录入账号/密码",
+          showText(_text_, _enable_) {
+            let user = GM_getValue("user");
+            if (user) {
+              return `账号:${user} 点击重新录入`;
+            } else {
+              return "录入账号/密码";
+            }
+          },
+          callback() {
+            let user = prompt("请输入GreasyFork的账号");
+            if (!user) {
+              Qmsg.error("取消输入账号");
+              return;
+            }
+            if (user && user.trim() === "") {
+              Qmsg.error("输入为空或纯空格");
+              return;
+            }
+            let pwd = prompt("请输入GreasyFork的密码");
 
-              if (!pwd) {
-                Qmsg.error("取消输入密码");
-                return;
-              }
-              if (pwd && pwd.trim() === "") {
-                Qmsg.error("输入为空或纯空格");
-                return;
-              }
-              GM_setValue("user", user);
-              GM_setValue("pwd", pwd);
-              Qmsg.success("成功录入账号/密码");
-            },
-          },
-          clearAccount_Password: {
-            text: "⚙ 清空账号/密码",
-            enable: false,
-            callback: () => {
-              if (confirm("确定清空账号和密码？")) {
-                GM_deleteValue("user");
-                GM_deleteValue("pwd");
-                Qmsg.success("已清空账号/密码");
-              }
-            },
-          },
-          autoLogin: {
-            text: "自动登录",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
-            },
+            if (!pwd) {
+              Qmsg.error("取消输入密码");
+              return;
+            }
+            if (pwd && pwd.trim() === "") {
+              Qmsg.error("输入为空或纯空格");
+              return;
+            }
+            GM_setValue("user", user);
+            GM_setValue("pwd", pwd);
+            Qmsg.success("成功录入账号/密码");
           },
         },
-        false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "clearAccount_Password",
+          text: "⚙ 清空账号/密码",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            if (confirm("确定清空账号和密码？")) {
+              GM_deleteValue("user");
+              GM_deleteValue("pwd");
+              Qmsg.success("已清空账号/密码");
+            }
+          },
+        },
+        {
+          key: "autoLogin",
+          text: "自动登录",
+          enable: true,
+        },
+      ]);
     },
     /**
      * 初始化环境变量
@@ -179,10 +178,14 @@
      */
     handleUserMenu() {
       log.success(["用户界面", this.menu]);
-      this.menu.add({
-        updateSettingsAndSynchronize_scriptList: {
+      this.menu.add([
+        {
+          key: "updateSettingsAndSynchronize_scriptList",
           text: "⚙ 更新设置并同步【脚本列表】",
-          callback: () => {
+          showText(text) {
+            return text;
+          },
+          callback() {
             if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
               GM_setValue("goto_updateSettingsAndSynchronize_scriptList", true);
               if (GreasyforkMenu.getUserLinkElement()) {
@@ -204,9 +207,13 @@
             GreasyforkMenu.updateScript(scriptUrlList);
           },
         },
-        updateSettingsAndSynchronize_unlistedScriptList: {
+        {
+          key: "updateSettingsAndSynchronize_unlistedScriptList",
           text: "⚙ 更新设置并同步【未上架的脚本】",
-          callback: () => {
+          showText(text) {
+            return text;
+          },
+          callback() {
             if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
               GM_setValue(
                 "goto_updateSettingsAndSynchronize_unlistedScriptList",
@@ -231,9 +238,13 @@
             GreasyforkMenu.updateScript(scriptUrlList);
           },
         },
-        updateSettingsAndSynchronize_libraryScriptList: {
+        {
+          key: "updateSettingsAndSynchronize_libraryScriptList",
           text: "⚙ 更新设置并同步【库】",
-          callback: () => {
+          showText(text) {
+            return text;
+          },
+          callback() {
             if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
               GM_setValue(
                 "goto_updateSettingsAndSynchronize_libraryScriptList",
@@ -258,7 +269,7 @@
             GreasyforkMenu.updateScript(scriptUrlList);
           },
         },
-      });
+      ]);
     },
     /**
      * 将要更新的脚本存储到本地

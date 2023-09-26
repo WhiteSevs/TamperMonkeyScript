@@ -2,7 +2,7 @@
 // @name            eruda_VConsole_网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://greasyfork.org/zh-CN/scripts/475228/feedback
-// @version         2023.9.18
+// @version         2023.9.26
 // @author          WhiteSevs
 // @description     自行选择是eruda或者VConsole进行网页调试
 // @license         MIT
@@ -13,7 +13,7 @@
 // @grant           GM_getValue
 // @grant           GM_setValue
 // @grant           GM_deleteValue
-// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1254413
+// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
 // ==/UserScript==
 
 (function () {
@@ -43203,25 +43203,22 @@
   /**
    * 菜单
    */
-  let GM_Menu = new utils.GM_Menu(
-    {
-      currentDebug: {
+  let GM_Menu = new utils.GM_Menu({
+    data: [
+      {
+        key: "currentDebug",
         text: "⚙ 切换调试工具",
         enable: true,
         showText(_text_, _enable_) {
           return `${_text_}【${_enable_ ? "eruda" : "VConsole"}】`;
         },
-        callback() {
-          window.location.reload();
-        },
       },
-    },
-    false,
+    ],
     GM_getValue,
     GM_setValue,
     GM_registerMenuCommand,
-    GM_unregisterMenuCommand
-  );
+    GM_unregisterMenuCommand,
+  });
   if (GM_Menu.get("currentDebug")) {
     console.log("当前调试工具 ===> eruda");
     initEruda();
@@ -43231,22 +43228,27 @@
       return;
     }
     eruda.init();
-    GM_Menu.add({
-      eruda_version: {
+    GM_Menu.add([
+      {
+        key: "eruda_version",
         text: "版本",
-        enable: false,
-        showText(text, enable) {
+        autoReload: false,
+        showText(text) {
           return `${text}：${eruda.version}`;
         },
       },
-      goto_eruda_home_url: {
+      {
+        key: "goto_eruda_home_url",
         text: "⚙ 前往项目地址",
-        enable: false,
+        autoReload: false,
+        showText(text) {
+          return text;
+        },
         callback() {
           window.open("https://github.com/liriliri/eruda", "_blank");
         },
       },
-    });
+    ]);
   } else {
     console.log("当前调试工具 ===> VConsole");
     initVConsole();
@@ -43256,16 +43258,8 @@
       return;
     }
     GM_Menu.add({
-      vConsole_disableLogScrolling: {
-        text: "禁止LOG自动滚动",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return (_enable_ ? "✅" : "❌") + " " + _text_;
-        },
-        callback() {
-          window.location.reload();
-        },
-      },
+      key: "vConsole_disableLogScrolling",
+      text: "禁止LOG自动滚动",
     });
     let vconsole = new vConsole({
       defaultPlugins: ["system", "network", "element", "storage"],
@@ -43273,20 +43267,15 @@
       disableLogScrolling: GM_Menu.get("vConsole_disableLogScrolling"),
       maxLogNumber: 1000,
     });
-    GM_Menu.add({
-      vConsole_showTimestamps: {
+    GM_Menu.add([
+      {
+        key: "vConsole_showTimestamps",
         text: "显示日志的输出时间",
-        enable: false,
-        showText: (_text_, _enable_) => {
-          return (_enable_ ? "✅" : "❌") + " " + _text_;
-        },
-        callback() {
-          window.location.reload();
-        },
       },
-      vConsole_maxLogNumber: {
+      {
+        key: "vConsole_maxLogNumber",
         text: "日志的上限数量：",
-        enable: false,
+        autoReload: false,
         showText(text) {
           return `${text}${GM_getValue("vConsole_maxLogNumber_num", 1000)}`;
         },
@@ -43306,9 +43295,10 @@
           alert("设置成功");
         },
       },
-      vConsole_maxNetworkNumber: {
+      {
+        key: "vConsole_maxNetworkNumber",
         text: "请求记录的上限数量：",
-        enable: false,
+        autoReload: false,
         showText(text) {
           return `${text}${GM_getValue("vConsole_maxNetworkNumber_num", 1000)}`;
         },
@@ -43329,21 +43319,26 @@
           alert("设置成功");
         },
       },
-      vConsole_version: {
+      {
+        key: "vConsole_version",
         text: "版本",
-        enable: false,
+        autoReload: false,
         showText(text) {
           return `${text}：${vconsole.version}`;
         },
       },
-      goto_vConsole_home_url: {
+      {
+        key: "goto_vConsole_home_url",
         text: "⚙ 前往项目地址",
-        enable: false,
+        autoReload: false,
+        showText(text) {
+          return text;
+        },
         callback() {
           window.open("https://github.com/Tencent/vConsole", "_blank");
         },
       },
-    });
+    ]);
 
     vconsole.setOption(
       "log.showTimestamps",

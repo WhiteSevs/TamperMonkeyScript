@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      2023.9.18
+// @version      2023.9.26
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -19,8 +19,8 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1254413
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1254388
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
 (function () {
@@ -41,7 +41,12 @@
    * 因为在有些页面上，比如：简书，当插入style元素到head中，该页面清除该元素
    */
   const GM_addStyle = utils.GM_addStyle;
-  let GM_Menu = null;
+  let GM_Menu = new utils.GM_Menu({
+    GM_getValue,
+    GM_setValue,
+    GM_registerMenuCommand,
+    GM_unregisterMenuCommand,
+  });
   /**
    * 移除元素（未出现也可以等待出现）
    * @param {string} selectorText 元素选择器
@@ -1188,318 +1193,159 @@
     },
   };
   if (Optimization.huaWeiCSDN.locationMatch()) {
-    GM_Menu = new utils.GM_Menu(
+    GM_Menu.add([
       {
-        huaweiCSDNShieldCloudDeveloperTaskChallengeEvent: {
-          text: "电脑-屏蔽云开发者任务挑战活动",
-          enable: true,
-          showText: (_text_, _enable_) => {
-            return (_enable_ ? "✅" : "❌") + " " + _text_;
-          },
-          callback: () => {
-            window.location.reload();
-          },
-        },
-        huaweiCSDNShieldLeftFloatingButton: {
-          text: "电脑-屏蔽左侧悬浮按钮",
-          enable: false,
-          title: "包括当前阅读量、点赞按钮、评论按钮、分享按钮",
-          showText: (_text_, _enable_) => {
-            return (_enable_ ? "✅" : "❌") + " " + _text_;
-          },
-          callback: () => {
-            window.location.reload();
-          },
-        },
-        huaweiCSDNBlockRightColumn: {
-          text: "电脑-屏蔽右侧",
-          enable: false,
-          title: "包括相关产品-活动日历-运营活动-热门标签",
-          showText: (_text_, _enable_) => {
-            return (_enable_ ? "✅" : "❌") + " " + _text_;
-          },
-          callback: () => {
-            window.location.reload();
-          },
-        },
-        huaweiCSDNBlockRecommendedContentAtTheBottom: {
-          text: "电脑-屏蔽底部推荐内容",
-          enable: false,
-          showText: (_text_, _enable_) => {
-            return (_enable_ ? "✅" : "❌") + " " + _text_;
-          },
-          callback: () => {
-            window.location.reload();
-          },
-        },
-        huaweiCSDNShieldTheBottomForMoreRecommendations: {
-          text: "电脑-屏蔽底部更多推荐",
-          enable: false,
-          showText: (_text_, _enable_) => {
-            return (_enable_ ? "✅" : "❌") + " " + _text_;
-          },
-          callback: () => {
-            window.location.reload();
-          },
-        },
+        key: "huaweiCSDNShieldCloudDeveloperTaskChallengeEvent",
+        text: "电脑-屏蔽云开发者任务挑战活动",
+        enable: true,
       },
-      false,
-      GM_getValue,
-      GM_setValue,
-      GM_registerMenuCommand,
-      GM_unregisterMenuCommand
-    );
+      {
+        key: "huaweiCSDNShieldLeftFloatingButton",
+        text: "电脑-屏蔽左侧悬浮按钮",
+        title: "包括当前阅读量、点赞按钮、评论按钮、分享按钮",
+      },
+      {
+        key: "huaweiCSDNBlockRightColumn",
+        text: "电脑-屏蔽右侧",
+        title: "包括相关产品-活动日历-运营活动-热门标签",
+      },
+      {
+        key: "huaweiCSDNBlockRecommendedContentAtTheBottom",
+        text: "电脑-屏蔽底部推荐内容",
+      },
+      {
+        key: "huaweiCSDNShieldTheBottomForMoreRecommendations",
+        text: "电脑-屏蔽底部更多推荐",
+      },
+    ]);
     Optimization.huaWeiCSDN.PC.run();
   } else if (Optimization.csdn.locationMatch()) {
     if (utils.isPhone()) {
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          showDirect: {
-            text: "手机-标识处理过的底部推荐文章",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          openNewTab: {
-            text: "手机-底部推荐文章新标签页打开",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          removeCSDNDownloadMobile: {
-            text: "手机-移除文章底部的CSDN下载",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
+          key: "showDirect",
+          text: "手机-标识处理过的底部推荐文章",
+          enable: true,
         },
-        false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "openNewTab",
+          text: "手机-底部推荐文章新标签页打开",
+          enable: true,
+        },
+        {
+          key: "removeCSDNDownloadMobile",
+          text: "手机-移除文章底部的CSDN下载",
+        },
+      ]);
     } else {
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          removeCSDNDownloadPC: {
-            text: "电脑-屏蔽底部推荐文章的CSDN下载",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          shieldLoginDialog: {
-            text: "电脑-屏蔽登录弹窗",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: (_key_, _enable_) => {
-              if (!_enable_) {
-                window.GM_CSS_GM_shieldLoginDialog?.forEach((item) => {
-                  item.remove();
-                });
+          key: "removeCSDNDownloadPC",
+          text: "电脑-屏蔽底部推荐文章的CSDN下载",
+        },
+        {
+          key: "shieldLoginDialog",
+          text: "电脑-屏蔽登录弹窗",
+          enable: true,
+          callback(data) {
+            if (!data.enable) {
+              window.GM_CSS_GM_shieldLoginDialog?.forEach((item) => {
+                item.remove();
+              });
+            } else {
+              if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
+                window.GM_CSS_GM_shieldLoginDialog = [
+                  ...window.GM_CSS_GM_shieldLoginDialog,
+                  GM_addStyle(
+                    `.passport-login-container{display: none !important;}`
+                  ),
+                ];
               } else {
-                if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
-                  window.GM_CSS_GM_shieldLoginDialog = [
-                    ...window.GM_CSS_GM_shieldLoginDialog,
-                    GM_addStyle(
-                      `.passport-login-container{display: none !important;}`
-                    ),
-                  ];
-                } else {
-                  window.GM_CSS_GM_shieldLoginDialog = [
-                    GM_addStyle(
-                      `.passport-login-container{display: none !important;}`
-                    ),
-                  ];
-                }
+                window.GM_CSS_GM_shieldLoginDialog = [
+                  GM_addStyle(
+                    `.passport-login-container{display: none !important;}`
+                  ),
+                ];
               }
-            },
-          },
-          csdnShieldfloatingButton: {
-            text: "电脑-屏蔽右侧悬浮按钮",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          csdnShieldBottomRecommendArticle: {
-            text: "电脑-屏蔽底部推荐文章",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          csdnShieldBottomFloatingToolbar: {
-            text: "电脑-屏蔽底部悬浮工具栏",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          articleCenter: {
-            text: "电脑-全文居中",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          autoExpandContent: {
-            text: "电脑-自动展开内容块",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          showOrHideDirectory: {
-            text: "电脑-显示目录",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return _enable_ ? `⚙ 电脑-隐藏目录` : `⚙ ${_text_}`;
-            },
-            callback: (_key_, _enable_) => {
-              window.location.reload();
-            },
-          },
-          showOrHideSidebar: {
-            text: "电脑-显示侧边栏",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return _enable_ ? `⚙ 电脑-隐藏侧边栏` : `⚙ ${_text_}`;
-            },
-            callback: (_key_, _enable_) => {
-              window.location.reload();
-            },
+            }
           },
         },
-        false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
-    }
-    GM_Menu.add({
-      gotoCSDNCKnow: {
+        {
+          key: "csdnShieldfloatingButton",
+          text: "电脑-屏蔽右侧悬浮按钮",
+        },
+        {
+          key: "csdnShieldBottomRecommendArticle",
+          text: "电脑-屏蔽底部推荐文章",
+        },
+        {
+          key: "csdnShieldBottomFloatingToolbar",
+          text: "电脑-屏蔽底部悬浮工具栏",
+        },
+        {
+          key: "articleCenter",
+          text: "电脑-全文居中",
+          enable: true,
+        },
+        {
+          key: "autoExpandContent",
+          text: "电脑-自动展开内容块",
+        },
+        {
+          key: "showOrHideDirectory",
+          text: "电脑-显示目录",
+        },
+        {
+          key: "showOrHideSidebar",
+          text: "电脑-显示侧边栏",
+        },
+      ]);
+
+      GM_Menu.add({
+        key: "gotoCSDNCKnow",
         text: "⚙ 前往C知道",
+        autoReload: false,
+        showText(text) {
+          return text;
+        },
         callback() {
           window.open("https://so.csdn.net/so/ai?", "_blank");
         },
-      },
-    });
-    Optimization.csdn.run();
+      });
+      Optimization.csdn.run();
+    }
   } else if (Optimization.jianshu.locationMatch()) {
     if (utils.isPhone()) {
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          JianShuremoveFooterRecommendRead: {
-            text: "手机-移除底部推荐阅读",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          JianShuShieldUserComments: {
-            text: "手机-屏蔽评论区",
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
+          key: "JianShuremoveFooterRecommendRead",
+          text: "手机-移除底部推荐阅读",
         },
-        false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "JianShuShieldUserComments",
+          text: "手机-屏蔽评论区",
+        },
+      ]);
     } else {
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          JianShuArticleCenter: {
-            text: "电脑-全文居中",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          JianShuShieldRelatedArticles: {
-            text: "电脑-屏蔽相关文章",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          JianShuShieldUserComments: {
-            text: "电脑-屏蔽评论区",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
-          JianShuShieldRecommendedReading: {
-            text: "电脑-屏蔽推荐阅读",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback: () => {
-              window.location.reload();
-            },
-          },
+          key: "JianShuArticleCenter",
+          text: "电脑-全文居中",
+          enable: true,
         },
-        false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "JianShuShieldRelatedArticles",
+          text: "电脑-屏蔽相关文章",
+        },
+        {
+          key: "JianShuShieldUserComments",
+          text: "电脑-屏蔽评论区",
+        },
+        {
+          key: "JianShuShieldRecommendedReading",
+          text: "电脑-屏蔽推荐阅读",
+        },
+      ]);
     }
 
     Optimization.jianshu.run();
