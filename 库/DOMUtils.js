@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-22";
+  DOMUtils.version = "2023-9-26";
 
   let globalUtils = {
     /**
@@ -649,12 +649,12 @@
   /**
    * 绑定事件
    * @param {Element|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window|globalThis
-   * @param {string|Array} eventType 需要监听的事件
-   * @param {HTMLElement?} selector 子元素选择器
-   * @param {Function} callback 事件触发的回调函数
-   * @param {Boolean} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
-   * @param {Boolean} once 表示事件是否只触发一次。默认为false
-   * @param {Boolean} passive 表示事件监听器是否不会调用preventDefault()。默认为false
+   * @param {string|[...string]} eventType 需要监听的事件
+   * @param {string|undefined} selector 子元素选择器
+   * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
+   * @param {boolean} [capture=false] 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+   * @param {boolean} [once=false] 表示事件是否只触发一次。默认为false
+   * @param {boolean} [passive=false] 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click事件
    * DOMUtils.on(document.querySelector("a.xx"),"click",(event)=>{
@@ -710,7 +710,6 @@
       selector = null;
     }
     elementList.forEach((elementItem) => {
-      let originCallBack = callback;
       let ownCallBack = function (event) {
         if (selector) {
           let target = event.target;
@@ -718,7 +717,7 @@
             elementItem == globalThis ? document.documentElement : elementItem;
           if (target.matches(selector)) {
             /* 当前目标可以被selector所匹配到 */
-            originCallBack.call(target, event);
+            callback.call(target, event);
             return;
           } else if (
             target.closest(selector) &&
@@ -732,11 +731,11 @@
                 return closestElement;
               },
             });
-            originCallBack.call(closestElement, event);
+            callback.call(closestElement, event);
             return;
           }
         } else {
-          originCallBack.call(event.target, event);
+          callback.call(event.target, event);
         }
       };
       eventTypeList.forEach((_eventType_) => {
@@ -749,7 +748,7 @@
         );
       });
 
-      if (originCallBack && originCallBack.delegate) {
+      if (callback && callback.delegate) {
         elementItem.setAttribute("data-delegate", selector);
       }
       if (elementItem == globalThis) {
@@ -758,6 +757,7 @@
         events[eventType].push({
           selector: selector,
           callback: ownCallBack,
+          originCallBack: callback,
         });
         elementItem["DOMUtilsGlobalEvents"] = events;
       } else {
@@ -766,6 +766,7 @@
         events[eventType].push({
           selector: selector,
           callback: ownCallBack,
+          originCallBack: callback,
         });
         elementItem.events = events;
       }
@@ -773,11 +774,11 @@
   };
   /**
    * 取消绑定事件
-   * @param {Element|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组|window|globalThis
-   * @param {string|Array} eventType 需要取消监听的事件
-   * @param {?string} selector 子元素选择器
-   * @param {Function} callback 事件触发的回调函数
-   * @param {Boolean} useCapture 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
+   * @param {Element|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组|globalThis
+   * @param {string|[...string]} eventType 需要取消监听的事件
+   * @param {string|undefined} selector 子元素选择器
+   * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
+   * @param {boolean} [useCapture=false] 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
    * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
    * @example
    * // 取消监听元素a.xx的click事件
@@ -818,6 +819,11 @@
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
     }
+    if (typeof selector === "function") {
+      /* 这是为没有selector的情况 */
+      callback = selector;
+      selector = null;
+    }
     elementList.forEach((elementItem) => {
       let events = {};
       if (elementItem == globalThis) {
@@ -830,7 +836,9 @@
         for (let i = 0; i < handlers.length; i++) {
           if (
             (!selector || handlers[i].selector === selector) &&
-            (!callback || handlers[i].callback === callback)
+            (!callback ||
+              handlers[i].callback === callback ||
+              handlers[i].originCallBack === callback)
           ) {
             elementItem.removeEventListener(
               _eventType_,
@@ -854,7 +862,7 @@
   /**
    * 主动触发事件
    * @param {Element|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window|globalThis
-   * @param {String|Array} eventType 需要触发的事件
+   * @param {string|[...string]} eventType 需要触发的事件
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
