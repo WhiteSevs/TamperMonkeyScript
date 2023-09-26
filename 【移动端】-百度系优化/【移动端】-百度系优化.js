@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.22.20
+// @version      2023.9.26
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,8 +45,8 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1254413
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1254388
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // @run-at       document-start
 // ==/UserScript==
 
@@ -81,9 +81,15 @@
       log.error(["httpx-onerror 请求异常", response]);
     },
   });
-  /* 菜单 */
-  let GM_Menu = null;
-
+  /**
+   * 菜单对象
+   */
+  let GM_Menu = new utils.GM_Menu({
+    GM_getValue,
+    GM_setValue,
+    GM_registerMenuCommand,
+    GM_unregisterMenuCommand,
+  });
   const CSDN_FLAG_CSS = `
     .csdn-flag-component-box {
         /*margin: 0 auto;
@@ -2905,65 +2911,46 @@
         },
       };
 
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baidu_search_automatically_expand_next_page: {
-            text: "自动展开下一页",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_search_show_redirected_icon: {
-            text: "显示已重定向图标",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_search_show_log: {
-            text: "控制台输出日志",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_search_sync_next_page_address: {
-            text: "同步下一页地址",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_search_disable_autoplay_video: {
-            text: "【禁止】自动播放视频",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_search_blocking_everyone_is_still_searching: {
-            text: "【屏蔽】大家还在搜",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_search_refactor_everyone_is_still_searching: {
-            text: "【重构】大家还在搜",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
+          key: "baidu_search_automatically_expand_next_page",
+          text: "自动展开下一页",
+          enable: true,
+        },
+        {
+          key: "baidu_search_show_redirected_icon",
+          text: "显示已重定向图标",
+        },
+        {
+          key: "baidu_search_show_log",
+          text: "控制台输出日志",
+        },
+        {
+          key: "baidu_search_sync_next_page_address",
+          text: "同步下一页地址",
+          callback(data) {
+            if (data.enable) {
+              alert(
+                "开启后，且开启【自动展开下一页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
+              );
+            }
           },
         },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
-      unsafeWindow.GM_Menu = GM_Menu;
+        {
+          key: "baidu_search_disable_autoplay_video",
+          text: "【禁止】自动播放视频",
+        },
+        {
+          key: "baidu_search_blocking_everyone_is_still_searching",
+          text: "【屏蔽】大家还在搜",
+          enable: true,
+        },
+        {
+          key: "baidu_search_refactor_everyone_is_still_searching",
+          text: "【重构】大家还在搜",
+          enable: true,
+        },
+      ]);
       if (!GM_Menu.get("baidu_search_show_log")) {
         log.error("禁止控制台输出日志");
         log.disable();
@@ -3055,37 +3042,21 @@
       }
       GM_addStyle(this.css.baijiahao);
       log.info("插入CSS规则");
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baijiahao_shield_recommended_article: {
-            text: "【屏蔽】推荐文章",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baijiahao_shield_user_comment: {
-            text: "【屏蔽】用户评论",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baijiahao_shield_user_comment_input_box: {
-            text: "【屏蔽】评论输入框",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
+          key: "baijiahao_shield_recommended_article",
+          text: "【屏蔽】推荐文章",
+          enable: true,
         },
-
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "baijiahao_shield_user_comment",
+          text: "【屏蔽】用户评论",
+        },
+        {
+          key: "baijiahao_shield_user_comment_input_box",
+          text: "【屏蔽】评论输入框",
+        },
+      ]);
       if (GM_Menu.get("baijiahao_shield_recommended_article")) {
         GM_addStyle(`
 			  .infinite-scroll-component__outerdiv,
@@ -3145,6 +3116,10 @@
         funcLock: null,
         param_tid: null,
         param_forum_id: null,
+        /**
+         * @type {HTMLElement}
+         */
+        vueRootView: null,
         /**
          * 判断是否在底部附近的误差值
          * @type
@@ -3846,6 +3821,7 @@
         },
         /**
          * 显示评论的弹窗
+         * @param {HTMLElement} element
          */
         showReplyDialog(element) {
           let contentElement = element.closest(
@@ -3964,6 +3940,51 @@
             </div>
             `,
           });
+
+          /**
+           * 设置浏览器历史地址
+           */
+          function popstateEvent() {
+            if (
+              tiebaCommentConfig.vueRootView.__vue__.$router.history.current
+                .fullPath !== "/seeLzlReply"
+            ) {
+              tiebaCommentConfig.vueRootView.__vue__.$router.history.push(
+                "/seeLzlReply"
+              );
+            }
+            resumeBack();
+          }
+
+          /**
+           * 禁止浏览器后退按钮
+           */
+          function banBack() {
+            /* 监听地址改变 */
+            DOMUtils.on(globalThis, "popstate", popstateEvent);
+            tiebaCommentConfig.vueRootView.__vue__.$router.history.push(
+              "/seeLzlReply"
+            );
+          }
+
+          /**
+           * 允许浏览器后退并关闭小窗
+           */
+          async function resumeBack() {
+            document.querySelector(".whitesev-reply-dialog-close")?.click();
+            DOMUtils.off(globalThis, "popstate", popstateEvent);
+            while (1) {
+              if (
+                tiebaCommentConfig.vueRootView.__vue__.$router.history.current
+                  .fullPath === "/seeLzlReply"
+              ) {
+                tiebaCommentConfig.vueRootView.__vue__.$router.back();
+                await utils.sleep(250);
+              } else {
+                return;
+              }
+            }
+          }
           /* 关闭图标的点击事件 */
           DOMUtils.on(
             dialog.querySelector(".whitesev-reply-dialog-close"),
@@ -3978,9 +3999,13 @@
                     dialog,
                     "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
                   );
+                  log.success("关闭楼中楼回复弹窗");
                   log.success("解锁全局滚动");
                   document.documentElement.style.overflowY = "";
                   dialog.remove();
+                  if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
+                    resumeBack();
+                  }
                 }
               );
             }
@@ -4157,6 +4182,11 @@
           /* 延迟显示 */
           setTimeout(() => {
             dialog.setAttribute("data-on", true);
+            this.vueRootView = document.querySelector(".main-page-wrap");
+            log.success(["成功获取Vue根元素", this.vueRootView.__vue__]);
+            if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
+              banBack();
+            }
           }, 0);
         },
         /**
@@ -4164,7 +4194,6 @@
          * @param {string} tid 帖子id
          * @param {string} pid 回复主体id
          * @param {string|Number} pn 当前页
-         * @returns {Promise}
          */
         async getLzlCommentReply(tid = "", pid = "", pn = 1) {
           let getResp = await httpx.get({
@@ -4233,7 +4262,7 @@
         /**
          * 插入只看楼主的按钮
          */
-        insertOnlyLZ: () => {
+        insertOnlyLZ() {
           let replySwitchElement = document.querySelector("#replySwitch");
           if (!replySwitchElement) {
             log.error("元素#replySwitch不存在");
@@ -4277,7 +4306,7 @@
         /**
          * 插入 正序=倒序的按钮
          */
-        insertReverseBtn: () => {
+        insertReverseBtn() {
           let replySwitchElement = document.querySelector("#replySwitch");
           if (!replySwitchElement) {
             log.error("元素#replySwitch不存在");
@@ -4337,7 +4366,7 @@
          * @param {string} url
          * @returns {?HTMLElement}
          */
-        getPageComment: async (url) => {
+        async getPageComment(url) {
           let getResp = await httpx.get({
             url: url,
             headers: {
@@ -4367,7 +4396,7 @@
          * @param {string} url
          * @returns {{commentList:array, userList:array} }
          */
-        getPageCommentList: async (url) => {
+        async getPageCommentList(url) {
           let getResp = await httpx.get({
             url: url,
             headers: {
@@ -4391,7 +4420,7 @@
         /**
          * 插入加载中的html
          */
-        insertLoadingHTML: () => {
+        insertLoadingHTML() {
           if (!loadingView.isExists()) {
             log.info("插入loading");
             loadingView.setCSS();
@@ -4407,7 +4436,7 @@
          * 动态显示只看楼主
          * @param {Array} classlist
          */
-        displayComment: (classlist) => {
+        displayComment(classlist) {
           if (classlist.includes("white-only-lz-qx")) {
             document
               .querySelector(".white-only-lz")
@@ -4573,6 +4602,17 @@
         },
         run() {
           utils.waitNode(".main-page-wrap").then(() => {
+            GM_Menu.add({
+              key: "baidu_tieba_lzl_ban_global_back",
+              text: "优化查看楼中楼回复",
+              callback(data) {
+                if (data.enable) {
+                  alert(
+                    "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。"
+                  );
+                }
+              },
+            });
             tiebaCommentConfig.insertLoadingHTML();
           });
           utils.waitNode(".recommend-item[data-banner-info]").then(() => {
@@ -5653,50 +5693,30 @@
       }
       GM_addStyle(this.css.wenku);
       log.info("插入CSS规则");
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baidu_wenku_block_member_picks: {
-            text: "【屏蔽】会员精选",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_wenku_blocking_app_featured: {
-            text: "【屏蔽】APP精选",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_wenku_blocking_related_documents: {
-            text: "【屏蔽】相关文档",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_wenku_blocking_bottom_toolbar: {
-            text: "【屏蔽】底部工具栏",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_wenku_shield_next_btn: {
-            text: "【屏蔽】下一篇按钮",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
+          key: "baidu_wenku_block_member_picks",
+          text: "【屏蔽】会员精选",
+          enable: true,
         },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "baidu_wenku_blocking_app_featured",
+          text: "【屏蔽】APP精选",
+          enable: true,
+        },
+        {
+          key: "baidu_wenku_blocking_related_documents",
+          text: "【屏蔽】相关文档",
+        },
+        {
+          key: "baidu_wenku_blocking_bottom_toolbar",
+          text: "【屏蔽】底部工具栏",
+        },
+        {
+          key: "baidu_wenku_shield_next_btn",
+          text: "【屏蔽】下一篇按钮",
+        },
+      ]);
       /* 屏蔽会员精选 */
       if (GM_Menu.get("baidu_wenku_block_member_picks")) {
         GM_addStyle(`
@@ -5755,22 +5775,10 @@
       let page = 1;
       GM_addStyle(this.css.baike);
       log.info("插入CSS规则");
-      GM_Menu = new utils.GM_Menu(
-        {
-          baidu_baike_sync_next_page_address: {
-            text: "同步下一页地址",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-        },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+      GM_Menu.add({
+        key: "baidu_baike_sync_next_page_address",
+        text: "同步下一页地址",
+      });
 
       /**
        * 获取到的图片大小要重新设置
@@ -5944,43 +5952,28 @@
       if (document.querySelector(".ec-ad")) {
         DOMUtils.remove(DOMUtils.parent(document.querySelectorAll(".ec-ad")));
       }
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baidu_zhidao_block_recommend_more_exciting_content: {
-            text: "【屏蔽】推荐更多精彩内容",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_zhidao_block_related_issues: {
-            text: "【屏蔽】相关问题",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_zhidao_block_other_answers: {
-            text: "【屏蔽】其他回答",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_fanyi_auto_focus: {
-            text: "自动点击-展开更多回答",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
+          key: "baidu_zhidao_block_recommend_more_exciting_content",
+          text: "【屏蔽】推荐更多精彩内容",
+          enable: true,
         },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "baidu_zhidao_block_related_issues",
+          text: "【屏蔽】相关问题",
+          enable: true,
+        },
+        {
+          key: "baidu_zhidao_block_other_answers",
+          text: "【屏蔽】其他回答",
+          enable: true,
+        },
+        {
+          key: "baidu_fanyi_auto_focus",
+          text: "自动点击-展开更多回答",
+          enable: true,
+        },
+      ]);
       if (GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")) {
         GM_addStyle(`
           .feed-recommend-title,
@@ -6011,36 +6004,23 @@
       }
       GM_addStyle(this.css.fanyi);
       log.info("插入CSS规则");
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baidu_fanyi_recommended_shielding_bottom: {
-            text: "【屏蔽】底部推荐",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_fanyi_other_shielding_bottom: {
-            text: "【屏蔽】底部其它",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_fanyi_auto_focus: {
-            text: "自动聚焦输入框",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
+          key: "baidu_fanyi_recommended_shielding_bottom",
+          text: "【屏蔽】底部推荐",
+          enable: true,
         },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "baidu_fanyi_other_shielding_bottom",
+          text: "【屏蔽】底部其它",
+          enable: true,
+        },
+        {
+          key: "baidu_fanyi_auto_focus",
+          text: "自动聚焦输入框",
+          enable: true,
+        },
+      ]);
       if (GM_Menu.get("baidu_fanyi_recommended_shielding_bottom")) {
         GM_addStyle(`
         section.article.android-style{
@@ -6105,29 +6085,16 @@
         示例
         https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
         */
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baidu_mdb_block_exciting_recommendations: {
-            text: "【屏蔽】精彩推荐",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_mdb_shield_bottom_toolbar: {
-            text: "【屏蔽】底部工具栏",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
+          key: "baidu_mdb_block_exciting_recommendations",
+          text: "【屏蔽】精彩推荐",
         },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "baidu_mdb_shield_bottom_toolbar",
+          text: "【屏蔽】底部工具栏",
+        },
+      ]);
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
       if (GM_Menu.get("baidu_mdb_block_exciting_recommendations")) {
@@ -6174,29 +6141,18 @@
         "coupon_bottom_popup",
         new Date().getTime()
       );
-      GM_Menu = new utils.GM_Menu(
+      GM_Menu.add([
         {
-          baidu_aiqicha_shidld_carousel: {
-            text: "【屏蔽】轮播图",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-          baidu_aiqicha_shidld_industry_host_news: {
-            text: "【屏蔽】行业热点新闻",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
+          key: "baidu_aiqicha_shidld_carousel",
+          text: "【屏蔽】轮播图",
+          enable: true,
         },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        {
+          key: "baidu_aiqicha_shidld_industry_host_news",
+          text: "【屏蔽】行业热点新闻",
+          enable: true,
+        },
+      ]);
       /**
        * 屏蔽轮播图
        */
@@ -6235,22 +6191,11 @@
       }
       GM_addStyle(this.css.haokan);
       log.info("插入CSS规则");
-      GM_Menu = new utils.GM_Menu(
-        {
-          baidu_haokan_shidld_may_also_like: {
-            text: "【屏蔽】猜你喜欢",
-            enable: true,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-          },
-        },
-        true,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+      GM_Menu.add({
+        key: "baidu_haokan_shidld_may_also_like",
+        text: "【屏蔽】猜你喜欢",
+        enable: true,
+      });
       if (GM_Menu.get("baidu_haokan_shidld_may_also_like")) {
         GM_addStyle(`
         div.top-video-list-container{display: none !important};
@@ -6449,76 +6394,55 @@
       }
       GM_addStyle(this.css.yiyan);
       log.info("插入CSS规则");
-      GM_Menu = new utils.GM_Menu(
-        {
-          baidu_yiyan_remove_ai_mask: {
-            text: "【屏蔽水印】AI生成内容仅供参考",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return (_enable_ ? "✅" : "❌") + " " + _text_;
-            },
-            callback() {
-              window.location.reload();
-            },
-          },
-        },
-        false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+      GM_Menu.add({
+        key: "baidu_yiyan_remove_ai_mask",
+        text: "【屏蔽】水印",
+      });
 
       const webSiteHandle = {
         /**
-         * 处理sharw-root
+         * 通过处理attachShadow和appendChild原型来去除水印
+         * 屏蔽 AI生成内容仅供参考
+         * 屏蔽 AI作图
          */
-        handleShadowRoot() {
+        blockWaterMark() {
           let oldShadow = Element.prototype.attachShadow;
           Element.prototype.attachShadow = function (...args) {
             const shadowRoot = oldShadow.call(this, ...args);
             this._shadowRoot = shadowRoot;
+            shadowRoot.appendChild(
+              DOMUtils.createElement(
+                "style",
+                "div[id^='mask']{display: none !important;}"
+              )
+            );
             return shadowRoot;
           };
-        },
-        /**
-         * 去除背景水印-AI生成内容仅供参考
-         */
-        removeAIMaskBg() {
-          utils.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            callback() {
-              let maskElement = document.querySelector(
-                "body>div[id]:not([id='root'])"
-              );
-              if (!maskElement) {
-                return;
-              }
-              let _shadowRoot = maskElement["_shadowRoot"];
-              if (!_shadowRoot) {
-                log.error("获取_shadowRoot失败");
-                return;
-              }
-              _shadowRoot.appendChild(
-                DOMUtils.createElement(
-                  "style",
-                  "div[id^='mask']{display: none !important;}"
-                )
-              );
-              _shadowRoot
-                .querySelectorAll("div[id^='mask']")
-                .forEach((item) => item.remove());
-            },
-          });
+          let oldAppendChild = Element.prototype.appendChild;
+          Element.prototype.appendChild = function (element) {
+            if (element.localName === "img") {
+              setTimeout(() => {
+                Array.from(document.querySelectorAll("img")).forEach(
+                  (imageElement) => {
+                    if (imageElement.src.endsWith("style/wm_ai")) {
+                      imageElement.src = imageElement.src.replace(
+                        /style\/wm_ai$/gi,
+                        ""
+                      );
+                    }
+                  }
+                );
+              }, 150);
+            }
+
+            return oldAppendChild.call(this, element);
+          };
         },
       };
-      webSiteHandle.handleShadowRoot();
+
       if (GM_Menu.get("baidu_yiyan_remove_ai_mask")) {
-        log.success(GM_Menu.getShowText("baidu_yiyan_remove_ai_mask"));
-        webSiteHandle.removeAIMaskBg();
+        log.success(GM_Menu.getShowTextValue("baidu_yiyan_remove_ai_mask"));
+        webSiteHandle.blockWaterMark();
       }
     },
   };
