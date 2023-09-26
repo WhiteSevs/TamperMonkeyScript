@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      23.9.20.16.25
+// @version      2023.9.26
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -57,8 +57,8 @@
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1252080
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1254413
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1254388
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
 (function () {
@@ -100,7 +100,12 @@
       log.error(["httpx-onerror", response]);
     },
   });
-  let GM_Menu = null;
+  let GM_Menu = new utils.GM_Menu({
+    GM_getValue,
+    GM_setValue,
+    GM_registerMenuCommand,
+    GM_unregisterMenuCommand,
+  });
   const NetDisk = {
     /**
      * 是否初始化
@@ -1353,11 +1358,14 @@
           if (zt === 4) {
             Qmsg.error(info);
           } else if (zt === 1) {
-            Qmsg.success("获取文件夹成功，解析文件直链中...");
+            let QmsgLoading = Qmsg.loading("获取文件夹成功，解析文件直链中...");
             var folder = json_data["text"]; /* 获取多文件的数组信息 */
             var folderList = []; /* 弹出内容 */
             log.info(`本链接一共${folder.length}个文件`);
             for (let i = 0; i < folder.length; i++) {
+              QmsgLoading.setText(
+                `获取文件夹成功，解析文件直链中...${i + 1}/${folder.length}`
+              );
               let item = folder[i];
               let _shareCode_ = item.id;
               let fileName = item.name_all;
@@ -1374,6 +1382,7 @@
               log.info(`第${i + 1}个解析完毕`);
               folderList.push(folderInfo);
             }
+            QmsgLoading.close();
             NetDiskUI.staticView.moreFile("蓝奏云多文件直链", folderList);
           } else if ("密码不正确".indexOf(info) !== -1) {
             Qmsg.error("密码不正确!");
@@ -2015,7 +2024,9 @@
           } else {
             Qmsg.info("正在递归文件");
             that.folderNumber = 0;
+            let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
             await that.recursiveAlgorithm(infoLists);
+            QmsgLoading.close();
             Qmsg.info("正在排序中...");
 
             utils.sortListByProperty(that.panelList, (item) => {
@@ -2573,8 +2584,11 @@
             return;
           }
           let downloadList = [];
-          Qmsg.success("正在遍历多文件信息");
+          let Qmsg_loading = Qmsg.loading("正在遍历多文件信息...");
           for (let i = 0; i < folderInfo.length; i++) {
+            Qmsg_loading.setText(
+              `正在遍历多文件信息...${i + 1}/${folderInfo.length}`
+            );
             let item = folderInfo[i];
             let downloadUrl = await that.getDirLink(
               hash,
@@ -2602,6 +2616,7 @@
             ];
             await utils.sleep(150);
           }
+          Qmsg_loading.close();
           if (downloadList.length == 0) {
             return;
           }
@@ -7100,51 +7115,56 @@
       NetDisk.matchPageLink(); /* 自执行一次，因为有的页面上没触发mutationObserver */
     },
   };
-  GM_Menu = new utils.GM_Menu(
+  GM_Menu.add([
     {
-      showSetting: {
-        text: "⚙ 打开设置界面",
-        callback: () => {
-          NetDiskUI.suspension.initPop();
-          NetDiskUI.suspension.showSettingView();
-        },
+      key: "showSetting",
+      text: "⚙ 打开设置界面",
+      showText(text) {
+        return text;
       },
-      showNetDiskHistoryMatch: {
-        text: "⚙ 打开历史匹配记录",
-        callback: () => {
-          NetDiskUI.netDiskHistoryMatch.show();
-        },
-      },
-      repairHistoryMatchLocalData: {
-        text: "🔧 修复版本＜23.5.30.10.00历史匹配记录的数据",
-        callback: () => {
-          let localData = GM_getValue(NetDiskUI.netDiskHistoryMatch.storageKey);
-          let repairCount = 0;
-          if (!localData) {
-            Qmsg.error("本地暂未存储历史匹配记录数据");
-            return;
-          }
-          localData.forEach((item) => {
-            if (!("netDiskIndex" in item)) {
-              repairCount++;
-              item["netDiskIndex"] = 0;
-            }
-          });
-          if (repairCount) {
-            GM_setValue(NetDiskUI.netDiskHistoryMatch.storageKey, localData);
-            Qmsg.success(`成功修复 ${repairCount}条数据`);
-          } else {
-            Qmsg.success("不存在待修复的数据");
-          }
-        },
+      callback() {
+        NetDiskUI.suspension.initPop();
+        NetDiskUI.suspension.showSettingView();
       },
     },
-    false,
-    GM_getValue,
-    GM_setValue,
-    GM_registerMenuCommand,
-    GM_unregisterMenuCommand
-  );
+    {
+      key: "showNetDiskHistoryMatch",
+      text: "⚙ 打开历史匹配记录",
+      showText(text) {
+        return text;
+      },
+      callback() {
+        NetDiskUI.netDiskHistoryMatch.show();
+      },
+    },
+    {
+      key: "repairHistoryMatchLocalData",
+      text: "🔧 修复版本＜23.5.30.10.00历史匹配记录的数据",
+      showText(text) {
+        return text;
+      },
+      callback() {
+        let localData = GM_getValue(NetDiskUI.netDiskHistoryMatch.storageKey);
+        let repairCount = 0;
+        if (!localData) {
+          Qmsg.error("本地暂未存储历史匹配记录数据");
+          return;
+        }
+        localData.forEach((item) => {
+          if (!("netDiskIndex" in item)) {
+            repairCount++;
+            item["netDiskIndex"] = 0;
+          }
+        });
+        if (repairCount) {
+          GM_setValue(NetDiskUI.netDiskHistoryMatch.storageKey, localData);
+          Qmsg.success(`成功修复 ${repairCount}条数据`);
+        } else {
+          Qmsg.success("不存在待修复的数据");
+        }
+      },
+    },
+  ]);
   DOMUtils.ready(function () {
     NetDiskAutoFillAccessCode.default();
     NetDiskAuthorization.default();
