@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-25";
+  Utils.version = "2023-9-26";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1535,12 +1535,12 @@
           }
         };
         let menuOptionsLength = Object.values(menuOptions).filter(
-          (_item_) => item != null
-        );
+          (_item_) => _item_ != null
+        ).length;
         if (menuOptionsLength === 0) {
           let menuId = _GM_registerMenuCommand_(showText, callbackFunc);
           menuIdList = menuIdList.concat(menuId);
-        } else if (menuOptionsLength === 1 && menuOptions.accessKey) {
+        } else if (menuOptionsLength === 1 && menuOptions.accessKey != null) {
           let menuId = _GM_registerMenuCommand_(
             showText,
             callbackFunc,
