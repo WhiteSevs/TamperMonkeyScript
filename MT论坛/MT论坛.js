@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 新增对签到失败的另一种情况进行Toast提示;
-// @version      3.1.7.5
+// @description  更新日志: 新增对绑定手机号后才可以签到删除签到本地记录;修复蓝奏云上传失败问题;更新DOMUtils库;更新Utils库;
+// @version      2023.9.26
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -21,7 +21,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @grant        GM_cookie
-// @run-at       document-start
+// @run-at       document-end
 // @connect      helloimg.com
 // @connect      z4a.net
 // @connect      kggzs.cn
@@ -30,20 +30,38 @@
 // @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
+// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1250549
 // @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
-// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
+// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
 // ==/UserScript==
 
-(function () {
+(async function () {
   "use strict";
   /**
    * @type {import("../库/Utils")}
    */
-  const utils = window.Utils.noConflict();
+  const utils = (window.Utils || Utils).noConflict();
+  let $jq = null;
+  /**
+   * @type {import("../库/any-touch.umd")}
+   */
+  let AnyTouch = window.AnyTouch;
+  /**
+   * @type {import("../库/Viewer")}
+   */
+  let Viewer = window.Viewer;
+  /**
+   * @type {import("../库/js-watermark")}
+   */
+  let Watermark = window.Watermark;
+  /**
+   * @type {import("../库/Xtiper")}
+   */
+  let xtip = window.xtip;
+
   /**
    * 自定义新的popups弹窗代替popup
    */
@@ -658,28 +676,28 @@
    * 检测引用库是否正确加载
    * @example	https://unpkg.com/any-touch/dist/any-touch.umd.min.js
    * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662
+   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1250549
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
-   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991
+   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
    */
   function checkReferenceLibraries() {
     let libraries = [
       {
-        object: AnyTouch,
+        object: typeof AnyTouch === "undefined" ? window.AnyTouch : AnyTouch,
         name: "AnyTouch",
         url: "https://unpkg.com/any-touch/dist/any-touch.umd.min.js",
       },
       {
-        object: Viewer,
+        object: typeof Viewer === "undefined" ? window.Viewer : Viewer,
         name: "Viewer",
         url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086",
       },
       {
-        object: xtip,
+        object: typeof xtip === "undefined" ? window.xtip : xtip,
         name: "xtip",
-        url: "https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1170662",
+        url: "https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1250549",
       },
       {
         object: $jq.NZ_MsgBox,
@@ -688,41 +706,49 @@
         url: "https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421",
       },
       {
-        object: Watermark,
+        object: typeof Watermark === "undefined" ? window.Watermark : Watermark,
         name: "Watermark",
-        url: "https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1165991",
+        url: "https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550",
       },
       {
-        object: html2canvas,
+        object:
+          typeof html2canvas === "undefined" ? window.html2canvas : html2canvas,
         name: "html2canvas",
         url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089",
       },
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1249714",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297",
+      },
+      {
+        object: typeof hljs === "undefined" ? window.hljs : hljs,
+        name: "hljs",
+        url: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js",
       },
     ];
     for (const libraryItem of libraries) {
       if (typeof libraryItem["object"] === "undefined") {
-        GM_loadJavaScriptLibrary(
-          libraryItem["url"],
-          libraryItem["jQueryConflictName"]
-        ).then((resolve) => {
-          if (resolve) {
-            console.log(
-              `check: %c ${libraryItem["name"]} %c √ 修复`,
-              "background:#24272A; color:#ffffff",
-              "color:#00a5ff"
-            );
-          } else {
-            console.log(
-              `check: %c ${libraryItem["name"]} %c ×`,
-              "background:#24272A; color:#ffffff",
-              "color:#f90000"
-            );
-          }
-        });
+        window
+          .GM_loadJavaScriptLibrary(
+            libraryItem["url"],
+            libraryItem["jQueryConflictName"]
+          )
+          .then((resolve) => {
+            if (resolve) {
+              console.log(
+                `check: %c ${libraryItem["name"]} %c √ 修复`,
+                "background:#24272A; color:#ffffff",
+                "color:#00a5ff"
+              );
+            } else {
+              console.log(
+                `check: %c ${libraryItem["name"]} %c ×`,
+                "background:#24272A; color:#ffffff",
+                "color:#f90000"
+              );
+            }
+          });
       } else {
         console.log(
           `check: %c ${libraryItem["name"]} %c √`,
@@ -858,6 +884,7 @@
       };
     },
   };
+
   /**
    * 脚本环境的一些兼容，比如X浏览器
    * @returns true || false
@@ -867,7 +894,7 @@
     let isFailedFunction = [];
     console.log("正在检测脚本环境...");
     if (typeof $ != "undefined") {
-      window.$jq =
+      $jq =
         $.noConflict(
           true
         ); /* 为什么这么写，非油猴管理器使用该脚本没有容器环境，会修改页面的jQuery */
@@ -886,7 +913,7 @@
       if (typeof jQuery != "undefined") {
         if (jQuery.fn.jquery === "3.6.0") {
           /* 回复页面的jQuery失败，再试一次 */
-          window.$jq = $.noConflict(true);
+          $jq = $.noConflict(true);
         }
         console.log(
           `check: %c $ %c √ 网站的jQuery版本:${
@@ -905,53 +932,7 @@
         "color:#f90000"
       );
     }
-    /* x浏览器，知不知道GM_xmlhttpRequest是跨域用的，还判断cors？多此一举 */
-    /* if (typeof mbrowser != "undefined") {
-      window.GM_xmlhttpRequest_isRepair = false;
-      let trans_id = uuid();
-      let mbrowserUserScriptId = user_script_id;
-      GM_xmlhttpRequest = (req) => {
-        _XJSAPI_.g_gm_callback_map[
-          `_${mbrowserUserScriptId}_${trans_id}_GM_xmlhttpRequest`
-        ] = req;
-        if (req.url && !req.url.startsWith("http")) {
-          req.url = `${window.location.origin}/${req.url.replace(/^\//, "")}`;
-        }
-        if (req.data) {
-          if (req.headers) {
-            if (!req.headers["Content-type"]) {
-              req.headers["Content-type"] = "application/x-www-form-urlencoded";
-            }
-          } else {
-            req.headers = {
-              "Content-type": "application/x-www-form-urlencoded",
-            };
-          }
-          if (typeof req.data == "object") {
-            var _formData = null;
-            for (key of req.data.keys()) {
-              if (!_formData) {
-                _formData = `${key}=${req.data.get(key)}`;
-              } else {
-                _formData += `&${key}=${req.data.get(key)}`;
-              }
-            }
-            req.data = _formData;
-          }
-        }
-        mbrowser.GM_xmlhttpRequest(
-          mbrowserUserScriptId,
-          trans_id,
-          JSON.stringify(req)
-        );
-      };
-      console.log(
-        "check: %c GM_xmlhttpRequest %c √ 替换成X浏览器的GM.xmlHttpRequest",
-        "background:#24272A; color:#ffffff",
-        "color:#00a5ff"
-      );
-    } else 
-     */
+
     if (typeof GM_xmlhttpRequest === "undefined") {
       window.GM_xmlhttpRequest_isRepair = true;
       isFailedFunction = isFailedFunction.concat("GM_xmlhttpRequest");
@@ -1077,6 +1058,8 @@
             let scriptText = response.responseText;
             if (newJQuery != "") {
               scriptText = `let $ = ${newJQuery};let jQuery = ${newJQuery};\n${scriptText}`;
+            } else if (url.includes("highlight")) {
+              scriptText += "\n\n window.hljs = hljs";
             }
             try {
               eval(scriptText);
@@ -1230,7 +1213,7 @@
       );
     }
     if (typeof GM_cookie === "undefined") {
-      unsafeWindow.GM_cookie = new utils.GM_Cookie();
+      GM_cookie = new utils.GM_Cookie();
       console.log(
         "check: %c GM_cookie %c √ 修复",
         "background:#24272A; color:#ffffff",
@@ -1246,6 +1229,7 @@
     checkReferenceLibraries();
     if (checkStatus) {
       console.log(`脚本环境检测结果: 通过`);
+      setUnsafeWindowEnv();
     } else {
       let isFailedStr = "";
       Array.from(isFailedFunction).forEach((item) => {
@@ -1258,6 +1242,21 @@
     return checkStatus;
   }
 
+  function setUnsafeWindowEnv() {
+    unsafeWindow.WhiteSevGM = {
+      GM_xmlhttpRequest,
+      GM_addStyle,
+      GM_setValue,
+      GM_getValue,
+      GM_deleteValue,
+      GM_setClipboard,
+      GM_xmlhttpRequest,
+      GM_registerMenuCommand,
+      GM_unregisterMenuCommand,
+      GM_info,
+      GM_cookie,
+    };
+  }
   /**
    * PC端的方法
    */
@@ -1735,36 +1734,26 @@
     },
     loadPCMenu() {
       /* 注册PC端油猴菜单 */
-      new utils.GM_Menu(
-        {
-          detectUserOnlineStatus: {
+      new utils.GM_Menu({
+        data: [
+          {
+            key: "detectUserOnlineStatus",
             text: "探测用户在线状态",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
-            },
           },
-          postBrowsingOptimization: {
+          {
+            key: "postBrowsingOptimization",
             text: "帖子浏览优化",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
-            },
           },
-          guideOptimization: {
+          {
+            key: "guideOptimization",
             text: "导读浏览优化",
-            enable: false,
-            showText: (_text_, _enable_) => {
-              return `${_enable_ ? "✅" : "❌"} ${_text_}`;
-            },
           },
-        },
-        true,
+        ],
         GM_getValue,
         GM_setValue,
         GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
+        GM_unregisterMenuCommand,
+      });
     },
     /**
      * 帖子浏览优化
@@ -3656,7 +3645,7 @@
       /**
        * 获取Cookie，使用了GM_cookie，可能在某些油猴管理器上不兼容
        * @param {string} cookieName 需要获取的Cookie名字
-       * @returns {string|undefined}
+       * @async
        */
       function getCookie(cookieName) {
         return new Promise((resolve) => {
@@ -3879,6 +3868,11 @@
         envIsMobile() &&
         window.location.href.match(DOM_CONFIG.urlRegexp.kMiSignSign)
       ) {
+        if (document.querySelector(".comiis_password_top")) {
+          GM_deleteValue("mt_sign");
+          popups.toast("绑定手机号后才可以签到");
+          return;
+        }
         var deleteLocalStorageSignInfo = $jq(`
                 <div style="
 									display: flex;
@@ -4915,7 +4909,7 @@
             timeout: 15000,
             responseType: "html",
             headers: {
-              "user-agent": utils.getRandomPCUA(),
+              "User-Agent": utils.getRandomPCUA(),
             },
             onload: (response) => {
               let token = response.responseText.match(
@@ -4943,41 +4937,45 @@
       },
       /**
        * 图床登录
-       * @param {*} url
-       * @param {*} user
-       * @param {*} pwd
-       * @param {*} auth_token
-       * @returns
+       * @param {string} url 地址
+       * @param {string} user 用户名
+       * @param {string} pwd 密码
+       * @param {string} auth_token 验证token
+       * @async
        */
       login(url, user, pwd, auth_token) {
         return new Promise((resolve) => {
           GM_xmlhttpRequest({
             url: `${url}/login`,
             method: "POST",
-            timeout: 15000,
+            timeout: 6000,
             data: `login-subject=${user}&password=${pwd}&auth_token=${auth_token}`,
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
               "User-Agent": utils.getRandomPCUA(),
             },
-            onload: (response) => {
+            onload: function (response) {
               console.log(response);
               if (
                 response.status == 200 &&
                 response.responseText.match("注销")
               ) {
+                console.log("登陆成功");
                 popups.toast("登陆成功");
                 resolve(true);
               } else {
+                console.log("登录失败");
                 popups.toast("登录失败");
                 resolve(false);
               }
             },
-            onerror: () => {
+            onerror: (response) => {
+              console.log("网络异常", response);
               popups.toast("网络异常");
               resolve(false);
             },
             ontimeout: () => {
+              console.log("请求超时");
               popups.toast("请求超时");
               resolve(false);
             },
@@ -4986,9 +4984,9 @@
       },
       /**
        * 上传图片
-       * @param {*} url
-       * @param {*} auth_token
-       * @param {*} imageFile
+       * @param {string} url
+       * @param {string} auth_token
+       * @param {File} imageFile
        * @returns
        */
       uploadImage(url, auth_token, imageFile) {
@@ -5009,7 +5007,6 @@
             method: "POST",
             data: form,
             async: false,
-            responseType: "json",
             headers: {
               Accept: "application/json",
               "User-Agent": utils.getRandomPCUA(),
@@ -5327,7 +5324,6 @@
               method: "POST",
               data: form,
               async: false,
-              responseType: "json",
               headers: {
                 Accept: "application/json",
                 "User-Agent": utils.getRandomPCUA(),
@@ -5381,7 +5377,6 @@
               data: JSON.stringify({
                 key: "",
               }),
-              responseType: "json",
               headers: {
                 Accept: "application/json",
                 "User-Agent": utils.getRandomPCUA(),
@@ -6469,7 +6464,6 @@
               method: "POST",
               data: form,
               async: false,
-              responseType: "json",
               headers: {
                 Accept: "application/json",
                 "User-Agent": utils.getRandomPCUA(),
@@ -6528,7 +6522,6 @@
               data: JSON.stringify({
                 key: "",
               }),
-              responseType: "json",
               headers: {
                 Accept: "application/json",
                 "User-Agent": utils.getRandomPCUA(),
@@ -7500,8 +7493,8 @@
                 timeout: 5000,
                 headers: {
                   "User-Agent": utils.getRandomPCUA(),
-                  referer: "https://img.binmt.cc/",
-                  origin: "https://img.binmt.cc",
+                  Referer: "https://img.binmt.cc/",
+                  Origin: "https://img.binmt.cc",
                 },
                 onload: (response) => {
                   console.log(response);
@@ -7544,11 +7537,10 @@
                 method: "POST",
                 data: form,
                 async: false,
-                responseType: "json",
                 headers: {
                   Accept: "application/json, text/javascript, */*; q=0.01",
                   "User-Agent": utils.getRandomAndroidUA(),
-                  origin: "https://img.binmt.cc",
+                  Origin: "https://img.binmt.cc",
                   pragma: "no-cache",
                   "Accept-Encoding": "gzip, deflate, br",
                   "Accept-Language":
@@ -10946,14 +10938,19 @@
             });
           },
         },
+        /**
+         * 获取账号的formhash
+         * @param {string} user
+         * @param {string} pwd
+         * @returns
+         */
         login_getFormHash(user, pwd) {
-          /* 获取账号的formhash */
           popups.loadingMask();
           return new Promise((resolve) => {
             GM_xmlhttpRequest({
               url: "https://up.woozooo.com/mlogin.php",
               timeout: 5000,
-              method: "GET",
+              method: "POST",
               data: `task=3&uid=${encodeURI(
                 user
               )}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=`,
@@ -10993,7 +10990,7 @@
          * @param {string} user 用户名
          * @param {string} pwd 密码
          * @param {string} formhash hash值
-         * @returns
+         * @async
          */
         login(user, pwd, formhash) {
           popups.loadingMask();
@@ -11003,34 +11000,31 @@
               timeout: 5000,
               method: "POST",
               headers: {
-                "content-type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/x-www-form-urlencoded",
                 "User-Agent": utils.getRandomPCUA(),
               },
               data: `task=3&uid=${encodeURI(
                 user
               )}&pwd=${pwd}&setSessionId=&setSig=&setScene=&setToken=&formhash=${formhash}`,
-              responseType: "json",
               onload: (response) => {
+                console.log(response);
                 popups.closeMask();
                 if (
-                  (response.finalUrl.indexOf("woozooo.com/mlogin.php") != -1 &&
-                    JSON.parse(response.responseText)["zt"] == 1) ||
-                  response.finalUrl.indexOf("woozooo.com/myfile.php") != -1
+                  response.responseHeaders
+                    .toLowerCase()
+                    .match(/content-type:[\s]*text\/json/i)
                 ) {
-                  resolve(true);
-                } else {
-                  if (
-                    response.responseHeaders.indexOf(
-                      "content-type: text/json" != -1
-                    )
-                  ) {
-                    xtips.toast(JSON.parse(response.responseText)["info"]);
+                  /* 返回的是JSON */
+                  let respData = JSON.parse(response.responseText);
+                  if (respData["zt"] == 1) {
+                    resolve(true);
                   } else {
-                    xtips.toast("登录失败");
-                    console.log(response);
+                    xtips.toast(respData["info"] || "登录失败");
+                    resolve(false);
                   }
-
-                  resolve(false);
+                } else {
+                  /* 返回的是HTML */
+                  resolve(true);
                 }
               },
               onerror: () => {
@@ -11055,7 +11049,7 @@
           popups.loadingMask();
           let formData = new FormData();
           formData.append("task", 1);
-          formData.append("vie", 2);
+          formData.append("vie", 3);
           formData.append("ve", 2);
           formData.append("id", "WU_FILE_0");
           formData.append("folder_id_bb_n", -1);
@@ -11070,6 +11064,7 @@
                 Host: "up.woozooo.com",
                 Origin: "https://up.woozooo.com",
                 "User-Agent": utils.getRandomPCUA(),
+                Referer: "https://up.woozooo.com/mydisk.php",
               },
               onload: (response) => {
                 popups.closeMask();
@@ -13844,9 +13839,9 @@
       }
       /**
        * 修改本地数据
-       * @param {Object} oldData 旧数据，{name:""}
-       * @param {Object} newData 新数据, {name:""}
-       * @returns {Boolean} 是否修改成功
+       * @param {{name:string}} oldData 旧数据，{name:""}
+       * @param {{name:string}} newData 新数据, {name:""}
+       * @returns {boolean} 是否修改成功
        */
       function changeLocalData(oldData, newData) {
         let oldDataString = JSON.stringify(oldData);
@@ -13866,8 +13861,8 @@
       }
       /**
        * 删除本地数据
-       * @param {Object} data 需要被删除的数据，{name:""}
-       * @returns {Boolean} 是否删除成功
+       * @param {{name:string}} data 需要被删除的数据，{name:""}
+       * @returns {boolean} 是否删除成功
        */
       function deleteLocalData(data) {
         let dataString = JSON.stringify(data);
@@ -13888,8 +13883,8 @@
       }
       /**
        * 弹出的视图的添加按钮的点击事件
-       * @param {Object} defaultData 默认数据
-       * @param {Boolean} isEdit 是否是编辑模式
+       * @param {{name:string}}} defaultData 默认数据
+       * @param {boolean} isEdit 是否是编辑模式
        */
       function setAddBtnClickEvent(defaultData = { name: "" }, isEdit = false) {
         popups.confirm({
@@ -13944,7 +13939,6 @@
       }
       /**
        * 获取当前积分商城的所有商品
-       * @returns {Promise}
        */
       async function getCurrentProduct() {
         return new Promise((resolve) => {
@@ -16124,10 +16118,10 @@
                 method: "POST",
                 data: formData,
                 headers: {
-                  origin: "https://bbs.binmt.cc",
-                  referer:
+                  Origin: "https://bbs.binmt.cc",
+                  Referer:
                     "https://bbs.binmt.cc/home.php?mod=spacecp&ac=avatar",
-                  accept:
+                  Accept:
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                   "User-Agent": utils.getRandomPCUA(),
                 },
@@ -16249,7 +16243,7 @@
             headers: {
               Referer:
                 "https://bbs.binmt.cc/forum.php?mod=guide&view=newthread&index=1",
-              accept:
+              Accept:
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
               "User-Agent": utils.getRandomAndroidUA(),
             },
@@ -16825,6 +16819,24 @@
        * 设置 脚本设置界面的事件
        */
       function setPageSettingViewEvent() {
+        /**
+         * 选项全选中
+         */
+        $jq(".NZ-MsgBox-alert .msgtitle").on("click", function () {
+          let inputCheckList = document.querySelectorAll(
+            ".whitesev-mt-setting-item input[type=checkbox]"
+          );
+          let inputUnCheckedList = document.querySelectorAll(
+            ".whitesev-mt-setting-item input[type=checkbox]:not(:checked)"
+          );
+          if (inputUnCheckedList.length === 0) {
+            /* 都已选中 */
+            inputCheckList.forEach((item) => item.click());
+          } else {
+            /* 存在未选中的 */
+            inputUnCheckedList.forEach((item) => item.click());
+          }
+        });
         $jq(".whitesev-mt-setting-item input[type='checkbox']").each(
           (index, item) => {
             item = $jq(item);
@@ -16960,6 +16972,10 @@
        * 设置 脚本设置界面
        */
       function setPageSettingView() {
+        GM_addStyle(`
+          .NZ-MsgBox-alert .msgcontainer .msgtitle {
+              text-align: center !important;
+          }`);
         let settingView = $jq(`
         <li class="comiis_left_Touch" _mstvisible="3">
           <a href="javascript:;" class="comiis_left_Touch">
@@ -17272,7 +17288,9 @@
       });
     }
   };
-  if (envCheck()) {
+
+  let envCheckResult = envCheck();
+  if (envCheckResult) {
     $jq(document).ready(function () {
       entrance();
       console.log(`执行完毕,耗时${Date.now() - DOM_CONFIG.gmRunStartTime}ms`);
