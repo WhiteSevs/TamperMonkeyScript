@@ -2,7 +2,7 @@
 // @name            eruda_VConsole_网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://greasyfork.org/zh-CN/scripts/475228/feedback
-// @version         2023.9.26
+// @version         2023.9.26.18
 // @author          WhiteSevs
 // @description     自行选择是eruda或者VConsole进行网页调试
 // @license         MIT
@@ -13,7 +13,7 @@
 // @grant           GM_getValue
 // @grant           GM_setValue
 // @grant           GM_deleteValue
-// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256406
 // ==/UserScript==
 
 (function () {

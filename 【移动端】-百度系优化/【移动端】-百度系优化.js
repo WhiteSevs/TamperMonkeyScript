@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.26
+// @version      2023.9.26.18
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,7 +45,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256406
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // @run-at       document-start
 // ==/UserScript==
@@ -5667,6 +5667,70 @@
           setCSS();
         },
       };
+
+      /**
+       * 贴吧其它功能
+       */
+      const tiebaBusiness = {
+        vueRootView: null,
+        run() {
+          /* 修改页面中的APP内签到 */
+          utils.waitNode(".tb-mobile-viewport").then(async () => {
+            tiebaBusiness.vueRootView = document.querySelector(
+              ".tb-mobile-viewport"
+            ).__vue__;
+            if (!tiebaBusiness.vueRootView["user"]["is_login"]) {
+              return;
+            }
+            utils.waitNode(".tb-forum-user__join-btn").then(nodeList=>{
+              log.success("修改页面中的APP内签到");
+              DOMUtils.on(nodeList[0],"click",function(event){
+                utils.preventEvent(event);
+                let userPortrait = tiebaBusiness.vueRootView["user"]["portrait"];
+                let forumName = tiebaBusiness.vueRootView["forum"]["name"];
+                let tbs = tiebaBusiness.vueRootView["$store"]["state"]["common"]["tbs"];
+                tiebaBusiness.sign(forumName, tbs);
+              })
+            })
+            
+          });
+        },
+        /**
+         * 签到
+         * @param {string} forumName 贴吧名
+         * @param {string} tbs 应该是用户token
+         */
+        async sign(forumName, tbs) {
+          log.success(["发送签到请求→", forumName, tbs]);
+          let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
+            data: `ie=utf-8&kw=${forumName}&tbs=${tbs}`,
+            headers: {
+              accept: "application/json, text/javascript, */*; q=0.01",
+              "accept-language":
+                "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+              "cache-control": "no-cache",
+              "content-type":
+                "application/x-www-form-urlencoded; charset=UTF-8",
+              referer: window.location.href,
+            },
+          });
+          log.error(postResp);
+          if (!postResp.status) {
+            tiebaBusiness.vueRootView.$toast("签到请求失败，请查看控制台");
+            return;
+          }
+          let respData = utils.toJSON(postResp.data.responseText);
+          log.success(respData);
+          if (typeof respData["data"] === "object") {
+            tiebaBusiness.vueRootView.$toast(
+              `签到排名：今日本吧第${respData["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到排名`
+            );
+          } else {
+            tiebaBusiness.vueRootView.$toast(respData["error"]);
+          }
+        },
+      };
+
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (
@@ -5683,6 +5747,7 @@
         redirectJump();
       }
       tiebaSearchConfig.run();
+      /* tiebaBusiness.run(); */
     },
     /**
      * 百度文库

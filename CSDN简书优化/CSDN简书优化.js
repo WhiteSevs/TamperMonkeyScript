@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      2023.9.26
+// @version      2023.9.26.18
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256297
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256406
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
@@ -41,6 +41,9 @@
    * 因为在有些页面上，比如：简书，当插入style元素到head中，该页面清除该元素
    */
   const GM_addStyle = utils.GM_addStyle;
+  /**
+   * 菜单
+   */
   let GM_Menu = new utils.GM_Menu({
     GM_getValue,
     GM_setValue,
@@ -1312,8 +1315,9 @@
           window.open("https://so.csdn.net/so/ai?", "_blank");
         },
       });
-      Optimization.csdn.run();
     }
+
+    Optimization.csdn.run();
   } else if (Optimization.jianshu.locationMatch()) {
     if (utils.isPhone()) {
       GM_Menu.add([
