@@ -5,7 +5,7 @@
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @description  更新日志: 新增对绑定手机号后才可以签到删除签到本地记录;修复蓝奏云上传失败问题;更新DOMUtils库;更新Utils库;
-// @version      2023.9.26.18.20
+// @version      2023.9.26.18.45
 // @author       WhiteSevs
 // @match        http*://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -1255,7 +1255,7 @@
       GM_registerMenuCommand,
       GM_unregisterMenuCommand,
       GM_info,
-      GM_cookie,
+      WhiteSev_GM_Cookie,
     };
   }
   /**
