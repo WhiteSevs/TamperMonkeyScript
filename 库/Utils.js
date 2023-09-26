@@ -22,12 +22,12 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-22";
+  Utils.version = "2023-9-25";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
-   * @param {object} target	目标端
-   * @param {object} source	源端
+   * @param {object} [target={}]	目标端
+   * @param {object} [source={}]	源端
    * @returns {object}
    * @example
    * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
@@ -68,8 +68,39 @@
   };
 
   /**
+   *
+   * @param {HTMLCanvasElement} canvasElement 画布元素
+   * @param {number} [clientX=0] X坐标，默认值0
+   * @param {number} [clientY=0] Y坐标，默认值0
+   * @param {window} [view=globalThis] 触发的事件目标
+   */
+  Utils.canvasClickByPosition = function (
+    canvasElement,
+    clientX = 0,
+    clientY = 0,
+    view = globalThis
+  ) {
+    if (!canvasElement instanceof HTMLCanvasElement) {
+      throw new Error(
+        "Utils.canvasClickByPosition 参数canvasElement必须是canvas元素"
+      );
+    }
+    clientX = parseInt(clientX);
+    clientY = parseInt(clientY);
+    const eventInit = {
+      cancelBubble: true,
+      cancelable: true,
+      clientX: clientX,
+      clientY: clientY,
+      view: view,
+      detail: 1,
+    };
+    canvas.dispatchEvent(new MouseEvent("mousedown", eventInit));
+    canvas.dispatchEvent(new MouseEvent("mouseup", eventInit));
+  };
+  /**
    * 【手机】检测点击的地方是否在该元素区域内
-   * @param {Element|Node} obj	需要检测的元素
+   * @param {Element|Node} element	需要检测的元素
    * @returns {boolean}
    * + true 点击在元素上
    * + false 未点击在元素上
@@ -77,8 +108,8 @@
    * Utils.checkUserClickInNode(document.querySelector(".xxx"));
    * > false
    **/
-  Utils.checkUserClickInNode = function (targetNode) {
-    if (!Utils.isDOM(targetNode)) {
+  Utils.checkUserClickInNode = function (element) {
+    if (!Utils.isDOM(element)) {
       throw new Error(
         "Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型"
       );
@@ -86,16 +117,16 @@
     let mouseClickPosX = Number(window.event.clientX); /* 鼠标相对屏幕横坐标 */
     let mouseClickPosY = Number(window.event.clientY); /* 鼠标相对屏幕纵坐标 */
     let elementPosXLeft = Number(
-      targetNode.getBoundingClientRect().left
+      element.getBoundingClientRect().left
     ); /* 要检测的元素的相对屏幕的横坐标最左边 */
     let elementPosXRight = Number(
-      targetNode.getBoundingClientRect().right
+      element.getBoundingClientRect().right
     ); /* 要检测的元素的相对屏幕的横坐标最右边 */
     let elementPosYTop = Number(
-      targetNode.getBoundingClientRect().top
+      element.getBoundingClientRect().top
     ); /* 要检测的元素的相对屏幕的纵坐标最上边 */
     let elementPosYBottom = Number(
-      targetNode.getBoundingClientRect().bottom
+      element.getBoundingClientRect().bottom
     ); /* 要检测的元素的相对屏幕的纵坐标最下边 */
     let clickNodeHTML = window.event?.target?.innerHTML;
     if (
@@ -105,7 +136,7 @@
       mouseClickPosY <= elementPosYBottom
     ) {
       return true;
-    } else if (clickNodeHTML && targetNode.innerHTML.includes(clickNodeHTML)) {
+    } else if (clickNodeHTML && element.innerHTML.includes(clickNodeHTML)) {
       /* 这种情况是应对在界面中隐藏的元素，getBoundingClientRect获取的都是0 */
       return true;
     } else {
@@ -115,7 +146,7 @@
 
   /**
    * 删除某个父元素，父元素可能在上层或上上层或上上上层...
-   * @param {Element|Node} target	当前元素
+   * @param {Element|Node} element	当前元素
    * @param {string} targetSelector	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
    * @returns {boolean}
    * + true 已删除
@@ -124,11 +155,11 @@
    * Utils.deleteParentNode(document.querySelector("a"),".xxx");
    * > true
    **/
-  Utils.deleteParentNode = function (target, targetSelector) {
-    if (target == null) {
+  Utils.deleteParentNode = function (element, targetSelector) {
+    if (element == null) {
       throw new Error("Utils.deleteParentNode 参数 target 不能为 null");
     }
-    if (!Utils.isDOM(target)) {
+    if (!Utils.isDOM(element)) {
       throw new Error(
         "Utils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型"
       );
@@ -139,7 +170,7 @@
       );
     }
     let result = false;
-    let needRemoveDOM = target.closest(targetSelector);
+    let needRemoveDOM = element.closest(targetSelector);
     if (needRemoveDOM) {
       needRemoveDOM.remove();
       result = true;
@@ -575,6 +606,8 @@
     handleHash();
     /**
      * 编码
+     * @param {string} str
+     * @returns {string}
      */
     this.encode = function (str) {
       return [...str].reduce((result, val, i) => {
@@ -588,23 +621,25 @@
           let key = codePoint.toString(16);
           key.length != 4 && (key = ("000" + key).match(/....$/)[0]);
 
-          // Add up i by code.length
+          /* Add up i by code.length */
           i += code.length - 1;
 
-          // If code is in ascii range
+          /* If code is in ascii range */
           if (isAscii(codePoint)) {
             result += encodeURIComponent(code);
             continue;
           }
 
-          // If Got encoded string from U2Ghash
+          /* If Got encoded string from U2Ghash */
           if (U2Ghash[key]) {
             result += U2Ghash[key];
             continue;
           }
 
-          // If 2 or more char combines to one visible code,
-          // or just this code is not in GBK
+          /* 
+          If 2 or more char combines to one visible code,
+          or just this code is not in GBK
+          */
           result += toGBK(`&#${codePoint};`);
         }
         return result;
@@ -613,6 +648,8 @@
 
     /**
      * 解码
+     * @param {string} str
+     * @returns {string}
      */
     this.decode = function (str) {
       var GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
@@ -680,7 +717,7 @@
    * 获取天数差异，如何获取某个时间与另一个时间相差的天数
    * @param {number} [timestamp1= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
    * @param {number} [timestamp2= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
-   * @param {string} [type= "天"] 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
+   * @param {"年"|"月"|"天"|"时"|"分"|"秒"|"auto"} [type= "天"] 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
    * @returns {number}
    * @example
    * Utils.getDaysDifference(new Date().getTime());
@@ -932,7 +969,7 @@
       "MI 13 Build/OPR1.170623.027; wv",
     ];
     let randomMobile = Utils.getRandomValue(mobileNameList);
-    let chromeVersion1 = Utils.getRandomValue(100, 113);
+    let chromeVersion1 = Utils.getRandomValue(103, 117);
     let chromeVersion2 = Utils.getRandomValue(2272, 5304);
     let chromeVersion3 = Utils.getRandomValue(1, 218);
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Mobile Safari/537.36`;
@@ -1116,17 +1153,17 @@
    **/
   Utils.GM_Cookie = function () {
     /**
-	 * 获取Cookie
-	 * @param {object} paramDetails 
-		+ url string? 默认为当前的url
-		+ domain string? 默认为当前的域名(window.location.hostname)
-		+ name string? 需要检索的Cookie的名字
-		+ path string? 需要检索的Cookie的路径，默认为"/"
-	* @param {function} callback 
-		+ cookies object[] 
-		+ error string|undefined
-	*/
-    this.list = (paramDetails = {}, callback = () => {}) => {
+     * 获取Cookie
+     * @param {object} [paramDetails={}]
+     * + url string? 默认为当前的url
+     * + domain string? 默认为当前的域名(window.location.hostname)
+     * + name string? 需要检索的Cookie的名字
+     * + path string? 需要检索的Cookie的路径，默认为"/"
+     * @param {function|undefined} callback
+     * + cookies object[]
+     * + error string|undefined
+     */
+    this.list = function (paramDetails = {}, callback = () => {}) {
       let resultData = [];
       try {
         let details = {
@@ -1172,10 +1209,19 @@
 
     /**
      * 设置Cookie
-     * @param {object} paramDetails
-     * @param {function} callback
+     * @param {{
+     * url: string|undefined,
+     * name: string|undefined,
+     * value: string|undefined,
+     * domain: string|undefined,
+     * path: string|undefined,
+     * secure: boolean|undefined,
+     * httpOnly: boolean|undefined,
+     * expirationDate: number|undefined
+     * }} [paramDetails={}]
+     * @param {function|undefined} callback
      */
-    this.set = (paramDetails = {}, callback = () => {}) => {
+    this.set = function (paramDetails = {}, callback = () => {}) {
       try {
         let details = {
           url: window.location.href,
@@ -1185,7 +1231,10 @@
           path: "/",
           secure: true,
           httpOnly: false,
-          expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30, // Expires in 30 days
+          /**
+           * Expires in 30 days
+           */
+          expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30,
         };
         details = Utils.assign(details, paramDetails);
         let life = details.expirationDate
@@ -1207,8 +1256,11 @@
 
     /**
      * 删除Cookie
-     * @param {object} paramDetails
-     * @param {function} callback
+     * @param {{
+     * url: string|undefined,
+     * name: string|undefined
+     * }} [paramDetails={}]
+     * @param {function|undefined} callback
      */
     this.delete = (paramDetails = {}, callback = () => {}) => {
       try {
@@ -1229,85 +1281,116 @@
   };
 
   /**
-   * 注册油猴菜单
-   * @param {{
-   *  text: string,
-   *  enable: boolean|undefined,
-   *  accessKey: string|undefined,
-   *  autoClose: boolean|undefined,
-   *  showText: (text:string,enable:boolean)=>{},
-   *  callback: (key:string, status:boolean, event:Event)=>{}
-   * }} data 传递的菜单数据
-   * 示例：
-   * {
-   *   text:"", // 菜单按钮文本
-   *   enable: true, // 菜单按钮的选项是否为开启状态
-   *   accessKey: "a",
-   *   autoClose: false, // 点击菜单项后是否应关闭弹出菜单
-   *   showText: function(text, enable){
-   *     // 点击菜单后显示的文本，参数text是上面的text值，enable是当前菜单是否开启
-   *   },
-   *   callback: function(key, status, event){
-   *     // 菜单的点击回调，参数key是当前的键名，status是点击的状态enable，event是MouseEvent|KeyboardEvent
-   *   }
-   * }
-   * @param {boolean} autoReload 点击该菜单后数据改变后自动重载页面,
-   * + true (默认) 开启点击菜单后自动刷新网页
-   * + false 关闭点击菜单后自动刷新网页
-   * @param {function} _GM_getValue_ 传入油猴函数 GM_getValue
-   * @param {function} _GM_setValue_ 传入油猴函数 GM_setValue
-   * @param {function} _GM_registerMenuCommand_ 传入油猴函数 GM_registerMenuCommand
-   * @param {function} _GM_unregisterMenuCommand_ 传入油猴函数 GM_unregisterMenuCommand
+   * @typedef {object} GM_Menu_CallBack
+   * @property {string} key 当前菜单键名
+   * @property {boolean} enable 当前菜单enable值
+   * @property {boolean} oldEnable 点击之前enable值
+   * @property {MouseEvent|KeyboardEvent} event 触发事件
+   */
+
+  /**
+   * @typedef {object} GM_Menu_Details
+   * @property {string} key （必须）菜单的本地键key，不可重复，会覆盖
+   * @property {string} text （必须）菜单的文本
+   * @property {boolean|undefined} enable 菜单的开启状态，默认为false
+   * @property {string|undefined} accessKey
+   * @property {boolean|undefined} autoClose 自动关闭菜单，可不设置
+   * @property {string|undefined} title 菜单项的鼠标悬浮上的工具提示，可为空
+   * @property {boolean|undefined} autoReload 点击菜单后自动刷新网页，默认为false
+   * @property { (text:string,enable:boolean)=>{} } showText 菜单的显示文本，未设置的话则自动根据enable在前面加上图标
+   * @property {(data: GM_Menu_CallBack)=>{}} callback 点击菜单的回调
+   */
+  /**
+   * @typedef {object} GM_Menu_Config
+   * @property {GM_Menu_Details[]} data 配置，可为空
+   * @property {boolean|undefined} autoReload 全局菜单点击菜单后自动刷新网页，默认为true
+   * @property {function} GM_getValue （必须）油猴函数@grant GM_getValue
+   * @property {function} GM_setValue （必须）油猴函数@grant GM_setValue
+   * @property {function} GM_registerMenuCommand （必须）油猴函数@grant GM_registerMenuCommand
+   * @property {function} GM_unregisterMenuCommand （必须）油猴函数@grant GM_unregisterMenuCommand
+   */
+  /**
+   * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
+   * @param { GM_Menu_Config } details 传递的菜单配置
    * @example
-    let gm_Menu = new Utils.GM_Menu(
+    let GM_Menu = new Utils.GM_Menu(
       {
-        menu_key:{
-          text: "测试按钮",
-          enable: true,
-          accessKey: "a",
-          autoClose: false,
-          showText: (text,enable) =>  {
-            return "[" + (enable ? "√" : "×") + "]" + text;
-          },
-          callback: (key,status,event)  =>  {
-            console.log("点击菜单，值修改为",status);
+        data: [
+          {
+            menu_key:"menu_key",
+            text: "测试按钮",
+            enable: true,
+            accessKey: "a",
+            autoClose: false,
+            showText(text,enable){
+              return "[" + (enable ? "√" : "×") + "]" + text;
+            },
+            callback(data){
+              console.log("点击菜单，值修改为",data.enable);
+            }
           }
-        }
-      },
-      false,
-      GM_getValue,
-      GM_setValue,
-      GM_registerMenuCommand,
-      GM_unregisterMenuCommand);
+        ]
+        autoReload: false,
+        GM_getValue,
+        GM_setValue,
+        GM_registerMenuCommand,
+        GM_unregisterMenuCommand
+      });
 
     // 获取某个菜单项的值
-    gm_Menu.get("menu_key");
+    GM_Menu.get("menu_key");
     > true
 
     // 添加键为menu_key2的菜单项
-    gm_Menu.add({
-      menu_key2:{
+    GM_Menu.add({
+      {
+        key:"menu_key2",
         text: "测试按钮2",
         enable: false,
-        showText: (text,enable) =>  {
+        showText(text,enable){
           return "[" + (enable ? "√" : "×") + "]" + text;
         },
-        callback: (key,status)  =>  {
-          console.log("点击菜单，值修改为",status);
+        callback(data){
+          console.log("点击菜单，值修改为",data.enable);
         }
       }
     });
+    // 使用数组的方式添加多个菜单，如menu_key3、menu_key4
+    GM_Menu.add([
+      {
+        key:"menu_key3",
+        text: "测试按钮3",
+        enable: false,
+        showText(text,enable){
+          return "[" + (enable ? "√" : "×") + "]" + text;
+        },
+        callback(data){
+          console.log("点击菜单，值修改为",data.enable);
+        }
+      },
+      {
+        key:"menu_key4",
+        text: "测试按钮4",
+        enable: false,
+        showText(text,enable){
+          return "[" + (enable ? "√" : "×") + "]" + text;
+        },
+        callback(data){
+          console.log("点击菜单，值修改为",data.enable);
+        }
+      }
+    ]);
 
     // 更新键为menu_key的显示文字和点击回调
-    gm_Menu.update({
+    GM_Menu.update({
       menu_key:{
         text: "更新后的测试按钮",
         enable: true,
-        showText: (text,enable) =>  {
+        showText(text,enable){
           return "[" + (enable ? "√" : "×") + "]" + text;
         },
-        callback: (key,status)  =>  {
-          console.log("点击菜单更新后的测试按钮，新值修改为",status);
+        callback(data){
+          console.log("点击菜单更新后的测试按钮，新值修改为",data.enable);
         }
       }
     });
@@ -1318,32 +1401,38 @@
     // 删除键为menu_key的菜单
     gm_Menu.delete("menu_key");
    **/
-  Utils.GM_Menu = function (
-    data = {},
-    autoReload = false,
-    _GM_getValue_,
-    _GM_setValue_,
-    _GM_registerMenuCommand_,
-    _GM_unregisterMenuCommand_
-  ) {
+  Utils.GM_Menu = function (details) {
+    /* 配置数据 */
+    let data = details.data || [];
+    /* 自动刷新网页，默认为true */
+    let autoReload =
+      typeof details.autoReload === "boolean" ? details.autoReload : true;
+    /* 获取存储的数据 */
+    let _GM_getValue_ = details.GM_getValue;
+    /* 设置数据到存储 */
+    let _GM_setValue_ = details.GM_setValue;
+    /* 注册菜单 */
+    let _GM_registerMenuCommand_ = details.GM_registerMenuCommand;
+    /* 卸载菜单 */
+    let _GM_unregisterMenuCommand_ = details.GM_unregisterMenuCommand;
     if (typeof _GM_getValue_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue，且在第3个位置传入该对象"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue，且传入该对象"
       );
     }
     if (typeof _GM_setValue_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_setValue，且在第4个位置传入该对象"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_setValue，且传入该对象"
       );
     }
     if (typeof _GM_registerMenuCommand_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_registerMenuCommand，且在第5个位置传入该对象"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_registerMenuCommand，且传入该对象"
       );
     }
     if (typeof _GM_unregisterMenuCommand_ !== "function") {
       throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_unregisterMenuCommand，且在第6个位置传入该对象"
+        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_unregisterMenuCommand，且传入该对象"
       );
     }
     let that = this;
@@ -1352,14 +1441,41 @@
      * @type {...string}
      */
     let menuIdList = [];
+
+    /**
+     * 获取本地存储菜单键值
+     * @param {string} key
+     * @returns {boolean}
+     */
+    let getLocalMenuData = function (key, defaultValue) {
+      let localData = _GM_getValue_("GM_Menu_Local_Map", {});
+      return localData[key] == null ? defaultValue : localData[key];
+    };
+
+    /**
+     * 设置本地存储菜单键值
+     * @param {string} key
+     * @param {boolean} value
+     */
+    let setLocalMenuData = function (key, value) {
+      let localData = _GM_getValue_("GM_Menu_Local_Map", {});
+      localData[key] = value;
+      _GM_setValue_("GM_Menu_Local_Map", localData);
+    };
     /**
      * 初始化数据
      */
     let init = function () {
       menuIdList = [];
-      Object.keys(data).forEach((menuId) => {
-        let value = Boolean(_GM_getValue_(menuId, data[menuId]["enable"]));
-        data[menuId]["enable"] = value;
+      data.forEach((dataItem, dataIndex) => {
+        let menuId = dataItem.key;
+        let value = Boolean(getLocalMenuData(menuId, dataItem.enable));
+        if (typeof dataItem.showText !== "function") {
+          data[dataIndex].showText = function (_text_, _enable_) {
+            return (_enable_ ? "✅" : "❌") + " " + _text_;
+          };
+        }
+        data[dataIndex].enable = value;
       });
     };
 
@@ -1367,49 +1483,64 @@
      * 注册油猴菜单
      */
     let register = function () {
-      Object.keys(data).forEach((menuLocalDataItemKey) => {
-        let item = data[menuLocalDataItemKey]; /* 本地存储的键名 */
-        let text = item["text"]; /* 文本 */
+      data.forEach((item) => {
+        /* 本地存储的键名 */
+        let menuLocalDataItemKey = item.key;
+        /* 文本 */
+        let text = item.text;
+        /* 菜单默认开启的状态 */
         let defaultEnable = Boolean(
-          _GM_getValue_(menuLocalDataItemKey, item["enable"])
-        ); /* 菜单默认开启的状态 */
-        let showText =
-          typeof item["showText"] === "function"
-            ? item["showText"](text, defaultEnable)
-            : text; /* 油猴菜单上显示的文本 */
-        let clickCallBack = item["callback"]; /* 用户点击后的回调 */
-        let menuOptions = {};
-        if (typeof item["autoClose"] !== "undefined") {
-          /* 点击菜单项后是否应关闭弹出菜单 */
-          menuOptions["autoClose"] = item["autoClose"];
-        }
-        if (typeof item["accessKey"] !== "undefined") {
-          /* 菜单项的可选访问键 */
-          menuOptions["accessKey"] = item["accessKey"];
-        }
-        if (typeof item["title"] !== "undefined") {
-          /* 菜单项的鼠标悬浮上的工具提示 */
-          menuOptions["title"] = item["title"];
-        }
+          getLocalMenuData(menuLocalDataItemKey, item.enable)
+        );
+        /* 油猴菜单上显示的文本 */
+        let showText = item.showText(text, defaultEnable);
+        /* 用户点击后的回调 */
+        let clickCallBack = item.callback;
+
+        let menuOptions = {
+          /**
+           * 点击菜单项后是否应关闭弹出菜单
+           */
+          autoClose: item.autoClose,
+          /**
+           * 菜单项的可选访问键
+           */
+          accessKey: item.accessKey,
+          /**
+           * 菜单项的鼠标悬浮上的工具提示
+           */
+          title: item.title,
+        };
+        /* 点击菜单后触发callback后的网页是否刷新 */
+        let menuAutoReload =
+          typeof item.autoReload !== "boolean" ? autoReload : item.autoReload;
         let callbackFunc = function (event) {
           let localEnable = Boolean(
-            _GM_getValue_(menuLocalDataItemKey, defaultEnable)
+            getLocalMenuData(menuLocalDataItemKey, defaultEnable)
           );
-          _GM_setValue_(menuLocalDataItemKey, !localEnable);
+          setLocalMenuData(menuLocalDataItemKey, !localEnable);
           if (typeof clickCallBack === "function") {
-            clickCallBack(menuLocalDataItemKey, localEnable, event);
+            clickCallBack({
+              key: menuLocalDataItemKey,
+              enable: !localEnable,
+              oldEnable: localEnable,
+              event: event,
+            });
           }
-          if (autoReload) {
+          /* 不刷新网页就刷新菜单 */
+          if (menuAutoReload) {
             window.location.reload();
           } else {
             that.update();
           }
         };
-        let menuOptionsLength = Object.keys(menuOptions).length;
+        let menuOptionsLength = Object.values(menuOptions).filter(
+          (_item_) => item != null
+        );
         if (menuOptionsLength === 0) {
           let menuId = _GM_registerMenuCommand_(showText, callbackFunc);
           menuIdList = menuIdList.concat(menuId);
-        } else if (menuOptionsLength === 1 && "accessKey" in menuOptions) {
+        } else if (menuOptionsLength === 1 && menuOptions.accessKey) {
           let menuId = _GM_registerMenuCommand_(
             showText,
             callbackFunc,
@@ -1427,88 +1558,100 @@
         }
       });
     };
+
     /**
-     * 获取键值开启状态
-     * @param {string} menuId
-     * @returns {Boolean}
+     * @param {string} menuKey 键值
+     * @returns {GM_Menu_Details}
      */
-    this.get = function (menuId) {
-      return data[menuId]["enable"];
+    let getTargetMenu = function (menuKey) {
+      return data.find((item) => item.key == menuKey);
+    };
+    /**
+     * 根据键值获取enable值
+     * @param {string} menuKey
+     * @returns {boolean}
+     */
+    this.get = function (menuKey) {
+      return getTargetMenu(menuKey).enable;
     };
     /**
      * 根据键值获取text值
-     * @param {string} menuId
+     * @param {string} menuKey
      * @returns {string}
      */
-    this.getText = function (menuId) {
-      return data[menuId]["text"];
+    this.getText = function (menuKey) {
+      return getTargetMenu(menuKey).text;
     };
     /**
-     * 根据键值获取showText值
-     * @param {string} menuId
+     * 根据键值获取showText函数的值
+     * @param {string} menuKey
      * @returns {string}
      */
-    this.getShowText = function (menuId) {
-      if (typeof data[menuId]["showText"] === "function") {
-        return data[menuId]["showText"](this.getText(menuId), this.get(menuId));
-      } else {
-        return this.getText(menuId);
-      }
+    this.getShowTextValue = function (menuKey) {
+      return getTargetMenu(menuKey).showText();
     };
     /**
      * 根据键值获取accessKey值
-     * @param {string} menuId
+     * @param {string} menuKey
      * @returns {?string}
      */
-    this.getAccessKey = function (menuId) {
-      return data[menuId]["accessKey"];
+    this.getAccessKey = function (menuKey) {
+      return getTargetMenu(menuKey).accessKey;
     };
     /**
      * 根据键值获取autoClose值
-     * @param {string} menuId
+     * @param {string} menuKey
      * @returns {?boolean}
      */
-    this.getAutoClose = function (menuId) {
-      return data[menuId]["autoClose"];
+    this.getAutoClose = function (menuKey) {
+      return getTargetMenu(menuKey).autoClose;
     };
     /**
-     * 根据键值获取callback值
-     * @param {string} menuId
-     * @returns {Function}
+     * 根据键值获取autoReload值
+     * @param {string} menuKey
+     * @returns {boolean}
      */
-    this.getCallBack = function (menuId) {
-      return data[menuId]["callback"];
+    this.getAutoReload = function (menuKey) {
+      return getTargetMenu(menuKey).autoReload;
+    };
+    /**
+     * 根据键值获取callback函数
+     * @param {string} menuKey
+     * @returns {Function|undefined}
+     */
+    this.getCallBack = function (menuKey) {
+      return getTargetMenu(menuKey).callback;
     };
     /**
      * 新增菜单数据
-     * @param {{
-     *  text: string,
-     *  enable: boolean|undefined,
-     *  accessKey: string|undefined,
-     *  autoClose: boolean|undefined,
-     *  showText: (text:string,enable:boolean)=>{},
-     *  callback: (key:string, status:boolean, event:Event)=>{}
-     * }} paramData
+     * @param {GM_Menu_Details[]|GM_Menu_Details} paramData
      */
     this.add = function (paramData) {
-      Object.assign(data, paramData);
+      if (Array.isArray(paramData)) {
+        data = data.concat(paramData);
+      } else {
+        data.push(paramData);
+      }
       init();
       register();
     };
     /**
      * 更新菜单数据
-     * @param {{
-     *  text: string,
-     *  enable: boolean|undefined,
-     *  accessKey: string|undefined,
-     *  autoClose: boolean|undefined,
-     *  showText: (text:string,enable:boolean)=>{},
-     *  callback: (key:string, status:boolean, event:Event)=>{}
-     * }} paramData
+     * @param { GM_Menu_Details[]|GM_Menu_Details } paramData
      */
     this.update = function (paramData) {
-      if (paramData) {
-        data = Utils.assign(data, paramData);
+      if (Array.isArray(paramData)) {
+        paramData.forEach((item) => {
+          let targetMenu = getTargetMenu(item.key);
+          if (targetMenu) {
+            Object.assign(targetMenu, item);
+          }
+        });
+      } else if (paramData != null) {
+        let targetMenu = getTargetMenu(paramData.key);
+        if (targetMenu) {
+          Object.assign(targetMenu, paramData);
+        }
       }
       Object.values(menuIdList).forEach((menuId) => {
         that.delete(menuId);
@@ -1976,7 +2119,6 @@
 
     /**
      * GET 请求
-     * @async
      * @param {...defaultDetails|string} arguments
      */
     this.get = async function () {
@@ -1999,7 +2141,6 @@
     };
     /**
      * POST 请求
-     * @async
      * @param {...defaultDetails|string} arguments
      */
     this.post = async function () {
@@ -2021,7 +2162,6 @@
     };
     /**
      * HEAD 请求
-     * @async
      * @param {...defaultDetails|string} arguments
      */
     this.head = async function () {
@@ -2045,7 +2185,6 @@
 
     /**
      * OPTIONS请求
-     * @async
      * @param {...defaultDetails|string} arguments
      */
     this.options = async function () {
@@ -2069,7 +2208,6 @@
 
     /**
      * DELETE请求
-     * @async
      * @param {...defaultDetails|string} arguments
      */
     this.delete = async function () {
@@ -2093,7 +2231,6 @@
 
     /**
      * PUT请求
-     * @async
      * @param {...defaultDetails|string} arguments
      */
     this.put = async function () {
@@ -2190,7 +2327,7 @@
     let that = this;
     /**
      * 创建 “表”
-     * @param {String} dbName 表名
+     * @param {string} dbName 表名
      * @returns
      */
     this.createStore = function (dbName) {
@@ -2249,7 +2386,7 @@
     };
     /**
      * 保存数据到数据库
-     * @param {any} key 数据key
+     * @param {string} key 数据key
      * @param {any} value 数据值
      */
     this.save = async function (key, value) {
@@ -2463,8 +2600,8 @@
   };
 
   /**
-   * 判断函数是否是Native
-   * @param {function} func
+   * 判断目标函数是否是Native Code
+   * @param {function} target
    * @returns {boolean}
    * + true 是Native
    * + false 不是Native
@@ -2472,9 +2609,9 @@
    * Utils.isNativeFunc(window.location.assign)
    * > true
    */
-  Utils.isNativeFunc = function (func) {
+  Utils.isNativeFunc = function (target) {
     return Boolean(
-      func.toString().match(/^function .*\(\) { \[native code\] }$/)
+      target.toString().match(/^function .*\(\) { \[native code\] }$/)
     );
   };
 
@@ -2495,7 +2632,7 @@
 
   /**
    * 判断对象是否是元素
-   * @param {any} obj
+   * @param {any} target
    * @returns {boolean}
    * + true 是元素
    * + false 不是元素
@@ -2503,17 +2640,17 @@
    * Utils.isDOM(document.querySelector("a"))
    * > true
    */
-  Utils.isDOM = function (obj) {
+  Utils.isDOM = function (target) {
     return (
-      obj instanceof HTMLElement ||
-      obj instanceof Node ||
-      obj instanceof Element
+      target instanceof HTMLElement ||
+      target instanceof Node ||
+      target instanceof Element
     );
   };
 
   /**
    * 判断对象是否是jQuery对象
-   * @param {any} obj
+   * @param {any} target
    * @returns {boolean}
    * + true 是jQuery对象
    * + false 不是jQuery对象
@@ -2521,12 +2658,15 @@
    * Utils.isJQuery($("a"))
    * > true
    */
-  Utils.isJQuery = function (obj) {
+  Utils.isJQuery = function (target) {
     let result = false;
-    if (typeof jQuery === "object" && obj instanceof jQuery) {
+    if (typeof jQuery === "object" && target instanceof jQuery) {
       result = true;
     }
-    if (typeof obj === "object") {
+    if (target == null) {
+      return false;
+    }
+    if (typeof target === "object") {
       /* 也有种可能，这个jQuery对象是1.8.3版本的，页面中的jQuery是3.4.1版本的 */
       let jQueryProps = [
         "add",
@@ -2658,7 +2798,7 @@
         "wrap",
       ];
       for (const jQueryPropsName of jQueryProps) {
-        if (!(jQueryPropsName in obj)) {
+        if (!(jQueryPropsName in target)) {
           result = false;
           /* console.log(jQueryPropsName); */
           break;
@@ -2938,8 +3078,8 @@
 
   /**
    * 监听某个元素键盘按键事件或window全局按键事件
-   * @param {Window|Node|Element} listenObj 需要监听的对象，可以是全局Window或者某个元素
-   * @param {function|undefined} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+   * @param {Window|Node|HTMLElement} listenObj 需要监听的对象，可以是全局Window或者某个元素
+   * @param {?function} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
    * @example 
       Utils.listenKeyPress(window,(keyName,otherKey,event)=>{
           if(keyName === "Enter"){
@@ -2997,7 +3137,7 @@
 	收藏		171
    **/
   Utils.listenKeyPress = function (listenObj, callback) {
-    if (!(listenObj instanceof Window) && !Utils.isDOM(listenObj)) {
+    if (!(listenObj == globalThis) && !Utils.isDOM(listenObj)) {
       throw new Error(
         "Utils.listenKeyPress 参数 listenObj 必须为 Window|Node 类型"
       );
@@ -3058,7 +3198,6 @@
     /**
      * 执行
      * @param  {...any} funArgs 参数
-     * @returns {Promise}
      */
     this.run = async function (...funArgs) {
       if (flag) {
@@ -3072,7 +3211,7 @@
 
   /**
    * 日志对象
-   * @param {object|undefined} _GM_info_ 油猴管理器的API GM_info
+   * @param {object} _GM_info_ 油猴管理器的API GM_info
    * @example
     let log = new Utils.Log(GM_info);
     log.info("普通输出");
@@ -3343,16 +3482,8 @@
    * 监听页面元素改变并处理
    * @param {object|Node|HTMLElement} target 需要监听的元素，如果不存在，可以等待它出现
    * @param {{
-   * config:{
-   *   subtree: boolean|undefined,
-   *   childList: boolean|undefined,
-   *   attributes: boolean|undefined,
-   *   attributeFilter: [...string]|undefined,
-   *   attributeOldValue: boolean|undefined,
-   *   characterData: boolean|undefined,
-   *   characterDataOldValue: boolean|undefined,
-   * },
-   * callback: (mutations, observer)=>{}
+   * config: MutationObserverInit,
+   * callback: MutationCallback
    * }} observer_config MutationObserver的配置
    * @example
     Utils.mutationObserver(document.querySelector("div.xxxx"),{
@@ -3766,7 +3897,7 @@
   /**
    * 【异步函数】File对象转base64
    * @async
-   * @param {object} fileObj	需要转换的File对象
+   * @param {File} fileObj	需要转换的File对象
    * @example
    * await Utils.parseFileToBase64(object);
    * > 'data:image/jpeg:base64/,xxxxxx'
@@ -3784,7 +3915,7 @@
   /**
    * 解析字符串
    * @param {string} text 要解析的 DOMString。它必须包含 HTML、xml、xhtml+xml 或 svg 文档。
-   * @param {string} mimeType 解析成的类型，包括：text/html（默认）、text/xml、application/xml、application/xhtml+xml、image/svg+xml
+   * @param {"text/html"|"text/xml"|"application/xml"|"application/xhtml+xml"|"image/svg+xml"} [mimeType="text/html"] 解析成的类型，包括：text/html（默认）、text/xml、application/xml、application/xhtml+xml、image/svg+xml
    * @returns {HTMLElement|XMLDocument|SVGElement}
    * @example
    * Utils.parseFromString("<p>123<p>");
@@ -3797,7 +3928,7 @@
 
   /**
    * 阻止事件传递
-   * @param {HTMLElement} ele 要进行处理的元素
+   * @param {HTMLElement} element 要进行处理的元素
    * @param {string|[...string]} eventNameList 要阻止的事件名|列表
    * @param {Event|undefined} paramEvent 事件
    * @example
@@ -3805,7 +3936,7 @@
    * @example
    * Utils.preventEvent(event);
    */
-  Utils.preventEvent = function (ele, eventNameList = []) {
+  Utils.preventEvent = function (element, eventNameList = []) {
     function stopEvent(event) {
       /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
       event?.preventDefault();
@@ -3822,7 +3953,7 @@
         eventNameList = [eventNameList];
       }
       eventNameList.forEach((eventName) => {
-        ele.addEventListener(eventName, function (event) {
+        element.addEventListener(eventName, function (event) {
           return stopEvent(event);
         });
       });
@@ -3848,16 +3979,47 @@
    * **/
   Utils.Progress = function (paramConfig) {
     this.config = {
-      canvasNode: null /* canvas元素节点 */,
-      deg: 95 /* 绘制角度 */,
-      progress: 0 /* 进度 */,
-      lineWidth: 10 /* 绘制的线宽度 */,
-      lineBgColor: "#1e637c" /* 绘制的背景颜色 */,
+      /**
+       * canvas元素节点
+       * @type {HTMLCanvasElement}
+       */
+      canvasNode: null,
+      /**
+       * 绘制角度
+       */
+      deg: 95,
+      /**
+       * 进度
+       */
+      progress: 0,
+      /**
+       * 绘制的线宽度
+       */
+      lineWidth: 10,
+      /**
+       * 绘制的背景颜色
+       */
+      lineBgColor: "#1e637c",
+      /**
+       * 绘制的线的颜色
+       */
       lineColor: "#25deff",
-      textColor: "#000000" /* 文字的颜色 */,
-      fontSize: 22 /* 字体大小(px) */,
-      circleRadius: 50 /* 圆半径 */,
-      draw: () => {} /* 控制绘制 */,
+      /**
+       * 绘制的字体颜色
+       */
+      textColor: "#000000",
+      /**
+       * 绘制的字体大小(px)
+       */
+      fontSize: 22,
+      /**
+       * 绘制的圆的半径
+       */
+      circleRadius: 50,
+      /**
+       * 控制绘制的函数
+       */
+      draw: () => {},
     };
     this.config = Utils.assign(this.config, paramConfig);
     if (!(this.config.canvasNode instanceof HTMLCanvasElement)) {
@@ -3865,9 +4027,12 @@
         "Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement"
       );
     }
-    let ctx = this.config.canvasNode.getContext("2d"); /* 获取画笔 */
-    let width = this.config.canvasNode.width; /* 元素宽度 */
-    let height = this.config.canvasNode.height; /* 元素高度 */
+    /* 获取画笔 */
+    let ctx = this.config.canvasNode.getContext("2d");
+    /* 元素宽度 */
+    let width = this.config.canvasNode.width;
+    /* 元素高度 */
+    let height = this.config.canvasNode.height;
 
     /* 清除锯齿 */
     if (window.devicePixelRatio) {
@@ -3882,12 +4047,15 @@
     /* 绘制 */
     this.draw = function () {
       let degActive = (this.config.progress * 360) / 100;
-      ctx.clearRect(0, 0, width, height); //清除画布
-      ctx.beginPath(); //开始绘制底圆
+      /* 清除画布 */
+      ctx.clearRect(0, 0, width, height);
+      /* 开始绘制底圆 */
+      ctx.beginPath();
       ctx.arc(width / 2, height / 2, this.config.circleRadius, 1, 8);
       ctx.strokeStyle = this.config.lineBgColor;
       ctx.stroke();
-      ctx.beginPath(); //开始绘制动态圆
+      /* 开始绘制动态圆 */
+      ctx.beginPath();
       ctx.arc(
         width / 2,
         height / 2,
@@ -3897,9 +4065,11 @@
       );
       ctx.strokeStyle = this.config.lineColor;
       ctx.stroke();
-      let txt = parseInt(this.config.progress) + "%"; //获取百分比
+      /* 获取百分比 */
+      let txt = parseInt(this.config.progress) + "%";
       ctx.font = this.config.fontSize + "px SimHei";
-      let w = ctx.measureText(txt).width; //获取文本宽度
+      /* 获取文本宽度 */
+      let w = ctx.measureText(txt).width;
       let h = this.config.fontSize / 2;
       ctx.fillStyle = this.config.textColor;
       ctx.fillText(txt, width / 2 - w / 2, height / 2 + h / 2);
@@ -3907,7 +4077,7 @@
   };
 
   /**
-   * 劫持使isTrust为true的真实点击事件，注入时刻，ducument-start
+   * 劫持Event的isTrust为true，注入时刻，ducument-start
    * @example
    * Utils.registerTrustClickEvent()
    */
@@ -3937,9 +4107,8 @@
 
   /**
    * 复制到剪贴板
-   * @async
    * @param {any} data - 需要复制到剪贴板的文本
-   * @param {{type:string,mimetype:string}|string} info
+   * @param {{type:string,mimetype:string}|string} [info="text/plain"]
    * @example
    * Utils.setClip({1:2});
    * > {"1":2}
@@ -4033,9 +4202,8 @@
 
   /**
    * 【异步函数】等待N秒执行函数
-   * @async
-   * @param {function|string} func	待执行的函数(字符串)
-   * @param {number} delayTime	延时时间(ms)
+   * @param {function|string} delayToExecuteFunction	待执行的函数(字符串)
+   * @param {number} [delayTime=0]	延时时间(ms)
    * @returns	函数的返回值
    * @example
    * await Utils.setTimeout(()=>{}, 2500);
@@ -4044,8 +4212,11 @@
    * await Utils.setTimeout("()=>{console.log(12345)}", 2500);
    * > ƒ tryCatchObj() {}
    **/
-  Utils.setTimeout = async function (func, delayTime = 0) {
-    if (typeof func !== "function" && typeof func !== "string") {
+  Utils.setTimeout = async function (delayToExecuteFunction, delayTime = 0) {
+    if (
+      typeof delayToExecuteFunction !== "function" &&
+      typeof delayToExecuteFunction !== "string"
+    ) {
       throw new Error("Utils.setTimeout 参数 func 必须为 function|string 类型");
     }
     if (typeof delayTime !== "number") {
@@ -4053,19 +4224,18 @@
     }
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(Utils.tryCatch().run(func));
+        resolve(Utils.tryCatch().run(delayToExecuteFunction));
       }, delayTime);
     });
   };
 
   /**
    * 【异步函数】延迟xxx毫秒
-   * @async
-   * @param {number} delayTime 延时时间(ms)
+   * @param {number} [delayTime=0] 延时时间(ms)
    * @example
    * await Utils.sleep(2500)
    **/
-  Utils.sleep = async function (delayTime) {
+  Utils.sleep = async function (delayTime = 0) {
     if (typeof delayTime !== "number") {
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
     }
@@ -4134,7 +4304,7 @@
    * @param {[...any]|NodeList|function} data 数据|获取数据的方法
    * @param {string|function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
    * @param {boolean} [sortByDesc=true] 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
-   * @returns {object} 返回比较排序完成的数组
+   * @returns {[...any]} 返回比较排序完成的数组
    * @example
    * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]})
    * > [{time: '2022-2-2'},{time: '2022-1-1'}]
@@ -4296,7 +4466,7 @@
    * > ()=>{throw new Error('测试错误')}出现错误
    */
   Utils.tryCatch = function () {
-    // 定义变量和函数
+    /* 定义变量和函数 */
     let func = null;
     let funcThis = null;
     let handleErrorFunc = null;
@@ -4389,7 +4559,7 @@
    * 数组去重，去除重复的值
    * @param {[...any]} uniqueArrayData 需要去重的数组
    * @param {[...any]} compareArrayData 用来比较的数组
-   * @param {function} compareFun 数组比较方法，如果值相同，去除该数据
+   * @param {(item1,item2)=>{}} compareFun 数组比较方法，如果值相同，去除该数据
    * @returns {object} 返回去重完毕的数组
    * @example
    * Utils.uniqueArray([1,2,3],[1,2],(item,item2)=>{return item===item2 ? true:false});
@@ -4419,37 +4589,6 @@
   };
 
   /**
-   * 观察对象的set、get
-   * @param {object} obj 观察的对象
-   * @param {string} propertyName 观察的对象的属性名
-   * @param {function} getCallBack 触发get的回调，可以自定义返回特定值
-   * @param {function} setCallBack 触发set的回调，参数为将要设置的value
-   * @example
-   * Utils.watchObject(window,"test",()=>{return 111;},(value)=>{console.log("test出现，值是",value)});
-   *
-   * window.test = 1;
-   * > test出现，值是 1
-   * console.log(window.test);
-   * > 111;
-   */
-  Utils.watchObject = function (obj, propertyName, getCallBack, setCallBack) {
-    Object.defineProperty(obj, propertyName, {
-      get() {
-        if (typeof getCallBack === "function") {
-          return getCallBack(value);
-        } else {
-          return obj[propertyName];
-        }
-      },
-      set(value) {
-        if (typeof setCallBack === "function") {
-          setCallBack(value);
-        }
-      },
-    });
-  };
-
-  /**
    * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
    * @async
    * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
@@ -4472,10 +4611,9 @@
 
   /**
    * 等待指定节点出现，支持多个 selector
-   * @async
    * @param {...string} nodeSelectors - 一个或多个节点选择器，必须为字符串类型
-   * @returns {Promise} 返回一个 Promise 对象，成功时返回节点数组，如[ [...nodes], [...nodes] ]
-   * 如果参数 nodeSelectors 只有一个的话，返回 [...nodes]
+   * @returns 返回一个 Promise 对象，成功时返回节点数组，如[ [...nodes], [...nodes] ]
+   * 如果参数 nodeSelectors 只有一个的话，返回 [nodes]
    * @example
     Utils.waitNode("div.xxx","a.xxx").then( (nodeList)=>{
       let divNodesList = nodeList[0];
@@ -4538,10 +4676,8 @@
 
   /**
    * 等待对象上的属性出现
-   * @async
    * @param {object} checkObj 检查的对象
    * @param {any} checkPropertyName 检查的对象的属性名
-   * @param {Promise}
    * @example
    * await Utils.waitProperty(window,"test");
    * console.log("test success set");
@@ -4565,6 +4701,42 @@
           },
         });
       }
+    });
+  };
+
+  /**
+   * 观察对象的set、get
+   * @param {object} target 观察的对象
+   * @param {string} propertyName 观察的对象的属性名
+   * @param {(value)=>{}} getCallBack 触发get的回调，可以自定义返回特定值
+   * @param {(value)=>{}} setCallBack 触发set的回调，参数为将要设置的value
+   * @example
+   * Utils.watchObject(window,"test",()=>{return 111;},(value)=>{console.log("test出现，值是",value)});
+   *
+   * window.test = 1;
+   * > test出现，值是 1
+   * console.log(window.test);
+   * > 111;
+   */
+  Utils.watchObject = function (
+    target,
+    propertyName,
+    getCallBack,
+    setCallBack
+  ) {
+    Object.defineProperty(target, propertyName, {
+      get() {
+        if (typeof getCallBack === "function") {
+          return getCallBack(value);
+        } else {
+          return target[propertyName];
+        }
+      },
+      set(value) {
+        if (typeof setCallBack === "function") {
+          setCallBack(value);
+        }
+      },
     });
   };
 
