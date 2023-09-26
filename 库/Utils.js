@@ -1125,6 +1125,32 @@
   };
 
   /**
+   * @typedef {object} GM_Cookie_ListDetails
+   * @property {string} url 默认为当前的url
+   * @property {string} domain 默认为当前的域名(window.location.hostname)
+   * @property {string} name 需要检索的Cookie的名字
+   * @property {string} path 需要检索的Cookie的路径，默认为"/"
+   */
+
+  /**
+   * @typedef {object} GM_Cookie_SetDetails
+   * @property {string} url 默认为当前的url
+   * @property {string} domain 默认为当前的域名(window.location.hostname)
+   * @property {string} name 需要检索的Cookie的名字
+   * @property {string} path 需要检索的Cookie的路径，默认为"/"
+   * @property {string} value 值
+   * @property {boolean} secure
+   * @property {boolean} httpOnly
+   * @property {number} expirationDate Cookie过期时间，默认为30天
+   */
+
+  /**
+   * @typedef {object} GM_Cookie_DeleteDetails
+   * @property {string} url 默认为当前的url
+   * @property {string} name 需要检索的Cookie的名字
+   */
+
+  /**
    * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
    * @example
     let GM_cookie = new Utils.GM_Cookie();
@@ -1154,11 +1180,7 @@
   Utils.GM_Cookie = function () {
     /**
      * 获取Cookie
-     * @param {object} [paramDetails={}]
-     * + url string? 默认为当前的url
-     * + domain string? 默认为当前的域名(window.location.hostname)
-     * + name string? 需要检索的Cookie的名字
-     * + path string? 需要检索的Cookie的路径，默认为"/"
+     * @param {GM_Cookie_ListDetails} [paramDetails={}]
      * @param {function|undefined} callback
      * + cookies object[]
      * + error string|undefined
@@ -1209,16 +1231,7 @@
 
     /**
      * 设置Cookie
-     * @param {{
-     * url: string|undefined,
-     * name: string|undefined,
-     * value: string|undefined,
-     * domain: string|undefined,
-     * path: string|undefined,
-     * secure: boolean|undefined,
-     * httpOnly: boolean|undefined,
-     * expirationDate: number|undefined
-     * }} [paramDetails={}]
+     * @param {GM_Cookie_SetDetails} [paramDetails={}]
      * @param {function|undefined} callback
      */
     this.set = function (paramDetails = {}, callback = () => {}) {
@@ -1256,10 +1269,7 @@
 
     /**
      * 删除Cookie
-     * @param {{
-     * url: string|undefined,
-     * name: string|undefined
-     * }} [paramDetails={}]
+     * @param {GM_Cookie_DeleteDetails} [paramDetails={}]
      * @param {function|undefined} callback
      */
     this.delete = (paramDetails = {}, callback = () => {}) => {
