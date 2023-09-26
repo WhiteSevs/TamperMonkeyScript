@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-11-18 13:38:41
  * @LastEditors: WhiteSev 893177236@qq.com
- * @LastEditTime: 2023-09-18 11:35:52
+ * @LastEditTime: 2023-09-26 12:26:43
  * @原地址: https://www.jq22.com/jquery-info23550
  * @说明: 修改config配置{"position":"topleft|top|topright|centerleft|center|centerright|bottomleft|bottomright|bottom"} 九宫格，
  * 		  九个位置弹出，修改原center为显示中间，top代替原center
@@ -107,19 +107,24 @@
   /**
    * 全局默认配置
    * 可在引入js之前通过QMSG_GLOBALS.DEFAULTS进行配置
-   * @param {boolean} animation 是否使用动画，默认true
-   * @param {boolean} autoClose 是否自动关闭，默认true,注意在type为loading的时候自动关闭为false
-   * @param {string} content 显示的内容
-   * @param {boolean} html 内容是否是html，默认false
-   * @param {string} position 位置，仅支持'center','right','left',默认'center'
-   * @param {boolean} showClose 是否显示关闭图标，默认为false不显示
-   * @param {number} maxNums 最大显示的数量，默认为5
-   * @param {?Function} onClose 关闭的回调函数
-   * @param {boolean} showIcon 是否显示左边的icon图标,默认true
-   * @param {boolean} showMoreContent 是否使内容进行换行显示，默认false
-   * @param {boolean} showReverse 弹出顺序是否逆反，默认false
-   * @param {number} timeout 最大显示的时长(ms)，默认为2500ms
-   * @param {string} type 类型，支持'info','warning','success','error','loading'
+   * @typedef {object} Qmsg_Details
+   * @property {boolean} animation 是否使用动画，默认true
+   * @property {boolean} autoClose 是否自动关闭，默认true,注意在type为loading的时候自动关闭为false
+   * @property {string} content 显示的内容
+   * @property {boolean} html 内容是否是html，默认false
+   * @property {string} position 位置，仅支持'center','right','left',默认'center'
+   * @property {boolean} showClose 是否显示关闭图标，默认为false不显示
+   * @property {number} maxNums 最大显示的数量，默认为5
+   * @property {?Function} onClose 关闭的回调函数
+   * @property {boolean} showIcon 是否显示左边的icon图标,默认true
+   * @property {boolean} showMoreContent 是否使内容进行换行显示，默认false
+   * @property {boolean} showReverse 弹出顺序是否逆反，默认false
+   * @property {number} timeout 最大显示的时长(ms)，默认为2500ms
+   * @property {string} type 类型，支持'info','warning','success','error','loading'
+   */
+
+  /**
+   * @type {Qmsg_Details}
    */
   var DEFAULTS = Object.assign(
     {
@@ -532,9 +537,22 @@
   }
 
   var Qmsg = {
-    version: "0.0.4" /* 版本 */,
-    oMsgs: [] /* 实例数组 */,
-    maxNums: DEFAULTS.maxNums || 5 /* 最大数量 */,
+    /**
+     * 版本
+     */
+    version: "0.0.5",
+    /**
+     * 实例数组
+     */
+    oMsgs: [],
+    /**
+     * 最大数量，默认5个
+     */
+    maxNums: DEFAULTS.maxNums || 5,
+    /**
+     * 全局配置
+     * @param {Qmsg_Details} cfg
+     */
     config: function (cfg) {
       DEFAULTS =
         cfg && cfg instanceof Object ? Object.assign(DEFAULTS, cfg) : DEFAULTS;
@@ -546,7 +564,7 @@
     /**
      * 信息
      * @param {string} txt 内容
-     * @param {object} config 配置
+     * @param {Qmsg_Details} config 配置
      * @returns {Msg}
      */
     info: function (txt, config) {
@@ -557,7 +575,7 @@
     /**
      * 警告
      * @param {string} txt 内容
-     * @param {object} config 配置
+     * @param {Qmsg_Details} config 配置
      * @returns {Msg}
      */
     warning: function (txt, config) {
@@ -568,7 +586,7 @@
     /**
      * 成功
      * @param {string} txt 内容
-     * @param {object} config 配置
+     * @param {Qmsg_Details} config 配置
      * @returns {Msg}
      */
     success: function (txt, config) {
@@ -579,7 +597,7 @@
     /**
      * 失败
      * @param {string} txt 内容
-     * @param {object} config 配置
+     * @param {Qmsg_Details} config 配置
      * @returns {Msg}
      */
     error: function (txt, config) {
@@ -590,7 +608,7 @@
     /**
      * 加载中
      * @param {string} txt 内容
-     * @param {object} config 配置
+     * @param {Qmsg_Details} config 配置
      * @returns {Msg}
      */
     loading: function (txt, config) {
