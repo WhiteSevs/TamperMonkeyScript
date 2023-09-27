@@ -640,7 +640,12 @@
         }
       };
     },
-    /* 禁止滚动 */
+    /**
+     * 禁止滚动
+     * @returns {
+     *  allowScroll: Function
+     * }
+     */
     forbiddenScroll() {
       let forbiddenScrollCSSNode = document.createElement("style");
       forbiddenScrollCSSNode.setAttribute("type", "text/css");
@@ -660,7 +665,6 @@
       document.addEventListener("touchmove", forbiddenScrollListener, false);
       function allowScroll() {
         forbiddenScrollCSSNode?.remove();
-        forbiddenScrollCSSNode = null;
         document.removeEventListener("touchmove", forbiddenScrollListener);
       }
       return {
@@ -876,7 +880,7 @@
 
   var pops = {};
   pops.config = {
-    version: "0.0.8",
+    version: "0.0.9",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -1311,7 +1315,84 @@
   };
 
   /**
+   * @typedef {object} PopsBtnCallBackEvent 按钮回调Event
+   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
+   * @property {HTMLElement} maskElement 遮罩层元素
+   * @property {string} type
+   * @property {"alert"|"confirm"} function 调用的方法
+   * @property {string} guid 唯一id
+   * @property {Function} close 关闭弹窗
+   * @property {Function} hide 隐藏弹窗
+   * @property {Function} show 显示弹窗
+   */
+  /**
+   * @typedef { object } PopsPromptBtnCallBackEvent
+   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
+   * @property {HTMLElement} maskElement 遮罩层元素
+   * @property {string} type
+   * @property {"prompt"} function 调用的方法
+   * @property {string} guid 唯一id
+   * @property {Function} close 关闭弹窗
+   * @property {Function} hide 隐藏弹窗
+   * @property {Function} show 显示弹窗
+   * @property {string} [text=""] 输入的内容
+   */
+  /**
+   * @callback PopsBtnCallBack
+   * @param {PopsBtnCallBackEvent} event 事件
+   */
+  /**
+   * @callback PopsPromptBtnCallBack
+   * @param {PopsPromptBtnCallBackEvent} event 事件
+   */
+  /**
+   * @typedef {object} PopsBtnDetails 按钮配置
+   * @property {boolean} enable 是否启用
+   * @property {string} [type=""] 按钮样式类型
+   * @property {string} [text=""] 按钮文字
+   * @property { PopsBtnCallBack } callback 按钮点击的回调
+   */
+
+  /**
+   * @typedef {object} PopsPromptBtmDetails prompt的按钮配置
+   * @property {boolean} enable 是否启用
+   * @property {string} [type=""] 按钮样式类型
+   * @property {string} [text=""] 按钮文字
+   * @property { PopsPromptBtnCallBack } callback 按钮点击的回调
+   */
+  /**
+   * @typedef {object} PopsAlertDetails
+   * @property {{
+   *  text: string,
+   *  position: "left"|"right"|"top"|"bottom"|"center",
+   *  html: boolean,
+   * }} title 标题配置
+   * @property {{
+   *  text: string,
+   *  html: boolean,
+   * }} content 内容配置
+   * @property {{
+   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
+   *  ok: PopsBtnDetails,
+   *  close: {
+   *    enable: boolean,
+   *    callback: (event: PopsBtnCallBackEvent)=>{}
+   *  }
+   * }} btn 按钮配置
+   * @property {string} [class=""] 自定义className
+   * @property {boolean} [only=false] 是否是唯一的弹窗
+   * @property {string} [widths="350px"] 弹窗宽度
+   * @property {string} [heights="200px"] 弹窗高度
+   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
+   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
+   * @property {number} [zIndex=10000] 弹窗的显示层级
+   * @property {boolean} [mask=false] 遮罩层
+   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
+   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
+   */
+  /**
    * 普通信息框
+   * @param {PopsAlertDetails} details 配置
    * @returns {{
    * guid: string,
    * element: Element,
@@ -1322,7 +1403,7 @@
    * show: Function,
    * }}
    */
-  pops.alert = function () {
+  pops.alert = function (details) {
     if (this.config.init === false) {
       this.init();
     }
@@ -1369,10 +1450,7 @@
       drag: false /* 是否拖拽 */,
       forbiddenScroll: false /* 禁止页面滚动 */,
     };
-    config = popsUtils.assignJSON(
-      config,
-      arguments.length ? arguments[0] : undefined
-    );
+    config = popsUtils.assignJSON(config, details);
     var that = this;
     var guid = popsUtils.guid();
     if (config.only) {
@@ -1529,18 +1607,52 @@
   };
 
   /**
+   * @typedef {object} PopsConfirmDetails
+   * @property {{
+   *  text: string,
+   *  position: "left"|"right"|"top"|"bottom"|"center",
+   *  html: boolean,
+   * }} title 标题配置
+   * @property {{
+   *  text: string,
+   *  html: boolean,
+   * }} content 内容配置
+   * @property {{
+   *  reverse: boolean,
+   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
+   *  ok: PopsBtnDetails,
+   *  cancel: PopsBtnDetails,
+   *  other: PopsBtnDetails,
+   *  close: {
+   *    enable: boolean,
+   *    callback: (event: PopsBtnCallBackEvent)=>{}
+   *  }
+   * }} btn 按钮配置
+   * @property {string} [class=""] 自定义className
+   * @property {boolean} [only=false] 是否是唯一的弹窗
+   * @property {string} [width="350px"] 弹窗宽度
+   * @property {string} [height="200px"] 弹窗高度
+   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
+   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
+   * @property {number} [zIndex=false] 弹窗的显示层级
+   * @property {boolean} [mask=false] 遮罩层
+   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
+   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
+   */
+  /**
    * 询问框
+   * @param {PopsConfirmDetails} details
    * @returns {{
    * guid: string,
-   * element: Element,
-   * popsElement: Element,
-   * maskElement: Element,
+   * element: HTMLElement,
+   * popsElement: HTMLElement,
+   * maskElement: HTMLElement,
    * close: Function,
    * hide: Function,
    * show: Function,
    * }}
    */
-  pops.confirm = function () {
+  pops.confirm = function (details) {
     if (this.config.init === false) {
       this.init();
     }
@@ -1606,10 +1718,7 @@
       drag: false /* 是否拖拽 */,
       forbiddenScroll: false /* 禁止页面滚动 */,
     };
-    config = popsUtils.assignJSON(
-      config,
-      arguments.length ? arguments[0] : undefined
-    );
+    config = popsUtils.assignJSON(config, details);
     var that = this;
     var guid = popsUtils.guid();
     if (config.only) {
@@ -1807,7 +1916,44 @@
   };
 
   /**
+   * @typedef {object} PopsPromptDetails
+   * @property {{
+   *  text: string,
+   *  position: "left"|"right"|"top"|"bottom"|"center",
+   *  html: boolean,
+   * }} title 标题配置
+   * @property {{
+   *  text: string,
+   *  password: boolean,
+   *  row: boolean,
+   *  focus: boolean,
+   *  placeholder: string,
+   * }} content 内容配置
+   * @property {{
+   *  reverse: boolean,
+   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
+   *  ok: PopsPromptBtmDetails,
+   *  cancel: PopsPromptBtmDetails,
+   *  other: PopsPromptBtmDetails,
+   *  close: {
+   *    enable: boolean,
+   *    callback: (event: PopsPromptBtnCallBackEvent)=>{}
+   *  }
+   * }} btn 按钮配置
+   * @property {string} [class=""] 自定义className
+   * @property {boolean} [only=false] 是否是唯一的弹窗
+   * @property {string} [width="350px"] 弹窗宽度
+   * @property {string} [[height="200px"] 弹窗高度
+   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
+   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
+   * @property {number} [zIndex=10000] 弹窗的显示层级
+   * @property {boolean} [mask=false] 遮罩层
+   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
+   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
+   */
+  /**
    * 输入框
+   * @param {PopsPromptDetails} details
    * @returns {{
    * guid: string,
    * element: Element,
@@ -1818,7 +1964,7 @@
    * show: Function,
    * }}
    */
-  pops.prompt = function () {
+  pops.prompt = function (details) {
     if (this.config.init === false) {
       this.init();
     }
@@ -1886,10 +2032,7 @@
       drag: false /* 是否拖拽 */,
       forbiddenScroll: false /* 禁止页面滚动 */,
     };
-    config = popsUtils.assignJSON(
-      config,
-      arguments.length ? arguments[0] : undefined
-    );
+    config = popsUtils.assignJSON(config, details);
     var that = this;
     var guid = popsUtils.guid();
     if (config.only) {
@@ -2103,7 +2246,22 @@
   };
 
   /**
+   * @typedef {object} PopsLoadingDetails
+   * @property {HTMLElement} parent 父元素
+   * @property {{
+   *  text: string,
+   *  icon: string
+   * }} content 内容配置
+   * @property {string} [class=""] 自定义className
+   * @property {boolean} [only=false] 是否是唯一的弹窗
+   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
+   * @property {number} [zIndex=10000"] 弹窗的显示层级
+   * @property {boolean} [mask=true] 遮罩层
+   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
+   */
+  /**
    * 加载层
+   * @param {PopsLoadingDetails} details
    * @returns {{
    * guid: string,
    * element: Element,
@@ -2114,7 +2272,7 @@
    * show: Function,
    * }}
    */
-  pops.loading = function () {
+  pops.loading = function (details) {
     if (this.config.init === false) {
       this.init();
     }
@@ -2131,10 +2289,7 @@
       animation: "pops-anim-fadein-zoom" /* 动画效果 */,
       forbiddenScroll: false /* 阻止页面滚动 */,
     };
-    config = popsUtils.assignJSON(
-      config,
-      arguments.length ? arguments[0] : undefined
-    );
+    config = popsUtils.assignJSON(config, details);
     if (!(config.parent instanceof HTMLElement)) {
       throw "父元素必须是一个元素节点";
     }
@@ -2196,7 +2351,56 @@
   };
 
   /**
+   * @typedef {object} PopsBtnIframeCallBackEvent
+   * @property {HTMLElement} animElement
+   * @property {HTMLElement} popsElement
+   * @property {HTMLElement} maskElement
+   * @property {HTMLElement} iframePopsElement
+   * @property {HTMLElement} iframePopsElement
+   * @property {"iframe"} function
+   * @property {string} guid
+   */
+  /**
+   * @typedef {object} PopsIframeDetails
+   * @property {{
+   *  text: string,
+   *  position: "left"|"right"|"top"|"bottom"|"center",
+   *  html: boolean,
+   * }} title 标题配置
+   * @property {{
+   *  text: string,
+   *  enable: boolean,
+   *  icon: boolean,
+   * }} loading 加载配置
+   * @property {{
+   *  min: {
+   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
+   *  },
+   *  max: {
+   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
+   *  },
+   *  close: {
+   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
+   *  }
+   * }} btn 按钮配置
+   * @property {string} [class=""] 自定义className
+   * @property {string} url 地址
+   * @property {boolean} [only="false"] 是否是唯一的弹窗
+   * @property {string} [width="300px"] 弹窗宽度
+   * @property {string} [height="250px"] 弹窗高度
+   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
+   * @property {string} [animation=""pops-anim-fadein-zoom""] 弹窗动画
+   * @property {number} [zIndex=10000] 弹窗的显示层级
+   * @property {boolean} [mask=true] 遮罩层
+   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
+   * @property {string} [topRightButton="min|max|close"] 右上角按钮：最小化、最大化和关闭
+   * @property {boolean} [sandbox=false] 沙箱
+   * @property {boolean} [forbiddenScroll=false] 禁止页面滚动
+   * @property {?Function} loadEndCallBack 网页加载完毕触发的回调
+   */
+  /**
    * iframe层
+   * @param {PopsIframeDetails} details
    * @returns {{
    * guid: string,
    * element: Element,
@@ -2207,7 +2411,7 @@
    * show: Function,
    * }}
    */
-  pops.iframe = function () {
+  pops.iframe = function (details) {
     if (this.config.init === false) {
       this.init();
     }
@@ -2248,10 +2452,7 @@
         },
       },
     };
-    config = popsUtils.assignJSON(
-      config,
-      arguments.length ? arguments[0] : undefined
-    );
+    config = popsUtils.assignJSON(config, details);
     if (config.url == null) {
       throw "网址不能为空";
     }
@@ -2501,24 +2702,29 @@
   };
 
   /**
+   * @typedef {object} PopsToolTipDetails
+   * @property {HTMLElement} target 目标元素
+   * @property {string} [content=""] 显示的文字
+   * @property {"left"|"right"|"top"|"bottom"|"center"} [location="top"] 位置
+   * @property {string} [className=""] 自定义className
+   * @property {string} [triggerShowEventName="mouseenter"] 触发显示事件的名称
+   * @property {string} [triggerCloseEventName="mouseleave"] 触发关闭事件的名称
+   * @property {Function} triggerShowEventCallBack 触发显示事件的回调
+   * @property {Function} triggerCloseEventCallBack 触发关闭事件的回调
+   * @property {number} [arrowHeight=25/2] 提示高度
+   *
+   */
+  /**
    * 提示框
+   * @param {PopsToolTipDetails} details
    * @returns {{
    * guid: string,
-   * config: {target: null,
-   * content:string,
-   * location:string,
-   * className:string,
-   * triggerShowEventName:string,
-   * triggerCloseEventName:string,
-   * triggerShowEventCallBack:Function,
-   * triggerCloseEventCallBack:Function,
-   * arrowHeight: number
-   * },
+   * config: PopsToolTipDetails,
    * off: Function,
    * on: Function,
    * }}
    */
-  pops.tooltip = function () {
+  pops.tooltip = function (details) {
     if (this.config.init === false) {
       this.init();
     }
@@ -2534,10 +2740,7 @@
       triggerCloseEventCallBack: function () {} /* 触发关闭事件的回调*/,
       arrowHeight: 25 / 2,
     };
-    config = popsUtils.assignJSON(
-      config,
-      arguments.length ? arguments[0] : undefined
-    );
+    config = popsUtils.assignJSON(config, details);
     if (!(config.target instanceof HTMLElement)) {
       throw "目标必须是一个元素节点";
     }
