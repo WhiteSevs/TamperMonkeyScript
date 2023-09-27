@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-26";
+  Utils.version = "2023-9-27";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -4166,10 +4166,12 @@
       copyElement.setAttribute("type", "text");
       copyElement.setAttribute("style", "opacity:0;position:absolute;");
       copyElement.setAttribute("readonly", "readonly");
-      document.body.append(copyElement);
-      copyElement.select();
+      document.body.appendChild(copyElement);
+      copyElement.setSelectionRange
+        ? copyElement.setSelectionRange(0, copyElement.value.length)
+        : copyElement.select();
       document.execCommand("copy");
-      copyElement.remove();
+      document.body.removeChild(copyElement);
       _resolve_();
     }
     /**
