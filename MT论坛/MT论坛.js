@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 修复在TamperMonkey环境中的@grant错误问题
-// @version      2023.9.28
+// @description  更新日志: 修复在TamperMonkey环境中的@grant错误问题;新增设置-自动加载上/下页评论时同步地址;
+// @version      2023.9.28.10
 // @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -11498,7 +11498,7 @@
                   "设置当前的url为请求的下一页url",
                   window.location.origin + setLocationUrl
                 );
-                if (window === top.window) {
+                if(GM_getValue("v59") && window === top.window){
                   window.history.pushState("forward", null, setLocationUrl);
                 }
               } else {
@@ -11506,7 +11506,7 @@
                 let newURL = new URL(next_page_url);
                 let setLocationUrl = `${newURL.pathname}${newURL.search}`;
                 console.log("设置当前的url为请求的最后一页url", setLocationUrl);
-                if (window === top.window) {
+                if (GM_getValue("v59") && window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
                 $jq(".comiis_page.bg_f").remove();
@@ -11604,7 +11604,7 @@
                   "设置当前的url为请求的上一页url",
                   window.location.origin + setLocationUrl
                 );
-                if (window === top.window) {
+                if (GM_getValue("v59") && window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
                 kqideSourceNode.prepend(postDOM);
@@ -11616,7 +11616,7 @@
                   "已到顶页，设置当前的url第一页url",
                   window.location.origin + setLocationUrl
                 );
-                if (window === top.window) {
+                if (GM_getValue("v59") && window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
                 console.log("上一页评论全部加载完毕，关闭监听事件");
@@ -17213,6 +17213,14 @@
                 <p class="whitesev-mt-setting-name">每7天清理回复框记录的数据</p>
                 <div class="whitesev-mt-setting-checkbox">
                   <input type="checkbox" data-key="v58">
+                  <div class="knobs"><span></span></div>
+                  <div class="layer"></div>
+                </div>
+              </div>
+              <div class="whitesev-mt-setting-item">
+                <p class="whitesev-mt-setting-name">自动加载上/下页评论时同步地址</p>
+                <div class="whitesev-mt-setting-checkbox">
+                  <input type="checkbox" data-key="v59">
                   <div class="knobs"><span></span></div>
                   <div class="layer"></div>
                 </div>
