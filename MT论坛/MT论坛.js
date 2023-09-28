@@ -7,7 +7,7 @@
 // @description  更新日志: 修复在TamperMonkey环境中的@grant错误问题
 // @version      2023.9.28
 // @author       WhiteSevs
-// @match        http*://bbs.binmt.cc/*
+// @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
 // @license      GPL-3.0-only
 // @grant        unsafeWindow
