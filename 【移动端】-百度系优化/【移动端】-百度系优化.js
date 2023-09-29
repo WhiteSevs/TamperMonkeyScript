@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.29
+// @version      2023.9.29.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -3938,7 +3938,21 @@
             </div>
             `,
           });
-
+          let currentScrollX = window.scrollX;
+          let currentScrollY = window.scrollY;
+          /**
+           * 可拓上会直接回到顶部，恢复位置
+           */
+          function scrollToBeforePosition() {
+            if (
+              window.scrollX === currentScrollX &&
+              window.scrollY === currentScrollY
+            ) {
+              return;
+            }
+            log.success("回到之前的位置");
+            window.scrollTo(currentScrollX, currentScrollY);
+          }
           /**
            * 设置浏览器历史地址
            */
@@ -3972,6 +3986,7 @@
                 tiebaCommentConfig.vueRootView.__vue__.$router.back();
                 await utils.sleep(250);
               } else {
+                scrollToBeforePosition();
                 return;
               }
             }
