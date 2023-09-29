@@ -3938,21 +3938,7 @@
             </div>
             `,
           });
-          let currentScrollX = window.scrollX;
-          let currentScrollY = window.scrollY;
-          /**
-           * 可拓上会直接回到顶部，恢复位置
-           */
-          function scrollToBeforePosition() {
-            if (
-              window.scrollX === currentScrollX &&
-              window.scrollY === currentScrollY
-            ) {
-              return;
-            }
-            log.success("回到之前的位置");
-            window.scrollTo(currentScrollX, currentScrollY);
-          }
+
           /**
            * 设置浏览器历史地址
            */
@@ -3986,7 +3972,6 @@
                 tiebaCommentConfig.vueRootView.__vue__.$router.back();
                 await utils.sleep(250);
               } else {
-                scrollToBeforePosition();
                 return;
               }
             }
