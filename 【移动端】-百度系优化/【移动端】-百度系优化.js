@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.9.26.18.20
+// @version      2023.9.29
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -596,7 +596,6 @@
         deleteItemCallBack:
           paramConfig.deleteItemCallBack ||
           function (itemElementIndex, itemElement) {
-            console.log("删除 ", that.config.showData[itemElementIndex]);
             that.config.data.splice(dataId, 1);
             that.config.showData.splice(dataId, 1);
             itemElement.remove();
@@ -910,8 +909,7 @@
      */
     update(data) {
       if (!Array.isArray(data)) {
-        console.log(data);
-        throw "传入的数据不是数组";
+        throw new Error("传入的数据不是数组");
       }
       let that = this;
       this.config.showData = this.arrayDistinct(data);
@@ -3945,14 +3943,7 @@
            * 设置浏览器历史地址
            */
           function popstateEvent() {
-            if (
-              tiebaCommentConfig.vueRootView.__vue__.$router.history.current
-                .fullPath !== "/seeLzlReply"
-            ) {
-              tiebaCommentConfig.vueRootView.__vue__.$router.history.push(
-                "/seeLzlReply"
-              );
-            }
+            log.success("触发popstate事件");
             resumeBack();
           }
 
@@ -3961,23 +3952,23 @@
            */
           function banBack() {
             /* 监听地址改变 */
+            log.success("监听地址改变");
+            tiebaCommentConfig.vueRootView.__vue__.$router.push("/seeLzlReply");
             DOMUtils.on(globalThis, "popstate", popstateEvent);
-            tiebaCommentConfig.vueRootView.__vue__.$router.history.push(
-              "/seeLzlReply"
-            );
           }
 
           /**
            * 允许浏览器后退并关闭小窗
            */
           async function resumeBack() {
-            document.querySelector(".whitesev-reply-dialog-close")?.click();
-            DOMUtils.off(globalThis, "popstate", popstateEvent);
+            log.success("浏览器地址后退，并关闭小窗");
+            closeDialogByUrlChange();
             while (1) {
               if (
                 tiebaCommentConfig.vueRootView.__vue__.$router.history.current
                   .fullPath === "/seeLzlReply"
               ) {
+                log.info("后退！");
                 tiebaCommentConfig.vueRootView.__vue__.$router.back();
                 await utils.sleep(250);
               } else {
@@ -3985,30 +3976,62 @@
               }
             }
           }
+
+          /**
+           * 关闭楼中楼弹窗
+           * @param {Event|undefined} event 事件
+           */
+          function closeDialog() {
+            dialog.removeAttribute("data-on");
+            DOMUtils.on(
+              dialog,
+              "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend",
+              function () {
+                DOMUtils.off(
+                  dialog,
+                  "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
+                );
+                log.success("关闭楼中楼回复弹窗");
+                log.success("解锁全局滚动");
+                document.documentElement.style.overflowY = "";
+                dialog.remove();
+                if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
+                  resumeBack();
+                }
+              }
+            );
+          }
+          /**
+           * 关闭楼中楼弹窗(来自url改变)
+           */
+          function closeDialogByUrlChange() {
+            dialog.removeAttribute("data-on");
+            DOMUtils.on(
+              dialog,
+              "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend",
+              function () {
+                DOMUtils.off(
+                  dialog,
+                  "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
+                );
+                log.success("关闭楼中楼回复弹窗");
+                log.success("解锁全局滚动");
+                document.documentElement.style.overflowY = "";
+                dialog.remove();
+              }
+            );
+          }
           /* 关闭图标的点击事件 */
           DOMUtils.on(
             dialog.querySelector(".whitesev-reply-dialog-close"),
             "click",
-            function () {
-              dialog.removeAttribute("data-on");
-              DOMUtils.on(
-                dialog,
-                "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend",
-                function () {
-                  DOMUtils.off(
-                    dialog,
-                    "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
-                  );
-                  log.success("关闭楼中楼回复弹窗");
-                  log.success("解锁全局滚动");
-                  document.documentElement.style.overflowY = "";
-                  dialog.remove();
-                  if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
-                    resumeBack();
-                  }
-                }
-              );
-            }
+            closeDialog
+          );
+          /* 点击遮罩层则关闭弹窗 */
+          DOMUtils.on(
+            dialog.querySelector(".whitesev-reply-dialog-bg"),
+            "click",
+            closeDialog
           );
           /* 处理评论的头像点击新标签页打开主页 */
           DOMUtils.on(
@@ -4038,14 +4061,6 @@
                     .getAttribute("data-portrait"),
                 "_blank"
               );
-            }
-          );
-          /* 点击遮罩层则关闭弹窗 */
-          DOMUtils.on(
-            dialog.querySelector(".whitesev-reply-dialog-bg"),
-            "click",
-            function () {
-              dialog.querySelector(".whitesev-reply-dialog-close").click();
             }
           );
           /* 去除楼中楼回复@的超链接错误跳转 */
@@ -5682,17 +5697,18 @@
             if (!tiebaBusiness.vueRootView["user"]["is_login"]) {
               return;
             }
-            utils.waitNode(".tb-forum-user__join-btn").then(nodeList=>{
+            utils.waitNode(".tb-forum-user__join-btn").then((nodeList) => {
               log.success("修改页面中的APP内签到");
-              DOMUtils.on(nodeList[0],"click",function(event){
+              DOMUtils.on(nodeList[0], "click", function (event) {
                 utils.preventEvent(event);
-                let userPortrait = tiebaBusiness.vueRootView["user"]["portrait"];
+                let userPortrait =
+                  tiebaBusiness.vueRootView["user"]["portrait"];
                 let forumName = tiebaBusiness.vueRootView["forum"]["name"];
-                let tbs = tiebaBusiness.vueRootView["$store"]["state"]["common"]["tbs"];
+                let tbs =
+                  tiebaBusiness.vueRootView["$store"]["state"]["common"]["tbs"];
                 tiebaBusiness.sign(forumName, tbs);
-              })
-            })
-            
+              });
+            });
           });
         },
         /**
@@ -5900,7 +5916,7 @@
           log.success(`获取下一页地址: ${nextPageUrl}`);
           loadingView.setCSS();
           let loadingViewNode = loadingView.getParseLoadingNode(true);
-          console.log(document.querySelector(".BK-main-content"));
+          log.success(document.querySelector(".BK-main-content"));
           DOMUtils.after(
             document.querySelector(".BK-main-content"),
             loadingViewNode
