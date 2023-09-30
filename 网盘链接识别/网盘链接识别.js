@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.9.27
+// @version      2023.9.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -981,7 +981,6 @@
        * 蓝奏云
        * 流程：判断是否是多文件
        * 单文件 => 请求https://www.lanzoux.com/{shareToken} 判断链接类型和是否能正常获取
-       *        => 请求https://www.lanzoux.com/tp/{shareToken} 获取文件sign
        *        => 请求https://www.lanzoux.com/ajaxm.php 获取下载参数，下载参数例如：https://develope.lanzoug.com/file/?xxxxxxxxx
        * 多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，
        * 参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]}
@@ -1044,7 +1043,8 @@
            * 蓝奏设置了密码的单文件请求需要的sign值
            */
           sign: {
-            match: /var[\s]*(posign|postsign|vidksek)[\s]*=[\s]*'(.+?)';/,
+            match:
+              /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/,
           },
           /**
            * 蓝奏文件名
@@ -1055,7 +1055,7 @@
           /**
            * 蓝奏文件大小
            */
-          size: {
+          fileSize: {
             match: /<span class=\"mtt\">\((.*)\)<\/span>/,
           },
           /**
@@ -1097,7 +1097,7 @@
           that.regexp.unicode.isUnicode = Boolean(
             that.shareCode.match(that.regexp.unicode.match)
           );
-          await that.getFileLink(shareCode, accessCode);
+          await that.getFileLink();
         };
         /**
          * 获取文件链接
@@ -1111,11 +1111,22 @@
             url: url,
             headers: {
               Accept: "*/*",
-              "User-Agent": utils.getRandomAndroidUA(),
+              "User-Agent": utils.getRandomPCUA(),
               referer: window.location.origin,
             },
+            onerror: function () {},
           });
           if (!getResp.status) {
+            log.error(getResp);
+            if (
+              getResp.data[0].responseText.includes(
+                "div>文件不存在，或者已被删除</div>"
+              )
+            ) {
+              Qmsg.error("文件不存在，或者已被删除");
+            } else {
+              Qmsg.error("请求异常");
+            }
             return;
           }
           let respData = getResp.data;
@@ -1131,14 +1142,50 @@
             await that.getMoreFile();
           } else {
             log.info(respData);
+            let pageText = respData.responseText;
             if (getShareCodeByPageAgain) {
-              let shareCodeNewMatch = respData.responseText.match(
+              let shareCodeNewMatch = pageText.match(
                 /var[\s]*link[\s]*=[\s]*\'tp\/(.+?)\';/i
               );
               that.shareCode = shareCodeNewMatch[shareCodeNewMatch.length - 1];
               log.info(`新参数 => ${that.shareCode}`);
             }
-            await that.getLinkByTp();
+            let pageDOM = DOMUtils.parseHTML(pageText, true, true);
+            let pageIframeElement = pageDOM.querySelector(
+              "iframe[class^='ifr']"
+            );
+            if (pageIframeElement) {
+              let iframeUrl = pageIframeElement.getAttribute("src");
+              log.error([
+                "该链接需要重新通过iframe地址访问获取信息",
+                iframeUrl,
+              ]);
+              Qmsg.info("正在请求iframe内信息");
+              let fileName = pageDOM
+                .querySelector("title")
+                ?.textContent?.replace(/ - 蓝奏云$/i, "");
+              let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i);
+              let fileUploadTime = pageText.match(
+                /上传时间：<\/span>(.+?)<br>/i
+              );
+              if (fileSize) {
+                fileSize = fileSize[fileSize.length - 1];
+              } else {
+                Qmsg.error("解析文件大小失败");
+              }
+              if (fileUploadTime) {
+                fileUploadTime = fileUploadTime[fileUploadTime.length - 1];
+              } else {
+                Qmsg.error("解析文件上传时间失败");
+              }
+              await that.getLinkByIframe(iframeUrl, {
+                fileName,
+                fileSize,
+                fileUploadTime,
+              });
+            } else {
+              await that.getLink(respData);
+            }
           }
         };
         /**
@@ -1182,33 +1229,8 @@
           }
         };
         /**
-         * 访问蓝奏tp获取sign
-         */
-        this.getLinkByTp = async function () {
-          let getResp = await httpx.get({
-            url: that.handleUrl.tp(that.shareCode),
-            headers: {
-              Accept: "*/*",
-              "User-Agent": utils.getRandomAndroidUA(),
-              referer: window.location.origin,
-            },
-          });
-          if (!getResp.status) {
-            return;
-          }
-          let respData = getResp.data;
-          log.info("by_tp ↓");
-          log.info(respData);
-          if (respData.readyState === 4) {
-            await that.getLink(respData);
-          } else {
-            Qmsg.error("请求失败，请重试");
-          }
-        };
-        /**
          * 获取链接
          * @param {object} response
-         * @returns
          */
         this.getLink = async function (response) {
           let pageText = response.responseText;
@@ -1220,13 +1242,27 @@
           let sign = pageText.match(that.regexp.sign.match);
           let postData_p = "";
           let postData_sign = "";
-          let fileNameMatch = pageText.match(that.regexp.fileName.match);
-          let fileName = fileNameMatch ? fileNameMatch[1].trim() : "";
-          let fileSizeMatch = pageText.match(that.regexp.size.match);
-          let fileSize = fileSizeMatch ? fileSizeMatch[1].trim() : "";
-          let fileUploadTime = pageText.match(that.regexp.uploadTime.match);
+          let fileName = pageText.match(that.regexp.fileName.match);
+          let fileSize =
+            pageText.match(that.regexp.fileSize.match) ||
+            pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
+          let fileUploadTime =
+            pageText.match(that.regexp.uploadTime.match) ||
+            pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
+          if (fileName) {
+            fileName = fileName[fileName.length - 1].trim();
+          } else {
+            fileName = "";
+          }
+          if (fileSize) {
+            fileSize = fileSize[fileSize.length - 1].trim();
+          } else {
+            fileSize = "";
+          }
           if (fileUploadTime) {
             fileUploadTime = fileUploadTime[fileUploadTime.length - 1].trim();
+          } else {
+            fileUploadTime;
           }
           if (sign) {
             postData_sign = sign[sign.length - 1];
@@ -1342,6 +1378,119 @@
               fileSize: fileSize,
               downloadUrl: downloadUrl,
               fileUploadTime: fileUploadTime,
+            });
+          }
+        };
+
+        /**
+         * 通过iframe的链接来获取单文件直链
+         * @param {string} url
+         * @param {{
+         * fileName:string,
+         * fileSize:string,
+         * fileUploadTime:string
+         * }} fileInfo 文件信息
+         */
+        this.getLinkByIframe = async function (url, fileInfo) {
+          log.info(fileInfo);
+          let getResp = await httpx.get({
+            url: that.handleUrl.default(url),
+            headers: {
+              Accept:
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              "User-Agent": utils.getRandomPCUA(),
+              Referer: window.location.origin,
+            },
+          });
+          if (!getResp.status) {
+            return;
+          }
+          let respData = getResp.data;
+          log.info(respData);
+          let pageText = respData.responseText;
+          let aihidcms = pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
+          let ciucjdsdc = pageText.match(
+            /var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i
+          );
+          let ajaxdata = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
+          let sign = pageText.match(/'sign':[\s]*'(.+)',/i);
+          if (!aihidcms) {
+            Qmsg.error("ajaxm.php请求参数aihidcms获取失败");
+          } else {
+            aihidcms = aihidcms[aihidcms.length - 1];
+          }
+          if (!ciucjdsdc) {
+            Qmsg.error("ajaxm.php请求参数ciucjdsdc获取失败");
+          } else {
+            ciucjdsdc = ciucjdsdc[ciucjdsdc.length - 1];
+          }
+          if (!ajaxdata) {
+            Qmsg.error("ajaxm.php请求参数ajaxdata获取失败");
+          } else {
+            ajaxdata = ajaxdata[ajaxdata.length - 1];
+          }
+          if (!sign) {
+            Qmsg.error("ajaxm.php请求参数sign获取失败");
+          } else {
+            sign = sign[sign.length - 1];
+          }
+          let postData = `action=downprocess&signs=${ajaxdata}&sign=${sign}&websign=${ciucjdsdc}&ves=1`;
+          log.success("ajaxm.php的请求参数-> " + postData);
+          let postResp = await httpx.post({
+            url: that.handleUrl.default("/ajaxm.php"),
+            headers: {
+              Accept: "application/json, text/javascript, */*",
+              "Content-Type": "application/x-www-form-urlencoded",
+              referer: window.location.origin,
+              "User-Agent": utils.getRandomPCUA(),
+            },
+            data: postData,
+          });
+          if (!postResp.status) {
+            return;
+          }
+          let postRespData = postResp.data;
+          log.info(postRespData);
+          let jsonData = utils.toJSON(postRespData.responseText);
+          let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}`;
+          let zt = jsonData["zt"];
+          log.success(["直链", downloadUrl]);
+          if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
+            Qmsg.error("密码不正确!");
+            NetDiskUI.newAccessCodeView(
+              undefined,
+              "lanzou",
+              that.netDiskIndex,
+              that.shareCode,
+              (userInputAccessCode) => {
+                that.default(
+                  that.netDiskIndex,
+                  that.shareCode,
+                  userInputAccessCode
+                );
+              }
+            );
+          } else {
+            fileInfo.fileName = utils.isNotNull(jsonData["inf"])
+              ? jsonData["inf"]
+              : fileInfo.fileName;
+            downloadUrl = await NetDiskParse.getRedirectFinalUrl(
+              downloadUrl,
+              utils.getRandomAndroidUA()
+            );
+            log.info(downloadUrl);
+
+            downloadUrl = NetDiskFilterScheme.handleUrl(
+              "lanzou-static-scheme-enable",
+              "lanzou-static-scheme-forward",
+              downloadUrl
+            );
+            NetDiskUI.staticView.oneFile({
+              title: "蓝奏云单文件直链",
+              fileName: fileInfo.fileName,
+              fileSize: fileInfo.fileSize,
+              downloadUrl: downloadUrl,
+              fileUploadTime: fileInfo.fileUploadTime,
             });
           }
         };
