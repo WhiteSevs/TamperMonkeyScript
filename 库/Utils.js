@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-9-27";
+  Utils.version = "2023-10-1";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1778,6 +1778,27 @@
   };
 
   /**
+   * @typedef {object} HttpxAsyncResultData
+   * @property {string} finalUrl 当数据加载完毕后的，经过所有重定向后的最终URL
+   * @property {0|1|2|3|4} readyState 数据准备状态，0-未初始化，1-载入，2-载入完成，3-交互，4-完成
+   * @property {200|301|302|304|307|401|403|404|500|number} status 状态码
+   * @property {"OK"|""|string} statusText 关于status的解释
+   * @property {string} responseHeaders 响应头的Headers
+   * @property {string|undefined} responseType 是请求中设置的responseType，没有设置的话默认为undefined
+   * @property {object|string|HTMLElement} response 响应内容，根据responseType，如果是html，那就是Document，如果是json，那么类型是Object
+   * @property {XMLDocument} responseXML the response data as XML document
+   * @property {string} responseText 响应内容的字符串格式
+   */
+  /**
+   * @typedef {object} HttpxAsyncResult
+   * @property {boolean} status 请求状态，状态码为200为成功true，否则false
+   * @property {HttpxAsyncResultData} data 请求的数据，当status为false时，data中可能也存在数据
+   * @property {object} details 请求的配置
+   * @property {string} msg 请求的成功/失败消息
+   * @property {"onload"|"onerror"|"ontimeout"|"onabort"} type 当前触发响应的类型
+   *
+   */
+  /**
    * 为减少代码量和回调，把GM_xmlhttpRequest封装
    * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
    * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
@@ -1934,7 +1955,7 @@
     function getRequestDefails(method, resolve, details) {
       return {
         url: details.url || defaultDetails.url,
-        method: method || "get",
+        method: method || "GET",
         timeout: details.timeout || defaultDetails.timeout,
         async: details.async || defaultDetails.async,
         responseType: details.responseType || defaultDetails.responseType,
@@ -2013,7 +2034,7 @@
       }
       resolve({
         status: false,
-        data: argumentsList,
+        data: [...argumentsList],
         msg: "请求被取消",
         type: "onabort",
       });
@@ -2031,9 +2052,14 @@
       } else if ("onerror" in defaultDetails) {
         defaultDetails.onerror.apply(this, argumentsList);
       }
+      let response = argumentsList;
+      if (response.length) {
+        response = response[0];
+      }
       resolve({
         status: false,
-        data: argumentsList,
+        data: response,
+        details: details,
         msg: "请求异常",
         type: "onerror",
       });
@@ -2052,7 +2078,7 @@
       }
       resolve({
         status: false,
-        data: argumentsList,
+        data: [...argumentsList],
         msg: "请求超时",
         type: "ontimeout",
       });
@@ -2119,6 +2145,7 @@
         resolve({
           status: true,
           data: response,
+          details: details,
           msg: "请求完毕",
           type: "onload",
         });
@@ -2130,6 +2157,7 @@
     /**
      * GET 请求
      * @param {...defaultDetails|string} arguments
+     * @returns {Promise< HttpxAsyncResult >}
      */
     this.get = async function () {
       let details = {};
@@ -2152,6 +2180,7 @@
     /**
      * POST 请求
      * @param {...defaultDetails|string} arguments
+     * @returns {Promise< HttpxAsyncResult >}
      */
     this.post = async function () {
       let details = {};
@@ -2173,6 +2202,7 @@
     /**
      * HEAD 请求
      * @param {...defaultDetails|string} arguments
+     * @returns {Promise< HttpxAsyncResult >}
      */
     this.head = async function () {
       let details = {};
@@ -2196,6 +2226,7 @@
     /**
      * OPTIONS请求
      * @param {...defaultDetails|string} arguments
+     * @returns {Promise< HttpxAsyncResult >}
      */
     this.options = async function () {
       let details = {};
@@ -2219,6 +2250,7 @@
     /**
      * DELETE请求
      * @param {...defaultDetails|string} arguments
+     * @returns {Promise< HttpxAsyncResult >}
      */
     this.delete = async function () {
       let details = {};
@@ -2242,6 +2274,7 @@
     /**
      * PUT请求
      * @param {...defaultDetails|string} arguments
+     * @returns {Promise< HttpxAsyncResult >}
      */
     this.put = async function () {
       let details = {};
@@ -2398,6 +2431,11 @@
      * 保存数据到数据库
      * @param {string} key 数据key
      * @param {any} value 数据值
+     * @returns {Promise< {
+     *    code: number,
+     *    msg: string,
+     *    success: boolean
+     * }>}
      */
     this.save = async function (key, value) {
       if (that.indexedDB) {
@@ -2435,6 +2473,17 @@
     /**
      * 根据key获取值
      * @param {string} key 数据key
+     * @returns {Promise< {
+     *    code: number,
+     *    msg: string,
+     *    data: [...any],
+     *    success: true
+     * }| {
+     *    code: number,
+     *    msg: string,
+     *    error: Error,
+     *    result: any,
+     * } >}
      */
     this.get = async function (key) {
       return new Promise((resolve, reject) => {
@@ -2484,6 +2533,17 @@
     /**
      * 正则获取数据
      * @param {string} key 数据键
+     * @returns { Promise<{
+     *    code: number,
+     *    msg: string,
+     *    data: [...any],
+     *    success: true
+     * }|{
+     *    code: number,
+     *    msg: string,
+     *    error: Error,
+     *    result: any,
+     * }> }
      */
     this.regexpGet = async function (key) {
       let list = [];
@@ -2539,6 +2599,15 @@
     /**
      * 删除数据
      * @param {string} key 数据键
+     * @returns {Promise<{
+     *    code: number,
+     *    msg: string,
+     *    success: true,
+     * }|{
+     *    code: number,
+     *    msg: string,
+     *    error: Error,
+     * }>}
      */
     this.delete = async function (key) {
       return new Promise((resolve, reject) => {
@@ -2580,6 +2649,16 @@
     };
     /**
      * 删除所有数据
+     * @returns {Promise<{
+     *    code: number,
+     *    msg: string,
+     *    error: Error,
+     *    result: any,
+     * }|{
+     *    code: number,
+     *    msg: string,
+     *    success: true,
+     * }>}
      */
     this.deleteAll = async function () {
       return new Promise((resolve, reject) => {
@@ -3862,10 +3941,9 @@
 
   /**
    * blob转File对象
-   * @async
    * @param {string} blobUrl	需要转换的blob的链接
    * @param {string} [fileName="example"]	转换成的File对象的文件名称，默认为example
-   * @async
+   * @returns {Promise<File|Error>}
    * @example
    * Utils.parseBlobToFile("blob://xxxxx");
    * > object
@@ -3908,6 +3986,7 @@
    * 【异步函数】File对象转base64
    * @async
    * @param {File} fileObj	需要转换的File对象
+   * @returns {Promise<string>}
    * @example
    * await Utils.parseFileToBase64(object);
    * > 'data:image/jpeg:base64/,xxxxxx'
@@ -4216,7 +4295,6 @@
    * 【异步函数】等待N秒执行函数
    * @param {function|string} delayToExecuteFunction	待执行的函数(字符串)
    * @param {number} [delayTime=0]	延时时间(ms)
-   * @returns	函数的返回值
    * @example
    * await Utils.setTimeout(()=>{}, 2500);
    * > ƒ tryCatchObj() {}
@@ -4622,19 +4700,22 @@
   };
 
   /**
-   * 等待指定节点出现，支持多个 selector
+   * 等待指定元素出现，支持多个selector
    * @param {...string} nodeSelectors - 一个或多个节点选择器，必须为字符串类型
-   * @returns 返回一个 Promise 对象，成功时返回节点数组，如[ [...nodes], [...nodes] ]
-   * 如果参数 nodeSelectors 只有一个的话，返回 [nodes]
+   * @returns {Promise<Element|Element[]>}
    * @example
-    Utils.waitNode("div.xxx","a.xxx").then( (nodeList)=>{
-      let divNodesList = nodeList[0];
-      let aNodeList = nodeList[1];
-    })
+   * Utils.waitNode("div.xxx").then( element =>{
+   *  console.log(element); // div.xxx => HTMLElement
+   * })
+   * @example
+   * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
+   *  console.log(elementList[0]); // div.xxx => HTMLElement
+   *  console.log(elementList[1]); // a.xxx => HTMLElement
+   * })
    */
   Utils.waitNode = async function (...nodeSelectors) {
     /* 检查每个参数是否为字符串类型 */
-    for (const nodeSelector of nodeSelectors) {
+    for (let nodeSelector of nodeSelectors) {
       if (typeof nodeSelector !== "string") {
         throw new Error("Utils.waitNode 参数必须为 ...string 类型");
       }
@@ -4645,18 +4726,90 @@
       let isReturn = false;
 
       /* 检查所有选择器是否匹配到节点 */
-      const checkNodes = (observer) => {
+      let checkNodes = (observer) => {
+        let isFind = true;
+        let selectNodeArray = [];
+        for (let i = 0; i < nodeSelectors.length; i++) {
+          let selector = nodeSelectors[i];
+          let element = document.querySelector(selector);
+          if (!element) {
+            /* 没找到，直接退出循环 */
+            isFind = false;
+            break;
+          }
+          selectNodeArray.push(element);
+        }
+        if (isFind) {
+          isReturn = true;
+          observer?.disconnect();
+          /* 如果只有一个选择器，那么返回数组中存储的第一个 */
+          if (selectNodeArray.length === 1) {
+            resolve(selectNodeArray[0]);
+          } else {
+            resolve(selectNodeArray);
+          }
+        }
+      };
+
+      /* 在函数开始时检查节点是否已经存在 */
+      checkNodes();
+
+      /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
+      Utils.mutationObserver(document.documentElement, {
+        config: { subtree: true, childList: true, attributes: true },
+        callback: (mutations, observer) => {
+          if (isReturn) {
+            return;
+          }
+          checkNodes(observer);
+        },
+      });
+    });
+  };
+
+  /**
+   * 等待指定元素出现，支持多个selector
+   * @param  {...string} nodeSelectors
+   * @returns {Promise<NodeList|NodeList[]>} 当nodeSelectors为数组多个时，
+   * 返回如：[ NodeList, NodeList ]，
+   * 当nodeSelectors为单个时，
+   * 返回如：NodeList。
+   * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+   * @example
+   * Utils.waitNodeList("div.xxx").then( nodeList =>{
+   *  console.log(nodeList) // div.xxx => NodeList
+   * })
+   * @example
+   * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
+   *  console.log(nodeListArray[0]) // div.xxx => NodeList
+   *  console.log(nodeListArray[1]) // a.xxx => NodeList
+   * })
+   */
+  Utils.waitNodeList = async function (...nodeSelectors) {
+    /* 检查每个参数是否为字符串类型 */
+    for (let nodeSelector of nodeSelectors) {
+      if (typeof nodeSelector !== "string") {
+        throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+      }
+    }
+
+    return new Promise((resolve) => {
+      /* 防止触发第二次回调 */
+      let isReturn = false;
+
+      /* 检查所有选择器是否匹配到节点 */
+      let checkNodes = (observer) => {
         let isFind = true;
         let selectNodes = [];
         for (let i = 0; i < nodeSelectors.length; i++) {
-          const selector = nodeSelectors[i];
-          const nodeList = document.querySelectorAll(selector);
-          selectNodes = selectNodes.concat(nodeList);
+          let selector = nodeSelectors[i];
+          let nodeList = document.querySelectorAll(selector);
           if (nodeList.length === 0) {
             /* 没找到，直接退出循环 */
             isFind = false;
             break;
           }
+          selectNodes.push(nodeList);
         }
         if (isFind) {
           isReturn = true;
@@ -4685,11 +4838,11 @@
       });
     });
   };
-
   /**
    * 等待对象上的属性出现
    * @param {object} checkObj 检查的对象
    * @param {any} checkPropertyName 检查的对象的属性名
+   * @returns {Promise<any>}
    * @example
    * await Utils.waitProperty(window,"test");
    * console.log("test success set");
