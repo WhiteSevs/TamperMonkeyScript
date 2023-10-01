@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.10.1
+// @version      2023.10.1.11
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1256918
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258516
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258517
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258535
 // ==/UserScript==
 
 (function () {
@@ -1746,15 +1746,12 @@
             that.isFolder = jsonData.isFolder;
             if (that.isFolder) {
               log.info("该链接是文件夹");
-              if (that.accessCode) {
-                NetDiskParse.setClipboard(
-                  "tianyiyun",
-                  that.shareCode,
-                  that.accessCode,
-                  "已复制"
-                );
-              }
-              window.open(`https://cloud.189.cn/t/${that.shareCode}`, "_blank");
+              NetDiskParse.blank(
+                `https://cloud.189.cn/t/${that.shareCode}`,
+                "tianyiyun",
+                that.shareCode,
+                that.accessCode
+              );
               return;
             }
             if (jsonData["needAccessCode"] && !that.accessCode) {
