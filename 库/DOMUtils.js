@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-9-26";
+  DOMUtils.version = "2023-10-1";
 
   let globalUtils = {
     /**
@@ -859,10 +859,12 @@
       }
     });
   };
+
   /**
    * 主动触发事件
    * @param {Element|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window|globalThis
    * @param {string|[...string]} eventType 需要触发的事件
+   * @param {object|undefined} details 赋予触发的Event的额外属性
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -871,7 +873,7 @@
    * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
    * DOMUtils.trigger("a.xx",["click","tap","hover"])
    */
-  DOMUtils.trigger = function (element, eventType) {
+  DOMUtils.trigger = function (element, eventType, details) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
@@ -904,6 +906,9 @@
       }
       eventTypeList.forEach((_eventType_) => {
         let event = new Event(_eventType_);
+        if (details) {
+          Object.assign(event, details);
+        }
         elementItem.dispatchEvent(event);
       });
     });
