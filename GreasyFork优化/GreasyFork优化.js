@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.9.26.18.20
+// @version      2023.10.1
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @license      MIT
@@ -19,7 +19,7 @@
 // @connect      greasyfork.org
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256917
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258498
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
@@ -537,10 +537,10 @@
       }
       utils
         .waitNode("#script-content div.code-container pre.prettyprint ol")
-        .then((nodeList) => {
-          if (nodeList[0].childElementCount >= 1000) {
+        .then((element) => {
+          if (element.childElementCount >= 1000) {
             log.success(
-              `当前代码行数${nodeList[0].childElementCount}行，超过1000行，优化行号显示问题`
+              `当前代码行数${element.childElementCount}行，超过1000行，优化行号显示问题`
             );
             GM_addStyle(`
           pre.prettyprint{
