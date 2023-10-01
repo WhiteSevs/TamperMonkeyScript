@@ -24,7 +24,7 @@
    */
   DOMUtils.version = "2023-10-1";
 
-  let globalUtils = {
+  let CommonUtils = {
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
      * @param {Element} element
@@ -44,6 +44,32 @@
           element.style.position = oldCSS_position;
         },
       };
+    },
+    /**
+     * 判断是否是window，例如window、self、globalThis
+     * @param {any} target
+     * @returns {boolean}
+     */
+    isWin(target) {
+      if (!typeof target === "object") {
+        return false;
+      }
+      if (target instanceof Element) {
+        return false;
+      }
+      if (target === globalThis) {
+        return true;
+      }
+      if (target === window) {
+        return true;
+      }
+      if (target === self) {
+        return true;
+      }
+      if (target?.Math?.toString() !== "[object Math]") {
+        return false;
+      }
+      return true;
     },
   };
   /**
@@ -648,7 +674,7 @@
   };
   /**
    * 绑定事件
-   * @param {Element|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window|globalThis
+   * @param {Element|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
    * @param {string|[...string]} eventType 需要监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
@@ -713,8 +739,9 @@
       let ownCallBack = function (event) {
         if (selector) {
           let target = event.target;
-          let totalParent =
-            elementItem == globalThis ? document.documentElement : elementItem;
+          let totalParent = CommonUtils.isWin(elementItem)
+            ? document.documentElement
+            : elementItem;
           if (target.matches(selector)) {
             /* 当前目标可以被selector所匹配到 */
             callback.call(target, event);
@@ -751,7 +778,7 @@
       if (callback && callback.delegate) {
         elementItem.setAttribute("data-delegate", selector);
       }
-      if (elementItem == globalThis) {
+      if (CommonUtils.isWin(elementItem)) {
         let events = elementItem["DOMUtilsGlobalEvents"] || {};
         events[eventType] = events[eventType] || [];
         events[eventType].push({
@@ -774,7 +801,7 @@
   };
   /**
    * 取消绑定事件
-   * @param {Element|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组|globalThis
+   * @param {Element|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
    * @param {string|[...string]} eventType 需要取消监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
@@ -826,7 +853,7 @@
     }
     elementList.forEach((elementItem) => {
       let events = {};
-      if (elementItem == globalThis) {
+      if (CommonUtils.isWin(elementItem)) {
         events = elementItem["DOMUtilsGlobalEvents"] || {};
       } else {
         events = elementItem.events || {};
@@ -852,7 +879,7 @@
           delete events[eventType];
         }
       });
-      if (elementItem == globalThis) {
+      if (CommonUtils.isWin(elementItem)) {
         elementItem["DOMUtilsGlobalEvents"] = events;
       } else {
         elementItem.events = events;
@@ -862,7 +889,7 @@
 
   /**
    * 主动触发事件
-   * @param {Element|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window|globalThis
+   * @param {Element|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
    * @param {string|[...string]} eventType 需要触发的事件
    * @param {object|undefined} details 赋予触发的Event的额外属性
    * @example
@@ -899,7 +926,7 @@
 
     elementList.forEach((elementItem) => {
       let events = {};
-      if (elementItem == globalThis) {
+      if (CommonUtils.isWin(elementItem)) {
         events = elementItem["DOMUtilsGlobalEvents"] || {};
       } else {
         events = elementItem.events || {};
@@ -955,7 +982,7 @@
    * DOMUtils.width("a.xx",200)
    */
   DOMUtils.width = function (element) {
-    if (element == globalThis) {
+    if (CommonUtils.isWin(element)) {
       return window.document.documentElement.clientWidth;
     }
     if (typeof element === "string") {
@@ -974,7 +1001,7 @@
         element.documentElement.clientWidth
       );
     }
-    let handleElement = globalUtils.showElement(element);
+    let handleElement = CommonUtils.showElement(element);
     let view = element.ownerDocument.defaultView;
     if (!view || !view.opener) {
       view = window;
@@ -1011,7 +1038,7 @@
    * DOMUtils.height("a.xx",200)
    */
   DOMUtils.height = function (element) {
-    if (element == globalThis) {
+    if (CommonUtils.isWin(element)) {
       return window.document.documentElement.clientHeight;
     }
     if (typeof element === "string") {
@@ -1030,7 +1057,7 @@
         element.documentElement.clientHeight
       );
     }
-    let handleElement = globalUtils.showElement(element);
+    let handleElement = CommonUtils.showElement(element);
     let view = element.ownerDocument.defaultView;
     if (!view || !view.opener) {
       view = window;
@@ -1063,7 +1090,7 @@
    * > 400
    */
   DOMUtils.outerWidth = function (element) {
-    if (element == globalThis) {
+    if (CommonUtils.isWin(element)) {
       return window.innerWidth;
     }
     if (typeof element === "string") {
@@ -1072,7 +1099,7 @@
     if (element == null) {
       return;
     }
-    let handleElement = globalUtils.showElement(element);
+    let handleElement = CommonUtils.showElement(element);
     let style = getComputedStyle(element, null);
     let elementMarginLeft = parseFloat(style.marginLeft);
     let elementMarginRight = parseFloat(style.marginRight);
@@ -1099,7 +1126,7 @@
    * > 700
    */
   DOMUtils.outerHeight = function (element) {
-    if (element == globalThis) {
+    if (CommonUtils.isWin(element)) {
       return window.innerHeight;
     }
     if (typeof element === "string") {
@@ -1108,7 +1135,7 @@
     if (element == null) {
       return;
     }
-    let handleElement = globalUtils.showElement(element);
+    let handleElement = CommonUtils.showElement(element);
     let style = getComputedStyle(element, null);
     let elementMarginTop = parseFloat(style.marginTop);
     let elementMarginBottom = parseFloat(style.marginBottom);
