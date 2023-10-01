@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 修复在TamperMonkey环境中的@grant错误问题;新增设置-自动加载上/下页评论时同步地址;
-// @version      2023.9.28.10
+// @description  更新日志: 更新Utils库；重构部分代码；
+// @version      2023.10.1
 // @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -35,7 +35,7 @@
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256917
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258498
 // ==/UserScript==
 
 (async function () {
@@ -681,7 +681,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256917
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258498
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -720,7 +720,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256917",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258498",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,
@@ -1325,18 +1325,18 @@
         },
         config: { childList: true, subtree: true },
       });
-      utils.waitNode(".attnm a").then(() => {
-        document.querySelectorAll(".attnm a").forEach((item) => {
+      utils.waitNodeList(".attnm a").then((nodeList) => {
+        nodeList.forEach((item) => {
           handleClick(item);
         });
       });
-      utils.waitNode(".comiis_attach a").then(() => {
-        document.querySelectorAll(".comiis_attach a").forEach((item) => {
+      utils.waitNodeList(".comiis_attach a").then((nodeList) => {
+        nodeList.forEach((item) => {
           handleClick(item);
         });
       });
-      utils.waitNode("span[id*=attach_] a").then(() => {
-        document.querySelectorAll("span[id*=attach_] a").forEach((item) => {
+      utils.waitNodeList("span[id*=attach_] a").then((nodeList) => {
+        nodeList.forEach((item) => {
           handleClick(item);
         });
       });
@@ -1585,8 +1585,8 @@
         });
       }
       run();
-      utils.waitNode("#postlist").then((nodeList) => {
-        utils.mutationObserver(nodeList[0], {
+      utils.waitNode("#postlist").then((element) => {
+        utils.mutationObserver(element, {
           callback: () => {
             if (handling) {
               return;
@@ -2185,7 +2185,7 @@
         GM_getValue("v6") &&
         window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)
       ) {
-        utils.waitNode(".bottom_zhan.y").then((nodeList) => {
+        utils.waitNodeList(".bottom_zhan.y").then((nodeList) => {
           nodeList.forEach((item) => {
             var bottomZhanNode = item;
             if (bottomZhanNode.getAttribute("data-isaddreviews")) {
@@ -2215,9 +2215,9 @@
             reviewsNode.on("click", function () {
               utils
                 .waitNode("div[id=ntcmsg_popmenu]>div>span.f_c")
-                .then((nodeList2) => {
+                .then((element) => {
                   try {
-                    nodeList2[0].innerText = "点评 " + reviewsUserName;
+                    element.innerText = "点评 " + reviewsUserName;
                   } catch (err) {
                     console.log("修改点评失败", err);
                   }
@@ -3464,7 +3464,7 @@
         viewer.show();
       }
       utils
-        .waitNode("div.comiis_postlist.kqide .comiis_postli")
+        .waitNodeList("div.comiis_postlist.kqide .comiis_postli")
         .then((nodeList) => {
           nodeList.forEach((item) => {
             if (item.getAttribute("isHandlingViewIMG")) {
@@ -3970,13 +3970,13 @@
         },
         config: { childList: true, subtree: true },
       });
-      utils.waitNode(".attnm a").then(() => {
-        document.querySelectorAll(".attnm a").forEach((item) => {
+      utils.waitNodeList(".attnm a").then((nodeList) => {
+        nodeList.forEach((item) => {
           handleClick(item);
         });
       });
-      utils.waitNode(".comiis_attach a").then(() => {
-        document.querySelectorAll(".comiis_attach a").forEach((item) => {
+      utils.waitNodeList(".comiis_attach a").then((nodeList) => {
+        nodeList.forEach((item) => {
           handleClick(item);
         });
       });
@@ -10187,8 +10187,8 @@
       var recordHeight = 0;
       utils
         .waitNode("#postform > div > div.comiis_post_ico.comiis_minipost_icot")
-        .then((nodeList) => {
-          utils.mutationObserver(nodeList[0], {
+        .then((element) => {
+          utils.mutationObserver(element, {
             callback: (mutations) => {
               var $tar = document.querySelector(
                 "#postform > div > div.comiis_post_ico.comiis_minipost_icot"
@@ -11554,9 +11554,9 @@
       }
       let commentsNum = parseInt(commentsEle.textContent);
       if (commentsNum >= 10) {
-        utils.waitNode(".comiis_page.bg_f").then((next_page_dom) => {
+        utils.waitNode(".comiis_page.bg_f").then((nextPageElement) => {
           console.log("找到下一页元素！");
-          autoLoadNextPageComments(next_page_dom[0]);
+          autoLoadNextPageComments(nextPageElement);
         });
       } else {
         $jq("#loading-comment-tip").parent()?.remove();
