@@ -284,13 +284,13 @@
    * 主动触发事件
    * @param {HTMLElement} element 元素
    * @param {string|[...string]} eventName 事件名称，可以是字符串，也可是字符串格式的列表
-   * @param {boolean} 是否使用Proxy代理
+   * @param {object|undefined} details 赋予触发的Event的额外属性
    * + true 使用Proxy代理Event并设置获取isTrusted永远为True
    * + false (默认) 不对Event进行Proxy代理
    * @example
    * Utils.dispatchEvent(document.querySelector("input","input"))
    */
-  Utils.dispatchEvent = function (element, eventName) {
+  Utils.dispatchEvent = function (element, eventName, details) {
     let eventNameList = [];
     if (typeof eventName === "string") {
       eventNameList = [eventName];
@@ -299,8 +299,11 @@
       eventNameList = [...eventName];
     }
     eventNameList.forEach((_eventName_) => {
-      let eleEvent = new Event(_eventName_);
-      element.dispatchEvent(eleEvent);
+      let event = new Event(_eventName_);
+      if (details) {
+        Object.assign(event, details);
+      }
+      element.dispatchEvent(event);
     });
   };
 
