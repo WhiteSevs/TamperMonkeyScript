@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      2023.9.26.18.20
+// @version      2023.10.1
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256917
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258498
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
@@ -55,8 +55,8 @@
    * @param {string} selectorText 元素选择器
    */
   const waitForElementToRemove = function (selectorText = "") {
-    utils.waitNode(selectorText).then((dom) => {
-      dom.forEach((item) => {
+    utils.waitNodeList(selectorText).then((nodeList) => {
+      nodeList.forEach((item) => {
         item.remove();
       });
     });
@@ -137,8 +137,8 @@
           }`);
           waitForElementToRemove("div[role=main] aside");
           waitForElementToRemove("div._3Pnjry");
-          utils.waitNode("div._gp-ck").then((dom) => {
-            dom.forEach((item) => {
+          utils.waitNodeList("div._gp-ck").then((nodeList) => {
+            nodeList.forEach((item) => {
               item.style["width"] = "100%";
             });
           });
@@ -160,14 +160,14 @@
         autoExpandFullText() {
           utils
             .waitNode(`div#homepage div[class*="dialog-"]`)
-            .then((nodeList) => {
-              nodeList[0].style["visibility"] = "hidden";
-              utils.mutationObserver(nodeList[0], {
+            .then((element) => {
+              element.style["visibility"] = "hidden";
+              utils.mutationObserver(element, {
                 callback: (mutations) => {
                   if (mutations.length == 0) {
                     return;
                   }
-                  if (mutations[0].target.style["display"] != "none") {
+                  if (mutations.target.style["display"] != "none") {
                     log.success("自动展开全文");
                     document
                       .querySelector(
@@ -442,9 +442,9 @@
           document.addEventListener("mouseenter", changeDataTitle.run, true);
           document.addEventListener("mouseleave", changeDataTitle.run, true);
           /* 取消Ctrl+C的禁止 */
-          utils.waitNode("#content_views").then((nodeList) => {
+          utils.waitNode("#content_views").then((element) => {
             unsafeWindow?.$("#content_views")?.unbind("copy");
-            nodeList[0].addEventListener("copy", function (event) {
+            element.addEventListener("copy", function (event) {
               utils.preventEvent(event);
               utils.setClip(unsafeWindow.getSelection().toString());
               log.success("Ctrl+C 复制成功~");
@@ -479,23 +479,23 @@
         restoreComments() {
           /* 第一条评论 */
           log.info("恢复评论到正确位置-第一条评论");
-          utils.waitNode(".first-recommend-box").then((nodeList) => {
+          utils.waitNode(".first-recommend-box").then((element) => {
             let recommendBoxElement = document.querySelector(
               ".recommend-box.insert-baidu-box.recommend-box-style"
             );
             recommendBoxElement.insertBefore(
-              nodeList[0],
+              element,
               recommendBoxElement.firstChild
             );
           });
           log.info("恢复评论到正确位置-第二条评论");
           /* 第二条评论 */
-          utils.waitNode(".second-recommend-box").then((nodeList) => {
+          utils.waitNode(".second-recommend-box").then((element) => {
             let recommendBoxElement = document.querySelector(
               ".recommend-box.insert-baidu-box.recommend-box-style"
             );
             recommendBoxElement.insertBefore(
-              nodeList[0],
+              element,
               recommendBoxElement.firstChild
             );
           });
@@ -802,8 +802,29 @@
             window.location.href = newURL;
           }
         },
+        /**
+         * C知道
+         */
+        cKnow() {
+          if (!window.location.href.startsWith("https://so.csdn.net/so/ai")) {
+            return;
+          }
+          GM_Menu.add({
+            key: "csdn_pc_cknow",
+            text: "【屏蔽】C知道的背景水印",
+          });
+          if (GM_Menu.get("csdn_pc_cknow")) {
+            log.success(GM_Menu.getText("csdn_pc_cknow"));
+            GM_addStyle(`
+              div.username_mask_cover{
+                background-image: none !important;
+              }
+            `);
+          }
+        },
         run() {
           this.addCSS();
+          this.cKnow();
           this.articleCenter();
           this.shieldLoginDialog();
           this.autoExpandContent();
@@ -821,11 +842,7 @@
             that.restoreComments();
             that.addGotoRecommandButton();
           };
-          if (document.readyState !== "loading") {
-            readyCallBack();
-          } else {
-            document.addEventListener("DOMContentLoaded", readyCallBack);
-          }
+          DOMUtils.ready(readyCallBack);
         },
       },
       Mobile: {
@@ -1013,12 +1030,16 @@
                 /* 该链接为csdn资源下载 */
                 log.info("该链接为csdn资源下载");
                 isCSDNDownload = true;
-                title += `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`;
+                title =
+                  `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>` +
+                  title;
               } else if (_URL_.origin.match(/edu.csdn.net/gi)) {
                 /* 该链接为csdn学院下载 */
                 isCSDNEduDownload = true;
                 log.info("该链接为csdn学院下载");
-                title += `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>`;
+                title =
+                  `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>` +
+                  title;
               }
               item.setAttribute("class", "GM-csdn-dl");
               item.setAttribute("data-url", url);
@@ -1038,8 +1059,8 @@
               }
             });
           }
-          utils.waitNode("#recommend").then((nodeList) => {
-            utils.mutationObserver(nodeList[0], {
+          utils.waitNode("#recommend").then((element) => {
+            utils.mutationObserver(element, {
               callback: () => {
                 setTimeout(() => {
                   refactoring();
@@ -1067,18 +1088,35 @@
           /* ios版本提示 */
           waitForElementToRemove("div.ios-shadowbox");
         },
+        /**
+         * C知道
+         */
+        cKnow() {
+          if (!window.location.href.startsWith("https://so.csdn.net/so/ai")) {
+            return;
+          }
+          GM_Menu.add({
+            key: "csdn_mobile_cknow",
+            text: "【屏蔽】C知道的背景水印",
+          });
+          if (GM_Menu.get("csdn_mobile_cknow")) {
+            log.success(GM_Menu.getText("csdn_mobile_cknow"));
+            GM_addStyle(`
+              div.username_mask_cover{
+                background-image: none !important;
+              }
+            `);
+          }
+        },
         run() {
           this.addCSS();
+          this.cKnow();
           let that = this;
           let readyCallBack = function () {
             that.removeAds();
             that.refactoringRecommendation();
           };
-          if (document.readyState !== "loading") {
-            readyCallBack();
-          } else {
-            document.addEventListener("DOMContentLoaded", readyCallBack);
-          }
+          DOMUtils.ready(readyCallBack);
         },
       },
       /**
@@ -1303,20 +1341,19 @@
           text: "电脑-显示侧边栏",
         },
       ]);
-
-      GM_Menu.add({
-        key: "gotoCSDNCKnow",
-        text: "⚙ 前往C知道",
-        autoReload: false,
-        showText(text) {
-          return text;
-        },
-        callback() {
-          window.open("https://so.csdn.net/so/ai?", "_blank");
-        },
-      });
     }
 
+    GM_Menu.add({
+      key: "gotoCSDNCKnow",
+      text: "⚙ 前往C知道",
+      autoReload: false,
+      showText(text) {
+        return text;
+      },
+      callback() {
+        window.open("https://so.csdn.net/so/ai?", "_blank");
+      },
+    });
     Optimization.csdn.run();
   } else if (Optimization.jianshu.locationMatch()) {
     if (utils.isPhone()) {
