@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.9.30
+// @version      2023.10.1
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -57,7 +57,7 @@
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1256918
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1256917
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258498
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1256298
 // ==/UserScript==
 
@@ -1119,7 +1119,7 @@
           if (!getResp.status) {
             log.error(getResp);
             if (
-              getResp.data[0].responseText.includes(
+              getResp.data.responseText.includes(
                 "div>文件不存在，或者已被删除</div>"
               )
             ) {
@@ -1151,32 +1151,34 @@
               log.info(`新参数 => ${that.shareCode}`);
             }
             let pageDOM = DOMUtils.parseHTML(pageText, true, true);
-            let pageIframeElement = pageDOM.querySelector(
-              "iframe[class^='ifr']"
-            );
+            let pageIframeElement =
+              pageDOM.querySelector('iframe[class^="ifr"]') ||
+              pageDOM.querySelector('iframe[class^="n_downlink"]');
             if (pageIframeElement) {
               let iframeUrl = pageIframeElement.getAttribute("src");
               log.error([
                 "该链接需要重新通过iframe地址访问获取信息",
                 iframeUrl,
               ]);
-              Qmsg.info("正在请求iframe内信息");
+              Qmsg.info("正在请求下载信息");
               let fileName = pageDOM
                 .querySelector("title")
                 ?.textContent?.replace(/ - 蓝奏云$/i, "");
-              let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i);
+              let fileSize =
+                pageText.match(/文件大小：<\/span>(.+?)<br>/i) ||
+                pageText.match(/class="n_filesize">大小：(.+?)<\/div>/i);
               let fileUploadTime = pageText.match(
                 /上传时间：<\/span>(.+?)<br>/i
               );
               if (fileSize) {
                 fileSize = fileSize[fileSize.length - 1];
               } else {
-                Qmsg.error("解析文件大小失败");
+                log.error("解析文件大小信息失败");
               }
               if (fileUploadTime) {
                 fileUploadTime = fileUploadTime[fileUploadTime.length - 1];
               } else {
-                Qmsg.error("解析文件上传时间失败");
+                log.error("解析文件上传时间信息失败");
               }
               await that.getLinkByIframe(iframeUrl, {
                 fileName,
@@ -1727,7 +1729,7 @@
             onerror: function () {},
           });
           if (!postResp.status) {
-            let errorData = utils.toJSON(postResp.data[0].responseText);
+            let errorData = utils.toJSON(postResp.data.responseText);
             log.error(["获取下载参数失败的JSON信息", errorData]);
             if (errorData["res_code"] in that.code) {
               Qmsg.error(that.code[errorData["res_code"]]);
@@ -1850,7 +1852,7 @@
           });
           log.info(getResp);
           if (!getResp.status) {
-            let errorResultJSON = utils.toJSON(getResp.data[0].responseText);
+            let errorResultJSON = utils.toJSON(getResp.data.responseText);
             if (errorResultJSON["errorCode"] === "InvalidSessionKey") {
               that.gotoLogin(that.code["InvalidSessionKey"]);
             } else {
@@ -2700,11 +2702,11 @@
               onerror: function () {},
             });
             log.info(getResp);
-            if (!getResp.status && getResp.data[0].status !== 210) {
+            if (!getResp.status && getResp.data.status !== 210) {
               /* 很奇怪，123盘返回的状态码是210 */
               return newDecodeUrl;
             }
-            let respData = getResp.data[0];
+            let respData = getResp.data;
             let resultJSON = utils.toJSON(respData.responseText);
             let newURL = new URL(resultJSON.data.redirect_url);
             newURL.searchParams.set("auto_redirect", 1);
@@ -2981,8 +2983,8 @@
             onerror: function () {},
           });
           if (!getResp.status) {
-            if (utils.isNotNull(getResp.data[0]?.responseText)) {
-              let errorData = utils.toJSON(getResp.data[0].responseText);
+            if (utils.isNotNull(getResp.data?.responseText)) {
+              let errorData = utils.toJSON(getResp.data.responseText);
               log.error(["坚果云", errorData]);
               if (errorData["errorCode"] === "UnAuthorized") {
                 that.gotoLogin();
@@ -3029,8 +3031,8 @@
             onerror: function () {},
           });
           if (!getResp.status) {
-            if (utils.isNotNull(getResp.data[0]?.responseText)) {
-              let errorData = utils.toJSON(getResp.data[0].responseText);
+            if (utils.isNotNull(getResp.data?.responseText)) {
+              let errorData = utils.toJSON(getResp.data.responseText);
               log.error(["坚果云", errorData]);
               if (errorData["errorCode"] === "UnAuthorized") {
                 that.gotoLogin();
@@ -3698,14 +3700,14 @@
         window.location.search.startsWith("?surl=")
       ) {
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("div.verify-form #accessCode").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("div.verify-form #accessCode").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
           document.querySelector("div.verify-form #submitBtn")?.click();
         });
       }
@@ -3716,21 +3718,21 @@
     lanzou() {
       if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("#pwd").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("#pwd").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
           document
             .querySelector("#passwddiv > div > div.passwddiv-input > div")
             ?.click();
           document.querySelector("#sub")?.click();
         });
-        utils.waitNode("#f_pwd").then((nodeList) => {
-          utils.mutationObserver(nodeList[0], {
+        utils.waitNode("#f_pwd").then((element) => {
+          utils.mutationObserver(element, {
             config: {
               attributes: true,
               attributeFilter: ["style"],
@@ -3759,18 +3761,17 @@
       if (window.location.hostname === "cloud.189.cn") {
         /* 桌面端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("input#code_txt").then((nodeList) => {
+        utils.waitNode("input#code_txt").then((codeTxtElement) => {
           setTimeout(() => {
-            let codeTxt = nodeList[0];
             let visitBtn = document.querySelector(".btn.btn-primary.visit");
-            if (!utils.isVisible(codeTxt)) {
+            if (!utils.isVisible(codeTxtElement)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             Qmsg.success("自动填入访问码");
-            codeTxt.value = this.accessCode;
-            codeTxt._value = this.accessCode;
-            utils.dispatchEvent(codeTxt, "input");
+            codeTxtElement.value = this.accessCode;
+            codeTxtElement._value = this.accessCode;
+            utils.dispatchEvent(codeTxtElement, "input");
             utils.dispatchEvent(visitBtn, "click");
           }, 500);
         });
@@ -3778,17 +3779,16 @@
       if (window.location.hostname === "h5.cloud.189.cn") {
         /* 移动端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("input.access-code-input").then((nodeList) => {
+        utils.waitNode("input.access-code-input").then((accessInputElement) => {
           setTimeout(() => {
-            let accessInput = nodeList[0];
-            if (!utils.isVisible(accessInput)) {
+            if (!utils.isVisible(accessInputElement)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             Qmsg.success("自动填入访问码");
-            accessInput.value = this.accessCode;
-            accessInput._value = this.accessCode;
-            utils.dispatchEvent(accessInput, "input");
+            accessInputElement.value = this.accessCode;
+            accessInputElement._value = this.accessCode;
+            utils.dispatchEvent(accessInputElement, "input");
             utils.dispatchEvent(document.querySelector("div.button"), "click");
           }, 500);
         });
@@ -3801,14 +3801,14 @@
       if (window.location.hostname === "caiyun.139.com") {
         /* 桌面端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("#token-input").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("#token-input").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
           document
             .querySelector("#homepage div.token div.token-form a")
             .click();
@@ -3816,14 +3816,14 @@
         /* 移动端 */
         utils
           .waitNode("#app div.token-form input[type=text]")
-          .then((nodeList) => {
-            if (!utils.isVisible(nodeList[0])) {
+          .then((element) => {
+            if (!utils.isVisible(element)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             Qmsg.success("自动填入访问码");
-            nodeList[0].value = this.accessCode;
-            utils.dispatchEvent(nodeList[0], "input");
+            element.value = this.accessCode;
+            utils.dispatchEvent(element, "input");
             document.querySelector("div.token-form a.btn-token").click();
           });
       }
@@ -3835,16 +3835,16 @@
       if (window.location.hostname === "www.aliyundrive.com") {
         /* 桌面端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("#root input.ant-input").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("#root input.ant-input").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.getReactObj(nodeList[0]).reactFiber.memoizedProps.onChange({
-            currentTarget: nodeList[0],
-            target: nodeList[0],
+          element.value = this.accessCode;
+          utils.getReactObj(element).reactFiber.memoizedProps.onChange({
+            currentTarget: element,
+            target: element,
           });
           document.querySelector('#root button[type="submit"]').click();
         });
@@ -3852,16 +3852,16 @@
         /* ------------------------------------ */
 
         /* 移动端 */
-        utils.waitNode("#root input[name=pwd]").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("#root input[name=pwd]").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.getReactObj(nodeList[0]).reactFiber.memoizedProps.onChange({
-            currentTarget: nodeList[0],
-            target: nodeList[0],
+          element.value = this.accessCode;
+          utils.getReactObj(element).reactFiber.memoizedProps.onChange({
+            currentTarget: element,
+            target: element,
           });
           document.querySelector('#root button[type="submit"]').click();
         });
@@ -3888,18 +3888,18 @@
         log.success(["自动填写链接", this.tempData]);
         utils
           .waitNode("#app .ca-fot input.ant-input[type=text]")
-          .then((nodeList) => {
-            if (!utils.isVisible(nodeList[0])) {
+          .then((element) => {
+            if (!utils.isVisible(element)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             Qmsg.success("自动填入访问码");
-            utils.getReactObj(nodeList[0]).reactProps.onChange({
+            utils.getReactObj(element).reactProps.onChange({
               target: {
                 value: this.accessCode,
               },
             });
-            nodeList[0].nextSibling.click();
+            element.nextSibling.click();
           });
 
         /* ------------------------------------ */
@@ -3907,18 +3907,18 @@
         /* 移动端 */
         utils
           .waitNode("#app .appinput input.ant-input[type=text]")
-          .then((nodeList) => {
-            if (!utils.isVisible(nodeList[0])) {
+          .then((element) => {
+            if (!utils.isVisible(element)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             Qmsg.success("自动填入访问码");
-            utils.getReactObj(nodeList[0]).reactProps.onChange({
+            utils.getReactObj(element).reactProps.onChange({
               target: {
                 value: this.accessCode,
               },
             });
-            nodeList[0].nextSibling.click();
+            element.nextSibling.click();
           });
       }
     },
@@ -3929,15 +3929,15 @@
       if (window.location.hostname === "share.weiyun.com") {
         /* 桌面端 */
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("#app input.input-txt").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("#app input.input-txt").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
-          utils.dispatchEvent(nodeList[0], "change");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
+          utils.dispatchEvent(element, "change");
           setTimeout(() => {
             document.querySelector(".form-item button.btn-main").click();
           }, 500);
@@ -3946,15 +3946,15 @@
         /* ------------------------------------ */
 
         /* 移动端 */
-        utils.waitNode(".input-wrap input.pw-input").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode(".input-wrap input.pw-input").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
-          utils.dispatchEvent(nodeList[0], "change");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
+          utils.dispatchEvent(element, "change");
           setTimeout(() => {
             document.querySelector(".pw-btn-wrap button.btn").click();
           }, 500);
@@ -3970,15 +3970,15 @@
         log.success(["自动填写链接", this.tempData]);
         utils
           .waitNode("#__layout div.pass-input-wrap input.td-input__inner")
-          .then((nodeList) => {
-            if (!utils.isVisible(nodeList[0])) {
+          .then((element) => {
+            if (!utils.isVisible(element)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             log.error("输入框不可见，不输入密码");
-            nodeList[0].value = this.accessCode;
-            utils.dispatchEvent(nodeList[0], "input");
-            utils.dispatchEvent(nodeList[0], "change");
+            element.value = this.accessCode;
+            utils.dispatchEvent(element, "input");
+            utils.dispatchEvent(element, "change");
             setTimeout(() => {
               document
                 .querySelector("#__layout div.pass-input-wrap button.td-button")
@@ -3991,15 +3991,15 @@
         /* 移动端 */
         utils
           .waitNode("#__layout div.pass-wrapper input.td-input__inner")
-          .then((nodeList) => {
-            if (!utils.isVisible(nodeList[0])) {
+          .then((element) => {
+            if (!utils.isVisible(element)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             log.error("输入框不可见，不输入密码");
-            nodeList[0].value = this.accessCode;
-            utils.dispatchEvent(nodeList[0], "input");
-            utils.dispatchEvent(nodeList[0], "change");
+            element.value = this.accessCode;
+            utils.dispatchEvent(element, "input");
+            utils.dispatchEvent(element, "change");
             setTimeout(() => {
               document
                 .querySelector("#__layout div.pass-wrapper button.td-button")
@@ -4014,14 +4014,14 @@
     _115pan() {
       if (window.location.hostname === "115.com") {
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("input.text").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("input.text").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
           document
             .querySelector("#js-share_code div.form-decode div.submit a")
             .click();
@@ -4042,14 +4042,14 @@
         window.location.hostname === "089u.com"
       ) {
         log.success(["自动填写链接", this.tempData]);
-        utils.waitNode("#passcode").then((nodeList) => {
-          if (!utils.isVisible(nodeList[0])) {
+        utils.waitNode("#passcode").then((element) => {
+          if (!utils.isVisible(element)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           Qmsg.success("自动填入访问码");
-          nodeList[0].value = this.accessCode;
-          utils.dispatchEvent(nodeList[0], "input");
+          element.value = this.accessCode;
+          utils.dispatchEvent(element, "input");
           document
             .querySelector("#main-content .form-group button.btn[type=button]")
             .click();
@@ -4064,15 +4064,15 @@
         log.success(["自动填写链接", this.tempData]);
         utils
           .waitNode("#ice-container input.ant-input[class*=ShareReceive]")
-          .then((nodeList) => {
-            if (!utils.isVisible(nodeList[0])) {
+          .then((element) => {
+            if (!utils.isVisible(element)) {
               log.error("输入框不可见，不输入密码");
               return;
             }
             Qmsg.success("自动填入访问码");
             (
-              utils.getReactObj(nodeList[0]).reactProps ||
-              utils.getReactObj(nodeList[0]).reactEventHandlers
+              utils.getReactObj(element).reactProps ||
+              utils.getReactObj(element).reactEventHandlers
             ).onChange({
               target: {
                 value: this.accessCode,
