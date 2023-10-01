@@ -22,6 +22,8 @@
 - 可在菜单中开启 自动展开内容块
 - 可在菜单中开启 隐藏目录
 - 可在菜单中开启 隐藏侧边栏
+- 可在菜单中 前往C知道
+- 当在C知道网址时，新增菜单，【屏蔽】背景水印
 
 ## ![https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32) CSDN-移动端
 
@@ -43,6 +45,8 @@
 - 可在菜单中开启 标识处理过的底部推荐文章
 - 可在菜单中开启 底部推荐文章新标签页打开
 - 可在菜单中开启 移除文章底部的 CSDN 下载
+- 可在菜单中 前往C知道
+- 当在C知道网址时，新增菜单，【屏蔽】背景水印
 
 ## ![https://favicon.yandex.net/favicon/v2/https://m.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://huaweicloud.csdn.net/?size=32) CSDN-华为云开发者联盟（桌面端&移动端）
 
