@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.1.10
+// @version      2023.10.1.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -46,7 +46,7 @@
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258516
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258517
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258535
 // @run-at       document-start
 // ==/UserScript==
 
@@ -3962,13 +3962,14 @@
             /* 监听地址改变 */
             log.success("监听地址改变");
             tiebaCommentConfig.vueRootView.__vue__.$router.push("/seeLzlReply");
-            DOMUtils.on(globalThis, "popstate", popstateEvent);
+            DOMUtils.on(window, "popstate", popstateEvent);
           }
 
           /**
            * 允许浏览器后退并关闭小窗
            */
           async function resumeBack() {
+            DOMUtils.off(window, "popstate", popstateEvent);
             log.success("浏览器地址后退，并关闭小窗");
             closeDialogByUrlChange();
             while (1) {
