@@ -636,7 +636,7 @@
     },
     /**
      * 对页面进行match，处理匹配网盘链接
-     * @param {string} clipboardText 剪贴板文本
+     * @param {string} [clipboardText=""] 剪贴板文本
      */
     matchPageLink(clipboardText = "") {
       if (!this.isInit) {
@@ -648,8 +648,11 @@
       let matchTextRange = GM_getValue("pageMatchRange", "all");
       /* 对innerText 和 innerHTML进行match */
       if (matchTextRange.toLowerCase() === "all") {
-        let pageText = this.ignoreStrRemove(document.body.innerText);
-        let pageHTML = this.ignoreStrRemove(document.body.innerHTML, true);
+        let pageText = this.ignoreStrRemove(document.documentElement.innerText);
+        let pageHTML = this.ignoreStrRemove(
+          document.documentElement.innerHTML,
+          true
+        );
         Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
@@ -685,10 +688,13 @@
         let pageText = "";
         if (matchTextRange.toLowerCase() === "innertext") {
           /* 对innerText进行match */
-          pageText = this.ignoreStrRemove(document.body.innerText);
+          pageText = this.ignoreStrRemove(document.documentElement.innerText);
         } else {
           /* 对innerHTML进行match */
-          pageText = this.ignoreStrRemove(document.body.innerHTML, true);
+          pageText = this.ignoreStrRemove(
+            document.documentElement.innerHTML,
+            true
+          );
         }
         Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
@@ -4204,7 +4210,7 @@
       /* 匹配为空，释放锁 */
       if (!matchLink.length) {
         setTimeout(() => {
-          NetDiskUI.isHandling = false;
+          NetDiskUI.isHandleMatch = false;
         }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
         return;
       }
@@ -4223,7 +4229,7 @@
         NetDiskUI.suspension.show();
       }
       setTimeout(() => {
-        NetDiskUI.isHandling = false;
+        NetDiskUI.isHandleMatch = false;
       }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
     },
     /**
@@ -4231,23 +4237,56 @@
      * @param {object} error
      */
     errorCallBack(error) {
-      NetDiskUI.isHandling = false;
+      NetDiskUI.isHandleMatch = false;
       log.error(["Worker Error", error]);
     },
   };
 
   const NetDiskUI = {
-    matchIcon: new Set() /* 已匹配到的网盘图标字典 */,
-    size: parseInt(GM_getValue("size", 50)) /* 高度和宽度 */,
-    opacity: parseFloat(GM_getValue("opacity", 1)) /* 按钮透明度 */,
-    isCreatedUISetting: false /* 是否 已创建设置界面 */,
-    isHandling: false /* 是否 在处理页面链接中标识 */,
-    isRandBg: false /* 是否 正在循环切换按钮背景 */,
-    uiLinkAlias: null /* 链接层唯一标识 */,
-    uiSettingAlias: null /* 设置层唯一标识 */,
-    uiLinkParseAlias: "单文件直链层" /* 单文件直链层唯一标识 */,
-    uiLinkParseMoreAlias: "多文件直链层" /* 多文件直链层唯一标识 */,
-    uiPasswordAlias: "重输密码层" /* 重输密码层唯一标识 */,
+    /**
+     * 已匹配到的网盘图标字典
+     */
+    matchIcon: new Set(),
+    /**
+     * 高度和宽度大小
+     */
+    size: parseInt(GM_getValue("size", 50)),
+    /**
+     * 按钮透明度
+     */
+    opacity: parseFloat(GM_getValue("opacity", 1)),
+    /**
+     * 是否已创建设置界面
+     */
+    isCreatedUISetting: false,
+    /**
+     * 是否正在文本匹配中
+     */
+    isHandleMatch: false,
+    /**
+     * 是否正在循环切换按钮背景
+     */
+    isSwitchRandomBackground: false,
+    /**
+     * 链接弹窗的唯一标识
+     */
+    uiLinkAlias: null,
+    /**
+     * 设置弹窗的唯一标识
+     */
+    uiSettingAlias: null,
+    /**
+     * 单文件直链弹窗的唯一标识
+     */
+    uiLinkParseAlias: "单文件直链层",
+    /**
+     * 多文件直链弹窗的唯一标识
+     */
+    uiLinkParseMoreAlias: "多文件直链层",
+    /**
+     * 重输密码弹窗的唯一标识
+     */
+    uiPasswordAlias: "重输密码层",
     popsStyle: {
       /**
        * 桌面端 天翼云需要登录提示
@@ -4377,7 +4416,9 @@
       },
     },
     src: {
-      /* 图标 */
+      /**
+       * 图标
+       */
       icon: {
         baidu: RESOURCE_ICON.baidu,
         lanzou: RESOURCE_ICON.lanzou,
@@ -4395,11 +4436,16 @@
         magnet: RESOURCE_ICON.magnet,
         jianguoyun: RESOURCE_ICON.jianguoyun,
         onedrive: RESOURCE_ICON.onedrive,
-      } /* icon结尾处 */,
+      },
     },
+    /**
+     * 悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮
+     */
     suspension: {
-      /*  悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮） */
       isShow: false,
+      /**
+       * 显示悬浮按钮
+       */
       show() {
         if (!NetDiskUI.suspension.isShow) {
           this.createUI();
@@ -4410,6 +4456,9 @@
         }
         this.backgroundSwitch();
       },
+      /**
+       * 创建UI界面
+       */
       createUI() {
         if (NetDiskUI.size < 15) {
           /* 大小不能小于 15px */
@@ -5692,7 +5741,6 @@
       },
       /**
        * 悬浮按钮背景轮播 效果为淡入淡出
-       * @returns
        */
       backgroundSwitch() {
         if (this.isRandBg) {
@@ -6546,11 +6594,11 @@
     },
     /**
      * 需要重新输入新密码的弹窗
-     * @param {string} title 标题
-     * @param {string} netDiskName 网盘名称
+     * @param {string} [title="密码错误"] 标题
+     * @param {string} [netDiskName=""] 网盘名称
      * @param {number} netDiskIndex 网盘名称索引下标
      * @param {string} shareCode
-     * @param {Function} okCallBack
+     * @param {Function} [okCallBack=()=>{}]
      */
     newAccessCodeView(
       title = "密码错误",
@@ -7602,9 +7650,7 @@
               </div>
               <div class="whitesev-accesscode-rule">
                 <div>匹配网盘</div>
-                <select val-key="access-rule-netdisk" multiple="true" style="${
-                  pops.isPhone() ? "" : "height: auto;"
-                }">
+                <select val-key="access-rule-netdisk" multiple="true" style="height: auto;">
                   <option data-value="baidu">百度网盘</option>
                   <option data-value="lanzou">蓝奏云</option>
                   <option data-value="tianyiyun">天翼云</option>
@@ -7930,21 +7976,24 @@
       },
     },
     /**
-     * 监听页面元素变动 进行匹配网盘链接
+     * 监听页面节点内容或节点文本的变动，从而进行匹配网盘链接
      */
     monitorDOMInsert() {
       NetDiskWorker.initWorkerBlobLink();
       NetDiskWorker.initWorker();
-      utils.mutationObserver(document.body, {
+      utils.mutationObserver(document.body || document.documentElement, {
         callback: async (mutations) => {
-          if (NetDiskUI.isHandling) {
+          if (NetDiskUI.isHandleMatch) {
             /* 当前正在处理文本正则匹配中 */
             return;
           }
-          NetDiskUI.isHandling = true;
+          NetDiskUI.isHandleMatch = true;
           let clipboardText = "";
           if (GM_getValue("readClipboard", false)) {
             clipboardText = await NetDisk.getClipboardText();
+          }
+          if (typeof clipboardText !== "string") {
+            clipboardText = "";
           }
           NetDisk.matchPageLink(clipboardText);
         },
@@ -7957,7 +8006,7 @@
           subtree: true,
         },
       });
-      /* 自执行一次，因为有的页面上没触发mutationObserver */
+      /* 主动触发一次，因为有的页面上没触发mutationObserver */
       NetDisk.matchPageLink();
     },
   };
