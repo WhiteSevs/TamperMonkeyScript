@@ -622,13 +622,13 @@
         /* 添加/修改自定义规则弹窗 */
         document.querySelector(".whitesevPopNetDiskAccessCodeRuleAddOrEdit"),
       ];
-      ignoreNodeList.forEach((ignoreNodeItem) => {
-        if (ignoreNodeItem == null) {
+      ignoreNodeList.forEach((ignoreElement) => {
+        if (ignoreElement == null) {
           return;
         }
         let innerItemText = isHTML
-          ? ignoreNodeItem.innerHTML
-          : ignoreNodeItem.innerText;
+          ? ignoreElement.innerHTML
+          : ignoreElement.innerText;
         innerItemText = innerItemText == null ? "" : innerItemText;
         text = text.replaceAll(innerItemText, "");
       });
