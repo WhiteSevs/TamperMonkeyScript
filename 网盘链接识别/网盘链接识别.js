@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.10.1.11
+// @version      2023.10.2
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -47,7 +47,9 @@
 // @connect      jianguoyun.com
 // @connect      cowtransfer.com
 // @exclude      /^http(s|):\/\/s1\.hdslb\.com\/.*$/
-// @exclude      /^http(s|):\/\/(message|www)\.bilibili\.com\/.*$/
+// @exclude      /^http(s|):\/\/www\.bilibili\.com\/video.*$/
+// @exclude      /^http(s|):\/\/message\.bilibili\.com\/.*$/
+// @exclude      /^http(s|):\/\/live\.bilibili\.com\/.*$/
 // @exclude      /^http(s|):\/\/.*\.mail\.qq\.com\/.*$/
 // @exclude      /^http(s|):\/\/.*video\.qq\.com\/.*$/
 // @exclude      /^http(s|):\/\/.*\.vscode-cdn\.net\/.*$/
@@ -114,11 +116,6 @@
      */
     isInit: false,
     /**
-     * 页面显示出的文字
-     * @type {string}
-     */
-    pageText: null,
-    /**
      * 链接字典
      * @type {utils.Dictionary}
      */
@@ -133,7 +130,7 @@
             GM_getValue("innerText_baidu", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
           link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_baidu", 300)
+            GM_getValue("innerHTML_baidu", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
           shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi /* 链接参数 */,
           shareCodeNeedRemoveStr:
@@ -154,7 +151,7 @@
             GM_getValue("innerText_lanzou", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[a-zA-Z0-9]{3,6}|)`,
           link_innerHTML: `lanzou[a-z]{0,1}.com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_lanzou", 300)
+            GM_getValue("innerHTML_lanzou", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
@@ -175,7 +172,7 @@
             GM_getValue("innerText_tianyiyun", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_tianyiyun", 300)
+            GM_getValue("innerHTML_tianyiyun", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14})/gi,
@@ -195,7 +192,7 @@
             GM_getValue("innerText_hecaiyun", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_hecaiyun", 300)
+            GM_getValue("innerHTML_hecaiyun", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode: /caiyun\.139\.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /caiyun\.139\.com\/m\/i\?/gi,
@@ -213,7 +210,7 @@
             GM_getValue("innerText_aliyun", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_aliyun", 300)
+            GM_getValue("innerHTML_aliyun", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode: /aliyundrive\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
           shareCodeNotMatch: /undefined/gi,
@@ -233,7 +230,7 @@
             GM_getValue("innerText_wenshushu", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_wenshushu", 300)
+            GM_getValue("innerHTML_wenshushu", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
@@ -253,7 +250,7 @@
             GM_getValue("innerText_nainiu", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_nainiu", 20)
+            GM_getValue("innerHTML_nainiu", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /cowtransfer\.com\/s\//gi,
@@ -271,7 +268,7 @@
             GM_getValue("innerText__123pan", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML__123pan", 300)
+            GM_getValue("innerHTML__123pan", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode: /123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /123pan.com\/s\//gi,
@@ -289,7 +286,7 @@
             GM_getValue("innerText_weiyun", 20)
           )}}(访问码|密码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_weiyun", 300)
+            GM_getValue("innerHTML_weiyun", 100)
           )}}(访问码|密码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
           shareCodeNotMatch:
@@ -309,7 +306,7 @@
             GM_getValue("innerText_xunlei", 20)
           )}}(访问码|提取码|密码|)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_xunlei", 300)
+            GM_getValue("innerHTML_xunlei", 100)
           )}}(访问码|提取码|密码|)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
           shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
@@ -327,7 +324,7 @@
             GM_getValue("innerText__115pan", 20)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `115.com\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML__115pan", 300)
+            GM_getValue("innerHTML__115pan", 100)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
           shareCodeNeedRemoveStr: /115.com\/s\//gi,
@@ -346,7 +343,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(ctfile.com|ghpym.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /(ctfile.com|ghpym.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(ctfile.com|ghpym.com)\/d\//gi,
@@ -363,7 +360,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `pan.jc-box.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /pan.jc-box.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /pan.jc-box.com\/d\//gi,
@@ -380,7 +377,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `download.jamcz.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /download.jamcz.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /download.jamcz.com\/d\//gi,
@@ -397,7 +394,7 @@
             GM_getValue("innerText__chengtong", 20)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(2k.us/file/|u062.com/file/|545c.com/file/|t00y.com/file/)[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML__chengtong", 300)
+            GM_getValue("innerHTML__chengtong", 100)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode:
             /(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/|t00y.com\/file\/)([0-9a-zA-Z\-_]{8,26})/gi,
@@ -416,7 +413,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `ctfile.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /ctfile.com\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /ctfile.com\/f\//gi,
@@ -433,7 +430,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(pan.jc-box.com|545c.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /(pan.jc-box.com|545c.com)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(pan.jc-box.com|545c.com)\/f\//gi,
@@ -450,7 +447,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `down.jc-box.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /down.jc-box.com\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /down.jc-box.com\/f\//gi,
@@ -467,7 +464,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `download.cx05.cc/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /download.cx05.cc\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /download.cx05.cc\/f\//gi,
@@ -484,7 +481,7 @@
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(089u|474b).com/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
-            300
+            100
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{6}|)`,
           shareCode: /(089u|474b).com\/dir\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(089u|474b).com\/dir\//gi,
@@ -502,7 +499,7 @@
             GM_getValue("innerText_kuake", 20)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_kuake", 300)
+            GM_getValue("innerHTML_kuake", 100)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
           shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
           shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
@@ -533,7 +530,7 @@
             GM_getValue("innerText_jianguoyun", 20)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
           link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_jianguoyun", 300)
+            GM_getValue("innerHTML_jianguoyun", 100)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
           shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z\-_]{16,24})/gi,
           shareCodeNeedRemoveStr: /jianguoyun.com\/p\//gi,
@@ -552,7 +549,7 @@
             GM_getValue("innerText_onedrive_10101619", 20)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
           link_innerHTML: `10101619-my.sharepoint.com/.*/personal/chendexian_10101619_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_onedrive_10101619", 300)
+            GM_getValue("innerHTML_onedrive_10101619", 100)
           )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
           shareCode:
             /10101619-my.sharepoint.com\/.*\/personal\/chendexian_10101619_onmicrosoft_com\/([0-9a-zA-Z\-_]+)/gi,
@@ -573,7 +570,7 @@
             GM_getValue("innerText_onedrive_10101619", 20)
           )}}(访问码|密码|提取码|\\?password=|\\?e=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
           link_innerHTML: `hurstheads-my.sharepoint.com/.*/personal/storage_01_hurstheads_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_onedrive_10101619", 300)
+            GM_getValue("innerHTML_onedrive_10101619", 100)
           )}}(访问码|密码|提取码|\\?password=|\\?e=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
           shareCode:
             /hurstheads-my.sharepoint.com\/.*\/personal\/storage_01_hurstheads_onmicrosoft_com\/([0-9a-zA-Z\-_]+)/gi,
@@ -651,35 +648,48 @@
       let matchTextRange = GM_getValue("pageMatchRange", "all");
       /* 对innerText 和 innerHTML进行match */
       if (matchTextRange.toLowerCase() === "all") {
-        this.pageText = this.ignoreStrRemove(document.body.innerText);
-        this.pageText += this.ignoreStrRemove(document.body.innerHTML, true);
-        this.pageText += clipboardText;
+        let pageText = this.ignoreStrRemove(document.body.innerText);
+        let pageHTML = this.ignoreStrRemove(document.body.innerHTML, true);
         Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
             NetDiskWorker.GM_matchWorker.postMessage({
               regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
-              pageText: this.pageText,
+              pageText: pageText,
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
             NetDiskWorker.GM_matchWorker.postMessage({
               regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
-              pageText: this.pageText,
+              pageText: pageHTML,
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
+            if (clipboardText.trim() !== "") {
+              NetDiskWorker.GM_matchWorker.postMessage({
+                regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
+                pageText: userClipBoardText,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+              NetDiskWorker.GM_matchWorker.postMessage({
+                regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
+                pageText: userClipBoardText,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+            }
           });
         });
       } else {
+        let pageText = "";
         if (matchTextRange.toLowerCase() === "innertext") {
           /* 对innerText进行match */
-          this.pageText = this.ignoreStrRemove(document.body.innerText);
+          pageText = this.ignoreStrRemove(document.body.innerText);
         } else {
           /* 对innerHTML进行match */
-          this.pageText = this.ignoreStrRemove(document.body.innerHTML, true);
+          pageText = this.ignoreStrRemove(document.body.innerHTML, true);
         }
-        this.pageText += clipboardText;
         Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
@@ -688,10 +698,21 @@
                 netDiskListItem[`link_${matchTextRange}`],
                 "gi"
               ),
-              pageText: this.pageText,
+              pageText: pageText,
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
+            if (clipboardText.trim() !== "") {
+              NetDiskWorker.GM_matchWorker.postMessage({
+                regexp: new RegExp(
+                  netDiskListItem[`link_${matchTextRange}`],
+                  "gi"
+                ),
+                pageText: clipboardText,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+            }
           });
         });
       }
@@ -3505,7 +3526,7 @@
       let headResp = await httpx.head({
         url: url,
         headers: {
-          "user-agent": userAgent,
+          "User-Agent": userAgent,
           referer: window.location.origin,
         },
       });
@@ -4094,6 +4115,9 @@
 
   const NetDiskWorker = {
     blobUrl: "",
+    /**
+     * @type {Worker}
+     */
     GM_matchWorker: null,
     /**
      * 初始化Worker的Blob链接
@@ -4675,7 +4699,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: `
                       <div class="netdisk-setting-menu-item">
                           <label>网址-Url</label>
@@ -4724,7 +4748,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4739,7 +4763,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4754,7 +4778,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4769,7 +4793,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4784,7 +4808,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4799,7 +4823,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4814,7 +4838,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4829,7 +4853,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4844,7 +4868,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4859,7 +4883,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4874,7 +4898,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4889,7 +4913,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4931,7 +4955,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -4946,7 +4970,7 @@
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
-              range_innerHTML_default_value: 300,
+              range_innerHTML_default_value: 100,
               firstHTML: "",
               endHTML: "",
             },
@@ -5044,7 +5068,11 @@
                           data-content="提取码间隔(Text)"
                           min="0"
                           max="100"
-                          data-default="20">
+                          data-default="${
+                            item.range_innerText_default_value != null
+                              ? parseInt(item.range_innerText_default_value)
+                              : 20
+                          }">
               </div>
               `
                   : ""
@@ -5064,7 +5092,11 @@
                           data-content="提取码间隔(HTML)"
                           min="0"
                           max="500"
-                          data-default="300">
+                          data-default="${
+                            item.range_innerHTML_default_value != null
+                              ? parseInt(item.range_innerHTML_default_value)
+                              : 100
+                          }">
               </div>
               `
                   : ""
