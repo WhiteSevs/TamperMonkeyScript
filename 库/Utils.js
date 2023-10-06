@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-10-1";
+  Utils.version = "2023-10-6";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -4249,9 +4249,7 @@
       copyElement.setAttribute("style", "opacity:0;position:absolute;");
       copyElement.setAttribute("readonly", "readonly");
       document.body.appendChild(copyElement);
-      copyElement.setSelectionRange
-        ? copyElement.setSelectionRange(0, copyElement.value.length)
-        : copyElement.select();
+      copyElement.select();
       document.execCommand("copy");
       document.body.removeChild(copyElement);
       _resolve_();
@@ -4261,7 +4259,10 @@
      * @param {(value: any) => void} _resolve_ 回调
      */
     function runCopy(_resolve_) {
-      if (clipboardObject) {
+      if (typeof ClipboardItem === "undefined") {
+        console.error("当前环境中不存在ClipboardItem对象，使用第二种方式");
+        anotherCopy(_resolve_, data);
+      } else if (clipboardObject) {
         clipboardObject
           .write([
             new ClipboardItem({
