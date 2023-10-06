@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.10.2
+// @version      2023.10.6
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -59,7 +59,7 @@
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
 // @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1256918
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258516
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1260472
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258535
 // ==/UserScript==
 
@@ -765,7 +765,7 @@
           accessCode: accessCode,
           netDiskIndex: netDiskIndex,
         });
-        NetDiskUI.matchIcon.add(netDiskName);
+        NetDiskUI.isMatchedNetDiskIconMap.add(netDiskName);
         NetDiskUI.view.addLinkView(
           netDiskName,
           netDiskIndex,
@@ -1943,16 +1943,16 @@
                 },
               },
             },
-            animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+            animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
             mask: true,
-            drag: GM_getValue("pcDrag", false),
+            drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
             height: pops.isPhone()
-              ? NetDiskUI.popsStyle.tianyiyunNeedLoginTip_Phone.height
-              : NetDiskUI.popsStyle.tianyiyunNeedLoginTip_PC.height,
-            forbiddenScroll: true,
+              ? NetDiskUI.popsStyle.tianYiYunLoginTip.Mobile.height
+              : NetDiskUI.popsStyle.tianYiYunLoginTip.PC.height,
+            forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
             width: pops.isPhone()
-              ? NetDiskUI.popsStyle.tianyiyunNeedLoginTip_Phone.width
-              : NetDiskUI.popsStyle.tianyiyunNeedLoginTip_PC.width,
+              ? NetDiskUI.popsStyle.tianYiYunLoginTip.Mobile.width
+              : NetDiskUI.popsStyle.tianYiYunLoginTip.PC.width,
           });
         };
         return this;
@@ -3112,7 +3112,6 @@
          */
         this.gotoLogin = function () {
           pops.confirm({
-            mask: true,
             title: {
               text: "提示",
               position: "center",
@@ -3133,6 +3132,16 @@
                 },
               },
             },
+            animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+            mask: true,
+            drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+            height: pops.isPhone()
+              ? NetDiskUI.popsStyle.jianGuoYunLoginTip.Mobile.height
+              : NetDiskUI.popsStyle.jianGuoYunLoginTip.PC.height,
+            forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
+            width: pops.isPhone()
+              ? NetDiskUI.popsStyle.jianGuoYunLoginTip.Mobile.width
+              : NetDiskUI.popsStyle.jianGuoYunLoginTip.PC.width,
           });
         };
         return this;
@@ -4246,7 +4255,7 @@
     /**
      * 已匹配到的网盘图标字典
      */
-    matchIcon: new Set(),
+    isMatchedNetDiskIconMap: new Set(),
     /**
      * 高度和宽度大小
      */
@@ -4287,132 +4296,165 @@
      * 重输密码弹窗的唯一标识
      */
     uiPasswordAlias: "重输密码层",
+    /**
+     * PC端是否默认弹窗可以拖拽
+     */
+    defaultPCDrag: false,
+    /**
+     * 是否默认禁用弹窗弹出后背景可以滚动
+     */
+    defaultForbiddenScroll: false,
+    /**
+     * 默认弹窗动画
+     */
+    defaultAnimation: "pops-anim-fadein-zoom",
+    /**
+     * 弹窗的配置
+     */
     popsStyle: {
       /**
-       * 桌面端 天翼云需要登录提示
+       * 天翼云需要登录的提示
        */
-      tianyiyunNeedLoginTip_PC: {
-        width: "30vw",
-        height: "280px",
+      tianYiYunLoginTip: {
+        PC: {
+          width: "30vw",
+          height: "280px",
+        },
+        Mobile: {
+          width: "80vw",
+          height: "250px",
+        },
       },
       /**
-       * 移动端 天翼云需要登录提示
+       * 坚果云需要登录的提示
        */
-      tianyiyunNeedLoginTip_Phone: {
-        width: "80vw",
-        height: "250px",
+      jianGuoYunLoginTip: {
+        PC: {
+          width: "350px",
+          height: "200px",
+        },
+        Mobile: {
+          width: "350px",
+          height: "200px",
+        },
       },
       /**
-       * 桌面端 设置界面
+       * 设置界面
        */
-      setting_PC: {
-        width: "50vw",
-        height: "65vh",
+      settingView: {
+        PC: {
+          width: "50vw",
+          height: "65vh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "60vh",
+        },
       },
       /**
-       * 移动端 设置界面
+       * 设置默认值的界面
        */
-      setting_Phone: {
-        width: "88vw",
-        height: "60vh",
+      setDefaultValueView:{
+        PC: {
+          width: "350px",
+          height: "200px",
+        },
+        Mobile: {
+          width: "350px",
+          height: "200px",
+        },
+
       },
       /**
-       * 桌面端 (主)网盘链接界面
+       * (主)网盘链接界面
        */
-      netDiskView_PC: {
-        width: "50vw",
-        height: "65vh",
+      mainView: {
+        PC: {
+          width: "50vw",
+          height: "65vh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "50vh",
+        },
       },
       /**
-       * 移动端 (主)网盘链接界面
+       * 单文件直链弹窗
        */
-      netDiskView_Phone: {
-        width: "88vw",
-        height: "50vh",
+      oneFileStaticView: {
+        PC: {
+          width: "50vw",
+          height: "240px",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "240px",
+        },
       },
       /**
-       * 桌面端 单文件弹窗
+       * 多文件直链弹窗
        */
-      oneFileStaticView_PC: {
-        width: "50vw",
-        height: "240px",
+      moreFileStaticView: {
+        PC: {
+          width: "50vw",
+          height: "400px",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "400px",
+        },
       },
       /**
-       * 移动端 单文件弹窗
+       * 新密码、错误密码输入弹窗
        */
-      oneFileStaticView_Phone: {
-        width: "88vw",
-        height: "240px",
+      inputNewAccessCodeView: {
+        PC: {
+          width: "400px",
+          height: "200px",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "160px",
+        },
       },
       /**
-       * 桌面端 多文件弹窗
+       * 历史存储记录弹窗
        */
-      moreFileStaticView_PC: {
-        width: "50vw",
-        height: "400px",
+      historyMatchView: {
+        PC: {
+          width: "50vw",
+          height: "65vh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "60vh",
+        },
       },
       /**
-       * 移动端 多文件弹窗
+       * 访问码规则弹窗
        */
-      moreFileStaticView_Phone: {
-        width: "88vw",
-        height: "400px",
+      accessCodeRuleView: {
+        PC: {
+          width: "50vw",
+          height: "65vh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "60vh",
+        },
       },
       /**
-       * 桌面端 新密码、错误密码输入弹窗
+       * 访问码规则添加/修改/删除
        */
-      newAccessCodeView_PC: {
-        width: "50vw",
-        height: "160px",
-      },
-      /**
-       * 移动端 新密码、错误密码输入弹窗
-       */
-      newAccessCodeView_Phone: {
-        width: "88vw",
-        height: "160px",
-      },
-      /**
-       * 桌面端 历史存储记录弹窗
-       */
-      netDiskHistoryMatchView_PC: {
-        width: "50vw",
-        height: "65vh",
-      },
-      /**
-       * 移动端 历史存储记录弹窗
-       */
-      netDiskHistoryMatchView_Phone: {
-        width: "88vw",
-        height: "60vh",
-      },
-      /**
-       * 桌面端-访问码规则弹窗
-       */
-      netDiskAccessCodeRule_PC: {
-        width: "50vw",
-        height: "65vh",
-      },
-      /**
-       * 移动端-访问码规则弹窗
-       */
-      netDiskAccessCodeRule_Phone: {
-        width: "88vw",
-        height: "60vh",
-      },
-      /**
-       * 桌面端-访问码规则添加/修改/删除
-       */
-      netDiskAccessCodeRule_Rule_PC: {
-        width: "44vw",
-        height: "50vh",
-      },
-      /**
-       * 移动端-访问码规则添加/修改/删除
-       */
-      netDiskAccessCodeRule_Rule_Phone: {
-        width: "70vw",
-        height: "45vh",
+      accessCodeRuleEditView: {
+        PC: {
+          width: "44vw",
+          height: "50vh",
+        },
+        Mobile: {
+          width: "70vw",
+          height: "45vh",
+        },
       },
     },
     src: {
@@ -4447,12 +4489,12 @@
        * 显示悬浮按钮
        */
       show() {
-        if (!NetDiskUI.suspension.isShow) {
+        if (!this.isShow) {
           this.createUI();
           this.initPop();
           this.setSuspensionEvent();
           this.setSuspensionDefaultPositionEvent();
-          NetDiskUI.suspension.isShow = true;
+          this.isShow = true
         }
         this.backgroundSwitch();
       },
@@ -5435,7 +5477,6 @@
                 let dataDefaultValue = nextObj.getAttribute("data-default");
                 let currentValue = nextObj.value;
                 pops.confirm({
-                  mask: true,
                   title: {
                     text: "提示",
                     position: "center",
@@ -5456,7 +5497,16 @@
                       },
                     },
                   },
-                  forbiddenScroll: true,
+                  animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+                  mask: true,
+                  drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+                  height: pops.isPhone()
+                    ? NetDiskUI.popsStyle.setDefaultValueView.Mobile.height
+                    : NetDiskUI.popsStyle.setDefaultValueView.PC.height,
+                  forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
+                  width: pops.isPhone()
+                    ? NetDiskUI.popsStyle.setDefaultValueView.Mobile.width
+                    : NetDiskUI.popsStyle.setDefaultValueView.PC.width,
                 });
               });
             });
@@ -5483,17 +5533,17 @@
               },
             },
           },
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           class: "whitesevPopSetting",
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.setting_Phone.height
-            : NetDiskUI.popsStyle.setting_PC.height,
+            ? NetDiskUI.popsStyle.settingView.Mobile.height
+            : NetDiskUI.popsStyle.settingView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.setting_Phone.width
-            : NetDiskUI.popsStyle.setting_PC.width,
-          drag: GM_getValue("pcDrag", false),
+            ? NetDiskUI.popsStyle.settingView.Mobile.width
+            : NetDiskUI.popsStyle.settingView.PC.width,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           mask: true,
-          forbiddenScroll: true,
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         setSettingInputEvent();
         setSettingSelectEvent();
@@ -5752,7 +5802,7 @@
          */
         function getRandBgList() {
           let resultList = [];
-          NetDiskUI.matchIcon.forEach((item) => {
+          NetDiskUI.isMatchedNetDiskIconMap.forEach((item) => {
             resultList = [...resultList, NetDiskUI.src.icon[item]];
           });
           return resultList;
@@ -5899,7 +5949,7 @@
        */
       createView() {
         let viewAddHTML = "";
-        NetDiskUI.matchIcon.forEach((netDiskName) => {
+        NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
           let netDisk = NetDisk.linkDict.get(netDiskName);
           Object.keys(netDisk.getItems()).forEach((shareCode) => {
             let accessCodeDict = netDisk.getItems()[shareCode];
@@ -5947,16 +5997,16 @@
             },
           },
           class: "whitesevPop",
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskView_Phone.height
-            : NetDiskUI.popsStyle.netDiskView_PC.height,
+            ? NetDiskUI.popsStyle.mainView.Mobile.height
+            : NetDiskUI.popsStyle.mainView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskView_Phone.width
-            : NetDiskUI.popsStyle.netDiskView_PC.width,
-          drag: GM_getValue("pcDrag", false),
+            ? NetDiskUI.popsStyle.mainView.Mobile.width
+            : NetDiskUI.popsStyle.mainView.PC.width,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           mask: true,
-          forbiddenScroll: true,
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         this.setNetDiskUrlClickEvent(".netdisk-url a");
       },
@@ -6455,16 +6505,16 @@
             },
           },
           class: "whitesevPopOneFile",
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.oneFileStaticView_Phone.height
-            : NetDiskUI.popsStyle.oneFileStaticView_PC.height,
+            ? NetDiskUI.popsStyle.oneFileStaticView.Mobile.height
+            : NetDiskUI.popsStyle.oneFileStaticView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.oneFileStaticView_Phone.width
-            : NetDiskUI.popsStyle.oneFileStaticView_PC.width,
+            ? NetDiskUI.popsStyle.oneFileStaticView.Mobile.width
+            : NetDiskUI.popsStyle.oneFileStaticView.PC.width,
           mask: true,
-          drag: GM_getValue("pcDrag", false),
-          forbiddenScroll: true,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         if (clickCallBack) {
           let linkElement = confirmElement.element.querySelector(
@@ -6565,15 +6615,15 @@
           },
           class: "whitesevPopMoreFile",
           mask: true,
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.moreFileStaticView_Phone.height
-            : NetDiskUI.popsStyle.moreFileStaticView_PC.height,
+            ? NetDiskUI.popsStyle.moreFileStaticView.Mobile.height
+            : NetDiskUI.popsStyle.moreFileStaticView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.moreFileStaticView_Phone.width
-            : NetDiskUI.popsStyle.moreFileStaticView_PC.width,
-          drag: GM_getValue("pcDrag", false),
-          forbiddenScroll: true,
+            ? NetDiskUI.popsStyle.moreFileStaticView.Mobile.width
+            : NetDiskUI.popsStyle.moreFileStaticView.PC.width,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         if (clickCallBack) {
           log.success("设置当前直链弹窗超链接自定义点击事件");
@@ -6662,15 +6712,15 @@
           focus: true,
         },
         height: pops.isPhone()
-          ? NetDiskUI.popsStyle.newAccessCodeView_Phone.height
-          : NetDiskUI.popsStyle.newAccessCodeView_PC.height,
+          ? NetDiskUI.popsStyle.inputNewAccessCodeView.Mobile.height
+          : NetDiskUI.popsStyle.inputNewAccessCodeView.PC.height,
         width: pops.isPhone()
-          ? NetDiskUI.popsStyle.newAccessCodeView_Phone.width
-          : NetDiskUI.popsStyle.newAccessCodeView_PC.width,
+          ? NetDiskUI.popsStyle.inputNewAccessCodeView.Mobile.width
+          : NetDiskUI.popsStyle.inputNewAccessCodeView.PC.width,
         mask: true,
-        animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
-        drag: GM_getValue("pcDrag", false),
-        forbiddenScroll: true,
+        animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+        drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+        forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
       });
       /**
        * 注册键盘回车事件
@@ -6800,16 +6850,16 @@
             },
           },
           class: "whitesevPopNetDiskHistoryMatch",
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskHistoryMatchView_Phone.height
-            : NetDiskUI.popsStyle.netDiskHistoryMatchView_PC.height,
+            ? NetDiskUI.popsStyle.historyMatchView.Mobile.height
+            : NetDiskUI.popsStyle.historyMatchView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskHistoryMatchView_Phone.width
-            : NetDiskUI.popsStyle.netDiskHistoryMatchView_PC.height,
+            ? NetDiskUI.popsStyle.historyMatchView.Mobile.width
+            : NetDiskUI.popsStyle.historyMatchView.PC.height,
           mask: true,
-          drag: GM_getValue("pcDrag", false),
-          forbiddenScroll: true,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         this.setDataPaging(data);
         this.setEvent();
@@ -7513,16 +7563,16 @@
             },
           },
           class: this.accessCodeRuleDialogClassName,
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskAccessCodeRule_Phone.height
-            : NetDiskUI.popsStyle.netDiskAccessCodeRule_PC.height,
+            ? NetDiskUI.popsStyle.accessCodeRuleView.Mobile.height
+            : NetDiskUI.popsStyle.accessCodeRuleView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskAccessCodeRule_Phone.width
-            : NetDiskUI.popsStyle.netDiskAccessCodeRule_PC.height,
+            ? NetDiskUI.popsStyle.accessCodeRuleView.Mobile.width
+            : NetDiskUI.popsStyle.accessCodeRuleView.PC.height,
           mask: true,
-          drag: GM_getValue("pcDrag", false),
-          forbiddenScroll: true,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         DOMUtils.append(
           popsConfirm.element.querySelector(".pops-confirm-btn"),
@@ -7757,16 +7807,16 @@
             },
           },
           class: "whitesevPopNetDiskAccessCodeRuleAddOrEdit",
-          animation: GM_getValue("popsAnimation", "pops-anim-fadein-zoom"),
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskAccessCodeRule_Rule_Phone.height
-            : NetDiskUI.popsStyle.netDiskAccessCodeRule_Rule_PC.height,
+            ? NetDiskUI.popsStyle.accessCodeRuleEditView.Mobile.height
+            : NetDiskUI.popsStyle.accessCodeRuleEditView.PC.height,
           width: pops.isPhone()
-            ? NetDiskUI.popsStyle.netDiskAccessCodeRule_Rule_Phone.width
-            : NetDiskUI.popsStyle.netDiskAccessCodeRule_Rule_PC.height,
+            ? NetDiskUI.popsStyle.accessCodeRuleEditView.Mobile.width
+            : NetDiskUI.popsStyle.accessCodeRuleEditView.PC.height,
           mask: true,
-          drag: GM_getValue("pcDrag", false),
-          forbiddenScroll: true,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         this.setRuleEvent(popsConfirm.element);
         if (isEdit) {
@@ -7969,7 +8019,7 @@
         return result;
       },
       /**
-       * 清空所有
+       * 清空所有规则
        */
       deleteAllValue() {
         GM_setValue("accessCodeRule", []);
