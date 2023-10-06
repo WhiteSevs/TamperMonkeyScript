@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.1.11
+// @version      2023.10.6
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,7 +45,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1258516
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1260472
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258535
 // @run-at       document-start
 // ==/UserScript==
@@ -513,10 +513,10 @@
          * + true 默认 position为absoulte
          * + false position为fixed
          */
-        isAbsoulte:
-          typeof paramConfig.isAbsoulte === "undefined"
+        isAbsolute:
+          typeof paramConfig.isAbsolute === "undefined"
             ? true
-            : paramConfig.isAbsoulte,
+            : paramConfig.isAbsolute,
         /**
          * 显示删除按钮
          * @type {boolean}
@@ -723,7 +723,7 @@
       let css = `
       <style>
       div.${this.config.element.searchSelectClassName}{
-          position: ${this.config.isAbsoulte ? "absolute" : "fixed"};
+          position: ${this.config.isAbsolute ? "absolute" : "fixed"};
           z-index: ${utils.getMaxZIndex()};
           top: 0;
           bottom: 0;
@@ -5122,7 +5122,7 @@
             );
 
             this.searchSuggestion = new SearchSuggestion({
-              isAbsoulte: false,
+              isAbsolute: false,
               showDeleteIcon: false,
               targetElement: document.querySelector("#tieba-search"),
               getItemValue: function (item) {
