@@ -52,28 +52,28 @@
 - 设置`自动输入访问码`，可通过`右击`或`长按`出现的菜单选项`访问链接`，如果存在访问码，将自动填入访问码，目前存在部分网盘未实现自动填入(没找到这个网盘的存在链接的)
 - 设置`获取重定向后的直链`，可对某些网盘直链解析链接进行重定向后的链接获取
 
-| 网盘  | 新标签页打开 | 单文件解析| 多文件解析 | Scheme转发直链 | 提取码`innerText`间隔(默认) | 提取码`innerHTML`间隔(默认) | 其它功能|
+| 网盘  | 新标签页打开 | 单文件解析| 多文件解析 | Scheme转发直链 | 提取码间隔前(Text/HTML) | 提取码间隔后(Text/HTML) | 其它功能|
 |---|:---:|:---:|:---:|:---:|:---:|:---:| --- |
-| [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/) 百度网盘 | √ | | | |20| 300| 自行配置第三方网站解析 |
-| [![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16)](https://www.lanzoux.com/) 蓝奏云 | √ | √ | √ | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16)](https://cloud.189.cn/) 天翼云 | √ | √(需登录) | | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16)](https://yun.139.com/) 中国移动云盘(原:和彩云) | √ | | |  |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云 | √ | | |  |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16)](https://www.wenshushu.cn/) 文叔叔 | √ | √ | | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16)](https://cowtransfer.com/) 奶牛快传 | √ | √ | | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123云盘(文件>100MB则需登录) | √ | √ | √ | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16)](https://www.weiyun.com/) 腾讯微云 | √ |  |  |  |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16)](https://pan.xunlei.com/) 迅雷网盘 | √ |  |  |  |20|300|
-| [![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16)](http://www.115.com/) 115网盘 | √ |  |  |  |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16)](https://www.ctfile.com/) 城通网盘 | √ |  |  |  |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16)](https://pan.quark.cn/) 夸克网盘 | √ |  |  | |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/) 百度网盘 | √ | | | | 20\|300 | 10\|15 | 自行配置第三方网站解析 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16)](https://www.lanzoux.com/) 蓝奏云 | √ | √ | √ | √ | 20/300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16)](https://cloud.189.cn/) 天翼云 | √ | √(需登录) | | √ | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16)](https://yun.139.com/) 中国移动云盘(原:和彩云) | √ | | |  | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云 | √ | | |  | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://www.wenshushu.cn/?size=16)](https://www.wenshushu.cn/) 文叔叔 | √ | √ | | √ | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16](https://favicon.yandex.net/favicon/v2/https://cowtransfer.com/?size=16)](https://cowtransfer.com/) 奶牛快传 | √ | √ | | √ | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.123pan.com/?size=16)](https://www.123pan.com/) 123云盘 | √ | √(文件>100MB则需登录) | √(文件>100MB则需登录) | √ | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.weiyun.com/?size=16)](https://www.weiyun.com/) 腾讯微云 | √ |  |  |  | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.xunlei.com/?size=16)](https://pan.xunlei.com/) 迅雷网盘 | √ |  |  |  | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16](https://favicon.yandex.net/favicon/v2/http://www.115.com/?size=16)](http://www.115.com/) 115网盘 | √ |  |  |  | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ctfile.com/?size=16)](https://www.ctfile.com/) 城通网盘 | √ |  |  |  | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.quark.cn/?size=16)](https://pan.quark.cn/) 夸克网盘 | √ |  |  | | 20\|300 | 10\|15 |
 | 🚖BT磁力 | √ |  |  | √ | | | 支持Scheme转发 |
-| [![https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16)](https://www.jianguoyun.com/) 坚果云(需登录) | √ | √ |  | √ |20|300|
-| [![https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16](https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16)](https://onedrive.live.com/) OneDrive | √ |  |  | √ |20|300|
+| [![https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16)](https://www.jianguoyun.com/) 坚果云(需登录) | √ | √ |  | √ | 20\|300 | 10\|15 |
+| [![https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16](https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16)](https://onedrive.live.com/) OneDrive | √ |  |  | √ | 20\|300 | 10\|15 |
 
 ## 🔧 帮助
 
-### 1.百度网盘配置
+### 1. 百度网盘配置
 
 百度网盘链接解析的配置，主要是使用了开源项目[https://github.com/yuantuo666/baiduwp-php](https://github.com/yuantuo666/baiduwp-php)的网站
 
@@ -88,7 +88,7 @@
 
 [![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)](https://www.helloimg.com/image/ZPJRUv)
 
-### 2.Scheme 调用方式
+### 2. Scheme 调用方式
 
 首先开启该设置后，需要在手机上装特定的 app
 <https://baiqi.lanzoul.com/b066di6gb>
@@ -142,6 +142,33 @@ jumpwsv://go?package=com.xunlei.downloadprovider
 &activity=com.xunlei.downloadprovider.launch.dispatch.mocklink.LinkDLBtFileExplorerActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-### 3.什么是提取码`innerText`/`innerHTML`间隔？
+### 3. 什么是提取码间隔前`Text/HTML`？
 
-网盘链接分为两块，`分享码`和`提取码`，其中，由于网站的网盘链接的多样性，`分享码`和`提取码`之间可能存在很长的干扰的字符串，设置间隔即为设置容错最大干扰的字符串的长度。
+网盘链接分为两块，`分享码`和`提取码`，其中，由于网站的网盘链接的多样性，`分享码`和`提取码关键字`之间可能存在很长的干扰的字符串，比如：👇
+
+```js
+https://pan.baidu.com/s/xxxxxxxxxx
+这个是干扰字符串
+提取码：
+本贴隐藏内容
+abcd
+```
+
+那么这个`这个是干扰字符串`中文就是干扰的字符串，设置间隔长度即为设置`分享码`和`提取码关键字`之间的最大干扰字符串长度。
+`Text`是对应`匹配类型`为`普通文本`
+`HTML`是对应`匹配类型`为`超文本`
+
+### 4. 什么是提取码间隔后`Text/HTML`？
+
+当匹配提取码关键字时，如`密码`、`提取码`、`访问码`时，它们后面的字母就是访问码，但是有些时候存在干扰字符串，比如：👇
+
+```js
+https://pan.baidu.com/s/xxxxxxxxxx
+提取码：
+本贴隐藏内容
+abcd
+```
+
+那么这个`本贴隐藏内容`中文就是干扰的字符串，设置间隔长度即为设置`提取码关键字`和`提取码`之间的最大干扰字符串长度。
+`Text`是对应`匹配类型`为`普通文本`
+`HTML`是对应`匹配类型`为`超文本`
