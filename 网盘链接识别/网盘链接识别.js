@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.10.6
+// @version      2023.10.8
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -126,39 +126,74 @@
     regular: {
       baidu: [
         {
+          /**
+           * 百度网盘链接
+           */
           link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_baidu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_baidu", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
+          /**
+           * 百度网盘链接
+           */
           link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_baidu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)` /* 百度网盘链接 */,
-          shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi /* 链接参数 */,
-          shareCodeNeedRemoveStr:
-            /pan\.baidu\.com\/s\//gi /* 需要替换空的字符串，比如pan.baidu.com/s/替换为空 */,
-          checkAccessCode: /(密码|访问码|提取码).+/g /* 用来判断是否存在密码 */,
-          accessCode: /([0-9a-zA-Z]{4})/gi /* 提取码（如果存在的话） */,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_baidu", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
+          /**
+           * 链接参数
+           */
+          shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi,
+          /**
+           * 需要替换空的字符串，比如pan.baidu.com/s/替换为空
+           */
+          shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi,
+          /**
+           * 用来判断是否存在密码
+           */
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          /**
+           * 提取码（如果存在的话）
+           */
+          accessCode: /([0-9a-zA-Z]{4})/gi,
+          /**
+           * 用于显示的链接
+           */
           uiLinkShow:
-            "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}" /* 用于显示的链接 */,
-          blank:
-            "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}" /* 新标签页打开的链接 */,
+            "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
+          /**
+           * 新标签页打开的链接
+           */
+          blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
+          /**
+           * 用于复制到剪贴板的链接
+           */
           copyUrl:
-            "链接：https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}\n密码：{#accessCode#}" /* 用于复制到剪贴板的链接 */,
+            "链接：https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}\n密码：{#accessCode#}",
         },
       ],
       lanzou: [
         {
           link_innerText: `lanzou[a-z]{0,1}.com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_lanzou", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[a-zA-Z0-9]{3,6}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_lanzou", 10)
+          )}}[a-zA-Z0-9]{3,6}|)`,
           link_innerHTML: `lanzou[a-z]{0,1}.com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_lanzou", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[a-zA-Z0-9]{3,6}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_lanzou", 15)
+          )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
-          shareCodeNotMatch:
-            /^(ajax|file|undefined|1125)/gi /* shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配 */,
+          /**
+           * shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
+           */
+          shareCodeNotMatch: /^(ajax|file|undefined|1125)/gi,
           shareCodeNeedRemoveStr: /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)/gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{3,})/gi,
           uiLinkShow: "lanzoux.com/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://www.lanzoux.com/{#shareCode#}",
@@ -170,15 +205,19 @@
         {
           link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_tianyiyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_tianyiyun", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_tianyiyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_tianyiyun", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr:
             /cloud\.189\.cn\/t\/|cloud.189.cn\/web\/share\?code=/gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cloud.189.cn/t/{#shareCode#}",
@@ -190,13 +229,17 @@
         {
           link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_hecaiyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_hecaiyun", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_hecaiyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_hecaiyun", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /caiyun\.139\.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /caiyun\.139\.com\/m\/i\?/gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://caiyun.139.com/m/i?{#shareCode#}",
@@ -208,14 +251,18 @@
         {
           link_innerText: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_aliyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_aliyun", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_aliyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_aliyun", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /aliyundrive\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
           shareCodeNotMatch: /undefined/gi,
           shareCodeNeedRemoveStr: /aliyundrive\.com\/s\//gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           acceesCodeNotMatch: /^(font)/gi,
           uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
@@ -228,15 +275,19 @@
         {
           link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_wenshushu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_wenshushu", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_wenshushu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_wenshushu", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
           shareCodeNeedRemoveStr:
             /wss.ink\/f\/|ws28.cn\/f\/|wss1.cn\/f\/|wenshushu.cn\/f\/|wenshushu.cn\/k\//gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /[0-9a-zA-Z]{4}/gi,
           uiLinkShow: "wss.ink/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://wss.ink/f/{#shareCode#}",
@@ -248,13 +299,17 @@
         {
           link_innerText: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_nainiu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_nainiu", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_nainiu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_nainiu", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /cowtransfer\.com\/s\//gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "cowtransfer.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cowtransfer.com/s/{#shareCode#}",
@@ -266,13 +321,17 @@
         {
           link_innerText: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__123pan", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text__123pan", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML__123pan", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html__123pan", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /123pan.com\/s\//gi,
-          checkAccessCode: /(密码|访问码|提取码).+/g,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://123pan.com/s/{#shareCode#}",
@@ -284,15 +343,19 @@
         {
           link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_weiyun", 20)
-          )}}(访问码|密码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_weiyun", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_weiyun", 100)
-          )}}(访问码|密码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_weiyun", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
           shareCodeNotMatch:
             /^(ajax|file|download|ptqrshow|xy-privacy|comp|web)/gi,
           shareCodeNeedRemoveStr: /weiyun.com\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/g,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://share.weiyun.com/{#shareCode#}",
@@ -304,13 +367,17 @@
         {
           link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_xunlei", 20)
-          )}}(访问码|提取码|密码|)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(访问码|提取码|密码|)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_xunlei", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_xunlei", 100)
-          )}}(访问码|提取码|密码|)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(访问码|提取码|密码|)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_xunlei", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
           shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/g,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "pan.xunlei.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.xunlei.com/s/{#shareCode#}",
@@ -322,13 +389,17 @@
         {
           link_innerText: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__115pan", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text__115pan", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `115.com\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML__115pan", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html__115pan", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
           shareCodeNeedRemoveStr: /115.com\/s\//gi,
-          checkAccessCode: /(提取码|密码|\?password=|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|\?password=|访问码)[\s\S]+/gi,
           accessCode: /(\?password=|)([0-9a-zA-Z]{4})/i,
           uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://115.com/s/{#shareCode#}",
@@ -340,14 +411,18 @@
         {
           link_innerText: `(ctfile.com|ghpym.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(ctfile.com|ghpym.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /(ctfile.com|ghpym.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(ctfile.com|ghpym.com)\/d\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://url95.ctfile.com/d/{#shareCode#}",
@@ -357,14 +432,18 @@
         {
           link_innerText: `pan.jc-box.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `pan.jc-box.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /pan.jc-box.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /pan.jc-box.com\/d\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "pan.jc-box.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://pan.jc-box.com/d/{#shareCode#}",
@@ -374,14 +453,18 @@
         {
           link_innerText: `download.jamcz.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `download.jamcz.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /download.jamcz.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /download.jamcz.com\/d\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow:
             "download.jamcz.com/d/{#shareCode#} 提取码: {#accessCode#}",
@@ -392,15 +475,19 @@
         {
           link_innerText: `(2k.us/file/|u062.com/file/|545c.com/file/|t00y.com/file/)[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(2k.us/file/|u062.com/file/|545c.com/file/|t00y.com/file/)[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML__chengtong", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode:
             /(2k.us\/file\/|u062.com\/file\/|545c.com\/file\/|t00y.com\/file\/)([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr:
             /2k.us\/file\/|u062.com\/file\/|545c.com\/file\/|t00y.com\/file\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://u062.com/file/{#shareCode#}",
@@ -410,14 +497,18 @@
         {
           link_innerText: `ctfile.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `ctfile.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /ctfile.com\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /ctfile.com\/f\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "url95.ctfile.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://url95.ctfile.com/f/{#shareCode#}",
@@ -427,14 +518,18 @@
         {
           link_innerText: `(pan.jc-box.com|545c.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(pan.jc-box.com|545c.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /(pan.jc-box.com|545c.com)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(pan.jc-box.com|545c.com)\/f\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "pan.jc-box.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://pan.jc-box.com/f/{#shareCode#}",
@@ -444,14 +539,18 @@
         {
           link_innerText: `down.jc-box.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `down.jc-box.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /down.jc-box.com\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /down.jc-box.com\/f\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "down.jc-box.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://down.jc-box.com/f/{#shareCode#}",
@@ -461,14 +560,18 @@
         {
           link_innerText: `download.cx05.cc/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `download.cx05.cc/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /download.cx05.cc\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /download.cx05.cc\/f\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "download.cx05.cc/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://download.cx05.cc/f/{#shareCode#}",
@@ -478,14 +581,18 @@
         {
           link_innerText: `(089u|474b).com/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4,6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_chengtong", 10)
+          )}}[0-9a-zA-Z]{4,6}|)`,
           link_innerHTML: `(089u|474b).com/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
             "innerHTML__chengtong",
             100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{6}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_chengtong", 15)
+          )}}[0-9a-zA-Z]{6}|)`,
           shareCode: /(089u|474b).com\/dir\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(089u|474b).com\/dir\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{6})/gi,
           uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://089u.com/dir/{#shareCode#}",
@@ -497,13 +604,17 @@
         {
           link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_kuake", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_kuake", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_kuake", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_kuake", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
           shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.quark.cn/s/{#shareCode#}",
@@ -517,7 +628,7 @@
           link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
           shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi,
           shareCodeNeedRemoveStr: /magnet:\?xt=urn:btih:/gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
           blank: "magnet:?xt=urn:btih:{#shareCode#}",
@@ -528,13 +639,17 @@
         {
           link_innerText: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_jianguoyun", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_jianguoyun", 10)
+          )}}[0-9a-zA-Z]+|)`,
           link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_jianguoyun", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_jianguoyun", 15)
+          )}}[0-9a-zA-Z]+|)`,
           shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z\-_]{16,24})/gi,
           shareCodeNeedRemoveStr: /jianguoyun.com\/p\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]+)/gi,
           uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://www.jianguoyun.com/p/{#shareCode#}",
@@ -546,16 +661,20 @@
         {
           name: "10101619",
           link_innerText: `10101619-my.sharepoint.com/.*/personal/chendexian_10101619_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_onedrive_10101619", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
+            GM_getValue("innerText_onedrive", 20)
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_onedrive", 10)
+          )}}[0-9a-zA-Z]+|)`,
           link_innerHTML: `10101619-my.sharepoint.com/.*/personal/chendexian_10101619_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_onedrive_10101619", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
+            GM_getValue("innerHTML_onedrive", 100)
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_onedrive", 15)
+          )}}[0-9a-zA-Z]+|)`,
           shareCode:
             /10101619-my.sharepoint.com\/.*\/personal\/chendexian_10101619_onmicrosoft_com\/([0-9a-zA-Z\-_]+)/gi,
           shareCodeNeedRemoveStr:
             /10101619-my.sharepoint.com\/.*\/personal\/chendexian_10101619_onmicrosoft_com\//gi,
-          checkAccessCode: /(提取码|密码|访问码).+/gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]+)/gi,
           uiLinkShow:
             "10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#} 提取码: {#accessCode#}",
@@ -567,16 +686,20 @@
         {
           name: "hurstheads",
           link_innerText: `hurstheads-my.sharepoint.com/.*/personal/storage_01_hurstheads_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_onedrive_10101619", 20)
-          )}}(访问码|密码|提取码|\\?password=|\\?e=)[\\s\\S]{0,10}[0-9a-zA-Z]+|)`,
+            GM_getValue("innerText_onedrive", 20)
+          )}}(访问码|密码|提取码|\\?password=|\\?e=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_onedrive", 10)
+          )}}[0-9a-zA-Z]+|)`,
           link_innerHTML: `hurstheads-my.sharepoint.com/.*/personal/storage_01_hurstheads_onmicrosoft_com/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_onedrive_10101619", 100)
-          )}}(访问码|密码|提取码|\\?password=|\\?e=)[\\s\\S]{0,15}[0-9a-zA-Z]+|)`,
+            GM_getValue("innerHTML_onedrive", 100)
+          )}}(访问码|密码|提取码|\\?password=|\\?e=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_onedrive", 15)
+          )}}[0-9a-zA-Z]+|)`,
           shareCode:
             /hurstheads-my.sharepoint.com\/.*\/personal\/storage_01_hurstheads_onmicrosoft_com\/([0-9a-zA-Z\-_]+)/gi,
           shareCodeNeedRemoveStr:
             /hurstheads-my.sharepoint.com\/.*\/personal\/storage_01_hurstheads_onmicrosoft_com\//gi,
-          checkAccessCode: /(提取码|密码|访问码|\?e=).+/gi,
+          checkAccessCode: /(提取码|密码|访问码|\?e=)[\s\S]+/gi,
           accessCode: /([0-9a-zA-Z]+)/gi,
           uiLinkShow:
             "hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#} 提取码: {#accessCode#}",
@@ -4354,7 +4477,7 @@
       /**
        * 设置默认值的界面
        */
-      setDefaultValueView:{
+      setDefaultValueView: {
         PC: {
           width: "350px",
           height: "200px",
@@ -4363,7 +4486,6 @@
           width: "350px",
           height: "200px",
         },
-
       },
       /**
        * (主)网盘链接界面
@@ -4494,7 +4616,7 @@
           this.initPop();
           this.setSuspensionEvent();
           this.setSuspensionDefaultPositionEvent();
-          this.isShow = true
+          this.isShow = true;
         }
         this.backgroundSwitch();
       },
@@ -4791,6 +4913,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: `
                       <div class="netdisk-setting-menu-item">
                           <label>网址-Url</label>
@@ -4840,6 +4966,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4855,6 +4985,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4870,6 +5004,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4885,6 +5023,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4900,6 +5042,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4915,6 +5061,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4930,6 +5080,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4945,6 +5099,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4960,6 +5118,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4975,6 +5137,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -4990,6 +5156,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -5005,6 +5175,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -5047,6 +5221,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -5062,6 +5240,10 @@
               range_innerText_default_value: 20,
               range_innerHTML: true,
               range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
               firstHTML: "",
               endHTML: "",
             },
@@ -5150,13 +5332,13 @@
               <div class="netdisk-setting-menu-item">
                   <label data-id="netdisk-innerText_${
                     item.key
-                  }">提取码间隔(Text)${GM_getValue(
+                  }">提取码间隔前(Text)${GM_getValue(
                       `innerText_${item.key}`,
                       parseInt(item.range_innerText_default_value)
                     )}</label>
                   <input  type="range"
                           data-key="innerText_${item.key}"
-                          data-content="提取码间隔(Text)"
+                          data-content="提取码间隔前(Text)"
                           min="0"
                           max="100"
                           data-default="${
@@ -5174,19 +5356,73 @@
               <div class="netdisk-setting-menu-item">
                   <label data-id="netdisk-innerHTML_${
                     item.key
-                  }">提取码间隔(HTML)${GM_getValue(
+                  }">提取码间隔前(HTML)${GM_getValue(
                       `innerHTML_${item.key}`,
                       parseInt(item.range_innerHTML_default_value)
                     )}</label>
                   <input  type="range"
                           data-key="innerHTML_${item.key}"
-                          data-content="提取码间隔(HTML)"
+                          data-content="提取码间隔前(HTML)"
                           min="0"
                           max="500"
                           data-default="${
                             item.range_innerHTML_default_value != null
                               ? parseInt(item.range_innerHTML_default_value)
                               : 100
+                          }">
+              </div>
+              `
+                  : ""
+              }
+              ${
+                item.range_accessCode_after_text
+                  ? `
+                <div class="netdisk-setting-menu-item">
+                  <label data-id="netdisk-accessCode_after_text_${
+                    item.key
+                  }">提取码间隔后(Text)${GM_getValue(
+                      `accessCode_after_text_${item.key}`,
+                      parseInt(item.range_accessCode_after_text_default_value)
+                    )}</label>
+                  <input  type="range"
+                          data-key="accessCode_after_text_${item.key}"
+                          data-content="提取码间隔后(Text)"
+                          min="0"
+                          max="100"
+                          data-default="${
+                            item.range_accessCode_after_text_default_value !=
+                            null
+                              ? parseInt(
+                                  item.range_accessCode_after_text_default_value
+                                )
+                              : 10
+                          }">
+                </div>
+                `
+                  : ""
+              }
+              ${
+                item.range_accessCode_after_html
+                  ? `
+              <div class="netdisk-setting-menu-item">
+                  <label data-id="netdisk-accessCode_after_html_${
+                    item.key
+                  }">提取码间隔后(HTML)${GM_getValue(
+                      `accessCode_after_html_${item.key}`,
+                      parseInt(item.range_accessCode_after_html_default_value)
+                    )}</label>
+                  <input  type="range"
+                          data-key="accessCode_after_html_${item.key}"
+                          data-content="提取码间隔后(HTML)"
+                          min="0"
+                          max="200"
+                          data-default="${
+                            item.range_accessCode_after_html_default_value !=
+                            null
+                              ? parseInt(
+                                  item.range_accessCode_after_html_default_value
+                                )
+                              : 15
                           }">
               </div>
               `
@@ -5488,7 +5724,7 @@
                     ok: {
                       callback: function (_event_) {
                         log.info(
-                          `当前 ==> ${currentValue}，默认值 ==> ${dataDefaultValue}`
+                          `key：${dataKey} 当前值 ==> ${currentValue}，修改为默认值 ==> ${dataDefaultValue}`
                         );
                         GM_setValue(dataKey, dataDefaultValue);
                         DOMUtils.val(nextObj, dataDefaultValue);
@@ -5497,7 +5733,10 @@
                       },
                     },
                   },
-                  animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+                  animation: GM_getValue(
+                    "popsAnimation",
+                    NetDiskUI.defaultAnimation
+                  ),
                   mask: true,
                   drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
                   height: pops.isPhone()
