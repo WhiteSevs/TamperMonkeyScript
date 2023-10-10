@@ -880,7 +880,7 @@
 
   var pops = {};
   pops.config = {
-    version: "0.0.9",
+    version: "2023.10.10",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -1618,6 +1618,8 @@
    *  html: boolean,
    * }} content 内容配置
    * @property {{
+   *  merge: boolean,
+   *  mergeReverse: boolean,
    *  reverse: boolean,
    *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
    *  ok: PopsBtnDetails,
@@ -1669,6 +1671,10 @@
         /* true是不添加p标签，false是添加p标签 */
       },
       btn: {
+        /* 合并按钮 */
+        merge: false,
+        /* 合并的按钮是否逆反 */
+        mergeReverse: false,
         reverse: false,
         position: "flex-end",
         /* center、flex-start、flex-end、space-between、space-around、space-evenly */
@@ -1765,7 +1771,22 @@
 				<div class="pops-confirm-btn" style="justify-content:${config.btn.position};${
       config.btn.reverse ? "flex-direction: row-reverse;" : ""
     }">
-					${
+          ${
+            config.btn.merge
+              ? `
+          ${
+            config.btn.other.enable
+              ? '<button class="pops-confirm-btn-other" type="' +
+                config.btn.other.type +
+                '">' +
+                config.btn.other.text +
+                "</button>"
+              : ""
+          }
+          <div class="pops-confirm-btn-merge" style="display: flex;flex-direction: ${
+            config.btn.mergeReverse ? "row-reverse" : "row"
+          };">
+          ${
             config.btn.ok.enable
               ? '<button class="pops-confirm-btn-ok" type="' +
                 config.btn.ok.type +
@@ -1783,14 +1804,35 @@
                 "</button>"
               : ""
           }
-          ${
-            config.btn.other.enable
-              ? '<button class="pops-confirm-btn-other" type="' +
-                config.btn.other.type +
-                '">' +
-                config.btn.other.text +
-                "</button>"
-              : ""
+          </div>
+          `
+              : `${
+                  config.btn.ok.enable
+                    ? '<button class="pops-confirm-btn-ok" type="' +
+                      config.btn.ok.type +
+                      '">' +
+                      config.btn.ok.text +
+                      "</button>"
+                    : ""
+                }
+        ${
+          config.btn.cancel.enable
+            ? '<button class="pops-confirm-btn-cancel" type="' +
+              config.btn.cancel.type +
+              '">' +
+              config.btn.cancel.text +
+              "</button>"
+            : ""
+        }
+        ${
+          config.btn.other.enable
+            ? '<button class="pops-confirm-btn-other" type="' +
+              config.btn.other.type +
+              '">' +
+              config.btn.other.text +
+              "</button>"
+            : ""
+        }`
           }
 				</div>
 				${
@@ -1930,6 +1972,8 @@
    *  placeholder: string,
    * }} content 内容配置
    * @property {{
+   *  merge: boolean,
+   *  mergeReverse: boolean,
    *  reverse: boolean,
    *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
    *  ok: PopsPromptBtmDetails,
@@ -1983,6 +2027,8 @@
         placeholder: "默认提示" /* 输入框的提示 */,
       },
       btn: {
+        merge: false,
+        mergeReverse: false,
         reverse: false,
         position: "flex-end",
         /* center、flex-start、flex-end、space-between、space-around、space-evenly */
@@ -2086,31 +2132,69 @@
             config.btn.position
           };${config.btn.reverse ? "flex-direction: row-reverse;" : ""}">
             ${
-              config.btn.ok.enable
-                ? '<button class="pops-prompt-btn-ok" type="' +
-                  config.btn.ok.type +
-                  '">' +
-                  config.btn.ok.text +
-                  "</button>"
-                : ""
-            }
-            ${
-              config.btn.cancel.enable
-                ? '<button class="pops-prompt-btn-cancel" type="' +
-                  config.btn.cancel.type +
-                  '">' +
-                  config.btn.cancel.text +
-                  "</button>"
-                : ""
-            }
-            ${
-              config.btn.other.enable
-                ? '<button class="pops-prompt-btn-other" type="' +
-                  config.btn.other.type +
-                  '">' +
-                  config.btn.other.text +
-                  "</button>"
-                : ""
+              config.btn.merge
+                ? `
+              ${
+                config.btn.other.enable
+                  ? '<button class="pops-prompt-btn-other" type="' +
+                    config.btn.other.type +
+                    '">' +
+                    config.btn.other.text +
+                    "</button>"
+                  : ""
+              }
+              <div class="pops-prompt-btn-merge" style="display: flex;flex-direction: ${
+                config.btn.mergeReverse ? "row-reverse" : "row"
+              };">
+              ${
+                config.btn.ok.enable
+                  ? '<button class="pops-prompt-btn-ok" type="' +
+                    config.btn.ok.type +
+                    '">' +
+                    config.btn.ok.text +
+                    "</button>"
+                  : ""
+              }
+              ${
+                config.btn.cancel.enable
+                  ? '<button class="pops-prompt-btn-cancel" type="' +
+                    config.btn.cancel.type +
+                    '">' +
+                    config.btn.cancel.text +
+                    "</button>"
+                  : ""
+              }
+              </div>
+              `
+                : `
+              ${
+                config.btn.ok.enable
+                  ? '<button class="pops-prompt-btn-ok" type="' +
+                    config.btn.ok.type +
+                    '">' +
+                    config.btn.ok.text +
+                    "</button>"
+                  : ""
+              }
+              ${
+                config.btn.cancel.enable
+                  ? '<button class="pops-prompt-btn-cancel" type="' +
+                    config.btn.cancel.type +
+                    '">' +
+                    config.btn.cancel.text +
+                    "</button>"
+                  : ""
+              }
+              ${
+                config.btn.other.enable
+                  ? '<button class="pops-prompt-btn-other" type="' +
+                    config.btn.other.type +
+                    '">' +
+                    config.btn.other.text +
+                    "</button>"
+                  : ""
+              }
+              `
             }
           </div>
           ${
