@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-10-6";
+  Utils.version = "2023-10-9";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -4511,19 +4511,24 @@
   /**
    * 字符串转Object对象，类似'{"test":""}' => {"test":""}
    * @param {string} data
+   * @param {Function} errorCallBack 错误回调
    * @returns {object}
    * @example
    * Utils.toJSON("{123:123}")
    * > {123:123}
    */
-  Utils.toJSON = function (data) {
+  Utils.toJSON = function (data, errorCallBack = () => {}) {
     let result = {};
     Utils.tryCatch()
       .config({ log: false })
-      .error(() => {
+      .error((error) => {
         Utils.tryCatch()
           .error(() => {
-            result = window.eval("(" + data + ")");
+            try {
+              result = window.eval("(" + data + ")");
+            } catch (error) {
+              errorCallBack(error);
+            }
           })
           .run(() => {
             if (
@@ -4539,6 +4544,8 @@
               )
             ) {
               result = new Function("return " + data)();
+            } else {
+              errorCallBack(new Error("target is not a JSON"));
             }
           });
       })
