@@ -178,7 +178,7 @@ abcd
 ### 5. 为什么在设置中开启`读取剪贴板`且剪贴板中存在网盘链接，但是并没有成功识别？
 
 1. 可能是设置中需要识别的网盘自定义的`提取码间隔前/后(Text/HTML)`不够准确。
-2. 该功能只能在`Chromeium内核`中生效，如Edge、Chrome、Kiwi中、Via、X浏览器，且当前网址必须是https安全网站，http不可以，使用`Gecko内核`的浏览器的话，API不会生效，如fireFox、可拓，Safari无法测试。
+2. 该功能只能在`Chromium内核`中生效，如Edge、Chrome、Kiwi中、Via、X浏览器，且当前网址必须是https安全网站，http不可以，使用`Gecko内核`的浏览器的话，API不会生效，如fireFox、可拓，Safari无法测试。
 
 ### 6. 如何配置自定义规则
 
