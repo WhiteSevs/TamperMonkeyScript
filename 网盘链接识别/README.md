@@ -179,3 +179,52 @@ abcd
 
 1. 可能是设置中需要识别的网盘自定义的`提取码间隔前/后(Text/HTML)`不够准确。
 2. 该功能只能在`Chromeium内核`中生效，如Edge、Chrome、Kiwi中、Via、X浏览器，且当前网址必须是https安全网站，http不可以，使用`Gecko内核`的浏览器的话，API不会生效，如fireFox、可拓，Safari无法测试。
+
+### 6. 如何配置自定义规则
+
+```js
+[
+    { // 只有分享码的
+        "key": "test1", // （必须）这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
+        "icon": "", // 用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
+        "regexp": { // （必须）匹配规则
+            "link_innerText": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）当设置中匹配类型为文本/全部，使用该规则
+            "link_innerHTML": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）当设置中匹配类型为超文本/全部，使用该规则
+            "shareCode": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）用于提取出shareCode
+            "shareCodeNeedRemoveStr": "^www.test.com/file/\\?surl=", // （必须）用于删除提取出的shareCode前面的域名、路径字符串
+            "acceesCodeNotMatch": "^(font|div|xxxx)", // 用于排除肯定不是提取码的关键字
+            "uiLinkShow": "https://www.test.com/file/?surl={#shareCode#}", // （必须）显示出的链接
+            "blank": "https://www.test.com/file/?surl={#shareCode#}", // （必须）用于超链接打开
+            "copyUrl": "https://www.test.com/file/?surl={#shareCode#}", // （必须）用于复制到剪贴板
+
+        },
+        "setting": { // 设置
+            "name": "wangpantest1", // 在设置中显示的网盘名
+            "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
+        }
+    },
+    { // 存在提取码的
+        "key": "test2", // （必须）这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
+        "icon": "https://www.test2.com/favicon.ico", // 用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
+        "regexp": { // （必须）匹配规则
+            "link_innerText": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+[\\s\\S]{0,20}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)", // （必须）当设置中匹配类型为文本/全部，使用该规则
+            "link_innerHTML": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+[\\s\\S]{0,100}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)", // （必须）当设置中匹配类型为超文本/全部，使用该规则
+            "shareCode": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）用于提取出shareCode
+            "shareCodeNeedRemoveStr": "^www.test2.com/file/\\?surl=", // （必须）用于删除提取出的shareCode前面的域名、路径字符串
+            "checkAccessCode": "(密码|访问码|提取码)[\\s\\S]+", // 用于判断提取码是否存在
+            "accessCode": "([0-9a-zA-Z]{4})", // 匹配提取码
+            "acceesCodeNotMatch": "^(font|div|xxxx)", // 用于排除肯定不是提取码的关键字
+            "uiLinkShow": "https://www.test2.com/file/?surl={#shareCode#} 提取码：{#accessCode#}", // （必须）显示出的链接
+            "blank": "https://www.test2.com/file/?surl={#shareCode#}", // （必须）用于超链接打开，提取码会自动复制到剪贴板
+            "copyUrl": "链接：https://www.test2.com/file/?surl={#shareCode#}\n密码：{#accessCode#}", // （必须）用于复制到剪贴板
+
+        },
+        "setting": { // 设置
+            "name": "wangpantest2", // 在设置中显示的网盘名
+            "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
+        }
+    },
+    ...
+]
+
+```
