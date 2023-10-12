@@ -4438,6 +4438,12 @@
       GM_setValue("userRule", userRule);
     },
     /**
+     * 清空规则
+     */
+    clearRule() {
+      GM_deleteValue("userRule");
+    },
+    /**
      * 获取规则
      * @returns {{
      * key: string,
@@ -8411,6 +8417,11 @@
                   "textarea.netdisk-custom-rules"
                 );
                 try {
+                  if (textAreaElement.value.trim() === "") {
+                    NetDiskCustomRules.clearRule();
+                    event.close();
+                    return;
+                  }
                   let ruleJSON = JSON.parse(textAreaElement.value);
                   if (!Array.isArray(ruleJSON)) {
                     Qmsg.error("该规则不是一个数组");
