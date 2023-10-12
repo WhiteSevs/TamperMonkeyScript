@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.10.8
+// @version      2023.10.12
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,8 +58,8 @@
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1249092
-// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1256918
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1260472
+// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1263431
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1262507
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258535
 // ==/UserScript==
 
@@ -85,23 +85,7 @@
    */
   const DOMUtils = window.DOMUtils.noConflict();
   const log = new utils.Log(GM_info);
-  log.config({
-    logMaxCount: 200000,
-    autoClearConsole: false,
-  });
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
-  httpx.config({
-    onabort: function () {
-      Qmsg.error("请求被取消");
-    },
-    ontimeout: function () {
-      Qmsg.error("请求超时");
-    },
-    onerror: function (response) {
-      Qmsg.error("请求异常");
-      log.error(["httpx-onerror", response]);
-    },
-  });
   let GM_Menu = new utils.GM_Menu({
     autoReload: false,
     GM_getValue,
@@ -120,9 +104,22 @@
      * @type {utils.Dictionary}
      */
     linkDict: null,
-    isMatching: false /* 正在匹配链接中 */,
-    matchLink: null /* 匹配到的 */,
-    hasMatchLink: false /* 已存在匹配的链接 */,
+    /**
+     * 是否正在匹配链接中
+     */
+    isMatching: false,
+    /**
+     * 匹配到的链接
+     */
+    matchLink: null,
+    /**
+     * 是否成功匹配到链接
+     */
+    hasMatchLink: false,
+    /**
+     * 剪贴板内容
+     */
+    clipboardText: "",
     regular: {
       baidu: [
         {
@@ -759,9 +756,8 @@
     },
     /**
      * 对页面进行match，处理匹配网盘链接
-     * @param {string} [clipboardText=""] 剪贴板文本
      */
-    matchPageLink(clipboardText = "") {
+    matchPageLink() {
       if (!this.isInit) {
         this.matchLink = new Set();
         this.initLinkDict();
@@ -791,16 +787,16 @@
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
-            if (clipboardText.trim() !== "") {
+            if (NetDisk.clipboardText.trim() !== "") {
               NetDiskWorker.GM_matchWorker.postMessage({
                 regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
-                pageText: userClipBoardText,
+                pageText: NetDisk.clipboardText,
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
               NetDiskWorker.GM_matchWorker.postMessage({
                 regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
-                pageText: userClipBoardText,
+                pageText: NetDisk.clipboardText,
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
@@ -831,13 +827,13 @@
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
-            if (clipboardText.trim() !== "") {
+            if (NetDisk.clipboardText.trim() !== "") {
               NetDiskWorker.GM_matchWorker.postMessage({
                 regexp: new RegExp(
                   netDiskListItem[`link_${matchTextRange}`],
                   "gi"
                 ),
-                pageText: clipboardText,
+                pageText: NetDisk.clipboardText,
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
@@ -919,11 +915,14 @@
         log.error([[...arguments], netDiskMatchRegular.shareCode]);
         return "";
       }
-
-      let shareCode = shareCodeMatch[0].replace(
-        netDiskMatchRegular.shareCodeNeedRemoveStr,
-        ""
-      );
+      let shareCode = shareCodeMatch[0];
+      if (netDiskMatchRegular.shareCodeNeedRemoveStr) {
+        /* 删除ShareCode前面不需要的字符串 */
+        shareCode = shareCode.replace(
+          netDiskMatchRegular.shareCodeNeedRemoveStr,
+          ""
+        );
+      }
       let shareCodeNotMatch = netDiskMatchRegular.shareCodeNotMatch;
       if (shareCodeNotMatch != null && shareCode.match(shareCodeNotMatch)) {
         log.error(`不可能的shareCode => ${shareCode}`);
@@ -943,6 +942,10 @@
       /* 当前执行正则匹配的规则 */
       let netDiskMatchRegular = this.regular[netDiskName][netDiskIndex];
       let accessCode = "";
+      if (!netDiskMatchRegular.checkAccessCode) {
+        /* 不存在匹配提取码的正则 */
+        return "";
+      }
       let accessCodeMatch = url.match(netDiskMatchRegular.checkAccessCode);
       if (accessCodeMatch) {
         accessCode = accessCodeMatch[accessCodeMatch.length - 1].match(
@@ -1028,29 +1031,45 @@
     },
     /**
      * 获取剪贴板文本
-     * @returns
+     * @returns {Promise<string>}
      */
-    getClipboardText() {
-      return new Promise((res) => {
-        navigator.permissions
-          .query({
-            name: "clipboard-read",
-          })
-          .then((result) => {
-            const hasFocus =
-              document.hasFocus(); /* 这个是重点，可判断是否为当前dom页面 */
-            if (
-              hasFocus &&
-              (result.state === "granted" || result.state === "prompt")
-            ) {
-              const clipboard = navigator.clipboard.readText();
-              clipboard.then((clipText) => {
-                res(clipText);
-              });
-            } else {
-              res("");
-            }
-          });
+    async getClipboardText() {
+      return new Promise((resolve) => {
+        function clipboardRead() {
+          navigator.permissions
+            .query({
+              name: "clipboard-read",
+            })
+            .then((result) => {
+              function getText() {
+                let clipboard = navigator.clipboard.readText();
+                clipboard
+                  .then((clipText) => {
+                    resolve(clipText);
+                  })
+                  .catch((error) => {
+                    log.error(["读取剪贴板内容失败", error]);
+                    resolve("");
+                  });
+              }
+              getText();
+            })
+            .catch((error) => {
+              log.error(["读取剪贴板内容失败👉", error]);
+              resolve("");
+            });
+        }
+        if (document.hasFocus()) {
+          clipboardRead();
+        } else {
+          window.addEventListener(
+            "focus",
+            () => {
+              clipboardRead();
+            },
+            { once: true }
+          );
+        }
       });
     },
   };
@@ -1075,55 +1094,52 @@
          * @returns
          */
         this.default = function (netDiskIndex, shareCode, accessCode) {
-          let bdurl = GM_getValue("bdurl");
-          let paramSurl = GM_getValue("paramSurl");
-          let paramPwd = GM_getValue("paramPwd");
-          let paramKey = GM_getValue("paramKey");
-          let paramWebSiteKey = GM_getValue("paramWebSiteKey");
-          let baidu_website_key_enable = GM_getValue(
-            "baidu-website-key-enable",
-            false
-          );
-
-          if (!bdurl) {
-            Qmsg.error("请完善配置 网址-Url");
+          let url = GM_getValue("baidu-baiduwp-php-url");
+          let postForm = GM_getValue("baidu-baiduwp-php-post-form");
+          let enableCopy = GM_getValue("baidu-baiduwp-php-copy-url");
+          if (!url) {
+            Qmsg.error("请先在设置中配置百度网盘-网址");
             return null;
           }
-          if (!paramSurl) {
-            Qmsg.error("请完善配置 参数-Key");
+          if (!postForm) {
+            Qmsg.error("请先在设置中配置百度网盘-表单参数");
             return null;
           }
-          if (!paramPwd) {
-            Qmsg.error("请完善配置 密码-Key");
-            return null;
+          postForm = postForm.replaceAll("{#shareCode#}", shareCode);
+          postForm = postForm.replaceAll("{#accessCode#}", accessCode);
+          let formElement = document.createElement("form");
+          /* POST的表单数据 */
+          let formData = {};
+          let urlParams = new URLSearchParams(postForm);
+          /* 解析网址 */
+          formElement.action = url;
+          formElement.method = "post";
+          formElement.style.display = "none";
+          formElement.target = "_blank";
+          for (let [key, value] of urlParams) {
+            let textAreaElement = document.createElement("textarea");
+            textAreaElement.name = key;
+            textAreaElement.value = value;
+            formElement.appendChild(textAreaElement);
+            formData[key] = value;
           }
-          if (!paramKey) {
-            Qmsg.error("请完善配置 密钥-Key");
-            return null;
+          log.info(["表单数据", formData]);
+          document.body.appendChild(formElement);
+          log.info(["访问网址", url]);
+          if (enableCopy) {
+            NetDiskParse.copyText(
+              "baidu",
+              netDiskIndex,
+              shareCode,
+              accessCode,
+              "1.5秒后跳转至解析站"
+            );
+            setTimeout(() => {
+              formElement.submit();
+            }, 1500);
+          } else {
+            formElement.submit();
           }
-          if (baidu_website_key_enable && !paramWebSiteKey) {
-            Qmsg.error("请完善配置 密钥-Value");
-            return null;
-          }
-          var tempFormNode = document.createElement("form");
-          var list = {}; /* 表单数据 */
-          list[paramSurl] = shareCode;
-          list[paramPwd] = accessCode;
-          if (baidu_website_key_enable) {
-            list[paramKey] = paramWebSiteKey;
-          }
-          tempFormNode.action = bdurl; /* 解析网址 */
-          tempFormNode.method = "post";
-          tempFormNode.style.display = "none";
-          tempFormNode.target = "_blank";
-          for (var x in list) {
-            var opt = document.createElement("textarea");
-            opt.name = x;
-            opt.value = list[x]; /* alert(opt.name) */
-            tempFormNode.appendChild(opt);
-          }
-          document.body.appendChild(tempFormNode);
-          tempFormNode.submit();
         };
         return this;
       },
@@ -3788,9 +3804,9 @@
       }
       url = url.replace(/&/g, "{-and-}");
       url = url.replace(/#/g, "{-number-}");
-      let thisScheme = GM_getValue(forward_key, this.defaultScheme);
-      thisScheme = thisScheme.replace("{#intentData#}", url);
-      return thisScheme;
+      let currentScheme = GM_getValue(forward_key, this.defaultScheme);
+      currentScheme = currentScheme.replace("{#intentData#}", url);
+      return currentScheme;
     },
   };
 
@@ -3799,18 +3815,18 @@
    */
   const NetDiskAutoFillAccessCode = {
     /**
-     * 临时数据 {
-        "shareCode": "",
-        "accessCode": "",
-        "netDiskName": ""
-    }
-     * @type {object|undefined}
+     * 临时数据
+     * @type {{
+     * shareCode: string,
+     * accessCode: string,
+     * netDiskName: string,
+     * }|undefined}
      */
     tempData: GM_getValue("tempNetDiskInfo"),
     /**
-     * @type {boolean|undefined} 自动输入访问码是否开启
+     * @type {boolean} 自动输入访问码是否开启
      */
-    enable: GM_getValue("autoFillAccessCode"),
+    enable: Boolean(GM_getValue("autoFillAccessCode")),
     shareCode: null,
     accessCode: null,
     netDiskName: null,
@@ -4025,16 +4041,14 @@
     },
     /**
      * 文叔叔
+     * 暂时没找到有密码的链接
      */
-    wenshushu() {
-      /* 暂时没找到有密码的链接 */
-    },
+    wenshushu() {},
     /**
      * 奶牛
+     * 暂时没找到有密码的链接
      */
-    nainiu() {
-      /* 暂时没找到有密码的链接 */
-    },
+    nainiu() {},
     /**
      * 123云盘
      */
@@ -4239,16 +4253,14 @@
     },
     /**
      * 坚果云
+     * 暂时没找到有密码的链接
      */
-    jianguoyun() {
-      /* 暂时没找到有密码的链接 */
-    },
+    jianguoyun() {},
     /**
      * OneDrive
+     * 暂时没找到有密码的链接
      */
-    onedrive() {
-      /* 暂时没找到有密码的链接 */
-    },
+    onedrive() {},
   };
 
   const NetDiskWorker = {
@@ -4371,6 +4383,93 @@
     errorCallBack(error) {
       NetDiskUI.isHandleMatch = false;
       log.error(["Worker Error", error]);
+    },
+  };
+
+  const NetDiskCustomRules = {
+    init() {
+      Object.assign(NetDisk.regular, this.parseRule());
+    },
+    /**
+     * 把用户自定义规则进行转换成脚本规则
+     * @returns {object}
+     */
+    parseRule() {
+      let regular = {};
+      this.getRule().forEach((item) => {
+        let data = item.regexp;
+        data.shareCode = new RegExp(data.shareCode, "ig");
+        data.shareCodeNeedRemoveStr = new RegExp(
+          data.shareCodeNeedRemoveStr,
+          "ig"
+        );
+        if (data.checkAccessCode) {
+          data.checkAccessCode = new RegExp(data.checkAccessCode, "ig");
+        }
+        if (data.accessCode) {
+          data.accessCode = new RegExp(data.accessCode, "ig");
+        }
+        if (data.acceesCodeNotMatch) {
+          data.acceesCodeNotMatch = new RegExp(data.acceesCodeNotMatch, "ig");
+        }
+        if (regular[item.key]) {
+          /* 已存在相同key规则，追加新的 */
+          regular[item.key].push(data);
+        } else {
+          regular[item.key] = [data];
+        }
+        if (item.setting) {
+          /* 进行了设置 */
+          if (item.setting.isBlank) {
+            GM_setValue(item.key + "-open-enable", true);
+          } else {
+            GM_deleteValue(item.key + "-open-enable");
+          }
+        }
+        NetDiskUI.src.icon[item.key] = item.icon;
+      });
+      return regular;
+    },
+    /**
+     * 设置规则到本地
+     * @param {object} userRule
+     */
+    setRule(userRule) {
+      GM_setValue("userRule", userRule);
+    },
+    /**
+     * 获取规则
+     * @returns {{
+     * key: string,
+     * icon: string,
+     * regexp: {
+     *  link_innerText: string,
+     *  link_innerHTML: string,
+     *  shareCode: string,
+     *  shareCodeNeedRemoveStr: string,
+     *  accessCode: string|undefined,
+     *  checkAccessCode: string|undefined,
+     *  acceesCodeNotMatch: string|undefined,
+     *  uiLinkShow: string,
+     *  blank: string,
+     *  copyUrl: string,
+     * },
+     * setting: {
+     *  name: string|undefined,
+     *  isBlank: boolean
+     * }|undefined
+     * }[]}
+     */
+    getRule() {
+      return GM_getValue("userRule", []);
+    },
+    /**
+     * 获取格式化后的规则
+     * @param {string|undefined} rule
+     * @returns {string}
+     */
+    getFormatRule(rule) {
+      return JSON.stringify(rule || this.getRule(), null, 4);
     },
   };
 
@@ -4553,6 +4652,32 @@
         },
       },
       /**
+       * 自定义规则的弹窗
+       */
+      customRulesView: {
+        PC: {
+          width: "50vw",
+          height: "65vh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "60vh",
+        },
+      },
+      /**
+       * 主动识别的弹窗
+       */
+      matchPasteTextView: {
+        PC: {
+          width: "50vw",
+          height: "65vh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "60vh",
+        },
+      },
+      /**
        * 访问码规则弹窗
        */
       accessCodeRuleView: {
@@ -4708,9 +4833,13 @@
 					align-items: center;
 				}
 				.netdisk-setting-menu-item label{
+          cursor: auto;
 					width: 170px;
 					padding-right: 15px;
 				}
+        .netdisk-setting-menu-item label[data-cursor-pointer]{
+          cursor: pointer;
+        }
 				.netdisk-setting-menu-item[type=checkbox]{
 					align-items: flex-start;
 				}
@@ -4919,36 +5048,24 @@
               range_accessCode_after_html_default_value: 15,
               firstHTML: `
                       <div class="netdisk-setting-menu-item">
-                          <label>网址-Url</label>
-                          <input type="text" data-key="bdurl" placeholder="如：https://www.example.com/">
+                          <label>网址</label>
+                          <input type="text" data-key="baidu-baiduwp-php-url" placeholder="使用了baiduwp-php源码的网站，例如：https://www.example.com/">
                       </div>
                       <div class="netdisk-setting-menu-item">
-                          <label>参数-Key</label>
-                          <input type="text" data-key="paramSurl" placeholder="如：surl">
-                      </div>
-                      <div class="netdisk-setting-menu-item">
-                          <label>密码-Key</label>
-                          <input type="text" data-key="paramPwd" placeholder="如：pwd">
+                          <label>表单参数</label>
+                          <input type="text" data-key="baidu-baiduwp-php-post-form" placeholder="POST请求的表单参数，例如：surl={#shareCode#}&pwd={#accessCode#}&password=">
                       </div>
                       <div class="netdisk-setting-menu-item" type="checkbox">
-                          <p>第三方解析站启用密钥验证</p>
+                          <p>启用第三方网站解析链接</p>
                           <div class="netdisk-checkbox">
-                            <input type="checkbox" data-key="baidu-website-key-enable">
+                            <input type="checkbox" data-key="baidu-static-enable" mutex=".netdisk-checkbox input[data-key='baidu-open-enable']">
                             <div class="knobs"><span></span></div><div class="layer"></div>
                           </div>
                       </div>
-                      <div class="netdisk-setting-menu-item">
-                          <label>密钥-Key</label>
-                          <input type="text" data-key="paramKey" placeholder="如：Password">
-                      </div>
-                      <div class="netdisk-setting-menu-item">
-                          <label>密钥-Value</label>
-                          <input type="text" data-key="paramWebSiteKey"  placeholder="密钥，有就填">
-                      </div>
                       <div class="netdisk-setting-menu-item" type="checkbox">
-                          <p>启用第三方解析</p>
+                          <p>跳转第三方网站时复制链接</p>
                           <div class="netdisk-checkbox">
-                            <input type="checkbox" data-key="baidu-static-enable" mutex=".netdisk-checkbox input[data-key='baidu-open-enable']">
+                            <input type="checkbox" data-key="baidu-baiduwp-php-copy-url" mutex=".netdisk-checkbox input[data-key='baidu-open-enable']">
                             <div class="knobs"><span></span></div><div class="layer"></div>
                           </div>
                       </div>`,
@@ -5703,9 +5820,9 @@
          */
         function setSettingLabelEvent() {
           NetDiskUI.uiSettingAlias.popsElement
-            .querySelectorAll("label[data-id*=netdisk-]")
+            .querySelectorAll("label[data-id*='netdisk-']")
             .forEach((item) => {
-              item.style.setProperty("cursor", "pointer");
+              item.setAttribute("data-cursor-pointer", true);
               DOMUtils.on(item, "click", function (event) {
                 let obj = event.target;
                 let nextObj = DOMUtils.next(obj);
@@ -5718,13 +5835,13 @@
                     position: "center",
                   },
                   content: {
-                    text: `当前设置的值为:${currentValue}，是否修改为默认值:${dataDefaultValue} ？`,
+                    text: `当前设置的值为：${currentValue}，是否修改为默认值：${dataDefaultValue} ？`,
                   },
                   btn: {
                     ok: {
                       callback: function (_event_) {
                         log.info(
-                          `key：${dataKey} 当前值 ==> ${currentValue}，修改为默认值 ==> ${dataDefaultValue}`
+                          `key：${dataKey} 当前值：${currentValue}，修改为默认值：${dataDefaultValue}`
                         );
                         GM_setValue(dataKey, dataDefaultValue);
                         DOMUtils.val(nextObj, dataDefaultValue);
@@ -5931,6 +6048,20 @@
               callback() {
                 log.info("打开-访问码规则");
                 NetDiskUI.accessCodeRule.show();
+              },
+            },
+            {
+              text: "自定义规则",
+              callback() {
+                log.info("打开-自定义规则");
+                NetDiskUI.customRules.show();
+              },
+            },
+            {
+              text: "主动识别文本",
+              callback() {
+                log.info("打开-主动识别文本");
+                NetDiskUI.matchPasteText.show();
               },
             },
           ]);
@@ -7741,6 +7872,7 @@
             html: true,
           },
           btn: {
+            merge: true,
             reverse: false,
             position: "space-between",
             ok: {
@@ -7813,22 +7945,6 @@
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
-        DOMUtils.append(
-          popsConfirm.element.querySelector(".pops-confirm-btn"),
-          DOMUtils.createElement("div")
-        );
-        DOMUtils.append(
-          popsConfirm.element.querySelector(".pops-confirm-btn > div"),
-          popsConfirm.element.querySelector(
-            ".pops-confirm-btn button.pops-confirm-btn-cancel"
-          )
-        );
-        DOMUtils.append(
-          popsConfirm.element.querySelector(".pops-confirm-btn > div"),
-          popsConfirm.element.querySelector(
-            ".pops-confirm-btn button.pops-confirm-btn-ok"
-          )
-        );
         that.setDeleteAllBtnText(popsConfirm.element);
         this.setEvent(popsConfirm);
       },
@@ -8265,6 +8381,304 @@
       },
     },
     /**
+     * 用户自定义规则
+     */
+    customRules: {
+      isInitCSS: false,
+      show() {
+        let that = this;
+        this.initCSS();
+        let popsConfirm = pops.confirm({
+          title: {
+            text: "自定义规则",
+            position: "center",
+          },
+          content: {
+            text: `
+            <textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>
+            `,
+            html: true,
+          },
+          btn: {
+            merge: true,
+            mergeReverse: false,
+            reverse: false,
+            position: "space-between",
+            ok: {
+              text: "保存",
+              callback(event) {
+                let textAreaElement = event.popsElement.querySelector(
+                  "textarea.netdisk-custom-rules"
+                );
+                try {
+                  let ruleJSON = JSON.parse(textAreaElement.value);
+                  if (!Array.isArray(ruleJSON)) {
+                    Qmsg.error("该规则不是一个数组");
+                    return;
+                  }
+                  let mustProperty = ["key", "icon", "regexp"];
+                  let regexpMustProperty = [
+                    "link_innerText",
+                    "link_innerHTML",
+                    "shareCode",
+                    "shareCodeNeedRemoveStr",
+                    "uiLinkShow",
+                    "blank",
+                    "copyUrl",
+                  ];
+                  for (let index = 0; index < ruleJSON.length; index++) {
+                    let item = ruleJSON[index];
+                    if (typeof item !== "object") {
+                      Qmsg.error(`第${index + 1}条规则不是一个对象`);
+                      return;
+                    }
+                    for (
+                      let index2 = 0;
+                      index2 < mustProperty.length;
+                      index2++
+                    ) {
+                      let propertyName = mustProperty[index2];
+                      if (!Object.hasOwnProperty.call(item, propertyName)) {
+                        Qmsg.error(
+                          `第${index + 1}条规则缺少属性 ${propertyName} `
+                        );
+                        return;
+                      }
+                    }
+                    if (typeof item["regexp"] !== "object") {
+                      Qmsg.error(`第${index + 1}条规则的regexp不是一个对象`);
+                      return;
+                    }
+                    for (
+                      let index2 = 0;
+                      index2 < regexpMustProperty.length;
+                      index2++
+                    ) {
+                      let propertyName = regexpMustProperty[index2];
+                      if (
+                        !Object.hasOwnProperty.call(
+                          item["regexp"],
+                          propertyName
+                        )
+                      ) {
+                        Qmsg.error(
+                          `第${
+                            index + 1
+                          }条规则中的regexp内缺少属性 ${propertyName}`
+                        );
+                        return;
+                      }
+                    }
+                    if (
+                      item["regexp"]["accessCode"] &&
+                      !item["regexp"]["checkAccessCode"]
+                    ) {
+                      Qmsg.error(
+                        `第${
+                          index + 1
+                        }条规则中的regexp内设置了accessCode但是没有设置checkAccessCode`
+                      );
+                      return;
+                    }
+                    if (
+                      item["regexp"]["checkAccessCode"] &&
+                      !item["regexp"]["accessCode"]
+                    ) {
+                      Qmsg.error(
+                        `第${
+                          index + 1
+                        }条规则中的regexp内设置了checkAccessCode但是没有设置accessCode`
+                      );
+                      return;
+                    }
+                  }
+                  NetDiskCustomRules.setRule(ruleJSON);
+                  Qmsg.success(`保存规则${ruleJSON.length}条`);
+                  event.close();
+                } catch (error) {
+                  log.error(error);
+                  Qmsg.error(error.message, {
+                    html: true,
+                    timeout: 3500,
+                  });
+                }
+              },
+            },
+            other: {
+              enable: true,
+              text: "格式化",
+              type: "xiaomi-primary",
+              callback(event) {
+                let textAreaElement = event.popsElement.querySelector(
+                  "textarea.netdisk-custom-rules"
+                );
+                try {
+                  let ruleJSON = JSON.parse(textAreaElement.value);
+                  let ruleJSONString =
+                    NetDiskCustomRules.getFormatRule(ruleJSON);
+                  textAreaElement.value = ruleJSONString;
+                  Qmsg.success("格式化成功");
+                } catch (error) {
+                  log.error(error);
+                  Qmsg.error(error.message, {
+                    html: true,
+                    timeout: 3500,
+                  });
+                }
+              },
+            },
+          },
+          class: "whitesevPopNetDiskCustomRules",
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.customRulesView.Mobile.height
+            : NetDiskUI.popsStyle.customRulesView.PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.customRulesView.Mobile.width
+            : NetDiskUI.popsStyle.customRulesView.PC.height,
+          mask: true,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
+        });
+        popsConfirm.popsElement.querySelector("textarea").value =
+          NetDiskCustomRules.getFormatRule();
+      },
+      initCSS() {
+        if (this.isInitCSS) {
+          return;
+        }
+        this.isInitCSS = true;
+        GM_addStyle(`
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea{
+          width: 100%;
+          height: 100%;
+          font-size: 16px;
+        }
+        /* textarea美化 */
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea{
+          border: none;
+          outline: none;
+          padding: 0;
+          margin: 0;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+          background-image: none;
+          background-color: transparent;
+        }
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus{
+          outline: none;
+        }
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {
+          display: inline-block;
+          resize: vertical;
+          padding: 5px 15px;
+          line-height: 1.5;
+          box-sizing: border-box;
+          color: #606266;
+          background-color: #fff;
+          border: 1px solid #dcdfe6;
+          border-radius: 4px;
+          transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        /* 提示文字 */
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {
+          color: #c0c4cc;
+        }
+      
+        /* 鼠标hover */
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {
+          border-color: #c0c4cc;
+        }
+      
+        /* 获得焦点 */
+        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {
+          border-color: #3677f0;
+        }
+        `);
+      },
+    },
+    /**
+     * 主动识别文本
+     */
+    matchPasteText: {
+      isInitCSS: false,
+      show() {
+        this.initCSS();
+        let popsConfirm = pops.confirm({
+          title: {
+            text: "主动识别文本",
+            position: "center",
+          },
+          content: {
+            text: `
+            <textarea class="netdisk-match-paste-text"></textarea>
+            `,
+            html: true,
+          },
+          btn: {
+            ok: {
+              text: "识别",
+              callback() {
+                NetDisk.clipboardText =
+                  popsConfirm.popsElement?.querySelector(
+                    ".netdisk-match-paste-text"
+                  )?.value || "";
+                NetDisk.matchPageLink();
+              },
+            },
+          },
+          class: "whitesevPopNetDiskMatchPasteText",
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+          height: pops.isPhone()
+            ? NetDiskUI.popsStyle.matchPasteTextView.Mobile.height
+            : NetDiskUI.popsStyle.matchPasteTextView.PC.height,
+          width: pops.isPhone()
+            ? NetDiskUI.popsStyle.matchPasteTextView.Mobile.width
+            : NetDiskUI.popsStyle.matchPasteTextView.PC.height,
+          mask: true,
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
+        });
+      },
+      initCSS() {
+        if (this.isInitCSS) {
+          return;
+        }
+        this.isInitCSS = true;
+        GM_addStyle(`
+        .netdisk-match-paste-text {
+          display: inline-block;
+          resize: vertical;
+          padding: 5px 15px;
+          line-height: 1.5;
+          box-sizing: border-box;
+          color: #606266;
+          background-color: #fff;
+          border: 1px solid #dcdfe6;
+          border-radius: 4px;
+          transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+          outline: none;
+          margin: 0;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+          background-image: none;
+          width: 100%;
+          height: 100%;
+          font-size: 16px;
+        }
+        .netdisk-match-paste-text:focus{
+            outline: none;
+            border-color: #3677f0;
+        }
+        .netdisk-match-paste-text:hover{
+            border-color: #c0c4cc;
+        }
+        `);
+      },
+    },
+    /**
      * 监听页面节点内容或节点文本的变动，从而进行匹配网盘链接
      */
     monitorDOMInsert() {
@@ -8277,14 +8691,13 @@
             return;
           }
           NetDiskUI.isHandleMatch = true;
-          let clipboardText = "";
           if (GM_getValue("readClipboard", false)) {
-            clipboardText = await NetDisk.getClipboardText();
+            NetDisk.clipboardText = await NetDisk.getClipboardText();
           }
-          if (typeof clipboardText !== "string") {
-            clipboardText = "";
+          if (typeof NetDisk.clipboardText !== "string") {
+            NetDisk.clipboardText = "";
           }
-          NetDisk.matchPageLink(clipboardText);
+          NetDisk.matchPageLink();
         },
         config: {
           /* 子节点的变动（新增、删除或者更改） */
@@ -8299,67 +8712,113 @@
       NetDisk.matchPageLink();
     },
   };
-  GM_Menu.add([
-    {
-      key: "showSetting",
-      text: "⚙ 打开设置界面",
-      showText(text) {
-        return text;
-      },
-      callback() {
-        NetDiskUI.suspension.initPop();
-        NetDiskUI.suspension.showSettingView();
-      },
+
+  const NetDiskMenu = {
+    init() {
+      GM_Menu.add([
+        {
+          key: "showSetting",
+          text: "⚙ 打开设置界面",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            NetDiskUI.suspension.initPop();
+            NetDiskUI.suspension.showSettingView();
+          },
+        },
+        {
+          key: "showNetDiskHistoryMatch",
+          text: "⚙ 打开历史匹配记录",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            NetDiskUI.netDiskHistoryMatch.show();
+          },
+        },
+        {
+          key: "showAccessCodeRule",
+          text: "⚙ 打开访问码规则",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            NetDiskUI.accessCodeRule.show();
+          },
+        },
+        {
+          key: "showUserRule",
+          text: "⚙ 打开用户自定义规则",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            NetDiskUI.customRules.show();
+          },
+        },
+        {
+          key: "showMatchPasteText",
+          text: "⚙ 打开主动识别本文",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            NetDiskUI.matchPasteText.show();
+          },
+        },
+        {
+          key: "repairHistoryMatchLocalData",
+          text: "🔧 修复版本＜23.5.30.10.00历史匹配记录的数据",
+          showText(text) {
+            return text;
+          },
+          callback() {
+            let localData = GM_getValue(
+              NetDiskUI.netDiskHistoryMatch.storageKey
+            );
+            let repairCount = 0;
+            if (!localData) {
+              Qmsg.error("本地暂未存储历史匹配记录数据");
+              return;
+            }
+            localData.forEach((item) => {
+              if (!("netDiskIndex" in item)) {
+                repairCount++;
+                item["netDiskIndex"] = 0;
+              }
+            });
+            if (repairCount) {
+              GM_setValue(NetDiskUI.netDiskHistoryMatch.storageKey, localData);
+              Qmsg.success(`成功修复 ${repairCount}条数据`);
+            } else {
+              Qmsg.success("不存在待修复的数据");
+            }
+          },
+        },
+      ]);
     },
-    {
-      key: "showNetDiskHistoryMatch",
-      text: "⚙ 打开历史匹配记录",
-      showText(text) {
-        return text;
-      },
-      callback() {
-        NetDiskUI.netDiskHistoryMatch.show();
-      },
-    },
-    {
-      key: "showAccessCodeRule",
-      text: "⚙ 打开访问码规则",
-      showText(text) {
-        return text;
-      },
-      callback() {
-        NetDiskUI.accessCodeRule.show();
-      },
-    },
-    {
-      key: "repairHistoryMatchLocalData",
-      text: "🔧 修复版本＜23.5.30.10.00历史匹配记录的数据",
-      showText(text) {
-        return text;
-      },
-      callback() {
-        let localData = GM_getValue(NetDiskUI.netDiskHistoryMatch.storageKey);
-        let repairCount = 0;
-        if (!localData) {
-          Qmsg.error("本地暂未存储历史匹配记录数据");
-          return;
-        }
-        localData.forEach((item) => {
-          if (!("netDiskIndex" in item)) {
-            repairCount++;
-            item["netDiskIndex"] = 0;
-          }
-        });
-        if (repairCount) {
-          GM_setValue(NetDiskUI.netDiskHistoryMatch.storageKey, localData);
-          Qmsg.success(`成功修复 ${repairCount}条数据`);
-        } else {
-          Qmsg.success("不存在待修复的数据");
-        }
-      },
-    },
-  ]);
+  };
+
+  NetDiskMenu.init();
+  NetDiskCustomRules.init();
   DOMUtils.ready(function () {
+    log.config({
+      logMaxCount: 200000,
+      autoClearConsole: false,
+    });
+    httpx.config({
+      onabort: function () {
+        Qmsg.error("请求被取消");
+      },
+      ontimeout: function () {
+        Qmsg.error("请求超时");
+      },
+      onerror: function (response) {
+        Qmsg.error("请求异常");
+        log.error(["httpx-onerror", response]);
+      },
+    });
     NetDiskAutoFillAccessCode.default();
     NetDiskAuthorization.default();
     NetDiskUI.monitorDOMInsert();
