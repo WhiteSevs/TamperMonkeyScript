@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.6
+// @version      2023.10.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -2096,6 +2096,14 @@
               }
             }
           }
+
+          if (utils.isNull(url)) {
+            /* 最新资讯上的隐藏的链接 */
+            let labelUrl = targetNode.getAttribute("label-url");
+            if (labelUrl) {
+              url = labelUrl;
+            }
+          }
           /* 因为链接中存在%25，需要正确替换成% */
           if (!utils.isNull(url) && url.startsWith("https://m.baidu.com/sf?")) {
             url = decodeURIComponent(url);
@@ -2399,6 +2407,23 @@
             handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
             articleElement.setAttribute("rl-link-href", resultItemOriginURL);
           }
+        },
+        /**
+         * 替换链接-vsearch
+         */
+        replaceVSearchLink() {
+          document
+            .querySelectorAll("#realtime-container  div:not([class])")
+            .forEach((element) => {
+              let linkElement = element.querySelector("a");
+              if (linkElement.hasAttribute("data-sf-visited")) {
+                let dataSfVisited = linkElement.getAttribute("data-sf-visited");
+                if (dataSfVisited !== linkElement.href) {
+                  linkElement.href = dataSfVisited;
+                  log.success("替换链接  " + dataSfVisited);
+                }
+              }
+            });
         },
       };
 
@@ -3028,6 +3053,23 @@
         searchUpdateRealLink.run();
         if (GM_Menu.get("baidu_search_automatically_expand_next_page")) {
           handleNextPage.init();
+        }
+        if (window.location.href.startsWith("https://m.baidu.com/sf/vsearch")) {
+          utils
+            .waitNode("#realtime-container .c-infinite-scroll")
+            .then((element) => {
+              let replaceVSearchLinkLonkFunction = new utils.LockFunction(
+                handleItemURL.replaceVSearchLink,
+                600
+              );
+              utils.mutationObserver(element, {
+                config: {
+                  subtree: true,
+                  childList: true,
+                },
+                callback: replaceVSearchLinkLonkFunction.run,
+              });
+            });
         }
       });
     },
