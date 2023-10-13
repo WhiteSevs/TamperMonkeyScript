@@ -686,7 +686,32 @@ let DataPaging = {};
      * @param {Object} details 配置
      */
     changeConfig(details) {
-      this.init(details);
+      Object.assign(this.CONFIG, details);
+      this.addCSS();
+    }
+
+    /**
+     * 刷新页面
+     * 当总页数5页，当前在第3页，把第3页的数据删完，后面2页的数据会自动往前，需要重新计算数据
+     * 且重新计算的数据的页数大于当前页（第3页）时，当前页不变，若小于当前页（第3页），则当前页为计算好的最大页
+     * @param {[...any]} data 新的数据
+     */
+    refresh(data){
+      if(data.length === this.CONFIG.data.length){
+        return;
+      }
+      this.CONFIG.data = data;
+      let currentPage = this.PAGE_CONFIG.getCurrentPage();
+      let maxPage = Math.ceil(
+        data.length / this.CONFIG.pageCount
+      );
+      if(currentPage > maxPage){
+        currentPage = maxPage;
+      }
+      this.CONFIG.currentPage = currentPage;
+      let parentElement = this.DOM_CONFIG.dataPagingNode.dom.parentElement;
+      this.append(parentElement);
+
     }
   }
   DataPaging = Paging;
