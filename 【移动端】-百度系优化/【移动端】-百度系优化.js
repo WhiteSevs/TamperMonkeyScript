@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.13
+// @version      2023.10.20
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -5796,8 +5796,24 @@
             tiebaBusiness.vueRootView.$toast(respData["error"]);
           }
         },
+        /**
+         * 客户端已调用调用伪装
+         */
+        clientCallMasquerade() {
+          let originGetItem = window.localStorage.getItem;
+          window.localStorage.getItem = function(key){
+            if(key === "p_w_app_call" || key=== "p_w_launchappcall"){
+              return JSON.stringify({
+                "value":1,
+                "date":utils.formatTime(undefined,"yyyyMMdd"),
+              })
+            }else{
+              return originGetItem.call(window.localStorage,key);
+            }
+          }
+        },
       };
-
+      tiebaBusiness.clientCallMasquerade();
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (
