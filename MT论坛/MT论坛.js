@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 更新Utils库；重构部分代码；
-// @version      2023.10.1
+// @description  更新日志: 新增部分CSS兼容Gecko内核;新增小窗刷新图标;
+// @version      2023.10.20
 // @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -21,7 +21,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @grant        GM_cookie
-// @run-at       document-end
+// @run-at       document-start
 // @connect      helloimg.com
 // @connect      z4a.net
 // @connect      kggzs.cn
@@ -117,9 +117,11 @@
                     -moz-box-sizing: content-box;
                     box-sizing: content-box;
                     -webkit-backface-visibility: hidden;
+                    backface-visibility: hidden;
                     -webkit-font-smoothing: antialiased/subpixel-antialiased;
                     touch-action: pan-y;
                     -webkit-user-select: none;
+                    user-select: none;
                     transform: translateY(160px);
                 
                 }
@@ -2729,7 +2731,8 @@
       let small_title_width = `calc(100% - ${
         small_icon_width + small_right_btn_width
       }px)`;
-      GM_addStyle(`
+      function initCSS() {
+        GM_addStyle(`
 				.xtiper_sheet,
 				.xtiper_sheet .xtiper_sheet_tit{
 						border-radius: 18px 18px 0px 0px;
@@ -2810,6 +2813,264 @@
 						position: relative;
 					}
 			`);
+        GM_addStyle(`
+      .refresh-icon {width: 40px;display: flex;align-items: center;}
+
+      .refresh-icon-out, .refresh-icon-in {
+          position: absolute;
+          border: 5px solid rgba(0, 183, 229, 0.9);
+          opacity: .9;
+          border-radius: 50px;
+          box-shadow: 0 0 15px #2187e7;
+          width: 20px;
+          height: 20px;
+          margin: 0 auto;
+      }
+
+      .refresh-icon-out {
+          background-color: rgba(0, 0, 0, 0);
+          border-right: 5px solid rgba(0, 0, 0, 0);
+          border-left: 5px solid rgba(0, 0, 0, 0);
+          -moz-animation: spinPulse 1s infinite ease-in-out;
+          -webkit-animation: spinPulse 1s infinite ease-in-out;
+          -o-animation: spinPulse 1s infinite ease-in-out;
+          -ms-animation: spinPulse 1s infinite ease-in-out;
+      }
+
+      .refresh-icon-in {
+          background: rgba(0, 0, 0, 0) no-repeat center center;
+          border-top: 5px solid rgba(0, 0, 0, 0);
+          border-bottom: 5px solid rgba(0, 0, 0, 0);
+          -moz-animation: spinoffPulse 3s infinite linear;
+          -webkit-animation: spinoffPulse 3s infinite linear;
+          -o-animation: spinoffPulse 3s infinite linear;
+          -ms-animation: spinoffPulse 3s infinite linear;
+      }
+
+      @-moz-keyframes spinPulse {
+          0% {
+              -moz-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -moz-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -moz-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-moz-keyframes spinoffPulse {
+          0% {
+              -moz-transform: rotate(0deg)
+          }
+
+          100% {
+              -moz-transform: rotate(360deg)
+          }
+      }
+
+      @-webkit-keyframes spinPulse {
+          0% {
+              -webkit-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -webkit-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -webkit-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-webkit-keyframes spinoffPulse {
+          0% {
+              -webkit-transform: rotate(0deg)
+          }
+
+          100% {
+              -webkit-transform: rotate(360deg)
+          }
+      }
+
+      @-o-keyframes spinPulse {
+          0% {
+              -o-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -o-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -o-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-o-keyframes spinoffPulse {
+          0% {
+              -o-transform: rotate(0deg)
+          }
+
+          100% {
+              -o-transform: rotate(360deg)
+          }
+      }
+
+      @-ms-keyframes spinPulse {
+          0% {
+              -ms-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -ms-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -ms-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-ms-keyframes spinoffPulse {
+          0% {
+              -ms-transform: rotate(0deg)
+          }
+
+          100% {
+              -ms-transform: rotate(360deg)
+          }
+      }
+
+      @-moz-keyframes spinPulse {
+          0% {
+              -moz-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -moz-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -moz-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-moz-keyframes spinoffPulse {
+          0% {
+              -moz-transform: rotate(0deg)
+          }
+
+          100% {
+              -moz-transform: rotate(360deg)
+          }
+      }
+
+      @-webkit-keyframes spinPulse {
+          0% {
+              -webkit-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -webkit-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -webkit-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-webkit-keyframes spinoffPulse {
+          0% {
+              -webkit-transform: rotate(0deg)
+          }
+
+          100% {
+              -webkit-transform: rotate(360deg)
+          }
+      }
+
+      @-o-keyframes spinPulse {
+          0% {
+              -o-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -o-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -o-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-o-keyframes spinoffPulse {
+          0% {
+              -o-transform: rotate(0deg)
+          }
+
+          100% {
+              -o-transform: rotate(360deg)
+          }
+      }
+
+      @-ms-keyframes spinPulse {
+          0% {
+              -ms-transform: rotate(160deg);
+              opacity: 0;
+              box-shadow: 0 0 1px #505050
+          }
+
+          50% {
+              -ms-transform: rotate(145deg);
+              opacity: 1
+          }
+
+          100% {
+              -ms-transform: rotate(-320deg);
+              opacity: 0
+          }
+      }
+
+      @-ms-keyframes spinoffPulse {
+          0% {
+              -ms-transform: rotate(0deg)
+          }
+
+          100% {
+              -ms-transform: rotate(360deg)
+          }
+      }`);
+      }
 
       /**
        * 获取当前页面所有帖子
@@ -2830,6 +3091,7 @@
         callback: (mutations, observer) => {
           /* 判断是否已找到 */
           if (isFind) {
+            initCSS();
             handleForumPost();
             /* console.log("成功找到小窗"); */
             observer.disconnect();
@@ -2894,8 +3156,7 @@
       function showSmallWindow(title, url, imagesList = []) {
         /* 显示小窗 */
         let constructURL = new URL(url);
-        let isHTTPS =
-          constructURL.protocol.indexOf("https:") != -1 ? true : false;
+        let isHTTPS = constructURL.protocol.includes("https:");
         let icon_safe = `<svg t="1660458686317" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2383"
                 width="12" height="12" style="margin: 0px 6px 0px 2px;">
                 <path
@@ -2967,8 +3228,12 @@
         let websiteTitle = `
 					<div class="xtiper_sheet_tit_top_drag"><div></div></div>
 					<div style="display:flex;justify-content: space-between;">
-							<img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" loading="lazy" class="xtiper_tit_ico">
-							<div class="xtiper_tit_content">
+							<img src="https://cdn-bbs.mt2.cn/template/comiis_app/comiis/img/favicon.ico" loading="lazy" class="xtiper_tit_ico" style="display: none;">
+							<div class="refresh-icon">
+                <div class="refresh-icon-out"></div>
+                <div class="refresh-icon-in"></div>
+              </div>
+              <div class="xtiper_tit_content">
 									<p>${title}</p>
 									<div class="xtiper_tit_svg_lock">
 											${showWebsiteSafeIcon}
@@ -3001,19 +3266,6 @@
           },
         });
 
-        if (typeof top.window.tampermonkeyByMT != "undefined") {
-          console.log("当前执行为非油猴调用");
-          let smallWindowNode = document.getElementById(
-            `${smallWindowIframeId}_id`
-          );
-          smallWindowNode.onload = () => {
-            console.log(`子窗口: ${smallWindowIframeId}_id 加载完毕`);
-            let scriptNode = document.createElement("script");
-            scriptNode.setAttribute("type", "text/javascript");
-            scriptNode.innerHTML = top.window.tampermonkeyByMT;
-            smallWindowNode.contentWindow.document.head.append(scriptNode);
-          };
-        }
         smallWindowId = smallWindowIframeId;
 
         console.log(smallWindowId);
@@ -3135,12 +3387,15 @@
           ) {
             /* 点击 刷新iframe */
             console.log("点击 刷新iframe");
+            mobileBusiness.smallWindow.setRefreshIconShow();
             document
               .querySelector("#" + smallWindowIframeId)
               ?.querySelector("iframe")
               ?.contentWindow?.location?.reload();
           }
         });
+
+        mobileBusiness.smallWindow.checkIframeReadyState();
       }
       /**
        * 对帖子进行处理，实现点击某个区域打开小窗
@@ -3519,6 +3774,75 @@
             item.setAttribute("isHandlingViewIMG", true);
           });
         });
+    },
+  };
+
+  /**
+   * 移动端单独的函数调用
+   */
+  const mobileBusiness = {
+    smallWindow: {
+      /**
+       * 设置小窗标题左边刷新图标（显示）并隐藏网站图标
+       */
+      setRefreshIconShow() {
+        document
+          .querySelector(".xtiper_sheet .xtiper_tit_ico")
+          .style.setProperty("display", "none");
+        document
+          .querySelector(".xtiper_sheet .refresh-icon")
+          .removeAttribute("style");
+      },
+      /**
+       * 设置小窗标题左边刷新图标（隐藏）并显示网站图标
+       */
+      setRefreshIconHide() {
+        document
+          .querySelector(".xtiper_sheet .refresh-icon")
+          .style.setProperty("display", "none");
+        document
+          .querySelector(".xtiper_sheet .xtiper_tit_ico")
+          .removeAttribute("style");
+      },
+      /**
+       * 设置消息监听
+       */
+      setMessageListener() {
+        console.log("监听message");
+        window.addEventListener("message", (event) => {
+          if (!event.data.toString().startsWith("xtip")) {
+            return;
+          }
+          if (event.data === "xtip complete") {
+            console.log("小窗内容已加载完毕2");
+            this.setRefreshIconHide();
+          } else {
+            console.log("小窗内容加载中");
+            this.setRefreshIconShow();
+          }
+        });
+        if (window !== top.window) {
+          window.parent.postMessage("xtip complete");
+        }
+      },
+      /**
+       * 检查iframe内文档状态
+       */
+      checkIframeReadyState() {
+        let iframeElement = document.querySelector(
+          ".xtiper_sheet iframe"
+        ).contentWindow;
+        let intervalId = setInterval(() => {
+          if (
+            iframeElement.document &&
+            iframeElement.document.readyState === "complete"
+          ) {
+            console.log("小窗内容已加载完毕1");
+            this.setRefreshIconHide();
+            clearInterval(intervalId);
+          }
+        }, 400);
+      },
     },
   };
   /**
@@ -4015,6 +4339,7 @@
         popups.closeToast();
         let blackCSSNode = GM_addStyle(`
 				.blackhome-user-filter input{
+          width: -moz-available;
 					width: -webkit-fill-available;
 					height: 30px;
 					margin: 8px 20px;
@@ -4490,6 +4815,7 @@
         width: 120px;
       }
       input#shieldText{
+        width: -moz-available;
         width: -webkit-fill-available;
         height: 30px;
         margin: 8px 20px;
@@ -4788,6 +5114,7 @@
 						opacity: 0.7; 
 						height: 70% !important; 
 						line-height: inherit;
+            appearance: none;
 						-webkit-appearance: none;
 						border: none !important;
 						font-size: 14px;
@@ -4801,6 +5128,7 @@
 						opacity: 0.7; 
 						height: 30% !important;
 						line-height: inherit;
+            appearance: none;
 						-webkit-appearance: none;
 						border: none !important;
 						font-size: 14px;
@@ -5135,6 +5463,7 @@
                 <div style="display: flex;">
                     <p style="width: 60px;padding: 0;align-self: center;">账号</p>
                     <input type="text" placeholder="请输入图床的账号" style="
+                        appearance: none;
                         -webkit-appearance: none;
                         width: 100%;
                         height: 2.5em;
@@ -5149,6 +5478,7 @@
                 <div style="display: flex;">
                     <p style="width: 60px;padding: 0;align-self: center;">密码</p>
                     <input type="password" placeholder="请输入图床的密码" style="
+                        appearance: none;
                         -webkit-appearance: none;
                         width: 100%;
                         height: 2.5em;
@@ -8002,6 +8332,10 @@
             padding-left:10px;
             color:#999999;
         }
+        #comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {
+            padding-left:10px;
+            color:#999999;
+        }
         #comiis_foot_menu_beautify .reply_area ul li a{
             display: block;
             width: 22px;
@@ -8100,6 +8434,7 @@
             background: #e9e8ec;
             overflow-y: auto;
             width: -webkit-fill-available;
+            width: -moz-available;
         }
         #comiis_foot_menu_beautify .reply_area li[data-attr="回帖"]{
             width: 65%;
@@ -9791,6 +10126,7 @@
           padding:0 12px;
           display: flex !important;
           -webkit-box-align: center;
+          -moz-box-align: center;
           align-items: center;
       }
       #postform .f_f{
@@ -9832,6 +10168,7 @@
       }
       #postform #comiis_post_tab .comiis_input_style .comiis_xifont{   
           width: -webkit-fill-available;
+          width: -moz-available;
       }
       #postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font{   
           font-size: 16px;
@@ -10791,6 +11128,7 @@
           width: 100%;
           resize: none;
           -webkit-appearance: none;
+          appearance: none;
           border-radius: 0;
           height: 34px;
           padding: 0 8px;
@@ -11498,7 +11836,7 @@
                   "设置当前的url为请求的下一页url",
                   window.location.origin + setLocationUrl
                 );
-                if(GM_getValue("v59") && window === top.window){
+                if (GM_getValue("v59") && window === top.window) {
                   window.history.pushState("forward", null, setLocationUrl);
                 }
               } else {
@@ -11726,6 +12064,7 @@
         let dialogCSSNode = GM_addStyle(`
 				.online-user-filter input{
 					width: -webkit-fill-available;
+          width: -moz-available;
 					height: 30px;
 					margin: 8px 20px;
 					border: 0px;
@@ -13670,6 +14009,7 @@
         }
         #productNameInput{
           width: -webkit-fill-available;
+          width: -moz-available;
           height: 30px;
           margin: 8px 20px;
           border: 0px;
@@ -14072,6 +14412,7 @@
   #customizeUserLabelsColorInput,
   #customizeUserLabelsJSInput{
     width: -webkit-fill-available;
+    width: -moz-available;
     height: 30px;
     margin: 8px 20px;
     border: 0px;
@@ -14638,6 +14979,12 @@
                                 white-space:nowrap;
                                 color: #cfcfcf;
                             }
+                            .quickinsertbbsdialog::-moz-input-placeholder{
+                                overflow:hidden;
+                                text-overflow:ellipsis;
+                                white-space:nowrap;
+                                color: #cfcfcf;
+                            }
                             .quickinsertbbsdialog{
                                 height: 32px;
                                 line-height: 32px;
@@ -14646,6 +14993,7 @@
                                 border-bottom: 1px solid #000;
                                 margin: 30px 12px 10px 12px;
                                 width: -webkit-fill-available;
+                                width: -moz-available;
                             }</style>`,
               mask: true,
               only: true,
@@ -15303,22 +15651,45 @@
                             height: 5px;
                             background-color: #fff;
                         }
-                        /*定义滚动条轨道
-                        内阴影+圆角*/
+                        div.${this.searchSelectClassName} ul.${
+            this.searchSelectHintClassName
+          }::-moz-scrollbar {
+                                          width: 5px;
+                                          height: 5px;
+                                          background-color: #fff;
+                                      }
+                        /*定义滚动条轨道 内阴影+圆角*/
                         div.${this.searchSelectClassName} ul.${
             this.searchSelectHintClassName
           }::-webkit-scrollbar-track {
                             -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+                            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
                             border-radius: 2px;
                             background-color: #fff;
                         }
-                        /*定义滑块
-                        内阴影+圆角*/
+                        div.${this.searchSelectClassName} ul.${
+            this.searchSelectHintClassName
+          }::-moz-scrollbar-track {
+                                          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+                                          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+                                          border-radius: 2px;
+                                          background-color: #fff;
+                        }
+                        /*定义滑块 内阴影+圆角*/
                         div.${this.searchSelectClassName} ul.${
             this.searchSelectHintClassName
           }::-webkit-scrollbar-thumb {
                             border-radius: 2px;
                             -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+                            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+                            background-color: #ccc;
+                        }
+                        div.${this.searchSelectClassName} ul.${
+            this.searchSelectHintClassName
+          }::-moz-scrollbar-thumb {
+                            border-radius: 2px;
+                            -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+                            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
                             background-color: #ccc;
                         }
                         @keyframes searchSelectFalIn {
@@ -16039,18 +16410,18 @@
             <style>.comiis_tip{width: 80vw;}</style>
             <p style="padding: 10px 0px;">修改动态头像</p>
             <div style="height: 45vh;overflow-y: auto;overflow-x: hidden;">
-                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
+                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;width: -moz-available;">
                     <p style="float: left;font-weight: bold;">1. 桌面端头像: ${avatarInfo.big.width}×${avatarInfo.big.height} </p>
                     <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
                     <input type="file" id="comiis_file_dynamic_avater_big" data-maxwidth=${avatarInfo.big.width} data-maxheight=${avatarInfo.big.height} style="margin: 20px 0px;" accept="image/*">
                 </div>
-                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
+                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;width: -moz-available;">
                     <p style="float: left;font-weight: bold;">2. 移动端头像: ${avatarInfo.medium.width}×${avatarInfo.medium.height} </p>
-                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
+                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;width: -moz-available;text-align: left;">🤡请先上传图片</p>
                     <input type="file" id="comiis_file_dynamic_avater_medium" data-maxwidth=${avatarInfo.medium.width} data-maxheight=${avatarInfo.medium.width} style="margin: 20px 0px;" accept="image/*"></div>
-                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;">
+                <div style="display: inline-grid;justify-items: start;width: -webkit-fill-available;width: -moz-available;">
                     <p style="float: left;font-weight: bold;">3. 桌面端右上角小头像: ${avatarInfo.small.width}×${avatarInfo.small.height} </p>
-                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;text-align: left;">🤡请先上传图片</p>
+                    <p class="status" style="padding: 0px;padding-left: 10px;font-weight: bold;width: -webkit-fill-available;width: -moz-available;text-align: left;">🤡请先上传图片</p>
                     <input type="file" id="comiis_file_dynamic_avater_small" data-maxwidth=${avatarInfo.small.width} data-maxheight=${avatarInfo.small.width} style="margin: 20px 0px;" accept="image/*"></div>
             </div>`,
           mask: true,
@@ -17258,6 +17629,7 @@
       });
     } else {
       console.log("移动端显示");
+      mobileBusiness.smallWindow.setMessageListener();
       $jq(document).ready(function () {
         utils.tryCatch().run(mobile.registerSettingView);
         mobile.main();
@@ -17284,7 +17656,9 @@
       });
     }
   };
-
+  if (window !== top.window) {
+    window.parent.postMessage("xtip interactive");
+  }
   let envCheckResult = envCheck();
   if (envCheckResult) {
     $jq(document).ready(function () {
