@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 新增部分CSS兼容Gecko内核;新增小窗刷新图标;
-// @version      2023.10.20
+// @description  更新日志: 新增部分CSS兼容Gecko内核;新增小窗刷新图标;新增小窗刷新图标点击事件为刷新小窗内的网页;
+// @version      2023.10.21
 // @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -3304,7 +3304,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_bg")
-              .outerHTML.indexOf(event.target.outerHTML) != -1
+              .outerHTML.includes(event.target.outerHTML)
           ) {
             /* 点击背景关闭小窗 */
             console.log("点击背景关闭小窗");
@@ -3317,7 +3317,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_tit_content")
-              .outerHTML.indexOf(event.target.outerHTML) != -1
+              .outerHTML.includes(event.target.outerHTML)
           ) {
             if (title !== "") {
               GM_setClipboard(`『${title}』 - ${url}`);
@@ -3337,7 +3337,7 @@
             document
               .querySelector("#" + smallWindowId)
               .querySelector(".xtiper_tit_right_picture i")
-              .outerHTML.indexOf(event.target.outerHTML) != -1
+              .outerHTML.includes(event.target.outerHTML)
           ) {
             /* 点击查看图片 */
             console.log("点击查看图片", imagesList);
@@ -3361,7 +3361,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_tit_right_windowopen svg")
-              .outerHTML.indexOf(event.target.outerHTML) != -1
+              .outerHTML.includes(event.target.outerHTML)
           ) {
             /* 点击 新标签页打开 */
             window.open(url, "_blank");
@@ -3371,7 +3371,7 @@
             document
               .getElementById(smallWindowIframeId)
               .querySelector(".xtiper_tit_right_windowclose svg")
-              .outerHTML.indexOf(event.target.outerHTML) != -1
+              .outerHTML.includes(event.target.outerHTML)
           ) {
             /* 点击 关闭小窗 */
             console.log("点击 关闭小窗");
@@ -3383,7 +3383,10 @@
           if (
             document
               .querySelector(".xtiper_tit_ico")
-              .outerHTML.indexOf(event.target.outerHTML) != -1
+              .outerHTML.includes(event.target.outerHTML) ||
+            document
+              .querySelector(".xtiper_sheet .refresh-icon")
+              .outerHTML.includes(event.target.outerHTML)
           ) {
             /* 点击 刷新iframe */
             console.log("点击 刷新iframe");
