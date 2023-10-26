@@ -97,11 +97,6 @@
           ontimeout: function () {},
         });
         if (!scriptStatsRequest.status) {
-          if (scriptStatsRequest.type === "onerror") {
-            Qmsg.error(`获取脚本${scriptId}统计数据失败`);
-          } else if (scriptStatsRequest.type === "ontimeout") {
-            Qmsg.error(`获取脚本${scriptId}统计数据超时`);
-          }
           resolve(false);
           return;
         }
