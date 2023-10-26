@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-10-9";
+  Utils.version = "2023-10-26";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1939,12 +1939,18 @@
        */
       onprogress: function () {},
     };
-
+    /**
+     * 输出请求配置
+     */
+    let LOG_DETAILS = false;
     /**
      * 发送请求
      * @param {defaultDetails} details
      */
     function request(details) {
+      if (LOG_DETAILS) {
+        console.log("Httpx请求配置👇", details);
+      }
       _GM_xmlHttpRequest_(details);
     }
 
@@ -2301,7 +2307,10 @@
      * 覆盖当前配置
      * @param {defaultDetails} details
      */
-    this.config = function (details) {
+    this.config = function (details = {}) {
+      if (Object.hasOwnProperty.call(details, "logDetails")) {
+        LOG_DETAILS = details["logDetails"];
+      }
       defaultDetails = Utils.assign(defaultDetails, details);
     };
   };
