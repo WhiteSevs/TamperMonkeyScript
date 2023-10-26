@@ -4499,7 +4499,7 @@
             ) {
               log.error("触发百度安全验证 👇" + respData.finalUrl);
               log.error(respData);
-              window.location.href = respData.finalUrl;
+              //window.location.href = respData.finalUrl;
             } else {
               return pageCommentHTML;
             }
