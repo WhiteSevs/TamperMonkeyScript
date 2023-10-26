@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.10.1
+// @version      2023.10.26
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @license      MIT
@@ -77,6 +77,37 @@
      */
     getAdminUrl(url) {
       return url + "/admin";
+    },
+    /**
+     * 从字符串中提取Id
+     * @returns {string}
+     */
+    getScriptId() {
+      return window.location.pathname.match(/[0-9]+/i)[0];
+    },
+    /**
+     * 获取脚本统计数据
+     * @param {string} scriptId
+     */
+    async getScriptStats(scriptId) {
+      return new Promise(async (resolve) => {
+        let scriptStatsRequest = await httpx.get({
+          url: `https://greasyfork.org/scripts/${scriptId}/stats.json`,
+          onerror: function () {},
+          ontimeout: function () {},
+        });
+        if (!scriptStatsRequest.status) {
+          if (scriptStatsRequest.type === "onerror") {
+            Qmsg.error(`获取脚本${scriptId}统计数据失败`);
+          } else if (scriptStatsRequest.type === "ontimeout") {
+            Qmsg.error(`获取脚本${scriptId}统计数据超时`);
+          }
+          resolve(false);
+          return;
+        }
+        let scriptStatsJSON = scriptStatsRequest.data;
+        resolve(scriptStatsJSON);
+      });
     },
   };
 
@@ -637,6 +668,42 @@
         viewIMG([imgSrc]);
       });
     },
+    /**
+     * 脚本首页新增今日更新
+     */
+    async scriptHomepageAddedTodaySUpdate() {
+      if (
+        !window.location.pathname.includes("/scripts/") ||
+        !document.querySelector("#install-area")
+      ) {
+        return;
+      }
+      let scriptStatsJSON = await GreasyforkApi.getScriptStats(
+        GreasyforkApi.getScriptId()
+      );
+      if (!scriptStatsJSON) {
+        return;
+      }
+      scriptStatsJSON = utils.toJSON(scriptStatsJSON.responseText);
+      let update_checks =
+        scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")][
+          "update_checks"
+        ];
+      DOMUtils.after(
+        "dd.script-show-daily-installs",
+        DOMUtils.createElement("dt", {
+          className: "script-show-daily-update_checks",
+          innerHTML: "<span>今日检查</span>",
+        })
+      );
+      DOMUtils.after(
+        "dt.script-show-daily-update_checks",
+        DOMUtils.createElement("dd", {
+          className: "script-show-daily-update_checks",
+          innerHTML: "<span>" + update_checks + "</span>",
+        })
+      );
+    },
   };
   /* -----------------↑函数区域↑----------------- */
 
@@ -653,6 +720,7 @@
     GreasyforkBusiness.repairImgShow();
     GreasyforkBusiness.repairCodeLineNumber();
     GreasyforkBusiness.optimizeImageBrowsing();
+    GreasyforkBusiness.scriptHomepageAddedTodaySUpdate();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
