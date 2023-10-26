@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.26.15
+// @version      2023.10.26.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -5951,6 +5951,44 @@
           )?.__vue__?.$props?.author;
         },
       };
+
+      /**
+       * 贴吧 吧内功能
+       */
+      const tiebaBaNei = {
+        /**
+         * 记住当前用户的看帖排序
+         * + -1 不知道什么作用
+         * + 1  不知道什么作用
+         * + 2  回复
+         * + 3  发布
+         */
+        rememberPostSort() {
+          GM_Menu.add({
+            key: "baidu_tieba_remember_user_post_sort",
+            text: "记住当前选择的看帖排序",
+            enable: true,
+          });
+          if (!GM_Menu.get("baidu_tieba_remember_user_post_sort")) {
+            return;
+          }
+          let userSortModel = parseInt(
+            GM_getValue("baidu-tieba-sort-model", 3)
+          );
+          utils
+            .waitNode(".tb-page__main .tb-sort .tab-pack")
+            .then((element) => {
+              let originChange = element.__vue__.change;
+              originChange(userSortModel);
+              element.__vue__.change = function (index) {
+                GM_setValue("baidu-tieba-sort-model", index);
+                originChange(index);
+              };
+              log.info("注入记住当前选择的看帖排序");
+            });
+        },
+      };
+
       tiebaBusiness.clientCallMasquerade();
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
@@ -5966,6 +6004,14 @@
         )
       ) {
         redirectJump();
+      }
+      if (
+        this.currentUrl.match(
+          /^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?kw=/g
+        )
+      ) {
+        /* 吧内 */
+        tiebaBaNei.rememberPostSort();
       }
       tiebaSearchConfig.run();
       /* tiebaBusiness.run(); */
