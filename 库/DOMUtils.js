@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-10-1";
+  DOMUtils.version = "2023-10-26";
 
   let CommonUtils = {
     /**
@@ -95,7 +95,7 @@
     if (element == null) {
       return;
     }
-    if (attrValue === undefined) {
+    if (attrValue === void 0) {
       return element.getAttribute(attrName);
     } else {
       element.setAttribute(attrName, attrValue);
@@ -198,7 +198,7 @@
       return;
     }
     if (typeof property === "string") {
-      if (value === undefined) {
+      if (value === void 0) {
         return getComputedStyle(element).getPropertyValue(property);
       } else {
         if (value === "string" && value.includes("!important")) {
@@ -240,7 +240,7 @@
     if (element == null) {
       return;
     }
-    if (text === undefined) {
+    if (text === void 0) {
       return element.textContent || element.innerText;
     } else {
       if (text instanceof Node || text instanceof Element) {
@@ -301,7 +301,7 @@
     if (element == null) {
       return;
     }
-    if (handler === undefined) {
+    if (handler === void 0) {
       DOMUtils.trigger(element, "click");
     } else {
       DOMUtils.on(element, "click", null, handler);
@@ -327,7 +327,7 @@
     if (element == null) {
       return;
     }
-    if (handler === undefined) {
+    if (handler === void 0) {
       DOMUtils.trigger(element, "blur");
     } else {
       DOMUtils.on(element, "blur", null, handler);
@@ -352,7 +352,7 @@
     if (element == null) {
       return;
     }
-    if (handler === undefined) {
+    if (handler === void 0) {
       DOMUtils.trigger(element, "focus");
     } else {
       DOMUtils.on(element, "focus", null, handler);

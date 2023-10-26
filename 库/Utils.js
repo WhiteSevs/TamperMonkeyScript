@@ -206,7 +206,7 @@
      * @param {any} val 值，默认为""
      */
     this.set = function (key, val = "") {
-      if (key === undefined) {
+      if (key === void 0) {
         throw new Error("Utils.Dictionary().set 参数 key 不能为空");
       }
       this.items[key] = val;
@@ -229,7 +229,7 @@
      * @returns {any|undefined}
      */
     this.get = function (key) {
-      return this.has(key) ? this.items[key] : undefined;
+      return this.has(key) ? this.items[key] : void 0;
     };
     /**
      * 返回字典中的所有值
@@ -1212,7 +1212,7 @@
               ...resultData,
               {
                 domain: window.location.hostname,
-                expirationDate: undefined,
+                expirationDate: void 0,
                 hostOnly: true,
                 httpOnly: false,
                 name: itemName,
@@ -1849,7 +1849,7 @@
       /**
        * @type {string} 网址
        */
-      url: undefined,
+      url: void 0,
       /**
        * @type {number|undefined} 超时时间，默认5000，可为空
        */
@@ -1861,59 +1861,59 @@
       /**
        * @type {"arraybuffer"|"blob"|"json"|"stream"|"document"} 响应类型，默认document，可为空
        */
-      responseType: undefined,
+      responseType: void 0,
       /**
        * @type {object|undefined} 请求头，可为空
        */
-      headers: undefined,
+      headers: void 0,
       /**
        * @type {string|undefined} 当使用post时，该值会生效，可为空
        */
-      data: undefined,
+      data: void 0,
       /**
        * @type {"follow"|"error"|"manual"} 当触发重定向的使用规则，默认follow，可为空
        */
-      redirect: undefined,
+      redirect: void 0,
       /**
        * @type {string|undefined} 自定义Cookie，可为空
        */
-      cookie: undefined,
+      cookie: void 0,
       /**
        * @type {any|undefined} 以二进制模式发送数据字符串，可为空
        */
-      binary: undefined,
+      binary: void 0,
       /**
        * @type {boolean|undefined} 是否缓存资源，默认true，可为空
        */
-      nocache: undefined,
+      nocache: void 0,
       /**
        * @type {boolean|undefined} 是否重新验证可能缓存的内容，默认true，可为空
        */
-      revalidate: undefined,
+      revalidate: void 0,
       /**
        * @type {object|undefined} 将该对象添加到响应的属性中，可为空
        */
-      context: undefined,
+      context: void 0,
       /**
        * @type {string|undefined} 重写mimeType，可为空
        */
-      overrideMimeType: undefined,
+      overrideMimeType: void 0,
       /**
        * @type {boolean|undefined} 是否匿名不发送Cookie，默认为false，可为空
        */
-      anonymous: undefined,
+      anonymous: void 0,
       /**
        * @type {boolean|undefined} 是否使用fetch来发送请求，默认为false，可为空
        */
-      fetch: undefined,
+      fetch: void 0,
       /**
        * @type {string|undefined} 身份验证的用户名
        */
-      user: undefined,
+      user: void 0,
       /**
        * @type {string|undefined} 身份验证的密码
        */
-      password: undefined,
+      password: void 0,
       /**
        * @type {function|undefined} 当请求被取消或中断，触发该回调，可为空
        */
@@ -2517,7 +2517,7 @@
               let request = result.get(key);
               request.onsuccess = function (e) {
                 let result = e.target.result;
-                let data = result ? result.value : undefined;
+                let data = result ? result.value : void 0;
                 resolve({
                   code: data
                     ? that.errorCode.success.code
@@ -3622,42 +3622,42 @@
          * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
          * + false (默认) 不生效
          */
-        subtree: undefined,
+        subtree: void 0,
         /**
          * @type {boolean|undefined}
          * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
          * + false (默认) 不生效
          */
-        childList: undefined,
+        childList: void 0,
         /**
          * @type {boolean|undefined}
          * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
          * + false (默认) 不生效
          */
-        attributes: undefined,
+        attributes: void 0,
         /**
          * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
          * @type {[...string]|undefined}
          */
-        attributeFilter: undefined,
+        attributeFilter: void 0,
         /**
          * @type {boolean|undefined}
          * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
          * + false (默认) 不生效
          */
-        attributeOldValue: undefined,
+        attributeOldValue: void 0,
         /**
          * @type {boolean|undefined}
          * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
          * + false (默认) 不生效
          */
-        characterData: undefined,
+        characterData: void 0,
         /**
          * @type {boolean|undefined}
          * + true 记录前一个被监听的节点中发生的文本变化
          * + false (默认) 不生效
          */
-        characterDataOldValue: undefined,
+        characterDataOldValue: void 0,
       },
     };
     observer_config = Utils.assign(default_obverser_config, observer_config);
@@ -4619,7 +4619,7 @@
       func = fn;
       funcThis = fnThis;
       let result = executeTryCatch(func, handleErrorFunc, funcThis);
-      return result !== undefined ? result : tryCatchObj;
+      return result !== void 0 ? result : tryCatchObj;
     };
 
     /**
@@ -4630,7 +4630,7 @@
      * @returns {any|undefined} - 如果函数有返回值，则返回该返回值；否则返回 undefined。
      */
     function executeTryCatch(func, handleErrorFunc, funcThis) {
-      let result = undefined;
+      let result = void 0;
       try {
         if (typeof func === "string") {
           (function () {
