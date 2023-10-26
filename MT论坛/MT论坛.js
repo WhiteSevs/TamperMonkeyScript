@@ -35,7 +35,7 @@
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1262507
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1270431
 // ==/UserScript==
 
 (async function () {
@@ -683,7 +683,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1262507
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1270431
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -722,7 +722,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1262507",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1270431",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,
@@ -1782,6 +1782,9 @@
         }
       });
       GM_addStyle(`
+      .hljs{
+        text-align: left;
+      }
       .hljs ol{
         margin: 0px 0 0 10px;
         padding: 10px 10px;
