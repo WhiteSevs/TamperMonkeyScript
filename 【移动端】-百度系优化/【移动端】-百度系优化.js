@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.26.14
+// @version      2023.10.26.15
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -3949,12 +3949,18 @@
           let otherCommentsHTML = "";
           let userAvatarHostName = new URL(mainUserAvatar).hostname;
           let userAvatarPath = new URL(mainUserAvatar).pathname.split("/")[1];
+          let landlordInfo = tiebaBusiness.getLandlordInfo();
           log.success(["头像加密值路径是", userAvatarPath]);
+          log.success(["本帖楼主的信息", landlordInfo]);
           currentCommentData.forEach((item) => {
             /* 用户信息 */
             let itemUserInfo = userList[item["user_id"]];
             /* 用户id值 */
             let userPortrait = itemUserInfo["portrait"];
+            /* 判断是否是楼主 */
+            let isLandlord = Boolean(
+              landlordInfo && landlordInfo.id === item["user_id"]
+            );
             /* 获取时间差 */
             let itemUserCommentTime =
               utils.getDaysDifference(
@@ -3983,10 +3989,18 @@
               <div class="whitesev-reply-dialog-user-line" data-portrait="${userPortrait}">
                 <div class="whitesev-reply-dialog-avatar" style="background-image: url(${itemUserAvatar});"></div>
                 <div class="whitesev-reply-dialog-user-info">
-                  <div class="whitesev-reply-dialog-user-username">${item["show_nickname"]}</div>
+                  <div class="whitesev-reply-dialog-user-username">${
+                    item["show_nickname"]
+                  }${
+              isLandlord
+                ? `<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`
+                : ""
+            }</div>
                 </div>
               </div>
-              <div class="whitesev-reply-dialog-user-comment">${item["content"]}</div>
+              <div class="whitesev-reply-dialog-user-comment">${
+                item["content"]
+              }</div>
               <div class="whitesev-reply-dialog-user-desc-info">
                   <span data-time="">${itemUserCommentTime}</span>
                   <span data-ip="">${itemUserCommentIp}</span>
@@ -5896,20 +5910,45 @@
           }
         },
         /**
-         * 客户端已调用调用伪装
+         * 客户端已调用伪装
          */
         clientCallMasquerade() {
           let originGetItem = window.localStorage.getItem;
           window.localStorage.getItem = function (key) {
             if (key === "p_w_app_call" || key === "p_w_launchappcall") {
+              log.info("客户端已调用调用伪装 " + key);
               return JSON.stringify({
                 value: 1,
                 date: utils.formatTime(undefined, "yyyyMMdd"),
               });
+            } else if (key === "p_w_new_slient") {
+              log.info("客户端已调用调用伪装 " + key);
+              return "1s";
             } else {
               return originGetItem.call(window.localStorage, key);
             }
           };
+          window.localStorage.setItem(
+            "p_w_new_slient_" + utils.formatTime(undefined, "yyyy-MM-dd"),
+            1
+          );
+        },
+        /**
+         * 获取本帖楼主的信息
+         * @returns {?{
+         *   id: number,
+         *   name: string,
+         *   name_show: string,
+         *   portrait: string,
+         *   show_nickname: string,
+         *   type: number,
+         *   userhide: number,
+         * }}
+         */
+        getLandlordInfo() {
+          return document.querySelector(
+            ".main-page-wrap .user-line-wrapper.thread-user-line"
+          )?.__vue__?.$props?.author;
         },
       };
       tiebaBusiness.clientCallMasquerade();
