@@ -54,7 +54,7 @@
   /**
    * 是否为调试模式
    */
-  const DEBUG = true;
+  const DEBUG = false;
   /**
    * @type {import("../库/Viewer")}
    */
