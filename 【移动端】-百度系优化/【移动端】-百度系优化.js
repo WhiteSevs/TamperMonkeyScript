@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.26
+// @version      2023.10.26.14
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -45,12 +45,16 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1262507
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1270431
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1258535
 // @run-at       document-start
 // ==/UserScript==
 
 (function () {
+  /**
+   * 是否为调试模式
+   */
+  const DEBUG = true;
   /**
    * @type {import("../库/Viewer")}
    */
@@ -91,48 +95,6 @@
     GM_registerMenuCommand,
     GM_unregisterMenuCommand,
   });
-  const CSDN_FLAG_CSS = `
-    .csdn-flag-component-box {
-        /*margin: 0 auto;
-        text-align: center;
-        display: inline;*/
-        display: flex;
-        margin: 0;
-        text-align: left;
-        font-size: 0;
-        position: relative;
-        width: 260px;
-        margin: 5px 0px;
-    }
-    .csdn-flag-component-box a {
-        display: inline-block;
-        font-size: 14px;
-    }
-    .csdn-flag-component-box .praise {
-        padding-right: 20px;
-        background: #ff5722;
-        border-top-left-radius: 50px;
-        border-top-right-radius: 50px;
-        border-bottom-left-radius: 50px;
-        border-bottom-right-radius: 50px;
-        background: -webkit-linear-gradient(left,#ff5722,#f78d6b);
-        background: -o-linear-gradient(right,#ff5722,#f78d6b);
-        background: -moz-linear-gradient(right,#ff5722,#f78d6b);
-        background: linear-gradient(to right,#ff5722,#f78d6b);
-    }
-    .csdn-flag-component-box .praise,
-    .csdn-flag-component-box .share {
-        /*width: 110px;
-        height: 34px;
-        line-height: 34px;*/
-        height:auto;
-        line-height:normal;
-        color: #fff;
-        background: #ff0505;
-        border-radius: 5px;
-        padding: 2px 4px;
-    }
-`;
 
   class LoadingView {
     constructor() {
@@ -2172,6 +2134,52 @@
           );
         },
         /**
+         * 添加CSDN的CSS
+         */
+        addCSDNFlagCSS() {
+          GM_addStyle(`
+          .csdn-flag-component-box {
+              /*margin: 0 auto;
+              text-align: center;
+              display: inline;*/
+              display: flex;
+              margin: 0;
+              text-align: left;
+              font-size: 0;
+              position: relative;
+              width: 260px;
+              margin: 5px 0px;
+          }
+          .csdn-flag-component-box a {
+              display: inline-block;
+              font-size: 14px;
+          }
+          .csdn-flag-component-box .praise {
+              padding-right: 20px;
+              background: #ff5722;
+              border-top-left-radius: 50px;
+              border-top-right-radius: 50px;
+              border-bottom-left-radius: 50px;
+              border-bottom-right-radius: 50px;
+              background: -webkit-linear-gradient(left,#ff5722,#f78d6b);
+              background: -o-linear-gradient(right,#ff5722,#f78d6b);
+              background: -moz-linear-gradient(right,#ff5722,#f78d6b);
+              background: linear-gradient(to right,#ff5722,#f78d6b);
+          }
+          .csdn-flag-component-box .praise,
+          .csdn-flag-component-box .share {
+              /*width: 110px;
+              height: 34px;
+              line-height: 34px;*/
+              height:auto;
+              line-height:normal;
+              color: #fff;
+              background: #ff0505;
+              border-radius: 5px;
+              padding: 2px 4px;
+          }`);
+        },
+        /**
          * 给元素添加【CSDN】下载标识
          * @param {Element} targetNode
          */
@@ -2541,7 +2549,7 @@
             innerBottomSmallElementList.forEach((item) => {
               let searchText = item.textContent.trim();
               rwListContainerHTML += `
-              <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;">
+              <div class="rw-list-new rw-list-new2" style="padding: 0.06rem;width: 49%;">
                 <a href="javascript:;" onclick="return false;" target="_self" class="whitesev-gm-refactor-everyone-searching">
                   <span>${searchText}</span>
                 </a>
@@ -3195,6 +3203,10 @@
         param_tid: null,
         param_forum_id: null,
         /**
+         * 进过百度验证的额外安全参数
+         */
+        extraSearchSignParams: "",
+        /**
          * @type {HTMLElement}
          */
         vueRootView: null,
@@ -3217,8 +3229,8 @@
           loadingView.setText("Loading...", true);
           loadingView.show();
           let timeStamp = Date.now();
-          let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
-          let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
+          let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
+          let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
           log.info("请求下一页评论的url: " + nextPageUrl);
           log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
           let nextPageDOM = await tiebaCommentConfig.getPageComment(
@@ -3283,8 +3295,8 @@
           loadingView.setText("Loading...", true);
           loadingView.show();
           let timeStamp = Date.now();
-          let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
-          let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
+          let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
+          let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
           log.info("请求上一页评论的url: " + pageUrl);
           log.info("贴子所有评论的url: " + pageAllCommentUrl);
           let nextPageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
@@ -4303,7 +4315,9 @@
          */
         async getLzlCommentReply(tid = "", pid = "", pn = 1) {
           let getResp = await httpx.get({
-            url: `https://tieba.baidu.com/p/comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}`,
+            url: `https://tieba.baidu.com/p/comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}${
+              tiebaCommentConfig.extraSearchSignParams
+            }`,
             headers: {
               "User-Agent": utils.getRandomPCUA(),
               Host: "tieba.baidu.com",
@@ -4483,6 +4497,7 @@
             url: url,
             headers: {
               "User-Agent": utils.getRandomPCUA(),
+              Referer: "tieba.baidu.com",
             },
           });
           let respData = getResp.data;
@@ -4499,7 +4514,7 @@
             ) {
               log.error("触发百度安全验证 👇" + respData.finalUrl);
               log.error(respData);
-              //window.location.href = respData.finalUrl;
+              // window.location.href = respData.finalUrl;
             } else {
               return pageCommentHTML;
             }
@@ -4528,6 +4543,7 @@
             headers: {
               Accept: "application/json, text/javascript, */*; q=0.01",
               "User-Agent": utils.getRandomPCUA(),
+              Referer: "tieba.baidu.com",
             },
           });
           let respData = getResp.data;
@@ -4601,8 +4617,8 @@
               tiebaCommentConfig.page = 1;
               loadingView.setText("Loading...", true);
               loadingView.show();
-              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
-              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
+              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
               let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
               let pageCommentList = await tiebaCommentConfig.getPageCommentList(
                 url
@@ -4672,8 +4688,8 @@
               tiebaCommentConfig.page = 1;
               loadingView.setText("Loading...", true);
               loadingView.show();
-              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0`;
-              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}`;
+              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
+              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
               let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
               let pageCommentList = await tiebaCommentConfig.getPageCommentList(
                 url
@@ -4727,6 +4743,25 @@
           }
         },
         run() {
+          let urlSignParams = new URLSearchParams(window.location.search);
+          if (
+            urlSignParams.has("p_tk") &&
+            urlSignParams.has("p_sign") &&
+            urlSignParams.has("p_signature")
+          ) {
+            log.error("当前页面是经过百度验证后的网站，添加验证参数");
+            urlSignParams.forEach((value, key) => {
+              if (["pn", "tid", "pid", "fid", "t", "see_lz"].includes(key)) {
+                return;
+              }
+              log.success(`设置额外参数：${key}=${value}`);
+              tiebaCommentConfig.extraSearchSignParams += `&${key}=${value}`;
+            });
+            log.error([
+              "百度验证后的参数👇",
+              tiebaCommentConfig.extraSearchSignParams,
+            ]);
+          }
           utils.waitNode(".main-page-wrap").then(() => {
             GM_Menu.add({
               key: "baidu_tieba_lzl_ban_global_back",
@@ -6659,7 +6694,29 @@
     },
   };
 
+  /* ---------------------------- */
+  if (DEBUG) {
+    unsafeWindow.GM_Debug_WhiteSev = {
+      httpx,
+      log,
+      utils,
+      DOMUtils,
+      Viewer,
+      GM_Menu,
+      GM_addStyle,
+      GM_registerMenuCommand,
+      GM_unregisterMenuCommand,
+      GM_getValue,
+      GM_setValue,
+      GM_deleteValue,
+      GM_listValues,
+      GM_xmlhttpRequest,
+      GM_info,
+      window,
+      globalThis,
+    };
+  }
   const loadingView = new LoadingView();
-  GM_addStyle(CSDN_FLAG_CSS);
   baidu.init();
+  /* ---------------------------- */
 })();
