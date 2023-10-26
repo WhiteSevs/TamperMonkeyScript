@@ -5923,7 +5923,7 @@
               });
             } else if (key === "p_w_new_slient") {
               log.info("客户端已调用调用伪装 " + key);
-              return "1s";
+              return "1";
             } else {
               return originGetItem.call(window.localStorage, key);
             }
