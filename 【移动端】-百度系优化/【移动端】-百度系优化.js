@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.20
+// @version      2023.10.26
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
 // @match        *://m.baidu.com/*
@@ -71,6 +71,7 @@
   });
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
+    logDetails: true,
     onabort: function () {
       log.error("请求取消");
     },
@@ -796,12 +797,28 @@
           height: 5px;
           background-color: #fff;
       }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }::-moz-scrollbar {
+          width: 5px;
+          height: 5px;
+          background-color: #fff;
+      }
       /*定义滚动条轨道
       内阴影+圆角*/
       div.${this.config.element.searchSelectClassName} ul.${
         this.config.element.searchSelectHintClassName
       }::-webkit-scrollbar-track {
           -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          border-radius: 2px;
+          background-color: #fff;
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }::-moz-scrollbar-track {
+          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
           border-radius: 2px;
           background-color: #fff;
       }
@@ -812,6 +829,15 @@
       }::-webkit-scrollbar-thumb {
           border-radius: 2px;
           -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          background-color: #ccc;
+      }
+      div.${this.config.element.searchSelectClassName} ul.${
+        this.config.element.searchSelectHintClassName
+      }::-moz-scrollbar-thumb {
+          border-radius: 2px;
+          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
           background-color: #ccc;
       }
       @keyframes searchSelectFalIn {
@@ -1305,6 +1331,7 @@
 				display: -webkit-flex;
 				display: flex;
 				-webkit-box-align: center;
+        -moz-box-align: center;
 				-webkit-align-items: center;
 				align-items: center;
 			}
@@ -1320,15 +1347,19 @@
 				border-radius: .09rem;
 			}
 			.c-result-content div[class*="tieba-newxml-forum-class__"]{
-				display: -webkit-box;
 				display: -webkit-flex;
 				display: flex;
 				-webkit-box-orient: vertical;
+        -moz-box-orient: vertical;
 				-webkit-box-direction: normal;
+        -moz-box-direction: normal;
 				-webkit-flex-direction: column;
+        -moz-flex-direction: column;
 				flex-direction: column;
 				-webkit-box-pack: center;
+				-moz-box-pack: center;
 				-webkit-justify-content: center;
+				-moz-justify-content: center;
 				justify-content: center;
 				max-width: 2.2rem;
 			}
@@ -1345,11 +1376,12 @@
 				color: #1f1f1f;
 			}
 			.c-result-content div[class*="tieba-newxml-thread-comment-user__"]{
-				display: -webkit-box;
 				display: -webkit-flex;
 				display: flex;
 				-webkit-box-align: center;
+				-moz-box-align: center;
 				-webkit-align-items: center;
+				-moz-align-items: center;
 				align-items: center;
 				margin-top: .03rem;
 			}
@@ -1377,14 +1409,20 @@
         text-align: center;
         text-decoration: none;
         -webkit-tap-highlight-color: transparent;
+        -moz-tap-highlight-color: transparent;
         text-overflow: ellipsis;
         white-space: nowrap;
         -webkit-box-orient: horizontal;
+        -moz-box-orient: horizontal;
         -webkit-box-align: stretch;
+        -moz-box-align: stretch;
         display: block;
         -webkit-justify-content: space-between;
+        -moz-justify-content: space-between;
         -webkit-align-items: stretch;
+        -moz-align-items: stretch;
         -webkit-flex-wrap: nowrap;
+        -moz-flex-wrap: nowrap;
       }
 
       /* 让搜索中某些视频的阶段可以横向滚动 */
@@ -3757,6 +3795,7 @@
           .whitesev-reply-dialog-avatar {
             position: relative;
             -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
             box-sizing: border-box;
             width: .36rem;
             height: .36rem;
@@ -3766,6 +3805,7 @@
             background-position: 50%;
             background-size: cover;
             -webkit-box-flex: 0;
+            -moz-box-flex: 0;
             -webkit-flex: none;
             -ms-flex: none;
             flex: none;
@@ -3802,7 +3842,6 @@
           }
           /* 底部信息 */
           .whitesev-reply-dialog-user-desc-info{
-              display: -webkit-box;
               display: -webkit-flex;
               display: -ms-flexbox;
               display: flex;
@@ -3811,12 +3850,13 @@
           }
           .whitesev-reply-dialog-user-desc-info span{
               margin-right: .08rem;
-              display: -webkit-box;
               display: -webkit-flex;
               display: -ms-flexbox;
               display: flex;
               -webkit-box-align: center;
+              -moz-box-align: center;
               -webkit-align-items: center;
+              -moz-align-items: center;
               -ms-flex-align: center;
               align-items: center;
               font-size: .12rem;
@@ -4335,18 +4375,21 @@
             return;
           }
           let onlyLzInnerElement = DOMUtils.createElement("div", {
-            style: `display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-            line-height: .24rem;
-            border-radius: .14rem;
-            font-size: .13rem;
-            color: #614ec2;`,
+            style: `
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              -webkit-box-align: center;
+              -moz-box-align: center;
+              -webkit-align-items: center;
+              -moz-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              line-height: .24rem;
+              border-radius: .14rem;
+              font-size: .13rem;
+              color: #614ec2;
+            `,
             class: "white-only-lz",
             textContent: "只看楼主",
           });
@@ -4379,21 +4422,24 @@
             return;
           }
           let btnElement = DOMUtils.createElement("div", {
-            style: `display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-            line-height: .24rem;
-            border-radius: .14rem;
-            font-size: .13rem;
-            color: #614ec2;
-            width: auto;
-            margin-left: auto;
-            margin-right: 15px;`,
+            style: `
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              -webkit-box-align: center;
+              -moz-box-align: center;
+              -webkit-align-items: center;
+              -moz-align-items: center;
+              -ms-flex-align: center;
+              align-items: center;
+              line-height: .24rem;
+              border-radius: .14rem;
+              font-size: .13rem;
+              color: #614ec2;
+              width: auto;
+              margin-left: auto;
+              margin-right: 15px;
+            `,
             class: "white-btn-comment-reverse",
           });
           replySwitchElement.appendChild(btnElement);
@@ -4442,7 +4488,21 @@
           let respData = getResp.data;
           log.success(["获取第一页的评论", respData]);
           if (getResp.status) {
-            return DOMUtils.parseHTML(respData.responseText, true, true);
+            let pageCommentHTML = DOMUtils.parseHTML(
+              respData.responseText,
+              true,
+              true
+            );
+            if (
+              pageCommentHTML.title === "百度安全验证" ||
+              respData.finalUrl.startsWith("https://wappass.baidu.com")
+            ) {
+              log.error("触发百度安全验证 👇" + respData.finalUrl);
+              log.error(respData);
+              window.location.href = respData.finalUrl;
+            } else {
+              return pageCommentHTML;
+            }
           } else if (getResp.type === "onerror") {
             if (
               typeof respData.error === "string" &&
@@ -4698,14 +4758,15 @@
               margin-bottom: .06rem;
           }
           .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-              display: -webkit-box;
               display: -webkit-flex;
               display: -ms-flexbox;
               display: flex;
           }
           .user-line-wrapper[data-v-188c0e84] {
               -webkit-box-pack: justify;
+              -moz-box-pack: justify;
               -webkit-justify-content: space-between;
+              -moz-justify-content: space-between;
               -ms-flex-pack: justify;
               justify-content: space-between;
           }
@@ -4714,16 +4775,19 @@
           }
           .user-line[data-v-188c0e84] {
               -webkit-box-align: center;
+              -moz-box-align: center;
               -webkit-align-items: center;
+              -moz-align-items: center;
               -ms-flex-align: center;
               align-items: center;
               -webkit-box-pack: left;
+              -moz-box-pack: left;
               -webkit-justify-content: left;
+              -moz-justify-content: left;
               -ms-flex-pack: left;
               justify-content: left;
           }
           .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-              display: -webkit-box;
               display: -webkit-flex;
               display: -ms-flexbox;
               display: flex;
@@ -5801,16 +5865,16 @@
          */
         clientCallMasquerade() {
           let originGetItem = window.localStorage.getItem;
-          window.localStorage.getItem = function(key){
-            if(key === "p_w_app_call" || key=== "p_w_launchappcall"){
+          window.localStorage.getItem = function (key) {
+            if (key === "p_w_app_call" || key === "p_w_launchappcall") {
               return JSON.stringify({
-                "value":1,
-                "date":utils.formatTime(undefined,"yyyyMMdd"),
-              })
-            }else{
-              return originGetItem.call(window.localStorage,key);
+                value: 1,
+                date: utils.formatTime(undefined, "yyyyMMdd"),
+              });
+            } else {
+              return originGetItem.call(window.localStorage, key);
             }
-          }
+          };
         },
       };
       tiebaBusiness.clientCallMasquerade();
