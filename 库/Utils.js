@@ -4791,6 +4791,61 @@
   };
 
   /**
+   * 等待任意元素出现，支持多个selector
+   * @param  {...any} nodeSelectors 一个或多个节点选择器，必须为字符串类型
+   * @returns {Promise<Element>}
+   * @example
+   * Utils.waitAnyNode("div.xxx","a.xxx").then( element =>{
+   *   console.log(element); // a.xxx => HTMLElement
+   * })
+   */
+  Utils.waitAnyNode = async function (...nodeSelectors) {
+    /* 检查每个参数是否为字符串类型 */
+    for (let nodeSelector of nodeSelectors) {
+      if (typeof nodeSelector !== "string") {
+        throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+      }
+    }
+
+    return new Promise((resolve) => {
+      /* 防止触发第二次回调 */
+      let isReturn = false;
+
+      /* 检查所有选择器是否存在任意匹配到元素 */
+      let checkNodes = (observer) => {
+        let selectNode = null;
+        for (let i = 0; i < nodeSelectors.length; i++) {
+          let selector = nodeSelectors[i];
+          selectNode = document.querySelector(selector);
+          if (selectNode) {
+            /* 找到，退出循环 */
+            break;
+          }
+        }
+        if (selectNode) {
+          isReturn = true;
+          observer?.disconnect();
+          resolve(selectNode);
+        }
+      };
+
+      /* 在函数开始时检查节点是否已经存在 */
+      checkNodes();
+
+      /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
+      Utils.mutationObserver(document.documentElement, {
+        config: { subtree: true, childList: true, attributes: true },
+        callback: (mutations, observer) => {
+          if (isReturn) {
+            return;
+          }
+          checkNodes(observer);
+        },
+      });
+    });
+  };
+
+  /**
    * 等待指定元素出现，支持多个selector
    * @param  {...string} nodeSelectors
    * @returns {Promise<NodeList|NodeList[]>} 当nodeSelectors为数组多个时，
@@ -4825,8 +4880,7 @@
         let isFind = true;
         let selectNodes = [];
         for (let i = 0; i < nodeSelectors.length; i++) {
-          let selector = nodeSelectors[i];
-          let nodeList = document.querySelectorAll(selector);
+          let nodeList = document.querySelectorAll(nodeSelectors[i]);
           if (nodeList.length === 0) {
             /* 没找到，直接退出循环 */
             isFind = false;
@@ -4861,10 +4915,70 @@
       });
     });
   };
+
+  /**
+   * 等待任意元素出现，支持多个selector
+   * @param  {...string} nodeSelectors
+   * @returns {Promise<NodeList>} 返回NodeList
+   * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+   * @example
+   * Utils.waitAnyNodeList("div.xxx").then( nodeList =>{
+   *  console.log(nodeList) // div.xxx => NodeList
+   * })
+   * @example
+   * Utils.waitAnyNodeList("div.xxx","a.xxx").then( nodeList =>{
+   *  console.log(nodeList) // a.xxx => NodeList
+   * })
+   */
+  Utils.waitAnyNodeList = async function (...nodeSelectors) {
+    /* 检查每个参数是否为字符串类型 */
+    for (let nodeSelector of nodeSelectors) {
+      if (typeof nodeSelector !== "string") {
+        throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+      }
+    }
+
+    return new Promise((resolve) => {
+      /* 防止触发第二次回调 */
+      let isReturn = false;
+
+      /* 检查所有选择器是否匹配到节点 */
+      let checkNodes = (observer) => {
+        let selectNodes = [];
+        for (let i = 0; i < nodeSelectors.length; i++) {
+          selectNodes = document.querySelectorAll(nodeSelectors[i]);
+          if (selectNodes.length) {
+            /* 找到，退出循环 */
+            break;
+          }
+        }
+        if (selectNodes.length) {
+          isReturn = true;
+          observer?.disconnect();
+          resolve(selectNodes);
+        }
+      };
+
+      /* 在函数开始时检查节点是否已经存在 */
+      checkNodes();
+
+      /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
+      Utils.mutationObserver(document.documentElement, {
+        config: { subtree: true, childList: true, attributes: true },
+        callback: (mutations, observer) => {
+          if (isReturn) {
+            return;
+          }
+          checkNodes(observer);
+        },
+      });
+    });
+  };
+
   /**
    * 等待对象上的属性出现
-   * @param {object} checkObj 检查的对象
-   * @param {any} checkPropertyName 检查的对象的属性名
+   * @param {object|Function} checkObj 检查的对象
+   * @param {string} checkPropertyName 检查的对象的属性名
    * @returns {Promise<any>}
    * @example
    * await Utils.waitProperty(window,"test");
@@ -4876,10 +4990,14 @@
    */
   Utils.waitProperty = async function (checkObj, checkPropertyName) {
     return new Promise((resolve) => {
-      if (Object.hasOwnProperty.call(checkObj, checkPropertyName)) {
-        resolve(checkObj[checkPropertyName]);
+      let obj = checkObj;
+      if (typeof checkObj === "function") {
+        obj = checkObj();
+      }
+      if (Object.hasOwnProperty.call(obj, checkPropertyName)) {
+        resolve(obj[checkPropertyName]);
       } else {
-        Object.defineProperty(checkObj, checkPropertyName, {
+        Object.defineProperty(obj, checkPropertyName, {
           set: function (value) {
             try {
               resolve(value);
@@ -4892,6 +5010,34 @@
     });
   };
 
+  /**
+   * 等待对象上的属性出现
+   * @param {object|Function} checkObj 检查的对象
+   * @param {string} checkPropertyName 检查的对象的属性名
+   * @param {number} [timer=250] 检查间隔时间（ms）
+   * @returns {any}
+   * @example
+   * await Utils.waitPropertyByInterval(window,"test");
+   * console.log("test success set");
+   */
+  Utils.waitPropertyByInterval = async function (
+    checkObj,
+    checkPropertyName,
+    timer = 250
+  ) {
+    return new Promise((resolve) => {
+      let interval = setInterval(() => {
+        let obj = checkObj;
+        if (typeof checkObj === "function") {
+          obj = checkObj();
+        }
+        if (Object.hasOwnProperty.call(obj, checkPropertyName)) {
+          clearInterval(interval);
+          resolve(obj[checkPropertyName]);
+        }
+      }, timer);
+    });
+  };
   /**
    * 观察对象的set、get
    * @param {object} target 观察的对象
