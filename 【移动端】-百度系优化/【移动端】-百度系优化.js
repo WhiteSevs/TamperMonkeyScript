@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.27
+// @version      2023.10.27.14
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -46,7 +46,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271031
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271089
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1270549
 // @run-at       document-start
 // ==/UserScript==
@@ -3199,6 +3199,16 @@
       ) {
         return;
       }
+
+      /**
+       * 贴吧数据信息
+       */
+      const tiebaInfo = {
+        /**
+         * 当前吧名
+         */
+        forumName: undefined,
+      };
       /* 贴吧加载评论 */
       const tiebaCommentConfig = {
         page: 1,
@@ -5673,21 +5683,6 @@
           }
           async function _click_event_() {
             tiebaCommentConfig.removeScrollListener();
-            let currentForum = "";
-            let searchParams = new URLSearchParams(window.location.search);
-            currentForum = searchParams.get("kw");
-            if (utils.isNull(currentForum)) {
-              currentForum = document
-                .querySelector(".forum-block")
-                ?.textContent?.trim()
-                ?.replace(/吧$/g, "");
-            }
-            if (utils.isNull(currentForum)) {
-              currentForum = document
-                .querySelector("h1.tb-forum-user__title")
-                ?.textContent?.trim()
-                ?.replace(/吧$/g, "");
-            }
             let contentElement =
               document.querySelector(".main-thread-content-margin") ||
               document.querySelector(".main-thread-content") ||
@@ -5704,18 +5699,18 @@
             loadingView.setText("Loading...", true);
             loadingView.show();
             if (searchType === 0) {
-              if (utils.isNull(currentForum)) {
+              if (utils.isNull(tiebaInfo.forumName)) {
                 loadingView.hide();
                 alert("获取当前吧失败");
                 return;
               }
-              log.success("当前搜索的范围吧：" + currentForum);
+              log.success("当前搜索的范围吧：" + tiebaInfo.forumName);
             }
             let searchResult = await getSearchResult(
               searchText,
               undefined,
               searchModel,
-              currentForum
+              tiebaInfo.forumName
             );
             tiebaCommentConfig.removeScrollListener();
             if (!searchResult) {
@@ -5955,6 +5950,20 @@
             ".main-page-wrap .user-line-wrapper.thread-user-line"
           )?.__vue__?.$props?.author;
         },
+        /**
+         * 获取当前的贴吧名字
+         * @returns {string}
+         */
+        getCurrentForumName() {
+          let tbMobileViewport = document.querySelector(".tb-mobile-viewport")
+            ?.__vue__?.forum?.name;
+          let mainPageWrap =
+            document.querySelector(".main-page-wrap")?.__vue__?.$children[0]
+              ?.$children[0]?.forum?.name;
+          let tbForum = document.querySelector(".tb-mobile-viewport .tb-forum")
+            ?.__vue__?.forum?.name;
+          return tbMobileViewport || mainPageWrap || tbForum;
+        },
       };
 
       /**
@@ -6020,6 +6029,19 @@
       }
       tiebaSearchConfig.run();
       /* tiebaBusiness.run(); */
+      DOMUtils.ready(function () {
+        utils
+          .waitAnyNode(".tb-mobile-viewport", ".main-page-wrap")
+          .then(async () => {
+            let interval = setInterval(() => {
+              tiebaInfo.forumName = tiebaBusiness.getCurrentForumName();
+              if (tiebaInfo.forumName) {
+                log.info("当前吧：" + tiebaInfo.forumName);
+                clearInterval(interval);
+              }
+            }, 250);
+          });
+      });
     },
     /**
      * 百度文库
