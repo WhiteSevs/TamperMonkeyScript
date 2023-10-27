@@ -3,9 +3,9 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.26.19
+// @version      2023.10.27
 // @author       WhiteSevs
-// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】、【百度网盘】
+// @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
 // @match        *://www.baidu.com/*
 // @match        *://baijiahao.baidu.com/*
@@ -29,6 +29,7 @@
 // @match        *://graph.baidu.com/*
 // @match        *://pan.baidu.com/*
 // @match        *://yiyan.baidu.com/*
+// @match        *://chat.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -45,7 +46,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1270547
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271031
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1270549
 // @run-at       document-start
 // ==/UserScript==
@@ -1212,6 +1213,7 @@
       this.graph();
       this.pan();
       this.yiyan();
+      this.chat();
     },
     css: {
       search: `
@@ -1687,6 +1689,9 @@
       }
       `,
       yiyan: `
+      
+      `,
+      chat: `
       
       `,
     },
@@ -6775,6 +6780,43 @@
       if (GM_Menu.get("baidu_yiyan_remove_ai_mask")) {
         log.success(GM_Menu.getShowTextValue("baidu_yiyan_remove_ai_mask"));
         webSiteHandle.blockWaterMark();
+      }
+    },
+    /**
+     * AI对话
+     */
+    chat() {
+      if (!this.currentUrl.match(/^http(s|):\/\/chat.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.chat);
+      log.info("插入CSS规则");
+      GM_Menu.add({
+        key: "baidu_chat_remove_ai_mask",
+        text: "【屏蔽】水印",
+        enable: true,
+      });
+
+      if (GM_Menu.get("baidu_chat_remove_ai_mask")) {
+        log.success(GM_Menu.getShowTextValue("baidu_chat_remove_ai_mask"));
+        GM_addStyle(`
+        .bot-body .watermark,
+        #searchChatApp div[class^="watermark"]{
+          background-image: none !important;
+        }
+        `);
+        let maskMutationObserver = new utils.LockFunction(function () {
+          document
+            .querySelectorAll("img[src*='style/wm_ai']")
+            .forEach((imgElement) => {
+              log.info("处理AI水印：" + imgElement.src);
+                imgElement.src = imgElement.src.replace(/style\/wm_ai/g, "");
+            });
+        }, 400);
+        utils.mutationObserver(document.body, {
+          config: { subtree: true, childList: true },
+          callback: maskMutationObserver.run,
+        });
       }
     },
   };
