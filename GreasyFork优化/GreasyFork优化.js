@@ -2,12 +2,12 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.10.26
+// @version      2023.10.27
 // @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览
 // @author       WhiteSevs
 // @license      MIT
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
-// @match        http*://*.greasyfork.org/*
+// @match        *://*.greasyfork.org/*
 // @run-at       document-start
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -676,14 +676,16 @@
       let scriptStatsJSON = await GreasyforkApi.getScriptStats(
         GreasyforkApi.getScriptId()
       );
+      console.log(scriptStatsJSON);
       if (!scriptStatsJSON) {
         return;
       }
       scriptStatsJSON = utils.toJSON(scriptStatsJSON.responseText);
-      let update_checks =
-        scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")][
-          "update_checks"
-        ];
+      log.info(["统计信息", scriptStatsJSON]);
+      let todayStatsJSON =
+        scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
+      let update_checks = todayStatsJSON["update_checks"];
+      log.info(["今日统计信息", todayStatsJSON]);
       DOMUtils.after(
         "dd.script-show-daily-installs",
         DOMUtils.createElement("dt", {
