@@ -24,6 +24,7 @@
 |     [![https://favicon.yandex.net/favicon/v2/https://shitu.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://shitu.baidu.com/?size=16)](https://shitu.baidu.com/)百度识图 |             | 去除广告、重构页面的上传图片搜索功能 |
 |     [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/)百度网盘 |             | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16)](https://yiyan.baidu.com/)文心一言 | 【屏蔽】水印 |  |
+|     [![https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16)](https://chat.baidu.com/)搜索AI伙伴 | 【屏蔽】水印 |  |
 
 对`百度搜索`、`百度贴吧`、`百度识图`添加了新功能
 
