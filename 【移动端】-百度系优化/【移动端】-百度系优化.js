@@ -6803,14 +6803,13 @@
         .bot-body .watermark,
         #searchChatApp div[class^="watermark"]{
           background-image: none !important;
-        }
-        `);
+        }`);
         let maskMutationObserver = new utils.LockFunction(function () {
           document
             .querySelectorAll("img[src*='style/wm_ai']")
             .forEach((imgElement) => {
               log.info("处理AI水印：" + imgElement.src);
-                imgElement.src = imgElement.src.replace(/style\/wm_ai/g, "");
+              imgElement.src = imgElement.src.replace(/style\/wm_ai/g, "");
             });
         }, 400);
         utils.mutationObserver(document.body, {
