@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.31
+// @version      2023.10.31.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -4134,8 +4134,6 @@
                   "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
                 );
                 log.success("关闭楼中楼回复弹窗");
-                log.success("解锁全局滚动");
-                document.documentElement.style.overflowY = "";
                 dialog.remove();
                 if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
                   resumeBack();
@@ -4157,8 +4155,6 @@
                   "webkitTransitionEnd mozTransitionEnd MSTransitionEnd otransitionend transitionend"
                 );
                 log.success("关闭楼中楼回复弹窗");
-                log.success("解锁全局滚动");
-                document.documentElement.style.overflowY = "";
                 dialog.remove();
               }
             );
@@ -4317,8 +4313,6 @@
             lzlScrollEventLock.run
           );
           log.success("绑定楼中楼scroll监听事件【下一页】");
-          document.documentElement.style.overflowY = "hidden";
-          log.success("锁定全局滚动");
           /* 插入楼中楼弹窗 */
           document.body.appendChild(dialog);
           lzlLoadingView.setLoadingViewElement(
@@ -5934,22 +5928,35 @@
           let originGetItem = window.localStorage.getItem;
           window.localStorage.getItem = function (key) {
             if (key === "p_w_app_call" || key === "p_w_launchappcall") {
-              log.info("客户端已调用调用伪装 " + key);
+              log.info("客户端已调用伪装 " + key);
               return JSON.stringify({
                 value: 1,
                 date: utils.formatTime(undefined, "yyyyMMdd"),
               });
-            } else if (key === "p_w_new_slient") {
-              log.info("客户端已调用调用伪装 " + key);
+            } else if (
+              key.startsWith("p_w_new_slient") ||
+              key.startsWith("f_w_pop_slient") ||
+              key.startsWith("f_w_floor") ||
+              key.startsWith("auto_slient_wakeup")
+            ) {
+              log.info("客户端已调用伪装 " + key);
               return "1";
             } else {
               return originGetItem.call(window.localStorage, key);
             }
           };
-          window.localStorage.setItem(
-            "p_w_new_slient_" + utils.formatTime(undefined, "yyyy-MM-dd"),
-            1
-          );
+          let masqueradeParamsList = [
+            "p_w_new_slient_",
+            "f_w_pop_slient_",
+            "f_w_floor",
+            "auto_slient_wakeup_",
+          ];
+          masqueradeParamsList.forEach((masqueradeParam) => {
+            window.localStorage.setItem(
+              masqueradeParam + utils.formatTime(undefined, "yyyy-MM-dd"),
+              1
+            );
+          });
         },
         /**
          * 获取本帖楼主的信息
