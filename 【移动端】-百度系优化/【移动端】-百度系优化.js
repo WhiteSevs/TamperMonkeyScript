@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.10.31.19
+// @version      2023.11.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -5926,6 +5926,21 @@
          */
         clientCallMasquerade() {
           let originGetItem = window.localStorage.getItem;
+          let originDocumentAppendChild = Element.prototype.appendChild;
+          Element.prototype.appendChild = function (node) {
+            if (node instanceof HTMLIFrameElement) {
+              if (node?.src?.startsWith("com.baidu.tieba")) {
+                log.success([
+                  "拦截百度贴吧通过iframe的Scheme唤醒：" + node.src,
+                  node,
+                ]);
+                return;
+              } else if (!node?.src?.startsWith("http")) {
+                log.info(["未知的Scheme：" + node.src, node]);
+              }
+            }
+            return originDocumentAppendChild.call(this, node);
+          };
           window.localStorage.getItem = function (key) {
             if (key === "p_w_app_call" || key === "p_w_launchappcall") {
               log.info("客户端已调用伪装 " + key);
@@ -5935,8 +5950,11 @@
               });
             } else if (
               key.startsWith("p_w_new_slient") ||
+              key.startsWith("f_w_slient") ||
               key.startsWith("f_w_pop_slient") ||
               key.startsWith("f_w_floor") ||
+              key.startsWith("t_w_slient") ||
+              key.startsWith("t_w_pop_slient") ||
               key.startsWith("auto_slient_wakeup")
             ) {
               log.info("客户端已调用伪装 " + key);
@@ -5947,8 +5965,11 @@
           };
           let masqueradeParamsList = [
             "p_w_new_slient_",
+            "f_w_slient_",
             "f_w_pop_slient_",
-            "f_w_floor",
+            "f_w_floor_",
+            "t_w_slient_",
+            "t_w_pop_slient_",
             "auto_slient_wakeup_",
           ];
           masqueradeParamsList.forEach((masqueradeParam) => {
