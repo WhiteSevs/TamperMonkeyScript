@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.1
+// @version      2023.11.1.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -5926,21 +5926,7 @@
          */
         clientCallMasquerade() {
           let originGetItem = window.localStorage.getItem;
-          let originDocumentAppendChild = Element.prototype.appendChild;
-          Element.prototype.appendChild = function (node) {
-            if (node instanceof HTMLIFrameElement) {
-              if (node?.src?.startsWith("com.baidu.tieba")) {
-                log.success([
-                  "拦截百度贴吧通过iframe的Scheme唤醒：" + node.src,
-                  node,
-                ]);
-                return;
-              } else if (!node?.src?.startsWith("http")) {
-                log.info(["未知的Scheme：" + node.src, node]);
-              }
-            }
-            return originDocumentAppendChild.call(this, node);
-          };
+          /* 劫持localStorage */
           window.localStorage.getItem = function (key) {
             if (key === "p_w_app_call" || key === "p_w_launchappcall") {
               log.info("客户端已调用伪装 " + key);
@@ -5963,6 +5949,7 @@
               return originGetItem.call(window.localStorage, key);
             }
           };
+          /* 伪装localStorage已赋值 */
           let masqueradeParamsList = [
             "p_w_new_slient_",
             "f_w_slient_",
@@ -5978,6 +5965,52 @@
               1
             );
           });
+        },
+        /**
+         * 客户端劫持，劫持各种函数阻止唤醒百度贴吧/跳转下载
+         */
+        clientHijack() {
+          /* 劫持webpack */
+          let originCall = Function.prototype.call;
+          Function.prototype.call = function (...args) {
+            let result = originCall.apply(this, args);
+            if (args.length && args.length === 4 && args[1]?.i === "core:67") {
+              args[1].exports.getSchema = function () {
+                log.info(["阻止调用getSchema", ...arguments]);
+                return "test";
+              };
+              args[1].exports.getToken = function () {
+                log.info(["阻止调用getToken", ...arguments]);
+              };
+              args[1].exports.init = function () {
+                log.info(["阻止初始化", ...arguments]);
+                return;
+              };
+              args[1].exports.initDiffer = function () {
+                log.info(["阻止初始化差异", ...arguments]);
+                return;
+              };
+              return;
+            }
+            return result;
+          };
+
+          /* 劫持创建iframe */
+          let originDocumentAppendChild = Element.prototype.appendChild;
+          Element.prototype.appendChild = function (node) {
+            if (node instanceof HTMLIFrameElement) {
+              if (node?.src?.startsWith("com.baidu.tieba")) {
+                log.success([
+                  "拦截百度贴吧通过iframe的Scheme唤醒：" + node.src,
+                  node,
+                ]);
+                return;
+              } else if (!node?.src?.startsWith("http")) {
+                log.info(["未知的Scheme：" + node.src, node]);
+              }
+            }
+            return originDocumentAppendChild.call(this, node);
+          };
         },
         /**
          * 获取本帖楼主的信息
@@ -6050,6 +6083,7 @@
       };
 
       tiebaBusiness.clientCallMasquerade();
+      tiebaBusiness.clientHijack();
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (
