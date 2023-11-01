@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.1.11
+// @version      2023.11.1.12
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -5974,10 +5974,28 @@
           let originCall = Function.prototype.call;
           Function.prototype.call = function (...args) {
             let result = originCall.apply(this, args);
-            if (args.length && args.length === 4 && args[1]?.i === "core:67") {
+            /* 当前i core:67 */
+            if (
+              args.length &&
+              args.length === 4 &&
+              args[1]?.exports &&
+              Object.prototype.hasOwnProperty.call(
+                args[1].exports,
+                "getSchema"
+              ) &&
+              Object.prototype.hasOwnProperty.call(
+                args[1].exports,
+                "getToken"
+              ) &&
+              Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
+              Object.prototype.hasOwnProperty.call(
+                args[1].exports,
+                "initDiffer"
+              )
+            ) {
+              log.success(["成功劫持webpack关键Scheme调用函数", args]);
               args[1].exports.getSchema = function () {
                 log.info(["阻止调用getSchema", ...arguments]);
-                return "test";
               };
               args[1].exports.getToken = function () {
                 log.info(["阻止调用getToken", ...arguments]);
@@ -5995,7 +6013,7 @@
             return result;
           };
 
-          /* 劫持创建iframe */
+          /* 劫持iframe添加到页面 */
           let originDocumentAppendChild = Element.prototype.appendChild;
           Element.prototype.appendChild = function (node) {
             if (node instanceof HTMLIFrameElement) {
