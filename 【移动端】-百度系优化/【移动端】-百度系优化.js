@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.1.12
+// @version      2023.11.1.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -3159,6 +3159,9 @@
         },
       ]);
       if (GM_Menu.get("baijiahao_shield_recommended_article")) {
+        log.success(
+          GM_Menu.getShowTextValue("baijiahao_shield_recommended_article")
+        );
         GM_addStyle(`
 			  .infinite-scroll-component__outerdiv,
         div#page_wrapper > div > div:nth-child(5),
@@ -3177,12 +3180,16 @@
         `);
       }
       if (GM_Menu.get("baijiahao_shield_user_comment")) {
+        log.success(GM_Menu.getShowTextValue("baijiahao_shield_user_comment"));
         GM_addStyle(`
         #commentModule{
           display: none !important;
         }`);
       }
       if (GM_Menu.get("baijiahao_shield_user_comment_input_box")) {
+        log.success(
+          GM_Menu.getShowTextValue("baijiahao_shield_user_comment_input_box")
+        );
         GM_addStyle(`
         div#wise-invoke-interact-bar{
           display: none !important;
@@ -4523,7 +4530,7 @@
         /**
          * 获取第一页的评论（不包括评论的评论）
          * @param {string} url
-         * @returns {?HTMLElement}
+         * @returns {?HTMLElement|string}
          */
         async getPageComment(url) {
           let getResp = await httpx.get({
@@ -4536,23 +4543,24 @@
           let respData = getResp.data;
           log.success(["获取第一页的评论", respData]);
           if (getResp.status) {
-            let pageCommentHTML = DOMUtils.parseHTML(
+            let pageCommentHTMLElement = DOMUtils.parseHTML(
               respData.responseText,
               true,
               true
             );
             if (
-              pageCommentHTML.title === "百度安全验证" ||
+              pageCommentHTMLElement.title === "百度安全验证" ||
               respData.finalUrl.startsWith("https://wappass.baidu.com")
             ) {
               log.error("触发百度安全验证 👇" + respData.finalUrl);
               log.error(respData);
+              return "触发百度安全验证";
               /* let gotoBaiduWappass = confirm("触发百度安全验证，是否前往："+respData.finalUrl);
               if(gotoBaiduWappass){
                 window.location.href = respData.finalUrl;
               } */
             } else {
-              return pageCommentHTML;
+              return pageCommentHTMLElement;
             }
           } else if (getResp.type === "onerror") {
             if (
@@ -4665,11 +4673,13 @@
                 url
               );
               if (!pageDOM || !pageCommentList.commentList) {
-                loadingView.setText("获取评论失败");
-                log.error("新评论区获取失败");
+                loadingView.setText(
+                  typeof pageDOM === "string" ? pageDOM : "获取评论失败"
+                );
+                log.error("评论数据获取失败");
                 return;
               }
-              log.info("成功获取评论HTML");
+              log.info("成功获取第一页评论和其第一页的楼中楼评论");
               let jumpInputBrightDOM =
                 pageDOM.querySelector(".jump_input_bright");
               tiebaCommentConfig.maxPage = 1;
@@ -4736,11 +4746,15 @@
                 url
               );
               if (!pageDOM || !pageCommentList.commentList) {
-                loadingView.setText("获取评论失败");
-                log.error("新评论区获取失败");
+                loadingView.setText(
+                  loadingView.setText(
+                    typeof pageDOM === "string" ? pageDOM : "获取评论失败"
+                  )
+                );
+                log.error("评论数据获取失败");
                 return;
               }
-              log.info("成功获取评论HTML");
+              log.info("成功获取第一页评论和其第一页的楼中楼评论");
               tiebaCommentConfig.maxPage = 1;
               let jumpInputBrightDOM =
                 pageDOM.querySelector(".jump_input_bright");
@@ -5971,47 +5985,52 @@
          */
         clientHijack() {
           /* 劫持webpack */
-          let originCall = Function.prototype.call;
-          Function.prototype.call = function (...args) {
-            let result = originCall.apply(this, args);
-            /* 当前i core:67 */
-            if (
-              args.length &&
-              args.length === 4 &&
-              args[1]?.exports &&
-              Object.prototype.hasOwnProperty.call(
-                args[1].exports,
-                "getSchema"
-              ) &&
-              Object.prototype.hasOwnProperty.call(
-                args[1].exports,
-                "getToken"
-              ) &&
-              Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
-              Object.prototype.hasOwnProperty.call(
-                args[1].exports,
-                "initDiffer"
-              )
-            ) {
-              log.success(["成功劫持webpack关键Scheme调用函数", args]);
-              args[1].exports.getSchema = function () {
-                log.info(["阻止调用getSchema", ...arguments]);
-              };
-              args[1].exports.getToken = function () {
-                log.info(["阻止调用getToken", ...arguments]);
-              };
-              args[1].exports.init = function () {
-                log.info(["阻止初始化", ...arguments]);
+          if (GM_Menu.get("baidu_tieba_hijack_scheme_call")) {
+            log.success(
+              GM_Menu.getShowTextValue("baidu_tieba_hijack_scheme_call")
+            );
+            let originCall = Function.prototype.call;
+            Function.prototype.call = function (...args) {
+              let result = originCall.apply(this, args);
+              /* 当前i core:67 */
+              if (
+                args.length &&
+                args.length === 4 &&
+                args[1]?.exports &&
+                Object.prototype.hasOwnProperty.call(
+                  args[1].exports,
+                  "getSchema"
+                ) &&
+                Object.prototype.hasOwnProperty.call(
+                  args[1].exports,
+                  "getToken"
+                ) &&
+                Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
+                Object.prototype.hasOwnProperty.call(
+                  args[1].exports,
+                  "initDiffer"
+                )
+              ) {
+                log.success(["成功劫持webpack关键Scheme调用函数", args]);
+                args[1].exports.getSchema = function () {
+                  log.info(["阻止调用getSchema", ...arguments]);
+                };
+                args[1].exports.getToken = function () {
+                  log.info(["阻止调用getToken", ...arguments]);
+                };
+                args[1].exports.init = function () {
+                  log.info(["阻止初始化", ...arguments]);
+                  return;
+                };
+                args[1].exports.initDiffer = function () {
+                  log.info(["阻止初始化差异", ...arguments]);
+                  return;
+                };
                 return;
-              };
-              args[1].exports.initDiffer = function () {
-                log.info(["阻止初始化差异", ...arguments]);
-                return;
-              };
-              return;
-            }
-            return result;
-          };
+              }
+              return result;
+            };
+          }
 
           /* 劫持iframe添加到页面 */
           let originDocumentAppendChild = Element.prototype.appendChild;
@@ -6100,6 +6119,11 @@
         },
       };
 
+      GM_Menu.add({
+        key: "baidu_tieba_hijack_scheme_call",
+        text: "劫持Scheme调用",
+        enable: false,
+      });
       tiebaBusiness.clientCallMasquerade();
       tiebaBusiness.clientHijack();
       GM_addStyle(this.css.tieba);
@@ -6176,6 +6200,7 @@
       ]);
       /* 屏蔽会员精选 */
       if (GM_Menu.get("baidu_wenku_block_member_picks")) {
+        log.success(GM_Menu.getShowTextValue("baidu_wenku_block_member_picks"));
         GM_addStyle(`
           div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]{
             display: none !important;
@@ -6183,6 +6208,9 @@
       }
       /* 屏蔽APP精选 */
       if (GM_Menu.get("baidu_wenku_blocking_app_featured")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_wenku_blocking_app_featured")
+        );
         GM_addStyle(`
           div[class*="app-choice_"][data-ait-action="appChoiceNewShow"],
           div.folder-wrap.invite-clipboard[data-clipboard-text]{
@@ -6191,6 +6219,9 @@
       }
       /* 屏蔽相关文档 */
       if (GM_Menu.get("baidu_wenku_blocking_related_documents")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_wenku_blocking_related_documents")
+        );
         GM_addStyle(`
           div.fold-page-conversion,
           div.newrecom-list.invite-clipboard[data-clipboard-text]{
@@ -6199,6 +6230,9 @@
       }
       /* 屏蔽底部工具栏 */
       if (GM_Menu.get("baidu_wenku_blocking_bottom_toolbar")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_wenku_blocking_bottom_toolbar")
+        );
         GM_addStyle(`
           div.barbottom{
             display: none !important;
@@ -6206,6 +6240,7 @@
       }
       /* 屏蔽下一篇按钮 */
       if (GM_Menu.get("baidu_wenku_shield_next_btn")) {
+        log.success(GM_Menu.getShowTextValue("baidu_wenku_shield_next_btn"));
         GM_addStyle(`
           div.next-page-container{
             display: none !important;
@@ -6434,6 +6469,11 @@
         },
       ]);
       if (GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")) {
+        log.success(
+          GM_Menu.getShowTextValue(
+            "baidu_zhidao_block_recommend_more_exciting_content"
+          )
+        );
         GM_addStyle(`
           .feed-recommend-title,
           #feed-recommend,
@@ -6442,14 +6482,21 @@
           }`);
       }
       if (GM_Menu.get("baidu_zhidao_block_other_answers")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_zhidao_block_other_answers")
+        );
         GM_addStyle(`
           .replies-container + div{
             display: none !important;
           }`);
       }
       if (GM_Menu.get("baidu_zhidao_block_related_issues")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_zhidao_block_related_issues")
+        );
         GM_addStyle(`
-          div[id^=wahsd]{
+          div[id^=wahsd],
+          div[class^="w-question-list"]{
             display: none !important;
           }`);
       }
@@ -6481,18 +6528,25 @@
         },
       ]);
       if (GM_Menu.get("baidu_fanyi_recommended_shielding_bottom")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_fanyi_recommended_shielding_bottom")
+        );
         GM_addStyle(`
         section.article.android-style{
           display: none !important;
         }`);
       }
       if (GM_Menu.get("baidu_fanyi_other_shielding_bottom")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_fanyi_other_shielding_bottom")
+        );
         GM_addStyle(`
         .trans-other-wrap.clearfix{
           display: none !important;
         }`);
       }
       if (GM_Menu.get("baidu_fanyi_auto_focus")) {
+        log.success(GM_Menu.getShowTextValue("baidu_fanyi_auto_focus"));
         utils.waitNode("textarea#j-textarea").then(() => {
           setTimeout(() => {
             document.querySelector("textarea#j-textarea").focus();
@@ -6616,6 +6670,7 @@
        * 屏蔽轮播图
        */
       if (GM_Menu.get("baidu_aiqicha_shidld_carousel")) {
+        log.success(GM_Menu.getShowTextValue("baidu_aiqicha_shidld_carousel"));
         GM_addStyle(`
         div.index-banner-container.van-swipe{
           display: none !important;
@@ -6625,6 +6680,9 @@
        * 屏蔽行业热点新闻
        */
       if (GM_Menu.get("baidu_aiqicha_shidld_industry_host_news")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_aiqicha_shidld_industry_host_news")
+        );
         GM_addStyle(`
         div.hot-news{
           display: none !important;
@@ -6656,6 +6714,9 @@
         enable: true,
       });
       if (GM_Menu.get("baidu_haokan_shidld_may_also_like")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_haokan_shidld_may_also_like")
+        );
         GM_addStyle(`
         div.top-video-list-container{display: none !important};
         `);
