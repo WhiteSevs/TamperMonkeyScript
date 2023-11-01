@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.1.23
+// @version      2023.11.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -2995,6 +2995,55 @@
         },
       };
 
+      /**
+       * 处理劫持
+       */
+      const handleHijack = {
+        run() {
+          if (GM_Menu.get("baidu_search_hijack_openbox")) {
+            log.success(
+              GM_Menu.getShowTextValue("baidu_search_hijack_openbox")
+            );
+            this.hijackOpenBox();
+          }
+        },
+        /**
+         * 劫持OpenBox
+         */
+        hijackOpenBox() {
+          let OpenBox = function () {
+            return {
+              open: function () {
+                log.info(["劫持OpenBox-open传入参数👇", ...arguments]);
+                if (!arguments.length) {
+                  return;
+                }
+                let invokeUrl =
+                  arguments[0]["invokeURL"] || arguments[0]["invoke_url"];
+                if (
+                  typeof arguments[0] === "object" &&
+                  typeof invokeUrl === "string"
+                ) {
+                  log.success("直接跳转Url：" + invokeUrl);
+                  window.location.href = invokeUrl;
+                }
+              },
+              ready: function () {
+                log.info(["劫持OpenBox-ready传入参数👇", ...arguments]);
+              },
+              version: 20170811,
+            };
+          };
+          OpenBox.getIdmData = function () {
+            return {};
+          };
+          Object.defineProperty(unsafeWindow, "OpenBox", {
+            get: function () {
+              return OpenBox;
+            },
+          });
+        },
+      };
       GM_Menu.add([
         {
           key: "baidu_search_automatically_expand_next_page",
@@ -3034,13 +3083,20 @@
           text: "【重构】大家还在搜",
           enable: true,
         },
+        {
+          key: "baidu_search_hijack_openbox",
+          text: "劫持OpenBox",
+          enable: false,
+        },
       ]);
       if (!GM_Menu.get("baidu_search_show_log")) {
         log.error("禁止控制台输出日志");
         log.disable();
       }
       if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
-        log.success("禁止百度搜索的视频自动播放");
+        log.success(
+          GM_Menu.getShowTextValue("baidu_search_disable_autoplay_video")
+        );
         let funcLock = new utils.LockFunction(
           () => {
             let videoPlayerList = document.querySelectorAll(
@@ -3056,6 +3112,7 @@
           undefined,
           250
         );
+        handleHijack.run();
         utils.mutationObserver(document.documentElement, {
           config: {
             subtree: true,
