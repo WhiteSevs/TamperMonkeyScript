@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.2
+// @version      2023.11.2.10
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -46,7 +46,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271089
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1273928
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1270549
 // @run-at       document-start
 // ==/UserScript==
@@ -3322,22 +3322,27 @@
           let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
           log.info("请求下一页评论的url: " + nextPageUrl);
           log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
-          let nextPageDOM = await tiebaCommentConfig.getPageComment(
-            nextPageUrl
-          );
-          log.info("成功获取下一页评论");
+          let pageDOM = await tiebaCommentConfig.getPageComment(nextPageUrl);
           let pageCommentList = await tiebaCommentConfig.getPageCommentList(
             nextPageAllCommentUrl
           );
-          log.info("成功获取下一页评论对应的数组");
-          if (!nextPageDOM || !pageCommentList.commentList) {
-            loadingView.setText("未知错误，请看控制台");
-            log.error(nextPageDOM);
+          if (
+            !pageDOM ||
+            typeof pageDOM === "string" ||
+            !pageCommentList.commentList
+          ) {
+            loadingView.setText(
+              loadingView.setText(
+                typeof pageDOM === "string" ? pageDOM : "获取评论失败"
+              )
+            );
+            log.error(pageDOM);
             log.error(pageCommentList);
             tiebaCommentConfig.removeScrollListener();
             return;
           }
-          let comments = nextPageDOM.querySelectorAll(".l_post.l_post_bright");
+          log.info("成功获取下一页评论和楼中楼评论");
+          let comments = pageDOM.querySelectorAll(".l_post.l_post_bright");
           comments = Array.from(comments);
           if (tiebaCommentConfig.page == 1) {
             /* 为第一页时，去除第一个，也就是主评论 */
@@ -3388,20 +3393,27 @@
           let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
           log.info("请求上一页评论的url: " + pageUrl);
           log.info("贴子所有评论的url: " + pageAllCommentUrl);
-          let nextPageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
-          log.info("成功获取上一页评论");
+          let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
           let pageCommentList = await tiebaCommentConfig.getPageCommentList(
             pageAllCommentUrl
           );
-          log.info("成功获取下一页评论对应的数组");
-          if (!nextPageDOM || !pageCommentList.commentList) {
-            loadingView.setText("未知错误，请看控制台");
-            log.error(nextPageDOM);
+          if (
+            !pageDOM ||
+            typeof pageDOM === "string" ||
+            !pageCommentList.commentList
+          ) {
+            loadingView.setText(
+              loadingView.setText(
+                typeof pageDOM === "string" ? pageDOM : "获取评论失败"
+              )
+            );
+            log.error(pageDOM);
             log.error(pageCommentList);
             tiebaCommentConfig.removeScrollListener();
             return;
           }
-          let comments = nextPageDOM.querySelectorAll(".l_post.l_post_bright");
+          log.info("成功获取上一页评论和楼中楼评论");
+          let comments = pageDOM.querySelectorAll(".l_post.l_post_bright");
           comments = Array.from(comments);
           if (tiebaCommentConfig.page == 1) {
             /* 为第一页时，去除第一个，也就是主评论 */
@@ -4585,18 +4597,25 @@
           });
         },
         /**
-         * 获取第一页的评论（不包括评论的评论）
+         * 获取第XX页的评论（不包括楼中楼评论）
          * @param {string} url
          * @returns {?HTMLElement|string}
          */
         async getPageComment(url) {
-          let getResp = await httpx.get({
+          let getDetails = {
             url: url,
             headers: {
               "User-Agent": utils.getRandomPCUA(),
               Referer: "tieba.baidu.com",
             },
-          });
+          };
+          if (GM_Menu.get("baidu_tieba_request_with_cookie")) {
+            log.success(
+              GM_Menu.getShowTextValue("baidu_tieba_request_with_cookie")
+            );
+            getDetails.headers["Cookie"] = document.cookie;
+          }
+          let getResp = await httpx.get(getDetails);
           let respData = getResp.data;
           log.success(["获取第一页的评论", respData]);
           if (getResp.status) {
@@ -4627,7 +4646,7 @@
               let url = respData.error.match(/"(.*?)"/)[1];
               log.error("触发百度校验: " + url);
               let gotoBaiduWappass = confirm(
-                "触发百度安全验证，是否前往：" + respData.finalUrl
+                "触发百度安全验证，是否前往：" + url
               );
               if (gotoBaiduWappass) {
                 window.location.href = url;
@@ -4639,9 +4658,9 @@
           }
         },
         /**
-         * 获取第一页的评论的评论
+         * 获取第XX页的所有楼中楼评论
          * @param {string} url
-         * @returns {{commentList:array, userList:array} }
+         * @returns { {commentList:array, userList:array} }
          */
         async getPageCommentList(url) {
           let getResp = await httpx.get({
@@ -4729,7 +4748,11 @@
               let pageCommentList = await tiebaCommentConfig.getPageCommentList(
                 url
               );
-              if (!pageDOM || !pageCommentList.commentList) {
+              if (
+                !pageDOM ||
+                typeof pageDOM === "string" ||
+                !pageCommentList.commentList
+              ) {
                 loadingView.setText(
                   typeof pageDOM === "string" ? pageDOM : "获取评论失败"
                 );
@@ -4802,7 +4825,11 @@
               let pageCommentList = await tiebaCommentConfig.getPageCommentList(
                 url
               );
-              if (!pageDOM || !pageCommentList.commentList) {
+              if (
+                !pageDOM ||
+                typeof pageDOM === "string" ||
+                !pageCommentList.commentList
+              ) {
                 loadingView.setText(
                   loadingView.setText(
                     typeof pageDOM === "string" ? pageDOM : "获取评论失败"
@@ -6176,11 +6203,18 @@
         },
       };
 
-      GM_Menu.add({
-        key: "baidu_tieba_hijack_scheme_call",
-        text: "劫持Scheme调用",
-        enable: false,
-      });
+      GM_Menu.add([
+        {
+          key: "baidu_tieba_hijack_scheme_call",
+          text: "劫持Scheme调用",
+          enable: false,
+        },
+        {
+          key: "baidu_tieba_request_with_cookie",
+          text: "【beta】请求携带Cookie",
+          enable: false,
+        },
+      ]);
       tiebaBusiness.clientCallMasquerade();
       tiebaBusiness.clientHijack();
       GM_addStyle(this.css.tieba);
