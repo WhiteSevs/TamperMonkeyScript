@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.2.19
+// @version      2023.11.3
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -46,7 +46,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1273928
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274269
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1270549
 // @run-at       document-start
 // ==/UserScript==
@@ -70,13 +70,14 @@
   const DOMUtils = window.DOMUtils.noConflict();
   const log = new utils.Log(GM_info);
   log.config({
+    debug: DEBUG,
     logMaxCount: 20000,
     autoClearConsole: true,
     tag: true,
   });
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
-    logDetails: true,
+    logDetails: DEBUG,
     onabort: function () {
       log.error("请求取消");
     },
