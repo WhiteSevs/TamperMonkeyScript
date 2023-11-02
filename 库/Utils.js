@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-2";
+  Utils.version = "2023-11-3";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -3324,6 +3324,16 @@
   };
 
   /**
+   * @typedef {object} UtilsLogDetails
+   * @property {boolean} tag 输出Tag
+   * @property {string} [successColor="blue"] log.success的颜色
+   * @property {string} [errorColor="red"] log.error的颜色
+   * @property {string} [infoColor="0"] log.info的颜色
+   * @property {boolean} debug 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置
+   * @property {boolean} autoClearConsole 当console输出超过logMaxCount数量自动清理控制台
+   * @property {boolean} logMaxCount console输出的最高数量，autoClearConsole开启则生效
+   */
+  /**
    * 日志对象
    * @param {object} _GM_info_ 油猴管理器的API GM_info
    * @example
@@ -3361,24 +3371,31 @@
       "font-weight: bold; color: darkorange",
       "font-weight: bold; color: cornflowerblue",
     ];
+    /**
+     * @type {UtilsLogDetails}
+     */
     let details = {
-      tag: true /* 输出Tag信息 */,
-      successColor: "blue" /* 成功颜色 */,
-      errorColor: "red" /* 错误颜色 */,
-      infoColor: "0" /* 信息颜色 */,
-      debug: false /* 开启debug模式，会在控制台输出调用者位置 */,
-      autoClearConsole: false /* 当console输出超过logMaxCount数量自动清理控制台 */,
-      logMaxCount: 999 /* console输出的最高数量，autoClearConsole开启则生效 */,
+      tag: true,
+      successColor: "blue",
+      errorColor: "red",
+      infoColor: "0",
+      debug: true,
+      autoClearConsole: false,
+      logMaxCount: 999,
     };
     let logCount = 0;
     /**
-     * 解析Error的堆栈获取调用者所在的函数位置
-     * @param {list} stack
+     * 解析Error的堆栈获取实际调用者的函数名及函数所在的位置
+     * @param {array} stack
+     * @returns {{
+     *   name: string,
+     *   position: string,
+     * }}
      */
     let parseErrorStack = function (stack) {
       let result = {
-        functionName: "",
-        functionPosition: "",
+        name: "",
+        position: "",
       };
       for (let i = 0; i < stack.length; i++) {
         let stackString = stack[i].trim();
@@ -3403,14 +3420,30 @@
         ) {
           continue;
         } else {
-          result.functionName = stackFunctionName;
-          result.functionPosition = stackFunctionNamePosition;
+          result.name = stackFunctionName;
+          result.position = stackFunctionNamePosition;
           break;
         }
       }
+      if (result.position === "") {
+        let lastStackString = stack[stack.length - 1].trim();
+        if (lastStackString.startsWith("at chrome-extension://")) {
+          let lastStackMatch = lastStackString.match(/^at[\s]+(.+)/);
+          if (lastStackMatch) {
+            result.position = lastStackMatch[lastStackMatch.length - 1];
+          }
+        }
+      }
+      if (result.position === "") {
+        result.position = stack[stack.length - 1]
+          .trim()
+          .replace(/^at[\s]*/g, "");
+      }
       return result;
     };
-    /* 待恢复的函数或对象 */
+    /**
+     * 待恢复的函数或对象
+     */
     let recoveryList = [];
     /**
      * 检测清理控制台
@@ -3423,12 +3456,15 @@
         logCount = 0;
       }
     };
-    this.tag = _GM_info_?.script?.name || "GM_info缺失";
+    /**
+     * 前面的TAG标志
+     */
+    this.tag = _GM_info_?.script?.name || "Utils.Log";
     /**
      * 控制台-普通输出
      * @param {any} msg
-     * @param {String} color
-     * @param {String} type
+     * @param {string} color
+     * @param {string} type
      */
     this.info = function (msg, color, type = "info") {
       checkClearConsole.apply(this);
@@ -3438,8 +3474,8 @@
       }
       stack.splice(0, 1);
       let errorStackParse = parseErrorStack(stack);
-      let stackFunctionName = errorStackParse["functionName"];
-      let stackFunctionNamePosition = errorStackParse["functionPosition"];
+      let stackFunctionName = errorStackParse.name;
+      let stackFunctionNamePosition = errorStackParse.position;
       let callerName = stackFunctionName;
       if (typeof msg === "object") {
         /* 要输出的内容是个对象 */
@@ -3511,8 +3547,8 @@
       }
       stack.splice(0, 1);
       let errorStackParse = parseErrorStack(stack);
-      let stackFunctionName = errorStackParse["functionName"];
-      let stackFunctionNamePosition = errorStackParse["functionPosition"];
+      let stackFunctionName = errorStackParse.name;
+      let stackFunctionNamePosition = errorStackParse.position;
       let callerName = stackFunctionName;
       console.log(
         `%c[${this.tag}%c-%c${callerName}%c]%c`,
@@ -3526,7 +3562,7 @@
     };
     /**
      * 配置Log对象的颜色
-     * @param {object} paramDetails 配置信息
+     * @param {UtilsLogDetails} paramDetails 配置信息
      */
     this.config = function (paramDetails) {
       details = Object.assign(details, paramDetails);
