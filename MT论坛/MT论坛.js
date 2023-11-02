@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 新增部分CSS兼容Gecko内核;新增小窗刷新图标;新增小窗刷新图标点击事件为刷新小窗内的网页;
-// @version      2023.10.21
+// @description  更新日志: 重构部分代码;更新Utils库版本至2023-11-2;
+// @version      2023.11.2
 // @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -35,7 +35,7 @@
 // @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
 // @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271089
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1273928
 // ==/UserScript==
 
 (async function () {
@@ -580,21 +580,21 @@
      * dz论坛在cookie中保存的键所使用的的前缀
      * @returns {String}
      */
-    getCookiePre: () => {
+    getCookiePre() {
       return unsafeWindow.cookiepre;
     },
     /**
      * 当前账号的uid
      * @returns {number}
      */
-    getUID: () => {
+    getUID() {
       return unsafeWindow.discuz_uid;
     },
     /**
      * 当前账号的formhash(有延迟仅移动端)
      * @returns {string}
      */
-    getFormHash: () => {
+    getFormHash() {
       return unsafeWindow.formhash;
     },
     /**
@@ -683,7 +683,7 @@
    * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
    * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
    * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271089
+   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1273928
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -722,7 +722,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1271089",
+        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1273928",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,
@@ -1297,6 +1297,7 @@
           console.log("发现附件", item);
           console.log("该附件是金币附件，拦截！");
           item.setAttribute("data-href", attachmentURL);
+          item.style.setProperty("cursor", "pointer");
           item.removeAttribute("href");
           item.innerText = "【已拦截】" + attachmentName;
           item.onclick = function () {
@@ -3648,38 +3649,41 @@
         GM_getValue("v3") &&
         window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)
       ) {
-        var hide = document.getElementsByTagName("font");
-        var postForumMain = document.querySelector(".comiis_ordertype")
-          ? document.querySelector(".comiis_postlist.kqide .comiis_postli")
-              .innerHTML
-          : "";
-        for (let i = 0; i < hide.length; i++) {
-          if (postForumMain.indexOf(hide[i].innerHTML) == -1) {
-            console.log(hide[i].innerHTML);
-            hide[i].removeAttribute("color");
-            hide[i].removeAttribute("style");
-            hide[i].removeAttribute("size");
-          }
-        }
-        var content = document.getElementsByClassName(
-          "comiis_message bg_f view_all cl message"
-        );
-        for (let i = 0; i < content.length; i++) {
-          if (postForumMain.indexOf(content[i].innerHTML) == -1) {
-            content[i].innerHTML = content[i].innerHTML.replace(
-              DOM_CONFIG.urlRegexp.fontSpecial,
-              ""
-            );
-            if (content[i].nextElementSibling.localName === "strike") {
-              console.log("影响后面出现下划线的罪魁祸首", content[i]);
-              content[i].nextElementSibling.outerHTML = content[
-                i
-              ].nextElementSibling.outerHTML
-                .replace(/^<strike>(\n|)/g, "")
-                .replace(/<\/strike>$/g, "");
+        var fontNodeList = document.querySelectorAll("font");
+        /* 帖子主内容 */
+        var postForumMain =
+          document.querySelector(".comiis_postlist.kqide .comiis_postli")
+            ?.innerHTML || "";
+        if (postForumMain !== "") {
+          for (let i = 0; i < fontNodeList.length; i++) {
+            /* font元素是帖子主内容的移除字体效果 */
+            if (!postForumMain.includes(fontNodeList[i].innerHTML)) {
+              /* console.log(hide[i].innerHTML); */
+              fontNodeList[i].removeAttribute("color");
+              fontNodeList[i].removeAttribute("style");
+              fontNodeList[i].removeAttribute("size");
             }
           }
         }
+        /* 帖子评论 */
+        var postForumComment = document.querySelectorAll(
+          ".comiis_message.bg_f.view_all.cl.message"
+        );
+        for (let i = 0; i < postForumComment.length; i++) {
+          if (!postForumMain.includes(postForumComment[i].innerHTML)) {
+            postForumComment[i].innerHTML = postForumComment[
+              i
+            ].innerHTML.replace(DOM_CONFIG.urlRegexp.fontSpecial, "");
+            if (postForumComment[i].nextElementSibling.localName === "strike") {
+              console.log("影响后面出现下划线的罪魁祸首", postForumComment[i]);
+              postForumComment[i].nextElementSibling.outerHTML =
+                postForumComment[i].nextElementSibling.outerHTML
+                  .replace(/^<strike>(\n|)/g, "")
+                  .replace(/<\/strike>$/g, "");
+            }
+          }
+        }
+        /* 所有评论，包括帖子主体 */
         document
           .querySelectorAll(".comiis_postli.comiis_list_readimgs.nfqsqi")
           .forEach((item) => {
