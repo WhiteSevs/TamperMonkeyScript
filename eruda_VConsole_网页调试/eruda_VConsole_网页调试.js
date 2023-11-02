@@ -13,7 +13,7 @@
 // @grant           GM_getValue
 // @grant           GM_setValue
 // @grant           GM_deleteValue
-// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1273928
+// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274269
 // ==/UserScript==
 
 (function () {
