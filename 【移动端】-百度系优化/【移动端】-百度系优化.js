@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.2.10
+// @version      2023.11.2.19
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -1423,6 +1423,12 @@
           padding-top: 40px;
       }
 		`,
+      searchBaiduHealth: `
+    /* 右下角悬浮的健康直播间图标按钮 */
+    div[class^='index_brandEntry']{
+      display: none !important;
+    }
+    `,
       baijiahao: `
 			.layer-wrap,
 			.openImg,
@@ -2766,21 +2772,11 @@
          */
         scrollLockFunction: null,
         /**
-         * 是否是简单UA
-         */
-        isSearchCraftUA: false,
-        /**
-         * 是否是Via
-         */
-        isVia: false,
-        /**
          * 当前页
          */
         currentPage: 1,
         init() {
           this.initPageLineCSS();
-          this.isSearchCraftUA = navigator.userAgent.includes("SearchCraft");
-          this.isVia = utils.isWebView_Via();
           this.scrollLockFunction = new utils.LockFunction(
             this.scrollEvent,
             this
@@ -2814,18 +2810,6 @@
          */
         async scrollEvent() {
           if (!utils.isNearBottom(window.innerHeight / 3)) {
-            return;
-          }
-          if (handleNextPage.isSearchCraftUA && handleNextPage.isVia) {
-            let nextPageBtnElement = document.querySelector(
-              "div.se-infiniteload-text"
-            );
-            if (nextPageBtnElement) {
-              nextPageBtnElement.click();
-            } else {
-              log.error("简单搜索UA的下一页按钮获取失败");
-              alert("简单搜索UA的下一页按钮获取失败");
-            }
             return;
           }
           loadingView.show();
@@ -3044,152 +3028,188 @@
           });
         },
       };
-      GM_Menu.add([
-        {
-          key: "baidu_search_automatically_expand_next_page",
-          text: "自动展开下一页",
-          enable: true,
-        },
-        {
-          key: "baidu_search_show_redirected_icon",
-          text: "显示已重定向图标",
-        },
-        {
-          key: "baidu_search_show_log",
-          text: "控制台输出日志",
-        },
-        {
-          key: "baidu_search_sync_next_page_address",
-          text: "同步下一页地址",
-          callback(data) {
-            if (data.enable) {
-              alert(
-                "开启后，且开启【自动展开下一页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
-              );
-            }
-          },
-        },
-        {
-          key: "baidu_search_disable_autoplay_video",
-          text: "【禁止】自动播放视频",
-        },
-        {
-          key: "baidu_search_blocking_everyone_is_still_searching",
-          text: "【屏蔽】大家还在搜",
-          enable: true,
-        },
-        {
-          key: "baidu_search_refactor_everyone_is_still_searching",
-          text: "【重构】大家还在搜",
-          enable: true,
-        },
-        {
-          key: "baidu_search_hijack_openbox",
-          text: "劫持OpenBox",
-          enable: false,
-        },
-      ]);
-      if (!GM_Menu.get("baidu_search_show_log")) {
-        log.error("禁止控制台输出日志");
-        log.disable();
-      }
-      if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_search_disable_autoplay_video")
-        );
-        let funcLock = new utils.LockFunction(
-          () => {
-            let videoPlayerList = document.querySelectorAll(
-              "[class*='-video-player']"
-            );
-            if (!utils.isNull(videoPlayerList)) {
-              videoPlayerList.forEach((item) => {
-                item.remove();
-              });
-              log.success(["删除视频", videoPlayerList]);
-            }
-          },
-          undefined,
-          250
-        );
-        handleHijack.run();
-        utils.mutationObserver(document.documentElement, {
-          config: {
-            subtree: true,
-            childList: true,
-          },
-          callback: funcLock.run,
-        });
-      }
 
-      handleItemURL.showIsDirectIcon = GM_Menu.get(
-        "baidu_search_show_redirected_icon"
-      );
-      handleEveryOneSearch.refactorEveryoneIsStillSearching = GM_Menu.get(
-        "baidu_search_refactor_everyone_is_still_searching"
-      );
-      log.info("插入CSS规则");
-      GM_addStyle(this.css.search);
-      DOMUtils.ready(function () {
-        let searchUpdateRealLink = new utils.LockFunction(async () => {
-          try {
-            await handleItemURL.replaceLink();
-          } catch (error) {
-            log.error("替换为真实链接失败");
-            log.error(error);
+      if (window.location.pathname.startsWith("/bh")) {
+        /* 百度健康 */
+        log.info("插入CSS规则");
+        GM_addStyle(this.css.searchBaiduHealth);
+
+        GM_Menu.add([{
+          key: "baidu_search_headlth_shield_other_info",
+          text:"【屏蔽】底部其它信息",
+          enable: true
+        },{
+          key: "baidu_search_headlth_shield_bottom_toolbar",
+          text:"【屏蔽】底部工具栏",
+          enable: true
+        }])
+        if(GM_Menu.get("baidu_search_headlth_shield_other_info")){
+          log.success(GM_Menu.getShowTextValue("baidu_search_headlth_shield_other_info"));
+          GM_addStyle(`
+          article[class] > div[class^="index_container"]{
+            display: none !important;
           }
-        }, 600);
-        let removeAdsLockFunction = new utils.LockFunction(
-          handleItemURL.removeAds,
-          600
-        );
-        utils.waitNode("div#page.search-page").then((element) => {
-          utils.mutationObserver(element, {
-            callback: async () => {
-              await searchUpdateRealLink.run();
-              removeAdsLockFunction.run();
-            },
-            config: {
-              childList: true,
-              subtree: true,
-            },
-          });
-        });
-        utils
-          .waitNodeList("style[class^='vsearch-sigma-style']")
-          .then((nodeList) => {
-            /* 这个style标签就是某些搜索置顶的卡片 */
-            log.success(["删除sigma的CSS", nodeList]);
-            nodeList.forEach((item) => item.remove());
-          });
-        handleItemURL.originURLMap =
-          handleItemURL.parseScriptDOMOriginUrlMap(document);
-        handleItemURL.removeAds();
-        handleItemURL.replaceScriptBaiDuTip();
-        handleItemURL.redirectTopLink();
-        handleInputEvent.run();
-        searchUpdateRealLink.run();
-        if (GM_Menu.get("baidu_search_automatically_expand_next_page")) {
-          handleNextPage.init();
+          `);
         }
-        if (window.location.href.startsWith("https://m.baidu.com/sf/vsearch")) {
-          utils
-            .waitNode("#realtime-container .c-infinite-scroll")
-            .then((element) => {
-              let replaceVSearchLinkLonkFunction = new utils.LockFunction(
-                handleItemURL.replaceVSearchLink,
-                600
+        if(GM_Menu.get("baidu_search_headlth_shield_bottom_toolbar")){
+          log.success(GM_Menu.getShowTextValue("baidu_search_headlth_shield_bottom_toolbar"));
+          GM_addStyle(`
+          article[class] > div[class^="index_healthServiceButtonsRow"]{
+            display: none !important;
+          }
+          `);
+        }
+      } else {
+        /* 默认的百度搜索 */
+        GM_Menu.add([
+          {
+            key: "baidu_search_automatically_expand_next_page",
+            text: "自动展开下一页",
+            enable: true,
+          },
+          {
+            key: "baidu_search_show_redirected_icon",
+            text: "显示已重定向图标",
+          },
+          {
+            key: "baidu_search_show_log",
+            text: "控制台输出日志",
+          },
+          {
+            key: "baidu_search_sync_next_page_address",
+            text: "同步下一页地址",
+            callback(data) {
+              if (data.enable) {
+                alert(
+                  "开启后，且开启【自动展开下一页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
+                );
+              }
+            },
+          },
+          {
+            key: "baidu_search_disable_autoplay_video",
+            text: "【禁止】自动播放视频",
+          },
+          {
+            key: "baidu_search_blocking_everyone_is_still_searching",
+            text: "【屏蔽】大家还在搜",
+            enable: true,
+          },
+          {
+            key: "baidu_search_refactor_everyone_is_still_searching",
+            text: "【重构】大家还在搜",
+            enable: true,
+          },
+          {
+            key: "baidu_search_hijack_openbox",
+            text: "劫持OpenBox",
+            enable: false,
+          },
+        ]);
+        if (!GM_Menu.get("baidu_search_show_log")) {
+          log.error("禁止控制台输出日志");
+          log.disable();
+        }
+        if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
+          log.success(
+            GM_Menu.getShowTextValue("baidu_search_disable_autoplay_video")
+          );
+          let funcLock = new utils.LockFunction(
+            () => {
+              let videoPlayerList = document.querySelectorAll(
+                "[class*='-video-player']"
               );
-              utils.mutationObserver(element, {
-                config: {
-                  subtree: true,
-                  childList: true,
-                },
-                callback: replaceVSearchLinkLonkFunction.run,
-              });
-            });
+              if (!utils.isNull(videoPlayerList)) {
+                videoPlayerList.forEach((item) => {
+                  item.remove();
+                });
+                log.success(["删除视频", videoPlayerList]);
+              }
+            },
+            undefined,
+            250
+          );
+          handleHijack.run();
+          utils.mutationObserver(document.documentElement, {
+            config: {
+              subtree: true,
+              childList: true,
+            },
+            callback: funcLock.run,
+          });
         }
-      });
+
+        handleItemURL.showIsDirectIcon = GM_Menu.get(
+          "baidu_search_show_redirected_icon"
+        );
+        handleEveryOneSearch.refactorEveryoneIsStillSearching = GM_Menu.get(
+          "baidu_search_refactor_everyone_is_still_searching"
+        );
+        log.info("插入CSS规则");
+        GM_addStyle(this.css.search);
+        DOMUtils.ready(function () {
+          let searchUpdateRealLink = new utils.LockFunction(async () => {
+            try {
+              await handleItemURL.replaceLink();
+            } catch (error) {
+              log.error("替换为真实链接失败");
+              log.error(error);
+            }
+          }, 600);
+          let removeAdsLockFunction = new utils.LockFunction(
+            handleItemURL.removeAds,
+            600
+          );
+          utils.waitNode("div#page.search-page").then((element) => {
+            utils.mutationObserver(element, {
+              callback: async () => {
+                await searchUpdateRealLink.run();
+                removeAdsLockFunction.run();
+              },
+              config: {
+                childList: true,
+                subtree: true,
+              },
+            });
+          });
+          utils
+            .waitNodeList("style[class^='vsearch-sigma-style']")
+            .then((nodeList) => {
+              /* 这个style标签就是某些搜索置顶的卡片 */
+              log.success(["删除sigma的CSS", nodeList]);
+              nodeList.forEach((item) => item.remove());
+            });
+          handleItemURL.originURLMap =
+            handleItemURL.parseScriptDOMOriginUrlMap(document);
+          handleItemURL.removeAds();
+          handleItemURL.replaceScriptBaiDuTip();
+          handleItemURL.redirectTopLink();
+          handleInputEvent.run();
+          searchUpdateRealLink.run();
+          if (GM_Menu.get("baidu_search_automatically_expand_next_page")) {
+            handleNextPage.init();
+          }
+          if (
+            window.location.href.startsWith("https://m.baidu.com/sf/vsearch")
+          ) {
+            utils
+              .waitNode("#realtime-container .c-infinite-scroll")
+              .then((element) => {
+                let replaceVSearchLinkLonkFunction = new utils.LockFunction(
+                  handleItemURL.replaceVSearchLink,
+                  600
+                );
+                utils.mutationObserver(element, {
+                  config: {
+                    subtree: true,
+                    childList: true,
+                  },
+                  callback: replaceVSearchLinkLonkFunction.run,
+                });
+              });
+          }
+        });
+      }
     },
     /**
      * 百家号
