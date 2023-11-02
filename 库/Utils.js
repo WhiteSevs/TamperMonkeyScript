@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-10-27";
+  Utils.version = "2023-11-2";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -951,10 +951,10 @@
    * @returns {string} 返回随机字符串
    * @example
    * Utils.getRandomAndroidUA();
-   * > 'Mozilla/5.0 (Linux; Android 9; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
+   * > 'Mozilla/5.0 (Linux; Android 10; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
    **/
   Utils.getRandomAndroidUA = function () {
-    let androidVersion = Utils.getRandomValue(9, 13);
+    let androidVersion = Utils.getRandomValue(10, 14);
     let mobileNameList = [
       "LDN-LX3",
       "RNE-L03",
@@ -972,8 +972,8 @@
       "MI 13 Build/OPR1.170623.027; wv",
     ];
     let randomMobile = Utils.getRandomValue(mobileNameList);
-    let chromeVersion1 = Utils.getRandomValue(103, 117);
-    let chromeVersion2 = Utils.getRandomValue(2272, 5304);
+    let chromeVersion1 = Utils.getRandomValue(110, 118);
+    let chromeVersion2 = Utils.getRandomValue(2272, 2088);
     let chromeVersion3 = Utils.getRandomValue(1, 218);
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Mobile Safari/537.36`;
   };
@@ -1036,14 +1036,24 @@
   };
   /**
    * 获取随机的电脑端User-Agent
+   * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
+   * + Windows NT 10.0：代表Window10系统
+   * + Windows NT 6.1：代表windows7系统
+   * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
+   * + Win64：64位
+   * + AppleWebKit/537.36：浏览器内核
+   * + KHTML：HTML排版引擎
+   * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
+   * + Chrome/106.0.5068.19：Chrome版本号
+   * + Safari/537.36：宣称自己是Safari？
    * @returns {string} 返回随机字符串
    * @example
    * Utils.getRandomPCUA();
    * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
    **/
   Utils.getRandomPCUA = function () {
-    let chromeVersion1 = Utils.getRandomValue(100, 113);
-    let chromeVersion2 = Utils.getRandomValue(2272, 5304);
+    let chromeVersion1 = Utils.getRandomValue(110, 118);
+    let chromeVersion2 = Utils.getRandomValue(2272, 2088);
     let chromeVersion3 = Utils.getRandomValue(1, 218);
     return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Safari/537.36`;
   };
