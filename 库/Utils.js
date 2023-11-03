@@ -2163,7 +2163,7 @@
           response.responseText = JSON.stringify(response.response);
         });
       }
-      if (response.status === 200) {
+      if (Math.floor(response.status / 100) === 2) {
         resolve({
           status: true,
           data: response,
@@ -3379,7 +3379,7 @@
       successColor: "blue",
       errorColor: "red",
       infoColor: "0",
-      debug: true,
+      debug: false,
       autoClearConsole: false,
       logMaxCount: 999,
     };
@@ -4771,7 +4771,7 @@
   /**
    * 等待指定元素出现，支持多个selector
    * @param {...string} nodeSelectors - 一个或多个节点选择器，必须为字符串类型
-   * @returns {Promise<Element|Element[]>}
+   * @returns {Promise<HTMLElement|HTMLElement[]>}
    * @example
    * Utils.waitNode("div.xxx").then( element =>{
    *  console.log(element); // div.xxx => HTMLElement
@@ -4839,7 +4839,7 @@
   /**
    * 等待任意元素出现，支持多个selector
    * @param  {...any} nodeSelectors 一个或多个节点选择器，必须为字符串类型
-   * @returns {Promise<Element>}
+   * @returns {Promise<HTMLElement>}
    * @example
    * Utils.waitAnyNode("div.xxx","a.xxx").then( element =>{
    *   console.log(element); // a.xxx => HTMLElement
