@@ -46,8 +46,8 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274269
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1270549
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274594
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
 
@@ -88,6 +88,7 @@
       log.error(["httpx-onerror 请求异常", response]);
     },
   });
+
   /**
    * 菜单对象
    */
@@ -3035,25 +3036,34 @@
         log.info("插入CSS规则");
         GM_addStyle(this.css.searchBaiduHealth);
 
-        GM_Menu.add([{
-          key: "baidu_search_headlth_shield_other_info",
-          text:"【屏蔽】底部其它信息",
-          enable: true
-        },{
-          key: "baidu_search_headlth_shield_bottom_toolbar",
-          text:"【屏蔽】底部工具栏",
-          enable: true
-        }])
-        if(GM_Menu.get("baidu_search_headlth_shield_other_info")){
-          log.success(GM_Menu.getShowTextValue("baidu_search_headlth_shield_other_info"));
+        GM_Menu.add([
+          {
+            key: "baidu_search_headlth_shield_other_info",
+            text: "【屏蔽】底部其它信息",
+            enable: true,
+          },
+          {
+            key: "baidu_search_headlth_shield_bottom_toolbar",
+            text: "【屏蔽】底部工具栏",
+            enable: true,
+          },
+        ]);
+        if (GM_Menu.get("baidu_search_headlth_shield_other_info")) {
+          log.success(
+            GM_Menu.getShowTextValue("baidu_search_headlth_shield_other_info")
+          );
           GM_addStyle(`
           article[class] > div[class^="index_container"]{
             display: none !important;
           }
           `);
         }
-        if(GM_Menu.get("baidu_search_headlth_shield_bottom_toolbar")){
-          log.success(GM_Menu.getShowTextValue("baidu_search_headlth_shield_bottom_toolbar"));
+        if (GM_Menu.get("baidu_search_headlth_shield_bottom_toolbar")) {
+          log.success(
+            GM_Menu.getShowTextValue(
+              "baidu_search_headlth_shield_bottom_toolbar"
+            )
+          );
           GM_addStyle(`
           article[class] > div[class^="index_healthServiceButtonsRow"]{
             display: none !important;
@@ -3280,6 +3290,7 @@
           element.localName === "script" &&
           element?.src?.includes("landing-share")
         ) {
+          log.success("拦截：" + element.src);
           return;
         }
         return originalAppendChild.call(this, element);
@@ -6925,6 +6936,7 @@
         let divHomeCamera = DOMUtils.createElement("div", {
           class: "whitesev-vf-home-camera",
         });
+        document.querySelector().style.display;
         DOMUtils.css(divHomeCamera, {
           display: "none",
           position: "fixed",
