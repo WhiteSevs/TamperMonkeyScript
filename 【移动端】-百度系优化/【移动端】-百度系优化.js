@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.3.21
+// @version      2023.11.3.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -1625,11 +1625,19 @@
       /* 顶部横幅-APP内阅读 */
       #headDeflectorContainer,
       /* 底部 打开百度APP，阅读体验更佳 */
-      #page_wrapper div[class^="foldMaskWrapper-"]{
+      #page_wrapper div[class^="foldMaskWrapper-"],
+      /* 打开百度APP，阅读完整内容 */
+      #content_wrapper .foldMaskWrapper,
+      /* 影响定位元素的遮罩层 */
+      #page_wrapper .bdboxshare>div:first-child,
+      /* 来百度APP畅享高清图片 */
+      .contentMedia .openImg{
 				display: none !important;
 			}
       /* 展开阅读 */
-      #page_wrapper #dynamicItem{
+      #page_wrapper #dynamicItem,
+      /* 手机版-展开阅读 */
+      #mainContentContainer{
         height: auto !important;
       }
 		`,
@@ -6758,9 +6766,13 @@
       }
       /* 
         示例
-        https://mbd.baidu.com/newspage/data/landingsuper?p_from=7&n_type=-1&context=%7B%22nid%22%3A%22news_10287525329342817547%22%7D
+        https://mbd.baidu.com/newspage/data/landingsuper?isBdboxFrom=1&pageType=1&context=%7B%22nid%22%3A%22news_8924612668430208297%22,%22sourceFrom%22%3A%22bjh%22%7D
         */
       GM_Menu.add([
+        {
+          key: "baidu_mdb_block_exciting_comments",
+          text: "【屏蔽】精彩评论",
+        },
         {
           key: "baidu_mdb_block_exciting_recommendations",
           text: "【屏蔽】精彩推荐",
@@ -6769,17 +6781,36 @@
           key: "baidu_mdb_shield_bottom_toolbar",
           text: "【屏蔽】底部工具栏",
         },
+        {
+          key: "baidu_mbd_hijack_wakeup",
+          text: "拦截唤醒",
+          enable: false,
+        },
       ]);
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
+      if (GM_Menu.get("baidu_mdb_block_exciting_comments")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_mdb_block_exciting_comments")
+        );
+        GM_addStyle(`
+        div#commentModule{
+          display: none !important;
+        }
+        `);
+      }
       if (GM_Menu.get("baidu_mdb_block_exciting_recommendations")) {
         log.success(
-          GM_Menu.getText("baidu_mdb_block_exciting_recommendations")
+          GM_Menu.getShowTextValue("baidu_mdb_block_exciting_recommendations")
         );
         GM_addStyle(`
         div[class^="relateTitle"],
         .infinite-scroll-component__outerdiv,
-        div#fuseVideo + div[class]{
+        div#fuseVideo + div[class],
+        /* 精彩推荐的文字 */
+        #content_wrapper + div + div,
+        /* 简单UA下精彩推荐的文字 */
+        #page_wrapper .searchCraft #content_wrapper + div{
           display: none !important;
         }
         `);
@@ -6791,6 +6822,29 @@
           display: none !important;
         }
         `);
+      }
+      if (GM_Menu.get("baidu_mbd_hijack_wakeup")) {
+        log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_wakeup"));
+        let originCall = Function.prototype.call;
+        Function.prototype.call = function () {
+          if (
+            arguments.length === 2 &&
+            arguments[0] === undefined &&
+            "arg" in arguments[1] &&
+            "delegate" in arguments[1] &&
+            "done" in arguments[1] &&
+            "method" in arguments[1] &&
+            "next" in arguments[1] &&
+            "prev" in arguments[1]
+          ) {
+            log.success(["修改参数并拦截唤醒", arguments[1]]);
+            arguments[1]["method"] = "return";
+            arguments[1]["next"] = "end";
+            arguments[1]["prev"] = 24;
+          }
+          let result = originCall.apply(this, arguments);
+          return result;
+        };
       }
     },
     /**
