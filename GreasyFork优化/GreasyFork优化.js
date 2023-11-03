@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.11.3.11
+// @version      2023.11.3.16
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
@@ -20,12 +20,16 @@
 // @connect      greasyfork.org
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274269
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1270549
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274594
+// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // ==/UserScript==
 
 (function () {
   /* -----------------↓公共配置↓----------------- */
+  /**
+   * @type {import("../库/Qmsg")}
+   */
+  const Qmsg = window.Qmsg;
   /**
    * @type {import("../库/Utils")}
    */
@@ -190,6 +194,16 @@
         {
           key: "beautifyPage",
           text: "美化页面",
+          enable: true,
+        },
+        {
+          key: "beautifyUploadImage",
+          text: "美化上传图片",
+          enable: true,
+        },
+        {
+          key: "addCopyCodeButton",
+          text: "添加复制代码按钮",
           enable: true,
         },
       ]);
@@ -698,7 +712,6 @@
       let scriptStatsJSON = await GreasyforkApi.getScriptStats(
         GreasyforkApi.getScriptId()
       );
-      console.log(scriptStatsJSON);
       if (!scriptStatsJSON) {
         return;
       }
@@ -728,10 +741,14 @@
       );
     },
     /**
-     * 优化页面CSS显示，包括markdown
+     * 美化页面markdown
      */
     beautifyPage() {
-      let beautifyCSS = `
+      if (!GreasyforkMenu.menu.get("beautifyPage")) {
+        return;
+      }
+      log.success(GreasyforkMenu.menu.getShowTextValue("beautifyPage"));
+      let beautifyMarkdownCSS = `
       code{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}
       table{text-indent:initial}
       table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}
@@ -798,6 +815,153 @@
       .scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}
       .scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}
       `;
+      let beautifyButtonCSS = `
+      /* 美化按钮 */
+      input[type="submit"],
+      button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        height: 32px;
+        white-space: nowrap;
+        cursor: pointer;
+        /* color: #606266; */
+        text-align: center;
+        box-sizing: border-box;
+        outline: none;
+        transition: .1s;
+        font-weight: 500;
+        user-select: none;
+        vertical-align: middle;
+        -webkit-appearance: none;
+        background-color: #ffffff;
+        border: 1px solid #dcdfe6;
+        border-color: #dcdfe6;
+        padding: 8px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+      }
+      
+      input[type="submit"]:hover, 
+      input[type="submit"]:focus,
+      button:hover,
+      button:focus {
+          color: #409eff;
+          border-color: #c6e2ff;
+          background-color: #ecf5ff;
+          outline: none;
+      }
+
+      input[type="url"] {
+        position: relative;
+        font-size: 14px;
+        display: inline-flex;
+        line-height: 32px;
+        box-sizing: border-box;
+        vertical-align: middle;
+        -webkit-appearance: none;
+        /* color: #606266; */
+        padding: 0;
+        outline: none;
+        border: none;
+        background: none;
+        display: inline-flex;
+        flex-grow: 1;
+        align-items: center;
+        justify-content: center;
+        padding: 1px 11px;
+        background-color: #ffffff;
+        background-image: none;
+        border-radius: 4px;
+        cursor: text;
+        transition: box-shadow .2s cubic-bezier(.645, .045, .355, 1);
+        transform: translateZ(0);
+        box-shadow: 0 0 0 1px #dcdfe6 inset;
+      }
+      
+      input[type="url"]::placeholder {
+          color: #a8abb2;
+      }
+      
+      input[type="url"]:hover {
+          box-shadow: 0 0 0 1px #c0c4cc inset;
+      }
+      
+      input[type="url"]:focus {
+          box-shadow: 0 0 0 1px #409eff inset;
+      }
+    
+      `;
+      let beautifyRadioCSS = `
+      label.radio-label {
+        font-weight: 500;
+        position: relative;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        outline: none;
+        font-size: 14px;
+        user-select: none;
+        margin-right: 32px;
+        height: 32px;
+        padding: 4px;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      label:has(input[type=radio]:checked),
+      label:has(input[type=radio]:checked) a{
+        color: #409eff;
+      }
+      label.radio-label input[type="radio"]{
+          margin-right: 4px;
+      }
+      label.radio-label input[type="radio"]:checked{
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+          border-radius: 50%;
+          width: 14px;
+          height: 14px;
+          outline: none;
+          border: 4px solid #409eff;
+          cursor: pointer;
+      }
+      label.radio-label input[type="radio"]:checked + span{
+          color: #409eff;
+      }
+      `;
+      let beautifyTextAreaCSS = `
+      textarea {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        vertical-align: bottom;
+        font-size: 14px;
+        position: relative;
+        display: block;
+        resize: vertical;
+        padding: 5px 11px;
+        line-height: 1.5;
+        box-sizing: border-box;
+        width: 100%;
+        font-size: inherit;
+        font-family: inherit;
+        /* color: #606266; */
+        background-color: #ffffff;
+        background-image: none;
+        -webkit-appearance: none;
+        box-shadow: 0 0 0 1px #dcdfe6 inset;
+        border-radius: 4px;
+        transition: box-shadow .2s cubic-bezier(.645, .045, .355, 1);
+        border: none;
+      }
+      textarea:focus{
+        outline: none;
+        box-shadow: 0 0 0 1px #409eff inset;
+      }
+      `;
       /**
        * 未派上用场的CSS
        */
@@ -834,9 +998,134 @@
       pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}
       pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}
       `;
-      if (GreasyforkMenu.menu.get("beautifyPage")) {
-        GM_addStyle(beautifyCSS);
+      GM_addStyle(beautifyMarkdownCSS);
+      GM_addStyle(beautifyButtonCSS);
+      GM_addStyle(beautifyRadioCSS);
+      GM_addStyle(beautifyTextAreaCSS);
+      DOMUtils.ready(function () {
+        let markupChoiceELement = document.querySelector(
+          'a[target="markup_choice"][href*="daringfireball.net"]'
+        );
+        if (markupChoiceELement) {
+          markupChoiceELement.parentElement.replaceChild(
+            DOMUtils.createElement("span", {
+              textContent: "Markdown",
+            }),
+            markupChoiceELement
+          );
+        }
+      });
+    },
+    /**
+     * 美化上传图片
+     */
+    beautifyUploadImage() {
+      if (!GreasyforkMenu.menu.get("beautifyUploadImage")) {
+        return;
       }
+      log.success(GreasyforkMenu.menu.getShowTextValue("beautifyUploadImage"));
+      let beautifyCSS = `
+      /* 隐藏 添加： */
+      label[for="discussion_comments_attributes_0_attachments"],
+      label[for="comment_attachments"]{
+        display: none;
+      }
+      input[type="file"]{
+        font-size: 20px;
+        background: #e2e2e2;
+        padding: 40px 20px;
+        border-radius: 10px;
+        text-align-last: center;
+      }
+      `;
+      GM_addStyle(beautifyCSS);
+      DOMUtils.ready(function () {
+        let clearErrorTip = function () {
+          while (fileElement.nextElementSibling) {
+            fileElement.parentElement.removeChild(
+              fileElement.nextElementSibling
+            );
+          }
+        };
+        let fileElement = document.querySelector('input[type="file"]');
+        DOMUtils.on(fileElement, "change", function (event) {
+          clearErrorTip();
+          /**
+           * @type {File[]}
+           */
+          let chooseImageFiles = event.currentTarget.files;
+          if (chooseImageFiles.length === 0) {
+            return;
+          }
+          log.info(["选择的图片", chooseImageFiles]);
+          if (chooseImageFiles.length > 5) {
+            DOMUtils.after(
+              fileElement,
+              DOMUtils.createElement("p", {
+                textContent: `❌ 最多同时长传5张图片`,
+              })
+            );
+          }
+          /**
+           * @type {File[]}
+           */
+          let notAllowImage = [];
+          Array.from(chooseImageFiles).forEach((imageFile) => {
+            if (
+              imageFile.size > 204800 ||
+              !imageFile.type.match(/png|gif|jpeg|webp/i)
+            ) {
+              notAllowImage.push(imageFile);
+            }
+          });
+          if (notAllowImage.length === 0) {
+            return;
+          }
+          notAllowImage.forEach((imageFile) => {
+            DOMUtils.after(
+              fileElement,
+              DOMUtils.createElement("p", {
+                textContent: `❌ 图片：${
+                  imageFile.name
+                } 大小：${utils.formatByteToSize(imageFile.size)}`,
+              })
+            );
+          });
+        });
+      });
+    },
+    /**
+     * 添加复制代码按钮
+     */
+    addCopyCodeButton() {
+      if (!window.location.pathname.endsWith("/code")) {
+        return;
+      }
+      if (!GreasyforkMenu.menu.get("addCopyCodeButton")) {
+        return;
+      }
+      log.success(GreasyforkMenu.menu.getShowTextValue("addCopyCodeButton"));
+      utils
+        .waitNode("div#script-content div.code-container")
+        .then((element) => {
+          let copyButton = DOMUtils.createElement("button", {
+            style:"margin-bottom: 1em;",
+            textContent: "复制代码",
+          });
+          DOMUtils.on(copyButton, "click", async function () {
+            let loading = Qmsg.loading("加载文件中...");
+            let scriptJS = await httpx.get(
+              `https://greasyfork.org/scripts/${GreasyforkApi.getScriptId()}.js`
+            );
+            if (!scriptJS.status) {
+              return;
+            }
+            loading.close();
+            utils.setClip(scriptJS.data.responseText);
+            Qmsg.success("复制成功");
+          });
+          DOMUtils.before(element, copyButton);
+        });
     },
   };
   /* -----------------↑函数区域↑----------------- */
@@ -844,6 +1133,7 @@
   /* -----------------↓执行入口↓----------------- */
   GreasyforkMenu.init();
   GreasyforkBusiness.beautifyPage();
+  GreasyforkBusiness.beautifyUploadImage();
   DOMUtils.ready(function () {
     GreasyforkMenu.initEnv();
     if (GreasyforkMenu.menu.get("autoLogin")) {
@@ -856,6 +1146,7 @@
     GreasyforkBusiness.repairCodeLineNumber();
     GreasyforkBusiness.optimizeImageBrowsing();
     GreasyforkBusiness.scriptHomepageAddedTodaySUpdate();
+    GreasyforkBusiness.addCopyCodeButton();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
