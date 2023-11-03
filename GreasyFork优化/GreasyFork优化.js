@@ -45,7 +45,7 @@
   const log = new utils.Log(GM_info);
   log.config({
     debug: false,
-  })
+  });
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {
@@ -840,11 +840,6 @@
     },
   };
   /* -----------------↑函数区域↑----------------- */
-
-
-
-
-
 
   /* -----------------↓执行入口↓----------------- */
   GreasyforkMenu.init();
