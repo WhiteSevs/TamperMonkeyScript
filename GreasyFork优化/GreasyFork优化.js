@@ -2,12 +2,12 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.11.3
-// @description  自动登录、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
+// @version      2023.11.3.11
+// @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
-// @match        *://*.greasyfork.org/*
+// @match        *://greasyfork.org/*
 // @run-at       document-start
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -16,6 +16,7 @@
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_info
 // @connect      greasyfork.org
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
@@ -42,6 +43,9 @@
     showReverse: false,
   });
   const log = new utils.Log(GM_info);
+  log.config({
+    debug: false,
+  })
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {
