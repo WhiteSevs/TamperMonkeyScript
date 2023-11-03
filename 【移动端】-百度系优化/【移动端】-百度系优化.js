@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.3.18.20
+// @version      2023.11.3.20
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -2867,13 +2867,14 @@
                 let dataVueSsrId = "data-vue-ssr-id";
                 let dataVueSsrIdValue = item.getAttribute(dataVueSsrId);
                 if (
+                  utils.isNull(dataVueSsrIdValue) ||
                   !document.querySelector(
-                    "style[data-vue-ssr-id='" + dataVueSsrIdValue + "']"
+                    `style[data-vue-ssr-id="${dataVueSsrIdValue}"]`
                   )
                 ) {
                   let cssDOM = GM_addStyle(item.innerHTML);
                   cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-                  log.info(`插入Vue的CSS id: ${dataVueSsrIdValue}`);
+                  log.info(["插入Vue的CSS", cssDOM]);
                 }
               });
 
@@ -3262,9 +3263,12 @@
         /* 电脑端的左边的按钮-屏蔽 */
         #ssr-content > :last-child ,
         /* 电脑端的右边的推荐-屏蔽 */
-        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2){
+        #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2),
+        /* 简单UA下的精彩推荐 */
+        #page_wrapper div.spider > div[class]:nth-child(4){
           display: none !important;
         }
+
         /* 电脑端的文章居中 */
         #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1){
           width: 55% !important;
