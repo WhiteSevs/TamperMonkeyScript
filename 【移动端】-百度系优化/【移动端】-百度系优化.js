@@ -6770,15 +6770,15 @@
         */
       GM_Menu.add([
         {
-          key: "baidu_mdb_block_exciting_comments",
+          key: "baidu_mbd_block_exciting_comments",
           text: "【屏蔽】精彩评论",
         },
         {
-          key: "baidu_mdb_block_exciting_recommendations",
+          key: "baidu_mbd_block_exciting_recommendations",
           text: "【屏蔽】精彩推荐",
         },
         {
-          key: "baidu_mdb_shield_bottom_toolbar",
+          key: "baidu_mbd_shield_bottom_toolbar",
           text: "【屏蔽】底部工具栏",
         },
         {
@@ -6789,9 +6789,9 @@
       ]);
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
-      if (GM_Menu.get("baidu_mdb_block_exciting_comments")) {
+      if (GM_Menu.get("baidu_mbd_block_exciting_comments")) {
         log.success(
-          GM_Menu.getShowTextValue("baidu_mdb_block_exciting_comments")
+          GM_Menu.getShowTextValue("baidu_mbd_block_exciting_comments")
         );
         GM_addStyle(`
         div#commentModule{
@@ -6799,9 +6799,9 @@
         }
         `);
       }
-      if (GM_Menu.get("baidu_mdb_block_exciting_recommendations")) {
+      if (GM_Menu.get("baidu_mbd_block_exciting_recommendations")) {
         log.success(
-          GM_Menu.getShowTextValue("baidu_mdb_block_exciting_recommendations")
+          GM_Menu.getShowTextValue("baidu_mbd_block_exciting_recommendations")
         );
         GM_addStyle(`
         div[class^="relateTitle"],
@@ -6815,8 +6815,8 @@
         }
         `);
       }
-      if (GM_Menu.get("baidu_mdb_shield_bottom_toolbar")) {
-        log.success(GM_Menu.getText("baidu_mdb_shield_bottom_toolbar"));
+      if (GM_Menu.get("baidu_mbd_shield_bottom_toolbar")) {
+        log.success(GM_Menu.getText("baidu_mbd_shield_bottom_toolbar"));
         GM_addStyle(`
         div#wise-invoke-interact-bar{
           display: none !important;
