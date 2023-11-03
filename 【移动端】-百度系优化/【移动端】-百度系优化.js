@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.3.20
+// @version      2023.11.3.21
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -2335,7 +2335,10 @@
               item.remove();
               log.success("删除推荐 ==> xxx 相关 xxx");
             }
-            if (searchArticleOriginal_link.match(/expert.baidu.com/g)) {
+            if (
+              searchArticleOriginal_link.match(/expert.baidu.com/g) &&
+              GM_Menu.get("baidu_search_shield_baidu_health")
+            ) {
               item?.remove();
               log.success("删除广告 ==> 百度健康");
             }
@@ -3110,6 +3113,11 @@
           {
             key: "baidu_search_refactor_everyone_is_still_searching",
             text: "【重构】大家还在搜",
+            enable: true,
+          },
+          {
+            key: "baidu_search_shield_baidu_health",
+            text: "【屏蔽】百度健康",
             enable: true,
           },
           {
