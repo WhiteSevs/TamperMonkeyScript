@@ -766,7 +766,7 @@
       html body li>p{margin-top:0;margin-bottom:0}
       html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}
       html body .task-list-item-checkbox:hover{cursor:pointer}
-      html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}
+      html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6 !important;}
       html body blockquote>:first-child{margin-top:0}
       html body blockquote>:last-child{margin-bottom:0}
       html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}
