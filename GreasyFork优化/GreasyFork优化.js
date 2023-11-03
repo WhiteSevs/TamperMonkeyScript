@@ -916,6 +916,8 @@
       }
       label.radio-label input[type="radio"]{
           margin-right: 4px;
+          width: 14px;
+          height: 14px;
       }
       label.radio-label input[type="radio"]:checked{
           -webkit-appearance: none;
@@ -1031,6 +1033,7 @@
         display: none;
       }
       input[type="file"]{
+        width: 100%;
         font-size: 20px;
         background: #e2e2e2;
         padding: 40px 20px;
