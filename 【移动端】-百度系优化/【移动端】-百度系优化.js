@@ -3248,7 +3248,7 @@
         {
           key: "baijiahao_hijack_wakeup",
           text: "拦截唤醒",
-          enable: true,
+          enable: false,
         },
       ]);
       if (GM_Menu.get("baijiahao_shield_recommended_article")) {
