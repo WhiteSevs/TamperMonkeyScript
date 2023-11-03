@@ -22,12 +22,12 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-10-26";
+  DOMUtils.version = "2023-11-3";
 
   let CommonUtils = {
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
-     * @param {Element} element
+     * @param {HTMLElement} element
      * @returns {{recovery: Function}} - 恢复
      */
     showElement: function (element) {
@@ -54,7 +54,7 @@
       if (!typeof target === "object") {
         return false;
       }
-      if (target instanceof Element) {
+      if (target instanceof Node) {
         return false;
       }
       if (target === globalThis) {
@@ -105,8 +105,8 @@
   /**
    * 创建元素
    * @param {string} tagName 元素类型
-   * @param {object} property 元素属性
-   * @returns {Element}
+   * @param {HTMLElement|undefined} property 元素属性
+   * @returns {HTMLElement}
    * @example
    * // 创建一个DIV元素，且属性class为xxx
    * DOMUtils.createElement("div",{ class:"xxx" });
@@ -141,9 +141,9 @@
 
   /**
    * 获取或设置元素的样式属性值
-   * @param {Element|string} element 目标元素
-   * @param {string|object} property 样式属性名或包含多个属性名和属性值的对象
-   * @param {string} [value] 样式属性值（可选）
+   * @param {HTMLElement|string} element 目标元素
+   * @param {CSSStyleDeclaration|string} property 样式属性名或包含多个属性名和属性值的对象
+   * @param {any} [value] 样式属性值（可选）
    * @returns {?string} 如果传入了value，则返回undefined；否则返回样式属性值
    * @example
    * // 获取元素a.xx的CSS属性display
@@ -224,8 +224,8 @@
   };
   /**
    * 获取或设置元素的文本内容
-   * @param {Element|element} element 目标元素
-   * @param {string} [text] 文本内容（可选）
+   * @param {HTMLElement} element 目标元素
+   * @param {HTMLElement|string} [text] 文本内容（可选）
    * @returns {?string} 如果传入了text，则返回undefined；否则返回文本内容
    * @example
    * // 设置元素a.xx的文本内容为abcd
@@ -243,7 +243,7 @@
     if (text === void 0) {
       return element.textContent || element.innerText;
     } else {
-      if (text instanceof Node || text instanceof Element) {
+      if (text instanceof Node) {
         text = text.textContent || text.innerText;
       }
       if ("textContent" in element) {
@@ -255,8 +255,8 @@
   };
   /**
    * 获取或设置元素的HTML内容
-   * @param {Element|string} element 目标元素
-   * @param {Element|string} [html] HTML内容|元素（可选）
+   * @param {HTMLElement|string} element 目标元素
+   * @param {HTMLElement|string} [html] HTML内容|元素（可选）
    * @returns {?string} 如果传入了html，则返回undefined；否则返回HTML内容
    * @example
    * // 设置元素a.xx的文本内容为<b>abcd</b>
@@ -274,7 +274,7 @@
     if (html == null) {
       return element.innerHTML;
     } else {
-      if (html instanceof Node || html instanceof Element) {
+      if (html instanceof Node) {
         html = html.innerHTML;
       }
       if ("innerHTML" in element) {
@@ -284,7 +284,7 @@
   };
   /**
    * 绑定或触发元素的click事件
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {function} [handler] 事件处理函数（可选）
    * @example
    * // 触发元素a.xx的click事件
@@ -310,7 +310,7 @@
 
   /**
    * 绑定或触发元素的blur事件
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {function} [handler] 事件处理函数（可选）
    * @example
    * // 触发元素a.xx的blur事件
@@ -335,7 +335,7 @@
   };
   /**
    * 绑定或触发元素的focus事件
-   * @param {Element|string|window} element 目标元素
+   * @param {HTMLElement|string|window} element 目标元素
    * @param {?function} [handler] 事件处理函数（可选）
    * @example
    * // 触发元素a.xx的focus事件
@@ -360,7 +360,7 @@
   };
   /**
    * 获取或设置元素的value属性值
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} [value] value属性值（可选）
    * @returns {string|undefined} 如果传入了value，则返回undefined；否则返回value属性值
    * @example
@@ -402,7 +402,7 @@
   };
   /**
    * 获取或设置元素的属性值
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} propName 属性名
    * @param {string} [propValue] 属性值（可选）
    * @returns {string|undefined} 如果传入了propValue，则返回undefined；否则返回属性值
@@ -432,7 +432,7 @@
 
   /**
    * 移除元素的属性
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} attrName 属性名
    * @example
    * // 移除元素a.xx的属性data-value
@@ -451,7 +451,7 @@
 
   /**
    * 移除元素class名
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} className class名
    * @returns {DOMUtils} 原型链
    * @example
@@ -474,7 +474,7 @@
 
   /**
    * 移除元素的属性
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} propName 属性名
    * @example
    * // 移除元素a.xx的href属性
@@ -493,8 +493,8 @@
 
   /**
    * 将一个元素替换为另一个元素
-   * @param {Element|string} element 目标元素
-   * @param {Element|string} newElement 新元素
+   * @param {HTMLElement|string} element 目标元素
+   * @param {HTMLElement|string} newElement 新元素
    * @returns {DOMUtils} 原型链
    * @example
    * // 替换元素a.xx为b.xx
@@ -522,7 +522,7 @@
 
   /**
    * 给元素添加class
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @param {string} className class名
    * @example
    * // 元素a.xx的className添加_vue_
@@ -540,8 +540,8 @@
   };
   /**
    * 函数在元素内部末尾添加子元素或HTML字符串
-   * @param {Element|string} element 目标元素
-   * @param {object|string} content 子元素或HTML字符串
+   * @param {HTMLElement|string} element 目标元素
+   * @param {HTMLElement|string} content 子元素或HTML字符串
    * @example
    * // 元素a.xx的内部末尾添加一个元素
    * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
@@ -563,8 +563,8 @@
 
   /**
    * 函数 在元素内部开头添加子元素或HTML字符串
-   * @param {Element|string} element 目标元素
-   * @param {object|string} content 子元素或HTML字符串
+   * @param {HTMLElement|string} element 目标元素
+   * @param {HTMLElement|string} content 子元素或HTML字符串
    * @example
    * // 元素a.xx内部开头添加一个元素
    * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
@@ -585,8 +585,8 @@
   };
   /**
    * 在元素后面添加兄弟元素或HTML字符串
-   * @param {Element|string} element 目标元素
-   * @param {object|string} content 兄弟元素或HTML字符串
+   * @param {HTMLElement|string} element 目标元素
+   * @param {HTMLElement|string} content 兄弟元素或HTML字符串
    * @example
    * // 元素a.xx后面添加一个元素
    * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
@@ -608,8 +608,8 @@
 
   /**
    * 在元素前面添加兄弟元素或HTML字符串
-   * @param {Element|string} element 目标元素
-   * @param {object|string} content 兄弟元素或HTML字符串
+   * @param {HTMLElement|string} element 目标元素
+   * @param {HTMLElement|string} content 兄弟元素或HTML字符串
    * @example
    * // 元素a.xx前面添加一个元素
    * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
@@ -631,7 +631,7 @@
 
   /**
    * 移除元素
-   * @param {Element|string|NodeList} element 目标元素
+   * @param {HTMLElement|string|NodeList} element 目标元素
    * @example
    * // 元素a.xx前面添加一个元素
    * DOMUtils.remove(document.querySelector("a.xx"))
@@ -655,7 +655,7 @@
   };
   /**
    * 移除元素的所有子元素
-   * @param {Element|string} element 目标元素
+   * @param {HTMLElement|string} element 目标元素
    * @example
    * // 移除元素a.xx元素的所有子元素
    * DOMUtils.empty(document.querySelector("a.xx"))
@@ -674,7 +674,7 @@
   };
   /**
    * 绑定事件
-   * @param {Element|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
+   * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
    * @param {string|[...string]} eventType 需要监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
@@ -801,7 +801,7 @@
   };
   /**
    * 取消绑定事件
-   * @param {Element|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
+   * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
    * @param {string|[...string]} eventType 需要取消监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
@@ -889,7 +889,7 @@
 
   /**
    * 主动触发事件
-   * @param {Element|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
+   * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
    * @param {string|[...string]} eventType 需要触发的事件
    * @param {object|undefined} details 赋予触发的Event的额外属性
    * @example
@@ -942,8 +942,11 @@
   };
   /**
    * 设置或返回被选元素相对于文档的偏移坐标
-   * @param {Element|string} element
-   * @returns {Object}
+   * @param {HTMLElement|string} element
+   * @returns { {
+   *   top: number,
+   *   left: number
+   * }}
    * @example
    * // 获取元素a.xx的对于文档的偏移坐标
    * DOMUtils.offset(document.querySelector("a.xx"))
@@ -966,8 +969,8 @@
   };
   /**
    * 获取元素的宽度
-   * @param {Element|string} element 要获取宽度的元素
-   * @returns {Number} 元素的宽度，单位为像素
+   * @param {HTMLElement|string} element 要获取宽度的元素
+   * @returns {number} 元素的宽度，单位为像素
    * @example
    * // 获取元素a.xx的宽度
    * DOMUtils.width(document.querySelector("a.xx"))
@@ -1022,8 +1025,8 @@
   };
   /**
    * 获取元素的高度
-   * @param {Element|string} element 要获取高度的元素
-   * @returns {Number} 元素的高度，单位为像素
+   * @param {HTMLElement|string} element 要获取高度的元素
+   * @returns {number} 元素的高度，单位为像素
    * @example
    * // 获取元素a.xx的高度
    * DOMUtils.height(document.querySelector("a.xx"))
@@ -1078,8 +1081,8 @@
   };
   /**
    * 获取元素的外部宽度（包括边框和外边距）
-   * @param {Element|string} element 要获取外部宽度的元素
-   * @returns {Number} 元素的外部宽度，单位为像素
+   * @param {HTMLElement|string} element 要获取外部宽度的元素
+   * @returns {number} 元素的外部宽度，单位为像素
    * @example
    * // 获取元素a.xx的外部宽度
    * DOMUtils.outerWidth(document.querySelector("a.xx"))
@@ -1114,8 +1117,8 @@
   };
   /**
    * 获取元素的外部高度（包括边框和外边距）
-   * @param {Element|string} element 要获取外部高度的元素
-   * @returns {Number} 元素的外部高度，单位为像素
+   * @param {HTMLElement|string} element 要获取外部高度的元素
+   * @returns {number} 元素的外部高度，单位为像素
    * @example
    * // 获取元素a.xx的外部高度
    * DOMUtils.outerHeight(document.querySelector("a.xx"))
@@ -1178,9 +1181,9 @@
 
   /**
    * 在一定时间内改变元素的样式属性，实现动画效果
-   * @param {Element|string} element 需要进行动画的元素
-   * @param {Object} styles 动画结束时元素的样式属性
-   * @param {Number} [duration=1000] 动画持续时间，单位为毫秒
+   * @param {HTMLElement|string} element 需要进行动画的元素
+   * @param {CSSStyleDeclaration} styles 动画结束时元素的样式属性
+   * @param {number} [duration=1000] 动画持续时间，单位为毫秒
    * @param {Function} [callback=null] 动画结束后执行的函数
    * @example
    * // 监听元素a.xx的从显示变为隐藏
@@ -1240,7 +1243,7 @@
 
   /**
    * 将一个元素包裹在指定的HTML元素中
-   * @param {Element|string} element 要包裹的元素
+   * @param {HTMLElement|string} element 要包裹的元素
    * @param {string} wrapperHTML 要包裹的HTML元素的字符串表示形式
    * @example
    * // 将a.xx元素外面包裹一层div
@@ -1266,8 +1269,8 @@
   };
   /**
    * 获取当前元素的前一个兄弟元素
-   * @param {Element|string} element 当前元素
-   * @returns {?Element} 前一个兄弟元素
+   * @param {HTMLElement|string} element 当前元素
+   * @returns {?HTMLElement} 前一个兄弟元素
    * @example
    * // 获取a.xx元素前一个兄弟元素
    * DOMUtils.prev(document.querySelector("a.xx"))
@@ -1286,8 +1289,8 @@
 
   /**
    * 获取当前元素的后一个兄弟元素
-   * @param {Element|string} element 当前元素
-   * @returns {?Element} 后一个兄弟元素
+   * @param {HTMLElement|string} element 当前元素
+   * @returns {?HTMLElement} 后一个兄弟元素
    * @example
    * // 获取a.xx元素前一个兄弟元素
    * DOMUtils.next(document.querySelector("a.xx"))
@@ -1321,8 +1324,8 @@
 
   /**
    * 获取当前元素的所有兄弟元素
-   * @param {Element|string} element 当前元素
-   * @returns {?Array} 所有兄弟元素
+   * @param {HTMLElement|string} element 当前元素
+   * @returns {HTMLElement[]} 所有兄弟元素
    * @example
    * // 获取a.xx元素所有兄弟元素
    * DOMUtils.siblings(document.querySelector("a.xx"))
@@ -1343,8 +1346,8 @@
 
   /**
    * 获取当前元素的父元素
-   * @param {Element|NodeList|string} element 当前元素
-   * @returns {?Element|Array} 父元素
+   * @param {HTMLElement|NodeList|string} element 当前元素
+   * @returns {?HTMLElement[]|HTMLElement} 父元素
    * @example
    * // 获取a.xx元素的父元素
    * DOMUtils.parent(document.querySelector("a.xx"))
@@ -1374,7 +1377,7 @@
    * @param {string} html
    * @param {boolean} useParser 是否使用DOMParser来生成元素，有些时候通过DOMParser生成的元素有点问题
    * @param {boolean} isComplete 是否是完整的
-   * @returns {Element}
+   * @returns {HTMLElement}
    * @example
    * // 将字符串转为Element元素
    * DOMUtils.parseHTML("<a href='xxxx'></a>")
@@ -1419,7 +1422,7 @@
 
   /**
    * 当鼠标移入或移出元素时触发事件
-   * @param {Element|string} element 当前元素
+   * @param {HTMLElement|string} element 当前元素
    * @param {Function} handler 事件处理函数
    * @example
    * // 监听a.xx元素的移入或移出
@@ -1443,7 +1446,7 @@
 
   /**
    * 显示元素
-   * @param {Element|string} element 当前元素
+   * @param {HTMLElement|string} element 当前元素
    * @example
    * // 显示a.xx元素
    * DOMUtils.show(document.querySelector("a.xx"))
@@ -1461,7 +1464,7 @@
 
   /**
    * 隐藏元素
-   * @param {Element|string} element 当前元素
+   * @param {HTMLElement|string} element 当前元素
    * @example
    * // 隐藏a.xx元素
    * DOMUtils.hide(document.querySelector("a.xx"))
@@ -1479,7 +1482,7 @@
 
   /**
    * 当按键松开时触发事件
-   * @param {Element|string} element 当前元素
+   * @param {HTMLElement|string} element 当前元素
    * @param {Function} handler 事件处理函数
    * @example
    * // 监听a.xx元素的按键松开
@@ -1502,7 +1505,7 @@
 
   /**
    * 当按键按下时触发事件
-   * @param {Element|string} element 当前元素
+   * @param {HTMLElement|string} element 当前元素
    * @param {Function} handler 事件处理函数
    * @example
    * // 监听a.xx元素的按键按下
@@ -1525,8 +1528,8 @@
 
   /**
    * 淡入元素
-   * @param {Element|string} element 当前元素
-   * @param {Number} [duration=400] 动画持续时间（毫秒），默认400毫秒
+   * @param {HTMLElement|string} element 当前元素
+   * @param {number} [duration=400] 动画持续时间（毫秒），默认400毫秒
    * @param {Function} callback 动画结束的回调
    * @example
    * // 元素a.xx淡入
@@ -1566,8 +1569,8 @@
 
   /**
    * 淡出元素
-   * @param {Element|string} element 当前元素
-   * @param {Number} [duration=400] 动画持续时间（毫秒），默认400毫秒
+   * @param {HTMLElement|string} element 当前元素
+   * @param {number} [duration=400] 动画持续时间（毫秒），默认400毫秒
    * @param {Function} callback 动画结束的回调
    * @example
    * // 元素a.xx淡出
@@ -1607,7 +1610,7 @@
 
   /**
    * 切换元素的显示和隐藏状态
-   * @param {Element|string} element 当前元素
+   * @param {HTMLElement|string} element 当前元素
    * @example
    * // 如果元素a.xx当前是隐藏，则显示，如果是显示，则隐藏
    * DOMUtils.toggle(document.querySelector("a.xx"))
