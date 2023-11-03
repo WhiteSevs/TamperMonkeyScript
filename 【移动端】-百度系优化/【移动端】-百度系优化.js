@@ -3243,7 +3243,12 @@
         },
         {
           key: "baijiahao_shield_user_comment_input_box",
-          text: "【屏蔽】评论输入框",
+          text: "【屏蔽】底部悬浮工具栏",
+        },
+        {
+          key: "baijiahao_hijack_wakeup",
+          text: "拦截唤醒",
+          enable: true,
         },
       ]);
       if (GM_Menu.get("baijiahao_shield_recommended_article")) {
@@ -3283,7 +3288,29 @@
           display: none !important;
         }`);
       }
-
+      if (GM_Menu.get("baijiahao_hijack_wakeup")) {
+        log.success(GM_Menu.getShowTextValue("baijiahao_hijack_wakeup"));
+        let originCall = Function.prototype.call;
+        Function.prototype.call = function () {
+          if (
+            arguments.length === 2 &&
+            arguments[0] === undefined &&
+            "arg" in arguments[1] &&
+            "delegate" in arguments[1] &&
+            "done" in arguments[1] &&
+            "method" in arguments[1] &&
+            "next" in arguments[1] &&
+            "prev" in arguments[1]
+          ) {
+            log.success(["修改参数并拦截唤醒", arguments[1]]);
+            arguments[1]["method"] = "return";
+            arguments[1]["next"] = "end";
+            arguments[1]["prev"] = 24;
+          }
+          let result = originCall.apply(this, arguments);
+          return result;
+        };
+      }
       let originalAppendChild = Node.prototype.appendChild;
       Node.prototype.appendChild = function (element) {
         if (
