@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.10.12
+// @version      2023.11.4
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -3726,7 +3726,9 @@
       if (accessCode && accessCode !== "") {
         copyUrl = copyUrl.replaceAll("{#accessCode#}", accessCode);
       } else {
-        copyUrl = copyUrl.replace("\n密码：{#accessCode#}", "");
+        copyUrl = copyUrl
+          .replace("\n密码：{#accessCode#}", "")
+          .replaceAll("{#accessCode#}", "");
       }
       return copyUrl;
     },
