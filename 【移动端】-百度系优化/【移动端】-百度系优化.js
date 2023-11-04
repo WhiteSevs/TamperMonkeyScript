@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.4.14
+// @version      2023.11.4.15
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -5240,179 +5240,188 @@
           }`);
         },
       };
-      /**
-       * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
-       */
-      function registerImagePreview() {
-        /**
-         * 查看图片
-         * @param {Array} imgList
-         * @param {Number} _index_
-         */
-        function viewIMG(imgList = [], _index_ = 0) {
-          let viewerULNodeHTML = "";
-          imgList.forEach((item) => {
-            viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
-          });
-          let viewerULNode = DOMUtils.createElement("ul", {
-            innerHTML: viewerULNodeHTML,
-          });
-          let viewer = new Viewer(viewerULNode, {
-            inline: false,
-            url: "data-src",
-            zIndex: utils.getMaxZIndex() + 100,
-            hidden: () => {
-              viewer.destroy();
-            },
-          });
-          _index_ = _index_ < 0 ? 0 : _index_;
-          viewer.view(_index_);
-          viewer.zoomTo(1);
-          viewer.show();
-        }
-        DOMUtils.on(document, "click", "img", function (event) {
-          let clickElement = event.target;
-          let imgSrc =
-            clickElement.getAttribute("data-src") ||
-            clickElement.getAttribute("src");
-          if (
-            clickElement.parentElement.className === "viewer-canvas" ||
-            clickElement.parentElement.hasAttribute("data-viewer-action")
-          ) {
-            return;
-          }
-          if (
-            imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)
-          ) {
-            log.info(`点击图片👇`);
-            log.info(clickElement);
-            if (clickElement.parentElement.className === "img-box") {
-              /* 帖子主体内的图片 */
-              let parentMain = clickElement.closest(
-                ".img-sudoku.main-img-sudoku"
-              );
-              log.info(parentMain);
-              if (!parentMain) {
-                viewIMG([imgSrc]);
-                return;
-              }
-              let lazyImgList = [];
-              parentMain.querySelectorAll("img.img").forEach((item) => {
-                let _imgSrc_ =
-                  item.getAttribute("data-src") || item.getAttribute("src");
-                log.info(`获取图片: ${_imgSrc_}`);
-                lazyImgList = [...lazyImgList, _imgSrc_];
-              });
-              log.info("图片列表👇");
-              log.info(lazyImgList);
-              viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-            } else if (
-              clickElement.parentElement.className === "text-content"
-            ) {
-              /* 评论区内的图片 */
-              let parentMain = clickElement.parentElement;
-              let lazyImgList = [];
-              log.info(parentMain);
-              parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
-                let _imgSrc_ =
-                  item.getAttribute("data-src") || item.getAttribute("src");
-                log.info(`获取图片: ${_imgSrc_}`);
-                lazyImgList = [...lazyImgList, _imgSrc_];
-              });
-              log.info("评论区图片列表👇");
-              log.info(lazyImgList);
-              viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-            } else {
-              /* 单个图片预览 */
-              viewIMG([imgSrc]);
-            }
-          }
-        });
-      }
-      /**
-       * 重定向跳转
-       */
-      function redirectJump() {
-        log.info("话题热榜-阻止默认跳转");
-        DOMUtils.on(document, "click", ".topic-share-item", function (event) {
-          utils.preventEvent(event);
-          window?.stop();
-          let clickNode = event.target;
-          let dataTrack = clickNode.getAttribute("data-track");
-          if (dataTrack == null) {
-            log.error("未找到data-track");
-            log.error(clickNode);
-            return false;
-          }
-          dataTrack = utils.toJSON(dataTrack);
-          let tid = dataTrack["tid"];
-          if (tid == null) {
-            log.error("未找到tid");
-            log.error(dataTrack);
-            return false;
-          }
-          log.success(`跳转至: https://tieba.baidu.com/p/${tid}`);
-          window.location.href = `https://tieba.baidu.com/p/${tid}`;
-          return false;
-        });
-        utils.waitNodeList(".thread-bottom .forum").then((nodeList) => {
-          log.success("设置贴吧种类正确跳转");
-          log.success(nodeList);
-          nodeList.forEach((item) => {
-            item.ontouchstart = function (event) {
-              utils.preventEvent(event);
-              window?.stop();
-              window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
-                event.target
-              )
-                .trim()
-                .replace(/吧$/g, "")}`;
-              return false;
-            };
-          });
-        });
-        utils.waitNode(".topic-share-thread .list-content").then((element) => {
-          utils.mutationObserver(element, {
-            callback: (mutations) => {
-              mutations.forEach((item) => {
-                item.addedNodes.forEach((item2) => {
-                  if (
-                    typeof item2.className === "string" &&
-                    item2.className.includes("topic-share-item")
-                  ) {
-                    log.success("设置新增的帖子的贴吧种类正确跳转");
-                    log.success(item2);
-                    item2.querySelector(".thread-bottom .forum").ontouchstart =
-                      function (event) {
-                        utils.preventEvent(event);
-                        window?.stop();
-                        window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
-                          event.target
-                        )
-                          .trim()
-                          .replace(/吧$/g, "")}`;
-                        return false;
-                      };
-                  }
-                });
-              });
-            },
-            config: {
-              childList: true,
-              subtree: true,
-            },
-          });
-        });
 
-        DOMUtils.on(
-          document,
-          "touchstart",
-          ".topic-share-item .forum",
-          function (event) {
-            return utils.preventEvent(event);
+      /**
+       * 其它功能
+       */
+      const tiebaOhterFunc = {
+        /**
+         * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
+         */
+        optimizeImagePreview() {
+          /**
+           * 查看图片
+           * @param {Array} imgList
+           * @param {Number} _index_
+           */
+          function viewIMG(imgList = [], _index_ = 0) {
+            let viewerULNodeHTML = "";
+            imgList.forEach((item) => {
+              viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+            });
+            let viewerULNode = DOMUtils.createElement("ul", {
+              innerHTML: viewerULNodeHTML,
+            });
+            let viewer = new Viewer(viewerULNode, {
+              inline: false,
+              url: "data-src",
+              zIndex: utils.getMaxZIndex() + 100,
+              hidden: () => {
+                viewer.destroy();
+              },
+            });
+            _index_ = _index_ < 0 ? 0 : _index_;
+            viewer.view(_index_);
+            viewer.zoomTo(1);
+            viewer.show();
           }
-        );
-      }
+          DOMUtils.on(document, "click", "img", function (event) {
+            let clickElement = event.target;
+            let imgSrc =
+              clickElement.getAttribute("data-src") ||
+              clickElement.getAttribute("src");
+            if (
+              clickElement.parentElement.className === "viewer-canvas" ||
+              clickElement.parentElement.hasAttribute("data-viewer-action")
+            ) {
+              return;
+            }
+            if (
+              imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)
+            ) {
+              log.info(`点击图片👇`);
+              log.info(clickElement);
+              if (clickElement.parentElement.className === "img-box") {
+                /* 帖子主体内的图片 */
+                let parentMain = clickElement.closest(
+                  ".img-sudoku.main-img-sudoku"
+                );
+                log.info(parentMain);
+                if (!parentMain) {
+                  viewIMG([imgSrc]);
+                  return;
+                }
+                let lazyImgList = [];
+                parentMain.querySelectorAll("img.img").forEach((item) => {
+                  let _imgSrc_ =
+                    item.getAttribute("data-src") || item.getAttribute("src");
+                  log.info(`获取图片: ${_imgSrc_}`);
+                  lazyImgList = [...lazyImgList, _imgSrc_];
+                });
+                log.info("图片列表👇");
+                log.info(lazyImgList);
+                viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+              } else if (
+                clickElement.parentElement.className === "text-content"
+              ) {
+                /* 评论区内的图片 */
+                let parentMain = clickElement.parentElement;
+                let lazyImgList = [];
+                log.info(parentMain);
+                parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
+                  let _imgSrc_ =
+                    item.getAttribute("data-src") || item.getAttribute("src");
+                  log.info(`获取图片: ${_imgSrc_}`);
+                  lazyImgList = [...lazyImgList, _imgSrc_];
+                });
+                log.info("评论区图片列表👇");
+                log.info(lazyImgList);
+                viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+              } else {
+                /* 单个图片预览 */
+                viewIMG([imgSrc]);
+              }
+            }
+          });
+        },
+        /**
+         * 重定向跳转
+         */
+        redirectJump() {
+          log.info("话题热榜-阻止默认跳转");
+          DOMUtils.on(document, "click", ".topic-share-item", function (event) {
+            utils.preventEvent(event);
+            window?.stop();
+            let clickNode = event.target;
+            let dataTrack = clickNode.getAttribute("data-track");
+            if (dataTrack == null) {
+              log.error("未找到data-track");
+              log.error(clickNode);
+              return false;
+            }
+            dataTrack = utils.toJSON(dataTrack);
+            let tid = dataTrack["tid"];
+            if (tid == null) {
+              log.error("未找到tid");
+              log.error(dataTrack);
+              return false;
+            }
+            log.success(`跳转至: https://tieba.baidu.com/p/${tid}`);
+            window.location.href = `https://tieba.baidu.com/p/${tid}`;
+            return false;
+          });
+          utils.waitNodeList(".thread-bottom .forum").then((nodeList) => {
+            log.success("设置贴吧种类正确跳转");
+            log.success(nodeList);
+            nodeList.forEach((item) => {
+              item.ontouchstart = function (event) {
+                utils.preventEvent(event);
+                window?.stop();
+                window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
+                  event.target
+                )
+                  .trim()
+                  .replace(/吧$/g, "")}`;
+                return false;
+              };
+            });
+          });
+          utils
+            .waitNode(".topic-share-thread .list-content")
+            .then((element) => {
+              utils.mutationObserver(element, {
+                callback: (mutations) => {
+                  mutations.forEach((item) => {
+                    item.addedNodes.forEach((item2) => {
+                      if (
+                        typeof item2.className === "string" &&
+                        item2.className.includes("topic-share-item")
+                      ) {
+                        log.success("设置新增的帖子的贴吧种类正确跳转");
+                        log.success(item2);
+                        item2.querySelector(
+                          ".thread-bottom .forum"
+                        ).ontouchstart = function (event) {
+                          utils.preventEvent(event);
+                          window?.stop();
+                          window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
+                            event.target
+                          )
+                            .trim()
+                            .replace(/吧$/g, "")}`;
+                          return false;
+                        };
+                      }
+                    });
+                  });
+                },
+                config: {
+                  childList: true,
+                  subtree: true,
+                },
+              });
+            });
+
+          DOMUtils.on(
+            document,
+            "touchstart",
+            ".topic-share-item .forum",
+            function (event) {
+              return utils.preventEvent(event);
+            }
+          );
+        },
+      };
 
       /**
        * 贴吧搜索
@@ -6157,55 +6166,54 @@
         /**
          * 客户端劫持，劫持各种函数阻止唤醒百度贴吧/跳转下载
          */
-        clientHijack() {
+        hijackWakeUp() {
           /* 劫持webpack */
-          if (GM_Menu.get("baidu_tieba_hijack_scheme_call")) {
-            log.success(
-              GM_Menu.getShowTextValue("baidu_tieba_hijack_scheme_call")
-            );
-            let originCall = Function.prototype.call;
-            Function.prototype.call = function (...args) {
-              let result = originCall.apply(this, args);
-              /* 当前i core:67 */
-              if (
-                args.length &&
-                args.length === 4 &&
-                args[1]?.exports &&
-                Object.prototype.hasOwnProperty.call(
-                  args[1].exports,
-                  "getSchema"
-                ) &&
-                Object.prototype.hasOwnProperty.call(
-                  args[1].exports,
-                  "getToken"
-                ) &&
-                Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
-                Object.prototype.hasOwnProperty.call(
-                  args[1].exports,
-                  "initDiffer"
-                )
-              ) {
-                log.success(["成功劫持webpack关键Scheme调用函数", args]);
-                args[1].exports.getSchema = function () {
-                  log.info(["阻止调用getSchema", ...arguments]);
-                };
-                args[1].exports.getToken = function () {
-                  log.info(["阻止调用getToken", ...arguments]);
-                };
-                args[1].exports.init = function () {
-                  log.info(["阻止初始化", ...arguments]);
-                  return;
-                };
-                args[1].exports.initDiffer = function () {
-                  log.info(["阻止初始化差异", ...arguments]);
-                  return;
-                };
+          let originCall = Function.prototype.call;
+          Function.prototype.call = function (...args) {
+            let result = originCall.apply(this, args);
+            /* 当前i core:67 */
+            if (
+              args.length &&
+              args.length === 4 &&
+              args[1]?.exports &&
+              Object.prototype.hasOwnProperty.call(
+                args[1].exports,
+                "getSchema"
+              ) &&
+              Object.prototype.hasOwnProperty.call(
+                args[1].exports,
+                "getToken"
+              ) &&
+              Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
+              Object.prototype.hasOwnProperty.call(
+                args[1].exports,
+                "initDiffer"
+              )
+            ) {
+              log.success(["成功劫持webpack关键Scheme调用函数", args]);
+              args[1].exports.getSchema = function () {
+                log.info(["阻止调用getSchema", ...arguments]);
+              };
+              args[1].exports.getToken = function () {
+                log.info(["阻止调用getToken", ...arguments]);
+              };
+              args[1].exports.init = function () {
+                log.info(["阻止初始化", ...arguments]);
                 return;
-              }
-              return result;
-            };
-          }
-
+              };
+              args[1].exports.initDiffer = function () {
+                log.info(["阻止初始化差异", ...arguments]);
+                return;
+              };
+              return;
+            }
+            return result;
+          };
+        },
+        /**
+         * 劫持iframe唤醒
+         */
+        hijackIframe() {
           /* 劫持iframe添加到页面 */
           let originDocumentAppendChild = Element.prototype.appendChild;
           Element.prototype.appendChild = function (node) {
@@ -6295,8 +6303,23 @@
 
       GM_Menu.add([
         {
-          key: "baidu_tieba_hijack_scheme_call",
-          text: "劫持Scheme调用",
+          key: "baidu_tieba_add_search",
+          text: "新增搜索功能",
+          enable: true,
+        },
+        {
+          key: "baidu_tieba_optimize_see_comments",
+          text: "优化查看评论",
+          enable: true,
+        },
+        {
+          key: "baidu_tieba_optimize_image_preview",
+          text: "优化图片预览",
+          enable: true,
+        },
+        {
+          key: "baidu_tieba_hijack_wake_up",
+          text: "拦截唤醒",
           enable: false,
         },
         {
@@ -6306,21 +6329,45 @@
         },
       ]);
       tiebaBusiness.clientCallMasquerade();
-      tiebaBusiness.clientHijack();
+      tiebaBusiness.hijackIframe();
+      if (GM_Menu.get("baidu_tieba_hijack_wake_up")) {
+        log.success(GM_Menu.getShowTextValue("baidu_tieba_hijack_wake_up"));
+        tiebaBusiness.hijackWakeUp();
+      }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (
         this.currentUrl.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)
       ) {
-        tiebaCommentConfig.run();
-        registerImagePreview();
+        if (GM_Menu.get("baidu_tieba_optimize_see_comments")) {
+          log.success(
+            GM_Menu.getShowTextValue("baidu_tieba_optimize_see_comments")
+          );
+          tiebaCommentConfig.run();
+        }
+        if (GM_Menu.get("baidu_tieba_optimize_image_preview")) {
+          log.success(
+            GM_Menu.getShowTextValue("baidu_tieba_optimize_image_preview")
+          );
+          tiebaOhterFunc.optimizeImagePreview();
+        }
       }
       if (
         this.currentUrl.match(
           /^http(s|):\/\/(tieba.baidu|www.tieba).com\/mo\/q\/newtopic\/topicTemplate/g
         )
       ) {
-        redirectJump();
+        GM_Menu.add({
+          key: "baidu_tieba_topic_redirect_jump",
+          text: "重定向跳转",
+          enable: true,
+        });
+        if (GM_Menu.get("baidu_tieba_topic_redirect_jump")) {
+          log.success(
+            GM_Menu.getShowTextValue("baidu_tieba_topic_redirect_jump")
+          );
+          tiebaOhterFunc.redirectJump();
+        }
       }
       if (
         this.currentUrl.match(
@@ -6330,7 +6377,10 @@
         /* 吧内 */
         tiebaBaNei.rememberPostSort();
       }
-      tiebaSearchConfig.run();
+      if (GM_Menu.get("baidu_tieba_add_search")) {
+        log.success(GM_Menu.getShowTextValue("baidu_tieba_add_search"));
+        tiebaSearchConfig.run();
+      }
       /* tiebaBusiness.run(); */
       DOMUtils.ready(function () {
         utils
@@ -7382,11 +7432,45 @@
             "mini_baidu_jiaoyu_shield_bottom_pull_down_menu"
           )
         );
-        GM_addStyle(`
+        let hideCSS = `
         #page_loft{
           display: none !important;
         }
-        `);
+        `;
+        GM_addStyle(hideCSS);
+        if (top === window) {
+          DOMUtils.ready(function () {
+            utils.waitNode("iframe.swan-web-iframe").then((iframeElement) => {
+              let _document = iframeElement.contentDocument;
+              let _window = iframeElement.contentWindow;
+              function callback() {
+                _document.head.appendChild(
+                  DOMUtils.createElement("style", {
+                    type: "text/css",
+                    innerHTML: hideCSS,
+                  })
+                );
+              }
+              function completed() {
+                _document.removeEventListener("DOMContentLoaded", completed);
+                _window.removeEventListener("load", completed);
+                callback();
+              }
+              if (
+                _document.readyState === "complete" ||
+                (_document.readyState !== "loading" &&
+                  !_document.documentElement.doScroll)
+              ) {
+                _window.setTimeout(callback);
+              } else {
+                /* 监听DOMContentLoaded事件 */
+                _document.addEventListener("DOMContentLoaded", completed);
+                /* 监听load事件 */
+                _window.addEventListener("load", completed);
+              }
+            });
+          });
+        }
       }
     },
   };
