@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.4
+// @version      2023.11.4.14
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -30,6 +30,7 @@
 // @match        *://pan.baidu.com/*
 // @match        *://yiyan.baidu.com/*
 // @match        *://chat.baidu.com/*
+// @match        *://uf9kyh.smartapps.cn/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -1216,6 +1217,7 @@
       this.pan();
       this.yiyan();
       this.chat();
+      this.mini_jiaoyu();
     },
     css: {
       search: `
@@ -1714,6 +1716,9 @@
       
       `,
       chat: `
+      
+      `,
+      mini_jiaoyu: `
       
       `,
     },
@@ -7354,6 +7359,34 @@
           config: { subtree: true, childList: true },
           callback: maskMutationObserver.run,
         });
+      }
+    },
+    /**
+     * 百度小程序-百度教育
+     */
+    mini_jiaoyu() {
+      if (!this.currentUrl.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)) {
+        return;
+      }
+      GM_addStyle(this.css.mini_jiaoyu);
+      log.info("插入CSS规则");
+      GM_Menu.add({
+        key: "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
+        text: "【屏蔽】底部下拉菜单",
+        enable: false,
+      });
+
+      if (GM_Menu.get("mini_baidu_jiaoyu_shield_bottom_pull_down_menu")) {
+        log.success(
+          GM_Menu.getShowTextValue(
+            "mini_baidu_jiaoyu_shield_bottom_pull_down_menu"
+          )
+        );
+        GM_addStyle(`
+        #page_loft{
+          display: none !important;
+        }
+        `);
       }
     },
   };

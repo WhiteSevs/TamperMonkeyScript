@@ -25,6 +25,7 @@
 |     [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/)百度网盘 |             | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16)](https://yiyan.baidu.com/)文心一言 | 【屏蔽】水印 |  |
 |     [![https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16)](https://chat.baidu.com/)搜索AI伙伴 | 【屏蔽】水印 |  |
+|     [![https://favicon.yandex.net/favicon/v2/https://uf9kyh.smartapps.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://uf9kyh.smartapps.cn/?size=16)](https://uf9kyh.smartapps.cn/)百度小程序-百度教育| 【屏蔽】底部下拉菜单 |
 
 对`百度搜索`、`百度贴吧`、`百度识图`添加了新功能
 
