@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.11.4
+// @version      2023.11.4.15
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
@@ -194,6 +194,11 @@
         {
           key: "beautifyPage",
           text: "美化页面",
+          enable: true,
+        },
+        {
+          key: "beautifyGreasyforkBeautify",
+          text: "美化Greasyfork Beautify脚本",
           enable: true,
         },
         {
@@ -1024,6 +1029,53 @@
       });
     },
     /**
+     * 美化 Greasyfork Beautify脚本
+     */
+    beautifyGreasyforkBeautify() {
+      if (!GreasyforkMenu.menu.get("beautifyGreasyforkBeautify")) {
+        return;
+      }
+      log.success(
+        GreasyforkMenu.menu.getShowTextValue("beautifyGreasyforkBeautify")
+      );
+      let compatibleBeautifyCSS = `
+      #main-header{
+        background-color: #670000 !important;
+        background-image: linear-gradient(#670000,#990000) !important;
+      }
+      #site-nav-vue{
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .open-sidebar{
+        border-width: 1px;
+        border-radius: 3px;
+        margin-right: 0;
+      }`;
+
+      GM_addStyle(compatibleBeautifyCSS);
+      if (utils.isPhone()) {
+        GM_addStyle(`
+        section#script-info,
+        section.text-content,
+        div.width-constraint table.text-content.log-table{
+          margin-top: 80px;
+        }
+        
+        div.width-constraint div.sidebarred{
+          padding-top: 80px;
+        }
+        div.width-constraint div.sidebarred .sidebar{
+          top: 80px;
+        }`);
+      } else {
+        GM_addStyle(`
+        section#script-info{
+          margin-top: 10px;
+        }`);
+      }
+    },
+    /**
      * 美化上传图片
      */
     beautifyUploadImage() {
@@ -1117,7 +1169,7 @@
         .waitNode("div#script-content div.code-container")
         .then((element) => {
           let copyButton = DOMUtils.createElement("button", {
-            style:"margin-bottom: 1em;",
+            style: "margin-bottom: 1em;",
             textContent: "复制代码",
           });
           DOMUtils.on(copyButton, "click", async function () {
@@ -1141,6 +1193,7 @@
   /* -----------------↓执行入口↓----------------- */
   GreasyforkMenu.init();
   GreasyforkBusiness.beautifyPage();
+  GreasyforkBusiness.beautifyGreasyforkBeautify();
   GreasyforkBusiness.beautifyUploadImage();
   DOMUtils.ready(function () {
     GreasyforkMenu.initEnv();
