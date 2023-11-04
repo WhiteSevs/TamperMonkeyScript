@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.3.23
+// @version      2023.11.4
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -1680,7 +1680,13 @@
       haokan: `
       div.share-origin.wx-share-launch,
       div.open-app-top.share-origin-fixed.wx-share-launch,
-      div.open-app-bottom.wx-share-launch{
+      div.open-app-bottom.wx-share-launch,
+      /* 打开APP  好看更清晰(1080P) */
+      .NewOpenApp,
+      /* 顶部空白区域 */
+      .placeholder,
+      /* 底部好看视频图片 */
+      .page-buttom{
         display: none !important;
       }
       `,
@@ -6872,12 +6878,12 @@
       );
       GM_Menu.add([
         {
-          key: "baidu_aiqicha_shidld_carousel",
+          key: "baidu_aiqicha_shield_carousel",
           text: "【屏蔽】轮播图",
           enable: true,
         },
         {
-          key: "baidu_aiqicha_shidld_industry_host_news",
+          key: "baidu_aiqicha_shield_industry_host_news",
           text: "【屏蔽】行业热点新闻",
           enable: true,
         },
@@ -6885,8 +6891,8 @@
       /**
        * 屏蔽轮播图
        */
-      if (GM_Menu.get("baidu_aiqicha_shidld_carousel")) {
-        log.success(GM_Menu.getShowTextValue("baidu_aiqicha_shidld_carousel"));
+      if (GM_Menu.get("baidu_aiqicha_shield_carousel")) {
+        log.success(GM_Menu.getShowTextValue("baidu_aiqicha_shield_carousel"));
         GM_addStyle(`
         div.index-banner-container.van-swipe{
           display: none !important;
@@ -6895,9 +6901,9 @@
       /**
        * 屏蔽行业热点新闻
        */
-      if (GM_Menu.get("baidu_aiqicha_shidld_industry_host_news")) {
+      if (GM_Menu.get("baidu_aiqicha_shield_industry_host_news")) {
         log.success(
-          GM_Menu.getShowTextValue("baidu_aiqicha_shidld_industry_host_news")
+          GM_Menu.getShowTextValue("baidu_aiqicha_shield_industry_host_news")
         );
         GM_addStyle(`
         div.hot-news{
@@ -6924,19 +6930,153 @@
       }
       GM_addStyle(this.css.haokan);
       log.info("插入CSS规则");
-      GM_Menu.add({
-        key: "baidu_haokan_shidld_may_also_like",
-        text: "【屏蔽】猜你喜欢",
-        enable: true,
-      });
-      if (GM_Menu.get("baidu_haokan_shidld_may_also_like")) {
+      GM_Menu.add([
+        {
+          key: "baidu_haokan_shield_may_also_like",
+          text: "【屏蔽】猜你喜欢",
+          enable: true,
+        },
+        {
+          key: "baidu_haokan_shield_today_s_hot_list",
+          text: "【屏蔽】今日热播榜单",
+          enable: true,
+        },
+        {
+          key: "baidu_haokan_shield_right_video_action",
+          text: "【屏蔽】右侧工具栏",
+          enable: true,
+        },
+        {
+          key: "baidu_haokan_play_video_and_automatically_enter_full_screen",
+          text: "播放视频自动进入全屏",
+          enable: false,
+        },
+        {
+          key: "baidu_haokan_hijack_wakeup",
+          text: "拦截唤醒",
+          enable: false,
+        },
+      ]);
+      if (GM_Menu.get("baidu_haokan_shield_may_also_like")) {
         log.success(
-          GM_Menu.getShowTextValue("baidu_haokan_shidld_may_also_like")
+          GM_Menu.getShowTextValue("baidu_haokan_shield_may_also_like")
         );
         GM_addStyle(`
         div.top-video-list-container{display: none !important};
         `);
       }
+      if (GM_Menu.get("baidu_haokan_shield_today_s_hot_list")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_haokan_shield_today_s_hot_list")
+        );
+        GM_addStyle(`
+        .hot-rank-video{
+          display: none !important;
+        }
+        `);
+      }
+      if (GM_Menu.get("baidu_haokan_shield_right_video_action")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_haokan_shield_right_video_action")
+        );
+        GM_addStyle(`
+        .video-author-info-mask .new-video-action{
+          display: none !important;
+        }
+        `);
+      }
+      if (GM_Menu.get("baidu_haokan_hijack_wakeup")) {
+        log.success(GM_Menu.getShowTextValue("baidu_haokan_hijack_wakeup"));
+        let originCall = Function.prototype.call;
+        Function.prototype.call = function (...args) {
+          /* 当前i core:67 */
+          let result = originCall.apply(this, args);
+          if (
+            args.length &&
+            args.length === 4 &&
+            args?.[1]?.["exports"] &&
+            Object.prototype.hasOwnProperty.call(
+              args[1]["exports"],
+              "LaunchScheme"
+            ) &&
+            Object.prototype.hasOwnProperty.call(
+              args[1]["exports"],
+              "__esModule"
+            )
+          ) {
+            log.info("成功劫持，当前webpack i:" + args?.[1]?.["i"]);
+            args[1]["exports"]["LaunchScheme"] = function () {
+              log.success(["修改参数并拦截唤醒 LaunchScheme"]);
+              return {
+                launch() {
+                  return new Promise(function (resolve) {
+                    log.success(["修改参数并拦截唤醒 launch"]);
+                    resolve();
+                  });
+                },
+              };
+            };
+          }
+
+          return result;
+        };
+      }
+      function isFullscreenEnabled() {
+        return !!(
+          document.fullscreenEnabled ||
+          document.webkitFullScreenEnabled ||
+          document.mozFullScreenEnabled ||
+          document.msFullScreenEnabled
+        );
+      }
+      function enterFullscreen(element = document.body, options) {
+        try {
+          if (element.requestFullscreen) {
+            element.requestFullscreen(options);
+          } else if (element.webkitRequestFullScreen) {
+            element.webkitRequestFullScreen();
+          } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+          } else {
+            throw new Error("该浏览器不支持全屏API");
+          }
+        } catch (err) {
+          log.error(err);
+        }
+      }
+      DOMUtils.ready(function () {
+        let playBtn = document.querySelector(".play-btn");
+        DOMUtils.on(playBtn, "click", function () {
+          let currentPageSee = document.querySelector(
+            ".video-player .video-player-pause-btns .continue"
+          );
+          setTimeout(() => {
+            utils
+              .getReactObj(currentPageSee)
+              ["reactEventHandlers"]["onClick"]();
+
+            if (
+              GM_Menu.get(
+                "baidu_haokan_play_video_and_automatically_enter_full_screen"
+              )
+            ) {
+              log.success(
+                GM_Menu.getShowTextValue(
+                  "baidu_haokan_play_video_and_automatically_enter_full_screen"
+                )
+              );
+              if (isFullscreenEnabled()) {
+                let videoElement = document.querySelector(
+                  "#video video.hplayer-video"
+                );
+                enterFullscreen(videoElement);
+              }
+            }
+          }, 0);
+        });
+      });
     },
     /**
      * 百度识图

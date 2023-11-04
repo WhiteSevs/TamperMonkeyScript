@@ -20,7 +20,7 @@
 |     [![https://favicon.yandex.net/favicon/v2/https://xue.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://xue.baidu.com/?size=16)](https://xue.baidu.com/)百度知了好学 |             | 去除广告 |
 |  [![https://favicon.yandex.net/favicon/v2/https://aiqicha.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://aiqicha.baidu.com/?size=16)](https://aiqicha.baidu.com/)百度-爱企查 | 【屏蔽】轮播图、【屏蔽】行业热点新闻 | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://pos.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pos.baidu.com/?size=16)](https://pos.baidu.com/)百度网盟推广 |             | 去除广告 |
-|     [![https://favicon.yandex.net/favicon/v2/https://haokan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://haokan.baidu.com/?size=16)](https://haokan.baidu.com/)百度好看视频 | 【屏蔽】猜你喜欢 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://haokan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://haokan.baidu.com/?size=16)](https://haokan.baidu.com/)百度好看视频 | 【屏蔽】猜你喜欢、【屏蔽】今日热播榜单、【屏蔽】右侧工具栏、播放视频自动进入全屏、拦截唤醒 | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://shitu.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://shitu.baidu.com/?size=16)](https://shitu.baidu.com/)百度识图 |             | 去除广告、重构页面的上传图片搜索功能 |
 |     [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/)百度网盘 |             | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16)](https://yiyan.baidu.com/)文心一言 | 【屏蔽】水印 |  |
