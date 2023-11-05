@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-3";
+  Utils.version = "2023-11-5";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -2763,6 +2763,18 @@
   };
 
   /**
+   * 判断浏览器是否支持全屏
+   * @returns {boolean}
+   */
+  Utils.isFullscreenEnabled = function () {
+    return !!(
+      document.fullscreenEnabled ||
+      document.webkitFullScreenEnabled ||
+      document.mozFullScreenEnabled ||
+      document.msFullScreenEnabled
+    );
+  };
+  /**
    * 判断对象是否是jQuery对象
    * @param {any} target
    * @returns {boolean}
@@ -4452,6 +4464,31 @@
   };
 
   /**
+   * 使浏览器进入全屏
+   * @param {?HTMLElement} element 目标元素
+   * @param {?FullscreenOptions} options 配置，一般不用
+   * @example
+   * Utils.enterFullscreen();
+   */
+  Utils.enterFullscreen = function (element = document.body, options) {
+    try {
+      if (element.requestFullscreen) {
+        element.requestFullscreen(options);
+      } else if (element.webkitRequestFullScreen) {
+        element.webkitRequestFullScreen();
+      } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+      } else {
+        throw new Error("该浏览器不支持全屏API");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /**
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
    * @param {[...any]|NodeList|function} data 数据|获取数据的方法
    * @param {string|function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
@@ -4770,7 +4807,7 @@
 
   /**
    * 等待指定元素出现，支持多个selector
-   * @param {...string} nodeSelectors - 一个或多个节点选择器，必须为字符串类型
+   * @param {...string} nodeSelectors 一个或多个节点选择器，必须为字符串类型
    * @returns {Promise<HTMLElement|HTMLElement[]>}
    * @example
    * Utils.waitNode("div.xxx").then( element =>{
@@ -4836,6 +4873,88 @@
     });
   };
 
+  /**
+   * 在规定时间内，等待任意元素出现，支持多个selector，如果未出现，则关闭监听
+   * @param {string[]|string} [nodeSelectorsList=[]] 一个或多个节点选择器，必须为字符串类型
+   * @param {number} [timer=0] xx毫秒(ms)后关闭监听，默认0ms
+   * @returns {Promise<HTMLElement|HTMLElement[]|undefined>}
+   * @example
+   * Utils.waitNodeWithInterval("a.xxx",30000).then(element=>{
+   *   console.log(element);
+   * })
+   * @example
+   * Utils.waitNodeWithInterval(["div.xxx","a.xxx"],30000).then(elementList=>{
+   *   console.log(elementList[0]); // div.xxx => HTMLElement
+   *   console.log(elementList[1]); // a.xxx => HTMLElement
+   * })
+   */
+  Utils.waitNodeWithInterval = async function (
+    nodeSelectorsList = [],
+    timer = 0
+  ) {
+    let nodeSelectors = [];
+    /* 检查每个参数是否为字符串类型 */
+    if (Array.isArray(nodeSelectorsList)) {
+      for (let nodeSelector of nodeSelectorsList) {
+        if (typeof nodeSelector !== "string") {
+          throw new Error(
+            "Utils.waitNodeWithInterval 参数nodeSelectorsList必须为 string[] 类型"
+          );
+        }
+      }
+      nodeSelectors = nodeSelectorsList;
+    } else {
+      nodeSelectors.push(nodeSelectorsList);
+    }
+
+    return new Promise((resolve) => {
+      /* 防止触发第二次回调 */
+      let isReturn = false;
+
+      /* 检查所有选择器是否匹配到节点 */
+      let checkNodes = (observer) => {
+        let isFind = true;
+        let selectNodeArray = [];
+        for (let i = 0; i < nodeSelectors.length; i++) {
+          let selector = nodeSelectors[i];
+          let element = document.querySelector(selector);
+          if (!element) {
+            /* 没找到，直接退出循环 */
+            isFind = false;
+            break;
+          }
+          selectNodeArray.push(element);
+        }
+        if (isFind) {
+          isReturn = true;
+          observer?.disconnect();
+          /* 如果只有一个选择器，那么返回数组中存储的第一个 */
+          if (selectNodeArray.length === 1) {
+            resolve(selectNodeArray[0]);
+          } else {
+            resolve(selectNodeArray);
+          }
+        }
+      };
+
+      /* 在函数开始时检查节点是否已经存在 */
+      checkNodes();
+
+      /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
+      let mutationObserver = Utils.mutationObserver(document.documentElement, {
+        config: { subtree: true, childList: true, attributes: true },
+        callback: (mutations, observer) => {
+          if (isReturn) {
+            return;
+          }
+          checkNodes(observer);
+        },
+      });
+      setTimeout(() => {
+        mutationObserver.disconnect();
+      }, timer);
+    });
+  };
   /**
    * 等待任意元素出现，支持多个selector
    * @param  {...any} nodeSelectors 一个或多个节点选择器，必须为字符串类型
