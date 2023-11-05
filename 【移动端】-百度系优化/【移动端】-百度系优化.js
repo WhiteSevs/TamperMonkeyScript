@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.4.17
+// @version      2023.11.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -47,7 +47,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1274594
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1275447
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
@@ -5334,6 +5334,25 @@
               }
             }
           });
+          DOMUtils.ready(function () {
+            utils.waitNodeWithInterval("div.img-sudoku img", 10000).then(() => {
+              let imgSudoKuElement = document.querySelector("div.img-sudoku");
+              let imgSudoKuImageElementList =
+                imgSudoKuElement.querySelectorAll("img.img");
+              log.success([
+                "重构主内容的图片",
+                imgSudoKuElement,
+                imgSudoKuImageElementList,
+              ]);
+              imgSudoKuImageElementList.forEach((element) => {
+                if (element.hasAttribute("data-src")) {
+                  element.src = element.getAttribute("data-src");
+                }
+              });
+              /* 通过重新赋值innerHTML来覆盖原有的事件 */
+              imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
+            });
+          });
         },
         /**
          * 重定向跳转
@@ -7135,11 +7154,11 @@
                   "baidu_haokan_play_video_and_automatically_enter_full_screen"
                 )
               );
-              if (isFullscreenEnabled()) {
+              if (utils.isFullscreenEnabled()) {
                 let videoElement = document.querySelector(
                   "#video video.hplayer-video"
                 );
-                enterFullscreen(videoElement);
+                utils.enterFullscreen(videoElement);
               }
             }
           }, 0);
