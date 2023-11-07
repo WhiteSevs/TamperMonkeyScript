@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.5
+// @version      2023.11.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -1611,7 +1611,9 @@
 			.xiaoduVoiceCard,
 			.index-widget-guidebanner,
       #message-center-panel,
-      .xiaoduVoice-banner.-border-round{
+      .xiaoduVoice-banner.-border-round,
+      /* 底部中间横幅-打开百度地图APP */
+      #main div[id^="fis_elm"] .btn-banner-float{
 				display:none !important;
 			}
 		`,
@@ -2311,13 +2313,9 @@
                 item?.remove();
                 log.success("删除广告 ==> 大家还在搜");
               }
-              if (item.textContent.substr(0, 5) === "大家还在搜") {
+              if (item.textContent.substring(0, 5) === "大家还在搜") {
                 item?.remove();
                 log.success("删除广告 ==> 大家都在搜（能看到的）");
-              }
-              if (item.querySelector(".c-atom-afterclick-recomm-wrap")) {
-                item.querySelector(".c-atom-afterclick-recomm-wrap")?.remove();
-                log.success("删除广告 ==> 大家还在搜:隐藏的(点击后，跳出来的)");
               }
               document.querySelectorAll("span").forEach((item) => {
                 let resultParentElement = item.parentElement.parentElement;
@@ -2331,6 +2329,11 @@
                   );
                 }
               });
+            }
+            /* 这个是必须删除的，点击搜索结果却跳出来除了影响心情没有一点用 */
+            if (item.querySelector(".c-atom-afterclick-recomm-wrap")) {
+              item.querySelector(".c-atom-afterclick-recomm-wrap")?.remove();
+              log.success("删除广告 ==> 大家还在搜:隐藏的(点击后，跳出来的)");
             }
             let bottomLogoElement =
               item.querySelectorAll(".c-color-source"); /* 底部标识 */
@@ -3015,6 +3018,10 @@
             );
             this.hijackOpenBox();
           }
+          if (GM_Menu.get("baidu_search_hijack_scheme")) {
+            log.success(GM_Menu.getShowTextValue("baidu_search_hijack_scheme"));
+            this.hijackScheme();
+          }
         },
         /**
          * 劫持OpenBox
@@ -3051,6 +3058,31 @@
               return OpenBox;
             },
           });
+        },
+        /**
+         * 劫持apply的Scheme调用
+         */
+        hijackScheme() {
+          let originApply = Function.prototype.apply;
+          Function.prototype.apply = function (...args) {
+            try {
+              let _arguments_ = args[1];
+              if (
+                args.length === 2 &&
+                typeof _arguments_ === "object" &&
+                "" + _arguments_ === "[object Arguments]" &&
+                _arguments_.length === 2 &&
+                _arguments_[1] === "scheme"
+              ) {
+                log.success(["拦截Scheme", ..._arguments_]);
+                return;
+              }
+            } catch (error) {
+              log.error(error);
+            }
+
+            return originApply.call(this, ...args);
+          };
         },
       };
 
@@ -3142,6 +3174,11 @@
           {
             key: "baidu_search_hijack_openbox",
             text: "劫持OpenBox",
+            enable: false,
+          },
+          {
+            key: "baidu_search_hijack_scheme",
+            text: "劫持Scheme",
             enable: false,
           },
         ]);
@@ -6849,6 +6886,84 @@
       }
       GM_addStyle(this.css.map);
       log.info("插入CSS规则");
+
+      const handleHijack = {
+        run() {
+          if (GM_Menu.get("baidu_map_hijack_wakeup")) {
+            log.success(GM_Menu.getShowTextValue("baidu_map_hijack_wakeup"));
+            this.hijackIframe();
+            this.hijackJQuery();
+            this.hijackSetTimeout();
+          }
+        },
+        /**
+         * 劫持iframe唤醒
+         */
+        hijackIframe() {
+          /* 劫持iframe添加到页面 */
+          let originDocumentAppendChild = Element.prototype.appendChild;
+          Element.prototype.appendChild = function (node) {
+            if (
+              node instanceof HTMLIFrameElement &&
+              !node?.src?.startsWith("http")
+            ) {
+              log.success([
+                "拦截百度地图通过iframe的Scheme唤醒：" + node.src,
+                node,
+              ]);
+              return;
+            }
+            return originDocumentAppendChild.call(this, node);
+          };
+        },
+        /**
+         * 劫持魔改的jQuery
+         */
+        hijackJQuery() {
+          DOMUtils.ready(function () {
+            let originAppend = $.fn.append;
+            $.fn.append = function (params) {
+              if (typeof params === "string") {
+                params = params.trim();
+                if (
+                  params.startsWith('<iframe src="') &&
+                  !params.startsWith('<iframe src="http')
+                ) {
+                  log.success(["拦截iframe", params]);
+                  return;
+                }
+              }
+              originAppend.apply(this, arguments);
+            };
+          });
+        },
+        /**
+         * 劫持全局setTimeout
+         */
+        hijackSetTimeout() {
+          let originSetTimeout = unsafeWindow.setTimeout;
+          unsafeWindow.setTimeout = function () {
+            let callBackString = arguments[0].toString();
+            if (
+              callBackString.match(
+                /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
+              )
+            ) {
+              log.success(["拦截跳转", callBackString]);
+              return;
+            }
+            originSetTimeout.apply(this, arguments);
+          };
+        },
+      };
+
+      GM_Menu.add({
+        key: "baidu_map_hijack_wakeup",
+        text: "拦截唤醒",
+        enable: false,
+      });
+
+      handleHijack.run();
     },
     /**
      * 百度知道
@@ -7226,6 +7341,7 @@
           "#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
         )
         .then((element) => {
+          log.success("重构主页的识图一下");
           let uploadImageDivDOM = DOMUtils.createElement("div", {
             class: "vf-home-booth-camera",
           });
@@ -7253,10 +7369,10 @@
         });
       /* 重构主页的往下滑动右下角出现的搜索图标按钮 */
       utils.waitNode(".vf-home.view-page").then((element) => {
+        log.success("重构主页的往下滑动右下角出现的搜索图标按钮");
         let divHomeCamera = DOMUtils.createElement("div", {
           class: "whitesev-vf-home-camera",
         });
-        document.querySelector().style.display;
         DOMUtils.css(divHomeCamera, {
           display: "none",
           position: "fixed",
