@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-5";
+  Utils.version = "2023-11-7";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -98,6 +98,7 @@
     canvas.dispatchEvent(new MouseEvent("mousedown", eventInit));
     canvas.dispatchEvent(new MouseEvent("mouseup", eventInit));
   };
+
   /**
    * 【手机】检测点击的地方是否在该元素区域内
    * @param {Element|Node} element	需要检测的元素
@@ -4601,6 +4602,30 @@
       );
     }
     return result;
+  };
+
+  /**
+   * 字符串转正则，用于把字符串中不规范的字符进行转义
+   * @param {string} targetString 需要进行转换的字符串
+   * @param {"g"|"i"|"m"|"u"|"y"} [flags="ig"] 正则标志
+   * @returns {RegExp}
+   */
+  Utils.stringToRegular = function (targetString, flags = "ig") {
+    let reg;
+    flags = flags.toLowerCase();
+    if (typeof targetString === "string") {
+      reg = new RegExp(
+        targetString.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"),
+        flags
+      );
+    } else if (targetString instanceof RegExp) {
+      reg = targetString;
+    } else {
+      throw new Error(
+        "Utils.stringToRegular 参数targetString必须是string|Regexp类型"
+      );
+    }
+    return reg;
   };
 
   /**
