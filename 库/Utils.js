@@ -1337,46 +1337,48 @@
    * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
    * @param { GM_Menu_Config } details 传递的菜单配置
    * @example
-    let GM_Menu = new Utils.GM_Menu(
-      {
-        data: [
-          {
-            menu_key:"menu_key",
-            text: "测试按钮",
-            enable: true,
-            accessKey: "a",
-            autoClose: false,
-            showText(text,enable){
-              return "[" + (enable ? "√" : "×") + "]" + text;
-            },
-            callback(data){
-              console.log("点击菜单，值修改为",data.enable);
-            }
-          }
-        ]
-        autoReload: false,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      });
+    let GM_Menu = new Utils.GM_Menu({
+      data: [
+        {
+          menu_key: "menu_key",
+          text: "测试按钮",
+          enable: true,
+          accessKey: "a",
+          autoClose: false,
+          showText(text, enable) {
+            return "[" + (enable ? "√" : "×") + "]" + text;
+          },
+          callback(data) {
+            console.log("点击菜单，值修改为", data.enable);
+          },
+        },
+      ],
+      autoReload: false,
+      GM_getValue,
+      GM_setValue,
+      GM_registerMenuCommand,
+      GM_unregisterMenuCommand,
+    });
+
 
     // 获取某个菜单项的值
     GM_Menu.get("menu_key");
     > true
 
+    // 获取某个菜单项的开启/关闭后显示的文本
+    GM_Menu.getShowTextValue("menu_key");
+    > √测试按钮
+
     // 添加键为menu_key2的菜单项
     GM_Menu.add({
-      {
-        key:"menu_key2",
-        text: "测试按钮2",
-        enable: false,
-        showText(text,enable){
-          return "[" + (enable ? "√" : "×") + "]" + text;
-        },
-        callback(data){
-          console.log("点击菜单，值修改为",data.enable);
-        }
+      key:"menu_key2",
+      text: "测试按钮2",
+      enable: false,
+      showText(text,enable){
+        return "[" + (enable ? "√" : "×") + "]" + text;
+      },
+      callback(data){
+        console.log("点击菜单，值修改为",data.enable);
       }
     });
     // 使用数组的方式添加多个菜单，如menu_key3、menu_key4
@@ -1420,10 +1422,7 @@
     });
 
     // 删除键为menu_key的菜单
-    gm_Menu.delete("menu_key");
-
-    // 删除键为menu_key的菜单
-    gm_Menu.delete("menu_key");
+    GM_Menu.delete("menu_key");
    **/
   Utils.GM_Menu = function (details) {
     /* 配置数据 */
