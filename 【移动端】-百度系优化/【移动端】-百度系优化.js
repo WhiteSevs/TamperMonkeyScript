@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.8
+// @version      2023.11.8.17
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -47,7 +47,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1276783
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1276906
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
@@ -1591,7 +1591,7 @@
 				visibility: hidden;
 			}
 		`,
-      fanyiapp: `
+      fanyiApp: `
 			.fanyi-invoke-btn,
 			.top-bn{
 				display:none !important;
@@ -6973,11 +6973,60 @@
       if (!this.currentUrl.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         return;
       }
-      GM_addStyle(this.css.fanyiapp);
+      GM_addStyle(this.css.fanyiApp);
       utils.waitNode("#page-content").then((element) => {
         element.setAttribute("style", "max-height:unset !important");
       });
       log.info("插入CSS规则");
+      GM_Menu.add([
+        {
+          key: "baidu_fanyi_app_shield_column_information",
+          text: "【屏蔽】专栏信息",
+          enable: false,
+        },
+        {
+          key: "baidu_fanyi_app_shield_recommended_for_you",
+          text: "【屏蔽】为你推荐",
+          enable: false,
+        },
+        {
+          key: "baidu_fanyi_app_shield_i_need_to_follow_along",
+          text: "【屏蔽】我要跟读",
+          enable: false,
+        },
+      ]);
+      if (GM_Menu.get("baidu_fanyi_app_shield_column_information")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_fanyi_app_shield_column_information")
+        );
+        GM_addStyle(`
+        div.fanyi-zhuan-lan-wrapper{
+          display: none !important;
+        }
+        `);
+      }
+      if (GM_Menu.get("baidu_fanyi_app_shield_recommended_for_you")) {
+        log.success(
+          GM_Menu.getShowTextValue("baidu_fanyi_app_shield_recommended_for_you")
+        );
+        GM_addStyle(`
+        #fr-section{
+          display: none !important;
+        }
+        `);
+      }
+      if (GM_Menu.get("baidu_fanyi_app_shield_i_need_to_follow_along")) {
+        log.success(
+          GM_Menu.getShowTextValue(
+            "baidu_fanyi_app_shield_i_need_to_follow_along"
+          )
+        );
+        GM_addStyle(`
+        .cover-all .daily-bottom{
+          display: none !important;
+        }
+        `);
+      }
     },
     /**
      * 百度图片
