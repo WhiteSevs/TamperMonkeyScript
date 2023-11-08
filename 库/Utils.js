@@ -1466,12 +1466,25 @@
     let menuIdList = [];
 
     /**
+     * 本地存储的键名
+     */
+    let LocalStorage_Key_Name = "GM_Menu_Local_Map";
+    /**
+     * 菜单enable为true的emoji
+     */
+    let Enable_True_Emoji = "✅";
+    /**
+     * 菜单enable为false的emoji
+     */
+    let Enable_False_Emoji = "❌";
+
+    /**
      * 获取本地存储菜单键值
      * @param {string} key
      * @returns {boolean}
      */
     let getLocalMenuData = function (key, defaultValue) {
-      let localData = _GM_getValue_("GM_Menu_Local_Map", {});
+      let localData = _GM_getValue_(LocalStorage_Key_Name, {});
       return localData[key] == null ? defaultValue : localData[key];
     };
 
@@ -1481,13 +1494,11 @@
      * @param {boolean} value
      */
     let setLocalMenuData = function (key, value) {
-      let localData = _GM_getValue_("GM_Menu_Local_Map", {});
+      let localData = _GM_getValue_(LocalStorage_Key_Name, {});
       localData[key] = value;
-      _GM_setValue_("GM_Menu_Local_Map", localData);
+      _GM_setValue_(LocalStorage_Key_Name, localData);
     };
 
-    let Enable_True_Emoji = "✅";
-    let Enable_False_Emoji = "❌";
     /**
      * 初始化数据
      */
@@ -1676,6 +1687,13 @@
       return Enable_False_Emoji;
     };
     /**
+     * 获取本地存储的菜单外部的键名
+     * @param {string} keyName
+     */
+    this.getLocalStorageKeyName = function () {
+      return LocalStorage_Key_Name;
+    };
+    /**
      * 设置菜单的值
      * @param {string} menuKey 菜单-键key
      * @param {any} value 需要设置的值
@@ -1710,6 +1728,16 @@
         throw new Error("参数emojiString必须是string类型");
       }
       Enable_False_Emoji = emojiString;
+    };
+    /**
+     * 设置本地存储的菜单外部的键名
+     * @param {string} keyName
+     */
+    this.setLocalStorageKeyName = function (keyName) {
+      if (typeof keyName !== "string") {
+        throw new Error("参数keyName必须是string类型");
+      }
+      LocalStorage_Key_Name = keyName;
     };
     /**
      * 新增菜单数据
