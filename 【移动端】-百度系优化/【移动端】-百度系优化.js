@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.7
+// @version      2023.11.8
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -47,7 +47,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1276532
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1276783
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
@@ -3008,6 +3008,69 @@
       };
 
       /**
+       * 简单UA-自动点击下一页
+       */
+      const handleSearchCraftUserAgentPage = {
+        /**
+         * 滚动事件对象
+         */
+        scrollLockFunction: null,
+        init() {
+          let isSearchCraft = navigator?.userAgent?.includes("SearchCraft");
+          log.success(
+            `判断是否是SearchCraft：${
+              isSearchCraft
+                ? GM_Menu.getEnableTrueEmoji()
+                : GM_Menu.getEnableFalseEmoji()
+            }`
+          );
+          this.scrollLockFunction = new utils.LockFunction(
+            this.scrollEvent,
+            this
+          );
+          this.setNextPageScrollListener();
+        },
+        /**
+         * 设置滚动事件
+         */
+        setNextPageScrollListener() {
+          document.addEventListener("scroll", this.scrollLockFunction.run);
+        },
+        /**
+         * 移除滚动事件
+         */
+        removeNextPageScrollListener() {
+          document.removeEventListener("scroll", this.scrollLockFunction.run);
+          log.info("取消绑定scroll", "#f400ff");
+        },
+        /**
+         * 滚动事件
+         * @async
+         */
+        async scrollEvent() {
+          if (!utils.isNearBottom(window.innerHeight / 3)) {
+            return;
+          }
+          let nextPageElement = document.querySelector(
+            ".infinite-load-wrap .se-infiniteload-text"
+          );
+          if (!nextPageElement) {
+            await utils.sleep(300);
+            return;
+          }
+          if (nextPageElement.textContent.includes("更多结果")) {
+            nextPageElement.click();
+            await utils.sleep(500);
+            return;
+          } else if (
+            nextPageElement.textContent.includes("到底了 没有更多内容了")
+          ) {
+            log.error("到底了 没有更多内容了，移除滚动监听");
+            handleSearchCraftUserAgentPage.removeNextPageScrollListener();
+          }
+        },
+      };
+      /**
        * 处理劫持
        */
       const handleHijack = {
@@ -3132,6 +3195,39 @@
             key: "baidu_search_automatically_expand_next_page",
             text: "自动展开下一页",
             enable: true,
+            autoReload: false,
+            callback(data) {
+              if (
+                data.enable &&
+                GM_Menu.get(
+                  "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
+                )
+              ) {
+                GM_Menu.setEnable(data.key, false);
+                GM_Menu.update();
+                alert(
+                  "与菜单功能 【简单UA-自动点击下一页】，请先关闭【简单UA-自动点击下一页】"
+                );
+              }
+            },
+          },
+          {
+            key: "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
+            text: "简单UA-自动点击下一页",
+            enable: false,
+            autoReload: false,
+            callback(data) {
+              if (
+                data.enable &&
+                GM_Menu.get("baidu_search_automatically_expand_next_page")
+              ) {
+                GM_Menu.setEnable(data.key, false);
+                GM_Menu.update();
+                alert(
+                  "与菜单功能 【自动展开下一页】，请先关闭【自动展开下一页】"
+                );
+              }
+            },
           },
           {
             key: "baidu_search_show_redirected_icon",
@@ -3263,7 +3359,23 @@
           handleInputEvent.run();
           searchUpdateRealLink.run();
           if (GM_Menu.get("baidu_search_automatically_expand_next_page")) {
+            log.success(
+              GM_Menu.getShowTextValue(
+                "baidu_search_automatically_expand_next_page"
+              )
+            );
             handleNextPage.init();
+          } else if (
+            GM_Menu.get(
+              "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
+            )
+          ) {
+            log.success(
+              GM_Menu.getShowTextValue(
+                "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
+              )
+            );
+            handleSearchCraftUserAgentPage.init();
           }
           if (
             window.location.href.startsWith("https://m.baidu.com/sf/vsearch")
