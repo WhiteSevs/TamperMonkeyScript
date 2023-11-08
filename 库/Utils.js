@@ -1317,9 +1317,10 @@
    * @property {string} key （必须）菜单的本地键key，不可重复，会覆盖
    * @property {string} text （必须）菜单的文本
    * @property {boolean|undefined} enable 菜单的开启状态，默认为false
+   * @property {number|undefined} id 使用条件：TamperMonkey版本>5.0，如果id和已注册的菜单id相同，可修改当前已注册菜单的options
    * @property {string|undefined} accessKey
    * @property {boolean|undefined} autoClose 自动关闭菜单，可不设置
-   * @property {string|undefined} title 菜单项的鼠标悬浮上的工具提示，可为空
+   * @property {string|undefined} title 使用条件：TamperMonkey版本>5.0，使用菜单项的鼠标悬浮上的工具提示，可为空
    * @property {boolean|undefined} autoReload 点击菜单后自动刷新网页，默认为false
    * @property { (text:string,enable:boolean)=>{} } showText 菜单的显示文本，未设置的话则自动根据enable在前面加上图标
    * @property {(data: GM_Menu_CallBack)=>{}} callback 点击菜单的回调
@@ -1428,7 +1429,7 @@
     /* 配置数据 */
     let data = details.data || [];
     /* 自动刷新网页，默认为true */
-    let autoReload =
+    let Default_autoReload =
       typeof details.autoReload === "boolean" ? details.autoReload : true;
     /* 获取存储的数据 */
     let _GM_getValue_ = details.GM_getValue;
@@ -1460,10 +1461,10 @@
     }
     let that = this;
     /**
-     * 注册的菜单的id
-     * @type {...string}
+     * 注册的菜单的映射信息
+     * @type {Map<number,GM_Menu_Details>}
      */
-    let menuIdList = [];
+    let menuIdMap = new Map();
 
     /**
      * 本地存储的键名
@@ -1480,7 +1481,7 @@
 
     /**
      * 获取本地存储菜单键值
-     * @param {string} key
+     * @param {string} key 键
      * @returns {boolean}
      */
     let getLocalMenuData = function (key, defaultValue) {
@@ -1490,8 +1491,8 @@
 
     /**
      * 设置本地存储菜单键值
-     * @param {string} key
-     * @param {boolean} value
+     * @param {string} key 键
+     * @param {boolean} value 值
      */
     let setLocalMenuData = function (key, value) {
       let localData = _GM_getValue_(LocalStorage_Key_Name, {});
@@ -1500,105 +1501,126 @@
     };
 
     /**
+     * 对菜单数据进行处理
+     * @param { GM_Menu_Details } data
+     * @returns { any[] }
+     */
+    let handleMenuData = function (data) {
+      /* 本地存储的键名 */
+      let menuLocalDataItemKey = data.key;
+      /* 文本 */
+      let text = data.text;
+      /* 菜单默认开启的状态 */
+      let defaultEnable = Boolean(
+        getLocalMenuData(menuLocalDataItemKey, data.enable)
+      );
+      /* 油猴菜单上显示的文本 */
+      let showText = data.showText(text, defaultEnable);
+      /* 用户点击后的回调 */
+      let defaultClickCallBack = data.callback;
+
+      let menuOptions = {
+        /**
+         * 菜单的id
+         */
+        id: data.id,
+        /**
+         * 点击菜单项后是否应关闭弹出菜单
+         */
+        autoClose: data.autoClose,
+        /**
+         * 菜单项的可选访问键
+         */
+        accessKey: data.accessKey,
+        /**
+         * 菜单项的鼠标悬浮上的工具提示
+         */
+        title: data.title,
+      };
+      /* 点击菜单后触发callback后的网页是否刷新 */
+      data.autoReload =
+        typeof data.autoReload !== "boolean"
+          ? Default_autoReload
+          : data.autoReload;
+      /* 用户点击菜单后的回调函数 */
+      let clickCallBack = function (event) {
+        let localEnable = Boolean(
+          getLocalMenuData(menuLocalDataItemKey, defaultEnable)
+        );
+        setLocalMenuData(menuLocalDataItemKey, !localEnable);
+        if (typeof defaultClickCallBack === "function") {
+          defaultClickCallBack({
+            key: menuLocalDataItemKey,
+            enable: !localEnable,
+            oldEnable: localEnable,
+            event: event,
+          });
+        }
+        /* 不刷新网页就刷新菜单 */
+        if (data.autoReload) {
+          window.location.reload();
+        } else {
+          that.update();
+        }
+      };
+      let menuOptionsLength = Object.values(menuOptions).filter(
+        (_item_) => _item_ != null
+      ).length;
+
+      if (menuOptionsLength === 0) {
+        return [showText, clickCallBack];
+      } else if (menuOptionsLength === 1 && menuOptions.accessKey != null) {
+        return [showText, clickCallBack, menuOptions["accessKey"]];
+      } else {
+        /* 这个是版本 > 4.20.6186才会有的选项 */
+        return [showText, clickCallBack, menuOptions];
+      }
+    };
+
+    /**
+     * 处理初始化配置
+     * @param { GM_Menu_Details } _detail_
+     * @returns { GM_Menu_Details }
+     */
+    let handleInitDetail = function (_detail_) {
+      _detail_.enable = Boolean(
+        getLocalMenuData(_detail_.key, _detail_.enable)
+      );
+      if (typeof _detail_.showText !== "function") {
+        _detail_.showText = function (_text_, _enable_) {
+          return (
+            (_enable_ ? Enable_True_Emoji : Enable_False_Emoji) + " " + _text_
+          );
+        };
+      }
+      return _detail_;
+    };
+    /**
      * 初始化数据
+     * @returns { GM_Menu_Details[] }
      */
     let init = function () {
-      menuIdList = [];
+      menuIdMap.clear();
       data.forEach((dataItem, dataIndex) => {
-        let menuId = dataItem.key;
-        let value = Boolean(getLocalMenuData(menuId, dataItem.enable));
-        if (typeof dataItem.showText !== "function") {
-          data[dataIndex].showText = function (_text_, _enable_) {
-            return (
-              (_enable_ ? Enable_True_Emoji : Enable_False_Emoji) + " " + _text_
-            );
-          };
-        }
-        data[dataIndex].enable = value;
+        dataItem = handleInitDetail(dataItem);
+        data[dataIndex].enable = dataItem.enable;
       });
     };
 
     /**
      * 注册油猴菜单
+     * @param { ?GM_Menu_Config[] } _data_ 如果存在，使用它
      */
-    let register = function () {
-      data.forEach((item) => {
-        /* 本地存储的键名 */
-        let menuLocalDataItemKey = item.key;
-        /* 文本 */
-        let text = item.text;
-        /* 菜单默认开启的状态 */
-        let defaultEnable = Boolean(
-          getLocalMenuData(menuLocalDataItemKey, item.enable)
-        );
-        /* 油猴菜单上显示的文本 */
-        let showText = item.showText(text, defaultEnable);
-        /* 用户点击后的回调 */
-        let clickCallBack = item.callback;
-
-        let menuOptions = {
-          /**
-           * 点击菜单项后是否应关闭弹出菜单
-           */
-          autoClose: item.autoClose,
-          /**
-           * 菜单项的可选访问键
-           */
-          accessKey: item.accessKey,
-          /**
-           * 菜单项的鼠标悬浮上的工具提示
-           */
-          title: item.title,
-        };
-        /* 点击菜单后触发callback后的网页是否刷新 */
-        let menuAutoReload =
-          typeof item.autoReload !== "boolean" ? autoReload : item.autoReload;
-        let callbackFunc = function (event) {
-          let localEnable = Boolean(
-            getLocalMenuData(menuLocalDataItemKey, defaultEnable)
-          );
-          setLocalMenuData(menuLocalDataItemKey, !localEnable);
-          if (typeof clickCallBack === "function") {
-            clickCallBack({
-              key: menuLocalDataItemKey,
-              enable: !localEnable,
-              oldEnable: localEnable,
-              event: event,
-            });
-          }
-          /* 不刷新网页就刷新菜单 */
-          if (menuAutoReload) {
-            window.location.reload();
-          } else {
-            that.update();
-          }
-        };
-        let menuOptionsLength = Object.values(menuOptions).filter(
-          (_item_) => _item_ != null
-        ).length;
-        if (menuOptionsLength === 0) {
-          let menuId = _GM_registerMenuCommand_(showText, callbackFunc);
-          menuIdList = menuIdList.concat(menuId);
-        } else if (menuOptionsLength === 1 && menuOptions.accessKey != null) {
-          let menuId = _GM_registerMenuCommand_(
-            showText,
-            callbackFunc,
-            menuOptions["accessKey"]
-          );
-          menuIdList = menuIdList.concat(menuId);
-        } else {
-          /* 这个是版本 > 4.20.6186才会有的选项 */
-          let menuId = _GM_registerMenuCommand_(
-            showText,
-            callbackFunc,
-            menuOptions
-          );
-          menuIdList = menuIdList.concat(menuId);
-        }
+    let register = function (_data_) {
+      (_data_ || data).forEach((item) => {
+        let resultList = handleMenuData(item);
+        data.id = _GM_registerMenuCommand_(...resultList);
+        menuIdMap.set(data.id, item);
       });
     };
 
     /**
+     * 获取目标菜单配置
      * @param {string} menuKey 菜单-键key
      * @returns {GM_Menu_Details}
      */
@@ -1639,6 +1661,21 @@
         this.getText(menuKey),
         this.get(menuKey)
       );
+    };
+    /**
+     * 获取当前已注册菜单的id
+     * @param {string} menuKey
+     * @returns {?number}
+     */
+    this.getMenuId = function (menuKey) {
+      let result = null;
+      menuIdMap.forEach((value, key) => {
+        if (value.key === menuKey) {
+          result = key;
+          return;
+        }
+      });
+      return result;
     };
     /**
      * 根据键值获取accessKey值
@@ -1753,31 +1790,66 @@
     };
     /**
      * 更新菜单数据
-     * @param { GM_Menu_Details[]|GM_Menu_Details|undefined } paramData
+     * @param { GM_Menu_Details[]|GM_Menu_Details|undefined } options 数据
      */
-    this.update = function (paramData) {
-      if (Array.isArray(paramData)) {
-        paramData.forEach((item) => {
-          let targetMenu = getTargetMenu(item.key);
-          if (targetMenu) {
-            Object.assign(targetMenu, item);
-          }
-        });
-      } else if (paramData != null) {
-        let targetMenu = getTargetMenu(paramData.key);
-        if (targetMenu) {
-          Object.assign(targetMenu, paramData);
-        }
+    this.update = function (options) {
+      let optionsList = [];
+      if (Array.isArray(options)) {
+        /* 是数组 */
+        optionsList = optionsList.concat(options);
+      } else if (options != null) {
+        /* 是单个配置 */
+        optionsList.push(options);
       }
-      Object.values(menuIdList).forEach((menuId) => {
-        this.delete(menuId);
+      optionsList.forEach((item) => {
+        let targetMenu = getTargetMenu(item.key);
+        if (targetMenu) {
+          Object.assign(targetMenu, item);
+        }
+      });
+      menuIdMap.forEach((value, key) => {
+        this.delete(key);
       });
       init();
       register();
     };
     /**
+     * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
+     * @param { GM_Menu_Details[]|GM_Menu_Details|undefined } options 配置
+     */
+    this.updateOptionsWithId = function (options) {
+      /**
+       * @type {GM_Menu_Details[]}
+       */
+      let optionsList = [];
+      if (Array.isArray(options)) {
+        /* 是数组 */
+        optionsList = optionsList.concat(options);
+      } else if (options != null) {
+        /* 是单个配置 */
+        optionsList.push(options);
+      }
+      for (let index = 0; index < optionsList.length; index++) {
+        let item = optionsList[index];
+        menuIdMap.forEach((value, key) => {
+          if (key === item.id) {
+            item = handleInitDetail(item);
+            let findDataIndex = data.findIndex(
+              (_item_) => _item_.key === value.key
+            );
+            if (findDataIndex !== -1) {
+              Object.assign(data[findDataIndex], item);
+            }
+            let resultList = handleMenuData(item);
+            _GM_registerMenuCommand_(...resultList);
+            menuIdMap.set(item.id, item);
+          }
+        });
+      }
+    };
+    /**
      * 卸载菜单
-     * @param {string} menuId 已注册的菜单id
+     * @param {number} menuId 已注册的菜单id
      */
     this.delete = function (menuId) {
       _GM_unregisterMenuCommand_(menuId);
