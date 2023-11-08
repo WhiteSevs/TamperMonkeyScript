@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-7";
+  Utils.version = "2023-11-8";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1485,6 +1485,9 @@
       localData[key] = value;
       _GM_setValue_("GM_Menu_Local_Map", localData);
     };
+
+    let Enable_True_Emoji = "✅";
+    let Enable_False_Emoji = "❌";
     /**
      * 初始化数据
      */
@@ -1495,7 +1498,9 @@
         let value = Boolean(getLocalMenuData(menuId, dataItem.enable));
         if (typeof dataItem.showText !== "function") {
           data[dataIndex].showText = function (_text_, _enable_) {
-            return (_enable_ ? "✅" : "❌") + " " + _text_;
+            return (
+              (_enable_ ? Enable_True_Emoji : Enable_False_Emoji) + " " + _text_
+            );
           };
         }
         data[dataIndex].enable = value;
@@ -1583,7 +1588,7 @@
     };
 
     /**
-     * @param {string} menuKey 键值
+     * @param {string} menuKey 菜单-键key
      * @returns {GM_Menu_Details}
      */
     let getTargetMenu = function (menuKey) {
@@ -1591,15 +1596,23 @@
     };
     /**
      * 根据键值获取enable值
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {boolean}
      */
     this.get = function (menuKey) {
+      return this.getEnable(menuKey);
+    };
+    /**
+     * 根据键值获取enable值
+     * @param {string} menuKey 菜单-键key
+     * @returns {boolean}
+     */
+    this.getEnable = function (menuKey) {
       return getTargetMenu(menuKey).enable;
     };
     /**
      * 根据键值获取text值
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {string}
      */
     this.getText = function (menuKey) {
@@ -1607,7 +1620,7 @@
     };
     /**
      * 根据键值获取showText函数的值
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {string}
      */
     this.getShowTextValue = function (menuKey) {
@@ -1618,7 +1631,7 @@
     };
     /**
      * 根据键值获取accessKey值
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {?string}
      */
     this.getAccessKey = function (menuKey) {
@@ -1626,7 +1639,7 @@
     };
     /**
      * 根据键值获取autoClose值
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {?boolean}
      */
     this.getAutoClose = function (menuKey) {
@@ -1634,7 +1647,7 @@
     };
     /**
      * 根据键值获取autoReload值
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {boolean}
      */
     this.getAutoReload = function (menuKey) {
@@ -1642,11 +1655,61 @@
     };
     /**
      * 根据键值获取callback函数
-     * @param {string} menuKey
+     * @param {string} menuKey 菜单-键key
      * @returns {Function|undefined}
      */
     this.getCallBack = function (menuKey) {
       return getTargetMenu(menuKey).callback;
+    };
+    /**
+     * 获取当enable为true时默认显示在菜单中前面的emoji图标
+     * @returns {string}
+     */
+    this.getEnableTrueEmoji = function () {
+      return Enable_True_Emoji;
+    };
+    /**
+     * 获取当enable为false时默认显示在菜单中前面的emoji图标
+     * @returns {string}
+     */
+    this.getEnableFalseEmoji = function () {
+      return Enable_False_Emoji;
+    };
+    /**
+     * 设置菜单的值
+     * @param {string} menuKey 菜单-键key
+     * @param {any} value 需要设置的值
+     */
+    this.setValue = function (menuKey, value) {
+      setLocalMenuData(menuKey, value);
+    };
+    /**
+     * 设置菜单的值
+     * @param {string} menuKey 菜单-键key
+     * @param {boolean} value 需要设置的值
+     */
+    this.setEnable = function (menuKey, value) {
+      this.setValue(menuKey, Boolean(value));
+    };
+    /**
+     * 设置当enable为true时默认显示在菜单中前面的emoji图标
+     * @param {string} emojiString
+     */
+    this.setEnableTrueEmoji = function (emojiString) {
+      if (typeof emojiString !== "string") {
+        throw new Error("参数emojiString必须是string类型");
+      }
+      Enable_True_Emoji = emojiString;
+    };
+    /**
+     * 设置当enable为false时默认显示在菜单中前面的emoji图标
+     * @param {string} emojiString
+     */
+    this.setEnableFalseEmoji = function (emojiString) {
+      if (typeof emojiString !== "string") {
+        throw new Error("参数emojiString必须是string类型");
+      }
+      Enable_False_Emoji = emojiString;
     };
     /**
      * 新增菜单数据
@@ -1658,12 +1721,11 @@
       } else {
         data.push(paramData);
       }
-      init();
-      register();
+      this.update();
     };
     /**
      * 更新菜单数据
-     * @param { GM_Menu_Details[]|GM_Menu_Details } paramData
+     * @param { GM_Menu_Details[]|GM_Menu_Details|undefined } paramData
      */
     this.update = function (paramData) {
       if (Array.isArray(paramData)) {
@@ -1680,9 +1742,8 @@
         }
       }
       Object.values(menuIdList).forEach((menuId) => {
-        that.delete(menuId);
+        this.delete(menuId);
       });
-      menuIdList = [];
       init();
       register();
     };
@@ -1693,8 +1754,8 @@
     this.delete = function (menuId) {
       _GM_unregisterMenuCommand_(menuId);
     };
-    init(); /* 初始化数据 */
-    register(); /* 注册到油猴菜单中 */
+
+    this.update();
   };
 
   /**
