@@ -2,7 +2,7 @@
 // @name            eruda_VConsole_网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://greasyfork.org/zh-CN/scripts/475228/feedback
-// @version         2023.9.26.18
+// @version         2023.11.9
 // @author          WhiteSevs
 // @description     自行选择是eruda或者VConsole进行网页调试
 // @license         MIT
@@ -13,7 +13,17 @@
 // @grant           GM_getValue
 // @grant           GM_setValue
 // @grant           GM_deleteValue
-// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1276532
+// @grant           GM_setClipboard
+// @grant           GM_getResourceText
+// @require         https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1277379
+// @resource        Resource_erudaMonitor         https://fastly.jsdelivr.net/npm/eruda-monitor
+// @resource        Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features
+// @resource        Resource_erudaTiming          https://fastly.jsdelivr.net/npm/eruda-timing
+// @resource        Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code
+// @resource        Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark
+// @resource        Resource_erudaGeolocation     https://fastly.jsdelivr.net/npm/eruda-geolocation
+// @resource        Resource_erudaOrientation     https://fastly.jsdelivr.net/npm/eruda-orientation
+// @resource        Resource_erudaTouches         https://fastly.jsdelivr.net/npm/eruda-touches
 // ==/UserScript==
 
 (function () {
@@ -23,6 +33,7 @@
   const utils = window.Utils.noConflict();
   const WINDOW_DEBUG_Eruda = "WhiteSev_Debug_eruda";
   const WINDOW_DEBUG_VConsole = "WhiteSev_Debug_VConsole";
+  const WINDOW_DEBUG_VConsole_Obj = "WhiteSev_Debug_VConsole_Obj";
   let currentWin = this || self;
   try {
     /* 应对在TamperMonkey环境中 */
@@ -32,7 +43,7 @@
       },
     });
   } catch (error) {
-    console.error("当前可能不在TamperMonkey环境中");
+    currentWin.console.error("当前可能不在TamperMonkey环境中");
   }
 
   /**
@@ -43206,11 +43217,16 @@
   let GM_Menu = new utils.GM_Menu({
     data: [
       {
+        key: "allowRunInIframe",
+        text: "允许在iframe内运行",
+        enable: false,
+      },
+      {
         key: "currentDebug",
-        text: "⚙ 切换调试工具",
+        text: "⚙ 当前",
         enable: true,
         showText(_text_, _enable_) {
-          return `${_text_}【${_enable_ ? "eruda" : "VConsole"}】`;
+          return `${_text_}【${_enable_ ? "eruda" : "VConsole"}】，点击切换`;
         },
       },
     ],
@@ -43219,8 +43235,27 @@
     GM_registerMenuCommand,
     GM_unregisterMenuCommand,
   });
+  if (top !== self) {
+    if (!GM_Menu.get("allowRunInIframe")) {
+      return;
+    }
+    top.console.log(GM_Menu.getShowTextValue("allowRunInIframe"));
+    top.console.log("当前iframe地址" + window.location.href);
+    GM_Menu.add({
+      key: "iframeUrl",
+      text: window.location.href,
+      autoReload: false,
+      isStoreValue: false,
+      showText(text) {
+        return text;
+      },
+      callback() {
+        GM_setClipboard(window.location.href);
+      },
+    });
+  }
   if (GM_Menu.get("currentDebug")) {
-    console.log("当前调试工具 ===> eruda");
+    currentWin.console.log("当前调试工具 ===> eruda");
     initEruda();
     let eruda = currentWin[WINDOW_DEBUG_Eruda];
     if (!eruda) {
@@ -43228,6 +43263,8 @@
       return;
     }
     eruda.init();
+    currentWin.console.log(`eruda当前版本：${eruda.version}`);
+    currentWin.console.log(`eruda项目地址：https://github.com/liriliri/eruda`);
     GM_Menu.add([
       {
         key: "eruda_version",
@@ -43248,25 +43285,228 @@
           window.open("https://github.com/liriliri/eruda", "_blank");
         },
       },
+      {
+        key: "eruda_allowAutoOpenDevTool",
+        text: "允许默认自动打开面板",
+        showText(text, enable) {
+          let allowAutoOpenDevTool = GM_getValue(
+            "eruda_allowAutoOpenDevTool_defaultTool",
+            ""
+          );
+          if (allowAutoOpenDevTool.trim() === "") {
+            return `${
+              enable
+                ? GM_Menu.getEnableTrueEmoji()
+                : GM_Menu.getEnableFalseEmoji()
+            }${text}`;
+          } else {
+            return `${
+              enable
+                ? GM_Menu.getEnableTrueEmoji()
+                : GM_Menu.getEnableFalseEmoji()
+            }${text}【${allowAutoOpenDevTool}】`;
+          }
+        },
+        callback(data) {
+          let allowAutoOpenDevTool = Boolean(
+            confirm("是否允许加载完毕后自动打开面板？")
+          );
+          data.storeValue(allowAutoOpenDevTool);
+          if (!allowAutoOpenDevTool) {
+            return;
+          }
+          let localDefaultTool = GM_getValue(
+            "eruda_allowAutoOpenDevTool_defaultTool",
+            ""
+          );
+          let userInputDefaultTool = prompt(
+            "请输入需要自动显示的面板元素，例如：console、elements、network...",
+            localDefaultTool
+          );
+          userInputDefaultTool = (userInputDefaultTool || "").trim();
+          GM_setValue(
+            "eruda_allowAutoOpenDevTool_defaultTool",
+            userInputDefaultTool
+          );
+          currentWin.console.log(
+            "输入的默认显示的菜单元素：" + userInputDefaultTool
+          );
+        },
+      },
+      {
+        key: "eruda_plugin_Resource_erudaMonitor",
+        text: "【插件】eruda-monitor",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaFeatures",
+        text: "【插件】eruda-features",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaTiming",
+        text: "【插件】eruda-timing",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaCode",
+        text: "【插件】eruda-code",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaBenchmark",
+        text: "【插件】eruda-benchmark",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaGeolocation",
+        text: "【插件】eruda-geolocation",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaOrientation",
+        text: "【插件】eruda-orientation",
+        autoReload: false,
+      },
+      {
+        key: "eruda_plugin_Resource_erudaTouches",
+        text: "【插件】eruda-touches",
+        autoReload: false,
+      },
     ]);
+    if (GM_Menu.get("eruda_plugin_Resource_erudaMonitor")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaMonitor")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaMonitor"));
+        eruda.add(erudaMonitor);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaFeatures")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaFeatures")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaFeatures"));
+        eruda.add(erudaFeatures);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaTiming")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaTiming")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaTiming"));
+        eruda.add(erudaTiming);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaCode")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaCode")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaCode"));
+        eruda.add(erudaCode);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaBenchmark")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaBenchmark")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaBenchmark"));
+        eruda.add(erudaBenchmark);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaGeolocation")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaGeolocation")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaGeolocation"));
+        eruda.add(erudaGeolocation);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaOrientation")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaOrientation")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaOrientation"));
+        eruda.add(erudaOrientation);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_plugin_Resource_erudaTouches")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_plugin_Resource_erudaTouches")
+      );
+      try {
+        eval(GM_getResourceText("Resource_erudaTouches"));
+        eruda.add(erudaTouches);
+      } catch (error) {
+        currentWin.console.error("👆加载失败，原因：", error);
+      }
+    }
+    if (GM_Menu.get("eruda_allowAutoOpenDevTool")) {
+      currentWin.console.log(
+        GM_Menu.getShowTextValue("eruda_allowAutoOpenDevTool")
+      );
+      let localDefaultTool = GM_getValue(
+        "eruda_allowAutoOpenDevTool_defaultTool",
+        ""
+      );
+      eruda.show();
+      eruda.show(localDefaultTool);
+    }
+    currentWin.console.log("全局变量：" + WINDOW_DEBUG_Eruda);
   } else {
-    console.log("当前调试工具 ===> VConsole");
+    currentWin.console.log("当前调试工具 ===> VConsole");
     initVConsole();
     let vConsole = currentWin[WINDOW_DEBUG_VConsole];
     if (!vConsole) {
       alert("调试工具【vConsole】注册全局失败，请反馈开发者");
       return;
     }
-    GM_Menu.add({
-      key: "vConsole_disableLogScrolling",
-      text: "禁止LOG自动滚动",
-    });
+    GM_Menu.add([
+      {
+        key: "vConsole_disableLogScrolling",
+        text: "禁止LOG自动滚动",
+      },
+      {
+        key: "vconsole_allowAutoOpenDevTool",
+        text: "允许默认自动打开面板",
+      },
+    ]);
     let vconsole = new vConsole({
       defaultPlugins: ["system", "network", "element", "storage"],
       theme: "light",
       disableLogScrolling: GM_Menu.get("vConsole_disableLogScrolling"),
       maxLogNumber: 1000,
+      onReady() {
+        if (GM_Menu.get("vconsole_allowAutoOpenDevTool")) {
+          currentWin.console.log(
+            GM_Menu.getShowTextValue("vconsole_allowAutoOpenDevTool")
+          );
+          vconsole.show();
+        }
+      },
     });
+    currentWin[WINDOW_DEBUG_VConsole_Obj] = vconsole;
     GM_Menu.add([
       {
         key: "vConsole_showTimestamps",
@@ -43323,6 +43563,7 @@
         key: "vConsole_version",
         text: "版本",
         autoReload: false,
+        isStoreValue: false,
         showText(text) {
           return `${text}：${vconsole.version}`;
         },
@@ -43331,6 +43572,7 @@
         key: "goto_vConsole_home_url",
         text: "⚙ 前往项目地址",
         autoReload: false,
+        isStoreValue: false,
         showText(text) {
           return text;
         },
@@ -43352,5 +43594,7 @@
       "log.maxNetworkNumber",
       GM_getValue("vConsole_maxNetworkNumber_num", 1000)
     );
+    currentWin.console.log("全局变量：" + WINDOW_DEBUG_VConsole);
+    currentWin.console.log("全局变量：" + WINDOW_DEBUG_VConsole_Obj);
   }
 })();
