@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.9
+// @version      2023.11.9.18
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -48,7 +48,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1277201
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1277379
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
@@ -3192,6 +3192,7 @@
                 "" + _Arguments === "[object Arguments]" &&
                 _Arguments.length === 1 &&
                 typeof _Arguments[0] === "object" &&
+                _Arguments[0] != null &&
                 "appName" in _Arguments[0] &&
                 "checkTokenCopied" in _Arguments[0] &&
                 "deeplink" in _Arguments[0] &&
@@ -3546,6 +3547,7 @@
           if (
             arguments.length === 2 &&
             arguments[0] === undefined &&
+            arguments[1] != null &&
             "arg" in arguments[1] &&
             "delegate" in arguments[1] &&
             "done" in arguments[1] &&
@@ -7270,6 +7272,7 @@
           if (
             arguments.length === 2 &&
             arguments[0] === undefined &&
+            arguments[1] != null &&
             "arg" in arguments[1] &&
             "delegate" in arguments[1] &&
             "done" in arguments[1] &&
