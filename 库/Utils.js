@@ -1310,6 +1310,7 @@
    * @property {boolean} enable 当前菜单enable值
    * @property {boolean} oldEnable 点击之前enable值
    * @property {MouseEvent|KeyboardEvent} event 触发事件
+   * @property { (enable: boolean)=> {} } storeValue 将enable值写入本地
    */
 
   /**
@@ -1321,10 +1322,12 @@
    * @property {string|undefined} accessKey
    * @property {boolean|undefined} autoClose 自动关闭菜单，可不设置
    * @property {string|undefined} title 使用条件：TamperMonkey版本>5.0，使用菜单项的鼠标悬浮上的工具提示，可为空
-   * @property {boolean|undefined} autoReload 点击菜单后自动刷新网页，默认为false
+   * @property {boolean|undefined} autoReload 点击菜单后自动刷新网页，默认为true
    * @property { (text:string,enable:boolean)=>{} } showText 菜单的显示文本，未设置的话则自动根据enable在前面加上图标
    * @property {(data: GM_Menu_CallBack)=>{}} callback 点击菜单的回调
+   * @property { boolean } [isStoreValue=true] 是否允许菜单进行存储值，默认true允许
    */
+
   /**
    * @typedef {object} GM_Menu_Config
    * @property {GM_Menu_Details[]} data 配置，可为空
@@ -1428,9 +1431,6 @@
   Utils.GM_Menu = function (details) {
     /* 配置数据 */
     let data = details.data || [];
-    /* 自动刷新网页，默认为true */
-    let Default_autoReload =
-      typeof details.autoReload === "boolean" ? details.autoReload : true;
     /* 获取存储的数据 */
     let _GM_getValue_ = details.GM_getValue;
     /* 设置数据到存储 */
@@ -1478,7 +1478,13 @@
      * 菜单enable为false的emoji
      */
     let Enable_False_Emoji = "❌";
-
+    /* 自动刷新网页，默认为true */
+    let Default_AutoReload =
+      typeof details.autoReload === "boolean" ? details.autoReload : true;
+    /**
+     * 菜单isStoreValue的默认值
+     */
+    let Default_IsStoreValue = true;
     /**
      * 获取本地存储菜单键值
      * @param {string} key 键
@@ -1540,20 +1546,29 @@
       /* 点击菜单后触发callback后的网页是否刷新 */
       data.autoReload =
         typeof data.autoReload !== "boolean"
-          ? Default_autoReload
+          ? Default_AutoReload
           : data.autoReload;
+      data.isStoreValue =
+        typeof data.isStoreValue !== "boolean"
+          ? Default_IsStoreValue
+          : data.isStoreValue;
       /* 用户点击菜单后的回调函数 */
       let clickCallBack = function (event) {
         let localEnable = Boolean(
           getLocalMenuData(menuLocalDataItemKey, defaultEnable)
         );
-        setLocalMenuData(menuLocalDataItemKey, !localEnable);
+        if (data.isStoreValue) {
+          setLocalMenuData(menuLocalDataItemKey, !localEnable);
+        }
         if (typeof defaultClickCallBack === "function") {
           defaultClickCallBack({
             key: menuLocalDataItemKey,
             enable: !localEnable,
             oldEnable: localEnable,
             event: event,
+            storeValue(_value_){
+              setLocalMenuData(menuLocalDataItemKey,_value_);
+            }
           });
         }
         /* 不刷新网页就刷新菜单 */
