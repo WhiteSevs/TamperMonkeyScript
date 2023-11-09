@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.11.4.15
+// @version      2023.11.9
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
@@ -774,9 +774,9 @@
       html body h6{color:#5c5c5c}
       html body strong{color:#000}
       html body del{color:#5c5c5c}
-      html body a:not([href]){color:inherit;text-decoration:none}
-      html body a{text-decoration:none}
-      html body a:hover{color:#00a3f5;text-decoration:none}
+      html body a:not([href]){color:inherit;}
+      html body a{text-decoration:underline;text-underline-offset: .2rem;}
+      html body a:hover{color:#00a3f5;}
       html body img{max-width:100%}
       html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}
       html body>ol,html body>ul{margin-bottom:16px}
