@@ -7950,7 +7950,10 @@
       });
       DOMUtils.ready(function () {
         utils
-          .waitNode(".search-input .search-box-wrap.search-box")
+          .waitNodeWithInterval(
+            ".search-input .search-box-wrap.search-box",
+            100000
+          )
           .then(async () => {
             await utils.waitPropertyByInterval(
               () => {
@@ -7973,7 +7976,7 @@
     },
   };
 
-  /* ---------------------------- */
+  /* --------------调试-------------- */
   if (DEBUG) {
     unsafeWindow.GM_Debug_WhiteSev = {
       httpx,
@@ -7997,5 +8000,5 @@
   }
   const loadingView = new LoadingView();
   baidu.init();
-  /* ---------------------------- */
+  /* --------------调试-------------- */
 })();
