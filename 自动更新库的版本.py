@@ -6,7 +6,7 @@ import httpx
 import winreg
 
 # 不更新的js文件名
-notUpdateFileNameList = ["蛋仔乐消除","ImmortalWrt-passwall优化","eruda_VConsole_网页调试"]
+notUpdateFileNameList = ["蛋仔乐消除","ImmortalWrt-passwall优化"]
 
 
 def get_ie_proxy():
