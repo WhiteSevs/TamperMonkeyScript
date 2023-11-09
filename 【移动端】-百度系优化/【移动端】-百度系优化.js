@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.8.17
+// @version      2023.11.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -30,6 +30,7 @@
 // @match        *://pan.baidu.com/*
 // @match        *://yiyan.baidu.com/*
 // @match        *://chat.baidu.com/*
+// @match        *://easylearn.baidu.com/*
 // @match        *://uf9kyh.smartapps.cn/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
@@ -47,7 +48,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1276987
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1277201
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
@@ -1218,6 +1219,7 @@
       this.yiyan();
       this.chat();
       this.mini_jiaoyu();
+      this.easyLearn();
     },
     css: {
       search: `
@@ -1722,6 +1724,32 @@
       `,
       mini_jiaoyu: `
       
+      `,
+      easyLearn: `
+      /* 中间弹窗-限时专享福利 */
+      #app .pre-unpaid-wrap,
+      /* 底部工具栏上面-月考全胜 您有xx元体验卡 */
+      .question-bottom-bar .vip-bar,
+      /* 解析-免费查看答案及解析 */
+      .question-analysis-new .see-more,
+      /* 最底部-百度教育商务合作、产品代理销售或内容合作等*/
+      .business-el-line,
+      .business-el-line-background{
+        display: none !important;
+      }
+      /* 显示答案及解析 */
+      .ques-title.analysis-title + div{
+        display: unset !important;
+      }
+      /* 电脑端 */
+      /* 中间弹窗-限时专享福利 */
+      .kaixue-dialog-mask,
+      /* 解析-免费查看答案及解析 */
+      .question-cont .mask,
+      /* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */
+      .vip-banner-cont{
+        display: none !important;
+      }
       `,
     },
     /**
@@ -3085,6 +3113,10 @@
             log.success(GM_Menu.getShowTextValue("baidu_search_hijack_scheme"));
             this.hijackScheme();
           }
+          if (GM_Menu.get("baidu_search_hijack_copy")) {
+            log.success(GM_Menu.getShowTextValue("baidu_search_hijack_copy"));
+            this.hijackCopy();
+          }
         },
         /**
          * 劫持OpenBox
@@ -3129,21 +3161,55 @@
           let originApply = Function.prototype.apply;
           Function.prototype.apply = function (...args) {
             try {
-              let _arguments_ = args[1];
+              let _Arguments = args[1];
               if (
                 args.length === 2 &&
-                typeof _arguments_ === "object" &&
-                "" + _arguments_ === "[object Arguments]" &&
-                _arguments_.length === 2 &&
-                _arguments_[1] === "scheme"
+                typeof _Arguments === "object" &&
+                "" + _Arguments === "[object Arguments]" &&
+                _Arguments.length === 2 &&
+                _Arguments[1] === "scheme"
               ) {
-                log.success(["拦截Scheme", ..._arguments_]);
+                log.success(["拦截Scheme", ..._Arguments]);
                 return;
               }
             } catch (error) {
               log.error(error);
             }
-
+            return originApply.call(this, ...args);
+          };
+        },
+        /**
+         * 劫持剪贴板写入
+         */
+        hijackCopy() {
+          let originApply = Function.prototype.apply;
+          Function.prototype.apply = function (...args) {
+            try {
+              let _Arguments = args[1];
+              if (
+                args.length === 2 &&
+                typeof _Arguments === "object" &&
+                "" + _Arguments === "[object Arguments]" &&
+                _Arguments.length === 1 &&
+                typeof _Arguments[0] === "object" &&
+                "appName" in _Arguments[0] &&
+                "checkTokenCopied" in _Arguments[0] &&
+                "deeplink" in _Arguments[0] &&
+                "scheme" in _Arguments[0] &&
+                "token" in _Arguments[0] &&
+                "useDeeplink" in _Arguments[0]
+              ) {
+                log.success(["拦截复制到剪贴板", ..._Arguments]);
+                return new Promise(function (resolve) {
+                  log.success(["修改参数并拦截复制到剪贴板返回true"]);
+                  resolve({
+                    status: true,
+                  });
+                });
+              }
+            } catch (error) {
+              log.error(error);
+            }
             return originApply.call(this, ...args);
           };
         },
@@ -3275,6 +3341,11 @@
           {
             key: "baidu_search_hijack_scheme",
             text: "劫持Scheme",
+            enable: false,
+          },
+          {
+            key: "baidu_search_hijack_copy",
+            text: "劫持Copy",
             enable: false,
           },
         ]);
@@ -7781,6 +7852,124 @@
           });
         }
       }
+    },
+    /**
+     * 百度教育
+     */
+    easyLearn() {
+      if (!this.currentUrl.match(/^http(s|):\/\/easylearn.baidu.com/g)) {
+        return;
+      }
+      GM_addStyle(this.css.easyLearn);
+      log.info("插入CSS规则");
+      let menuBusiness = [
+        {
+          key: "baidu_easylearn_shield_this_question_paper",
+          text: "【屏蔽】本题试卷",
+          _callback_() {
+            GM_addStyle(`
+            .question-shijuan-wrap,
+            /* PC端 */
+            .question-cont .timu-wrap .doc-cont-v2 .left{
+              display: none !important;
+            }
+            `);
+          },
+        },
+        {
+          key: "baidu_easylearn_shield_good_questions_in_this_volume",
+          text: "【屏蔽】本卷好题",
+          _callback_() {
+            GM_addStyle(`
+            .exercise-questions-wrap{
+              display: none !important;
+            }
+            `);
+          },
+        },
+        {
+          key: "baidu_easylearn_shield_related_test_papers",
+          text: "【屏蔽】相关试卷",
+          _callback_() {
+            GM_addStyle(`
+            .related-papers-wrap,
+            /* PC端 */
+            .question-cont .timu-wrap .doc-cont-v2 .right{
+              display: none !important;
+            }{
+              display: none !important;
+            }
+            `);
+          },
+        },
+        {
+          key: "baidu_easylearn_shield_video_explanation",
+          text: "【屏蔽】视频讲解",
+          _callback_() {
+            GM_addStyle(`
+            .video-doc-compo,
+            /* PC端 */
+            .container #questionVideo{
+              display: none !important;
+            }
+            `);
+          },
+        },
+        {
+          key: "baidu_easylearn_shield_xueba_notes",
+          text: "【屏蔽】学霸笔记",
+          _callback_() {
+            GM_addStyle(`
+            .note-list{
+              display: none !important;
+            }
+            `);
+          },
+        },
+        {
+          key: "baidu_easylearn_shield_bottom_toolbar",
+          text: "【屏蔽】底部工具栏",
+          _callback_() {
+            GM_addStyle(`
+            .question-bottom-bar{
+              display: none !important;
+            }
+            `);
+          },
+        },
+      ];
+      menuBusiness.forEach((item) => {
+        let callback = item["_callback_"];
+        delete item["_callback_"];
+        GM_Menu.add(item);
+        if (!GM_Menu.get(item.key)) {
+          return;
+        }
+        log.success(GM_Menu.getShowTextValue(item.key));
+        callback();
+      });
+      DOMUtils.ready(function () {
+        utils
+          .waitNode(".search-input .search-box-wrap.search-box")
+          .then(async () => {
+            await utils.waitPropertyByInterval(
+              () => {
+                return document.querySelector(
+                  ".search-input .search-box-wrap.search-box"
+                );
+              },
+              (inputElement) => {
+                return inputElement?.__vue__?.isFake != null;
+              },
+              undefined,
+              100000
+            );
+            document.querySelector(
+              ".search-input .search-box-wrap.search-box"
+            ).__vue__.isFake = false;
+            log.success("允许使用顶部搜索输入框");
+          });
+      });
     },
   };
 
