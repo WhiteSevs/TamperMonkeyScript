@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-8";
+  Utils.version = "2023-11-9";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -5361,10 +5361,11 @@
   };
 
   /**
-   * 等待对象上的属性出现
+   * 在规定时间内等待对象上的属性出现
    * @param {object|Function} checkObj 检查的对象
-   * @param {string} checkPropertyName 检查的对象的属性名
-   * @param {number} [timer=250] 检查间隔时间（ms）
+   * @param {string| (obj: any)=>{}} checkPropertyName 检查的对象的属性名
+   * @param {number} [intervalTimer=250] 检查间隔时间（ms），默认250ms
+   * @param {number} [maxTime=-1] 限制在多长时间内，默认-1(不限制时间)
    * @returns {any}
    * @example
    * await Utils.waitPropertyByInterval(window,"test");
@@ -5373,27 +5374,41 @@
   Utils.waitPropertyByInterval = async function (
     checkObj,
     checkPropertyName,
-    timer = 250
+    intervalTimer = 250,
+    maxTime = -1
   ) {
+    let isResolve = false;
     return new Promise((resolve) => {
       let interval = setInterval(() => {
         let obj = checkObj;
         if (typeof checkObj === "function") {
           obj = checkObj();
         }
-        if (Object.hasOwnProperty.call(obj, checkPropertyName)) {
+        if (
+          (typeof checkPropertyName === "function" && checkPropertyName(obj)) ||
+          Object.hasOwnProperty.call(obj, checkPropertyName)
+        ) {
+          isResolve = true;
           clearInterval(interval);
           resolve(obj[checkPropertyName]);
         }
-      }, timer);
+      }, intervalTimer);
+      if (maxTime !== -1) {
+        setTimeout(() => {
+          if (!isResolve) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, maxTime);
+      }
     });
   };
   /**
    * 观察对象的set、get
    * @param {object} target 观察的对象
    * @param {string} propertyName 观察的对象的属性名
-   * @param {(value)=>{}} getCallBack 触发get的回调，可以自定义返回特定值
-   * @param {(value)=>{}} setCallBack 触发set的回调，参数为将要设置的value
+   * @param {?(value)=>{}} getCallBack 触发get的回调，可以自定义返回特定值
+   * @param {?(value)=>{}} setCallBack 触发set的回调，参数为将要设置的value
    * @example
    * Utils.watchObject(window,"test",()=>{return 111;},(value)=>{console.log("test出现，值是",value)});
    *
@@ -5408,20 +5423,47 @@
     getCallBack,
     setCallBack
   ) {
-    Object.defineProperty(target, propertyName, {
-      get() {
-        if (typeof getCallBack === "function") {
-          return getCallBack(value);
-        } else {
-          return target[propertyName];
-        }
-      },
-      set(value) {
-        if (typeof setCallBack === "function") {
-          setCallBack(value);
-        }
-      },
-    });
+    if (
+      typeof getCallBack !== "function" &&
+      typeof setCallBack !== "function"
+    ) {
+      return;
+    }
+
+    if (typeof getCallBack === "function") {
+      Object.defineProperty(target, propertyName, {
+        get() {
+          if (typeof getCallBack === "function") {
+            return getCallBack(value);
+          } else {
+            return target[propertyName];
+          }
+        },
+      });
+    } else if (typeof setCallBack === "function") {
+      Object.defineProperty(target, propertyName, {
+        set(value) {
+          if (typeof setCallBack === "function") {
+            setCallBack(value);
+          }
+        },
+      });
+    } else {
+      Object.defineProperty(target, propertyName, {
+        get() {
+          if (typeof getCallBack === "function") {
+            return getCallBack(value);
+          } else {
+            return target[propertyName];
+          }
+        },
+        set(value) {
+          if (typeof setCallBack === "function") {
+            setCallBack(value);
+          }
+        },
+      });
+    }
   };
 
   return Utils;
