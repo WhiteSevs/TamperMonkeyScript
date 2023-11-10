@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-9";
+  Utils.version = "2023-11-10";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -5381,7 +5381,7 @@
    * @param {string| (obj: any)=>{}} checkPropertyName 检查的对象的属性名
    * @param {number} [intervalTimer=250] 检查间隔时间（ms），默认250ms
    * @param {number} [maxTime=-1] 限制在多长时间内，默认-1(不限制时间)
-   * @returns {any}
+   * @returns {Promise<any|undefined>}
    * @example
    * await Utils.waitPropertyByInterval(window,"test");
    * console.log("test success set");
