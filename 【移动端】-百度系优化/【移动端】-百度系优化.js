@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.10
+// @version      2023.11.10.15
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -1194,7 +1194,11 @@
   }
 
   const baidu = {
-    currentUrl: window.location.href,
+    /**
+     * 当前url
+     * window.location.href
+     */
+    url: window.location.href,
     init() {
       this.search();
       this.searchHome();
@@ -1757,8 +1761,8 @@
      */
     searchHome() {
       if (
-        !this.currentUrl.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) &&
-        !this.currentUrl.match(
+        !this.url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) &&
+        !this.url.match(
           /^http(s|):\/\/(m|www).baidu.com\/(\?ref=|\?tn=|\?from=)/g
         )
       ) {
@@ -1781,7 +1785,7 @@
      * 百度搜索
      */
     search() {
-      if (!this.currentUrl.match(/^http(s|):\/\/(m|www).baidu.com\/.*/g)) {
+      if (!this.url.match(/^http(s|):\/\/(m|www).baidu.com\/.*/g)) {
         return;
       }
 
@@ -3107,112 +3111,16 @@
             log.success(
               GM_Menu.getShowTextValue("baidu_search_hijack_openbox")
             );
-            this.hijackOpenBox();
+            baiduHijack.hijackOpenBox();
           }
           if (GM_Menu.get("baidu_search_hijack_scheme")) {
             log.success(GM_Menu.getShowTextValue("baidu_search_hijack_scheme"));
-            this.hijackScheme();
+            baiduHijack.hijackFunctionApplyScheme();
           }
           if (GM_Menu.get("baidu_search_hijack_copy")) {
             log.success(GM_Menu.getShowTextValue("baidu_search_hijack_copy"));
-            this.hijackCopy();
+            baiduHijack.hijackCopy();
           }
-        },
-        /**
-         * 劫持OpenBox
-         */
-        hijackOpenBox() {
-          let OpenBox = function () {
-            return {
-              open: function () {
-                log.info(["劫持OpenBox-open传入参数👇", ...arguments]);
-                if (!arguments.length) {
-                  return;
-                }
-                let invokeUrl =
-                  arguments[0]["invokeURL"] || arguments[0]["invoke_url"];
-                if (
-                  typeof arguments[0] === "object" &&
-                  typeof invokeUrl === "string"
-                ) {
-                  log.success("直接跳转Url：" + invokeUrl);
-                  window.location.href = invokeUrl;
-                }
-              },
-              ready: function () {
-                log.info(["劫持OpenBox-ready传入参数👇", ...arguments]);
-              },
-              version: 20170811,
-            };
-          };
-          OpenBox.getIdmData = function () {
-            return {};
-          };
-          Object.defineProperty(unsafeWindow, "OpenBox", {
-            get: function () {
-              return OpenBox;
-            },
-          });
-        },
-        /**
-         * 劫持apply的Scheme调用
-         */
-        hijackScheme() {
-          let originApply = Function.prototype.apply;
-          Function.prototype.apply = function (...args) {
-            try {
-              let _Arguments = args[1];
-              if (
-                args.length === 2 &&
-                typeof _Arguments === "object" &&
-                "" + _Arguments === "[object Arguments]" &&
-                _Arguments.length === 2 &&
-                _Arguments[1] === "scheme"
-              ) {
-                log.success(["拦截Scheme", ..._Arguments]);
-                return;
-              }
-            } catch (error) {
-              log.error(error);
-            }
-            return originApply.call(this, ...args);
-          };
-        },
-        /**
-         * 劫持剪贴板写入
-         */
-        hijackCopy() {
-          let originApply = Function.prototype.apply;
-          Function.prototype.apply = function (...args) {
-            try {
-              let _Arguments = args[1];
-              if (
-                args.length === 2 &&
-                typeof _Arguments === "object" &&
-                "" + _Arguments === "[object Arguments]" &&
-                _Arguments.length === 1 &&
-                typeof _Arguments[0] === "object" &&
-                _Arguments[0] != null &&
-                "appName" in _Arguments[0] &&
-                "checkTokenCopied" in _Arguments[0] &&
-                "deeplink" in _Arguments[0] &&
-                "scheme" in _Arguments[0] &&
-                "token" in _Arguments[0] &&
-                "useDeeplink" in _Arguments[0]
-              ) {
-                log.success(["拦截复制到剪贴板", ..._Arguments]);
-                return new Promise(function (resolve) {
-                  log.success(["修改参数并拦截复制到剪贴板返回true"]);
-                  resolve({
-                    status: true,
-                  });
-                });
-              }
-            } catch (error) {
-              log.error(error);
-            }
-            return originApply.call(this, ...args);
-          };
         },
       };
 
@@ -3475,7 +3383,7 @@
      * 百家号
      */
     baijiahao() {
-      if (!this.currentUrl.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.baijiahao);
@@ -3496,7 +3404,17 @@
         },
         {
           key: "baijiahao_hijack_wakeup",
-          text: "拦截唤醒",
+          text: "劫持唤醒",
+          enable: false,
+        },
+        {
+          key: "baidu_baijiahao_hijack_iframe",
+          text: "劫持iframe",
+          enable: true,
+        },
+        {
+          key: "baidu_baijiahao_hijack_openbox",
+          text: "劫持OpenBox",
           enable: false,
         },
       ]);
@@ -3519,9 +3437,20 @@
         #ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
           width: 55% !important;
         }`);
+        /* 某些情况下的CSS */
+        GM_addStyle(`
+        #page_wrapper > div.other > div[class=""]:nth-child(4){
+          display: none !important;
+        }
+        `);
         /* 简单UA下的精彩推荐 */
         GM_addStyle(`
         #page_wrapper div.spider > div[class=""]:nth-child(5){
+          display: none !important;
+        }`);
+        /* Gecko的简单UA下的精彩推荐 */
+        GM_addStyle(`
+        #page_wrapper .searchCraft > div[class=""]{
           display: none !important;
         }`);
       }
@@ -3543,46 +3472,31 @@
       }
       if (GM_Menu.get("baijiahao_hijack_wakeup")) {
         log.success(GM_Menu.getShowTextValue("baijiahao_hijack_wakeup"));
-        let originCall = Function.prototype.call;
-        Function.prototype.call = function () {
-          if (
-            arguments.length === 2 &&
-            arguments[0] === undefined &&
-            arguments[1] != null &&
-            "arg" in arguments[1] &&
-            "delegate" in arguments[1] &&
-            "done" in arguments[1] &&
-            "method" in arguments[1] &&
-            "next" in arguments[1] &&
-            "prev" in arguments[1]
-          ) {
-            log.success(["修改参数并拦截唤醒", arguments[1]]);
-            arguments[1]["method"] = "return";
-            arguments[1]["next"] = "end";
-            arguments[1]["prev"] = 24;
-          }
-          let result = originCall.apply(this, arguments);
-          return result;
-        };
+        baiduHijack.hijackFunctionCallByBaiJiaHaoAndMap();
       }
-      let originalAppendChild = Node.prototype.appendChild;
-      Node.prototype.appendChild = function (element) {
-        if (
-          element.localName === "script" &&
-          element?.src?.includes("landing-share")
-        ) {
-          log.success("拦截：" + element.src);
-          return;
-        }
-        return originalAppendChild.call(this, element);
-      };
+      if (GM_Menu.get("baidu_baijiahao_hijack_iframe")) {
+        log.success(GM_Menu.getShowTextValue("baidu_baijiahao_hijack_iframe"));
+        baiduHijack.hijackElementAppendChild(function (element) {
+          if (
+            element.localName === "script" &&
+            element?.src?.includes("landing-share")
+          ) {
+            log.success("阻止加载：" + element.src);
+            return true;
+          }
+        });
+      }
+      if (GM_Menu.get("baidu_baijiahao_hijack_openbox")) {
+        log.success(GM_Menu.getShowTextValue("baidu_baijiahao_hijack_openbox"));
+        baiduHijack.hijackOpenBox();
+      }
     },
     /**
      * 百度贴吧
      */
     tieba() {
       if (
-        !this.currentUrl.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)
+        !this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)
       ) {
         return;
       }
@@ -6419,74 +6333,6 @@
           }
         },
         /**
-         * 客户端劫持，劫持各种函数阻止唤醒百度贴吧/跳转下载
-         */
-        hijackWakeUp() {
-          /* 劫持webpack */
-          let originCall = Function.prototype.call;
-          Function.prototype.call = function (...args) {
-            let result = originCall.apply(this, args);
-            /* 当前i core:67 */
-            if (
-              args.length &&
-              args.length === 4 &&
-              args[1]?.exports &&
-              Object.prototype.hasOwnProperty.call(
-                args[1].exports,
-                "getSchema"
-              ) &&
-              Object.prototype.hasOwnProperty.call(
-                args[1].exports,
-                "getToken"
-              ) &&
-              Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
-              Object.prototype.hasOwnProperty.call(
-                args[1].exports,
-                "initDiffer"
-              )
-            ) {
-              log.success(["成功劫持webpack关键Scheme调用函数", args]);
-              args[1].exports.getSchema = function () {
-                log.info(["阻止调用getSchema", ...arguments]);
-              };
-              args[1].exports.getToken = function () {
-                log.info(["阻止调用getToken", ...arguments]);
-              };
-              args[1].exports.init = function () {
-                log.info(["阻止初始化", ...arguments]);
-                return;
-              };
-              args[1].exports.initDiffer = function () {
-                log.info(["阻止初始化差异", ...arguments]);
-                return;
-              };
-              return;
-            }
-            return result;
-          };
-        },
-        /**
-         * 劫持iframe唤醒
-         */
-        hijackIframe() {
-          /* 劫持iframe添加到页面 */
-          let originDocumentAppendChild = Element.prototype.appendChild;
-          Element.prototype.appendChild = function (node) {
-            if (node instanceof HTMLIFrameElement) {
-              if (node?.src?.startsWith("com.baidu.tieba")) {
-                log.success([
-                  "拦截百度贴吧通过iframe的Scheme唤醒：" + node.src,
-                  node,
-                ]);
-                return;
-              } else if (!node?.src?.startsWith("http")) {
-                log.info(["未知的Scheme：" + node.src, node]);
-              }
-            }
-            return originDocumentAppendChild.call(this, node);
-          };
-        },
-        /**
          * 获取本帖楼主的信息
          * @returns {?{
          *   id: number,
@@ -6574,7 +6420,7 @@
         },
         {
           key: "baidu_tieba_hijack_wake_up",
-          text: "拦截唤醒",
+          text: "劫持唤醒",
           enable: false,
         },
         {
@@ -6584,15 +6430,15 @@
         },
       ]);
       tiebaBusiness.clientCallMasquerade();
-      tiebaBusiness.hijackIframe();
+      baiduHijack.hijackElementAppendChild();
       if (GM_Menu.get("baidu_tieba_hijack_wake_up")) {
         log.success(GM_Menu.getShowTextValue("baidu_tieba_hijack_wake_up"));
-        tiebaBusiness.hijackWakeUp();
+        baiduHijack.hijackFunctionCallByTiebaWebpack();
       }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (
-        this.currentUrl.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)
+        this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)
       ) {
         if (GM_Menu.get("baidu_tieba_optimize_see_comments")) {
           log.success(
@@ -6608,7 +6454,7 @@
         }
       }
       if (
-        this.currentUrl.match(
+        this.url.match(
           /^http(s|):\/\/(tieba.baidu|www.tieba).com\/mo\/q\/newtopic\/topicTemplate/g
         )
       ) {
@@ -6625,7 +6471,7 @@
         }
       }
       if (
-        this.currentUrl.match(
+        this.url.match(
           /^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?kw=/g
         )
       ) {
@@ -6655,7 +6501,7 @@
      * 百度文库
      */
     wenku() {
-      if (!this.currentUrl.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.wenku);
@@ -6737,7 +6583,7 @@
      * 百度经验
      */
     jingyan() {
-      if (!this.currentUrl.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.jingyan);
@@ -6747,7 +6593,7 @@
      * 百度百科
      */
     baike() {
-      if (!this.currentUrl.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)) {
         return;
       }
       let page = 1;
@@ -6895,7 +6741,7 @@
      * 百度百科-他说
      */
     baiketashuo() {
-      if (!this.currentUrl.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
+      if (!this.url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
         return;
       }
       /**
@@ -6924,7 +6770,7 @@
      * 百度知道
      */
     zhidao() {
-      if (!this.currentUrl.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.zhidao);
@@ -6991,7 +6837,7 @@
      * 百度翻译
      */
     fanyi() {
-      if (!this.currentUrl.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.fanyi);
@@ -7044,7 +6890,7 @@
      * 百度翻译-APP
      */
     fanyiApp() {
-      if (!this.currentUrl.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.fanyiApp);
@@ -7106,7 +6952,7 @@
      * 百度图片
      */
     image() {
-      if (!this.currentUrl.match(/^http(s|):\/\/image.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/image.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.image);
@@ -7116,95 +6962,34 @@
      * 百度地图
      */
     map() {
-      if (!this.currentUrl.match(/^http(s|):\/\/map.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/map.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.map);
       log.info("插入CSS规则");
 
-      const handleHijack = {
-        run() {
-          if (GM_Menu.get("baidu_map_hijack_wakeup")) {
-            log.success(GM_Menu.getShowTextValue("baidu_map_hijack_wakeup"));
-            this.hijackIframe();
-            this.hijackJQuery();
-            this.hijackSetTimeout();
-          }
-        },
-        /**
-         * 劫持iframe唤醒
-         */
-        hijackIframe() {
-          /* 劫持iframe添加到页面 */
-          let originDocumentAppendChild = Element.prototype.appendChild;
-          Element.prototype.appendChild = function (node) {
-            if (
-              node instanceof HTMLIFrameElement &&
-              !node?.src?.startsWith("http")
-            ) {
-              log.success([
-                "拦截百度地图通过iframe的Scheme唤醒：" + node.src,
-                node,
-              ]);
-              return;
-            }
-            return originDocumentAppendChild.call(this, node);
-          };
-        },
-        /**
-         * 劫持魔改的jQuery
-         */
-        hijackJQuery() {
-          DOMUtils.ready(function () {
-            let originAppend = $.fn.append;
-            $.fn.append = function (params) {
-              if (typeof params === "string") {
-                params = params.trim();
-                if (
-                  params.startsWith('<iframe src="') &&
-                  !params.startsWith('<iframe src="http')
-                ) {
-                  log.success(["拦截iframe", params]);
-                  return;
-                }
-              }
-              originAppend.apply(this, arguments);
-            };
-          });
-        },
-        /**
-         * 劫持全局setTimeout
-         */
-        hijackSetTimeout() {
-          let originSetTimeout = unsafeWindow.setTimeout;
-          unsafeWindow.setTimeout = function () {
-            let callBackString = arguments[0].toString();
-            if (
-              callBackString.match(
-                /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
-              )
-            ) {
-              log.success(["拦截跳转", callBackString]);
-              return;
-            }
-            originSetTimeout.apply(this, arguments);
-          };
-        },
-      };
-
       GM_Menu.add({
         key: "baidu_map_hijack_wakeup",
-        text: "拦截唤醒",
+        text: "劫持唤醒",
         enable: false,
       });
 
-      handleHijack.run();
+      if (GM_Menu.get("baidu_map_hijack_wakeup")) {
+        log.success(GM_Menu.getShowTextValue("baidu_map_hijack_wakeup"));
+        baiduHijack.hijackElementAppendChild();
+        DOMUtils.ready(function () {
+          baiduHijack.hijackJQueryAppend();
+        });
+        baiduHijack.hijackSetTimeout(
+          /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
+        );
+      }
     },
     /**
      * 百度知道
      */
     mbd() {
-      if (!this.currentUrl.match(/^http(s|):\/\/mbd.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
         return;
       }
       /* 
@@ -7226,8 +7011,18 @@
         },
         {
           key: "baidu_mbd_hijack_wakeup",
-          text: "拦截唤醒",
+          text: "劫持唤醒",
           enable: false,
+        },
+        {
+          key: "baidu_mbd_hijack_BoxJSBefore",
+          text: "劫持BoxJSBefore",
+          enable: false,
+        },
+        {
+          key: "baidu_mbd_hijack_iframe",
+          text: "劫持iframe",
+          enable: true,
         },
       ]);
       GM_addStyle(this.css.mbd);
@@ -7237,7 +7032,8 @@
           GM_Menu.getShowTextValue("baidu_mbd_block_exciting_comments")
         );
         GM_addStyle(`
-        div#commentModule{
+        div#commentModule,
+        #comment{
           display: none !important;
         }
         `);
@@ -7257,6 +7053,12 @@
           display: none !important;
         }
         `);
+        GM_addStyle(`
+        /* Gecko下的简单UA下精彩推荐 */
+        #page_wrapper > div > div:nth-child(6){
+          display: none !important;
+        }
+        `);
       }
       if (GM_Menu.get("baidu_mbd_shield_bottom_toolbar")) {
         log.success(GM_Menu.getText("baidu_mbd_shield_bottom_toolbar"));
@@ -7268,34 +7070,23 @@
       }
       if (GM_Menu.get("baidu_mbd_hijack_wakeup")) {
         log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_wakeup"));
-        let originCall = Function.prototype.call;
-        Function.prototype.call = function () {
-          if (
-            arguments.length === 2 &&
-            arguments[0] === undefined &&
-            arguments[1] != null &&
-            "arg" in arguments[1] &&
-            "delegate" in arguments[1] &&
-            "done" in arguments[1] &&
-            "method" in arguments[1] &&
-            "next" in arguments[1] &&
-            "prev" in arguments[1]
-          ) {
-            log.success(["修改参数并拦截唤醒", arguments[1]]);
-            arguments[1]["method"] = "return";
-            arguments[1]["next"] = "end";
-            arguments[1]["prev"] = 24;
-          }
-          let result = originCall.apply(this, arguments);
-          return result;
-        };
+        baiduHijack.hijackFunctionCallByBaiJiaHaoAndMap();
+      }
+      if (GM_Menu.get("baidu_mbd_hijack_BoxJSBefore")) {
+        log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_BoxJSBefore"));
+        baiduHijack.hijackBoxJSBefore();
+      }
+      if (GM_Menu.get("baidu_mbd_hijack_iframe")) {
+        log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_iframe"));
+        /* 劫持iframe添加到页面 */
+        baiduHijack.hijackElementAppendChild();
       }
     },
     /**
      * 百度知了好学
      */
     xue() {
-      if (!this.currentUrl.match(/^http(s|):\/\/xue.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/xue.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.xue);
@@ -7305,7 +7096,7 @@
      * 百度-爱企查
      */
     aiqicha() {
-      if (!this.currentUrl.match(/^http(s|):\/\/aiqicha.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/aiqicha.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.aiqicha);
@@ -7353,7 +7144,7 @@
      * 百度网盟推广
      */
     pos() {
-      if (!this.currentUrl.match(/^http(s|):\/\/pos.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/pos.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.pos);
@@ -7363,7 +7154,7 @@
      * 百度好看视频
      */
     haokan() {
-      if (!this.currentUrl.match(/^http(s|):\/\/haokan.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/haokan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.haokan);
@@ -7391,7 +7182,7 @@
         },
         {
           key: "baidu_haokan_hijack_wakeup",
-          text: "拦截唤醒",
+          text: "劫持唤醒",
           enable: false,
         },
       ]);
@@ -7425,65 +7216,9 @@
       }
       if (GM_Menu.get("baidu_haokan_hijack_wakeup")) {
         log.success(GM_Menu.getShowTextValue("baidu_haokan_hijack_wakeup"));
-        let originCall = Function.prototype.call;
-        Function.prototype.call = function (...args) {
-          /* 当前i core:67 */
-          let result = originCall.apply(this, args);
-          if (
-            args.length &&
-            args.length === 4 &&
-            args?.[1]?.["exports"] &&
-            Object.prototype.hasOwnProperty.call(
-              args[1]["exports"],
-              "LaunchScheme"
-            ) &&
-            Object.prototype.hasOwnProperty.call(
-              args[1]["exports"],
-              "__esModule"
-            )
-          ) {
-            log.info("成功劫持，当前webpack i:" + args?.[1]?.["i"]);
-            args[1]["exports"]["LaunchScheme"] = function () {
-              log.success(["修改参数并拦截唤醒 LaunchScheme"]);
-              return {
-                launch() {
-                  return new Promise(function (resolve) {
-                    log.success(["修改参数并拦截唤醒 launch"]);
-                    resolve();
-                  });
-                },
-              };
-            };
-          }
+        baiduHijack.hijackFunctionCallByHaokanWebpack();
+      }
 
-          return result;
-        };
-      }
-      function isFullscreenEnabled() {
-        return !!(
-          document.fullscreenEnabled ||
-          document.webkitFullScreenEnabled ||
-          document.mozFullScreenEnabled ||
-          document.msFullScreenEnabled
-        );
-      }
-      function enterFullscreen(element = document.body, options) {
-        try {
-          if (element.requestFullscreen) {
-            element.requestFullscreen(options);
-          } else if (element.webkitRequestFullScreen) {
-            element.webkitRequestFullScreen();
-          } else if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-          } else if (element.msRequestFullscreen) {
-            element.msRequestFullscreen();
-          } else {
-            throw new Error("该浏览器不支持全屏API");
-          }
-        } catch (err) {
-          log.error(err);
-        }
-      }
       DOMUtils.ready(function () {
         let playBtn = document.querySelector(".play-btn");
         DOMUtils.on(playBtn, "click", function () {
@@ -7520,7 +7255,7 @@
      * 百度识图
      */
     graph() {
-      if (!this.currentUrl.match(/^http(s|):\/\/graph.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/graph.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.graph);
@@ -7693,7 +7428,7 @@
      * 百度网盘
      */
     pan() {
-      if (!this.currentUrl.match(/^http(s|):\/\/pan.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/pan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.pan);
@@ -7703,7 +7438,7 @@
      * 文心一言
      */
     yiyan() {
-      if (!this.currentUrl.match(/^http(s|):\/\/yiyan.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/yiyan.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.yiyan);
@@ -7763,7 +7498,7 @@
      * AI对话
      */
     chat() {
-      if (!this.currentUrl.match(/^http(s|):\/\/chat.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/chat.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.chat);
@@ -7799,7 +7534,7 @@
      * 百度小程序-百度教育
      */
     mini_jiaoyu() {
-      if (!this.currentUrl.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)) {
+      if (!this.url.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)) {
         return;
       }
       GM_addStyle(this.css.mini_jiaoyu);
@@ -7861,7 +7596,7 @@
      * 百度教育
      */
     easyLearn() {
-      if (!this.currentUrl.match(/^http(s|):\/\/easylearn.baidu.com/g)) {
+      if (!this.url.match(/^http(s|):\/\/easylearn.baidu.com/g)) {
         return;
       }
       GM_addStyle(this.css.easyLearn);
@@ -7976,6 +7711,310 @@
             ).__vue__.isFake = false;
             log.success("允许使用顶部搜索输入框");
           });
+      });
+    },
+  };
+
+  /**
+   * 百度劫持
+   */
+  const baiduHijack = {
+    /**
+     * 劫持剪贴板写入
+     * + 百度搜索(m.baidu.com|www.baidu.com)
+     *
+     * Function.prototype.apply
+     */
+    hijackCopy() {
+      let originApply = Function.prototype.apply;
+      Function.prototype.apply = function (...args) {
+        try {
+          let _Arguments = args[1];
+          if (
+            args.length === 2 &&
+            typeof _Arguments === "object" &&
+            "" + _Arguments === "[object Arguments]" &&
+            _Arguments.length === 1 &&
+            typeof _Arguments[0] === "object" &&
+            _Arguments[0] != null &&
+            "appName" in _Arguments[0] &&
+            "checkTokenCopied" in _Arguments[0] &&
+            "deeplink" in _Arguments[0] &&
+            "scheme" in _Arguments[0] &&
+            "token" in _Arguments[0] &&
+            "useDeeplink" in _Arguments[0]
+          ) {
+            log.success(["劫持复制到剪贴板", ..._Arguments]);
+            return new Promise(function (resolve) {
+              log.success(["修改参数并劫持复制到剪贴板返回true"]);
+              resolve({
+                status: true,
+              });
+            });
+          }
+        } catch (error) {
+          log.error(error);
+        }
+        return originApply.call(this, ...args);
+      };
+    },
+    /**
+     * 劫持apply的Scheme调用
+     * + 百度搜索(m.baidu.com|www.baidu.com)
+     *
+     * Function.prototype.apply
+     */
+    hijackFunctionApplyScheme() {
+      let originApply = Function.prototype.apply;
+      Function.prototype.apply = function (...args) {
+        try {
+          let _Arguments = args[1];
+          if (
+            args.length === 2 &&
+            typeof _Arguments === "object" &&
+            "" + _Arguments === "[object Arguments]" &&
+            _Arguments.length === 2 &&
+            _Arguments[1] === "scheme"
+          ) {
+            log.success(["劫持Scheme", ..._Arguments]);
+            return;
+          }
+        } catch (error) {
+          log.error(error);
+        }
+        return originApply.call(this, ...args);
+      };
+    },
+    /**
+     * 劫持添加元素，包括script标签、iframe标签，默认劫持iframe的非http链接
+     * + 百度贴吧(tieba.baidu.com)
+     * + 百度地图(map.baidu.com)
+     * Element.prototype.appendChild
+     * @param {(element:HTMLElement)=>{}|undefined} handleCallBack 处理的回调函数，如果劫持请返回true
+     */
+    hijackElementAppendChild(handleCallBack) {
+      let originDocumentAppendChild = Element.prototype.appendChild;
+      Element.prototype.appendChild = function (element) {
+        if (element instanceof HTMLIFrameElement) {
+          if (!element?.src?.startsWith("http")) {
+            log.success(["劫持iframe唤醒：" + element.src, element]);
+            return;
+          }
+        }
+        if (typeof handleCallBack === "function") {
+          let handleResult = handleCallBack(element);
+          if (handleResult) {
+            return;
+          }
+        }
+        return originDocumentAppendChild.call(this, element);
+      };
+    },
+    /**
+     * 劫持jQuery的append的iframe
+     * + 百度地图(map.baidu.com)
+     *
+     * $().append();
+     */
+    hijackJQueryAppend() {
+      let originAppend = $.fn.append;
+      $.fn.append = function (params) {
+        if (typeof params === "string") {
+          params = params.trim();
+          if (
+            params.startsWith('<iframe src="') &&
+            !params.startsWith('<iframe src="http')
+          ) {
+            log.success(["劫持jQuery的iframe", params]);
+            return;
+          }
+        }
+        originAppend.apply(this, arguments);
+      };
+    },
+    /**
+     * 劫持OpenBox
+     * + 百度搜索(m.baidu.com|www.baidu.com)
+     *
+     * window.OpenBox
+     */
+    hijackOpenBox() {
+      let OpenBox = function () {
+        return {
+          open: function () {
+            log.info(["劫持OpenBox-open传入参数👇", ...arguments]);
+            if (!arguments.length) {
+              return;
+            }
+            let invokeUrl =
+              arguments[0]["invokeURL"] || arguments[0]["invoke_url"];
+            if (
+              typeof arguments[0] === "object" &&
+              typeof invokeUrl === "string"
+            ) {
+              log.success("直接跳转Url：" + invokeUrl);
+              window.location.href = invokeUrl;
+            }
+          },
+          ready: function () {
+            log.info(["劫持OpenBox-ready传入参数👇", ...arguments]);
+          },
+          version: 20170811,
+        };
+      };
+      OpenBox.getIdmData = function () {
+        return {};
+      };
+      Object.defineProperty(unsafeWindow, "OpenBox", {
+        get: function () {
+          return OpenBox;
+        },
+      });
+    },
+
+    /**
+     * 劫持全局setTimeout
+     * + 百度地图(map.baidu.com)
+     *
+     * window.setTimeout
+     * @param {RegExp|string} [matchStr=""] 需要进行匹配的函数字符串
+     */
+    hijackSetTimeout(matchStr = "") {
+      let originSetTimeout = unsafeWindow.setTimeout;
+      unsafeWindow.setTimeout = function () {
+        let callBackString = arguments[0].toString();
+        if (callBackString.match(matchStr)) {
+          log.success(["劫持延迟函数", callBackString]);
+          return;
+        }
+        originSetTimeout.apply(this, arguments);
+      };
+    },
+    /**
+     * 劫持百度贴吧的Function的call
+     * + 百度贴吧(tieba.baidu.com)
+     *
+     * Function.property.call
+     */
+    hijackFunctionCallByTiebaWebpack() {
+      /* 劫持webpack */
+      let originCall = Function.prototype.call;
+      Function.prototype.call = function (...args) {
+        let result = originCall.apply(this, args);
+        /* 当前i core:67 */
+        if (
+          args.length &&
+          args.length === 4 &&
+          args[1]?.exports &&
+          Object.prototype.hasOwnProperty.call(args[1].exports, "getSchema") &&
+          Object.prototype.hasOwnProperty.call(args[1].exports, "getToken") &&
+          Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
+          Object.prototype.hasOwnProperty.call(args[1].exports, "initDiffer")
+        ) {
+          log.success(["成功劫持webpack关键Scheme调用函数", args]);
+          args[1].exports.getSchema = function () {
+            log.info(["阻止调用getSchema", ...arguments]);
+          };
+          args[1].exports.getToken = function () {
+            log.info(["阻止调用getToken", ...arguments]);
+          };
+          args[1].exports.init = function () {
+            log.info(["阻止初始化", ...arguments]);
+            return;
+          };
+          args[1].exports.initDiffer = function () {
+            log.info(["阻止初始化差异", ...arguments]);
+            return;
+          };
+          return;
+        }
+        return result;
+      };
+    },
+    /**
+     * 劫持百度好看视频的Function的call
+     * + 百度好看视频(haokan.baidu.com)
+     *
+     * Function.property.call
+     */
+    hijackFunctionCallByHaokanWebpack() {
+      let originCall = Function.prototype.call;
+      Function.prototype.call = function (...args) {
+        /* 当前i core:67 */
+        let result = originCall.apply(this, args);
+        if (
+          args.length &&
+          args.length === 4 &&
+          args?.[1]?.["exports"] &&
+          Object.prototype.hasOwnProperty.call(
+            args[1]["exports"],
+            "LaunchScheme"
+          ) &&
+          Object.prototype.hasOwnProperty.call(args[1]["exports"], "__esModule")
+        ) {
+          log.info("成功劫持，当前webpack i:" + args?.[1]?.["i"]);
+          args[1]["exports"]["LaunchScheme"] = function () {
+            log.success(["修改参数并劫持唤醒 LaunchScheme"]);
+            return {
+              launch() {
+                return new Promise(function (resolve) {
+                  log.success(["修改参数并劫持唤醒 launch"]);
+                  resolve();
+                });
+              },
+            };
+          };
+        }
+        return result;
+      };
+    },
+    /**
+     * 劫持百家号和百度地图的Function的call
+     * + 百家号(baijiahao.baidu.com)
+     * + 百度地图(map.baidu.com)
+     * Function.property.call
+     */
+    hijackFunctionCallByBaiJiaHaoAndMap() {
+      let originCall = Function.prototype.call;
+      Function.prototype.call = function () {
+        if (
+          arguments.length === 2 &&
+          arguments[0] === undefined &&
+          arguments[1] != null &&
+          "arg" in arguments[1] &&
+          "delegate" in arguments[1] &&
+          "done" in arguments[1] &&
+          "method" in arguments[1] &&
+          "next" in arguments[1] &&
+          "prev" in arguments[1]
+        ) {
+          log.success(["修改参数并劫持唤醒", arguments[1]]);
+          arguments[1]["method"] = "return";
+          arguments[1]["next"] = "end";
+          arguments[1]["prev"] = 24;
+        }
+        let result = originCall.apply(this, arguments);
+        return result;
+      };
+    },
+    /**
+     * 劫持window下的BoxJSBefore对象调用，它的所有的属性都是函数
+     * + 百家号(mbd.baidu.com)
+     *
+     * window.BoxJSBefore
+     */
+    hijackBoxJSBefore() {
+      Object.defineProperty(unsafeWindow, "BoxJSBefore", {
+        get() {
+          return new Proxy(
+            {},
+            {
+              get(target, name, receiver) {
+                log.success("劫持BoxJSBefore调用：" + name);
+              },
+            }
+          );
+        },
       });
     },
   };
