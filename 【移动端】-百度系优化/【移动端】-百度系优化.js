@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.10.15
+// @version      2023.11.10.17
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -3443,8 +3443,9 @@
           display: none !important;
         }
         `);
-        /* 简单UA下的精彩推荐 */
+        /* 简单UA&链接参数wfr=spide下的精彩推荐 */
         GM_addStyle(`
+        #page_wrapper div.spider > div[class=""]:nth-child(4),
         #page_wrapper div.spider > div[class=""]:nth-child(5){
           display: none !important;
         }`);
@@ -3495,9 +3496,7 @@
      * 百度贴吧
      */
     tieba() {
-      if (
-        !this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)
-      ) {
+      if (!this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)) {
         return;
       }
 
@@ -6437,9 +6436,7 @@
       }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
-      if (
-        this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)
-      ) {
+      if (this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)) {
         if (GM_Menu.get("baidu_tieba_optimize_see_comments")) {
           log.success(
             GM_Menu.getShowTextValue("baidu_tieba_optimize_see_comments")
@@ -6471,9 +6468,7 @@
         }
       }
       if (
-        this.url.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?kw=/g
-        )
+        this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?kw=/g)
       ) {
         /* 吧内 */
         tiebaBaNei.rememberPostSort();
