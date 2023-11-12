@@ -1566,9 +1566,9 @@
             enable: !localEnable,
             oldEnable: localEnable,
             event: event,
-            storeValue(_value_){
-              setLocalMenuData(menuLocalDataItemKey,_value_);
-            }
+            storeValue(_value_) {
+              setLocalMenuData(menuLocalDataItemKey, _value_);
+            },
           });
         }
         /* 不刷新网页就刷新菜单 */
@@ -4814,6 +4814,9 @@
    */
   Utils.toJSON = function (data, errorCallBack = () => {}) {
     let result = {};
+    if (typeof data === "object") {
+      return data;
+    }
     Utils.tryCatch()
       .config({ log: false })
       .error((error) => {
@@ -5076,7 +5079,7 @@
   /**
    * 在规定时间内，等待任意元素出现，支持多个selector，如果未出现，则关闭监听
    * @param {string[]|string} [nodeSelectorsList=[]] 一个或多个节点选择器，必须为字符串类型
-   * @param {number} [timer=0] xx毫秒(ms)后关闭监听，默认0ms
+   * @param {number} [maxTime=0] xx毫秒(ms)后关闭监听，默认0ms
    * @returns {Promise<HTMLElement|HTMLElement[]|undefined>}
    * @example
    * Utils.waitNodeWithInterval("a.xxx",30000).then(element=>{
@@ -5090,7 +5093,7 @@
    */
   Utils.waitNodeWithInterval = async function (
     nodeSelectorsList = [],
-    timer = 0
+    maxTime = 0
   ) {
     let nodeSelectors = [];
     /* 检查每个参数是否为字符串类型 */
@@ -5152,7 +5155,7 @@
       });
       setTimeout(() => {
         mutationObserver.disconnect();
-      }, timer);
+      }, maxTime);
     });
   };
   /**
