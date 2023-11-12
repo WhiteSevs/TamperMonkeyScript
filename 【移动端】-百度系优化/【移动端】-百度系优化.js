@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.10.17
+// @version      2023.11.12
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -48,7 +48,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1277379
+// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // @run-at       document-start
 // ==/UserScript==
@@ -3509,19 +3509,44 @@
          */
         forumName: undefined,
       };
-      /* 贴吧加载评论 */
+      /**
+       * 贴吧加载评论
+       */
       const tiebaCommentConfig = {
+        /**
+         * 当前页
+         */
         page: 1,
+        /**
+         * 当前最大页
+         */
         maxPage: 1,
+        /**
+         * 楼层数量
+         */
         floor_num: 1,
+        /**
+         * 滚动监听锁
+         */
         funcLock: null,
+        /**
+         * tid
+         */
         param_tid: null,
+        /**
+         * 帖子id
+         */
         param_forum_id: null,
+        /**
+         * 帖子回复的数量
+         */
+        reply_num: 0,
         /**
          * 进过百度验证的额外安全参数
          */
         extraSearchSignParams: "",
         /**
+         * vue根元素
          * @type {HTMLElement}
          */
         vueRootView: null,
@@ -4049,7 +4074,7 @@
         /**
          * 初始化评论的弹窗的所有设置包括CSS
          */
-        initReplyDialog() {
+        initReplyDialogCSS() {
           log.success("初始化回复的弹窗");
           GM_addStyle(`
           /* 主 */
@@ -4954,158 +4979,156 @@
          */
         async mainPositive() {
           tiebaCommentConfig.param_tid =
-            window.location.pathname.match(/([0-9]+)/g);
-          if (tiebaCommentConfig.param_tid) {
-            tiebaCommentConfig.param_tid = tiebaCommentConfig.param_tid[0];
-            tiebaCommentConfig.param_forum_id = document
-              .querySelector(".recommend-item")
-              ?.getAttribute("data-banner-info");
-            if (tiebaCommentConfig.param_forum_id) {
-              tiebaCommentConfig.param_forum_id = utils.toJSON(
-                tiebaCommentConfig.param_forum_id
-              )["forum_id"];
-              let timeStamp = Date.now();
-              tiebaCommentConfig.page = 1;
-              loadingView.setText("Loading...", true);
-              loadingView.show();
-              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
-              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
-              let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
-              let pageCommentList = await tiebaCommentConfig.getPageCommentList(
-                url
-              );
-              if (
-                !pageDOM ||
-                typeof pageDOM === "string" ||
-                !pageCommentList.commentList
-              ) {
-                loadingView.setText(
-                  typeof pageDOM === "string" ? pageDOM : "获取评论失败"
-                );
-                log.error("评论数据获取失败");
-                return;
-              }
-              log.info("成功获取第一页评论和其第一页的楼中楼评论");
-              let jumpInputBrightDOM =
-                pageDOM.querySelector(".jump_input_bright");
-              tiebaCommentConfig.maxPage = 1;
-              if (jumpInputBrightDOM) {
-                tiebaCommentConfig.maxPage = parseInt(
-                  jumpInputBrightDOM.getAttribute("max-page")
-                );
-                tiebaCommentConfig.setNextPageScrollListener();
-                log.info("当前为多页，执行监听");
-              } else {
-                let comments = pageDOM.querySelectorAll(
-                  ".l_post.l_post_bright"
-                );
-                comments = Array.from(comments);
-                document
-                  .querySelectorAll(".post-item")
-                  .forEach((ele) => ele.remove());
-                comments.shift();
-                tiebaCommentConfig.floor_num = 1;
-                comments.forEach((element) => {
-                  tiebaCommentConfig.insertNewCommentInnerElement(
-                    tiebaCommentConfig.getNewCommentInnerElement(
-                      element,
-                      pageCommentList
-                    )
-                  );
-                  tiebaCommentConfig.floor_num++;
-                });
-                loadingView.hide();
-              }
-              log.info(
-                `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
-              );
-            } else {
-              log.error("贴吧：获取参数data-banner-info失败");
-            }
-          } else {
+            window.location.pathname.match(/([0-9]+)/g)?.[0] ||
+            document.querySelector(".app-view")?.__vue__?.thread?.id;
+          if (!tiebaCommentConfig.param_tid) {
             log.error("贴吧：未找到本页参数p");
+            return;
           }
+          let dataBannerInfo = document
+            .querySelector(".recommend-item")
+            ?.getAttribute("data-banner-info");
+          tiebaCommentConfig.param_forum_id =
+            dataBannerInfo != null
+              ? utils.toJSON(dataBannerInfo)["forum_id"]
+              : document.querySelector(".app-view")?.__vue__?.forum?.id;
+          if (!tiebaCommentConfig.param_forum_id) {
+            return log.error("贴吧：获取参数data-banner-info失败");
+          }
+
+          let timeStamp = Date.now();
+          tiebaCommentConfig.page = 1;
+          loadingView.setText("Loading...", true);
+          loadingView.show();
+          let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
+          let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
+          let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
+          let pageCommentList = await tiebaCommentConfig.getPageCommentList(
+            url
+          );
+          if (
+            !pageDOM ||
+            typeof pageDOM === "string" ||
+            !pageCommentList.commentList
+          ) {
+            loadingView.setText(
+              typeof pageDOM === "string" ? pageDOM : "获取评论失败"
+            );
+            log.error("评论数据获取失败");
+            return;
+          }
+          log.info("成功获取第一页评论和其第一页的楼中楼评论");
+          let jumpInputBrightDOM = pageDOM.querySelector(".jump_input_bright");
+          tiebaCommentConfig.maxPage = 1;
+          if (jumpInputBrightDOM) {
+            tiebaCommentConfig.maxPage = parseInt(
+              jumpInputBrightDOM.getAttribute("max-page")
+            );
+            tiebaCommentConfig.setNextPageScrollListener();
+            log.info("当前为多页，执行监听");
+          } else {
+            let comments = pageDOM.querySelectorAll(".l_post.l_post_bright");
+            comments = Array.from(comments);
+            document
+              .querySelectorAll(".post-item")
+              .forEach((ele) => ele.remove());
+            comments.shift();
+            tiebaCommentConfig.floor_num = 1;
+            comments.forEach((element) => {
+              tiebaCommentConfig.insertNewCommentInnerElement(
+                tiebaCommentConfig.getNewCommentInnerElement(
+                  element,
+                  pageCommentList
+                )
+              );
+              tiebaCommentConfig.floor_num++;
+            });
+            loadingView.hide();
+          }
+          log.info(
+            `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
+          );
         },
         /**
          * 查看-倒序
          */
         async mainReverse() {
           tiebaCommentConfig.param_tid =
-            window.location.pathname.match(/([0-9]+)/g);
-          if (tiebaCommentConfig.param_tid) {
-            tiebaCommentConfig.param_tid = tiebaCommentConfig.param_tid[0];
-            tiebaCommentConfig.param_forum_id = document
-              .querySelector(".recommend-item")
-              ?.getAttribute("data-banner-info");
-            if (tiebaCommentConfig.param_forum_id) {
-              tiebaCommentConfig.param_forum_id = utils.toJSON(
-                tiebaCommentConfig.param_forum_id
-              )["forum_id"];
-              let timeStamp = Date.now();
-              tiebaCommentConfig.page = 1;
-              loadingView.setText("Loading...", true);
-              loadingView.show();
-              let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
-              let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
-              let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
-              let pageCommentList = await tiebaCommentConfig.getPageCommentList(
-                url
-              );
-              if (
-                !pageDOM ||
-                typeof pageDOM === "string" ||
-                !pageCommentList.commentList
-              ) {
-                loadingView.setText(
-                  loadingView.setText(
-                    typeof pageDOM === "string" ? pageDOM : "获取评论失败"
-                  )
-                );
-                log.error("评论数据获取失败");
-                return;
-              }
-              log.info("成功获取第一页评论和其第一页的楼中楼评论");
-              tiebaCommentConfig.maxPage = 1;
-              let jumpInputBrightDOM =
-                pageDOM.querySelector(".jump_input_bright");
-              if (jumpInputBrightDOM) {
-                tiebaCommentConfig.maxPage = parseInt(
-                  jumpInputBrightDOM.getAttribute("max-page")
-                );
-                tiebaCommentConfig.page = tiebaCommentConfig.maxPage;
-                tiebaCommentConfig.setPrevPageScrollListener();
-                log.info("当前为多页");
-              } else {
-                let comment = pageDOM.querySelectorAll(".l_post.l_post_bright");
-                tiebaCommentConfig.maxPage = 1;
-                comment = Array.from(comment);
-                document
-                  .querySelectorAll(".post-item")
-                  .forEach((ele) => ele.remove());
-                comment.shift();
-
-                tiebaCommentConfig.floor_num = 1;
-                comment.reverse();
-                comment.forEach((element) => {
-                  tiebaCommentConfig.insertNewCommentInnerElement(
-                    tiebaCommentConfig.getNewCommentInnerElement(
-                      element,
-                      pageCommentList
-                    )
-                  );
-                  tiebaCommentConfig.floor_num++;
-                });
-                loadingView.hide();
-              }
-              log.info(
-                `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
-              );
-            } else {
-              log.error(`贴吧：获取参数data-banner-info失败`);
-            }
-          } else {
-            log.error(`贴吧：未找到本页参数p`);
+            window.location.pathname.match(/([0-9]+)/g)?.[0] ||
+            document.querySelector(".app-view")?.__vue__?.thread?.id;
+          if (!tiebaCommentConfig.param_tid) {
+            log.error("贴吧：未找到本页参数p");
+            return;
           }
+          let dataBannerInfo = document
+            .querySelector(".recommend-item")
+            ?.getAttribute("data-banner-info");
+          tiebaCommentConfig.param_forum_id =
+            dataBannerInfo != null
+              ? utils.toJSON(dataBannerInfo)["forum_id"]
+              : document.querySelector(".app-view")?.__vue__?.forum?.id;
+          if (!tiebaCommentConfig.param_forum_id) {
+            return log.error("贴吧：获取参数data-banner-info失败");
+          }
+
+          let timeStamp = Date.now();
+          tiebaCommentConfig.page = 1;
+          loadingView.setText("Loading...", true);
+          loadingView.show();
+          let url = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
+          let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
+          let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
+          let pageCommentList = await tiebaCommentConfig.getPageCommentList(
+            url
+          );
+          if (
+            !pageDOM ||
+            typeof pageDOM === "string" ||
+            !pageCommentList.commentList
+          ) {
+            loadingView.setText(
+              loadingView.setText(
+                typeof pageDOM === "string" ? pageDOM : "获取评论失败"
+              )
+            );
+            log.error("评论数据获取失败");
+            return;
+          }
+          log.info("成功获取第一页评论和其第一页的楼中楼评论");
+          tiebaCommentConfig.maxPage = 1;
+          let jumpInputBrightDOM = pageDOM.querySelector(".jump_input_bright");
+          if (jumpInputBrightDOM) {
+            tiebaCommentConfig.maxPage = parseInt(
+              jumpInputBrightDOM.getAttribute("max-page")
+            );
+            tiebaCommentConfig.page = tiebaCommentConfig.maxPage;
+            tiebaCommentConfig.setPrevPageScrollListener();
+            log.info("当前为多页");
+          } else {
+            let comment = pageDOM.querySelectorAll(".l_post.l_post_bright");
+            tiebaCommentConfig.maxPage = 1;
+            comment = Array.from(comment);
+            document
+              .querySelectorAll(".post-item")
+              .forEach((ele) => ele.remove());
+            comment.shift();
+
+            tiebaCommentConfig.floor_num = 1;
+            comment.reverse();
+            comment.forEach((element) => {
+              tiebaCommentConfig.insertNewCommentInnerElement(
+                tiebaCommentConfig.getNewCommentInnerElement(
+                  element,
+                  pageCommentList
+                )
+              );
+              tiebaCommentConfig.floor_num++;
+            });
+            loadingView.hide();
+          }
+          log.info(
+            `共 ${tiebaCommentConfig.maxPage} 页评论，当前所在 ${tiebaCommentConfig.page} 页`
+          );
         },
         run() {
           let urlSignParams = new URLSearchParams(window.location.search);
@@ -5141,12 +5164,57 @@
             });
             tiebaCommentConfig.insertLoadingHTML();
           });
-          utils.waitNode(".recommend-item[data-banner-info]").then(() => {
-            DOMUtils.remove(".post-item");
-            tiebaCommentConfig.initReplyDialog();
-            tiebaCommentConfig.mainPositive();
-            tiebaCommentConfig.insertReverseBtn();
-            tiebaCommentConfig.insertOnlyLZ();
+          utils
+            .waitAnyNode(
+              ".recommend-item[data-banner-info]",
+              "div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item"
+            )
+            .then(() => {
+              DOMUtils.remove(".post-item");
+              tiebaCommentConfig.initReplyDialogCSS();
+              tiebaCommentConfig.mainPositive();
+              tiebaCommentConfig.insertReverseBtn();
+              tiebaCommentConfig.insertOnlyLZ();
+            });
+
+          utils.waitNodeWithInterval(".app-view", 10000).then(async () => {
+            utils
+              .waitPropertyByInterval(
+                () => {
+                  return document.querySelector(".app-view").__vue__;
+                },
+                () => {
+                  return document.querySelector(".app-view").__vue__
+                    .isHitMedicalPost;
+                },
+                undefined,
+                10000
+              )
+              .then(() => {
+                document.querySelector(".app-view").__vue__.isHitMedicalPost =
+                  !1;
+              });
+            utils
+              .waitPropertyByInterval(
+                () => {
+                  return document.querySelector(".app-view").__vue__;
+                },
+                () => {
+                  return (
+                    typeof document.querySelector(".app-view")?.__vue__?.thread
+                      ?.reply_num === "number"
+                  );
+                },
+                undefined,
+                10000
+              )
+              .then(() => {
+                tiebaCommentConfig.reply_num =
+                  document.querySelector(".app-view").__vue__.thread.reply_num;
+                log.success(
+                  "当前帖子的回复数量：" + tiebaCommentConfig.reply_num
+                );
+              });
           });
           /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
           GM_addStyle(`
@@ -5373,6 +5441,12 @@
           .text-content .at{
               font-weight: 600;
               color: #a3a1a9;
+          }`);
+          /* 隐藏百度贴吧精选帖子的底部空栏 */
+          GM_addStyle(`
+          body > div.main-page-wrap > div.app-view.transition-fade.pb-page-wrapper.mask-hidden > div.placeholder,
+          div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
+            display: none;
           }`);
         },
       };
@@ -6281,7 +6355,11 @@
           let originGetItem = window.localStorage.getItem;
           /* 劫持localStorage */
           window.localStorage.getItem = function (key) {
-            if (key === "p_w_app_call" || key === "p_w_launchappcall") {
+            if (
+              key === "p_w_app_call" ||
+              key === "p_w_launchappcall" ||
+              key === "loginWakeModal"
+            ) {
               log.info("客户端已调用伪装 " + key);
               return JSON.stringify({
                 value: 1,
@@ -6360,7 +6438,9 @@
               ?.$children[0]?.forum?.name;
           let tbForum = document.querySelector(".tb-mobile-viewport .tb-forum")
             ?.__vue__?.forum?.name;
-          return tbMobileViewport || mainPageWrap || tbForum;
+          let appView =
+            document.querySelector(".app-view")?.__vue__?.forum?.name;
+          return tbMobileViewport || mainPageWrap || tbForum || appView;
         },
       };
 
@@ -7686,7 +7766,7 @@
         utils
           .waitNodeWithInterval(
             ".search-input .search-box-wrap.search-box",
-            100000
+            10000
           )
           .then(async () => {
             await utils.waitPropertyByInterval(
@@ -7698,8 +7778,8 @@
               (inputElement) => {
                 return inputElement?.__vue__?.isFake != null;
               },
-              undefined,
-              100000
+              250,
+              10000
             );
             document.querySelector(
               ".search-input .search-box-wrap.search-box"
