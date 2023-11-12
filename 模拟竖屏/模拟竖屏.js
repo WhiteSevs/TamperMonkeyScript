@@ -8,7 +8,7 @@
 // @license      GPL-3.0-only
 // @match        https://eggy.163.com/*
 // @match        https://igame.qq.com/*
-// @grant        unsafeWindow
+// @grant        none
 // @run-at       document-start
 // ==/UserScript==
 
@@ -17,7 +17,7 @@
    * 油猴环境下就是unsafeWindow，如果不是就是globalThis
    * @type {window}
    */
-  const win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
+  const win = globalThis;
 
   /**
    * 添加CSS到页面中
