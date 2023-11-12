@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.11.4
+// @version      2023.11.12
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -120,6 +120,10 @@
      * 剪贴板内容
      */
     clipboardText: "",
+    /**
+     * 是否允许匹配window.location.href
+     */
+    allowMatchLocationHref: false,
     regular: {
       baidu: [
         {
@@ -775,28 +779,42 @@
         Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
-            NetDiskWorker.GM_matchWorker.postMessage({
+            NetDiskWorker.postMessage({
               regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
               pageText: pageText,
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
-            NetDiskWorker.GM_matchWorker.postMessage({
+            NetDiskWorker.postMessage({
               regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
               pageText: pageHTML,
               netDiskName: netDiskName,
               netDiskIndex: index,
             });
             if (NetDisk.clipboardText.trim() !== "") {
-              NetDiskWorker.GM_matchWorker.postMessage({
+              NetDiskWorker.postMessage({
                 regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
                 pageText: NetDisk.clipboardText,
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
-              NetDiskWorker.GM_matchWorker.postMessage({
+              NetDiskWorker.postMessage({
                 regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
                 pageText: NetDisk.clipboardText,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+            }
+            if (NetDisk.allowMatchLocationHref) {
+              NetDiskWorker.postMessage({
+                regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
+                pageText: window.location.href,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+              NetDiskWorker.postMessage({
+                regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
+                pageText: decodeURIComponent(window.location.href),
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
@@ -818,7 +836,7 @@
         Object.keys(this.regular).forEach((netDiskName) => {
           let item = this.regular[netDiskName];
           item.forEach((netDiskListItem, index) => {
-            NetDiskWorker.GM_matchWorker.postMessage({
+            NetDiskWorker.postMessage({
               regexp: new RegExp(
                 netDiskListItem[`link_${matchTextRange}`],
                 "gi"
@@ -828,12 +846,32 @@
               netDiskIndex: index,
             });
             if (NetDisk.clipboardText.trim() !== "") {
-              NetDiskWorker.GM_matchWorker.postMessage({
+              NetDiskWorker.postMessage({
                 regexp: new RegExp(
                   netDiskListItem[`link_${matchTextRange}`],
                   "gi"
                 ),
                 pageText: NetDisk.clipboardText,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+            }
+            if (NetDisk.allowMatchLocationHref) {
+              NetDiskWorker.postMessage({
+                regexp: new RegExp(
+                  netDiskListItem[`link_${matchTextRange}`],
+                  "gi"
+                ),
+                pageText: window.location.href,
+                netDiskName: netDiskName,
+                netDiskIndex: index,
+              });
+              NetDiskWorker.postMessage({
+                regexp: new RegExp(
+                  netDiskListItem[`link_${matchTextRange}`],
+                  "gi"
+                ),
+                pageText: decodeURIComponent(window.location.href),
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
@@ -4386,6 +4424,19 @@
       NetDiskUI.isHandleMatch = false;
       log.error(["Worker Error", error]);
     },
+    /**
+     * 传递数据给worker内进行处理匹配
+     * @param {{
+     * regexp: RegExp,
+     * pageText: string,
+     * netDiskName: string,
+     * netDiskIndex: number
+     * }} message 数据
+     * @param { StructuredSerializeOptions | undefined } options 配置
+     */
+    postMessage(message, options) {
+      this.GM_matchWorker.postMessage(message, options);
+    },
   };
 
   const NetDiskCustomRules = {
@@ -5699,6 +5750,13 @@
                         <p>获取重定向后的直链</p>
                         <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
                           <input type="checkbox" data-key="getTheDirectLinkAfterRedirection" data-default="true">
+                          <div class="knobs"><span></span></div><div class="layer"></div>
+                        </div>
+                    </div>
+                    <div class="netdisk-setting-menu-item" type="checkbox">
+                        <p>允许匹配当前URL</p>
+                        <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+                          <input type="checkbox" data-key="allowMatchLocationHref">
                           <div class="knobs"><span></span></div><div class="layer"></div>
                         </div>
                     </div>
@@ -8727,6 +8785,9 @@
   };
 
   const NetDiskMenu = {
+    /**
+     * 初始化
+     */
     init() {
       GM_Menu.add([
         {
@@ -8811,9 +8872,18 @@
         },
       ]);
     },
+    /**
+     * 初始化环境变量
+     */
+    initEnv() {
+      if (GM_getValue("allowMatchLocationHref")) {
+        NetDisk.allowMatchLocationHref = true;
+      }
+    },
   };
 
   NetDiskMenu.init();
+  NetDiskMenu.initEnv();
   NetDiskCustomRules.init();
   DOMUtils.ready(function () {
     log.config({
