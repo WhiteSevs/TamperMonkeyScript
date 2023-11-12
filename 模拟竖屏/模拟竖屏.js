@@ -17,7 +17,7 @@
    * 油猴环境下就是unsafeWindow，如果不是就是globalThis
    * @type {window}
    */
-  const win = globalThis;
+  const win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
 
   /**
    * 添加CSS到页面中
