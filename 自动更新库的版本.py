@@ -6,7 +6,7 @@ import httpx
 import winreg
 
 # 不更新的js文件名
-notUpdateFileNameList = ["蛋仔乐消除","ImmortalWrt-passwall优化"]
+notUpdateFileNameList = ["蛋仔乐消除","ImmortalWrt-passwall优化","问卷星随机答案"]
 
 
 def get_ie_proxy():
@@ -50,12 +50,11 @@ def handleLibraryData(libraryIdList):
             f"https://greasyfork.org/zh-CN/scripts/{libraryId}.json", proxies=httpx_proxy)
         respJson = response.json()
         code_url = respJson["code_url"]
-        url = re.sub(r'\?version=.+', '', code_url)
-        version = re.compile(r'\?version=([\d]+)').search(code_url)
-        version = version[0].replace("?version=", "")
+        version = re.compile(rf'\/{libraryId}\/([\d]+)\/').search(code_url)
+        version = version[1]
         result.append({
             "name": respJson["name"],
-            "url": url,
+            "url": f"{respJson['url']}/code/{respJson['name']}.js",
             "version": version
         })
     return result
