@@ -237,7 +237,7 @@
       });
       return result;
     },
-    drag(moveELement, options) {
+    drag(moveElement, options) {
       /* 来自:https://greasyfork.org/zh-CN/scripts/412159-mydrag
        * 因该方法存在bug，比如该元素存在transform的时候拖拽有问题
        */
@@ -531,7 +531,7 @@
           };
           return Drag;
         })();
-      new MyDrag(moveELement, options);
+      new MyDrag(moveElement, options);
     },
     inArray(target, source) {
       var result = -1;
@@ -878,9 +878,9 @@
     },
   };
 
-  var pops = {};
+  let pops = {};
   pops.config = {
-    version: "2023.10.10",
+    version: "2023.11.13",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -1386,16 +1386,248 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
    * @property {number} [zIndex=10000] 弹窗的显示层级
-   * @property {boolean} [mask=false] 遮罩层
+   * @property {{
+   * enable: boolean,
+   * clickEvent: {
+   *  toClose: boolean,
+   *  toHide:boolean,
+   * },
+   * }} mask 遮罩层
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
    */
+
+  const PopsHandler = {
+    /**
+     * 处理遮罩层
+     * @param {?{
+     * type: "alert"|"confirm"|"prompt"|"loading"|"iframe",
+     * guid: string,
+     * config: PopsAlertDetails,
+     * animElement: HTMLElement,
+     * maskHTML: string,
+     * }} details
+     * @returns { {
+     * maskElement: HTMLDivElement
+     * } }
+     */
+    handleMask(details = {}) {
+      let result = {
+        maskElement: popsUtils.parseTextToDOM(details.maskHTML)[0],
+      };
+      /**
+       * 点击其它区域的事件
+       * @param {Event} event
+       * @returns
+       */
+      let clickEvent = function (event) {
+        event?.preventDefault();
+        event?.stopPropagation();
+        event?.stopImmediatePropagation();
+        let targetLayer = pops.config.layer[details.type];
+        if (details.config.mask.clickEvent.toClose) {
+          /* 关闭 */
+          popsUtils.close(targetLayer, details.guid);
+        } else if (details.config.mask.clickEvent.toHide) {
+          /* 隐藏 */
+          popsUtils.hide(targetLayer, details.guid);
+        }
+        return false;
+      };
+      if (
+        details.config.mask.clickEvent.toClose ||
+        details.config.mask.clickEvent.toHide
+      ) {
+        /* 如果有动画层，在动画层上监听点击事件 */
+        details.animElement.addEventListener("click", function (event) {
+          if (
+            event.target?.localName?.toLowerCase() === "div" &&
+            event.target.className &&
+            event.target.className === "pops-anim" &&
+            event.target.hasAttribute("anim")
+          ) {
+            return clickEvent(event);
+          }
+        });
+        /* 在遮罩层监听点击事件 */
+        result.maskElement.addEventListener("click", clickEvent);
+      }
+      return result;
+    },
+    /**
+     * 处理获取元素
+     * @param {HTMLDivElement} animElement
+     * @param {"alert"|"confirm"|"prompt"|"loading"|"iframe"} type
+     */
+    handleQueryElement(animElement, type) {
+      return {
+        popsElement: animElement.querySelector(".pops[type-value"),
+        btnCloseElement: animElement.querySelector(
+          ".pops-control[type='close']"
+        ),
+        btnOkElement: animElement.querySelector(`.pops-${type}-btn-ok`),
+        btnCancelElement: animElement.querySelector(`.pops-${type}-btn-cancel`),
+        btnOtherElement: animElement.querySelector(`.pops-${type}-btn-other`),
+        titleElement: animElement.querySelector(`.pops-${type}-title`),
+        inputElement: animElement.querySelector(
+          `.pops-${type}-content textarea[pops]`
+        )
+          ? animElement.querySelector(`.pops-${type}-content textarea[pops]`)
+          : animElement.querySelector(`.pops-${type}-content input[pops]`),
+        controlsElement: animElement.querySelector(".pops-controls"),
+        iframeElement: animElement.querySelector("iframe[pops]"),
+        loadingElement: animElement.querySelector(".pops-loading"),
+        contentLoadingElement: animElement.querySelector(
+          `.pops-${type}-content-global-loading`
+        ),
+        minElement: animElement.querySelector(".pops-control[type='min']"),
+        maxElement: animElement.querySelector(".pops-control[type='max']"),
+      };
+    },
+    /**
+     * 获取事件配置
+     * @param {string} guid
+     * @param {"alert"|"confirm"|"prompt"|"loading"|"iframe"} mode 当前弹窗类型
+     * @param {HTMLDivElement} animElement 动画层
+     * @param {HTMLDivElement} popsElement 主元素
+     * @param {HTMLDivElement} maskElement 遮罩层
+     * @param {object} config 当前配置
+     */
+    handleEventDetails(
+      guid,
+      mode,
+      animElement,
+      popsElement,
+      maskElement,
+      config
+    ) {
+      return {
+        element: animElement,
+        animElement: animElement,
+        popsElement: popsElement,
+        maskElement: maskElement,
+        type: "",
+        function: mode,
+        guid: guid,
+        close() {
+          popsUtils.close(pops.config.layer[mode], guid, config);
+        },
+        hide() {
+          popsUtils.hide(pops.config.layer[mode], guid, config);
+        },
+        show() {
+          popsUtils.show(pops.config.layer[mode], guid, config);
+        },
+      };
+    },
+    /**
+     * 处理返回的配置，针对popsHandler.handleEventDetails
+     * @returns { {
+     * animElement: HTMLElement,
+     * popsElement: HTMLElement,
+     * maskElement: HTMLElement,
+     * close: Function,
+     * hide: Function,
+     * show: Function,
+     * } }
+     */
+    handleResultDetails(details) {
+      let _details_ = Object.assign({}, details);
+      delete _details_["type"];
+      delete _details_["function"];
+      delete _details_["type"];
+      return _details_;
+    },
+    /**
+     * 处理点击事件
+     * @param {HTMLElement} btnElement 按钮元素
+     * @param {"ok"|"close"} type 触发事件类型
+     * @param {object} event 事件配置，由popsHandler.handleEventDetails创建的
+     * @param {(event)=>{}} callback 点击回调
+     */
+    handleClickEvent(btnElement, type, event, callback) {
+      btnElement?.addEventListener("click", function () {
+        let _event_ = {
+          type: type,
+        };
+        _event_ = Object.assign(event, _event_);
+        callback(_event_);
+      });
+    },
+    /**
+     * 处理prompt的点击事件
+     * @param {HTMLInputElement} inputElement 输入框
+     * @param {HTMLElement} btnElement 按钮元素
+     * @param {"ok"|"close"} type 触发事件类型
+     * @param {object} event 事件配置，由popsHandler.handleEventDetails创建的
+     * @param {(event)=>{}} callback 点击回调
+     */
+    handlePromptClickEvent(inputElement, btnElement, type, event, callback) {
+      btnElement?.addEventListener("click", function () {
+        let _event_ = {
+          type: type,
+          text: inputElement.value,
+        };
+        _event_ = Object.assign(event, _event_);
+        callback(_event_);
+      });
+    },
+  };
+
+  const PopsElementHandler = {
+    /**
+     * 获取遮罩层HTML
+     * @param {string} guid
+     * @param {number} zIndex z-index
+     * @param {string} [style=""] style
+     * @returns {string}
+     */
+    getMaskHTML(guid, zIndex, style = "") {
+      zIndex = zIndex - 100;
+      return `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`;
+    },
+    /**
+     * 获取动画层HTML
+     * @param {string} guid
+     * @param {"alert"|"confirm"|"iframe"|"loading"|"prompt"} type
+     * @param {object} config
+     * @param {string} html
+     */
+    getAnimHTML(guid, type, config, html) {
+      return `<div 
+                  class="pops-anim"
+                  anim="${config.animation}"
+                  style="z-index:${config.zIndex};"
+                  data-guid="${guid}">
+                <div
+                    class="pops ${config.class}"
+                    type-value="${type}"
+                    style="
+                          width:${config.width};
+                          height:${config.height};
+                          z-index:${config.zIndex};"
+                    position="${config.position}"
+                    data-guid="${guid}">
+                    ${html}
+                </div>
+              </div>`;
+    },
+    /**
+     * 将html转换成元素
+     * @param {string} html
+     * @returns {HTMLElement}
+     */
+    parseElement(html) {
+      return popsUtils.parseTextToDOM(html)[0];
+    },
+  };
   /**
    * 普通信息框
    * @param {PopsAlertDetails} details 配置
    * @returns {{
    * guid: string,
    * element: Element,
+   * animElement: HTMLElement,
    * popsElement: Element,
    * maskElement: Element,
    * close: Function,
@@ -1404,10 +1636,11 @@
    * }}
    */
   pops.alert = function (details) {
+    let that = this;
     if (this.config.init === false) {
       this.init();
     }
-    var config = {
+    let config = {
       title: {
         text: "默认标题",
         position: "left",
@@ -1446,20 +1679,25 @@
         "center" /* 弹窗定位,top_left,top,top_right,center_left,center,center_right,bottom_left,bottom,bottom_right */,
       animation: "pops-anim-fadein-zoom" /* 弹窗动画 */,
       zIndex: 10000 /* 弹窗所在的层级 */,
-      mask: false /* 遮罩层 */,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false /* enable为true时，点击遮罩层触发关闭 */,
+          toHide: false /* enable为true时，点击遮罩层触发隐藏 */,
+        },
+      },
       drag: false /* 是否拖拽 */,
       forbiddenScroll: false /* 禁止页面滚动 */,
     };
     config = popsUtils.assignJSON(config, details);
-    var that = this;
-    var guid = popsUtils.guid();
+    let guid = popsUtils.guid();
     if (config.only) {
       popsUtils.configRemove(
         [
-          that.config.layer.alert,
-          that.config.layer.confirm,
-          that.config.layer.prompt,
-          that.config.layer.iframe,
+          this.config.layer.alert,
+          this.config.layer.confirm,
+          this.config.layer.prompt,
+          this.config.layer.iframe,
         ],
         "",
         true
@@ -1468,117 +1706,106 @@
       config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
 
-    var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
-      config.zIndex - 100
-    };"></div>`;
-    var animHTML = `<div class="pops-anim" anim="${
-      config.animation
-    }" style="z-index:${config.zIndex};" data-guid="${guid}">
-      <div class="pops ${config.class}" type-value="alert" style="width:${
-      config.width
-    };height:${config.height};z-index:${config.zIndex};" position="${
-      config.position
-    }" data-guid="${guid}">
-          <div class="pops-alert-title" style="text-align: ${
-            config.title.position
-          };">
-            ${
-              config.title.html
-                ? config.title.text
-                : "<p pops>" + config.title.text + "</p>"
-            }
-          </div>
-          <div class="pops-alert-content">
-            ${
-              config.content.html
-                ? config.content.text
-                : "<p pops>" + config.content.text + "</p>"
-            }
-          </div>
-          <div class="pops-alert-btn" style="justify-content:${
-            config.btn.position
-          };">
-            ${
-              config.btn.ok.enable
-                ? '<button class="pops-alert-btn-ok" type="' +
-                  config.btn.ok.type +
-                  '">' +
-                  config.btn.ok.text +
-                  "</button>"
-                : ""
-            }
-          </div>
+    let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+    let animHTML = PopsElementHandler.getAnimHTML(
+      guid,
+      "alert",
+      config,
+      `
+      <div 
+          class="pops-alert-title"
+          style="text-align: ${config.title.position};">
           ${
-            config.btn.close.enable
-              ? '<div class="pops-controls"><button class="pops-control" type="close"></button></div>'
+            config.title.html
+              ? config.title.text
+              : `<p pops>${config.title.text}</p>`
+          }
+      </div>
+      <div class="pops-alert-content">
+          ${
+            config.content.html
+              ? config.content.text
+              : `<p pops>${config.content.text}</p>`
+          }
+      </div>
+      <div class="pops-alert-btn" style="justify-content:${
+        config.btn.position
+      };">
+          ${
+            config.btn.ok.enable
+              ? `<button class="pops-alert-btn-ok" type="${config.btn.ok.type}">${config.btn.ok.text}</button>`
               : ""
           }
       </div>
-    </div>`;
+      ${
+        config.btn.close.enable
+          ? '<div class="pops-controls"><button class="pops-control" type="close"></button></div>'
+          : ""
+      }`
+    );
 
-    const animElement =
-      popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的主元素，包括动画层 */
-    var maskElement = null; /* 弹窗遮罩层的html */
-    const popsElement =
-      animElement.querySelector(".pops[type-value"); /* 弹窗的主元素 */
-    const btnCloseElement = animElement.querySelector(
-      ".pops-control[type='close']"
-    ); /* 关闭按钮 */
-    const btnOkElement =
-      animElement.querySelector(".pops-alert-btn-ok"); /* 确定按钮 */
-    const titleElement =
-      animElement.querySelector(".pops-alert-title"); /* 标题元素 */
-    var elementList = [animElement];
+    /**
+     * 弹窗的主元素，包括动画层
+     */
+    let animElement = PopsElementHandler.parseElement(animHTML);
 
-    if (config.mask) {
-      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
-      elementList = [...elementList, maskElement];
+    let { popsElement, btnCloseElement, btnOkElement, titleElement } =
+      PopsHandler.handleQueryElement(animElement, "alert");
+    /**
+     * 遮罩层元素
+     * @type {?HTMLDivElement}
+     */
+    let maskElement = null;
+    /**
+     * 已创建的元素列表
+     * @type {HTMLElement[]}
+     */
+    let elementList = [animElement];
+
+    if (config.mask.enable) {
+      let _handleMask_ = PopsHandler.handleMask({
+        type: "alert",
+        guid: guid,
+        config: config,
+        animElement: animElement,
+        maskHTML: maskHTML,
+      });
+      maskElement = _handleMask_.maskElement;
+      elementList.push(maskElement);
     }
-    var event = {
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      type: "",
-      function: "alert",
-      guid: guid,
-      close: () => {
-        popsUtils.close(that.config.layer.alert, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.alert, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.alert, guid, config);
-      },
-    };
-    btnCloseElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "close",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.close.callback(_event_);
-    });
-    btnOkElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "ok",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.ok.callback(_event_);
-    });
+    let event = PopsHandler.handleEventDetails(
+      guid,
+      "alert",
+      animElement,
+      popsElement,
+      maskElement,
+      config
+    );
+    PopsHandler.handleClickEvent(
+      btnCloseElement,
+      "close",
+      event,
+      config.btn.close.callback
+    );
+    PopsHandler.handleClickEvent(
+      btnOkElement,
+      "ok",
+      event,
+      config.btn.ok.callback
+    );
 
+    /* 创建到页面中 */
     popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
-    this.config.layer.alert = [
-      ...this.config.layer.alert,
-      {
-        guid: guid,
-        animElement: animElement,
-        popsElement: popsElement,
-        maskElement: maskElement,
-      },
-    ];
+    this.config.layer.alert.push({
+      guid: guid,
+      animElement: animElement,
+      popsElement: popsElement,
+      maskElement: maskElement,
+    });
+    /* 拖拽 */
     if (config.drag) {
       popsUtils.drag(popsElement, {
         handle: titleElement,
@@ -1589,21 +1816,7 @@
       });
     }
 
-    return {
-      guid: guid,
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      close: () => {
-        popsUtils.close(that.config.layer.alert, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.alert, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.alert, guid, config);
-      },
-    };
+    return PopsHandler.handleResultDetails(event);
   };
 
   /**
@@ -1637,7 +1850,13 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
    * @property {number} [zIndex=false] 弹窗的显示层级
-   * @property {boolean} [mask=false] 遮罩层
+   * @property {{
+   *  enable: boolean,
+   *  clickEvent: {
+   *    toClose: boolean,
+   *    toHide: boolean,
+   *  }
+   * }} mask 遮罩层
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
    */
@@ -1647,6 +1866,7 @@
    * @returns {{
    * guid: string,
    * element: HTMLElement,
+   * animElement: HTMLElement,
    * popsElement: HTMLElement,
    * maskElement: HTMLElement,
    * close: Function,
@@ -1655,10 +1875,11 @@
    * }}
    */
   pops.confirm = function (details) {
+    let that = this;
     if (this.config.init === false) {
       this.init();
     }
-    var config = {
+    let config = {
       title: {
         text: "默认标题",
         position: "left",
@@ -1720,13 +1941,18 @@
         "center" /* 弹窗定位,top_left,top,top_right,center_left,center,center_right,bottom_left,bottom,bottom_right */,
       animation: "pops-anim-fadein-zoom" /* 弹窗动画 */,
       zIndex: 10000 /* 弹窗所在的层级 */,
-      mask: false /* 遮罩层 */,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false /* enable为true时，点击遮罩层触发关闭 */,
+          toHide: false /* enable为true时，点击遮罩层触发隐藏 */,
+        },
+      },
       drag: false /* 是否拖拽 */,
       forbiddenScroll: false /* 禁止页面滚动 */,
     };
     config = popsUtils.assignJSON(config, details);
-    var that = this;
-    var guid = popsUtils.guid();
+    let guid = popsUtils.guid();
     if (config.only) {
       popsUtils.configRemove(
         [
@@ -1741,19 +1967,15 @@
     } else {
       config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
-    var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
-      config.zIndex - 100
-    };"></div>`;
-    var animHTML = `<div class="pops-anim" anim="${
-      config.animation
-    }" style="z-index:${config.zIndex};" data-guid="${guid}"><div class="pops ${
-      config.class
-    }" type-value="confirm" style="width:${config.width};height:${
-      config.height
-    };z-index:${config.zIndex};" position="${
-      config.position
-    }" data-guid="${guid}">
-				<div class="pops-confirm-title" style="text-align: ${config.title.position};">
+    let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+    let animHTML = PopsElementHandler.getAnimHTML(
+      guid,
+      "confirm",
+      config,
+      `
+    <div class="pops-confirm-title" style="text-align: ${
+      config.title.position
+    };">
 					${
             config.title.html
               ? config.title.text
@@ -1769,8 +1991,8 @@
           
 				</div>
 				<div class="pops-confirm-btn" style="justify-content:${config.btn.position};${
-      config.btn.reverse ? "flex-direction: row-reverse;" : ""
-    }">
+        config.btn.reverse ? "flex-direction: row-reverse;" : ""
+      }">
           ${
             config.btn.merge
               ? `
@@ -1840,96 +2062,87 @@
             ? '<div class="pops-controls"><button class="pops-control" type="close"></button></div>'
             : ""
         }
-		</div>
-    </div>`;
-    const animElement =
-      popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗主元素（包括动画） */
-    var maskElement = null; /* 弹窗遮罩层的html */
+    `
+    );
+    /**
+     * 弹窗的主元素，包括动画层
+     */
+    let animElement = PopsElementHandler.parseElement(animHTML);
 
-    const popsElement =
-      animElement.querySelector(".pops[type-value]"); /* 弹窗主元素 */
-    const btnCloseElement = animElement.querySelector(
-      ".pops-control[type='close']"
-    ); /* 关闭按钮 */
-    const btnOkElement = animElement.querySelector(
-      ".pops-confirm-btn-ok"
-    ); /* 确定按钮 */
-    const btnCancelElement = animElement.querySelector(
-      ".pops-confirm-btn-cancel"
-    ); /* 取消按钮 */
-    const btnOtherElement = animElement.querySelector(
-      ".pops-confirm-btn-other"
-    ); /* 其它按钮 */
-    const titleElement = animElement.querySelector(
-      ".pops-confirm-title"
-    ); /* 标题元素 */
-
-    var elementList = [animElement];
-    if (config.mask) {
-      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
-      elementList = [...elementList, maskElement];
+    let {
+      popsElement,
+      titleElement,
+      btnCloseElement,
+      btnOkElement,
+      btnCancelElement,
+      btnOtherElement,
+    } = PopsHandler.handleQueryElement(animElement, "confirm");
+    /**
+     * 遮罩层元素
+     * @type {?HTMLDivElement}
+     */
+    let maskElement = null;
+    /**
+     * 已创建的元素列表
+     * @type {HTMLElement[]}
+     */
+    let elementList = [animElement];
+    if (config.mask.enable) {
+      let _handleMask_ = PopsHandler.handleMask({
+        type: "confirm",
+        guid: guid,
+        config: config,
+        animElement: animElement,
+        maskHTML: maskHTML,
+      });
+      maskElement = _handleMask_.maskElement;
+      elementList.push(maskElement);
     }
+    let event = PopsHandler.handleEventDetails(
+      guid,
+      "confirm",
+      animElement,
+      popsElement,
+      maskElement,
+      config
+    );
+    PopsHandler.handleClickEvent(
+      btnCloseElement,
+      "close",
+      event,
+      config.btn.close.callback
+    );
+    PopsHandler.handleClickEvent(
+      btnOkElement,
+      "ok",
+      event,
+      config.btn.ok.callback
+    );
+    PopsHandler.handleClickEvent(
+      btnCancelElement,
+      "cancel",
+      event,
+      config.btn.cancel.callback
+    );
+    PopsHandler.handleClickEvent(
+      btnOtherElement,
+      "other",
+      event,
+      config.btn.other.callback
+    );
 
-    var event = {
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      type: "",
-      function: "confirm",
-      guid: guid,
-
-      close: () => {
-        popsUtils.close(that.config.layer.confirm, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.confirm, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.confirm, guid, config);
-      },
-    };
-    btnCloseElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "close",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.close.callback(_event_);
-    });
-    btnOkElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "ok",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.ok.callback(_event_);
-    });
-    btnCancelElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "cancel",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.cancel.callback(_event_);
-    });
-    btnOtherElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "other",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.other.callback(_event_);
-    });
-
+    /* 创建到页面中 */
     popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
-    this.config.layer.confirm = [
-      ...this.config.layer.confirm,
-      {
-        guid: guid,
-        animElement: animElement,
-        popsElement: popsElement,
-        maskElement: maskElement,
-      },
-    ];
+    this.config.layer.confirm.push({
+      guid: guid,
+      animElement: animElement,
+      popsElement: popsElement,
+      maskElement: maskElement,
+    });
+    /* 拖拽 */
     if (config.drag) {
       popsUtils.drag(popsElement, {
         handle: titleElement,
@@ -1939,22 +2152,7 @@
         limit: true,
       });
     }
-
-    return {
-      guid: guid,
-      element: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      close: () => {
-        popsUtils.close(that.config.layer.confirm, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.confirm, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.confirm, guid, config);
-      },
-    };
+    return PopsHandler.handleResultDetails(event);
   };
 
   /**
@@ -1991,7 +2189,13 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
    * @property {number} [zIndex=10000] 弹窗的显示层级
-   * @property {boolean} [mask=false] 遮罩层
+   * @property { {
+   *  enable: boolean,
+   *  clickEvent: {
+   *    toClose: boolean,
+   *    toHide: boolean,
+   *  }
+   * } } mask 遮罩层
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
    */
@@ -2001,6 +2205,7 @@
    * @returns {{
    * guid: string,
    * element: Element,
+   * animElement: HTMLElement,
    * popsElement: Element,
    * maskElement: Element,
    * close: Function,
@@ -2009,10 +2214,11 @@
    * }}
    */
   pops.prompt = function (details) {
+    let that = this;
     if (this.config.init === false) {
       this.init();
     }
-    var config = {
+    let config = {
       title: {
         text: "默认标题",
         position: "left",
@@ -2074,20 +2280,25 @@
         "center" /* 弹窗定位,top_left,top,top_right,center_left,center,center_right,bottom_left,bottom,bottom_right */,
       animation: "pops-anim-fadein-zoom" /* 弹窗动画 */,
       zIndex: 10000 /* 弹窗所在的层级 */,
-      mask: false /* 遮罩层 */,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false /* enable为true时，点击遮罩层触发关闭 */,
+          toHide: false /* enable为true时，点击遮罩层触发隐藏 */,
+        },
+      },
       drag: false /* 是否拖拽 */,
       forbiddenScroll: false /* 禁止页面滚动 */,
     };
     config = popsUtils.assignJSON(config, details);
-    var that = this;
-    var guid = popsUtils.guid();
+    let guid = popsUtils.guid();
     if (config.only) {
       popsUtils.configRemove(
         [
-          that.config.layer.alert,
-          that.config.layer.confirm,
-          that.config.layer.prompt,
-          that.config.layer.iframe,
+          this.config.layer.alert,
+          this.config.layer.confirm,
+          this.config.layer.prompt,
+          this.config.layer.iframe,
         ],
         "",
         true
@@ -2095,209 +2306,199 @@
     } else {
       config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
-    var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
-      config.zIndex - 100
-    };"></div>`;
-    var animHTML = `<div class="pops-anim" anim="${
-      config.animation
-    }" style="z-index:${config.zIndex};" data-guid="${guid}">
-      <div class="pops ${config.class}" type-value="prompt" style="width:${
-      config.width
-    };height:${config.height};z-index:${config.zIndex};" position="${
-      config.position
-    }" data-guid="${guid}">
-          <div class="pops-prompt-title" style="text-align: ${
-            config.title.position
-          };">
-            ${
-              config.title.html
-                ? config.title.text
-                : "<p pops>" + config.title.text + "</p>"
-            }
-          </div>
-          <div class="pops-prompt-content">
-          ${
-            config.content.row
-              ? '<textarea pops="" placeholder="' +
-                config.content.placeholder +
-                '"></textarea>'
-              : '<input pops="" placeholder="' +
-                config.content.placeholder +
-                '" type="' +
-                (config.content.password ? "password" : "text") +
-                '">'
-          }
-          </div>
-          <div class="pops-prompt-btn" style="justify-content:${
-            config.btn.position
-          };${config.btn.reverse ? "flex-direction: row-reverse;" : ""}">
-            ${
-              config.btn.merge
-                ? `
-              ${
-                config.btn.other.enable
-                  ? '<button class="pops-prompt-btn-other" type="' +
-                    config.btn.other.type +
-                    '">' +
-                    config.btn.other.text +
-                    "</button>"
-                  : ""
-              }
-              <div class="pops-prompt-btn-merge" style="display: flex;flex-direction: ${
-                config.btn.mergeReverse ? "row-reverse" : "row"
-              };">
-              ${
-                config.btn.ok.enable
-                  ? '<button class="pops-prompt-btn-ok" type="' +
-                    config.btn.ok.type +
-                    '">' +
-                    config.btn.ok.text +
-                    "</button>"
-                  : ""
-              }
-              ${
-                config.btn.cancel.enable
-                  ? '<button class="pops-prompt-btn-cancel" type="' +
-                    config.btn.cancel.type +
-                    '">' +
-                    config.btn.cancel.text +
-                    "</button>"
-                  : ""
-              }
-              </div>
-              `
-                : `
-              ${
-                config.btn.ok.enable
-                  ? '<button class="pops-prompt-btn-ok" type="' +
-                    config.btn.ok.type +
-                    '">' +
-                    config.btn.ok.text +
-                    "</button>"
-                  : ""
-              }
-              ${
-                config.btn.cancel.enable
-                  ? '<button class="pops-prompt-btn-cancel" type="' +
-                    config.btn.cancel.type +
-                    '">' +
-                    config.btn.cancel.text +
-                    "</button>"
-                  : ""
-              }
-              ${
-                config.btn.other.enable
-                  ? '<button class="pops-prompt-btn-other" type="' +
-                    config.btn.other.type +
-                    '">' +
-                    config.btn.other.text +
-                    "</button>"
-                  : ""
-              }
-              `
-            }
-          </div>
-          ${
-            config.btn.close.enable
-              ? '<div class="pops-controls"><button class="pops-control" type="close"></button></div>'
-              : ""
-          }
-      </div>
-    </div>`;
-    var animElement = popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
-    var maskElement = null; /* 弹窗遮罩层的html */
-    var elementList = [animElement];
-    if (config.mask) {
-      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
-      elementList = [...elementList, maskElement];
+    let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+    let animHTML = PopsElementHandler.getAnimHTML(
+      guid,
+      "prompt",
+      config,
+      `
+    <div class="pops-prompt-title" style="text-align: ${
+      config.title.position
+    };">
+      ${
+        config.title.html
+          ? config.title.text
+          : "<p pops>" + config.title.text + "</p>"
+      }
+    </div>
+    <div class="pops-prompt-content">
+    ${
+      config.content.row
+        ? '<textarea pops="" placeholder="' +
+          config.content.placeholder +
+          '"></textarea>'
+        : '<input pops="" placeholder="' +
+          config.content.placeholder +
+          '" type="' +
+          (config.content.password ? "password" : "text") +
+          '">'
     }
+    </div>
+    <div class="pops-prompt-btn" style="justify-content:${
+      config.btn.position
+    };${config.btn.reverse ? "flex-direction: row-reverse;" : ""}">
+      ${
+        config.btn.merge
+          ? `
+        ${
+          config.btn.other.enable
+            ? '<button class="pops-prompt-btn-other" type="' +
+              config.btn.other.type +
+              '">' +
+              config.btn.other.text +
+              "</button>"
+            : ""
+        }
+        <div class="pops-prompt-btn-merge" style="display: flex;flex-direction: ${
+          config.btn.mergeReverse ? "row-reverse" : "row"
+        };">
+        ${
+          config.btn.ok.enable
+            ? '<button class="pops-prompt-btn-ok" type="' +
+              config.btn.ok.type +
+              '">' +
+              config.btn.ok.text +
+              "</button>"
+            : ""
+        }
+        ${
+          config.btn.cancel.enable
+            ? '<button class="pops-prompt-btn-cancel" type="' +
+              config.btn.cancel.type +
+              '">' +
+              config.btn.cancel.text +
+              "</button>"
+            : ""
+        }
+        </div>
+        `
+          : `
+        ${
+          config.btn.ok.enable
+            ? '<button class="pops-prompt-btn-ok" type="' +
+              config.btn.ok.type +
+              '">' +
+              config.btn.ok.text +
+              "</button>"
+            : ""
+        }
+        ${
+          config.btn.cancel.enable
+            ? '<button class="pops-prompt-btn-cancel" type="' +
+              config.btn.cancel.type +
+              '">' +
+              config.btn.cancel.text +
+              "</button>"
+            : ""
+        }
+        ${
+          config.btn.other.enable
+            ? '<button class="pops-prompt-btn-other" type="' +
+              config.btn.other.type +
+              '">' +
+              config.btn.other.text +
+              "</button>"
+            : ""
+        }
+        `
+      }
+    </div>
+    ${
+      config.btn.close.enable
+        ? '<div class="pops-controls"><button class="pops-control" type="close"></button></div>'
+        : ""
+    }
+    `
+    );
+    /**
+     * 弹窗的主元素，包括动画层
+     * @type {HTMLDivElement}
+     */
+    let animElement = PopsElementHandler.parseElement(animHTML);
 
-    const popsElement = animElement.querySelector(".pops[type-value]");
-    const inputElement = animElement.querySelector(
-      ".pops-prompt-content textarea[pops]"
-    )
-      ? animElement.querySelector(".pops-prompt-content textarea[pops]")
-      : animElement.querySelector(
-          ".pops-prompt-content input[pops]"
-        ); /* 输入框，input或者textarea */
-    const btnCloseElement = animElement.querySelector(
-      ".pops-control[type='close']"
-    ); /* 右上角关闭小按钮 */
-    const btnOkElement = animElement.querySelector(
-      ".pops-prompt-btn-ok"
-    ); /* 确认按钮 */
-    const btnCancelElement = animElement.querySelector(
-      ".pops-prompt-btn-cancel"
-    ); /* 取消按钮 */
-    const btnOtherElement = animElement.querySelector(
-      ".pops-prompt-btn-other"
-    ); /* 其它按钮 */
-    const titleElement = animElement.querySelector(".pops-prompt-title");
-    /* 标题元素 */
-    var event = {
-      animElement: animElement /* 可能含有动画层 */,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      type: "",
-      function: "prompt",
-      guid: guid,
-      text: "",
-      close: () => {
-        popsUtils.close(that.config.layer.prompt, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.prompt, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.prompt, guid, config);
-      },
-    };
+    let {
+      popsElement,
+      inputElement,
+      btnCloseElement,
+      btnOkElement,
+      btnCancelElement,
+      btnOtherElement,
+      titleElement,
+    } = PopsHandler.handleQueryElement(animElement, "prompt");
+    /**
+     * 遮罩层元素
+     * @type {?HTMLDivElement}
+     */
+    let maskElement = null;
+
+    /**
+     * 已创建的元素列表
+     * @type {HTMLElement[]}
+     */
+    let elementList = [animElement];
+    if (config.mask.enable) {
+      let _handleMask_ = PopsHandler.handleMask({
+        type: "prompt",
+        guid: guid,
+        config: config,
+        animElement: animElement,
+        maskHTML: maskHTML,
+      });
+      maskElement = _handleMask_.maskElement;
+      elementList.push(maskElement);
+    }
+    let event = PopsHandler.handleEventDetails(
+      guid,
+      "prompt",
+      animElement,
+      popsElement,
+      maskElement,
+      config
+    );
+    /* 输入框赋值初始值 */
     inputElement.value = config.content.text;
-    btnCloseElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "close",
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.close.callback(_event_);
-    });
-    btnOkElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "ok",
-        text: inputElement.value,
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.ok.callback(_event_);
-    });
-    btnCancelElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "cancel",
-        text: inputElement.value,
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.cancel.callback(_event_);
-    });
-    btnOtherElement?.addEventListener("click", () => {
-      var _event_ = {
-        type: "other",
-        text: inputElement.value,
-      };
-      _event_ = popsUtils.assignJSON(event, _event_);
-      config.btn.other.callback(_event_);
-    });
+    PopsHandler.handlePromptClickEvent(
+      inputElement,
+      btnCloseElement,
+      "close",
+      event,
+      config.btn.close.callback
+    );
 
+    PopsHandler.handlePromptClickEvent(
+      inputElement,
+      btnOkElement,
+      "ok",
+      event,
+      config.btn.ok.callback
+    );
+    PopsHandler.handlePromptClickEvent(
+      inputElement,
+      btnCancelElement,
+      "cancel",
+      event,
+      config.btn.cancel.callback
+    );
+
+    PopsHandler.handlePromptClickEvent(
+      inputElement,
+      btnOtherElement,
+      "other",
+      event,
+      config.btn.other.callback
+    );
+    /* 创建到页面中 */
     popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
-    this.config.layer.prompt = [
-      ...this.config.layer.prompt,
-      {
-        guid: guid,
-        animElement: animElement,
-        popsElement: popsElement,
-        maskElement: maskElement,
-      },
-    ];
+    this.config.layer.prompt.push({
+      guid: guid,
+      animElement: animElement,
+      popsElement: popsElement,
+      maskElement: maskElement,
+    });
+    /* 拖拽 */
     if (config.drag) {
       popsUtils.drag(popsElement, {
         handle: titleElement,
@@ -2307,26 +2508,12 @@
         limit: true,
       });
     }
+    /* 设置自动获取焦点 */
     if (config.content.focus) {
-      /* 设置焦点 */
       inputElement?.focus();
     }
 
-    return {
-      guid: guid,
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      close: () => {
-        popsUtils.close(that.config.layer.prompt, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.prompt, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.prompt, guid, config);
-      },
-    };
+    return PopsHandler.handleResultDetails(event);
   };
 
   /**
@@ -2340,7 +2527,13 @@
    * @property {boolean} [only=false] 是否是唯一的弹窗
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
    * @property {number} [zIndex=10000"] 弹窗的显示层级
-   * @property {boolean} [mask=true] 遮罩层
+   * @property { {
+   *  enable: boolean,
+   *  clickEvent: {
+   *    toClose: boolean,
+   *    toHide: boolean,
+   *  }
+   * } } mask 遮罩层
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
    */
   /**
@@ -2349,6 +2542,7 @@
    * @returns {{
    * guid: string,
    * element: Element,
+   * animElement: HTMLElement,
    * popsElement: Element,
    * maskElement: Element,
    * close: Function,
@@ -2357,10 +2551,11 @@
    * }}
    */
   pops.loading = function (details) {
+    let that = this;
     if (this.config.init === false) {
       this.init();
     }
-    var config = {
+    let config = {
       parent: null,
       content: {
         text: "加载中...",
@@ -2369,7 +2564,13 @@
       class: "" /* 添加自定义的className */,
       only: false /* 是否唯一 */,
       zIndex: 10000 /* 弹窗所在的层级 */,
-      mask: true /* 遮罩层 */,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false /* enable为true时，点击遮罩层触发关闭 */,
+          toHide: false /* enable为true时，点击遮罩层触发隐藏 */,
+        },
+      },
       animation: "pops-anim-fadein-zoom" /* 动画效果 */,
       forbiddenScroll: false /* 阻止页面滚动 */,
     };
@@ -2377,61 +2578,75 @@
     if (!(config.parent instanceof HTMLElement)) {
       throw "父元素必须是一个元素节点";
     }
-    var that = this;
-    var guid = popsUtils.guid();
+    let guid = popsUtils.guid();
     if (config.only) {
       popsUtils.configRemove([that.config.layer.loading], "", true);
     } else {
       config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
-    var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
-      config.zIndex - 100
-    };"></div>`;
-    var animHTML = `<div class="pops-anim" anim="${config.animation}" style="z-index:${config.zIndex};" data-guid="${guid}">
-    <div class="pops ${config.class}" type-value="loading" style="z-index:${config.zIndex};" data-guid="${guid}">
-				<div class="pops-loading-content">
-          <p pops>${config.content.text}</p>
-				</div>
-		</div></div>`;
-    var animElement = popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
-    var maskElement = null; /* 弹窗遮罩层的html */
-    var elementList = [animElement];
-    if (config.mask) {
-      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
-      elementList = [...elementList, maskElement];
-    }
-    const popsElement =
-      animElement.querySelector(".pops[type-value"); /* 弹窗的主元素 */
+    let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
+    let animHTML = PopsElementHandler.getAnimHTML(
+      guid,
+      "loading",
+      config,
+      `
+    <div class="pops-loading-content">
+      <p pops>${config.content.text}</p>
+    </div>
+    `
+    );
 
+    /**
+     * 弹窗的主元素，包括动画层
+     * @type {HTMLDivElement}
+     */
+    let animElement = PopsElementHandler.parseElement(animHTML);
+
+    let { popsElement } = PopsHandler.handleQueryElement(
+      animElement,
+      "loading"
+    );
+    /**
+     * 遮罩层元素
+     * @type {?HTMLDivElement}
+     */
+    let maskElement = null;
+    /**
+     * 已创建的元素列表
+     * @type {HTMLElement[]}
+     */
+    let elementList = [animElement];
+    if (config.mask.enable) {
+      let _handleMask_ = PopsHandler.handleMask({
+        type: "loading",
+        guid: guid,
+        config: config,
+        animElement: animElement,
+        maskHTML: maskHTML,
+      });
+      maskElement = _handleMask_.maskElement;
+      elementList.push(maskElement);
+    }
+    let event = PopsHandler.handleEventDetails(
+      guid,
+      "loading",
+      animElement,
+      popsElement,
+      maskElement,
+      config
+    );
     popsUtils.appendChild(config.parent, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
-    this.config.layer.loading = [
-      ...this.config.layer.loading,
-      {
-        guid: guid,
-        animElement: animElement,
-        popsElement: popsElement,
-        maskElement: maskElement,
-      },
-    ];
-
-    return {
+    this.config.layer.loading.push({
       guid: guid,
       animElement: animElement,
       popsElement: popsElement,
       maskElement: maskElement,
-      close: () => {
-        popsUtils.close(that.config.layer.loading, guid, config);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.loading, guid, config);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.loading, guid, config);
-      },
-    };
+    });
+
+    return PopsHandler.handleResultDetails(event);
   };
 
   /**
@@ -2475,7 +2690,13 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置
    * @property {string} [animation=""pops-anim-fadein-zoom""] 弹窗动画
    * @property {number} [zIndex=10000] 弹窗的显示层级
-   * @property {boolean} [mask=true] 遮罩层
+   * @property {{
+   * enable: boolean,
+   * clickEvent: {
+   *  toClose: boolean,
+   *  toHide:boolean,
+   * },
+   * }} mask 遮罩层
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽
    * @property {string} [topRightButton="min|max|close"] 右上角按钮：最小化、最大化和关闭
    * @property {boolean} [sandbox=false] 沙箱
@@ -2488,6 +2709,7 @@
    * @returns {{
    * guid: string,
    * element: Element,
+   * animElement: HTMLElement,
    * popsElement: Element,
    * maskElement: Element,
    * close: Function,
@@ -2496,10 +2718,11 @@
    * }}
    */
   pops.iframe = function (details) {
+    let that = this;
     if (this.config.init === false) {
       this.init();
     }
-    var config = {
+    let config = {
       title: {
         position: "center",
         text: "",
@@ -2514,7 +2737,13 @@
       url: null,
       only: false /* 是否唯一 */,
       zIndex: 10000 /* 弹窗所在的层级 */,
-      mask: true /* 遮罩层 */,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false /* enable为true时，点击遮罩层触发关闭 */,
+          toHide: false /* enable为true时，点击遮罩层触发隐藏 */,
+        },
+      },
       animation: "pops-anim-fadein-zoom" /* 动画效果 */,
       position: "center" /* 位置 */,
       drag: false /* 是否拖拽 */,
@@ -2540,8 +2769,7 @@
     if (config.url == null) {
       throw "网址不能为空";
     }
-    var that = this;
-    var guid = popsUtils.guid();
+    let guid = popsUtils.guid();
     if (config.only) {
       popsUtils.configRemove(
         [
@@ -2556,118 +2784,133 @@
     } else {
       config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
     }
-    var maskHTML = `<div class="pops-mask" data-guid="${guid}" style="z-index:${
-      config.zIndex - 100
-    };${
+    let maskExtraStyle =
       config.animation != null && config.animation != ""
         ? "position:absolute;"
-        : ""
-    }"></div>`;
-    var iframeLoadingHTML = '<div class="pops-loading"></div>';
-    var topRightButtonHTML = ""; /* 右上角按钮群 */
+        : "";
+    let maskHTML = PopsElementHandler.getMaskHTML(
+      guid,
+      config.zIndex,
+      maskExtraStyle
+    );
+    let iframeLoadingHTML = '<div class="pops-loading"></div>';
+    /**
+     * 右上角按钮群
+     */
+    let topRightButtonHTML = "";
     if (config.topRightButton.trim() !== "") {
       config.topRightButton.split("|").forEach((item) => {
         topRightButtonHTML += `<button class="pops-control" type="${item}"></button>`;
       });
     }
-    var titleText =
+    let titleText =
       config.title.text.trim() !== "" ? config.title.text : config.url;
-    var animHTML = `<div class="pops-anim" anim="${
-      config.animation
-    }" style="z-index:${config.zIndex};" data-guid="${guid}"><div class="pops ${
-      config.class
-    }" type-value="iframe" style="width:${config.width};height:${
-      config.height
-    };z-index:${config.zIndex};" position="${
-      config.position
-    }" data-guid="${guid}">
-				<div class="pops-iframe-title" style="text-align: ${config.title.position};">
-					${config.title.html ? titleText : "<p pops>" + titleText + "</p>"}
-				</div>
+    let animHTML = PopsElementHandler.getAnimHTML(
+      guid,
+      "iframe",
+      config,
+      `
+      <div 
+          class="pops-iframe-title"
+          style="text-align: ${config.title.position};">
+          ${config.title.html ? titleText : `<p pops>${titleText}</p>`}
+      </div>
 				<div class="pops-iframe-content">
           <div class="pops-iframe-content-global-loading"></div>
-          <iframe src="${config.url}" pops ${
-      config.sandbox
-        ? "sandbox='allow-forms allow-same-origin allow-scripts'"
-        : ""
-    }></iframe>
-				</div>
+          <iframe
+                src="${config.url}"
+                pops
+                ${
+                  config.sandbox
+                    ? "sandbox='allow-forms allow-same-origin allow-scripts'"
+                    : ""
+                }>
+          </iframe>
+        </div>
 				<div class="pops-controls">${topRightButtonHTML}</div>
         ${config.loading.enable ? iframeLoadingHTML : ""}
-		</div>`;
-    var animElement = popsUtils.parseTextToDOM(animHTML)[0]; /* 弹窗的html */
-    var maskElement = null; /* 弹窗遮罩层的html */
-    var elementList = [animElement];
-    if (config.mask) {
-      maskElement = popsUtils.parseTextToDOM(maskHTML)[0];
-      elementList = [...elementList, maskElement];
+    `
+    );
+    /**
+     * 弹窗的主元素，包括动画层
+     * @type {HTMLDivElement}
+     */
+    let animElement = PopsElementHandler.parseElement(animHTML);
+    let {
+      popsElement,
+      btnCloseElement,
+      controlsElement,
+      titleElement,
+      iframeElement,
+      loadingElement,
+      contentLoadingElement,
+      minElement,
+      maxElement,
+    } = PopsHandler.handleQueryElement(animElement, "iframe");
+    /**
+     * 遮罩层元素
+     * @type {?HTMLDivElement}
+     */
+    let maskElement = null;
+    /**
+     * 已创建的元素列表
+     * @type {HTMLElement[]}
+     */
+    let elementList = [animElement];
+    if (config.mask.enable) {
+      let _handleMask_ = PopsHandler.handleMask({
+        type: "iframe",
+        guid: guid,
+        config: config,
+        animElement: animElement,
+        maskHTML: maskHTML,
+      });
+      maskElement = _handleMask_.maskElement;
+      elementList.push(maskElement);
     }
 
-    const iframePopsElement =
-      animElement.querySelector("iframe[pops]"); /* iframe内部的iframe */
-    const iframeLoadingElement =
-      animElement.querySelector(".pops-loading"); /* iframe内部的加载层 */
-    const iframeGlobalLoadingElement = animElement.querySelector(
-      ".pops-iframe-content-global-loading"
-    ); /* iframe内部的顶部进度加载层 */
-    const titleElement =
-      animElement.querySelector(".pops-iframe-title"); /* 标题元素 */
-    const popsElement =
-      animElement.querySelector(".pops[type-value"); /* 弹窗的主元素 */
-    const minElement = animElement.querySelector(
-      ".pops-control[type='min']"
-    ); /* 最小化 */
-    const maxElement = animElement.querySelector(
-      ".pops-control[type='max']"
-    ); /* 最大化 */
-    const controlsElement =
-      animElement.querySelector(".pops-controls"); /* 按钮组 */
-    const btnCloseElement = animElement.querySelector(
-      ".pops-control[type='close']"
-    ); /* 关闭按钮 */
+    let event = PopsHandler.handleEventDetails(
+      guid,
+      "iframe",
+      animElement,
+      popsElement,
+      maskElement,
+      config
+    );
+    event["iframeElement"] = iframeElement;
 
-    var event = {
-      animElement: animElement /* 可能含有动画层 */,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      iframePopsElement: iframePopsElement,
-      function: "iframe",
-      guid: guid,
-    };
-
-    animElement.addEventListener("animationend", function () {
+    animElement?.addEventListener("animationend", function () {
+      /* 动画加载完毕 */
       animElement.style.width = "0%";
       animElement.style.height = "0%";
     });
-    iframePopsElement?.addEventListener("load", function () {
-      iframeLoadingElement?.remove();
-      iframeGlobalLoadingElement.style.animation =
+    iframeElement?.addEventListener("load", function () {
+      /* iframe加载中... */
+      loadingElement?.remove();
+      contentLoadingElement.style.animation =
         "iframeLoadingChange_85 0.3s forwards";
-      iframeGlobalLoadingElement.addEventListener("animationend", function () {
-        iframeGlobalLoadingElement.remove();
+      contentLoadingElement.addEventListener("animationend", function () {
+        /* 动画加载完毕就移除 */
+        contentLoadingElement.remove();
       });
-      if (
-        config.title.text.trim() === "" &&
-        iframePopsElement.contentDocument
-      ) {
+      if (config.title.text.trim() === "" && iframeElement.contentDocument) {
         /* 同域名下的才可以获取网页标题 */
-        titleElement.innerText = iframePopsElement.contentDocument.title;
+        titleElement.innerText = iframeElement.contentDocument.title;
       }
       config.loadEndCallBack(event);
     });
+    /* 创建到页面中 */
     popsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
-    this.config.layer.iframe = [
-      ...this.config.layer.iframe,
-      {
-        guid: guid,
-        animElement: animElement,
-        popsElement: popsElement,
-        maskElement: maskElement,
-      },
-    ];
+    this.config.layer.iframe.push({
+      guid: guid,
+      animElement: animElement,
+      popsElement: popsElement,
+      maskElement: maskElement,
+    });
+    /* 拖拽 */
     if (config.drag) {
       popsUtils.drag(popsElement, {
         handle: titleElement,
@@ -2677,19 +2920,23 @@
         limit: true,
       });
     }
-    var normalLeft = "";
+    let normalLeft = "";
     minElement?.addEventListener("click", (event) => {
-      var allMinElementList = []; /* 获取所有最小化的iframe */
+      /**
+       * 所有最小化的iframe数组
+       * @type { HTMLElement[] }
+       */
+      let allMinElementList = [];
 
       pops.config.layer.iframe.forEach((item) => {
         if (
           item.animElement != animElement &&
           item.popsElement.getAttribute("type-module") === "min"
         ) {
-          allMinElementList = [...allMinElementList, item.popsElement];
+          allMinElementList.push(item.popsElement);
         }
       });
-      var maxLeftValue = allMinElementList.length
+      let maxLeftValue = allMinElementList.length
         ? allMinElementList.length * 205
         : 0;
       popsElement.style.transitionDuration = "";
@@ -2706,13 +2953,17 @@
         popsElement.style.left = normalLeft;
         controlsElement.removeAttribute("type");
         popsElement.removeAttribute("type-module");
-        var allMinElementList = [];
+        /**
+         * 所有最小化的iframe数组
+         * @type { HTMLElement[] }
+         */
+        let allMinElementList = [];
         pops.config.layer.iframe.forEach((item) => {
           if (
             item.animElement != animElement &&
             popsElement.getAttribute("type-module") === "min"
           ) {
-            allMinElementList = [...allMinElementList, item.popsElement];
+            allMinElementList.push(item.popsElement);
           }
         });
         allMinElementList.sort(
@@ -2741,13 +2992,13 @@
     btnCloseElement?.addEventListener("click", (event) => {
       popsUtils.configRemove([that.config.layer.iframe], guid, false);
       setTimeout(() => {
-        var allIsMinElementList = [];
+        let allIsMinElementList = [];
         pops.config.layer.iframe.forEach((item) => {
           if (
             item.animElement != animElement &&
             popsElement.getAttribute("type-module") === "min"
           ) {
-            allIsMinElementList = [...allIsMinElementList, item.popsElement];
+            allIsMinElementList.push(item.popsElement);
           }
         });
         allIsMinElementList.sort(
@@ -2768,21 +3019,8 @@
       config.btn.close.callback(event);
     });
 
-    return {
-      guid: guid,
-      animElement: animElement,
-      popsElement: popsElement,
-      maskElement: maskElement,
-      close: () => {
-        popsUtils.configRemove([that.config.layer.iframe], guid);
-      },
-      hide: () => {
-        popsUtils.hide(that.config.layer.iframe, guid);
-      },
-      show: () => {
-        popsUtils.show(that.config.layer.iframe, guid);
-      },
-    };
+    let result = PopsHandler.handleResultDetails(event);
+    return result;
   };
 
   /**
@@ -2809,10 +3047,11 @@
    * }}
    */
   pops.tooltip = function (details) {
+    let that = this;
     if (this.config.init === false) {
       this.init();
     }
-    var config = {
+    let config = {
       target: null /* 目标元素 */,
       content: "" /* 显示的文字 */,
       location:
@@ -2828,17 +3067,16 @@
     if (!(config.target instanceof HTMLElement)) {
       throw "目标必须是一个元素节点";
     }
-    var that = this;
-    var guid = popsUtils.guid();
+    let guid = popsUtils.guid();
     /**
      * 获取相应的元素
      * @returns {JSON}
      */
     function getToolTipNodeJSON() {
-      var _toolTipHTML_ = `<div class="pops-tip ${config.className}" data-guid="${guid}">${config.content}</div>`;
-      var _toolTipNode_ = popsUtils.parseTextToDOM(_toolTipHTML_)[0];
-      var _toolTipArrowHTML_ = '<div class="pops-tip-arrow"></div>'; /* 箭头 */
-      var _toolTipArrowNode_ = popsUtils.parseTextToDOM(_toolTipArrowHTML_)[0];
+      let _toolTipHTML_ = `<div class="pops-tip ${config.className}" data-guid="${guid}">${config.content}</div>`;
+      let _toolTipNode_ = popsUtils.parseTextToDOM(_toolTipHTML_)[0];
+      let _toolTipArrowHTML_ = '<div class="pops-tip-arrow"></div>'; /* 箭头 */
+      let _toolTipArrowNode_ = popsUtils.parseTextToDOM(_toolTipArrowHTML_)[0];
       _toolTipNode_.appendChild(_toolTipArrowNode_);
       return {
         toolTipNode: _toolTipNode_,
@@ -2848,8 +3086,8 @@
       };
     }
     config.location = config.location.toLowerCase();
-    var toolTipNodeJSON = getToolTipNodeJSON();
-    var toolTipNode = toolTipNodeJSON.toolTipNode;
+    let toolTipNodeJSON = getToolTipNodeJSON();
+    let toolTipNode = toolTipNodeJSON.toolTipNode;
     /**
      * 进入动画
      */
@@ -3031,11 +3269,11 @@
     return {
       guid: guid,
       config: config,
-      off: () => {
+      off() {
         offShowEvent();
         offCloseEvent();
       },
-      on: () => {
+      on() {
         onShowEvent();
         onCloseEvent();
       },
