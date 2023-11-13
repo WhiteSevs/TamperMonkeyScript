@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别
 // @supportURL   https://greasyfork.org/zh-CN/scripts/445489-网盘链接识别/feedback
-// @version      2023.11.12
+// @version      2023.11.13
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
 // @require      https://greasyfork.org/scripts/456470-%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93/code/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js?version=1211345
 // @require      https://greasyfork.org/scripts/465550-js-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6/code/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js?version=1270548
-// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1263431
+// @require      https://greasyfork.org/scripts/456485-pops/code/pops.js?version=1279439
 // @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
 // @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
 // ==/UserScript==
@@ -2121,7 +2121,15 @@
               },
             },
             animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-            mask: true,
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: GM_getValue(
+                  "clickMaskToCloseDialog",
+                  NetDiskUI.clickMaskToCloseDialog
+                ),
+              },
+            },
             drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
             height: pops.isPhone()
               ? NetDiskUI.popsStyle.tianYiYunLoginTip.Mobile.height
@@ -3310,7 +3318,15 @@
               },
             },
             animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-            mask: true,
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: GM_getValue(
+                  "clickMaskToCloseDialog",
+                  NetDiskUI.clickMaskToCloseDialog
+                ),
+              },
+            },
             drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
             height: pops.isPhone()
               ? NetDiskUI.popsStyle.jianGuoYunLoginTip.Mobile.height
@@ -4582,6 +4598,10 @@
      */
     defaultPCDrag: false,
     /**
+     * 点击弹窗遮罩层是否可以关闭弹窗
+     */
+    clickMaskToCloseDialog: false,
+    /**
      * 是否默认禁用弹窗弹出后背景可以滚动
      */
     defaultForbiddenScroll: false,
@@ -5661,6 +5681,7 @@
                     <div class="netdisk-setting-menu-item">
                         <label>弹窗动画</label>
                         <select data-key="popsAnimation" data-default="pops-anim-fadein-zoom">
+                            <option data-value="">无</option>
                             <option data-value="pops-anim-spread">spread</option>
                             <option data-value="pops-anim-shake">shake</option>
                             <option data-value="pops-anim-rolling-left">rolling-left</option>
@@ -5710,6 +5731,13 @@
                             <option data-value="按 更新时间 - 升序">按 更新时间 - 升序</option>
                             <option data-value="按 更新时间 - 降序">按 更新时间 - 降序</option>
                         </select>
+                    </div>
+                    <div class="netdisk-setting-menu-item" type="checkbox">
+                        <p>点击弹窗遮罩层关闭弹窗</p>
+                        <div class="netdisk-checkbox" style="position: inherit;top: unset;transform: matrix(1, 0, 0, 1, 0, 0);">
+                          <input type="checkbox" data-key="clickMaskToCloseDialog">
+                          <div class="knobs"><span></span></div><div class="layer"></div>
+                        </div>
                     </div>
                     <div class="netdisk-setting-menu-item" type="checkbox">
                         <p>Toast逆序弹出</p>
@@ -5920,7 +5948,15 @@
                     "popsAnimation",
                     NetDiskUI.defaultAnimation
                   ),
-                  mask: true,
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: GM_getValue(
+                        "clickMaskToCloseDialog",
+                        NetDiskUI.clickMaskToCloseDialog
+                      ),
+                    },
+                  },
                   drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
                   height: pops.isPhone()
                     ? NetDiskUI.popsStyle.setDefaultValueView.Mobile.height
@@ -5964,7 +6000,16 @@
             ? NetDiskUI.popsStyle.settingView.Mobile.width
             : NetDiskUI.popsStyle.settingView.PC.width,
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          mask: true,
+
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         setSettingInputEvent();
@@ -5978,8 +6023,8 @@
         let needDragEle = document.querySelector("#whitesevSuspensionId");
         let that = this;
         let dragNode = new AnyTouch(needDragEle);
-        let timerID = null;
-        let isClicked = false;
+        let showViewTimerId = null;
+        let moveFlag = false;
         let isDouble = false; /* 是否双击 */
         let clickDeviation_X = 0; /* 点击元素，距离元素左上角的X轴偏移 */
         let clickDeviation_Y = 0; /* 点击元素，距离元素左上角的Y轴偏移 */
@@ -5987,8 +6032,8 @@
          * 设置悬浮按钮 按下事件
          */
         dragNode.on("pan", function (event) {
-          if (!isClicked) {
-            isClicked = true;
+          if (!moveFlag) {
+            moveFlag = true;
             if (event.nativeEvent.offsetX) {
               clickDeviation_X = parseInt(event.nativeEvent.offsetX);
             } else {
@@ -6047,7 +6092,7 @@
            * 停止移动
            */
           if (event.phase === "end") {
-            isClicked = false;
+            moveFlag = false;
             DOMUtils.css(needDragEle, {
               cursor: "auto",
             });
@@ -6081,12 +6126,12 @@
         dragNode.on(["click", "tap"], function (event) {
           if (isDouble) {
             /* 判定为双击 */
-            clearTimeout(timerID);
+            clearTimeout(showViewTimerId);
             that.showSettingView();
             isDouble = false;
           } else {
             isDouble = true;
-            timerID = setTimeout(function () {
+            showViewTimerId = setTimeout(function () {
               isDouble = false;
               NetDiskUI.view.show();
             }, 200);
@@ -6441,7 +6486,15 @@
             ? NetDiskUI.popsStyle.mainView.Mobile.width
             : NetDiskUI.popsStyle.mainView.PC.width,
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toHide: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         this.setNetDiskUrlClickEvent(".netdisk-url a");
@@ -6948,12 +7001,20 @@
           width: pops.isPhone()
             ? NetDiskUI.popsStyle.oneFileStaticView.Mobile.width
             : NetDiskUI.popsStyle.oneFileStaticView.PC.width,
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
         if (clickCallBack) {
-          let linkElement = confirmElement.element.querySelector(
+          let linkElement = confirmElement.animElement.querySelector(
             "div.netdisk-static-filename a"
           );
           linkElement.setAttribute("href", "javascript:;");
@@ -7050,7 +7111,15 @@
             },
           },
           class: "whitesevPopMoreFile",
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
           height: pops.isPhone()
             ? NetDiskUI.popsStyle.moreFileStaticView.Mobile.height
@@ -7063,14 +7132,15 @@
         });
         if (clickCallBack) {
           log.success("设置当前直链弹窗超链接自定义点击事件");
-          alertElement.element
+          alertElement.animElement
             .querySelectorAll("div.netdisk-static-filename a")
             .forEach((item) => {
               item.setAttribute("href", "javascript:;");
               item.removeAttribute("target");
             });
-          DOMUtils.on(alertElement.element, "click", "a", function (event) {
-            /* 该链接是否是成功的 */ let dataDownload = utils.toJSON(
+          DOMUtils.on(alertElement.animElement, "click", "a", function (event) {
+            /* 该链接是否是成功的 */
+            let dataDownload = utils.toJSON(
               event.target.getAttribute("data-download")
             );
             clickCallBack(event, dataDownload);
@@ -7153,7 +7223,15 @@
         width: pops.isPhone()
           ? NetDiskUI.popsStyle.inputNewAccessCodeView.Mobile.width
           : NetDiskUI.popsStyle.inputNewAccessCodeView.PC.width,
-        mask: true,
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: GM_getValue(
+              "clickMaskToCloseDialog",
+              NetDiskUI.clickMaskToCloseDialog
+            ),
+          },
+        },
         animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
         drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
         forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
@@ -7280,7 +7358,15 @@
                       enable: true,
                     },
                   },
-                  mask: true,
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: GM_getValue(
+                        "clickMaskToCloseDialog",
+                        NetDiskUI.clickMaskToCloseDialog
+                      ),
+                    },
+                  },
                 });
               },
             },
@@ -7293,7 +7379,15 @@
           width: pops.isPhone()
             ? NetDiskUI.popsStyle.historyMatchView.Mobile.width
             : NetDiskUI.popsStyle.historyMatchView.PC.height,
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
@@ -7994,7 +8088,15 @@
                       enable: true,
                     },
                   },
-                  mask: true,
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: GM_getValue(
+                        "clickMaskToCloseDialog",
+                        NetDiskUI.clickMaskToCloseDialog
+                      ),
+                    },
+                  },
                 });
               },
             },
@@ -8007,11 +8109,19 @@
           width: pops.isPhone()
             ? NetDiskUI.popsStyle.accessCodeRuleView.Mobile.width
             : NetDiskUI.popsStyle.accessCodeRuleView.PC.height,
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
-        that.setDeleteAllBtnText(popsConfirm.element);
+        that.setDeleteAllBtnText(popsConfirm.animElement);
         this.setEvent(popsConfirm);
       },
       getShowItemHTML() {
@@ -8235,7 +8345,15 @@
           width: pops.isPhone()
             ? NetDiskUI.popsStyle.accessCodeRuleEditView.Mobile.width
             : NetDiskUI.popsStyle.accessCodeRuleEditView.PC.height,
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
@@ -8304,7 +8422,7 @@
       setEvent(event) {
         let that = this;
         DOMUtils.on(
-          event.element,
+          event.animElement,
           "click",
           ".netdisk-accesscode-rule-table div.accesscode-rule-functions button[data-delete]",
           function () {
@@ -8315,7 +8433,7 @@
             log.success(["删除👉", dataJSON]);
             if (that.deleteValue(dataJSON)) {
               this.closest("li").remove();
-              that.setDeleteAllBtnText(event.element);
+              that.setDeleteAllBtnText(event.animElement);
             } else {
               Qmsg.error("删除失败");
             }
@@ -8607,7 +8725,15 @@
           width: pops.isPhone()
             ? NetDiskUI.popsStyle.customRulesView.Mobile.width
             : NetDiskUI.popsStyle.customRulesView.PC.height,
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
@@ -8707,7 +8833,15 @@
           width: pops.isPhone()
             ? NetDiskUI.popsStyle.matchPasteTextView.Mobile.width
             : NetDiskUI.popsStyle.matchPasteTextView.PC.height,
-          mask: true,
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: GM_getValue(
+                "clickMaskToCloseDialog",
+                NetDiskUI.clickMaskToCloseDialog
+              ),
+            },
+          },
           drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
           forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         });
