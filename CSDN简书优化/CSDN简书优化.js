@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      2023.10.1
+// @version      2023.11.12
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -365,21 +365,21 @@
             /* 右边按钮组的最上面的创作话题 */
             div.csdn-side-toolbar .activity-swiper-box,
             .sidetool-writeguide-box .tip-box{
-                display: none !important;
+              display: none !important;
             }
             .comment-list-box{
-                max-height: none !important;
+              max-height: none !important;
             }
             .blog_container_aside,
             #nav{
-                margin-left: -45px;
+              margin-left: -45px;
             }
             .recommend-right.align-items-stretch.clearfix,.dl_right_fixed{
-                margin-left: 45px;
+              margin-left: 45px;
             }
             #content_views pre,
             #content_views pre code{
-                user-select: text !important;
+              user-select: text !important;
             }
             #article_content,
             .user-article.user-article-hide{
@@ -387,6 +387,29 @@
               overflow: auto !important;
             }
           `);
+        },
+        /**
+         * 添加在wenku.csdn.net下的CSS
+         */
+        addWenKuCSS(){
+          GM_addStyle(`
+          /* wenku顶部横幅 */
+          #app > div > div.main.pb-32 > div > div.top-bar,
+          /* 底部展开全文 */
+          #chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open{
+            display: none !important;
+          }
+          #chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid{
+            max-height: unset !important;
+            height: auto !important;
+            overflow: auto !important;
+          }
+          `)
+          GM_addStyle(`
+          .forbid{
+            user-select: text !important;
+          }
+          `)
         },
         /**
          * 去除剪贴板劫持
@@ -843,6 +866,9 @@
             that.addGotoRecommandButton();
           };
           DOMUtils.ready(readyCallBack);
+          if(window.location.hostname === "wenku.csdn.net"){
+            this.addWenKuCSS();
+          }
         },
       },
       Mobile: {
