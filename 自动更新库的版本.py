@@ -53,9 +53,10 @@ def handleLibraryData(libraryIdList):
         version = re.compile(rf'\/{libraryId}\/([\d]+)\/').search(code_url)
         version = version[1]
         result.append({
+            "id": libraryId,
             "name": respJson["name"],
-            "url": f"{respJson['url']}/code/{respJson['name']}.js",
-            "version": version
+            "version": version,
+            "code_url": respJson["code_url"]
         })
     return result
 
@@ -89,8 +90,8 @@ def replaceContent(path, dataList):
                 replaced_content = content
                 flag = False
                 for library in dataList:
-                    pattern = f"""{library["url"]}(\?version=[\d]+|)"""
-                    replacement = f"""{library["url"]}?version={library["version"]}"""
+                    pattern = f"""https://update.greasyfork.org/scripts/{library["id"]}/[\d]+/{library["name"]}.js"""
+                    replacement = library["code_url"]
                     patternMatch = re.findall(
                         pattern, content)
                     if len(patternMatch):
@@ -101,10 +102,9 @@ def replaceContent(path, dataList):
                         oldVersion = ""
                         if len(findData):
                             oldVersionMatch = re.compile(
-                                r'version=([\d]+)').search(findData[0])
+                                rf'update.greasyfork.org/scripts/{library["id"]}/([\d]+)/').search(findData[0])
                             if oldVersion is not None:
-                                oldVersion = oldVersionMatch[0].replace(
-                                    "version=", "")
+                                oldVersion = oldVersionMatch[1]
                         if oldVersion != library["version"] and int(oldVersion) < int(library["version"]):
                             flag = True
                             print(
