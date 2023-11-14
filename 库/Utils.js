@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-10";
+  Utils.version = "2023-11-14";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -3380,12 +3380,14 @@
 
   /**
    * 监听某个元素键盘按键事件或window全局按键事件
-   * @param {Window|Node|HTMLElement} listenObj 需要监听的对象，可以是全局Window或者某个元素
-   * @param {?function} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+   * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
+   * @param {Window|Node|HTMLElement|globalThis} target 需要监听的对象，可以是全局Window或者某个元素
+   * @param {"keyup"|"keypress"|"keydown"} eventName 事件名，默认keypress
+   * @param {?(keyName: string, otherCodeList: string[], event: KeyboardEvent)=>{}} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
    * @example 
-      Utils.listenKeyPress(window,(keyName,otherKey,event)=>{
+      Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
           if(keyName === "Enter"){
-              console.log("回车按键")
+              console.log("回车按键的值是："+keyValue)
           }
           if(otherKey.indexOf("ctrl") && keyName === "Enter" ){
               console.log("Ctrl和回车键");
@@ -3438,31 +3440,42 @@
 	搜索		170
 	收藏		171
    **/
-  Utils.listenKeyPress = function (listenObj, callback) {
-    if (!(listenObj == globalThis) && !Utils.isDOM(listenObj)) {
+  Utils.listenKeyboard = function (target, eventName = "keypress", callback) {
+    if (
+      typeof target !== "object" ||
+      (typeof target["addEventListener"] !== "function" &&
+        typeof target["removeEventListener"] !== "function")
+    ) {
       throw new Error(
-        "Utils.listenKeyPress 参数 listenObj 必须为 Window|Node 类型"
+        "Utils.listenKeyboard 参数 target 必须为 Window|HTMLElement 类型"
       );
     }
-    listenObj.addEventListener("keypress", function (event) {
-      let keyName = event.code || event.key;
+    let keyEvent = function (event) {
+      let keyName = event.key || event.code;
+      let keyValue = event.charCode || event.keyCode || event.which;
       let otherCodeList = [];
       if (event.ctrlKey) {
-        otherCodeList = [...otherCodeList, "ctrl"];
+        otherCodeList.push("ctrl");
       }
       if (event.altKey) {
-        otherCodeList = [...otherCodeList, "alt"];
+        otherCodeList.push("alt");
       }
       if (event.metaKey) {
-        otherCodeList = [...otherCodeList, "meta"];
+        otherCodeList.push("meta");
       }
       if (event.shiftKey) {
-        otherCodeList = [...otherCodeList, "shift"];
+        otherCodeList.push("shift");
       }
       if (typeof callback === "function") {
-        callback(keyName, otherCodeList, event);
+        callback(keyName, keyValue, otherCodeList, event);
       }
-    });
+    };
+    target.addEventListener(eventName, keyEvent);
+    return {
+      removeListen() {
+        target.removeEventListener(eventName, keyEvent);
+      },
+    };
   };
 
   /**
