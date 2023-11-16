@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.12
+// @version      2023.11.16
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -47,9 +47,9 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_info
 // @grant        unsafeWindow
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
+// @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
+// @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // @run-at       document-start
 // ==/UserScript==
 
@@ -1738,12 +1738,20 @@
       .question-analysis-new .see-more,
       /* 最底部-百度教育商务合作、产品代理销售或内容合作等*/
       .business-el-line,
-      .business-el-line-background{
+      .business-el-line-background,
+      /* 展开按钮 */
+      .question-analysis-new .expand{
         display: none !important;
       }
       /* 显示答案及解析 */
       .ques-title.analysis-title + div{
         display: unset !important;
+      }
+      .question-analysis-new .analysis-wrap,
+      #analysis{
+        overflow: unset !important;
+        height: unset !important;
+        max-height: unset !important;
       }
       /* 电脑端 */
       /* 中间弹窗-限时专享福利 */
@@ -5718,8 +5726,9 @@
                 } else {
                   /* 当前是在主页中，搜索按钮判定为搜索吧 */
                   tiebaSearchConfig.frontPageSeach();
-                  utils.listenKeyPress(
+                  utils.listenKeyboard(
                     document.querySelector("#tieba-search"),
+                    "keypress",
                     (keyName) => {
                       if (keyName === "Enter") {
                         tiebaSearchConfig.frontPageSeach();
@@ -6273,9 +6282,10 @@
           document
             .querySelector(".more-btn-desc")
             .addEventListener("click", _click_event_);
-          utils.listenKeyPress(
+          utils.listenKeyboard(
             searchInputElement,
-            (keyName, otherKey, event) => {
+            "keypress",
+            (keyName, keyValue, otherKeyList, event) => {
               if (keyName === "Enter") {
                 _click_event_(event);
               }
@@ -7978,13 +7988,12 @@
         let result = originCall.apply(this, args);
         /* 当前i core:67 */
         if (
-          args.length &&
           args.length === 4 &&
-          args[1]?.exports &&
-          Object.prototype.hasOwnProperty.call(args[1].exports, "getSchema") &&
-          Object.prototype.hasOwnProperty.call(args[1].exports, "getToken") &&
-          Object.prototype.hasOwnProperty.call(args[1].exports, "init") &&
-          Object.prototype.hasOwnProperty.call(args[1].exports, "initDiffer")
+          typeof args[1]?.exports === "object" &&
+          typeof args[1].exports["getSchema"] === "function" &&
+          typeof args[1].exports["getToken"] === "function" &&
+          typeof args[1].exports["init"] === "function" &&
+          typeof args[1].exports["initDiffer"] === "function"
         ) {
           log.success(["成功劫持webpack关键Scheme调用函数", args]);
           args[1].exports.getSchema = function () {
@@ -7995,6 +8004,13 @@
           };
           args[1].exports.init = function () {
             log.info(["阻止初始化", ...arguments]);
+            if (arguments?.[0]?.["page"] === "usercenter") {
+              /* 跳转至用户空间 */
+              let homeUrl =
+                "/home/main?id=" + arguments[0]["param"]["portrait"];
+              log.info(["跳转至用户空间", homeUrl]);
+              window.open(homeUrl);
+            }
             return;
           };
           args[1].exports.initDiffer = function () {
