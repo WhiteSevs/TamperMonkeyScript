@@ -10,7 +10,7 @@
 | ------------ |   :--:  |  :------------------  |
 |     [![https://favicon.yandex.net/favicon/v2/https://m.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://m.baidu.com/?size=16)](https://m.baidu.com/)百度搜索 | 自动展开下一页、简单UA-自动点击下一页、显示已重定向图标、控制台输出日志、同步下一页地址、【禁止】自动播放视频、【屏蔽】大家还在搜、【重构】大家还在搜、精简百度搜索主页、劫持OpenBox、劫持Scheme、劫持Copy |   去除广告、自动处理链接为真实链接、拦截输入框的点击建议弹出的弹窗 |
 |     [![https://favicon.yandex.net/favicon/v2/https://baijiahao.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://baijiahao.baidu.com/?size=16)](https://baijiahao.baidu.com/)百家号   | 【屏蔽】推荐文章、【屏蔽】用户评论、【屏蔽】底部悬浮工具栏、劫持唤醒、劫持iframe、劫持OpenBox | 去除广告 |
-|     [![https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16)](https://tieba.baidu.com/)百度贴吧 | 优化查看楼中楼回复、记住当前选择的看帖排序、劫持Scheme调用、【beta】请求携带Cookie | 去除广告、自动加载下一页评论、页面顶部新增搜索功能（当在主页时是搜索吧、在帖子或吧内时是搜索帖子）、优化图片预览效果、伪装已调用唤醒百度贴吧App |
+|     [![https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16)](https://tieba.baidu.com/)百度贴吧 | 优化查看楼中楼回复、新增贴内滚动到顶部按钮、记住当前选择的看帖排序、劫持Scheme调用、【beta】请求携带Cookie | 去除广告、自动加载下一页评论、页面顶部新增搜索功能（当在主页时是搜索吧、在帖子或吧内时是搜索帖子）、优化图片预览效果、伪装已调用唤醒百度贴吧App |
 |     [![https://favicon.yandex.net/favicon/v2/https://wenku.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://wenku.baidu.com/?size=16)](https://wenku.baidu.com/)百度文库 | 【屏蔽】会员精选、【屏蔽】APP精选、【屏蔽】相关文档、【屏蔽】底部工具栏、【屏蔽】下一篇按钮 | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://jingyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://jingyan.baidu.com/?size=16)](https://jingyan.baidu.com/)百度经验 |             | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/?size=16)](https://baike.baidu.com/)百度百科 | 同步下一页地址 | 去除广告、自动加载更多下一页内容、修复图片显示错位问题 |
@@ -30,7 +30,7 @@
 |     [![https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yiyan.baidu.com/?size=16)](https://yiyan.baidu.com/)文心一言 | 【屏蔽】水印 |  |
 |     [![https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16)](https://chat.baidu.com/)搜索AI伙伴 | 【屏蔽】水印 |  |
 |     [![https://favicon.yandex.net/favicon/v2/https://uf9kyh.smartapps.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://uf9kyh.smartapps.cn/?size=16)](https://uf9kyh.smartapps.cn/)百度小程序-百度教育| 【屏蔽】底部下拉菜单 | |
-|     [![https://favicon.yandex.net/favicon/v2/https://easylearn.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://easylearn.baidu.com/?size=16)](https://easylearn.baidu.com/)百度教育| 【屏蔽】本题试卷、【屏蔽】本卷好题、【屏蔽】相关试卷、【屏蔽】视频讲解、【屏蔽】学霸笔记、【屏蔽】底部工具栏 | 去除广告、允许使用顶部输入框进行搜索 |
+|     [![https://favicon.yandex.net/favicon/v2/https://easylearn.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://easylearn.baidu.com/?size=16)](https://easylearn.baidu.com/)百度教育| 【屏蔽】本题试卷、【屏蔽】本卷好题、【屏蔽】相关试卷、【屏蔽】视频讲解、【屏蔽】学霸笔记、【屏蔽】底部工具栏 | 去除广告、允许使用顶部输入框进行搜索、自动展开答案 |
 
 对`百度搜索`、`百度贴吧`、`百度识图`添加了新功能
 
