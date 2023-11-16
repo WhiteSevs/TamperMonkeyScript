@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
-// @version      2023.11.12
+// @version      2023.11.16
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -18,9 +18,9 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
+// @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
+// @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -367,7 +367,8 @@
             .sidetool-writeguide-box .tip-box{
               display: none !important;
             }
-            .comment-list-box{
+            .comment-list-box,
+            main div.blog-content-box pre{
               max-height: none !important;
             }
             .blog_container_aside,
@@ -391,7 +392,7 @@
         /**
          * 添加在wenku.csdn.net下的CSS
          */
-        addWenKuCSS(){
+        addWenKuCSS() {
           GM_addStyle(`
           /* wenku顶部横幅 */
           #app > div > div.main.pb-32 > div > div.top-bar,
@@ -404,12 +405,12 @@
             height: auto !important;
             overflow: auto !important;
           }
-          `)
+          `);
           GM_addStyle(`
           .forbid{
             user-select: text !important;
           }
-          `)
+          `);
         },
         /**
          * 去除剪贴板劫持
@@ -866,7 +867,7 @@
             that.addGotoRecommandButton();
           };
           DOMUtils.ready(readyCallBack);
-          if(window.location.hostname === "wenku.csdn.net"){
+          if (window.location.hostname === "wenku.csdn.net") {
             this.addWenKuCSS();
           }
         },
@@ -994,34 +995,28 @@
             width: 2.18rem;
             height: 1.58rem;
             //margin-left: .16rem
-          }
-          .GM-csdn-Redirect{
-            color: #fff;
-            background-color: #f90707;
-            font-family: sans-serif;
-            margin: auto 2px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 0px 3px;
-            font-size: xx-small;
-            display: inline;
-            white-space: nowrap;
           }`);
         },
         /**
          * 重构底部推荐
          */
         refactoringRecommendation() {
-          log.info("重构底部推荐");
           function refactoring() {
             /* 反复执行的重构函数 */
+            log.success("重构底部推荐");
             document.querySelectorAll(".container-fluid").forEach((item) => {
-              var url = ""; /* 链接 */
-              var title = ""; /* 标题 */
-              var content = ""; /* 内容 */
-              var img = ""; /* 图片 */
-              var isCSDNDownload = false; /* 判断是否是CSDN资源下载 */
-              var isCSDNEduDownload = false; /* 判断是否是CSDN-学院资源下载 */
+              /* 链接 */
+              let url = "";
+              /* 标题 */
+              let title = "";
+              /* 内容 */
+              let content = "";
+              /* 图片 */
+              let img = "";
+              /* 判断是否是CSDN资源下载 */
+              let isCSDNDownload = false;
+              /* 判断是否是CSDN-学院资源下载 */
+              let isCSDNEduDownload = false;
               if (item.hasAttribute("data-url")) {
                 /* 存在真正的URL */
                 url = item.getAttribute("data-url");
@@ -1042,10 +1037,6 @@
                   ".recommend_title div.left"
                 ).innerHTML;
                 content = item.querySelector(".text").innerHTML;
-              }
-              if (GM_Menu.get("showDirect")) {
-                /* 开启就添加 */
-                title += `<div class="GM-csdn-Redirect">Redirect</div>`;
               }
               var _URL_ = new URL(url);
               if (
@@ -1085,13 +1076,11 @@
               }
             });
           }
+          let lockFunction = new utils.LockFunction(refactoring, this, 50);
           utils.waitNode("#recommend").then((element) => {
+            lockFunction.run();
             utils.mutationObserver(element, {
-              callback: () => {
-                setTimeout(() => {
-                  refactoring();
-                }, 300);
-              },
+              callback: lockFunction.run,
               config: { childList: true, subtree: true, attributes: true },
             });
           });
@@ -1289,11 +1278,6 @@
   } else if (Optimization.csdn.locationMatch()) {
     if (utils.isPhone()) {
       GM_Menu.add([
-        {
-          key: "showDirect",
-          text: "手机-标识处理过的底部推荐文章",
-          enable: true,
-        },
         {
           key: "openNewTab",
           text: "手机-底部推荐文章新标签页打开",
