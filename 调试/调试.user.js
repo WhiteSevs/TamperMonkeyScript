@@ -100,8 +100,6 @@
       typeof GM_xmlhttpRequest === "undefined" ? undefined : GM_xmlhttpRequest,
     GM_cookie: typeof GM_cookie === "undefined" ? undefined : GM_cookie,
     ChromeXt: typeof ChromeXt === "undefined" ? undefined : ChromeXt,
-    GM_addElement:
-      typeof GM_addElement === "undefined" ? undefined : GM_addElement,
   };
   exportObj = Object.freeze(exportObj);
   __unsafeWindow__.GM_bridge = exportObj;
