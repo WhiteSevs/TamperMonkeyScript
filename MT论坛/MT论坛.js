@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 重构部分代码;更新Utils库版本至2023-11-2;
-// @version      2023.11.2
+// @description  更新日志: 更新库的各种链接;
+// @version      2023.11.15
 // @author       WhiteSevs
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
@@ -29,13 +29,13 @@
 // @connect      *
 // @require      https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1250549
-// @require      https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
-// @require      https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
-// @require      https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
+// @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
+// @require      https://update.greasyfork.org/scripts/449512/1250549/Xtiper.js
+// @require      https://update.greasyfork.org/scripts/449562/1198421/NZMsgBox.js
+// @require      https://update.greasyfork.org/scripts/452322/1250550/js-watermark.js
+// @require      https://update.greasyfork.org/scripts/456607/1249089/GM_html2canvas.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
+// @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
 // ==/UserScript==
 
 (async function () {
@@ -677,13 +677,6 @@
 
   /**
    * 检测引用库是否正确加载
-   * @example	https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-   * @example https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-   * @example https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1250549
-   * @example https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421
-   * @example https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550
-   * @example https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089
-   * @example https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
    */
   function checkReferenceLibraries() {
     let libraries = [
@@ -695,34 +688,34 @@
       {
         object: typeof Viewer === "undefined" ? window.Viewer : Viewer,
         name: "Viewer",
-        url: "https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086",
+        url: "https://update.greasyfork.org/scripts/449471/1249086/Viewer.js",
       },
       {
         object: typeof xtip === "undefined" ? window.xtip : xtip,
         name: "xtip",
-        url: "https://greasyfork.org/scripts/449512-xtiper/code/Xtiper.js?version=1250549",
+        url: "https://update.greasyfork.org/scripts/449512/1250549/Xtiper.js",
       },
       {
         object: $jq.NZ_MsgBox,
         jQueryConflictName: "$jq",
         name: "NZ_MsgBox",
-        url: "https://greasyfork.org/scripts/449562-nzmsgbox/code/NZMsgBox.js?version=1198421",
+        url: "https://update.greasyfork.org/scripts/449562/1198421/NZMsgBox.js",
       },
       {
         object: typeof Watermark === "undefined" ? window.Watermark : Watermark,
         name: "Watermark",
-        url: "https://greasyfork.org/scripts/452322-js-watermark/code/js-watermark.js?version=1250550",
+        url: "https://update.greasyfork.org/scripts/452322/1250550/js-watermark.js",
       },
       {
         object:
           typeof html2canvas === "undefined" ? window.html2canvas : html2canvas,
         name: "html2canvas",
-        url: "https://greasyfork.org/scripts/456607-gm-html2canvas/code/GM_html2canvas.js?version=1249089",
+        url: "https://update.greasyfork.org/scripts/456607/1249089/GM_html2canvas.js",
       },
       {
         object: utils,
         name: "utils",
-        url: "https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009",
+        url: "https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,
@@ -11639,9 +11632,10 @@
           },
         });
         console.log(document.querySelector(".xinput.xful[type='password']"));
-        utils.listenKeyPress(
+        utils.listenKeyboard(
           document.querySelector(".xinput.xful[type='password']"),
-          (keyName, otherKey) => {
+          "keypress",
+          (keyName) => {
             if (keyName === "Enter") {
               console.log("回车按键");
               $jq("button.xbutton.xful.xblue").click();
