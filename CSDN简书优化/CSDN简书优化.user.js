@@ -679,12 +679,12 @@
               csdnToolBarElement.clientHeight -
               parseFloat(csdnToolBarStyles.paddingTop) -
               parseFloat(csdnToolBarStyles.paddingBottom);
-            unsafeWindow.$("html, body").animate(
-              {
-                scrollTop: toolbarBoxOffsetTop - csdnToolBarHeight - 8,
-              },
-              1000
-            );
+            window.scrollTo({
+              top: toolbarBoxOffsetTop - csdnToolBarHeight - 8,
+              left: 0,
+              behavior: "smooth"
+            })
+            
           });
           utils.waitNode(".csdn-side-toolbar").then(() => {
             let targetElement = document.querySelector(
