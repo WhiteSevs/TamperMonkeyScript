@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.11.9
+// @version      2023.11.15
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
@@ -18,10 +18,10 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @connect      greasyfork.org
-// @require      https://greasyfork.org/scripts/449471-viewer/code/Viewer.js?version=1249086
-// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1252081
-// @require      https://greasyfork.org/scripts/455186-whitesevsutils/code/WhiteSevsUtils.js?version=1279009
-// @require      https://greasyfork.org/scripts/465772-domutils/code/DOMUtils.js?version=1274595
+// @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
+// @require      https://update.greasyfork.org/scripts/462234/1252081/Message.js
+// @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
 
 (function () {
