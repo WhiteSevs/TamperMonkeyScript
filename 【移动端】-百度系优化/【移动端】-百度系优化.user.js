@@ -6452,6 +6452,87 @@
             document.querySelector(".app-view")?.__vue__?.forum?.name;
           return tbMobileViewport || mainPageWrap || tbForum || appView;
         },
+        /**
+         * 添加滚动到顶部按钮
+         */
+        addScrollTopButton() {
+          if (!GM_Menu.get("baidu_tieba_add_scroll_top_button_in_forum")) {
+            return;
+          }
+          log.success(
+            GM_Menu.getShowTextValue(
+              "baidu_tieba_add_scroll_top_button_in_forum"
+            )
+          );
+          let isInsertButton = false;
+          let showScrollTopButton = function () {
+            isInsertButton = true;
+            let buttonElement = DOMUtils.parseHTML(
+              `
+            <div class="tb-totop whitesev-tb-totop">
+              <style>
+              .whitesev-tb-totop{
+                position: fixed;
+                right: .09rem;
+                bottom: 1rem;
+                z-index: 1000;
+              }
+              .whitesev-tb-totop .tb-totop__span{
+                display: inline-block;
+                width: .51rem;
+                height: .51rem;
+              }
+              .whitesev-tb-totop .tb-totop__svg{
+                width: 100%;
+                height: 100%;
+              }
+              </style>
+              <span class="tb-totop__span">
+                <svg class="tb-totop__svg">
+                  <use xlink:href="#icon_frs_top_50"></use>
+                </svg>
+              </span>
+            </div>`,
+              true,
+              false
+            );
+            DOMUtils.on(buttonElement, "click", function () {
+              window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: "smooth",
+              });
+            });
+            document.body.appendChild(buttonElement);
+          };
+          let hideScrollTopButton = function () {
+            isInsertButton = false;
+            document.querySelector(".whitesev-tb-totop")?.remove();
+          };
+          let checkScroll = new utils.LockFunction(
+            function () {
+              let scrollTop =
+                window.document.documentElement.scrollTop ||
+                window.document.body.scrollTop;
+              let scrollHeight =
+                window.innerHeight ||
+                document.documentElement.clientHeight ||
+                window.document.body.clientHeight;
+              if (scrollTop > scrollHeight * 2) {
+                /* 页面中不存在该按钮元素才显示 */
+                if (!isInsertButton) {
+                  showScrollTopButton();
+                }
+              } else {
+                /* 隐藏 */
+                hideScrollTopButton();
+              }
+            },
+            this,
+            50
+          );
+          window.addEventListener("scroll", checkScroll.run);
+        },
       };
 
       /**
@@ -6495,6 +6576,11 @@
         {
           key: "baidu_tieba_add_search",
           text: "新增搜索功能",
+          enable: true,
+        },
+        {
+          key: "baidu_tieba_add_scroll_top_button_in_forum",
+          text: "新增贴内滚动到顶部按钮",
           enable: true,
         },
         {
@@ -6562,6 +6648,9 @@
       ) {
         /* 吧内 */
         tiebaBaNei.rememberPostSort();
+      } else {
+        /* 贴内 */
+        tiebaBusiness.addScrollTopButton();
       }
       if (GM_Menu.get("baidu_tieba_add_search")) {
         log.success(GM_Menu.getShowTextValue("baidu_tieba_add_search"));
