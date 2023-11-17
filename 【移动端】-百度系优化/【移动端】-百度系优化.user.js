@@ -3,8 +3,9 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.17
+// @version      2023.11.17.13
 // @author       WhiteSevs
+// @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
 // @match        *://www.baidu.com/*
@@ -50,7 +51,6 @@
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
-// @run-at       document-start
 // ==/UserScript==
 
 (function () {
@@ -3481,7 +3481,7 @@
       }
       if (GM_Menu.get("baijiahao_hijack_wakeup")) {
         log.success(GM_Menu.getShowTextValue("baijiahao_hijack_wakeup"));
-        baiduHijack.hijackFunctionCallByBaiJiaHaoAndMap();
+        baiduHijack.hijackFunctionCall_BaiJiaHao_Map();
       }
       if (GM_Menu.get("baidu_baijiahao_hijack_iframe")) {
         log.success(GM_Menu.getShowTextValue("baidu_baijiahao_hijack_iframe"));
@@ -5161,7 +5161,7 @@
           utils.waitNode(".main-page-wrap").then(() => {
             GM_Menu.add({
               key: "baidu_tieba_lzl_ban_global_back",
-              text: "优化查看楼中楼回复",
+              text: "回退关闭楼中楼回复",
               callback(data) {
                 if (data.enable) {
                   alert(
@@ -6608,7 +6608,7 @@
       baiduHijack.hijackElementAppendChild();
       if (GM_Menu.get("baidu_tieba_hijack_wake_up")) {
         log.success(GM_Menu.getShowTextValue("baidu_tieba_hijack_wake_up"));
-        baiduHijack.hijackFunctionCallByTiebaWebpack();
+        baiduHijack.hijackFunctionCall_WebPack_TieBa();
       }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
@@ -7244,7 +7244,7 @@
       }
       if (GM_Menu.get("baidu_mbd_hijack_wakeup")) {
         log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_wakeup"));
-        baiduHijack.hijackFunctionCallByBaiJiaHaoAndMap();
+        baiduHijack.hijackFunctionCall_BaiJiaHao_Map();
       }
       if (GM_Menu.get("baidu_mbd_hijack_BoxJSBefore")) {
         log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_BoxJSBefore"));
@@ -7390,7 +7390,7 @@
       }
       if (GM_Menu.get("baidu_haokan_hijack_wakeup")) {
         log.success(GM_Menu.getShowTextValue("baidu_haokan_hijack_wakeup"));
-        baiduHijack.hijackFunctionCallByHaokanWebpack();
+        baiduHijack.hijackFunctionCall_WebPack_HaoKan();
       }
 
       DOMUtils.ready(function () {
@@ -8070,7 +8070,7 @@
      *
      * Function.property.call
      */
-    hijackFunctionCallByTiebaWebpack() {
+    hijackFunctionCall_WebPack_TieBa() {
       /* 劫持webpack */
       let originCall = Function.prototype.call;
       Function.prototype.call = function () {
@@ -8084,6 +8084,19 @@
           typeof arguments[1].exports["init"] === "function" &&
           typeof arguments[1].exports["initDiffer"] === "function"
         ) {
+          let codeId = arguments?.[1]?.["i"];
+          GM_Menu.update({
+            key: "baidu_tieba_hijack_wake_up",
+            text: "劫持唤醒",
+            enable: false,
+            showText(text, enable) {
+              return `${
+                enable
+                  ? GM_Menu.getEnableTrueEmoji()
+                  : GM_Menu.getEnableFalseEmoji()
+              }${text} 🙏 成功劫持：${codeId}`;
+            },
+          });
           log.success(["成功劫持webpack关键Scheme调用函数", arguments]);
           arguments[1].exports.getSchema = function () {
             log.info(["阻止调用getSchema", ...arguments]);
@@ -8117,25 +8130,35 @@
      *
      * Function.property.call
      */
-    hijackFunctionCallByHaokanWebpack() {
+    hijackFunctionCall_WebPack_HaoKan() {
+      /* 劫持webpack */
       let originCall = Function.prototype.call;
       Function.prototype.call = function () {
-        /* 当前i core:67 */
+        /* 当前i 168 */
         let result = originCall.apply(this, arguments);
         if (
-          arguments.length &&
           arguments.length === 4 &&
-          arguments?.[1]?.["exports"] &&
-          Object.prototype.hasOwnProperty.call(
-            arguments[1]["exports"],
-            "LaunchScheme"
-          ) &&
-          Object.prototype.hasOwnProperty.call(
-            arguments[1]["exports"],
-            "__esModule"
-          )
+          arguments[1] != null &&
+          typeof arguments[1].exports === "object" &&
+          arguments[1].exports != null &&
+          typeof arguments[1]["exports"]["LaunchScheme"] === "function" &&
+          typeof arguments[1]["exports"]["__esModule"] === "boolean"
         ) {
-          log.info("成功劫持，当前webpack i:" + arguments?.[1]?.["i"]);
+          let codeId = arguments?.[1]?.["i"];
+          GM_Menu.update({
+            key: "baidu_haokan_hijack_wakeup",
+            text: "劫持唤醒",
+            enable: false,
+            showText(text, enable) {
+              return `${
+                enable
+                  ? GM_Menu.getEnableTrueEmoji()
+                  : GM_Menu.getEnableFalseEmoji()
+              }${text} 🙏 成功劫持：${codeId}`;
+            },
+          });
+          log.info("成功劫持，当前webpack i:" + codeId);
+          log.info(arguments);
           arguments[1]["exports"]["LaunchScheme"] = function () {
             log.success(["修改参数并劫持唤醒 LaunchScheme"]);
             return {
@@ -8157,7 +8180,7 @@
      * + 百度地图(map.baidu.com)
      * Function.property.call
      */
-    hijackFunctionCallByBaiJiaHaoAndMap() {
+    hijackFunctionCall_BaiJiaHao_Map() {
       let originCall = Function.prototype.call;
       Function.prototype.call = function () {
         if (
