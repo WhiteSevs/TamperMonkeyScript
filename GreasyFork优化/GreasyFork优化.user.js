@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://greasyfork.org/zh-CN/scripts/475722/feedback
-// @version      2023.11.17
+// @version      2023.11.17.19
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
@@ -1180,7 +1180,7 @@
           DOMUtils.on(copyButton, "click", async function () {
             let loading = Qmsg.loading("加载文件中...");
             let scriptJS = await httpx.get(
-              `https://greasyfork.org/scripts/${GreasyforkApi.getScriptId()}.js`
+              `https://update.greasyfork.org/scripts/${GreasyforkApi.getScriptId()}.user.js`
             );
             if (!scriptJS.status) {
               return;
