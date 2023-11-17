@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.16
+// @version      2023.11.17
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
@@ -7630,8 +7630,8 @@
          */
         blockWaterMark() {
           let oldShadow = Element.prototype.attachShadow;
-          Element.prototype.attachShadow = function (...args) {
-            const shadowRoot = oldShadow.call(this, ...args);
+          Element.prototype.attachShadow = function () {
+            const shadowRoot = oldShadow.call(this, arguments);
             this._shadowRoot = shadowRoot;
             shadowRoot.appendChild(
               DOMUtils.createElement(
@@ -7901,11 +7901,11 @@
      */
     hijackCopy() {
       let originApply = Function.prototype.apply;
-      Function.prototype.apply = function (...args) {
+      Function.prototype.apply = function () {
         try {
-          let _Arguments = args[1];
+          let _Arguments = arguments[1];
           if (
-            args.length === 2 &&
+            arguments.length === 2 &&
             typeof _Arguments === "object" &&
             "" + _Arguments === "[object Arguments]" &&
             _Arguments.length === 1 &&
@@ -7929,7 +7929,7 @@
         } catch (error) {
           log.error(error);
         }
-        return originApply.call(this, ...args);
+        return originApply.call(this, ...arguments);
       };
     },
     /**
@@ -7940,11 +7940,11 @@
      */
     hijackFunctionApplyScheme() {
       let originApply = Function.prototype.apply;
-      Function.prototype.apply = function (...args) {
+      Function.prototype.apply = function () {
         try {
-          let _Arguments = args[1];
+          let _Arguments = arguments[1];
           if (
-            args.length === 2 &&
+            arguments.length === 2 &&
             typeof _Arguments === "object" &&
             "" + _Arguments === "[object Arguments]" &&
             _Arguments.length === 2 &&
@@ -7956,7 +7956,7 @@
         } catch (error) {
           log.error(error);
         }
-        return originApply.call(this, ...args);
+        return originApply.call(this, ...arguments);
       };
     },
     /**
@@ -8073,25 +8073,25 @@
     hijackFunctionCallByTiebaWebpack() {
       /* 劫持webpack */
       let originCall = Function.prototype.call;
-      Function.prototype.call = function (...args) {
-        let result = originCall.apply(this, args);
+      Function.prototype.call = function () {
+        let result = originCall.apply(this, arguments);
         /* 当前i core:67 */
         if (
-          args.length === 4 &&
-          typeof args[1]?.exports === "object" &&
-          typeof args[1].exports["getSchema"] === "function" &&
-          typeof args[1].exports["getToken"] === "function" &&
-          typeof args[1].exports["init"] === "function" &&
-          typeof args[1].exports["initDiffer"] === "function"
+          arguments.length === 4 &&
+          typeof arguments[1]?.exports === "object" &&
+          typeof arguments[1].exports["getSchema"] === "function" &&
+          typeof arguments[1].exports["getToken"] === "function" &&
+          typeof arguments[1].exports["init"] === "function" &&
+          typeof arguments[1].exports["initDiffer"] === "function"
         ) {
-          log.success(["成功劫持webpack关键Scheme调用函数", args]);
-          args[1].exports.getSchema = function () {
+          log.success(["成功劫持webpack关键Scheme调用函数", arguments]);
+          arguments[1].exports.getSchema = function () {
             log.info(["阻止调用getSchema", ...arguments]);
           };
-          args[1].exports.getToken = function () {
+          arguments[1].exports.getToken = function () {
             log.info(["阻止调用getToken", ...arguments]);
           };
-          args[1].exports.init = function () {
+          arguments[1].exports.init = function () {
             log.info(["阻止初始化", ...arguments]);
             if (arguments?.[0]?.["page"] === "usercenter") {
               /* 跳转至用户空间 */
@@ -8102,7 +8102,7 @@
             }
             return;
           };
-          args[1].exports.initDiffer = function () {
+          arguments[1].exports.initDiffer = function () {
             log.info(["阻止初始化差异", ...arguments]);
             return;
           };
@@ -8119,21 +8119,24 @@
      */
     hijackFunctionCallByHaokanWebpack() {
       let originCall = Function.prototype.call;
-      Function.prototype.call = function (...args) {
+      Function.prototype.call = function () {
         /* 当前i core:67 */
-        let result = originCall.apply(this, args);
+        let result = originCall.apply(this, arguments);
         if (
-          args.length &&
-          args.length === 4 &&
-          args?.[1]?.["exports"] &&
+          arguments.length &&
+          arguments.length === 4 &&
+          arguments?.[1]?.["exports"] &&
           Object.prototype.hasOwnProperty.call(
-            args[1]["exports"],
+            arguments[1]["exports"],
             "LaunchScheme"
           ) &&
-          Object.prototype.hasOwnProperty.call(args[1]["exports"], "__esModule")
+          Object.prototype.hasOwnProperty.call(
+            arguments[1]["exports"],
+            "__esModule"
+          )
         ) {
-          log.info("成功劫持，当前webpack i:" + args?.[1]?.["i"]);
-          args[1]["exports"]["LaunchScheme"] = function () {
+          log.info("成功劫持，当前webpack i:" + arguments?.[1]?.["i"]);
+          arguments[1]["exports"]["LaunchScheme"] = function () {
             log.success(["修改参数并劫持唤醒 LaunchScheme"]);
             return {
               launch() {
