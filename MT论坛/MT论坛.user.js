@@ -4,9 +4,10 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
 // @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 更新库的各种链接;
-// @version      2023.11.15
+// @description  更新日志: 新增功能：评论过滤器;
+// @version      2023.11.17
 // @author       WhiteSevs
+// @run-at       document-start
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|):\/\/bbs\.binmt\.cc\/uc_server.*$/
 // @license      GPL-3.0-only
@@ -21,7 +22,6 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @grant        GM_cookie
-// @run-at       document-start
 // @connect      helloimg.com
 // @connect      z4a.net
 // @connect      kggzs.cn
@@ -135,7 +135,7 @@
     /**
      * 初始化
      */
-    init: () => {
+    init() {
       Object.keys(popups.config).forEach((key) => {
         let style = popups.config[key].style;
         if (style !== "") {
@@ -147,7 +147,7 @@
      * 初始化遮罩层
      * @param {number} zIndex
      */
-    initMask: function (zIndex) {
+    initMask(zIndex) {
       document.documentElement.style.overflow = "hidden";
       if (!$jq("#force-mask").length) {
         $jq("body").append($jq('<div id="force-mask"></div>'));
@@ -161,10 +161,30 @@
     },
     /**
      * 确认弹窗
-     * @param {Object} paramOptions
+     * @param {string|{
+     * text: string,
+     * reverse: boolean,
+     * mask: boolean,
+     * only: boolean,
+     * ok: {
+     *  enable: boolean,
+     *  text: string,
+     *  callback: Function,
+     * },
+     * cancel: {
+     *  enable: boolean,
+     *  text: string,
+     *  callback: Function,
+     * },
+     * other: {
+     *  enable: boolean,
+     *  text: string,
+     *  callback: Function,
+     * },
+     * }} paramOptions
      * @returns
      */
-    confirm: function (paramOptions) {
+    confirm(paramOptions) {
       let options = {
         text: "Call By popups.confirm",
         reverse: false /* 底部按钮倒序 */,
@@ -277,9 +297,13 @@
     },
     /**
      * 吐司
-     * @param {Object} paramOptions
+     * @param {string|{
+     *  text: string,
+     *  only: boolean,
+     *  delayTime: number,
+     * }} paramOptions
      */
-    toast: (paramOptions) => {
+    toast(paramOptions) {
       let options = {
         text: "Call By popups.toast",
         only: true,
@@ -400,13 +424,55 @@
   };
 
   /**
-   * 临时存储的flag判断
+   * 全局数据
    */
-  const TEMP_FLAG = {
+  const GLOBAL_DATA = {
     /**
      * 当前是否是编辑器-快捷插入UUB弹窗的点击
      */
     isUBBCodeInsertClick: false,
+    /**
+     * 已过滤的用户元素
+     * @type {string[]}
+     */
+    isFilterUserElementList: [],
+  };
+  /**
+   * 默认数据配置
+   */
+  const DEFAULT_CONFIG = {
+    ownCommentsFilterData: {
+      /**
+       * 是否处理回复评论
+       */
+      replyFlag: false,
+      /**
+       * 是否处理作者评论
+       */
+      avatarFlag: false,
+      /**
+       * 排除小于此长度的评论
+       */
+      minLength: 3,
+      /**
+       * 大于此长度的评论就算关键字匹配成功了也不会被排除
+       */
+      keywordLength: 8,
+      /**
+       * 带有指定关键字的评论将被排除
+       */
+      keywords: [],
+      /**
+       * 黑名单用户
+       * @type {string|number[]}
+       */
+      userBlackList: [],
+      /**
+       * 白名单用户
+       * @type {string|number[]}
+       */
+      userWhiteList: [],
+    },
   };
   /**
    * 定义页面元素选择器
@@ -2018,7 +2084,8 @@
               /* 用户UID */
               uid: item
                 .querySelector("a.top_user")
-                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1],
+                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1]
+                .trim(),
               /* 用户等级 */
               level: item
                 .querySelector("span.top_lev")
@@ -2084,7 +2151,8 @@
               /* 用户UID */
               uid: item
                 .querySelector("a.top_user")
-                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1],
+                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1]
+                .trim(),
               /* 用户等级 */
               level: item
                 .querySelector("a.top_lev")
@@ -2140,7 +2208,8 @@
               /* 用户UID */
               uid: item
                 .querySelector("a.b_b")
-                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1],
+                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1]
+                .trim(),
               /* 用户等级 */
               level: undefined,
               /* 帖子Url */
@@ -2171,6 +2240,150 @@
                 );
                 item.remove();
                 break;
+              }
+            }
+          });
+      }
+    },
+    /**
+     * 评论过滤器
+     */
+    ownFilterComments() {
+      if (
+        window.location.href.match(DOM_CONFIG.urlRegexp.forumGuideUrl) ||
+        window.location.href.match(DOM_CONFIG.urlRegexp.plateUrl) ||
+        window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)
+      ) {
+        let ownCommentsFilterData = GM_getValue(
+          "ownCommentsFilterData",
+          DEFAULT_CONFIG.ownCommentsFilterData
+        );
+        if (!Array.isArray(ownCommentsFilterData["keywords"])) {
+          console.log("评论过滤器：居然不是数组？");
+          return;
+        }
+        if (!ownCommentsFilterData["keywords"].length) {
+          return;
+        }
+
+        /**
+         * 判断是否是黑名单用户
+         */
+        let isBlackListUser = function (postForumInfo) {
+          for (const userName of ownCommentsFilterData["userBlackList"]) {
+            if (
+              userName == postForumInfo.user ||
+              userName == postForumInfo.uid
+            ) {
+              console.log("评论过滤器：黑名单用户", postForumInfo);
+              return true;
+            }
+          }
+          return false;
+        };
+        /**
+         * 判断是否是白名单用户
+         */
+        let isWhiteListUser = function (postForumInfo) {
+          for (const userName of ownCommentsFilterData["userWhiteList"]) {
+            /* 白名单用户 */
+            if (
+              userName === postForumInfo.user ||
+              userName === postForumInfo.uid
+            ) {
+              console.log("评论过滤器：白名单用户", postForumInfo);
+              return true;
+            }
+          }
+          return false;
+        };
+        document
+          .querySelectorAll(".comiis_postlist .comiis_postli")
+          .forEach((item) => {
+            if (item.closest("#comments-is-filter-html")) {
+              /* 不是弹窗里的 */
+              return;
+            }
+            if (item.querySelector("#comiis_allreplies")) {
+              /* 是主内容 */
+              return;
+            }
+            let postForumInfo = {
+              /* 用户名 */
+              user: item.querySelector("a.top_user").innerText || "",
+              /**
+               * 用户UID
+               * @type {string}
+               */
+              uid: item
+                .querySelector("a.top_user")
+                .href.match(DOM_CONFIG.urlRegexp.MTUid)[1]
+                .trim(),
+              /* 帖子内容(缩略) */
+              content:
+                item.querySelector(".comiis_message_table").innerText || "",
+              isAuthor: Boolean(item.querySelector("span.top_lev")),
+            };
+            /* 判断是否是白名单用户 */
+            if (isWhiteListUser(postForumInfo)) {
+              return;
+            }
+            /* 如果是回复评论则去除别人的回复 */
+            if (
+              ownCommentsFilterData["replyFlag"] &&
+              item.querySelector(".comiis_quote")
+            ) {
+              let comiis_quote_Element = item.querySelector(".comiis_quote");
+              GLOBAL_DATA.isFilterUserElementList.push(
+                comiis_quote_Element.outerHTML
+              );
+              comiis_quote_Element.remove();
+            }
+            if (
+              postForumInfo.isAuthor &&
+              !ownCommentsFilterData["avatarFlag"]
+            ) {
+              /* 当前内容是楼主发的但是不处理楼主 */
+              return;
+            }
+
+            /* 判断是否是黑名单用户 */
+            if (isBlackListUser(postForumInfo)) {
+              GLOBAL_DATA.isFilterUserElementList.push(item.outerHTML);
+              item.remove();
+              return;
+            }
+
+            /* 排除小于此长度的评论 */
+            if (
+              typeof ownCommentsFilterData["minLength"] === "number" &&
+              ownCommentsFilterData["minLength"] > postForumInfo.content.length
+            ) {
+              return;
+            }
+
+            /* 排除大于此长度的评论 */
+            if (
+              typeof ownCommentsFilterData["keywordLength"] === "number" &&
+              ownCommentsFilterData["keywordLength"] <
+                postForumInfo.content.length
+            ) {
+              return;
+            }
+
+            /* 关键字判断 */
+            for (const keywordItem of ownCommentsFilterData["keywords"]) {
+              if (typeof keywordItem !== "string") {
+                /* ？关键字不是字符串 */
+                continue;
+              }
+              let keywordPattern = new RegExp(keywordItem);
+              if (postForumInfo.content.match(keywordPattern)) {
+                /* 成功匹配关键字 */
+                console.log("评论过滤器：", postForumInfo);
+                GLOBAL_DATA.isFilterUserElementList.push(item.outerHTML);
+                item.remove();
+                return;
               }
             }
           });
@@ -4809,7 +5022,7 @@
         border-bottom-right-radius: 0px;
       }
 			#ownShield .styli_tit i{
-				color: #ff0019 !important;
+				color: #000000 !important;
 			}
       select#shieldSelect{
         border: 1px solid;
@@ -5105,45 +5318,162 @@
       $jq(".comiis_myinfo").append($jq(shieldUserOrPlateHTML));
       setEvent();
       GM_addStyle(`
-				#blacklistallmain{
-						height: 232px;
-				}
-				#blacklistallmain li.comiis_styli{
-						height: 180px;
-				}
-				#blacklistallmain #blacklistuid{
-						width: 90%; 
-						resize: none; 
-						opacity: 0.7; 
-						height: 70% !important; 
-						line-height: inherit;
-            appearance: none;
-						-webkit-appearance: none;
-						border: none !important;
-						font-size: 14px;
-						vertical-align: middle;
-						background-color: transparent;
-						border-bottom: 3px solid #efefef !important;
-				}
-				#blacklistallmain #blacklistplate{
-						width: 90%; 
-						resize: none; 
-						opacity: 0.7; 
-						height: 30% !important;
-						line-height: inherit;
-            appearance: none;
-						-webkit-appearance: none;
-						border: none !important;
-						font-size: 14px;
-						vertical-align: middle;
-						background-color: transparent;
-				}
-				#blacklistsave{
-						text-align: center;
-						background: transparent !important;
-						border-color: transparent !important;
-				}
-				`);
+      #blacklistallmain{height:232px}
+      #blacklistallmain li.comiis_styli{height:180px}
+      #blacklistallmain #blacklistuid{width:90%;resize:none;opacity:.7;height:70%!important;line-height:inherit;appearance:none;-webkit-appearance:none;border:none!important;font-size:14px;vertical-align:middle;background-color:transparent;border-bottom:3px solid #efefef!important}
+      #blacklistallmain #blacklistplate{width:90%;resize:none;opacity:.7;height:30%!important;line-height:inherit;appearance:none;-webkit-appearance:none;border:none!important;font-size:14px;vertical-align:middle;background-color:transparent}
+      #blacklistsave{text-align:center;background:0 0!important;border-color:transparent!important}`);
+    },
+    /**
+     * 评论过滤器
+     */
+    ownCommentsFilter() {
+      if (window.location.href.match(DOM_CONFIG.urlRegexp.forumPost)) {
+        let btnElement = $jq(
+          `
+          <li class="swiper-slide kmshoucang">
+            <a href="javascript:;">
+              <span class="kmico bg_f f_c">
+                <i class="comiis_font"></i>
+              </span>
+              <em class="f_b">查看已过滤信息</em>
+            </a>
+          </li>`
+        );
+        btnElement.on("click", function () {
+          let alertContentHTML = "";
+          GLOBAL_DATA.isFilterUserElementList.forEach((item) => {
+            alertContentHTML += item;
+          });
+          alertContentHTML = `
+          <div id="comments-is-filter-html" style="height: 400px;">
+          ${alertContentHTML}
+          </div>
+          `;
+          $jq.NZ_MsgBox.alert({
+            title: "评论过滤器-已过滤信息",
+            type: "",
+            content: alertContentHTML,
+            location: "center",
+            buttons: {
+              autoClose: true,
+              confirm: {
+                text: "关闭",
+              },
+            },
+          });
+        });
+        $jq("#comiis_foot_gobtn .comiis_shareul.swiper-wrapper").append(
+          btnElement
+        );
+      }
+      if (!DOM_CONFIG.methodRunCheck([DOM_CONFIG.urlRegexp.homeSpaceUrl])) {
+        return;
+      }
+      const ownCommentsFilterCSS = `
+      #commentsFilter{border-radius:0}
+      #commentsFilter a .styli_tit i{color:#ff0019!important}
+      `;
+      const ownCommentsFilterDialogCSS = `
+      textarea.msgbox-comments-filter-content{border:none;outline:0;padding:0;margin:0;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none;background-color:transparent}
+      textarea.msgbox-comments-filter-content{width:100%;height:380px;display:inline-block;resize:vertical;padding:5px 15px;line-height:1.5;box-sizing:border-box;color:#606266;background-color:#fff;border:1px solid #dcdfe6;border-radius:4px;transition:border-color .2s cubic-bezier(.645,.045,.355,1)}
+      textarea.msgbox-comments-filter-content:hover{border-color:#c0c4cc}
+      textarea.msgbox-comments-filter-content:focus{border-color:#3677f0}
+      `;
+      const ownCommentsFilterHTML = `
+			<div id="commentsFilter" class="comiis_myinfo_list bg_f cl">
+				<a href="javascript:;" class="comiis_flex comiis_styli bg_f b_t cl">
+					<div class="styli_tit f_c"><i class="comiis_font f_e"></i></div>
+					<div class="flex">评论过滤器</div>
+					<div class="styli_ico">
+						<i class="comiis_font f_e"></i>
+					</div>
+				</a>
+			</div>`;
+      GM_addStyle(ownCommentsFilterCSS);
+      GM_addStyle(ownCommentsFilterDialogCSS);
+      $jq(".comiis_myinfo").append($jq(ownCommentsFilterHTML));
+
+      /* 添加点击事件 */
+      $jq("#commentsFilter").on("click", function () {
+        $jq.NZ_MsgBox.confirm({
+          title: "评论过滤器",
+          content: `
+            <textarea class="msgbox-comments-filter-content" placeholder="请输入自定义过滤规则"></textarea>
+          `,
+          type: "",
+          location: "center",
+          buttons: {
+            autoClose: false,
+            reverse: true,
+            confirm: {
+              text: "添加",
+            },
+            cancel: {
+              text: "关闭",
+            },
+          },
+          callback: function (status, closeCallBack) {
+            if (!status) {
+              closeCallBack();
+              return;
+            }
+            try {
+              let userInputData = $jq("textarea.msgbox-comments-filter-content")
+                .val()
+                .trim();
+              if (userInputData === "") {
+                GM_deleteValue("ownCommentsFilterData");
+                popups.toast("恢复默认");
+                closeCallBack();
+                return;
+              }
+              let formatUserInputData = JSON.parse(userInputData);
+              let mustParamList = [
+                "replyFlag",
+                "avatarFlag",
+                "minLength",
+                "keywords",
+                "userBlackList",
+                "userWhiteList",
+              ];
+              for (const mustParamName of mustParamList) {
+                if (typeof formatUserInputData[mustParamName] === "undefined") {
+                  popups.toast("缺失参数：" + mustParamName);
+                  return;
+                }
+              }
+              if (!Array.isArray(formatUserInputData["keywords"])) {
+                popups.toast("参数keywords必须是数组");
+                return;
+              }
+              if (!Array.isArray(formatUserInputData["userBlackList"])) {
+                popups.toast("参数keywords必须是数组");
+                return;
+              }
+              if (!Array.isArray(formatUserInputData["userWhiteList"])) {
+                popups.toast("参数keywords必须是数组");
+                return;
+              }
+              GM_setValue("ownCommentsFilterData", formatUserInputData);
+              popups.toast("设置成功");
+              closeCallBack();
+            } catch (error) {
+              popups.toast({
+                text: "数据格式验证失败：" + error.toString(),
+                delayTime: 5000,
+              });
+            }
+          },
+        });
+        let ownCommentsFilterData = GM_getValue(
+          "ownCommentsFilterData",
+          DEFAULT_CONFIG.ownCommentsFilterData
+        );
+        $jq("textarea.msgbox-comments-filter-content").val(
+          JSON.stringify(ownCommentsFilterData, undefined, 2)
+        );
+      });
     },
     /**
      * 在聊天的插入的图片图床接口API
@@ -9664,10 +9994,10 @@
         /* 全局点击事件 */
         if (
           document.querySelector(".popups-popmenu") ||
-          TEMP_FLAG.isUBBCodeInsertClick
+          GLOBAL_DATA.isUBBCodeInsertClick
         ) {
           /* 当前存在弹出层，不做处理 */
-          TEMP_FLAG.isUBBCodeInsertClick = false;
+          GLOBAL_DATA.isUBBCodeInsertClick = false;
           return;
         } else if (
           document
@@ -12324,6 +12654,7 @@
         utils.tryCatch().run(mobileRepeatFunc.showUserUID);
         utils.tryCatch().run(mobileRepeatFunc.showUserLabels);
         utils.tryCatch().run(mobileRepeatFunc.ownShield);
+        utils.tryCatch().run(mobileRepeatFunc.ownFilterComments);
         utils.tryCatch().run(mobileRepeatFunc.pageSmallWindowBrowsingForumPost);
         utils.tryCatch().run(mobileRepeatFunc.codeQuoteOptimization);
       }
@@ -12347,6 +12678,7 @@
       });
       utils.waitNode(".comiis_pms_box .comiis_pmlist ul li").then(() => {
         utils.tryCatch().run(mobileRepeatFunc.ownShield);
+        utils.tryCatch().run(mobileRepeatFunc.ownFilterComments);
       });
     },
     /**
@@ -15003,14 +15335,14 @@
               only: true,
               cancel: {
                 callback: () => {
-                  TEMP_FLAG.isUBBCodeInsertClick = true;
+                  GLOBAL_DATA.isUBBCodeInsertClick = true;
                   popups.closeMask();
                   popups.closeConfirm();
                 },
               },
               ok: {
                 callback: () => {
-                  TEMP_FLAG.isUBBCodeInsertClick = true;
+                  GLOBAL_DATA.isUBBCodeInsertClick = true;
                   let userInput = $jq(".quickinsertbbsdialog").val();
                   if (userInput.trim() === "") {
                     popups.toast({
