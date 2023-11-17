@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         【移动端】微博优化
-// @version      2023.11.17
+// @version      2023.11.17.12
 // @description  劫持自动跳转登录，修复用户主页正确跳转
 // @author       WhiteSevs
 // @license      MIT
@@ -16,50 +16,18 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @connect      m.weibo.cn
-// @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/462234/1252081/Message.js
 // @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
 
 (function () {
   /* -----------------↓公共配置↓----------------- */
   /**
-   * @type {import("../库/Qmsg")}
-   */
-  const Qmsg = window.Qmsg;
-  /**
    * @type {import("../库/Utils")}
    */
   const utils = window.Utils.noConflict();
-  /**
-   * @type {import("../库/DOMUtils")}
-   */
-  const DOMUtils = window.DOMUtils.noConflict();
-  Qmsg.config({
-    position: "top",
-    html: true,
-    maxNums: 4,
-    autoClose: true,
-    showClose: false,
-    showReverse: false,
-  });
   const log = new utils.Log(GM_info);
   log.config({
     debug: false,
-  });
-  const httpx = new utils.Httpx(GM_xmlhttpRequest);
-  httpx.config({
-    onabort: function () {
-      Qmsg.error("请求被取消");
-    },
-    ontimeout: function () {
-      Qmsg.error("请求超时");
-    },
-    onerror: function (response) {
-      Qmsg.error("请求异常");
-      log.error(["httpx-onerror", response]);
-    },
   });
   /* -----------------↑公共配置↑----------------- */
 
@@ -186,17 +154,10 @@
           });
         } else if (ApiPath.startsWith("profile/info")) {
           log.success(["拦截跳转xx微博主页", ApiSearchParams]);
-          let uidHomeUrl = `https://m.weibo.cn/u/${ApiSearchParams["uid"]}`;
+          let uidHomeUrl = `https://weibo.com/${ApiSearchParams["uid"]}`;
           log.success("跳转微博主页：" + uidHomeUrl);
           window.location.href = uidHomeUrl;
-          return new Promise((resolve, reject) => {
-            resolve({
-              data: {
-                ok: 200,
-                url: uidHomeUrl,
-              },
-            });
-          });
+          return null;
         } else if (
           ApiPath === "comments/hotflow" &&
           !(
@@ -280,6 +241,43 @@
         }
       });
     },
+    /**
+     * 拦截Vue Router跳转
+     */
+    hijackVueRouter() {
+      utils.waitNode("#app").then(async (element) => {
+        await utils.waitPropertyByInterval(
+          () => {
+            return document.querySelector("#app");
+          },
+          () => {
+            return document.querySelector("#app")?.__vue__?.$router?.push;
+          },
+          250,
+          10000
+        );
+        let vueRouterPush = document.querySelector("#app").__vue__.$router.push;
+        log.success("拦截Vue路由跳转");
+        document.querySelector("#app").__vue__.$router.push = function (
+          e,
+          t,
+          n
+        ) {
+          if (e?.path?.startsWith("/profile/")) {
+            let uid = e?.params?.uid;
+            if (uid == null) {
+              uid = e.path.match(/\/profile\/([\d]+)/)?.[1];
+            }
+            log.success(["拦截跳转xx微博主页", e]);
+            let uidHomeUrl = `https://m.weibo.cn/u/${uid}`;
+            log.success("跳转微博主页：" + uidHomeUrl);
+            window.location.href = uidHomeUrl;
+            return;
+          }
+          return vueRouterPush.apply(this, arguments);
+        };
+      });
+    },
   };
 
   /* -----------------↑函数区域↑----------------- */
@@ -290,7 +288,7 @@
   WeiBoMenu.startMenuFunc();
   WeiBoBusiness.addRemoveAdsCSS();
   WebBoHijack.hijackNetWork();
-  DOMUtils.ready(function () {});
+  WebBoHijack.hijackVueRouter();
 
   /* -----------------↑执行入口↑----------------- */
 })();
