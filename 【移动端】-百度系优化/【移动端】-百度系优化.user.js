@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
 // @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
-// @version      2023.11.17.13
+// @version      2023.11.17.14
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1689,14 +1689,16 @@
       }`,
       haokan: `
       div.share-origin.wx-share-launch,
-      div.open-app-top.share-origin-fixed.wx-share-launch,
+      div.open-app-top,
       div.open-app-bottom.wx-share-launch,
       /* 打开APP  好看更清晰(1080P) */
       .NewOpenApp,
       /* 顶部空白区域 */
       .placeholder,
       /* 底部好看视频图片 */
-      .page-buttom{
+      .page-buttom,
+      /* 暂停视频弹出来的打开百度好看视频 */
+      .video-player-download-tips{
         display: none !important;
       }
       `,
@@ -8085,18 +8087,6 @@
           typeof arguments[1].exports["initDiffer"] === "function"
         ) {
           let codeId = arguments?.[1]?.["i"];
-          GM_Menu.update({
-            key: "baidu_tieba_hijack_wake_up",
-            text: "劫持唤醒",
-            enable: false,
-            showText(text, enable) {
-              return `${
-                enable
-                  ? GM_Menu.getEnableTrueEmoji()
-                  : GM_Menu.getEnableFalseEmoji()
-              }${text} 🙏 成功劫持：${codeId}`;
-            },
-          });
           log.success(["成功劫持webpack关键Scheme调用函数", arguments]);
           arguments[1].exports.getSchema = function () {
             log.info(["阻止调用getSchema", ...arguments]);
@@ -8119,6 +8109,18 @@
             log.info(["阻止初始化差异", ...arguments]);
             return;
           };
+          GM_Menu.update({
+            key: "baidu_tieba_hijack_wake_up",
+            text: "劫持唤醒",
+            enable: false,
+            showText(text, enable) {
+              return `${
+                enable
+                  ? GM_Menu.getEnableTrueEmoji()
+                  : GM_Menu.getEnableFalseEmoji()
+              }${text} 🙏 成功劫持：${codeId}`;
+            },
+          });
           return;
         }
         return result;
@@ -8145,18 +8147,6 @@
           typeof arguments[1]["exports"]["__esModule"] === "boolean"
         ) {
           let codeId = arguments?.[1]?.["i"];
-          GM_Menu.update({
-            key: "baidu_haokan_hijack_wakeup",
-            text: "劫持唤醒",
-            enable: false,
-            showText(text, enable) {
-              return `${
-                enable
-                  ? GM_Menu.getEnableTrueEmoji()
-                  : GM_Menu.getEnableFalseEmoji()
-              }${text} 🙏 成功劫持：${codeId}`;
-            },
-          });
           log.info("成功劫持，当前webpack i:" + codeId);
           log.info(arguments);
           arguments[1]["exports"]["LaunchScheme"] = function () {
@@ -8170,6 +8160,18 @@
               },
             };
           };
+          GM_Menu.update({
+            key: "baidu_haokan_hijack_wakeup",
+            text: "劫持唤醒",
+            enable: false,
+            showText(text, enable) {
+              return `${
+                enable
+                  ? GM_Menu.getEnableTrueEmoji()
+                  : GM_Menu.getEnableFalseEmoji()
+              }${text} 🙏 成功劫持：${codeId}`;
+            },
+          });
         }
         return result;
       };
