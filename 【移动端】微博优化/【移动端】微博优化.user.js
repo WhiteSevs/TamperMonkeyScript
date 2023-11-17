@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
-// @version      2023.11.15
-// @description  劫持自动跳转登录
+// @version      2023.11.17
+// @description  劫持自动跳转登录，修复用户主页正确跳转
 // @author       WhiteSevs
 // @license      MIT
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
@@ -113,7 +113,9 @@
     addRemoveAdsCSS() {
       GM_addStyle(`
       /* 底部中间的 登录/注册按钮 */
-      #app div.main-wrap div.login-box{
+      #app div.main-wrap div.login-box,
+      /* 主内容底部的小程序横幅推荐 */
+      #app > div.lite-page-wrap > div > div.main > div > div.wrap{
         display: none !important;
       }`);
     },
@@ -125,24 +127,24 @@
      */
     hijackApply() {
       let originApply = Function.prototype.apply;
-      Function.prototype.apply = function (...args) {
-        if (args.length !== 2) {
-          return originApply.call(this, ...args);
+      Function.prototype.apply = function () {
+        if (arguments.length !== 2) {
+          return originApply.call(this, ...arguments);
         }
-        if (args.length === 2 && !Array.isArray(args[1])) {
-          return originApply.call(this, ...args);
+        if (arguments.length === 2 && !Array.isArray(arguments[1])) {
+          return originApply.call(this, ...arguments);
         }
-        if (typeof args[1][0] !== "string") {
-          return originApply.call(this, ...args);
+        if (typeof arguments[1][0] !== "string") {
+          return originApply.call(this, ...arguments);
         }
         /**
          * @type {string}
          */
-        const ApiPath = args[1][0];
+        const ApiPath = arguments[1][0];
         /**
          * @type {object}
          */
-        const ApiSearchParams = args[1]?.[1]?.["params"];
+        const ApiSearchParams = arguments[1]?.[1]?.["params"];
         if (ApiPath === "api/attitudes/create") {
           log.success("拦截跳转登录");
           return new Promise((resolve) => {
@@ -227,7 +229,7 @@
         } else {
           log.info(["请求API：", ApiPath, ApiSearchParams]);
         }
-        return originApply.call(this, ...args);
+        return originApply.call(this, ...arguments);
       };
     },
     /**
