@@ -2132,6 +2132,8 @@
     },
     /**
      * 评论过滤器
+     * 来源：https://bbs.binmt.cc/thread-122335-1-1.html
+     * 来源：https://greasyfork.org/zh-CN/scripts/479918
      */
     ownCommentsFilter() {
       if (
