@@ -42,28 +42,6 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: scriptruncontainer
-    attributes:
-      label: 脚本运行的容器
-      description: "勾选运行脚本的环境"
-      multiple: false
-      options:
-        - 扩展-暴力猴（Violentmonkey）
-        - 扩展-暴力猴测试版（Violentmonkey BETA）
-        - 扩展-篡改猴（TamperMonkey）
-        - 扩展-篡改猴测试版（TamperMonkey BETA）
-        - 扩展-脚本猫（ScriptCat）
-        - Via浏览器
-        - X浏览器
-        - 其它
-
-  - type: input
-    attributes:
-      label: 扩展版本
-      description: "如果使用扩展加载的脚本，请填写当前扩展的版本"
-    validations:
-      required: false
 
   - type: textarea
     attributes:
