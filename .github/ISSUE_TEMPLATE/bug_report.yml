@@ -25,4 +25,19 @@ body:
           required: true
         - label: "我已经在 [Issue Tracker](……/) 中找过我要提出的 bug，**并且没有找到相关问题**"
           required: true
-          
+
+  - type: markdown
+    attributes:
+      value: "## 脚本环境"
+  - type: markdown
+    attributes:
+      value: |
+        请附上这个问题适用的环境，以帮助我们迅速定位问题并解决。若你提供的信息不足，我们将关闭
+        这个 issue 并要求你提供更多信息。
+
+  - type: input
+    attributes:
+      label: 使用的脚本名称
+      description: ""
+    validations:
+      required: true
