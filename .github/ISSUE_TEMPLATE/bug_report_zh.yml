@@ -65,16 +65,6 @@ body:
     validations:
       required: false
 
-
-  - type: markdown
-    attributes:
-      value: "## 脚本的相关信息"
-  - type: markdown
-    attributes:
-      value: |
-        请附上与这个问题直接相关的相应信息，以帮助我们迅速定位问题并解决。  
-        若你提供的信息不足，我们将关闭这个 issue 并要求你提供更多信息。
-
   - type: textarea
     attributes:
       label: 问题描述
