@@ -18,7 +18,7 @@ body:
   - type: checkboxes
     id: ensure
     attributes:
-      label: "先决条件"
+      label: 先决条件
       description: "若以下任意选项不适用，请勿提交这个 issue，因为我们会把它关闭"
       options:
         - label: "我使用的是**本仓库**最新版本的油猴脚本"
@@ -37,7 +37,7 @@ body:
 
   - type: input
     attributes:
-      label: "使用的脚本名称"
+      label: 使用的脚本名称
       description: ""
     validations:
       required: true
@@ -45,7 +45,7 @@ body:
   - type: dropdown
     id: scriptruncontainer
     attributes:
-      label: "脚本运行的容器"
+      label: 脚本运行的容器
       description: "勾选运行脚本的环境"
       multiple: false
       options:
@@ -60,7 +60,7 @@ body:
 
   - type: input
     attributes:
-      label: "扩展版本"
+      label:  扩展版本 
       description: "如果使用扩展加载的脚本，请填写当前扩展的版本"
     validations:
       required: false
@@ -77,12 +77,12 @@ body:
 
   - type: textarea
     attributes:
-      label: "问题描述"
+      label: 问题描述
       placeholder: "在这里详细叙述你的问题，帮助我们理解（支持 Markdown 语法）"
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: "复现步骤"
+      label: 复现步骤
       placeholder: "在这里提供问题的具体重现步骤（支持 Markdown 语法）"
