@@ -44,7 +44,7 @@
     /**
      * 字符串转HTMLElement
      * @param {string} elementString
-     * @returns {HTMLElement[]}
+     * @returns {HTMLElement}
      */
     parseTextToDOM(elementString) {
       elementString = elementString
@@ -52,13 +52,7 @@
         .replace(/[\n|\s]*$/g, ""); /* 去除前后的换行和空格 */
       let targetElement = document.createElement("div");
       targetElement.innerHTML = elementString;
-      let targetElementList = [];
-      targetElement.childNodes.forEach((item, index) => {
-        if (item.nodeName !== "#text") {
-          targetElementList.push(item);
-        }
-      });
-      return targetElementList;
+      return targetElement.firstChild;
     },
     /**
      * 生成随机GUID
@@ -77,9 +71,7 @@
      */
     appendChild(target, sourceList) {
       sourceList.forEach((item) => {
-        if (item instanceof HTMLElement) {
-          target.appendChild(item);
-        }
+        target.appendChild(item);
       });
     },
     /**
@@ -1061,7 +1053,7 @@
     /**
      * 当前版本
      */
-    version: "2023.11.15",
+    version: "2023.11.19",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -1670,7 +1662,7 @@
      */
     handleMask(details = {}) {
       let result = {
-        maskElement: popsUtils.parseTextToDOM(details.maskHTML)[0],
+        maskElement: popsUtils.parseTextToDOM(details.maskHTML),
       };
       /**
        * 点击其它区域的事件
@@ -2166,7 +2158,7 @@
      * @returns {HTMLElement}
      */
     parseElement(html) {
-      return popsUtils.parseTextToDOM(html)[0];
+      return popsUtils.parseTextToDOM(html);
     },
   };
 
@@ -3501,10 +3493,10 @@
      */
     function getToolTipNodeJSON() {
       let _toolTipHTML_ = `<div class="pops-tip ${config.className}" data-guid="${guid}">${config.content}</div>`;
-      let _toolTipNode_ = popsUtils.parseTextToDOM(_toolTipHTML_)[0];
+      let _toolTipNode_ = popsUtils.parseTextToDOM(_toolTipHTML_);
       /* 箭头 */
       let _toolTipArrowHTML_ = '<div class="pops-tip-arrow"></div>';
-      let _toolTipArrowNode_ = popsUtils.parseTextToDOM(_toolTipArrowHTML_)[0];
+      let _toolTipArrowNode_ = popsUtils.parseTextToDOM(_toolTipArrowHTML_);
       _toolTipNode_.appendChild(_toolTipArrowNode_);
       return {
         toolTipNode: _toolTipNode_,
