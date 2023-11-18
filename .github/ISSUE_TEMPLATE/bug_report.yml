@@ -29,6 +29,7 @@ body:
   - type: markdown
     attributes:
       value: "## 脚本环境"
+
   - type: markdown
     attributes:
       value: |
@@ -69,6 +70,7 @@ body:
   - type: markdown
     attributes:
       value: "## 脚本的相关信息"
+      
   - type: markdown
     attributes:
       value: |
