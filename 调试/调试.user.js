@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475424
-// @supportURL   https://greasyfork.org/zh-CN/scripts/475424/feedback
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @version      2023.11.16
 // @description  用于调试油猴和相关API
 // @author       WhiteSevs

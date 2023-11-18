@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         【移动端】-百度系优化
 // @icon         https://www.baidu.com/favicon.ico
-// @namespace    https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化
-// @supportURL   https://greasyfork.org/zh-CN/scripts/418349-移动端-百度系优化/feedback
+// @namespace    https://greasyfork.org/zh-CN/scripts/418349
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @version      2023.11.17.14
 // @author       WhiteSevs
 // @run-at       document-start

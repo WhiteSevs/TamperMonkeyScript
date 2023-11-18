@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MT论坛
 // @icon         https://bbs.binmt.cc/favicon.ico
-// @namespace    https://greasyfork.org/zh-CN/scripts/401359-mt论坛
-// @supportURL   https://greasyfork.org/zh-CN/scripts/401359-mt论坛/feedback
+// @namespace    https://greasyfork.org/zh-CN/scripts/401359
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @description  更新日志: 对评论过滤器的内容进行去空格然后再进行关键字匹配;压缩部分CSS;
 // @version      2023.11.18

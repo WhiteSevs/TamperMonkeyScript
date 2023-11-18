@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name         自动生成的脚本
-// @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
+// @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         https://favicon.yandex.net/favicon/v2/<$URL$>
 // @version      0.1
 // @description  自动生成的描述

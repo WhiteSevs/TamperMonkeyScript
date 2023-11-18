@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         CSDN|简书优化
 // @icon         https://www.csdn.net/favicon.ico
-// @namespace    https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化
-// @supportURL   https://greasyfork.org/zh-CN/scripts/406136-csdn-简书优化/feedback
+// @namespace    https://greasyfork.org/zh-CN/scripts/406136
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @version      2023.11.16
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs

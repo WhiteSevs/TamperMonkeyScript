@@ -5,6 +5,7 @@
 // @author       WhiteSevs
 // @license      GPL-3.0-only
 // @icon         http://192.168.6.1/luci-static/argon/favicon.ico
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://192.168.6.1/cgi-bin/luci/admin/services/passwall/node_list*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            eruda_VConsole_网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
-// @supportURL      https://greasyfork.org/zh-CN/scripts/475228/feedback
+// @supportURL      https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @version         2023.11.15
 // @author          WhiteSevs
 // @description     自行选择是eruda或者VConsole进行网页调试

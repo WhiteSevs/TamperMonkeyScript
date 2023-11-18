@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name         模拟竖屏
-// @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
+// @namespace    https://greasyfork.org/zh-CN/scripts/479590
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/?size=32
 // @version      2023.11.12
 // @description  由于有些链接用小窗模式的浏览器打开，会提示切换到竖屏，特此模拟竖屏
