@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.15
+// @version      2023.11.19
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1252081/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1211345/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1281177/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1282468/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
@@ -2097,48 +2097,33 @@
          * @param {string} text 弹窗的显示的内容
          */
         this.gotoLogin = function (text = "") {
-          pops.confirm({
-            title: {
-              position: "center",
-              text: "天翼云",
-            },
-            content: {
-              text: text,
-              html: false,
-            },
-            btn: {
-              reverse: true,
-              position: "end",
-              ok: {
-                text: "前往",
-                enable: true,
-                callback: () => {
-                  window.open(
-                    "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/main",
-                    "_blank"
-                  );
+          NetDiskPops.confirm(
+            {
+              title: {
+                position: "center",
+                text: "天翼云",
+              },
+              content: {
+                text: text,
+                html: false,
+              },
+              btn: {
+                reverse: true,
+                position: "end",
+                ok: {
+                  text: "前往",
+                  enable: true,
+                  callback() {
+                    window.open(
+                      "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/main",
+                      "_blank"
+                    );
+                  },
                 },
               },
             },
-            animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-            mask: {
-              enable: true,
-              clickEvent: {
-                toClose: GM_getValue(
-                  "clickMaskToCloseDialog",
-                  NetDiskUI.clickMaskToCloseDialog
-                ),
-              },
-            },
-            drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-            height: pops.isPhone()
-              ? NetDiskUI.popsStyle.tianYiYunLoginTip.Mobile.height
-              : NetDiskUI.popsStyle.tianYiYunLoginTip.PC.height,
-            forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-            width: pops.isPhone()
-              ? NetDiskUI.popsStyle.tianYiYunLoginTip.Mobile.width
-              : NetDiskUI.popsStyle.tianYiYunLoginTip.PC.width,
-          });
+            NetDiskUI.popsStyle.tianYiYunLoginTip
+          );
         };
         return this;
       },
@@ -3296,46 +3281,31 @@
          * 前往登录
          */
         this.gotoLogin = function () {
-          pops.confirm({
-            title: {
-              text: "提示",
-              position: "center",
-            },
-            content: {
-              text: `解析失败，原因：当前尚未登录坚果云，是否前往登录？`,
-            },
-            btn: {
-              reverse: true,
-              position: "end",
-              ok: {
-                text: "前往",
-                callback: function (_event_) {
-                  window.open(
-                    "https://www.jianguoyun.com/d/login#from=https%3A%2F%2Fwww.jianguoyun.com%2F",
-                    "_blank"
-                  );
+          NetDiskPops.confirm(
+            {
+              title: {
+                text: "提示",
+                position: "center",
+              },
+              content: {
+                text: `解析失败，原因：当前尚未登录坚果云，是否前往登录？`,
+              },
+              btn: {
+                reverse: true,
+                position: "end",
+                ok: {
+                  text: "前往",
+                  callback: function (_event_) {
+                    window.open(
+                      "https://www.jianguoyun.com/d/login#from=https%3A%2F%2Fwww.jianguoyun.com%2F",
+                      "_blank"
+                    );
+                  },
                 },
               },
             },
-            animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-            mask: {
-              enable: true,
-              clickEvent: {
-                toClose: GM_getValue(
-                  "clickMaskToCloseDialog",
-                  NetDiskUI.clickMaskToCloseDialog
-                ),
-              },
-            },
-            drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-            height: pops.isPhone()
-              ? NetDiskUI.popsStyle.jianGuoYunLoginTip.Mobile.height
-              : NetDiskUI.popsStyle.jianGuoYunLoginTip.PC.height,
-            forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-            width: pops.isPhone()
-              ? NetDiskUI.popsStyle.jianGuoYunLoginTip.Mobile.width
-              : NetDiskUI.popsStyle.jianGuoYunLoginTip.PC.width,
-          });
+            NetDiskUI.popsStyle.jianGuoYunLoginTip
+          );
         };
         return this;
       },
@@ -3804,7 +3774,7 @@
   };
 
   /**
-   * 网盘鉴权处理获取
+   * 网盘直链鉴权处理
    */
   const NetDiskAuthorization = {
     netDisk: {
@@ -3838,7 +3808,7 @@
   };
 
   /**
-   * android scheme调用
+   * 网盘直链进行Scheme过滤
    */
   const NetDiskFilterScheme = {
     defaultScheme:
@@ -4319,6 +4289,9 @@
     onedrive() {},
   };
 
+  /**
+   * Woker
+   */
   const NetDiskWorker = {
     blobUrl: "",
     /**
@@ -4455,6 +4428,9 @@
     },
   };
 
+  /**
+   * 网盘-自定义规则
+   */
   const NetDiskCustomRules = {
     init() {
       Object.assign(NetDisk.regular, this.parseRule());
@@ -4548,6 +4524,9 @@
     },
   };
 
+  /**
+   * 弹窗UI界面
+   */
   const NetDiskUI = {
     /**
      * 已匹配到的网盘图标字典
@@ -4611,6 +4590,17 @@
     defaultAnimation: "pops-anim-fadein-zoom",
     /**
      * 弹窗的配置
+     * 规定格式
+     * {
+     *  PC:{
+     *    width: "",
+     *    height: "",
+     *  },
+     *  Mobile: {
+     *    width: "",
+     *    height: "",
+     *  }
+     * }
      */
     popsStyle: {
       /**
@@ -4810,6 +4800,9 @@
      * 悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮
      */
     suspension: {
+      /**
+       * 是否已显示
+       */
       isShow: false,
       /**
        * 显示悬浮按钮
@@ -5923,95 +5916,61 @@
                 let dataKey = nextObj.getAttribute("data-key");
                 let dataDefaultValue = nextObj.getAttribute("data-default");
                 let currentValue = nextObj.value;
-                pops.confirm({
-                  title: {
-                    text: "提示",
-                    position: "center",
-                  },
-                  content: {
-                    text: `当前设置的值为：${currentValue}，是否修改为默认值：${dataDefaultValue} ？`,
-                  },
-                  btn: {
-                    ok: {
-                      callback: function (_event_) {
-                        log.info(
-                          `key：${dataKey} 当前值：${currentValue}，修改为默认值：${dataDefaultValue}`
-                        );
-                        GM_setValue(dataKey, dataDefaultValue);
-                        DOMUtils.val(nextObj, dataDefaultValue);
-                        DOMUtils.trigger(nextObj, "propertychange");
-                        _event_.close();
+                NetDiskPops.confirm(
+                  {
+                    title: {
+                      text: "提示",
+                      position: "center",
+                    },
+                    content: {
+                      text: `当前设置的值为：${currentValue}，是否修改为默认值：${dataDefaultValue} ？`,
+                    },
+                    btn: {
+                      ok: {
+                        callback(_event_) {
+                          log.info(
+                            `key：${dataKey} 当前值：${currentValue}，修改为默认值：${dataDefaultValue}`
+                          );
+                          GM_setValue(dataKey, dataDefaultValue);
+                          DOMUtils.val(nextObj, dataDefaultValue);
+                          DOMUtils.trigger(nextObj, "propertychange");
+                          _event_.close();
+                        },
                       },
                     },
                   },
-                  animation: GM_getValue(
-                    "popsAnimation",
-                    NetDiskUI.defaultAnimation
-                  ),
-                  mask: {
-                    enable: true,
-                    clickEvent: {
-                      toClose: GM_getValue(
-                        "clickMaskToCloseDialog",
-                        NetDiskUI.clickMaskToCloseDialog
-                      ),
-                    },
-                  },
-                  drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-                  height: pops.isPhone()
-                    ? NetDiskUI.popsStyle.setDefaultValueView.Mobile.height
-                    : NetDiskUI.popsStyle.setDefaultValueView.PC.height,
-                  forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-                  width: pops.isPhone()
-                    ? NetDiskUI.popsStyle.setDefaultValueView.Mobile.width
-                    : NetDiskUI.popsStyle.setDefaultValueView.PC.width,
-                });
+                  NetDiskUI.popsStyle.setDefaultValueView
+                );
               });
             });
         }
-        NetDiskUI.uiSettingAlias = pops.alert({
-          title: {
-            text: "设置",
-            position: "center",
-          },
-          content: {
-            text: getPopsSettingHTML(),
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              callback: function (event) {
-                event.close();
+        NetDiskUI.uiSettingAlias = NetDiskPops.alert(
+          {
+            title: {
+              text: "设置",
+              position: "center",
+            },
+            content: {
+              text: getPopsSettingHTML(),
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: function (event) {
+                  event.close();
+                },
+              },
+              close: {
+                callback: function (event) {
+                  event.close();
+                },
               },
             },
-            close: {
-              callback: function (event) {
-                event.close();
-              },
-            },
+            class: "whitesevPopSetting",
           },
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          class: "whitesevPopSetting",
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.settingView.Mobile.height
-            : NetDiskUI.popsStyle.settingView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.settingView.Mobile.width
-            : NetDiskUI.popsStyle.settingView.PC.width,
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.settingView
+        );
         setSettingInputEvent();
         setSettingSelectEvent();
         setSettingLabelEvent();
@@ -6353,76 +6312,19 @@
       },
       addCSS() {
         GM_addStyle(`
-				
-				.netdisk-url-box-all{
-					
-				}
-				.netdisk-url-box{
-
-				}
-				.netdisk-url-box:last-child {
-					padding: 0 0 10px 0;
-				}
-				.netdisk-url-div{
-					display: flex;
-					align-items: center;
-					width: 100%;
-					margin: 10px 0px;
-				}
-				.netdisk-icon{
-					margin: 0px 4px;
-					display: contents;
-				}
-				.netdisk-icon img{
-					width: 28px;
-					height: 28px;
-					font-size: 13px !important;
-				}
-				.netdisk-icon img,
-				.netdisk-url a{
-					border-radius: 10px;
-					box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);
-				}
-				.whitesevPop .netdisk-url{
-					padding: 5px 0px;
-					margin: 0px 10px;
-				}
-				.netdisk-url a{
-					color: #ff4848 !important;
-					min-height: 28px;
-					overflow-x: hidden;
-					overflow-y: auto;
-					font-size: 14px;
-					border: none;
-
-					display: flex;
-					align-items: center;
-					width: 100%;
-					height: 100%;
-					padding: 2px 10px;
-					word-break: break-word;
-				}
-				.whitesevPop-whitesevPopSetting *:focus-visible {
-					outline-offset: 0px;
-					outline:0px;
-				}
-        
-				.netdisk-url a[isvisited=true]{
-					color: #8b8888 !important;
-				}
-        .netdisk-url a:active{
-          box-shadow: 0 0 0 1px #616161 inset;
-        }
-        .netdisk-url a:focus-visible{
-          outline: none;
-        }
-				.whitesevPop-content p[pop]{
-					text-indent: 0px;
-				}
-				.whitesevPop-button[type="primary"] {
-					border-color: #2d8cf0;
-					background-color: #2d8cf0;
-				}
+				.netdisk-url-box:last-child{padding:0 0 10px 0}
+        .netdisk-url-div{display:flex;align-items:center;width:100%;margin:10px 0}
+        .netdisk-icon{margin:0 4px;display:contents}
+        .netdisk-icon img{width:28px;height:28px;font-size:13px!important}
+        .netdisk-icon img,.netdisk-url a{border-radius:10px;box-shadow:0 .3px .6px rgb(0 0 0 / 6%),0 .7px 1.3px rgb(0 0 0 / 8%),0 1.3px 2.5px rgb(0 0 0 / 10%),0 2.2px 4.5px rgb(0 0 0 / 12%),0 4.2px 8.4px rgb(0 0 0 / 14%),0 10px 20px rgb(0 0 0 / 20%)}
+        .whitesevPop .netdisk-url{padding:5px 0;margin:0 10px}
+        .netdisk-url a{color:#ff4848!important;min-height:28px;overflow-x:hidden;overflow-y:auto;font-size:14px;border:none;display:flex;align-items:center;width:100%;height:100%;padding:2px 10px;word-break:break-word}
+        .whitesevPop-whitesevPopSetting :focus-visible{outline-offset:0;outline:0}
+        .netdisk-url a[isvisited=true]{color:#8b8888!important}
+        .netdisk-url a:active{box-shadow:0 0 0 1px #616161 inset}
+        .netdisk-url a:focus-visible{outline:0}
+        .whitesevPop-content p[pop]{text-indent:0}
+        .whitesevPop-button[type=primary]{border-color:#2d8cf0;background-color:#2d8cf0}
 				`);
       },
       /**
@@ -6456,47 +6358,32 @@
 					<div class="netdisk-url-box-all">
 						${viewAddHTML}
 					</div>`;
-        NetDiskUI.uiLinkAlias = pops.alert({
-          title: {
-            text: "网盘",
-            position: "center",
-          },
-          content: {
-            text: viewHTML,
-            html: true,
-          },
-          btn: {
-            ok: {
-              callback: function (event) {
-                event.hide();
+        NetDiskUI.uiLinkAlias = NetDiskPops.alert(
+          {
+            title: {
+              text: "网盘",
+              position: "center",
+            },
+            content: {
+              text: viewHTML,
+              html: true,
+            },
+            btn: {
+              ok: {
+                callback: function (event) {
+                  event.hide();
+                },
+              },
+              close: {
+                callback: function (event) {
+                  event.hide();
+                },
               },
             },
-            close: {
-              callback: function (event) {
-                event.hide();
-              },
-            },
+            class: "whitesevPop",
           },
-          class: "whitesevPop",
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.mainView.Mobile.height
-            : NetDiskUI.popsStyle.mainView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.mainView.Mobile.width
-            : NetDiskUI.popsStyle.mainView.PC.width,
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          mask: {
-            enable: true,
-            clickEvent: {
-              toHide: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.mainView
+        );
         this.setNetDiskUrlClickEvent(".netdisk-url a");
       },
       /**
@@ -6628,27 +6515,9 @@
 						background: #fff;
             box-shadow: 0px 1px 6px 1px #cacaca;
 					}
-					#${menuElementId} li:hover{
-						background: #dfdfdf;
-            cursor: pointer;
-					}
-          #${menuElementId} ul{
-            margin: 0px;
-            padding: 0px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-          }
-          #${menuElementId} ul li{
-            padding: 5px 10px;
-            display: unset;
-            width: -webkit-fill-available;
-            text-align: left;
-            margin: 2.5px 5px;
-            border-radius: 3px;
-            user-select: none;
-          }
+					#${menuElementId} li:hover{background:#dfdfdf;cursor:pointer}
+          #${menuElementId} ul{margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+          #${menuElementId} ul li{padding:5px 10px;display:unset;width:-webkit-fill-available;text-align:left;margin:2.5px 5px;border-radius:3px;user-select:none}
           </style>
 					<ul></ul>
           `,
@@ -6866,45 +6735,12 @@
         if (!this.isLoadCSS) {
           this.isLoadCSS = true;
           GM_addStyle(`
-					.netdisk-static-body{
-						flex-wrap: wrap;
-						letter-spacing: 1px;
-						text-decoration: none;
-						width: 100%;
-						padding: 5px 16px;
-						text-align: left;
-					}
-					.netdisk-static-filename{
-
-					}
-					.netdisk-static-filename a{
-						color: #233df8 !important;
-					}
-					.netdisk-static-body .netdisk-static-filename:before{
-						content: "文件: ";
-						font-weight: bold;
-    				text-overflow: ellipsis;
-						display: contents;
-    				position: inherit;
-					}
-					.netdisk-static-body .netdisk-static-filesize:before{
-						content: "大小: ";
-						font-weight: bold;
-						display: contents;
-    				position: inherit;
-					}
-          .netdisk-static-body .netdisk-static-fileuploadtime:before{
-						content: "时间: ";
-						font-weight: bold;
-						display: contents;
-    				position: inherit;
-					}
-          .netdisk-static-body .netdisk-static-filelatesttime:before{
-						content: "最新: ";
-						font-weight: bold;
-						display: contents;
-    				position: inherit;
-					}
+					.netdisk-static-body{flex-wrap:wrap;letter-spacing:1px;text-decoration:none;width:100%;padding:5px 16px;text-align:left}
+          .netdisk-static-filename a{color:#233df8!important}
+          .netdisk-static-body .netdisk-static-filename:before{content:"文件: ";font-weight:700;text-overflow:ellipsis;display:contents;position:inherit}
+          .netdisk-static-body .netdisk-static-filesize:before{content:"大小: ";font-weight:700;display:contents;position:inherit}
+          .netdisk-static-body .netdisk-static-fileuploadtime:before{content:"时间: ";font-weight:700;display:contents;position:inherit}
+          .netdisk-static-body .netdisk-static-filelatesttime:before{content:"最新: ";font-weight:700;display:contents;position:inherit}
 					`);
         }
       },
@@ -6947,13 +6783,14 @@
           fileName = fileName + "." + fileType;
           fileDetails["fileName"] = fileName;
         }
-        let confirmElement = pops.confirm({
-          title: {
-            text: title,
-            position: "center",
-          },
-          content: {
-            text: `
+        let confirmElement = NetDiskPops.confirm(
+          {
+            title: {
+              text: title,
+              position: "center",
+            },
+            content: {
+              text: `
             <div class="netdisk-static-body">
               <div class="netdisk-static-filename">
                 <a target="_blank" href="${downloadUrl}">${fileName}</a>
@@ -6974,45 +6811,29 @@
                   : ""
               }
             </div>`,
-            html: true,
-          },
-          btn: {
-            reverse: true,
-            position: "end",
-            ok: {
-              text: "下载",
-              callback: (event) => {
-                if (typeof clickCallBack === "function") {
-                  clickCallBack(fileDetails);
-                } else {
-                  let downloadUrl = event.popsElement
-                    .querySelector(".netdisk-static-filename a")
-                    .getAttribute("href");
-                  window.open(downloadUrl, "_blank");
-                }
+              html: true,
+            },
+            btn: {
+              reverse: true,
+              position: "end",
+              ok: {
+                text: "下载",
+                callback: (event) => {
+                  if (typeof clickCallBack === "function") {
+                    clickCallBack(fileDetails);
+                  } else {
+                    let downloadUrl = event.popsElement
+                      .querySelector(".netdisk-static-filename a")
+                      .getAttribute("href");
+                    window.open(downloadUrl, "_blank");
+                  }
+                },
               },
             },
+            class: "whitesevPopOneFile",
           },
-          class: "whitesevPopOneFile",
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.oneFileStaticView.Mobile.height
-            : NetDiskUI.popsStyle.oneFileStaticView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.oneFileStaticView.Mobile.width
-            : NetDiskUI.popsStyle.oneFileStaticView.PC.width,
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.oneFileStaticView
+        );
         if (clickCallBack) {
           let linkElement = confirmElement.animElement.querySelector(
             "div.netdisk-static-filename a"
@@ -7096,40 +6917,25 @@
             </div>`;
           }
         });
-        let alertElement = pops.alert({
-          title: {
-            text: title,
-            position: "center",
-          },
-          content: {
-            text: showHTML,
-            html: true,
-          },
-          btn: {
-            ok: {
-              text: "关闭",
+        let alertElement = NetDiskPops.alert(
+          {
+            title: {
+              text: title,
+              position: "center",
             },
-          },
-          class: "whitesevPopMoreFile",
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
+            content: {
+              text: showHTML,
+              html: true,
             },
+            btn: {
+              ok: {
+                text: "关闭",
+              },
+            },
+            class: "whitesevPopMoreFile",
           },
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.moreFileStaticView.Mobile.height
-            : NetDiskUI.popsStyle.moreFileStaticView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.moreFileStaticView.Mobile.width
-            : NetDiskUI.popsStyle.moreFileStaticView.PC.width,
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.moreFileStaticView
+        );
         if (clickCallBack) {
           log.success("设置当前直链弹窗超链接自定义点击事件");
           alertElement.animElement
@@ -7163,79 +6969,66 @@
       shareCode,
       okCallBack = () => {}
     ) {
-      pops.prompt({
-        title: {
-          text: title,
-        },
-        btn: {
-          reverse: true,
-          position: "end",
-          cancel: {
-            text: "取消",
+      NetDiskPops.prompt(
+        {
+          title: {
+            text: title,
           },
-          ok: {
-            callback: (event) => {
-              /* 把输入的新密码去空格 */
-              let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
-              /* 处理已显示的链接 */
-              let uiLink = NetDisk.handleLinkShow(
-                netDiskName,
-                netDiskIndex,
-                shareCode,
-                userInputAccessCode
-              );
-              let currentItemSelector = `.netdisk-url a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
-              let currentHistoryItemSelector = `.netdiskrecord-link a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
-              let currentItemElement =
-                document.querySelector(currentItemSelector);
-              let currentHistoryItemElement = document.querySelector(
-                currentHistoryItemSelector
-              );
-              if (currentItemElement) {
-                currentItemElement.setAttribute(
-                  "data-accesscode",
+          btn: {
+            reverse: true,
+            position: "end",
+            cancel: {
+              text: "取消",
+            },
+            ok: {
+              callback: (event) => {
+                /* 把输入的新密码去空格 */
+                let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
+                /* 处理已显示的链接 */
+                let uiLink = NetDisk.handleLinkShow(
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
                   userInputAccessCode
                 );
-                DOMUtils.html(currentItemElement, uiLink);
-              }
-              /* 历史记录的弹出的 */
-              if (currentHistoryItemElement) {
-                currentHistoryItemElement.setAttribute(
-                  "data-accesscode",
-                  userInputAccessCode
+                let currentItemSelector = `.netdisk-url a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
+                let currentHistoryItemSelector = `.netdiskrecord-link a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
+                let currentItemElement =
+                  document.querySelector(currentItemSelector);
+                let currentHistoryItemElement = document.querySelector(
+                  currentHistoryItemSelector
                 );
-                DOMUtils.html(currentHistoryItemElement, uiLink);
-              }
+                if (currentItemElement) {
+                  currentItemElement.setAttribute(
+                    "data-accesscode",
+                    userInputAccessCode
+                  );
+                  DOMUtils.html(currentItemElement, uiLink);
+                }
+                /* 历史记录的弹出的 */
+                if (currentHistoryItemElement) {
+                  currentHistoryItemElement.setAttribute(
+                    "data-accesscode",
+                    userInputAccessCode
+                  );
+                  DOMUtils.html(currentHistoryItemElement, uiLink);
+                }
 
-              log.info(`${netDiskName} 重新输入的密码：${userInputAccessCode}`);
-              okCallBack(userInputAccessCode);
-              event.close();
+                log.info(
+                  `${netDiskName} 重新输入的密码：${userInputAccessCode}`
+                );
+                okCallBack(userInputAccessCode);
+                event.close();
+              },
             },
           },
-        },
-        content: {
-          placeholder: "请重新输入密码",
-          focus: true,
-        },
-        height: pops.isPhone()
-          ? NetDiskUI.popsStyle.inputNewAccessCodeView.Mobile.height
-          : NetDiskUI.popsStyle.inputNewAccessCodeView.PC.height,
-        width: pops.isPhone()
-          ? NetDiskUI.popsStyle.inputNewAccessCodeView.Mobile.width
-          : NetDiskUI.popsStyle.inputNewAccessCodeView.PC.width,
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: GM_getValue(
-              "clickMaskToCloseDialog",
-              NetDiskUI.clickMaskToCloseDialog
-            ),
+          content: {
+            placeholder: "请重新输入密码",
+            focus: true,
           },
         },
-        animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-        drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-        forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-      });
+        NetDiskUI.popsStyle.inputNewAccessCodeView
+      );
       /**
        * 注册键盘回车事件
        */
@@ -7291,107 +7084,83 @@
         <div class="netdiskrecord-page">
 
         </div>`;
-        pops.confirm({
-          title: {
-            text: "历史匹配记录",
-            position: "center",
-          },
-          content: {
-            text: dataHTML,
-            html: true,
-          },
-          btn: {
-            reverse: true,
-            position: "space-between",
-            ok: {
-              enable: true,
-              callback: function (event) {
-                event.close();
+        NetDiskPops.confirm(
+          {
+            title: {
+              text: "历史匹配记录",
+              position: "center",
+            },
+            content: {
+              text: dataHTML,
+              html: true,
+            },
+            btn: {
+              reverse: true,
+              position: "space-between",
+              ok: {
+                enable: true,
+                callback(event) {
+                  event.close();
+                },
               },
-            },
-            close: {
-              callback: function (event) {
-                event.close();
+              close: {
+                callback(event) {
+                  event.close();
+                },
               },
-            },
-            cancel: {
-              enable: false,
-            },
-            other: {
-              enable: true,
-              text: `清空所有(${data.length})`,
-              type: "xiaomi-primary",
-              callback: (event) => {
-                pops.confirm({
-                  title: {
-                    text: "删除",
-                    position: "center",
-                  },
-                  content: {
-                    text: "确定清空所有的记录？",
-                    html: false,
-                  },
-                  btn: {
-                    ok: {
-                      enable: true,
-                      callback: function (okEvent) {
-                        that.clearNetDiskHistoryMatchData();
-                        DOMUtils.remove(
-                          ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
-                        );
-                        okEvent.close();
-                        DOMUtils.html(
-                          ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page",
-                          ""
-                        );
-                        DOMUtils.text(
-                          ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other",
+              cancel: {
+                enable: false,
+              },
+              other: {
+                enable: true,
+                text: `清空所有(${data.length})`,
+                type: "xiaomi-primary",
+                callback: (event) => {
+                  NetDiskPops.confirm({
+                    title: {
+                      text: "删除",
+                      position: "center",
+                    },
+                    content: {
+                      text: "确定清空所有的记录？",
+                      html: false,
+                    },
+                    btn: {
+                      ok: {
+                        enable: true,
+                        callback(okEvent) {
+                          that.clearNetDiskHistoryMatchData();
+                          DOMUtils.remove(
+                            ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
+                          );
+                          okEvent.close();
+                          DOMUtils.html(
+                            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page",
+                            ""
+                          );
                           DOMUtils.text(
-                            document.querySelector(
-                              ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-                            )
-                          ).replace(/[\d]+/gi, "0")
-                        );
+                            ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other",
+                            DOMUtils.text(
+                              document.querySelector(
+                                ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+                              )
+                            ).replace(/[\d]+/gi, "0")
+                          );
+                        },
+                      },
+                      cancel: {
+                        text: "取消",
+                        enable: true,
                       },
                     },
-                    cancel: {
-                      text: "取消",
-                      enable: true,
-                    },
-                  },
-                  mask: {
-                    enable: true,
-                    clickEvent: {
-                      toClose: GM_getValue(
-                        "clickMaskToCloseDialog",
-                        NetDiskUI.clickMaskToCloseDialog
-                      ),
-                    },
-                  },
-                });
+                  });
+                },
               },
             },
+            class: "whitesevPopNetDiskHistoryMatch",
           },
-          class: "whitesevPopNetDiskHistoryMatch",
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.historyMatchView.Mobile.height
-            : NetDiskUI.popsStyle.historyMatchView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.historyMatchView.Mobile.width
-            : NetDiskUI.popsStyle.historyMatchView.PC.height,
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.historyMatchView
+        );
         this.setDataPaging(data);
         this.setEvent();
         this.setSearchEvent();
@@ -7599,7 +7368,7 @@
             ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
             function (event) {
               /* 删除中的遮罩层 */
-              let deleteLoading = pops.loading({
+              let deleteLoading = NetDiskPops.loading({
                 parent: document.querySelector(
                   ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
                 ),
@@ -7685,7 +7454,7 @@
             return;
           }
           isSeaching = true;
-          searchLoading = pops.loading({
+          searchLoading = NetDiskPops.loading({
             parent: document.querySelector(
               ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
             ),
@@ -8018,111 +7787,87 @@
       show() {
         let that = this;
         this.init();
-        let popsConfirm = pops.confirm({
-          title: {
-            text: "自定义访问码规则",
-            position: "center",
-          },
-          content: {
-            text: `
+        let popsConfirm = NetDiskPops.confirm(
+          {
+            title: {
+              text: "自定义访问码规则",
+              position: "center",
+            },
+            content: {
+              text: `
             <div class="netdisk-accesscode-rule-table">
               <ul>
               ${that.getShowItemHTML()}
               </ul>
             </div>
             `,
-            html: true,
-          },
-          btn: {
-            merge: true,
-            reverse: false,
-            position: "space-between",
-            ok: {
-              enable: true,
-              text: "添加",
-              callback(event) {
-                that.showRule(event);
+              html: true,
+            },
+            btn: {
+              merge: true,
+              reverse: false,
+              position: "space-between",
+              ok: {
+                enable: true,
+                text: "添加",
+                callback(event) {
+                  that.showRule(event);
+                },
               },
-            },
-            close: {
-              callback(event) {
-                event.close();
+              close: {
+                callback(event) {
+                  event.close();
+                },
               },
-            },
-            cancel: {
-              enable: true,
-            },
-            other: {
-              enable: true,
-              type: "xiaomi-primary",
-              text: `清空所有`,
-              callback(event) {
-                pops.confirm({
-                  title: {
-                    text: "删除",
-                    position: "center",
-                  },
-                  content: {
-                    text: "确定清空所有的规则？",
-                    html: false,
-                  },
-                  btn: {
-                    ok: {
-                      enable: true,
-                      callback: function (okEvent) {
-                        log.success("清空所有");
-                        that.deleteAllValue();
-                        if (that.getValue().length) {
-                          Qmsg.error("清空全部规则失败");
-                          return;
-                        } else {
-                          Qmsg.success("已清空全部规则");
-                        }
-                        that.setDeleteAllBtnText(event.animElement);
-                        event.animElement.querySelector(
-                          ".pops-confirm-content ul"
-                        ).innerHTML = "";
-                        okEvent.close();
+              cancel: {
+                enable: true,
+              },
+              other: {
+                enable: true,
+                type: "xiaomi-primary",
+                text: `清空所有`,
+                callback(event) {
+                  NetDiskPops.confirm({
+                    title: {
+                      text: "删除",
+                      position: "center",
+                    },
+                    content: {
+                      text: "确定清空所有的规则？",
+                      html: false,
+                    },
+                    btn: {
+                      ok: {
+                        enable: true,
+                        callback: function (okEvent) {
+                          log.success("清空所有");
+                          that.deleteAllValue();
+                          if (that.getValue().length) {
+                            Qmsg.error("清空全部规则失败");
+                            return;
+                          } else {
+                            Qmsg.success("已清空全部规则");
+                          }
+                          that.setDeleteAllBtnText(event.animElement);
+                          event.animElement.querySelector(
+                            ".pops-confirm-content ul"
+                          ).innerHTML = "";
+                          okEvent.close();
+                        },
+                      },
+                      cancel: {
+                        text: "取消",
+                        enable: true,
                       },
                     },
-                    cancel: {
-                      text: "取消",
-                      enable: true,
-                    },
-                  },
-                  mask: {
-                    enable: true,
-                    clickEvent: {
-                      toClose: GM_getValue(
-                        "clickMaskToCloseDialog",
-                        NetDiskUI.clickMaskToCloseDialog
-                      ),
-                    },
-                  },
-                });
+                  });
+                },
               },
             },
+            class: this.accessCodeRuleDialogClassName,
           },
-          class: this.accessCodeRuleDialogClassName,
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.accessCodeRuleView.Mobile.height
-            : NetDiskUI.popsStyle.accessCodeRuleView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.accessCodeRuleView.Mobile.width
-            : NetDiskUI.popsStyle.accessCodeRuleView.PC.height,
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.accessCodeRuleView
+        );
         that.setDeleteAllBtnText(popsConfirm.animElement);
         this.setEvent(popsConfirm);
       },
@@ -8220,13 +7965,14 @@
        */
       showRule(mainEvent, isEdit = false, oldValue) {
         let that = this;
-        let popsConfirm = pops.confirm({
-          title: {
-            text: isEdit ? "修改规则" : "添加规则",
-            position: "center",
-          },
-          content: {
-            text: `
+        let popsConfirm = NetDiskPops.confirm(
+          {
+            title: {
+              text: isEdit ? "修改规则" : "添加规则",
+              position: "center",
+            },
+            content: {
+              text: `
               <div class="whitesev-accesscode-rule">
                 <div type-name>匹配网站</div>
                 <input type="text" placeholder="请输入需要匹配的正则规则" val-key="access-rule-url" />
@@ -8256,109 +8002,94 @@
                 <input type="text" placeholder="请输入固定的访问码" val-key="access-rule-accesscode" />
               </div>
             `,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              text: isEdit ? "修改" : "添加",
-              callback(event) {
-                let accessRuleUrl = event.popsElement.querySelector(
-                  'input[val-key="access-rule-url"]'
-                ).value;
-                /**
-                 * @type {{name:string,value:string}[]}
-                 */
-                let accessRuleNetDisk = [];
-                let accessRuleNetDiskElement = event.popsElement.querySelector(
-                  'select[val-key="access-rule-netdisk"]'
-                );
-                Array.from(accessRuleNetDiskElement.selectedOptions).forEach(
-                  (item) => {
-                    accessRuleNetDisk.push({
-                      name: item.value,
-                      value: item.getAttribute("data-value"),
-                    });
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                text: isEdit ? "修改" : "添加",
+                callback(event) {
+                  let accessRuleUrl = event.popsElement.querySelector(
+                    'input[val-key="access-rule-url"]'
+                  ).value;
+                  /**
+                   * @type {{name:string,value:string}[]}
+                   */
+                  let accessRuleNetDisk = [];
+                  let accessRuleNetDiskElement =
+                    event.popsElement.querySelector(
+                      'select[val-key="access-rule-netdisk"]'
+                    );
+                  Array.from(accessRuleNetDiskElement.selectedOptions).forEach(
+                    (item) => {
+                      accessRuleNetDisk.push({
+                        name: item.value,
+                        value: item.getAttribute("data-value"),
+                      });
+                    }
+                  );
+                  let accessRuleAccessCode = event.popsElement.querySelector(
+                    'input[val-key="access-rule-accesscode"]'
+                  ).value;
+                  if (!that.checkRuleUrlValid(accessRuleUrl)) {
+                    log.error(["验证失败", accessRuleUrl]);
+                    return;
                   }
-                );
-                let accessRuleAccessCode = event.popsElement.querySelector(
-                  'input[val-key="access-rule-accesscode"]'
-                ).value;
-                if (!that.checkRuleUrlValid(accessRuleUrl)) {
-                  log.error(["验证失败", accessRuleUrl]);
-                  return;
-                }
-                if (isEdit) {
-                  /* 编辑 */
-                  if (
-                    that.changeValue(oldValue, {
-                      urlRegexp: accessRuleUrl,
-                      netdisk: accessRuleNetDisk,
-                      accessCode: accessRuleAccessCode,
-                    })
-                  ) {
-                    log.success([
-                      "修改成功",
-                      {
+                  if (isEdit) {
+                    /* 编辑 */
+                    if (
+                      that.changeValue(oldValue, {
                         urlRegexp: accessRuleUrl,
                         netdisk: accessRuleNetDisk,
                         accessCode: accessRuleAccessCode,
-                      },
-                    ]);
-                    Qmsg.success("修改成功");
-                    mainEvent.animElement.querySelector(
-                      ".netdisk-accesscode-rule-table ul"
-                    ).innerHTML = that.getShowItemHTML();
-                    popsConfirm.close();
+                      })
+                    ) {
+                      log.success([
+                        "修改成功",
+                        {
+                          urlRegexp: accessRuleUrl,
+                          netdisk: accessRuleNetDisk,
+                          accessCode: accessRuleAccessCode,
+                        },
+                      ]);
+                      Qmsg.success("修改成功");
+                      mainEvent.animElement.querySelector(
+                        ".netdisk-accesscode-rule-table ul"
+                      ).innerHTML = that.getShowItemHTML();
+                      popsConfirm.close();
+                    } else {
+                      Qmsg.error("修改失败");
+                    }
                   } else {
-                    Qmsg.error("修改失败");
+                    /* 添加 */
+                    if (
+                      that.addValue({
+                        urlRegexp: accessRuleUrl,
+                        netdisk: accessRuleNetDisk,
+                        accessCode: accessRuleAccessCode,
+                      })
+                    ) {
+                      Qmsg.success("添加成功");
+                      mainEvent.animElement.querySelector(
+                        ".netdisk-accesscode-rule-table ul"
+                      ).innerHTML = that.getShowItemHTML();
+                      that.setDeleteAllBtnText(mainEvent.animElement);
+                      popsConfirm.close();
+                    } else {
+                      Qmsg.error("已存在重复的规则");
+                    }
                   }
-                } else {
-                  /* 添加 */
-                  if (
-                    that.addValue({
-                      urlRegexp: accessRuleUrl,
-                      netdisk: accessRuleNetDisk,
-                      accessCode: accessRuleAccessCode,
-                    })
-                  ) {
-                    Qmsg.success("添加成功");
-                    mainEvent.animElement.querySelector(
-                      ".netdisk-accesscode-rule-table ul"
-                    ).innerHTML = that.getShowItemHTML();
-                    that.setDeleteAllBtnText(mainEvent.animElement);
-                    popsConfirm.close();
-                  } else {
-                    Qmsg.error("已存在重复的规则");
-                  }
-                }
+                },
+              },
+              cancel: {
+                text: "取消",
+                enable: true,
               },
             },
-            cancel: {
-              text: "取消",
-              enable: true,
-            },
+            class: "whitesevPopNetDiskAccessCodeRuleAddOrEdit",
           },
-          class: "whitesevPopNetDiskAccessCodeRuleAddOrEdit",
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.accessCodeRuleEditView.Mobile.height
-            : NetDiskUI.popsStyle.accessCodeRuleEditView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.accessCodeRuleEditView.Mobile.width
-            : NetDiskUI.popsStyle.accessCodeRuleEditView.PC.height,
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.accessCodeRuleEditView
+        );
         this.setRuleEvent(popsConfirm.element);
         if (isEdit) {
           popsConfirm.element.querySelector(
@@ -8574,171 +8305,156 @@
       show() {
         let that = this;
         this.initCSS();
-        let popsConfirm = pops.confirm({
-          title: {
-            text: "自定义规则",
-            position: "center",
-          },
-          content: {
-            text: `
+        let popsConfirm = NetDiskPops.confirm(
+          {
+            title: {
+              text: "自定义规则",
+              position: "center",
+            },
+            content: {
+              text: `
             <textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>
             `,
-            html: true,
-          },
-          btn: {
-            merge: true,
-            mergeReverse: false,
-            reverse: false,
-            position: "space-between",
-            ok: {
-              text: "保存",
-              callback(event) {
-                let textAreaElement = event.popsElement.querySelector(
-                  "textarea.netdisk-custom-rules"
-                );
-                try {
-                  if (textAreaElement.value.trim() === "") {
-                    NetDiskCustomRules.clearRule();
-                    event.close();
-                    return;
-                  }
-                  let ruleJSON = JSON.parse(textAreaElement.value);
-                  if (!Array.isArray(ruleJSON)) {
-                    Qmsg.error("该规则不是一个数组");
-                    return;
-                  }
-                  let mustProperty = ["key", "icon", "regexp"];
-                  let regexpMustProperty = [
-                    "link_innerText",
-                    "link_innerHTML",
-                    "shareCode",
-                    "shareCodeNeedRemoveStr",
-                    "uiLinkShow",
-                    "blank",
-                    "copyUrl",
-                  ];
-                  for (let index = 0; index < ruleJSON.length; index++) {
-                    let item = ruleJSON[index];
-                    if (typeof item !== "object") {
-                      Qmsg.error(`第${index + 1}条规则不是一个对象`);
+              html: true,
+            },
+            btn: {
+              merge: true,
+              mergeReverse: false,
+              reverse: false,
+              position: "space-between",
+              ok: {
+                text: "保存",
+                callback(event) {
+                  let textAreaElement = event.popsElement.querySelector(
+                    "textarea.netdisk-custom-rules"
+                  );
+                  try {
+                    if (textAreaElement.value.trim() === "") {
+                      NetDiskCustomRules.clearRule();
+                      event.close();
                       return;
                     }
-                    for (
-                      let index2 = 0;
-                      index2 < mustProperty.length;
-                      index2++
-                    ) {
-                      let propertyName = mustProperty[index2];
-                      if (!Object.hasOwnProperty.call(item, propertyName)) {
-                        Qmsg.error(
-                          `第${index + 1}条规则缺少属性 ${propertyName} `
-                        );
+                    let ruleJSON = JSON.parse(textAreaElement.value);
+                    if (!Array.isArray(ruleJSON)) {
+                      Qmsg.error("该规则不是一个数组");
+                      return;
+                    }
+                    let mustProperty = ["key", "icon", "regexp"];
+                    let regexpMustProperty = [
+                      "link_innerText",
+                      "link_innerHTML",
+                      "shareCode",
+                      "shareCodeNeedRemoveStr",
+                      "uiLinkShow",
+                      "blank",
+                      "copyUrl",
+                    ];
+                    for (let index = 0; index < ruleJSON.length; index++) {
+                      let item = ruleJSON[index];
+                      if (typeof item !== "object") {
+                        Qmsg.error(`第${index + 1}条规则不是一个对象`);
                         return;
                       }
-                    }
-                    if (typeof item["regexp"] !== "object") {
-                      Qmsg.error(`第${index + 1}条规则的regexp不是一个对象`);
-                      return;
-                    }
-                    for (
-                      let index2 = 0;
-                      index2 < regexpMustProperty.length;
-                      index2++
-                    ) {
-                      let propertyName = regexpMustProperty[index2];
+                      for (
+                        let index2 = 0;
+                        index2 < mustProperty.length;
+                        index2++
+                      ) {
+                        let propertyName = mustProperty[index2];
+                        if (!Object.hasOwnProperty.call(item, propertyName)) {
+                          Qmsg.error(
+                            `第${index + 1}条规则缺少属性 ${propertyName} `
+                          );
+                          return;
+                        }
+                      }
+                      if (typeof item["regexp"] !== "object") {
+                        Qmsg.error(`第${index + 1}条规则的regexp不是一个对象`);
+                        return;
+                      }
+                      for (
+                        let index2 = 0;
+                        index2 < regexpMustProperty.length;
+                        index2++
+                      ) {
+                        let propertyName = regexpMustProperty[index2];
+                        if (
+                          !Object.hasOwnProperty.call(
+                            item["regexp"],
+                            propertyName
+                          )
+                        ) {
+                          Qmsg.error(
+                            `第${
+                              index + 1
+                            }条规则中的regexp内缺少属性 ${propertyName}`
+                          );
+                          return;
+                        }
+                      }
                       if (
-                        !Object.hasOwnProperty.call(
-                          item["regexp"],
-                          propertyName
-                        )
+                        item["regexp"]["accessCode"] &&
+                        !item["regexp"]["checkAccessCode"]
                       ) {
                         Qmsg.error(
                           `第${
                             index + 1
-                          }条规则中的regexp内缺少属性 ${propertyName}`
+                          }条规则中的regexp内设置了accessCode但是没有设置checkAccessCode`
+                        );
+                        return;
+                      }
+                      if (
+                        item["regexp"]["checkAccessCode"] &&
+                        !item["regexp"]["accessCode"]
+                      ) {
+                        Qmsg.error(
+                          `第${
+                            index + 1
+                          }条规则中的regexp内设置了checkAccessCode但是没有设置accessCode`
                         );
                         return;
                       }
                     }
-                    if (
-                      item["regexp"]["accessCode"] &&
-                      !item["regexp"]["checkAccessCode"]
-                    ) {
-                      Qmsg.error(
-                        `第${
-                          index + 1
-                        }条规则中的regexp内设置了accessCode但是没有设置checkAccessCode`
-                      );
-                      return;
-                    }
-                    if (
-                      item["regexp"]["checkAccessCode"] &&
-                      !item["regexp"]["accessCode"]
-                    ) {
-                      Qmsg.error(
-                        `第${
-                          index + 1
-                        }条规则中的regexp内设置了checkAccessCode但是没有设置accessCode`
-                      );
-                      return;
-                    }
+                    NetDiskCustomRules.setRule(ruleJSON);
+                    Qmsg.success(`保存规则${ruleJSON.length}条`);
+                    event.close();
+                  } catch (error) {
+                    log.error(error);
+                    Qmsg.error(error.message, {
+                      html: true,
+                      timeout: 3500,
+                    });
                   }
-                  NetDiskCustomRules.setRule(ruleJSON);
-                  Qmsg.success(`保存规则${ruleJSON.length}条`);
-                  event.close();
-                } catch (error) {
-                  log.error(error);
-                  Qmsg.error(error.message, {
-                    html: true,
-                    timeout: 3500,
-                  });
-                }
+                },
+              },
+              other: {
+                enable: true,
+                text: "格式化",
+                type: "xiaomi-primary",
+                callback(event) {
+                  let textAreaElement = event.popsElement.querySelector(
+                    "textarea.netdisk-custom-rules"
+                  );
+                  try {
+                    let ruleJSON = JSON.parse(textAreaElement.value);
+                    let ruleJSONString =
+                      NetDiskCustomRules.getFormatRule(ruleJSON);
+                    textAreaElement.value = ruleJSONString;
+                    Qmsg.success("格式化成功");
+                  } catch (error) {
+                    log.error(error);
+                    Qmsg.error(error.message, {
+                      html: true,
+                      timeout: 3500,
+                    });
+                  }
+                },
               },
             },
-            other: {
-              enable: true,
-              text: "格式化",
-              type: "xiaomi-primary",
-              callback(event) {
-                let textAreaElement = event.popsElement.querySelector(
-                  "textarea.netdisk-custom-rules"
-                );
-                try {
-                  let ruleJSON = JSON.parse(textAreaElement.value);
-                  let ruleJSONString =
-                    NetDiskCustomRules.getFormatRule(ruleJSON);
-                  textAreaElement.value = ruleJSONString;
-                  Qmsg.success("格式化成功");
-                } catch (error) {
-                  log.error(error);
-                  Qmsg.error(error.message, {
-                    html: true,
-                    timeout: 3500,
-                  });
-                }
-              },
-            },
+            class: "whitesevPopNetDiskCustomRules",
           },
-          class: "whitesevPopNetDiskCustomRules",
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.customRulesView.Mobile.height
-            : NetDiskUI.popsStyle.customRulesView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.customRulesView.Mobile.width
-            : NetDiskUI.popsStyle.customRulesView.PC.height,
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.customRulesView
+        );
         popsConfirm.popsElement.querySelector("textarea").value =
           NetDiskCustomRules.getFormatRule();
       },
@@ -8804,49 +8520,34 @@
       isInitCSS: false,
       show() {
         this.initCSS();
-        let popsConfirm = pops.confirm({
-          title: {
-            text: "主动识别文本",
-            position: "center",
-          },
-          content: {
-            text: `
+        let popsConfirm = NetDiskPops.confirm(
+          {
+            title: {
+              text: "主动识别文本",
+              position: "center",
+            },
+            content: {
+              text: `
             <textarea class="netdisk-match-paste-text"></textarea>
             `,
-            html: true,
-          },
-          btn: {
-            ok: {
-              text: "识别",
-              callback() {
-                NetDisk.clipboardText =
-                  popsConfirm.popsElement?.querySelector(
-                    ".netdisk-match-paste-text"
-                  )?.value || "";
-                NetDisk.matchPageLink();
+              html: true,
+            },
+            btn: {
+              ok: {
+                text: "识别",
+                callback() {
+                  NetDisk.clipboardText =
+                    popsConfirm.popsElement?.querySelector(
+                      ".netdisk-match-paste-text"
+                    )?.value || "";
+                  NetDisk.matchPageLink();
+                },
               },
             },
+            class: "whitesevPopNetDiskMatchPasteText",
           },
-          class: "whitesevPopNetDiskMatchPasteText",
-          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-          height: pops.isPhone()
-            ? NetDiskUI.popsStyle.matchPasteTextView.Mobile.height
-            : NetDiskUI.popsStyle.matchPasteTextView.PC.height,
-          width: pops.isPhone()
-            ? NetDiskUI.popsStyle.matchPasteTextView.Mobile.width
-            : NetDiskUI.popsStyle.matchPasteTextView.PC.height,
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: GM_getValue(
-                "clickMaskToCloseDialog",
-                NetDiskUI.clickMaskToCloseDialog
-              ),
-            },
-          },
-          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-        });
+          NetDiskUI.popsStyle.matchPasteTextView
+        );
       },
       initCSS() {
         if (this.isInitCSS) {
@@ -8920,6 +8621,166 @@
     },
   };
 
+  /**
+   * 弹窗-统一管理
+   */
+  const NetDiskPops = {
+    /**
+     * 普通信息框
+     * @param {object} details 配置
+     * @param {{
+     * PC: {
+     *  width: string,
+     *  height: string,
+     * },
+     * Mobile: {
+     *  width: string,
+     *  height: string
+     * }
+     * }} sizeConfig 大小配置
+     * @returns {{
+     * guid: string,
+     * element: Element,
+     * animElement: HTMLElement,
+     * popsElement: Element,
+     * maskElement: Element,
+     * close: Function,
+     * hide: Function,
+     * show: Function,
+     * }}
+     */
+    alert(details, sizeConfig) {
+      details = this.handleDetails(details, sizeConfig);
+      return pops.alert(details);
+    },
+    /**
+     * 询问框
+     * @param {object} details 配置
+     * @param {?{
+     * PC: {
+     *  width: string,
+     *  height: string,
+     * },
+     * Mobile: {
+     *  width: string,
+     *  height: string
+     * }
+     * }} sizeConfig 大小配置
+     * @returns {{
+     * guid: string,
+     * element: HTMLElement,
+     * animElement: HTMLElement,
+     * popsElement: HTMLElement,
+     * maskElement: HTMLElement,
+     * close: Function,
+     * hide: Function,
+     * show: Function,
+     * }}
+     */
+    confirm(details, sizeConfig) {
+      details = this.handleDetails(details, sizeConfig);
+      return pops.confirm(details);
+    },
+    /**
+     * 加载层
+     * @param {object} details 配置
+     * @returns {{
+     * guid: string,
+     * element: Element,
+     * animElement: HTMLElement,
+     * popsElement: Element,
+     * maskElement: Element,
+     * close: Function,
+     * hide: Function,
+     * show: Function,
+     * }}
+     */
+    loading(details) {
+      if (typeof details["animation"] === "undefined") {
+        details["animation"] = GM_getValue(
+          "popsAnimation",
+          NetDiskUI.defaultAnimation
+        );
+      }
+      if (typeof details["forbiddenScroll"] === "undefined") {
+        details["forbiddenScroll"] = NetDiskUI.defaultForbiddenScroll;
+      }
+      return pops.loading(details);
+    },
+    /**
+     * 输入框
+     * @param {object} details 配置
+     * @param {?{
+     * PC: {
+     *  width: string,
+     *  height: string,
+     * },
+     * Mobile: {
+     *  width: string,
+     *  height: string
+     * }
+     * }} sizeConfig 大小配置
+     * @returns {{
+     * guid: string,
+     * element: Element,
+     * animElement: HTMLElement,
+     * popsElement: Element,
+     * maskElement: Element,
+     * close: Function,
+     * hide: Function,
+     * show: Function,
+     * }}
+     */
+    prompt(details, sizeConfig) {
+      details = this.handleDetails(details, sizeConfig);
+      return pops.prompt(details);
+    },
+    /**
+     *
+     * @param {object} details
+     * @param {?{
+     * PC: {
+     *  width: string,
+     *  height: string,
+     * },
+     * Mobile: {
+     *  width: string,
+     *  height: string
+     * }
+     * }} sizeConfig 大小配置
+     * @returns {object}
+     */
+    handleDetails(details, sizeConfig) {
+      let defaultDetails = {
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: GM_getValue(
+              "clickMaskToCloseDialog",
+              NetDiskUI.clickMaskToCloseDialog
+            ),
+          },
+        },
+        animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+        drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+        forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
+      };
+      if (sizeConfig != null) {
+        defaultDetails.width = pops.isPhone()
+          ? sizeConfig.Mobile.width
+          : sizeConfig.PC.width;
+        defaultDetails.height = pops.isPhone()
+          ? sizeConfig.Mobile.height
+          : sizeConfig.PC.height;
+      }
+      Object.assign(defaultDetails, details);
+      return defaultDetails;
+    },
+  };
+
+  /**
+   * 菜单
+   */
   const NetDiskMenu = {
     /**
      * 初始化
