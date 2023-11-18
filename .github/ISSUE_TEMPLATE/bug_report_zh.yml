@@ -43,7 +43,7 @@ body:
       required: true
 
   - type: dropdown
-    id: scriptEnv
+    id: scriptruncontainer
     attributes:
       label: 脚本运行的容器
       description: "勾选运行脚本的环境"
