@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.17.19
+// @version      2023.11.18
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
 // @author       WhiteSevs
 // @license      MIT
@@ -88,10 +88,29 @@
     },
     /**
      * 从字符串中提取Id
+     * @param {?string} url
      * @returns {string}
      */
-    getScriptId() {
-      return window.location.pathname.match(/[0-9]+/i)[0];
+    getScriptId(url) {
+      return (url || window.location.pathname).match(/\/scripts\/([\d]+)/i)[1];
+    },
+    /**
+     * 从字符串中提取脚本名
+     * @param {?string} url
+     * @returns {?string}
+     */
+    getScriptName(url) {
+      let pathname = window.location.pathname;
+      if (url != null) {
+        pathname = new URL(url).pathname;
+      }
+      pathname = decodeURIComponent(pathname);
+      pathname = pathname.split("/");
+      for (const name of pathname) {
+        if (name.match(/[\d]+/)) {
+          return name.match(/[\d]+-(.+)/)[1];
+        }
+      }
     },
     /**
      * 获取脚本统计数据
@@ -111,6 +130,51 @@
         let scriptStatsJSON = scriptStatsRequest.data;
         resolve(scriptStatsJSON);
       });
+    },
+    /**
+     * 解析并获取admin内的源代码同步的配置表单
+     * @param {string} scriptId
+     * @returns {Promise<?FormData>}
+     */
+    async getSourceCodeSyncFormData(scriptId) {
+      let getResp = await fetch(
+        `https://greasyfork.org/zh-CN/scripts/${scriptId}/admin`
+      );
+      log.success(getResp);
+      if (getResp.status !== 200) {
+        Qmsg.error("请求admin内容失败");
+        return;
+      }
+      let adminHTML = await getResp.text();
+      let adminHTMLElement = DOMUtils.parseHTML(adminHTML, false, true);
+      let formElement = adminHTMLElement.querySelector("form.edit_script");
+      if (!formElement) {
+        Qmsg.error("解析admin的源代码同步表单失败");
+        return;
+      }
+      let formData = new FormData(formElement);
+      return formData;
+    },
+    /**
+     * 进行源代码同步，要求先getSourceCodeSyncFormData
+     * @param {string} scriptId
+     * @param {FormData} data
+     * @returns {Promise<?Response>}
+     */
+    async sourceCodeSync(scriptId, data) {
+      let postResp = await fetch(
+        `https://greasyfork.org/zh-CN/scripts/${scriptId}/sync_update`,
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+      log.success(postResp);
+      if (postResp.status !== 200) {
+        Qmsg.error("源代码同步失败");
+        return;
+      }
+      return postResp;
     },
   };
 
@@ -235,7 +299,8 @@
       this.menu.add([
         {
           key: "updateSettingsAndSynchronize_scriptList",
-          text: "⚙ 更新设置并同步【脚本列表】",
+          text: "⚙ 源代码同步【脚本列表】",
+          autoReload: false,
           showText(text) {
             return text;
           },
@@ -263,7 +328,8 @@
         },
         {
           key: "updateSettingsAndSynchronize_unlistedScriptList",
-          text: "⚙ 更新设置并同步【未上架的脚本】",
+          text: "⚙ 源代码同步【未上架的脚本】",
+          autoReload: false,
           showText(text) {
             return text;
           },
@@ -294,7 +360,8 @@
         },
         {
           key: "updateSettingsAndSynchronize_libraryScriptList",
-          text: "⚙ 更新设置并同步【库】",
+          text: "⚙ 源代码同步【库】",
+          autoReload: false,
           showText(text) {
             return text;
           },
@@ -326,25 +393,69 @@
       ]);
     },
     /**
-     * 将要更新的脚本存储到本地
-     * @param {[...string]} scriptUrlList
+     * 更新脚本
+     * @param {string[]} scriptUrlList
      */
-    updateScript(scriptUrlList) {
+    async updateScript(scriptUrlList) {
+      let getLoadingHTML = function (scriptName, progress = 1) {
+        return `
+        <div style="display: flex;flex-direction: column;align-items: flex-start;">
+          <div style="height: 30px;line-height: 30px;">名称：${scriptName}</div>
+          <div style="height: 30px;line-height: 30px;">进度：${progress}/${scriptUrlList.length}</div>
+        </div>`;
+      };
       if (utils.isNull(scriptUrlList)) {
         Qmsg.error("未获取到【脚本列表】");
-        GM_deleteValue("isUpdate");
-        GM_deleteValue("nextUrlList");
-        GM_deleteValue("nextUrlIndex");
       } else {
-        Qmsg.success(
-          "获取【脚本列表】 " + scriptUrlList.length + " 个，准备更新"
+        let loading = Qmsg.loading(
+          getLoadingHTML(GreasyforkApi.getScriptName(scriptUrlList[0])),
+          {
+            html: true,
+          }
         );
-        GM_setValue("isUpdate", true);
-        GM_setValue("nextUrlList", scriptUrlList);
-        GM_setValue("nextUrlIndex", 0);
-        setTimeout(() => {
-          window.location.href = scriptUrlList[0];
-        }, 2500);
+        let successNums = 0;
+        let failedNums = 0;
+        for (let index = 0; index < scriptUrlList.length; index++) {
+          let scriptUrl = scriptUrlList[index];
+          let scriptId = GreasyforkApi.getScriptId(scriptUrl);
+          log.success("更新：" + scriptUrl);
+          let scriptName = GreasyforkApi.getScriptName(scriptUrl);
+          loading.setHTML(getLoadingHTML(scriptName, index + 1));
+          let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
+            scriptId
+          );
+          if (codeSyncFormData) {
+            let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(
+              scriptId,
+              codeSyncFormData
+            );
+            if (syncUpdateStatus) {
+              Qmsg.success("源代码同步成功，3秒后更新下一个");
+              await utils.sleep(3000);
+              successNums++;
+            } else {
+              Qmsg.error("源代码同步失败");
+              failedNums++;
+            }
+          } else {
+            Qmsg.error("源代码同步失败");
+            failedNums++;
+          }
+        }
+        loading.close();
+        if (successNums === 0) {
+          Qmsg.error("全部更新失败");
+        } else {
+          Qmsg.success(
+            `全部更新完毕<br >
+          成功：${successNums}<br >
+          失败：${failedNums}<br >
+          总计：${scriptUrlList.length}`,
+            {
+              html: true,
+            }
+          );
+        }
       }
     },
     /**
@@ -497,89 +608,6 @@
           window.location.href = GreasyforkApi.getCodeSearchUrl(url);
         });
       });
-    },
-    /**
-     * 更新脚本
-     */
-    updateScript() {
-      let nextUrlInfo = {
-        /**
-         * @type {[...string]} 需要更新的地址列表
-         */
-        nextUrlList: GM_getValue("nextUrlList", []),
-        /**
-         * @type {Number} 当前的地址列表下标
-         */
-        nextUrlIndex: GM_getValue("nextUrlIndex", 0),
-        /**
-         * @type {string|null} 下一个的URL
-         */
-        nextUrl: null,
-        /**
-         * @type {string} 当前url
-         */
-        currentUrl: decodeURIComponent(window.location.href),
-        /**
-         * @type {boolean} 是否是更新中
-         */
-        isUpdate: GM_getValue("isUpdate", false),
-      };
-      nextUrlInfo.nextUrl = decodeURIComponent(
-        nextUrlInfo.nextUrlList[nextUrlInfo.nextUrlIndex]
-      );
-      if (!nextUrlInfo.isUpdate) {
-        /* 标志位不是更新中 */
-        return;
-      }
-      if (!nextUrlInfo.nextUrlList.length) {
-        /* 没获取到更新列表 */
-        return;
-      }
-      if (nextUrlInfo.currentUrl === nextUrlInfo.nextUrl) {
-        nextUrlInfo.nextUrlIndex++;
-        nextUrlInfo.nextUrl = decodeURIComponent(
-          nextUrlInfo.nextUrlList[nextUrlInfo.nextUrlIndex]
-        );
-        if (nextUrlInfo.nextUrlIndex >= nextUrlInfo.nextUrlList.length) {
-          Qmsg.success("当前为最后一个，结束");
-          GM_deleteValue("nextUrlList");
-          GM_deleteValue("nextUrlIndex");
-          GM_deleteValue("isUpdate");
-        } else {
-          log.info(["下一个的下标：", nextUrlInfo.nextUrlIndex]);
-          log.info(["下一个：", nextUrlInfo.nextUrl]);
-          Qmsg.success("下一个: " + nextUrlInfo.nextUrl);
-          GM_setValue("nextUrlIndex", nextUrlInfo.nextUrlIndex);
-        }
-        log.success("1秒后点击同步按钮");
-        setTimeout(() => {
-          let existUpdate =
-            document.querySelector("input#script_script_sync_type_id_2")
-              .checked ||
-            document.querySelector("input#script_script_sync_type_id_1")
-              .checked;
-          if (!existUpdate) {
-            Qmsg.error("该脚本不存在检查更新并同步");
-            Qmsg.success("下一个: " + nextUrlInfo.nextUrl);
-            setTimeout(() => {
-              window.location.href = nextUrlInfo.nextUrl;
-            }, 1000);
-            return;
-          }
-          let btnUpdateAndSync = document.querySelector(
-            "input[name='update-and-sync']"
-          );
-          /* 更新设置并立即同步按钮 */
-          btnUpdateAndSync.click();
-        }, 1000);
-      } else {
-        setTimeout(() => {
-          Qmsg.success(
-            `进度 ${nextUrlInfo.nextUrlIndex}/${nextUrlInfo.nextUrlList.length}`
-          );
-          window.location.href = nextUrlInfo.nextUrl;
-        }, 1000);
-      }
     },
     /**
      * 修复图片显示问题
@@ -1207,7 +1235,6 @@
     }
     GreasyforkMenu.handleLocalGotoCallBack();
     GreasyforkBusiness.setFindCodeSearchBtn();
-    GreasyforkBusiness.updateScript();
     GreasyforkBusiness.repairImgShow();
     GreasyforkBusiness.repairCodeLineNumber();
     GreasyforkBusiness.optimizeImageBrowsing();
