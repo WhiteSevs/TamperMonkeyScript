@@ -57,6 +57,8 @@ body:
         - Via浏览器
         - X浏览器
         - 其它
+    validations:
+      required: true
 
   - type: input
     attributes:
