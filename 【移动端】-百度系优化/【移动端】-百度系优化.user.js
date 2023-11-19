@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.17.14
+// @version      2023.11.19
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -6535,6 +6535,27 @@
           );
           window.addEventListener("scroll", checkScroll.run);
         },
+        /**
+         * 添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主业
+         */
+        addAuthorClickEvent() {
+          utils
+            .waitNode("div.main-page-wrap .main-thread-content .user-line")
+            .then((element) => {
+              DOMUtils.on(element, "click", function () {
+                let vueInfo =
+                  element.parentElement?.__vue__ ||
+                  element.closest(".user-line-wrapper")?.__vue__;
+                let authorInfo = vueInfo.author;
+                if (!authorInfo) {
+                  log.error("获取贴主信息失败", vueInfo);
+                  return;
+                }
+                log.success(["贴主信息", authorInfo]);
+                window.open(`/home/main?id=${authorInfo.portrait}`);
+              });
+            });
+        },
       };
 
       /**
@@ -6653,6 +6674,7 @@
       } else {
         /* 贴内 */
         tiebaBusiness.addScrollTopButton();
+        tiebaBusiness.addAuthorClickEvent();
       }
       if (GM_Menu.get("baidu_tieba_add_search")) {
         log.success(GM_Menu.getShowTextValue("baidu_tieba_add_search"));
@@ -8067,34 +8089,33 @@
       };
     },
     /**
-     * 劫持百度贴吧的Function的call
+     * 劫持百度贴吧的window.webpackJsonp
+     * 当前 "core:67"
      * + 百度贴吧(tieba.baidu.com)
      *
-     * Function.property.call
+     * https://tb3.bdstatic.com/tb/wise/wise-main-core/static/js/collect~download~frs~gaokao~index~pb~userpost.0bd802e3.js
+     * tiebaNewWakeup.js v3.0.3
+     * (c) 2018-2023 liugui01
+     * Released under the BaiDuTieBa License.
      */
     hijackFunctionCall_WebPack_TieBa() {
-      /* 劫持webpack */
-      let originCall = Function.prototype.call;
-      Function.prototype.call = function () {
-        let result = originCall.apply(this, arguments);
-        /* 当前i core:67 */
+      this.hijackWebpack("webpackJsonp", ["core:0"], function (webpackExports) {
         if (
-          arguments.length === 4 &&
-          typeof arguments[1]?.exports === "object" &&
-          typeof arguments[1].exports["getSchema"] === "function" &&
-          typeof arguments[1].exports["getToken"] === "function" &&
-          typeof arguments[1].exports["init"] === "function" &&
-          typeof arguments[1].exports["initDiffer"] === "function"
+          typeof webpackExports?.exports === "object" &&
+          typeof webpackExports.exports["getSchema"] === "function" &&
+          typeof webpackExports.exports["getToken"] === "function" &&
+          typeof webpackExports.exports["init"] === "function" &&
+          typeof webpackExports.exports["initDiffer"] === "function"
         ) {
-          let codeId = arguments?.[1]?.["i"];
-          log.success(["成功劫持webpack关键Scheme调用函数", arguments]);
-          arguments[1].exports.getSchema = function () {
+          log.success(["成功劫持webpack调用函数", webpackExports]);
+          let codeId = webpackExports?.["i"];
+          webpackExports.exports.getSchema = function () {
             log.info(["阻止调用getSchema", ...arguments]);
           };
-          arguments[1].exports.getToken = function () {
+          webpackExports.exports.getToken = function () {
             log.info(["阻止调用getToken", ...arguments]);
           };
-          arguments[1].exports.init = function () {
+          webpackExports.exports.init = function () {
             log.info(["阻止初始化", ...arguments]);
             if (arguments?.[0]?.["page"] === "usercenter") {
               /* 跳转至用户空间 */
@@ -8105,7 +8126,7 @@
             }
             return;
           };
-          arguments[1].exports.initDiffer = function () {
+          webpackExports.exports.initDiffer = function () {
             log.info(["阻止初始化差异", ...arguments]);
             return;
           };
@@ -8121,40 +8142,68 @@
               }${text} 🙏 成功劫持：${codeId}`;
             },
           });
-          return;
         }
-        return result;
-      };
+        return webpackExports;
+      });
     },
     /**
-     * 劫持百度好看视频的Function的call
+     * 劫持webpack
+     * @param {string} webpackName 当前全局变量的webpack名
+     * @param {string|any[]} mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * @param {(webpackExports: object|undefined)=>{}} checkCallBack 如果mainCoreData匹配上，则调用此回调函数
+     */
+    hijackWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+      let originObecjt = undefined;
+      Object.defineProperty(unsafeWindow, webpackName, {
+        get() {
+          return originObecjt;
+        },
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObecjt = newValue;
+          const originPush = originObecjt.push;
+          originObecjt.push = function (...args) {
+            let _mainCoreData = args[0][0];
+            if (
+              mainCoreData == _mainCoreData ||
+              (Array.isArray(mainCoreData) &&
+                Array.isArray(_mainCoreData) &&
+                JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
+            ) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function (..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = checkCallBack(_args[0]);
+                  return result;
+                };
+              });
+            }
+            return originPush.call(this, ...args);
+          };
+        },
+      });
+    },
+    /**
+     * 劫持百度好看视频的window.webpackJsonp
      * + 百度好看视频(haokan.baidu.com)
      *
-     * Function.property.call
      */
     hijackFunctionCall_WebPack_HaoKan() {
-      /* 劫持webpack */
-      let originCall = Function.prototype.call;
-      Function.prototype.call = function () {
-        /* 当前i 168 */
-        let result = originCall.apply(this, arguments);
+      this.hijackWebpack("webpackJsonp", [40, 1], function (webpackExports) {
         if (
-          arguments.length === 4 &&
-          arguments[1] != null &&
-          typeof arguments[1].exports === "object" &&
-          arguments[1].exports != null &&
-          typeof arguments[1]["exports"]["LaunchScheme"] === "function" &&
-          typeof arguments[1]["exports"]["__esModule"] === "boolean"
+          typeof webpackExports?.exports === "object" &&
+          typeof webpackExports.exports["LaunchScheme"] === "function" &&
+          typeof webpackExports.exports["__esModule"] === "boolean"
         ) {
-          let codeId = arguments?.[1]?.["i"];
-          log.info("成功劫持，当前webpack i:" + codeId);
-          log.info(arguments);
-          arguments[1]["exports"]["LaunchScheme"] = function () {
-            log.success(["修改参数并劫持唤醒 LaunchScheme"]);
+          log.success(["成功劫持webpack调用函数", webpackExports]);
+          let codeId = webpackExports?.["i"];
+          webpackExports.exports["LaunchScheme"] = function () {
+            log.success(["修改参数：LaunchScheme"]);
             return {
               launch() {
                 return new Promise(function (resolve) {
-                  log.success(["修改参数并劫持唤醒 launch"]);
+                  log.success(["修改参数：launch"]);
                   resolve();
                 });
               },
@@ -8173,8 +8222,8 @@
             },
           });
         }
-        return result;
-      };
+        return webpackExports;
+      });
     },
     /**
      * 劫持百家号和百度地图的Function的call
@@ -8196,7 +8245,7 @@
           "next" in arguments[1] &&
           "prev" in arguments[1]
         ) {
-          log.success(["修改参数并劫持唤醒", arguments[1]]);
+          log.success(["修改参数", arguments[1]]);
           arguments[1]["method"] = "return";
           arguments[1]["next"] = "end";
           arguments[1]["prev"] = 24;
