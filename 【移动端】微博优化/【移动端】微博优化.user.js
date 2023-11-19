@@ -3,7 +3,7 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.18
+// @version      2023.11.19
 // @description  劫持自动跳转登录，修复用户主页正确跳转
 // @author       WhiteSevs
 // @license      MIT
@@ -160,22 +160,46 @@
           log.success("跳转微博主页：" + uidHomeUrl);
           window.location.href = uidHomeUrl;
           return null;
-        } else if (
-          ApiPath === "comments/hotflow" &&
-          !(
-            "id" in ApiSearchParams &&
-            "max_id_type" in ApiSearchParams &&
-            "mid" in ApiSearchParams
-          )
-        ) {
-          log.success(["拦截下拉加载更多评论跳转登录", ApiSearchParams]);
-          return new Promise((resolve) => {
-            resolve({
-              data: {
-                ok: 200,
-              },
+        } else if (ApiPath === "comments/hotflow") {
+          if (
+            !(
+              "id" in ApiSearchParams &&
+              "max_id_type" in ApiSearchParams &&
+              "mid" in ApiSearchParams
+            ) ||
+            ("id" in ApiSearchParams &&
+              "max_id" in ApiSearchParams &&
+              "max_id_type" in ApiSearchParams &&
+              "mid" in ApiSearchParams)
+          ) {
+            log.success(["拦截下拉加载更多评论跳转登录", ApiSearchParams]);
+            return new Promise((resolve) => {
+              resolve({
+                ok: 1,
+                data: {
+                  data: [],
+                  total_number: 0,
+                },
+              });
             });
-          });
+          }
+        } else if (ApiPath === "comments/hotFlowChild") {
+          if ("max_id" in ApiSearchParams && ApiSearchParams["max_id"] !== 0) {
+            log.success([
+              "拦截评论中的评论下拉加载更多评论跳转登录",
+              ApiSearchParams,
+            ]);
+            return new Promise((resolve) => {
+              resolve({
+                data: {
+                  ok: 1,
+                  data: [],
+                  rootComment: [],
+                  total_number: 0,
+                },
+              });
+            });
+          }
         } else if (ApiPath === "api/statuses/repostTimeline") {
           log.success(["拦截查看转发数据，因为需登录", ApiSearchParams]);
           return new Promise((resolve) => {
@@ -223,9 +247,7 @@
             log.success("伪装已登录");
             _request_.responseText = JSON.stringify(data);
           };
-        } else if (
-          request.url.startsWith("https://m.weibo.cn/comments/hotflow")
-        ) {
+        } else if (request.url.startsWith("https://m.weibo.cn/comments/hot")) {
           /**
            * 重构响应
            * @param {XMLHttpRequest} _request_
