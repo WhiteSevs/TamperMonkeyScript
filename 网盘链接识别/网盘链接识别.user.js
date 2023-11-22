@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.19
+// @version      2023.11.22
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -55,7 +55,7 @@
 // @exclude      /^http(s|):\/\/.*\.vscode-cdn\.net\/.*$/
 // @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
-// @require      https://update.greasyfork.org/scripts/462234/1252081/Message.js
+// @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1211345/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://update.greasyfork.org/scripts/456485/1282468/pops.js
@@ -3654,12 +3654,10 @@
         Qmsg.info("1.5秒后跳转该链接");
       }
       log.success(["新标签页打开", [...arguments]]);
+      /* 百度网盘会拒绝referrer不安全访问 */
       document
         .querySelector("meta[name='referrer']")
-        ?.setAttribute(
-          "content",
-          "no-referrer"
-        ); /* 百度网盘会拒绝referrer不安全访问 */
+        ?.setAttribute("content", "no-referrer");
       /* 增加延迟跳转，因为要等待accessCode复制到剪贴板 */
       setTimeout(
         () => {
@@ -6297,13 +6295,14 @@
       },
     },
     /**
-     * 视图
+     * 主视图
      */
     view: {
       show() {
         if (!NetDiskUI.uiLinkAlias) {
           this.addCSS();
           this.createView();
+          this.setNetDiskUrlClickEvent(".netdisk-url a");
           this.registerIconGotoPagePosition();
           this.registerNetDiskUrlContextMenu();
         } else {
@@ -6380,11 +6379,17 @@
                 },
               },
             },
+            mask: {
+              enable: true,
+              clickEvent: {
+                toHide: true,
+                toClose: false,
+              },
+            },
             class: "whitesevPop",
           },
           NetDiskUI.popsStyle.mainView
         );
-        this.setNetDiskUrlClickEvent(".netdisk-url a");
       },
       /**
        * 获取视图html
