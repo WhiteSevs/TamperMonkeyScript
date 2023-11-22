@@ -19,7 +19,7 @@
 // @grant        GM_info
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/462234/1252081/Message.js
+// @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
