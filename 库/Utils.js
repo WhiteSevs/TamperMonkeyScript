@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-15";
+  Utils.version = "2023-11-22";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -5095,12 +5095,12 @@
    * @example
    * Utils.registerTrustClickEvent()
    */
-  Utils.registerTrustClickEvent = function () {
+  Utils.registerTrustClickEvent = function (isTrustValue = true) {
     function trustEvent(event) {
       return new Proxy(event, {
         get: function (target, property) {
           if (property === "isTrusted") {
-            return true;
+            return isTrustValue;
           } else {
             return Reflect.get(target, property);
           }
@@ -5109,7 +5109,7 @@
     }
     const originalListener = EventTarget.prototype.addEventListener;
     EventTarget.prototype.addEventListener = function () {
-      if (this === document && arguments[0] === "click") {
+      if (arguments[0] === "click") {
         const fn = arguments[1];
         arguments[1] = function (e) {
           fn.call(this, trustEvent(e));
