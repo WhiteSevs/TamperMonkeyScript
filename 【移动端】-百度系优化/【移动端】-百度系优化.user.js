@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.19
+// @version      2023.11.22
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -102,53 +102,175 @@
   });
 
   class LoadingView {
-    constructor() {
+    /**
+     *
+     * @param {boolean} withIcon 是否添加icon
+     * @param {boolean} isEnd icon是否添加在后面
+     */
+    constructor(withIcon, isEnd) {
+      this.config = {
+        className: "whitesev-load-view",
+        textClassName: "whitesev-load-view-text",
+        iconClassName: "whitesev-load-view-icon",
+        outSideClassName: "whitesev-load-view-icon-outside",
+        withInClassName: "whitesev-load-view-icon-within",
+      };
+      /**
+       * @type {?HTMLElement}
+       */
       this.loadingViewElement = null;
-      this.loadingClassName = "whitesev-page-isloading";
-      this.loadingTextClassName = "whitesev-isloading-text";
-      this.loadingIconClassName = "whitesev-isloading-icon";
-      this.loadingOutSideIconClassName = "whitesev-isloading-outside";
-      this.loadingWithInIconClassName = "whitesev-isloading-within";
-      this.html = `
-      <div class="${this.loadingClassName}">
-        <span class="${this.loadingTextClassName}">Loading...</span>
-      </div>`;
-      this.iconHTML = `
-      <div class="${this.loadingIconClassName}">
-        <div class="${this.loadingOutSideIconClassName}"></div>
-        <div class="${this.loadingWithInIconClassName}"></div>
-      </div>`;
+      this.loadingViewHTML = `
+        <div class="${this.config.className}">
+          <span class="${this.config.textClassName}">Loading...</span>
+        </div>`.trim();
+      this.loadingViewIconHTML = `
+        <div class="${this.config.iconClassName}">
+          <div class="${this.config.outSideClassName}"></div>
+          <div class="${this.config.withInClassName}"></div>
+        </div>`.trim();
+      this.initCSS();
+      this.initLoadingView(withIcon, isEnd);
     }
     /**
-     * 获取经过转换过的Loading的HTML
-     * @param {Boolean} withIcon
-     * @returns {Element}
+     * 加载需要的CSS
      */
-    getParseLoadingNode(withIcon = false) {
-      let ele = document.createElement("div");
-      ele.innerHTML = this.html;
-      let resultEle = ele.children[0];
-      if (withIcon) {
-        let iconEle = document.createElement("div");
-        iconEle.innerHTML = this.iconHTML;
-        resultEle.appendChild(iconEle.children[0]);
+    initCSS() {
+      if (this.isExistsCSS()) {
+        return;
       }
-      return resultEle;
+      let loadingViewCSSText = `
+      .${this.config.className}{
+        margin: 0.08rem;
+        background: #fff;
+        font-size: 15px;
+        text-align: center;
+        width: inherit;
+        border-radius: 0.12rem;
+      }
+      .${this.config.iconClassName}{
+        width: 45px;
+      }
+      .${this.config.className},
+      .${this.config.iconClassName}{
+        height: 45px;
+        line-height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .${this.config.outSideClassName},
+      .${this.config.withInClassName}{
+        position: absolute;
+        margin-left: 140px;
+        border: 5px solid rgba(0, 183, 229, 0.9);
+        opacity: .9;
+        border-radius: 50px;
+        width: 20px;
+        height: 20px;
+        margin: 0 auto;
+      }
+      .${this.config.outSideClassName}{
+        background-color: rgba(0, 0, 0, 0);
+        border-right: 5px solid rgba(0, 0, 0, 0);
+        border-left: 5px solid rgba(0, 0, 0, 0);
+        box-shadow: 0 0 35px #2187e7;
+        -moz-animation: spinPulse 1s infinite ease-in-out;
+        -webkit-animation: spinPulse 1s infinite ease-in-out;
+        -o-animation: spinPulse 1s infinite ease-in-out;
+        -ms-animation: spinPulse 1s infinite ease-in-out;
+      }
+      .${this.config.withInClassName}{
+        background: rgba(0, 0, 0, 0) no-repeat center center;
+        border-top: 5px solid rgba(0, 0, 0, 0);
+        border-bottom: 5px solid rgba(0, 0, 0, 0);
+        box-shadow: 0 0 15px #2187e7;
+        -moz-animation: spinoffPulse 3s infinite linear;
+        -webkit-animation: spinoffPulse 3s infinite linear;
+        -o-animation: spinoffPulse 3s infinite linear;
+        -ms-animation: spinoffPulse 3s infinite linear;
+      }
+      @-moz-keyframes spinPulse{0%{-moz-transform:rotate(160deg);opacity:0;box-shadow:0 0 1px #505050}
+      50%{-moz-transform:rotate(145deg);opacity:1}
+      100%{-moz-transform:rotate(-320deg);opacity:0}
+      }
+      @-moz-keyframes spinoffPulse{0%{-moz-transform:rotate(0)}
+      100%{-moz-transform:rotate(360deg)}
+      }
+      @-webkit-keyframes spinPulse{0%{-webkit-transform:rotate(160deg);opacity:0;box-shadow:0 0 1px #505050}
+      50%{-webkit-transform:rotate(145deg);opacity:1}
+      100%{-webkit-transform:rotate(-320deg);opacity:0}
+      }
+      @-webkit-keyframes spinoffPulse{0%{-webkit-transform:rotate(0)}
+      100%{-webkit-transform:rotate(360deg)}
+      }
+      @-o-keyframes spinPulse{0%{-o-transform:rotate(160deg);opacity:0;box-shadow:0 0 1px #505050}
+      50%{-o-transform:rotate(145deg);opacity:1}
+      100%{-o-transform:rotate(-320deg);opacity:0}
+      }
+      @-o-keyframes spinoffPulse{0%{-o-transform:rotate(0)}
+      100%{-o-transform:rotate(360deg)}
+      }
+      @-ms-keyframes spinPulse{0%{-ms-transform:rotate(160deg);opacity:0;box-shadow:0 0 1px #505050}
+      50%{-ms-transform:rotate(145deg);opacity:1}
+      100%{-ms-transform:rotate(-320deg);opacity:0}
+      }
+      @-ms-keyframes spinoffPulse{0%{-ms-transform:rotate(0)}
+      100%{-ms-transform:rotate(360deg)}
+      }
+      `;
+      let loadingViewCSSElement = document.createElement("style");
+      loadingViewCSSElement.setAttribute("type", "text/css");
+      loadingViewCSSElement.setAttribute("data-from", "loadingView");
+      loadingViewCSSElement.setAttribute("data-author", "whitesev");
+      loadingViewCSSElement.innerHTML = loadingViewCSSText;
+      if (document.documentElement.childNodes.length === 0) {
+        /* 插入最底部 */
+        document.documentElement.appendChild(loadingViewCSSElement);
+      } else {
+        /* 插入head内 */
+        document.head.appendChild(loadingViewCSSElement);
+      }
     }
     /**
-     * 设置环境中的LoadingView在DOM中的对象
-     * @param {Element} ele
+     * 初始化loadingView元素
+     * @param {boolean} withIcon 是否添加icon
+     * @param {boolean} isEnd icon是否添加在后面
+     * @returns {HTMLDivElement}
      */
-    setLoadingViewElement(ele) {
-      this.loadingViewElement = ele;
+    initLoadingView(withIcon = false, isEnd = true) {
+      this.setLoadingViewElement(null);
+      let divElement = document.createElement("div");
+      divElement.innerHTML = this.loadingViewHTML;
+      let resultElement = divElement.firstChild;
+      if (withIcon) {
+        let iconElement = document.createElement("div");
+        iconElement.innerHTML = this.loadingViewIconHTML;
+        if (isEnd) {
+          resultElement.appendChild(iconElement.firstChild);
+        } else {
+          resultElement.insertBefore(
+            iconElement.firstChild,
+            resultElement.firstChild
+          );
+        }
+      }
+      this.setLoadingViewElement(resultElement);
+      return resultElement;
     }
     /**
-     * 获取实例化的loadingView
-     * @returns {?Element}
+     * 设置LoadingView
+     * @param {HTMLDivElement} element
+     */
+    setLoadingViewElement(element) {
+      this.loadingViewElement = element;
+    }
+    /**
+     * 获取LoadingView
+     * @returns {?HTMLDivElement}
      */
     getLoadingViewElement() {
       if (!this.loadingViewElement) {
-        throw new Error("请先使用setLoadingViewElement设置元素");
+        throw new Error("object loadingViewElement is null");
       }
       return this.loadingViewElement;
     }
@@ -156,29 +278,16 @@
      * 获取实例化的loadingView的icon
      * @returns {Element|undefined}
      */
-    getLoadingViewIconElement() {
+    getIconElement() {
       return this.getLoadingViewElement().querySelector(
-        `.${this.loadingIconClassName}`
+        "." + this.config.iconClassName
       );
-    }
-    /**
-     * 在元素后面添加兄弟元素或HTML字符串
-     * @param {HTMLElement} element - 目标元素
-     * @param {object|string} content - 兄弟元素或HTML字符串
-     * @returns {DOMUtils} - 原型链
-     * */
-    after(element, content) {
-      if (typeof content === "string") {
-        element.insertAdjacentHTML("afterend", content);
-      } else {
-        element.parentNode.insertBefore(content, element.nextSibling);
-      }
     }
     /**
      * 显示LoadingView
      */
     show() {
-      this.getLoadingViewElement().style.display = "flex";
+      this.getLoadingViewElement().style.display = "";
     }
     /**
      * 隐藏LoadingView
@@ -187,70 +296,75 @@
       this.getLoadingViewElement().style.display = "none";
     }
     /**
-     * 显示LoadingView的图标icon
+     * 显示icon
      */
     showIcon() {
-      let iconElement = this.getLoadingViewIconElement();
-      iconElement && (iconElement.style.display = "unset");
+      let iconElement = this.getIconElement();
+      iconElement && (iconElement.style.display = "");
     }
     /**
-     * 隐藏LoadingView的图标icon
+     * 隐藏icon
      */
     hideIcon() {
-      let iconElement = this.getLoadingViewIconElement();
+      let iconElement = this.getIconElement();
       iconElement && (iconElement.style.display = "none");
     }
     /**
-     * 设置Loading的文本
-     * @param {String} text 文本
-     * @param {Boolean} withIcon 设置Icon图标
+     * 设置文本
+     * @param {string} text 文本
+     * @param {boolean} withIcon 是否设置Icon图标
+     * @param {boolean} isEnd icon是否添加在后面
      */
-    setText(text, withIcon = false) {
+    setText(text, withIcon = false, isEnd = true) {
       this.getLoadingViewElement().innerHTML = `<span>${text}</span>`;
       if (withIcon) {
-        let iconElement = this.getLoadingViewIconElement();
+        let iconElement = this.getIconElement();
         if (!iconElement) {
-          let iconEle = document.createElement("div");
-          iconEle.innerHTML = this.iconHTML;
-          iconElement = iconEle.children[0];
-          this.getLoadingViewElement().appendChild(iconElement);
+          let divElement = document.createElement("div");
+          divElement.innerHTML = this.loadingViewIconHTML;
+          iconElement = divElement.firstChild;
+          if (isEnd) {
+            this.getLoadingViewElement().appendChild(iconElement);
+          } else {
+            this.getLoadingViewElement().insertBefore(
+              iconElement,
+              this.getLoadingViewElement().firstChild
+            );
+          }
         }
-        iconElement.style.display = "unset";
+        iconElement.style.display = "";
       } else {
-        this.getLoadingViewIconElement()?.remove();
+        this.getIconElement()?.remove();
       }
     }
     /**
      * 删除Loading元素
      */
     destory() {
-      /* 销毁 */
       this.getLoadingViewElement()?.remove();
-      this.loadingViewElement = null;
+      this.setLoadingViewElement(null);
     }
     /**
      * 删除页面中所有的loadingView
      */
     removeAll() {
       document
-        .querySelectorAll("." + this.loadingClassName)
+        .querySelectorAll("." + this.config.className)
         .forEach((item) => item.remove());
     }
     /**
      * 判断Loading是否已加载到页面中
      * @returns {boolean}
-     * + true 存在
-     * + false 不存在
      */
     isExists() {
-      return Boolean(document.querySelector(`.${this.loadingClassName}`));
+      return Boolean(document.querySelector(`.${this.config.className}`));
     }
     /**
      * 判断Loading是否存在Loading图标
      * @returns {boolean}
      */
     isExistsIcon() {
-      return Boolean(this.getLoadingViewIconElement());
+      return Boolean(this.getIconElement());
     }
     /**
      * 判断Loading中的文本是否存在
@@ -259,7 +373,7 @@
     isExistsText() {
       return Boolean(
         this.getLoadingViewElement().querySelector(
-          `.${this.loadingTextClassName}`
+          `.${this.config.textClassName}`
         )
       );
     }
@@ -274,185 +388,8 @@
         )
       );
     }
-    /**
-     * 加载需要的CSS
-     */
-    setCSS() {
-      if (this.isExistsCSS()) {
-        return;
-      }
-      let cssText = `
-        .${this.loadingClassName}{
-          margin: 0.08rem;
-          background: #fff;
-          height: 45px;
-          font-size: 15px;
-          display: flex;
-          text-align: center;
-          align-items: center;
-          width: inherit;
-          justify-content: center;
-          border-radius: 0.12rem;
-        }
-        .${this.loadingIconClassName}{
-          margin:0px 0px 28px 15px;
-        }
-        .${this.loadingOutSideIconClassName},
-        .${this.loadingWithInIconClassName}{
-          position: absolute;
-          margin-left: 140px;
-        }
-        .${this.loadingOutSideIconClassName}{
-          background-color: rgba(0, 0, 0, 0);
-          border: 5px solid rgba(0, 183, 229, 0.9);
-          opacity: .9;
-          border-right: 5px solid rgba(0, 0, 0, 0);
-          border-left: 5px solid rgba(0, 0, 0, 0);
-          border-radius: 50px;
-          box-shadow: 0 0 35px #2187e7;
-          width: 20px;
-          height: 20px;
-          margin: 0 auto;
-          /*position: fixed;
-          left: 50%;
-          top: 50%;
-          margin-left: -25px;
-          margin-top: -25px;*/
-          -moz-animation: spinPulse 1s infinite ease-in-out;
-          -webkit-animation: spinPulse 1s infinite ease-in-out;
-          -o-animation: spinPulse 1s infinite ease-in-out;
-          -ms-animation: spinPulse 1s infinite ease-in-out;
-        }
-        .${this.loadingWithInIconClassName}{
-          background: rgba(0, 0, 0, 0) no-repeat center center;
-          border: 5px solid rgba(0, 183, 229, 0.9);
-          opacity: .9;
-          border-top: 5px solid rgba(0, 0, 0, 0);
-          border-bottom: 5px solid rgba(0, 0, 0, 0);
-          border-radius: 50px;
-          box-shadow: 0 0 15px #2187e7;
-          width: 20px;
-          height: 20px;
-          margin: 0 auto;
-          /*position: fixed;
-          left: 50%;
-          top: 50%;
-          margin-left: -15px;
-          margin-top: -15px;*/
-          -moz-animation: spinoffPulse 3s infinite linear;
-          -webkit-animation: spinoffPulse 3s infinite linear;
-          -o-animation: spinoffPulse 3s infinite linear;
-          -ms-animation: spinoffPulse 3s infinite linear;
-        }
-        @-moz-keyframes spinPulse {
-            0% {
-                -moz-transform: rotate(160deg);
-                opacity: 0;
-                box-shadow: 0 0 1px #505050
-            }
-            50% {
-                -moz-transform: rotate(145deg);
-                opacity: 1
-            }
-            100% {
-                -moz-transform: rotate(-320deg);
-                opacity: 0
-            }
-        }
-        @-moz-keyframes spinoffPulse {
-            0% {
-                -moz-transform: rotate(0deg)
-            }
-            100% {
-                -moz-transform: rotate(360deg)
-            }
-        }
-        @-webkit-keyframes spinPulse {
-            0% {
-                -webkit-transform: rotate(160deg);
-                opacity: 0;
-                box-shadow: 0 0 1px #505050
-            }
-            50% {
-                -webkit-transform: rotate(145deg);
-                opacity: 1
-            }
-            100% {
-                -webkit-transform: rotate(-320deg);
-                opacity: 0
-            }
-        }
-        @-webkit-keyframes spinoffPulse {
-            0% {
-                -webkit-transform: rotate(0deg)
-            }
-            100% {
-                -webkit-transform: rotate(360deg)
-            }
-        }
-        @-o-keyframes spinPulse {
-            0% {
-                -o-transform: rotate(160deg);
-                opacity: 0;
-                box-shadow: 0 0 1px #505050
-            }
-            50% {
-                -o-transform: rotate(145deg);
-                opacity: 1
-            }
-            100% {
-                -o-transform: rotate(-320deg);
-                opacity: 0
-            }
-        }
-        @-o-keyframes spinoffPulse {
-            0% {
-                -o-transform: rotate(0deg)
-            }
-            100% {
-                -o-transform: rotate(360deg)
-            }
-        }
-        @-ms-keyframes spinPulse {
-            0% {
-                -ms-transform: rotate(160deg);
-                opacity: 0;
-                box-shadow: 0 0 1px #505050
-            }
-            50% {
-                -ms-transform: rotate(145deg);
-                opacity: 1
-            }
-            100% {
-                -ms-transform: rotate(-320deg);
-                opacity: 0
-            }
-        }
-        @-ms-keyframes spinoffPulse {
-            0% {
-                -ms-transform: rotate(0deg)
-            }
-            100% {
-                -ms-transform: rotate(360deg)
-            }
-        }`;
-      let cssNode = document.createElement("style");
-      cssNode.setAttribute("type", "text/css");
-      cssNode.setAttribute("data-from", "loadingView");
-      cssNode.setAttribute("data-author", "whitesev");
-      cssNode.innerHTML = cssText;
-      if (document.documentElement.childNodes.length === 0) {
-        /* 插入body后 */
-        document.documentElement.appendChild(cssNode);
-      } else {
-        /* 插入head前面 */
-        document.documentElement.insertBefore(
-          cssNode,
-          document.documentElement.childNodes[0]
-        );
-      }
-    }
   }
+
   /**
    * 动态的搜索建议组件
    */
@@ -2224,22 +2161,8 @@
          */
         addCSDNFlagCSS() {
           GM_addStyle(`
-          .csdn-flag-component-box {
-              /*margin: 0 auto;
-              text-align: center;
-              display: inline;*/
-              display: flex;
-              margin: 0;
-              text-align: left;
-              font-size: 0;
-              position: relative;
-              width: 260px;
-              margin: 5px 0px;
-          }
-          .csdn-flag-component-box a {
-              display: inline-block;
-              font-size: 14px;
-          }
+          .csdn-flag-component-box{display:flex;margin:0;text-align:left;font-size:0;position:relative;width:260px;margin:5px 0}
+          .csdn-flag-component-box a{display:inline-block;font-size:14px}
           .csdn-flag-component-box .praise {
               padding-right: 20px;
               background: #ff5722;
@@ -2254,9 +2177,6 @@
           }
           .csdn-flag-component-box .praise,
           .csdn-flag-component-box .share {
-              /*width: 110px;
-              height: 34px;
-              line-height: 34px;*/
               height:auto;
               line-height:normal;
               color: #fff;
@@ -2850,14 +2770,12 @@
             this.scrollEvent,
             this
           );
-          let loadingViewNode = loadingView.getParseLoadingNode(true);
+          loadingView.initLoadingView();
+          loadingView.hide();
           DOMUtils.after(
             document.querySelector("#page-controller"),
-            loadingViewNode
+            loadingView.getLoadingViewElement()
           );
-          loadingView.setLoadingViewElement(loadingViewNode);
-          loadingView.setCSS();
-          loadingView.hide();
           this.setNextPageScrollListener();
         },
         /**
@@ -2999,37 +2917,11 @@
          */
         initPageLineCSS() {
           GM_addStyle(`
-          .whitesev-page-info {
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-          }
-          
-          .whitesev-page-info .whitesev-new-pagenav {
-            display: block;
-            width: auto;
-            color: #333;
-            z-index: 1;
-            text-decoration: none;
-            position: relative;
-            height: 52px;
-            line-height: 52px;
-            margin: .08rem;
-            background: #fff;
-            word-wrap: break-word;
-            border: 0;
-            border-radius: 0.06rem;
-            text-align: center;
-            text-align: -webkit-center;
-            font-weight: bold;
-          }
-          
-          .whitesev-page-info p::before {
-            content:"第";
-            margin-right: 10px;
-          }
-          .whitesev-page-info p::after {
-            content:"页";
-            margin-left: 10px;
-          }
+          .whitesev-page-info{-webkit-tap-highlight-color:transparent}
+          .whitesev-page-info .whitesev-new-pagenav{display:block;width:auto;color:#333;z-index:1;font-weight:700;text-decoration:none;position:relative;height:52px;line-height:52px}
+          .whitesev-page-info .whitesev-new-pagenav{margin:.08rem;background:#fff;word-wrap:break-word;border:0;border-radius:.06rem;text-align:center;text-align:-webkit-center}
+          .whitesev-page-info p::before{content:"第";margin-right:10px}
+          .whitesev-page-info p::after{content:"页";margin-left:10px}
           `);
         },
         /**
@@ -4550,7 +4442,7 @@
               item.removeAttribute("onmouseover");
               item.removeAttribute("onmouseout");
             });
-          const lzlLoadingView = new LoadingView();
+          const lzlLoadingView = new LoadingView(false);
           /* 初始页数为2 */
           let lzlPage = 2;
           /* 处理楼中楼的滚动加载更多回复 */
@@ -4571,7 +4463,7 @@
             );
             log.success(replyInfo);
             if (replyInfo === "暂无更多回复") {
-              log.success("暂无更多回复");
+              log.error("暂无更多回复");
               lzlLoadingView.setText("暂无更多回复");
               DOMUtils.off(
                 dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
@@ -4583,17 +4475,6 @@
               lzlLoadingView.setText(replyInfo);
               return;
             }
-            if (!replyInfo["nextPage"]) {
-              log.success("暂无更多回复");
-              lzlLoadingView.setText("暂无更多回复");
-              DOMUtils.off(
-                dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
-                "scroll"
-              );
-              log.error("取消绑定楼中楼scroll监听事件【下一页】");
-              return;
-            }
-            lzlPage = replyInfo["nextPage"];
             replyInfo["data"].forEach((item) => {
               let lastCommentHTML = `
               <div class="whitesev-reply-dialog-sheet-other-content-item">
@@ -4610,9 +4491,13 @@
                 </div>
               </div>
               `;
-              if (scrollElement.querySelector(".whitesev-page-isloading")) {
+              if (
+                scrollElement.querySelector("." + loadingView.config.className)
+              ) {
                 DOMUtils.before(
-                  scrollElement.querySelector(".whitesev-page-isloading"),
+                  scrollElement.querySelector(
+                    "." + loadingView.config.className
+                  ),
                   lastCommentHTML
                 );
               } else {
@@ -4638,6 +4523,18 @@
                 item.removeAttribute("onmouseover");
                 item.removeAttribute("onmouseout");
               });
+
+            if (!replyInfo["nextPage"]) {
+              log.error("暂无更多回复");
+              lzlLoadingView.setText("暂无更多回复");
+              DOMUtils.off(
+                dialog.querySelector(".whitesev-reply-dialog-sheet-content"),
+                "scroll"
+              );
+              log.error("取消绑定楼中楼scroll监听事件【下一页】");
+              return;
+            }
+            lzlPage = replyInfo["nextPage"];
           };
           let lzlScrollEventLock = new utils.LockFunction(
             lzlReplyCommentScrollEvent,
@@ -4652,9 +4549,7 @@
           log.success("绑定楼中楼scroll监听事件【下一页】");
           /* 插入楼中楼弹窗 */
           document.body.appendChild(dialog);
-          lzlLoadingView.setLoadingViewElement(
-            lzlLoadingView.getParseLoadingNode(false)
-          );
+
           DOMUtils.append(
             dialog.querySelector(".whitesev-reply-dialog-sheet-other-content"),
             lzlLoadingView.getLoadingViewElement()
@@ -4951,13 +4846,11 @@
         insertLoadingHTML() {
           if (!loadingView.isExists()) {
             log.info("插入loading");
-            loadingView.setCSS();
-            let loadingViewNode = loadingView.getParseLoadingNode(true);
-            loadingView.setLoadingViewElement(loadingViewNode);
+            loadingView.initLoadingView();
             loadingView.hide();
             document
               .querySelector(".main-page-wrap")
-              .appendChild(loadingViewNode);
+              .appendChild(loadingView.getLoadingViewElement());
           }
         },
         /**
@@ -5707,14 +5600,12 @@
                   utils.isNotNull(searchParams.get("kw"))
                 ) {
                   /* 当前是在吧内，搜索按钮判定搜索贴子 */
-                  loadingView.setCSS();
                   loadingView.removeAll();
-                  let loadingViewNode = loadingView.getParseLoadingNode(true);
+                  loadingView.initLoadingView();
                   DOMUtils.after(
                     document.querySelector("div.tb-page__main"),
-                    loadingViewNode
+                    loadingView.getLoadingViewElement()
                   );
-                  loadingView.setLoadingViewElement(loadingViewNode);
                   tiebaSearchConfig.isSetClickEvent = true;
                   tiebaSearchConfig.postsSearch();
                 } else if (
@@ -6857,14 +6748,12 @@
               return;
             }
             log.success(`获取下一页地址: ${nextPageUrl}`);
-            loadingView.setCSS();
-            let loadingViewNode = loadingView.getParseLoadingNode(true);
+            loadingView.initLoadingView();
             log.success(document.querySelector(".BK-main-content"));
             DOMUtils.after(
               document.querySelector(".BK-main-content"),
-              loadingViewNode
+              loadingView.getLoadingViewElement()
             );
-            loadingView.setLoadingViewElement(loadingViewNode);
             while (1) {
               loadingView.show();
               let nextPageUrl = `https://baike.baidu.com${
@@ -8298,7 +8187,11 @@
       globalThis,
     };
   }
-  const loadingView = new LoadingView();
-  baidu.init();
   /* --------------调试-------------- */
+
+  /* --------------入口-------------- */
+  const loadingView = new LoadingView(true);
+  unsafeWindow.loadingView = loadingView;
+  baidu.init();
+  /* --------------入口-------------- */
 })();
