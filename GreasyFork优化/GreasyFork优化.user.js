@@ -20,7 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/455186/1281176/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1284259/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
 
@@ -1207,10 +1207,22 @@
           });
           DOMUtils.on(copyButton, "click", async function () {
             let loading = Qmsg.loading("加载文件中...");
-            let scriptJS = await httpx.get(
-              `https://update.greasyfork.org/scripts/${GreasyforkApi.getScriptId()}.user.js`
+            let getResp = await httpx.get(
+              `https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
+              {
+                responseType: "json",
+              }
             );
+            if (!getResp.status) {
+              loading.close();
+              return;
+            }
+            let respJSON = utils.toJSON(getResp.data.responseText);
+            let code_url = respJSON["code_url"];
+            log.success(["代码地址：", code_url]);
+            let scriptJS = await httpx.get(code_url);
             if (!scriptJS.status) {
+              loading.close();
               return;
             }
             loading.close();
