@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-11-18 13:38:41
- * @LastEditors: WhiteSev 893177236@qq.com
- * @LastEditTime: 2023-09-26 12:26:43
+ * @LastEditors: 白柒 893177236@qq.com
+ * @LastEditTime: 2023-11-22 11:54:27
  * @原地址: https://www.jq22.com/jquery-info23550
  * @说明: 修改config配置{"position":"topleft|top|topright|centerleft|center|centerright|bottomleft|bottomright|bottom"} 九宫格，
  * 		  九个位置弹出，修改原center为显示中间，top代替原center
@@ -108,19 +108,20 @@
    * 全局默认配置
    * 可在引入js之前通过QMSG_GLOBALS.DEFAULTS进行配置
    * @typedef {object} Qmsg_Details
-   * @property {boolean} animation 是否使用动画，默认true
-   * @property {boolean} autoClose 是否自动关闭，默认true,注意在type为loading的时候自动关闭为false
-   * @property {string} content 显示的内容
-   * @property {boolean} html 内容是否是html，默认false
-   * @property {string} position 位置，仅支持'center','right','left',默认'center'
-   * @property {boolean} showClose 是否显示关闭图标，默认为false不显示
-   * @property {number} maxNums 最大显示的数量，默认为5
+   * @property {boolean} [animation=true] 是否使用动画，默认true
+   * @property {boolean} [autoClose=true] 是否自动关闭，默认true,注意在type为loading的时候自动关闭为false
+   * @property {string} [content=""] 显示的内容
+   * @property {boolean} [html=false] 内容是否是html，默认false
+   * @property {"topleft"|"top"|"topright"|"left"|"center"|"right"|"bottomleft"|"bottom"|
+   * "bottomright"} position 位置，默认'center'
+   * @property {boolean} [showClose=false] 是否显示关闭图标，默认为false不显示
+   * @property {number} [maxNums=5] 最大显示的数量，默认为5
    * @property {?Function} onClose 关闭的回调函数
-   * @property {boolean} showIcon 是否显示左边的icon图标,默认true
-   * @property {boolean} showMoreContent 是否使内容进行换行显示，默认false
-   * @property {boolean} showReverse 弹出顺序是否逆反，默认false
-   * @property {number} timeout 最大显示的时长(ms)，默认为2500ms
-   * @property {string} type 类型，支持'info','warning','success','error','loading'
+   * @property {boolean} [showIcon=true] 是否显示左边的icon图标,默认true
+   * @property {boolean} [showMoreContent=false] 是否使内容进行换行显示，默认false
+   * @property {boolean} [showReverse=false] 弹出顺序是否逆反，默认false
+   * @property {number} [timeout=2500] 最大显示的时长(ms)，默认为2500ms
+   * @property {"info"|"warning"|"success"|"error"|"loading"} type 类型，支持'info','warning','success','error','loading'
    */
 
   /**
@@ -163,19 +164,57 @@
   };
 
   /**
-   * 是否支持动画属性
-   * @type {Boolean}
+   * animationend各个浏览器上的兼容名
    */
-  var CAN_ANIMATION = (function () {
-    var style = document.createElement("div").style;
-    return (
-      style.animationName !== undefined ||
-      style.WebkitAnimationName !== undefined ||
-      style.MozAnimationName !== undefined ||
-      style.msAnimationName !== undefined ||
-      style.OAnimationName !== undefined
-    );
-  })();
+  var AnimationEndNameList = [
+    "animationend",
+    "webkitAnimationEnd",
+    "mozAnimationEnd",
+    "MSAnimationEnd",
+    "oanimationend",
+  ];
+  /**
+   * style上的animationName各个浏览器上的兼容名
+   */
+  var AnimationNameList = [
+    "animationName",
+    "WebkitAnimationName",
+    "MozAnimationName",
+    "msAnimationName",
+    "OAnimationName",
+  ];
+  /**
+   * 获取元素上的animationName属性
+   * @param {?string} element
+   */
+  function getStyleAnimationName(element) {
+    for (let index = 0; index < AnimationNameList.length; index++) {
+      let animationName = AnimationNameList[index];
+      if (typeof element.style[animationName] !== "undefined") {
+        return element.style[animationName];
+      }
+    }
+  }
+
+  /**
+   * 设置元素上的animationName属性
+   * @param {HTMLElement} element
+   * @param {string} [animationNameValue=""]
+   */
+  function setStyleAnimationName(element, animationNameValue = "") {
+    AnimationNameList.forEach((animationName) => {
+      if (animationName in element.style) {
+        element.style[animationName] = animationNameValue;
+      }
+    });
+  }
+
+  /**
+   * 是否支持动画属性
+   */
+  var CAN_ANIMATION = Boolean(
+    getStyleAnimationName(document.createElement("div")) != null
+  );
 
   /**
    * 生成带插件名的名称
@@ -192,7 +231,6 @@
 
   /**
    * 获取唯一性的UUID
-   * @returns String
    */
   function getUUID() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -222,9 +260,15 @@
     } else {
       timeout = DEFAULTS.timeout;
     }
+    /* 超时时间 */
     oMsg.timeout = timeout;
     oMsg.settings.timeout = timeout;
-    oMsg.timer = null;
+    /* setTimeout的id */
+    oMsg.timerId = null;
+    /* 启动时间 */
+    oMsg.startTime = null;
+    /* 关闭时间 */
+    oMsg.endTime = null;
     var $elem = document.createElement("div");
     var $svg = ICONS[oMsg.settings.type || "info"];
     var contentClassName = namespacify(
@@ -253,9 +297,10 @@
 			  margin-right: 0px;
 		  `;
     }
-    var $closeIcon = oMsg.settings.showClose
-      ? `<i class="qmsg-icon qmsg-icon-close" style="${$closeIconStyle}">${$closeSvg}</i>`
-      : "";
+    var $closeIcon = "";
+    if (oMsg.settings.showClose) {
+      $closeIcon = `<i class="qmsg-icon qmsg-icon-close" style="${$closeIconStyle}">${$closeSvg}</i>`;
+    }
     var $span = document.createElement("span");
     var $positionClassName = namespacify(
       "data-position",
@@ -302,93 +347,75 @@
     oMsg.$elem = $elem;
     setState(oMsg, "opening");
     if (oMsg.settings.showClose) {
-      // 关闭按钮绑定点击事件
-      $elem.querySelector(".qmsg-icon-close").addEventListener(
-        "click",
+      /* 关闭按钮绑定点击事件 */
+      $elem
+        .querySelector(".qmsg-icon-close")
+        .addEventListener("click", function () {
+          oMsg.close();
+        });
+    }
+    let animationendEvent = function (event) {
+      /* 监听动画完成 */
+      var target = event.target,
+        animationName = event.animationName;
+      if (animationName === STATES.closing) {
+        oMsg.endTime = new Date().getTime();
+        clearTimeout(oMsg.timerId);
+        oMsg.destroy();
+      }
+      setStyleAnimationName(target);
+    };
+
+    AnimationEndNameList.forEach((animationendName) => {
+      $elem.addEventListener(animationendName, animationendEvent);
+    });
+
+    if (oMsg.settings.autoClose) {
+      /* 自动关闭 */
+      oMsg.startTime = new Date().getTime();
+      oMsg.timerId = setTimeout(
         function () {
           oMsg.close();
-        }.bind($elem)
+        }.bind(oMsg),
+        oMsg.timeout
       );
-    }
-    $elem.addEventListener(
-      "animationend",
-      function (event) {
-        // 监听动画完成
-        var target = event.target,
-          animationName = event.animationName;
-        if (animationName === STATES["closing"]) {
-          clearTimeout(this.timer);
-          this.destroy();
+
+      oMsg.$elem.addEventListener("mouseover", function () {
+        /* 鼠标滑入，清除定时器 */
+        oMsg.startTime = null;
+        oMsg.endTime = null;
+        clearTimeout(oMsg.timerId);
+      });
+      oMsg.$elem.addEventListener("mouseout", function () {
+        /* 鼠标滑出，重启定时器 */
+        if (oMsg.state !== "closing") {
+          /* 状态为关闭则不重启定时器 */
+          oMsg.startTime = new Date().getTime();
+          oMsg.timerId = setTimeout(
+            function () {
+              oMsg.close();
+            }.bind(oMsg),
+            oMsg.timeout
+          );
         }
-        target.style.animationName = "";
-      }.bind(oMsg)
-    );
-    if (oMsg.settings.autoClose) {
-      // 自动关闭
-      oMsg.timer = setTimeout(
-        function () {
-          this.close();
-        }.bind(oMsg),
-        this.timeout
-      );
-      /* 重复调用会导致this.timeout时间会自动更新，会不及时关闭 */
-      /* var intvMs = 10; // 定时器频率
-      oMsg.timer = setInterval(
-        function () {
-          this.timeout -= intvMs;
-          if (this.timeout <= 0) {
-            clearInterval(this.timer);
-            this.close();
-          }
-        }.bind(oMsg),
-        intvMs
-      ); */
-      oMsg.$elem.addEventListener(
-        "mouseover",
-        function () {
-          clearTimeout(this.timer);
-        }.bind(oMsg)
-      );
-      oMsg.$elem.addEventListener(
-        "mouseout",
-        function () {
-          if (this.state !== "closing") {
-            /* 状态为关闭则不重启定时器 */
-            this.timer = setTimeout(
-              function () {
-                this.close();
-              }.bind(oMsg),
-              this.timeout
-            );
-            /* this.timer = setInterval(
-              function () {
-                this.timeout -= intvMs;
-                if (this.timeout <= 0) {
-                  clearInterval(this.timer);
-                  this.close();
-                }
-              }.bind(oMsg),
-              intvMs
-            ); */
-          }
-        }.bind(oMsg)
-      );
+      });
     }
   }
 
   /* 设置元素动画状态 开启/关闭 */
-  function setState(inst, state) {
+  function setState(oMsg, state) {
     if (!state || !STATES[state]) return;
-    inst.state = state;
-    inst.$elem.style.animationName = STATES[state];
+    oMsg.state = state;
+    setStyleAnimationName(oMsg.$elem, STATES[state]);
   }
 
   /**
    * 直接销毁元素，不会触发关闭回调函数
    */
   Msg.prototype.destroy = function () {
-    this.$elem.parentNode && this.$elem.parentNode.removeChild(this.$elem);
-    clearTimeout(this.timer);
+    this.endTime = new Date().getTime();
+    this.$elem?.remove();
+    clearTimeout(this.timerId);
     Qmsg.remove(this.uuid);
   };
   /**
@@ -396,11 +423,12 @@
    */
   Msg.prototype.close = function () {
     setState(this, "closing");
-    if (!CAN_ANIMATION) {
+    if (CAN_ANIMATION) {
+      /* 支持动画 */
+      Qmsg.remove(this.uuid);
+    } else {
       /* 不支持动画 */
       this.destroy();
-    } else {
-      Qmsg.remove(this.uuid);
     }
     var callback = this.settings.onClose;
     if (callback && callback instanceof Function) {
@@ -429,6 +457,7 @@
   };
   /**
    * 设置消息数量统计
+   * @param {Msg} oMsg
    * @private
    */
   function setMsgCount(oMsg) {
@@ -445,15 +474,15 @@
       $content.appendChild($count);
     }
     $count.innerHTML = oMsg.count;
-    $count.style.animationName = "";
-    $count.style.animationName = "MessageShake";
+    setStyleAnimationName($count);
+    setStyleAnimationName($count, "MessageShake");
     /* 重置定时器 */
-    clearTimeout(oMsg.timer);
+    clearTimeout(oMsg.timerId);
     oMsg.timeout = oMsg.settings.timeout || DEFAULTS.timeout;
     if (oMsg.settings.autoClose) {
-      oMsg.timer = setTimeout(
+      oMsg.timerId = setTimeout(
         function () {
-          this.close();
+          oMsg.close();
         }.bind(oMsg),
         oMsg.timeout
       );
@@ -540,7 +569,7 @@
     /**
      * 版本
      */
-    version: "0.0.5",
+    version: "0.0.6",
     /**
      * 实例数组
      */
@@ -622,12 +651,12 @@
      * @param {string} uuid
      */
     remove: function (uuid) {
-      this.oMsgs.forEach((item, index) => {
-        if (item.uuid === uuid) {
+      for (let index = 0; index < this.oMsgs.length; index++) {
+        if (this.oMsgs[index].uuid === uuid) {
           this.oMsgs.splice(index, 1);
           return;
         }
-      });
+      }
     },
     /**
      * 关闭当前页面中所有的Qmsg
