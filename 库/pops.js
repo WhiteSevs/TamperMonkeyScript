@@ -1129,7 +1129,7 @@
     /**
      * 当前版本
      */
-    version: "2023.11.19",
+    version: "2023.11.23",
     css: `@charset "utf-8";
     .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
