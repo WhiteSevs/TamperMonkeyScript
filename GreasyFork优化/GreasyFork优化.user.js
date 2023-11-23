@@ -2,8 +2,8 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.18
-// @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面
+// @version      2023.11.23
+// @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
 // @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
@@ -20,6 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
+// @require      https://update.greasyfork.org/scripts/456485/1284674/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1284259/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
@@ -30,6 +31,10 @@
    * @type {import("../库/Qmsg")}
    */
   const Qmsg = window.Qmsg;
+  /**
+   * @type {import("../库/pops")}
+   */
+  const pops = window.pops;
   /**
    * @type {import("../库/Utils")}
    */
@@ -1232,6 +1237,143 @@
           DOMUtils.before(element, copyButton);
         });
     },
+    /**
+     * 在Markdown右上角添加复制按钮
+     */
+    addMarkdownCopyButton() {
+      GM_addStyle(`
+      pre{
+        position: relative;
+      }
+      `);
+      GM_addStyle(`
+      .zeroclipboard-container {
+        right: 0;
+        top: 0;
+        position: absolute;
+        box-sizing: border-box;
+        display: flex;
+        font-size: 16px;
+        line-height: 24px;
+        text-size-adjust: 100%;
+        overflow-wrap: break-word;
+      }
+      .zeroclipboard-container svg{
+          vertical-align: text-bottom;
+          display: inline-block;
+          overflow: visible;
+          fill: currentColor;
+          margin: 8px;
+      }
+      .zeroclipboard-container svg[aria-hidden="true"]{
+        display: none;
+      }
+      clipboard-copy.js-clipboard-copy {
+        position: relative;
+        padding: 0px;
+        color: rgb(36, 41, 47);
+        background-color: rgb(246, 248, 250);
+        transition: 80ms cubic-bezier(0.33, 1, 0.68, 1);
+        transition-property: color,background-color,box-shadow,border-color;
+        display: inline-block;
+        font-size: 14px;
+        line-height: 20px;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+        border: 1px solid rgba(31, 35, 40, 0.15);
+        -webkit-appearance: none;
+        appearance: none;
+        box-shadow: rgba(31, 35, 40, 0.04) 0px 1px 0px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset;
+        margin: 8px;
+        overflow-wrap: break-word;
+        text-wrap: nowrap;
+        border-radius: 6px;
+      }
+      clipboard-copy.js-clipboard-copy[success]{
+        border-color: rgb(31, 136, 61);
+        box-shadow: 0 0 0 0.2em rgba(52,208,88,.4);
+      }
+      clipboard-copy.js-clipboard-copy:hover{
+        background-color: rgb(243, 244, 246);
+        border-color: rgba(31, 35, 40, 0.15);
+        transition-duration: .1s;
+      }
+      clipboard-copy.js-clipboard-copy:active{
+        background-color: rgb(235, 236, 240);
+        border-color: rgba(31, 35, 40, 0.15);
+        transition: none;
+      }
+      `);
+      GM_addStyle(`
+      .pops-tip.github-tooltip {
+        border-radius: 6px;
+        padding: 6px 8px;
+      }
+      
+      .pops-tip.github-tooltip, .pops-tip.github-tooltip .pops-tip-arrow::after {
+        background: rgb(36, 41, 47);
+        color: #fff;
+      }
+      
+      .pops-tip.github-tooltip .pops-tip-arrow::after {
+        width: 8px;
+        height: 8px;
+      }
+      `);
+      let copyElement = DOMUtils.createElement("div", {
+        className: "zeroclipboard-container",
+        innerHTML: `
+        <clipboard-copy class="js-clipboard-copy">
+          <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
+            <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+          </svg>
+          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
+            <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+          </svg>
+        </clipboard-copy>
+        `,
+      });
+      let clipboardCopyElement =
+        copyElement.querySelector(".js-clipboard-copy");
+      let octiconCopyElement = copyElement.querySelector(".octicon-copy");
+      let octiconCheckCopyElement = copyElement.querySelector(
+        ".octicon-check-copy"
+      );
+      DOMUtils.on(copyElement, "click", function () {
+        let codeElement = copyElement.parentElement.querySelector("code");
+        if (!codeElement) {
+          Qmsg.error("未找到code元素");
+          return;
+        }
+        utils.setClip(codeElement.innerText);
+        clipboardCopyElement.setAttribute("success", "true");
+        octiconCopyElement.setAttribute("aria-hidden", true);
+        octiconCheckCopyElement.removeAttribute("aria-hidden");
+        let tooltip = pops.tooltip({
+          target: clipboardCopyElement,
+          content: "复制成功!",
+          position: "left",
+          className: "github-tooltip",
+          alwaysShow: true,
+          otherDistance: -8,
+        });
+        setTimeout(() => {
+          clipboardCopyElement.removeAttribute("success");
+          octiconCheckCopyElement.setAttribute("aria-hidden", true);
+          octiconCopyElement.removeAttribute("aria-hidden");
+          tooltip.close();
+        }, 2000);
+      });
+      document.querySelectorAll("pre").forEach((preElement) => {
+        if (preElement.querySelector("clipboard-copy.js-clipboard-copy")) {
+          return;
+        }
+        preElement.appendChild(copyElement);
+      });
+    },
   };
   /* -----------------↑函数区域↑----------------- */
 
@@ -1252,6 +1394,7 @@
     GreasyforkBusiness.optimizeImageBrowsing();
     GreasyforkBusiness.scriptHomepageAddedTodaySUpdate();
     GreasyforkBusiness.addCopyCodeButton();
+    GreasyforkBusiness.addMarkdownCopyButton();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
