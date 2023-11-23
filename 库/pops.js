@@ -996,12 +996,34 @@
        * @returns {Number} - 元素的宽度，单位为像素
        */
       width(element) {
-        var styles = window.getComputedStyle(element);
-        return (
-          element.clientWidth -
-          parseFloat(styles.paddingLeft) -
-          parseFloat(styles.paddingRight)
-        );
+        if (element.nodeType === 9) {
+          /* 文档节点 */
+          return Math.max(
+            element.body.scrollWidth,
+            element.documentElement.scrollWidth,
+            element.body.offsetWidth,
+            element.documentElement.offsetWidth,
+            element.documentElement.clientWidth
+          );
+        }
+        let handleElement = this.showElement(element);
+        let view = element.ownerDocument.defaultView;
+        if (!view || !view.opener) {
+          view = window;
+        }
+        let styles = view.getComputedStyle(element);
+        let elementPaddingLeft = parseFloat(styles.paddingLeft);
+        let elementPaddingRight = parseFloat(styles.paddingRight);
+        if (isNaN(elementPaddingLeft)) {
+          elementPaddingLeft = 0;
+        }
+        if (isNaN(elementPaddingRight)) {
+          elementPaddingRight = 0;
+        }
+        let elementWidth =
+          element.clientWidth - elementPaddingLeft - elementPaddingRight;
+        handleElement.recovery();
+        return elementWidth;
       },
       /**
        * 获取元素的高度
@@ -1009,12 +1031,34 @@
        * @returns {Number} - 元素的高度，单位为像素
        */
       height(element) {
-        var styles = window.getComputedStyle(element);
-        return (
-          element.clientHeight -
-          parseFloat(styles.paddingTop) -
-          parseFloat(styles.paddingBottom)
-        );
+        if (element.nodeType === 9) {
+          /* 文档节点 */
+          return Math.max(
+            element.body.scrollHeight,
+            element.documentElement.scrollHeight,
+            element.body.offsetHeight,
+            element.documentElement.offsetHeight,
+            element.documentElement.clientHeight
+          );
+        }
+        let handleElement = CommonUtils.showElement(element);
+        let view = element.ownerDocument.defaultView;
+        if (!view || !view.opener) {
+          view = window;
+        }
+        let styles = view.getComputedStyle(element);
+        let elementPaddingTop = parseFloat(styles.paddingTop);
+        let elementPaddingBottom = parseFloat(styles.paddingBottom);
+        if (isNaN(elementPaddingTop)) {
+          elementPaddingTop = 0;
+        }
+        if (isNaN(elementPaddingBottom)) {
+          elementPaddingBottom = 0;
+        }
+        let elementHeight =
+          element.clientHeight - elementPaddingTop - elementPaddingBottom;
+        handleElement.recovery();
+        return elementHeight;
       },
       /**
        * 获取元素的外部宽度（包括边框和外边距）
@@ -1022,12 +1066,18 @@
        * @returns {Number} - 元素的外部宽度，单位为像素
        */
       outerWidth(element) {
-        var style = getComputedStyle(element, null);
-        return (
-          element.offsetWidth +
-          parseFloat(style.marginLeft) +
-          parseFloat(style.marginRight)
-        );
+        let handleElement = this.showElement(element);
+        let style = getComputedStyle(element, null);
+        let elementMarginLeft = parseFloat(style.marginLeft);
+        let elementMarginRight = parseFloat(style.marginRight);
+        if (isNaN(elementMarginLeft)) {
+          elementMarginLeft = 0;
+        }
+        if (isNaN(elementMarginRight)) {
+          elementMarginRight = 0;
+        }
+        handleElement.recovery();
+        return element.offsetWidth + elementMarginLeft + elementMarginRight;
       },
       /**
        * 获取元素的外部高度（包括边框和外边距）
@@ -1035,12 +1085,38 @@
        * @returns {Number} - 元素的外部高度，单位为像素
        */
       outerHeight(element) {
-        var style = getComputedStyle(element, null);
-        return (
-          element.offsetHeight +
-          parseFloat(style.marginTop) +
-          parseFloat(style.marginBottom)
-        );
+        let handleElement = this.showElement(element);
+        let style = getComputedStyle(element, null);
+        let elementMarginTop = parseFloat(style.marginTop);
+        let elementMarginBottom = parseFloat(style.marginBottom);
+        if (isNaN(elementMarginTop)) {
+          elementMarginTop = 0;
+        }
+        if (isNaN(elementMarginBottom)) {
+          elementMarginBottom = 0;
+        }
+        handleElement.recovery();
+        return element.offsetHeight + elementMarginTop + elementMarginBottom;
+      },
+      /**
+       * 用于显示元素并获取它的高度宽度等其它属性
+       * @param {HTMLElement} element
+       * @returns {{recovery: Function}} - 恢复
+       */
+      showElement: function (element) {
+        let oldCSS_display = element.style.display;
+        let oldCSS_visibility = element.style.visibility;
+        let oldCSS_position = element.style.position;
+        element.style.display = "block";
+        element.style.visibility = "hidden";
+        element.style.position = "absolute";
+        return {
+          recovery() {
+            element.style.display = oldCSS_display;
+            element.style.visibility = oldCSS_visibility;
+            element.style.position = oldCSS_position;
+          },
+        };
       },
     },
   };
@@ -3446,13 +3522,21 @@
    * @typedef {object} PopsToolTipDetails
    * @property {HTMLElement} target 目标元素
    * @property {string} [content=""] 显示的文字
-   * @property {"left"|"right"|"top"|"bottom"|"center"} [location="top"] 位置，默认top
+   * @property {"left"|"right"|"top"|"bottom"|"center"} [position="top"] 位置，默认top
    * @property {string} [className=""] 自定义className
+   * @property {boolean} [alwaysShow=false] 是否总是显示
+   * + true 设置的triggerShowEventName、triggerCloseEventName将无效
+   *        返回提供show和close函数，取消on和off
+   * + false 返回提供on和off，取消close函数
    * @property {string} [triggerShowEventName="mouseenter"] 触发显示事件的名称，默认mouseenter
    * @property {string} [triggerCloseEventName="mouseleave"] 触发关闭事件的名称，默认mouseleave
    * @property {Function} triggerShowEventCallBack 触发显示事件的回调
    * @property {Function} triggerCloseEventCallBack 触发关闭事件的回调
-   * @property {number} [arrowHeight=25/2] 提示高度，默认12.5
+   * @property {number} [arrowDistance=12.5] 箭头与目标的的距离
+   * @property {number} [otherDistance=0] 其它的距离
+   * 如：
+   * 当position="left|right"，这个距离是上、下距离
+   * 当position="top|bottom"，这个距离是左、右距离
    *
    */
   /**
@@ -3461,8 +3545,10 @@
    * @returns {{
    * guid: string,
    * config: PopsToolTipDetails,
-   * off: Function,
-   * on: Function,
+   * off: ?Function,
+   * on: ?Function,
+   * close: ?Function,
+   * show: ?Function,
    * }}
    */
   pops.tooltip = function (details) {
@@ -3474,13 +3560,15 @@
     let config = {
       target: null,
       content: "默认文字",
-      location: "top",
+      position: "top",
       className: "",
+      alwaysShow: false,
       triggerShowEventName: "mouseenter",
       triggerCloseEventName: "mouseleave",
       triggerShowEventCallBack: function () {},
       triggerCloseEventCallBack: function () {},
-      arrowHeight: 25 / 2,
+      arrowDistance: 12.5,
+      otherDistance: 0,
     };
     config = popsUtils.assignJSON(config, details);
     if (!(config.target instanceof HTMLElement)) {
@@ -3505,49 +3593,16 @@
         toolTipArrowNode: _toolTipArrowNode_,
       };
     }
-    config.location = config.location.toLowerCase();
+    config.position = config.position.toLowerCase();
     let toolTipNodeJSON = getToolTipNodeJSON();
     let toolTipNode = toolTipNodeJSON.toolTipNode;
-    /**
-     * 进入动画
-     */
-    toolTipNode.addEventListener("mouseenter", function () {
-      if (parseInt(getComputedStyle(this)) > 0.5) {
-        this.style.animationPlayState = "paused";
-      }
-    });
 
-    /**
-     * 退出动画
-     */
-    toolTipNode.addEventListener("mouseleave", function () {
-      this.style.animationPlayState = "running";
-    });
-    function endEvent() {
-      /* 即使存在动画属性，但是当前设置的动画Out结束后移除元素 */
-      if (toolTipNode.getAttribute("data-motion").includes("In")) {
-        return;
-      }
-      toolTipNode.remove();
-    }
-    popsUtils.jQuery.on(
-      toolTipNode,
-      [
-        "webkitAnimationEnd",
-        "mozAnimationEnd",
-        "MSAnimationEnd",
-        "oanimationend",
-        "animationend",
-      ],
-      null,
-      endEvent
-    );
     /**
      * 设置 提示框的位置
      * @param {object} positionDetails
      */
     function setToolTipPosition(positionDetails) {
-      let positionDetail = positionDetails[config.location.toUpperCase()];
+      let positionDetail = positionDetails[config.position.toUpperCase()];
       if (positionDetail) {
         toolTipNode.style.left = positionDetail.left + "px";
         toolTipNode.style.top = positionDetail.top + "px";
@@ -3556,7 +3611,7 @@
           .querySelector(".pops-tip-arrow")
           .setAttribute("data-position", positionDetail.arrow);
       } else {
-        console.error("不存在该位置", config.location);
+        console.error("不存在该位置", config.position);
       }
     }
 
@@ -3568,13 +3623,13 @@
         TOP: {
           left:
             popsUtils.jQuery.offset(config.target).left +
-            popsUtils.jQuery.outerWidth(config.target) / 2 -
-            popsUtils.jQuery.width(config.target) * 0.2 -
-            config.arrowHeight,
+            popsUtils.jQuery.width(config.target) / 2 -
+            popsUtils.jQuery.width(config.target) * 0.2 +
+            config.otherDistance,
           top:
             popsUtils.jQuery.offset(config.target).top -
             popsUtils.jQuery.outerHeight(toolTipNode) -
-            config.arrowHeight,
+            config.arrowDistance,
           arrow: "bottom",
           motion: "fadeInTop",
         },
@@ -3582,11 +3637,12 @@
           left:
             popsUtils.jQuery.offset(config.target).left +
             popsUtils.jQuery.outerWidth(config.target) +
-            config.arrowHeight,
+            config.arrowDistance,
           top:
             popsUtils.jQuery.offset(config.target).top +
             popsUtils.jQuery.outerHeight(config.target) / 2 -
-            popsUtils.jQuery.outerHeight(toolTipNode) / 2,
+            popsUtils.jQuery.outerHeight(toolTipNode) / 2 +
+            config.otherDistance,
           arrow: "left",
           motion: "fadeInRight",
         },
@@ -3594,12 +3650,12 @@
           left:
             popsUtils.jQuery.offset(config.target).left +
             popsUtils.jQuery.outerWidth(config.target) / 2 -
-            popsUtils.jQuery.width(toolTipNode) * 0.2 -
-            config.arrowHeight,
+            popsUtils.jQuery.width(toolTipNode) * 0.2 +
+            config.otherDistance,
           top:
             popsUtils.jQuery.offset(config.target).top +
             popsUtils.jQuery.outerHeight(config.target) +
-            config.arrowHeight,
+            config.arrowDistance,
           arrow: "top",
           motion: "fadeInBottom",
         },
@@ -3607,11 +3663,12 @@
           left:
             popsUtils.jQuery.offset(config.target).left -
             popsUtils.jQuery.outerWidth(toolTipNode) -
-            config.arrowHeight,
+            config.arrowDistance,
           top:
             popsUtils.jQuery.offset(config.target).top +
             popsUtils.jQuery.outerHeight(config.target) / 2 -
-            popsUtils.jQuery.outerHeight(toolTipNode) / 2,
+            popsUtils.jQuery.outerHeight(toolTipNode) / 2 +
+            config.otherDistance,
           arrow: "right",
           motion: "fadeInLeft",
         },
@@ -3623,10 +3680,9 @@
     let showToolTipNode = function () {
       document.body.appendChild(toolTipNode);
       setToolTipPosition(getToolTipPosition());
-      config.triggerShowEventCallBack.bind(
-        config.triggerShowEventCallBack,
-        this.arguments
-      );
+      if (typeof config.triggerShowEventCallBack === "function") {
+        config.triggerShowEventCallBack();
+      }
     };
     /**
      * 关闭提示框
@@ -3636,10 +3692,9 @@
         "data-motion",
         toolTipNode.getAttribute("data-motion").replace("fadeIn", "fadeOut")
       );
-      config.triggerCloseEventCallBack.bind(
-        config.triggerCloseEventCallBack,
-        this.arguments
-      );
+      if (typeof config.triggerCloseEventCallBack === "function") {
+        config.triggerCloseEventCallBack();
+      }
     };
     /**
      * 绑定 显示事件
@@ -3685,20 +3740,85 @@
         closeToolTipNode
       );
     }
-    onShowEvent();
-    onCloseEvent();
-    return {
-      guid: guid,
-      config: config,
-      off() {
-        offShowEvent();
-        offCloseEvent();
-      },
-      on() {
-        onShowEvent();
-        onCloseEvent();
-      },
-    };
+
+    /**
+     * 即使存在动画属性，但是当前设置的动画Out结束后移除元素
+     */
+    function endEvent() {
+      if (toolTipNode.getAttribute("data-motion").includes("In")) {
+        return;
+      }
+      toolTipNode.remove();
+    }
+    if (config.alwaysShow) {
+      /* 总是显示 */
+      showToolTipNode();
+      return {
+        guid: guid,
+        config: config,
+        show: showToolTipNode,
+        close() {
+          popsUtils.jQuery.on(
+            toolTipNode,
+            [
+              "webkitAnimationEnd",
+              "mozAnimationEnd",
+              "MSAnimationEnd",
+              "oanimationend",
+              "animationend",
+            ],
+            null,
+            endEvent
+          );
+          closeToolTipNode();
+        },
+      };
+    } else {
+      /* 事件触发才显示 */
+
+      /**
+       * 进入动画
+       */
+      toolTipNode.addEventListener("mouseenter", function () {
+        if (parseInt(getComputedStyle(this)) > 0.5) {
+          this.style.animationPlayState = "paused";
+        }
+      });
+
+      /**
+       * 退出动画
+       */
+      toolTipNode.addEventListener("mouseleave", function () {
+        this.style.animationPlayState = "running";
+      });
+      popsUtils.jQuery.on(
+        toolTipNode,
+        [
+          "webkitAnimationEnd",
+          "mozAnimationEnd",
+          "MSAnimationEnd",
+          "oanimationend",
+          "animationend",
+        ],
+        null,
+        endEvent
+      );
+
+      onShowEvent();
+      onCloseEvent();
+      return {
+        guid: guid,
+        config: config,
+        off() {
+          offShowEvent();
+          offCloseEvent();
+        },
+        on() {
+          onShowEvent();
+          onCloseEvent();
+        },
+      };
+    }
   };
 
   /**
