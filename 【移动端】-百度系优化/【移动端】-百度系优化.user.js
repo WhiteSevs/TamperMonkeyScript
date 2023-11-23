@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.22
+// @version      2023.11.23
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3642,8 +3642,8 @@
         /**
          * 根据dom获取需要插入的评论的html
          * @param {HTMLElement} element
-         * @param { {commentList: any, userList: array}} pageCommentList
-         * @returns {?Element}
+         * @param { {commentList: any[], userList: any[]}[] } pageCommentList
+         * @returns {?HTMLElement}
          */
         getNewCommentInnerElement: (element, pageCommentList) => {
           let data_field = utils.toJSON(element.getAttribute("data-field"));
@@ -3681,25 +3681,25 @@
             is_landlord = 1;
           }
           let ele_tail_wrap = element.querySelector(".post-tail-wrap");
-          let user_ip_position = ele_tail_wrap;
+          let user_ip_position = "";
           let user_floor = "";
           let user_comment_time = "1970-1-1 00:00:00";
           if (ele_tail_wrap) {
             let childrenElement =
               ele_tail_wrap.querySelectorAll("span.tail-info");
-            Array.from(ele_tail_wrap.querySelectorAll("span")).forEach(
-              function (item) {
-                if (utils.isNotNull(user_ip_position)) {
-                  return;
-                }
-                if (!item.getAttribute("class")) {
-                  user_ip_position = item.textContent;
-                  if (user_ip_position.match("来自|禁言")) {
-                    user_ip_position = "";
-                  }
-                }
-              }
+            let childSpanElementList = Array.from(
+              ele_tail_wrap.querySelectorAll("span")
             );
+            for (let index = 0; index < childSpanElementList.length; index++) {
+              let childSpanElement = childSpanElementList[index];
+              if (childSpanElement.hasAttribute("class")) {
+                continue;
+              }
+              if (!childSpanElement.textContent.match("来自|禁言")) {
+                user_ip_position = childSpanElement.textContent;
+                break;
+              }
+            }
             if (childrenElement.length == 3 || childrenElement.length == 2) {
               user_floor =
                 childrenElement[childrenElement.length - 2].textContent;
@@ -3714,18 +3714,19 @@
           } else {
             ele_tail_wrap = element.querySelector(".acore_reply_tail");
             user_ip_position = data_field["content"]["ip_address"];
-            user_floor = data_field["content"]["post_no"] + "楼"; /* 评论楼层 */
+            /* 评论楼层 */
+            user_floor = data_field["content"]["post_no"] + "楼";
             user_comment_time = data_field["content"]["date"];
             if (!userComment) {
               userComment = element.querySelector(".d_post_content").innerHTML;
             }
           }
-          let currentTime = new Date(); /* 结束时间 */
+          /* 结束时间 */
+          let currentTime = new Date();
+          /* 时间差的毫秒数 */
           let timeDifference =
             currentTime.getTime() -
-            new Date(
-              user_comment_time.replace(/-/g, "/")
-            ).getTime(); /* 时间差的毫秒数 */
+            new Date(user_comment_time.replace(/-/g, "/")).getTime();
 
           /* ------------------------------ */
 
@@ -3734,23 +3735,23 @@
           if (days > 0) {
             user_comment_time = days + "天前";
           } else {
+            /* 计算天数后剩余的毫秒数 */
+            let leave1 = timeDifference % (24 * 3600 * 1000);
             /* 计算出小时数 */
-            let leave1 =
-              timeDifference % (24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
             let hours = Math.floor(leave1 / (3600 * 1000));
             if (hours > 0) {
               user_comment_time = hours + "小时前";
             } else {
               /* 计算相差分钟数 */
-              let leave2 =
-                leave1 % (3600 * 1000); /* 计算小时数后剩余的毫秒数 */
+              let leave2 = leave1 % (3600 * 1000);
+              /* 计算小时数后剩余的毫秒数 */
               let minutes = Math.floor(leave2 / (60 * 1000));
               if (minutes > 0) {
                 user_comment_time = minutes + "分钟前";
               } else {
                 /* 计算相差秒数 */
-                let leave3 =
-                  leave2 % (60 * 1000); /* 计算分钟数后剩余的毫秒数 */
+                let leave3 = leave2 % (60 * 1000);
+                /* 计算分钟数后剩余的毫秒数 */
                 let seconds = Math.round(leave3 / 1000);
                 user_comment_time = seconds + "秒前";
               }
@@ -4816,7 +4817,7 @@
         /**
          * 获取第XX页的所有楼中楼评论
          * @param {string} url
-         * @returns { {commentList:array, userList:array} }
+         * @returns { {commentList: any[], userList: any[]} }
          */
         async getPageCommentList(url) {
           let getResp = await httpx.get({
