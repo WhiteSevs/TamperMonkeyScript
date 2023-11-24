@@ -1129,9 +1129,9 @@
     /**
      * 当前版本
      */
-    version: "2023.11.23",
+    version: "2023.11.24",
     css: `@charset "utf-8";
-    .pops{overflow:hidden;border:1px solid rgba(0,0,0,.2);border-radius:5px;background-color:#fff;box-shadow:0 5px 15px rgb(0 0 0 / 50%);transition:all .35s;}
+    .pops{background-color:#fff;border-radius:4px;border:1px solid #ebeef5;font-size:18px;box-shadow:0 0 12px rgba(0,0,0,.12);box-sizing:border-box;overflow:hidden;transition:all .35s}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     .pops-anim{position:fixed;top:0;right:0;bottom:0;left:0;margin:0;width:100%;height:100%;}
     .pops[position=top_left]{position:fixed;top:0;left:0;}
@@ -1143,17 +1143,54 @@
     .pops[position=bottom_left]{position:fixed;bottom:0;left:0;}
     .pops[position=bottom]{position:fixed;bottom:0;left:50%;transform:translate(-50%,0);}
     .pops[position=bottom_right]{position:fixed;right:0;bottom:0;}
-    .pops button{float:right;display:inline-block;margin:0 5px;padding:6px 12px;outline:0;border:1px solid transparent;border-radius:5px;background-color:transparent;box-shadow:none;font-weight:400;font-size:14px;line-height:1.45;cursor:pointer;transition:all .3s ease-in-out;}
-    .pops button[type=primary]{border-color:#2e6da4;background-color:#337ab7;color:#fff;}
-    .pops button[type=primary]:hover{border-color:#2886d8;background-color:#378ad1;}
-    .pops button[type=default]{border-color:#ccc;background-color:#fff;color:#333;}
-    .pops button[type=default]:hover{border-color:#a6a6a6;background-color:#fafafa;}
+    .pops button{white-space:nowrap;float:right;display:inline-block;margin:0 5px;padding:6px 12px;outline:0;border:1px solid transparent;}
+    .pops button{border-radius:4px;background-color:transparent;box-shadow:none;font-weight:400;font-size:14px;line-height:1.45;cursor:pointer;transition:all .3s ease-in-out;}
+    .pops button{line-height:1;box-sizing:border-box;outline:none;user-select:none;border: 1px solid #dcdfe6;}
+    .pops button:disabled{cursor:not-allowed;}
+
+    .pops button[type=default]{border-color:#dcdfe6;background-color:#fff;color:#333;}
+    .pops button[type=default]:active{color:#409eff;border-color:#409eff;background-color:#ecf5ff;outline:none;}
+    .pops button[type=default]:hover,.pops button[type=default]:focus{color:#409eff;border-color:#c6e2ff;background-color:#ecf5ff;outline:none;}
+    .pops button[type=default]:focus-visible{outline:2px solid #a0cfff;outline-offset:1px;}
+    .pops button[type=default]:disabled{color:#a8abb2 !important;background-color:#ffffff !important;border-color:#e4e7ed !important;}
+    
+
+    .pops button[type=primary]{border-color:#409eff;background-color:#409eff;color:#ffffff;}
+    .pops button[type=primary]:active{color:#ffffff;border-color:#337ecc;background-color:#337ecc;outline:none;}
+    .pops button[type=primary]:hover,.pops button[type=primary]:focus{color:#ffffff;border-color:#79bbff;background-color:#79bbff;outline:none;}
+    .pops button[type=primary]:focus-visible{outline:2px solid #a0cfff;outline-offset:1px;}
+    .pops button[type=primary]:disabled{color:#ffffff !important;background-color:#a0cfff !important;border-color:#a0cfff !important;}
+
     .pops button[type=success]{border-color:#4cae4c;background-color:#5cb85c;color:#fff;}
-    .pops button[type=success]:hover{border-color:#45cc45;background-color:#4dcb4d;}
-    .pops button[type=info]{border-color:#46b8da;background-color:#5bc0de;color:#fff;}
-    .pops button[type=info]:hover{background-color:#23acd5;}
-    .pops button[type=xiaomi-primary]{background-color:#ff5c00;color:#fff;}
-    .pops button[type=xiaomi-primary]:hover{background-color:#ff7e29;}
+    .pops button[type=success]:active{color:#ffffff;border-color:#529b2e;background-color:#529b2e;;outline:none;}
+    .pops button[type=success]:hover,.pops button[type=success]:focus{color:#ffffff;border-color:#95d475;background-color:#95d475;;outline:none;}
+    .pops button[type=success]:focus-visible{outline:2px solid #b3e19d;outline-offset:1px;}
+    .pops button[type=success]:disabled{color:#ffffff !important;background-color:#b3e19d !important;border-color:#b3e19d !important;}
+
+    .pops button[type=info]{border-color:#909399;background-color:#909399;color:#fff;}
+    .pops button[type=info]:active{color:#ffffff;border-color:#73767a;background-color:#73767a;;outline:none;}
+    .pops button[type=info]:hover,.pops button[type=info]:focus{color:#ffffff;border-color:#b1b3b8;background-color:#b1b3b8;;outline:none;}
+    .pops button[type=info]:focus-visible{outline:2px solid #c8c9cc;outline-offset:1px;}
+    .pops button[type=info]:disabled{color:#ffffff !important;background-color:#c8c9cc !important;border-color:#c8c9cc !important;}
+
+    .pops button[type=warning]{border-color:#e6a23c;background-color:#e6a23c;color:#fff;}
+    .pops button[type=warning]:active{color:#ffffff;border-color:#b88230;background-color:#b88230;;outline:none;}
+    .pops button[type=warning]:hover,.pops button[type=warning]:focus{color:#ffffff;border-color:#eebe77;background-color:#eebe77;;outline:none;}
+    .pops button[type=warning]:focus-visible{outline:2px solid #f3d19e;outline-offset:1px;}
+    .pops button[type=warning]:disabled{color:#ffffff !important;background-color:#f3d19e !important;border-color:#f3d19e !important;}
+
+    .pops button[type=danger]{border-color:#f56c6c;background-color:#f56c6c;color:#fff;}
+    .pops button[type=danger]:active{color:#ffffff;border-color:#c45656;background-color:#c45656;;outline:none;}
+    .pops button[type=danger]:hover,.pops button[type=danger]:focus{color:#ffffff;border-color:#f89898;background-color:#f89898;;outline:none;}
+    .pops button[type=danger]:focus-visible{outline:2px solid #fab6b6;outline-offset:1px;}
+    .pops button[type=danger]:disabled{color:#ffffff !important;background-color:#fab6b6 !important;border-color:#fab6b6 !important;}
+
+    .pops button[type=xiaomi-primary]{border-color:#ff5c00;background-color:#ff5c00;color:#fff;}
+    .pops button[type=xiaomi-primary]:active{color:#ffffff;border-color:#da4f00;background-color:#da4f00;;outline:none;}
+    .pops button[type=xiaomi-primary]:hover,.pops button[type=xiaomi-primary]:focus{color:#ffffff;border-color:#ff7e29;background-color:#ff7e29;;outline:none;}
+    .pops button[type=xiaomi-primary]:focus-visible{outline:2px solid #fab6b6;outline-offset:1px;}
+    .pops button[type=xiaomi-primary]:disabled{color:#ffffff !important;background-color:#fad5b6 !important;border-color:#fad5b6 !important;}
+    
     .pops ::-webkit-scrollbar{width:6px;height:0;}
     .pops ::-webkit-scrollbar-track{width:0;}
     .pops ::-webkit-scrollbar-thumb{min-height:28px;border-radius:2em;background-color:#999;background-clip:padding-box;}
@@ -1427,7 +1464,7 @@
     6.25%{transform:matrix3d(.99983,0,0,0,0,.99991,0,0,0,0,1,0,0,0,0,1);}
     4.16667%{transform:matrix3d(.99982,0,0,0,0,.99985,0,0,0,0,1,0,0,0,0,1);}
     2.08333%{transform:matrix3d(.99983,0,0,0,0,.99984,0,0,0,0,1,0,0,0,0,1);}
-    0%{opacity:1;transform:matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);}
+    0%{opacity:1;transform:matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0type=close,1);}
     }
     @keyframes pops-anim-roll-reverse{0%{transform:perspective(1000px) rotate3d(1,0,0,0deg);}
     100%{transform:perspective(1000px) rotate3d(1,0,0,90deg);}
@@ -1439,15 +1476,15 @@
     100%{opacity:0;transform:scale(5,0);}
     }
     .pops[type-value] .pops-alert-title,.pops[type-value] .pops-confirm-title,.pops[type-value] .pops-drawer-title,.pops[type-value] .pops-iframe-title,.pops[type-value] .pops-prompt-title{display: flex;align-items: center;justify-content: space-between;}
-    .pops-header-controls button.pops-header-control[type=close],.pops-header-controls button.pops-header-control[type=max],.pops-header-controls button.pops-header-control[type=min]{position:relative;float:right;margin:0 2px;width:15px;height:15px;outline:0!important;border:0;border-color:#888;background-color:transparent;color:#888;cursor:pointer;transition:all .3s ease-in-out;}
-    .pops-header-controls button.pops-header-control[type=close]:before{transform:rotate(-45deg);}
-    .pops-header-controls button.pops-header-control[type=close]:after{transform:rotate(45deg);}
-    .pops-header-controls button.pops-header-control[type=close]:after,.pops-header-controls button.pops-header-control[type=close]:before{position:absolute;top:8px;left:2px;display:block;width:inherit;border-top:2.3px solid;content:" ";}
-    .pops-header-controls button.pops-header-control[type=min]:after,.pops-header-controls button.pops-header-control[type=min]:before{display:block;}
-    .pops-header-controls button.pops-header-control[type=min]:after{position:absolute;top:9px;left:5px;width:10px;border-bottom:2px solid;content:" ";}
-    .pops-header-controls button.pops-header-control[type=max]:after,.pops-header-controls button.pops-header-control[type=max]:before{display:block;}
-    .pops-header-controls button.pops-header-control[type=max]:after{position:absolute;top:4px;left:3px;box-sizing:initial;width:12px;height:8px;border:1px solid;border-top:2px solid;content:" ";}
-    .pops-header-controls[type=max] button.pops-header-control[type=max]:before{position:absolute;top:2px;left:4px;box-sizing:initial;width:14px;height:11px;border-top:1px solid;border-right:1px solid;content:" ";}
+    .pops-header-controls button.pops-header-control[type=close],
+    .pops-header-controls button.pops-header-control[type=max],
+    .pops-header-controls button.pops-header-control[type=mise],
+    .pops-header-controls button.pops-header-control[type=min]{position:relative;float:right;margin:0 2px;outline:0!important;border:0;border-color:#888;background-color:transparent;color:#888;cursor:pointer;transition:all .3s ease-in-out;}
+    button.pops-header-control i{color:#909399;font-size:inherit;height:1em;width:1em;line-height:1em;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor}
+    button.pops-header-control svg{height:1em;width:1em}
+    button.pops-header-control{right:15px;padding:0;border:none;outline:0;background:0 0;cursor:pointer;position:unset;line-height:1.15;font-size:16px}
+    button.pops-header-control i:hover{color:#409eff}
+    .pops-header-controls[data-margin] button.pops-header-control{margin:0 6px}
     .pops-tip{position:absolute;padding:13px;max-width:400px;max-height:300px;border-radius:2px;background-color:#fff;box-shadow:0 1.5px 4px rgba(0,0,0,.24),0 1.5px 6px rgba(0,0,0,.12);color:#4e4e4e;font-size:14px;}
     .pops-tip .pops-tip-arrow{position:absolute;top:100%;left:25%;overflow:hidden;width:50px;height:12.5px;transform:translateX(-50%);}
     .pops-tip .pops-tip-arrow::after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
@@ -1701,7 +1738,7 @@
   /**
    * @typedef {object} PopsBtnDetails 按钮配置
    * @property {boolean} enable 是否启用
-   * @property {string} [type=""] 按钮样式类型
+   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
    * @property {string} [text=""] 按钮文字
    * @property { PopsBtnCallBack } callback 按钮点击的回调
    */
@@ -1709,7 +1746,7 @@
   /**
    * @typedef {object} PopsPromptBtmDetails prompt的按钮配置
    * @property {boolean} enable 是否启用
-   * @property {string} [type=""] 按钮样式类型
+   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
    * @property {string} [text=""] 按钮文字
    * @property { PopsPromptBtnCallBack } callback 按钮点击的回调
    */
@@ -1870,6 +1907,12 @@
          */
         headerMaxBtnElement: animElement.querySelector(
           ".pops-header-control[type='max']"
+        ),
+        /**
+         * @type {?HTMLElement}
+         */
+        headerMiseBtnElement: animElement.querySelector(
+          ".pops-header-control[type='mise']"
         ),
         /**
          * @type {?HTMLElement}
@@ -2121,16 +2164,24 @@
         /* iframe的 */
         let topRightButtonHTML = "";
         config.topRightButton.split("|").forEach((item) => {
-          topRightButtonHTML += `<button class="pops-header-control" type="${item}"></button>`;
+          item = item.toLowerCase();
+          topRightButtonHTML += `
+          <button class="pops-header-control" type="${item}">
+            <i class="pops-icon">${PopsIconSVG[item]}</i>
+          </button>`;
         });
         resultHTML = `
-        <div class="pops-header-controls">
+        <div class="pops-header-controls" data-margin>
             ${topRightButtonHTML}
           </div>`;
       } else {
         if (config.btn?.close?.enable) {
-          closeHTML =
-            '<div class="pops-header-controls"><button class="pops-header-control" type="close"></button></div>';
+          closeHTML = `
+          <div class="pops-header-controls">
+            <button class="pops-header-control" type="close">
+              <i class="pops-icon">${PopsIconSVG["close"]}</i>
+            </button>
+          </div>`;
         }
         resultHTML = closeHTML;
       }
@@ -2238,6 +2289,44 @@
     },
   };
 
+  /**
+   * icon图标的svg代码
+   */
+  const PopsIconSVG = {
+    /**
+     * 最小化
+     */
+    min: `
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path>
+    </svg>`,
+    /**
+     * 窗口化
+     */
+    mise: `
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M885.333333 85.333333H330.410667a53.333333 53.333333 0 0 0-53.333334 53.333334v106.666666H138.666667A53.333333 53.333333 0 0 0 85.333333 298.666667v586.666666a53.333333 53.333333 0 0 0 53.333334 53.333334H725.333333a53.333333 53.333333 0 0 0 53.333334-53.333334V746.154667h106.666666c29.44 0 53.333333-23.893333 53.333334-53.333334V138.666667A53.333333 53.333333 0 0 0 885.333333 85.333333zM725.333333 692.821333v192.512H138.666667V298.666667H725.333333v394.154666z m157.866667 0H778.666667V298.666667a53.333333 53.333333 0 0 0-53.333334-53.333334H330.410667v-106.666666h554.922666l-2.133333 554.154666z">
+      </path>
+    </svg>
+    `,
+    /**
+     * 最大化
+     */
+    max: `
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64v.064zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64l-192 .192zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64v-.064z">
+      </path>
+    </svg>`,
+    /**
+     * 关闭
+     */
+    close: `
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z">
+      </path>
+    </svg>
+    `,
+  };
   /**
    * @typedef {object} PopsAlertDetails
    * @property {{
@@ -3176,9 +3265,12 @@
    *  max: {
    *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
    *  },
+   *  mise: {
+   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
+   *  },
    *  close: {
    *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
-   *  }
+   *  },
    * }} btn 按钮配置
    * @property {string} [class=""] 自定义className
    * @property {?string} url 地址，默认为window.location.href
@@ -3197,7 +3289,7 @@
    * clickCallBack: (originalRun: Function)=>{}
    * }} mask 遮罩层，默认关闭
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {string} [topRightButton="min|max|close"] 右上角按钮顺序：最小化、最大化、关闭
+   * @property {string} [topRightButton="min|max|mise|close"] 右上角按钮顺序：最小化、最大化、窗口化、关闭
    * @property {boolean} [sandbox=false] 是否启用沙箱，默认false
    * @property {boolean} [forbiddenScroll=false] 禁止页面滚动，默认false
    * @property {?Function} loadEndCallBack 网页加载完毕触发的回调，默认为空
@@ -3252,7 +3344,7 @@
       drag: false,
       width: "300px",
       height: "250px",
-      topRightButton: "min|max|close",
+      topRightButton: "min|max|mise|close",
       sandbox: false,
       forbiddenScroll: false,
       loadEndCallBack() {},
@@ -3261,6 +3353,9 @@
           callback() {},
         },
         max: {
+          callback() {},
+        },
+        mise: {
           callback() {},
         },
         close: {
@@ -3330,14 +3425,15 @@
     let animElement = PopsElementHandler.parseElement(animHTML);
     let {
       popsElement,
-      headerCloseBtnElement: btnCloseElement,
-      headerControlsElement: controlsElement,
+      headerCloseBtnElement,
+      headerControlsElement,
       titleElement,
       iframeElement,
       loadingElement,
       contentLoadingElement,
-      headerMinBtnElement: minElement,
-      headerMaxBtnElement: maxElement,
+      headerMinBtnElement,
+      headerMaxBtnElement,
+      headerMiseBtnElement,
     } = PopsHandler.handleQueryElement(animElement, PopsType);
     /**
      * 遮罩层元素
@@ -3414,7 +3510,8 @@
       });
     }
     let normalLeft = "";
-    minElement?.addEventListener("click", (event) => {
+    /* 最小化按钮点击事件 */
+    headerMinBtnElement?.addEventListener("click", (event) => {
       /**
        * 所有最小化的iframe数组
        * @type { HTMLElement[] }
@@ -3441,50 +3538,58 @@
         .setAttribute("type", "max");
       config.btn.min.callback(event);
     });
-    maxElement?.addEventListener("click", (event) => {
+    /* 最大化按钮点击事件 */
+    headerMaxBtnElement?.addEventListener("click", (event) => {
       popsElement.style.transitionDuration = "";
-      if (controlsElement.getAttribute("type") === "max") {
-        /* 恢复 */
-        popsElement.style.left = normalLeft;
-        controlsElement.removeAttribute("type");
-        popsElement.removeAttribute("type-module");
-        /**
-         * 所有最小化的iframe数组
-         * @type { HTMLElement[] }
-         */
-        let allMinElementList = [];
-        pops.config.layer.iframe.forEach((item) => {
-          if (
-            item.animElement != animElement &&
-            popsElement.getAttribute("type-module") === "min"
-          ) {
-            allMinElementList.push(item.popsElement);
-          }
-        });
-        allMinElementList.sort(
-          popsUtils.sortElementListByProperty(
-            (obj) => {
-              return parseInt(getComputedStyle(obj).left);
-            },
-            (obj) => {
-              return parseInt(getComputedStyle(obj).left);
-            },
-            false
-          )
-        );
-        allMinElementList.forEach((item, index) => {
-          item.style.left = index * 205 + "px";
-        });
-      } else {
-        /* 最大 */
-        normalLeft = popsElement.style.left;
-        popsElement.removeAttribute("type-module");
-        popsElement.setAttribute("type-module", "max");
-        controlsElement.setAttribute("type", "max");
-      }
+      normalLeft = popsElement.style.left;
+      popsElement.removeAttribute("type-module");
+      popsElement.setAttribute("type-module", "max");
+      headerControlsElement.setAttribute("type", "max");
+      headerMaxBtnElement.style.setProperty("display", "none");
+      headerMiseBtnElement.style.setProperty("display", "");
       config.btn.max.callback(event);
     });
-    btnCloseElement?.addEventListener("click", (event) => {
+    /* 先隐藏窗口化按钮 */
+    headerMiseBtnElement?.style?.setProperty("display", "none");
+    /* 窗口化按钮点击事件 */
+    headerMiseBtnElement?.addEventListener("click", (event) => {
+      popsElement.style.transitionDuration = "";
+      popsElement.style.left = normalLeft;
+      headerControlsElement.removeAttribute("type");
+      popsElement.removeAttribute("type-module");
+      /**
+       * 所有最小化的iframe数组
+       * @type { HTMLElement[] }
+       */
+      let allMinElementList = [];
+      pops.config.layer.iframe.forEach((item) => {
+        if (
+          item.animElement != animElement &&
+          popsElement.getAttribute("type-module") === "min"
+        ) {
+          allMinElementList.push(item.popsElement);
+        }
+      });
+      allMinElementList.sort(
+        popsUtils.sortElementListByProperty(
+          (obj) => {
+            return parseInt(getComputedStyle(obj).left);
+          },
+          (obj) => {
+            return parseInt(getComputedStyle(obj).left);
+          },
+          false
+        )
+      );
+      allMinElementList.forEach((item, index) => {
+        item.style.left = index * 205 + "px";
+      });
+      headerMiseBtnElement.style.setProperty("display", "none");
+      headerMaxBtnElement.style.setProperty("display", "");
+      config.btn.mise.callback(event);
+    });
+    /* 关闭按钮点击事件 */
+    headerCloseBtnElement?.addEventListener("click", (event) => {
       popsUtils.configRemove([that.config.layer.iframe], guid, false);
       setTimeout(() => {
         let allIsMinElementList = [];
