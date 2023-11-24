@@ -4943,7 +4943,7 @@
   /**
    * 阻止事件传递
    * @param {HTMLElement} element 要进行处理的元素
-   * @param {string|[...string]} eventNameList 要阻止的事件名|列表
+   * @param {?string|[...string]} eventNameList 要阻止的事件名|列表
    * @param {Event|undefined} paramEvent 事件
    * @example
    * Utils.preventEvent(document.querySelector("a"),"click")
