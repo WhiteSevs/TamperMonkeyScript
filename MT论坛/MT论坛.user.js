@@ -35,7 +35,7 @@
 // @require      https://update.greasyfork.org/scripts/452322/1250550/js-watermark.js
 // @require      https://update.greasyfork.org/scripts/456607/1249089/GM_html2canvas.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://update.greasyfork.org/scripts/455186/1284259/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1285083/WhiteSevsUtils.js
 // ==/UserScript==
 
 (async function () {
@@ -732,7 +732,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://update.greasyfork.org/scripts/455186/1284259/WhiteSevsUtils.js",
+        url: "https://update.greasyfork.org/scripts/455186/1285083/WhiteSevsUtils.js",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,
