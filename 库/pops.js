@@ -16,6 +16,82 @@
   "use strict";
 
   /**
+   * @typedef {object} PopsBtnCallBackEvent 按钮回调Event
+   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
+   * @property {HTMLElement} maskElement 遮罩层元素
+   * @property {string} type
+   * @property {"alert"|"confirm"} function 调用的方法
+   * @property {string} guid 唯一id
+   * @property {Function} close 关闭弹窗
+   * @property {Function} hide 隐藏弹窗
+   * @property {Function} show 显示弹窗
+   */
+
+  /**
+   * @typedef { object } PopsPromptBtnCallBackEvent
+   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
+   * @property {HTMLElement} maskElement 遮罩层元素
+   * @property {string} type
+   * @property {"prompt"} function 调用的方法类型
+   * @property {string} guid 唯一id
+   * @property {Function} close 关闭弹窗
+   * @property {Function} hide 隐藏弹窗
+   * @property {Function} show 显示弹窗
+   * @property {string} [text=""] 输入的内容
+   */
+
+  /**
+   * @callback PopsBtnCallBack
+   * @param {PopsBtnCallBackEvent} event 事件
+   */
+
+  /**
+   * @callback PopsPromptBtnCallBack
+   * @param {PopsPromptBtnCallBackEvent} event 事件
+   */
+
+  /**
+   * @callback PopsMaskClickCallBack
+   * @param { Function } originalRun
+   * @param { PopsAlertDetails|PopsDrawerDetails|PopsIframeDetails|PopsPromptDetails|PopsPromptBtmDetails|PopsLoadingDetails } config
+   */
+  /**
+   * @typedef { object } PopsMaskDetails 遮罩层配置
+   * @property { boolean } enable 是否启用
+   * @property { {
+   *  toClose: boolean,
+   *  toHide: boolean
+   * } } clickEvent
+   * @property { PopsMaskClickCallBack } clickCallBack
+   */
+  /**
+   * @typedef {object} PopsButtonDetails 按钮配置
+   * @property {boolean} enable 是否启用
+   * @property { "min"|"mise"|"max"|"close"|"edit"|"share"|"delete"|"search"|"upload"|"loading"|"next"|"prev" } [icon=""] 图标按钮，如果名字为内置的，则使用内置的，否则为自定义的svg
+   * @property { boolean } rightIcon 图标按钮是否放在右边
+   * @property { boolean } iconIsLoading 图标按钮是否是旋转360°
+   * @property { "large"|"small" } [size=""] 按钮尺寸大小，默认为空
+   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
+   * @property {string} [text=""] 按钮文字
+   * @property { PopsBtnCallBack } callback 按钮点击的回调
+   */
+
+  /**
+   * @typedef { object } PopsHeaderCloseButtonDetails 顶部关闭按钮配置
+   * @property { boolean } enable 是否启用
+   * @property { PopsBtnCallBack } callback 按钮点击的回调
+   */
+
+  /**
+   * @typedef {object} PopsPromptBtmDetails prompt的按钮配置
+   * @property {boolean} enable 是否启用
+   * @property { "large"|"small" } [size=""] 按钮尺寸大小，默认为空
+   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
+   * @property {string} [text=""] 按钮文字
+   * @property { PopsPromptBtnCallBack } callback 按钮点击的回调
+   */
+
+  /**
    * 工具类
    */
   let popsUtils = {
@@ -1129,7 +1205,7 @@
     /**
      * 当前版本
      */
-    version: "2023.11.24",
+    version: "2023.11.25",
     css: `@charset "utf-8";
     .pops{background-color:#fff;border-radius:4px;border:1px solid #ebeef5;font-size:18px;box-shadow:0 0 12px rgba(0,0,0,.12);box-sizing:border-box;overflow:hidden;transition:all .35s}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -1145,8 +1221,17 @@
     .pops[position=bottom_right]{position:fixed;right:0;bottom:0;}
     .pops button{white-space:nowrap;float:right;display:inline-block;margin:0 5px;padding:6px 12px;outline:0;border:1px solid transparent;}
     .pops button{border-radius:4px;background-color:transparent;box-shadow:none;font-weight:400;font-size:14px;line-height:1.45;cursor:pointer;transition:all .3s ease-in-out;}
-    .pops button{line-height:1;box-sizing:border-box;outline:none;user-select:none;border: 1px solid #dcdfe6;}
+    .pops button{display:flex;align-items: center;height:32px;line-height:1;box-sizing:border-box;outline:none;user-select:none;border: 1px solid #dcdfe6;}
+    .pops button.pops-button-large{height:40px;padding:12px 19px;font-size:14px;border-radius:4px;}
+    .pops button.pops-button-small{height:24px;padding:5px 11px;font-size:12px;border-radius:4px;}
     .pops button:disabled{cursor:not-allowed;}
+    .pops button[data-rightIcon="true"]{flex-direction: row-reverse;}
+    .pops button[data-rightIcon="true"] span{margin-right:6px;}
+    .pops button[data-rightIcon="false"] span{margin-left:6px;}
+    .pops button[data-icon=""] span{margin-left:unset;}
+    
+    .pops i.pops-bottom-icon[is-loading="true"]{animation: rotating 2s linear infinite;}
+    .pops i.pops-bottom-icon{height:1em;width:1em;line-height:1em;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor;color:inherit;font-size:inherit}
 
     .pops button[type=default]{border-color:#dcdfe6;background-color:#fff;color:#333;}
     .pops button[type=default]:active{color:#409eff;border-color:#409eff;background-color:#ecf5ff;outline:none;}
@@ -1264,6 +1349,9 @@
     .pops-anim[anim=pops-anim-roll-reverse]{animation:pops-anim-roll-reverse .3s;}
     .pops-anim[anim=pops-anim-sandra-reverse]{animation:pops-anim-sandra-reverse .3s;}
     .pops-anim[anim=pops-anim-gather-reverse]{animation:pops-anim-gather-reverse .3s;}
+    @keyframes rotating{0%{transform:rotate(0)}
+    to{transform:rotate(360deg)}
+    }
     @keyframes iframeLoadingChange_85{0%{background:linear-gradient(to right,#4995dd,#fff,rgb(202 224 246));}
     20%{background:linear-gradient(to right,#4995dd,#ead0d0,rgb(123 185 246));}
     40%{background:linear-gradient(to right,#4995dd,#f4b7b7,rgb(112 178 244));}
@@ -1556,7 +1644,34 @@
     100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
     }
     .pops-tip[data-motion=fadeOutRight]{-webkit-animation-name:pops-motion-fadeOutRight;animation-name:pops-motion-fadeOutRight;}
-`,
+    `,
+    /**
+     * icon图标的svg代码
+     */
+    iconSVG: {
+      min: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path></svg>`,
+      mise: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M885.333333 85.333333H330.410667a53.333333 53.333333 0 0 0-53.333334 53.333334v106.666666H138.666667A53.333333 53.333333 0 0 0 85.333333 298.666667v586.666666a53.333333 53.333333 0 0 0 53.333334 53.333334H725.333333a53.333333 53.333333 0 0 0 53.333334-53.333334V746.154667h106.666666c29.44 0 53.333333-23.893333 53.333334-53.333334V138.666667A53.333333 53.333333 0 0 0 885.333333 85.333333zM725.333333 692.821333v192.512H138.666667V298.666667H725.333333v394.154666z m157.866667 0H778.666667V298.666667a53.333333 53.333333 0 0 0-53.333334-53.333334H330.410667v-106.666666h554.922666l-2.133333 554.154666z"></path></svg>`,
+      max: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64v.064zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64l-192 .192zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64v-.064z"></path></svg>`,
+      close: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>`,
+      edit: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path><path fill="currentColor" d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path></svg>`,
+      share: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m679.872 348.8-301.76 188.608a127.808 127.808 0 0 1 5.12 52.16l279.936 104.96a128 128 0 1 1-22.464 59.904l-279.872-104.96a128 128 0 1 1-16.64-166.272l301.696-188.608a128 128 0 1 1 33.92 54.272z"></path></svg>`,
+      delete: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"></path></svg>`,
+      search: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704z"></path></svg>`,
+      upload: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64zm384-578.304V704h-64V247.296L237.248 490.048 192 444.8 508.8 128l316.8 316.8-45.312 45.248L544 253.696z"></path></svg>`,
+      loading: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32zm0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32zm448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32zm-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32zM195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248zM828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0zm-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0z"></path></svg>`,
+      next: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path></svg>`,
+      prev: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path></svg>`,
+      eleme: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M300.032 188.8c174.72-113.28 408-63.36 522.24 109.44 5.76 10.56 11.52 20.16 17.28 30.72v.96a22.4 22.4 0 0 1-7.68 26.88l-352.32 228.48c-9.6 6.72-22.08 3.84-28.8-5.76l-18.24-27.84a54.336 54.336 0 0 1 16.32-74.88l225.6-146.88c9.6-6.72 12.48-19.2 5.76-28.8-.96-1.92-1.92-3.84-3.84-4.8a267.84 267.84 0 0 0-315.84-17.28c-123.84 81.6-159.36 247.68-78.72 371.52a268.096 268.096 0 0 0 370.56 78.72 54.336 54.336 0 0 1 74.88 16.32l17.28 26.88c5.76 9.6 3.84 21.12-4.8 27.84-8.64 7.68-18.24 14.4-28.8 21.12a377.92 377.92 0 0 1-522.24-110.4c-113.28-174.72-63.36-408 111.36-522.24zm526.08 305.28a22.336 22.336 0 0 1 28.8 5.76l23.04 35.52a63.232 63.232 0 0 1-18.24 87.36l-35.52 23.04c-9.6 6.72-22.08 3.84-28.8-5.76l-46.08-71.04c-6.72-9.6-3.84-22.08 5.76-28.8l71.04-46.08z"></path></svg>`,
+      elemePlus: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path d="M839.7 734.7c0 33.3-17.9 41-17.9 41S519.7 949.8 499.2 960c-10.2 5.1-20.5 5.1-30.7 0 0 0-314.9-184.3-325.1-192-5.1-5.1-10.2-12.8-12.8-20.5V368.6c0-17.9 20.5-28.2 20.5-28.2L466 158.6c12.8-5.1 25.6-5.1 38.4 0 0 0 279 161.3 309.8 179.2 17.9 7.7 28.2 25.6 25.6 46.1-.1-5-.1 317.5-.1 350.8zM714.2 371.2c-64-35.8-217.6-125.4-217.6-125.4-7.7-5.1-20.5-5.1-30.7 0L217.6 389.1s-17.9 10.2-17.9 23v297c0 5.1 5.1 12.8 7.7 17.9 7.7 5.1 256 148.5 256 148.5 7.7 5.1 17.9 5.1 25.6 0 15.4-7.7 250.9-145.9 250.9-145.9s12.8-5.1 12.8-30.7v-74.2l-276.5 169v-64c0-17.9 7.7-30.7 20.5-46.1L745 535c5.1-7.7 10.2-20.5 10.2-30.7v-66.6l-279 169v-69.1c0-15.4 5.1-30.7 17.9-38.4l220.1-128zM919 135.7c0-5.1-5.1-7.7-7.7-7.7h-58.9V66.6c0-5.1-5.1-5.1-10.2-5.1l-30.7 5.1c-5.1 0-5.1 2.6-5.1 5.1V128h-56.3c-5.1 0-5.1 5.1-7.7 5.1v38.4h69.1v64c0 5.1 5.1 5.1 10.2 5.1l30.7-5.1c5.1 0 5.1-2.6 5.1-5.1v-56.3h64l-2.5-38.4z" fill="currentColor"></path></svg>`,
+      chromeFilled: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" xml:space="preserve" data-v-ea893728=""><path d="M938.67 512.01c0-44.59-6.82-87.6-19.54-128H682.67a212.372 212.372 0 0 1 42.67 128c.06 38.71-10.45 76.7-30.42 109.87l-182.91 316.8c235.65-.01 426.66-191.02 426.66-426.67z" fill="currentColor"></path><path d="M576.79 401.63a127.92 127.92 0 0 0-63.56-17.6c-22.36-.22-44.39 5.43-63.89 16.38s-35.79 26.82-47.25 46.02a128.005 128.005 0 0 0-2.16 127.44l1.24 2.13a127.906 127.906 0 0 0 46.36 46.61 127.907 127.907 0 0 0 63.38 17.44c22.29.2 44.24-5.43 63.68-16.33a127.94 127.94 0 0 0 47.16-45.79v-.01l1.11-1.92a127.984 127.984 0 0 0 .29-127.46 127.957 127.957 0 0 0-46.36-46.91z" fill="currentColor"></path><path d="M394.45 333.96A213.336 213.336 0 0 1 512 298.67h369.58A426.503 426.503 0 0 0 512 85.34a425.598 425.598 0 0 0-171.74 35.98 425.644 425.644 0 0 0-142.62 102.22l118.14 204.63a213.397 213.397 0 0 1 78.67-94.21zM512.01 938.68H512zM414.76 701.95a213.284 213.284 0 0 1-89.54-86.81L142.48 298.6c-36.35 62.81-57.13 135.68-57.13 213.42 0 203.81 142.93 374.22 333.95 416.55h.04l118.19-204.71a213.315 213.315 0 0 1-122.77-21.91z" fill="currentColor"></path></svg>`,
+      cpu: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M320 256a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h384a64 64 0 0 0 64-64V320a64 64 0 0 0-64-64H320zm0-64h384a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H320a128 128 0 0 1-128-128V320a128 128 0 0 1 128-128z"></path><path fill="currentColor" d="M512 64a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm160 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm-320 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm160 896a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zm160 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zm-320 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zM64 512a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm0-160a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm0 320a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm896-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32zm0-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32zm0 320a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32z"></path></svg>`,
+      videoPlay: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768zm-48-247.616L668.608 512 464 375.616v272.768zm10.624-342.656 249.472 166.336a48 48 0 0 1 0 79.872L474.624 718.272A48 48 0 0 1 400 678.336V345.6a48 48 0 0 1 74.624-39.936z"></path></svg>`,
+      videoPause: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768zm-96-544q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32zm192 0q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32z"></path></svg>`,
+      headset: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M896 529.152V512a384 384 0 1 0-768 0v17.152A128 128 0 0 1 320 640v128a128 128 0 1 1-256 0V512a448 448 0 1 1 896 0v256a128 128 0 1 1-256 0V640a128 128 0 0 1 192-110.848zM896 640a64 64 0 0 0-128 0v128a64 64 0 0 0 128 0V640zm-768 0v128a64 64 0 0 0 128 0V640a64 64 0 1 0-128 0z"></path></svg>`,
+      monitor: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M544 768v128h192a32 32 0 1 1 0 64H288a32 32 0 1 1 0-64h192V768H192A128 128 0 0 1 64 640V256a128 128 0 0 1 128-128h640a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H544zM192 192a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64H192z"></path></svg>`,
+      documentCopy: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M128 320v576h576V320H128zm-32-64h640a32 32 0 0 1 32 32v640a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V288a32 32 0 0 1 32-32zM960 96v704a32 32 0 0 1-32 32h-96v-64h64V128H384v64h-64V96a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32zM256 672h320v64H256v-64zm0-192h320v64H256v-64z"></path></svg>`,
+      picture: `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-ea893728=""><path fill="currentColor" d="M160 160v704h704V160H160zm-32-64h768a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H128a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32z"></path><path fill="currentColor" d="M384 288q64 0 64 64t-64 64q-64 0-64-64t64-64zM185.408 876.992l-50.816-38.912L350.72 556.032a96 96 0 0 1 134.592-17.856l1.856 1.472 122.88 99.136a32 32 0 0 0 44.992-4.864l216-269.888 49.92 39.936-215.808 269.824-.256.32a96 96 0 0 1-135.04 14.464l-122.88-99.072-.64-.512a32 32 0 0 0-44.8 5.952L185.408 876.992z"></path></svg>`,
+    },
     /**
      * 创建到页面中的CSS元素
      */
@@ -1672,6 +1787,7 @@
     let cssResourceNode = document.createElement("style");
     cssResourceNode.setAttribute("type", "text/css");
     cssResourceNode.setAttribute("data-insert-from", "pops");
+    cssResourceNode.setAttribute("data-version", this.config.version);
     cssResourceNode.innerHTML = this.config.css;
     if (document.head) {
       document.head.append(cssResourceNode);
@@ -1703,53 +1819,6 @@
   pops.isPhone = function () {
     return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
   };
-
-  /**
-   * @typedef {object} PopsBtnCallBackEvent 按钮回调Event
-   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
-   * @property {HTMLElement} maskElement 遮罩层元素
-   * @property {string} type
-   * @property {"alert"|"confirm"} function 调用的方法
-   * @property {string} guid 唯一id
-   * @property {Function} close 关闭弹窗
-   * @property {Function} hide 隐藏弹窗
-   * @property {Function} show 显示弹窗
-   */
-  /**
-   * @typedef { object } PopsPromptBtnCallBackEvent
-   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
-   * @property {HTMLElement} maskElement 遮罩层元素
-   * @property {string} type
-   * @property {"prompt"} function 调用的方法类型
-   * @property {string} guid 唯一id
-   * @property {Function} close 关闭弹窗
-   * @property {Function} hide 隐藏弹窗
-   * @property {Function} show 显示弹窗
-   * @property {string} [text=""] 输入的内容
-   */
-  /**
-   * @callback PopsBtnCallBack
-   * @param {PopsBtnCallBackEvent} event 事件
-   */
-  /**
-   * @callback PopsPromptBtnCallBack
-   * @param {PopsPromptBtnCallBackEvent} event 事件
-   */
-  /**
-   * @typedef {object} PopsBtnDetails 按钮配置
-   * @property {boolean} enable 是否启用
-   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
-   * @property {string} [text=""] 按钮文字
-   * @property { PopsBtnCallBack } callback 按钮点击的回调
-   */
-
-  /**
-   * @typedef {object} PopsPromptBtmDetails prompt的按钮配置
-   * @property {boolean} enable 是否启用
-   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
-   * @property {string} [text=""] 按钮文字
-   * @property { PopsPromptBtnCallBack } callback 按钮点击的回调
-   */
 
   const PopsHandler = {
     /**
@@ -2167,7 +2236,7 @@
           item = item.toLowerCase();
           topRightButtonHTML += `
           <button class="pops-header-control" type="${item}">
-            <i class="pops-icon">${PopsIconSVG[item]}</i>
+            <i class="pops-icon">${pops.config.iconSVG[item]}</i>
           </button>`;
         });
         resultHTML = `
@@ -2179,7 +2248,7 @@
           closeHTML = `
           <div class="pops-header-controls">
             <button class="pops-header-control" type="close">
-              <i class="pops-icon">${PopsIconSVG["close"]}</i>
+              <i class="pops-icon">${pops.config.iconSVG["close"]}</i>
             </button>
           </div>`;
         }
@@ -2191,7 +2260,7 @@
     /**
      * 获取底部按钮层HTML
      * @param {"alert"|"confirm"|"prompt"|"drawer"} type
-     * @param {PopsAlertDetails|PopsConfirmDetails|PopsPromptDetails|PopsDrawerDetails} config
+     * @param {PopsConfirmDetails|PopsAlertDetails|PopsPromptDetails|PopsDrawerDetails} config
      * @returns {string}
      */
     getBottomBtnHTML(type, config) {
@@ -2220,13 +2289,100 @@
         btnStyle += "flex-direction: row-reverse;";
       }
       if (config.btn?.ok?.enable) {
-        okHTML = `<button class="pops-${type}-btn-ok" type="${config.btn.ok.type}">${config.btn.ok.text}</button>`;
+        /* 处理确定按钮的尺寸问题 */
+        let okButtonSizeClassName = "";
+        if (config.btn.ok.size === "large") {
+          okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
+        } else if (config.btn.ok.size === "small") {
+          okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
+        }
+        let okIconHTML = "";
+        if (config.btn.ok.icon !== "") {
+          okIconHTML = `
+          <i class="pops-bottom-icon" is-loading="${
+            config.btn.ok.iconIsLoading
+          }">
+            ${
+              config.btn.ok.icon in pops.config.iconSVG
+                ? pops.config.iconSVG[config.btn.ok.icon]
+                : config.btn.ok.icon
+            }
+          </i>`;
+        }
+        okHTML = `
+        <button 
+                class="pops-${type}-btn-ok ${okButtonSizeClassName}"
+                type="${config.btn.ok.type}"
+                data-icon="${config.btn.ok.icon}"
+                data-rightIcon="${config.btn.ok.rightIcon}"
+        >
+          ${okIconHTML}
+          <span>${config.btn.ok.text}</span>
+        </button>`;
       }
       if (config.btn?.cancel?.enable) {
-        cancelHTML = `<button class="pops-${type}-btn-cancel" type="${config.btn.cancel.type}">${config.btn.cancel.text}</button>`;
+        /* 处理取消按钮的尺寸问题 */
+        let cancelButtonSizeClassName = "";
+        if (config.btn.cancel.size === "large") {
+          cancelButtonSizeClassName = "pops-button-" + config.btn.cancel.size;
+        } else if (config.btn.cancel.size === "small") {
+          cancelButtonSizeClassName = "pops-button-" + config.btn.cancel.size;
+        }
+        let cancelIconHTML = "";
+        if (config.btn.cancel.icon !== "") {
+          cancelIconHTML = `
+          <i class="pops-bottom-icon" is-loading="${
+            config.btn.cancel.iconIsLoading
+          }">
+          ${
+            config.btn.cancel.icon in pops.config.iconSVG
+              ? pops.config.iconSVG[config.btn.cancel.icon]
+              : config.btn.cancel.icon
+          }
+          </i>`;
+        }
+        cancelHTML = `
+        <button
+                class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
+                type="${config.btn.cancel.type}"
+                data-icon="${config.btn.cancel.icon}"
+                data-rightIcon="${config.btn.cancel.rightIcon}"
+        >
+          ${cancelIconHTML}
+          <span>${config.btn.cancel.text}</span>
+        </button>`;
       }
       if (config.btn?.other?.enable) {
-        ohterHTML = `<button class="pops-${type}-btn-other" type="${config.btn.other.type}">${config.btn.other.text}</button>`;
+        /* 处理其它按钮的尺寸问题 */
+        let otherButtonSizeClassName = "";
+        if (config.btn.other.size === "large") {
+          otherButtonSizeClassName = "pops-button-" + config.btn.other.size;
+        } else if (config.btn.other.size === "small") {
+          otherButtonSizeClassName = "pops-button-" + config.btn.other.size;
+        }
+        let otherIconHTML = "";
+        if (config.btn.other.icon !== "") {
+          otherIconHTML = `
+          <i class="pops-bottom-icon" is-loading="${
+            config.btn.other.iconIsLoading
+          }">
+          ${
+            config.btn.other.icon in pops.config.iconSVG
+              ? pops.config.iconSVG[config.btn.other.icon]
+              : config.btn.other.icon
+          }
+          </i>`;
+        }
+        ohterHTML = `
+        <button
+                class="pops-${type}-btn-other ${otherButtonSizeClassName}"
+                type="${config.btn.other.type}"
+                data-icon="${config.btn.other.icon}"
+                data-rightIcon="${config.btn.other.rightIcon}"
+        >
+          ${otherIconHTML}
+          <span>${config.btn.other.text}</span>
+        </button>`;
       }
       if (config.btn.merge) {
         resultHTML = `
@@ -2290,44 +2446,6 @@
   };
 
   /**
-   * icon图标的svg代码
-   */
-  const PopsIconSVG = {
-    /**
-     * 最小化
-     */
-    min: `
-    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-      <path fill="currentColor" d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path>
-    </svg>`,
-    /**
-     * 窗口化
-     */
-    mise: `
-    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-      <path fill="currentColor" d="M885.333333 85.333333H330.410667a53.333333 53.333333 0 0 0-53.333334 53.333334v106.666666H138.666667A53.333333 53.333333 0 0 0 85.333333 298.666667v586.666666a53.333333 53.333333 0 0 0 53.333334 53.333334H725.333333a53.333333 53.333333 0 0 0 53.333334-53.333334V746.154667h106.666666c29.44 0 53.333333-23.893333 53.333334-53.333334V138.666667A53.333333 53.333333 0 0 0 885.333333 85.333333zM725.333333 692.821333v192.512H138.666667V298.666667H725.333333v394.154666z m157.866667 0H778.666667V298.666667a53.333333 53.333333 0 0 0-53.333334-53.333334H330.410667v-106.666666h554.922666l-2.133333 554.154666z">
-      </path>
-    </svg>
-    `,
-    /**
-     * 最大化
-     */
-    max: `
-    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-      <path fill="currentColor" d="m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64v.064zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64l-192 .192zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64v-.064z">
-      </path>
-    </svg>`,
-    /**
-     * 关闭
-     */
-    close: `
-    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-      <path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z">
-      </path>
-    </svg>
-    `,
-  };
-  /**
    * @typedef {object} PopsAlertDetails
    * @property {{
    *  text: string,
@@ -2342,11 +2460,8 @@
    * }} content 内容配置
    * @property {{
    *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsBtnDetails,
-   *  close: {
-   *    enable: boolean,
-   *    callback: (event: PopsBtnCallBackEvent)=>{}
-   *  }
+   *  ok: PopsButtonDetails,
+   *  close: PopsHeaderCloseButtonDetails,
    * }} btn 按钮配置
    * @property {string} [class=""] 自定义className
    * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
@@ -2355,21 +2470,14 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
    * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property {{
-   * enable: boolean,
-   * clickEvent: {
-   *  toClose: boolean,
-   *  toHide: boolean,
-   * },
-   * clickCallBack: (originalRun: Function,config: object)=>{}
-   * }} mask 遮罩层，默认关闭
+   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
    */
 
   /**
    * 普通信息框
-   * @param {PopsAlertDetails} details 配置
+   * @param { PopsAlertDetails } details 配置
    * @returns {{
    * guid: string,
    * element: Element,
@@ -2402,7 +2510,11 @@
       btn: {
         position: "flex-end",
         ok: {
+          size: "",
           enable: true,
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "确定",
           type: "primary",
           callback: function (event) {
@@ -2573,13 +2685,10 @@
    *  mergeReverse: boolean,
    *  reverse: boolean,
    *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsBtnDetails,
-   *  cancel: PopsBtnDetails,
-   *  other: PopsBtnDetails,
-   *  close: {
-   *    enable: boolean,
-   *    callback: (event: PopsBtnCallBackEvent)=>{}
-   *  }
+   *  ok: PopsButtonDetails,
+   *  cancel: PopsButtonDetails,
+   *  other: PopsButtonDetails,
+   *  close: PopsHeaderCloseButtonDetails,
    * }} btn 按钮配置
    * @property {string} [class=""] 自定义className
    * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
@@ -2588,14 +2697,7 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
    * @property {number} [zIndex=false] 弹窗的显示层级，默认10000
-   * @property {{
-   *  enable: boolean,
-   *  clickEvent: {
-   *    toClose: boolean,
-   *    toHide: boolean,
-   *  },
-   * clickCallBack: (originalRun: Function)=>{}
-   * }} mask 遮罩层，默认关闭
+   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
    */
@@ -2638,6 +2740,10 @@
         position: "flex-end",
         ok: {
           enable: true,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "确定",
           type: "primary",
           callback(event) {
@@ -2646,6 +2752,10 @@
         },
         cancel: {
           enable: true,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "关闭",
           type: "default",
           callback(event) {
@@ -2654,6 +2764,10 @@
         },
         other: {
           enable: false,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "其它按钮",
           type: "default",
           callback(event) {
@@ -2841,10 +2955,7 @@
    *  ok: PopsPromptBtmDetails,
    *  cancel: PopsPromptBtmDetails,
    *  other: PopsPromptBtmDetails,
-   *  close: {
-   *    enable: boolean,
-   *    callback: (event: PopsPromptBtnCallBackEvent)=>{}
-   *  }
+   *  close: PopsHeaderCloseButtonDetails
    * }} btn 按钮配置
    * @property {string} [class=""] 自定义className
    * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
@@ -2853,14 +2964,7 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
    * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property { {
-   *  enable: boolean,
-   *  clickEvent: {
-   *    toClose: boolean,
-   *    toHide: boolean,
-   *  },
-   * clickCallBack: (originalRun: Function)=>{}
-   * } } mask 遮罩层，默认关闭
+   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
    */
@@ -2906,6 +3010,10 @@
         position: "flex-end",
         ok: {
           enable: true,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "确定",
           type: "success",
           callback(event) {
@@ -2914,6 +3022,10 @@
         },
         cancel: {
           enable: true,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "关闭",
           type: "default",
           callback(event) {
@@ -2922,6 +3034,10 @@
         },
         other: {
           enable: false,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "其它按钮",
           type: "default",
           callback(event) {
@@ -3117,14 +3233,7 @@
    * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
    * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
    * @property {number} [zIndex=10000"] 弹窗的显示层级，默认10000
-   * @property { {
-   *  enable: boolean,
-   *  clickEvent: {
-   *    toClose: boolean,
-   *    toHide: boolean,
-   *  },
-   * clickCallBack: (originalRun: Function)=>{}
-   * } } mask 遮罩层，默认关闭
+   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
    * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
    */
   /**
@@ -3280,14 +3389,7 @@
    * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
    * @property {string} [animation=""pops-anim-fadein-zoom""] 弹窗动画，默认pops-anim-fadein-zoom
    * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property {{
-   * enable: boolean,
-   * clickEvent: {
-   *  toClose: boolean,
-   *  toHide:boolean,
-   * },
-   * clickCallBack: (originalRun: Function)=>{}
-   * }} mask 遮罩层，默认关闭
+   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
    * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
    * @property {string} [topRightButton="min|max|mise|close"] 右上角按钮顺序：最小化、最大化、窗口化、关闭
    * @property {boolean} [sandbox=false] 是否启用沙箱，默认false
@@ -3945,22 +4047,12 @@
    *  mergeReverse: boolean,
    *  reverse: boolean,
    *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsBtnDetails,
-   *  cancel: PopsBtnDetails,
-   *  other: PopsBtnDetails,
-   *  close: {
-   *    enable: boolean,
-   *    callback: (event: PopsBtnCallBackEvent)=>{}
-   *  }
+   *  ok: PopsButtonDetails,
+   *  cancel: PopsButtonDetails,
+   *  other: PopsButtonDetails,
+   *  close: PopsHeaderCloseButtonDetails,
    * }} btn 按钮配置
-   * @property {{
-   * enable: boolean,
-   * clickEvent: {
-   *  toClose: boolean,
-   *  toHide:boolean,
-   * },
-   * clickCallBack: (originalRun: Function)=>{}
-   * }} mask 遮罩层
+   * @property { PopsMaskDetails } mask 遮罩层
    * @property {string} [class=""] 自定义className名，默认为空
    * @property {number} [zIndex=10000] z-index值，默认为10000
    * @property {boolean} [only=false] 是否是页面中的唯一，默认为false
@@ -3999,6 +4091,10 @@
         position: "flex-end",
         ok: {
           enable: true,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "确定",
           type: "primary",
           callback(event) {
@@ -4007,6 +4103,10 @@
         },
         cancel: {
           enable: true,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "关闭",
           type: "default",
           callback(event) {
@@ -4015,6 +4115,10 @@
         },
         other: {
           enable: false,
+          size: "",
+          icon: "",
+          rightIcon: false,
+          iconIsLoading: false,
           text: "其它按钮",
           type: "default",
           callback(event) {
