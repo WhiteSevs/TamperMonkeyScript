@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.27
+// @version      2023.11.28
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1419,7 +1419,9 @@
       /* 打开APP查看更多评论 */
       .cmt-large-cut-guide,
       /* 底部评论滚动栏 */
-      div.diy-guide-wrapper{
+      div.diy-guide-wrapper,
+      /* 底部评论滚动栏上面的空白 */
+      .individuality{
 				display:none !important;
 			}
 			body.tb-modal-open{
