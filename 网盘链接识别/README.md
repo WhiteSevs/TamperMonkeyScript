@@ -86,6 +86,7 @@
 | 🚖BT磁力 | √ |  |  | √ | | | 支持Scheme转发 |
 | [![https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.jianguoyun.com/?size=16)](https://www.jianguoyun.com/) 坚果云(需登录) | √ | √ |  | √ | 20/300 | 10/15 |
 | [![https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16](https://favicon.yandex.net/favicon/v2/https://onedrive.live.com/?size=16)](https://onedrive.live.com/) OneDrive | √ |  |  | √ | 20/300 | 10/15 |
+| [![https://favicon.yandex.net/favicon/v2/https://drive.uc.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://drive.uc.cn/?size=16)](https://drive.uc.cn/) UC网盘 | √ | √(需登录) | √(需登录) | √ | 20/300 | 10/15 |
 
 ## 🔧 帮助
 
