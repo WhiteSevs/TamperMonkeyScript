@@ -2,8 +2,8 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.24
-// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
+// @version      2023.12.2
+// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
 // @run-at       document-end
@@ -56,7 +56,7 @@
 // @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
 // @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456470/1211345/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
+// @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://update.greasyfork.org/scripts/456485/1285662/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1285083/WhiteSevsUtils.js
@@ -172,7 +172,7 @@
            * 用于复制到剪贴板的链接
            */
           copyUrl:
-            "链接：https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}\n密码：{#accessCode#}",
+            "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}\n密码：{#accessCode#}",
         },
       ],
       lanzou: [
@@ -199,7 +199,7 @@
           uiLinkShow: "lanzoux.com/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://www.lanzoux.com/{#shareCode#}",
           copyUrl:
-            "链接：https://www.lanzoux.com/{#shareCode#}\n密码：{#accessCode#}",
+            "https://www.lanzoux.com/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       tianyiyun: [
@@ -222,8 +222,7 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cloud.189.cn/t/{#shareCode#}",
-          copyUrl:
-            "链接：https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       hecaiyun: [
@@ -245,7 +244,7 @@
           uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://caiyun.139.com/m/i?{#shareCode#}",
           copyUrl:
-            "链接：https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
+            "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       aliyun: [
@@ -269,7 +268,7 @@
           uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://aliyundrive.com/s/{#shareCode#}",
           copyUrl:
-            "链接：https://aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
+            "https://aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       wenshushu: [
@@ -292,8 +291,7 @@
           accessCode: /[0-9a-zA-Z]{4}/gi,
           uiLinkShow: "wss.ink/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://wss.ink/f/{#shareCode#}",
-          copyUrl:
-            "链接：https://wss.ink/f/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://wss.ink/f/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       nainiu: [
@@ -315,7 +313,7 @@
           uiLinkShow: "cowtransfer.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cowtransfer.com/s/{#shareCode#}",
           copyUrl:
-            "链接：https://cowtransfer.com/s/{#shareCode#}\n密码：{#accessCode#}",
+            "https://cowtransfer.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       _123pan: [
@@ -336,8 +334,7 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://123pan.com/s/{#shareCode#}",
-          copyUrl:
-            "链接：https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       weiyun: [
@@ -361,7 +358,7 @@
           uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://share.weiyun.com/{#shareCode#}",
           copyUrl:
-            "链接：https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}",
+            "https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       xunlei: [
@@ -383,7 +380,7 @@
           uiLinkShow: "pan.xunlei.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.xunlei.com/s/{#shareCode#}",
           copyUrl:
-            "链接：https://pan.xunlei.com/s/{#shareCode#}\n密码：{#accessCode#}",
+            "https://pan.xunlei.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       _115pan: [
@@ -404,8 +401,7 @@
           accessCode: /(\?password=|)([0-9a-zA-Z]{4})/i,
           uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://115.com/s/{#shareCode#}",
-          copyUrl:
-            "链接：https://115.com/s/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://115.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       chengtong: [
@@ -428,7 +424,7 @@
           uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://url95.ctfile.com/d/{#shareCode#}",
           copyUrl:
-            "链接：https://url95.ctfile.com/d/{#shareCode#}\n密码：{#accessCode#}",
+            "https://url95.ctfile.com/d/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `pan.jc-box.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -449,7 +445,7 @@
           uiLinkShow: "pan.jc-box.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://pan.jc-box.com/d/{#shareCode#}",
           copyUrl:
-            "链接：http://pan.jc-box.com/d/{#shareCode#}\n密码：{#accessCode#}",
+            "http://pan.jc-box.com/d/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `download.jamcz.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -471,7 +467,7 @@
             "download.jamcz.com/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://download.jamcz.com/d/{#shareCode#}",
           copyUrl:
-            "链接：http://download.jamcz.com/d/{#shareCode#}\n密码：{#accessCode#}",
+            "http://download.jamcz.com/d/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `(2k.us/file/|u062.com/file/|545c.com/file/|t00y.com/file/)[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -492,8 +488,7 @@
           accessCode: /([0-9a-zA-Z]{4,6})/gi,
           uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://u062.com/file/{#shareCode#}",
-          copyUrl:
-            "链接：https://u062.com/file/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://u062.com/file/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `ctfile.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -514,7 +509,7 @@
           uiLinkShow: "url95.ctfile.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://url95.ctfile.com/f/{#shareCode#}",
           copyUrl:
-            "链接：https://url95.ctfile.com/f/{#shareCode#}\n密码：{#accessCode#}",
+            "https://url95.ctfile.com/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `(pan.jc-box.com|545c.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -535,7 +530,7 @@
           uiLinkShow: "pan.jc-box.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://pan.jc-box.com/f/{#shareCode#}",
           copyUrl:
-            "链接：http://pan.jc-box.com/f/{#shareCode#}\n密码：{#accessCode#}",
+            "http://pan.jc-box.com/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `down.jc-box.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -556,7 +551,7 @@
           uiLinkShow: "down.jc-box.com/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://down.jc-box.com/f/{#shareCode#}",
           copyUrl:
-            "链接：http://down.jc-box.com/f/{#shareCode#}\n密码：{#accessCode#}",
+            "http://down.jc-box.com/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `download.cx05.cc/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -577,7 +572,7 @@
           uiLinkShow: "download.cx05.cc/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://download.cx05.cc/f/{#shareCode#}",
           copyUrl:
-            "链接：http://download.cx05.cc/f/{#shareCode#}\n密码：{#accessCode#}",
+            "http://download.cx05.cc/f/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           link_innerText: `(089u|474b).com/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
@@ -597,8 +592,7 @@
           accessCode: /([0-9a-zA-Z]{6})/gi,
           uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://089u.com/dir/{#shareCode#}",
-          copyUrl:
-            "链接：https://089u.com/dir/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://089u.com/dir/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       kuake: [
@@ -619,8 +613,7 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.quark.cn/s/{#shareCode#}",
-          copyUrl:
-            "链接：https://pan.quark.cn/s/{#shareCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://pan.quark.cn/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       magnet: [
@@ -655,7 +648,7 @@
           uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://www.jianguoyun.com/p/{#shareCode#}",
           copyUrl:
-            "链接：https://www.jianguoyun.com/p/{#shareCode#}\n密码：{#accessCode#}",
+            "https://www.jianguoyun.com/p/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       onedrive: [
@@ -682,7 +675,7 @@
           blank:
             "https://10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#}",
           copyUrl:
-            "链接：https://10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#}\n密码：{#accessCode#}",
+            "https://10101619-my.sharepoint.com/:u:/g/personal/chendexian_10101619_onmicrosoft_com/{#shareCode#}\n密码：{#accessCode#}",
         },
         {
           name: "hurstheads",
@@ -707,7 +700,28 @@
           blank:
             "https://hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#}?e={#accessCode#}",
           copyUrl:
-            "链接：https://hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#}?e={#accessCode#}\n密码：{#accessCode#}",
+            "https://hurstheads-my.sharepoint.com/:u:/g/personal/storage_01_hurstheads_onmicrosoft_com/{#shareCode#}?e={#accessCode#}\n密码：{#accessCode#}",
+        },
+      ],
+      uc: [
+        {
+          link_innerText: `drive.uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,${parseInt(
+            GM_getValue("innerText_uc", 20)
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_uc", 10)
+          )}}[0-9a-zA-Z]+|)`,
+          link_innerHTML: `drive.uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,${parseInt(
+            GM_getValue("innerHTML_uc", 100)
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_uc", 15)
+          )}}[0-9a-zA-Z]+|)`,
+          shareCode: /drive.uc.cn\/s\/([0-9a-zA-Z]{8,24})/gi,
+          shareCodeNeedRemoveStr: /drive.uc.cn\/s\//gi,
+          checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+          accessCode: /([0-9a-zA-Z]+)/gi,
+          uiLinkShow: "drive.uc.cn/s/{#shareCode#} 提取码: {#accessCode#}",
+          blank: "https://drive.uc.cn/s/{#shareCode#}",
+          copyUrl: "https://drive.uc.cn/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
     },
@@ -2411,7 +2425,6 @@
             });
           } else {
             Qmsg.info("正在递归文件");
-            that.folderNumber = 0;
             let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
             await that.recursiveAlgorithm(infoLists);
             QmsgLoading.close();
@@ -3573,6 +3586,544 @@
           } else {
             Qmsg.error(`奶牛快传-获取直链：${resultJSON["message"]}`);
             return;
+          }
+        };
+        return this;
+      },
+      /**
+       * UC网盘
+       * @constructor
+       * @returns {object}
+       */
+      uc: function () {
+        let that = this;
+        /**
+         * 入口
+         * @param {number} netDiskIndex 网盘名称索引下标
+         * @param {string} shareCode
+         * @param {string} accessCode
+         * @returns
+         */
+        this.default = async function (
+          netDiskIndex,
+          shareCode,
+          accessCode = ""
+        ) {
+          that.netDiskIndex = netDiskIndex;
+          that.shareCode = shareCode;
+          that.accessCode = accessCode;
+          Qmsg.info("检查是否已登录UC网盘");
+          let loginStatus = await that.isLogin();
+          if (!Boolean(loginStatus)) {
+            that.gotoLogin(
+              "检测到尚未登录UC网盘，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才有登录选项)"
+            );
+            return;
+          }
+          let stoken = await that.getStoken(that.shareCode, that.accessCode);
+          if (!stoken) {
+            return;
+          }
+          let detail = await that.getDetail(
+            that.shareCode,
+            that.accessCode,
+            stoken
+          );
+          if (!detail) {
+            Qmsg.error("UC网盘：获取detail失败");
+            return;
+          }
+          if (
+            detail.length === 1 &&
+            detail[0].dir == false &&
+            detail[0].file_type === 1
+          ) {
+            let oneFileDetail = detail[0];
+            let oneFileDownloadDetail = await that.getDownload(
+              that.shareCode,
+              stoken,
+              oneFileDetail.fid,
+              oneFileDetail.share_fid_token
+            );
+            if (!oneFileDownloadDetail) {
+              return;
+            }
+            if (!oneFileDownloadDetail[0].download_url) {
+              Qmsg.error("获取download_url失败");
+              return;
+            }
+            NetDiskUI.staticView.oneFile({
+              title: "UC网盘单文件直链",
+              fileName: oneFileDownloadDetail[0].file_name,
+              fileSize: utils.formatByteToSize(oneFileDownloadDetail[0].size),
+              downloadUrl: oneFileDownloadDetail[0].download_url,
+              fileUploadTime: utils.formatTime(
+                oneFileDownloadDetail[0].created_at
+              ),
+              fileLatestTime: utils.formatTime(
+                oneFileDownloadDetail[0].last_update_at
+              ),
+            });
+          } else {
+            Qmsg.info("正在递归文件");
+            let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
+            that.panelList = [];
+            await that.recursiveAlgorithm(detail, stoken);
+            QmsgLoading.close();
+            Qmsg.info("正在排序中...");
+            utils.sortListByProperty(that.panelList, (item) => {
+              let timeStamp = new Date(item["updateTime"]).getTime();
+              return timeStamp;
+            });
+            log.info(that.panelList);
+            let dataDownload = [];
+            that.panelList.forEach((item) => {
+              let fileUploadTime = new Date(item["createTime"]).getTime();
+              let fileLatestTime = new Date(item["updateTime"]).getTime();
+              fileUploadTime = utils.formatTime(fileUploadTime);
+              fileLatestTime = utils.formatTime(fileLatestTime);
+              let dataDownloadInfo = {
+                fileName: item["fileName"],
+                fileUploadTime,
+                fileLatestTime,
+              };
+              if (item["fileSize"] === 0) {
+                /* 异常的 */
+                dataDownloadInfo["success"] = false;
+                if (
+                  typeof item["url"] === "string" &&
+                  !item["url"].startsWith("http")
+                ) {
+                  dataDownloadInfo["fileSize"] = item["url"];
+                } else {
+                  dataDownloadInfo["fileSize"] = "获取直链失败";
+                }
+              } else {
+                /* 正常的 */
+                dataDownloadInfo["success"] = true;
+                dataDownloadInfo["downloadUrl"] = item["url"];
+                dataDownloadInfo["fileSize"] = item["fileSize"];
+              }
+              dataDownload.push(dataDownloadInfo);
+            });
+            NetDiskUI.staticView.moreFile("UC网盘盘多文件直链", dataDownload);
+            log.info("递归完毕");
+          }
+        };
+        /**
+         * 判断是否已登录UC网盘
+         * @returns {Promise<undefined|string|boolean>}
+         */
+        this.isLogin = async function () {
+          let getResp = await httpx.get("https://drive.uc.cn/", {
+            headers: {
+              "User-Agent": utils.getRandomPCUA(),
+            },
+          });
+          log.success(["判断是否已登录UC网盘", getResp]);
+          if (!getResp.status) {
+            return;
+          }
+          if (getResp.data.finalUrl === "https://drive.uc.cn/list") {
+            return "已登录";
+          } else {
+            return false;
+          }
+        };
+        /**
+         * 前往登录
+         * @param {string} text 弹窗的显示的内容
+         */
+        this.gotoLogin = function (text = "") {
+          NetDiskPops.confirm(
+            {
+              title: {
+                position: "center",
+                text: "UC网盘",
+              },
+              content: {
+                text: text,
+                html: false,
+              },
+              btn: {
+                reverse: true,
+                position: "end",
+                ok: {
+                  text: "前往",
+                  enable: true,
+                  callback() {
+                    window.open("https://drive.uc.cn", "_blank");
+                  },
+                },
+              },
+            },
+            NetDiskUI.popsStyle.tianYiYunLoginTip
+          );
+        };
+        /**
+         * 获取stoken
+         * @param {string} pwd_id 分享码
+         * @param {string} passcode 访问码
+         * @returns {Promise<string|undefined>}
+         */
+        this.getStoken = async function (pwd_id, passcode) {
+          let postResp = await httpx.post(
+            "https://pc-api.uc.cn/1/clouddrive/share/sharepage/token?entry=ft&fr=pc&pr=UCBrowser",
+            {
+              data: JSON.stringify({
+                share_for_transfer: true,
+                passcode: passcode,
+                pwd_id: pwd_id,
+              }),
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json;charset=UTF-8",
+                "User-Agent": utils.getRandomPCUA(),
+                Origin: "https://drive.uc.cn",
+                Referer: "https://drive.uc.cn/",
+              },
+            }
+          );
+          if (!postResp.status) {
+            return;
+          }
+          let data = utils.toJSON(postResp.data.responseText);
+          log.info(["获取stoken：", data]);
+          if (data["code"] !== 0) {
+            log.error(["获取stoken失败", data]);
+            Qmsg.error("获取stoken失败");
+            return;
+          }
+          return data["data"]["stoken"];
+        };
+
+        /**
+         * 获取stoken
+         * @param {string} pwd_id 分享码
+         * @param {string} passcode 访问码
+         * @param {string} stoken 获取的stoken
+         * @param {string} [pdir_fid=0] 父fid，默认为0，如果为文件夹，那么它的fid就是这个值
+         * @param {number} [force=0]
+         * @param {number} [_page=1]
+         * @param {number} [_size=50]
+         * @param {number} [_fetch_banner=0]
+         * @param {number} [_fetch_share=0]
+         * @param {number} [_fetch_total=1]
+         * @returns {Promise<{
+         * backup_sign: number,
+         * backup_source: boolean,
+         * ban: boolean,
+         * category: number,
+         * created_at: number,
+         * creator_ucid_or_default: string,
+         * cur_version_or_default: number,
+         * dir: boolean,
+         * duration: number,
+         * event_extra: {
+         *    recent_created_at: number
+         * },
+         * extra: string,
+         * fid: string,
+         * file: boolean,
+         * file_name: string,
+         * file_name_hl_end: number,
+         * file_name_hl_start: number,
+         * file_source: string,
+         * file_struct: {
+         *    fir_source: string,
+         *    platform_source: string,
+         *    sec_source: string,
+         *    thi_source: string,
+         *    upload_dm: string,
+         *    upload_mi: string,
+         * },
+         * file_type: number,
+         * format_type: string,
+         * include_items:  number,
+         * l_created_at:  number,
+         * l_updated_at:  number,
+         * last_update_at:  number,
+         * like:  number,
+         * name_space:  number,
+         * offline_source: boolean,
+         * operated_at:  number,
+         * owner_drive_type_or_default:  number,
+         * owner_ucid: string,
+         * pdir_fid: string,
+         * raw_name_space:  number,
+         * risk_type:  number,
+         * save_as_source: boolean,
+         * share_fid_token: string,
+         * size:  number,
+         * status:  number,
+         * tags: string,
+         * updated_at:  number,
+         * _extra: {},
+         * }[]|undefined>}
+         */
+        this.getDetail = async function (
+          pwd_id,
+          passcode,
+          stoken,
+          pdir_fid = 0,
+          force = 0,
+          _page = 1,
+          _size = 50,
+          _fetch_banner = 0,
+          _fetch_share = 0,
+          _fetch_total = 1
+        ) {
+          let getResp = await httpx.get(
+            `https://pc-api.uc.cn/1/clouddrive/transfer_share/detail?pr=UCBrowser&fr=h5&pwd_id=${pwd_id}&__t=${new Date().getTime()}&passcode=${passcode}&stoken=${encodeURIComponent(
+              stoken
+            )}&pdir_fid=${pdir_fid}&force=${force}&_page=${_page}&_size=${_size}&_fetch_banner=${_fetch_banner}&_fetch_share=${_fetch_share}&_fetch_total=${_fetch_total}&_sort=${encodeURIComponent(
+              "file_type:asc,file_name:asc"
+            )}`,
+            {
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "User-Agent": utils.getRandomPCUA(),
+                Origin: "https://drive.uc.cn",
+                Referer: "https://drive.uc.cn/",
+              },
+            }
+          );
+          if (!getResp.status) {
+            return;
+          }
+          let data = utils.toJSON(getResp.data.responseText);
+          log.info(["获取detail：", data]);
+          if (data["code"] !== 0) {
+            log.error(["获取detail失败", data]);
+            Qmsg.error("获取detail失败");
+            return;
+          }
+          return data["data"]["list"];
+        };
+
+        /**
+         * 获取下载信息
+         * @param {string} pwd_id 分享码
+         * @param {string} stoken 获取的stoken
+         * @param {string} fids 通过获取到的detail获取到的fid
+         * @param {string} share_fid_token 通过获取到的detail获取到的share_fid_token
+         * @returns {Promise< {
+         * backup_sign: number,
+         * backup_source: boolean,
+         * ban: boolean,
+         * big_thumbnail: string,
+         * category: number,
+         * created_at: number,
+         * creator_ucid_or_default: string,
+         * cur_version_or_default: number,
+         * dir: boolean,
+         * download_url: string,
+         * duration: number,
+         * event_extra: {
+         *    recent_created_at: number
+         * },
+         * extra: string,
+         * fid: string,
+         * file: boolean,
+         * file_name: string,
+         * file_name_hl_end: number,
+         * file_name_hl_start: number,
+         * file_source: string,
+         * file_type: number,
+         * format_type: string,
+         * l_created_at: number,
+         * l_updated_at: number,
+         * last_update_at: number,
+         * like: number,
+         * md5: string,
+         * name_space: number,
+         * obj_category: string,
+         * offline_source: boolean,
+         * operated_at: number,
+         * owner_drive_type_or_default: number,
+         * owner_ucid: string,
+         * pdir_fid: string,
+         * preview_url: string,
+         * range_size: number,
+         * raw_name_space: number,
+         * risk_type: number,
+         * save_as_source: boolean,
+         * share_fid_token: string,
+         * size: number,
+         * status: number,
+         * thumbnail: string,
+         * updated_at: number,
+         * video_height: number,
+         * video_max_resolution: string,
+         * video_width: number,
+         * _extra: {},
+         * } []|undefined>}
+         */
+        this.getDownload = async function (
+          pwd_id,
+          stoken,
+          fid,
+          share_fid_token
+        ) {
+          let postResp = await httpx.post(
+            "https://pc-api.uc.cn/1/clouddrive/file/download?entry=ft&fr=pc&pr=UCBrowser",
+            {
+              data: JSON.stringify({
+                fids: [fid],
+                pwd_id: pwd_id,
+                stoken: stoken,
+                fids_token: [share_fid_token],
+              }),
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json;charset=UTF-8",
+                "User-Agent": utils.getRandomPCUA(),
+                Origin: "https://drive.uc.cn",
+                Referer: "https://drive.uc.cn/",
+              },
+            }
+          );
+          if (!postResp.status) {
+            return;
+          }
+          let data = utils.toJSON(postResp.data.responseText);
+          log.info(["获取download：", data]);
+          if (data["code"] !== 0) {
+            log.error(["获取download失败", data]);
+            Qmsg.error("获取download失败");
+            return;
+          }
+          if (data["data"].length === 0) {
+            log.error(["获取download detail失败", data]);
+            Qmsg.error("获取download detail失败失败");
+            return;
+          }
+          return data["data"];
+        };
+
+        /**
+         * 异步递归
+         * @param { {
+         * backup_sign: number,
+         * backup_source: boolean,
+         * ban: boolean,
+         * category: number,
+         * created_at: number,
+         * creator_ucid_or_default: string,
+         * cur_version_or_default: number,
+         * dir: boolean,
+         * duration: number,
+         * event_extra: {
+         *    recent_created_at: number
+         * },
+         * extra: string,
+         * fid: string,
+         * file: boolean,
+         * file_name: string,
+         * file_name_hl_end: number,
+         * file_name_hl_start: number,
+         * file_source: string,
+         * file_struct: {
+         *    fir_source: string,
+         *    platform_source: string,
+         *    sec_source: string,
+         *    thi_source: string,
+         *    upload_dm: string,
+         *    upload_mi: string,
+         * },
+         * file_type: number,
+         * format_type: string,
+         * include_items:  number,
+         * l_created_at:  number,
+         * l_updated_at:  number,
+         * last_update_at:  number,
+         * like:  number,
+         * name_space:  number,
+         * offline_source: boolean,
+         * operated_at:  number,
+         * owner_drive_type_or_default:  number,
+         * owner_ucid: string,
+         * pdir_fid: string,
+         * raw_name_space:  number,
+         * risk_type:  number,
+         * save_as_source: boolean,
+         * share_fid_token: string,
+         * size:  number,
+         * status:  number,
+         * tags: string,
+         * updated_at:  number,
+         * _extra: {},
+         * }[]} detail 通过getDetail获取的数据
+         * @param {string} stoken 通过getStoken获取的stoken
+         */
+        this.recursiveAlgorithm = async function (detail, stoken) {
+          for (let index = 0; index < detail.length; index++) {
+            try {
+              let item = detail[index];
+              let isDir = item["dir"];
+              log.info(isDir ? "文件夹" : "文件");
+              if (isDir) {
+                if (item.include_items === 0) {
+                  /* 里面没有文件 */
+                  continue;
+                } else {
+                  /* 文件夹 */
+                  let newDetail = await that.getDetail(
+                    that.shareCode,
+                    that.accessCode,
+                    stoken,
+                    item.fid
+                  );
+                  newDetail &&
+                    (await that.recursiveAlgorithm(newDetail, stoken));
+                }
+              } else {
+                /* 文件 */
+                log.info(item);
+                let fileName = item["file_name"];
+                let fileSize = utils.formatByteToSize(item["size"]);
+                let fileDownloadUrl = await that.getDownload(
+                  that.shareCode,
+                  stoken,
+                  item["fid"],
+                  item["share_fid_token"]
+                );
+                if (fileDownloadUrl) {
+                  if (fileDownloadUrl.length) {
+                    fileDownloadUrl = fileDownloadUrl[0].download_url;
+                  } else {
+                    fileDownloadUrl = "";
+                  }
+                } else {
+                  fileDownloadUrl = "";
+                }
+                if (item["ban"]) {
+                  that.panelList = that.panelList.concat({
+                    url: "文件已被禁止",
+                    fileName: fileName,
+                    fileSize: 0,
+                    createTime: item.created_at,
+                    updateTime: item.last_update_at,
+                  });
+                } else {
+                  fileDownloadUrl = NetDiskFilterScheme.handleUrl(
+                    "uc-static-scheme-enable",
+                    "uc-static-scheme-forward",
+                    fileDownloadUrl
+                  );
+                  that.panelList = that.panelList.concat({
+                    url: fileDownloadUrl,
+                    fileName: fileName,
+                    fileSize: fileSize,
+                    createTime: item.created_at,
+                    updateTime: item.last_update_at,
+                  });
+                }
+                await utils.sleep(100);
+              }
+            } catch (error) {
+              log.error(error);
+            }
           }
         };
         return this;
@@ -4773,26 +5324,10 @@
     },
     src: {
       /**
-       * 图标
+       * 图标RESOURCE_ICON
+       * 从图标库中引入并覆盖
        */
-      icon: {
-        baidu: RESOURCE_ICON.baidu,
-        lanzou: RESOURCE_ICON.lanzou,
-        tianyiyun: RESOURCE_ICON.tianyiyun,
-        hecaiyun: RESOURCE_ICON.hecaiyun,
-        aliyun: RESOURCE_ICON.aliyun,
-        wenshushu: RESOURCE_ICON.wenshushu,
-        nainiu: RESOURCE_ICON.nainiu,
-        _123pan: RESOURCE_ICON._123pan,
-        weiyun: RESOURCE_ICON.weiyun,
-        xunlei: RESOURCE_ICON.xunlei,
-        _115pan: RESOURCE_ICON._115pan,
-        chengtong: RESOURCE_ICON.chengtong,
-        kuake: RESOURCE_ICON.kuake,
-        magnet: RESOURCE_ICON.magnet,
-        jianguoyun: RESOURCE_ICON.jianguoyun,
-        onedrive: RESOURCE_ICON.onedrive,
-      },
+      icon: {},
     },
     /**
      * 悬浮按钮  双击打开主界面，长按打开设置（不能移动，移动就不打开，只是移动按钮
@@ -5423,6 +5958,25 @@
               checkbox_openBlank: true,
               checkbox_static_scheme: false,
               text_static_scheme_forward: false,
+              range_innerText: true,
+              range_innerText_default_value: 20,
+              range_innerHTML: true,
+              range_innerHTML_default_value: 100,
+              range_accessCode_after_text: true,
+              range_accessCode_after_text_default_value: 10,
+              range_accessCode_after_html: true,
+              range_accessCode_after_html_default_value: 15,
+              firstHTML: "",
+              endHTML: "",
+            },
+            {
+              type: "UC网盘",
+              key: "uc",
+              checkbox_oneStatic: false,
+              checkbox_oneOrMoreStatic: true,
+              checkbox_openBlank: true,
+              checkbox_static_scheme: true,
+              text_static_scheme_forward: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_innerHTML: true,
@@ -8887,6 +9441,10 @@
     },
   };
 
+  Object.assign(
+    NetDiskUI.src.icon,
+    typeof RESOURCE_ICON === "undefined" ? {} : RESOURCE_ICON
+  );
   NetDiskMenu.init();
   NetDiskMenu.initEnv();
   NetDiskCustomRules.init();
@@ -8910,5 +9468,6 @@
     NetDiskAutoFillAccessCode.default();
     NetDiskAuthorization.default();
     NetDiskUI.monitorDOMInsert();
+    unsafeWindow.NetDiskParseUC = new NetDiskParse.netDisk.uc();
   });
 })();
