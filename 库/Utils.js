@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-11-22";
+  Utils.version = "2023-12-4";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -6021,7 +6021,7 @@
 
   /**
    * 等待对象上的属性出现
-   * @param {object|Function} checkObj 检查的对象
+   * @param {object|()=>object} checkObj 检查的对象
    * @param {string} checkPropertyName 检查的对象的属性名
    * @returns {Promise<any>}
    * @example
@@ -6056,8 +6056,8 @@
 
   /**
    * 在规定时间内等待对象上的属性出现
-   * @param {object|Function} checkObj 检查的对象
-   * @param {string| (obj: any)=>{}} checkPropertyName 检查的对象的属性名
+   * @param {object| ()=> object } checkObj 检查的对象
+   * @param {string| (obj: any)=>boolean } checkPropertyName 检查的对象的属性名
    * @param {number} [intervalTimer=250] 检查间隔时间（ms），默认250ms
    * @param {number} [maxTime=-1] 限制在多长时间内，默认-1(不限制时间)
    * @returns {Promise<any|undefined>}
@@ -6097,6 +6097,60 @@
       }
     });
   };
+
+  /**
+   * 在规定时间内等待元素上的__vue__属性或者__vue__属性上的某个值出现出现
+   * @param {HTMLElement|()=>HTMLElement } element 目标元素
+   * @param {string|(__vue__:object)=> boolean |undefined} propertyName vue上的属性名
+   * @param {number} [timer=250] 间隔时间（ms），默认250ms
+   * @param {number} [maxTime=-1] 限制在多长时间内，默认-1(不限制时间)
+   * @param {"__vue__"|string} vueName vue挂载的属性名
+   * @example
+   * await Utils.waitVueByInterval(
+   * function(){
+   *    return document.querySelector("a.xx")
+   * },
+   * function(__vue__){
+   *    return Boolean(__vue__.xxx == null);
+   * },
+   * 250,
+   * 10000,
+   * "__vue__"
+   * )
+   */
+  Utils.waitVueByInterval = async function (
+    element,
+    propertyName,
+    timer = 250,
+    maxTime = -1,
+    vueName = "__vue__"
+  ) {
+    if (element == null) {
+      throw new Error("Utils.waitVueByInterval 参数element 不能为空");
+    }
+    await Utils.waitPropertyByInterval(
+      element,
+      function (targetElement) {
+        if (typeof propertyName === "undefined") {
+          return vueName in targetElement;
+        } else {
+          if (vueName in targetElement) {
+            if (typeof propertyName === "string") {
+              return propertyName in targetElement[vueName];
+            } else {
+              // Function
+              return propertyName(targetElement[vueName]);
+            }
+          } else {
+            return false;
+          }
+        }
+      },
+      timer,
+      maxTime
+    );
+  };
+
   /**
    * 观察对象的set、get
    * @param {object} target 观察的对象
