@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.28
+// @version      2023.12.4
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1683,7 +1683,9 @@
       .business-el-line,
       .business-el-line-background,
       /* 展开按钮 */
-      .question-analysis-new .expand{
+      .question-analysis-new .expand,
+      /* 7日VIP限免 大学生免费领 */
+      #app .bgk-question-detail .float-fixed{
         display: none !important;
       }
       /* 显示答案及解析 */
@@ -7691,6 +7693,44 @@
       if (!this.url.match(/^http(s|):\/\/easylearn.baidu.com/g)) {
         return;
       }
+
+      const easylearnBusiness = {
+        /**
+         * 显示答案内容
+         */
+        showAnswerContent() {
+          utils.waitNode("div.question-swiper").then(async () => {
+            await utils.waitPropertyByInterval(
+              () => {
+                return document.querySelector("div.question-swiper");
+              },
+              () => {
+                return (
+                  typeof document.querySelector("div.question-swiper")?.__vue__
+                    ?.isShowAnswerContent !== "undefined"
+                );
+              },
+              100,
+              10000
+            );
+            setTimeout(() => {
+              log.success("显示答案");
+              document.querySelector(
+                "div.question-swiper"
+              ).__vue__.isShowAnswer = true;
+              document.querySelector(
+                "div.question-swiper"
+              ).__vue__.isShowAnswerContent = true;
+            }, 200);
+          });
+        },
+        /**
+         * 劫持-今日搜题次数已达上限
+         */
+        hijackUserSearchQuestCount() {
+          window.localStorage.removeItem("user_search_quest_count");
+        },
+      };
       GM_addStyle(this.css.easyLearn);
       log.info("插入CSS规则");
       let menuBusiness = [
@@ -7762,7 +7802,8 @@
           text: "【屏蔽】底部工具栏",
           _callback_() {
             GM_addStyle(`
-            .question-bottom-bar{
+            .question-bottom-bar,
+            #app .bgk-question-detail .float-btm{
               display: none !important;
             }
             `);
@@ -7779,6 +7820,8 @@
         log.success(GM_Menu.getShowTextValue(item.key));
         callback();
       });
+      easylearnBusiness.hijackUserSearchQuestCount();
+      easylearnBusiness.showAnswerContent();
       DOMUtils.ready(function () {
         utils
           .waitNodeWithInterval(
