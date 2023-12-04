@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.2
+// @version      2023.12.4
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -266,9 +266,31 @@
           accessCode: /([0-9a-zA-Z]{4})/gi,
           acceesCodeNotMatch: /^(font)/gi,
           uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
-          blank: "https://aliyundrive.com/s/{#shareCode#}",
+          blank: "https://www.aliyundrive.com/s/{#shareCode#}",
           copyUrl:
-            "https://aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
+            "https://www.aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
+        },
+        {
+          link_innerText: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+            GM_getValue("innerText_aliyun", 20)
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_aliyun", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
+          link_innerHTML: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
+            GM_getValue("innerHTML_aliyun", 100)
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_aliyun", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
+          shareCode: /alipan\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
+          shareCodeNotMatch: /undefined/gi,
+          shareCodeNeedRemoveStr: /alipan\.com\/s\//gi,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          accessCode: /([0-9a-zA-Z]{4})/gi,
+          acceesCodeNotMatch: /^(font)/gi,
+          uiLinkShow: "alipan.com/s/{#shareCode#} 提取码: {#accessCode#}",
+          blank: "https://www.alipan.com/s/{#shareCode#}",
+          copyUrl:
+            "https://www.alipan.com/s/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       wenshushu: [
@@ -3782,9 +3804,17 @@
                 Origin: "https://drive.uc.cn",
                 Referer: "https://drive.uc.cn/",
               },
+              onerror() {},
             }
           );
           if (!postResp.status) {
+            let errorData = utils.toJSON(postResp.data.responseText);
+            log.error(["获取stoken失败JSON信息", errorData]);
+            if ("message" in errorData) {
+              Qmsg.error(errorData["message"]);
+            } else {
+              Qmsg.error("请求异常，获取stoken失败");
+            }
             return;
           }
           let data = utils.toJSON(postResp.data.responseText);
