@@ -90,7 +90,7 @@ def replaceContent(path, dataList):
                 replaced_content = content
                 flag = False
                 for library in dataList:
-                    pattern = f"""https://update.greasyfork.org/scripts/{library["id"]}/[\d]+/{library["name"]}.js"""
+                    pattern = rf"""https://update.greasyfork.org/scripts/{library["id"]}/[\d]+/{library["name"]}.js"""
                     replacement = library["code_url"]
                     patternMatch = re.findall(
                         pattern, content)
