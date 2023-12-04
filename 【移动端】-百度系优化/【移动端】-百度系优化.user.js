@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.4
+// @version      2023.12.4.20
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -49,7 +49,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/455186/1285083/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1290431/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
 // ==/UserScript==
 
@@ -7700,28 +7700,28 @@
          */
         showAnswerContent() {
           utils.waitNode("div.question-swiper").then(async () => {
-            await utils.waitPropertyByInterval(
-              () => {
+            await utils.waitVueByInterval(
+              function () {
                 return document.querySelector("div.question-swiper");
               },
-              () => {
-                return (
-                  typeof document.querySelector("div.question-swiper")?.__vue__
-                    ?.isShowAnswerContent !== "undefined"
-                );
+              function (__vue__) {
+                return "$watch" in __vue__;
               },
               100,
               10000
             );
-            setTimeout(() => {
-              log.success("显示答案");
-              document.querySelector(
-                "div.question-swiper"
-              ).__vue__.isShowAnswer = true;
-              document.querySelector(
-                "div.question-swiper"
-              ).__vue__.isShowAnswerContent = true;
-            }, 200);
+            document.querySelector("div.question-swiper").__vue__.$watch(
+              ["isShowAnswer", "isShowAnswerContent"],
+              function (newVal, oldVal) {
+                log.success("显示答案");
+                this.isShowAnswer = true;
+                this.isShowAnswerContent = true;
+              },
+              {
+                deep: true,
+                immediate: true,
+              }
+            );
           });
         },
         /**
@@ -7729,6 +7729,43 @@
          */
         hijackUserSearchQuestCount() {
           window.localStorage.removeItem("user_search_quest_count");
+        },
+        /**
+         * 允许使用顶部的输入框
+         */
+        allowUserSearchInput() {
+          utils
+            .waitNodeWithInterval(
+              ".search-input .search-box-wrap.search-box",
+              10000
+            )
+            .then(async () => {
+              await utils.waitVueByInterval(
+                function () {
+                  return document.querySelector(
+                    ".search-input .search-box-wrap.search-box"
+                  );
+                },
+                function (__vue__) {
+                  return "$watch" in __vue__;
+                },
+                250,
+                10000
+              );
+              document
+                .querySelector(".search-input .search-box-wrap.search-box")
+                .__vue__.$watch(
+                  "isFake",
+                  function (newVal, oldVal) {
+                    log.success("允许使用顶部搜索输入框");
+                    this.isFake = false;
+                  },
+                  {
+                    deep: true,
+                    immediate: true,
+                  }
+                );
+            });
         },
       };
       GM_addStyle(this.css.easyLearn);
@@ -7823,29 +7860,7 @@
       easylearnBusiness.hijackUserSearchQuestCount();
       easylearnBusiness.showAnswerContent();
       DOMUtils.ready(function () {
-        utils
-          .waitNodeWithInterval(
-            ".search-input .search-box-wrap.search-box",
-            10000
-          )
-          .then(async () => {
-            await utils.waitPropertyByInterval(
-              () => {
-                return document.querySelector(
-                  ".search-input .search-box-wrap.search-box"
-                );
-              },
-              (inputElement) => {
-                return inputElement?.__vue__?.isFake != null;
-              },
-              250,
-              10000
-            );
-            document.querySelector(
-              ".search-input .search-box-wrap.search-box"
-            ).__vue__.isFake = false;
-            log.success("允许使用顶部搜索输入框");
-          });
+        easylearnBusiness.allowUserSearchInput();
       });
     },
   };
