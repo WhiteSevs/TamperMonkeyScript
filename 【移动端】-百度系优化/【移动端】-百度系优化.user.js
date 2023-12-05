@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.4.20
+// @version      2023.12.5
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -7722,6 +7722,52 @@
                 immediate: true,
               }
             );
+            document
+              .querySelector("div.question-swiper")
+              .__vue__.$parent.$watch(
+                "isOnAlternativeDialog",
+                function (newVal, oldVal) {
+                  log.success("禁止显示弹窗");
+                  this.isOnAlternativeDialog = false;
+                },
+                {
+                  deep: true,
+                  immediate: true,
+                }
+              );
+            document
+              .querySelector("div.question-swiper")
+              .__vue__.$parent.$watch(
+                "userChangeQuestionCount",
+                function () {
+                  log.success("滑动改变题目");
+                  document.querySelector(
+                    "div.question-swiper"
+                  ).__vue__.isShowAnswer = true;
+                  document.querySelector(
+                    "div.question-swiper"
+                  ).__vue__.isShowAnswerContent = true;
+                },
+                {
+                  deep: true,
+                  immediate: true,
+                }
+              );
+            /* 阻止调用App Scheme */
+            document.querySelector(
+              "div.question-swiper"
+            ).__vue__.$parent.openBgkApp = function () {
+              log.success(["openBgkApp：阻止调用App Scheme", arguments]);
+            };
+            document.querySelector("div.question-swiper").__vue__.openApp =
+              function () {
+                log.success(["openApp：阻止调用App Scheme", arguments]);
+              };
+            document.querySelector(
+              "div.question-swiper"
+            ).__vue__.$parent.goToApp = function () {
+              log.success(["goToApp：阻止调用App Scheme", arguments]);
+            };
           });
         },
         /**
