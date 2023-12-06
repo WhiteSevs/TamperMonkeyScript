@@ -3002,6 +3002,7 @@
           response.responseText = JSON.stringify(response.response);
         });
       }
+      /* 状态码2xx都是成功的 */
       if (Math.floor(response.status / 100) === 2) {
         resolve({
           status: true,
