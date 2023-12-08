@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.5
+// @version      2023.12.8
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1950,7 +1950,7 @@
         },
         /**
          * 解析DOM节点上隐藏在属性中的真正url
-         * @param {Element} targetNode
+         * @param {HTMLElement} targetNode 目标元素
          * @returns {?string}
          */
         parseDOMAttrOriginUrl(targetNode) {
@@ -2397,6 +2397,10 @@
             if (!articleElement) {
               continue;
             }
+            /* 移除属性rl-link-data-click，猜测该属性是用于点击事件触发 */
+            articleElement.removeAttribute("rl-link-data-click");
+            /* ivk应该是invoke缩写，可能是调用跳转百度APP */
+            articleElement.removeAttribute("rl-link-data-ivk");
             /* 不对黑名单链接进行处理 */
             if (handleItemURL.isBlackList(resultItemOriginURL)) {
               log.error("黑名单链接不进行替换👉" + resultItemOriginURL);
@@ -3029,6 +3033,12 @@
             log.success(GM_Menu.getShowTextValue("baidu_search_hijack_copy"));
             baiduHijack.hijackCopy();
           }
+          if (GM_Menu.get("baidu_search_hijack__onClick")) {
+            log.success(
+              GM_Menu.getShowTextValue("baidu_search_hijack__onClick")
+            );
+            baiduHijack.hijack_onClick("baidu_search_hijack__onClick");
+          }
         },
       };
 
@@ -3163,6 +3173,11 @@
           {
             key: "baidu_search_hijack_copy",
             text: "劫持Copy",
+            enable: false,
+          },
+          {
+            key: "baidu_search_hijack__onClick",
+            text: "劫持_onClick",
             enable: false,
           },
         ]);
@@ -7952,6 +7967,55 @@
           log.error(error);
         }
         return originApply.call(this, ...arguments);
+      };
+    },
+    /**
+     * 劫持百度搜索某些项的点击事件
+     * + 百度搜索(m.baidu.com|www.baidu.com)
+     *
+     * Object.defineProperty
+     * @param {string} menuKeyName
+     */
+    hijack_onClick(menuKeyName) {
+      let windowDefineProperty = unsafeWindow.Object.defineProperty;
+      unsafeWindow.Object.defineProperty = function (
+        target,
+        propertyKey,
+        _attributes
+      ) {
+        if (propertyKey === "_onClick") {
+          log.info(["成功劫持_onClick", arguments]);
+          GM_Menu.update({
+            key: menuKeyName,
+            text: "劫持_onClick",
+            enable: false,
+            showText(text, enable) {
+              return `${
+                enable
+                  ? GM_Menu.getEnableTrueEmoji()
+                  : GM_Menu.getEnableFalseEmoji()
+              } ${text} 🙏 成功劫持`;
+            },
+          });
+          let oldFn = _attributes["value"];
+          _attributes["value"] = function (event) {
+            let eventNode = this._getNode(event.target);
+            let eventNodeName = this._getType(eventNode);
+            if (eventNodeName === "link") {
+              let linkProps = this._getLinkProps(eventNode);
+              log.success(["点击事件-linkProps信息", linkProps]);
+              window.location.href = linkProps.href;
+            } else {
+              log.success([
+                "点击事件-this._getType(eventNode)不为link",
+                eventNodeName,
+                event,
+              ]);
+              oldFn.call(this, ...arguments);
+            }
+          };
+        }
+        windowDefineProperty.call(this, ...arguments);
       };
     },
     /**
