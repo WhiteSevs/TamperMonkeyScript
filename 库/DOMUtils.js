@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-11-3";
+  DOMUtils.version = "2023-12-10";
 
   let CommonUtils = {
     /**
@@ -130,7 +130,7 @@
       return tempElement;
     }
     Object.keys(property).forEach((key) => {
-      if (key in tempElement || typeof property[key] === "object") {
+      if (key in tempElement || typeof property[key] !== "undefined") {
         tempElement[key] = property[key];
       } else {
         tempElement.setAttribute(key, property[key]);
