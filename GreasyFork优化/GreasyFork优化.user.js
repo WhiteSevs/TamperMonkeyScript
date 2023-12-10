@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.23
+// @version      2023.12.10
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,8 +21,8 @@
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1285662/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1290431/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1274595/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1293172/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1293173/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -1323,56 +1323,95 @@
         height: 8px;
       }
       `);
-      let copyElement = DOMUtils.createElement("div", {
-        className: "zeroclipboard-container",
-        innerHTML: `
-        <clipboard-copy class="js-clipboard-copy">
-          <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
-            <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
-          </svg>
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
-            <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
-          </svg>
-        </clipboard-copy>
-        `,
-      });
-      let clipboardCopyElement =
-        copyElement.querySelector(".js-clipboard-copy");
-      let octiconCopyElement = copyElement.querySelector(".octicon-copy");
-      let octiconCheckCopyElement = copyElement.querySelector(
-        ".octicon-check-copy"
-      );
-      DOMUtils.on(copyElement, "click", function () {
-        let codeElement = copyElement.parentElement.querySelector("code");
-        if (!codeElement) {
-          Qmsg.error("未找到code元素");
-          return;
-        }
-        utils.setClip(codeElement.innerText);
-        clipboardCopyElement.setAttribute("success", "true");
-        octiconCopyElement.setAttribute("aria-hidden", true);
-        octiconCheckCopyElement.removeAttribute("aria-hidden");
-        let tooltip = pops.tooltip({
-          target: clipboardCopyElement,
-          content: "复制成功!",
-          position: "left",
-          className: "github-tooltip",
-          alwaysShow: true,
-          otherDistance: -8,
+      /**
+       * 获取复制按钮元素
+       * @returns {HTMLElement}
+       */
+      function getCopyElement() {
+        let copyElement = DOMUtils.createElement("div", {
+          className: "zeroclipboard-container",
+          innerHTML: `
+          <clipboard-copy class="js-clipboard-copy">
+            <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
+              <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+            </svg>
+            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
+              <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+            </svg>
+          </clipboard-copy>
+          `,
         });
-        setTimeout(() => {
-          clipboardCopyElement.removeAttribute("success");
-          octiconCheckCopyElement.setAttribute("aria-hidden", true);
-          octiconCopyElement.removeAttribute("aria-hidden");
-          tooltip.close();
-        }, 2000);
-      });
+        let clipboardCopyElement =
+          copyElement.querySelector(".js-clipboard-copy");
+        let octiconCopyElement = copyElement.querySelector(".octicon-copy");
+        let octiconCheckCopyElement = copyElement.querySelector(
+          ".octicon-check-copy"
+        );
+        DOMUtils.on(copyElement, "click", function () {
+          let codeElement = copyElement.parentElement.querySelector("code");
+          if (
+            !codeElement &&
+            copyElement.parentElement.className.includes("prettyprinted")
+          ) {
+            /* 在gf的/code的复制 */
+            codeElement = copyElement.parentElement;
+          }
+          if (!codeElement) {
+            Qmsg.error("未找到code元素");
+            return;
+          }
+          utils.setClip(codeElement.innerText || codeElement.textContent);
+          clipboardCopyElement.setAttribute("success", "true");
+          octiconCopyElement.setAttribute("aria-hidden", true);
+          octiconCheckCopyElement.removeAttribute("aria-hidden");
+          let tooltip = pops.tooltip({
+            target: clipboardCopyElement,
+            content: "复制成功!",
+            position: "left",
+            className: "github-tooltip",
+            alwaysShow: true,
+            otherDistance: -8,
+          });
+          setTimeout(() => {
+            clipboardCopyElement.removeAttribute("success");
+            octiconCheckCopyElement.setAttribute("aria-hidden", true);
+            octiconCopyElement.removeAttribute("aria-hidden");
+            tooltip.close();
+          }, 2000);
+        });
+        return copyElement;
+      }
+
       document.querySelectorAll("pre").forEach((preElement) => {
-        if (preElement.querySelector("clipboard-copy.js-clipboard-copy")) {
+        let zeroclipboardElement = preElement.querySelector(
+          "div.zeroclipboard-container"
+        );
+        if (zeroclipboardElement) {
           return;
         }
-        preElement.appendChild(copyElement);
+        preElement.appendChild(getCopyElement());
       });
+      /* gf的code页面对pre内容进行格式化的元素 */
+      let prettyPrintElement = document.querySelector("pre.prettyprint");
+      if (prettyPrintElement) {
+        /* 监听内容改变 */
+        utils.mutationObserver(prettyPrintElement, {
+          config: {
+            childList: true,
+            subtree: true,
+          },
+          callback(mutations, observer) {
+            if (!prettyPrintElement.className.includes("prettyprinted")) {
+              return;
+            }
+            prettyPrintElement
+              .querySelector("div.zeroclipboard-container")
+              ?.remove();
+            prettyPrintElement.appendChild(getCopyElement());
+            observer.disconnect();
+          },
+        });
+      }
     },
   };
   /* -----------------↑函数区域↑----------------- */
