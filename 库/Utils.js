@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-12-4";
+  Utils.version = "2023-12-10";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1040,7 +1040,7 @@
 
   /**
    * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
-   * @param {number} bitSize 字节
+   * @param {number} byteSize 字节
    * @param {boolean} [addType=true]
    * + true (默认) 添加单位
    * + false 不添加单位
@@ -1074,7 +1074,7 @@
     sizeData.BB = sizeData.YB * sizeData.KB;
     sizeData.NB = sizeData.BB * sizeData.KB;
     sizeData.DB = sizeData.NB * sizeData.KB;
-    for (key in sizeData) {
+    for (let key in sizeData) {
       result = byteSize / sizeData[key];
       resultType = key;
       if (sizeData.KB >= result) {
