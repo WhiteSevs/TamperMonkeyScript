@@ -130,7 +130,7 @@
       return tempElement;
     }
     Object.keys(property).forEach((key) => {
-      if (key in tempElement || typeof property[key] !== "undefined") {
+      if (key in tempElement || typeof property[key] === "object") {
         tempElement[key] = property[key];
       } else {
         tempElement.setAttribute(key, property[key]);
