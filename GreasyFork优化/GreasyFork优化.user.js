@@ -2,11 +2,11 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.10
+// @version      2023.12.11
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
-// @icon         https://favicon.yandex.net/favicon/v2/https://greasyfork.org/?size=32
+// @icon         https://z1.ax1x.com/2023/12/11/piRxYqK.png
 // @match        *://greasyfork.org/*
 // @run-at       document-start
 // @grant        GM_setValue
@@ -1131,7 +1131,7 @@
         width: 100%;
         font-size: 20px;
         background: #e2e2e2;
-        padding: 40px 20px;
+        padding: 40px 0px;
         border-radius: 10px;
         text-align-last: center;
       }
@@ -1241,22 +1241,36 @@
      * 在Markdown右上角添加复制按钮
      */
     addMarkdownCopyButton() {
+      /* 不在/code页面添加Markdown复制按钮 */
+      if (window.location.href.endsWith("/code")) {
+        return;
+      }
       GM_addStyle(`
       pre{
         position: relative;
+        margin-bottom: 0px !important;
+        width: 100%;
       }
       `);
       GM_addStyle(`
+      .snippet-clipboard-content{
+        display: flex;
+        justify-content: space-between;
+        background: rgb(246, 248, 250);
+        margin-bottom: 16px;
+      }
       .zeroclipboard-container {
-        right: 0;
+        /* right: 0;
         top: 0;
-        position: absolute;
+        position: absolute; */
         box-sizing: border-box;
         display: flex;
         font-size: 16px;
         line-height: 24px;
         text-size-adjust: 100%;
         overflow-wrap: break-word;
+        width: fit-content;
+        height: fit-content;
       }
       .zeroclipboard-container svg{
           vertical-align: text-bottom;
@@ -1366,7 +1380,7 @@
           octiconCheckCopyElement.removeAttribute("aria-hidden");
           let tooltip = pops.tooltip({
             target: clipboardCopyElement,
-            content: "复制成功!",
+            content: "✅ 复制成功!",
             position: "left",
             className: "github-tooltip",
             alwaysShow: true,
@@ -1389,29 +1403,14 @@
         if (zeroclipboardElement) {
           return;
         }
-        preElement.appendChild(getCopyElement());
-      });
-      /* gf的code页面对pre内容进行格式化的元素 */
-      let prettyPrintElement = document.querySelector("pre.prettyprint");
-      if (prettyPrintElement) {
-        /* 监听内容改变 */
-        utils.mutationObserver(prettyPrintElement, {
-          config: {
-            childList: true,
-            subtree: true,
-          },
-          callback(mutations, observer) {
-            if (!prettyPrintElement.className.includes("prettyprinted")) {
-              return;
-            }
-            prettyPrintElement
-              .querySelector("div.zeroclipboard-container")
-              ?.remove();
-            prettyPrintElement.appendChild(getCopyElement());
-            observer.disconnect();
-          },
+        let copyElement = getCopyElement(preElement);
+        let snippetClipboardContentElement = DOMUtils.createElement("div", {
+          className: "snippet-clipboard-content",
         });
-      }
+        DOMUtils.before(preElement, snippetClipboardContentElement);
+        snippetClipboardContentElement.appendChild(preElement);
+        snippetClipboardContentElement.appendChild(copyElement);
+      });
     },
   };
   /* -----------------↑函数区域↑----------------- */
