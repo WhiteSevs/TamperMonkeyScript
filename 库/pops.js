@@ -1510,10 +1510,26 @@
     .pops button[type=xiaomi-primary]:focus-visible{outline:2px solid #fab6b6;outline-offset:1px;}
     .pops button[type=xiaomi-primary]:disabled{color:#ffffff !important;background-color:#fad5b6 !important;border-color:#fad5b6 !important;}
     
-    .pops ::-webkit-scrollbar{width:6px;height:0;}
-    .pops ::-webkit-scrollbar-track{width:0;}
-    .pops ::-webkit-scrollbar-thumb:hover{background:#b2b2b2}
-    .pops ::-webkit-scrollbar-thumb{min-height:28px;border-radius:2em;background:#cccccc;background-clip:padding-box;}
+    .pops ::-webkit-scrollbar,
+    .pops ::-moz-scrollbar{
+      width:6px;
+      height:0;
+    }
+    .pops ::-webkit-scrollbar-track,
+    .pops ::-moz-scrollbar-track{
+      width:0;
+    }
+    .pops ::-webkit-scrollbar-thumb:hover,
+    .pops ::-moz-scrollbar-thumb:hover{
+      background: #b2b2b2;
+    }
+    .pops ::-webkit-scrollbar-thumb,
+    .pops ::-moz-scrollbar-thumb{
+      min-height: 28px;
+      border-radius: 2em;
+      background: #cccccc;
+      background-clip: padding-box;
+    }
     .pops-mask{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;border:0;border-radius:0;background-color:rgba(0,0,0,.4);box-shadow:none;transition:none;}
     .pops[type-value=alert] .pops-alert-title{width:100%;height:55px;border-bottom:1px solid #e5e5e5;}
     .pops[type-value=alert] .pops-alert-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:55px;}
@@ -1727,10 +1743,12 @@
     }
     .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container>ul > li div:nth-child(2){
       width: 50%;
+      text-align: right;
     }
     .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container .pops-panel-select select{
       min-width: 88px !important;
       width: -webkit-fill-available;
+      width: -moz-available;
     }
     .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container .pops-panel-container-header-ul li{
       font-size: 16px;
@@ -1792,7 +1810,8 @@
     /* slider的CSS */
     section.pops-panel-container .pops-panel-slider{overflow:hidden;height:25px;line-height:25px;display:flex;align-items:center}
     section.pops-panel-container .pops-panel-slider input[type=range]{background:#e4e7ed;outline:0;-webkit-appearance:none;height:6px;appearance:none}
-    section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb {
+    section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb,
+    section.pops-panel-container .pops-panel-slider input[type=range]::-moz-range-thumb {
       width: 20px;
       height: 20px;
       border-radius: 50%;
@@ -1802,6 +1821,9 @@
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
+    }
+    section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb,
+    section.pops-panel-container .pops-panel-slider input[type=range]::-moz-range-progress{
       border-image: linear-gradient(#409eff,#409eff) 0 fill/9 25 9 0/0 0 0 100vw;
     }
     /* slider的CSS */
@@ -1826,6 +1848,7 @@
       user-select: none;
       vertical-align: middle;
       -webkit-appearance: none;
+      appearance: none;
       background-color: transparent;
       border: 0;
       padding: 8px 8px;
@@ -1872,6 +1895,7 @@
       background-color: #ffffff;
       background-image: none;
       -webkit-appearance: none;
+      appearance: none;
       box-shadow: 0 0 0 1px #dcdfe6 inset;
       border-radius: 4px;
       transition: box-shadow .2s cubic-bezier(.645, .045, .355, 1);
