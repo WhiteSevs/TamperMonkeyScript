@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.11
+// @version      2023.12.14
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -20,9 +20,9 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1285662/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1293172/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1293173/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1295729/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -184,6 +184,395 @@
   };
 
   /**
+   * 配置面板
+   */
+  const PopsPanel = {
+    /**
+     * 本地存储的总键名
+     */
+    key: "GM_Panel",
+    /**
+     * 属性attributes的data-key
+     */
+    attributeDataKey_Name: "data-key",
+    /**
+     * 属性attributes的data-default-value
+     */
+    attributeDataDefaultValue_Name: "data-default-value",
+    /**
+     * 初始化菜单
+     */
+    initMenu() {
+      this.initLocalDefaultValue();
+      GreasyforkMenu.menu.add([
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.showPanel();
+          },
+        },
+        {
+          key: "transfer_old_data",
+          text: "🔧 迁移旧数据",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.transferOldData();
+          },
+        },
+      ]);
+    },
+    /**
+     * 初始化本地设置默认的值
+     */
+    initLocalDefaultValue() {
+      let content = this.getContent();
+      content.forEach((item) => {
+        if (!item["forms"]) {
+          return;
+        }
+        item.forms.forEach((__item__) => {
+          if (__item__.forms) {
+            __item__.forms.forEach((containerItem) => {
+              if (!containerItem.attributes) {
+                return;
+              }
+              let key = containerItem.attributes[this.attributeDataKey_Name];
+              let defaultValue =
+                containerItem.attributes[this.attributeDataDefaultValue_Name];
+              if (this.getValue(key) == null) {
+                this.setValue(key, defaultValue);
+              }
+            });
+          } else {
+          }
+        });
+      });
+    },
+    /**
+     * 设置值
+     * @param {string} key 键
+     * @param {any} value 值
+     */
+    setValue(key, value) {
+      let localValue = GM_getValue(this.key, {});
+      localValue[key] = value;
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 获取值
+     * @param {string} key 键
+     * @param {any} defaultValue 默认值
+     * @returns {any}
+     */
+    getValue(key, defaultValue) {
+      let localValue = GM_getValue(this.key, {});
+      return localValue[key] ?? defaultValue;
+    },
+    /**
+     * 删除值
+     * @param {string} key 键
+     */
+    deleteValue(key) {
+      let localValue = GM_getValue(this.key, {});
+      delete localValue[key];
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 显示设置面板
+     */
+    showPanel() {
+      pops.panel({
+        title: {
+          text: `${GM_info?.script?.name || "CSDN|简书优化"}-设置`,
+          position: "center",
+        },
+        content: this.getContent(),
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+          },
+        },
+        width: pops.isPhone() ? "92vw" : "800px",
+        height: pops.isPhone() ? "80vh" : "600px",
+        only: true,
+        drag: true,
+      });
+    },
+    /**
+     * 获取按钮配置
+     * @param {string} text
+     * @param {string} key
+     * @param {boolean} defaultValue
+     * @param {?(event:Event,value: boolean)=>boolean} _callback_
+     */
+    getSwtichDetail(text, key, defaultValue, _callback_) {
+      let result = {
+        text: text,
+        type: "switch",
+        attributes: {},
+        getValue() {
+          if (PopsPanel.getValue(key) == null) {
+            PopsPanel.setValue(key, Boolean(defaultValue));
+          }
+          return Boolean(PopsPanel.getValue(key, defaultValue));
+        },
+        callback(event, value) {
+          log.success(`${value ? "开启" : "关闭"} ${text}`);
+          if (typeof _callback_ === "function") {
+            if (_callback_(event, value)) {
+              return;
+            }
+          }
+          PopsPanel.setValue(key, Boolean(value));
+        },
+      };
+      result.attributes[this.attributeDataKey_Name] = key;
+      result.attributes[this.attributeDataDefaultValue_Name] =
+        Boolean(defaultValue);
+      return result;
+    },
+    /**
+     * 获取配置内容
+     */
+    getContent() {
+      return [
+        {
+          id: "greasy-fork-panel-config-account",
+          title: "账号",
+          forms: [
+            {
+              text: "账号/密码",
+              type: "forms",
+              forms: [
+                {
+                  text: "账号",
+                  type: "input",
+                  attributes: {
+                    "data-key": "user",
+                    "data-default-value": "",
+                  },
+                  getValue() {
+                    return PopsPanel.getValue(
+                      this.attributes["data-key"],
+                      this.attributes["data-default-value"]
+                    );
+                  },
+                  callback(event, value) {
+                    PopsPanel.setValue(this.attributes["data-key"], value);
+                  },
+                  placeholder: "请输入账号",
+                },
+                {
+                  text: "密码",
+                  type: "input",
+                  attributes: {
+                    "data-key": "pwd",
+                    "data-default-value": "",
+                  },
+                  getValue() {
+                    return PopsPanel.getValue(
+                      this.attributes["data-key"],
+                      this.attributes["data-default-value"]
+                    );
+                  },
+                  callback(event, value) {
+                    PopsPanel.setValue(this.attributes["data-key"], value);
+                  },
+                  isPassword: true,
+                  placeholder: "请输入密码",
+                },
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail("自动登录", "autoLogin", true),
+                {
+                  text: "清空账号/密码",
+                  type: "button",
+                  buttonIconIsLoading: false,
+                  buttonType: "default",
+                  buttonText: "点击清空",
+                  callback(event) {
+                    if (confirm("确定清空账号和密码？")) {
+                      PopsPanel.deleteValue("user");
+                      PopsPanel.deleteValue("pwd");
+                      Qmsg.success("已清空账号/密码");
+                      document.querySelector(
+                        `li[data-key="user"] .pops-panel-input input`
+                      ).value = "";
+                      document.querySelector(
+                        `li[data-key="pwd"] .pops-panel-input input`
+                      ).value = "";
+                    }
+                  },
+                },
+                {
+                  text: "源代码同步【脚本列表】",
+                  type: "button",
+                  buttonIconIsLoading: false,
+                  buttonType: "primary",
+                  buttonText: "点击同步",
+                  callback(event) {
+                    if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+                      PopsPanel.setValue(
+                        "goto_updateSettingsAndSynchronize_scriptList",
+                        true
+                      );
+                      if (GreasyforkMenu.getUserLinkElement()) {
+                        Qmsg.success("前往用户主页");
+                        window.location.href =
+                          GreasyforkMenu.getUserLinkElement().href;
+                      } else {
+                        Qmsg.error("获取当前已登录的用户主页失败");
+                      }
+                      return;
+                    }
+                    let scriptUrlList = [];
+                    document
+                      .querySelectorAll(
+                        "#user-script-list-section li a.script-link"
+                      )
+                      .forEach((item) => {
+                        scriptUrlList = scriptUrlList.concat(
+                          GreasyforkApi.getAdminUrl(item.href)
+                        );
+                      });
+                    GreasyforkMenu.updateScript(scriptUrlList);
+                  },
+                },
+                {
+                  text: "源代码同步【未上架的脚本】",
+                  type: "button",
+                  buttonIconIsLoading: false,
+                  buttonType: "primary",
+                  buttonText: "点击同步",
+                  callback(event) {
+                    if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+                      PopsPanel.setValue(
+                        "goto_updateSettingsAndSynchronize_unlistedScriptList",
+                        true
+                      );
+                      if (GreasyforkMenu.getUserLinkElement()) {
+                        Qmsg.success("前往用户主页");
+                        window.location.href =
+                          GreasyforkMenu.getUserLinkElement().href;
+                      } else {
+                        Qmsg.error("获取当前已登录的用户主页失败");
+                      }
+                      return;
+                    }
+                    let scriptUrlList = [];
+                    document
+                      .querySelectorAll(
+                        "#user-unlisted-script-list li a.script-link"
+                      )
+                      .forEach((item) => {
+                        scriptUrlList = scriptUrlList.concat(
+                          GreasyforkApi.getAdminUrl(item.href)
+                        );
+                      });
+                    GreasyforkMenu.updateScript(scriptUrlList);
+                  },
+                },
+                {
+                  text: "源代码同步【库】",
+                  type: "button",
+                  buttonIconIsLoading: false,
+                  buttonType: "primary",
+                  buttonText: "点击同步",
+                  callback(event) {
+                    if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+                      PopsPanel.setValue(
+                        "goto_updateSettingsAndSynchronize_libraryScriptList",
+                        true
+                      );
+                      if (GreasyforkMenu.getUserLinkElement()) {
+                        Qmsg.success("前往用户主页");
+                        window.location.href =
+                          GreasyforkMenu.getUserLinkElement().href;
+                      } else {
+                        Qmsg.error("获取当前已登录的用户主页失败");
+                      }
+                      return;
+                    }
+                    let scriptUrlList = [];
+                    document
+                      .querySelectorAll(
+                        "#user-library-script-list li a.script-link"
+                      )
+                      .forEach((item) => {
+                        scriptUrlList = scriptUrlList.concat(
+                          GreasyforkApi.getAdminUrl(item.href)
+                        );
+                      });
+                    GreasyforkMenu.updateScript(scriptUrlList);
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: "greasy-fork-panel-config-optimization",
+          title: "优化",
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail("美化页面", "beautifyPage", true),
+                PopsPanel.getSwtichDetail(
+                  "美化上传图片按钮",
+                  "beautifyUploadImage",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "代码页面添加复制代码按钮",
+                  "addCopyCodeButton",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "美化Greasyfork Beautify脚本",
+                  "beautifyGreasyforkBeautify",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+      ];
+    },
+    /**
+     * 迁移旧数据
+     */
+    transferOldData() {
+      let oldData = GM_getValue("GM_Menu_Local_Map");
+      let currentData = GM_getValue(this.key, {});
+      if (oldData) {
+        Object.assign(currentData, oldData);
+        GM_setValue(this.key, currentData);
+        GM_deleteValue("GM_Menu_Local_Map");
+        Qmsg.success("共迁移数据量：" + Object.keys(oldData).length);
+      } else {
+        Qmsg.info("不存在旧数据");
+      }
+    },
+  };
+
+  /**
    * GreasyFork的菜单
    */
   const GreasyforkMenu = {
@@ -201,88 +590,6 @@
      */
     isLogin: false,
     /**
-     * 初始化菜单对象
-     */
-    initMenu() {
-      this.menu.add([
-        {
-          key: "enterAccount_Password",
-          text: "录入账号/密码",
-          showText(_text_, _enable_) {
-            let user = GM_getValue("user");
-            if (user) {
-              return `账号:${user} 点击重新录入`;
-            } else {
-              return "录入账号/密码";
-            }
-          },
-          callback() {
-            let user = prompt("请输入GreasyFork的账号");
-            if (!user) {
-              Qmsg.error("取消输入账号");
-              return;
-            }
-            if (user && user.trim() === "") {
-              Qmsg.error("输入为空或纯空格");
-              return;
-            }
-            let pwd = prompt("请输入GreasyFork的密码");
-
-            if (!pwd) {
-              Qmsg.error("取消输入密码");
-              return;
-            }
-            if (pwd && pwd.trim() === "") {
-              Qmsg.error("输入为空或纯空格");
-              return;
-            }
-            GM_setValue("user", user);
-            GM_setValue("pwd", pwd);
-            Qmsg.success("成功录入账号/密码");
-          },
-        },
-        {
-          key: "clearAccount_Password",
-          text: "⚙ 清空账号/密码",
-          showText(text) {
-            return text;
-          },
-          callback() {
-            if (confirm("确定清空账号和密码？")) {
-              GM_deleteValue("user");
-              GM_deleteValue("pwd");
-              Qmsg.success("已清空账号/密码");
-            }
-          },
-        },
-        {
-          key: "autoLogin",
-          text: "自动登录",
-          enable: true,
-        },
-        {
-          key: "beautifyPage",
-          text: "美化页面",
-          enable: true,
-        },
-        {
-          key: "beautifyGreasyforkBeautify",
-          text: "美化Greasyfork Beautify脚本",
-          enable: true,
-        },
-        {
-          key: "beautifyUploadImage",
-          text: "美化上传图片",
-          enable: true,
-        },
-        {
-          key: "addCopyCodeButton",
-          text: "添加复制代码按钮",
-          enable: true,
-        },
-      ]);
-    },
-    /**
      * 初始化环境变量
      */
     initEnv() {
@@ -295,107 +602,6 @@
      */
     getUserLinkElement() {
       return document.querySelector("#nav-user-info span.user-profile-link a");
-    },
-    /**
-     * 处理添加用户界面的菜单项
-     */
-    handleUserMenu() {
-      log.success(["用户界面", this.menu]);
-      this.menu.add([
-        {
-          key: "updateSettingsAndSynchronize_scriptList",
-          text: "⚙ 源代码同步【脚本列表】",
-          autoReload: false,
-          showText(text) {
-            return text;
-          },
-          callback() {
-            if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
-              GM_setValue("goto_updateSettingsAndSynchronize_scriptList", true);
-              if (GreasyforkMenu.getUserLinkElement()) {
-                Qmsg.success("前往用户主页");
-                window.location.href = GreasyforkMenu.getUserLinkElement().href;
-              } else {
-                Qmsg.error("获取当前已登录的用户主页失败");
-              }
-              return;
-            }
-            let scriptUrlList = [];
-            document
-              .querySelectorAll("#user-script-list-section li a.script-link")
-              .forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-            GreasyforkMenu.updateScript(scriptUrlList);
-          },
-        },
-        {
-          key: "updateSettingsAndSynchronize_unlistedScriptList",
-          text: "⚙ 源代码同步【未上架的脚本】",
-          autoReload: false,
-          showText(text) {
-            return text;
-          },
-          callback() {
-            if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
-              GM_setValue(
-                "goto_updateSettingsAndSynchronize_unlistedScriptList",
-                true
-              );
-              if (GreasyforkMenu.getUserLinkElement()) {
-                Qmsg.success("前往用户主页");
-                window.location.href = GreasyforkMenu.getUserLinkElement().href;
-              } else {
-                Qmsg.error("获取当前已登录的用户主页失败");
-              }
-              return;
-            }
-            let scriptUrlList = [];
-            document
-              .querySelectorAll("#user-unlisted-script-list li a.script-link")
-              .forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-            GreasyforkMenu.updateScript(scriptUrlList);
-          },
-        },
-        {
-          key: "updateSettingsAndSynchronize_libraryScriptList",
-          text: "⚙ 源代码同步【库】",
-          autoReload: false,
-          showText(text) {
-            return text;
-          },
-          callback() {
-            if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
-              GM_setValue(
-                "goto_updateSettingsAndSynchronize_libraryScriptList",
-                true
-              );
-              if (GreasyforkMenu.getUserLinkElement()) {
-                Qmsg.success("前往用户主页");
-                window.location.href = GreasyforkMenu.getUserLinkElement().href;
-              } else {
-                Qmsg.error("获取当前已登录的用户主页失败");
-              }
-              return;
-            }
-            let scriptUrlList = [];
-            document
-              .querySelectorAll("#user-library-script-list li a.script-link")
-              .forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-            GreasyforkMenu.updateScript(scriptUrlList);
-          },
-        },
-      ]);
     },
     /**
      * 更新脚本
@@ -467,36 +673,91 @@
      * 处理本地的goto事件
      */
     handleLocalGotoCallBack() {
-      if (GM_getValue("goto_updateSettingsAndSynchronize_scriptList")) {
-        let menuCallBack = this.menu.getCallBack(
-          "updateSettingsAndSynchronize_scriptList"
-        );
-        GM_deleteValue("goto_updateSettingsAndSynchronize_scriptList");
-        menuCallBack();
+      if (PopsPanel.getValue("goto_updateSettingsAndSynchronize_scriptList")) {
+        PopsPanel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
+        if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+          PopsPanel.setValue(
+            "goto_updateSettingsAndSynchronize_scriptList",
+            true
+          );
+          if (GreasyforkMenu.getUserLinkElement()) {
+            Qmsg.success("前往用户主页");
+            window.location.href = GreasyforkMenu.getUserLinkElement().href;
+          } else {
+            Qmsg.error("获取当前已登录的用户主页失败");
+          }
+          return;
+        }
+        let scriptUrlList = [];
+        document
+          .querySelectorAll("#user-script-list-section li a.script-link")
+          .forEach((item) => {
+            scriptUrlList = scriptUrlList.concat(
+              GreasyforkApi.getAdminUrl(item.href)
+            );
+          });
+        GreasyforkMenu.updateScript(scriptUrlList);
       } else if (
-        GM_getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")
+        PopsPanel.getValue(
+          "goto_updateSettingsAndSynchronize_unlistedScriptList"
+        )
       ) {
-        let menuCallBack = this.menu.getCallBack(
-          "updateSettingsAndSynchronize_unlistedScriptList"
+        PopsPanel.deleteValue(
+          "goto_updateSettingsAndSynchronize_unlistedScriptList"
         );
-        GM_deleteValue("goto_updateSettingsAndSynchronize_unlistedScriptList");
-        menuCallBack();
+        if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+          PopsPanel.setValue(
+            "goto_updateSettingsAndSynchronize_unlistedScriptList",
+            true
+          );
+          if (GreasyforkMenu.getUserLinkElement()) {
+            Qmsg.success("前往用户主页");
+            window.location.href = GreasyforkMenu.getUserLinkElement().href;
+          } else {
+            Qmsg.error("获取当前已登录的用户主页失败");
+          }
+          return;
+        }
+        let scriptUrlList = [];
+        document
+          .querySelectorAll("#user-unlisted-script-list li a.script-link")
+          .forEach((item) => {
+            scriptUrlList = scriptUrlList.concat(
+              GreasyforkApi.getAdminUrl(item.href)
+            );
+          });
+        GreasyforkMenu.updateScript(scriptUrlList);
       } else if (
-        GM_getValue("goto_updateSettingsAndSynchronize_libraryScriptList")
+        PopsPanel.getValue(
+          "goto_updateSettingsAndSynchronize_libraryScriptList"
+        )
       ) {
-        let menuCallBack = this.menu.getCallBack(
-          "updateSettingsAndSynchronize_libraryScriptList"
+        PopsPanel.deleteValue(
+          "goto_updateSettingsAndSynchronize_libraryScriptList"
         );
-        GM_deleteValue("goto_updateSettingsAndSynchronize_libraryScriptList");
-        menuCallBack();
+        if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
+          PopsPanel.setValue(
+            "goto_updateSettingsAndSynchronize_libraryScriptList",
+            true
+          );
+          if (GreasyforkMenu.getUserLinkElement()) {
+            Qmsg.success("前往用户主页");
+            window.location.href = GreasyforkMenu.getUserLinkElement().href;
+          } else {
+            Qmsg.error("获取当前已登录的用户主页失败");
+          }
+          return;
+        }
+        let scriptUrlList = [];
+        document
+          .querySelectorAll("#user-library-script-list li a.script-link")
+          .forEach((item) => {
+            scriptUrlList = scriptUrlList.concat(
+              GreasyforkApi.getAdminUrl(item.href)
+            );
+          });
+        GreasyforkMenu.updateScript(scriptUrlList);
       }
-    },
-    /**
-     * 入口
-     */
-    init() {
-      this.initMenu();
-      this.handleUserMenu();
     },
   };
 
@@ -509,14 +770,14 @@
      */
     autoLogin() {
       utils.waitNode("span.sign-in-link a[rel=nofollow]").then(async () => {
-        let user = GM_getValue("user", null);
-        let pwd = GM_getValue("pwd", null);
-        if (!user) {
-          Qmsg.error("请在菜单中录入账号");
+        let user = PopsPanel.getValue("user", null);
+        let pwd = PopsPanel.getValue("pwd", null);
+        if (!utils.isNull(user)) {
+          Qmsg.error("请在先录入账号");
           return;
         }
-        if (!pwd) {
-          Qmsg.error("请在菜单中录入密码");
+        if (!utils.isNull(pwd)) {
+          Qmsg.error("请在先录入密码");
           return;
         }
         let csrfToken = document.querySelector("meta[name='csrf-token']");
@@ -782,10 +1043,9 @@
      * 美化页面markdown
      */
     beautifyPage() {
-      if (!GreasyforkMenu.menu.get("beautifyPage")) {
+      if (!PopsPanel.getValue("beautifyPage")) {
         return;
       }
-      log.success(GreasyforkMenu.menu.getShowTextValue("beautifyPage"));
       let beautifyMarkdownCSS = `
       code{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}
       table{text-indent:initial}
@@ -1065,12 +1325,9 @@
      * 美化 Greasyfork Beautify脚本
      */
     beautifyGreasyforkBeautify() {
-      if (!GreasyforkMenu.menu.get("beautifyGreasyforkBeautify")) {
+      if (!PopsPanel.getValue("beautifyGreasyforkBeautify")) {
         return;
       }
-      log.success(
-        GreasyforkMenu.menu.getShowTextValue("beautifyGreasyforkBeautify")
-      );
       let compatibleBeautifyCSS = `
       #main-header{
         background-color: #670000 !important;
@@ -1117,10 +1374,9 @@
      * 美化上传图片
      */
     beautifyUploadImage() {
-      if (!GreasyforkMenu.menu.get("beautifyUploadImage")) {
+      if (!PopsPanel.getValue("beautifyUploadImage")) {
         return;
       }
-      log.success(GreasyforkMenu.menu.getShowTextValue("beautifyUploadImage"));
       let beautifyCSS = `
       /* 隐藏 添加： */
       label[for="discussion_comments_attributes_0_attachments"],
@@ -1199,10 +1455,9 @@
       if (!window.location.pathname.endsWith("/code")) {
         return;
       }
-      if (!GreasyforkMenu.menu.get("addCopyCodeButton")) {
+      if (!PopsPanel.getValue("addCopyCodeButton")) {
         return;
       }
-      log.success(GreasyforkMenu.menu.getShowTextValue("addCopyCodeButton"));
       utils
         .waitNode("div#script-content div.code-container")
         .then((element) => {
@@ -1416,13 +1671,13 @@
   /* -----------------↑函数区域↑----------------- */
 
   /* -----------------↓执行入口↓----------------- */
-  GreasyforkMenu.init();
+  PopsPanel.initMenu();
   GreasyforkBusiness.beautifyPage();
   GreasyforkBusiness.beautifyGreasyforkBeautify();
   GreasyforkBusiness.beautifyUploadImage();
   DOMUtils.ready(function () {
     GreasyforkMenu.initEnv();
-    if (GreasyforkMenu.menu.get("autoLogin")) {
+    if (PopsPanel.getValue("autoLogin")) {
       GreasyforkBusiness.autoLogin();
     }
     GreasyforkMenu.handleLocalGotoCallBack();
