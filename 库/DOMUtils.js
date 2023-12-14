@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-12-10";
+  DOMUtils.version = "2023-12-14";
 
   let CommonUtils = {
     /**
@@ -1423,7 +1423,7 @@
   /**
    * 当鼠标移入或移出元素时触发事件
    * @param {HTMLElement|string} element 当前元素
-   * @param {Function} handler 事件处理函数
+   * @param {(event:Event)=>{}} handler 事件处理函数
    * @example
    * // 监听a.xx元素的移入或移出
    * DOMUtils.hover(document.querySelector("a.xx"),()=>{
