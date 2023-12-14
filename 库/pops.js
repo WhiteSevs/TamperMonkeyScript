@@ -1029,18 +1029,42 @@
       result = addType ? result + resultType.toString() : parseFloat(result);
       return result;
     },
+    /**
+     * 判断是否是window，例如window、self、globalThis
+     * @param {any} target
+     * @returns {boolean}
+     */
+    isWin(target) {
+      if (!typeof target === "object") {
+        return false;
+      }
+      if (target instanceof Node) {
+        return false;
+      }
+      if (target === globalThis) {
+        return true;
+      }
+      if (target === window) {
+        return true;
+      }
+      if (target === self) {
+        return true;
+      }
+      if (target?.Math?.toString() !== "[object Math]") {
+        return false;
+      }
+      return true;
+    },
     jQuery: {
       /**
-       * jQuery中的on绑定事件
-       * @param {HTMLElement} element 需要绑定的元素
-       * @param {"click"|string|string[]} eventType 需要监听的事件
-       * @param {HTMLElement?} selector 子元素选择器
-       * @param {Function} callback 事件触发的回调函数
-       * @param {Boolean} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
-       * @param {Boolean} once 表示事件是否只触发一次。默认为false
-       * @param {Boolean} passive 表示事件监听器是否不会调用preventDefault()。默认为false
-       * @returns {DOMUtils} - 原型链
-       * @function
+       * 绑定事件
+       * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
+       * @param {string|[...string]} eventType 需要监听的事件
+       * @param {string|undefined} selector 子元素选择器
+       * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
+       * @param {boolean} [capture=false] 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+       * @param {boolean} [once=false] 表示事件是否只触发一次。默认为false
+       * @param {boolean} [passive=false] 表示事件监听器是否不会调用preventDefault()。默认为false
        */
       on(
         element,
@@ -1051,122 +1075,217 @@
         once = false,
         passive = false
       ) {
-        var eventTypeList = [];
+        if (typeof element === "string") {
+          element = document.querySelectorAll(element);
+        }
+        if (element == null) {
+          return;
+        }
+        let elementList = [];
+        if (element instanceof NodeList || Array.isArray(element)) {
+          elementList = [...element];
+        } else {
+          elementList = [element];
+        }
+        let eventTypeList = [];
         if (Array.isArray(eventType)) {
           eventTypeList = eventType;
         } else if (typeof eventType === "string") {
           eventTypeList = eventType.split(" ");
         }
-        eventTypeList.forEach((_eventType_) => {
-          if (selector) {
-            element.addEventListener(
+        if (typeof selector === "function") {
+          /* 这是为没有selector的情况 */
+          callback = selector;
+          selector = null;
+        }
+        elementList.forEach((elementItem) => {
+          let ownCallBack = function (event) {
+            if (selector) {
+              let target = event.target;
+              let totalParent = popsUtils.isWin(elementItem)
+                ? document.documentElement
+                : elementItem;
+              if (target.matches(selector)) {
+                /* 当前目标可以被selector所匹配到 */
+                callback.call(target, event);
+                return;
+              } else if (
+                target.closest(selector) &&
+                totalParent.contains(target.closest(selector))
+              ) {
+                /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+                let closestElement = target.closest(selector);
+                /* event的target值不能直接修改 */
+                Object.defineProperty(event, "target", {
+                  get: function () {
+                    return closestElement;
+                  },
+                });
+                callback.call(closestElement, event);
+                return;
+              }
+            } else {
+              callback.call(event.target, event);
+            }
+          };
+          eventTypeList.forEach((_eventType_) => {
+            elementItem.addEventListener(
               _eventType_,
-              function (event) {
-                var target = event.target;
-                while (target && target !== element) {
-                  if (target.matches(selector)) {
-                    callback.call(target, event);
-                  }
-                  target = target.parentNode;
-                }
-              },
+              ownCallBack,
               capture,
               once,
               passive
             );
+          });
+
+          if (callback && callback.delegate) {
+            elementItem.setAttribute("data-delegate", selector);
+          }
+          if (popsUtils.isWin(elementItem)) {
+            let events = elementItem["DOMUtilsGlobalEvents"] || {};
+            events[eventType] = events[eventType] || [];
+            events[eventType].push({
+              selector: selector,
+              callback: ownCallBack,
+              originCallBack: callback,
+            });
+            elementItem["DOMUtilsGlobalEvents"] = events;
           } else {
-            element.addEventListener(
-              _eventType_,
-              callback,
-              capture,
-              once,
-              passive
-            );
+            let events = elementItem.events || {};
+            events[eventType] = events[eventType] || [];
+            events[eventType].push({
+              selector: selector,
+              callback: ownCallBack,
+              originCallBack: callback,
+            });
+            elementItem.events = events;
           }
         });
-
-        if (callback && callback.delegate) {
-          element.setAttribute("data-delegate", selector);
-        }
-
-        var events = element.events || {};
-        events[eventType] = events[eventType] || [];
-        events[eventType].push({
-          selector: selector,
-          callback: callback,
-        });
-        element.events = events;
-
-        return this;
       },
       /**
-       * jQuery中的off取消绑定事件
-       * @param {HTMLElement} element 需要取消绑定的元素
-       * @param {String|Array} eventType 需要取消监听的事件
-       * @param {HTMLElement} selector 子元素选择器
-       * @param {Function} callback 事件触发的回调函数
-       * @param {Boolean} useCapture 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
+       * 取消绑定事件
+       * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
+       * @param {string|[...string]} eventType 需要取消监听的事件
+       * @param {string|undefined} selector 子元素选择器
+       * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
+       * @param {boolean} [useCapture=false] 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
        * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
-       * @returns
        */
       off(element, eventType, selector, callback, useCapture = false) {
-        let that = this;
-        var events = element.events || {};
+        if (typeof element === "string") {
+          element = document.querySelectorAll(element);
+        }
+        if (element == null) {
+          return;
+        }
+        let elementList = [];
+        if (element instanceof NodeList || Array.isArray(element)) {
+          elementList = [...element];
+        } else {
+          elementList = [element];
+        }
+        let eventTypeList = [];
         if (!eventType) {
-          for (var type in events) {
-            that.off(element, type, null, null, useCapture);
+          for (let type in events) {
+            eventTypeList = [...eventTypeList, type];
           }
-          return;
+        } else if (Array.isArray(eventType)) {
+          eventTypeList = eventType;
+        } else if (typeof eventType === "string") {
+          eventTypeList = eventType.split(" ");
         }
-        if (Array.isArray(eventType)) {
-          eventType.forEach(function (type) {
-            that.off(element, type, selector, callback, useCapture);
+        if (typeof selector === "function") {
+          /* 这是为没有selector的情况 */
+          callback = selector;
+          selector = null;
+        }
+        elementList.forEach((elementItem) => {
+          let events = {};
+          if (popsUtils.isWin(elementItem)) {
+            events = elementItem["DOMUtilsGlobalEvents"] || {};
+          } else {
+            events = elementItem.events || {};
+          }
+          eventTypeList.forEach((_eventType_) => {
+            let handlers = events[eventType] || [];
+            for (let i = 0; i < handlers.length; i++) {
+              if (
+                (!selector || handlers[i].selector === selector) &&
+                (!callback ||
+                  handlers[i].callback === callback ||
+                  handlers[i].originCallBack === callback)
+              ) {
+                elementItem.removeEventListener(
+                  _eventType_,
+                  handlers[i].callback,
+                  useCapture
+                );
+                handlers.splice(i--, 1);
+              }
+            }
+            if (handlers.length === 0) {
+              delete events[eventType];
+            }
           });
-          return;
-        }
-        var handlers = events[eventType] || [];
-        for (var i = 0; i < handlers.length; i++) {
-          if (
-            (!selector || handlers[i].selector === selector) &&
-            (!callback || handlers[i].callback === callback)
-          ) {
-            element.removeEventListener(
-              eventType,
-              handlers[i].callback,
-              useCapture
-            );
-            handlers.splice(i--, 1);
+          if (popsUtils.isWin(elementItem)) {
+            elementItem["DOMUtilsGlobalEvents"] = events;
+          } else {
+            elementItem.events = events;
           }
-        }
-        if (handlers.length === 0) {
-          delete events[eventType];
-        }
-        element.events = events;
+        });
       },
       /**
        * 主动触发事件
-       * @param {HTMLElement} element 需要触发的元素
-       * @param {String|Array} eventType 需要触发的事件
-       * @returns
+       * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
+       * @param {string|[...string]} eventType 需要触发的事件
+       * @param {object|undefined} details 赋予触发的Event的额外属性
+       * @param {boolean} [notDispatchEvent=false] 不使用dispatchEvent来触发事件
        */
-      trigger(element, eventType) {
-        let that = this;
-        var events = element.events || {};
+      trigger(element, eventType, details, notDispatchEvent = false) {
+        if (typeof element === "string") {
+          element = document.querySelector(element);
+        }
+        if (element == null) {
+          return;
+        }
+        let elementList = [];
+        if (element instanceof NodeList || Array.isArray(element)) {
+          elementList = [...element];
+        } else {
+          elementList = [element];
+        }
+        let eventTypeList = [];
         if (!eventType) {
-          for (var type in events) {
-            that.trigger(element, type);
+          for (let type in events) {
+            eventTypeList = [...eventTypeList, type];
           }
-          return;
+        } else if (Array.isArray(eventType)) {
+          eventTypeList = eventType;
+        } else if (typeof eventType === "string") {
+          eventTypeList = eventType.split(" ");
         }
-        if (Array.isArray(eventType)) {
-          eventType.forEach(function (type) {
-            that.trigger(element, type);
+
+        elementList.forEach((elementItem) => {
+          let events = {};
+          if (popsUtils.isWin(elementItem)) {
+            events = elementItem["DOMUtilsGlobalEvents"] || {};
+          } else {
+            events = elementItem.events || {};
+          }
+          eventTypeList.forEach((_eventType_) => {
+            let event = new Event(_eventType_);
+            if (details) {
+              Object.assign(event, details);
+            }
+            if (_eventType_ in events && notDispatchEvent) {
+              events[_eventType_].forEach((eventsItem) => {
+                eventsItem.callback(event);
+              });
+            } else {
+              elementItem.dispatchEvent(event);
+            }
           });
-          return;
-        }
-        var event = document.createEvent("HTMLEvents");
-        event.initEvent(eventType, true, false);
-        element.dispatchEvent(event);
+        });
       },
       /**
        * 实现jQuery中的$().offset();
@@ -1320,7 +1439,7 @@
     /**
      * 当前版本
      */
-    version: "2023.12.14",
+    version: "2023.12.15",
     css: `@charset "utf-8";
     .pops{background-color:#fff;border-radius:4px;border:1px solid #ebeef5;font-size:18px;box-shadow:0 0 12px rgba(0,0,0,.12);box-sizing:border-box;overflow:hidden;transition:all .35s}
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -3330,7 +3449,7 @@
           ${
             config.content.html
               ? config.content.text
-              : `<p pops style="${contentPStyle}}">${config.content.text}</p>`
+              : `<p pops style="${contentPStyle}">${config.content.text}</p>`
           }
       </div>
       ${bottomBtnHTML}`
@@ -3586,7 +3705,7 @@
         ${
           config.content.html
             ? config.content.text
-            : `<p pops style="${contentPStyle}}">${config.content.text}</p>`
+            : `<p pops style="${contentPStyle}">${config.content.text}</p>`
         }
           
 				</div>
@@ -6370,9 +6489,19 @@
 
         /* 点击左侧列表 */
         if (asideDefaultItemElement) {
-          asideDefaultItemElement.click();
+          popsUtils.jQuery.trigger(
+            asideDefaultItemElement,
+            "click",
+            undefined,
+            true
+          );
         } else if (this.asideULElement.children.length) {
-          this.asideULElement.children[0].click();
+          popsUtils.jQuery.trigger(
+            this.asideULElement.children[0],
+            "click",
+            undefined,
+            true
+          );
         } else {
           console.error("左侧容器没有项");
         }
