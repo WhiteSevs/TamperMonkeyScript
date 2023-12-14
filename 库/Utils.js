@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-12-10";
+  Utils.version = "2023-12-14";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -86,8 +86,8 @@
    * @typedef {object} UtilsAjaxHookResult
    * @property { (request: UtilsAjaxHookHook )=>{} } hook 劫持
    * @property {UtilsAjaxHookFilter} filter 过滤
-   * @property {Function} protect 阻止xhr和fetch被改写
-   * @property {Function} unhook 取消劫持
+   * @property {()=>{}} protect 阻止xhr和fetch被改写
+   * @property {()=>{}} unhook 取消劫持
    */
   /**
    * ajax劫持库，支持xhr和fetch劫持。
@@ -1636,10 +1636,11 @@
       "MI 13 Build/OPR1.170623.027; wv",
     ];
     let randomMobile = Utils.getRandomValue(mobileNameList);
-    let chromeVersion1 = Utils.getRandomValue(110, 118);
-    let chromeVersion2 = Utils.getRandomValue(2272, 2088);
-    let chromeVersion3 = Utils.getRandomValue(1, 218);
-    return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Mobile Safari/537.36`;
+    let chromeVersion1 = Utils.getRandomValue(110, 120);
+    let chromeVersion2 = Utils.getRandomValue(0, 0);
+    let chromeVersion3 = Utils.getRandomValue(2272, 6099);
+    let chromeVersion4 = Utils.getRandomValue(1, 218);
+    return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
   };
 
   /**
@@ -1701,6 +1702,7 @@
   /**
    * 获取随机的电脑端User-Agent
    * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
+   * + Windows NT 13：代表Window11系统
    * + Windows NT 10.0：代表Window10系统
    * + Windows NT 6.1：代表windows7系统
    * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
@@ -1716,10 +1718,11 @@
    * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
    **/
   Utils.getRandomPCUA = function () {
-    let chromeVersion1 = Utils.getRandomValue(110, 118);
-    let chromeVersion2 = Utils.getRandomValue(2272, 2088);
-    let chromeVersion3 = Utils.getRandomValue(1, 218);
-    return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.0.${chromeVersion2}.${chromeVersion3} Safari/537.36`;
+    let chromeVersion1 = Utils.getRandomValue(110, 120);
+    let chromeVersion2 = Utils.getRandomValue(0, 0);
+    let chromeVersion3 = Utils.getRandomValue(2272, 6099);
+    let chromeVersion4 = Utils.getRandomValue(1, 218);
+    return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
   };
 
   /**
@@ -3778,6 +3781,7 @@
 
   /**
    * 判断当前设备是否是移动端
+   * @param {string} [userAgent=navigator.userAgent] UA字符串，默认使用当前的navigator.userAgent
    * @returns {boolean}
    * + true 是移动端
    * + false 不是移动端
@@ -3785,10 +3789,8 @@
    * Utils.isPhone();
    * > true
    **/
-  Utils.isPhone = function () {
-    return Boolean(
-      /(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(navigator.userAgent)
-    );
+  Utils.isPhone = function (userAgent = navigator.userAgent) {
+    return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
   };
 
   /**
@@ -4047,7 +4049,7 @@
    * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
    * @param {Window|Node|HTMLElement|globalThis} target 需要监听的对象，可以是全局Window或者某个元素
    * @param {"keyup"|"keypress"|"keydown"} eventName 事件名，默认keypress
-   * @param {?(keyName: string, otherCodeList: string[], event: KeyboardEvent)=>{}} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+   * @param {?(keyName: string, keyValue:string,otherCodeList: string[], event: KeyboardEvent)=>{}} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
    * @example 
       Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
           if(keyName === "Enter"){
@@ -4986,7 +4988,7 @@
    * lineColor: string,
    * fontSize: string,
    * circleRadius: string,
-   * draw: ?Function
+   * draw: ?()=>{}
    * }} paramConfig 配置信息
    * @example
     let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
@@ -5481,9 +5483,47 @@
   };
 
   /**
+   * 字符串首字母转大写
+   * @param {string} targetString 目标字符串
+   * @param {boolean} [otherStrToLowerCase=false] 剩余部分字符串转小写，默认false
+   * @returns
+   */
+  Utils.stringTitleToUpperCase = function (
+    targetString,
+    otherStrToLowerCase = false
+  ) {
+    let newTargetString = targetString.slice(0, 1).toUpperCase();
+    if (otherStrToLowerCase) {
+      newTargetString = newTargetString + targetString.slice(1).toLowerCase();
+    } else {
+      newTargetString = newTargetString + targetString.slice(1);
+    }
+    return newTargetString;
+  };
+
+  /**
+   * 字符串首字母转小写
+   * @param {string} targetString 目标字符串
+   * @param {boolean} [otherStrToLowerCase=false] 剩余部分字符串转大写，默认false
+   * @returns
+   */
+  Utils.stringTitleToLowerCase = function (
+    targetString,
+    otherStrToUpperCase = false
+  ) {
+    let newTargetString = targetString.slice(0, 1).toLowerCase();
+    if (otherStrToUpperCase) {
+      newTargetString = newTargetString + targetString.slice(1).toUpperCase();
+    } else {
+      newTargetString = newTargetString + targetString.slice(1);
+    }
+    return newTargetString;
+  };
+
+  /**
    * 字符串转Object对象，类似'{"test":""}' => {"test":""}
    * @param {string} data
-   * @param {Function} errorCallBack 错误回调
+   * @param {(error:Error)=>{}} errorCallBack 错误回调
    * @returns {object}
    * @example
    * Utils.toJSON("{123:123}")
@@ -6139,7 +6179,7 @@
             if (typeof propertyName === "string") {
               return propertyName in targetElement[vueName];
             } else {
-              // Function
+              /* Function */
               return propertyName(targetElement[vueName]);
             }
           } else {
