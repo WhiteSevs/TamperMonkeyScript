@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.16
+// @version      2023.12.14
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -19,11 +19,16 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/455186/1293172/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1293173/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1295729/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
 // ==/UserScript==
 
 (function () {
+  /**
+   * @type {import("../库/pops")}
+   */
+  const pops = window.pops;
   /**
    * @type {import("../库/Utils")}
    */
@@ -244,16 +249,16 @@
           this.addCSS();
           this.removeClipboardHijacking();
           this.autoExpandFullText();
-          if (GM_Menu.get("JianShuArticleCenter")) {
+          if (PopsPanel.getValue("JianShuArticleCenter")) {
             this.articleCenter();
           }
-          if (GM_Menu.get("JianShuShieldRelatedArticles")) {
+          if (PopsPanel.getValue("JianShuShieldRelatedArticles")) {
             this.shieldRelatedArticles();
           }
-          if (GM_Menu.get("JianShuShieldUserComments")) {
+          if (PopsPanel.getValue("JianShuShieldUserComments")) {
             this.shieldUserComments();
           }
-          if (GM_Menu.get("JianShuShieldRecommendedReading")) {
+          if (PopsPanel.getValue("JianShuShieldRecommendedReading")) {
             this.shieldRecommendedReading();
           }
         },
@@ -310,10 +315,10 @@
           this.addCSS();
           Optimization.jianshu.PC.removeClipboardHijacking();
           Optimization.jianshu.PC.autoExpandFullText();
-          if (GM_Menu.get("JianShuremoveFooterRecommendRead")) {
+          if (PopsPanel.getValue("JianShuremoveFooterRecommendRead")) {
             this.removeFooterRecommendRead();
           }
-          if (GM_Menu.get("JianShuShieldUserComments")) {
+          if (PopsPanel.getValue("JianShuShieldUserCommentsMobile")) {
             this.shieldUserComments();
           }
         },
@@ -484,7 +489,7 @@
          * 点击代码块自动展开
          */
         clickPreCodeAutomatically() {
-          if (!GM_Menu.get("autoExpandContent")) {
+          if (!PopsPanel.getValue("autoExpandContent")) {
             return;
           }
           log.info("点击代码块自动展开");
@@ -534,7 +539,7 @@
               ".recommend-item-box[data-url*='https://download.csdn.net/']"
             )
             .forEach((item) => {
-              if (GM_Menu.get("removeCSDNDownloadPC")) {
+              if (PopsPanel.getValue("removeCSDNDownloadPC")) {
                 item.remove();
               } else {
                 item
@@ -547,7 +552,7 @@
          * 全文居中
          */
         articleCenter() {
-          if (!GM_Menu.get("articleCenter")) {
+          if (!PopsPanel.getValue("articleCenter")) {
             return;
           }
           log.info("全文居中");
@@ -682,9 +687,8 @@
             window.scrollTo({
               top: toolbarBoxOffsetTop - csdnToolBarHeight - 8,
               left: 0,
-              behavior: "smooth"
-            })
-            
+              behavior: "smooth",
+            });
           });
           utils.waitNode(".csdn-side-toolbar").then(() => {
             let targetElement = document.querySelector(
@@ -700,7 +704,7 @@
          * 屏蔽登录弹窗
          */
         shieldLoginDialog() {
-          if (GM_Menu.get("shieldLoginDialog")) {
+          if (PopsPanel.getValue("shieldLoginDialog")) {
             log.info("屏蔽登录弹窗");
             window.GM_CSS_GM_shieldLoginDialog = [
               GM_addStyle(
@@ -713,7 +717,7 @@
          * 自动展开内容块
          */
         autoExpandContent() {
-          if (!GM_Menu.get("autoExpandContent")) {
+          if (!PopsPanel.getValue("autoExpandContent")) {
             return;
           }
           log.info("自动展开内容块");
@@ -730,7 +734,7 @@
          * 屏蔽右侧悬浮按钮
          */
         csdnShieldfloatingButton() {
-          if (!GM_Menu.get("csdnShieldfloatingButton")) {
+          if (!PopsPanel.getValue("csdnShieldfloatingButton")) {
             return;
           }
           log.info("屏蔽右侧悬浮按钮");
@@ -744,7 +748,7 @@
          * 屏蔽底部推荐文章
          */
         csdnShieldBottomRecommendArticle() {
-          if (!GM_Menu.get("csdnShieldBottomRecommendArticle")) {
+          if (!PopsPanel.getValue("csdnShieldBottomRecommendArticle")) {
             return;
           }
           log.info("屏蔽底部推荐文章");
@@ -758,7 +762,7 @@
          * 屏蔽底部悬浮工具栏
          */
         csdnShieldBottomFloatingToolbar() {
-          if (!GM_Menu.get("csdnShieldBottomFloatingToolbar")) {
+          if (!PopsPanel.getValue("csdnShieldBottomFloatingToolbar")) {
             return;
           }
           log.info("屏蔽底部悬浮工具栏");
@@ -772,7 +776,7 @@
          * 显示/隐藏目录
          */
         showOrHideDirectory() {
-          if (GM_Menu.get("showOrHideDirectory")) {
+          if (PopsPanel.getValue("showOrHideDirectory")) {
             log.info("显示目录");
             GM_addStyle(`
             aside.blog_container_aside{
@@ -792,7 +796,7 @@
          * 显示/隐藏侧边栏
          */
         showOrHideSidebar() {
-          if (GM_Menu.get("showOrHideSidebar")) {
+          if (PopsPanel.getValue("showOrHideSidebar")) {
             log.info("显示侧边栏");
             GM_addStyle(`
             #rightAsideConcision{
@@ -833,12 +837,7 @@
           if (!window.location.href.startsWith("https://so.csdn.net/so/ai")) {
             return;
           }
-          GM_Menu.add({
-            key: "csdn_pc_cknow",
-            text: "【屏蔽】C知道的背景水印",
-          });
-          if (GM_Menu.get("csdn_pc_cknow")) {
-            log.success(GM_Menu.getText("csdn_pc_cknow"));
+          if (PopsPanel.getValue("csdn_pc_cknow")) {
             GM_addStyle(`
               div.username_mask_cover{
                 background-image: none !important;
@@ -1062,7 +1061,7 @@
               item.setAttribute("data-url", url);
               item.innerHTML = `<div class="GM-csdn-title"><div class="left">${title}</div></div><div class="GM-csdn-content">${content}</div><div class="GM-csdn-img">${img}</div>`;
               item.addEventListener("click", function () {
-                if (GM_Menu.get("openNewTab")) {
+                if (PopsPanel.getValue("openNewTab")) {
                   window.open(url, "_blank");
                 } else {
                   window.location.href = url;
@@ -1070,7 +1069,7 @@
               });
               if (
                 (isCSDNDownload || isCSDNEduDownload) &&
-                GM_Menu.get("removeCSDNDownloadMobile")
+                PopsPanel.getValue("removeCSDNDownloadMobile")
               ) {
                 item.remove();
               }
@@ -1110,12 +1109,7 @@
           if (!window.location.href.startsWith("https://so.csdn.net/so/ai")) {
             return;
           }
-          GM_Menu.add({
-            key: "csdn_mobile_cknow",
-            text: "【屏蔽】C知道的背景水印",
-          });
-          if (GM_Menu.get("csdn_mobile_cknow")) {
-            log.success(GM_Menu.getText("csdn_mobile_cknow"));
+          if (PopsPanel.getValue("csdn_mobile_cknow")) {
             GM_addStyle(`
               div.username_mask_cover{
                 background-image: none !important;
@@ -1194,7 +1188,7 @@
          * 屏蔽左侧悬浮按钮
          */
         huaweiCSDNShieldLeftFloatingButton() {
-          if (!GM_Menu.get("huaweiCSDNShieldLeftFloatingButton")) {
+          if (!PopsPanel.getValue("huaweiCSDNShieldLeftFloatingButton")) {
             return;
           }
           log.success(
@@ -1209,7 +1203,7 @@
          * 屏蔽右侧栏
          */
         huaweiCSDNBlockRightColumn() {
-          if (!GM_Menu.get("huaweiCSDNBlockRightColumn")) {
+          if (!PopsPanel.getValue("huaweiCSDNBlockRightColumn")) {
             return;
           }
           log.success("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签");
@@ -1223,7 +1217,9 @@
          * 屏蔽底部推荐内容
          */
         huaweiCSDNBlockRecommendedContentAtTheBottom() {
-          if (!GM_Menu.get("huaweiCSDNBlockRecommendedContentAtTheBottom")) {
+          if (
+            !PopsPanel.getValue("huaweiCSDNBlockRecommendedContentAtTheBottom")
+          ) {
             return;
           }
           log.success("屏蔽底部推荐内容");
@@ -1236,7 +1232,11 @@
          * 屏蔽底部更多推荐
          */
         huaweiCSDNShieldTheBottomForMoreRecommendations() {
-          if (!GM_Menu.get("huaweiCSDNShieldTheBottomForMoreRecommendations")) {
+          if (
+            !PopsPanel.getValue(
+              "huaweiCSDNShieldTheBottomForMoreRecommendations"
+            )
+          ) {
             return;
           }
           log.success("屏蔽底部更多推荐");
@@ -1248,111 +1248,400 @@
       },
     },
   };
-  if (Optimization.huaWeiCSDN.locationMatch()) {
-    GM_Menu.add([
-      {
-        key: "huaweiCSDNShieldCloudDeveloperTaskChallengeEvent",
-        text: "电脑-屏蔽云开发者任务挑战活动",
-        enable: true,
-      },
-      {
-        key: "huaweiCSDNShieldLeftFloatingButton",
-        text: "电脑-屏蔽左侧悬浮按钮",
-        title: "包括当前阅读量、点赞按钮、评论按钮、分享按钮",
-      },
-      {
-        key: "huaweiCSDNBlockRightColumn",
-        text: "电脑-屏蔽右侧",
-        title: "包括相关产品-活动日历-运营活动-热门标签",
-      },
-      {
-        key: "huaweiCSDNBlockRecommendedContentAtTheBottom",
-        text: "电脑-屏蔽底部推荐内容",
-      },
-      {
-        key: "huaweiCSDNShieldTheBottomForMoreRecommendations",
-        text: "电脑-屏蔽底部更多推荐",
-      },
-    ]);
-    Optimization.huaWeiCSDN.PC.run();
-  } else if (Optimization.csdn.locationMatch()) {
-    if (utils.isPhone()) {
+
+  /**
+   * 配置面板
+   */
+  const PopsPanel = {
+    /**
+     * 本地存储的总键名
+     */
+    key: "GM_Panel",
+    /**
+     * 属性attributes的data-key
+     */
+    attributeDataKey_Name: "data-key",
+    /**
+     * 属性attributes的data-default-value
+     */
+    attributeDataDefaultValue_Name: "data-default-value",
+    /**
+     * 初始化菜单
+     */
+    initMenu() {
+      this.initLocalDefaultValue();
       GM_Menu.add([
         {
-          key: "openNewTab",
-          text: "手机-底部推荐文章新标签页打开",
-          enable: true,
-        },
-        {
-          key: "removeCSDNDownloadMobile",
-          text: "手机-移除文章底部的CSDN下载",
-        },
-      ]);
-    } else {
-      GM_Menu.add([
-        {
-          key: "removeCSDNDownloadPC",
-          text: "电脑-屏蔽底部推荐文章的CSDN下载",
-        },
-        {
-          key: "shieldLoginDialog",
-          text: "电脑-屏蔽登录弹窗",
-          enable: true,
-          callback(data) {
-            if (!data.enable) {
-              window.GM_CSS_GM_shieldLoginDialog?.forEach((item) => {
-                item.remove();
-              });
-            } else {
-              if (typeof window.GM_CSS_GM_shieldLoginDialog !== "undefined") {
-                window.GM_CSS_GM_shieldLoginDialog = [
-                  ...window.GM_CSS_GM_shieldLoginDialog,
-                  GM_addStyle(
-                    `.passport-login-container{display: none !important;}`
-                  ),
-                ];
-              } else {
-                window.GM_CSS_GM_shieldLoginDialog = [
-                  GM_addStyle(
-                    `.passport-login-container{display: none !important;}`
-                  ),
-                ];
-              }
-            }
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.showPanel();
           },
         },
         {
-          key: "csdnShieldfloatingButton",
-          text: "电脑-屏蔽右侧悬浮按钮",
-        },
-        {
-          key: "csdnShieldBottomRecommendArticle",
-          text: "电脑-屏蔽底部推荐文章",
-        },
-        {
-          key: "csdnShieldBottomFloatingToolbar",
-          text: "电脑-屏蔽底部悬浮工具栏",
-        },
-        {
-          key: "articleCenter",
-          text: "电脑-全文居中",
-          enable: true,
-        },
-        {
-          key: "autoExpandContent",
-          text: "电脑-自动展开内容块",
-        },
-        {
-          key: "showOrHideDirectory",
-          text: "电脑-显示目录",
-        },
-        {
-          key: "showOrHideSidebar",
-          text: "电脑-显示侧边栏",
+          key: "transfer_old_data",
+          text: "🔧 迁移旧数据",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.transferOldData();
+          },
         },
       ]);
-    }
+    },
+    /**
+     * 初始化本地设置默认的值
+     */
+    initLocalDefaultValue() {
+      let content = this.getContent();
+      content.forEach((item) => {
+        if (!item["forms"]) {
+          return;
+        }
+        item.forms.forEach((__item__) => {
+          if (__item__.forms) {
+            __item__.forms.forEach((containerItem) => {
+              if (!containerItem.attributes) {
+                return;
+              }
+              let key = containerItem.attributes[this.attributeDataKey_Name];
+              let defaultValue =
+                containerItem.attributes[this.attributeDataDefaultValue_Name];
+              if (this.getValue(key) == null) {
+                this.setValue(key, defaultValue);
+              }
+            });
+          } else {
+          }
+        });
+      });
+    },
+    /**
+     * 设置值
+     * @param {string} key 键
+     * @param {any} value 值
+     */
+    setValue(key, value) {
+      let localValue = GM_getValue(this.key, {});
+      localValue[key] = value;
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 获取值
+     * @param {string} key 键
+     * @param {any} defaultValue 默认值
+     * @returns {any}
+     */
+    getValue(key, defaultValue) {
+      let localValue = GM_getValue(this.key, {});
+      return localValue[key] ?? defaultValue;
+    },
+    /**
+     * 删除值
+     * @param {string} key 键
+     */
+    deleteValue(key) {
+      let localValue = GM_getValue(this.key, {});
+      delete localValue[key];
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 显示设置面板
+     */
+    showPanel() {
+      pops.panel({
+        title: {
+          text: `${GM_info?.script?.name || "CSDN|简书优化"}-设置`,
+          position: "center",
+        },
+        content: this.getContent(),
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+          },
+        },
+        width: pops.isPhone() ? "92vw" : "800px",
+        height: pops.isPhone() ? "80vh" : "600px",
+        only: true,
+        drag: true,
+      });
+    },
+    /**
+     * 获取按钮配置
+     * @param {string} text
+     * @param {string} key
+     * @param {boolean} defaultValue
+     * @param {?(event:Event,value: boolean)=>boolean} _callback_
+     */
+    getSwtichDetail(text, key, defaultValue, _callback_) {
+      let result = {
+        text: text,
+        type: "switch",
+        attributes: {},
+        getValue() {
+          return Boolean(PopsPanel.getValue(key, defaultValue));
+        },
+        callback(event, value) {
+          log.success(`${value ? "开启" : "关闭"} ${text}`);
+          if (typeof _callback_ === "function") {
+            if (_callback_(event, value)) {
+              return;
+            }
+          }
+          PopsPanel.setValue(key, value);
+        },
+      };
+      result.attributes[this.attributeDataKey_Name] = key;
+      result.attributes[this.attributeDataDefaultValue_Name] =
+        Boolean(defaultValue);
+      return result;
+    },
+    /**
+     * 获取配置内容
+     */
+    getContent() {
+      return [
+        {
+          id: "csdn-panel-config-pc",
+          title: "CSDN-桌面端",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "登录弹窗",
+                  "shieldLoginDialog",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部的CSDN下载文章",
+                  "removeCSDNDownloadPC",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "右侧悬浮按钮",
+                  "csdnShieldfloatingButton",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部的推荐文章",
+                  "csdnShieldBottomRecommendArticle",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部的悬浮工具栏",
+                  "csdnShieldBottomFloatingToolbar",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "C知道的背景水印",
+                  "csdn_pc_cknow",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail("全文居中", "articleCenter", true),
+                PopsPanel.getSwtichDetail(
+                  "自动展开内容块",
+                  "autoExpandContent",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "显示目录",
+                  "showOrHideDirectory",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "显示侧边栏",
+                  "showOrHideSidebar",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "csdn-panel-config-mobile",
+          title: "CSDN-移动端",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "底部的CSDN下载文章",
+                  "removeCSDNDownloadMobile",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "C知道的背景水印",
+                  "csdn_mobile_cknow",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "底部文章新标签页打开",
+                  "openNewTab",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "csdn-panel-config-huawei",
+          title: "CSDN-华为",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "云开发者任务挑战活动",
+                  "huaweiCSDNShieldCloudDeveloperTaskChallengeEvent",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "左侧悬浮按钮",
+                  "huaweiCSDNShieldLeftFloatingButton",
+                  false,
+                  function (event, enable) {
+                    if (enable) {
+                      alert(
+                        "开启后将屏蔽【当前阅读量】、【点赞按钮】、【评论按钮】、【分享按钮】"
+                      );
+                    }
+                  }
+                ),
+                PopsPanel.getSwtichDetail(
+                  "右侧",
+                  "huaweiCSDNShieldLeftFloatingButton",
+                  false,
+                  function (event, enable) {
+                    if (enable) {
+                      alert(
+                        "开启后将屏蔽【相关产品】-【活动日历】-【运营活动】-【热门标签】"
+                      );
+                    }
+                  }
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部推荐内容",
+                  "huaweiCSDNBlockRecommendedContentAtTheBottom",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部更多推荐",
+                  "huaweiCSDNShieldTheBottomForMoreRecommendations",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "jianshu-panel-config-pc",
+          title: "简书-桌面端",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "推荐阅读",
+                  "JianShuShieldRecommendedReading",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "评论区",
+                  "JianShuShieldUserComments",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "相关文章",
+                  "JianShuShieldRelatedArticles",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "全文居中",
+                  "JianShuArticleCenter",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "jianshu-panel-config-mobile",
+          title: "简书-移动端",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "底部推荐阅读",
+                  "JianShuremoveFooterRecommendRead",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "评论区",
+                  "JianShuShieldUserCommentsMobile",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+      ];
+    },
+    /**
+     * 迁移旧数据
+     */
+    transferOldData() {
+      let oldData = GM_getValue("GM_Menu_Local_Map");
+      let currentData = GM_getValue(this.key, {});
+      if (oldData) {
+        Object.assign(currentData, oldData);
+        GM_setValue(this.key, currentData);
+        GM_deleteValue("GM_Menu_Local_Map");
+        alert("共迁移数据量：" + Object.keys(oldData).length);
+      } else {
+        alert("不存在旧数据");
+      }
+    },
+  };
 
+  PopsPanel.initMenu();
+
+  if (Optimization.huaWeiCSDN.locationMatch()) {
+    Optimization.huaWeiCSDN.PC.run();
+  } else if (Optimization.csdn.locationMatch()) {
     GM_Menu.add({
       key: "gotoCSDNCKnow",
       text: "⚙ 前往C知道",
@@ -1366,39 +1655,6 @@
     });
     Optimization.csdn.run();
   } else if (Optimization.jianshu.locationMatch()) {
-    if (utils.isPhone()) {
-      GM_Menu.add([
-        {
-          key: "JianShuremoveFooterRecommendRead",
-          text: "手机-移除底部推荐阅读",
-        },
-        {
-          key: "JianShuShieldUserComments",
-          text: "手机-屏蔽评论区",
-        },
-      ]);
-    } else {
-      GM_Menu.add([
-        {
-          key: "JianShuArticleCenter",
-          text: "电脑-全文居中",
-          enable: true,
-        },
-        {
-          key: "JianShuShieldRelatedArticles",
-          text: "电脑-屏蔽相关文章",
-        },
-        {
-          key: "JianShuShieldUserComments",
-          text: "电脑-屏蔽评论区",
-        },
-        {
-          key: "JianShuShieldRecommendedReading",
-          text: "电脑-屏蔽推荐阅读",
-        },
-      ]);
-    }
-
     Optimization.jianshu.run();
   }
 })();
