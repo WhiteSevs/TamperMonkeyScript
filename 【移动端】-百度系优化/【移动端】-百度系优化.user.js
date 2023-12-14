@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.8
+// @version      2023.12.14
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -49,8 +49,9 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/455186/1293172/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1293173/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1295729/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -58,6 +59,10 @@
    * 是否为调试模式
    */
   const DEBUG = false;
+  /**
+   * @type {import("../库/pops")}
+   */
+  const pops = window.pops;
   /**
    * @type {import("../库/Viewer")}
    */
@@ -1721,17 +1726,9 @@
       ) {
         return;
       }
-      GM_Menu.add({
-        key: "baidu_search_home_homepage_minification",
-        text: "精简主页",
-        enable: true,
-      });
-      if (GM_Menu.get("baidu_search_home_homepage_minification")) {
+      if (PopsPanel.getValue("baidu_search_home_homepage_minification")) {
         GM_addStyle(this.css.searchHome);
-        log.info(
-          "插入CSS规则-主页 " +
-            GM_Menu.getShowTextValue("baidu_search_home_homepage_minification")
-        );
+        log.info("插入CSS规则-主页");
       }
     },
     /**
@@ -1743,10 +1740,6 @@
       }
 
       const handleItemURL = {
-        /**
-         * 是否显示 重 图标
-         */
-        showIsDirectIcon: false,
         originURLMap: null,
         /**
          * 判断链接是否是百度的中转链接
@@ -2214,7 +2207,9 @@
          */
         removeAds() {
           if (
-            GM_Menu.get("baidu_search_blocking_everyone_is_still_searching")
+            PopsPanel.getValue(
+              "baidu_search_blocking_everyone_is_still_searching"
+            )
           ) {
             let pageRelativeElement =
               document.querySelectorAll("#page-relative");
@@ -2272,7 +2267,9 @@
             ); /* 获取属性上的LOG */
             let searchArticleOriginal_link = dataLog["mu"]; /* 真实链接 */
             if (
-              GM_Menu.get("baidu_search_blocking_everyone_is_still_searching")
+              PopsPanel.getValue(
+                "baidu_search_blocking_everyone_is_still_searching"
+              )
             ) {
               if (
                 searchArticleOriginal_link.match(/recommend_list.baidu.com/g) ||
@@ -2327,7 +2324,7 @@
             }
             if (
               searchArticleOriginal_link.match(/expert.baidu.com/g) &&
-              GM_Menu.get("baidu_search_shield_baidu_health")
+              PopsPanel.getValue("baidu_search_shield_baidu_health")
             ) {
               item?.remove();
               log.success("删除广告 ==> 百度健康");
@@ -2406,24 +2403,7 @@
               log.error("黑名单链接不进行替换👉" + resultItemOriginURL);
               continue;
             }
-            if (
-              !resultItemOriginURL.match(/^http(s|):\/\/m.baidu.com\/from/g)
-            ) {
-              if (
-                handleItemURL.showIsDirectIcon &&
-                !item.querySelector(".white-bdsearch-isredirecrt")
-              ) {
-                let title_text_element =
-                  handleItemURL.getItemTitleElement(item);
-                let is_redirect_icon = document.createElement("div");
-                is_redirect_icon.className = "white-bdsearch-isredirecrt";
-                is_redirect_icon.innerHTML = "<span>重</span>";
-                title_text_element.insertBefore(
-                  is_redirect_icon,
-                  title_text_element.firstChild
-                );
-              }
-            }
+
             if (
               item.getAttribute("tpl") === "wenda_abstract" &&
               item.getAttribute("preventClick") == null
@@ -2895,7 +2875,7 @@
               log.info("已加载所有的搜索结果");
               handleNextPage.removeNextPageScrollListener();
             }
-            if (GM_Menu.get("baidu_search_sync_next_page_address")) {
+            if (PopsPanel.getValue("baidu_search_sync_next_page_address")) {
               window.history.pushState("forward", null, nextPageUrl);
             }
             /* 处理下一页的【大家还在搜】 */
@@ -3019,24 +2999,16 @@
        */
       const handleHijack = {
         run() {
-          if (GM_Menu.get("baidu_search_hijack_openbox")) {
-            log.success(
-              GM_Menu.getShowTextValue("baidu_search_hijack_openbox")
-            );
+          if (PopsPanel.getValue("baidu_search_hijack_openbox")) {
             baiduHijack.hijackOpenBox();
           }
-          if (GM_Menu.get("baidu_search_hijack_scheme")) {
-            log.success(GM_Menu.getShowTextValue("baidu_search_hijack_scheme"));
+          if (PopsPanel.getValue("baidu_search_hijack_scheme")) {
             baiduHijack.hijackFunctionApplyScheme();
           }
-          if (GM_Menu.get("baidu_search_hijack_copy")) {
-            log.success(GM_Menu.getShowTextValue("baidu_search_hijack_copy"));
+          if (PopsPanel.getValue("baidu_search_hijack_copy")) {
             baiduHijack.hijackCopy();
           }
-          if (GM_Menu.get("baidu_search_hijack__onClick")) {
-            log.success(
-              GM_Menu.getShowTextValue("baidu_search_hijack__onClick")
-            );
+          if (PopsPanel.getValue("baidu_search_hijack__onClick")) {
             baiduHijack.hijack_onClick("baidu_search_hijack__onClick");
           }
         },
@@ -3047,34 +3019,14 @@
         log.info("插入CSS规则");
         GM_addStyle(this.css.searchBaiduHealth);
 
-        GM_Menu.add([
-          {
-            key: "baidu_search_headlth_shield_other_info",
-            text: "【屏蔽】底部其它信息",
-            enable: true,
-          },
-          {
-            key: "baidu_search_headlth_shield_bottom_toolbar",
-            text: "【屏蔽】底部工具栏",
-            enable: true,
-          },
-        ]);
-        if (GM_Menu.get("baidu_search_headlth_shield_other_info")) {
-          log.success(
-            GM_Menu.getShowTextValue("baidu_search_headlth_shield_other_info")
-          );
+        if (PopsPanel.getValue("baidu_search_headlth_shield_other_info")) {
           GM_addStyle(`
           article[class] > div[class^="index_container"]{
             display: none !important;
           }
           `);
         }
-        if (GM_Menu.get("baidu_search_headlth_shield_bottom_toolbar")) {
-          log.success(
-            GM_Menu.getShowTextValue(
-              "baidu_search_headlth_shield_bottom_toolbar"
-            )
-          );
+        if (PopsPanel.getValue("baidu_search_headlth_shield_bottom_toolbar")) {
           GM_addStyle(`
           article[class] > div[class^="index_healthServiceButtonsRow"]{
             display: none !important;
@@ -3083,112 +3035,12 @@
         }
       } else {
         /* 默认的百度搜索 */
-        GM_Menu.add([
-          {
-            key: "baidu_search_automatically_expand_next_page",
-            text: "自动展开下一页",
-            enable: true,
-            autoReload: false,
-            callback(data) {
-              if (
-                data.enable &&
-                GM_Menu.get(
-                  "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
-                )
-              ) {
-                GM_Menu.setEnable(data.key, false);
-                GM_Menu.update();
-                alert(
-                  "与菜单功能 【简单UA-自动点击下一页】，请先关闭【简单UA-自动点击下一页】"
-                );
-              }
-            },
-          },
-          {
-            key: "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
-            text: "简单UA-自动点击下一页",
-            enable: false,
-            autoReload: false,
-            callback(data) {
-              if (
-                data.enable &&
-                GM_Menu.get("baidu_search_automatically_expand_next_page")
-              ) {
-                GM_Menu.setEnable(data.key, false);
-                GM_Menu.update();
-                alert(
-                  "与菜单功能 【自动展开下一页】，请先关闭【自动展开下一页】"
-                );
-              }
-            },
-          },
-          {
-            key: "baidu_search_show_redirected_icon",
-            text: "显示已重定向图标",
-          },
-          {
-            key: "baidu_search_show_log",
-            text: "控制台输出日志",
-          },
-          {
-            key: "baidu_search_sync_next_page_address",
-            text: "同步下一页地址",
-            callback(data) {
-              if (data.enable) {
-                alert(
-                  "开启后，且开启【自动展开下一页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
-                );
-              }
-            },
-          },
-          {
-            key: "baidu_search_disable_autoplay_video",
-            text: "【禁止】自动播放视频",
-          },
-          {
-            key: "baidu_search_blocking_everyone_is_still_searching",
-            text: "【屏蔽】大家还在搜",
-            enable: true,
-          },
-          {
-            key: "baidu_search_refactor_everyone_is_still_searching",
-            text: "【重构】大家还在搜",
-            enable: true,
-          },
-          {
-            key: "baidu_search_shield_baidu_health",
-            text: "【屏蔽】百度健康",
-            enable: true,
-          },
-          {
-            key: "baidu_search_hijack_openbox",
-            text: "劫持OpenBox",
-            enable: false,
-          },
-          {
-            key: "baidu_search_hijack_scheme",
-            text: "劫持Scheme",
-            enable: false,
-          },
-          {
-            key: "baidu_search_hijack_copy",
-            text: "劫持Copy",
-            enable: false,
-          },
-          {
-            key: "baidu_search_hijack__onClick",
-            text: "劫持_onClick",
-            enable: false,
-          },
-        ]);
-        if (!GM_Menu.get("baidu_search_show_log")) {
+        if (!PopsPanel.getValue("baidu_search_show_log")) {
           log.error("禁止控制台输出日志");
           log.disable();
         }
-        if (GM_Menu.get("baidu_search_disable_autoplay_video")) {
-          log.success(
-            GM_Menu.getShowTextValue("baidu_search_disable_autoplay_video")
-          );
+        if (PopsPanel.getValue("baidu_search_disable_autoplay_video")) {
+          log.success("【禁止】自动播放视频");
           let funcLock = new utils.LockFunction(
             () => {
               let videoPlayerList = document.querySelectorAll(
@@ -3213,13 +3065,10 @@
             callback: funcLock.run,
           });
         }
-
-        handleItemURL.showIsDirectIcon = GM_Menu.get(
-          "baidu_search_show_redirected_icon"
-        );
-        handleEveryOneSearch.refactorEveryoneIsStillSearching = GM_Menu.get(
-          "baidu_search_refactor_everyone_is_still_searching"
-        );
+        handleEveryOneSearch.refactorEveryoneIsStillSearching =
+          PopsPanel.getValue(
+            "baidu_search_refactor_everyone_is_still_searching"
+          );
         log.info("插入CSS规则");
         GM_addStyle(this.css.search);
         DOMUtils.ready(function () {
@@ -3261,23 +3110,15 @@
           handleItemURL.redirectTopLink();
           handleInputEvent.run();
           searchUpdateRealLink.run();
-          if (GM_Menu.get("baidu_search_automatically_expand_next_page")) {
-            log.success(
-              GM_Menu.getShowTextValue(
-                "baidu_search_automatically_expand_next_page"
-              )
-            );
+          if (
+            PopsPanel.getValue("baidu_search_automatically_expand_next_page")
+          ) {
             handleNextPage.init();
           } else if (
-            GM_Menu.get(
+            PopsPanel.getValue(
               "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
             )
           ) {
-            log.success(
-              GM_Menu.getShowTextValue(
-                "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
-              )
-            );
             handleSearchCraftUserAgentPage.init();
           }
           if (
@@ -3311,40 +3152,8 @@
       }
       GM_addStyle(this.css.baijiahao);
       log.info("插入CSS规则");
-      GM_Menu.add([
-        {
-          key: "baijiahao_shield_recommended_article",
-          text: "【屏蔽】推荐文章",
-          enable: true,
-        },
-        {
-          key: "baijiahao_shield_user_comment",
-          text: "【屏蔽】用户评论",
-        },
-        {
-          key: "baijiahao_shield_user_comment_input_box",
-          text: "【屏蔽】底部悬浮工具栏",
-        },
-        {
-          key: "baijiahao_hijack_wakeup",
-          text: "劫持唤醒",
-          enable: false,
-        },
-        {
-          key: "baidu_baijiahao_hijack_iframe",
-          text: "劫持iframe",
-          enable: true,
-        },
-        {
-          key: "baidu_baijiahao_hijack_openbox",
-          text: "劫持OpenBox",
-          enable: false,
-        },
-      ]);
-      if (GM_Menu.get("baijiahao_shield_recommended_article")) {
-        log.success(
-          GM_Menu.getShowTextValue("baijiahao_shield_recommended_article")
-        );
+      if (PopsPanel.getValue("baijiahao_shield_recommended_article")) {
+        log.success("屏蔽-推荐文章");
         GM_addStyle(`
 			  .infinite-scroll-component__outerdiv, 
         div#page_wrapper > div > div:nth-child(5), 
@@ -3378,28 +3187,24 @@
           display: none !important;
         }`);
       }
-      if (GM_Menu.get("baijiahao_shield_user_comment")) {
-        log.success(GM_Menu.getShowTextValue("baijiahao_shield_user_comment"));
+      if (PopsPanel.getValue("baijiahao_shield_user_comment")) {
+        log.success("屏蔽-用户评论");
         GM_addStyle(`
         #commentModule{
           display: none !important;
         }`);
       }
-      if (GM_Menu.get("baijiahao_shield_user_comment_input_box")) {
-        log.success(
-          GM_Menu.getShowTextValue("baijiahao_shield_user_comment_input_box")
-        );
+      if (PopsPanel.getValue("baijiahao_shield_user_comment_input_box")) {
+        log.success("屏蔽-底部悬浮工具栏");
         GM_addStyle(`
         div#wise-invoke-interact-bar{
           display: none !important;
         }`);
       }
-      if (GM_Menu.get("baijiahao_hijack_wakeup")) {
-        log.success(GM_Menu.getShowTextValue("baijiahao_hijack_wakeup"));
+      if (PopsPanel.getValue("baijiahao_hijack_wakeup")) {
         baiduHijack.hijackFunctionCall_BaiJiaHao_Map();
       }
-      if (GM_Menu.get("baidu_baijiahao_hijack_iframe")) {
-        log.success(GM_Menu.getShowTextValue("baidu_baijiahao_hijack_iframe"));
+      if (PopsPanel.getValue("baidu_baijiahao_hijack_iframe")) {
         baiduHijack.hijackElementAppendChild(function (element) {
           if (
             element.localName === "script" &&
@@ -3410,8 +3215,7 @@
           }
         });
       }
-      if (GM_Menu.get("baidu_baijiahao_hijack_openbox")) {
-        log.success(GM_Menu.getShowTextValue("baidu_baijiahao_hijack_openbox"));
+      if (PopsPanel.getValue("baidu_baijiahao_hijack_openbox")) {
         baiduHijack.hijackOpenBox();
       }
     },
@@ -4386,7 +4190,7 @@
                 );
                 log.success("关闭楼中楼回复弹窗");
                 dialog.remove();
-                if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
+                if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
                   resumeBack();
                 }
               }
@@ -4589,7 +4393,7 @@
             dialog.setAttribute("data-on", true);
             this.vueRootView = document.querySelector(".main-page-wrap");
             log.success(["成功获取Vue根元素", this.vueRootView.__vue__]);
-            if (GM_Menu.get("baidu_tieba_lzl_ban_global_back")) {
+            if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
               banBack();
             }
           }, 0);
@@ -4787,10 +4591,8 @@
               Referer: "tieba.baidu.com",
             },
           };
-          if (GM_Menu.get("baidu_tieba_request_with_cookie")) {
-            log.success(
-              GM_Menu.getShowTextValue("baidu_tieba_request_with_cookie")
-            );
+          if (PopsPanel.getValue("baidu_tieba_request_with_cookie")) {
+            log.success("贴吧-发送请求携带cookie");
             getDetails.headers["Cookie"] = document.cookie;
           }
           let getResp = await httpx.get(getDetails);
@@ -5076,17 +4878,6 @@
             ]);
           }
           utils.waitNode(".main-page-wrap").then(() => {
-            GM_Menu.add({
-              key: "baidu_tieba_lzl_ban_global_back",
-              text: "回退关闭楼中楼回复",
-              callback(data) {
-                if (data.enable) {
-                  alert(
-                    "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。"
-                  );
-                }
-              },
-            });
             tiebaCommentConfig.insertLoadingHTML();
           });
           utils
@@ -6371,14 +6162,12 @@
          * 添加滚动到顶部按钮
          */
         addScrollTopButton() {
-          if (!GM_Menu.get("baidu_tieba_add_scroll_top_button_in_forum")) {
+          if (
+            !PopsPanel.getValue("baidu_tieba_add_scroll_top_button_in_forum")
+          ) {
             return;
           }
-          log.success(
-            GM_Menu.getShowTextValue(
-              "baidu_tieba_add_scroll_top_button_in_forum"
-            )
-          );
+          log.success("添加滚动到顶部按钮");
           let isInsertButton = false;
           let showScrollTopButton = function () {
             isInsertButton = true;
@@ -6483,12 +6272,7 @@
          * + 3  发布
          */
         rememberPostSort() {
-          GM_Menu.add({
-            key: "baidu_tieba_remember_user_post_sort",
-            text: "记住当前选择的看帖排序",
-            enable: true,
-          });
-          if (!GM_Menu.get("baidu_tieba_remember_user_post_sort")) {
+          if (!PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
             return;
           }
           let userSortModel = parseInt(
@@ -6508,57 +6292,20 @@
         },
       };
 
-      GM_Menu.add([
-        {
-          key: "baidu_tieba_add_search",
-          text: "新增搜索功能",
-          enable: true,
-        },
-        {
-          key: "baidu_tieba_add_scroll_top_button_in_forum",
-          text: "新增贴内滚动到顶部按钮",
-          enable: true,
-        },
-        {
-          key: "baidu_tieba_optimize_see_comments",
-          text: "优化查看评论",
-          enable: true,
-        },
-        {
-          key: "baidu_tieba_optimize_image_preview",
-          text: "优化图片预览",
-          enable: true,
-        },
-        {
-          key: "baidu_tieba_hijack_wake_up",
-          text: "劫持唤醒",
-          enable: false,
-        },
-        {
-          key: "baidu_tieba_request_with_cookie",
-          text: "【beta】请求携带Cookie",
-          enable: false,
-        },
-      ]);
       tiebaBusiness.clientCallMasquerade();
       baiduHijack.hijackElementAppendChild();
-      if (GM_Menu.get("baidu_tieba_hijack_wake_up")) {
-        log.success(GM_Menu.getShowTextValue("baidu_tieba_hijack_wake_up"));
+      if (PopsPanel.getValue("baidu_tieba_hijack_wake_up")) {
         baiduHijack.hijackFunctionCall_WebPack_TieBa();
       }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
       if (this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)) {
-        if (GM_Menu.get("baidu_tieba_optimize_see_comments")) {
-          log.success(
-            GM_Menu.getShowTextValue("baidu_tieba_optimize_see_comments")
-          );
+        if (PopsPanel.getValue("baidu_tieba_optimize_see_comments")) {
+          log.success("优化查看评论");
           tiebaCommentConfig.run();
         }
-        if (GM_Menu.get("baidu_tieba_optimize_image_preview")) {
-          log.success(
-            GM_Menu.getShowTextValue("baidu_tieba_optimize_image_preview")
-          );
+        if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+          log.success("优化图片预览");
           tiebaOhterFunc.optimizeImagePreview();
         }
       }
@@ -6567,15 +6314,7 @@
           /^http(s|):\/\/(tieba.baidu|www.tieba).com\/mo\/q\/newtopic\/topicTemplate/g
         )
       ) {
-        GM_Menu.add({
-          key: "baidu_tieba_topic_redirect_jump",
-          text: "重定向跳转",
-          enable: true,
-        });
-        if (GM_Menu.get("baidu_tieba_topic_redirect_jump")) {
-          log.success(
-            GM_Menu.getShowTextValue("baidu_tieba_topic_redirect_jump")
-          );
+        if (PopsPanel.getValue("baidu_tieba_topic_redirect_jump")) {
           tiebaOhterFunc.redirectJump();
         }
       }
@@ -6589,8 +6328,7 @@
         tiebaBusiness.addScrollTopButton();
         tiebaBusiness.addAuthorClickEvent();
       }
-      if (GM_Menu.get("baidu_tieba_add_search")) {
-        log.success(GM_Menu.getShowTextValue("baidu_tieba_add_search"));
+      if (PopsPanel.getValue("baidu_tieba_add_search")) {
         tiebaSearchConfig.run();
       }
       /* tiebaBusiness.run(); */
@@ -6617,43 +6355,15 @@
       }
       GM_addStyle(this.css.wenku);
       log.info("插入CSS规则");
-      GM_Menu.add([
-        {
-          key: "baidu_wenku_block_member_picks",
-          text: "【屏蔽】会员精选",
-          enable: true,
-        },
-        {
-          key: "baidu_wenku_blocking_app_featured",
-          text: "【屏蔽】APP精选",
-          enable: true,
-        },
-        {
-          key: "baidu_wenku_blocking_related_documents",
-          text: "【屏蔽】相关文档",
-        },
-        {
-          key: "baidu_wenku_blocking_bottom_toolbar",
-          text: "【屏蔽】底部工具栏",
-        },
-        {
-          key: "baidu_wenku_shield_next_btn",
-          text: "【屏蔽】下一篇按钮",
-        },
-      ]);
       /* 屏蔽会员精选 */
-      if (GM_Menu.get("baidu_wenku_block_member_picks")) {
-        log.success(GM_Menu.getShowTextValue("baidu_wenku_block_member_picks"));
+      if (PopsPanel.getValue("baidu_wenku_block_member_picks")) {
         GM_addStyle(`
           div[class*="vip-choice_"][data-ait-action="vipChoiceShow"]{
             display: none !important;
           }`);
       }
       /* 屏蔽APP精选 */
-      if (GM_Menu.get("baidu_wenku_blocking_app_featured")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_wenku_blocking_app_featured")
-        );
+      if (PopsPanel.getValue("baidu_wenku_blocking_app_featured")) {
         GM_addStyle(`
           div[class*="app-choice_"][data-ait-action="appChoiceNewShow"],
           div.folder-wrap.invite-clipboard[data-clipboard-text]{
@@ -6661,10 +6371,7 @@
           }`);
       }
       /* 屏蔽相关文档 */
-      if (GM_Menu.get("baidu_wenku_blocking_related_documents")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_wenku_blocking_related_documents")
-        );
+      if (PopsPanel.getValue("baidu_wenku_blocking_related_documents")) {
         GM_addStyle(`
           div.fold-page-conversion,
           div.newrecom-list.invite-clipboard[data-clipboard-text]{
@@ -6672,18 +6379,14 @@
           }`);
       }
       /* 屏蔽底部工具栏 */
-      if (GM_Menu.get("baidu_wenku_blocking_bottom_toolbar")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_wenku_blocking_bottom_toolbar")
-        );
+      if (PopsPanel.getValue("baidu_wenku_blocking_bottom_toolbar")) {
         GM_addStyle(`
           div.barbottom{
             display: none !important;
           }`);
       }
       /* 屏蔽下一篇按钮 */
-      if (GM_Menu.get("baidu_wenku_shield_next_btn")) {
-        log.success(GM_Menu.getShowTextValue("baidu_wenku_shield_next_btn"));
+      if (PopsPanel.getValue("baidu_wenku_shield_next_btn")) {
         GM_addStyle(`
           div.next-page-container{
             display: none !important;
@@ -6710,11 +6413,6 @@
       let page = 1;
       GM_addStyle(this.css.baike);
       log.info("插入CSS规则");
-      GM_Menu.add({
-        key: "baidu_baike_sync_next_page_address",
-        text: "同步下一页地址",
-      });
-
       /**
        * 获取到的图片大小要重新设置
        */
@@ -6814,7 +6512,7 @@
                   // 等待350ms，防止被百度识别为机器人
                   await utils.sleep(350);
                 }
-                if (GM_Menu.get("baidu_baike_sync_next_page_address")) {
+                if (PopsPanel.getValue("baidu_baike_sync_next_page_address")) {
                   window.history.pushState("forward", null, respData.finalUrll);
                 }
                 page++;
@@ -6887,34 +6585,9 @@
       if (document.querySelector(".ec-ad")) {
         DOMUtils.remove(DOMUtils.parent(document.querySelectorAll(".ec-ad")));
       }
-      GM_Menu.add([
-        {
-          key: "baidu_zhidao_block_recommend_more_exciting_content",
-          text: "【屏蔽】推荐更多精彩内容",
-          enable: true,
-        },
-        {
-          key: "baidu_zhidao_block_related_issues",
-          text: "【屏蔽】相关问题",
-          enable: true,
-        },
-        {
-          key: "baidu_zhidao_block_other_answers",
-          text: "【屏蔽】其他回答",
-          enable: true,
-        },
-        {
-          key: "baidu_fanyi_auto_focus",
-          text: "自动点击-展开更多回答",
-          enable: true,
-        },
-      ]);
-      if (GM_Menu.get("baidu_zhidao_block_recommend_more_exciting_content")) {
-        log.success(
-          GM_Menu.getShowTextValue(
-            "baidu_zhidao_block_recommend_more_exciting_content"
-          )
-        );
+      if (
+        PopsPanel.getValue("baidu_zhidao_block_recommend_more_exciting_content")
+      ) {
         GM_addStyle(`
           .feed-recommend-title,
           #feed-recommend,
@@ -6922,19 +6595,13 @@
             display: none !important;
           }`);
       }
-      if (GM_Menu.get("baidu_zhidao_block_other_answers")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_zhidao_block_other_answers")
-        );
+      if (PopsPanel.getValue("baidu_zhidao_block_other_answers")) {
         GM_addStyle(`
           .replies-container + div{
             display: none !important;
           }`);
       }
-      if (GM_Menu.get("baidu_zhidao_block_related_issues")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_zhidao_block_related_issues")
-        );
+      if (PopsPanel.getValue("baidu_zhidao_block_related_issues")) {
         GM_addStyle(`
           div[id^=wahsd],
           div[class^="w-question-list"]{
@@ -6951,43 +6618,19 @@
       }
       GM_addStyle(this.css.fanyi);
       log.info("插入CSS规则");
-      GM_Menu.add([
-        {
-          key: "baidu_fanyi_recommended_shielding_bottom",
-          text: "【屏蔽】底部推荐",
-          enable: true,
-        },
-        {
-          key: "baidu_fanyi_other_shielding_bottom",
-          text: "【屏蔽】底部其它",
-          enable: true,
-        },
-        {
-          key: "baidu_fanyi_auto_focus",
-          text: "自动聚焦输入框",
-          enable: true,
-        },
-      ]);
-      if (GM_Menu.get("baidu_fanyi_recommended_shielding_bottom")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_fanyi_recommended_shielding_bottom")
-        );
+      if (PopsPanel.getValue("baidu_fanyi_recommended_shielding_bottom")) {
         GM_addStyle(`
         section.article.android-style{
           display: none !important;
         }`);
       }
-      if (GM_Menu.get("baidu_fanyi_other_shielding_bottom")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_fanyi_other_shielding_bottom")
-        );
+      if (PopsPanel.getValue("baidu_fanyi_other_shielding_bottom")) {
         GM_addStyle(`
         .trans-other-wrap.clearfix{
           display: none !important;
         }`);
       }
-      if (GM_Menu.get("baidu_fanyi_auto_focus")) {
-        log.success(GM_Menu.getShowTextValue("baidu_fanyi_auto_focus"));
+      if (PopsPanel.getValue("baidu_fanyi_auto_focus")) {
         utils.waitNode("textarea#j-textarea").then(() => {
           setTimeout(() => {
             document.querySelector("textarea#j-textarea").focus();
@@ -7007,49 +6650,21 @@
         element.setAttribute("style", "max-height:unset !important");
       });
       log.info("插入CSS规则");
-      GM_Menu.add([
-        {
-          key: "baidu_fanyi_app_shield_column_information",
-          text: "【屏蔽】专栏信息",
-          enable: false,
-        },
-        {
-          key: "baidu_fanyi_app_shield_recommended_for_you",
-          text: "【屏蔽】为你推荐",
-          enable: false,
-        },
-        {
-          key: "baidu_fanyi_app_shield_i_need_to_follow_along",
-          text: "【屏蔽】我要跟读",
-          enable: false,
-        },
-      ]);
-      if (GM_Menu.get("baidu_fanyi_app_shield_column_information")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_fanyi_app_shield_column_information")
-        );
+      if (PopsPanel.getValue("baidu_fanyi_app_shield_column_information")) {
         GM_addStyle(`
         div.fanyi-zhuan-lan-wrapper{
           display: none !important;
         }
         `);
       }
-      if (GM_Menu.get("baidu_fanyi_app_shield_recommended_for_you")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_fanyi_app_shield_recommended_for_you")
-        );
+      if (PopsPanel.getValue("baidu_fanyi_app_shield_recommended_for_you")) {
         GM_addStyle(`
         #fr-section{
           display: none !important;
         }
         `);
       }
-      if (GM_Menu.get("baidu_fanyi_app_shield_i_need_to_follow_along")) {
-        log.success(
-          GM_Menu.getShowTextValue(
-            "baidu_fanyi_app_shield_i_need_to_follow_along"
-          )
-        );
+      if (PopsPanel.getValue("baidu_fanyi_app_shield_i_need_to_follow_along")) {
         GM_addStyle(`
         .cover-all .daily-bottom{
           display: none !important;
@@ -7076,15 +6691,7 @@
       }
       GM_addStyle(this.css.map);
       log.info("插入CSS规则");
-
-      GM_Menu.add({
-        key: "baidu_map_hijack_wakeup",
-        text: "劫持唤醒",
-        enable: false,
-      });
-
-      if (GM_Menu.get("baidu_map_hijack_wakeup")) {
-        log.success(GM_Menu.getShowTextValue("baidu_map_hijack_wakeup"));
+      if (PopsPanel.getValue("baidu_map_hijack_wakeup")) {
         baiduHijack.hijackElementAppendChild();
         DOMUtils.ready(function () {
           baiduHijack.hijackJQueryAppend();
@@ -7105,41 +6712,9 @@
         示例
         https://mbd.baidu.com/newspage/data/landingsuper?isBdboxFrom=1&pageType=1&context=%7B%22nid%22%3A%22news_8924612668430208297%22,%22sourceFrom%22%3A%22bjh%22%7D
         */
-      GM_Menu.add([
-        {
-          key: "baidu_mbd_block_exciting_comments",
-          text: "【屏蔽】精彩评论",
-        },
-        {
-          key: "baidu_mbd_block_exciting_recommendations",
-          text: "【屏蔽】精彩推荐",
-        },
-        {
-          key: "baidu_mbd_shield_bottom_toolbar",
-          text: "【屏蔽】底部工具栏",
-        },
-        {
-          key: "baidu_mbd_hijack_wakeup",
-          text: "劫持唤醒",
-          enable: false,
-        },
-        {
-          key: "baidu_mbd_hijack_BoxJSBefore",
-          text: "劫持BoxJSBefore",
-          enable: false,
-        },
-        {
-          key: "baidu_mbd_hijack_iframe",
-          text: "劫持iframe",
-          enable: true,
-        },
-      ]);
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
-      if (GM_Menu.get("baidu_mbd_block_exciting_comments")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_mbd_block_exciting_comments")
-        );
+      if (PopsPanel.getValue("baidu_mbd_block_exciting_comments")) {
         GM_addStyle(`
         div#commentModule,
         #comment{
@@ -7147,10 +6722,7 @@
         }
         `);
       }
-      if (GM_Menu.get("baidu_mbd_block_exciting_recommendations")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_mbd_block_exciting_recommendations")
-        );
+      if (PopsPanel.getValue("baidu_mbd_block_exciting_recommendations")) {
         GM_addStyle(`
         div[class^="relateTitle"],
         .infinite-scroll-component__outerdiv,
@@ -7169,24 +6741,20 @@
         }
         `);
       }
-      if (GM_Menu.get("baidu_mbd_shield_bottom_toolbar")) {
-        log.success(GM_Menu.getText("baidu_mbd_shield_bottom_toolbar"));
+      if (PopsPanel.getValue("baidu_mbd_shield_bottom_toolbar")) {
         GM_addStyle(`
         div#wise-invoke-interact-bar{
           display: none !important;
         }
         `);
       }
-      if (GM_Menu.get("baidu_mbd_hijack_wakeup")) {
-        log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_wakeup"));
+      if (PopsPanel.getValue("baidu_mbd_hijack_wakeup")) {
         baiduHijack.hijackFunctionCall_BaiJiaHao_Map();
       }
-      if (GM_Menu.get("baidu_mbd_hijack_BoxJSBefore")) {
-        log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_BoxJSBefore"));
+      if (PopsPanel.getValue("baidu_mbd_hijack_BoxJSBefore")) {
         baiduHijack.hijackBoxJSBefore();
       }
-      if (GM_Menu.get("baidu_mbd_hijack_iframe")) {
-        log.success(GM_Menu.getShowTextValue("baidu_mbd_hijack_iframe"));
+      if (PopsPanel.getValue("baidu_mbd_hijack_iframe")) {
         /* 劫持iframe添加到页面 */
         baiduHijack.hijackElementAppendChild();
       }
@@ -7214,23 +6782,10 @@
         "coupon_bottom_popup",
         new Date().getTime()
       );
-      GM_Menu.add([
-        {
-          key: "baidu_aiqicha_shield_carousel",
-          text: "【屏蔽】轮播图",
-          enable: true,
-        },
-        {
-          key: "baidu_aiqicha_shield_industry_host_news",
-          text: "【屏蔽】行业热点新闻",
-          enable: true,
-        },
-      ]);
       /**
        * 屏蔽轮播图
        */
-      if (GM_Menu.get("baidu_aiqicha_shield_carousel")) {
-        log.success(GM_Menu.getShowTextValue("baidu_aiqicha_shield_carousel"));
+      if (PopsPanel.getValue("baidu_aiqicha_shield_carousel")) {
         GM_addStyle(`
         div.index-banner-container.van-swipe{
           display: none !important;
@@ -7239,10 +6794,7 @@
       /**
        * 屏蔽行业热点新闻
        */
-      if (GM_Menu.get("baidu_aiqicha_shield_industry_host_news")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_aiqicha_shield_industry_host_news")
-        );
+      if (PopsPanel.getValue("baidu_aiqicha_shield_industry_host_news")) {
         GM_addStyle(`
         div.hot-news{
           display: none !important;
@@ -7268,63 +6820,26 @@
       }
       GM_addStyle(this.css.haokan);
       log.info("插入CSS规则");
-      GM_Menu.add([
-        {
-          key: "baidu_haokan_shield_may_also_like",
-          text: "【屏蔽】猜你喜欢",
-          enable: true,
-        },
-        {
-          key: "baidu_haokan_shield_today_s_hot_list",
-          text: "【屏蔽】今日热播榜单",
-          enable: true,
-        },
-        {
-          key: "baidu_haokan_shield_right_video_action",
-          text: "【屏蔽】右侧工具栏",
-          enable: true,
-        },
-        {
-          key: "baidu_haokan_play_video_and_automatically_enter_full_screen",
-          text: "播放视频自动进入全屏",
-          enable: false,
-        },
-        {
-          key: "baidu_haokan_hijack_wakeup",
-          text: "劫持唤醒",
-          enable: false,
-        },
-      ]);
-      if (GM_Menu.get("baidu_haokan_shield_may_also_like")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_haokan_shield_may_also_like")
-        );
+      if (PopsPanel.getValue("baidu_haokan_shield_may_also_like")) {
         GM_addStyle(`
         div.top-video-list-container{display: none !important};
         `);
       }
-      if (GM_Menu.get("baidu_haokan_shield_today_s_hot_list")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_haokan_shield_today_s_hot_list")
-        );
+      if (PopsPanel.getValue("baidu_haokan_shield_today_s_hot_list")) {
         GM_addStyle(`
         .hot-rank-video{
           display: none !important;
         }
         `);
       }
-      if (GM_Menu.get("baidu_haokan_shield_right_video_action")) {
-        log.success(
-          GM_Menu.getShowTextValue("baidu_haokan_shield_right_video_action")
-        );
+      if (PopsPanel.getValue("baidu_haokan_shield_right_video_action")) {
         GM_addStyle(`
         .video-author-info-mask .new-video-action{
           display: none !important;
         }
         `);
       }
-      if (GM_Menu.get("baidu_haokan_hijack_wakeup")) {
-        log.success(GM_Menu.getShowTextValue("baidu_haokan_hijack_wakeup"));
+      if (PopsPanel.getValue("baidu_haokan_hijack_wakeup")) {
         baiduHijack.hijackFunctionCall_WebPack_HaoKan();
       }
 
@@ -7340,15 +6855,10 @@
               ["reactEventHandlers"]["onClick"]();
 
             if (
-              GM_Menu.get(
+              PopsPanel.getValue(
                 "baidu_haokan_play_video_and_automatically_enter_full_screen"
               )
             ) {
-              log.success(
-                GM_Menu.getShowTextValue(
-                  "baidu_haokan_play_video_and_automatically_enter_full_screen"
-                )
-              );
               if (utils.isFullscreenEnabled()) {
                 let videoElement = document.querySelector(
                   "#video video.hplayer-video"
@@ -7552,10 +7062,6 @@
       }
       GM_addStyle(this.css.yiyan);
       log.info("插入CSS规则");
-      GM_Menu.add({
-        key: "baidu_yiyan_remove_ai_mask",
-        text: "【屏蔽】水印",
-      });
 
       const webSiteHandle = {
         /**
@@ -7598,8 +7104,7 @@
         },
       };
 
-      if (GM_Menu.get("baidu_yiyan_remove_ai_mask")) {
-        log.success(GM_Menu.getShowTextValue("baidu_yiyan_remove_ai_mask"));
+      if (PopsPanel.getValue("baidu_yiyan_remove_ai_mask")) {
         webSiteHandle.blockWaterMark();
       }
     },
@@ -7612,14 +7117,8 @@
       }
       GM_addStyle(this.css.chat);
       log.info("插入CSS规则");
-      GM_Menu.add({
-        key: "baidu_chat_remove_ai_mask",
-        text: "【屏蔽】水印",
-        enable: true,
-      });
 
-      if (GM_Menu.get("baidu_chat_remove_ai_mask")) {
-        log.success(GM_Menu.getShowTextValue("baidu_chat_remove_ai_mask"));
+      if (PopsPanel.getValue("baidu_chat_remove_ai_mask")) {
         GM_addStyle(`
         .bot-body .watermark,
         #searchChatApp div[class^="watermark"]{
@@ -7648,18 +7147,10 @@
       }
       GM_addStyle(this.css.mini_jiaoyu);
       log.info("插入CSS规则");
-      GM_Menu.add({
-        key: "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
-        text: "【屏蔽】底部下拉菜单",
-        enable: false,
-      });
 
-      if (GM_Menu.get("mini_baidu_jiaoyu_shield_bottom_pull_down_menu")) {
-        log.success(
-          GM_Menu.getShowTextValue(
-            "mini_baidu_jiaoyu_shield_bottom_pull_down_menu"
-          )
-        );
+      if (
+        PopsPanel.getValue("mini_baidu_jiaoyu_shield_bottom_pull_down_menu")
+      ) {
         let hideCSS = `
         #page_loft{
           display: none !important;
@@ -7831,101 +7322,907 @@
       };
       GM_addStyle(this.css.easyLearn);
       log.info("插入CSS规则");
-      let menuBusiness = [
-        {
-          key: "baidu_easylearn_shield_this_question_paper",
-          text: "【屏蔽】本题试卷",
-          _callback_() {
-            GM_addStyle(`
-            .question-shijuan-wrap,
-            /* PC端 */
-            .question-cont .timu-wrap .doc-cont-v2 .left{
-              display: none !important;
-            }
-            `);
-          },
-        },
-        {
-          key: "baidu_easylearn_shield_good_questions_in_this_volume",
-          text: "【屏蔽】本卷好题",
-          _callback_() {
-            GM_addStyle(`
-            .exercise-questions-wrap{
-              display: none !important;
-            }
-            `);
-          },
-        },
-        {
-          key: "baidu_easylearn_shield_related_test_papers",
-          text: "【屏蔽】相关试卷",
-          _callback_() {
-            GM_addStyle(`
-            .related-papers-wrap,
-            /* PC端 */
-            .question-cont .timu-wrap .doc-cont-v2 .right{
-              display: none !important;
-            }{
-              display: none !important;
-            }
-            `);
-          },
-        },
-        {
-          key: "baidu_easylearn_shield_video_explanation",
-          text: "【屏蔽】视频讲解",
-          _callback_() {
-            GM_addStyle(`
-            .video-doc-compo,
-            /* PC端 */
-            .container #questionVideo{
-              display: none !important;
-            }
-            `);
-          },
-        },
-        {
-          key: "baidu_easylearn_shield_xueba_notes",
-          text: "【屏蔽】学霸笔记",
-          _callback_() {
-            GM_addStyle(`
-            .note-list{
-              display: none !important;
-            }
-            `);
-          },
-        },
-        {
-          key: "baidu_easylearn_shield_bottom_toolbar",
-          text: "【屏蔽】底部工具栏",
-          _callback_() {
-            GM_addStyle(`
-            .question-bottom-bar,
-            #app .bgk-question-detail .float-btm{
-              display: none !important;
-            }
-            `);
-          },
-        },
-      ];
-      menuBusiness.forEach((item) => {
-        let callback = item["_callback_"];
-        delete item["_callback_"];
-        GM_Menu.add(item);
-        if (!GM_Menu.get(item.key)) {
-          return;
+      if (PopsPanel.getValue("baidu_easylearn_shield_this_question_paper")) {
+        GM_addStyle(`
+        .question-shijuan-wrap,
+        /* PC端 */
+        .question-cont .timu-wrap .doc-cont-v2 .left{
+          display: none !important;
         }
-        log.success(GM_Menu.getShowTextValue(item.key));
-        callback();
-      });
-      easylearnBusiness.hijackUserSearchQuestCount();
-      easylearnBusiness.showAnswerContent();
+        `);
+      }
+      if (
+        PopsPanel.getValue(
+          "baidu_easylearn_shield_good_questions_in_this_volume"
+        )
+      ) {
+        GM_addStyle(`
+        .exercise-questions-wrap{
+          display: none !important;
+        }
+        `);
+      }
+      if (PopsPanel.getValue("baidu_easylearn_shield_related_test_papers")) {
+        GM_addStyle(`
+        .related-papers-wrap,
+        /* PC端 */
+        .question-cont .timu-wrap .doc-cont-v2 .right{
+          display: none !important;
+        }{
+          display: none !important;
+        }
+        `);
+      }
+      if (PopsPanel.getValue("baidu_easylearn_shield_video_explanation")) {
+        GM_addStyle(`
+        .video-doc-compo,
+        /* PC端 */
+        .container #questionVideo{
+          display: none !important;
+        }
+        `);
+      }
+      if (PopsPanel.getValue("baidu_easylearn_shield_xueba_notes")) {
+        GM_addStyle(`
+        .note-list{
+          display: none !important;
+        }
+        `);
+      }
+      if (PopsPanel.getValue("baidu_easylearn_shield_bottom_toolbar")) {
+        GM_addStyle(`
+        .question-bottom-bar,
+        #app .bgk-question-detail .float-btm{
+          display: none !important;
+        }
+        `);
+      }
+      if (
+        PopsPanel.getValue(
+          "baidu_easylearn_unlocking_the_upper_limit_of_search_questions"
+        )
+      ) {
+        easylearnBusiness.hijackUserSearchQuestCount();
+      }
+      if (PopsPanel.getValue("baidu_easylearn_auto_show_answer")) {
+        easylearnBusiness.showAnswerContent();
+      }
+
       DOMUtils.ready(function () {
-        easylearnBusiness.allowUserSearchInput();
+        if (PopsPanel.getValue("baidu_easylearn_unlocking_top_search_input")) {
+          easylearnBusiness.allowUserSearchInput();
+        }
       });
     },
   };
 
+  /**
+   * 配置面板
+   */
+  const PopsPanel = {
+    /**
+     * 本地存储的总键名
+     */
+    key: "GM_Panel",
+    /**
+     * 属性attributes的data-key
+     */
+    attributeDataKey_Name: "data-key",
+    /**
+     * 属性attributes的data-default-value
+     */
+    attributeDataDefaultValue_Name: "data-default-value",
+    /**
+     * 初始化菜单
+     */
+    initMenu() {
+      this.initLocalDefaultValue();
+      GM_Menu.add([
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.showPanel();
+          },
+        },
+        {
+          key: "transfer_old_data",
+          text: "🔧 迁移旧数据",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.transferOldData();
+          },
+        },
+      ]);
+    },
+    /**
+     * 初始化本地设置默认的值
+     */
+    initLocalDefaultValue() {
+      let content = this.getContent();
+      content.forEach((item) => {
+        if (!item["forms"]) {
+          return;
+        }
+        item.forms.forEach((__item__) => {
+          if (__item__.forms) {
+            __item__.forms.forEach((containerItem) => {
+              if (!containerItem.attributes) {
+                return;
+              }
+              let key = containerItem.attributes[this.attributeDataKey_Name];
+              let defaultValue =
+                containerItem.attributes[this.attributeDataDefaultValue_Name];
+              if (this.getValue(key) == null) {
+                this.setValue(key, defaultValue);
+              }
+            });
+          } else {
+          }
+        });
+      });
+    },
+    /**
+     * 设置值
+     * @param {string} key 键
+     * @param {any} value 值
+     */
+    setValue(key, value) {
+      let localValue = GM_getValue(this.key, {});
+      localValue[key] = value;
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 获取值
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @returns {any}
+     */
+    getValue(key, defaultValue) {
+      let localValue = GM_getValue(this.key, {});
+      return localValue[key] ?? defaultValue;
+    },
+    /**
+     * 删除值
+     * @param {string} key 键
+     */
+    deleteValue(key) {
+      let localValue = GM_getValue(this.key, {});
+      delete localValue[key];
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 显示设置面板
+     */
+    showPanel() {
+      pops.panel({
+        title: {
+          text: `${GM_info?.script?.name || "【移动端】-百度系优化"}-设置`,
+          position: "center",
+        },
+        content: this.getContent(),
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+          },
+        },
+        width: "92vw",
+        height: "80vh",
+        drag: true,
+        only: true,
+      });
+    },
+    /**
+     * 获取按钮配置
+     * @param {string} text
+     * @param {string} key
+     * @param {boolean} defaultValue
+     * @param {?(event:Event,value: boolean)=>boolean} _callback_
+     */
+    getSwtichDetail(text, key, defaultValue, _callback_) {
+      let result = {
+        text: text,
+        type: "switch",
+        attributes: {},
+        getValue() {
+          return Boolean(PopsPanel.getValue(key, defaultValue));
+        },
+        callback(event, value) {
+          log.success(`${value ? "开启" : "关闭"} ${text}`);
+          if (typeof _callback_ === "function") {
+            if (_callback_(event, value)) {
+              return;
+            }
+          }
+          PopsPanel.setValue(key, Boolean(value));
+        },
+      };
+      result.attributes[this.attributeDataKey_Name] = key;
+      result.attributes[this.attributeDataDefaultValue_Name] =
+        Boolean(defaultValue);
+      return result;
+    },
+    /**
+     * 获取配置内容
+     */
+    getContent() {
+      return [
+        {
+          id: "baidu-panel-config-search",
+          title: "搜索",
+          forms: [
+            {
+              text: "主页",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "精简主页",
+                  "baidu_search_home_homepage_minification",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "百度健康-快速问医生",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部其它信息",
+                  "baidu_search_headlth_shield_other_info",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部工具栏",
+                  "baidu_search_headlth_shield_bottom_toolbar",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "简单UserAgent",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动点击翻页",
+                  "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua",
+                  false,
+                  function (event, enable) {
+                    if (
+                      enable &&
+                      PopsPanel.getValue(
+                        "baidu_search_automatically_expand_next_page"
+                      )
+                    ) {
+                      let checkboxCoreElement = document.querySelector(
+                        `li[${PopsPanel.attributeDataKey_Name}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
+                      );
+                      checkboxCoreElement.click();
+                    }
+                  }
+                ),
+              ],
+            },
+            {
+              text: "屏蔽/禁止",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动播放视频",
+                  "baidu_search_disable_autoplay_video",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "大家还在搜",
+                  "baidu_search_blocking_everyone_is_still_searching",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "百度健康",
+                  "baidu_search_shield_baidu_health",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动翻页",
+                  "baidu_search_automatically_expand_next_page",
+                  false,
+                  function (event, enable) {
+                    if (
+                      enable &&
+                      PopsPanel.getValue(
+                        "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
+                      )
+                    ) {
+                      let checkboxCoreElement = document.querySelector(
+                        `li[${PopsPanel.attributeDataKey_Name}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
+                      );
+                      checkboxCoreElement.click();
+                    }
+                  }
+                ),
+                PopsPanel.getSwtichDetail(
+                  "输出日志",
+                  "baidu_search_show_log",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "同步地址",
+                  "baidu_search_sync_next_page_address",
+                  false,
+                  function (event, enable) {
+                    if (enable) {
+                      alert(
+                        "开启后，且开启【自动翻页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
+                      );
+                    }
+                  }
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【重构】大家还在搜",
+                  "baidu_search_refactor_everyone_is_still_searching",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "复制",
+                  "baidu_search_hijack_copy",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "Scheme唤醒App",
+                  "baidu_search_hijack_scheme",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "OpenBox函数",
+                  "baidu_search_hijack_openbox",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "_onClick函数",
+                  "baidu_search_hijack__onClick",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-baijiahao",
+          title: "百家号",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "推荐文章",
+                  "baijiahao_shield_recommended_article",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "用户评论",
+                  "baijiahao_shield_user_comment",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部悬浮工具栏",
+                  "baijiahao_shield_user_comment_input_box",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "唤醒App",
+                  "baijiahao_hijack_wakeup",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "iframe唤醒App",
+                  "baidu_baijiahao_hijack_iframe",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "OpenBox函数",
+                  "baidu_baijiahao_hijack_openbox",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-tieba",
+          title: "贴吧",
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "回退关闭楼中楼回复",
+                  "baidu_tieba_lzl_ban_global_back",
+                  false,
+                  function (event, enable) {
+                    if (enable) {
+                      alert(
+                        "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+                      );
+                    }
+                  }
+                ),
+                PopsPanel.getSwtichDetail(
+                  "记住当前选择的看帖排序",
+                  "baidu_tieba_remember_user_post_sort",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "重定向跳转",
+                  "baidu_tieba_topic_redirect_jump",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "搜索功能",
+                  "baidu_tieba_add_search",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "新增贴内滚动到顶部按钮",
+                  "baidu_tieba_add_scroll_top_button_in_forum",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "优化查看评论",
+                  "baidu_tieba_optimize_see_comments",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "优化图片预览",
+                  "baidu_tieba_optimize_image_preview",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【beta】请求携带Cookie",
+                  "baidu_tieba_request_with_cookie",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "唤醒App",
+                  "baidu_tieba_hijack_wake_up",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-wenku",
+          title: "文库",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "会员精选",
+                  "baidu_wenku_block_member_picks",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "APP精选",
+                  "baidu_wenku_blocking_app_featured",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "相关文档",
+                  "baidu_wenku_blocking_related_documents",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部工具栏",
+                  "baidu_wenku_blocking_bottom_toolbar",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "下一篇按钮",
+                  "baidu_wenku_shield_next_btn",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-baike",
+          title: "百科",
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "同步下一页地址",
+                  "baidu_baike_sync_next_page_address",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-zhidao",
+          title: "知道",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "推荐更多精彩内容",
+                  "baidu_zhidao_block_recommend_more_exciting_content",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "相关问题",
+                  "baidu_zhidao_block_related_issues",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "其他回答",
+                  "baidu_zhidao_block_other_answers",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-fanyi",
+          title: "翻译",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "底部推荐",
+                  "baidu_fanyi_recommended_shielding_bottom",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部其它",
+                  "baidu_fanyi_other_shielding_bottom",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动聚焦输入框",
+                  "baidu_fanyi_auto_focus",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "App",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】专栏信息",
+                  "baidu_fanyi_app_shield_column_information",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】为你推荐",
+                  "baidu_fanyi_app_shield_recommended_for_you",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】我要跟读",
+                  "baidu_fanyi_app_shield_i_need_to_follow_along",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-map",
+          title: "地图",
+          forms: [
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "唤醒App",
+                  "baidu_map_hijack_wakeup",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-mbd",
+          title: "知道mbd",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "精彩评论",
+                  "baidu_mbd_block_exciting_comments",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "精彩推荐",
+                  "baidu_mbd_block_exciting_recommendations",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部工具栏",
+                  "baidu_mbd_shield_bottom_toolbar",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "唤醒App",
+                  "baidu_mbd_hijack_wakeup",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "iframe唤醒App",
+                  "baidu_mbd_hijack_iframe",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "BoxJSBefore函数",
+                  "baidu_mbd_hijack_BoxJSBefore",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-aiqicha",
+          title: "爱企查",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "轮播图",
+                  "baidu_aiqicha_shield_carousel",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "行业热点新闻",
+                  "baidu_aiqicha_shield_industry_host_news",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-haokan",
+          title: "好看视频",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "猜你喜欢",
+                  "baidu_haokan_shield_may_also_like",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "今日热播榜单",
+                  "baidu_haokan_shield_today_s_hot_list",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "右侧工具栏",
+                  "baidu_haokan_shield_right_video_action",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "播放视频自动进入全屏",
+                  "baidu_haokan_play_video_and_automatically_enter_full_screen",
+                  false
+                ),
+              ],
+            },
+
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "唤醒App",
+                  "baidu_haokan_hijack_wakeup",
+                  false
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-yiyan",
+          title: "文心一言",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "水印",
+                  "baidu_yiyan_remove_ai_mask",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-chat",
+          title: "AI对话",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "水印",
+                  "baidu_chat_remove_ai_mask",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-easy-learn",
+          title: "教育",
+          forms: [
+            {
+              text: "小程序",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部下拉菜单",
+                  "mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "本题试卷",
+                  "baidu_easylearn_shield_this_question_paper",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "本卷好题",
+                  "baidu_easylearn_shield_good_questions_in_this_volume",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "相关试卷",
+                  "baidu_easylearn_shield_related_test_papers",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "视频讲解",
+                  "baidu_easylearn_shield_video_explanation",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "学霸笔记",
+                  "baidu_easylearn_shield_xueba_notes",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "底部工具栏",
+                  "baidu_easylearn_shield_bottom_toolbar",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "解锁顶部搜索框",
+                  "baidu_easylearn_unlocking_top_search_input",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "解锁搜题上限",
+                  "baidu_easylearn_unlocking_the_upper_limit_of_search_questions",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "自动显示答案",
+                  "baidu_easylearn_auto_show_answer",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+      ];
+    },
+    /**
+     * 迁移旧数据
+     */
+    transferOldData() {
+      let oldData = GM_getValue("GM_Menu_Local_Map");
+      let currentData = GM_getValue(this.key, {});
+      if (oldData) {
+        Object.assign(currentData, oldData);
+        GM_setValue(this.key, currentData);
+        GM_deleteValue("GM_Menu_Local_Map");
+        alert("共迁移数据量：" + Object.keys(oldData).length);
+      } else {
+        alert("不存在旧数据");
+      }
+    },
+  };
   /**
    * 百度劫持
    */
@@ -7985,18 +8282,6 @@
       ) {
         if (propertyKey === "_onClick") {
           log.info(["成功劫持_onClick", arguments]);
-          GM_Menu.update({
-            key: menuKeyName,
-            text: "劫持_onClick",
-            enable: false,
-            showText(text, enable) {
-              return `${
-                enable
-                  ? GM_Menu.getEnableTrueEmoji()
-                  : GM_Menu.getEnableFalseEmoji()
-              } ${text} 🙏 成功劫持`;
-            },
-          });
           let oldFn = _attributes["value"];
           _attributes["value"] = function (event) {
             let eventNode = this._getNode(event.target);
@@ -8192,18 +8477,6 @@
             log.info(["阻止初始化差异", ...arguments]);
             return;
           };
-          GM_Menu.update({
-            key: "baidu_tieba_hijack_wake_up",
-            text: "劫持唤醒",
-            enable: false,
-            showText(text, enable) {
-              return `${
-                enable
-                  ? GM_Menu.getEnableTrueEmoji()
-                  : GM_Menu.getEnableFalseEmoji()
-              }${text} 🙏 成功劫持：${codeId}`;
-            },
-          });
         }
         return webpackExports;
       });
@@ -8271,18 +8544,6 @@
               },
             };
           };
-          GM_Menu.update({
-            key: "baidu_haokan_hijack_wakeup",
-            text: "劫持唤醒",
-            enable: false,
-            showText(text, enable) {
-              return `${
-                enable
-                  ? GM_Menu.getEnableTrueEmoji()
-                  : GM_Menu.getEnableFalseEmoji()
-              }${text} 🙏 成功劫持：${codeId}`;
-            },
-          });
         }
         return webpackExports;
       });
@@ -8365,6 +8626,7 @@
   /* --------------入口-------------- */
   const loadingView = new LoadingView(true);
   unsafeWindow.loadingView = loadingView;
+  PopsPanel.initMenu();
   baidu.init();
   /* --------------入口-------------- */
 })();
