@@ -203,7 +203,7 @@
      * @param {"alert"|"confirm"|"prompt"|"loading"|"iframe"|"drawer"} popsType
      * @param {any[]} source
      * @param {string} guid
-     * @param {PopsAlertDetails|PopsDrawerDetails|PopsPromptDetails|PopsConfirmDetails|PopsIframeDetails|PopsLoadingDetails} config
+     * @param {PopsAlertDetails|PopsDrawerDetails|PopsPromptDetails|PopsConfirmDetails|PopsIframeDetails|PopsLoadingDetails|PopsPanelDetails|PopsFolderDetails} config
      * @param {HTMLElement} animElement
      * @param {HTMLElement} maskElement
      */
@@ -266,7 +266,7 @@
      * @param {"alert"|"confirm"|"prompt"|"loading"|"iframe"|"drawer"} popsType
      * @param {any[]} source
      * @param {string} guid
-     * @param {PopsAlertDetails|PopsDrawerDetails|PopsPromptDetails|PopsConfirmDetails|PopsIframeDetails|PopsLoadingDetails} config
+     * @param {PopsAlertDetails|PopsDrawerDetails|PopsPromptDetails|PopsConfirmDetails|PopsIframeDetails|PopsLoadingDetails|PopsPanelDetails|PopsFolderDetails} config
      * @param {HTMLElement} animElement
      * @param {HTMLElement} maskElement
      */
@@ -328,7 +328,7 @@
      * @param {string} popsType
      * @param {any} source
      * @param {string} guid
-     * @param {PopsAlertDetails|PopsDrawerDetails|PopsPromptDetails|PopsConfirmDetails|PopsIframeDetails|PopsLoadingDetails} config
+     * @param {PopsAlertDetails|PopsDrawerDetails|PopsPromptDetails|PopsConfirmDetails|PopsIframeDetails|PopsLoadingDetails|PopsPanelDetails|PopsFolderDetails} config
      * @param {HTMLElement} animElement
      */
     close(popsType, source, guid, config, animElement) {
@@ -1239,9 +1239,9 @@
        * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
        * @param {string|[...string]} eventType 需要触发的事件
        * @param {object|undefined} details 赋予触发的Event的额外属性
-       * @param {boolean} [notDispatchEvent=false] 不使用dispatchEvent来触发事件
+       * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
        */
-      trigger(element, eventType, details, notDispatchEvent = false) {
+      trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
         if (typeof element === "string") {
           element = document.querySelector(element);
         }
@@ -1277,7 +1277,7 @@
             if (details) {
               Object.assign(event, details);
             }
-            if (_eventType_ in events && notDispatchEvent) {
+            if (useDispatchToTriggerEvent == false && _eventType_ in events) {
               events[_eventType_].forEach((eventsItem) => {
                 eventsItem.callback(event);
               });
@@ -6569,14 +6569,14 @@
             asideDefaultItemElement,
             "click",
             undefined,
-            true
+            false
           );
         } else if (this.asideULElement.children.length) {
           popsUtils.jQuery.trigger(
             this.asideULElement.children[0],
             "click",
             undefined,
-            true
+            false
           );
         } else {
           console.error("左侧容器没有项");
