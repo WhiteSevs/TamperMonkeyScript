@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.15
+// @version      2023.12.15.12
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -20,7 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1295792/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296054/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
 // ==/UserScript==
@@ -770,14 +770,14 @@
      */
     autoLogin() {
       utils.waitNode("span.sign-in-link a[rel=nofollow]").then(async () => {
-        let user = PopsPanel.getValue("user", null);
-        let pwd = PopsPanel.getValue("pwd", null);
-        if (!utils.isNull(user)) {
-          Qmsg.error("请在先录入账号");
+        let user = PopsPanel.getValue("user");
+        let pwd = PopsPanel.getValue("pwd");
+        if (utils.isNull(user)) {
+          Qmsg.error("请先在菜单中录入账号");
           return;
         }
-        if (!utils.isNull(pwd)) {
-          Qmsg.error("请在先录入密码");
+        if (utils.isNull(pwd)) {
+          Qmsg.error("请先在菜单中录入密码");
           return;
         }
         let csrfToken = document.querySelector("meta[name='csrf-token']");
@@ -871,7 +871,14 @@
           url = url.replace(/\?version.*/gi, "");
           url = url.replace(/^http(s|):\/\//gi, "");
           url = encodeURI(url);
-          window.location.href = GreasyforkApi.getCodeSearchUrl(url);
+          let urlSplitList = url.split("/");
+          urlSplitList.splice(urlSplitList.length-2);
+          let searchUrl = "";
+          urlSplitList.forEach(item=>{
+            searchUrl+=item+"/"
+          });
+          searchUrl = searchUrl.replace(/\/$/,"")
+          window.location.href = GreasyforkApi.getCodeSearchUrl(searchUrl);
         });
       });
     },
