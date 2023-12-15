@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.15.13
+// @version      2023.12.15.15
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,9 +58,9 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1296096/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296208/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296209/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -5230,7 +5230,7 @@
      */
     isSwitchRandomBackground: false,
     /**
-     * 链接弹窗的唯一标识
+     * 链接弹窗的对象
      */
     uiLinkAlias: null,
     /**
@@ -5530,6 +5530,11 @@
        * 显示设置界面
        */
       showSettingView() {
+        if (document.querySelector(".pops.whitesevPopSetting")) {
+          log.error("设置界面已存在");
+          Qmsg.error("设置界面已存在");
+          return;
+        }
         let contentDetails = [
           {
             id: "netdisk-panel-config-all-setting",
@@ -5683,6 +5688,14 @@
                     },
                     callback(event, value) {
                       GM_setValue(this.attributes["data-key"], value);
+                      NetDiskUI.size = parseInt(value);
+                      if (NetDiskUI.suspension.isShow) {
+                        DOMUtils.css("#whitesevSuspensionId", {
+                          width: NetDiskUI.size,
+                          height: NetDiskUI.size,
+                        });
+                        NetDiskUI.suspension.setSuspensionDefaultPositionEvent();
+                      }
                     },
                     min: 15,
                     max: 250,
@@ -5702,6 +5715,12 @@
                     },
                     callback(event, value) {
                       GM_setValue(this.attributes["data-key"], value);
+                      NetDiskUI.opacity = parseFloat(value);
+                      if (NetDiskUI.suspension.isShow) {
+                        DOMUtils.css("#whitesevSuspensionId", {
+                          opacity: NetDiskUI.opacity,
+                        });
+                      }
                     },
                     min: 0.1,
                     max: 1,
@@ -6609,7 +6628,12 @@
                         `li[data-key="${item.key}-static-enable"] span.pops-panel-switch__core`
                       );
                       if (value == true && checkboxElement.checked == true) {
-                        checkboxCoreElement.click();
+                        DOMUtils.click(
+                          checkboxCoreElement,
+                          undefined,
+                          undefined,
+                          false
+                        );
                       }
                     }
                   },
@@ -6648,7 +6672,12 @@
                         `li[data-key="${item.key}-open-enable"] span.pops-panel-switch__core`
                       );
                       if (value == true && checkboxElement.checked == true) {
-                        checkboxCoreElement.click();
+                        DOMUtils.click(
+                          checkboxCoreElement,
+                          undefined,
+                          undefined,
+                          false
+                        );
                       }
                     }
                   },
@@ -6754,7 +6783,6 @@
               position: "center",
             },
             content: contentDetails,
-            only: true,
             class: "whitesevPopSetting",
           },
           NetDiskUI.popsStyle.settingView
@@ -6765,13 +6793,18 @@
        */
       setSuspensionEvent() {
         let needDragEle = document.querySelector("#whitesevSuspensionId");
-        let that = this;
         let dragNode = new AnyTouch(needDragEle);
-        let showViewTimerId = null;
+        /**
+         * @type {number[]}
+         */
+        let netDiskLinkViewTimer = null;
         let moveFlag = false;
-        let isDouble = false; /* 是否双击 */
-        let clickDeviation_X = 0; /* 点击元素，距离元素左上角的X轴偏移 */
-        let clickDeviation_Y = 0; /* 点击元素，距离元素左上角的Y轴偏移 */
+        /* 是否是双击 */
+        let isDouble = false;
+        /* 点击元素，距离元素左上角的X轴偏移 */
+        let clickDeviation_X = 0;
+        /* 点击元素，距离元素左上角的Y轴偏移 */
+        let clickDeviation_Y = 0;
         /**
          * 设置悬浮按钮 按下事件
          */
@@ -6868,17 +6901,18 @@
          * 设置悬浮按钮 点击/按下事件
          */
         dragNode.on(["click", "tap"], function (event) {
+          clearTimeout(netDiskLinkViewTimer);
+          netDiskLinkViewTimer = null;
           if (isDouble) {
-            /* 判定为双击 */
-            clearTimeout(showViewTimerId);
-            that.showSettingView();
             isDouble = false;
+            /* 判定为双击 */
+            NetDiskUI.suspension.showSettingView();
           } else {
-            isDouble = true;
-            showViewTimerId = setTimeout(function () {
+            netDiskLinkViewTimer = setTimeout(() => {
               isDouble = false;
               NetDiskUI.view.show();
             }, 200);
+            isDouble = true;
           }
         });
 
@@ -9338,6 +9372,10 @@
    */
   const NetDiskShortcut = {
     /**
+     * 是否正在等待用户按下键盘
+     */
+    isWaitUserPressKeyboard: false,
+    /**
      * 获取本地存储的值
      * @param {?string} key
      * @param {?string} defaultVal
@@ -9430,6 +9468,7 @@
       if (localValue === defaultValue) {
         /* 设置快捷键 */
         let loadingQmsg = Qmsg.loading("请按下快捷键...");
+        NetDiskShortcut.isWaitUserPressKeyboard = true;
         let keyboardListener = utils.listenKeyboard(
           window,
           "keyup",
@@ -9446,6 +9485,7 @@
                 JSON.stringify(allDetails[index]["value"])
               ) {
                 Qmsg.error("该快捷键已被占用");
+                NetDiskShortcut.isWaitUserPressKeyboard = false;
                 loadingQmsg.close();
                 keyboardListener.removeListen();
                 return;
@@ -9453,6 +9493,7 @@
             }
             this.setValue(key, keyName, keyValue, ohterCodeList);
             spanElement.innerHTML = this.getShowText(key, defaultValue);
+            NetDiskShortcut.isWaitUserPressKeyboard = false;
             loadingQmsg.close();
             keyboardListener.removeListen();
           }
@@ -9477,6 +9518,9 @@
         window,
         "keydown",
         (keyName, keyValue, ohterCodeList) => {
+          if (NetDiskShortcut.isWaitUserPressKeyboard) {
+            return;
+          }
           localValue = this.getValue();
           let findShortcutIndex = localValue.findIndex((item) => {
             let itemValue = item["value"];
