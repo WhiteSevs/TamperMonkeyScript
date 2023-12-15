@@ -2,7 +2,7 @@
 // @name         调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475424
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.11.16
+// @version      2023.12.15
 // @description  用于调试油猴和相关API
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -36,7 +36,7 @@
 // @connect      *
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296209/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296230/DOMUtils.js
 // ==/UserScript==
 
 (function () {

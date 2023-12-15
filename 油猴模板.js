@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296209/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296230/DOMUtils.js
 // ==/UserScript==
 
 (function () {
