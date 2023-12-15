@@ -36,7 +36,7 @@
 // @connect      *
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296209/DOMUtils.js
 // ==/UserScript==
 
 (function () {
