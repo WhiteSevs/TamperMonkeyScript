@@ -3,12 +3,13 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/479590
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/?size=32
-// @version      2023.11.12
+// @version      2023.12.15
 // @description  由于有些链接用小窗模式的浏览器打开，会提示切换到竖屏，特此模拟竖屏
 // @author       WhiteSevs
 // @license      GPL-3.0-only
 // @match        https://eggy.163.com/*
 // @match        https://igame.qq.com/*
+// @match        https://*.eggygogame.com/*
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
@@ -56,7 +57,7 @@
    * 配置
    * @typedef {object} verticalScreenWebSiteDetails
    * @property {string|undefined} hostName 匹配的网站hostName，和href任选其一
-   * @property {string|undefined} href 匹配的网站href，和hostName任选其一
+   * @property {string|undefined} href 匹配的网站href，和hostName任选其一，可正则
    * @property {boolean} hijackOrientation 是否处理window.orientation
    * @property {string|undefined} CSS 竖屏CSS
    */
@@ -76,6 +77,10 @@
             body::after{content:unset;text-align:unset;font-size:unset;color:unset;position:unset;top:unset;left:unset;height:unset;width:unset;margin-top:unset;z-index:unset}
             body::before{content:unset;position:unset;z-index:unset;height:unset;width:unset;left:unset;top:unset;margin:unset;color:unset;background-image:unset;background-repeat:unset;background-position:unset;background-size:unset;-webkit-transform:unset}}`,
     },
+    {
+      href: "https://.*.eggygogame.com",
+      hijackOrientation: true,
+    }
   ];
 
   /**
@@ -93,7 +98,7 @@
          * @returns {number}
          */
         get() {
-          console.log("模拟竖屏");
+          console.log("window.orientation => 模拟竖屏");
           return 0;
         },
       });
