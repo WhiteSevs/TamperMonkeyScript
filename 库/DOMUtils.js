@@ -699,9 +699,9 @@
    * @param {string|[...string]} eventType 需要监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
-   * @param {boolean} [capture=false] 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
-   * @param {boolean} [once=false] 表示事件是否只触发一次。默认为false
-   * @param {boolean} [passive=false] 表示事件监听器是否不会调用preventDefault()。默认为false
+   * @param {boolean|undefined} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+   * @param {boolean|undefined} once 表示事件是否只触发一次。默认为false
+   * @param {boolean|undefined} passive 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click事件
    * DOMUtils.on(document.querySelector("a.xx"),"click",(event)=>{
@@ -729,9 +729,9 @@
     eventType,
     selector,
     callback,
-    capture = false,
-    once = false,
-    passive = false
+    capture,
+    once,
+    passive
   ) {
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
@@ -739,56 +739,80 @@
     if (element == void 0) {
       return;
     }
+    /**
+     * @type {HTMLElement[]}
+     */
     let elementList = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      elementList = [...element];
+      elementList = elementList.concat(element);
     } else {
-      elementList = [element];
+      elementList.push(element);
     }
+    /**
+     * @type {string[]}
+     */
     let eventTypeList = [];
     if (Array.isArray(eventType)) {
-      eventTypeList = eventType;
+      eventTypeList = eventTypeList.concat(eventType);
     } else if (typeof eventType === "string") {
-      eventTypeList = eventType.split(" ");
+      eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
+    /**
+     * 元素属性上自定义的用于暂存事件的对象名
+     */
+    let propEventsName = "events";
+    /**
+     * window属性上自定义的用于暂存事件的对象名
+     */
+    let windowEventsName = "DOMUtilsGlobalEvents";
+    /**
+     * @type {?string}
+     */
+    let _selector_ = selector;
+    /**
+     * @type {(event:Event)=>{}}
+     */
+    let _callback_ = callback;
     if (typeof selector === "function") {
       /* 这是为没有selector的情况 */
-      callback = selector;
-      selector = null;
+      _selector_ = void 0;
+      _callback_ = selector;
     }
     elementList.forEach((elementItem) => {
       let ownCallBack = function (event) {
-        if (selector) {
-          let target = event.target;
+        let target = event.target;
+        if (_selector_) {
+          /* 存在自定义子元素选择器 */
           let totalParent = CommonUtils.isWin(elementItem)
             ? document.documentElement
             : elementItem;
-          if (target.matches(selector)) {
+          if (target.matches(_selector_)) {
             /* 当前目标可以被selector所匹配到 */
-            callback.call(target, event);
+            _callback_.call(target, event);
             return;
           } else if (
-            target.closest(selector) &&
-            totalParent.contains(target.closest(selector))
+            target.closest(_selector_) &&
+            totalParent.contains(target.closest(_selector_))
           ) {
             /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-            let closestElement = target.closest(selector);
+            let closestElement = target.closest(_selector_);
             /* event的target值不能直接修改 */
             Object.defineProperty(event, "target", {
-              get: function () {
+              get() {
                 return closestElement;
               },
             });
-            callback.call(closestElement, event);
+            _callback_.call(closestElement, event);
             return;
           }
         } else {
-          callback.call(event.target, event);
+          _callback_.call(elementItem, event);
         }
       };
-      eventTypeList.forEach((_eventType_) => {
+      /* 遍历事件名设置元素事件 */
+      eventTypeList.forEach((eventName) => {
         elementItem.addEventListener(
-          _eventType_,
+          eventName,
           ownCallBack,
           capture,
           once,
@@ -796,27 +820,27 @@
         );
       });
 
-      if (callback && callback.delegate) {
-        elementItem.setAttribute("data-delegate", selector);
+      if (_callback_ && _callback_.delegate) {
+        elementItem.setAttribute("data-delegate", _selector_);
       }
       if (CommonUtils.isWin(elementItem)) {
-        let events = elementItem["DOMUtilsGlobalEvents"] || {};
-        events[eventType] = events[eventType] || [];
-        events[eventType].push({
-          selector: selector,
+        let elementEvents = elementItem[windowEventsName] || {};
+        elementEvents[eventType] = elementEvents[eventType] || [];
+        elementEvents[eventType].push({
+          selector: _selector_,
           callback: ownCallBack,
-          originCallBack: callback,
+          originCallBack: _callback_,
         });
-        elementItem["DOMUtilsGlobalEvents"] = events;
+        elementItem[windowEventsName] = elementEvents;
       } else {
-        let events = elementItem.events || {};
-        events[eventType] = events[eventType] || [];
-        events[eventType].push({
-          selector: selector,
+        let elementEvents = elementItem[propEventsName] || {};
+        elementEvents[eventType] = elementEvents[eventType] || [];
+        elementEvents[eventType].push({
+          selector: _selector_,
           callback: ownCallBack,
-          originCallBack: callback,
+          originCallBack: _callback_,
         });
-        elementItem.events = events;
+        elementItem[propEventsName] = elementEvents;
       }
     });
   };
@@ -826,8 +850,7 @@
    * @param {string|[...string]} eventType 需要取消监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
-   * @param {boolean} [useCapture=false] 表示事件是否在捕获阶段处理，它是一个可选参数，默认为false，表示在冒泡阶段处理事件。
-   * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+   * @param {boolean|undefined} [useCapture] 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
    * @example
    * // 取消监听元素a.xx的click事件
    * DOMUtils.off(document.querySelector("a.xx"),"click")
@@ -838,72 +861,84 @@
    * // 取消监听全局下的a.xx的点击事件
    * DOMUtils.off(document,"click","a.xx")
    */
-  DOMUtils.off = function (
-    element,
-    eventType,
-    selector,
-    callback,
-    useCapture = false
-  ) {
+  DOMUtils.off = function (element, eventType, selector, callback, useCapture) {
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
     if (element == void 0) {
       return;
     }
+    /**
+     * @type {HTMLElement[]}
+     */
     let elementList = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      elementList = [...element];
+      elementList = elementList.concat(element);
     } else {
-      elementList = [element];
+      elementList.push(element);
     }
+    /**
+     * @type {string[]}
+     */
     let eventTypeList = [];
-    if (!eventType) {
-      for (let type in events) {
-        eventTypeList = [...eventTypeList, type];
-      }
-    } else if (Array.isArray(eventType)) {
-      eventTypeList = eventType;
+    if (Array.isArray(eventType)) {
+      eventTypeList = eventTypeList.concat(eventType);
     } else if (typeof eventType === "string") {
-      eventTypeList = eventType.split(" ");
+      eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
+    /**
+     * 元素属性上自定义的用于暂存事件的对象名
+     */
+    let propEventsName = "events";
+    /**
+     * window属性上自定义的用于暂存事件的对象名
+     */
+    let windowEventsName = "DOMUtilsGlobalEvents";
+    /**
+     * @type {?string}
+     */
+    let _selector_ = selector;
+    /**
+     * @type {(event:Event)=>{}}
+     */
+    let _callback_ = callback;
     if (typeof selector === "function") {
       /* 这是为没有selector的情况 */
-      callback = selector;
-      selector = null;
+      _selector_ = void 0;
+      _callback_ = selector;
     }
     elementList.forEach((elementItem) => {
-      let events = {};
+      let elementEvents = {};
       if (CommonUtils.isWin(elementItem)) {
-        events = elementItem["DOMUtilsGlobalEvents"] || {};
+        elementEvents = elementItem[windowEventsName] || {};
       } else {
-        events = elementItem.events || {};
+        elementEvents = elementItem[propEventsName] || {};
       }
-      eventTypeList.forEach((_eventType_) => {
-        let handlers = events[eventType] || [];
-        for (let i = 0; i < handlers.length; i++) {
+      eventTypeList.forEach((eventName) => {
+        let handlers = elementEvents[eventName] || [];
+        for (let index = 0; index < handlers.length; index++) {
           if (
-            (!selector || handlers[i].selector === selector) &&
-            (!callback ||
-              handlers[i].callback === callback ||
-              handlers[i].originCallBack === callback)
+            (!_selector_ || handlers[index].selector === _selector_) &&
+            (!_callback_ ||
+              handlers[index].callback === _callback_ ||
+              handlers[index].originCallBack === _callback_)
           ) {
             elementItem.removeEventListener(
-              _eventType_,
-              handlers[i].callback,
+              eventName,
+              handlers[index].callback,
               useCapture
             );
-            handlers.splice(i--, 1);
+            handlers.splice(index--, 1);
           }
         }
         if (handlers.length === 0) {
-          delete events[eventType];
+          delete elementEvents[eventType];
         }
       });
       if (CommonUtils.isWin(elementItem)) {
-        elementItem["DOMUtilsGlobalEvents"] = events;
+        elementItem[windowEventsName] = elementEvents;
       } else {
-        elementItem.events = events;
+        elementItem[propEventsName] = elementEvents;
       }
     });
   };
