@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.15
+// @version      2023.12.15.12
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1295792/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296054/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
 // ==/UserScript==

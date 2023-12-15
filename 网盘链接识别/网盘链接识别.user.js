@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.15.1
+// @version      2023.12.15.12
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1295792/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296054/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1295727/DOMUtils.js
 // ==/UserScript==
@@ -7103,12 +7103,33 @@
         .netdisk-url-div{display:flex;align-items:center;width:100%;margin:10px 0}
         .netdisk-icon{margin:0 4px;display:contents}
         .netdisk-icon .netdisk-icon-img{
-          width:28px;height:28px;font-size:13px!important;margin-left: 10px;
+          width:28px;
+          height:28px;
+          min-width:28px;
+          min-height:28px;
+          font-size:13px!important;
+          margin-left: 10px;
         }
         .netdisk-icon .netdisk-icon-img,
-        .netdisk-url a{border-radius:10px;box-shadow:0 .3px .6px rgb(0 0 0 / 6%),0 .7px 1.3px rgb(0 0 0 / 8%),0 1.3px 2.5px rgb(0 0 0 / 10%),0 2.2px 4.5px rgb(0 0 0 / 12%),0 4.2px 8.4px rgb(0 0 0 / 14%),0 10px 20px rgb(0 0 0 / 20%)}
+        .netdisk-url a {
+          border-radius: 10px;
+          box-shadow: 0 .3px .6px rgb(0 0 0 / 6%),0 .7px 1.3px rgb(0 0 0 / 8%),0 1.3px 2.5px rgb(0 0 0 / 10%),0 2.2px 4.5px rgb(0 0 0 / 12%),0 4.2px 8.4px rgb(0 0 0 / 14%),0 10px 20px rgb(0 0 0 / 20%)
+        }
         .whitesevPop .netdisk-url{padding:5px 0;margin:0 10px}
-        .netdisk-url a{color:#ff4848!important;min-height:28px;overflow-x:hidden;overflow-y:auto;font-size:14px;border:none;display:flex;align-items:center;width:100%;height:100%;padding:2px 10px;word-break:break-word}
+        .netdisk-url a {
+          color: #ff4848!important;
+          min-height: 28px;
+          overflow-x: hidden;
+          overflow-y: auto;
+          font-size: 14px;
+          border: none;
+          display: flex;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+          padding: 2px 10px;
+          word-break: break-word
+        }
         .whitesevPop-whitesevPopSetting :focus-visible{outline-offset:0;outline:0}
         .netdisk-url a[isvisited=true]{color:#8b8888!important}
         .netdisk-url a:active{box-shadow:0 0 0 1px #616161 inset}
