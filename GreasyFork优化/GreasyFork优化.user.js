@@ -872,12 +872,12 @@
           url = url.replace(/^http(s|):\/\//gi, "");
           url = encodeURI(url);
           let urlSplitList = url.split("/");
-          urlSplitList.splice(urlSplitList.length-2);
+          urlSplitList.splice(urlSplitList.length - 2);
           let searchUrl = "";
-          urlSplitList.forEach(item=>{
-            searchUrl+=item+"/"
+          urlSplitList.forEach((item) => {
+            searchUrl += item + "/";
           });
-          searchUrl = searchUrl.replace(/\/$/,"")
+          searchUrl = searchUrl.replace(/\/$/, "");
           window.location.href = GreasyforkApi.getCodeSearchUrl(searchUrl);
         });
       });
