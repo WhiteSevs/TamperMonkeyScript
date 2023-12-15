@@ -1441,7 +1441,16 @@
      */
     version: "2023.12.15",
     css: `@charset "utf-8";
-    .pops{background-color:#fff;border-radius:4px;border:1px solid #ebeef5;font-size:18px;box-shadow:0 0 12px rgba(0,0,0,.12);box-sizing:border-box;overflow:hidden;transition:all .35s}
+    .pops {
+      background-color: #fff;
+      border-radius: 4px;
+      border: 1px solid #ebeef5;
+      font-size: 18px;
+      box-shadow: 0 0 12px rgba(0,0,0,.12);
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: all .35s
+    }
     .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     .pops-anim{position:fixed;top:0;right:0;bottom:0;left:0;margin:0;width:100%;height:100%;}
     .pops[position=top_left]{position:fixed;top:0;left:0;}
@@ -1453,9 +1462,38 @@
     .pops[position=bottom_left]{position:fixed;bottom:0;left:0;}
     .pops[position=bottom]{position:fixed;bottom:0;left:50%;transform:translate(-50%,0);}
     .pops[position=bottom_right]{position:fixed;right:0;bottom:0;}
-    .pops button{white-space:nowrap;float:right;display:inline-block;margin:0 5px;padding:6px 12px;outline:0;border:1px solid transparent;}
-    .pops button{border-radius:4px;background-color:transparent;box-shadow:none;font-weight:400;font-size:14px;line-height:1.45;cursor:pointer;transition:all .3s ease-in-out;}
-    .pops button{display:flex;align-items: center;height:32px;line-height:1;box-sizing:border-box;outline:none;user-select:none;border: 1px solid #dcdfe6;}
+    .pops button {
+      white-space: nowrap;
+      float: right;
+      display: inline-block;
+      margin: 0 5px;
+      padding: 6px 12px;
+      outline: 0;
+      border: 1px solid transparent;
+    }
+    .pops button {
+      border-radius: 4px;
+      background-color: transparent;
+      box-shadow: none;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: all .3s ease-in-out;
+    }
+    .pops button {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      line-height: 1;
+      box-sizing: border-box;
+      outline: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      border: 1px solid #dcdfe6;
+    }
     .pops button.pops-button-large{height:40px;padding:12px 19px;font-size:14px;border-radius:4px;}
     .pops button.pops-button-small{height:24px;padding:5px 11px;font-size:12px;border-radius:4px;}
     .pops button:disabled{cursor:not-allowed;}
@@ -1571,6 +1609,9 @@
       transition: all .35s;
       transform: translate(-50%,-50%);
       user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
