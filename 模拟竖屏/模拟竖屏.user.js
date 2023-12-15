@@ -80,7 +80,7 @@
     {
       href: "https://.*.eggygogame.com",
       hijackOrientation: true,
-    }
+    },
   ];
 
   /**
