@@ -1117,7 +1117,7 @@
             let target = event.target;
             if (_selector_) {
               /* 存在自定义子元素选择器 */
-              let totalParent = CommonUtils.isWin(elementItem)
+              let totalParent = popsUtils.isWin(elementItem)
                 ? document.documentElement
                 : elementItem;
               if (target.matches(_selector_)) {
@@ -1157,7 +1157,7 @@
           if (_callback_ && _callback_.delegate) {
             elementItem.setAttribute("data-delegate", _selector_);
           }
-          if (CommonUtils.isWin(elementItem)) {
+          if (popsUtils.isWin(elementItem)) {
             let elementEvents = elementItem[windowEventsName] || {};
             elementEvents[eventType] = elementEvents[eventType] || [];
             elementEvents[eventType].push({
@@ -1235,7 +1235,7 @@
         }
         elementList.forEach((elementItem) => {
           let elementEvents = {};
-          if (CommonUtils.isWin(elementItem)) {
+          if (popsUtils.isWin(elementItem)) {
             elementEvents = elementItem[windowEventsName] || {};
           } else {
             elementEvents = elementItem[propEventsName] || {};
@@ -1261,7 +1261,7 @@
               delete elementEvents[eventType];
             }
           });
-          if (CommonUtils.isWin(elementItem)) {
+          if (popsUtils.isWin(elementItem)) {
             elementItem[windowEventsName] = elementEvents;
           } else {
             elementItem[propEventsName] = elementEvents;
@@ -1385,7 +1385,7 @@
             element.documentElement.clientHeight
           );
         }
-        let handleElement = CommonUtils.showElement(element);
+        let handleElement = popsUtils.showElement(element);
         let view = element.ownerDocument.defaultView;
         if (!view || !view.opener) {
           view = window;
