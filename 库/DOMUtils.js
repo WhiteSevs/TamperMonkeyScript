@@ -22,7 +22,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-12-14";
+  DOMUtils.version = "2023-12-15";
 
   let CommonUtils = {
     /**
@@ -92,7 +92,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (attrValue === void 0) {
@@ -126,7 +126,7 @@
       tempElement.innerHTML = property;
       return tempElement;
     }
-    if (property == null) {
+    if (property == void 0) {
       return tempElement;
     }
     Object.keys(property).forEach((key) => {
@@ -194,7 +194,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof property === "string") {
@@ -237,7 +237,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (text === void 0) {
@@ -268,10 +268,10 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
-    if (html == null) {
+    if (html == void 0) {
       return element.innerHTML;
     } else {
       if (html instanceof Node) {
@@ -286,6 +286,8 @@
    * 绑定或触发元素的click事件
    * @param {HTMLElement|string} element 目标元素
    * @param {function} [handler] 事件处理函数（可选）
+   * @param {object|undefined} details 赋予触发的Event的额外属性
+   * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.click(document.querySelector("a.xx"))
@@ -294,15 +296,20 @@
    *  console.log("触发click事件成功")
    * })
    * */
-  DOMUtils.click = function (element, handler) {
+  DOMUtils.click = function (
+    element,
+    handler,
+    details,
+    useDispatchToTriggerEvent = true
+  ) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (handler === void 0) {
-      DOMUtils.trigger(element, "click");
+      DOMUtils.trigger(element, "click", details, useDispatchToTriggerEvent);
     } else {
       DOMUtils.on(element, "click", null, handler);
     }
@@ -312,6 +319,8 @@
    * 绑定或触发元素的blur事件
    * @param {HTMLElement|string} element 目标元素
    * @param {function} [handler] 事件处理函数（可选）
+   * @param {object|undefined} details 赋予触发的Event的额外属性
+   * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的blur事件
    * DOMUtils.blur(document.querySelector("a.xx"))
@@ -320,15 +329,20 @@
    *  console.log("触发blur事件成功")
    * })
    * */
-  DOMUtils.blur = function (element, handler) {
+  DOMUtils.blur = function (
+    element,
+    handler,
+    details,
+    useDispatchToTriggerEvent = true
+  ) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (handler === void 0) {
-      DOMUtils.trigger(element, "blur");
+      DOMUtils.trigger(element, "blur", details, useDispatchToTriggerEvent);
     } else {
       DOMUtils.on(element, "blur", null, handler);
     }
@@ -337,6 +351,8 @@
    * 绑定或触发元素的focus事件
    * @param {HTMLElement|string|window} element 目标元素
    * @param {?function} [handler] 事件处理函数（可选）
+   * @param {object|undefined} details 赋予触发的Event的额外属性
+   * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的focus事件
    * DOMUtils.focus(document.querySelector("a.xx"))
@@ -345,15 +361,20 @@
    *  console.log("触发focus事件成功")
    * })
    * */
-  DOMUtils.focus = function (element, handler) {
+  DOMUtils.focus = function (
+    element,
+    handler,
+    details,
+    useDispatchToTriggerEvent = true
+  ) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (handler === void 0) {
-      DOMUtils.trigger(element, "focus");
+      DOMUtils.trigger(element, "focus", details, useDispatchToTriggerEvent);
     } else {
       DOMUtils.on(element, "focus", null, handler);
     }
@@ -377,10 +398,10 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
-    if (value == null) {
+    if (value == void 0) {
       if (
         element.localName === "input" &&
         (element.type === "checkbox" || element.type === "radio")
@@ -420,10 +441,10 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
-    if (propValue == null) {
+    if (propValue == void 0) {
       return element[propName];
     } else {
       element[propName] = propValue;
@@ -443,7 +464,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     element.removeAttribute(attrName);
@@ -463,10 +484,10 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
-    if (className == null) {
+    if (className == void 0) {
       return;
     }
     element.classList.remove(className);
@@ -485,7 +506,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     delete element[propName];
@@ -505,7 +526,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof newElement === "string") {
@@ -533,7 +554,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     element.classList.add(className);
@@ -551,7 +572,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof content === "string") {
@@ -574,7 +595,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof content === "string") {
@@ -596,7 +617,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof content === "string") {
@@ -619,7 +640,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof content === "string") {
@@ -642,7 +663,7 @@
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (element instanceof NodeList || element instanceof Array) {
@@ -665,7 +686,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     while (element.firstChild) {
@@ -715,7 +736,7 @@
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     let elementList = [];
@@ -827,7 +848,7 @@
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     let elementList = [];
@@ -892,6 +913,7 @@
    * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
    * @param {string|[...string]} eventType 需要触发的事件
    * @param {object|undefined} details 赋予触发的Event的额外属性
+   * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.trigger(document.querySelector("a.xx"),"click")
@@ -900,11 +922,16 @@
    * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
    * DOMUtils.trigger("a.xx",["click","tap","hover"])
    */
-  DOMUtils.trigger = function (element, eventType, details) {
+  DOMUtils.trigger = function (
+    element,
+    eventType,
+    details,
+    useDispatchToTriggerEvent = true
+  ) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     let elementList = [];
@@ -936,7 +963,13 @@
         if (details) {
           Object.assign(event, details);
         }
-        elementItem.dispatchEvent(event);
+        if (useDispatchToTriggerEvent == false && _eventType_ in events) {
+          events[_eventType_].forEach((eventsItem) => {
+            eventsItem.callback(event);
+          });
+        } else {
+          elementItem.dispatchEvent(event);
+        }
       });
     });
   };
@@ -957,7 +990,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     let rect = element.getBoundingClientRect();
@@ -991,7 +1024,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (element.nodeType === 9) {
@@ -1047,7 +1080,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (element.nodeType === 9) {
@@ -1099,7 +1132,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     let handleElement = CommonUtils.showElement(element);
@@ -1135,7 +1168,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     let handleElement = CommonUtils.showElement(element);
@@ -1200,16 +1233,16 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (typeof duration !== "number" || duration <= 0) {
       throw new TypeError("duration must be a positive number");
     }
-    if (typeof callback !== "function" && callback !== null) {
+    if (typeof callback !== "function" && callback !== void 0) {
       throw new TypeError("callback must be a function or null");
     }
-    if (typeof styles !== "object" || styles === null) {
+    if (typeof styles !== "object" || styles === void 0) {
       throw new TypeError("styles must be an object");
     }
     if (Object.keys(styles).length === 0) {
@@ -1253,7 +1286,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     // 创建一个新的div元素，并将wrapperHTML作为其innerHTML
@@ -1281,7 +1314,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     return element.previousElementSibling;
@@ -1301,7 +1334,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     return element.nextElementSibling;
@@ -1336,7 +1369,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     return Array.from(element.parentElement.children).filter(
@@ -1358,7 +1391,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (element instanceof NodeList || element instanceof Array) {
@@ -1437,7 +1470,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     DOMUtils.on(element, "mouseenter", null, handler);
@@ -1456,7 +1489,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     element.style.display = "";
@@ -1474,7 +1507,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     element.style.display = "none";
@@ -1497,7 +1530,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     DOMUtils.on(element, "keyup", null, handler);
@@ -1520,7 +1553,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     DOMUtils.on(element, "keydown", null, handler);
@@ -1544,7 +1577,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     element.style.opacity = 0;
@@ -1585,7 +1618,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     element.style.opacity = 1;
@@ -1620,7 +1653,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == null) {
+    if (element == void 0) {
       return;
     }
     if (getComputedStyle(element).getPropertyValue("display") === "none") {
