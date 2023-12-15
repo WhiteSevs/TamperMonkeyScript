@@ -1623,7 +1623,7 @@
     .pops-folder-list-file-name > div{display:flex;align-items:center;}
     
     .pops-mobile-folder-list-file-name{display:flex;align-items:center}
-    .pops-mobile-folder-list-file-name>div{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center}
+    .pops-mobile-folder-list-file-name>div{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;padding:6px 0px;}
     .pops-mobile-folder-list-file-name img.pops-folder-list-file-icon{width:45px;height:45px}
     .pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text{padding-left:unset;max-width:250px;overflow-x:hidden;font-size:16px;font-weight:400}
 
@@ -1633,7 +1633,7 @@
     .pops-folder-content .pops-folder-list-table__body-div{height: 100%;padding-bottom: 85px}
     .pops-mobile-folder-content .pops-folder-list-table__body-div{height: 100%;padding-bottom: 40px}
     .pops-folder-content table.pops-folder-list-table__body{overflow: auto}
-    .pops-mobile-folder-content .pops-folder-content .pops-folder-list-table__header-div{display: none}
+    .pops-mobile-folder-content .pops-folder-list-table__header-div{display: none}
 
     .pops-folder-list-file-name-title-text:hover{text-decoration:none;color:#06a7ff}
     .pops-folder-list .text-ellip{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
@@ -1809,8 +1809,19 @@
     
     /* slider的CSS */
     section.pops-panel-container .pops-panel-slider{overflow:hidden;height:25px;line-height:25px;display:flex;align-items:center}
-    section.pops-panel-container .pops-panel-slider input[type=range]{background:#e4e7ed;outline:0;-webkit-appearance:none;height:6px;appearance:none}
-    section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb,
+    section.pops-panel-container .pops-panel-slider input[type=range]{height:6px;background:#e4e7ed;outline:0;-webkit-appearance:none;appearance:none}
+    section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb{
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid #409eff;
+      background-color: #fff;
+      box-shadow: 0 0 2px rgba(0,0,0,.3),0 3px 5px rgba(0,0,0,.2);
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      border-image: linear-gradient(#409eff,#409eff) 0 fill/9 25 9 0/0 0 0 100vw;
+    }
     section.pops-panel-container .pops-panel-slider input[type=range]::-moz-range-thumb {
       width: 20px;
       height: 20px;
@@ -1822,8 +1833,8 @@
       -webkit-appearance: none;
       appearance: none;
     }
-    section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb,
     section.pops-panel-container .pops-panel-slider input[type=range]::-moz-range-progress{
+      height: 6px;
       border-image: linear-gradient(#409eff,#409eff) 0 fill/9 25 9 0/0 0 0 100vw;
     }
     /* slider的CSS */
