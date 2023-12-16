@@ -1201,10 +1201,10 @@
       return 0;
     } else {
       /* 未显示 */
-      let handleElement = CommonUtils.showElement(element);
-      let height = DOMUtils.height(handleElement);
-      handleElement.recovery();
-      return height;
+      let { recovery } = CommonUtils.showElement(element);
+      let width = DOMUtils.width(element);
+      recovery();
+      return width;
     }
   };
   /**
@@ -1275,9 +1275,9 @@
       return 0;
     } else {
       /* 未显示 */
-      let handleElement = CommonUtils.showElement(element);
-      let height = DOMUtils.height(handleElement);
-      handleElement.recovery();
+      let { recovery } = CommonUtils.showElement(element);
+      let height = DOMUtils.height(element);
+      recovery();
       return height;
     }
   };
@@ -1310,9 +1310,9 @@
       let marginRight = CommonUtils.getStyleValue(style, "marginRight");
       return element.offsetWidth + marginLeft + marginRight;
     } else {
-      let handleElement = CommonUtils.showElement(element);
-      let outerWidth = DOMUtils.outerWidth(handleElement);
-      handleElement.recovery();
+      let { recovery } = CommonUtils.showElement(element);
+      let outerWidth = DOMUtils.outerWidth(element);
+      recovery();
       return outerWidth;
     }
   };
@@ -1345,9 +1345,9 @@
       let marginBottom = CommonUtils.getStyleValue(style, "marginBottom");
       return element.offsetHeight + marginTop + marginBottom;
     } else {
-      let handleElement = CommonUtils.showElement(element);
-      let outerHeight = DOMUtils.outerHeight(handleElement);
-      handleElement.recovery();
+      let { recovery } = CommonUtils.showElement(element);
+      let outerHeight = DOMUtils.outerHeight(element);
+      recovery();
       return outerHeight;
     }
   };
