@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.16
+// @version      2023.12.16.16
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -7582,7 +7582,7 @@
         {
           id: "baidu-panel-config-search",
           title: "搜索",
-          headerTitle: "百度搜索  m.baidu.com|www.baidu.com",
+          headerTitle: "百度搜索<br />m.baidu.com<br />www.baidu.com",
           forms: [
             {
               text: "主页",
@@ -7733,7 +7733,7 @@
         {
           id: "baidu-panel-config-baijiahao",
           title: "百家号",
-          headerTitle: "百家号  baijiahao.baidu.com",
+          headerTitle: "百家号<br />baijiahao.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -7782,7 +7782,7 @@
         {
           id: "baidu-panel-config-tieba",
           title: "贴吧",
-          headerTitle: "百度贴吧  tieba.baidu.com|www.tieba.com",
+          headerTitle: "百度贴吧<br />tieba.baidu.com<br />www.tieba.com",
           forms: [
             {
               text: "功能",
@@ -7853,7 +7853,7 @@
         {
           id: "baidu-panel-config-wenku",
           title: "文库",
-          headerTitle: "百度文库  wk.baidu.com|tanbi.baidu.com",
+          headerTitle: "百度文库<br />wk.baidu.com<br />tanbi.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -7891,7 +7891,7 @@
         {
           id: "baidu-panel-config-baike",
           title: "百科",
-          headerTitle: "百度百科  baike.baidu.com|wapbaike.baidu.com",
+          headerTitle: "百度百科<br />baike.baidu.com<br />wapbaike.baidu.com",
           forms: [
             {
               text: "功能",
@@ -7932,7 +7932,7 @@
         {
           id: "baidu-panel-config-zhidao",
           title: "知道",
-          headerTitle: "百度知道  zhidao.baidu.com",
+          headerTitle: "百度知道<br />zhidao.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -7960,7 +7960,7 @@
         {
           id: "baidu-panel-config-fanyi",
           title: "翻译",
-          headerTitle: "百度翻译  fanyi.baidu.com|fanyi-app.baidu.com",
+          headerTitle: "百度翻译<br />fanyi.baidu.com<br />fanyi-app.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -8015,7 +8015,7 @@
         {
           id: "baidu-panel-config-map",
           title: "地图",
-          headerTitle: "百度地图  map.baidu.com",
+          headerTitle: "百度地图<br />map.baidu.com",
           forms: [
             {
               text: "劫持/拦截",
@@ -8033,7 +8033,7 @@
         {
           id: "baidu-panel-config-mbd",
           title: "知道",
-          headerTitle: "百度知道  mbd.baidu.com",
+          headerTitle: "百度知道<br />mbd.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -8082,7 +8082,7 @@
         {
           id: "baidu-panel-config-aiqicha",
           title: "爱企查",
-          headerTitle: "爱企查  aiqicha.baidu.com",
+          headerTitle: "爱企查<br />aiqicha.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -8105,7 +8105,7 @@
         {
           id: "baidu-panel-config-haokan",
           title: "好看视频",
-          headerTitle: "好看视频  haokan.baidu.com",
+          headerTitle: "好看视频<br />haokan.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -8156,7 +8156,7 @@
         {
           id: "baidu-panel-config-yiyan",
           title: "文心一言",
-          headerTitle: "文心一言  yiyan.baidu.com",
+          headerTitle: "文心一言<br />yiyan.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -8174,7 +8174,7 @@
         {
           id: "baidu-panel-config-chat",
           title: "AI伙伴",
-          headerTitle: "搜索AI伙伴  chat.baidu.com",
+          headerTitle: "搜索AI伙伴<br />chat.baidu.com",
           forms: [
             {
               text: "屏蔽",
@@ -8192,6 +8192,7 @@
         {
           id: "baidu-panel-config-easy-learn",
           title: "教育",
+          headerTitle: "百度教育<br />easylearn.baidu.com",
           forms: [
             {
               text: "小程序",
