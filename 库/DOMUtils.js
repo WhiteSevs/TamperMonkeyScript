@@ -22,28 +22,63 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-12-15";
+  DOMUtils.version = "2023-12-16";
 
   let CommonUtils = {
+    /**
+     * 判断元素是否已显示或已连接
+     * @param {HTMLElement} element
+     * @returns {boolean}
+     */
+    isShow(element) {
+      return Boolean(element.getClientRects().length);
+    },
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
      * @param {HTMLElement} element
      * @returns {{recovery: Function}} - 恢复
      */
-    showElement: function (element) {
-      let oldCSS_display = element.style.display;
-      let oldCSS_visibility = element.style.visibility;
-      let oldCSS_position = element.style.position;
-      element.style.display = "block";
-      element.style.visibility = "hidden";
-      element.style.position = "absolute";
+    showElement(element) {
+      let oldStyleAttribute = element.getAttribute("style");
+      element.setAttribute(
+        "style",
+        "visibility: !important;display:block !important;"
+      );
       return {
         recovery() {
-          element.style.display = oldCSS_display;
-          element.style.visibility = oldCSS_visibility;
-          element.style.position = oldCSS_position;
+          if (oldStyleAttribute) {
+            element.setAttribute("style", oldStyleAttribute);
+          } else {
+            element.removeAttribute("style");
+          }
         },
       };
+    },
+    /**
+     * 获取元素上的Float格式的属性px
+     * @param {HTMLElement|CSSStyleDeclaration} element
+     * @param {string} styleName style名
+     * @return {number}
+     */
+    getStyleValue(element, styleName) {
+      let view = null;
+      let styles = null;
+      if (element instanceof CSSStyleDeclaration) {
+        /* 直接就获取了style属性 */
+        styles = element;
+      } else {
+        view = element.ownerDocument.defaultView;
+        if (!view || !view.opener) {
+          view = window;
+        }
+        styles = view.getComputedStyle(element);
+      }
+      let value = parseFloat(styles[styleName]);
+      if (isNaN(value)) {
+        return 0;
+      } else {
+        return value;
+      }
     },
     /**
      * 判断是否是window，例如window、self、globalThis
@@ -1134,24 +1169,43 @@
         element.documentElement.clientWidth
       );
     }
-    let handleElement = CommonUtils.showElement(element);
-    let view = element.ownerDocument.defaultView;
-    if (!view || !view.opener) {
-      view = window;
+    if (CommonUtils.isShow(element)) {
+      /* 已显示 */
+      /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
+
+      /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
+      if (parseFloat(CommonUtils.getStyleValue(element, "width")) > 0) {
+        return parseFloat(CommonUtils.getStyleValue(element, "width"));
+      }
+
+      /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
+      if (element.offsetWidth > 0) {
+        let borderLeftWidth = CommonUtils.getStyleValue(
+          element,
+          "borderLeftWidth"
+        );
+        let borderRightWidth = CommonUtils.getStyleValue(
+          element,
+          "borderRightWidth"
+        );
+        let paddingLeft = CommonUtils.getStyleValue(element, "paddingLeft");
+        let paddingRight = CommonUtils.getStyleValue(element, "paddingRight");
+        let backHeight =
+          parseFloat(element.offsetWidth) -
+          parseFloat(borderLeftWidth) -
+          parseFloat(borderRightWidth) -
+          parseFloat(paddingLeft) -
+          parseFloat(paddingRight);
+        return parseFloat(backHeight);
+      }
+      return 0;
+    } else {
+      /* 未显示 */
+      let handleElement = CommonUtils.showElement(element);
+      let height = DOMUtils.height(handleElement);
+      handleElement.recovery();
+      return height;
     }
-    let styles = view.getComputedStyle(element);
-    let elementPaddingLeft = parseFloat(styles.paddingLeft);
-    let elementPaddingRight = parseFloat(styles.paddingRight);
-    if (isNaN(elementPaddingLeft)) {
-      elementPaddingLeft = 0;
-    }
-    if (isNaN(elementPaddingRight)) {
-      elementPaddingRight = 0;
-    }
-    let elementWidth =
-      element.clientWidth - elementPaddingLeft - elementPaddingRight;
-    handleElement.recovery();
-    return elementWidth;
   };
   /**
    * 获取元素的高度
@@ -1190,24 +1244,42 @@
         element.documentElement.clientHeight
       );
     }
-    let handleElement = CommonUtils.showElement(element);
-    let view = element.ownerDocument.defaultView;
-    if (!view || !view.opener) {
-      view = window;
+    if (CommonUtils.isShow(element)) {
+      /* 已显示 */
+      /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
+      /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
+      if (parseFloat(CommonUtils.getStyleValue(element, "height")) > 0) {
+        return parseFloat(CommonUtils.getStyleValue(element, "height"));
+      }
+
+      /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
+      if (element.offsetHeight > 0) {
+        let borderTopWidth = CommonUtils.getStyleValue(
+          element,
+          "borderTopWidth"
+        );
+        let borderBottomWidth = CommonUtils.getStyleValue(
+          element,
+          "borderBottomWidth"
+        );
+        let paddingTop = CommonUtils.getStyleValue(element, "paddingTop");
+        let paddingBottom = CommonUtils.getStyleValue(element, "paddingBottom");
+        let backHeight =
+          parseFloat(element.offsetHeight) -
+          parseFloat(borderTopWidth) -
+          parseFloat(borderBottomWidth) -
+          parseFloat(paddingTop) -
+          parseFloat(paddingBottom);
+        return parseFloat(backHeight);
+      }
+      return 0;
+    } else {
+      /* 未显示 */
+      let handleElement = CommonUtils.showElement(element);
+      let height = DOMUtils.height(handleElement);
+      handleElement.recovery();
+      return height;
     }
-    let styles = view.getComputedStyle(element);
-    let elementPaddingTop = parseFloat(styles.paddingTop);
-    let elementPaddingBottom = parseFloat(styles.paddingBottom);
-    if (isNaN(elementPaddingTop)) {
-      elementPaddingTop = 0;
-    }
-    if (isNaN(elementPaddingBottom)) {
-      elementPaddingBottom = 0;
-    }
-    let elementHeight =
-      element.clientHeight - elementPaddingTop - elementPaddingBottom;
-    handleElement.recovery();
-    return elementHeight;
   };
   /**
    * 获取元素的外部宽度（包括边框和外边距）
@@ -1232,18 +1304,17 @@
     if (element == void 0) {
       return;
     }
-    let handleElement = CommonUtils.showElement(element);
-    let style = getComputedStyle(element, null);
-    let elementMarginLeft = parseFloat(style.marginLeft);
-    let elementMarginRight = parseFloat(style.marginRight);
-    if (isNaN(elementMarginLeft)) {
-      elementMarginLeft = 0;
+    if (CommonUtils.isShow(element)) {
+      let style = getComputedStyle(element, null);
+      let marginLeft = CommonUtils.getStyleValue(style, "marginLeft");
+      let marginRight = CommonUtils.getStyleValue(style, "marginRight");
+      return element.offsetWidth + marginLeft + marginRight;
+    } else {
+      let handleElement = CommonUtils.showElement(element);
+      let outerWidth = DOMUtils.outerWidth(handleElement);
+      handleElement.recovery();
+      return outerWidth;
     }
-    if (isNaN(elementMarginRight)) {
-      elementMarginRight = 0;
-    }
-    handleElement.recovery();
-    return element.offsetWidth + elementMarginLeft + elementMarginRight;
   };
   /**
    * 获取元素的外部高度（包括边框和外边距）
@@ -1268,18 +1339,17 @@
     if (element == void 0) {
       return;
     }
-    let handleElement = CommonUtils.showElement(element);
-    let style = getComputedStyle(element, null);
-    let elementMarginTop = parseFloat(style.marginTop);
-    let elementMarginBottom = parseFloat(style.marginBottom);
-    if (isNaN(elementMarginTop)) {
-      elementMarginTop = 0;
+    if (CommonUtils.isShow(element)) {
+      let style = getComputedStyle(element, null);
+      let marginTop = CommonUtils.getStyleValue(style, "marginTop");
+      let marginBottom = CommonUtils.getStyleValue(style, "marginBottom");
+      return element.offsetHeight + marginTop + marginBottom;
+    } else {
+      let handleElement = CommonUtils.showElement(element);
+      let outerHeight = DOMUtils.outerHeight(handleElement);
+      handleElement.recovery();
+      return outerHeight;
     }
-    if (isNaN(elementMarginBottom)) {
-      elementMarginBottom = 0;
-    }
-    handleElement.recovery();
-    return element.offsetHeight + elementMarginTop + elementMarginBottom;
   };
 
   /**
