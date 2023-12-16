@@ -1062,11 +1062,42 @@
        * @param {string|[...string]} eventType 需要监听的事件
        * @param {string|undefined} selector 子元素选择器
        * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
-       * @param {boolean|undefined} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
-       * @param {boolean|undefined} once 表示事件是否只触发一次。默认为false
-       * @param {boolean|undefined} passive 表示事件监听器是否不会调用preventDefault()。默认为false
+       * @param {boolean|AddEventListenerOptions|undefined} option
+       * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+       * + once 表示事件是否只触发一次。默认为false
+       * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
        */
-      on(element, eventType, selector, callback, capture, once, passive) {
+      on(element, eventType, selector, callback, option) {
+        /**
+         * 获取option配置
+         * @param {any[]} args
+         * @param {number} startIndex
+         * @param {AddEventListenerOptions} option
+         * @returns {AddEventListenerOptions}
+         */
+        function getOption(args, startIndex, option) {
+          if (typeof args[startIndex] === "boolean") {
+            option.capture = args[startIndex];
+            if (typeof args[startIndex + 1] === "boolean") {
+              option.once = args[startIndex + 1];
+            }
+            if (typeof args[startIndex + 2] === "boolean") {
+              option.passive = args[startIndex + 2];
+            }
+          } else if (
+            typeof args[startIndex] === "object" &&
+            ("capture" in args[startIndex] ||
+              "once" in args[startIndex] ||
+              "passive" in args[startIndex])
+          ) {
+            option.capture = args[startIndex].capture;
+            option.once = args[startIndex].once;
+            option.passive = args[startIndex].passive;
+          }
+          return option;
+        }
+
+        let args = arguments;
         if (typeof element === "string") {
           element = document.querySelectorAll(element);
         }
@@ -1078,7 +1109,7 @@
          */
         let elementList = [];
         if (element instanceof NodeList || Array.isArray(element)) {
-          elementList = elementList.concat(element);
+          elementList = [...element];
         } else {
           elementList.push(element);
         }
@@ -1107,10 +1138,22 @@
          * @type {(event:Event)=>{}}
          */
         let _callback_ = callback;
+        /**
+         * @type {AddEventListenerOptions}
+         */
+        let _option_ = {
+          capture: false,
+          once: false,
+          passive: false,
+        };
         if (typeof selector === "function") {
           /* 这是为没有selector的情况 */
           _selector_ = void 0;
           _callback_ = selector;
+          _option_ = getOption(args, 3, _option_);
+        } else {
+          /* 这是存在selector的情况 */
+          _option_ = getOption(args, 4, _option_);
         }
         elementList.forEach((elementItem) => {
           let ownCallBack = function (event) {
@@ -1145,13 +1188,7 @@
           };
           /* 遍历事件名设置元素事件 */
           eventTypeList.forEach((eventName) => {
-            elementItem.addEventListener(
-              eventName,
-              ownCallBack,
-              capture,
-              once,
-              passive
-            );
+            elementItem.addEventListener(eventName, ownCallBack, _option_);
           });
 
           if (_callback_ && _callback_.delegate) {
@@ -1162,6 +1199,7 @@
             elementEvents[eventType] = elementEvents[eventType] || [];
             elementEvents[eventType].push({
               selector: _selector_,
+              option: _option_,
               callback: ownCallBack,
               originCallBack: _callback_,
             });
@@ -1171,6 +1209,7 @@
             elementEvents[eventType] = elementEvents[eventType] || [];
             elementEvents[eventType].push({
               selector: _selector_,
+              option: _option_,
               callback: ownCallBack,
               originCallBack: _callback_,
             });
@@ -1184,10 +1223,30 @@
        * @param {string|[...string]} eventType 需要取消监听的事件
        * @param {string|undefined} selector 子元素选择器
        * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
-       * @param {boolean|undefined} [useCapture] 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
-       * 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+       * @param {EventListenerOptions|boolean|undefined} option
+       * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
        */
-      off(element, eventType, selector, callback, useCapture) {
+      off(element, eventType, selector, callback, option) {
+        /**
+         * 获取option配置
+         * @param {any[]} args
+         * @param {number} startIndex
+         * @param {EventListenerOptions} option
+         * @returns {EventListenerOptions}
+         */
+        function getOption(args, startIndex, option) {
+          if (typeof args[startIndex] === "boolean") {
+            option.capture = args[startIndex];
+          } else if (
+            typeof args[startIndex] === "object" &&
+            "capture" in args[startIndex]
+          ) {
+            option.capture = args[startIndex].capture;
+          }
+          return option;
+        }
+
+        let args = arguments;
         if (typeof element === "string") {
           element = document.querySelectorAll(element);
         }
@@ -1199,7 +1258,7 @@
          */
         let elementList = [];
         if (element instanceof NodeList || Array.isArray(element)) {
-          elementList = elementList.concat(element);
+          elementList = [...element];
         } else {
           elementList.push(element);
         }
@@ -1228,10 +1287,20 @@
          * @type {(event:Event)=>{}}
          */
         let _callback_ = callback;
+
+        /**
+         * @type {EventListenerOptions}
+         */
+        let _option_ = {
+          capture: false,
+        };
         if (typeof selector === "function") {
           /* 这是为没有selector的情况 */
           _selector_ = void 0;
           _callback_ = selector;
+          _option_ = getOption(args, 3, _option_);
+        } else {
+          _option_ = getOption(args, 4, _option_);
         }
         elementList.forEach((elementItem) => {
           let elementEvents = {};
@@ -1252,7 +1321,7 @@
                 elementItem.removeEventListener(
                   eventName,
                   handlers[index].callback,
-                  useCapture
+                  _option_
                 );
                 handlers.splice(index--, 1);
               }
@@ -1473,7 +1542,7 @@
     /**
      * 当前版本
      */
-    version: "2023.12.15",
+    version: "2023.12.16",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -1485,7 +1554,14 @@
       overflow: hidden;
       transition: all .35s
     }
-    .pops *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    .pops * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      /* 代替::-webkit-scrollbar */
+      scrollbar-width: thin;
+    }
     .pops-anim{position:fixed;top:0;right:0;bottom:0;left:0;margin:0;width:100%;height:100%;}
     .pops[position=top_left]{position:fixed;top:0;left:0;}
     .pops[position=top]{position:fixed;top:0;left:50%;transform:translateX(-50%);}
@@ -1582,26 +1658,26 @@
     .pops button[type=xiaomi-primary]:focus-visible{outline:2px solid #fab6b6;outline-offset:1px;}
     .pops button[type=xiaomi-primary]:disabled{color:#ffffff !important;background-color:#fad5b6 !important;border-color:#fad5b6 !important;}
     
-    .pops ::-webkit-scrollbar,
-    .pops ::-moz-scrollbar{
+    .pops ::-webkit-scrollbar{
       width:6px;
       height:0;
     }
-    .pops ::-webkit-scrollbar-track,
-    .pops ::-moz-scrollbar-track{
+    .pops ::-webkit-scrollbar-track{
       width:0;
     }
-    .pops ::-webkit-scrollbar-thumb:hover,
-    .pops ::-moz-scrollbar-thumb:hover{
+    .pops ::-webkit-scrollbar-thumb:hover{
       background: #b2b2b2;
     }
-    .pops ::-webkit-scrollbar-thumb,
-    .pops ::-moz-scrollbar-thumb{
+    .pops ::-webkit-scrollbar-thumb{
       min-height: 28px;
       border-radius: 2em;
       background: #cccccc;
       background-clip: padding-box;
     }
+    
+    /* firefox上暂不支持::-webkit-scrollbar */
+
+
     .pops-mask{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;border:0;border-radius:0;background-color:rgba(0,0,0,.4);box-shadow:none;transition:none;}
     .pops[type-value=alert] .pops-alert-title{width:100%;height:55px;border-bottom:1px solid #e5e5e5;}
     .pops[type-value=alert] .pops-alert-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:55px;}
@@ -1698,9 +1774,26 @@
     .pops-folder-list-file-name > div{display:flex;align-items:center;}
     
     .pops-mobile-folder-list-file-name{display:flex;align-items:center}
-    .pops-mobile-folder-list-file-name>div{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;padding:6px 0px;}
+    .pops-mobile-folder-list-file-name>div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 6px 0px;
+      flex-direction: column;
+    }
     .pops-mobile-folder-list-file-name img.pops-folder-list-file-icon{width:45px;height:45px}
-    .pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text{padding-left:unset;max-width:250px;overflow-x:hidden;font-size:16px;font-weight:400}
+    .pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {
+      padding-left: unset;
+      max-width: 250px;
+      overflow-x: hidden;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: unset;
+      margin-bottom: 4px;
+      white-space: normal;
+      text-overflow: unset;
+    }
 
     /* 修改滚动 */
     .pops-folder-content{overflow: hidden !important}
@@ -1884,7 +1977,14 @@
     
     /* slider的CSS */
     section.pops-panel-container .pops-panel-slider{overflow:hidden;height:25px;line-height:25px;display:flex;align-items:center}
-    section.pops-panel-container .pops-panel-slider input[type=range]{height:6px;background:#e4e7ed;outline:0;-webkit-appearance:none;appearance:none}
+    section.pops-panel-container .pops-panel-slider input[type=range] {
+      height: 6px;
+      background: #e4e7ed;
+      outline: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+    }
     section.pops-panel-container .pops-panel-slider input[type=range]::-webkit-slider-thumb{
       width: 20px;
       height: 20px;
@@ -4717,8 +4817,8 @@
    * + true 设置的triggerShowEventName、triggerCloseEventName将无效
    *        返回提供show和close函数，取消on和off
    * + false 返回提供on和off，取消close函数
-   * @property {string} [triggerShowEventName="mouseenter"] 触发显示事件的名称，默认mouseenter
-   * @property {string} [triggerCloseEventName="mouseleave"] 触发关闭事件的名称，默认mouseleave
+   * @property {string} [triggerShowEventName="mouseenter"] 触发显示事件的名称，默认mouseenter，如果是多个事件，按空格分割
+   * @property {string} [triggerCloseEventName="mouseleave"] 触发关闭事件的名称，默认mouseleave，如果是多个事件，按空格分割
    * @property {number} [zIndex=10000] z-index，默认10000
    * @property {boolean} [only=false] 是否唯一，默认false
    * @property {Function} triggerShowEventCallBack 触发显示事件的回调
@@ -6766,7 +6866,7 @@
           ${formConfig.text}
         </div>
         <div class="pops-panel-slider">
-          <input type="range" min="${formConfig.min}" max="${formConfig.max}"}>
+          <input type="range" min="${formConfig.min}" max="${formConfig.max}">
         </div>
         `;
         /**
@@ -6796,6 +6896,8 @@
           content: getToolTipContent(rangeInputElement.value),
           zIndex: 1000000,
           className: "github-tooltip",
+          triggerShowEventName: "mouseenter touchstart",
+          triggerCloseEventName: "mouseleave touchend",
           triggerShowEventCallBack(toolTipNode) {
             toolTipNode.querySelector("div").innerText = getToolTipContent(
               rangeInputElement.value
