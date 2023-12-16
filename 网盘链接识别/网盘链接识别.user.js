@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.16.16
+// @version      2023.12.16.19
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,9 +58,9 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1296731/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296805/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296704/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296804/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -4298,7 +4298,7 @@
     async parse(netDiskName, netDiskIndex, shareCode, accessCode) {
       Qmsg.info("正在获取直链");
       if (this.netDisk[netDiskName]) {
-        var parseObj = new this.netDisk[netDiskName]();
+        let parseObj = new this.netDisk[netDiskName]();
         await parseObj.default(netDiskIndex, shareCode, accessCode);
       } else {
         log.error(`${netDiskName} 不存在解析`);
@@ -5035,7 +5035,7 @@
         );
       })();
       `;
-      var blob = new Blob([handleMatch]);
+      let blob = new Blob([handleMatch]);
       NetDiskWorker.blobUrl = window.URL.createObjectURL(blob);
       log.info(`Worker Blobk Link ===> ${NetDiskWorker.blobUrl}`);
     },
@@ -6854,26 +6854,24 @@
             if (clickDeviation_X > 250 || clickDeviation_Y > 250) {
               return;
             }
-            var clientMax_X =
-              DOMUtils.width(globalThis) -
-              NetDiskUI.size; /* 最大的X轴 指从左至右*/
-            var clientMax_Y =
-              DOMUtils.height(globalThis) -
-              NetDiskUI.size; /* 最大的Y轴 指从上至下 */
-            var clientMove_X = event.x - clickDeviation_X; /* 当前移动的X轴 */
-            var clientMove_Y = event.y - clickDeviation_Y; /* 当前移动的Y轴 */
+            /* 最大的X轴 指从左至右*/
+            let clientMax_X = DOMUtils.width(globalThis) - NetDiskUI.size;
+            /* 最大的Y轴 指从上至下 */
+            let clientMax_Y = DOMUtils.height(globalThis) - NetDiskUI.size;
+            /* 当前移动的X轴 */
+            let clientMove_X = event.x - clickDeviation_X;
+            /* 当前移动的Y轴 */
+            let clientMove_Y = event.y - clickDeviation_Y;
+            /* 不允许超过窗口最大宽度 */
             clientMove_X =
-              clientMove_X < clientMax_X
-                ? clientMove_X
-                : clientMax_X; /* 不允许超过最大X轴 */
+              clientMove_X < clientMax_X ? clientMove_X : clientMax_X;
+            /* 不允许超过窗口最大高度 */
             clientMove_Y =
-              clientMove_Y < clientMax_Y
-                ? clientMove_Y
-                : clientMax_Y; /* 不允许超过最大Y轴 */
-            clientMove_X =
-              clientMove_X < 0 ? 0 : clientMove_X; /* 不允许小于0 */
-            clientMove_Y =
-              clientMove_Y < 0 ? 0 : clientMove_Y; /* 不允许小于0 */
+              clientMove_Y < clientMax_Y ? clientMove_Y : clientMax_Y;
+            /* 不允许小于0 */
+            clientMove_X = clientMove_X < 0 ? 0 : clientMove_X;
+            /* 不允许小于0 */
+            clientMove_Y = clientMove_Y < 0 ? 0 : clientMove_Y;
             if (top.window == self.window) {
               GM_setValue("suspensionX", clientMove_X);
               GM_setValue("suspensionY", clientMove_Y);
