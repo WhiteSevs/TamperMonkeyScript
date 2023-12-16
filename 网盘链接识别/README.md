@@ -8,7 +8,7 @@
 
 ## 🎁演示GIF
 
-[![网盘链接识别演示.gif](https://www.helloimg.com/images/2023/03/16/o1qyfv.gif)](https://www.helloimg.com/images/2023/03/16/o1qyfv.gif)
+[![网盘链接识别演示.gif](https://picshack.net/ib/g4ZLAh3vyC.gif)](https://picshack.net/ib/g4ZLAh3vyC.gif)
 
 ## 🌈 使用方式
 
