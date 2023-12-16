@@ -1434,10 +1434,10 @@
           return 0;
         } else {
           /* 未显示 */
-          let handleElement = popsUtils.showElement(element);
-          let height = DOMUtils.height(handleElement);
-          handleElement.recovery();
-          return height;
+          let { recovery } = popsUtils.showElement(element);
+          let width = popsUtils.jQuery.width(element);
+          recovery();
+          return width;
         }
       },
       /**
@@ -1499,9 +1499,9 @@
           return 0;
         } else {
           /* 未显示 */
-          let handleElement = popsUtils.showElement(element);
-          let height = DOMUtils.height(handleElement);
-          handleElement.recovery();
+          let { recovery } = popsUtils.showElement(element);
+          let height = popsUtils.jQuery.height(element);
+          recovery();
           return height;
         }
       },
@@ -1526,9 +1526,9 @@
           let marginRight = popsUtils.getStyleValue(style, "marginRight");
           return element.offsetWidth + marginLeft + marginRight;
         } else {
-          let handleElement = popsUtils.showElement(element);
-          let outerWidth = DOMUtils.outerWidth(handleElement);
-          handleElement.recovery();
+          let { recovery } = popsUtils.showElement(element);
+          let outerWidth = popsUtils.jQuery.outerWidth(element);
+          recovery();
           return outerWidth;
         }
       },
@@ -1553,9 +1553,9 @@
           let marginBottom = popsUtils.getStyleValue(style, "marginBottom");
           return element.offsetHeight + marginTop + marginBottom;
         } else {
-          let handleElement = popsUtils.showElement(element);
-          let outerHeight = DOMUtils.outerHeight(handleElement);
-          handleElement.recovery();
+          let { recovery } = popsUtils.showElement(element);
+          let outerHeight = popsUtils.jQuery.outerHeight(element);
+          recovery();
           return outerHeight;
         }
       },
@@ -7413,8 +7413,9 @@
             /* popsUtils.jQuery.height(
               that.sectionContainerHeaderULElement
             ) */
-            let sectionContainerHeaderULElementHeight =
-              GM_bridge.DOMUtils.height(that.sectionContainerHeaderULElement);
+            let sectionContainerHeaderULElementHeight = popsUtils.jQuery.height(
+              that.sectionContainerHeaderULElement
+            );
             that.sectionContainerULElement.style.setProperty(
               "height",
               `calc( 100% - ${
