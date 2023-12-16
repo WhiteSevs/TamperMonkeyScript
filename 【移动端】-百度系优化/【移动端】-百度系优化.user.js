@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.15.17
+// @version      2023.12.16
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -17,8 +17,8 @@
 // @match        *://jingyan.baidu.com/*
 // @match        *://baike.baidu.com/*
 // @match        *://wapbaike.baidu.com/*
-// @match        *://zhidao.baidu.com/*
 // @match        *://fanyi.baidu.com/*
+// @match        *://zhidao.baidu.com/*
 // @match        *://fanyi-app.baidu.com/*
 // @match        *://image.baidu.com/*
 // @match        *://map.baidu.com/*
@@ -49,9 +49,9 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1296243/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296703/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296230/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296704/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -2772,13 +2772,31 @@
          * 设置滚动事件
          */
         setNextPageScrollListener() {
-          document.addEventListener("scroll", this.scrollLockFunction.run);
+          DOMUtils.on(
+            document,
+            "scroll",
+            undefined,
+            this.scrollLockFunction.run,
+            {
+              capture: true,
+              once: false,
+              passive: true,
+            }
+          );
         },
         /**
          * 移除滚动事件
          */
         removeNextPageScrollListener() {
-          document.removeEventListener("scroll", this.scrollLockFunction.run);
+          DOMUtils.off(
+            document,
+            "scroll",
+            undefined,
+            this.scrollLockFunction.run,
+            {
+              capture: true,
+            }
+          );
           log.info("取消绑定scroll", "#f400ff");
         },
         /**
@@ -3153,7 +3171,7 @@
       GM_addStyle(this.css.baijiahao);
       log.info("插入CSS规则");
       if (PopsPanel.getValue("baijiahao_shield_recommended_article")) {
-        log.success("屏蔽-推荐文章");
+        log.success("【屏蔽】推荐文章");
         GM_addStyle(`
 			  .infinite-scroll-component__outerdiv, 
         div#page_wrapper > div > div:nth-child(5), 
@@ -3188,14 +3206,14 @@
         }`);
       }
       if (PopsPanel.getValue("baijiahao_shield_user_comment")) {
-        log.success("屏蔽-用户评论");
+        log.success("【屏蔽】用户评论");
         GM_addStyle(`
         #commentModule{
           display: none !important;
         }`);
       }
       if (PopsPanel.getValue("baijiahao_shield_user_comment_input_box")) {
-        log.success("屏蔽-底部悬浮工具栏");
+        log.success("【屏蔽】底部悬浮工具栏");
         GM_addStyle(`
         div#wise-invoke-interact-bar{
           display: none !important;
@@ -6509,11 +6527,11 @@
                     document.querySelector(".BK-main-content"),
                     nextPageContent
                   );
-                  // 等待350ms，防止被百度识别为机器人
+                  /* 等待350ms，防止被百度识别为机器人 */
                   await utils.sleep(350);
                 }
                 if (PopsPanel.getValue("baidu_baike_sync_next_page_address")) {
-                  window.history.pushState("forward", null, respData.finalUrll);
+                  window.history.pushState("forward", null, respData.finalUrl);
                 }
                 page++;
               } else if (getResp.type === "onerror") {
@@ -6542,7 +6560,9 @@
             }
           });
       }
-      loadMore();
+      if (PopsPanel.getValue("baidu_baike_automatically_expand_next_page")) {
+        loadMore();
+      }
     },
     /**
      * 百度百科-他说
@@ -6554,10 +6574,10 @@
       /**
        * 去除底部广告
        */
-      function remove_bottom_ad() {
+      function removeBottomAd() {
         utils.waitNode("#index_tashuo_list").then(() => {
           utils.mutationObserver(document.querySelector("#index_tashuo_list"), {
-            callback: (mutations, observer) => {
+            callback() {
               Array.from(
                 document.querySelector("#index_tashuo_list").children
               ).forEach((item) => {
@@ -6571,7 +6591,9 @@
           });
         });
       }
-      remove_bottom_ad();
+      if (PopsPanel.getValue("baidu_baike_tashuo_remove_bottom_ad")) {
+        removeBottomAd();
+      }
     },
     /**
      * 百度知道
@@ -7560,6 +7582,7 @@
         {
           id: "baidu-panel-config-search",
           title: "搜索",
+          headerTitle: "百度搜索  m.baidu.com|www.baidu.com",
           forms: [
             {
               text: "主页",
@@ -7573,7 +7596,7 @@
               ],
             },
             {
-              text: "百度健康-快速问医生",
+              text: "百度健康(快速问医生)",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
@@ -7589,7 +7612,7 @@
               ],
             },
             {
-              text: "简单UserAgent",
+              text: "userAgent包含SearchCraft时",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
@@ -7617,17 +7640,17 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "自动播放视频",
+                  "【禁止】自动播放视频",
                   "baidu_search_disable_autoplay_video",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "大家还在搜",
+                  "【屏蔽】大家还在搜",
                   "baidu_search_blocking_everyone_is_still_searching",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "百度健康",
+                  "【屏蔽】百度健康相关结果",
                   "baidu_search_shield_baidu_health",
                   true
                 ),
@@ -7656,7 +7679,7 @@
                   }
                 ),
                 PopsPanel.getSwtichDetail(
-                  "输出日志",
+                  "console/控制台允许输出日志",
                   "baidu_search_show_log",
                   false
                 ),
@@ -7673,7 +7696,7 @@
                   }
                 ),
                 PopsPanel.getSwtichDetail(
-                  "【重构】大家还在搜",
+                  "优化大家还在搜",
                   "baidu_search_refactor_everyone_is_still_searching",
                   true
                 ),
@@ -7684,22 +7707,22 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "复制",
+                  "劫持-复制",
                   "baidu_search_hijack_copy",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "Scheme唤醒App",
+                  "劫持-Scheme唤醒App",
                   "baidu_search_hijack_scheme",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "OpenBox函数",
+                  "劫持-OpenBox函数",
                   "baidu_search_hijack_openbox",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "_onClick函数",
+                  "劫持-_onClick函数",
                   "baidu_search_hijack__onClick",
                   false
                 ),
@@ -7710,23 +7733,24 @@
         {
           id: "baidu-panel-config-baijiahao",
           title: "百家号",
+          headerTitle: "百家号  baijiahao.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "推荐文章",
+                  "【屏蔽】推荐文章",
                   "baijiahao_shield_recommended_article",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "用户评论",
+                  "【屏蔽】用户评论",
                   "baijiahao_shield_user_comment",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "底部悬浮工具栏",
+                  "【屏蔽】底部悬浮工具栏",
                   "baijiahao_shield_user_comment_input_box",
                   false
                 ),
@@ -7737,17 +7761,17 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "唤醒App",
+                  "劫持-唤醒App",
                   "baijiahao_hijack_wakeup",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "iframe唤醒App",
+                  "劫持-iframe唤醒App",
                   "baidu_baijiahao_hijack_iframe",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "OpenBox函数",
+                  "劫持-OpenBox函数",
                   "baidu_baijiahao_hijack_openbox",
                   false
                 ),
@@ -7758,13 +7782,14 @@
         {
           id: "baidu-panel-config-tieba",
           title: "贴吧",
+          headerTitle: "百度贴吧  tieba.baidu.com|www.tieba.com",
           forms: [
             {
               text: "功能",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "回退关闭楼中楼回复",
+                  "浏览器后退触发关闭楼中楼回复",
                   "baidu_tieba_lzl_ban_global_back",
                   false,
                   function (event, enable) {
@@ -7781,12 +7806,12 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "重定向跳转",
+                  "重定向xx吧跳转",
                   "baidu_tieba_topic_redirect_jump",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "搜索功能",
+                  "新增贴内搜索功能",
                   "baidu_tieba_add_search",
                   true
                 ),
@@ -7796,17 +7821,17 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "优化查看评论",
+                  "优化帖子查看评论",
                   "baidu_tieba_optimize_see_comments",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "优化图片预览",
+                  "优化帖子图片预览",
                   "baidu_tieba_optimize_image_preview",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "【beta】请求携带Cookie",
+                  "实验性-请求携带Cookie",
                   "baidu_tieba_request_with_cookie",
                   true
                 ),
@@ -7817,7 +7842,7 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "唤醒App",
+                  "劫持-唤醒App",
                   "baidu_tieba_hijack_wake_up",
                   false
                 ),
@@ -7828,33 +7853,34 @@
         {
           id: "baidu-panel-config-wenku",
           title: "文库",
+          headerTitle: "百度文库  wk.baidu.com|tanbi.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "会员精选",
+                  "屏蔽会员精选",
                   "baidu_wenku_block_member_picks",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "APP精选",
+                  "屏蔽APP精选",
                   "baidu_wenku_blocking_app_featured",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "相关文档",
+                  "屏蔽相关文档",
                   "baidu_wenku_blocking_related_documents",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "底部工具栏",
+                  "屏蔽底部工具栏",
                   "baidu_wenku_blocking_bottom_toolbar",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "下一篇按钮",
+                  "屏蔽下一篇按钮",
                   "baidu_wenku_shield_next_btn",
                   false
                 ),
@@ -7865,15 +7891,39 @@
         {
           id: "baidu-panel-config-baike",
           title: "百科",
+          headerTitle: "百度百科  baike.baidu.com|wapbaike.baidu.com",
           forms: [
             {
               text: "功能",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "同步下一页地址",
+                  "自动加载更多内容",
+                  "baidu_baike_automatically_expand_next_page",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "同步地址",
                   "baidu_baike_sync_next_page_address",
-                  false
+                  false,
+                  function (event, enable) {
+                    if (enable) {
+                      alert(
+                        "开启后，且开启【自动加载更多内容】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
+                      );
+                    }
+                  }
+                ),
+              ],
+            },
+            {
+              text: "他说(/tashuo)",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部广告",
+                  "baidu_baike_tashuo_remove_bottom_ad",
+                  true
                 ),
               ],
             },
@@ -7882,23 +7932,24 @@
         {
           id: "baidu-panel-config-zhidao",
           title: "知道",
+          headerTitle: "百度知道  zhidao.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "推荐更多精彩内容",
+                  "【屏蔽】推荐更多精彩内容",
                   "baidu_zhidao_block_recommend_more_exciting_content",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "相关问题",
+                  "【屏蔽】相关问题",
                   "baidu_zhidao_block_related_issues",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "其他回答",
+                  "【屏蔽】其他回答",
                   "baidu_zhidao_block_other_answers",
                   false
                 ),
@@ -7909,18 +7960,19 @@
         {
           id: "baidu-panel-config-fanyi",
           title: "翻译",
+          headerTitle: "百度翻译  fanyi.baidu.com|fanyi-app.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "底部推荐",
+                  "【屏蔽】底部推荐",
                   "baidu_fanyi_recommended_shielding_bottom",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "底部其它",
+                  "【屏蔽】底部其它",
                   "baidu_fanyi_other_shielding_bottom",
                   true
                 ),
@@ -7963,13 +8015,14 @@
         {
           id: "baidu-panel-config-map",
           title: "地图",
+          headerTitle: "百度地图  map.baidu.com",
           forms: [
             {
               text: "劫持/拦截",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "唤醒App",
+                  "拦截-唤醒App",
                   "baidu_map_hijack_wakeup",
                   false
                 ),
@@ -7979,24 +8032,25 @@
         },
         {
           id: "baidu-panel-config-mbd",
-          title: "知道mbd",
+          title: "知道",
+          headerTitle: "百度知道  mbd.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "精彩评论",
+                  "【屏蔽】精彩评论",
                   "baidu_mbd_block_exciting_comments",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "精彩推荐",
+                  "【屏蔽】精彩推荐",
                   "baidu_mbd_block_exciting_recommendations",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "底部工具栏",
+                  "【屏蔽】底部工具栏",
                   "baidu_mbd_shield_bottom_toolbar",
                   false
                 ),
@@ -8007,17 +8061,17 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "唤醒App",
+                  "拦截-唤醒App",
                   "baidu_mbd_hijack_wakeup",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "iframe唤醒App",
+                  "拦截-iframe唤醒App",
                   "baidu_mbd_hijack_iframe",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "BoxJSBefore函数",
+                  "劫持-BoxJSBefore函数",
                   "baidu_mbd_hijack_BoxJSBefore",
                   false
                 ),
@@ -8028,18 +8082,19 @@
         {
           id: "baidu-panel-config-aiqicha",
           title: "爱企查",
+          headerTitle: "爱企查  aiqicha.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "轮播图",
+                  "【屏蔽】轮播图",
                   "baidu_aiqicha_shield_carousel",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "行业热点新闻",
+                  "【屏蔽】行业热点新闻",
                   "baidu_aiqicha_shield_industry_host_news",
                   true
                 ),
@@ -8050,23 +8105,24 @@
         {
           id: "baidu-panel-config-haokan",
           title: "好看视频",
+          headerTitle: "好看视频  haokan.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "猜你喜欢",
+                  "【屏蔽】猜你喜欢",
                   "baidu_haokan_shield_may_also_like",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "今日热播榜单",
+                  "【屏蔽】今日热播榜单",
                   "baidu_haokan_shield_today_s_hot_list",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "右侧工具栏",
+                  "【屏蔽】右侧工具栏",
                   "baidu_haokan_shield_right_video_action",
                   true
                 ),
@@ -8089,7 +8145,7 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "唤醒App",
+                  "拦截-唤醒App",
                   "baidu_haokan_hijack_wakeup",
                   false
                 ),
@@ -8100,13 +8156,14 @@
         {
           id: "baidu-panel-config-yiyan",
           title: "文心一言",
+          headerTitle: "文心一言  yiyan.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "水印",
+                  "【屏蔽】文字/图片水印",
                   "baidu_yiyan_remove_ai_mask",
                   true
                 ),
@@ -8116,14 +8173,15 @@
         },
         {
           id: "baidu-panel-config-chat",
-          title: "AI对话",
+          title: "AI伙伴",
+          headerTitle: "搜索AI伙伴  chat.baidu.com",
           forms: [
             {
               text: "屏蔽",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "水印",
+                  "【屏蔽】文字/图片水印",
                   "baidu_chat_remove_ai_mask",
                   true
                 ),
@@ -8151,32 +8209,32 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "本题试卷",
+                  "【屏蔽】本题试卷",
                   "baidu_easylearn_shield_this_question_paper",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "本卷好题",
+                  "【屏蔽】本卷好题",
                   "baidu_easylearn_shield_good_questions_in_this_volume",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "相关试卷",
+                  "【屏蔽】相关试卷",
                   "baidu_easylearn_shield_related_test_papers",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "视频讲解",
+                  "【屏蔽】视频讲解",
                   "baidu_easylearn_shield_video_explanation",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "学霸笔记",
+                  "【屏蔽】学霸笔记",
                   "baidu_easylearn_shield_xueba_notes",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "底部工具栏",
+                  "【屏蔽】底部工具栏",
                   "baidu_easylearn_shield_bottom_toolbar",
                   false
                 ),
