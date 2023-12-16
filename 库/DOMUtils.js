@@ -699,9 +699,10 @@
    * @param {string|[...string]} eventType 需要监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
-   * @param {boolean|undefined} capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
-   * @param {boolean|undefined} once 表示事件是否只触发一次。默认为false
-   * @param {boolean|undefined} passive 表示事件监听器是否不会调用preventDefault()。默认为false
+   * @param {boolean|AddEventListenerOptions|undefined} option
+   * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+   * + once 表示事件是否只触发一次。默认为false
+   * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click事件
    * DOMUtils.on(document.querySelector("a.xx"),"click",(event)=>{
@@ -724,15 +725,37 @@
    *    console.log("事件触发",event)
    * })
    */
-  DOMUtils.on = function (
-    element,
-    eventType,
-    selector,
-    callback,
-    capture,
-    once,
-    passive
-  ) {
+  DOMUtils.on = function (element, eventType, selector, callback, option) {
+    /**
+     * 获取option配置
+     * @param {any[]} args
+     * @param {number} startIndex
+     * @param {AddEventListenerOptions} option
+     * @returns {AddEventListenerOptions}
+     */
+    function getOption(args, startIndex, option) {
+      if (typeof args[startIndex] === "boolean") {
+        option.capture = args[startIndex];
+        if (typeof args[startIndex + 1] === "boolean") {
+          option.once = args[startIndex + 1];
+        }
+        if (typeof args[startIndex + 2] === "boolean") {
+          option.passive = args[startIndex + 2];
+        }
+      } else if (
+        typeof args[startIndex] === "object" &&
+        ("capture" in args[startIndex] ||
+          "once" in args[startIndex] ||
+          "passive" in args[startIndex])
+      ) {
+        option.capture = args[startIndex].capture;
+        option.once = args[startIndex].once;
+        option.passive = args[startIndex].passive;
+      }
+      return option;
+    }
+
+    let args = arguments;
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
@@ -744,7 +767,7 @@
      */
     let elementList = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      elementList = elementList.concat(element);
+      elementList = [...element];
     } else {
       elementList.push(element);
     }
@@ -773,10 +796,22 @@
      * @type {(event:Event)=>{}}
      */
     let _callback_ = callback;
+    /**
+     * @type {AddEventListenerOptions}
+     */
+    let _option_ = {
+      capture: false,
+      once: false,
+      passive: false,
+    };
     if (typeof selector === "function") {
       /* 这是为没有selector的情况 */
       _selector_ = void 0;
       _callback_ = selector;
+      _option_ = getOption(args, 3, _option_);
+    } else {
+      /* 这是存在selector的情况 */
+      _option_ = getOption(args, 4, _option_);
     }
     elementList.forEach((elementItem) => {
       let ownCallBack = function (event) {
@@ -811,13 +846,7 @@
       };
       /* 遍历事件名设置元素事件 */
       eventTypeList.forEach((eventName) => {
-        elementItem.addEventListener(
-          eventName,
-          ownCallBack,
-          capture,
-          once,
-          passive
-        );
+        elementItem.addEventListener(eventName, ownCallBack, _option_);
       });
 
       if (_callback_ && _callback_.delegate) {
@@ -828,6 +857,7 @@
         elementEvents[eventType] = elementEvents[eventType] || [];
         elementEvents[eventType].push({
           selector: _selector_,
+          option: _option_,
           callback: ownCallBack,
           originCallBack: _callback_,
         });
@@ -837,6 +867,7 @@
         elementEvents[eventType] = elementEvents[eventType] || [];
         elementEvents[eventType].push({
           selector: _selector_,
+          option: _option_,
           callback: ownCallBack,
           originCallBack: _callback_,
         });
@@ -850,7 +881,8 @@
    * @param {string|[...string]} eventType 需要取消监听的事件
    * @param {string|undefined} selector 子元素选择器
    * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
-   * @param {boolean|undefined} [useCapture] 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+   * @param {EventListenerOptions|boolean|undefined} option
+   * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
    * @example
    * // 取消监听元素a.xx的click事件
    * DOMUtils.off(document.querySelector("a.xx"),"click")
@@ -861,7 +893,27 @@
    * // 取消监听全局下的a.xx的点击事件
    * DOMUtils.off(document,"click","a.xx")
    */
-  DOMUtils.off = function (element, eventType, selector, callback, useCapture) {
+  DOMUtils.off = function (element, eventType, selector, callback, option) {
+    /**
+     * 获取option配置
+     * @param {any[]} args
+     * @param {number} startIndex
+     * @param {EventListenerOptions} option
+     * @returns {EventListenerOptions}
+     */
+    function getOption(args, startIndex, option) {
+      if (typeof args[startIndex] === "boolean") {
+        option.capture = args[startIndex];
+      } else if (
+        typeof args[startIndex] === "object" &&
+        "capture" in args[startIndex]
+      ) {
+        option.capture = args[startIndex].capture;
+      }
+      return option;
+    }
+
+    let args = arguments;
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
@@ -873,7 +925,7 @@
      */
     let elementList = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      elementList = elementList.concat(element);
+      elementList = [...element];
     } else {
       elementList.push(element);
     }
@@ -902,10 +954,20 @@
      * @type {(event:Event)=>{}}
      */
     let _callback_ = callback;
+
+    /**
+     * @type {EventListenerOptions}
+     */
+    let _option_ = {
+      capture: false,
+    };
     if (typeof selector === "function") {
       /* 这是为没有selector的情况 */
       _selector_ = void 0;
       _callback_ = selector;
+      _option_ = getOption(args, 3, _option_);
+    } else {
+      _option_ = getOption(args, 4, _option_);
     }
     elementList.forEach((elementItem) => {
       let elementEvents = {};
@@ -926,7 +988,7 @@
             elementItem.removeEventListener(
               eventName,
               handlers[index].callback,
-              useCapture
+              _option_
             );
             handlers.splice(index--, 1);
           }
