@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.16
+// @version      2023.12.16.16
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1296703/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296731/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296704/DOMUtils.js
 // ==/UserScript==
@@ -3452,18 +3452,32 @@
                 Qmsg.error("当前脚本环境缺失API 【GM_download】");
                 return;
               }
+              let downloadingQmsg = Qmsg.loading("下载中...");
               GM_download({
                 url: downloadUrl,
                 name: _fileDetails_["fileName"],
                 headers: {
                   Referer: "https://cowtransfer.com/",
                 },
-                onload: () => {
+                onload() {
+                  downloadingQmsg.close();
                   Qmsg.success(
                     `下载 ${checkLinkValidityInfo["fileName"]} 已完成`
                   );
                 },
-                onerror: function (error) {
+                onprogress(details) {
+                  if (
+                    typeof details === "object" &&
+                    "loaded" in details &&
+                    "total" in details
+                  ) {
+                    let progressNum = details.loaded / details.total;
+                    let formatProgressNum = (progressNum * 100).toFixed(2);
+                    downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
+                  }
+                },
+                onerror(error) {
+                  downloadingQmsg.close();
                   log.error(["下载失败error👉", error]);
                   if (typeof error === "object" && error["error"]) {
                     Qmsg.error(
@@ -3478,7 +3492,8 @@
                     );
                   }
                 },
-                ontimeout: () => {
+                ontimeout() {
+                  downloadingQmsg.close();
                   Qmsg.error(
                     `下载 ${checkLinkValidityInfo["fileName"]} 请求超时`
                   );
@@ -3779,9 +3794,9 @@
          * 下载文件
          * @param {string} fileName 文件名
          * @param {string} downloadUrl 下载链接
-         * @return {
+         * @return { {
          * abort: Function
-         * }
+         * } }
          */
         this.downloadFile = function (fileName, downloadUrl) {
           log.info([`调用【GM_download】下载：`, arguments]);
@@ -3790,6 +3805,7 @@
             Qmsg.error("当前脚本环境缺失API 【GM_download】");
             return;
           }
+          let downloadingQmsg = Qmsg.loading("下载中...");
           return GM_download({
             url: downloadUrl,
             name: fileName,
@@ -3797,9 +3813,22 @@
               Referer: "https://drive.uc.cn/",
             },
             onload() {
+              downloadingQmsg.close();
               Qmsg.success(`下载 ${fileName} 已完成`);
             },
+            onprogress(details) {
+              if (
+                typeof details === "object" &&
+                "loaded" in details &&
+                "total" in details
+              ) {
+                let progressNum = details.loaded / details.total;
+                let formatProgressNum = (progressNum * 100).toFixed(2);
+                downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
+              }
+            },
             onerror(error) {
+              downloadingQmsg.close();
               log.error(["下载失败error👉", error]);
               if (typeof error === "object" && error["error"]) {
                 Qmsg.error(
@@ -3813,6 +3842,7 @@
               }
             },
             ontimeout() {
+              downloadingQmsg.close();
               Qmsg.error(`下载 ${fileName} 请求超时`);
             },
           });
