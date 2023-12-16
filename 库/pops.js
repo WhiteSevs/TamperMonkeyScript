@@ -1029,32 +1029,6 @@
       result = addType ? result + resultType.toString() : parseFloat(result);
       return result;
     },
-    /**
-     * 判断是否是window，例如window、self、globalThis
-     * @param {any} target
-     * @returns {boolean}
-     */
-    isWin(target) {
-      if (!typeof target === "object") {
-        return false;
-      }
-      if (target instanceof Node) {
-        return false;
-      }
-      if (target === globalThis) {
-        return true;
-      }
-      if (target === window) {
-        return true;
-      }
-      if (target === self) {
-        return true;
-      }
-      if (target?.Math?.toString() !== "[object Math]") {
-        return false;
-      }
-      return true;
-    },
     jQuery: {
       /**
        * 绑定事件
@@ -1409,6 +1383,15 @@
        * @returns {Number} - 元素的宽度，单位为像素
        */
       width(element) {
+        if (popsUtils.isWin(element)) {
+          return window.document.documentElement.clientWidth;
+        }
+        if (typeof element === "string") {
+          element = document.querySelector(element);
+        }
+        if (element == void 0) {
+          return;
+        }
         if (element.nodeType === 9) {
           /* 文档节点 */
           return Math.max(
@@ -1419,24 +1402,43 @@
             element.documentElement.clientWidth
           );
         }
-        let handleElement = this.showElement(element);
-        let view = element.ownerDocument.defaultView;
-        if (!view || !view.opener) {
-          view = window;
+        if (popsUtils.isShow(element)) {
+          /* 已显示 */
+          /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
+
+          /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
+          if (parseFloat(popsUtils.getStyleValue(element, "width")) > 0) {
+            return parseFloat(popsUtils.getStyleValue(element, "width"));
+          }
+
+          /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
+          if (element.offsetWidth > 0) {
+            let borderLeftWidth = popsUtils.getStyleValue(
+              element,
+              "borderLeftWidth"
+            );
+            let borderRightWidth = popsUtils.getStyleValue(
+              element,
+              "borderRightWidth"
+            );
+            let paddingLeft = popsUtils.getStyleValue(element, "paddingLeft");
+            let paddingRight = popsUtils.getStyleValue(element, "paddingRight");
+            let backHeight =
+              parseFloat(element.offsetWidth) -
+              parseFloat(borderLeftWidth) -
+              parseFloat(borderRightWidth) -
+              parseFloat(paddingLeft) -
+              parseFloat(paddingRight);
+            return parseFloat(backHeight);
+          }
+          return 0;
+        } else {
+          /* 未显示 */
+          let handleElement = popsUtils.showElement(element);
+          let height = DOMUtils.height(handleElement);
+          handleElement.recovery();
+          return height;
         }
-        let styles = view.getComputedStyle(element);
-        let elementPaddingLeft = parseFloat(styles.paddingLeft);
-        let elementPaddingRight = parseFloat(styles.paddingRight);
-        if (isNaN(elementPaddingLeft)) {
-          elementPaddingLeft = 0;
-        }
-        if (isNaN(elementPaddingRight)) {
-          elementPaddingRight = 0;
-        }
-        let elementWidth =
-          element.clientWidth - elementPaddingLeft - elementPaddingRight;
-        handleElement.recovery();
-        return elementWidth;
       },
       /**
        * 获取元素的高度
@@ -1444,6 +1446,15 @@
        * @returns {Number} - 元素的高度，单位为像素
        */
       height(element) {
+        if (popsUtils.isWin(element)) {
+          return window.document.documentElement.clientHeight;
+        }
+        if (typeof element === "string") {
+          element = document.querySelector(element);
+        }
+        if (element == void 0) {
+          return;
+        }
         if (element.nodeType === 9) {
           /* 文档节点 */
           return Math.max(
@@ -1454,24 +1465,45 @@
             element.documentElement.clientHeight
           );
         }
-        let handleElement = popsUtils.showElement(element);
-        let view = element.ownerDocument.defaultView;
-        if (!view || !view.opener) {
-          view = window;
+        if (popsUtils.isShow(element)) {
+          /* 已显示 */
+          /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
+          /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
+          if (parseFloat(popsUtils.getStyleValue(element, "height")) > 0) {
+            return parseFloat(popsUtils.getStyleValue(element, "height"));
+          }
+
+          /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
+          if (element.offsetHeight > 0) {
+            let borderTopWidth = popsUtils.getStyleValue(
+              element,
+              "borderTopWidth"
+            );
+            let borderBottomWidth = popsUtils.getStyleValue(
+              element,
+              "borderBottomWidth"
+            );
+            let paddingTop = popsUtils.getStyleValue(element, "paddingTop");
+            let paddingBottom = popsUtils.getStyleValue(
+              element,
+              "paddingBottom"
+            );
+            let backHeight =
+              parseFloat(element.offsetHeight) -
+              parseFloat(borderTopWidth) -
+              parseFloat(borderBottomWidth) -
+              parseFloat(paddingTop) -
+              parseFloat(paddingBottom);
+            return parseFloat(backHeight);
+          }
+          return 0;
+        } else {
+          /* 未显示 */
+          let handleElement = popsUtils.showElement(element);
+          let height = DOMUtils.height(handleElement);
+          handleElement.recovery();
+          return height;
         }
-        let styles = view.getComputedStyle(element);
-        let elementPaddingTop = parseFloat(styles.paddingTop);
-        let elementPaddingBottom = parseFloat(styles.paddingBottom);
-        if (isNaN(elementPaddingTop)) {
-          elementPaddingTop = 0;
-        }
-        if (isNaN(elementPaddingBottom)) {
-          elementPaddingBottom = 0;
-        }
-        let elementHeight =
-          element.clientHeight - elementPaddingTop - elementPaddingBottom;
-        handleElement.recovery();
-        return elementHeight;
       },
       /**
        * 获取元素的外部宽度（包括边框和外边距）
@@ -1479,18 +1511,26 @@
        * @returns {Number} - 元素的外部宽度，单位为像素
        */
       outerWidth(element) {
-        let handleElement = this.showElement(element);
-        let style = getComputedStyle(element, null);
-        let elementMarginLeft = parseFloat(style.marginLeft);
-        let elementMarginRight = parseFloat(style.marginRight);
-        if (isNaN(elementMarginLeft)) {
-          elementMarginLeft = 0;
+        if (popsUtils.isWin(element)) {
+          return window.innerWidth;
         }
-        if (isNaN(elementMarginRight)) {
-          elementMarginRight = 0;
+        if (typeof element === "string") {
+          element = document.querySelector(element);
         }
-        handleElement.recovery();
-        return element.offsetWidth + elementMarginLeft + elementMarginRight;
+        if (element == void 0) {
+          return;
+        }
+        if (popsUtils.isShow(element)) {
+          let style = getComputedStyle(element, null);
+          let marginLeft = popsUtils.getStyleValue(style, "marginLeft");
+          let marginRight = popsUtils.getStyleValue(style, "marginRight");
+          return element.offsetWidth + marginLeft + marginRight;
+        } else {
+          let handleElement = popsUtils.showElement(element);
+          let outerWidth = DOMUtils.outerWidth(handleElement);
+          handleElement.recovery();
+          return outerWidth;
+        }
       },
       /**
        * 获取元素的外部高度（包括边框和外边距）
@@ -1498,39 +1538,108 @@
        * @returns {Number} - 元素的外部高度，单位为像素
        */
       outerHeight(element) {
-        let handleElement = this.showElement(element);
-        let style = getComputedStyle(element, null);
-        let elementMarginTop = parseFloat(style.marginTop);
-        let elementMarginBottom = parseFloat(style.marginBottom);
-        if (isNaN(elementMarginTop)) {
-          elementMarginTop = 0;
+        if (popsUtils.isWin(element)) {
+          return window.innerHeight;
         }
-        if (isNaN(elementMarginBottom)) {
-          elementMarginBottom = 0;
+        if (typeof element === "string") {
+          element = document.querySelector(element);
         }
-        handleElement.recovery();
-        return element.offsetHeight + elementMarginTop + elementMarginBottom;
+        if (element == void 0) {
+          return;
+        }
+        if (popsUtils.isShow(element)) {
+          let style = getComputedStyle(element, null);
+          let marginTop = popsUtils.getStyleValue(style, "marginTop");
+          let marginBottom = popsUtils.getStyleValue(style, "marginBottom");
+          return element.offsetHeight + marginTop + marginBottom;
+        } else {
+          let handleElement = popsUtils.showElement(element);
+          let outerHeight = DOMUtils.outerHeight(handleElement);
+          handleElement.recovery();
+          return outerHeight;
+        }
       },
-      /**
-       * 用于显示元素并获取它的高度宽度等其它属性
-       * @param {HTMLElement} element
-       * @returns {{recovery: Function}} - 恢复
-       */
-      showElement: function (element) {
-        let oldCSS_display = element.style.display;
-        let oldCSS_visibility = element.style.visibility;
-        let oldCSS_position = element.style.position;
-        element.style.display = "block";
-        element.style.visibility = "hidden";
-        element.style.position = "absolute";
-        return {
-          recovery() {
-            element.style.display = oldCSS_display;
-            element.style.visibility = oldCSS_visibility;
-            element.style.position = oldCSS_position;
-          },
-        };
-      },
+    },
+    /**
+     * 判断元素是否已显示或已连接
+     * @param {HTMLElement} element
+     * @returns {boolean}
+     */
+    isShow(element) {
+      return Boolean(element.getClientRects().length);
+    },
+    /**
+     * 用于显示元素并获取它的高度宽度等其它属性
+     * @param {HTMLElement} element
+     * @returns {{recovery: Function}} - 恢复
+     */
+    showElement(element) {
+      let oldStyleAttribute = element.getAttribute("style");
+      element.setAttribute(
+        "style",
+        "visibility: !important;display:block !important;"
+      );
+      return {
+        recovery() {
+          if (oldStyleAttribute) {
+            element.setAttribute("style", oldStyleAttribute);
+          } else {
+            element.removeAttribute("style");
+          }
+        },
+      };
+    },
+    /**
+     * 获取元素上的Float格式的属性px
+     * @param {HTMLElement|CSSStyleDeclaration} element
+     * @param {string} styleName style名
+     * @return {number}
+     */
+    getStyleValue(element, styleName) {
+      let view = null;
+      let styles = null;
+      if (element instanceof CSSStyleDeclaration) {
+        /* 直接就获取了style属性 */
+        styles = element;
+      } else {
+        view = element.ownerDocument.defaultView;
+        if (!view || !view.opener) {
+          view = window;
+        }
+        styles = view.getComputedStyle(element);
+      }
+      let value = parseFloat(styles[styleName]);
+      if (isNaN(value)) {
+        return 0;
+      } else {
+        return value;
+      }
+    },
+    /**
+     * 判断是否是window，例如window、self、globalThis
+     * @param {any} target
+     * @returns {boolean}
+     */
+    isWin(target) {
+      if (!typeof target === "object") {
+        return false;
+      }
+      if (target instanceof Node) {
+        return false;
+      }
+      if (target === globalThis) {
+        return true;
+      }
+      if (target === window) {
+        return true;
+      }
+      if (target === self) {
+        return true;
+      }
+      if (target?.Math?.toString() !== "[object Math]") {
+        return false;
+      }
+      return true;
     },
   };
 
@@ -6311,6 +6420,7 @@
    * id: string,
    * title: string,
    * headerTitle?: string,
+   * autoAdaptionContentHeight?: string,
    * isDefault?: boolean,
    * attributes?: object[]|object,
    * props?: HTMLElement,
@@ -7231,6 +7341,8 @@
        * id: string,
        * title: string,
        * headerTitle?: string,
+       * autoAdaptionContentHeight?: boolean,
+       * contentContainerOffset?: number,
        * isDefault?: boolean | undefined,
        * attributes?: any[] | undefined,
        * forms: PopsPanelFormsDetailsArray,
@@ -7289,6 +7401,27 @@
               }
             }
           });
+
+          let autoAdaptionContentHeight =
+            asideConfig.autoAdaptionContentHeight ?? true;
+          if (autoAdaptionContentHeight) {
+            /* 根据标题的高度来自适应内容高度，默认开启 */
+            /* 中间容器的偏移量，看设置的section.pops-panel-container的padding，默认0 */
+            let contentContainerOffset =
+              asideConfig.contentContainerOffset ?? 0;
+            /* 获取标题的<ul>元素的高度 */
+            /* popsUtils.jQuery.height(
+              that.sectionContainerHeaderULElement
+            ) */
+            let sectionContainerHeaderULElementHeight =
+              GM_bridge.DOMUtils.height(that.sectionContainerHeaderULElement);
+            that.sectionContainerULElement.style.setProperty(
+              "height",
+              `calc( 100% - ${
+                sectionContainerHeaderULElementHeight + contentContainerOffset
+              }px )`
+            );
+          }
         });
       },
     };
