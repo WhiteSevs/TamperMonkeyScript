@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.16.19
+// @version      2023.12.16.23
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,9 +58,9 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1296805/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296918/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296804/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -5496,13 +5496,21 @@
        */
       show() {
         if (!this.isShow) {
+          this.isShow = true;
           this.createUI();
           this.initPop();
           this.setSuspensionEvent();
-          this.setSuspensionDefaultPositionEvent();
-          this.isShow = true;
+          this.setResizeEventListener();
+          this.setSuspensionDefaultPosition();
         }
         this.backgroundSwitch();
+      },
+      /**
+       * 判断当前是否是顶部窗口
+       * @returns {boolean}
+       */
+      isTopWindow() {
+        return self.window == top.window;
       },
       /**
        * 创建UI界面
@@ -5724,7 +5732,7 @@
                           width: NetDiskUI.size,
                           height: NetDiskUI.size,
                         });
-                        NetDiskUI.suspension.setSuspensionDefaultPositionEvent();
+                        NetDiskUI.suspension.setSuspensionDefaultPosition();
                       }
                     },
                     min: 15,
@@ -6812,8 +6820,8 @@
        * 设置 悬浮按钮所有事件
        */
       setSuspensionEvent() {
-        let needDragEle = document.querySelector("#whitesevSuspensionId");
-        let dragNode = new AnyTouch(needDragEle);
+        let needDragElement = document.querySelector("#whitesevSuspensionId");
+        let dragNode = new AnyTouch(needDragElement);
         /**
          * @type {number[]}
          */
@@ -6821,10 +6829,10 @@
         let moveFlag = false;
         /* 是否是双击 */
         let isDouble = false;
-        /* 点击元素，距离元素左上角的X轴偏移 */
-        let clickDeviation_X = 0;
-        /* 点击元素，距离元素左上角的Y轴偏移 */
-        let clickDeviation_Y = 0;
+        /* 点击元素，left偏移 */
+        let clickElementLeftOffset = 0;
+        /* 点击元素，top偏移 */
+        let clickElementTopOffset = 0;
         /**
          * 设置悬浮按钮 按下事件
          */
@@ -6832,16 +6840,16 @@
           if (!moveFlag) {
             moveFlag = true;
             if (event.nativeEvent.offsetX) {
-              clickDeviation_X = parseInt(event.nativeEvent.offsetX);
+              clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
             } else {
-              clickDeviation_X = parseInt(event.getOffset().x);
+              clickElementLeftOffset = parseInt(event.getOffset().x);
             }
             if (event.nativeEvent.offsetY) {
-              clickDeviation_Y = parseInt(event.nativeEvent.offsetY);
+              clickElementTopOffset = parseInt(event.nativeEvent.offsetY);
             } else {
-              clickDeviation_Y = parseInt(event.getOffset().y);
+              clickElementTopOffset = parseInt(event.getOffset().y);
             }
-            DOMUtils.css(needDragEle, {
+            DOMUtils.css(needDragElement, {
               cursor: "move",
               transition: "none",
             });
@@ -6851,35 +6859,41 @@
            */
           if (event.phase === "move") {
             /* 悬浮按钮大小不能超过250px */
-            if (clickDeviation_X > 250 || clickDeviation_Y > 250) {
+            if (clickElementLeftOffset > 250 || clickElementTopOffset > 250) {
               return;
             }
-            /* 最大的X轴 指从左至右*/
-            let clientMax_X = DOMUtils.width(globalThis) - NetDiskUI.size;
-            /* 最大的Y轴 指从上至下 */
-            let clientMax_Y = DOMUtils.height(globalThis) - NetDiskUI.size;
-            /* 当前移动的X轴 */
-            let clientMove_X = event.x - clickDeviation_X;
-            /* 当前移动的Y轴 */
-            let clientMove_Y = event.y - clickDeviation_Y;
+            /* left偏移最大值 */
+            let maxLeftOffset = DOMUtils.width(globalThis) - NetDiskUI.size;
+            /* top偏移的最大值 */
+            let maxTopOffset = DOMUtils.height(globalThis) - NetDiskUI.size;
+            /* 当前移动的left偏移 */
+            let currentSuspensionLeftOffset = event.x - clickElementLeftOffset;
+            /* 当前移动的top偏移 */
+            let currentSuspensionTopOffset = event.y - clickElementTopOffset;
             /* 不允许超过窗口最大宽度 */
-            clientMove_X =
-              clientMove_X < clientMax_X ? clientMove_X : clientMax_X;
+            currentSuspensionLeftOffset =
+              currentSuspensionLeftOffset > maxLeftOffset
+                ? maxLeftOffset
+                : currentSuspensionLeftOffset;
             /* 不允许超过窗口最大高度 */
-            clientMove_Y =
-              clientMove_Y < clientMax_Y ? clientMove_Y : clientMax_Y;
+            currentSuspensionTopOffset =
+              currentSuspensionTopOffset > maxTopOffset
+                ? maxTopOffset
+                : currentSuspensionTopOffset;
             /* 不允许小于0 */
-            clientMove_X = clientMove_X < 0 ? 0 : clientMove_X;
+            currentSuspensionLeftOffset =
+              currentSuspensionLeftOffset < 0 ? 0 : currentSuspensionLeftOffset;
             /* 不允许小于0 */
-            clientMove_Y = clientMove_Y < 0 ? 0 : clientMove_Y;
-            if (top.window == self.window) {
-              GM_setValue("suspensionX", clientMove_X);
-              GM_setValue("suspensionY", clientMove_Y);
+            currentSuspensionTopOffset =
+              currentSuspensionTopOffset < 0 ? 0 : currentSuspensionTopOffset;
+            if (NetDiskUI.suspension.isTopWindow()) {
+              GM_setValue("suspensionX", currentSuspensionLeftOffset);
+              GM_setValue("suspensionY", currentSuspensionTopOffset);
             }
 
-            DOMUtils.css(needDragEle, {
-              left: clientMove_X + "px",
-              top: clientMove_Y + "px",
+            DOMUtils.css(needDragElement, {
+              left: currentSuspensionLeftOffset + "px",
+              top: currentSuspensionTopOffset + "px",
             });
           }
 
@@ -6888,28 +6902,31 @@
            */
           if (event.phase === "end") {
             moveFlag = false;
-            DOMUtils.css(needDragEle, {
+            DOMUtils.css(needDragElement, {
               cursor: "auto",
             });
-            let left_px = parseInt(
-              DOMUtils.css(needDragEle, "left").replace("px", "")
+            /* 获取当前悬浮按钮left偏移 */
+            let currentSuspensionLeftOffset = parseInt(
+              DOMUtils.css(needDragElement, "left")
             );
             let setCSSLeft = 0;
-            if (left_px >= DOMUtils.width(globalThis) / 2) {
+            /* 判断悬浮按钮是否在右边区域 */
+            if (currentSuspensionLeftOffset >= DOMUtils.width(globalThis) / 2) {
+              /* 设置悬浮按钮的left偏移 */
               setCSSLeft = DOMUtils.width(globalThis) - NetDiskUI.size;
-              if (top.window == self.window) {
+              if (NetDiskUI.suspension.isTopWindow()) {
                 GM_setValue("isRight", true);
               }
             } else {
-              if (top.window == self.window) {
+              if (NetDiskUI.suspension.isTopWindow()) {
                 GM_setValue("isRight", false);
               }
             }
-            if (top.window == self.window) {
+            if (NetDiskUI.suspension.isTopWindow()) {
               GM_setValue("suspensionX", setCSSLeft);
             }
 
-            DOMUtils.css(needDragEle, {
+            DOMUtils.css(needDragElement, {
               left: setCSSLeft + "px",
               transition: "left 300ms ease 0s",
             });
@@ -6934,7 +6951,7 @@
           }
         });
 
-        DOMUtils.on(needDragEle, "contextmenu", function (event) {
+        DOMUtils.on(needDragElement, "contextmenu", function (event) {
           utils.preventEvent(event);
           NetDiskUI.view.showContextMenu(event, [
             {
@@ -6976,48 +6993,55 @@
         });
       },
       /**
+       * 设置window的resize事件监听，来重新设置悬浮按钮的位置
+       */
+      setResizeEventListener() {
+        let that = this;
+        DOMUtils.on(globalThis, "resize", undefined, function () {
+          that.setSuspensionDefaultPosition();
+        });
+      },
+      /**
        * 设置悬浮按钮位置
        */
-      setSuspensionDefaultPositionEvent() {
-        let clientMax_X =
-          DOMUtils.width(globalThis) - NetDiskUI.size; /* 最大的X轴 指从左至右*/
-        let clientMax_Y =
-          DOMUtils.height(globalThis) -
-          NetDiskUI.size; /* 最大的Y轴 指从上至下 */
-        let clientDefault_X = clientMax_X; /* 默认值 X轴 */
-        let clientDefault_Y =
-          DOMUtils.height(globalThis) / 2 - NetDiskUI.size; /* 默认值 Y轴 */
-        let userSetClient_X = GM_getValue("suspensionX", clientDefault_X);
+      setSuspensionDefaultPosition() {
+        /* 最大的left偏移*/
+        let maxLeftOffset = DOMUtils.width(globalThis) - NetDiskUI.size;
+        /* 最大的top偏移 */
+        let maxTopOffset = DOMUtils.height(globalThis) - NetDiskUI.size;
+        /* 默认的left偏移（悬浮按钮在右边中间） */
+        let defaultLeftOffset = maxLeftOffset;
+        /* 默认的top偏移（悬浮按钮在右边中间） */
+        let defaultTopOffset = maxTopOffset / 2;
+        /* 用户自己拖动设置的悬浮按钮left偏移 */
+        let userSetLeftOffset = GM_getValue("suspensionX", defaultLeftOffset);
 
-        /* 用户自己移动的X轴 */
-        let userSetClient_Y = GM_getValue(
-          "suspensionY",
-          clientDefault_Y
-        ); /* 用户自己移动的Y轴 */
+        /* 用户自己拖动设置的悬浮按钮top偏移 */
+        let userSetTopOffset = GM_getValue("suspensionY", defaultTopOffset);
 
-        /* 如果存在isRight 悬浮按钮放到最右边，否则最左边 */
+        /* 如果存在isRight变量，悬浮按钮放到最右边，否则最左边 */
         if (GM_getValue("isRight")) {
-          userSetClient_X = clientMax_X;
+          userSetLeftOffset = maxLeftOffset;
         } else {
-          userSetClient_X = 0;
+          userSetLeftOffset = 0;
         }
-        /* 如果超出最大的Y轴，以Y轴为默认值 */
-        if (userSetClient_Y > clientMax_Y) {
-          userSetClient_Y = clientMax_Y;
-        } else if (userSetClient_Y < 0) {
-          /* 如果用户设置的Y轴小于0,那设置0 */
-          userSetClient_Y = 0;
+        /* 如果用户设置的top偏移超出最大的top偏移，那么设置用户的偏移为默认的最大top偏移 */
+        if (userSetTopOffset > maxTopOffset) {
+          userSetTopOffset = maxTopOffset;
+        } else if (userSetTopOffset < 0) {
+          /* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
+          userSetTopOffset = 0;
         }
 
-        if (top.window == self.window) {
-          /* 不在iframe内修改 */
-          GM_setValue("suspensionX", userSetClient_X);
-          GM_setValue("suspensionY", userSetClient_Y);
+        if (NetDiskUI.suspension.isTopWindow()) {
+          /* 当前窗口是顶部窗口，才可以保存移动的值 */
+          GM_setValue("suspensionX", userSetLeftOffset);
+          GM_setValue("suspensionY", userSetTopOffset);
         }
 
         DOMUtils.css("#whitesevSuspensionId", {
-          left: userSetClient_X + "px",
-          top: userSetClient_Y + "px",
+          left: userSetLeftOffset + "px",
+          top: userSetTopOffset + "px",
         });
       },
       loadCSS() {
