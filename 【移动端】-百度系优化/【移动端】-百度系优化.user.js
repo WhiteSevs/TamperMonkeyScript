@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.16.16
+// @version      2023.12.16.19
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -49,9 +49,9 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1296731/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1296805/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296704/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1296804/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -4112,7 +4112,7 @@
             innerHTML: `
             <div class="whitesev-reply-dialog-bg"></div>
             <div class="whitesev-reply-dialog-sheet" style="height: ${
-              DOMUtils.height(document.documentElement) * 0.92
+              document.documentElement.clientHeight * 0.92
             }px;">
               <div class="whitesev-reply-dialog-sheet-title">
                 <div class="whitesev-reply-dialog-close">
