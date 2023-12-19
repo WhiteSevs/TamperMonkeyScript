@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.16.23
+// @version      2023.12.19
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1296918/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1298471/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
@@ -6522,7 +6522,7 @@
               let matchTextList = [];
               if (item.range_innerText) {
                 matchTextList.push({
-                  text: "间隔前字符",
+                  text: "提取码间隔前的字符长度",
                   type: "slider",
                   attributes: {
                     "data-key": "innerText_" + item.key,
@@ -6543,7 +6543,7 @@
               }
               if (item.range_accessCode_after_text) {
                 matchTextList.push({
-                  text: "间隔后字符",
+                  text: "提取码间隔后的字符长度",
                   type: "slider",
                   attributes: {
                     "data-key": "accessCode_after_text_" + item.key,
@@ -6575,7 +6575,7 @@
               let matchTextList = [];
               if (item.range_innerHTML) {
                 matchTextList.push({
-                  text: "间隔前字符",
+                  text: "提取码间隔前的字符长度",
                   type: "slider",
                   attributes: {
                     "data-key": "innerHTML_" + item.key,
@@ -6597,7 +6597,7 @@
 
               if (item.range_accessCode_after_html) {
                 matchTextList.push({
-                  text: "间隔后字符",
+                  text: "提取码间隔后的字符长度",
                   type: "slider",
                   attributes: {
                     "data-key": "accessCode_after_html_" + item.key,
@@ -6950,47 +6950,43 @@
             isDouble = true;
           }
         });
-
-        DOMUtils.on(needDragElement, "contextmenu", function (event) {
-          utils.preventEvent(event);
-          NetDiskUI.view.showContextMenu(event, [
-            {
-              text: "设置",
-              callback() {
-                log.info("打开-设置");
-                NetDiskUI.suspension.showSettingView();
-              },
+        NetDiskUI.view.registerContextMenu(needDragElement, undefined, [
+          {
+            text: "设置",
+            callback() {
+              log.info("打开-设置");
+              NetDiskUI.suspension.showSettingView();
             },
-            {
-              text: "历史匹配记录",
-              callback() {
-                log.info("打开-历史匹配记录");
-                NetDiskUI.netDiskHistoryMatch.show();
-              },
+          },
+          {
+            text: "历史匹配记录",
+            callback() {
+              log.info("打开-历史匹配记录");
+              NetDiskUI.netDiskHistoryMatch.show();
             },
-            {
-              text: "访问码规则",
-              callback() {
-                log.info("打开-访问码规则");
-                NetDiskUI.accessCodeRule.show();
-              },
+          },
+          {
+            text: "访问码规则",
+            callback() {
+              log.info("打开-访问码规则");
+              NetDiskUI.accessCodeRule.show();
             },
-            {
-              text: "自定义规则",
-              callback() {
-                log.info("打开-自定义规则");
-                NetDiskUI.customRules.show();
-              },
+          },
+          {
+            text: "自定义规则",
+            callback() {
+              log.info("打开-自定义规则");
+              NetDiskUI.customRules.show();
             },
-            {
-              text: "主动识别文本",
-              callback() {
-                log.info("打开-主动识别文本");
-                NetDiskUI.matchPasteText.show();
-              },
+          },
+          {
+            text: "主动识别文本",
+            callback() {
+              log.info("打开-主动识别文本");
+              NetDiskUI.matchPasteText.show();
             },
-          ]);
-        });
+          },
+        ]);
       },
       /**
        * 设置window的resize事件监听，来重新设置悬浮按钮的位置
@@ -7387,85 +7383,32 @@
         DOMUtils.on(document.body, "click", clickNodeSelector, clickEvent);
       },
       /**
-       * 显示右键菜单，调用方式
-       * @param {Event} event
-       * @param {{text:string,callback:Function}[]} showTextList 右键菜单的内容，如：[{"text":"","callback":()=>{}}]
-       * @param {string} menuElementId 右键菜单元素的id
+       * 注册右键菜单
+       * @param {HTMLElement|Window} target
+       * @param {?string} selector
+       * @param {{text:string,callback:Function}[]} showTextList 右键菜单的内容
+       * @param {string} className className属性
        */
-      showContextMenu(
-        event,
+      registerContextMenu(
+        target,
+        selector,
         showTextList = [],
-        menuElementId = "whitesevSuspensionContextMenu"
+        className = "whitesevSuspensionContextMenu"
       ) {
-        event.preventDefault();
-        DOMUtils.remove(`#${menuElementId}`);
-        let menuNode = DOMUtils.createElement("div", {
-          id: menuElementId,
-          innerHTML: `
-          <style type="text/css">
-          #${menuElementId}{
-						position: fixed;
-						z-index: ${utils.getMaxZIndex()};
-    				text-align: center;
-						padding: 3px 0px;
-						border-radius: 3px;
-						font-size: 16px;
-						font-weight: 500;
-						background: #fff;
-            box-shadow: 0px 1px 6px 1px #cacaca;
-					}
-					#${menuElementId} li:hover{background:#dfdfdf;cursor:pointer}
-          #${menuElementId} ul{margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
-          #${menuElementId} ul li{padding:5px 10px;display:unset;width:-webkit-fill-available;text-align:left;margin:2.5px 5px;border-radius:3px;user-select:none}
-          </style>
-					<ul></ul>
-          `,
-        });
+        let data = [];
         showTextList.forEach((item) => {
-          let menuItem = DOMUtils.createElement("li", {
-            innerHTML: item.text,
+          data.push({
+            icon: "",
+            text: item.text,
+            callback: item.callback,
           });
-          DOMUtils.on(menuItem, "click", function () {
-            item.callback &&
-              typeof item.callback === "function" &&
-              item.callback.apply(this, this.arguments);
-            menuNode.remove();
-          });
-          DOMUtils.append(menuNode.querySelector("ul"), menuItem);
         });
-        DOMUtils.hide(menuNode);
-        DOMUtils.append(document.body, menuNode);
-        let view = menuNode.ownerDocument.defaultView;
-        if (!view || !view.opener) {
-          view = window;
-        }
-        let clientMax_X =
-          DOMUtils.width(globalThis) -
-          DOMUtils.width(menuNode) -
-          1; /* 最大的X轴 指从左至右*/
-        let clientMax_Y =
-          DOMUtils.height(globalThis) -
-          DOMUtils.height(menuNode) -
-          8; /* 最大的Y轴 指从上至下 */
-        let clientMove_X = event.clientX;
-        let clientMove_Y = event.clientY;
-        /* 不允许超出浏览器范围 */
-        clientMove_X = clientMove_X < 0 ? 0 : clientMove_X;
-        clientMove_X = clientMove_X < clientMax_X ? clientMove_X : clientMax_X;
-        clientMove_Y = clientMove_Y < 0 ? 0 : clientMove_Y;
-        clientMove_Y = clientMove_Y < clientMax_Y ? clientMove_Y : clientMax_Y;
-        DOMUtils.css(menuNode, {
-          left: clientMove_X,
-          top: clientMove_Y,
+        pops.rightClickMenu({
+          target: target,
+          targetSelector: selector,
+          data: data,
+          className: className,
         });
-        DOMUtils.show(menuNode);
-        let globalClickListen = function () {
-          if (!utils.checkUserClickInNode(menuNode)) {
-            menuNode?.remove();
-            DOMUtils.off(window, "click", globalClickListen);
-          }
-        };
-        DOMUtils.on(window, "click", globalClickListen);
       },
       /**
        * 添加新的链接
@@ -7556,70 +7499,69 @@
        * 设置全局监听url的右击菜单事件
        */
       registerNetDiskUrlContextMenu() {
-        DOMUtils.on(
+        NetDiskUI.view.registerContextMenu(
           document,
-          "contextmenu",
           ".whitesevPop .netdisk-url a",
-          function (event) {
-            utils.preventEvent(event);
-            NetDiskUI.view.showContextMenu(event, [
-              {
-                text: "复制链接",
-                callback: function () {
-                  let netDiskName = event.target.getAttribute("data-netdisk");
-                  let netDiskIndex =
-                    event.target.getAttribute("data-netdisk-index");
-                  let shareCode = event.target.getAttribute("data-sharecode");
-                  let accessCode = event.target.getAttribute("data-accesscode");
-                  NetDiskParse.copyText(
-                    netDiskName,
-                    netDiskIndex,
-                    shareCode,
-                    accessCode
-                  );
-                },
+          [
+            {
+              text: "复制链接",
+              callback: function (event, contextMenuEvent) {
+                let linkElement = contextMenuEvent.target;
+                let netDiskName = linkElement.getAttribute("data-netdisk");
+                let netDiskIndex =
+                  linkElement.getAttribute("data-netdisk-index");
+                let shareCode = linkElement.getAttribute("data-sharecode");
+                let accessCode = linkElement.getAttribute("data-accesscode");
+                NetDiskParse.copyText(
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  accessCode
+                );
               },
-              {
-                text: "访问链接",
-                callback: function () {
-                  let netDiskName = event.target.getAttribute("data-netdisk");
-                  let netDiskIndex =
-                    event.target.getAttribute("data-netdisk-index");
-                  let shareCode = event.target.getAttribute("data-sharecode");
-                  let accessCode = event.target.getAttribute("data-accesscode");
-                  let url = NetDisk.regular[netDiskName][netDiskIndex].blank
-                    .replace(/{#shareCode#}/gi, shareCode)
-                    .replace(/{#accessCode#}/gi, accessCode);
-                  NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
-                },
+            },
+            {
+              text: "访问链接",
+              callback: function (event, contextMenuEvent) {
+                let linkElement = contextMenuEvent.target;
+                let netDiskName = linkElement.getAttribute("data-netdisk");
+                let netDiskIndex =
+                  linkElement.getAttribute("data-netdisk-index");
+                let shareCode = linkElement.getAttribute("data-sharecode");
+                let accessCode = linkElement.getAttribute("data-accesscode");
+                let url = NetDisk.regular[netDiskName][netDiskIndex].blank
+                  .replace(/{#shareCode#}/gi, shareCode)
+                  .replace(/{#accessCode#}/gi, accessCode);
+                NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
               },
-              {
-                text: "修改访问码",
-                callback: function () {
-                  let netDiskName = event.target.getAttribute("data-netdisk");
-                  let netDiskIndex =
-                    event.target.getAttribute("data-netdisk-index");
-                  let shareCode = event.target.getAttribute("data-sharecode");
-                  let accessCode = event.target.getAttribute("data-accesscode");
-                  NetDiskUI.newAccessCodeView(
-                    "修改访问码",
-                    netDiskName,
-                    netDiskIndex,
-                    shareCode,
-                    (userInputAccessCode) => {
-                      event.target.setAttribute(
-                        "data-accesscode",
-                        userInputAccessCode
-                      );
-                      Qmsg.success(
-                        `修改 ${accessCode} => ${userInputAccessCode}`
-                      );
-                    }
-                  );
-                },
+            },
+            {
+              text: "修改访问码",
+              callback: function (event, contextMenuEvent) {
+                let linkElement = contextMenuEvent.target;
+                let netDiskName = linkElement.getAttribute("data-netdisk");
+                let netDiskIndex =
+                  linkElement.getAttribute("data-netdisk-index");
+                let shareCode = linkElement.getAttribute("data-sharecode");
+                let accessCode = linkElement.getAttribute("data-accesscode");
+                NetDiskUI.newAccessCodeView(
+                  "修改访问码",
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  (userInputAccessCode) => {
+                    event.target.setAttribute(
+                      "data-accesscode",
+                      userInputAccessCode
+                    );
+                    Qmsg.success(
+                      `修改 ${accessCode} => ${userInputAccessCode}`
+                    );
+                  }
+                );
               },
-            ]);
-          }
+            },
+          ]
         );
       },
     },
@@ -8017,10 +7959,12 @@
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon{
           
         }
-        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon img{
+        .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon .netdisk-icon-img{
           width: 28px;
           height: 28px;
-          font-size: 13px;
+          min-width: 28px;
+          min-height: 28px;
+          font-size: 13px!important;
           border-radius: 10px;
           box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);
         }
@@ -8093,7 +8037,9 @@
           </div>
           <div class="netdiskrecord-icon">
             <p>网盘</p>
-            <img src="${NetDiskUI.src.icon[item.netDiskName]}">
+            <div class="netdisk-icon-img" style="background: url(${
+              NetDiskUI.src.icon[item.netDiskName]
+            }) no-repeat;background-size:100%"></div>
           </div>
           ${
             item.url === item.topURL
@@ -8334,109 +8280,107 @@
        * 设置右击菜单事件
        */
       setContextMenuEvent() {
-        DOMUtils.on(
+        NetDiskUI.view.registerContextMenu(
           document.querySelector(".whitesevPopNetDiskHistoryMatch"),
-          "contextmenu",
           ".netdiskrecord-link a",
-          function (event) {
-            utils.preventEvent(event);
-            NetDiskUI.view.showContextMenu(event, [
-              {
-                text: "复制链接",
-                callback: function () {
-                  let netDiskName = event.target.getAttribute("data-netdisk");
-                  let netDiskIndex =
-                    event.target.getAttribute("data-netdisk-index");
-                  let shareCode = event.target.getAttribute("data-sharecode");
-                  let accessCode = event.target.getAttribute("data-accesscode");
-                  NetDiskParse.copyText(
-                    netDiskName,
-                    netDiskIndex,
-                    shareCode,
-                    accessCode
-                  );
-                },
+          [
+            {
+              text: "复制链接",
+              callback: function (event, contextMenuEvent) {
+                let linkElement = contextMenuEvent.target;
+                let netDiskName = linkElement.getAttribute("data-netdisk");
+                let netDiskIndex =
+                  linkElement.getAttribute("data-netdisk-index");
+                let shareCode = linkElement.getAttribute("data-sharecode");
+                let accessCode = linkElement.getAttribute("data-accesscode");
+                NetDiskParse.copyText(
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  accessCode
+                );
               },
-              {
-                text: "访问链接",
-                callback: function () {
-                  let netDiskName = event.target.getAttribute("data-netdisk");
-                  let netDiskIndex =
-                    event.target.getAttribute("data-netdisk-index");
-                  let shareCode = event.target.getAttribute("data-sharecode");
-                  let accessCode = event.target.getAttribute("data-accesscode");
-                  let url = NetDiskParse.getBlankUrl(
-                    netDiskName,
-                    netDiskIndex,
-                    shareCode,
-                    accessCode
-                  );
-                  NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
-                },
+            },
+            {
+              text: "访问链接",
+              callback: function (event, contextMenuEvent) {
+                let linkElement = contextMenuEvent.target;
+                let netDiskName = linkElement.getAttribute("data-netdisk");
+                let netDiskIndex =
+                  linkElement.getAttribute("data-netdisk-index");
+                let shareCode = linkElement.getAttribute("data-sharecode");
+                let accessCode = linkElement.getAttribute("data-accesscode");
+                let url = NetDiskParse.getBlankUrl(
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  accessCode
+                );
+                NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
               },
-              {
-                text: "修改访问码",
-                callback: function () {
-                  let netDiskName = event.target.getAttribute("data-netdisk");
-                  let netDiskIndex = parseInt(
-                    event.target.getAttribute("data-netdisk-index")
-                  );
-                  let shareCode = event.target.getAttribute("data-sharecode");
-                  let accessCode = event.target.getAttribute("data-accesscode");
-                  let currentTime = new Date().getTime();
-                  NetDiskUI.newAccessCodeView(
-                    "修改访问码",
-                    netDiskName,
-                    netDiskIndex,
-                    shareCode,
-                    (userInputAccessCode) => {
-                      let data = GM_getValue(
-                        NetDiskUI.netDiskHistoryMatch.storageKey
-                      );
-                      let editFlag = false;
-                      data.forEach((item) => {
-                        if (
-                          item["netDiskName"] === netDiskName &&
-                          item["netDiskIndex"] === netDiskIndex &&
-                          item["shareCode"] === shareCode &&
-                          item["accessCode"] === accessCode
-                        ) {
-                          item = utils.assign(item, {
-                            accessCode: userInputAccessCode,
-                            updateTime: currentTime,
-                          });
-                          log.success(["成功找到项", item]);
-                          editFlag = true;
-                          return;
-                        }
-                      });
-                      if (editFlag) {
-                        GM_setValue(
-                          NetDiskUI.netDiskHistoryMatch.storageKey,
-                          data
-                        );
-                        event.target
-                          .closest("li")
-                          .querySelector(
-                            ".netdiskrecord-update-time"
-                          ).lastChild.textContent =
-                          utils.formatTime(currentTime);
-                        event.target.setAttribute(
-                          "data-accesscode",
-                          userInputAccessCode
-                        );
-                        Qmsg.success(
-                          `修改 ${accessCode} => ${userInputAccessCode}`
-                        );
-                      } else {
-                        Qmsg.error("修改失败");
+            },
+            {
+              text: "修改访问码",
+              callback: function (event, contextMenuEvent) {
+                let linkElement = contextMenuEvent.target;
+                let netDiskName = linkElement.getAttribute("data-netdisk");
+                let netDiskIndex = parseInt(
+                  linkElement.getAttribute("data-netdisk-index")
+                );
+                let shareCode = linkElement.getAttribute("data-sharecode");
+                let accessCode = linkElement.getAttribute("data-accesscode");
+                let currentTime = new Date().getTime();
+                NetDiskUI.newAccessCodeView(
+                  "修改访问码",
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  (userInputAccessCode) => {
+                    let data = GM_getValue(
+                      NetDiskUI.netDiskHistoryMatch.storageKey
+                    );
+                    let editFlag = false;
+                    data.forEach((item) => {
+                      if (
+                        item["netDiskName"] === netDiskName &&
+                        item["netDiskIndex"] === netDiskIndex &&
+                        item["shareCode"] === shareCode &&
+                        item["accessCode"] === accessCode
+                      ) {
+                        item = utils.assign(item, {
+                          accessCode: userInputAccessCode,
+                          updateTime: currentTime,
+                        });
+                        log.success(["成功找到项", item]);
+                        editFlag = true;
+                        return;
                       }
+                    });
+                    if (editFlag) {
+                      GM_setValue(
+                        NetDiskUI.netDiskHistoryMatch.storageKey,
+                        data
+                      );
+                      linkElement
+                        .closest("li")
+                        .querySelector(
+                          ".netdiskrecord-update-time"
+                        ).lastChild.textContent = utils.formatTime(currentTime);
+                      linkElement.setAttribute(
+                        "data-accesscode",
+                        userInputAccessCode
+                      );
+                      Qmsg.success(
+                        `修改 ${accessCode} => ${userInputAccessCode}`
+                      );
+                    } else {
+                      Qmsg.error("修改失败");
                     }
-                  );
-                },
+                  }
+                );
               },
-            ]);
-          }
+            },
+          ]
         );
       },
       /**
@@ -9512,7 +9456,12 @@
         .querySelector("span");
       if (localValue === defaultValue) {
         /* 设置快捷键 */
-        let loadingQmsg = Qmsg.loading("请按下快捷键...");
+        let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+          showClose: true,
+          onClose() {
+            keyboardListener.removeListen();
+          },
+        });
         NetDiskShortcut.isWaitUserPressKeyboard = true;
         let keyboardListener = utils.listenKeyboard(
           window,
@@ -9532,7 +9481,6 @@
                 Qmsg.error("该快捷键已被占用");
                 NetDiskShortcut.isWaitUserPressKeyboard = false;
                 loadingQmsg.close();
-                keyboardListener.removeListen();
                 return;
               }
             }
@@ -9540,7 +9488,6 @@
             spanElement.innerHTML = this.getShowText(key, defaultValue);
             NetDiskShortcut.isWaitUserPressKeyboard = false;
             loadingQmsg.close();
-            keyboardListener.removeListen();
           }
         );
       } else {
