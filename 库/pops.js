@@ -94,8 +94,8 @@
   /**
    * 工具类
    */
-  let popsUtils = {
-    assignJSON: function (target, source) {
+  let PopsUtils = {
+    assignJSON(target, source) {
       /* JSON数据存在即替换 */
       if (source == null) {
         return target;
@@ -104,7 +104,7 @@
         if (typeof source[target_key] !== "undefined") {
           if (
             typeof source[target_key] === "object" &&
-            !(source[target_key] instanceof HTMLElement)
+            !(source[target_key] instanceof Node)
           ) {
             target[target_key] = this.assignJSON(
               target[target_key],
@@ -123,9 +123,10 @@
      * @returns {HTMLElement}
      */
     parseTextToDOM(elementString) {
+      /* 去除前后的换行和空格 */
       elementString = elementString
         .replace(/^[\n|\s]*/g, "")
-        .replace(/[\n|\s]*$/g, ""); /* 去除前后的换行和空格 */
+        .replace(/[\n|\s]*$/g, "");
       let targetElement = document.createElement("div");
       targetElement.innerHTML = elementString;
       return targetElement.firstChild;
@@ -143,12 +144,16 @@
     /**
      * 元素后追加元素
      * @param {HTMLElement} target
-     * @param {HTMLElement[]} sourceList
+     * @param {HTMLElement[]|HTMLElement} sourceList
      */
     appendChild(target, sourceList) {
-      sourceList.forEach((item) => {
-        target.appendChild(item);
-      });
+      if (typeof sourceList[Symbol.iterator] === "function") {
+        sourceList.forEach((item) => {
+          target.appendChild(item);
+        });
+      } else {
+        target.appendChild(sourceList);
+      }
     },
     /**
      * 删除配置中对应的对象
@@ -338,7 +343,7 @@
        */
       let transitionendEvent = function () {
         let defaultClose = function () {
-          popsUtils.jQuery.off(
+          PopsDOMUtils.off(
             popsElement,
             "transitionend",
             undefined,
@@ -350,7 +355,7 @@
               /* 如果为0，那么该元素当前状态是hide，直接手动触发动画结束事件 */
               if (parseInt(getComputedStyle(popsElement).height) < 2) {
                 window.cancelAnimationFrame(animationFrameId);
-                popsUtils.configRemove([source], guid);
+                PopsUtils.configRemove([source], guid);
               } else {
                 animationFrameId = window.requestAnimationFrame(checkStyle);
               }
@@ -358,7 +363,7 @@
               /* 如果为0，那么该元素当前状态是hide，直接手动触发动画结束事件 */
               if (parseInt(getComputedStyle(popsElement).width) < 2) {
                 window.cancelAnimationFrame(animationFrameId);
-                popsUtils.configRemove([source], guid);
+                PopsUtils.configRemove([source], guid);
               } else {
                 animationFrameId = window.requestAnimationFrame(checkStyle);
               }
@@ -368,12 +373,7 @@
           };
           animationFrameId = window.requestAnimationFrame(checkStyle);
         };
-        popsUtils.jQuery.on(
-          popsElement,
-          "transitionend",
-          undefined,
-          defaultClose
-        );
+        PopsDOMUtils.on(popsElement, "transitionend", undefined, defaultClose);
         if (["top", "bottom"].includes(config.direction)) {
           /* 如果为0，那么该元素当前状态是hide，直接手动触发动画结束事件 */
           if (parseInt(getComputedStyle(popsElement).height) < 2) {
@@ -398,7 +398,7 @@
           transitionendEvent();
         }, config.closeDelay);
       } else {
-        popsUtils.configRemove([source], guid);
+        PopsUtils.configRemove([source], guid);
       }
     },
     /**
@@ -535,7 +535,7 @@
               event.preventDefault && event.preventDefault();
               this.handle.setCapture && this.handle.setCapture();
               this.onStart();
-              var maxZIndexInfo = popsUtils.getPopsMaxZIndex();
+              var maxZIndexInfo = PopsUtils.getPopsMaxZIndex();
 
               var maxZIndex = maxZIndexInfo["zIndex"];
               var maxZIndexElement = maxZIndexInfo["animElement"];
@@ -618,7 +618,6 @@
               }
               this.removeHandler(document, "mousemove", this._moveDrag);
               this.removeHandler(document, "mouseup", this._stopDrag);
-
               this.handle.releaseCapture && this.handle.releaseCapture();
 
               this.onStop();
@@ -719,13 +718,17 @@
             //添加绑定事件
             addHandler: function (oElement, sEventType, fnHandler) {
               return oElement.addEventListener
-                ? oElement.addEventListener(sEventType, fnHandler, false)
+                ? oElement.addEventListener(sEventType, fnHandler, {
+                    capture: false,
+                  })
                 : oElement.attachEvent("on" + sEventType, fnHandler);
             },
             //删除绑定事件
             removeHandler: function (oElement, sEventType, fnHandler) {
               return oElement.removeEventListener
-                ? oElement.removeEventListener(sEventType, fnHandler, false)
+                ? oElement.removeEventListener(sEventType, fnHandler, {
+                    capture: false,
+                  })
                 : oElement.detachEvent("on" + sEventType, fnHandler);
             },
             //绑定事件到对象
@@ -778,47 +781,47 @@
       if (
         elemTL != element &&
         elemTL != null &&
-        popsUtils.findArrayIndex("pops-mask", elemTL.classList) === -1 &&
-        popsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
+        PopsUtils.findArrayIndex("pops-mask", elemTL.classList) === -1 &&
+        PopsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemTL);
       }
       if (
         elemTR != element &&
-        popsUtils.findArrayIndex(elemTR, elemsUpper) === -1 &&
+        PopsUtils.findArrayIndex(elemTR, elemsUpper) === -1 &&
         elemTR != null &&
-        popsUtils.findArrayIndex("pops-mask", elemTR.classList) === -1 &&
-        popsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
+        PopsUtils.findArrayIndex("pops-mask", elemTR.classList) === -1 &&
+        PopsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemTR);
       }
 
       if (
         elemBL != element &&
-        popsUtils.findArrayIndex(elemBL, elemsUpper) === -1 &&
+        PopsUtils.findArrayIndex(elemBL, elemsUpper) === -1 &&
         elemBL != null &&
-        popsUtils.findArrayIndex("pops-mask", elemBL.classList) === -1 &&
-        popsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
+        PopsUtils.findArrayIndex("pops-mask", elemBL.classList) === -1 &&
+        PopsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemBL);
       }
 
       if (
         elemBR != element &&
-        popsUtils.findArrayIndex(elemBR, elemsUpper) === -1 &&
+        PopsUtils.findArrayIndex(elemBR, elemsUpper) === -1 &&
         elemBR != null &&
-        popsUtils.findArrayIndex("pops-mask", elemBR.classList) === -1 &&
-        popsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
+        PopsUtils.findArrayIndex("pops-mask", elemBR.classList) === -1 &&
+        PopsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemBR);
       }
 
       if (
         elemCENTER != element &&
-        popsUtils.findArrayIndex(elemCENTER, elemsUpper) === -1 &&
+        PopsUtils.findArrayIndex(elemCENTER, elemsUpper) === -1 &&
         elemCENTER != null &&
-        popsUtils.findArrayIndex("pops-mask", elemCENTER.classList) === -1 &&
-        popsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
+        PopsUtils.findArrayIndex("pops-mask", elemCENTER.classList) === -1 &&
+        PopsUtils.findArrayIndex("pops-loading", elemTL.classList) === -1
       ) {
         elemsUpper.push(elemCENTER);
       }
@@ -866,53 +869,43 @@
     },
     /**
      * 禁止滚动
-     * @returns {
-     *  allowScroll: Function
-     * }
      */
     forbiddenScroll() {
-      /**
-       * 禁止滚动
-       */
-      function forbiddenScrollListener(event) {
-        event.preventDefault();
-      }
-      if (!pops.config.forbiddenScroll.cssElement) {
-        let forbiddenScrollCSSElement = document.createElement("style");
-        forbiddenScrollCSSElement.setAttribute("type", "text/css");
-        forbiddenScrollCSSElement.setAttribute("data-use", "forbiddenscroll");
-        forbiddenScrollCSSElement.innerHTML = `
+      let forbiddenScrollCSSElement = document.createElement("style");
+      forbiddenScrollCSSElement.setAttribute("type", "text/css");
+      forbiddenScrollCSSElement.setAttribute("data-use", "forbiddenscroll");
+      forbiddenScrollCSSElement.innerHTML = `
         html,body {
           overflow: hidden !important;
         }
         `;
-        document.head.appendChild(forbiddenScrollCSSElement);
-        pops.config.forbiddenScroll.cssElement = forbiddenScrollCSSElement;
-      }
-      if (!pops.config.forbiddenScroll.event) {
-        pops.config.forbiddenScroll.event = forbiddenScrollListener;
-        document.addEventListener(
-          "touchmove",
-          pops.config.forbiddenScroll.event,
-          false
-        );
-      }
-
-      /**
-       * 允许滚动
-       */
-      function allowScroll() {
-        pops.config.forbiddenScroll.cssElement.remove();
-        document.removeEventListener(
-          "touchmove",
-          pops.config.forbiddenScroll.event
-        );
-        pops.config.forbiddenScroll.cssElement = null;
-        pops.config.forbiddenScroll.event = null;
-      }
-      return {
-        allowScroll,
-      };
+      document.head.appendChild(forbiddenScrollCSSElement);
+      PopsDOMUtils.on(
+        document,
+        "touchmove",
+        undefined,
+        pops.config.forbiddenScroll.event,
+        {
+          capture: false,
+        }
+      );
+    },
+    /**
+     * 允许滚动
+     */
+    allowScroll() {
+      document
+        .querySelectorAll("style[data-use='forbiddenscroll']")
+        .forEach((ele) => ele.remove());
+      PopsDOMUtils.off(
+        document,
+        "touchmove",
+        undefined,
+        pops.config.forbiddenScroll.event,
+        {
+          capture: true,
+        }
+      );
     },
     /**
      * 获取格式化后的时间
@@ -1029,537 +1022,6 @@
       result = addType ? result + resultType.toString() : parseFloat(result);
       return result;
     },
-    jQuery: {
-      /**
-       * 绑定事件
-       * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
-       * @param {string|[...string]} eventType 需要监听的事件
-       * @param {string|undefined} selector 子元素选择器
-       * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
-       * @param {boolean|AddEventListenerOptions|undefined} option
-       * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
-       * + once 表示事件是否只触发一次。默认为false
-       * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
-       */
-      on(element, eventType, selector, callback, option) {
-        /**
-         * 获取option配置
-         * @param {any[]} args
-         * @param {number} startIndex
-         * @param {AddEventListenerOptions} option
-         * @returns {AddEventListenerOptions}
-         */
-        function getOption(args, startIndex, option) {
-          if (typeof args[startIndex] === "boolean") {
-            option.capture = args[startIndex];
-            if (typeof args[startIndex + 1] === "boolean") {
-              option.once = args[startIndex + 1];
-            }
-            if (typeof args[startIndex + 2] === "boolean") {
-              option.passive = args[startIndex + 2];
-            }
-          } else if (
-            typeof args[startIndex] === "object" &&
-            ("capture" in args[startIndex] ||
-              "once" in args[startIndex] ||
-              "passive" in args[startIndex])
-          ) {
-            option.capture = args[startIndex].capture;
-            option.once = args[startIndex].once;
-            option.passive = args[startIndex].passive;
-          }
-          return option;
-        }
-
-        let args = arguments;
-        if (typeof element === "string") {
-          element = document.querySelectorAll(element);
-        }
-        if (element == void 0) {
-          return;
-        }
-        /**
-         * @type {HTMLElement[]}
-         */
-        let elementList = [];
-        if (element instanceof NodeList || Array.isArray(element)) {
-          elementList = [...element];
-        } else {
-          elementList.push(element);
-        }
-        /**
-         * @type {string[]}
-         */
-        let eventTypeList = [];
-        if (Array.isArray(eventType)) {
-          eventTypeList = eventTypeList.concat(eventType);
-        } else if (typeof eventType === "string") {
-          eventTypeList = eventTypeList.concat(eventType.split(" "));
-        }
-        /**
-         * 元素属性上自定义的用于暂存事件的对象名
-         */
-        let propEventsName = "events";
-        /**
-         * window属性上自定义的用于暂存事件的对象名
-         */
-        let windowEventsName = "DOMUtilsGlobalEvents";
-        /**
-         * @type {?string}
-         */
-        let _selector_ = selector;
-        /**
-         * @type {(event:Event)=>{}}
-         */
-        let _callback_ = callback;
-        /**
-         * @type {AddEventListenerOptions}
-         */
-        let _option_ = {
-          capture: false,
-          once: false,
-          passive: false,
-        };
-        if (typeof selector === "function") {
-          /* 这是为没有selector的情况 */
-          _selector_ = void 0;
-          _callback_ = selector;
-          _option_ = getOption(args, 3, _option_);
-        } else {
-          /* 这是存在selector的情况 */
-          _option_ = getOption(args, 4, _option_);
-        }
-        elementList.forEach((elementItem) => {
-          let ownCallBack = function (event) {
-            let target = event.target;
-            if (_selector_) {
-              /* 存在自定义子元素选择器 */
-              let totalParent = popsUtils.isWin(elementItem)
-                ? document.documentElement
-                : elementItem;
-              if (target.matches(_selector_)) {
-                /* 当前目标可以被selector所匹配到 */
-                _callback_.call(target, event);
-                return;
-              } else if (
-                target.closest(_selector_) &&
-                totalParent.contains(target.closest(_selector_))
-              ) {
-                /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-                let closestElement = target.closest(_selector_);
-                /* event的target值不能直接修改 */
-                Object.defineProperty(event, "target", {
-                  get() {
-                    return closestElement;
-                  },
-                });
-                _callback_.call(closestElement, event);
-                return;
-              }
-            } else {
-              _callback_.call(elementItem, event);
-            }
-          };
-          /* 遍历事件名设置元素事件 */
-          eventTypeList.forEach((eventName) => {
-            elementItem.addEventListener(eventName, ownCallBack, _option_);
-          });
-
-          if (_callback_ && _callback_.delegate) {
-            elementItem.setAttribute("data-delegate", _selector_);
-          }
-          if (popsUtils.isWin(elementItem)) {
-            let elementEvents = elementItem[windowEventsName] || {};
-            elementEvents[eventType] = elementEvents[eventType] || [];
-            elementEvents[eventType].push({
-              selector: _selector_,
-              option: _option_,
-              callback: ownCallBack,
-              originCallBack: _callback_,
-            });
-            elementItem[windowEventsName] = elementEvents;
-          } else {
-            let elementEvents = elementItem[propEventsName] || {};
-            elementEvents[eventType] = elementEvents[eventType] || [];
-            elementEvents[eventType].push({
-              selector: _selector_,
-              option: _option_,
-              callback: ownCallBack,
-              originCallBack: _callback_,
-            });
-            elementItem[propEventsName] = elementEvents;
-          }
-        });
-      },
-      /**
-       * 取消绑定事件
-       * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
-       * @param {string|[...string]} eventType 需要取消监听的事件
-       * @param {string|undefined} selector 子元素选择器
-       * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
-       * @param {EventListenerOptions|boolean|undefined} option
-       * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
-       */
-      off(element, eventType, selector, callback, option) {
-        /**
-         * 获取option配置
-         * @param {any[]} args
-         * @param {number} startIndex
-         * @param {EventListenerOptions} option
-         * @returns {EventListenerOptions}
-         */
-        function getOption(args, startIndex, option) {
-          if (typeof args[startIndex] === "boolean") {
-            option.capture = args[startIndex];
-          } else if (
-            typeof args[startIndex] === "object" &&
-            "capture" in args[startIndex]
-          ) {
-            option.capture = args[startIndex].capture;
-          }
-          return option;
-        }
-
-        let args = arguments;
-        if (typeof element === "string") {
-          element = document.querySelectorAll(element);
-        }
-        if (element == void 0) {
-          return;
-        }
-        /**
-         * @type {HTMLElement[]}
-         */
-        let elementList = [];
-        if (element instanceof NodeList || Array.isArray(element)) {
-          elementList = [...element];
-        } else {
-          elementList.push(element);
-        }
-        /**
-         * @type {string[]}
-         */
-        let eventTypeList = [];
-        if (Array.isArray(eventType)) {
-          eventTypeList = eventTypeList.concat(eventType);
-        } else if (typeof eventType === "string") {
-          eventTypeList = eventTypeList.concat(eventType.split(" "));
-        }
-        /**
-         * 元素属性上自定义的用于暂存事件的对象名
-         */
-        let propEventsName = "events";
-        /**
-         * window属性上自定义的用于暂存事件的对象名
-         */
-        let windowEventsName = "DOMUtilsGlobalEvents";
-        /**
-         * @type {?string}
-         */
-        let _selector_ = selector;
-        /**
-         * @type {(event:Event)=>{}}
-         */
-        let _callback_ = callback;
-
-        /**
-         * @type {EventListenerOptions}
-         */
-        let _option_ = {
-          capture: false,
-        };
-        if (typeof selector === "function") {
-          /* 这是为没有selector的情况 */
-          _selector_ = void 0;
-          _callback_ = selector;
-          _option_ = getOption(args, 3, _option_);
-        } else {
-          _option_ = getOption(args, 4, _option_);
-        }
-        elementList.forEach((elementItem) => {
-          let elementEvents = {};
-          if (popsUtils.isWin(elementItem)) {
-            elementEvents = elementItem[windowEventsName] || {};
-          } else {
-            elementEvents = elementItem[propEventsName] || {};
-          }
-          eventTypeList.forEach((eventName) => {
-            let handlers = elementEvents[eventName] || [];
-            for (let index = 0; index < handlers.length; index++) {
-              if (
-                (!_selector_ || handlers[index].selector === _selector_) &&
-                (!_callback_ ||
-                  handlers[index].callback === _callback_ ||
-                  handlers[index].originCallBack === _callback_)
-              ) {
-                elementItem.removeEventListener(
-                  eventName,
-                  handlers[index].callback,
-                  _option_
-                );
-                handlers.splice(index--, 1);
-              }
-            }
-            if (handlers.length === 0) {
-              delete elementEvents[eventType];
-            }
-          });
-          if (popsUtils.isWin(elementItem)) {
-            elementItem[windowEventsName] = elementEvents;
-          } else {
-            elementItem[propEventsName] = elementEvents;
-          }
-        });
-      },
-      /**
-       * 主动触发事件
-       * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
-       * @param {string|[...string]} eventType 需要触发的事件
-       * @param {object|undefined} details 赋予触发的Event的额外属性
-       * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
-       */
-      trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
-        if (typeof element === "string") {
-          element = document.querySelector(element);
-        }
-        if (element == null) {
-          return;
-        }
-        let elementList = [];
-        if (element instanceof NodeList || Array.isArray(element)) {
-          elementList = [...element];
-        } else {
-          elementList = [element];
-        }
-        let eventTypeList = [];
-        if (!eventType) {
-          for (let type in events) {
-            eventTypeList = [...eventTypeList, type];
-          }
-        } else if (Array.isArray(eventType)) {
-          eventTypeList = eventType;
-        } else if (typeof eventType === "string") {
-          eventTypeList = eventType.split(" ");
-        }
-
-        elementList.forEach((elementItem) => {
-          let events = {};
-          if (popsUtils.isWin(elementItem)) {
-            events = elementItem["DOMUtilsGlobalEvents"] || {};
-          } else {
-            events = elementItem.events || {};
-          }
-          eventTypeList.forEach((_eventType_) => {
-            let event = new Event(_eventType_);
-            if (details) {
-              Object.assign(event, details);
-            }
-            if (useDispatchToTriggerEvent == false && _eventType_ in events) {
-              events[_eventType_].forEach((eventsItem) => {
-                eventsItem.callback(event);
-              });
-            } else {
-              elementItem.dispatchEvent(event);
-            }
-          });
-        });
-      },
-      /**
-       * 实现jQuery中的$().offset();
-       * @param {HTMLElement} element
-       * @returns
-       */
-      offset(element) {
-        var rect = element.getBoundingClientRect();
-        var win = element.ownerDocument.defaultView;
-        return {
-          top: rect.top + win.pageYOffset,
-          left: rect.left + win.pageXOffset,
-        };
-      },
-      /**
-       * 获取元素的宽度
-       * @param {HTMLElement} element - 要获取宽度的元素
-       * @returns {Number} - 元素的宽度，单位为像素
-       */
-      width(element) {
-        if (popsUtils.isWin(element)) {
-          return window.document.documentElement.clientWidth;
-        }
-        if (typeof element === "string") {
-          element = document.querySelector(element);
-        }
-        if (element == void 0) {
-          return;
-        }
-        if (element.nodeType === 9) {
-          /* 文档节点 */
-          return Math.max(
-            element.body.scrollWidth,
-            element.documentElement.scrollWidth,
-            element.body.offsetWidth,
-            element.documentElement.offsetWidth,
-            element.documentElement.clientWidth
-          );
-        }
-        if (popsUtils.isShow(element)) {
-          /* 已显示 */
-          /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
-
-          /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
-          if (parseFloat(popsUtils.getStyleValue(element, "width")) > 0) {
-            return parseFloat(popsUtils.getStyleValue(element, "width"));
-          }
-
-          /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
-          if (element.offsetWidth > 0) {
-            let borderLeftWidth = popsUtils.getStyleValue(
-              element,
-              "borderLeftWidth"
-            );
-            let borderRightWidth = popsUtils.getStyleValue(
-              element,
-              "borderRightWidth"
-            );
-            let paddingLeft = popsUtils.getStyleValue(element, "paddingLeft");
-            let paddingRight = popsUtils.getStyleValue(element, "paddingRight");
-            let backHeight =
-              parseFloat(element.offsetWidth) -
-              parseFloat(borderLeftWidth) -
-              parseFloat(borderRightWidth) -
-              parseFloat(paddingLeft) -
-              parseFloat(paddingRight);
-            return parseFloat(backHeight);
-          }
-          return 0;
-        } else {
-          /* 未显示 */
-          let { recovery } = popsUtils.showElement(element);
-          let width = popsUtils.jQuery.width(element);
-          recovery();
-          return width;
-        }
-      },
-      /**
-       * 获取元素的高度
-       * @param {HTMLElement} element - 要获取高度的元素
-       * @returns {Number} - 元素的高度，单位为像素
-       */
-      height(element) {
-        if (popsUtils.isWin(element)) {
-          return window.document.documentElement.clientHeight;
-        }
-        if (typeof element === "string") {
-          element = document.querySelector(element);
-        }
-        if (element == void 0) {
-          return;
-        }
-        if (element.nodeType === 9) {
-          /* 文档节点 */
-          return Math.max(
-            element.body.scrollHeight,
-            element.documentElement.scrollHeight,
-            element.body.offsetHeight,
-            element.documentElement.offsetHeight,
-            element.documentElement.clientHeight
-          );
-        }
-        if (popsUtils.isShow(element)) {
-          /* 已显示 */
-          /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
-          /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
-          if (parseFloat(popsUtils.getStyleValue(element, "height")) > 0) {
-            return parseFloat(popsUtils.getStyleValue(element, "height"));
-          }
-
-          /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
-          if (element.offsetHeight > 0) {
-            let borderTopWidth = popsUtils.getStyleValue(
-              element,
-              "borderTopWidth"
-            );
-            let borderBottomWidth = popsUtils.getStyleValue(
-              element,
-              "borderBottomWidth"
-            );
-            let paddingTop = popsUtils.getStyleValue(element, "paddingTop");
-            let paddingBottom = popsUtils.getStyleValue(
-              element,
-              "paddingBottom"
-            );
-            let backHeight =
-              parseFloat(element.offsetHeight) -
-              parseFloat(borderTopWidth) -
-              parseFloat(borderBottomWidth) -
-              parseFloat(paddingTop) -
-              parseFloat(paddingBottom);
-            return parseFloat(backHeight);
-          }
-          return 0;
-        } else {
-          /* 未显示 */
-          let { recovery } = popsUtils.showElement(element);
-          let height = popsUtils.jQuery.height(element);
-          recovery();
-          return height;
-        }
-      },
-      /**
-       * 获取元素的外部宽度（包括边框和外边距）
-       * @param {HTMLElement} element - 要获取外部宽度的元素
-       * @returns {Number} - 元素的外部宽度，单位为像素
-       */
-      outerWidth(element) {
-        if (popsUtils.isWin(element)) {
-          return window.innerWidth;
-        }
-        if (typeof element === "string") {
-          element = document.querySelector(element);
-        }
-        if (element == void 0) {
-          return;
-        }
-        if (popsUtils.isShow(element)) {
-          let style = getComputedStyle(element, null);
-          let marginLeft = popsUtils.getStyleValue(style, "marginLeft");
-          let marginRight = popsUtils.getStyleValue(style, "marginRight");
-          return element.offsetWidth + marginLeft + marginRight;
-        } else {
-          let { recovery } = popsUtils.showElement(element);
-          let outerWidth = popsUtils.jQuery.outerWidth(element);
-          recovery();
-          return outerWidth;
-        }
-      },
-      /**
-       * 获取元素的外部高度（包括边框和外边距）
-       * @param {HTMLElement} element - 要获取外部高度的元素
-       * @returns {Number} - 元素的外部高度，单位为像素
-       */
-      outerHeight(element) {
-        if (popsUtils.isWin(element)) {
-          return window.innerHeight;
-        }
-        if (typeof element === "string") {
-          element = document.querySelector(element);
-        }
-        if (element == void 0) {
-          return;
-        }
-        if (popsUtils.isShow(element)) {
-          let style = getComputedStyle(element, null);
-          let marginTop = popsUtils.getStyleValue(style, "marginTop");
-          let marginBottom = popsUtils.getStyleValue(style, "marginBottom");
-          return element.offsetHeight + marginTop + marginBottom;
-        } else {
-          let { recovery } = popsUtils.showElement(element);
-          let outerHeight = popsUtils.jQuery.outerHeight(element);
-          recovery();
-          return outerHeight;
-        }
-      },
-    },
     /**
      * 判断元素是否已显示或已连接
      * @param {HTMLElement} element
@@ -1641,6 +1103,660 @@
       }
       return true;
     },
+    /**
+     * 阻止默认事件触发
+     * @param {Event} event
+     */
+    preventEvent(event) {
+      /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
+      event?.preventDefault();
+      /* 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素 */
+      event?.stopPropagation();
+      /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
+      event?.stopImmediatePropagation();
+    },
+  };
+
+  /**
+   * 元素工具类
+   */
+  let PopsDOMUtils = {
+    /**
+     * 绑定事件
+     * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
+     * @param {string|[...string]} eventType 需要监听的事件
+     * @param {string|undefined} selector 子元素选择器
+     * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
+     * @param {boolean|AddEventListenerOptions|undefined} option
+     * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
+     * + once 表示事件是否只触发一次。默认为false
+     * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
+     */
+    on(element, eventType, selector, callback, option) {
+      /**
+       * 获取option配置
+       * @param {any[]} args
+       * @param {number} startIndex
+       * @param {AddEventListenerOptions} option
+       * @returns {AddEventListenerOptions}
+       */
+      function getOption(args, startIndex, option) {
+        if (typeof args[startIndex] === "boolean") {
+          option.capture = args[startIndex];
+          if (typeof args[startIndex + 1] === "boolean") {
+            option.once = args[startIndex + 1];
+          }
+          if (typeof args[startIndex + 2] === "boolean") {
+            option.passive = args[startIndex + 2];
+          }
+        } else if (
+          typeof args[startIndex] === "object" &&
+          ("capture" in args[startIndex] ||
+            "once" in args[startIndex] ||
+            "passive" in args[startIndex])
+        ) {
+          option.capture = args[startIndex].capture;
+          option.once = args[startIndex].once;
+          option.passive = args[startIndex].passive;
+        }
+        return option;
+      }
+
+      let args = arguments;
+      if (typeof element === "string") {
+        element = document.querySelectorAll(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      /**
+       * @type {HTMLElement[]}
+       */
+      let elementList = [];
+      if (element instanceof NodeList || Array.isArray(element)) {
+        elementList = [...element];
+      } else {
+        elementList.push(element);
+      }
+      /**
+       * @type {string[]}
+       */
+      let eventTypeList = [];
+      if (Array.isArray(eventType)) {
+        eventTypeList = eventTypeList.concat(eventType);
+      } else if (typeof eventType === "string") {
+        eventTypeList = eventTypeList.concat(eventType.split(" "));
+      }
+      /**
+       * 元素属性上自定义的用于暂存事件的对象名
+       */
+      let propEventsName = "events";
+      /**
+       * window属性上自定义的用于暂存事件的对象名
+       */
+      let windowEventsName = "DOMUtilsGlobalEvents";
+      /**
+       * @type {?string}
+       */
+      let _selector_ = selector;
+      /**
+       * @type {(event:Event)=>{}}
+       */
+      let _callback_ = callback;
+      /**
+       * @type {AddEventListenerOptions}
+       */
+      let _option_ = {
+        capture: false,
+        once: false,
+        passive: false,
+      };
+      if (typeof selector === "function") {
+        /* 这是为没有selector的情况 */
+        _selector_ = void 0;
+        _callback_ = selector;
+        _option_ = getOption(args, 3, _option_);
+      } else {
+        /* 这是存在selector的情况 */
+        _option_ = getOption(args, 4, _option_);
+      }
+      elementList.forEach((elementItem) => {
+        let ownCallBack = function (event) {
+          let target = event.target;
+          if (_selector_) {
+            /* 存在自定义子元素选择器 */
+            let totalParent = PopsUtils.isWin(elementItem)
+              ? document.documentElement
+              : elementItem;
+            if (target.matches(_selector_)) {
+              /* 当前目标可以被selector所匹配到 */
+              _callback_.call(target, event);
+              return;
+            } else if (
+              target.closest(_selector_) &&
+              totalParent.contains(target.closest(_selector_))
+            ) {
+              /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+              let closestElement = target.closest(_selector_);
+              /* event的target值不能直接修改 */
+              Object.defineProperty(event, "target", {
+                get() {
+                  return closestElement;
+                },
+              });
+              _callback_.call(closestElement, event);
+              return;
+            }
+          } else {
+            _callback_.call(elementItem, event);
+          }
+        };
+        /* 遍历事件名设置元素事件 */
+        eventTypeList.forEach((eventName) => {
+          elementItem.addEventListener(eventName, ownCallBack, _option_);
+        });
+
+        if (_callback_ && _callback_.delegate) {
+          elementItem.setAttribute("data-delegate", _selector_);
+        }
+        if (PopsUtils.isWin(elementItem)) {
+          let elementEvents = elementItem[windowEventsName] || {};
+          elementEvents[eventType] = elementEvents[eventType] || [];
+          elementEvents[eventType].push({
+            selector: _selector_,
+            option: _option_,
+            callback: ownCallBack,
+            originCallBack: _callback_,
+          });
+          elementItem[windowEventsName] = elementEvents;
+        } else {
+          let elementEvents = elementItem[propEventsName] || {};
+          elementEvents[eventType] = elementEvents[eventType] || [];
+          elementEvents[eventType].push({
+            selector: _selector_,
+            option: _option_,
+            callback: ownCallBack,
+            originCallBack: _callback_,
+          });
+          elementItem[propEventsName] = elementEvents;
+        }
+      });
+    },
+    /**
+     * 取消绑定事件
+     * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
+     * @param {string|[...string]} eventType 需要取消监听的事件
+     * @param {string|undefined} selector 子元素选择器
+     * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
+     * @param {EventListenerOptions|boolean|undefined} option
+     * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+     */
+    off(element, eventType, selector, callback, option) {
+      /**
+       * 获取option配置
+       * @param {any[]} args
+       * @param {number} startIndex
+       * @param {EventListenerOptions} option
+       * @returns {EventListenerOptions}
+       */
+      function getOption(args, startIndex, option) {
+        if (typeof args[startIndex] === "boolean") {
+          option.capture = args[startIndex];
+        } else if (
+          typeof args[startIndex] === "object" &&
+          "capture" in args[startIndex]
+        ) {
+          option.capture = args[startIndex].capture;
+        }
+        return option;
+      }
+
+      let args = arguments;
+      if (typeof element === "string") {
+        element = document.querySelectorAll(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      /**
+       * @type {HTMLElement[]}
+       */
+      let elementList = [];
+      if (element instanceof NodeList || Array.isArray(element)) {
+        elementList = [...element];
+      } else {
+        elementList.push(element);
+      }
+      /**
+       * @type {string[]}
+       */
+      let eventTypeList = [];
+      if (Array.isArray(eventType)) {
+        eventTypeList = eventTypeList.concat(eventType);
+      } else if (typeof eventType === "string") {
+        eventTypeList = eventTypeList.concat(eventType.split(" "));
+      }
+      /**
+       * 元素属性上自定义的用于暂存事件的对象名
+       */
+      let propEventsName = "events";
+      /**
+       * window属性上自定义的用于暂存事件的对象名
+       */
+      let windowEventsName = "DOMUtilsGlobalEvents";
+      /**
+       * @type {?string}
+       */
+      let _selector_ = selector;
+      /**
+       * @type {(event:Event)=>{}}
+       */
+      let _callback_ = callback;
+
+      /**
+       * @type {EventListenerOptions}
+       */
+      let _option_ = {
+        capture: false,
+      };
+      if (typeof selector === "function") {
+        /* 这是为没有selector的情况 */
+        _selector_ = void 0;
+        _callback_ = selector;
+        _option_ = getOption(args, 3, _option_);
+      } else {
+        _option_ = getOption(args, 4, _option_);
+      }
+      elementList.forEach((elementItem) => {
+        let elementEvents = {};
+        if (PopsUtils.isWin(elementItem)) {
+          elementEvents = elementItem[windowEventsName] || {};
+        } else {
+          elementEvents = elementItem[propEventsName] || {};
+        }
+        eventTypeList.forEach((eventName) => {
+          let handlers = elementEvents[eventName] || [];
+          for (let index = 0; index < handlers.length; index++) {
+            if (
+              (!_selector_ || handlers[index].selector === _selector_) &&
+              (!_callback_ ||
+                handlers[index].callback === _callback_ ||
+                handlers[index].originCallBack === _callback_)
+            ) {
+              elementItem.removeEventListener(
+                eventName,
+                handlers[index].callback,
+                _option_
+              );
+              handlers.splice(index--, 1);
+            }
+          }
+          if (handlers.length === 0) {
+            delete elementEvents[eventType];
+          }
+        });
+        if (PopsUtils.isWin(elementItem)) {
+          elementItem[windowEventsName] = elementEvents;
+        } else {
+          elementItem[propEventsName] = elementEvents;
+        }
+      });
+    },
+    /**
+     * 主动触发事件
+     * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
+     * @param {string|[...string]} eventType 需要触发的事件
+     * @param {object|undefined} details 赋予触发的Event的额外属性
+     * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
+     */
+    trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
+      if (typeof element === "string") {
+        element = document.querySelector(element);
+      }
+      if (element == null) {
+        return;
+      }
+      let elementList = [];
+      if (element instanceof NodeList || Array.isArray(element)) {
+        elementList = [...element];
+      } else {
+        elementList = [element];
+      }
+      let eventTypeList = [];
+      if (!eventType) {
+        for (let type in events) {
+          eventTypeList = [...eventTypeList, type];
+        }
+      } else if (Array.isArray(eventType)) {
+        eventTypeList = eventType;
+      } else if (typeof eventType === "string") {
+        eventTypeList = eventType.split(" ");
+      }
+
+      elementList.forEach((elementItem) => {
+        let events = {};
+        if (PopsUtils.isWin(elementItem)) {
+          events = elementItem["DOMUtilsGlobalEvents"] || {};
+        } else {
+          events = elementItem.events || {};
+        }
+        eventTypeList.forEach((_eventType_) => {
+          let event = new Event(_eventType_);
+          if (details) {
+            Object.assign(event, details);
+          }
+          if (useDispatchToTriggerEvent == false && _eventType_ in events) {
+            events[_eventType_].forEach((eventsItem) => {
+              eventsItem.callback(event);
+            });
+          } else {
+            elementItem.dispatchEvent(event);
+          }
+        });
+      });
+    },
+    /**
+     * 实现jQuery中的$().offset();
+     * @param {HTMLElement} element
+     * @returns
+     */
+    offset(element) {
+      let rect = element.getBoundingClientRect();
+      let win = element.ownerDocument.defaultView;
+      return {
+        top: parseFloat(rect.top + win.pageYOffset),
+        bottom: parseFloat(rect.bottom + win + pageYOffset),
+        left: parseFloat(rect.left + win.pageXOffset),
+        right: parseFloat(rect.right + win.pageXOffset),
+        width: rect.width,
+        height: rect.height,
+      };
+    },
+    /**
+     * 获取元素的宽度
+     * @param {HTMLElement} element - 要获取宽度的元素
+     * @returns {Number} - 元素的宽度，单位为像素
+     */
+    width(element) {
+      if (PopsUtils.isWin(element)) {
+        return window.document.documentElement.clientWidth;
+      }
+      if (typeof element === "string") {
+        element = document.querySelector(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      if (element.nodeType === 9) {
+        /* 文档节点 */
+        return Math.max(
+          element.body.scrollWidth,
+          element.documentElement.scrollWidth,
+          element.body.offsetWidth,
+          element.documentElement.offsetWidth,
+          element.documentElement.clientWidth
+        );
+      }
+      if (PopsUtils.isShow(element)) {
+        /* 已显示 */
+        /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
+
+        /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
+        if (parseFloat(PopsUtils.getStyleValue(element, "width")) > 0) {
+          return parseFloat(PopsUtils.getStyleValue(element, "width"));
+        }
+
+        /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
+        if (element.offsetWidth > 0) {
+          let borderLeftWidth = PopsUtils.getStyleValue(
+            element,
+            "borderLeftWidth"
+          );
+          let borderRightWidth = PopsUtils.getStyleValue(
+            element,
+            "borderRightWidth"
+          );
+          let paddingLeft = PopsUtils.getStyleValue(element, "paddingLeft");
+          let paddingRight = PopsUtils.getStyleValue(element, "paddingRight");
+          let backHeight =
+            parseFloat(element.offsetWidth) -
+            parseFloat(borderLeftWidth) -
+            parseFloat(borderRightWidth) -
+            parseFloat(paddingLeft) -
+            parseFloat(paddingRight);
+          return parseFloat(backHeight);
+        }
+        return 0;
+      } else {
+        /* 未显示 */
+        let { recovery } = PopsUtils.showElement(element);
+        let width = PopsDOMUtils.width(element);
+        recovery();
+        return width;
+      }
+    },
+    /**
+     * 获取元素的高度
+     * @param {HTMLElement} element - 要获取高度的元素
+     * @returns {Number} - 元素的高度，单位为像素
+     */
+    height(element) {
+      if (PopsUtils.isWin(element)) {
+        return window.document.documentElement.clientHeight;
+      }
+      if (typeof element === "string") {
+        element = document.querySelector(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      if (element.nodeType === 9) {
+        /* 文档节点 */
+        return Math.max(
+          element.body.scrollHeight,
+          element.documentElement.scrollHeight,
+          element.body.offsetHeight,
+          element.documentElement.offsetHeight,
+          element.documentElement.clientHeight
+        );
+      }
+      if (PopsUtils.isShow(element)) {
+        /* 已显示 */
+        /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
+        /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
+        if (parseFloat(PopsUtils.getStyleValue(element, "height")) > 0) {
+          return parseFloat(PopsUtils.getStyleValue(element, "height"));
+        }
+
+        /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
+        if (element.offsetHeight > 0) {
+          let borderTopWidth = PopsUtils.getStyleValue(
+            element,
+            "borderTopWidth"
+          );
+          let borderBottomWidth = PopsUtils.getStyleValue(
+            element,
+            "borderBottomWidth"
+          );
+          let paddingTop = PopsUtils.getStyleValue(element, "paddingTop");
+          let paddingBottom = PopsUtils.getStyleValue(element, "paddingBottom");
+          let backHeight =
+            parseFloat(element.offsetHeight) -
+            parseFloat(borderTopWidth) -
+            parseFloat(borderBottomWidth) -
+            parseFloat(paddingTop) -
+            parseFloat(paddingBottom);
+          return parseFloat(backHeight);
+        }
+        return 0;
+      } else {
+        /* 未显示 */
+        let { recovery } = PopsUtils.showElement(element);
+        let height = PopsDOMUtils.height(element);
+        recovery();
+        return height;
+      }
+    },
+    /**
+     * 获取元素的外部宽度（包括边框和外边距）
+     * @param {HTMLElement} element - 要获取外部宽度的元素
+     * @returns {Number} - 元素的外部宽度，单位为像素
+     */
+    outerWidth(element) {
+      if (PopsUtils.isWin(element)) {
+        return window.innerWidth;
+      }
+      if (typeof element === "string") {
+        element = document.querySelector(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      if (PopsUtils.isShow(element)) {
+        let style = getComputedStyle(element, null);
+        let marginLeft = PopsUtils.getStyleValue(style, "marginLeft");
+        let marginRight = PopsUtils.getStyleValue(style, "marginRight");
+        return element.offsetWidth + marginLeft + marginRight;
+      } else {
+        let { recovery } = PopsUtils.showElement(element);
+        let outerWidth = PopsDOMUtils.outerWidth(element);
+        recovery();
+        return outerWidth;
+      }
+    },
+    /**
+     * 获取元素的外部高度（包括边框和外边距）
+     * @param {HTMLElement} element - 要获取外部高度的元素
+     * @returns {Number} - 元素的外部高度，单位为像素
+     */
+    outerHeight(element) {
+      if (PopsUtils.isWin(element)) {
+        return window.innerHeight;
+      }
+      if (typeof element === "string") {
+        element = document.querySelector(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      if (PopsUtils.isShow(element)) {
+        let style = getComputedStyle(element, null);
+        let marginTop = PopsUtils.getStyleValue(style, "marginTop");
+        let marginBottom = PopsUtils.getStyleValue(style, "marginBottom");
+        return element.offsetHeight + marginTop + marginBottom;
+      } else {
+        let { recovery } = PopsUtils.showElement(element);
+        let outerHeight = PopsDOMUtils.outerHeight(element);
+        recovery();
+        return outerHeight;
+      }
+    },
+    /**
+     * 添加className
+     * @param {HTMLElement} element 目标元素
+     * @param {string} className className属性
+     */
+    addClassName(element, className) {
+      if (typeof className !== "string") {
+        return;
+      }
+      if (className.trim() === "") {
+        return;
+      }
+      element.classList.add(className);
+    },
+    /**
+     * 删除className
+     * @param {HTMLElement} element 目标元素
+     * @param {string} className className属性
+     */
+    removeClassName(element, className) {
+      if (typeof className !== "string") {
+        return;
+      }
+      if (className.trim() === "") {
+        return;
+      }
+      element.classList.remove(className);
+    },
+    /**
+     * 判断元素是否包含某个className
+     * @param {HTMLElement} element 目标元素
+     * @param {string} className className属性
+     */
+    containsClassName(element, className) {
+      if (typeof className !== "string") {
+        return;
+      }
+      if (className.trim() === "") {
+        return;
+      }
+      return element.classList.contains(className);
+    },
+    /**
+     * 获取或设置元素的样式属性值
+     * @param {HTMLElement|string} element 目标元素
+     * @param {CSSStyleDeclaration|string} property 样式属性名或包含多个属性名和属性值的对象
+     * @param {any} [value] 样式属性值（可选）
+     * @returns {?string} 如果传入了value，则返回undefined；否则返回样式属性值
+     **/
+    css(element, property, value) {
+      /**
+       * 把纯数字没有px的加上
+       */
+      function handlePixe(propertyName, propertyValue) {
+        let allowAddPixe = [
+          "width",
+          "height",
+          "top",
+          "left",
+          "right",
+          "bottom",
+          "font-size",
+        ];
+        if (typeof propertyValue === "number") {
+          propertyValue = propertyValue.toString();
+        }
+        if (
+          typeof propertyValue === "string" &&
+          allowAddPixe.includes(propertyName) &&
+          propertyValue.match(/[0-9]$/gi)
+        ) {
+          propertyValue = propertyValue + "px";
+        }
+        return propertyValue;
+      }
+      if (typeof element === "string") {
+        element = document.querySelector(element);
+      }
+      if (element == void 0) {
+        return;
+      }
+      if (typeof property === "string") {
+        if (value === void 0) {
+          return getComputedStyle(element).getPropertyValue(property);
+        } else {
+          if (value === "string" && value.includes("!important")) {
+            element.style.setProperty(property, value, "important");
+          } else {
+            value = handlePixe(property, value);
+            element.style.setProperty(property, value);
+          }
+        }
+      } else if (typeof property === "object") {
+        for (let prop in property) {
+          if (
+            typeof property[prop] === "string" &&
+            property[prop].includes("!important")
+          ) {
+            element.style.setProperty(prop, property[prop], "important");
+          } else {
+            property[prop] = handlePixe(prop, property[prop]);
+            element.style.setProperty(prop, property[prop]);
+          }
+        }
+      }
+    },
   };
 
   let pops = {};
@@ -1651,7 +1767,7 @@
     /**
      * 当前版本
      */
-    version: "2023.12.16",
+    version: "2023.12.19",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -2869,12 +2985,11 @@
        */
       panel: [],
     },
-    /**
-     * 禁止滚动的配置
-     */
     forbiddenScroll: {
-      cssElement: null,
-      event: null,
+      event(event) {
+        event.preventDefault();
+        return false;
+      },
     },
   };
 
@@ -2920,7 +3035,7 @@
     }
     this.config.popsCSSElement = cssResourceNode;
     this.config.init = true;
-    this.config.animation = popsUtils.getKeyFrames(
+    this.config.animation = PopsUtils.getKeyFrames(
       this.config.popsCSSElement.sheet
     );
   };
@@ -2958,7 +3073,7 @@
      */
     handleMask(details = {}) {
       let result = {
-        maskElement: popsUtils.parseTextToDOM(details.maskHTML),
+        maskElement: PopsUtils.parseTextToDOM(details.maskHTML),
       };
       /**
        * 点击其它区域的事件
@@ -2973,7 +3088,7 @@
         function originalRun() {
           if (details.config.mask.clickEvent.toClose) {
             /* 关闭 */
-            popsUtils.close(
+            PopsUtils.close(
               details.type,
               targetLayer,
               details.guid,
@@ -2982,7 +3097,7 @@
             );
           } else if (details.config.mask.clickEvent.toHide) {
             /* 隐藏 */
-            popsUtils.hide(
+            PopsUtils.hide(
               details.type,
               targetLayer,
               details.guid,
@@ -3193,7 +3308,7 @@
         function: mode,
         guid: guid,
         close() {
-          popsUtils.close(
+          PopsUtils.close(
             mode,
             pops.config.layer[mode],
             guid,
@@ -3202,7 +3317,7 @@
           );
         },
         hide() {
-          popsUtils.hide(
+          PopsUtils.hide(
             mode,
             pops.config.layer[mode],
             guid,
@@ -3212,7 +3327,7 @@
           );
         },
         show() {
-          popsUtils.show(
+          PopsUtils.show(
             mode,
             pops.config.layer[mode],
             guid,
@@ -3313,16 +3428,20 @@
     },
     /**
      * 处理config.only
-     * @param {"alert"|"confirm"|"prompt"|"loading"|"tooltip"|"iframe"|"drawer"|"folder"} type 当前弹窗类型
+     * @param {"alert"|"confirm"|"prompt"|"loading"|"tooltip"|"iframe"|"drawer"|"folder"|"rightClickMenu"} type 当前弹窗类型
      * @param {object} config 配置
      * @returns {object}
      */
     handleOnly(type, config) {
       if (config.only) {
-        if (type === "loading" || type === "tooltip") {
-          popsUtils.configRemove([pops.config.layer[type]], "", true);
+        if (
+          type === "loading" ||
+          type === "tooltip" ||
+          type === "rightClickMenu"
+        ) {
+          PopsUtils.configRemove([pops.config.layer[type]], "", true);
         } else {
-          popsUtils.configRemove(
+          PopsUtils.configRemove(
             [
               pops.config.layer.alert,
               pops.config.layer.confirm,
@@ -3337,7 +3456,7 @@
           );
         }
       } else {
-        config.zIndex = popsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
+        config.zIndex = PopsUtils.getPopsMaxZIndex(config.zIndex)["zIndex"] * 2;
       }
       return config;
     },
@@ -3627,7 +3746,7 @@
      * @returns {HTMLElement}
      */
     parseElement(html) {
-      return popsUtils.parseTextToDOM(html);
+      return PopsUtils.parseTextToDOM(html);
     },
   };
 
@@ -3664,16 +3783,6 @@
   /**
    * 普通信息框
    * @param { PopsAlertDetails } details 配置
-   * @returns {{
-   * guid: string,
-   * element: Element,
-   * animElement: HTMLElement,
-   * popsElement: Element,
-   * maskElement: Element,
-   * close: Function,
-   * hide: Function,
-   * show: Function,
-   * }}
    */
   pops.alert = function (details) {
     let that = this;
@@ -3732,8 +3841,8 @@
       drag: false,
       forbiddenScroll: false,
     };
-    config = popsUtils.assignJSON(config, details);
-    let guid = popsUtils.getRandomGUID();
+    config = PopsUtils.assignJSON(config, details);
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "alert";
     config = PopsHandler.handleOnly(PopsType, config);
 
@@ -3833,7 +3942,7 @@
     );
 
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -3846,7 +3955,7 @@
     });
     /* 拖拽 */
     if (config.drag) {
-      popsUtils.drag(popsElement, {
+      PopsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -3895,16 +4004,6 @@
   /**
    * 询问框
    * @param {PopsConfirmDetails} details
-   * @returns {{
-   * guid: string,
-   * element: HTMLElement,
-   * animElement: HTMLElement,
-   * popsElement: HTMLElement,
-   * maskElement: HTMLElement,
-   * close: Function,
-   * hide: Function,
-   * show: Function,
-   * }}
    */
   pops.confirm = function (details) {
     let that = this;
@@ -3990,8 +4089,8 @@
       drag: false,
       forbiddenScroll: false,
     };
-    config = popsUtils.assignJSON(config, details);
-    let guid = popsUtils.getRandomGUID();
+    config = PopsUtils.assignJSON(config, details);
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "confirm";
     config = PopsHandler.handleOnly(PopsType, config);
     let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
@@ -4099,7 +4198,7 @@
     );
 
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -4111,11 +4210,11 @@
     });
     /* 拖拽 */
     if (config.drag) {
-      popsUtils.drag(popsElement, {
+      PopsUtils.drag(popsElement, {
         handle: titleElement,
-        position: getComputedStyle(animElement).position,
-        top: getComputedStyle(animElement).top,
-        left: getComputedStyle(animElement).left,
+        position: getComputedStyle(popsElement).position,
+        top: getComputedStyle(popsElement).top,
+        left: getComputedStyle(popsElement).left,
         limit: true,
       });
     }
@@ -4162,16 +4261,6 @@
   /**
    * 输入框
    * @param {PopsPromptDetails} details
-   * @returns {{
-   * guid: string,
-   * element: Element,
-   * animElement: HTMLElement,
-   * popsElement: Element,
-   * maskElement: Element,
-   * close: Function,
-   * hide: Function,
-   * show: Function,
-   * }}
    */
   pops.prompt = function (details) {
     let that = this;
@@ -4260,8 +4349,8 @@
       drag: false,
       forbiddenScroll: false,
     };
-    config = popsUtils.assignJSON(config, details);
-    let guid = popsUtils.getRandomGUID();
+    config = PopsUtils.assignJSON(config, details);
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "prompt";
     config = PopsHandler.handleOnly(PopsType, config);
     let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
@@ -4384,7 +4473,7 @@
       config.btn.other.callback
     );
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -4396,7 +4485,7 @@
     });
     /* 拖拽 */
     if (config.drag) {
-      popsUtils.drag(popsElement, {
+      PopsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -4430,16 +4519,6 @@
   /**
    * 加载层
    * @param {PopsLoadingDetails} details
-   * @returns {{
-   * guid: string,
-   * element: Element,
-   * animElement: HTMLElement,
-   * popsElement: Element,
-   * maskElement: Element,
-   * close: Function,
-   * hide: Function,
-   * show: Function,
-   * }}
    */
   pops.loading = function (details) {
     let that = this;
@@ -4468,8 +4547,8 @@
       animation: "pops-anim-fadein-zoom",
       forbiddenScroll: false,
     };
-    config = popsUtils.assignJSON(config, details);
-    let guid = popsUtils.getRandomGUID();
+    config = PopsUtils.assignJSON(config, details);
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "loading";
     config = PopsHandler.handleOnly(PopsType, config);
     let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
@@ -4521,7 +4600,7 @@
       maskElement,
       config
     );
-    popsUtils.appendChild(config.parent, elementList);
+    PopsUtils.appendChild(config.parent, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -4590,16 +4669,6 @@
   /**
    * iframe层
    * @param {PopsIframeDetails} details
-   * @returns {{
-   * guid: string,
-   * element: Element,
-   * animElement: HTMLElement,
-   * popsElement: Element,
-   * maskElement: Element,
-   * close: Function,
-   * hide: Function,
-   * show: Function,
-   * }}
    */
   pops.iframe = function (details) {
     let that = this;
@@ -4656,11 +4725,11 @@
         },
       },
     };
-    config = popsUtils.assignJSON(config, details);
+    config = PopsUtils.assignJSON(config, details);
     if (config.url == null) {
       throw "config.url不能为空";
     }
-    let guid = popsUtils.getRandomGUID();
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "iframe";
     config = PopsHandler.handleOnly(PopsType, config);
     let maskExtraStyle =
@@ -4782,7 +4851,7 @@
       config.loadEndCallBack(eventDetails);
     });
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -4794,7 +4863,7 @@
     });
     /* 拖拽 */
     if (config.drag) {
-      popsUtils.drag(popsElement, {
+      PopsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -4864,7 +4933,7 @@
         }
       });
       allMinElementList.sort(
-        popsUtils.sortElementListByProperty(
+        PopsUtils.sortElementListByProperty(
           (obj) => {
             return parseInt(getComputedStyle(obj).left);
           },
@@ -4883,7 +4952,7 @@
     });
     /* 关闭按钮点击事件 */
     headerCloseBtnElement?.addEventListener("click", (event) => {
-      popsUtils.configRemove([that.config.layer.iframe], guid, false);
+      PopsUtils.configRemove([that.config.layer.iframe], guid, false);
       setTimeout(() => {
         let allIsMinElementList = [];
         pops.config.layer.iframe.forEach((item) => {
@@ -4895,7 +4964,7 @@
           }
         });
         allIsMinElementList.sort(
-          popsUtils.sortElementListByProperty(
+          PopsUtils.sortElementListByProperty(
             (obj) => {
               return parseInt(getComputedStyle(obj).left);
             },
@@ -4926,14 +4995,14 @@
    * + true 设置的triggerShowEventName、triggerCloseEventName将无效
    *        返回提供show和close函数，取消on和off
    * + false 返回提供on和off，取消close函数
-   * @property {string} [triggerShowEventName="mouseenter"] 触发显示事件的名称，默认mouseenter，如果是多个事件，按空格分割
-   * @property {string} [triggerCloseEventName="mouseleave"] 触发关闭事件的名称，默认mouseleave，如果是多个事件，按空格分割
+   * @property {string} [triggerShowEventName="mouseenter touchstart"] 触发显示事件的名称，默认mouseenter touchstart，如果是多个事件，按空格分割
+   * @property {string} [triggerCloseEventName="mouseleave touchend"] 触发关闭事件的名称，默认mouseleave touchend，如果是多个事件，按空格分割
    * @property {number} [zIndex=10000] z-index，默认10000
    * @property {boolean} [only=false] 是否唯一，默认false
    * @property {Function} triggerShowEventCallBack 触发显示事件的回调
    * @property {Function} triggerCloseEventCallBack 触发关闭事件的回调
-   * @property {number} [arrowDistance=12.5] 箭头与目标的的距离
-   * @property {number} [otherDistance=0] 其它的距离
+   * @property {number} [arrowDistance=12.5] 箭头与目标的的距离，默认12.5px
+   * @property {number} [otherDistance=0] 其它的距离，默认0px
    * 如：
    * 当position="left|right"，这个距离是上、下距离
    * 当position="top|bottom"，这个距离是左、右距离
@@ -4942,15 +5011,6 @@
   /**
    * 提示框
    * @param {PopsToolTipDetails} details
-   * @returns {{
-   * guid: string,
-   * config: PopsToolTipDetails,
-   * toolTipNode: HTMLElement,
-   * off: ?Function,
-   * on: ?Function,
-   * close: ?Function,
-   * show: ?Function,
-   * }}
    */
   pops.tooltip = function (details) {
     let that = this;
@@ -4964,20 +5024,20 @@
       position: "top",
       className: "",
       alwaysShow: false,
-      triggerShowEventName: "mouseenter",
-      triggerCloseEventName: "mouseleave",
+      triggerShowEventName: "mouseenter touchstart",
+      triggerCloseEventName: "mouseleave touchend",
       zIndex: 10000,
       only: false,
-      triggerShowEventCallBack: function () {},
-      triggerCloseEventCallBack: function () {},
+      triggerShowEventCallBack() {},
+      triggerCloseEventCallBack() {},
       arrowDistance: 12.5,
       otherDistance: 0,
     };
-    config = popsUtils.assignJSON(config, details);
+    config = PopsUtils.assignJSON(config, details);
     if (!(config.target instanceof HTMLElement)) {
       throw "config.target 必须是HTMLElement类型";
     }
-    let guid = popsUtils.getRandomGUID();
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "tooltip";
     config = PopsHandler.handleOnly(PopsType, config);
     function getContent() {
@@ -4986,31 +5046,35 @@
         : config.content;
     }
     /**
-     * 获取相应的元素
+     * 获取悬浮提示的元素信息
      */
-    function getToolTipNodeJSON() {
+    function getToolTipElementInfo() {
       let _toolTipHTML_ = `<div class="pops-tip"></div>`;
-      let _toolTipNode_ = popsUtils.parseTextToDOM(_toolTipHTML_);
-      _toolTipNode_.classList.add(config.className);
-      _toolTipNode_.setAttribute("data-guid", guid);
-      _toolTipNode_.style.zIndex = config.zIndex;
-      _toolTipNode_.innerHTML = `
+      let _toolTipElement_ = PopsUtils.parseTextToDOM(_toolTipHTML_);
+      if (
+        typeof config.className === "string" &&
+        config.className.trim() !== ""
+      ) {
+        PopsDOMUtils.addClassName(_toolTipElement_, config.className);
+      }
+      _toolTipElement_.setAttribute("data-guid", guid);
+      _toolTipElement_.style.zIndex = config.zIndex;
+      _toolTipElement_.innerHTML = `
       <div style="text-align: center;">${getContent()}</div>
       `;
-      /* 箭头 */
+      /* 箭头元素 */
       let _toolTipArrowHTML_ = '<div class="pops-tip-arrow"></div>';
-      let _toolTipArrowNode_ = popsUtils.parseTextToDOM(_toolTipArrowHTML_);
-      _toolTipNode_.appendChild(_toolTipArrowNode_);
+      let _toolTipArrowNode_ = PopsUtils.parseTextToDOM(_toolTipArrowHTML_);
+      _toolTipElement_.appendChild(_toolTipArrowNode_);
       return {
-        toolTipNode: _toolTipNode_,
+        toolTipElement: _toolTipElement_,
+        toolTipArrowElement: _toolTipArrowNode_,
         toolTipHTML: _toolTipHTML_,
         toolTipArrowHTML: _toolTipArrowHTML_,
-        toolTipArrowNode: _toolTipArrowNode_,
       };
     }
     config.position = config.position.toLowerCase();
-    let toolTipNodeJSON = getToolTipNodeJSON();
-    let toolTipNode = toolTipNodeJSON.toolTipNode;
+    let { toolTipElement } = getToolTipElementInfo();
 
     /**
      * 设置 提示框的位置
@@ -5019,10 +5083,10 @@
     function setToolTipPosition(positionDetails) {
       let positionDetail = positionDetails[config.position.toUpperCase()];
       if (positionDetail) {
-        toolTipNode.style.left = positionDetail.left + "px";
-        toolTipNode.style.top = positionDetail.top + "px";
-        toolTipNode.setAttribute("data-motion", positionDetail.motion);
-        toolTipNode
+        toolTipElement.style.left = positionDetail.left + "px";
+        toolTipElement.style.top = positionDetail.top + "px";
+        toolTipElement.setAttribute("data-motion", positionDetail.motion);
+        toolTipElement
           .querySelector(".pops-tip-arrow")
           .setAttribute("data-position", positionDetail.arrow);
       } else {
@@ -5032,58 +5096,50 @@
 
     /**
      * 获取 提示框的位置
+     * @param {HTMLElement} targetElement 目标元素
+     * @param {number} arrowDistance 箭头和目标元素的距离
+     * @param {number} otherDistance 其它位置的偏移
      */
-    function getToolTipPosition() {
+    function getToolTipPosition(targetElement, arrowDistance, otherDistance) {
+      let targetElement_width = PopsDOMUtils.offset(targetElement).width;
+      let targetElement_height = PopsDOMUtils.offset(targetElement).height;
+      let targetElement_top = PopsDOMUtils.offset(targetElement).top;
+      let targetElement_bottom = PopsDOMUtils.offset(targetElement).bottom;
+      let targetElement_left = PopsDOMUtils.offset(targetElement).left;
+      let targetElement_right = PopsDOMUtils.offset(targetElement).right;
+
+      let toolTipElement_width = PopsDOMUtils.width(toolTipElement);
+      let toolTipElement_height = PopsDOMUtils.height(toolTipElement);
+      /* 目标元素的x轴的中间位置 */
+      let targetElement_X_center_pos =
+        targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
+      /* 目标元素的Y轴的中间位置 */
+      let targetElement_Y_center_pos =
+        targetElement_top +
+        targetElement_height / 2 -
+        toolTipElement_height / 2;
       return {
         TOP: {
-          left:
-            popsUtils.jQuery.offset(config.target).left +
-            popsUtils.jQuery.width(config.target) / 2 -
-            popsUtils.jQuery.width(config.target) * 0.2 +
-            config.otherDistance,
-          top:
-            popsUtils.jQuery.offset(config.target).top -
-            popsUtils.jQuery.outerHeight(toolTipNode) -
-            config.arrowDistance,
+          left: targetElement_X_center_pos - otherDistance,
+          top: targetElement_top - toolTipElement_height - arrowDistance,
           arrow: "bottom",
           motion: "fadeInTop",
         },
         RIGHT: {
-          left:
-            popsUtils.jQuery.offset(config.target).left +
-            popsUtils.jQuery.outerWidth(config.target) +
-            config.arrowDistance,
-          top:
-            popsUtils.jQuery.offset(config.target).top +
-            popsUtils.jQuery.outerHeight(config.target) / 2 -
-            popsUtils.jQuery.outerHeight(toolTipNode) / 2 +
-            config.otherDistance,
+          left: targetElement_left + targetElement_width + arrowDistance,
+          top: targetElement_Y_center_pos + otherDistance,
           arrow: "left",
           motion: "fadeInRight",
         },
         BOTTOM: {
-          left:
-            popsUtils.jQuery.offset(config.target).left +
-            popsUtils.jQuery.outerWidth(config.target) / 2 -
-            popsUtils.jQuery.width(toolTipNode) * 0.2 +
-            config.otherDistance,
-          top:
-            popsUtils.jQuery.offset(config.target).top +
-            popsUtils.jQuery.outerHeight(config.target) +
-            config.arrowDistance,
+          left: targetElement_X_center_pos - otherDistance,
+          top: targetElement_top + targetElement_height + arrowDistance,
           arrow: "top",
           motion: "fadeInBottom",
         },
         LEFT: {
-          left:
-            popsUtils.jQuery.offset(config.target).left -
-            popsUtils.jQuery.outerWidth(toolTipNode) -
-            config.arrowDistance,
-          top:
-            popsUtils.jQuery.offset(config.target).top +
-            popsUtils.jQuery.outerHeight(config.target) / 2 -
-            popsUtils.jQuery.outerHeight(toolTipNode) / 2 +
-            config.otherDistance,
+          left: targetElement_left - toolTipElement_width - arrowDistance,
+          top: targetElement_Y_center_pos + otherDistance,
           arrow: "right",
           motion: "fadeInLeft",
         },
@@ -5093,29 +5149,35 @@
      * 显示提示框
      */
     let showToolTipNode = function () {
-      document.body.appendChild(toolTipNode);
-      setToolTipPosition(getToolTipPosition());
+      document.body.appendChild(toolTipElement);
+      setToolTipPosition(
+        getToolTipPosition(
+          config.target,
+          config.arrowDistance,
+          config.otherDistance
+        )
+      );
       if (typeof config.triggerShowEventCallBack === "function") {
-        config.triggerShowEventCallBack(toolTipNode);
+        config.triggerShowEventCallBack(toolTipElement);
       }
     };
     /**
      * 关闭提示框
      */
     let closeToolTipNode = function () {
-      toolTipNode.setAttribute(
+      toolTipElement.setAttribute(
         "data-motion",
-        toolTipNode.getAttribute("data-motion").replace("fadeIn", "fadeOut")
+        toolTipElement.getAttribute("data-motion").replace("fadeIn", "fadeOut")
       );
       if (typeof config.triggerCloseEventCallBack === "function") {
-        config.triggerCloseEventCallBack(toolTipNode);
+        config.triggerCloseEventCallBack(toolTipElement);
       }
     };
     /**
      * 绑定 显示事件
      */
     function onShowEvent() {
-      popsUtils.jQuery.on(
+      PopsDOMUtils.on(
         config.target,
         config.triggerShowEventName,
         null,
@@ -5126,7 +5188,7 @@
      * 绑定 关闭事件
      */
     function onCloseEvent() {
-      popsUtils.jQuery.on(
+      PopsDOMUtils.on(
         config.target,
         config.triggerCloseEventName,
         null,
@@ -5137,7 +5199,7 @@
      * 取消绑定 显示事件
      */
     function offShowEvent() {
-      popsUtils.jQuery.off(
+      PopsDOMUtils.off(
         config.target,
         null,
         config.triggerShowEventName,
@@ -5148,7 +5210,7 @@
      * 取消绑定 关闭事件
      */
     function offCloseEvent() {
-      popsUtils.jQuery.off(
+      PopsDOMUtils.off(
         config.target,
         null,
         config.triggerCloseEventName,
@@ -5160,10 +5222,10 @@
      * 即使存在动画属性，但是当前设置的动画Out结束后移除元素
      */
     function endEvent() {
-      if (toolTipNode.getAttribute("data-motion").includes("In")) {
+      if (toolTipElement.getAttribute("data-motion").includes("In")) {
         return;
       }
-      toolTipNode.remove();
+      toolTipElement.remove();
     }
     if (config.alwaysShow) {
       /* 总是显示 */
@@ -5171,11 +5233,11 @@
       return {
         guid: guid,
         config: config,
-        toolTipNode: toolTipNode,
+        toolTipNode: toolTipElement,
         show: showToolTipNode,
         close() {
-          popsUtils.jQuery.on(
-            toolTipNode,
+          PopsDOMUtils.on(
+            toolTipElement,
             [
               "webkitAnimationEnd",
               "mozAnimationEnd",
@@ -5188,6 +5250,8 @@
           );
           closeToolTipNode();
         },
+        off: null,
+        on: null,
       };
     } else {
       /* 事件触发才显示 */
@@ -5195,20 +5259,29 @@
       /**
        * 进入动画
        */
-      toolTipNode.addEventListener("mouseenter", function () {
-        if (parseInt(getComputedStyle(this)) > 0.5) {
-          this.style.animationPlayState = "paused";
+      PopsDOMUtils.on(
+        toolTipElement,
+        "mouseenter touchstart",
+        undefined,
+        function () {
+          if (parseInt(getComputedStyle(this)) > 0.5) {
+            this.style.animationPlayState = "paused";
+          }
         }
-      });
-
+      );
       /**
        * 退出动画
        */
-      toolTipNode.addEventListener("mouseleave", function () {
-        this.style.animationPlayState = "running";
-      });
-      popsUtils.jQuery.on(
-        toolTipNode,
+      PopsDOMUtils.on(
+        toolTipElement,
+        "mouseleave touchend",
+        undefined,
+        function () {
+          this.style.animationPlayState = "running";
+        }
+      );
+      PopsDOMUtils.on(
+        toolTipElement,
         [
           "webkitAnimationEnd",
           "mozAnimationEnd",
@@ -5225,7 +5298,9 @@
       return {
         guid: guid,
         config: config,
-        toolTipNode: toolTipNode,
+        toolTipNode: toolTipElement,
+        show: null,
+        close: null,
         off() {
           offShowEvent();
           offCloseEvent();
@@ -5361,8 +5436,8 @@
       closeDelay: 0,
       borderRadius: 0,
     };
-    config = popsUtils.assignJSON(config, details);
-    let guid = popsUtils.getRandomGUID();
+    config = PopsUtils.assignJSON(config, details);
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "drawer";
     config = PopsHandler.handleOnly(PopsType, config);
     let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
@@ -5520,7 +5595,7 @@
       }
     });
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     /* 先隐藏，然后显示根据config.openDelay来显示 */
     elementList.forEach((element) => {
       element.style.setProperty("display", "");
@@ -5744,11 +5819,11 @@
     Folder_ICON.ico = Folder_ICON.png;
     Folder_ICON.webp = Folder_ICON.png;
 
-    config = popsUtils.assignJSON(config, details);
+    config = PopsUtils.assignJSON(config, details);
     if (details?.folder) {
       config.folder = details.folder;
     }
-    let guid = popsUtils.getRandomGUID();
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "folder";
     config = PopsHandler.handleOnly(PopsType, config);
     let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
@@ -5910,7 +5985,7 @@
       config.btn.other.callback
     );
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     if (maskElement != null) {
       animElement.after(maskElement);
     }
@@ -5944,10 +6019,10 @@
         /* 文件 */
         fileIcon = "";
         if (typeof latestTime === "number") {
-          latestTime = popsUtils.formatTime(latestTime);
+          latestTime = PopsUtils.formatTime(latestTime);
         }
         if (typeof fileSize === "number") {
-          fileSize = popsUtils.formatByteToSize(fileSize);
+          fileSize = PopsUtils.formatByteToSize(fileSize);
         }
         for (let keyName in Folder_ICON) {
           if (fileName.toLowerCase().endsWith("." + keyName)) {
@@ -6029,10 +6104,10 @@
         /* 文件 */
         fileIcon = "";
         if (typeof latestTime === "number") {
-          latestTime = popsUtils.formatTime(latestTime);
+          latestTime = PopsUtils.formatTime(latestTime);
         }
         if (typeof fileSize === "number") {
-          fileSize = popsUtils.formatByteToSize(fileSize);
+          fileSize = PopsUtils.formatByteToSize(fileSize);
         }
         for (let keyName in Folder_ICON) {
           if (fileName.toLowerCase().endsWith("." + keyName)) {
@@ -6176,7 +6251,7 @@
           breadcrumbAllFilesElement
         );
         /* 设置顶部导航点击事件 */
-        popsUtils.jQuery.on(
+        PopsDOMUtils.on(
           breadcrumbAllFilesElement,
           "click",
           undefined,
@@ -6202,7 +6277,7 @@
      * }} _config_
      */
     function setFileClickEvent(targetElement, _config_) {
-      popsUtils.jQuery.on(
+      PopsDOMUtils.on(
         targetElement,
         "click",
         undefined,
@@ -6257,7 +6332,7 @@
           let { folderELement, fileNameElement } = pops.isPhone()
             ? createMobileFolderRowElement(item["fileName"])
             : createFolderRowElement(item["fileName"]);
-          popsUtils.jQuery.on(
+          PopsDOMUtils.on(
             fileNameElement,
             "click",
             undefined,
@@ -6290,7 +6365,7 @@
     );
     allFilesElement._config_ = config.folder;
     /* 设置点击顶部的全部文件事件 */
-    popsUtils.jQuery.on(allFilesElement, "click", undefined, function (event) {
+    PopsDOMUtils.on(allFilesElement, "click", undefined, function (event) {
       breadcrumbAllFilesElementClickEvent(event, true, config.folder);
     });
 
@@ -6302,11 +6377,11 @@
     });
     /* 拖拽 */
     if (config.drag) {
-      popsUtils.drag(popsElement, {
+      PopsUtils.drag(popsElement, {
         handle: titleElement,
-        position: getComputedStyle(animElement).position,
-        top: getComputedStyle(animElement).top,
-        left: getComputedStyle(animElement).left,
+        position: getComputedStyle(popsElement).position,
+        top: getComputedStyle(popsElement).top,
+        left: getComputedStyle(popsElement).left,
         limit: true,
       });
     }
@@ -6445,16 +6520,6 @@
   /**
    * 配置面板
    * @param { PopsPanelDetails } details 配置
-   * @returns {{
-   * guid: string,
-   * element: Element,
-   * animElement: HTMLElement,
-   * popsElement: Element,
-   * maskElement: Element,
-   * close: Function,
-   * hide: Function,
-   * show: Function,
-   * }}
    */
   pops.panel = function (details) {
     let that = this;
@@ -6668,11 +6733,11 @@
       drag: false,
       forbiddenScroll: false,
     };
-    config = popsUtils.assignJSON(config, details);
+    config = PopsUtils.assignJSON(config, details);
     if (details && Array.isArray(details.content)) {
       config.content = details.content;
     }
-    let guid = popsUtils.getRandomGUID();
+    let guid = PopsUtils.getRandomGUID();
     const PopsType = "panel";
     config = PopsHandler.handleOnly(PopsType, config);
 
@@ -6724,7 +6789,7 @@
       contentSectionContainerElement,
     } = PopsHandler.handleQueryElement(animElement, PopsType);
     if (pops.isPhone()) {
-      popsElement.classList.add(config.mobileClassName);
+      PopsDOMUtils.addClassName(popsElement, config.mobileClassName);
     }
     /**
      * 遮罩层元素
@@ -6768,7 +6833,7 @@
     );
 
     /* 创建到页面中 */
-    popsUtils.appendChild(document.body, elementList);
+    PopsUtils.appendChild(document.body, elementList);
     /* 追加遮罩层元素 */
     if (maskElement != null) {
       animElement.after(maskElement);
@@ -6830,7 +6895,7 @@
         contentAsideElement
           .querySelectorAll(".pops-is-visited")
           .forEach((element) => {
-            element.classList.remove("pops-is-visited");
+            PopsDOMUtils.removeClassName(element, "pops-is-visited");
           });
       },
       /**
@@ -6838,7 +6903,7 @@
        * @param {HTMLElement} element
        */
       setAsideItemIsVisited(element) {
-        element.classList.add("pops-is-visited");
+        PopsDOMUtils.addClassName(element, "pops-is-visited");
       },
       /**
        * 为元素添加自定义属性
@@ -6902,9 +6967,15 @@
         ) {
           switchInputElement.checked = Boolean(checked);
           if (checked) {
-            switchElement.classList.add("pops-panel-switch-is-checked");
+            PopsDOMUtils.addClassName(
+              switchElement,
+              "pops-panel-switch-is-checked"
+            );
           } else {
-            switchElement.classList.remove("pops-panel-switch-is-checked");
+            PopsDOMUtils.removeClassName(
+              switchElement,
+              "pops-panel-switch-is-checked"
+            );
           }
         }
         let liElement = document.createElement("li");
@@ -6938,14 +7009,17 @@
         );
         let switched = Boolean(formConfig.getValue());
         setSwitchChecked(switchElement, switchInputElement, switched);
-        popsUtils.jQuery.on(
+        PopsDOMUtils.on(
           switchCoreElement,
           "click",
           undefined,
           function (event) {
             let checkedValue = false;
             if (
-              !switchElement.classList.contains("pops-panel-switch-is-checked")
+              !PopsDOMUtils.containsClassName(
+                switchElement,
+                "pops-panel-switch-is-checked"
+              )
             ) {
               checkedValue = true;
             }
@@ -7006,8 +7080,6 @@
           content: getToolTipContent(rangeInputElement.value),
           zIndex: 1000000,
           className: "github-tooltip",
-          triggerShowEventName: "mouseenter touchstart",
-          triggerCloseEventName: "mouseleave touchend",
           triggerShowEventCallBack(toolTipNode) {
             toolTipNode.querySelector("div").innerText = getToolTipContent(
               rangeInputElement.value
@@ -7016,9 +7088,9 @@
           alwaysShow: false,
           only: false,
           position: "top",
-          otherDistance: 0,
+          arrowDistance: 20,
         });
-        popsUtils.jQuery.on(
+        PopsDOMUtils.on(
           rangeInputElement,
           ["input", "propertychange"],
           undefined,
@@ -7041,7 +7113,7 @@
       getSectionContainerItem_input(formConfig) {
         function setCircleClearIconSVG(targetElement, inputElement) {
           targetElement.innerHTML = pops.config.iconSVG.circleClose;
-          popsUtils.jQuery.on(targetElement, "click", undefined, function () {
+          PopsDOMUtils.on(targetElement, "click", undefined, function () {
             /* 清空内容 */
             inputElement.value = "";
             targetElement.innerHTML = "";
@@ -7081,7 +7153,7 @@
         /* 如果是密码框，放进图标 */
         if (formConfig.isPassword) {
           iElement.innerHTML = pops.config.iconSVG.view;
-          popsUtils.jQuery.on(iElement, "click", undefined, function () {
+          PopsDOMUtils.on(iElement, "click", undefined, function () {
             iElement.innerHTML = "";
             if (isView) {
               isView = false;
@@ -7101,7 +7173,7 @@
           setCircleClearIconSVG(iElement, inputElement);
         }
         /* 监听内容改变 */
-        popsUtils.jQuery.on(
+        PopsDOMUtils.on(
           inputElement,
           ["input", "propertychange"],
           undefined,
@@ -7154,7 +7226,7 @@
         );
         textAreaElement.value = formConfig.getValue();
         /* 监听内容改变 */
-        popsUtils.jQuery.on(
+        PopsDOMUtils.on(
           textAreaElement,
           ["input", "propertychange"],
           undefined,
@@ -7206,23 +7278,18 @@
           selectElement.appendChild(optionElement);
         });
         /* 监听选择内容改变 */
-        popsUtils.jQuery.on(
-          selectElement,
-          "change",
-          undefined,
-          function (event) {
-            if (typeof formConfig.callback === "function") {
-              /**
-               * @type {HTMLOptionElement}
-               */
-              let isSelectedElement = event.target[event.target.selectedIndex];
-              let isSelectedValue = isSelectedElement.__value__;
-              let isSelectedText =
-                isSelectedElement.innerText || isSelectedElement.textContent;
-              formConfig.callback(event, isSelectedValue, isSelectedText);
-            }
+        PopsDOMUtils.on(selectElement, "change", undefined, function (event) {
+          if (typeof formConfig.callback === "function") {
+            /**
+             * @type {HTMLOptionElement}
+             */
+            let isSelectedElement = event.target[event.target.selectedIndex];
+            let isSelectedValue = isSelectedElement.__value__;
+            let isSelectedText =
+              isSelectedElement.innerText || isSelectedElement.textContent;
+            formConfig.callback(event, isSelectedValue, isSelectedText);
           }
-        );
+        });
         return liElement;
       },
       /**
@@ -7281,16 +7348,11 @@
         `;
 
         let buttonElement = liElement.querySelector("button");
-        popsUtils.jQuery.on(
-          buttonElement,
-          "click",
-          undefined,
-          function (event) {
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event);
-            }
+        PopsDOMUtils.on(buttonElement, "click", undefined, function (event) {
+          if (typeof formConfig.callback === "function") {
+            formConfig.callback(event);
           }
-        );
+        });
 
         return liElement;
       },
@@ -7350,7 +7412,7 @@
        */
       setAsideItemClickEvent(asideLiElement, asideConfig) {
         let that = this;
-        popsUtils.jQuery.on(asideLiElement, "click", undefined, function () {
+        PopsDOMUtils.on(asideLiElement, "click", undefined, function () {
           that.clearContainer();
           that.clearAsideItemIsVisited();
           that.setAsideItemIsVisited(asideLiElement);
@@ -7378,7 +7440,10 @@
                 "pops-panel-forms-container-item";
               formContainerElement.innerHTML = `<div>${formConfig["text"]}</div>`;
               if (formConfig.className) {
-                formContainerElement.classList.add(formConfig.className);
+                PopsDOMUtils.addClassName(
+                  formContainerElement,
+                  formConfig.className
+                );
               }
               that.addElementAttributes(
                 formContainerElement,
@@ -7410,10 +7475,7 @@
             let contentContainerOffset =
               asideConfig.contentContainerOffset ?? 0;
             /* 获取标题的<ul>元素的高度 */
-            /* popsUtils.jQuery.height(
-              that.sectionContainerHeaderULElement
-            ) */
-            let sectionContainerHeaderULElementHeight = popsUtils.jQuery.height(
+            let sectionContainerHeaderULElementHeight = PopsDOMUtils.height(
               that.sectionContainerHeaderULElement
             );
             that.sectionContainerULElement.style.setProperty(
@@ -7437,7 +7499,7 @@
     });
     /* 拖拽 */
     if (config.drag) {
-      popsUtils.drag(popsElement, {
+      PopsUtils.drag(popsElement, {
         handle: titleElement,
         position: getComputedStyle(popsElement).position,
         top: getComputedStyle(popsElement).top,
@@ -7447,5 +7509,529 @@
     }
     return PopsHandler.handleResultDetails(eventDetails);
   };
+
+  /**
+   * @typedef {object} PopsRightClickMenuDataDetails
+   * @property {string} icon svg图标
+   * @property {boolean} iconIsLoading 图标是否旋转
+   * @property {string|()=> string} text 文字
+   * @property {(event:Event, contextMenuEvent: Event, liElement: HTMLLIElement)=> boolean|undefined} callback 点击的回调函数
+   * @property {?PopsRightClickMenuDataDetails[]} item 子项配置
+   */
+  /**
+   * @typedef {object} PopsRightClickMenuDetails
+   * @property {HTMLElement} [target=document.documentElement] 目标，默认为document.documentElement
+   * @property {?string} targetSelector 目标的子元素选择器，默认为空
+   * @property {PopsRightClickMenuDataDetails[]} data 数据
+   * @property {string} [className=""] 自定义className，默认为空
+   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
+   * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
+   * @property {boolean} [preventDefault=true] 是否阻止默认contextmenu事件
+   */
+  /**
+   * 右键菜单
+   * @param { PopsRightClickMenuDetails } details 配置
+   */
+  pops.rightClickMenu = function (details) {
+    let that = this;
+    PopsHandler.handleInit();
+    /**
+     * @type {PopsRightClickMenuDetails}
+     */
+    let config = {
+      target: document.documentElement,
+      targetSelector: undefined,
+      data: [
+        {
+          icon: pops.config.iconSVG.search,
+          iconIsLoading: false,
+          text: "搜索",
+          callback(event) {
+            console.log("点击：" + this.text, event);
+          },
+        },
+        {
+          icon: pops.config.iconSVG.documentCopy,
+          iconIsLoading: false,
+          text: "复制",
+          callback(event) {
+            console.log("点击：" + this.text, event);
+          },
+        },
+        {
+          icon: pops.config.iconSVG.delete,
+          text: "删除",
+          iconIsLoading: false,
+          callback(event) {
+            console.log("点击：" + this.text, event);
+          },
+        },
+        {
+          icon: pops.config.iconSVG.loading,
+          iconIsLoading: true,
+          text: "加载",
+          callback(event) {
+            console.log("点击：" + this.text, event);
+            return false;
+          },
+        },
+        {
+          icon: pops.config.iconSVG.elemePlus,
+          iconIsLoading: true,
+          text: "饿了么",
+          callback(event) {
+            console.log("点击：" + this.text, event);
+            return false;
+          },
+          item: [
+            {
+              icon: "",
+              iconIsLoading: false,
+              text: "处理文件",
+              callback(event) {
+                console.log("点击：" + this.text, event);
+              },
+            },
+            {
+              icon: "",
+              iconIsLoading: false,
+              text: "其它处理",
+              callback(event) {
+                console.log("点击：" + this.text, event);
+                return false;
+              },
+              item: [
+                {
+                  icon: pops.config.iconSVG.view,
+                  iconIsLoading: false,
+                  text: "查看",
+                  callback(event) {
+                    console.log("点击：" + this.text, event);
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      className: "",
+      only: false,
+      zIndex: 10000,
+      preventDefault: true,
+    };
+    config = PopsUtils.assignJSON(config, details);
+    if (config.target == null) {
+      throw "config.target 不能为空";
+    }
+    if (details.data) {
+      config.data = details.data;
+    }
+    let guid = PopsUtils.getRandomGUID();
+    const PopsType = "rightClickMenu";
+    config = PopsHandler.handleOnly(PopsType, config);
+
+    const PopsContextMenu = {
+      /**
+       * 根元素
+       * @type {?HTMLElement}
+       */
+      rootElement: null,
+      /**
+       * 全局点击检测
+       * @param {Event} event
+       */
+      windowCheckClick(event) {
+        if (!PopsContextMenu.rootElement) {
+          return;
+        }
+        if (event.target.closest(`.pops-${PopsType}`)) {
+          return;
+        }
+        PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+      },
+      /**
+       * 添加全局点击检测事件
+       */
+      addWindowCheckClickListener() {
+        PopsDOMUtils.on(
+          globalThis,
+          "click touchstart",
+          undefined,
+          PopsContextMenu.windowCheckClick,
+          {
+            capture: true,
+          }
+        );
+      },
+      /**
+       * 移除全局点击检测事件
+       */
+      removeWindowCheckClickListener() {
+        PopsDOMUtils.off(
+          globalThis,
+          "click touchstart",
+          undefined,
+          PopsContextMenu.windowCheckClick,
+          {
+            capture: true,
+          }
+        );
+      },
+      /**
+       * 添加contextmenu事件
+       * @param {HTMLElement|globalThis|Window} target 目标
+       * @param {?string} selector 子元素选择器
+       * @param {boolean} [preventDefault=true] 是否阻止默认事件触发
+       */
+      addContextMenuEvent(target, selector, preventDefault = true) {
+        PopsDOMUtils.on(target, "contextmenu", selector, function (event) {
+          if (preventDefault) {
+            PopsUtils.preventEvent(event);
+          }
+          if (PopsContextMenu.rootElement) {
+            PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+          }
+          PopsContextMenu.rootElement = PopsContextMenu.showMenu(
+            event,
+            config.data
+          );
+        });
+      },
+      /**
+       * 移除contextmenu事件
+       * @param {HTMLElement|globalThis|Window} target 目标
+       */
+      removeContextMenuEvent(target) {
+        PopsDOMUtils.off(target, "contextmenu");
+      },
+
+      /**
+       * 关闭所有菜单
+       * @param {HTMLElement} rootElement
+       */
+      closeAllMenu(rootElement) {
+        if (rootElement?.__menuData__?.root) {
+          rootElement = rootElement?.__menuData__?.root;
+        }
+        rootElement.__menuData__.child.forEach((element) => {
+          element.remove();
+        });
+        rootElement.remove();
+        PopsContextMenu.rootElement = null;
+      },
+      /**
+       * 获取菜单容器
+       * @param {number} zIndex z-index值
+       * @param {boolean} isChildren 是否是rightClickMenu的某一项的子菜单
+       */
+      getMenuContainerElement(zIndex, isChildren) {
+        return PopsUtils.parseTextToDOM(`
+        <div class="pops-${PopsType}" ${isChildren ? 'is-children="true"' : ""}>
+          <style type="text/css" data-from="pops-${PopsType}">
+          .pops-${PopsType}{
+            position: fixed;
+            z-index: ${zIndex};
+            text-align: center;
+            padding: 3px 0px;
+            border-radius: 3px;
+            font-size: 16px;
+            font-weight: 500;
+            background: #fff;
+            box-shadow: 0px 1px 6px 1px #cacaca;
+          }
+          .pops-${PopsType}-is-visited{
+            background: #dfdfdf;
+          }
+          i.pops-${PopsType}-icon {
+            height: 1em;
+            width: 1em;
+            line-height: 1em;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            fill: currentColor;
+            color: inherit;
+            font-size: inherit;
+            margin-right: 6px;
+          }
+          i.pops-${PopsType}-icon[is-loading="true"]{
+            animation: rotating 2s linear infinite;
+          }
+          .pops-${PopsType} li:hover{background:#dfdfdf;cursor:pointer}
+          .pops-${PopsType} ul{margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+          .pops-${PopsType} ul li {
+            padding: 5px 10px;
+            display: flex;
+            width: -webkit-fill-available;
+            width: -moz-available;
+            text-align: left;
+            margin: 2.5px 5px;
+            border-radius: 3px;
+            user-select: none;
+            align-items: center;
+          }
+          </style>
+          <ul></ul>
+        </div>
+        `);
+      },
+      /**
+       * 获取left、top偏移
+       * @param {HTMLElement} menuElement 菜单元素
+       * @param {number} x
+       * @param {number} y
+       */
+      getOffset(menuElement, x, y) {
+        /* left最大偏移 */
+        let maxLeftOffset =
+          PopsDOMUtils.width(globalThis) - PopsDOMUtils.width(menuElement) - 1;
+        /* top最大偏移 */
+        let maxTopOffset =
+          PopsDOMUtils.height(globalThis) -
+          PopsDOMUtils.height(menuElement) -
+          8;
+
+        let currentLeftOffset = x;
+        let currentTopOffset = y;
+        /* 不允许超出left最大值 */
+        currentLeftOffset = currentLeftOffset < 0 ? 0 : currentLeftOffset;
+        currentLeftOffset =
+          currentLeftOffset < maxLeftOffset ? currentLeftOffset : maxLeftOffset;
+        /* 不允许超出top最大值 */
+        currentTopOffset = currentTopOffset < 0 ? 0 : currentTopOffset;
+        currentTopOffset =
+          currentTopOffset < maxTopOffset ? currentTopOffset : maxTopOffset;
+        return {
+          left: currentLeftOffset,
+          top: currentTopOffset,
+        };
+      },
+      /**
+       * 显示菜单
+       * @param {{
+       * clientX: number,
+       * clientY: number,
+       * target: HTMLElement
+       * }|Event} posInfo 信息
+       * @param {PopsRightClickMenuDataDetails[]} _config_
+       */
+      showMenu(posInfo, _config_) {
+        let menuElement = this.getMenuContainerElement(config.zIndex, false);
+        menuElement.__menuData__ = {
+          child: [],
+        };
+        PopsContextMenu.addMenuLiELement(
+          posInfo,
+          menuElement,
+          menuElement,
+          _config_
+        );
+        /* 先隐藏 */
+        PopsDOMUtils.css(menuElement, {
+          display: "none",
+        });
+        /* 添加到页面 */
+        document.body.appendChild(menuElement);
+        let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(
+          menuElement,
+          posInfo.clientX,
+          posInfo.clientY
+        );
+        PopsDOMUtils.css(menuElement, {
+          left: menuLeftOffset,
+          top: menuTopOffset,
+          display: "",
+        });
+        return menuElement;
+      },
+      /**
+       * 显示子菜单
+       * @param {{
+       * clientX: number,
+       * clientY: number,
+       * target: HTMLElement
+       * }|Event} posInfo 信息
+       * @param {PopsRightClickMenuDataDetails[]} _config_
+       * @param {?HTMLDivElement} rootElement 根菜单元素
+       * @param {?HTMLLIElement} targetLiElement 父li项元素
+       */
+      showClildMenu(posInfo, _config_, rootElement, targetLiElement) {
+        let menuElement = this.getMenuContainerElement(config.zIndex, true);
+        menuElement.__menuData__ = {
+          parent: targetLiElement,
+          root: rootElement,
+        };
+        rootElement.__menuData__.child.push(menuElement);
+        PopsContextMenu.addMenuLiELement(
+          posInfo,
+          rootElement,
+          menuElement,
+          _config_
+        );
+        /* 先隐藏 */
+        PopsDOMUtils.css(menuElement, {
+          display: "none",
+        });
+        /* 添加到页面 */
+        document.body.appendChild(menuElement);
+        let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(
+          menuElement,
+          posInfo.clientX,
+          posInfo.clientY
+        );
+        PopsDOMUtils.css(menuElement, {
+          left: menuLeftOffset,
+          top: menuTopOffset,
+          display: "",
+        });
+        return menuElement;
+      },
+      /**
+       * 获取菜单项的元素
+       * @param {{
+       * clientX: number,
+       * clientY: number,
+       * target: HTMLElement
+       * }|Event} posInfo 信息
+       * @param {HTMLElement} rootElement
+       * @param {HTMLDivElement} menuElement
+       * @param {PopsRightClickMenuDataDetails[]} _config_
+       */
+      addMenuLiELement(posInfo, rootElement, menuElement, _config_) {
+        let menuULElement = menuElement.querySelector("ul");
+        _config_.forEach((item) => {
+          /**
+           * @type {HTMLLIElement}
+           */
+          let menuLiElement = PopsUtils.parseTextToDOM(`
+          <li></li>
+          `);
+          /* 判断有无图标，有就添加进去 */
+          if (typeof item.icon === "string" && item.icon.trim() !== "") {
+            let iconSVGHTML = pops.config.iconSVG[item.icon] ?? item.icon;
+            let iconElement = PopsUtils.parseTextToDOM(
+              `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
+            );
+            menuLiElement.appendChild(iconElement);
+          }
+          /* 插入文字 */
+          menuLiElement.insertAdjacentHTML(
+            "beforeend",
+            `<span>${item.text}</span>`
+          );
+          /* 如果存在子数据，显示 */
+          if (item.item && Array.isArray(item.item)) {
+            PopsDOMUtils.addClassName(menuLiElement, `pops-${PopsType}-item`);
+          }
+          /* 鼠标|触摸 移入事件 */
+          PopsDOMUtils.on(
+            menuLiElement,
+            "mouseenter touchstart",
+            undefined,
+            function () {
+              Array.from(menuULElement.children).forEach((liElement) => {
+                PopsDOMUtils.removeClassName(
+                  liElement,
+                  `pops-${PopsType}-is-visited`
+                );
+                if (!liElement.__menuData__) {
+                  return;
+                }
+                for (
+                  let index = 0;
+                  index < rootElement.__menuData__.child.length;
+                  index++
+                ) {
+                  let element = rootElement.__menuData__.child[index];
+                  if (element == liElement.__menuData__.child) {
+                    element.remove();
+                    delete liElement.__menuData__;
+                    rootElement.__menuData__.child.splice(index, 1);
+                    index--;
+                  }
+                }
+              });
+              PopsDOMUtils.addClassName(
+                menuLiElement,
+                `pops-${PopsType}-is-visited`
+              );
+              if (!item.item) {
+                return;
+              }
+              let rect = menuLiElement.getBoundingClientRect();
+
+              let childMenu = PopsContextMenu.showClildMenu(
+                {
+                  clientX: rect.left + PopsDOMUtils.outerWidth(menuLiElement),
+                  clientY: rect.top,
+                  target: posInfo.target,
+                },
+                item.item,
+                rootElement,
+                menuLiElement
+              );
+              menuLiElement.__menuData__ = {
+                child: childMenu,
+              };
+            }
+          );
+          /* popsUtils.jQuery.on(
+            menuLiElement,
+            "mouseleave touchend",
+            undefined,
+            function (event) {
+              if(!menuLiElement.__menuData__){
+                return;
+              }
+              
+            }
+          ); */
+          /* 项-点击事件 */
+          PopsDOMUtils.on(
+            menuLiElement,
+            "click",
+            undefined,
+            async function (event) {
+              if (typeof item.callback === "function") {
+                let callbackResult = await item.callback(
+                  event,
+                  posInfo,
+                  menuLiElement
+                );
+                if (
+                  typeof callbackResult === "boolean" &&
+                  callbackResult == false
+                ) {
+                  return;
+                }
+              }
+              PopsContextMenu.closeAllMenu(rootElement);
+            }
+          );
+
+          menuULElement.appendChild(menuLiElement);
+        });
+      },
+    };
+
+    PopsContextMenu.addContextMenuEvent(
+      config.target,
+      config.targetSelector,
+      config.preventDefault
+    );
+    PopsContextMenu.addWindowCheckClickListener();
+
+    return {
+      guid: guid,
+      config: config,
+      removeWindowCheckClickListener:
+        PopsContextMenu.removeWindowCheckClickListener,
+      addWindowCheckClickListener: PopsContextMenu.addWindowCheckClickListener,
+      removeContextMenuEvent: PopsContextMenu.removeContextMenuEvent,
+      addContextMenuEvent: PopsContextMenu.addContextMenuEvent,
+    };
+  };
+
   return pops;
 });
