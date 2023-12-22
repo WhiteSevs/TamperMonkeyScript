@@ -3,13 +3,14 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/479590
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         https://favicon.yandex.net/favicon/v2/https://party.163.com/?size=32
-// @version      2023.12.15
+// @version      2023.12.22
 // @description  由于有些链接用小窗模式的浏览器打开，会提示切换到竖屏，特此模拟竖屏
 // @author       WhiteSevs
 // @license      GPL-3.0-only
 // @match        https://eggy.163.com/*
 // @match        https://igame.qq.com/*
 // @match        https://*.eggygogame.com/*
+// @match        https://*.eggy-go.com/*
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
@@ -79,6 +80,10 @@
     },
     {
       href: "https://.*.eggygogame.com",
+      hijackOrientation: true,
+    },
+    {
+      href: "https://.*.eggy-go.com",
       hijackOrientation: true,
     },
   ];
