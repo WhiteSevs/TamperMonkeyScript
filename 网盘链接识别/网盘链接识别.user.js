@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.22.19
+// @version      2023.12.22.20
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1964,6 +1964,8 @@
       tianyiyun: function () {
         let that = this;
         let shareId = null;
+        /* 猜测1是有密码，2是无密码 */
+        let shareMode = 1;
         this.code = {
           ShareNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在。",
           ShareAuditNotPass: "抱歉，该内容审核不通过",
@@ -2015,6 +2017,9 @@
             shareId = shareInfoData["shareId"];
           } else {
             shareId = await that.getShareId(shareCode, accessCode);
+          }
+          if ("shareMode" in shareInfoData) {
+            shareMode = shareInfoData["shareMode"];
           }
           if (shareId == null) {
             return;
@@ -2078,6 +2083,45 @@
           }
         };
         /**
+         * 获取当前登录用户的信息
+         * @returns {Promise<?{
+         * encryptAccount: string,
+         * icon: string,
+         * nickname: string,
+         * res_code: string,
+         * res_message: string,
+         * sessionKey: string,
+         * userAccount: string
+         * }>}
+         */
+        this.getUserBriefInfo = async function (shareCode) {
+          let getResp = await httpx.get(
+            "https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action",
+            {
+              headers: {
+                Accept: "application/json;charset=UTF-8",
+                Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
+                "User-Agent": utils.getRandomPCUA(),
+              },
+              onerror() {},
+            }
+          );
+          log.info(getResp);
+          if (!getResp.status) {
+            let errorResultJSON = utils.toJSON(getResp.data.responseText);
+            if (errorResultJSON["res_code"] in that.code) {
+              Qmsg.error(that.code[errorResultJSON["res_code"]]);
+            } else {
+              Qmsg.error("请求异常");
+            }
+            return;
+          }
+          let data = utils.toJSON(getResp.data.responseText);
+          if (data["res_code"] === 0) {
+            return data;
+          }
+        };
+        /**
          * 获取分享信息
          * @param {string} shareCode
          * @returns
@@ -2090,6 +2134,7 @@
               Accept: "application/json;charset=UTF-8",
               "Content-Type": "application/x-www-form-urlencoded",
               "User-Agent": utils.getRandomPCUA(),
+              "Sign-Type": 1,
               Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
               Origin: "https://cloud.189.cn",
             },
@@ -2124,11 +2169,12 @@
          */
         this.getShareId = async function (shareCode, accessCode) {
           let getResp = await httpx.get({
-            url: `https://cloud.189.cn/api/open/share/checkAccessCode.action?noCache=${that.getNoCacheValue()}&shareCode=${shareCode}&accessCode=${accessCode}`,
+            url: `https://cloud.189.cn/api/open/share/checkAccessCode.action?shareCode=${shareCode}&accessCode=${accessCode}`,
             headers: {
               Accept: "application/json;charset=UTF-8",
               "Cache-Control": "no-cache",
               "User-Agent": utils.getRandomPCUA(),
+              "Sign-Type": 1,
               Referer: `https://cloud.189.cn/web/share?code=${shareCode}`,
             },
             responseType: "json",
@@ -2172,12 +2218,13 @@
           shareId
         ) {
           let getResp = await httpx.get({
-            url: `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?noCache=${that.getNoCacheValue()}&fileId=${fileId}&dt=1&shareId=${shareId}`,
+            url: `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?fileId=${fileId}&dt=1&shareId=${shareId}`,
             headers: {
               Accept: "application/json;charset=UTF-8",
               "Cache-Control": "no-cache",
               "User-Agent": utils.getRandomPCUA(),
               Referer: `https://cloud.189.cn/web/share?code=${shareCode}`,
+              "Sign-Type": 1,
             },
             responseType: "json",
             onerror() {},
@@ -2187,23 +2234,25 @@
             let errorResultJSON = utils.toJSON(getResp.data.responseText);
             if (errorResultJSON["errorCode"] === "InvalidSessionKey") {
               that.gotoLogin(that.code["InvalidSessionKey"]);
+            } else if (errorResultJSON["res_code"] in that.code) {
+              Qmsg.error(that.code[errorResultJSON["res_code"]]);
             } else {
               Qmsg.error("请求异常");
             }
             return;
           }
           let respData = getResp.data;
-          let jsonData = utils.toJSON(respData.responseText);
-          log.info(jsonData);
-          if (jsonData["res_code"] === 0) {
-            return jsonData["fileDownloadUrl"];
+          let data = utils.toJSON(respData.responseText);
+          log.info(data);
+          if (data["res_code"] === 0) {
+            return data["fileDownloadUrl"];
           } else if (
-            "InvalidSessionKey" === jsonData["res_code"] ||
-            "InvalidSessionKey" === jsonData["errorCode"]
+            "InvalidSessionKey" === data["res_code"] ||
+            "InvalidSessionKey" === data["errorCode"]
           ) {
             that.gotoLogin(that.code["InvalidSessionKey"]);
-          } else if (that.code.hasOwnProperty(jsonData["res_code"])) {
-            Qmsg.error(that.code[jsonData["res_code"]]);
+          } else if (that.code.hasOwnProperty(data["res_code"])) {
+            Qmsg.error(that.code[data["res_code"]]);
           } else {
             Qmsg.error("请求失败");
             log.error(respData);
@@ -2250,22 +2299,23 @@
           shareCode,
           accessCode,
           pageNum = 1,
-          pageSize = 100,
+          pageSize = 60,
           fileId,
           shareDirFileId,
           isFolder = true,
           shareId,
-          shareMode = 1,
           iconOption = 5,
           orderBy = "lastOpTime",
           descending = true
         ) {
+          /* Sessionkey: Sessionkey */
           let getResp = await httpx.get(
-            `https://cloud.189.cn/api/open/share/listShareDir.action?noCache=${that.getNoCacheValue()}&pageNum=${pageNum}&pageSize=${pageSize}&fileId=${fileId}&shareDirFileId=${shareDirFileId}&isFolder=${isFolder}&shareId=${shareId}&shareMode=${shareMode}&iconOption=${iconOption}&orderBy=${orderBy}&descending=${descending}&accessCode=${accessCode}`,
+            `https://cloud.189.cn/api/open/share/listShareDir.action?pageNum=${pageNum}&pageSize=${pageSize}&fileId=${fileId}&shareDirFileId=${shareDirFileId}&isFolder=${isFolder}&shareId=${shareId}&shareMode=${shareMode}&iconOption=${iconOption}&orderBy=${orderBy}&descending=${descending}&accessCode=${accessCode}`,
             {
               headers: {
                 Accept: "application/json;charset=UTF-8",
                 Referer: `https://cloud.189.cn/web/share?code=${shareCode}`,
+                "Sign-Type": 1,
                 "User-Agent": utils.getRandomPCUA(),
               },
               responseType: "json",
