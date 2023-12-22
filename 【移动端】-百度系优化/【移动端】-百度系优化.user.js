@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.19
+// @version      2023.12.22
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -50,7 +50,7 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/456485/1298471/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
 
@@ -3317,7 +3317,7 @@
           let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
           let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
           log.info("请求下一页评论的url: " + nextPageUrl);
-          log.info("贴子所有评论的url: " + nextPageAllCommentUrl);
+          log.info("帖子所有评论的url: " + nextPageAllCommentUrl);
           let pageDOM = await tiebaCommentConfig.getPageComment(nextPageUrl);
           let pageCommentList = await tiebaCommentConfig.getPageCommentList(
             nextPageAllCommentUrl
@@ -3388,7 +3388,7 @@
           let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
           let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
           log.info("请求上一页评论的url: " + pageUrl);
-          log.info("贴子所有评论的url: " + pageAllCommentUrl);
+          log.info("帖子所有评论的url: " + pageAllCommentUrl);
           let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
           let pageCommentList = await tiebaCommentConfig.getPageCommentList(
             pageAllCommentUrl
@@ -3995,7 +3995,7 @@
           }
           /* 其它回复中的最后一个 */
           .whitesev-reply-dialog-sheet-other-content > div:last-child{
-            padding-bottom: 40px;
+            
           }
           /* 其它回复的每一项 */
           .whitesev-reply-dialog-sheet-other-content-item{
@@ -4153,6 +4153,15 @@
             `,
           });
 
+          let dialogTitleElement = dialog.querySelector(
+            ".whitesev-reply-dialog-sheet-title"
+          );
+          let dialogContentElement = dialog.querySelector(
+            ".whitesev-reply-dialog-sheet-content"
+          );
+          let dialogOhterContentElement = dialog.querySelector(
+            ".whitesev-reply-dialog-sheet-other-content"
+          );
           /**
            * 设置浏览器历史地址
            */
@@ -4409,6 +4418,11 @@
           /* 延迟显示 */
           setTimeout(() => {
             dialog.setAttribute("data-on", true);
+            /* 修改根据标题高度设置内容margin-bottom */
+            dialogContentElement.style.setProperty(
+              "height",
+              `calc(100% - ${DOMUtils.height(dialogTitleElement)}px)`
+            );
             this.vueRootView = document.querySelector(".main-page-wrap");
             log.success(["成功获取Vue根元素", this.vueRootView.__vue__]);
             if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
@@ -5430,7 +5444,7 @@
                   window.location.pathname === "/f" &&
                   utils.isNotNull(searchParams.get("kw"))
                 ) {
-                  /* 当前是在吧内，搜索按钮判定搜索贴子 */
+                  /* 当前是在吧内，搜索按钮判定搜索帖子 */
                   loadingView.removeAll();
                   loadingView.initLoadingView();
                   DOMUtils.after(
@@ -5442,7 +5456,7 @@
                 } else if (
                   window.location.href.startsWith("https://tieba.baidu.com/p/")
                 ) {
-                  /* 当前是在帖子内，搜索按钮判定搜索贴子 */
+                  /* 当前是在帖子内，搜索按钮判定搜索帖子 */
                   if (!tiebaSearchConfig.isSetClickEvent) {
                     tiebaSearchConfig.isSetClickEvent = true;
                     tiebaSearchConfig.postsSearch();
@@ -6083,7 +6097,7 @@
           }
         },
         /**
-         * 客户端已调用伪装
+         * 伪装客户端已调用
          */
         clientCallMasquerade() {
           let originGetItem = window.localStorage.getItem;
@@ -6094,7 +6108,7 @@
               key === "p_w_launchappcall" ||
               key === "loginWakeModal"
             ) {
-              log.info("客户端已调用伪装 " + key);
+              log.info("伪装客户端已调用 " + key);
               return JSON.stringify({
                 value: 1,
                 date: utils.formatTime(undefined, "yyyyMMdd"),
@@ -6108,7 +6122,7 @@
               key.startsWith("t_w_pop_slient") ||
               key.startsWith("auto_slient_wakeup")
             ) {
-              log.info("客户端已调用伪装 " + key);
+              log.info("伪装客户端已调用 " + key);
               return "1";
             } else {
               return originGetItem.call(window.localStorage, key);
@@ -6180,11 +6194,6 @@
          * 添加滚动到顶部按钮
          */
         addScrollTopButton() {
-          if (
-            !PopsPanel.getValue("baidu_tieba_add_scroll_top_button_in_forum")
-          ) {
-            return;
-          }
           log.success("添加滚动到顶部按钮");
           let isInsertButton = false;
           let showScrollTopButton = function () {
@@ -6256,7 +6265,7 @@
           window.addEventListener("scroll", checkScroll.run);
         },
         /**
-         * 添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主业
+         * 添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页
          */
         addAuthorClickEvent() {
           utils
@@ -6290,11 +6299,8 @@
          * + 3  发布
          */
         rememberPostSort() {
-          if (!PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
-            return;
-          }
           let userSortModel = parseInt(
-            GM_getValue("baidu-tieba-sort-model", 3)
+            PopsPanel.getValue("baidu-tieba-sort-model", 3)
           );
           utils
             .waitNode(".tb-page__main .tb-sort .tab-pack")
@@ -6302,15 +6308,67 @@
               let originChange = element.__vue__.change;
               originChange(userSortModel);
               element.__vue__.change = function (index) {
-                GM_setValue("baidu-tieba-sort-model", index);
+                PopsPanel.setValue("baidu-tieba-sort-model", index);
                 originChange(index);
               };
               log.info("注入记住当前选择的看帖排序");
             });
         },
+        /**
+         * 过滤重复帖子
+         */
+        filterDuplicatePosts() {
+          utils.waitNode(".tb-threadlist").then(async (element) => {
+            await utils.waitVueByInterval(
+              function () {
+                return document.querySelector(".tb-threadlist");
+              },
+              function (__vue__) {
+                return Boolean(__vue__?.$props?.list);
+              },
+              100,
+              10000
+            );
+            let tbThreadListVue =
+              document.querySelector(".tb-threadlist").__vue__;
+            if (!tbThreadListVue) {
+              log.error("未找到.tb-threadlist元素的vue属性");
+              return;
+            }
+            log.success("监听帖子数量改变");
+            tbThreadListVue.$watch(
+              "list",
+              function (newVal, oldVal) {
+                log.success("帖子数量触发改变");
+                let postsId = {};
+                for (let index = 0; index < this.$props.list.length; index++) {
+                  let postsInfo = this.$props.list[index];
+                  if (!postsInfo.id) {
+                    /* 不存在id属性，可能是中间的广告？ */
+                    continue;
+                  }
+                  if (postsId[postsInfo.id]) {
+                    /* 重复帖子 */
+                    log.error("移除重复帖子：" + postsInfo.title);
+                    this.$props.list.splice(index, 1);
+                    index--;
+                    continue;
+                  }
+                  postsId[postsInfo.id] = postsInfo.title ?? "";
+                }
+              },
+              {
+                deep: false,
+                immediate: true,
+              }
+            );
+          });
+        },
       };
 
-      tiebaBusiness.clientCallMasquerade();
+      if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
+        tiebaBusiness.clientCallMasquerade();
+      }
       baiduHijack.hijackElementAppendChild();
       if (PopsPanel.getValue("baidu_tieba_hijack_wake_up")) {
         baiduHijack.hijackFunctionCall_WebPack_TieBa();
@@ -6340,11 +6398,24 @@
         this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?kw=/g)
       ) {
         /* 吧内 */
-        tiebaBaNei.rememberPostSort();
+        if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
+          tiebaBaNei.rememberPostSort();
+        }
+        if (PopsPanel.getValue("baidu_tieba_filterDuplicatePosts")) {
+          tiebaBaNei.filterDuplicatePosts();
+        }
       } else {
         /* 贴内 */
-        tiebaBusiness.addScrollTopButton();
-        tiebaBusiness.addAuthorClickEvent();
+        if (PopsPanel.getValue("baidu_tieba_add_scroll_top_button_in_forum")) {
+          tiebaBusiness.addScrollTopButton();
+        }
+        if (
+          PopsPanel.getValue(
+            "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage"
+          )
+        ) {
+          tiebaBusiness.addAuthorClickEvent();
+        }
       }
       if (PopsPanel.getValue("baidu_tieba_add_search")) {
         tiebaSearchConfig.run();
@@ -7789,17 +7860,16 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "浏览器后退触发关闭楼中楼回复",
-                  "baidu_tieba_lzl_ban_global_back",
-                  false,
-                  function (event, enable) {
-                    if (enable) {
-                      alert(
-                        "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-                      );
-                    }
-                  }
+                  "新增搜索功能",
+                  "baidu_tieba_add_search",
+                  true
                 ),
+              ],
+            },
+            {
+              text: "吧内功能",
+              type: "forms",
+              forms: [
                 PopsPanel.getSwtichDetail(
                   "记住当前选择的看帖排序",
                   "baidu_tieba_remember_user_post_sort",
@@ -7811,23 +7881,46 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "新增贴内搜索功能",
-                  "baidu_tieba_add_search",
-                  true
+                  "过滤重复帖子",
+                  "baidu_tieba_filterDuplicatePosts",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "帖内功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "楼中楼回复弹窗后退手势优化",
+                  "baidu_tieba_lzl_ban_global_back",
+                  false,
+                  function (event, enable) {
+                    if (enable) {
+                      alert(
+                        "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+                      );
+                    }
+                  }
                 ),
                 PopsPanel.getSwtichDetail(
-                  "新增贴内滚动到顶部按钮",
+                  "新增滚动到顶部按钮",
                   "baidu_tieba_add_scroll_top_button_in_forum",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "优化帖子查看评论",
+                  "优化查看评论",
                   "baidu_tieba_optimize_see_comments",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "优化帖子图片预览",
+                  "优化图片点击预览",
                   "baidu_tieba_optimize_image_preview",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "点击楼主头像正确跳转主页",
+                  "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
@@ -7845,6 +7938,11 @@
                   "劫持-唤醒App",
                   "baidu_tieba_hijack_wake_up",
                   false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "伪装客户端已调用",
+                  "baidu_tieba_clientCallMasquerade",
+                  true
                 ),
               ],
             },
