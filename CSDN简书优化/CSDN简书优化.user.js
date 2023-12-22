@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.19
+// @version      2023.12.22
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -20,7 +20,7 @@
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/456485/1298471/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
 
@@ -1549,7 +1549,7 @@
                     "data-default-value": 90,
                   },
                   getValue() {
-                    return GM_getValue(
+                    return PopsPanel.getValue(
                       this.attributes["data-key"],
                       this.attributes["data-default-value"]
                     );
@@ -1558,7 +1558,7 @@
                     return `当前：${value}px，默认：${this.attributes["data-default-value"]}px`;
                   },
                   callback(event, value) {
-                    GM_setValue(this.attributes["data-key"], value);
+                    PopsPanel.setValue(this.attributes["data-key"], value);
                     let csdnSideToolbar =
                       document.querySelector(".csdn-side-toolbar");
                     DOMUtils.css(csdnSideToolbar, {
@@ -1576,7 +1576,7 @@
                     "data-default-value": 140,
                   },
                   getValue() {
-                    return GM_getValue(
+                    return PopsPanel.getValue(
                       this.attributes["data-key"],
                       this.attributes["data-default-value"]
                     );
@@ -1585,7 +1585,7 @@
                     return `当前：${value}px，默认：${this.attributes["data-default-value"]}px`;
                   },
                   callback(event, value) {
-                    GM_setValue(this.attributes["data-key"], value);
+                    PopsPanel.setValue(this.attributes["data-key"], value);
                     let csdnSideToolbar =
                       document.querySelector(".csdn-side-toolbar");
                     DOMUtils.css(csdnSideToolbar, {
