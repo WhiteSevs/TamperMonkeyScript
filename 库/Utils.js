@@ -22,7 +22,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-12-14";
+  Utils.version = "2023-12-21";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -731,7 +731,7 @@
   };
 
   /**
-   *
+   * 根据坐标点击canvas元素的内部位置
    * @param {HTMLCanvasElement} canvasElement 画布元素
    * @param {number} [clientX=0] X坐标，默认值0
    * @param {number} [clientY=0] Y坐标，默认值0
@@ -994,19 +994,20 @@
   };
 
   /**
-   * 定位网页中可见字符串的位置定位并高亮
+   * 选中页面中的文字，类似Ctrl+F的选中
    * @param {string} [str=""]	需要寻找的字符串
    * @param {boolean} [caseSensitive=false]
    * + true 区分大小写
    * + false (默认) 不区分大小写
-   * @returns {boolean}
+   * @returns {boolean|undefined}
    * + true 找到
    * + false 未找到
+   * + undefined 不可使用该Api
    * @example
    * Utils.findVisibleText("xxxxx");
    * > true
    **/
-  Utils.findVisibleText = function (str = "", caseSensitive = false) {
+  Utils.findWebPageVisibleText = function (str = "", caseSensitive = false) {
     let TRange = null;
     let strFound;
     if (window.find) {
@@ -3205,19 +3206,21 @@
     dbVersion = 1
   ) {
     this.dbName = dbName;
-    this.slqVersion =
-      "1"; /* websql的版本号，由于ios的问题，版本号的写法不一样 */
+    /* websql的版本号，由于ios的问题，版本号的写法不一样 */
+    this.slqVersion = "1";
     this.dbVersion = dbVersion;
     this.storeName = storeName;
+    /* 监听IndexDB */
     this.indexedDB =
       window.indexedDB ||
       window.mozIndexedDB ||
       window.webkitIndexedDB ||
-      window.msIndexedDB; /* 监听IndexDB */
+      window.msIndexedDB;
     if (!this.indexedDB) {
       alert("很抱歉，您的浏览器不支持indexedDB");
     }
-    this.db = {}; /* 缓存数据库，避免同一个页面重复创建和销毁 */
+    /* 缓存数据库，避免同一个页面重复创建和销毁 */
+    this.db = {};
     this.store = null;
     this.errorCode = {
       /* 错误码 */
@@ -3245,10 +3248,8 @@
       let txn, store;
       if (that.indexedDB) {
         /* 如果是支持IndexDB的 */
-        txn = that.db[dbName].transaction(
-          that.storeName,
-          "readwrite"
-        ); /* IndexDB的读写权限 */
+        txn = that.db[dbName].transaction(that.storeName, "readwrite");
+        /* IndexDB的读写权限 */
         store = txn.objectStore(that.storeName);
       }
       return store;
@@ -3320,11 +3321,12 @@
             } else {
               let request = result.put(inData);
               request.onsuccess = function (e) {
+                /* 保存成功有success 字段 */
                 resolve({
                   code: that.errorCode.success.code,
                   msg: that.errorCode.success.msg,
                   success: true,
-                }); /* 保存成功有success 字段 */
+                });
               };
               request.onerror = function (e) {
                 resolve({
@@ -3358,10 +3360,8 @@
         let dbName = that.dbName;
         if (that.indexedDB) {
           that.open(function (result) {
-            let error =
-              result.hasOwnProperty(
-                "error"
-              ); /* 判断返回的数据中是否有error字段 */
+            /* 判断返回的数据中是否有error字段 */
+            let error = result.hasOwnProperty("error");
             if (error) {
               reject({
                 code: that.errorCode.open.get,
@@ -3420,10 +3420,8 @@
         let dbName = that.dbName;
         if (that.indexedDB) {
           that.open(function (result) {
-            let error =
-              result.hasOwnProperty(
-                "error"
-              ); /* 判断返回的数据中是否有error字段 */
+            /* 判断返回的数据中是否有error字段 */
+            let error = result.hasOwnProperty("error");
             if (error) {
               reject({
                 code: that.errorCode.open.get,
@@ -3598,11 +3596,7 @@
    * > true
    */
   Utils.isDOM = function (target) {
-    return (
-      target instanceof HTMLElement ||
-      target instanceof Node ||
-      target instanceof Element
-    );
+    return target instanceof Node;
   };
 
   /**
@@ -4035,7 +4029,9 @@
    **/
   Utils.parseObjectToArray = function (target) {
     if (typeof target !== "object") {
-      throw new Error("Utils.parseObjectToArray 参数 obj 必须为 object 类型");
+      throw new Error(
+        "Utils.parseObjectToArray 参数 target 必须为 object 类型"
+      );
     }
     let result = [];
     Object.keys(target).forEach(function (keyName) {
