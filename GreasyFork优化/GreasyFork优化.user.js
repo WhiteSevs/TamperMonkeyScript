@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.19
+// @version      2023.12.22
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,7 +21,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1298471/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1295728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
 
@@ -549,6 +549,47 @@
                   "beautifyGreasyforkBeautify",
                   true
                 ),
+                {
+                  text: "固定当前语言",
+                  type: "select",
+                  attributes: {
+                    "data-key": "language-selector-locale",
+                    "data-default-value": "zh-CN",
+                  },
+                  getValue() {
+                    return PopsPanel.getValue(
+                      this.attributes["data-key"],
+                      this.attributes["data-default-value"]
+                    );
+                  },
+                  callback(event, isSelectedValue, isSelectedText) {
+                    PopsPanel.setValue(
+                      this.attributes["data-key"],
+                      isSelectedValue
+                    );
+                  },
+                  data: (function () {
+                    let result = [];
+                    document
+                      .querySelectorAll(
+                        "select#language-selector-locale option"
+                      )
+                      .forEach((element) => {
+                        let value = element.getAttribute("value");
+                        if (value === "help") {
+                          return;
+                        }
+                        let text = (
+                          element.innerText || element.textContent
+                        ).trim();
+                        result.push({
+                          value: value,
+                          text: text,
+                        });
+                      });
+                    return result;
+                  })(),
+                },
               ],
             },
           ],
@@ -846,39 +887,9 @@
             return;
           }
           scriptId = scriptId[scriptId.length - 1];
-          let getResp = null;
-          try {
-            getResp = await fetch(
-              `https://greasyfork.org/zh-CN/scripts/${scriptId}.json`,
-              {
-                responseType: "json",
-              }
-            );
-          } catch (error) {
-            Qmsg.error("请求失败，请在控制台查看原因");
-            return;
-          }
-          if (!getResp.ok) {
-            Qmsg.error("获取脚本信息JSON失败");
-            return;
-          }
-          let respData = await getResp.json();
-          if (!respData) {
-            Qmsg.error("解析fetch的JSON失败");
-            return;
-          }
-          let url = respData.code_url;
-          url = url.replace(/\?version.*/gi, "");
-          url = url.replace(/^http(s|):\/\//gi, "");
-          url = encodeURI(url);
-          let urlSplitList = url.split("/");
-          urlSplitList.splice(urlSplitList.length - 2);
-          let searchUrl = "";
-          urlSplitList.forEach((item) => {
-            searchUrl += item + "/";
-          });
-          searchUrl = searchUrl.replace(/\/$/, "");
-          window.location.href = GreasyforkApi.getCodeSearchUrl(searchUrl);
+          window.location.href = GreasyforkApi.getCodeSearchUrl(
+            `greasyfork.org/scripts/${scriptId}`
+          );
         });
       });
     },
@@ -1673,6 +1684,42 @@
         snippetClipboardContentElement.appendChild(copyElement);
       });
     },
+    /**
+     * 固定当前语言
+     */
+    languageSelectorLocale() {
+      let localeLanguage = PopsPanel.getValue("language-selector-locale");
+      let currentLocaleLanguage = window.location.pathname
+        .split("/")
+        .filter((item) => Boolean(item))[0];
+      log.success("选择语言：" + localeLanguage);
+      log.success("当前语言：" + currentLocaleLanguage);
+      if (localeLanguage === currentLocaleLanguage) {
+        return;
+      } else {
+        let timer = null;
+        let replaceUrlRegular = new RegExp(
+          `^${window.location.origin}/${currentLocaleLanguage}`
+        );
+        let newUrl = `${window.location.origin}/${localeLanguage}`;
+        let jumpUrl = window.location.href.replace(replaceUrlRegular, newUrl);
+        log.success("新Url：" + jumpUrl);
+        Qmsg.loading(
+          `当前语言：${currentLocaleLanguage}，3秒后切换至：${localeLanguage}`,
+          {
+            timeout: 3000,
+            showClose: true,
+            onClose() {
+              clearTimeout(timer);
+            },
+          }
+        );
+        Qmsg.info("导航至：" + jumpUrl);
+        timer = setTimeout(() => {
+          window.location.href = jumpUrl;
+        }, 3000);
+      }
+    },
   };
   /* -----------------↑函数区域↑----------------- */
 
@@ -1694,6 +1741,7 @@
     GreasyforkBusiness.scriptHomepageAddedTodaySUpdate();
     GreasyforkBusiness.addCopyCodeButton();
     GreasyforkBusiness.addMarkdownCopyButton();
+    GreasyforkBusiness.languageSelectorLocale();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
