@@ -20,7 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1298471/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1300425/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
@@ -1363,6 +1363,9 @@
       input.search-submit{
         transform: translateY(-5%) !important;
         margin-left: 10px;
+      }
+      #script-content code{
+        word-wrap: break-word;
       }
       `;
 
