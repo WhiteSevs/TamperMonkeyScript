@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.22.20
+// @version      2023.12.23
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -58,7 +58,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1300425/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1300442/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
@@ -7557,13 +7557,21 @@
      * 主视图
      */
     view: {
+      isInitCSS: false,
+      isRegisterEvent: false,
       show() {
-        if (!NetDiskUI.uiLinkAlias) {
+        if (!this.isInitCSS) {
+          this.isInitCSS = true;
           this.addCSS();
-          this.createView();
-          this.setNetDiskUrlClickEvent(".netdisk-url a");
+        }
+        if (!this.isRegisterEvent) {
+          this.isRegisterEvent = true;
           this.registerIconGotoPagePosition();
           this.registerNetDiskUrlContextMenu();
+          this.setNetDiskUrlClickEvent(".netdisk-url a");
+        }
+        if (!NetDiskUI.uiLinkAlias) {
+          this.createView();
         } else {
           NetDiskUI.uiLinkAlias.show();
         }
@@ -7653,21 +7661,27 @@
             },
             btn: {
               ok: {
-                callback: function (event) {
-                  event.hide();
+                callback(event) {
+                  NetDiskUI.uiLinkAlias = null;
+                  event.close();
                 },
               },
               close: {
-                callback: function (event) {
-                  event.hide();
+                callback(event) {
+                  NetDiskUI.uiLinkAlias = null;
+                  event.close();
                 },
               },
             },
             mask: {
               enable: true,
               clickEvent: {
-                toHide: true,
-                toClose: false,
+                toHide: false,
+                toClose: true,
+              },
+              clickCallBack() {
+                NetDiskUI.uiLinkAlias.close();
+                NetDiskUI.uiLinkAlias = null;
               },
             },
             class: "whitesevPop",
