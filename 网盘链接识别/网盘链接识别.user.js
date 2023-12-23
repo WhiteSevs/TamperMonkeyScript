@@ -55,20 +55,15 @@
 // @exclude      /^http(s|):\/\/.*video\.qq\.com\/.*$/
 // @exclude      /^http(s|):\/\/.*\.vscode-cdn\.net\/.*$/
 // @exclude      /^http(s|):\/\/.*vscode\.dev\/.*$/
-// @require      https://unpkg.com/any-touch/dist/any-touch.umd.min.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1298471/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1300425/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
 // ==/UserScript==
 
 (function () {
-  /**
-   * @type {import("../库/any-touch.umd")}
-   */
-  const AnyTouch = window.AnyTouch;
   /**
    * @type {import("../库/Qmsg")}
    */
@@ -77,6 +72,7 @@
    * @type {import("../库/pops")}
    */
   const pops = window.pops;
+  const AnyTouch = pops.config.Utils.AnyTouch();
   /**
    * @type {import("../库/Utils")}
    */
@@ -5775,13 +5771,17 @@
      */
     uiPasswordAlias: "重输密码层",
     /**
-     * PC端是否默认弹窗可以拖拽
+     * 是否默认弹窗可以拖拽
      */
     defaultPCDrag: false,
     /**
+     * 是否默认弹窗拖拽距离
+     */
+    defaultPCDragLimit: true,
+    /**
      * 点击弹窗遮罩层是否可以关闭弹窗
      */
-    clickMaskToCloseDialog: false,
+    defaultClickMaskToCloseDialog: false,
     /**
      * 是否默认禁用弹窗弹出后背景可以滚动
      */
@@ -6072,6 +6072,26 @@
           Qmsg.error("设置界面已存在");
           return;
         }
+        function getSwtichDetail(text, key, defaultValue, callback) {
+          defaultValue = Boolean(defaultValue);
+          return {
+            text: text,
+            type: "switch",
+            attributes: {
+              "data-key": key,
+              "data-default-value": defaultValue,
+            },
+            getValue() {
+              return Boolean(GM_getValue(key, defaultValue));
+            },
+            callback(event, value) {
+              GM_setValue(key, Boolean(value));
+              if (typeof callback === "function") {
+                callback(event, value);
+              }
+            },
+          };
+        }
         let contentDetails = [
           {
             id: "netdisk-panel-config-all-setting",
@@ -6088,7 +6108,7 @@
                     type: "select",
                     attributes: {
                       "data-key": "popsAnimation",
-                      "data-default-value": "pops-anim-fadein-zoom",
+                      "data-default-value": NetDiskUI.defaultAnimation,
                     },
                     getValue() {
                       return GM_getValue(
@@ -6166,44 +6186,21 @@
                       },
                     ],
                   },
-                  {
-                    text: "点击弹窗遮罩层关闭弹窗",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "clickMaskToCloseDialog",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
-                  {
-                    text: "PC端可拖拽窗口",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "pcDrag",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
+                  getSwtichDetail(
+                    "点击弹窗遮罩层关闭弹窗",
+                    "clickMaskToCloseDialog",
+                    NetDiskUI.defaultClickMaskToCloseDialog
+                  ),
+                  getSwtichDetail(
+                    "可拖拽窗口",
+                    "pcDrag",
+                    NetDiskUI.defaultPCDrag
+                  ),
+                  getSwtichDetail(
+                    "限制拖拽距离",
+                    "pcDragLimit",
+                    NetDiskUI.defaultPCDragLimit
+                  ),
                 ],
               },
               {
@@ -6413,25 +6410,7 @@
                       },
                     ],
                   },
-                  {
-                    text: "逆序弹出",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "qmsg-showreverse",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
+                  getSwtichDetail("逆序弹出", "qmsg-showreverse", false),
                 ],
               },
               {
@@ -6528,101 +6507,23 @@
                       },
                     ],
                   },
-                  {
-                    text: "读取剪贴板",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "readClipboard",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
-                  {
-                    text: "存储匹配记录",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "saveMatchNetDisk",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
-                  {
-                    text: "自动输入访问码",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "autoFillAccessCode",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
-                  {
-                    text: "获取重定向后的直链",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "getTheDirectLinkAfterRedirection",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
-                  {
-                    text: "允许匹配当前URL",
-                    type: "switch",
-                    attributes: {
-                      "data-key": "allowMatchLocationHref",
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  },
+                  getSwtichDetail("读取剪贴板", "readClipboard", false),
+                  getSwtichDetail("存储匹配记录", "saveMatchNetDisk", false),
+                  getSwtichDetail(
+                    "自动输入访问码",
+                    "autoFillAccessCode",
+                    false
+                  ),
+                  getSwtichDetail(
+                    "获取重定向后的直链",
+                    "getTheDirectLinkAfterRedirection",
+                    false
+                  ),
+                  getSwtichDetail(
+                    "允许匹配当前URL",
+                    "allowMatchLocationHref",
+                    false
+                  ),
                 ],
               },
             ],
@@ -10237,12 +10138,13 @@
           clickEvent: {
             toClose: GM_getValue(
               "clickMaskToCloseDialog",
-              NetDiskUI.clickMaskToCloseDialog
+              NetDiskUI.defaultClickMaskToCloseDialog
             ),
           },
         },
         animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
         drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+        dragLimit: GM_getValue("pcDragLimit", NetDiskUI.defaultPCDragLimit),
         forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
       };
       if (sizeConfig != null) {
