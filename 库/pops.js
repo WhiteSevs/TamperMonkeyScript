@@ -651,9 +651,9 @@
           }
         }
       });
+      /* 因为会覆盖上面的点击事件，主动触发一下 */
       anyTouchElement.on(["click", "tap"], function (event) {
         event.changedPoints.forEach((item) => {
-          console.log(item.target);
           PopsDOMUtils.trigger(item.target, "click", undefined, transformLeft);
         });
       });
