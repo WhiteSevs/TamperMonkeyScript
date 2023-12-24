@@ -1,16 +1,20 @@
 # 🎈 简介
 
-当前`Tampermonkey BETA`版本`5.0.6189`
+测试环境：`Tampermonkey BETA`版本`5.0.6191`
 脚本使用方式，[点击前往查看](https://greasyfork.org/#home-step-1)
 
-注：`Via浏览器`和`X浏览器`不支持`iframe`注入，某些网站功能会缺失。
+注：
+
+1. `Via浏览器`和`X浏览器`不支持`iframe`注入，某些网站功能会缺失。
+2. `Via浏览器`的网络请求不会携带cookie，某些需要登录账号的功能不会生效。
+
 对以下👇网站进行了【优化】
 
 |     网站     | 菜单按钮 |  其它功能 |
 | ------------ |   :--:  |  :------------------  |
 |     [![https://favicon.yandex.net/favicon/v2/https://m.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://m.baidu.com/?size=16)](https://m.baidu.com/)百度搜索 | 自动展开下一页、简单UA-自动点击下一页、显示已重定向图标、控制台输出日志、同步下一页地址、【禁止】自动播放视频、【屏蔽】大家还在搜、【重构】大家还在搜、精简百度搜索主页、劫持OpenBox、劫持Scheme、劫持Copy、劫持_onClick |   去除广告、自动处理链接为真实链接、拦截输入框的点击建议弹出的弹窗 |
 |     [![https://favicon.yandex.net/favicon/v2/https://baijiahao.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://baijiahao.baidu.com/?size=16)](https://baijiahao.baidu.com/)百家号   | 【屏蔽】推荐文章、【屏蔽】用户评论、【屏蔽】底部悬浮工具栏、劫持唤醒、劫持iframe、劫持OpenBox | 去除广告 |
-|     [![https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16)](https://tieba.baidu.com/)百度贴吧 | 回退关闭楼中楼回复、新增贴内搜索功能（当在主页时是搜索吧、在帖子或吧内时是搜索帖子）、优化查看评论、优化图片预览、新增贴内滚动到顶部按钮、、劫持唤醒、【beta】请求携带Cookie、过滤重复帖子、记住当前选择的看帖排序 | 去除广告、伪装已调用唤醒百度贴吧App |
+|     [![https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://tieba.baidu.com/?size=16)](https://tieba.baidu.com/)百度贴吧 | 回退关闭楼中楼回复、新增贴内搜索功能（当在主页时是搜索吧、在帖子或吧内时是搜索帖子）、优化查看评论、优化图片预览、新增贴内滚动到顶部按钮、、劫持唤醒、【beta】请求携带Cookie、过滤重复帖子、记住当前选择的看帖排序、签到所有关注的吧、解除签到限制 | 去除广告、伪装已调用唤醒百度贴吧App |
 |     [![https://favicon.yandex.net/favicon/v2/https://wenku.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://wenku.baidu.com/?size=16)](https://wenku.baidu.com/)百度文库 | 【屏蔽】会员精选、【屏蔽】APP精选、【屏蔽】相关文档、【屏蔽】底部工具栏、【屏蔽】下一篇按钮 | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://jingyan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://jingyan.baidu.com/?size=16)](https://jingyan.baidu.com/)百度经验 |             | 去除广告 |
 |     [![https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://baike.baidu.com/?size=16)](https://baike.baidu.com/)百度百科 | 同步下一页地址 | 去除广告、自动加载更多下一页内容、修复图片显示错位问题 |
