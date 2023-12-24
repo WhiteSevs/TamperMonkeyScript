@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.23
+// @version      2023.12.25
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -18,27 +18,27 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        unsafeWindow
 // @connect      *
-// @connect      lanzous.com
-// @connect      lanzouc.com
-// @connect      lanzouk.com
-// @connect      lanzouu.com
-// @connect      lanzouh.com
-// @connect      lanzouf.com
-// @connect      lanzoul.com
 // @connect      lanzoub.com
-// @connect      lanzoum.com
-// @connect      lanzout.com
-// @connect      lanzoup.com
-// @connect      lanzouj.com
-// @connect      lanzouy.com
-// @connect      lanzoug.com
-// @connect      lanzouq.com
-// @connect      lanzouo.com
-// @connect      lanzouw.com
-// @connect      lanzoui.com
-// @connect      lanzoux.com
+// @connect      lanzouc.com
 // @connect      lanzoue.com
+// @connect      lanzouf.com
+// @connect      lanzoug.com
+// @connect      lanzouh.com
+// @connect      lanzoui.com
+// @connect      lanzouj.com
+// @connect      lanzouk.com
+// @connect      lanzoul.com
+// @connect      lanzoum.com
+// @connect      lanzouo.com
+// @connect      lanzoup.com
+// @connect      lanzouq.com
+// @connect      lanzous.com
+// @connect      lanzout.com
+// @connect      lanzouu.com
 // @connect      lanzouv.com
+// @connect      lanzouw.com
+// @connect      lanzoux.com
+// @connect      lanzouy.com
 // @connect      lanosso.com
 // @connect      189.cn
 // @connect      123pan.com
@@ -197,10 +197,18 @@
           shareCodeNeedRemoveStr: /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)/gi,
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{3,})/gi,
-          uiLinkShow: "lanzoux.com/{#shareCode#} 提取码: {#accessCode#}",
-          blank: "https://www.lanzoux.com/{#shareCode#}",
-          copyUrl:
-            "https://www.lanzoux.com/{#shareCode#}\n密码：{#accessCode#}",
+          uiLinkShow: `${GM_getValue(
+            "lanzou-host-name",
+            NetDiskData.lanzou_defaultHostName
+          )}.com/{#shareCode#} 提取码: {#accessCode#}`,
+          blank: `https://${GM_getValue(
+            "lanzou-host-name",
+            NetDiskData.lanzou_defaultHostName
+          )}/{#shareCode#}`,
+          copyUrl: `https://${GM_getValue(
+            "lanzou-host-name",
+            NetDiskData.lanzou_defaultHostName
+          )}/{#shareCode#}\n密码：{#accessCode#}`,
         },
       ],
       tianyiyun: [
@@ -1223,27 +1231,32 @@
       /**
        * 蓝奏云
        * 流程：判断是否是多文件
-       * 单文件 => 请求https://www.lanzoux.com/{shareToken} 判断链接类型和是否能正常获取
-       *        => 请求https://www.lanzoux.com/ajaxm.php 获取下载参数，下载参数例如：https://develope.lanzoug.com/file/?xxxxxxxxx
-       * 多文件 => 先请求https://www.lanzoux.com/{shareToken} 获取文件sign => 请求https://www.lanzoux.com/filemoreajax.php 获取json格式的文件参数，
+       * 单文件 => 请求https://蓝奏云域名/{shareToken} 判断链接类型和是否能正常获取
+       *        => 请求https://蓝奏云域名/ajaxm.php 获取下载参数，下载参数例如：https://蓝奏云文件域名/file/?xxxxxxxxx
+       * 多文件 => 先请求https://蓝奏云域名/{shareToken} 获取文件sign => 请求https://蓝奏云域名/filemoreajax.php 获取json格式的文件参数，
        * 参数内容如{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]}
        * @constructor
        * @returns {object}
        */
       lanzou: function () {
         let that = this;
+        /* 蓝奏云域名 */
+        let LanZouHostName = GM_getValue(
+          "lanzou-host-name",
+          NetDiskData.lanzou_defaultHostName
+        );
         this.handleUrl = {
-          default: function (paramShareCode) {
-            return NetDisk.regular.lanzou[that.netDiskIndex]["blank"].replace(
-              /{#shareCode#}/g,
-              paramShareCode
-            );
+          default(pathName = "") {
+            if (pathName.startsWith("/")) {
+              pathName = pathName.replace(/^\//, "");
+            }
+            return `https://${LanZouHostName}/${pathName}`;
           },
-          tp: function (paramShareCode) {
-            return NetDisk.regular.lanzou[that.netDiskIndex]["blank"].replace(
-              /{#shareCode#}/gi,
-              `tp/${paramShareCode}`
-            );
+          tp(pathName = "") {
+            if (pathName.startsWith("/")) {
+              pathName = pathName.replace(/^\//, "");
+            }
+            return `https://${LanZouHostName}/tp/${pathName}`;
           },
         };
         this.regexp = {
@@ -1355,9 +1368,9 @@
             headers: {
               Accept: "*/*",
               "User-Agent": utils.getRandomPCUA(),
-              Referer: window.location.origin,
+              Referer: that.handleUrl.default(that.shareCode),
             },
-            onerror: function () {},
+            onerror() {},
           });
           if (!getResp.status) {
             log.error(getResp);
@@ -1412,9 +1425,11 @@
                 iframeUrl,
               ]);
               Qmsg.info("正在请求下载信息");
-              let fileName = pageDOM
-                .querySelector("title")
-                ?.textContent?.replace(/ - 蓝奏云$/i, "");
+              let fileName =
+                pageDOM.querySelector("body div.d > div")?.innerText ||
+                pageDOM
+                  .querySelector("title")
+                  ?.textContent?.replace(/ - 蓝奏云$/i, "");
               let fileSize =
                 pageText.match(/文件大小：<\/span>(.+?)<br>/i) ||
                 pageText.match(/class="n_filesize">大小：(.+?)<\/div>/i);
@@ -1527,13 +1542,13 @@
               log.info("传入参数=>无密码");
             }
             let postResp = await httpx.post({
-              url: "https://www.lanzoux.com/ajaxm.php",
+              url: that.handleUrl.default("ajaxm.php"),
               responseType: "json",
               headers: {
                 "Content-Type":
                   "application/x-www-form-urlencoded; charset=UTF-8",
                 "User-Agent": utils.getRandomAndroidUA(),
-                Referer: window.location.origin,
+                Referer: that.handleUrl.default(that.shareCode),
               },
               data: `action=downprocess&sign=${postData_sign}&p=${postData_p}`,
             });
@@ -1637,22 +1652,23 @@
 
         /**
          * 通过iframe的链接来获取单文件直链
-         * @param {string} url
+         * @param {string} urlPathName url路径
          * @param {{
          * fileName:string,
          * fileSize:string,
          * fileUploadTime:string
          * }} fileInfo 文件信息
          */
-        this.getLinkByIframe = async function (url, fileInfo) {
-          log.info(fileInfo);
+        this.getLinkByIframe = async function (urlPathName, fileInfo) {
+          log.info([urlPathName, fileInfo]);
+          let iFrameUrl = that.handleUrl.default(urlPathName);
           let getResp = await httpx.get({
-            url: that.handleUrl.default(url),
+            url: iFrameUrl,
             headers: {
               Accept:
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
               "User-Agent": utils.getRandomPCUA(),
-              Referer: window.location.origin,
+              Referer: that.handleUrl.default(that.shareCode),
             },
           });
           if (!getResp.status) {
@@ -1668,33 +1684,37 @@
           let ajaxdata = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
           let sign = pageText.match(/'sign':[\s]*'(.+)',/i);
           if (!aihidcms) {
-            Qmsg.error("ajaxm.php请求参数aihidcms获取失败");
+            Qmsg.error("ajaxm.php请求参数 websignkey 获取失败");
+            return;
           } else {
             aihidcms = aihidcms[aihidcms.length - 1];
           }
           if (!ciucjdsdc) {
-            Qmsg.error("ajaxm.php请求参数ciucjdsdc获取失败");
+            Qmsg.error("ajaxm.php请求参数 websign 获取失败");
+            return;
           } else {
             ciucjdsdc = ciucjdsdc[ciucjdsdc.length - 1];
           }
           if (!ajaxdata) {
-            Qmsg.error("ajaxm.php请求参数ajaxdata获取失败");
+            Qmsg.error("ajaxm.php请求参数 signs 获取失败");
+            return;
           } else {
             ajaxdata = ajaxdata[ajaxdata.length - 1];
           }
           if (!sign) {
-            Qmsg.error("ajaxm.php请求参数sign获取失败");
+            Qmsg.error("ajaxm.php请求参数 sign 获取失败");
+            return;
           } else {
             sign = sign[sign.length - 1];
           }
-          let postData = `action=downprocess&signs=${ajaxdata}&sign=${sign}&websign=${ciucjdsdc}&ves=1`;
+          let postData = `action=downprocess&signs=${ajaxdata}&sign=${sign}&websign=${ciucjdsdc}&ves=1&websignkey=${aihidcms}`;
           log.success("ajaxm.php的请求参数-> " + postData);
           let postResp = await httpx.post({
-            url: that.handleUrl.default("/ajaxm.php"),
+            url: that.handleUrl.default("ajaxm.php"),
             headers: {
               Accept: "application/json, text/javascript, */*",
               "Content-Type": "application/x-www-form-urlencoded",
-              Referer: window.location.origin,
+              Referer: that.handleUrl.default(that.shareCode),
               "User-Agent": utils.getRandomPCUA(),
             },
             data: postData,
@@ -1756,7 +1776,7 @@
             headers: {
               Accept: "*/*",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: window.location.origin,
+              Referer: that.handleUrl.default(that.shareCode),
             },
           });
           if (!getResp.status) {
@@ -1782,13 +1802,13 @@
           let postData = `lx=${lx}&fid=${fid}&uid=${uid}&pg=${pgs}&rep=0&t=${t}&k=${k}&up=1&ls=1&pwd=${that.accessCode}`;
           log.info(`多文件请求参数：${postData}`);
           let postResp = await httpx.post({
-            url: "https://www.lanzoux.com/filemoreajax.php",
+            url: that.handleUrl.default("filemoreajax.php"),
             responseType: "json",
             headers: {
               "Content-Type":
                 "application/x-www-form-urlencoded; charset=UTF-8",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: window.location.origin,
+              Referer: that.handleUrl.default(that.shareCode),
             },
             data: postData,
           });
@@ -1887,7 +1907,7 @@
             headers: {
               Accept: "*/*",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: window.location.origin,
+              Referer: that.handleUrl.default(that.shareCode),
             },
           });
           let respData = getResp.data;
@@ -6708,6 +6728,33 @@
               range_innerHTML_default_value: 100,
               range_accessCode_after_html: true,
               range_accessCode_after_html_default_value: 15,
+              ownFormList: [
+                {
+                  text: "其它配置",
+                  type: "forms",
+                  forms: [
+                    {
+                      text: "蓝奏云域名",
+                      type: "input",
+                      attributes: {
+                        "data-key": "lanzou-host-name",
+                        "data-default-value":
+                          NetDiskData.lanzou_defaultHostName,
+                      },
+                      getValue() {
+                        return GM_getValue(
+                          this.attributes["data-key"],
+                          this.attributes["data-default-value"]
+                        );
+                      },
+                      callback(event, value) {
+                        GM_setValue(this.attributes["data-key"], value);
+                      },
+                      placeholder: `例如：${NetDiskData.lanzou_defaultHostName}`,
+                    },
+                  ],
+                },
+              ],
             },
             {
               type: "天翼云",
@@ -10246,6 +10293,14 @@
     },
   };
 
+  /**
+   * 数据配置
+   */
+  const NetDiskData = {
+    /* 蓝奏云默认主机域名 */
+    lanzou_defaultHostName: "www.lanzout.com",
+  };
+
   Object.assign(
     NetDiskUI.src.icon,
     typeof RESOURCE_ICON === "undefined" ? {} : RESOURCE_ICON
@@ -10259,13 +10314,13 @@
       autoClearConsole: false,
     });
     httpx.config({
-      onabort: function () {
+      onabort() {
         Qmsg.error("请求被取消");
       },
-      ontimeout: function () {
+      ontimeout() {
         Qmsg.error("请求超时");
       },
-      onerror: function (response) {
+      onerror(response) {
         Qmsg.error("请求异常");
         log.error(["httpx-onerror", response]);
       },
