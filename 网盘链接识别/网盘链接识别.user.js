@@ -209,7 +209,7 @@
           uiLinkShow: `${GM_getValue(
             "lanzou-host-name",
             NetDiskData.lanzou_defaultHostName
-          )}.com/{#shareCode#} 提取码: {#accessCode#}`,
+          )}/{#shareCode#} 提取码: {#accessCode#}`,
           blank: `https://${GM_getValue(
             "lanzou-host-name",
             NetDiskData.lanzou_defaultHostName
