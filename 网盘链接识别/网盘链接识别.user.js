@@ -90,6 +90,15 @@
     GM_registerMenuCommand,
     GM_unregisterMenuCommand,
   });
+
+  /**
+   * 数据配置
+   */
+  const NetDiskData = {
+    /* 蓝奏云默认主机域名 */
+    lanzou_defaultHostName: "www.lanzout.com",
+  };
+
   const NetDisk = {
     /**
      * 是否初始化
@@ -10291,14 +10300,6 @@
         NetDisk.allowMatchLocationHref = true;
       }
     },
-  };
-
-  /**
-   * 数据配置
-   */
-  const NetDiskData = {
-    /* 蓝奏云默认主机域名 */
-    lanzou_defaultHostName: "www.lanzout.com",
   };
 
   Object.assign(
