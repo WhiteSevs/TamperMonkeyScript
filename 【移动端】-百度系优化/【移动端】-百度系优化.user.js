@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.23
+// @version      2023.12.24
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -49,6 +49,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
+// @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1300442/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
@@ -68,6 +69,10 @@
    */
   const Viewer = window.Viewer;
   /**
+   * @type {import("../库/Qmsg")}
+   */
+  const Qmsg = window.Qmsg;
+  /**
    * @type {import("../库/Utils")}
    */
   const utils = window.Utils.noConflict();
@@ -85,17 +90,25 @@
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     logDetails: DEBUG,
-    onabort: function () {
-      log.error("请求取消");
+    onabort() {
+      Qmsg.warning("请求取消");
     },
-    ontimeout: function () {
-      log.error("请求超时");
+    ontimeout() {
+      Qmsg.error("请求超时");
     },
-    onerror: function (response) {
+    onerror(response) {
+      Qmsg.error("请求异常");
       log.error(["httpx-onerror 请求异常", response]);
     },
   });
-
+  Qmsg.config({
+    position: "bottom",
+    html: true,
+    maxNums: 4,
+    autoClose: true,
+    showClose: false,
+    showReverse: true,
+  });
   /**
    * 菜单对象
    */
@@ -3239,6 +3252,24 @@
     },
     /**
      * 百度贴吧
+     * document.querySelector("div.app-view").__vue_
+     * + disablePbGuide 是否隐藏顶部导航栏
+     * + loading 是否隐藏整个页面的内容（清空）
+     * + isVideoThread 该帖子是否是个视频，是的话把帖子变成视频样式
+     * + isErrorThread 该帖子是否发生错误(被禁用)，是的话全屏变成显示【贴子不存在或者已被删除】
+     * + isNoForumThread 该帖子是否是来自动态
+     * + isShowLoginWakeModal 是否显示需要登录的弹窗【继续操作需要登录贴吧账号】
+     * + isHitMedicalPost 是否是精选回复的帖子，是的话隐藏顶部的工具栏，且修改帖子主内容的背景（淡蓝色），修改回复的标识为【精选回复】
+     * + isPornographicComment 是否隐藏评论
+     * + isGreyPage 页面是否变成灰色，包括文字
+     * + isFromFengchaoAd 是否是点击广告进的帖子，是的话整个页面被广告提示覆盖【打开贴吧APP，继续浏览】
+     * + isAutoInvoke 猜测是自动调用各种唤醒
+     * + isShowResourceFixedCard 是否显示底部悬浮的工具栏【资源合集】卡片
+     * + slientUpNewConfig 里面应该是各种静默弹窗的配置，存储自localStorage
+     *
+     *
+     * document.querySelector("div.tb-mobile-viewport").__vue_
+     * + isShowModal 是否显示需要登录的弹窗【继续操作需要登录贴吧账号】
      */
     tieba() {
       if (!this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)) {
@@ -3248,7 +3279,7 @@
       /**
        * 贴吧数据信息
        */
-      const tiebaInfo = {
+      const tiebaData = {
         /**
          * 当前吧名
          */
@@ -5200,208 +5231,6 @@
       };
 
       /**
-       * 其它功能
-       */
-      const tiebaOhterFunc = {
-        /**
-         * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
-         */
-        optimizeImagePreview() {
-          /**
-           * 查看图片
-           * @param {Array} imgList
-           * @param {Number} _index_
-           */
-          function viewIMG(imgList = [], _index_ = 0) {
-            let viewerULNodeHTML = "";
-            imgList.forEach((item) => {
-              viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
-            });
-            let viewerULNode = DOMUtils.createElement("ul", {
-              innerHTML: viewerULNodeHTML,
-            });
-            let viewer = new Viewer(viewerULNode, {
-              inline: false,
-              url: "data-src",
-              zIndex: utils.getMaxZIndex() + 100,
-              hidden: () => {
-                viewer.destroy();
-              },
-            });
-            _index_ = _index_ < 0 ? 0 : _index_;
-            viewer.view(_index_);
-            viewer.zoomTo(1);
-            viewer.show();
-          }
-          DOMUtils.on(document, "click", "img", function (event) {
-            let clickElement = event.target;
-            let imgSrc =
-              clickElement.getAttribute("data-src") ||
-              clickElement.getAttribute("src");
-            if (
-              clickElement.parentElement.className === "viewer-canvas" ||
-              clickElement.parentElement.hasAttribute("data-viewer-action")
-            ) {
-              return;
-            }
-            if (
-              imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)
-            ) {
-              log.info(`点击图片👇`);
-              log.info(clickElement);
-              if (clickElement.parentElement.className === "img-box") {
-                /* 帖子主体内的图片 */
-                let parentMain = clickElement.closest(
-                  ".img-sudoku.main-img-sudoku"
-                );
-                log.info(parentMain);
-                if (!parentMain) {
-                  viewIMG([imgSrc]);
-                  return;
-                }
-                utils.preventEvent(event);
-                let lazyImgList = [];
-                parentMain.querySelectorAll("img.img").forEach((item) => {
-                  let _imgSrc_ =
-                    item.getAttribute("data-src") || item.getAttribute("src");
-                  log.info(`获取图片: ${_imgSrc_}`);
-                  lazyImgList = [...lazyImgList, _imgSrc_];
-                });
-                log.info("图片列表👇");
-                log.info(lazyImgList);
-                viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-              } else if (
-                clickElement.parentElement.className === "text-content"
-              ) {
-                /* 评论区内的图片 */
-                let parentMain = clickElement.parentElement;
-                let lazyImgList = [];
-                log.info(parentMain);
-                parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
-                  let _imgSrc_ =
-                    item.getAttribute("data-src") || item.getAttribute("src");
-                  log.info(`获取图片: ${_imgSrc_}`);
-                  lazyImgList = [...lazyImgList, _imgSrc_];
-                });
-                log.info("评论区图片列表👇");
-                log.info(lazyImgList);
-                viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-              } else {
-                /* 单个图片预览 */
-                viewIMG([imgSrc]);
-              }
-            }
-          });
-          DOMUtils.ready(function () {
-            utils.waitNodeWithInterval("div.img-sudoku img", 10000).then(() => {
-              let imgSudoKuElement = document.querySelector("div.img-sudoku");
-              let imgSudoKuImageElementList =
-                imgSudoKuElement.querySelectorAll("img.img");
-              log.success([
-                "重构主内容的图片",
-                imgSudoKuElement,
-                imgSudoKuImageElementList,
-              ]);
-              imgSudoKuImageElementList.forEach((element) => {
-                if (element.hasAttribute("data-src")) {
-                  element.src = element.getAttribute("data-src");
-                }
-              });
-              /* 通过重新赋值innerHTML来覆盖原有的事件 */
-              imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
-            });
-          });
-        },
-        /**
-         * 重定向跳转
-         */
-        redirectJump() {
-          log.info("话题热榜-阻止默认跳转");
-          DOMUtils.on(document, "click", ".topic-share-item", function (event) {
-            utils.preventEvent(event);
-            window?.stop();
-            let clickNode = event.target;
-            let dataTrack = clickNode.getAttribute("data-track");
-            if (dataTrack == null) {
-              log.error("未找到data-track");
-              log.error(clickNode);
-              return false;
-            }
-            dataTrack = utils.toJSON(dataTrack);
-            let tid = dataTrack["tid"];
-            if (tid == null) {
-              log.error("未找到tid");
-              log.error(dataTrack);
-              return false;
-            }
-            log.success(`跳转至: https://tieba.baidu.com/p/${tid}`);
-            window.location.href = `https://tieba.baidu.com/p/${tid}`;
-            return false;
-          });
-          utils.waitNodeList(".thread-bottom .forum").then((nodeList) => {
-            log.success("设置贴吧种类正确跳转");
-            log.success(nodeList);
-            nodeList.forEach((item) => {
-              item.ontouchstart = function (event) {
-                utils.preventEvent(event);
-                window?.stop();
-                window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
-                  event.target
-                )
-                  .trim()
-                  .replace(/吧$/g, "")}`;
-                return false;
-              };
-            });
-          });
-          utils
-            .waitNode(".topic-share-thread .list-content")
-            .then((element) => {
-              utils.mutationObserver(element, {
-                callback: (mutations) => {
-                  mutations.forEach((item) => {
-                    item.addedNodes.forEach((item2) => {
-                      if (
-                        typeof item2.className === "string" &&
-                        item2.className.includes("topic-share-item")
-                      ) {
-                        log.success("设置新增的帖子的贴吧种类正确跳转");
-                        log.success(item2);
-                        item2.querySelector(
-                          ".thread-bottom .forum"
-                        ).ontouchstart = function (event) {
-                          utils.preventEvent(event);
-                          window?.stop();
-                          window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
-                            event.target
-                          )
-                            .trim()
-                            .replace(/吧$/g, "")}`;
-                          return false;
-                        };
-                      }
-                    });
-                  });
-                },
-                config: {
-                  childList: true,
-                  subtree: true,
-                },
-              });
-            });
-
-          DOMUtils.on(
-            document,
-            "touchstart",
-            ".topic-share-item .forum",
-            function (event) {
-              return utils.preventEvent(event);
-            }
-          );
-        },
-      };
-
-      /**
        * 贴吧搜索
        */
       const tiebaSearchConfig = {
@@ -5885,18 +5714,18 @@
             loadingView.setText("Loading...", true);
             loadingView.show();
             if (searchType === 0) {
-              if (utils.isNull(tiebaInfo.forumName)) {
+              if (utils.isNull(tiebaData.forumName)) {
                 loadingView.hide();
                 alert("获取当前吧失败");
                 return;
               }
-              log.success("当前搜索的范围吧：" + tiebaInfo.forumName);
+              log.success("当前搜索的范围吧：" + tiebaData.forumName);
             }
             let searchResult = await getSearchResult(
               searchText,
               undefined,
               searchModel,
-              tiebaInfo.forumName
+              tiebaData.forumName
             );
             tiebaCommentConfig.removeScrollListener();
             if (!searchResult) {
@@ -6038,64 +5867,6 @@
        * 贴吧其它功能
        */
       const tiebaBusiness = {
-        vueRootView: null,
-        run() {
-          /* 修改页面中的APP内签到 */
-          utils.waitNode(".tb-mobile-viewport").then(async () => {
-            tiebaBusiness.vueRootView = document.querySelector(
-              ".tb-mobile-viewport"
-            ).__vue__;
-            if (!tiebaBusiness.vueRootView["user"]["is_login"]) {
-              return;
-            }
-            utils.waitNode(".tb-forum-user__join-btn").then((element) => {
-              log.success("修改页面中的APP内签到");
-              DOMUtils.on(element, "click", function (event) {
-                utils.preventEvent(event);
-                let userPortrait =
-                  tiebaBusiness.vueRootView["user"]["portrait"];
-                let forumName = tiebaBusiness.vueRootView["forum"]["name"];
-                let tbs =
-                  tiebaBusiness.vueRootView["$store"]["state"]["common"]["tbs"];
-                tiebaBusiness.sign(forumName, tbs);
-              });
-            });
-          });
-        },
-        /**
-         * 签到
-         * @param {string} forumName 贴吧名
-         * @param {string} tbs 应该是用户token
-         */
-        async sign(forumName, tbs) {
-          log.success(["发送签到请求→", forumName, tbs]);
-          let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
-            data: `ie=utf-8&kw=${forumName}&tbs=${tbs}`,
-            headers: {
-              accept: "application/json, text/javascript, */*; q=0.01",
-              "accept-language":
-                "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-              "cache-control": "no-cache",
-              "content-type":
-                "application/x-www-form-urlencoded; charset=UTF-8",
-              referer: window.location.href,
-            },
-          });
-          log.error(postResp);
-          if (!postResp.status) {
-            tiebaBusiness.vueRootView.$toast("签到请求失败，请查看控制台");
-            return;
-          }
-          let respData = utils.toJSON(postResp.data.responseText);
-          log.success(respData);
-          if (typeof respData["data"] === "object") {
-            tiebaBusiness.vueRootView.$toast(
-              `签到排名：今日本吧第${respData["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到排名`
-            );
-          } else {
-            tiebaBusiness.vueRootView.$toast(respData["error"]);
-          }
-        },
         /**
          * 伪装客户端已调用
          */
@@ -6288,9 +6059,153 @@
       };
 
       /**
+       * 贴吧 首页功能
+       */
+      const tiebaHome = {
+        /**
+         * 重定向跳转
+         */
+        redirectJump() {
+          log.info("话题热榜-阻止默认跳转");
+          DOMUtils.on(document, "click", ".topic-share-item", function (event) {
+            utils.preventEvent(event);
+            window?.stop();
+            let clickNode = event.target;
+            let dataTrack = clickNode.getAttribute("data-track");
+            if (dataTrack == null) {
+              log.error("未找到data-track");
+              log.error(clickNode);
+              return false;
+            }
+            dataTrack = utils.toJSON(dataTrack);
+            let tid = dataTrack["tid"];
+            if (tid == null) {
+              log.error("未找到tid");
+              log.error(dataTrack);
+              return false;
+            }
+            log.success(`跳转至: https://tieba.baidu.com/p/${tid}`);
+            window.location.href = `https://tieba.baidu.com/p/${tid}`;
+            return false;
+          });
+          utils.waitNodeList(".thread-bottom .forum").then((nodeList) => {
+            log.success("设置贴吧种类正确跳转");
+            log.success(nodeList);
+            nodeList.forEach((item) => {
+              item.ontouchstart = function (event) {
+                utils.preventEvent(event);
+                window?.stop();
+                window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
+                  event.target
+                )
+                  .trim()
+                  .replace(/吧$/g, "")}`;
+                return false;
+              };
+            });
+          });
+          utils
+            .waitNode(".topic-share-thread .list-content")
+            .then((element) => {
+              utils.mutationObserver(element, {
+                callback: (mutations) => {
+                  mutations.forEach((item) => {
+                    item.addedNodes.forEach((item2) => {
+                      if (
+                        typeof item2.className === "string" &&
+                        item2.className.includes("topic-share-item")
+                      ) {
+                        log.success("设置新增的帖子的贴吧种类正确跳转");
+                        log.success(item2);
+                        item2.querySelector(
+                          ".thread-bottom .forum"
+                        ).ontouchstart = function (event) {
+                          utils.preventEvent(event);
+                          window?.stop();
+                          window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
+                            event.target
+                          )
+                            .trim()
+                            .replace(/吧$/g, "")}`;
+                          return false;
+                        };
+                      }
+                    });
+                  });
+                },
+                config: {
+                  childList: true,
+                  subtree: true,
+                },
+              });
+            });
+
+          DOMUtils.on(
+            document,
+            "touchstart",
+            ".topic-share-item .forum",
+            function (event) {
+              return utils.preventEvent(event);
+            }
+          );
+        },
+      };
+
+      /**
        * 贴吧 吧内功能
        */
       const tiebaBaNei = {
+        /**
+         * __vue__
+         * @type {object}
+         */
+        vueRootView: null,
+        /**
+         * 解除签到限制
+         */
+        removeForumSignInLimit() {
+          /* 修改页面中的APP内签到 */
+          utils.waitNode(".tb-mobile-viewport").then(async () => {
+            tiebaBaNei.vueRootView = document.querySelector(
+              ".tb-mobile-viewport"
+            ).__vue__;
+            let isLogin = Boolean(
+              tiebaBaNei.vueRootView?.["user"]?.["is_login"]
+            );
+            utils.waitNode(".tb-forum-user__join-btn").then((element) => {
+              if (isLogin) {
+                element.children[0].innerText = "点击签到";
+              } else {
+                element.children[0].innerText = "点击登录";
+              }
+              log.success("修改页面中的APP内签到");
+              DOMUtils.on(element, "click", async function (event) {
+                utils.preventEvent(event);
+                if (isLogin) {
+                  /* 已登录-签到 */
+                  let userPortrait = tiebaBaNei.vueRootView["user"]["portrait"];
+                  let forumName = tiebaBaNei.vueRootView["forum"]["name"];
+                  let tbs =
+                    tiebaBaNei.vueRootView["$store"]["state"]["common"]["tbs"];
+                  let signResult = await baiduExtraApi.tieba.forumSign(
+                    forumName,
+                    tbs
+                  );
+                  if (typeof signResult["data"] === "object") {
+                    Qmsg.success(
+                      `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+                    );
+                  } else {
+                    Qmsg.error(signResult["error"]);
+                  }
+                } else {
+                  /* 未登录-前往登录 */
+                  tiebaBaNei.vueRootView["isShowModal"] = true;
+                }
+              });
+            });
+          });
+        },
         /**
          * 记住当前用户的看帖排序
          * + -1 不知道什么作用
@@ -6320,10 +6235,8 @@
         filterDuplicatePosts() {
           utils.waitNode(".tb-threadlist").then(async (element) => {
             await utils.waitVueByInterval(
-              function () {
-                return document.querySelector(".tb-threadlist");
-              },
-              function (__vue__) {
+              element,
+              (__vue__) => {
                 return Boolean(__vue__?.$props?.list);
               },
               100,
@@ -6366,6 +6279,121 @@
         },
       };
 
+      /**
+       * 贴吧 帖子功能
+       */
+      const tiebaPost = {
+        /**
+         * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
+         */
+        optimizeImagePreview() {
+          /**
+           * 查看图片
+           * @param {Array} imgList
+           * @param {Number} _index_
+           */
+          function viewIMG(imgList = [], _index_ = 0) {
+            let viewerULNodeHTML = "";
+            imgList.forEach((item) => {
+              viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
+            });
+            let viewerULNode = DOMUtils.createElement("ul", {
+              innerHTML: viewerULNodeHTML,
+            });
+            let viewer = new Viewer(viewerULNode, {
+              inline: false,
+              url: "data-src",
+              zIndex: utils.getMaxZIndex() + 100,
+              hidden: () => {
+                viewer.destroy();
+              },
+            });
+            _index_ = _index_ < 0 ? 0 : _index_;
+            viewer.view(_index_);
+            viewer.zoomTo(1);
+            viewer.show();
+          }
+          DOMUtils.on(document, "click", "img", function (event) {
+            let clickElement = event.target;
+            let imgSrc =
+              clickElement.getAttribute("data-src") ||
+              clickElement.getAttribute("src");
+            if (
+              clickElement.parentElement.className === "viewer-canvas" ||
+              clickElement.parentElement.hasAttribute("data-viewer-action")
+            ) {
+              return;
+            }
+            if (
+              imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)
+            ) {
+              log.info(`点击图片👇`);
+              log.info(clickElement);
+              if (clickElement.parentElement.className === "img-box") {
+                /* 帖子主体内的图片 */
+                let parentMain = clickElement.closest(
+                  ".img-sudoku.main-img-sudoku"
+                );
+                log.info(parentMain);
+                if (!parentMain) {
+                  viewIMG([imgSrc]);
+                  return;
+                }
+                utils.preventEvent(event);
+                let lazyImgList = [];
+                parentMain.querySelectorAll("img.img").forEach((item) => {
+                  let _imgSrc_ =
+                    item.getAttribute("data-src") || item.getAttribute("src");
+                  log.info(`获取图片: ${_imgSrc_}`);
+                  lazyImgList = [...lazyImgList, _imgSrc_];
+                });
+                log.info("图片列表👇");
+                log.info(lazyImgList);
+                viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+              } else if (
+                clickElement.parentElement.className === "text-content"
+              ) {
+                /* 评论区内的图片 */
+                let parentMain = clickElement.parentElement;
+                let lazyImgList = [];
+                log.info(parentMain);
+                parentMain.querySelectorAll("img.BDE_Image").forEach((item) => {
+                  let _imgSrc_ =
+                    item.getAttribute("data-src") || item.getAttribute("src");
+                  log.info(`获取图片: ${_imgSrc_}`);
+                  lazyImgList = [...lazyImgList, _imgSrc_];
+                });
+                log.info("评论区图片列表👇");
+                log.info(lazyImgList);
+                viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+              } else {
+                /* 单个图片预览 */
+                viewIMG([imgSrc]);
+              }
+            }
+          });
+          DOMUtils.ready(function () {
+            utils.waitNodeWithInterval("div.img-sudoku img", 10000).then(() => {
+              let imgSudoKuElement = document.querySelector("div.img-sudoku");
+              let imgSudoKuImageElementList =
+                imgSudoKuElement.querySelectorAll("img.img");
+              log.success([
+                "重构主内容的图片",
+                imgSudoKuElement,
+                imgSudoKuImageElementList,
+              ]);
+              imgSudoKuImageElementList.forEach((element) => {
+                if (element.hasAttribute("data-src")) {
+                  element.src = element.getAttribute("data-src");
+                }
+              });
+              /* 通过重新赋值innerHTML来覆盖原有的事件 */
+              imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
+            });
+          });
+        },
+      };
+
       if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
         tiebaBusiness.clientCallMasquerade();
       }
@@ -6382,7 +6410,7 @@
         }
         if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
           log.success("优化图片预览");
-          tiebaOhterFunc.optimizeImagePreview();
+          tiebaPost.optimizeImagePreview();
         }
       }
       if (
@@ -6391,11 +6419,11 @@
         )
       ) {
         if (PopsPanel.getValue("baidu_tieba_topic_redirect_jump")) {
-          tiebaOhterFunc.redirectJump();
+          tiebaHome.redirectJump();
         }
       }
       if (
-        this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?kw=/g)
+        this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?/g)
       ) {
         /* 吧内 */
         if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
@@ -6403,6 +6431,9 @@
         }
         if (PopsPanel.getValue("baidu_tieba_filterDuplicatePosts")) {
           tiebaBaNei.filterDuplicatePosts();
+        }
+        if (PopsPanel.getValue("baidu_tieba_removeForumSignInLimit")) {
+          tiebaBaNei.removeForumSignInLimit();
         }
       } else {
         /* 贴内 */
@@ -6420,15 +6451,14 @@
       if (PopsPanel.getValue("baidu_tieba_add_search")) {
         tiebaSearchConfig.run();
       }
-      /* tiebaBusiness.run(); */
       DOMUtils.ready(function () {
         utils
           .waitAnyNode(".tb-mobile-viewport", ".main-page-wrap")
           .then(async () => {
             let interval = setInterval(() => {
-              tiebaInfo.forumName = tiebaBusiness.getCurrentForumName();
-              if (tiebaInfo.forumName) {
-                log.info("当前吧：" + tiebaInfo.forumName);
+              tiebaData.forumName = tiebaBusiness.getCurrentForumName();
+              if (tiebaData.forumName) {
+                log.info("当前吧：" + tiebaData.forumName);
                 clearInterval(interval);
               }
             }, 250);
@@ -7867,6 +7897,126 @@
               ],
             },
             {
+              text: "账号功能",
+              type: "forms",
+              forms: [
+                {
+                  text: "签到所有关注的吧",
+                  type: "button",
+                  buttonIconIsLoading: false,
+                  buttonType: "default",
+                  buttonText: "点击签到",
+                  async callback(event) {
+                    /**
+                     * 获取提示内容
+                     * @param {number} index
+                     * @param {number} maxIndex
+                     * @param {string} forumName
+                     * @param {string} text
+                     * @param {?string} signText
+                     * @returns
+                     */
+                    function getLoadingHTML(
+                      index,
+                      maxIndex,
+                      forumName,
+                      text,
+                      signText
+                    ) {
+                      return `
+                     <div>进度：${index}/${maxIndex}</div>
+                     <div>吧名：${forumName}</div>
+                     <div>信息：${text}</div>
+                     ${signText ? `签到：${signText}` : ""}
+                     `;
+                    }
+                    Qmsg.info("正在获取所有关注吧");
+                    let likeForumList =
+                      await baiduExtraApi.tieba.getUserAllLikeForum();
+                    if (!likeForumList) {
+                      return;
+                    }
+                    if (!likeForumList.length) {
+                      Qmsg.error("该账号尚未关注帖子");
+                      return;
+                    }
+                    let isStop = false;
+                    let loading = Qmsg.loading(
+                      getLoadingHTML(
+                        1,
+                        likeForumList.length,
+                        likeForumList[0].forum_name,
+                        "正在获取tbs"
+                      ),
+                      {
+                        showClose: true,
+                        onClose() {
+                          isStop = true;
+                        },
+                      }
+                    );
+                    for (let index = 0; index < likeForumList.length; index++) {
+                      if (isStop) {
+                        Qmsg.info("中断");
+                        return;
+                      }
+                      let likeForum = likeForumList[index];
+                      loading.setHTML(
+                        getLoadingHTML(
+                          index + 1,
+                          likeForumList.length,
+                          likeForum.forum_name,
+                          "正在获取tbs"
+                        )
+                      );
+                      let tbs = await baiduExtraApi.tieba.getForumTbs(
+                        likeForum.forum_name
+                      );
+                      if (!tbs) {
+                        Qmsg.info("2秒后切换至下一个");
+                        await utils.sleep(2000);
+                        continue;
+                      }
+                      Qmsg.success(`tbs ===> ${tbs}`);
+                      loading.setHTML(
+                        getLoadingHTML(
+                          index + 1,
+                          likeForumList.length,
+                          likeForum.forum_name,
+                          "发送签到请求..."
+                        )
+                      );
+                      let signResult = await baiduExtraApi.tieba.forumSign(
+                        likeForum.forum_name,
+                        tbs
+                      );
+                      if (!signResult) {
+                        Qmsg.info("2秒后切换至下一个");
+                        await utils.sleep(2000);
+                        continue;
+                      }
+                      if (typeof signResult["data"] === "object") {
+                        loading.setHTML(
+                          getLoadingHTML(
+                            index + 1,
+                            likeForumList.length,
+                            likeForum.forum_name,
+                            `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+                          )
+                        );
+                      } else {
+                        Qmsg.error(signResult["error"]);
+                      }
+                      Qmsg.info("2秒后切换至下一个");
+                      await utils.sleep(2000);
+                    }
+                    Qmsg.success(`执行签到 ${likeForumList.length} 个贴吧完毕`);
+                    loading.close();
+                  },
+                },
+              ],
+            },
+            {
               text: "吧内功能",
               type: "forms",
               forms: [
@@ -7884,6 +8034,11 @@
                   "过滤重复帖子",
                   "baidu_tieba_filterDuplicatePosts",
                   false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "解除签到限制",
+                  "baidu_tieba_removeForumSignInLimit",
+                  true
                 ),
               ],
             },
@@ -8380,6 +8535,7 @@
       }
     },
   };
+
   /**
    * 百度劫持
    */
@@ -8756,33 +8912,99 @@
     },
   };
 
-  /* --------------调试-------------- */
-  if (DEBUG) {
-    unsafeWindow.GM_Debug_WhiteSev = {
-      httpx,
-      log,
-      utils,
-      DOMUtils,
-      Viewer,
-      GM_Menu,
-      GM_addStyle,
-      GM_registerMenuCommand,
-      GM_unregisterMenuCommand,
-      GM_getValue,
-      GM_setValue,
-      GM_deleteValue,
-      GM_listValues,
-      GM_xmlhttpRequest,
-      GM_info,
-      window,
-      globalThis,
-    };
-  }
-  /* --------------调试-------------- */
+  /**
+   * 独立出来的Api功能
+   */
+  const baiduExtraApi = {
+    tieba: {
+      /**
+       * 签到吧
+       * @param {string} forumName 贴吧名
+       * @param {string} tbs 应该是用户token
+       * @returns {Promise<?boolean>}
+       */
+      async forumSign(forumName, tbs) {
+        log.success(["发送签到请求→", forumName, tbs]);
+        let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
+          data: `ie=utf-8&kw=${forumName}&tbs=${tbs}`,
+          responseType: "json",
+          headers: {
+            Accept: "application/json, text/javascript, */*; q=0.01",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            Host: "tieba.baidu.com",
+            Origin: "https://tieba.baidu.com",
+            "User-Agent": utils.getRandomPCUA(),
+            Referer: "https://tieba.baidu.com/p/",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+        log.success(postResp);
+        if (!postResp.status) {
+          return;
+        }
+        let data = utils.toJSON(postResp.data.responseText);
+        log.success(data);
+        return data;
+      },
+      /**
+       * 获取用户所有关注的吧
+       * 需要cookie
+       * 如果未登录，那么会获取到空列表
+       * @returns {Promise<?{
+       * forum_name: string,
+       * is_brand_forum: 0|number,
+       * }[]>}
+       */
+      async getUserAllLikeForum() {
+        let getResp = await httpx.get(
+          "https://tieba.baidu.com/mo/q/sug?query=&is_ajax=1&sug=1",
+          {
+            headers: {
+              Accept: "application/json",
+              Host: "tieba.baidu.com",
+              Referer: "https://tieba.baidu.com/i/i/forum",
+              "User-Agent": utils.getRandomAndroidUA(),
+            },
+          }
+        );
+        log.success(getResp);
+        if (!getResp.status) {
+          return;
+        }
+        let data = utils.toJSON(getResp.data.responseText);
+        log.success(data);
+        return data["data"]["like_forum"];
+      },
+      /**
+       * 获取吧的tbs值
+       * @returns {Promise<?string>}
+       */
+      async getForumTbs(forumName) {
+        let getResp = await httpx.get(
+          `https://tieba.baidu.com/f?kw=${forumName}&ie=utf-8`,
+          {
+            headers: {
+              Host: "tieba.baidu.com",
+              Referer: `https://tieba.baidu.com/f?kw=${forumName}&ie=utf-8`,
+            },
+          }
+        );
+        if (!getResp.status) {
+          return;
+        }
+        let PageData = getResp.data.responseText.match(
+          /var[\s]*PageData[\s\S]*'tbs'.*"(.+)"/
+        );
+        if (!PageData) {
+          return;
+        }
+        return PageData[1];
+      },
+    },
+  };
 
   /* --------------入口-------------- */
   const loadingView = new LoadingView(true);
-  unsafeWindow.loadingView = loadingView;
   PopsPanel.initMenu();
   baidu.init();
   /* --------------入口-------------- */
