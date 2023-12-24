@@ -6179,32 +6179,40 @@
                 element.children[0].innerText = "点击登录";
               }
               log.success("修改页面中的APP内签到");
-              DOMUtils.on(element, "click", async function (event) {
-                utils.preventEvent(event);
-                if (isLogin) {
-                  /* 已登录-签到 */
-                  let userPortrait = tiebaBaNei.vueRootView["user"]["portrait"];
-                  let forumName = tiebaBaNei.vueRootView["forum"]["name"];
-                  let tbs =
-                    tiebaBaNei.vueRootView["$store"]["state"]["common"]["tbs"];
-                  let signResult = await baiduExtraApi.tieba.forumSign(
-                    forumName,
-                    tbs
-                  );
-                  if (typeof signResult["data"] === "object") {
-                    Qmsg.success(
-                      `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+              DOMUtils.on(
+                element,
+                "click",
+                async function (event) {
+                  utils.preventEvent(event);
+                  if (isLogin) {
+                    /* 已登录-签到 */
+                    let userPortrait =
+                      tiebaBaNei.vueRootView["user"]["portrait"];
+                    let forumName = tiebaBaNei.vueRootView["forum"]["name"];
+                    let tbs =
+                      tiebaBaNei.vueRootView["$store"]["state"]["common"][
+                        "tbs"
+                      ];
+                    let signResult = await baiduExtraApi.tieba.forumSign(
+                      forumName,
+                      tbs
                     );
+                    if (typeof signResult["data"] === "object") {
+                      Qmsg.success(
+                        `今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+                      );
+                    } else {
+                      Qmsg.error(signResult["error"]);
+                    }
                   } else {
-                    Qmsg.error(signResult["error"]);
+                    /* 未登录-前往登录 */
+                    tiebaBaNei.vueRootView["isShowModal"] = true;
                   }
-                } else {
-                  /* 未登录-前往登录 */
-                  tiebaBaNei.vueRootView["isShowModal"] = true;
+                },
+                {
+                  capture: true,
                 }
-              },{
-                capture: true
-              });
+              );
             });
           });
         },
