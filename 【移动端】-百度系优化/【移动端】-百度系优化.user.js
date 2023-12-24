@@ -6422,9 +6422,7 @@
           tiebaHome.redirectJump();
         }
       }
-      if (
-        this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?/g)
-      ) {
+      if (this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?/g)) {
         /* 吧内 */
         if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
           tiebaBaNei.rememberPostSort();
