@@ -16,82 +16,6 @@
   "use strict";
 
   /**
-   * @typedef {object} PopsBtnCallBackEvent 按钮回调Event
-   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
-   * @property {HTMLElement} maskElement 遮罩层元素
-   * @property {string} type
-   * @property {"alert"|"confirm"} function 调用的方法
-   * @property {string} guid 唯一id
-   * @property {Function} close 关闭弹窗
-   * @property {Function} hide 隐藏弹窗
-   * @property {Function} show 显示弹窗
-   */
-
-  /**
-   * @typedef { object } PopsPromptBtnCallBackEvent
-   * @property {HTMLElement} animElement 动画元素（包裹着弹窗元素）
-   * @property {HTMLElement} maskElement 遮罩层元素
-   * @property {string} type
-   * @property {"prompt"} function 调用的方法类型
-   * @property {string} guid 唯一id
-   * @property {Function} close 关闭弹窗
-   * @property {Function} hide 隐藏弹窗
-   * @property {Function} show 显示弹窗
-   * @property {string} [text=""] 输入的内容
-   */
-
-  /**
-   * @callback PopsBtnCallBack
-   * @param {PopsBtnCallBackEvent} event 事件
-   */
-
-  /**
-   * @callback PopsPromptBtnCallBack
-   * @param {PopsPromptBtnCallBackEvent} event 事件
-   */
-
-  /**
-   * @callback PopsMaskClickCallBack
-   * @param { Function } originalRun
-   * @param { PopsAlertDetails|PopsDrawerDetails|PopsIframeDetails|PopsPromptDetails|PopsPromptBtmDetails|PopsLoadingDetails } config
-   */
-  /**
-   * @typedef { object } PopsMaskDetails 遮罩层配置
-   * @property { boolean } enable 是否启用
-   * @property { {
-   *  toClose: boolean,
-   *  toHide: boolean
-   * } } clickEvent
-   * @property { PopsMaskClickCallBack } clickCallBack
-   */
-  /**
-   * @typedef {object} PopsButtonDetails 按钮配置
-   * @property {boolean} enable 是否启用
-   * @property { "min"|"mise"|"max"|"close"|"edit"|"share"|"delete"|"search"|"upload"|"loading"|"next"|"prev" } [icon=""] 图标按钮，如果名字为内置的，则使用内置的，否则为自定义的svg
-   * @property { boolean } rightIcon 图标按钮是否放在右边
-   * @property { boolean } iconIsLoading 图标按钮是否是旋转360°
-   * @property { "large"|"small" } [size=""] 按钮尺寸大小，默认为空
-   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
-   * @property {string} [text=""] 按钮文字
-   * @property { PopsBtnCallBack } callback 按钮点击的回调
-   */
-
-  /**
-   * @typedef { object } PopsHeaderCloseButtonDetails 顶部关闭按钮配置
-   * @property { boolean } enable 是否启用
-   * @property { PopsBtnCallBack } callback 按钮点击的回调
-   */
-
-  /**
-   * @typedef {object} PopsPromptBtmDetails prompt的按钮配置
-   * @property {boolean} enable 是否启用
-   * @property { "large"|"small" } [size=""] 按钮尺寸大小，默认为空
-   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} [type=""] 按钮样式类型
-   * @property {string} [text=""] 按钮文字
-   * @property { PopsPromptBtnCallBack } callback 按钮点击的回调
-   */
-
-  /**
    * 工具类
    */
   let PopsUtils = {
@@ -127,8 +51,9 @@
       elementString = elementString
         .replace(/^[\n|\s]*/g, "")
         .replace(/[\n|\s]*$/g, "");
-      let targetElement = document.createElement("div");
-      targetElement.innerHTML = elementString;
+      let targetElement = PopsDOMUtils.createElement("div", {
+        innerHTML: elementString,
+      });
       return targetElement.firstChild;
     },
     /**
@@ -448,7 +373,7 @@
      * @returns
      */
     getKeyFrames(sheet) {
-      var result = {};
+      let result = {};
       Object.keys(sheet.cssRules).forEach((key) => {
         if (
           sheet.cssRules[key].type === 7 &&
@@ -2074,8 +1999,8 @@
     },
     /**
      * 排序数组
-     * @param {Function} getBeforeValueFun
-     * @param {Function} getAfterValueFun
+     * @param {(value: any)=>any} getBeforeValueFun
+     * @param {(value: any)=>any} getAfterValueFun
      * @param {boolean} sortByDesc 排序是否降序，默认降序
      * @returns
      */
@@ -2116,14 +2041,20 @@
      * 禁止滚动
      */
     forbiddenScroll() {
-      let forbiddenScrollCSSElement = document.createElement("style");
-      forbiddenScrollCSSElement.setAttribute("type", "text/css");
-      forbiddenScrollCSSElement.setAttribute("data-use", "forbiddenscroll");
-      forbiddenScrollCSSElement.innerHTML = `
+      let forbiddenScrollCSSElement = PopsDOMUtils.createElement(
+        "style",
+        {
+          innerHTML: `
         html,body {
           overflow: hidden !important;
         }
-        `;
+        `,
+        },
+        {
+          type: "text/css",
+          "data-use": "forbiddenscroll",
+        }
+      );
       document.head.appendChild(forbiddenScrollCSSElement);
       PopsDOMUtils.on(
         document,
@@ -2278,7 +2209,7 @@
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
      * @param {HTMLElement} element
-     * @returns {{recovery: Function}} - 恢复
+     * @returns {{recovery: ()=>void}} - 恢复
      */
     showElement(element) {
       let oldStyleAttribute = element.getAttribute("style");
@@ -2532,7 +2463,7 @@
      * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
      * @param {string|[...string]} eventType 需要取消监听的事件
      * @param {string|undefined} selector 子元素选择器
-     * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
+     * @param {(event:Event)=> void|undefined} callback 通过DOMUtils.on绑定的事件函数
      * @param {EventListenerOptions|boolean|undefined} option
      * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
      */
@@ -3002,6 +2933,42 @@
         }
       }
     },
+    /**
+     * 创建元素
+     * @param {keyof HTMLElementTagNameMap} tagName 元素类型
+     * @param {HTMLElement|undefined} property 元素属性，对已有元素上的属性或者自定义的属性赋值
+     * @param {object|undefined} attributes 元素自定义属性，通过setAttribute赋值
+     * @returns {HTMLElement}
+     */
+    createElement(tagName, property, attributes) {
+      let tempElement = document.createElement(tagName);
+      if (typeof property === "string") {
+        tempElement.innerHTML = property;
+        return tempElement;
+      }
+      if (property == void 0) {
+        property = {};
+      }
+      if (attributes == void 0) {
+        attributes = {};
+      }
+      Object.keys(property).forEach((key) => {
+        let value = property[key];
+        tempElement[key] = value;
+      });
+      Object.keys(attributes).forEach((key) => {
+        let value = attributes[key];
+        if (typeof value === "object") {
+          /* object转字符串 */
+          value = JSON.stringify(value);
+        } else if (typeof value === "function") {
+          /* function转字符串 */
+          value = value.toString();
+        }
+        tempElement.setAttribute(key, value);
+      });
+      return tempElement;
+    },
   };
 
   let pops = {};
@@ -3012,7 +2979,7 @@
     /**
      * 当前版本
      */
-    version: "2023.12.23",
+    version: "2023.12.26",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -3580,7 +3547,49 @@
 
     /* ↑panel的CSS↑ */
 
+    .pops[type-value] .pops-alert-title,
+    .pops[type-value] .pops-confirm-title,
+    .pops[type-value] .pops-drawer-title,
+    .pops[type-value] .pops-iframe-title,
+    .pops[type-value] .pops-prompt-title,
+    .pops[type-value] .pops-folder-title,
+    .pops[type-value] .pops-panel-title{display: flex;align-items: center;justify-content: space-between;}
+    .pops-header-controls button.pops-header-control[type=close],
+    .pops-header-controls button.pops-header-control[type=max],
+    .pops-header-controls button.pops-header-control[type=mise],
+    .pops-header-controls button.pops-header-control[type=min]{position:relative;float:right;margin:0 2px;outline:0!important;border:0;border-color:#888;background-color:transparent;color:#888;cursor:pointer;transition:all .3s ease-in-out;}
+    button.pops-header-control i{color:#909399;font-size:inherit;height:1em;width:1em;line-height:1em;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor}
+    button.pops-header-control svg{height:1em;width:1em}
+    button.pops-header-control{right:15px;padding:0;border:none;outline:0;background:0 0;cursor:pointer;position:unset;line-height:1.15;font-size:16px}
+    button.pops-header-control i:hover{color:#409eff}
+    .pops-header-controls[data-margin] button.pops-header-control{margin:0 6px}
+    .pops-tip{position:absolute;padding:13px;max-width:400px;max-height:300px;border-radius:2px;background-color:#fff;box-shadow:0 1.5px 4px rgba(0,0,0,.24),0 1.5px 6px rgba(0,0,0,.12);color:#4e4e4e;font-size:14px;}
+    .pops-tip .pops-tip-arrow{position:absolute;top:100%;left:50%;overflow:hidden;width:100%;height:12.5px;transform:translateX(-50%);}
+    .pops-tip .pops-tip-arrow::after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
+    .pops-tip .pops-tip-arrow[data-position=bottom]{position:absolute;top:100%;left:50%;overflow:hidden;width:100%;height:12.5px;transform:translateX(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=bottom]:after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
+    .pops-tip .pops-tip-arrow[data-position=left]{top:50%;left:-12.5px;width:12.5px;height:50px;transform:translateY(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=left]:after{position:absolute;top:50%;left:100%;content:"";}
+    .pops-tip .pops-tip-arrow[data-position=right]{top:50%;right:-12.5px;left:auto;width:12.5px;height:50px;transform:translateY(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=right]:after{position:absolute;top:50%;left:0;content:"";}
+    .pops-tip .pops-tip-arrow[data-position=top]{top:-12.5px;left:50%;transform:translateX(-50%);}
+    .pops-tip .pops-tip-arrow[data-position=top]:after{position:absolute;top:100%;left:50%;content:"";}
+    .pops-tip[data-motion]{-webkit-animation-duration:.25s;animation-duration:.25s;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;}
+    .pops-drawer-content{height: 100%;}
+    .pops[type-value="drawer"] .pops-drawer-btn{padding-top: 10px;padding-bottom: 10px;}
+    .pops[type-value] .pops-header-controls{display: flex;}
+    
+    .pops-tip[data-motion=fadeOutRight]{-webkit-animation-name:pops-motion-fadeOutRight;animation-name:pops-motion-fadeOutRight;}
+    .pops-tip[data-motion=fadeInTop]{-webkit-animation-name:pops-motion-fadeInTop;animation-name:pops-motion-fadeInTop;animation-timing-function:cubic-bezier(.49,.49,.13,1.3);}
+    .pops-tip[data-motion=fadeOutTop]{-webkit-animation-name:pops-motion-fadeOutTop;animation-name:pops-motion-fadeOutTop;animation-timing-function:cubic-bezier(.32,.37,.06,.87);}
+    .pops-tip[data-motion=fadeInBottom]{-webkit-animation-name:pops-motion-fadeInBottom;animation-name:pops-motion-fadeInBottom;}
+    .pops-tip[data-motion=fadeOutBottom]{-webkit-animation-name:pops-motion-fadeOutBottom;animation-name:pops-motion-fadeOutBottom;}
+    .pops-tip[data-motion=fadeInLeft]{-webkit-animation-name:pops-motion-fadeInLeft;animation-name:pops-motion-fadeInLeft;}
+    .pops-tip[data-motion=fadeOutLeft]{-webkit-animation-name:pops-motion-fadeOutLeft;animation-name:pops-motion-fadeOutLeft;}
+    .pops-tip[data-motion=fadeInRight]{-webkit-animation-name:pops-motion-fadeInRight;animation-name:pops-motion-fadeInRight;}
 
+    `,
+    animCSS: `
     .pops-anim[anim=pops-anim-spread]{animation:pops-anim-spread .3s;}
     .pops-anim[anim=pops-anim-shake]{animation:pops-anim-shake .3s;}
     .pops-anim[anim=pops-anim-rolling-left]{animation:pops-anim-rolling-left .3s;}
@@ -3611,6 +3620,11 @@
     .pops-anim[anim=pops-anim-roll-reverse]{animation:pops-anim-roll-reverse .3s;}
     .pops-anim[anim=pops-anim-sandra-reverse]{animation:pops-anim-sandra-reverse .3s;}
     .pops-anim[anim=pops-anim-gather-reverse]{animation:pops-anim-gather-reverse .3s;}
+    `,
+    /**
+     * 动画CSS
+     */
+    animationCSS: `
     @keyframes rotating{0%{transform:rotate(0)}
     to{transform:rotate(360deg)}
     }
@@ -3825,93 +3839,55 @@
     @keyframes pops-anim-gather-reverse{0%{opacity:0;transform:scale(5,0);}
     100%{opacity:0;transform:scale(5,0);}
     }
-    .pops[type-value] .pops-alert-title,
-    .pops[type-value] .pops-confirm-title,
-    .pops[type-value] .pops-drawer-title,
-    .pops[type-value] .pops-iframe-title,
-    .pops[type-value] .pops-prompt-title,
-    .pops[type-value] .pops-folder-title,
-    .pops[type-value] .pops-panel-title{display: flex;align-items: center;justify-content: space-between;}
-    .pops-header-controls button.pops-header-control[type=close],
-    .pops-header-controls button.pops-header-control[type=max],
-    .pops-header-controls button.pops-header-control[type=mise],
-    .pops-header-controls button.pops-header-control[type=min]{position:relative;float:right;margin:0 2px;outline:0!important;border:0;border-color:#888;background-color:transparent;color:#888;cursor:pointer;transition:all .3s ease-in-out;}
-    button.pops-header-control i{color:#909399;font-size:inherit;height:1em;width:1em;line-height:1em;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor}
-    button.pops-header-control svg{height:1em;width:1em}
-    button.pops-header-control{right:15px;padding:0;border:none;outline:0;background:0 0;cursor:pointer;position:unset;line-height:1.15;font-size:16px}
-    button.pops-header-control i:hover{color:#409eff}
-    .pops-header-controls[data-margin] button.pops-header-control{margin:0 6px}
-    .pops-tip{position:absolute;padding:13px;max-width:400px;max-height:300px;border-radius:2px;background-color:#fff;box-shadow:0 1.5px 4px rgba(0,0,0,.24),0 1.5px 6px rgba(0,0,0,.12);color:#4e4e4e;font-size:14px;}
-    .pops-tip .pops-tip-arrow{position:absolute;top:100%;left:50%;overflow:hidden;width:100%;height:12.5px;transform:translateX(-50%);}
-    .pops-tip .pops-tip-arrow::after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
-    .pops-tip .pops-tip-arrow[data-position=bottom]{position:absolute;top:100%;left:50%;overflow:hidden;width:100%;height:12.5px;transform:translateX(-50%);}
-    .pops-tip .pops-tip-arrow[data-position=bottom]:after{position:absolute;top:0;left:50%;width:12px;height:12px;background:#fff;box-shadow:0 1px 7px rgba(0,0,0,.24),0 1px 7px rgba(0,0,0,.12);content:"";transform:translateX(-50%) translateY(-50%) rotate(45deg);}
-    .pops-tip .pops-tip-arrow[data-position=left]{top:50%;left:-12.5px;width:12.5px;height:50px;transform:translateY(-50%);}
-    .pops-tip .pops-tip-arrow[data-position=left]:after{position:absolute;top:50%;left:100%;content:"";}
-    .pops-tip .pops-tip-arrow[data-position=right]{top:50%;right:-12.5px;left:auto;width:12.5px;height:50px;transform:translateY(-50%);}
-    .pops-tip .pops-tip-arrow[data-position=right]:after{position:absolute;top:50%;left:0;content:"";}
-    .pops-tip .pops-tip-arrow[data-position=top]{top:-12.5px;left:50%;transform:translateX(-50%);}
-    .pops-tip .pops-tip-arrow[data-position=top]:after{position:absolute;top:100%;left:50%;content:"";}
-    .pops-tip[data-motion]{-webkit-animation-duration:.25s;animation-duration:.25s;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;}
-    .pops-drawer-content{height: 100%;}
-    .pops[type-value="drawer"] .pops-drawer-btn{padding-top: 10px;padding-bottom: 10px;}
-    .pops[type-value] .pops-header-controls{display: flex;}
+
     @-webkit-keyframes pops-motion-fadeInTop{0%{opacity:0;-webkit-transform:translateY(-30px);transform:translateY(-30px);}
     100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
     }
     @keyframes pops-motion-fadeInTop{0%{opacity:0;transform:translateY(-30px);-ms-transform:translateY(-30px);}
     100%{opacity:1;transform:translateX(0);-ms-transform:translateX(0);}
     }
-    .pops-tip[data-motion=fadeInTop]{-webkit-animation-name:pops-motion-fadeInTop;animation-name:pops-motion-fadeInTop;animation-timing-function:cubic-bezier(.49,.49,.13,1.3);}
     @-webkit-keyframes pops-motion-fadeOutTop{0%{opacity:10;-webkit-transform:translateY(0);transform:translateY(0);}
     100%{opacity:0;-webkit-transform:translateY(-30px);transform:translateY(-30px);}
     }
     @keyframes pops-motion-fadeOutTop{0%{opacity:1;transform:translateY(0);-ms-transform:translateY(0);}
     100%{opacity:0;transform:translateY(-30px);-ms-transform:translateY(-30px);}
     }
-    .pops-tip[data-motion=fadeOutTop]{-webkit-animation-name:pops-motion-fadeOutTop;animation-name:pops-motion-fadeOutTop;animation-timing-function:cubic-bezier(.32,.37,.06,.87);}
     @-webkit-keyframes pops-motion-fadeInBottom{0%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);}
     100%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);}
     }
     @keyframes pops-motion-fadeInBottom{0%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);-ms-transform:translateY(20px);}
     100%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);-ms-transform:translateY(0);}
     }
-    .pops-tip[data-motion=fadeInBottom]{-webkit-animation-name:pops-motion-fadeInBottom;animation-name:pops-motion-fadeInBottom;}
     @-webkit-keyframes pops-motion-fadeOutBottom{0%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);}
     100%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);}
     }
     @keyframes pops-motion-fadeOutBottom{0%{opacity:1;-webkit-transform:translateY(0);transform:translateY(0);-ms-transform:translateY(0);}
     100%{opacity:0;-webkit-transform:translateY(20px);transform:translateY(20px);-ms-transform:translateY(20px);}
     }
-    .pops-tip[data-motion=fadeOutBottom]{-webkit-animation-name:pops-motion-fadeOutBottom;animation-name:pops-motion-fadeOutBottom;}
     @-webkit-keyframes pops-motion-fadeInLeft{0%{opacity:0;-webkit-transform:translateX(-20px);transform:translateX(-20px);}
     100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
     }
     @keyframes pops-motion-fadeInLeft{0%{opacity:0;-webkit-transform:translateX(-30px);transform:translateX(-30px);-ms-transform:translateX(-30px);}
     100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
     }
-    .pops-tip[data-motion=fadeInLeft]{-webkit-animation-name:pops-motion-fadeInLeft;animation-name:pops-motion-fadeInLeft;}
     @-webkit-keyframes pops-motion-fadeOutLeft{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
     100%{opacity:0;-webkit-transform:translateX(-30px);transform:translateX(-30px);}
     }
     @keyframes pops-motion-fadeOutLeft{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
     100%{opacity:0;-webkit-transform:translateX(-20px);transform:translateX(-20px);-ms-transform:translateX(-20px);}
     }
-    .pops-tip[data-motion=fadeOutLeft]{-webkit-animation-name:pops-motion-fadeOutLeft;animation-name:pops-motion-fadeOutLeft;}
     @-webkit-keyframes pops-motion-fadeInRight{0%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);}
     100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
     }
     @keyframes pops-motion-fadeInRight{0%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
     100%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
     }
-    .pops-tip[data-motion=fadeInRight]{-webkit-animation-name:pops-motion-fadeInRight;animation-name:pops-motion-fadeInRight;}
     @-webkit-keyframes pops-motion-fadeOutRight{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);}
     100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);}
     }
     @keyframes pops-motion-fadeOutRight{0%{opacity:1;-webkit-transform:translateX(0);transform:translateX(0);-ms-transform:translateX(0);}
     100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
     }
-    .pops-tip[data-motion=fadeOutRight]{-webkit-animation-name:pops-motion-fadeOutRight;animation-name:pops-motion-fadeOutRight;}
     `,
     /**
      * icon图标的svg代码
@@ -4100,7 +4076,7 @@
       `,
       view: `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-        <path
+        <path                        
           fill="currentColor"
           d="M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352m0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288zm0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448m0 64a160.192 160.192 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160"></path>
       </svg>
@@ -4128,13 +4104,18 @@
     },
     /**
      * 创建到页面中的CSS元素
+     * @type {HTMLStyleElement}
      */
     popsCSSElement: null,
+    /**
+     * 动画名
+     * @type {string[]}
+     */
     animation: [],
     /**
      * 是否已初始化
      */
-    init: false,
+    isInit: false,
     /**
      * 存储已创建的元素
      */
@@ -4259,19 +4240,33 @@
    * 初始化CSS、动画
    */
   pops.init = function () {
-    let cssResourceNode = document.createElement("style");
-    cssResourceNode.setAttribute("type", "text/css");
-    cssResourceNode.setAttribute("data-insert-from", "pops");
-    cssResourceNode.setAttribute("data-version", this.config.version);
-    cssResourceNode.innerHTML = this.config.css;
+    this.config.isInit = true;
+    this.config.popsCSSElement = PopsDOMUtils.createElement(
+      "style",
+      {
+        innerHTML: `
+      ${this.config.css}
+  
+      ${this.config.animationCSS}
+  
+      ${this.config.animCSS}
+  
+      `,
+      },
+      {
+        type: "text/css",
+        "data-insert-from": "pops",
+        "data-version": this.config.version,
+      }
+    );
     if (document.head) {
-      document.head.append(cssResourceNode);
+      document.head.append(this.config.popsCSSElement);
     } else if (document.documentElement) {
       if (document.documentElement.childNodes.length === 0) {
-        document.documentElement.appendChild(cssResourceNode);
+        document.documentElement.appendChild(this.config.popsCSSElement);
       } else {
         document.documentElement.insertBefore(
-          cssResourceNode,
+          this.config.popsCSSElement,
           document.documentElement.childNodes[
             document.documentElement.childNodes.length - 1
           ]
@@ -4280,8 +4275,6 @@
     } else {
       throw new Error("未找到可以插入到页面中的元素");
     }
-    this.config.popsCSSElement = cssResourceNode;
-    this.config.init = true;
     this.config.animation = PopsUtils.getKeyFrames(
       this.config.popsCSSElement.sheet
     );
@@ -4301,7 +4294,7 @@
      * 处理初始化
      */
     handleInit() {
-      if (!pops.config.init) {
+      if (!pops.config.isInit) {
         pops.init();
       }
     },
@@ -4557,7 +4550,7 @@
         popsElement: popsElement,
         maskElement: maskElement,
         type: "",
-        function: mode,
+        mode: mode,
         guid: guid,
         close() {
           PopsUtils.close(
@@ -4596,9 +4589,9 @@
      * animElement: HTMLElement,
      * popsElement: HTMLElement,
      * maskElement: HTMLElement,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
+     * close: ()=> void,
+     * hide: ()=> void,
+     * show: ()=> void,
      * } }
      */
     handleResultDetails(details) {
@@ -4637,7 +4630,7 @@
      * @param {string|number} keyName 键名|键值
      * @param {"keyup"|"keypress"|"keydown"} eventName 事件名，默认keypress
      * @param {?string[]} otherKeyList 组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
-     * @param {Function} callback 回调函数
+     * @param {(event:Event)=> void} callback 回调函数
      */
     handleKeyboardEvent(keyName, otherKeyList = [], callback) {
       let keyboardEvent = function (event) {
@@ -5023,38 +5016,6 @@
   };
 
   /**
-   * @typedef {object} PopsAlertDetails
-   * @property {{
-   *  text: string,
-   *  position: "left"|"right"|"top"|"bottom"|"center",
-   *  html: boolean,
-   *  style: string,
-   * }} title 标题配置
-   * @property {{
-   *  text: string,
-   *  html: boolean,
-   *  style: string,
-   * }} content 内容配置
-   * @property {{
-   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsButtonDetails,
-   *  close: PopsHeaderCloseButtonDetails,
-   * }} btn 按钮配置
-   * @property {string} [class=""] 自定义className
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {string} [widths="350px"] 弹窗宽度，默认350px
-   * @property {string} [heights="200px"] 弹窗高度，默认200px
-   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
-   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
-   * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {boolean} [dragLimit=true] 是否限制拖拽在浏览器窗口内移动，默认true
-   * @property {number} [dragExtraDistance=3] 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
-   */
-
-  /**
    * 普通信息框
    * @param { PopsAlertDetails } details 配置
    */
@@ -5241,42 +5202,6 @@
     return PopsHandler.handleResultDetails(eventDetails);
   };
 
-  /**
-   * @typedef {object} PopsConfirmDetails
-   * @property {{
-   *  text: string,
-   *  position: "left"|"right"|"top"|"bottom"|"center",
-   *  html: boolean,
-   *  style: string,
-   * }} title 标题配置
-   * @property {{
-   *  text: string,
-   *  html: boolean,
-   *  style: string,
-   * }} content 内容配置
-   * @property {{
-   *  merge: boolean,
-   *  mergeReverse: boolean,
-   *  reverse: boolean,
-   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsButtonDetails,
-   *  cancel: PopsButtonDetails,
-   *  other: PopsButtonDetails,
-   *  close: PopsHeaderCloseButtonDetails,
-   * }} btn 按钮配置
-   * @property {string} [class=""] 自定义className
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {string} [width="350px"] 弹窗宽度，默认350px
-   * @property {string} [height="200px"] 弹窗高度，默认200px
-   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
-   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
-   * @property {number} [zIndex=false] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {boolean} [dragLimit=true] 是否限制拖拽在浏览器窗口内移动，默认true
-   * @property {number} [dragExtraDistance=3] 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
-   */
   /**
    * 询问框
    * @param {PopsConfirmDetails} details
@@ -5497,45 +5422,6 @@
     return PopsHandler.handleResultDetails(eventDetails);
   };
 
-  /**
-   * @typedef {object} PopsPromptDetails
-   * @property {{
-   *  text: string,
-   *  position: "left"|"right"|"top"|"bottom"|"center",
-   *  html: boolean,
-   *  style: string,
-   * }} title 标题配置
-   * @property {{
-   *  text: string,
-   *  password: boolean,
-   *  row: boolean,
-   *  focus: boolean,
-   *  placeholder: string,
-   *  style: string,
-   * }} content 内容配置
-   * @property {{
-   *  merge: boolean,
-   *  mergeReverse: boolean,
-   *  reverse: boolean,
-   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsPromptBtmDetails,
-   *  cancel: PopsPromptBtmDetails,
-   *  other: PopsPromptBtmDetails,
-   *  close: PopsHeaderCloseButtonDetails
-   * }} btn 按钮配置
-   * @property {string} [class=""] 自定义className
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {string} [width="350px"] 弹窗宽度，默认350px
-   * @property {string} [[height="200px"] 弹窗高度，默认200px
-   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
-   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画
-   * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {boolean} [dragLimit=true] 是否限制拖拽在浏览器窗口内移动，默认true
-   * @property {number} [dragExtraDistance=3] 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
-   */
   /**
    * 输入框
    * @param {PopsPromptDetails} details
@@ -5780,21 +5666,6 @@
   };
 
   /**
-   * @typedef {object} PopsLoadingDetails
-   * @property {?HTMLElement} [parent=document.body] 父元素，默认为document.body
-   * @property {{
-   *  text: string,
-   *  icon: string
-   *  style: string,
-   * }} content 内容配置
-   * @property {string} [class=""] 自定义className
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
-   * @property {number} [zIndex=10000"] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
-   */
-  /**
    * 加载层
    * @param {PopsLoadingDetails} details
    */
@@ -5892,60 +5763,6 @@
     return PopsHandler.handleResultDetails(eventDetails);
   };
 
-  /**
-   * @typedef {object} PopsBtnIframeCallBackEvent
-   * @property {HTMLElement} animElement
-   * @property {HTMLElement} popsElement
-   * @property {HTMLElement} maskElement
-   * @property {HTMLElement} iframePopsElement
-   * @property {HTMLElement} iframePopsElement
-   * @property {"iframe"} function
-   * @property {string} guid
-   */
-  /**
-   * @typedef {object} PopsIframeDetails
-   * @property {{
-   *  text: string,
-   *  position: "left"|"right"|"top"|"bottom"|"center",
-   *  html: boolean,
-   *  style: string,
-   * }} title 标题配置
-   * @property {{
-   *  text: string,
-   *  enable: boolean,
-   *  icon: boolean,
-   * }} loading 加载配置
-   * @property {{
-   *  min: {
-   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
-   *  },
-   *  max: {
-   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
-   *  },
-   *  mise: {
-   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
-   *  },
-   *  close: {
-   *    callback: (event: PopsBtnIframeCallBackEvent)=>{}
-   *  },
-   * }} btn 按钮配置
-   * @property {string} [class=""] 自定义className
-   * @property {?string} url 地址，默认为window.location.href
-   * @property {boolean} [only="false"] 是否是唯一的弹窗，默认false
-   * @property {string} [width="300px"] 弹窗宽度，默认300px
-   * @property {string} [height="250px"] 弹窗高度，默认250px
-   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
-   * @property {string} [animation=""pops-anim-fadein-zoom""] 弹窗动画，默认pops-anim-fadein-zoom
-   * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {boolean} [dragLimit=true] 是否限制拖拽在浏览器窗口内移动，默认true
-   * @property {number} [dragExtraDistance=3] 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-   * @property {string} [topRightButton="min|max|mise|close"] 右上角按钮顺序：最小化、最大化、窗口化、关闭
-   * @property {boolean} [sandbox=false] 是否启用沙箱，默认false
-   * @property {boolean} [forbiddenScroll=false] 禁止页面滚动，默认false
-   * @property {?Function} loadEndCallBack 网页加载完毕触发的回调，默认为空
-   */
   /**
    * iframe层
    * @param {PopsIframeDetails} details
@@ -6304,29 +6121,6 @@
   };
 
   /**
-   * @typedef {object} PopsToolTipDetails
-   * @property {HTMLElement} target 目标元素
-   * @property {string|()=> string} [content=""] 显示的文字
-   * @property {"left"|"right"|"top"|"bottom"|"center"} [position="top"] 位置，默认top
-   * @property {string} [className=""] 自定义className
-   * @property {boolean} [alwaysShow=false] 是否总是显示
-   * + true 设置的triggerShowEventName、triggerCloseEventName将无效
-   *        返回提供show和close函数，取消on和off
-   * + false 返回提供on和off，取消close函数
-   * @property {string} [triggerShowEventName="mouseenter touchstart"] 触发显示事件的名称，默认mouseenter touchstart，如果是多个事件，按空格分割
-   * @property {string} [triggerCloseEventName="mouseleave touchend"] 触发关闭事件的名称，默认mouseleave touchend，如果是多个事件，按空格分割
-   * @property {number} [zIndex=10000] z-index，默认10000
-   * @property {boolean} [only=false] 是否唯一，默认false
-   * @property {Function} triggerShowEventCallBack 触发显示事件的回调
-   * @property {Function} triggerCloseEventCallBack 触发关闭事件的回调
-   * @property {number} [arrowDistance=12.5] 箭头与目标的的距离，默认12.5px
-   * @property {number} [otherDistance=0] 其它的距离，默认0px
-   * 如：
-   * 当position="left|right"，这个距离是上、下距离
-   * 当position="top|bottom"，这个距离是左、右距离
-   *
-   */
-  /**
    * 提示框
    * @param {PopsToolTipDetails} details
    */
@@ -6632,42 +6426,6 @@
   };
 
   /**
-   * @typedef {object} PopsDrawerDetails
-   * @property { {
-   *  enable: boolean,
-   *  position: "left"|"right"|"center"|"start"|"-webkit-center"|"-webkit-match-parent",
-   *  text: string,
-   *  html: boolean
-   *  style: string,
-   * } } title 标题
-   * @property { {
-   *  text: string,
-   *  html: boolean
-   *  style: string,
-   * } } content 内容
-   * @property {{
-   *  merge: boolean,
-   *  mergeReverse: boolean,
-   *  reverse: boolean,
-   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsButtonDetails,
-   *  cancel: PopsButtonDetails,
-   *  other: PopsButtonDetails,
-   *  close: PopsHeaderCloseButtonDetails,
-   * }} btn 按钮配置
-   * @property { PopsMaskDetails } mask 遮罩层
-   * @property {string} [class=""] 自定义className名，默认为空
-   * @property {number} [zIndex=10000] z-index值，默认为10000
-   * @property {boolean} [only=false] 是否是页面中的唯一，默认为false
-   * @property {"top"|"bottom"|"left"|"right"} direction Drawer 打开的方向，默认为false
-   * @property {string} [size="30%"] 窗体的大小, 当使用 number 类型时, 以像素为单位，默认为30%
-   * @property {boolean} [lockScroll=false] 是否在 Drawer 出现时将 body 滚动锁定，默认为false
-   * @property {boolean} [closeOnPressEscape=true] 是否可以通过按下 ESC 关闭 Drawer，默认为true
-   * @property {number} [openDelay=0] Drawer 打开的延时时间，单位毫秒，默认为0
-   * @property {number} [closeDelay=0] Drawer 关闭的延时时间，单位毫秒，默认为0
-   * @property {number} [borderRadius=0] border-radius，根据direction自动适应，默认为5
-   */
-  /**
    * 抽屉
    * @param {PopsDrawerDetails} details
    */
@@ -6944,46 +6702,6 @@
     return PopsHandler.handleResultDetails(eventDetails);
   };
 
-  /**
-   * @typedef {object} PopsFolderDetails
-   * @property {{
-   *  text: string,
-   *  position: "left"|"right"|"top"|"bottom"|"center",
-   *  html: boolean,
-   *  style: string,
-   * }} title 标题配置
-   * @property {{
-   * fileName: string,
-   * fileSize: number,
-   * fileType: string,
-   * createTime: number,
-   * latestTime: number,
-   * isFolder: boolean,
-   * clickEvent: Function,
-   * }[]} folder 文件夹信息
-   * @property {{
-   *  merge: boolean,
-   *  mergeReverse: boolean,
-   *  reverse: boolean,
-   *  position: "center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly",
-   *  ok: PopsButtonDetails,
-   *  cancel: PopsButtonDetails,
-   *  other: PopsButtonDetails,
-   *  close: PopsHeaderCloseButtonDetails,
-   * }} btn 按钮配置
-   * @property {string} [class=""] 自定义className
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {string} [width="350px"] 弹窗宽度，默认350px
-   * @property {string} [height="200px"] 弹窗高度，默认200px
-   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
-   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
-   * @property {number} [zIndex=false] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {boolean} [dragLimit=true] 是否限制拖拽在浏览器窗口内移动，默认true
-   * @property {number} [dragExtraDistance=3] 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动，默认false
-   */
   /**
    * 文件夹
    * @param {PopsFolderDetails} details
@@ -7327,10 +7045,10 @@
       let origin_fileName = fileName;
       let origin_latestTime = latestTime;
       let origin_fileSize = fileSize;
-      let folderELement = document.createElement("tr");
-      let fileNameElement = document.createElement("td");
-      let fileTimeElement = document.createElement("td");
-      let fileFormatSize = document.createElement("td");
+      let folderELement = PopsDOMUtils.createElement("tr");
+      let fileNameElement = PopsDOMUtils.createElement("td");
+      let fileTimeElement = PopsDOMUtils.createElement("td");
+      let fileFormatSize = PopsDOMUtils.createElement("td");
       let fileType = "";
       let fileIcon = Folder_ICON.folder;
       if (arguments.length === 1) {
@@ -7414,8 +7132,8 @@
       let origin_fileName = fileName;
       let origin_latestTime = latestTime;
       let origin_fileSize = fileSize;
-      let folderELement = document.createElement("tr");
-      let fileNameElement = document.createElement("td");
+      let folderELement = PopsDOMUtils.createElement("tr");
+      let fileNameElement = PopsDOMUtils.createElement("td");
       let fileType = "";
       let fileIcon = Folder_ICON.folder;
       if (arguments.length === 1) {
@@ -7476,30 +7194,36 @@
       folderListBodyElement.innerHTML = "";
     }
     function getArrowIconElement() {
-      let iconArrowElement = document.createElement("div");
-      iconArrowElement.className = "iconArrow";
+      let iconArrowElement = PopsDOMUtils.createElement("div", {
+        className: "iconArrow",
+      });
       return iconArrowElement;
     }
     /**
      * 添加顶部导航
      * @param {string} name
-     * @param {object} _config_
+     * @param {PopsFolderDataConfig} _config_
      * @returns
      */
     function getBreadcrumbAllFilesElement(name, _config_) {
-      let spanElement = document.createElement("span");
-      spanElement.className =
-        "pops-folder-file-list-breadcrumb-allFiles cursor-p";
-      spanElement.setAttribute("title", name);
-      spanElement.innerHTML = `<a>${name}</a>`;
-      spanElement._config_ = _config_;
+      let spanElement = PopsDOMUtils.createElement(
+        "span",
+        {
+          className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
+          innerHTML: `<a>${name}</a>`,
+        },
+        {
+          title: "name",
+          _config_: _config_,
+        }
+      );
       return spanElement;
     }
     /**
      * 顶部导航的点击事件
      * @param {Event} event
      * @param {boolean} isTop
-     * @param {object} _config_
+     * @param {PopsFolderDataConfig} _config_
      */
     function breadcrumbAllFilesElementClickEvent(event, isTop, _config_) {
       clearFolerRow();
@@ -7545,7 +7269,7 @@
     /**
      * 刷新文件列表界面信息
      * @param {Event} event
-     * @param {object} _config_
+     * @param {PopsFolderDataConfig} _config_
      */
     async function refreshFolderInfoClickEvent(event, _config_) {
       clearFolerRow();
@@ -7588,15 +7312,7 @@
     /**
      * 设置文件点击事件
      * @param {HTMLElement} targetElement
-     * @param {{
-     * fileName: string,
-     * fileSize: number,
-     * fileType: string,
-     * createTime: number,
-     * latestTime: number,
-     * isFolder: boolean,
-     * clickEvent: Function,
-     * }} _config_
+     * @param {PopsFolderDataConfig} _config_
      */
     function setFileClickEvent(targetElement, _config_) {
       PopsDOMUtils.on(
@@ -7609,12 +7325,6 @@
           event?.stopImmediatePropagation();
           let linkElement = targetElement.querySelector("a");
           if (typeof _config_.clickEvent === "function") {
-            /**
-             * @type {?{
-             * autoDownload: boolean,
-             * url: string,
-             * }}
-             */
             let downloadInfo = await _config_.clickEvent(event, _config_);
             if (
               typeof downloadInfo === "object" &&
@@ -7638,15 +7348,7 @@
     }
     /**
      * 添加元素
-     * @param {{
-     * fileName: string,
-     * fileSize: number,
-     * fileType: string,
-     * createTime: number,
-     * latestTime: number,
-     * isFolder: boolean,
-     * clickEvent: Function,
-     * }[]} _config_
+     * @param {PopsFolderDataConfig[]} _config_
      */
     function addFolderElement(_config_) {
       _config_.forEach((item) => {
@@ -7707,137 +7409,6 @@
     }
     return PopsHandler.handleResultDetails(eventDetails);
   };
-
-  /**
-   * @typedef {Array<PopsPanelSwitchDetails|PopsPanelSliderDetails|PopsPanelInputDetails|PopsPanelTextAreaDetails|PopsPanelSelectDetails|PopsPanelButtonDetails|PopsPanelOwnDetails>} PopsPanelFormsDetailsArray
-   */
-  /**
-   * @typedef {object} PopsPanelFormsDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在顶部的文字
-   * @property {"forms"} type 类型
-   * @property { PopsPanelFormsDetailsArray } forms 子配置
-   */
-  /**
-   * @typedef {object} PopsPanelSwitchDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在左边的文字
-   * @property {"switch"} type 类型
-   * @property {()=> boolean} getValue 获取该项的值的回调函数
-   * @property {(event:Event,value:boolean)=>{}} callback switch开启/关闭触发的回调函数
-   */
-  /**
-   * @typedef {object} PopsPanelSliderDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在左边的文字
-   * @property {"slider"} type 类型
-   * @property {()=> number} getValue 获取该项的值的回调函数
-   * @property {(event:Event,value:number)=>{}} callback 滑块的值改变触发的回调函数
-   * @property {(value: number)=>string} getToolTipContent 获取tooltip的提示内容，可自定义，默认为slider的值
-   * @property {number} min 最小值
-   * @property {number} max 最大值
-   * @property {?number} step 每次滑动的间隔值
-   */
-  /**
-   * @typedef {object} PopsPanelInputDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在左边的文字
-   * @property {"input"} type 类型
-   * @property {()=> string} getValue 获取该项的值的回调函数
-   * @property {(event:Event,value:string)=>{}} callback 输入框的值改变触发的回调函数
-   * @property {string} placeholder 输入框内的提示
-   * @property {boolean} isPassword 是否是密码框
-   */
-  /**
-   * @typedef {object} PopsPanelTextAreaDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在左边的文字
-   * @property {"textarea"} type 类型
-   * @property {()=> string} getValue 获取该项的值的回调函数
-   * @property {(event:Event,value:string)=>{}} callback textarea输入框的值改变触发的回调函数
-   * @property {string} placeholder 输入框内的提示
-   */
-  /**
-   * @typedef {object} PopsPanelSelectDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在左边的文字
-   * @property {"select"} type 类型
-   * @property {()=> string} getValue 获取该项的值的回调函数
-   * @property {(event:Event,isSelectedValue:string,isSelectedText:string)=>{}} callback 选择器的值改变触发的回调函数
-   * @property {{
-   * value: string,
-   * text: string,
-   * }[]} data 选择器内的数据组
-   */
-  /**
-   * @typedef {object} PopsPanelButtonDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {string} text 显示在左边的文字
-   * @property {"button"} type 类型
-   * @property {"default"|"primary"|"xiaomi-primary"|"success"|"info"|"warning"|"danger"} buttonType 按钮的类型
-   * @property {string|()=>string} buttonText 按钮的文字
-   * @property {string} buttonIcon 按钮的图标，已配置的svg请看pops.config.iconSVG，或者自定义的图标svg代码
-   * @property {boolean} buttonIsRightIcon 按钮的图标在右边
-   * @property {boolean} buttonIconIsLoading 按钮的图标旋转
-   * @property {(event:Event)=>{}} callback 点击button触发的事件
-   */
-  /**
-   * @typedef {object} PopsPanelOwnDetails
-   * @property {?string} className className属性
-   * @property {?object} attributes 自定义属性
-   * @property {?HTMLElement} props 自定义元素属性
-   * @property {"own"} type 类型
-   * @property {(liElement:HTMLLIElement)=>HTMLLIElement} getLiElementCallBack 获取自定义<li>标签元素
-   */
-  /**
-   * @typedef {object} PopsPanelDetails
-   * @property {{
-   *  text: string,
-   *  position: "left"|"right"|"top"|"bottom"|"center",
-   *  html: boolean,
-   *  style: string,
-   * }} title 标题配置
-   * @property {{
-   * id: string,
-   * title: string,
-   * headerTitle?: string,
-   * autoAdaptionContentHeight?: string,
-   * isDefault?: boolean,
-   * attributes?: object[]|object,
-   * props?: HTMLElement,
-   * forms: PopsPanelFormsDetailsArray,
-   * }[]} content 内容配置
-   * @property {{
-   *  close: PopsHeaderCloseButtonDetails,
-   * }} btn 按钮配置
-   * @property {string} [class=""] 自定义className
-   * @property {string} [mobileClassName="pops-panel-is-mobile"] 移动端的className
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {string} [widths="350px"] 弹窗宽度，默认350px
-   * @property {string} [heights="200px"] 弹窗高度，默认200px
-   * @property {"top_left"|"top"|"top_right"|"center_left"|"center"|"center_right"|"bottom_left"|"bottom"|"bottom_right"} [position="center"] 弹窗位置，默认center
-   * @property {string} [animation="pops-anim-fadein-zoom"] 弹窗动画，默认pops-anim-fadein-zoom
-   * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property { PopsMaskDetails } mask 遮罩层，默认关闭
-   * @property {boolean} [drag=false] 是否可以按钮标题栏进行拖拽，默认false
-   * @property {boolean} [dragLimit=true] 是否限制拖拽在浏览器窗口内移动，默认true
-   * @property {number} [dragExtraDistance=3] 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-   * @property {boolean} [forbiddenScroll=false] 禁用页面滚动
-   */
 
   /**
    * 配置面板
@@ -8257,15 +7828,7 @@
       },
       /**
        * 获取左侧容器元素<li>
-       * @param { {
-       * id: string,
-       * title: string,
-       * headerTitle?: string,
-       * forms: PopsPanelFormsDetailsArray
-       * isDefault?: boolean,
-       * attributes?: object[]|object,
-       * props?: HTMLElement,
-       * } } asideConfig
+       * @param { PopsPanelContentConfig } asideConfig
        * @returns
        */
       getAsideItem(asideConfig) {
@@ -8723,16 +8286,7 @@
       /**
        * 为左侧容器元素添加点击事件
        * @param {HTMLElement} asideLiElement 左侧的容器<li>元素
-       * @param {{
-       * id: string,
-       * title: string,
-       * headerTitle?: string,
-       * autoAdaptionContentHeight?: boolean,
-       * contentContainerOffset?: number,
-       * isDefault?: boolean | undefined,
-       * attributes?: any[] | undefined,
-       * forms: PopsPanelFormsDetailsArray,
-       * }} asideConfig 配置
+       * @param {PopsPanelContentConfig} asideConfig 配置
        */
       setAsideItemClickEvent(asideLiElement, asideConfig) {
         let that = this;
@@ -8832,24 +8386,6 @@
     return PopsHandler.handleResultDetails(eventDetails);
   };
 
-  /**
-   * @typedef {object} PopsRightClickMenuDataDetails
-   * @property {string} icon svg图标
-   * @property {boolean} iconIsLoading 图标是否旋转
-   * @property {string|()=> string} text 文字
-   * @property {(event:Event, contextMenuEvent: Event, liElement: HTMLLIElement)=> boolean|undefined} callback 点击的回调函数
-   * @property {?PopsRightClickMenuDataDetails[]} item 子项配置
-   */
-  /**
-   * @typedef {object} PopsRightClickMenuDetails
-   * @property {HTMLElement} [target=document.documentElement] 目标，默认为document.documentElement
-   * @property {?string} targetSelector 目标的子元素选择器，默认为空
-   * @property {PopsRightClickMenuDataDetails[]} data 数据
-   * @property {string} [className=""] 自定义className，默认为空
-   * @property {boolean} [only=false] 是否是唯一的弹窗，默认false
-   * @property {number} [zIndex=10000] 弹窗的显示层级，默认10000
-   * @property {boolean} [preventDefault=true] 是否阻止默认contextmenu事件
-   */
   /**
    * 右键菜单
    * @param { PopsRightClickMenuDetails } details 配置
