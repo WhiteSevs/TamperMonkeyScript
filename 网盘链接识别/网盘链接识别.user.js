@@ -58,9 +58,9 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1300442/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1301774/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1296917/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1301773/DOMUtils.js
 // ==/UserScript==
 
 (function () {
