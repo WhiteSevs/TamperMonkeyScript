@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.23
+// @version      2023.12.26
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -1483,8 +1483,9 @@
         .waitNode("div#script-content div.code-container")
         .then((element) => {
           let copyButton = DOMUtils.createElement("button", {
-            style: "margin-bottom: 1em;",
             textContent: "复制代码",
+          },{
+            style: "margin-bottom: 1em;",
           });
           DOMUtils.on(copyButton, "click", async function () {
             let loading = Qmsg.loading("加载文件中...");
