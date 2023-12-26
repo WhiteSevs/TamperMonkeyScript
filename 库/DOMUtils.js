@@ -139,12 +139,13 @@
 
   /**
    * 创建元素
-   * @param {string} tagName 元素类型
-   * @param {HTMLElement|undefined} property 元素属性
+   * @param {keyof HTMLElementTagNameMap} tagName 元素类型
+   * @param {HTMLElement|undefined} property 元素属性，对已有元素上的属性或者自定义的属性赋值
+   * @param {object|undefined} attributes 元素自定义属性，通过setAttribute赋值
    * @returns {HTMLElement}
    * @example
    * // 创建一个DIV元素，且属性class为xxx
-   * DOMUtils.createElement("div",{ class:"xxx" });
+   * DOMUtils.createElement("div",undefined,{ class:"xxx" });
    * > <div class="xxx"></div>
    * @example
    * // 创建一个DIV元素
@@ -155,21 +156,32 @@
    * DOMUtils.createElement("div","测试");
    * > <div>测试</div>
    */
-  DOMUtils.createElement = function (tagName, property) {
+  DOMUtils.createElement = function (tagName, property, attributes) {
     let tempElement = document.createElement(tagName);
     if (typeof property === "string") {
       tempElement.innerHTML = property;
       return tempElement;
     }
     if (property == void 0) {
-      return tempElement;
+      property = {};
+    }
+    if (attributes == void 0) {
+      attributes = {};
     }
     Object.keys(property).forEach((key) => {
-      if (key in tempElement || typeof property[key] === "object") {
-        tempElement[key] = property[key];
-      } else {
-        tempElement.setAttribute(key, property[key]);
+      let value = property[key];
+      tempElement[key] = value;
+    });
+    Object.keys(attributes).forEach((key) => {
+      let value = attributes[key];
+      if (typeof value === "object") {
+        /* object转字符串 */
+        value = JSON.stringify(value);
+      } else if (typeof value === "function") {
+        /* function转字符串 */
+        value = value.toString();
       }
+      tempElement.setAttribute(key, value);
     });
     return tempElement;
   };
