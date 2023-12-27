@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.26
+// @version      2023.12.27
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -33,6 +33,8 @@
 // @match        *://chat.baidu.com/*
 // @match        *://easylearn.baidu.com/*
 // @match        *://uf9kyh.smartapps.cn/*
+// @match        *://isite.baidu.com/*
+// @match        *://aistudy.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
 // @connect      tieba.baidu.com
@@ -1179,6 +1181,7 @@
       this.chat();
       this.mini_jiaoyu();
       this.easyLearn();
+      this.aiStudy();
     },
     css: {
       search: `
@@ -1725,6 +1728,15 @@
       .vip-banner-cont{
         display: none !important;
       }
+      `,
+      aiStudy: `
+
+      `,
+      isite_wjz2tdly: `
+      /* 底部推荐广告项 */
+      .gt-local-h5-advert-card-root-container{
+        display: none !important;
+      }      
       `,
     },
     /**
@@ -6851,7 +6863,7 @@
       }
     },
     /**
-     * 百度知道
+     * 百家号
      */
     mbd() {
       if (!this.url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
@@ -7553,6 +7565,129 @@
         }
       });
     },
+    /**
+     * 知了爱学
+     */
+    aiStudy() {
+      let that = this;
+      /**
+       * 知了爱学-百度基木鱼
+       */
+      const isite = {
+        init() {
+          GM_addStyle(that.css.isite_wjz2tdly);
+          log.info("插入CSS规则");
+          if (
+            PopsPanel.getValue(
+              "baidu_isite_wjz2tdly_shieldBottomBarRootContainer"
+            )
+          ) {
+            this.shieldBottomBarRootContainer();
+          }
+          if (
+            PopsPanel.getValue("baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar")
+          ) {
+            this.shieldRightSeeMoreToolBar();
+          }
+          if (PopsPanel.getValue("baidu_isite_wjz2tdly_shieldArticleBottom")) {
+            this.shieldArticleBottom();
+          }
+          if (PopsPanel.getValue("baidu_isite_wjz2tdly_autoExpandFullText")) {
+            this.autoExpandFullText();
+          }
+        },
+        /**
+         * 屏蔽底部免费在线咨询
+         */
+        shieldBottomBarRootContainer() {
+          GM_addStyle(`
+          .gt-local-h5-article-bottom-bar-root-container{
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 屏蔽右侧悬浮按钮-查看更多
+         */
+        shieldRightSeeMoreToolBar() {
+          GM_addStyle(`
+          .icon-article-list.icon-article-list-exp{
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 屏蔽底部-大家还在看
+         */
+        shieldArticleBottom() {
+          GM_addStyle(`
+          .article-bottom{
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 自动展开全文
+         */
+        autoExpandFullText() {
+          GM_addStyle(`
+          .gt-local-h5-article-detail-article-fold-exp{
+            max-height: unset !important;
+          }
+          /* 点击查看全文按钮 */
+          .fold-wrapper{
+            display: none !important;
+          }
+          `);
+        },
+      };
+      /**
+       * 知了爱学
+       */
+      const aistudy = {
+        init() {
+          GM_addStyle(that.css.aiStudy);
+          log.info("插入CSS规则");
+          if (PopsPanel.getValue("baidu_ai_study_shieldBottomToolBar")) {
+            this.shieldBottomToolBar();
+          }
+          if (PopsPanel.getValue("baidu_ai_study_autoExpandFullText")) {
+            this.autoExpandFullText();
+          }
+        },
+        /**
+         * 屏蔽底部工具栏
+         */
+        shieldBottomToolBar() {
+          GM_addStyle(`
+          .gt-edu-h5-c-article-bottom{
+            display: none !important;
+          }
+          `);
+        },
+        /**
+         * 自动展开全文
+         */
+        autoExpandFullText() {
+          GM_addStyle(`
+          .gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
+            max-height: unset !important;
+          }
+          /* 点击查看全文 */
+          .gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper{
+            display: none !important;
+          }
+          `);
+        },
+      };
+      if (this.url.match(/^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g)) {
+        /* 知了爱学-百度基木鱼 */
+        isite.init();
+      } else if (this.url.match(/^http(s|):\/\/aistudy.baidu.com/g)) {
+        /* 知了爱学 */
+        aistudy.init();
+      }
+    },
   };
 
   /**
@@ -7870,8 +8005,13 @@
         {
           id: "baidu-panel-config-baijiahao",
           title: "百家号",
-          headerTitle: "百家号<br />baijiahao.baidu.com",
+          headerTitle: "百家号<br />baijiahao.baidu.com<br />mbd.baidu.com",
           forms: [
+            {
+              text: "百家号（baijiahao）👇",
+              type: "forms",
+              forms: [],
+            },
             {
               text: "屏蔽",
               type: "forms",
@@ -7910,6 +8050,53 @@
                 PopsPanel.getSwtichDetail(
                   "劫持-OpenBox函数",
                   "baidu_baijiahao_hijack_openbox",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "百家号（mbd）👇",
+              type: "forms",
+              forms: [],
+            },
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】精彩评论",
+                  "baidu_mbd_block_exciting_comments",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】精彩推荐",
+                  "baidu_mbd_block_exciting_recommendations",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部工具栏",
+                  "baidu_mbd_shield_bottom_toolbar",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "拦截-唤醒App",
+                  "baidu_mbd_hijack_wakeup",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "拦截-iframe唤醒App",
+                  "baidu_mbd_hijack_iframe",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "劫持-BoxJSBefore函数",
+                  "baidu_mbd_hijack_BoxJSBefore",
                   false
                 ),
               ],
@@ -8279,7 +8466,7 @@
               ],
             },
             {
-              text: "App",
+              text: "App（fanyi-app）",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
@@ -8313,55 +8500,6 @@
                 PopsPanel.getSwtichDetail(
                   "拦截-唤醒App",
                   "baidu_map_hijack_wakeup",
-                  false
-                ),
-              ],
-            },
-          ],
-        },
-        {
-          id: "baidu-panel-config-mbd",
-          title: "知道",
-          headerTitle: "百度知道<br />mbd.baidu.com",
-          forms: [
-            {
-              text: "屏蔽",
-              type: "forms",
-              forms: [
-                PopsPanel.getSwtichDetail(
-                  "【屏蔽】精彩评论",
-                  "baidu_mbd_block_exciting_comments",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
-                  "【屏蔽】精彩推荐",
-                  "baidu_mbd_block_exciting_recommendations",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
-                  "【屏蔽】底部工具栏",
-                  "baidu_mbd_shield_bottom_toolbar",
-                  false
-                ),
-              ],
-            },
-            {
-              text: "劫持/拦截",
-              type: "forms",
-              forms: [
-                PopsPanel.getSwtichDetail(
-                  "拦截-唤醒App",
-                  "baidu_mbd_hijack_wakeup",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
-                  "拦截-iframe唤醒App",
-                  "baidu_mbd_hijack_iframe",
-                  true
-                ),
-                PopsPanel.getSwtichDetail(
-                  "劫持-BoxJSBefore函数",
-                  "baidu_mbd_hijack_BoxJSBefore",
                   false
                 ),
               ],
@@ -8547,6 +8685,78 @@
                 PopsPanel.getSwtichDetail(
                   "自动显示答案",
                   "baidu_easylearn_auto_show_answer",
+                  true
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-ai-study",
+          title: "知了爱学",
+          headerTitle:
+            "知了爱学<br />aistudy.baidu.com<br />isite.baidu.com/site/wjz2tdly",
+          forms: [
+            {
+              text: "知了爱学（isite）👇",
+              type: "forms",
+              forms: [],
+            },
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部免费在线咨询",
+                  "baidu_isite_wjz2tdly_shieldBottomBarRootContainer",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】右侧悬浮按钮-查看更多",
+                  "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】大家还在看",
+                  "baidu_isite_wjz2tdly_shieldArticleBottom",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动展开全文",
+                  "baidu_isite_wjz2tdly_autoExpandFullText",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "知了爱学（aistudy）👇",
+              type: "forms",
+              forms: [],
+            },
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部工具栏",
+                  "baidu_ai_study_shieldBottomToolBar",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动展开全文",
+                  "baidu_ai_study_autoExpandFullText",
                   true
                 ),
               ],
