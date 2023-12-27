@@ -1,6 +1,6 @@
 # 🎈 简介
 
-测试环境：`Tampermonkey BETA`版本`5.0.6191`
+测试环境：`Tampermonkey BETA`版本`5.0.6192`
 脚本使用方式，[点击前往查看](https://greasyfork.org/#home-step-1)
 
 注：
@@ -35,6 +35,8 @@
 |     [![https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://chat.baidu.com/?size=16)](https://chat.baidu.com/)搜索AI伙伴 | 【屏蔽】水印 |  |
 |     [![https://favicon.yandex.net/favicon/v2/https://uf9kyh.smartapps.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://uf9kyh.smartapps.cn/?size=16)](https://uf9kyh.smartapps.cn/)百度小程序-百度教育| 【屏蔽】底部下拉菜单 | |
 |     [![https://favicon.yandex.net/favicon/v2/https://easylearn.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://easylearn.baidu.com/?size=16)](https://easylearn.baidu.com/)百度教育| 【屏蔽】本题试卷、【屏蔽】本卷好题、【屏蔽】相关试卷、【屏蔽】视频讲解、【屏蔽】学霸笔记、【屏蔽】底部工具栏 | 去除广告、允许使用顶部输入框进行搜索、自动展开答案 |
+|     [![https://favicon.yandex.net/favicon/v2/https://aistudy.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://aistudy.baidu.com/?size=16)](https://aistudy.baidu.com/site/wjzsorv8/ee4a82b3-2cf6-4d04-8962-c21a75040e9e)知了好学| 【屏蔽】底部工具栏、自动展开全文 | 去除广告 |
+|     [![https://favicon.yandex.net/favicon/v2/https://aistudy.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://aistudy.baidu.com/?size=16)](https://aistudy.baidu.com/site/wjzsorv8/ee4a82b3-2cf6-4d04-8962-c21a75040e9e)知了好学-百度基木鱼 | 【屏蔽】底部免费在线咨询、【屏蔽】右侧悬浮按钮-查看更多、【屏蔽】大家还在看、自动展开全文 | 去除广告 |
 
 对`百度搜索`、`百度贴吧`、`百度识图`添加了新功能
 
