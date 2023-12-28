@@ -78,7 +78,7 @@ declare interface HttpxHeaders {
      * 浏览器会基于请求的上下文来为这个请求头设置合适的值，比如获取一个 CSS 层叠样式表时值与获取图片、视频或脚本文件时的值是不同的。
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept
      */
-    Accept: string;
+    "Accept": string;
     /**
      * 头由服务器设置，以指定客户端应在后续请求中应包含哪些客户端 Client Hints (en-US) 提示头
      * + 备注： Client Hints (en-US) 只能在安全源（通过 TLS）上访问。所有安全的请求都应该持久化 Accept-CH 和 Accept-CH-Lifetime 头，以确保 Client Hints (en-US) 可靠地发送。
@@ -201,7 +201,7 @@ declare interface HttpxHeaders {
      * Age 的值通常接近于 0。表示此对象刚刚从原始服务器获取不久；其他的值则是表示代理服务器当前的系统时间与此应答中的通用头 Date 的值之差。
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Age
      */
-    Age: string;
+    "Age": string;
     /**
      * Allow 首部字段用于枚举资源所支持的 HTTP 方法的集合。
      * 若服务器返回状态码 405 Method Not Allowed，则该首部字段亦需要同时返回给客户端。
@@ -209,7 +209,7 @@ declare interface HttpxHeaders {
      * 这是可能的，比如服务器需要临时禁止对资源的任何访问。
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Allow
      */
-    Allow: string;
+    "Allow": string;
     /**
      * Alt-Svc 全称为“Alternative-Service”，直译为“备选服务”。
      * 该头部列举了当前站点备选的访问方式列表。一般用于在提供“QUIC”等新兴协议支持的同时，实现向下兼容。
@@ -329,7 +329,7 @@ declare interface HttpxHeaders {
      * 在请求中 (如POST 或 PUT)，客户端告诉服务器实际发送的数据类型。
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type
      */
-    "Content-Type": "text/html; charset=utf-8"|"multipart/form-data"|"application/x-www-form-urlencoded"|"application/json"|string;
+    "Content-Type": "text/html; charset=utf-8" | "multipart/form-data" | "application/x-www-form-urlencoded" | "application/json" | string;
     /**
      * Cookie 是一个 HTTP 请求标头，其中含有先前由服务器通过 Set-Cookie 标头投放或通过 JavaScript 的 Document.cookie 方法设置，然后存储到客户端的 HTTP cookie 。
      * 这个标头是可选的，而且可能会被忽略，例如在浏览器的隐私设置里面设置为禁用 cookie。
@@ -382,7 +382,7 @@ declare interface HttpxHeaders {
      * + 1 表示用户不愿意目标站点追踪用户个人信息。
      * @deprecated
      */
-    "DNT": "0"|"1";
+    "DNT": "0" | "1";
     /**
      * 
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Downlink
@@ -601,7 +601,7 @@ declare interface HttpxHeaders {
      * Referrer-Policy 首部用来监管哪些访问来源信息——会在 Referer 中发送——应该被包含在生成的请求当中
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Referrer-Policy
      */
-    "Referrer-Policy": "no-referrer"|"no-referrer-when-downgrade"|"origin"|"origin-when-cross-origin"|"same-origin"|"strict-origin"|"strict-origin-when-cross-origin"|"unsafe-url";
+    "Referrer-Policy": "no-referrer" | "no-referrer-when-downgrade" | "origin" | "origin-when-cross-origin" | "same-origin" | "strict-origin" | "strict-origin-when-cross-origin" | "unsafe-url";
     /**
      * 在 HTTP 协议中，响应首部 Retry-After 表示用户代理需要等待多长时间之后才能继续发送请求。这个首部主要应用于以下两种场景：
      * + 当与 503 (Service Unavailable，当前服务不存在) 响应一起发送的时候，表示服务下线的预期时长。
@@ -786,7 +786,7 @@ declare interface HttpxHeaders {
      * Tk 响应首部显示了对相应请求的跟踪情况。
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Tk
      */
-    "Tk": "!"|"?"|"G"|"N"|"T"|"C"|"P"|"D"|"U";
+    "Tk": "!" | "?" | "G" | "N" | "T" | "C" | "P" | "D" | "U";
     /**
      * Trailer 是一个响应首部，允许发送方在分块发送的消息后面添加额外的元信息，这些元信息可能是随着消息主体的发送动态生成的，比如消息的完整性校验，消息的数字签名，或者消息经过处理之后的最终状态等。
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Trailer
