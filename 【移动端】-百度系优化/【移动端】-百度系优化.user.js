@@ -52,8 +52,8 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1301774/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1302638/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1302637/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1301773/DOMUtils.js
 // ==/UserScript==
 
@@ -4351,6 +4351,9 @@
           let lzlPage = 2;
           /* 处理楼中楼的滚动加载更多回复 */
           let lzlReplyCommentScrollEvent = async function (event) {
+            /**
+             * @type {HTMLElement}
+             */
             let scrollElement = event.target;
             if (
               scrollElement.scrollTop + scrollElement.clientHeight + 50 <
@@ -4365,7 +4368,7 @@
               data["userPostId"],
               lzlPage
             );
-            log.success(replyInfo);
+            log.success(["加载更多回复的数据", replyInfo]);
             if (replyInfo === "暂无更多回复") {
               log.error("暂无更多回复");
               lzlLoadingView.setText("暂无更多回复");
@@ -4380,15 +4383,41 @@
               return;
             }
             replyInfo["data"].forEach((item) => {
+              /* 判断是否是楼主 */
+              let isLandlord = false;
+              if (landlordInfo) {
+                if (landlordInfo.id === item["user_id"]) {
+                  isLandlord = true;
+                } else if (
+                  utils.isNotNull(item["userPortrait"]) &&
+                  landlordInfo.portrait.includes(item["userPortrait"])
+                ) {
+                  /* 用includes是因为landlordInfo.portrait获取到的后面可能会带时间参数?t=1660430754 */
+                  isLandlord = true;
+                }
+              }
               let lastCommentHTML = `
               <div class="whitesev-reply-dialog-sheet-other-content-item">
-                <div class="whitesev-reply-dialog-user-line" data-portrait="${item["userPortrait"]}">
-                  <div class="whitesev-reply-dialog-avatar" style="background-image: url(${item["userAvatar"]});"></div>
+                <div class="whitesev-reply-dialog-user-line" data-portrait="${
+                  item["userPortrait"]
+                }">
+                  <div class="whitesev-reply-dialog-avatar" style="background-image: url(${
+                    item["userAvatar"]
+                  });"></div>
                   <div class="whitesev-reply-dialog-user-info">
-                    <div class="whitesev-reply-dialog-user-username">${item["userName"]}</div>
+                    <div class="whitesev-reply-dialog-user-username">
+                    ${item["userName"]}
+                    ${
+                      isLandlord
+                        ? `<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`
+                        : ""
+                    }
+                    </div>
                   </div>
                 </div>
-                <div class="whitesev-reply-dialog-user-comment">${item["userReplyContent"]}</div>
+                <div class="whitesev-reply-dialog-user-comment">${
+                  item["userReplyContent"]
+                }</div>
                 <div class="whitesev-reply-dialog-user-desc-info">
                     <span data-time="">${item["userReplyTime"]}</span>
                     <span data-ip=""></span>
@@ -4486,6 +4515,16 @@
          * @param {string} tid 帖子id
          * @param {string} pid 回复主体id
          * @param {string|Number} pn 当前页
+         * @returns {Promise<{
+         * data: {
+         * userAvatar: string,
+         * userHomeUrl: string,
+         * userName:string,
+         * userPortrait: string,
+         * userPostId: number,
+         * userReplyContent: string,
+         * userReplyTime: string,
+         * }[]}>}
          */
         async getLzlCommentReply(tid = "", pid = "", pn = 1) {
           let getResp = await httpx.get({
