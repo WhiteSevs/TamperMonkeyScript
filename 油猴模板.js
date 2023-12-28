@@ -18,7 +18,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1302637/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1301773/DOMUtils.js
 // ==/UserScript==
 

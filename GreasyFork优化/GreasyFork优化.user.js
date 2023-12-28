@@ -20,8 +20,8 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1301774/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1302638/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1302637/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1301773/DOMUtils.js
 // ==/UserScript==
 

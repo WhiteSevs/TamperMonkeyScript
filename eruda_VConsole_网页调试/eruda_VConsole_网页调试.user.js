@@ -15,7 +15,7 @@
 // @grant           GM_deleteValue
 // @grant           GM_setClipboard
 // @grant           GM_getResourceText
-// @require         https://update.greasyfork.org/scripts/455186/1299890/WhiteSevsUtils.js
+// @require         https://update.greasyfork.org/scripts/455186/1302637/WhiteSevsUtils.js
 // @resource        Resource_erudaMonitor         https://fastly.jsdelivr.net/npm/eruda-monitor
 // @resource        Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features
 // @resource        Resource_erudaTiming          https://fastly.jsdelivr.net/npm/eruda-timing
