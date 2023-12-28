@@ -1,3 +1,5 @@
+/// <reference path="../库.ts/pops.d.ts" />
+
 (function (global, factory) {
   /**
    * 不使用define
