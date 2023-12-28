@@ -2,11 +2,10 @@
 import os
 import re
 import httpx
-
 import winreg
 
 # 不更新的js文件名
-notUpdateFileNameList = ["蛋仔乐消除","ImmortalWrt-passwall优化","问卷星随机答案"]
+notUpdateFileNameList = ["蛋仔乐消除", "ImmortalWrt-passwall优化", "问卷星随机答案"]
 
 
 def get_ie_proxy():
@@ -14,7 +13,8 @@ def get_ie_proxy():
         # 打开注册表
         reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
         key = winreg.OpenKey(
-            reg, r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
+            reg, r"Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+        )
 
         # 获取代理设置
         proxy_enabled, _ = winreg.QueryValueEx(key, "ProxyEnable")
@@ -43,21 +43,26 @@ def handleLibraryData(libraryIdList):
         httpx_proxy = None
         if ie_proxy:
             httpx_proxy = {
-                'http://': f'http://{ie_proxy}',  # 代理1
-                'https://': f"http://{ie_proxy}",  # 代理2
+                "http://": f"http://{ie_proxy}",  # 代理1
+                "https://": f"http://{ie_proxy}",  # 代理2
             }
         response = httpx.get(
-            f"https://greasyfork.org/zh-CN/scripts/{libraryId}.json", proxies=httpx_proxy)
+            f"https://greasyfork.org/zh-CN/scripts/{libraryId}.json",
+            proxies=httpx_proxy,  # type: ignore
+        )
         respJson = response.json()
         code_url = respJson["code_url"]
-        version = re.compile(rf'\/{libraryId}\/([\d]+)\/').search(code_url)
-        version = version[1]
-        result.append({
-            "id": libraryId,
-            "name": respJson["name"],
-            "version": version,
-            "code_url": respJson["code_url"]
-        })
+        version = re.compile(rf"\/{libraryId}\/([\d]+)\/").search(code_url)
+        if version:
+            version = version[1]
+        result.append(
+            {
+                "id": libraryId,
+                "name": respJson["name"],
+                "version": version,
+                "code_url": respJson["code_url"],
+            }
+        )
     return result
 
 
@@ -78,57 +83,66 @@ def replaceContent(path, dataList):
         for file in files:
             if file.endswith(".js"):
                 file_path = os.path.join(root, file)
-                fileName = re.sub(r'\.\/.+\\', '', file_path)
-                fileName = re.sub(r'\.\/', '', fileName)
-                fileName = re.sub(r'\.js$', '', fileName)
+                fileName = re.sub(r"\.\/.+\\", "", file_path)
+                fileName = re.sub(r"\.\/", "", fileName)
+                fileName = re.sub(r"\.js$", "", fileName)
                 if not checkIsUpdateFile(fileName):
                     continue
                 content = ""
                 replaced_content = ""
-                with open(file=file_path, mode="r", encoding="utf-8", errors="ignore") as f:
+                with open(
+                    file=file_path, mode="r", encoding="utf-8", errors="ignore"
+                ) as f:
                     content = f.read()
                 replaced_content = content
                 flag = False
                 for library in dataList:
                     pattern = rf"""https://update.greasyfork.org/scripts/{library["id"]}/[\d]+/{library["name"]}.js"""
                     replacement = library["code_url"]
-                    patternMatch = re.findall(
-                        pattern, content)
+                    patternMatch = re.findall(pattern, content)
                     if len(patternMatch):
                         replaced_content = re.sub(
-                            pattern, replacement, replaced_content)
-                        findData = [
-                            item for item in patternMatch if item != '']
+                            pattern, replacement, replaced_content
+                        )
+                        findData = [item for item in patternMatch if item != ""]
                         oldVersion = ""
                         if len(findData):
                             oldVersionMatch = re.compile(
-                                rf'update.greasyfork.org/scripts/{library["id"]}/([\d]+)/').search(findData[0])
-                            if oldVersion is not None:
+                                rf'update.greasyfork.org/scripts/{library["id"]}/([\d]+)/'
+                            ).search(findData[0])
+                            if oldVersionMatch:
                                 oldVersion = oldVersionMatch[1]
-                        if oldVersion != library["version"] and int(oldVersion) < int(library["version"]):
+                        if oldVersion != library["version"] and int(oldVersion) < int(
+                            library["version"]
+                        ):
                             flag = True
                             print(
-                                f"""{library["name"]} {len(patternMatch)}处 版本: {oldVersion} => {library["version"]}""")
+                                f"""{library["name"]} {len(patternMatch)}处 版本: {oldVersion} => {library["version"]}"""
+                            )
                 if content != replaced_content and flag:
-                    with open(file=file_path, mode="w", encoding="utf-8", errors="ignore") as f:
+                    with open(
+                        file=file_path, mode="w", encoding="utf-8", errors="ignore"
+                    ) as f:
                         f.write(replaced_content)
-                    print("当前文件: "+fileName)
+                    print("当前文件: " + fileName)
                     print("")
                     print("")
 
 
 if __name__ == "__main__":
-    libraryList = handleLibraryData([
-        "449471",
-        "449512",
-        "449562",
-        "452322",
-        "455186",
-        "456470",
-        "456485",
-        "456607",
-        "462234",
-        "465550",
-        "465772"
-    ])
+    libraryList = handleLibraryData(
+        [
+            "449471",
+            "449512",
+            "449562",
+            "452322",
+            "455186",
+            "456470",
+            "456485",
+            "456607",
+            "462234",
+            "465550",
+            "465772",
+        ]
+    )
     replaceContent("./", libraryList)
