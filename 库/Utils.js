@@ -1,3 +1,5 @@
+/// <reference path="../库.ts/Utils.d.ts" />
+
 /**
  * 方便好用的工具类
  * @copyright GPL-3.0-only
@@ -22,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-12-21";
+  Utils.version = "2023-12-28";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1102,12 +1104,11 @@
    */
   Utils.getNodeListValue = function () {
     let resultArray = [];
-    for (let i = 0; i < arguments.length; i++) {
-      let item = arguments[i];
-      let value = item;
-      if (typeof item === "function") {
+    for (let arg of arguments) {
+      let value = arg;
+      if (typeof arg === "function") {
         /* 方法 */
-        value = item();
+        value = arg();
       }
       if (value.length !== 0) {
         resultArray = [...value];
@@ -1367,14 +1368,13 @@
    */
   Utils.getArrayRealValue = function () {
     let result = null;
-    for (let i = 0; i < arguments.length; i++) {
-      let item = arguments[i];
-      if (typeof item === "function") {
+    for (let arg of arguments) {
+      if (typeof arg === "function") {
         /* 方法 */
-        item = item();
+        arg = arg();
       }
-      if (item != null) {
-        result = item;
+      if (arg != null) {
+        result = arg;
         break;
       }
     }
@@ -2511,20 +2511,19 @@
         /* 是单个配置 */
         optionsList.push(options);
       }
-      for (let index = 0; index < optionsList.length; index++) {
-        let item = optionsList[index];
+      for (let option of optionsList) {
         menuIdMap.forEach((value, key) => {
-          if (key === item.id) {
-            item = handleInitDetail(item);
+          if (key === option.id) {
+            option = handleInitDetail(option);
             let findDataIndex = data.findIndex(
               (_item_) => _item_.key === value.key
             );
             if (findDataIndex !== -1) {
-              Object.assign(data[findDataIndex], item);
+              Object.assign(data[findDataIndex], option);
             }
-            let resultList = handleMenuData(item);
+            let resultList = handleMenuData(option);
             _GM_registerMenuCommand_(...resultList);
-            menuIdMap.set(item.id, item);
+            menuIdMap.set(option.id, option);
           }
         });
       }
@@ -2637,27 +2636,6 @@
   };
 
   /**
-   * @typedef {object} HttpxAsyncResultData
-   * @property {string} finalUrl 当数据加载完毕后的，经过所有重定向后的最终URL
-   * @property {0|1|2|3|4} readyState 数据准备状态，0-未初始化，1-载入，2-载入完成，3-交互，4-完成
-   * @property {200|301|302|304|307|401|403|404|500|number} status 状态码
-   * @property {"OK"|""|string} statusText 关于status的解释
-   * @property {string} responseHeaders 响应头的Headers
-   * @property {string|undefined} responseType 是请求中设置的responseType，没有设置的话默认为undefined
-   * @property {object|string|HTMLElement} response 响应内容，根据responseType，如果是html，那就是Document，如果是json，那么类型是Object
-   * @property {XMLDocument} responseXML the response data as XML document
-   * @property {string} responseText 响应内容的字符串格式
-   */
-  /**
-   * @typedef {object} HttpxAsyncResult
-   * @property {boolean} status 请求状态，状态码为200为成功true，否则false
-   * @property {HttpxAsyncResultData} data 请求的数据，当status为false时，data中可能也存在数据
-   * @property {object} details 请求的配置
-   * @property {string} msg 请求的成功/失败消息
-   * @property {"onload"|"onerror"|"ontimeout"|"onabort"} type 当前触发响应的类型
-   *
-   */
-  /**
    * 为减少代码量和回调，把GM_xmlhttpRequest封装
    * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
    * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
@@ -2701,99 +2679,33 @@
         "Utils.Httpx 请先加入@grant GM_xmlhttpRequest在开头且传入该参数"
       );
     }
+    /**
+     * @type {HttpxDetails}
+     */
     let defaultDetails = {
-      /**
-       * @type {string} 网址
-       */
       url: void 0,
-      /**
-       * @type {number|undefined} 超时时间，默认5000，可为空
-       */
       timeout: 5000,
-      /**
-       * @type {boolean} 是否异步，默认false，可为空
-       */
       async: false,
-      /**
-       * @type {"arraybuffer"|"blob"|"json"|"stream"|"document"} 响应类型，默认document，可为空
-       */
       responseType: void 0,
-      /**
-       * @type {object|undefined} 请求头，可为空
-       */
       headers: void 0,
-      /**
-       * @type {string|undefined} 当使用post时，该值会生效，可为空
-       */
       data: void 0,
-      /**
-       * @type {"follow"|"error"|"manual"} 当触发重定向的使用规则，默认follow，可为空
-       */
       redirect: void 0,
-      /**
-       * @type {string|undefined} 自定义Cookie，可为空
-       */
       cookie: void 0,
-      /**
-       * @type {any|undefined} 以二进制模式发送数据字符串，可为空
-       */
       binary: void 0,
-      /**
-       * @type {boolean|undefined} 是否缓存资源，默认true，可为空
-       */
       nocache: void 0,
-      /**
-       * @type {boolean|undefined} 是否重新验证可能缓存的内容，默认true，可为空
-       */
       revalidate: void 0,
-      /**
-       * @type {object|undefined} 将该对象添加到响应的属性中，可为空
-       */
       context: void 0,
-      /**
-       * @type {string|undefined} 重写mimeType，可为空
-       */
       overrideMimeType: void 0,
-      /**
-       * @type {boolean|undefined} 是否匿名不发送Cookie，默认为false，可为空
-       */
       anonymous: void 0,
-      /**
-       * @type {boolean|undefined} 是否使用fetch来发送请求，默认为false，可为空
-       */
       fetch: void 0,
-      /**
-       * @type {string|undefined} 身份验证的用户名
-       */
       user: void 0,
-      /**
-       * @type {string|undefined} 身份验证的密码
-       */
       password: void 0,
-      /**
-       * @type {function|undefined} 当请求被取消或中断，触发该回调，可为空
-       */
-      onabort: function () {},
-      /**
-       * @type {function|undefined} 当请求异常，触发该回调，如404，可为空
-       */
-      onerror: function () {},
-      /**
-       * @type {function|undefined} 当请求超时，触发该回调，可为空
-       */
-      ontimeout: function () {},
-      /**
-       * @type {function|undefined} 当请求开始，触发该回调，可为空
-       */
-      onloadstart: function () {},
-      /**
-       * @type {function|undefined} 当请求状态改变，触发该回调，可为空
-       */
-      onreadystatechange: function () {},
-      /**
-       * @type {function|undefined} 当请求上传文件进度改变，触发该回调，可为空
-       */
-      onprogress: function () {},
+      onabort() {},
+      onerror() {},
+      ontimeout() {},
+      onloadstart() {},
+      onreadystatechange() {},
+      onprogress() {},
     };
     /**
      * 输出请求配置
@@ -2801,7 +2713,7 @@
     let LOG_DETAILS = false;
     /**
      * 发送请求
-     * @param {defaultDetails} details
+     * @param {HttpxDetails} details
      */
     function request(details) {
       if (LOG_DETAILS) {
@@ -2812,10 +2724,10 @@
 
     /**
      * 获取请求配置
-     * @param {object} method 当前请求方法，默认get
+     * @param {"get"|"post"|"head"|"options"|"delete"|"put"} method 当前请求方法，默认get
      * @param {object} resolve promise回调
-     * @param {defaultDetails} details 请求配置
-     * @returns {object}
+     * @param {HttpxDetails} details 请求配置
+     * @returns
      */
     function getRequestDefails(method, resolve, details) {
       return {
@@ -2838,33 +2750,33 @@
         fetch: details.fetch || defaultDetails.fetch,
         user: details.user || defaultDetails.user,
         password: details.password || defaultDetails.password,
-        onabort: function () {
+        onabort() {
           onAbortCallBack(details, resolve, arguments);
         },
-        onerror: function () {
+        onerror() {
           onErrorCallBack(details, resolve, arguments);
         },
-        onloadstart: function () {
+        onloadstart() {
           onLoadStartCallBack(details, arguments);
         },
-        onprogress: function () {
+        onprogress() {
           onProgressCallBack(details, arguments);
         },
-        onreadystatechange: function () {
+        onreadystatechange() {
           onReadyStateChangeCallBack(details, arguments);
         },
-        ontimeout: function () {
+        ontimeout() {
           onTimeoutCallBack(details, resolve, arguments);
         },
-        onload: function () {
+        onload() {
           onLoadCallBack(details, resolve, arguments);
         },
       };
     }
     /**
      * 处理发送请求的details，去除值为undefined、空function的值
-     * @param {defaultDetails} details
-     * @returns {object}
+     * @param {HttpxDetails} details
+     * @returns {HttpxDetails}
      */
     function handleRequestDetails(details) {
       Object.keys(details).forEach((keyName) => {
@@ -2887,9 +2799,9 @@
 
     /**
      * onabort请求被取消-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} resolve 回调
-     * @param {object} argumentsList 参数列表
+     * @param {HttpxDetails} details 配置
+     * @param {()=>void} resolve 回调
+     * @param {any[]} argumentsList 参数列表
      */
     function onAbortCallBack(details, resolve, argumentsList) {
       if ("onabort" in details) {
@@ -2907,9 +2819,9 @@
 
     /**
      * onerror请求异常-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} resolve 回调
-     * @param {object} argumentsList 响应的参数列表
+     * @param {HttpxDetails} details 配置
+     * @param {()=>void} resolve 回调
+     * @param {any[]} argumentsList 响应的参数列表
      */
     function onErrorCallBack(details, resolve, argumentsList) {
       if ("onerror" in details) {
@@ -2931,9 +2843,9 @@
     }
     /**
      * ontimeout请求超时-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} resolve 回调
-     * @param {object} argumentsList 参数列表
+     * @param {HttpxDetails} details 配置
+     * @param {()=>void} resolve 回调
+     * @param {any[]} argumentsList 参数列表
      */
     function onTimeoutCallBack(details, resolve, argumentsList) {
       if ("ontimeout" in details) {
@@ -2951,8 +2863,8 @@
 
     /**
      * onloadstart请求开始-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} argumentsList 参数列表
+     * @param {HttpxDetails} details 配置
+     * @param {any[]} argumentsList 参数列表
      */
     function onLoadStartCallBack(details, argumentsList) {
       if ("onloadstart" in details) {
@@ -2964,8 +2876,8 @@
 
     /**
      * onreadystatechange准备状态改变-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} argumentsList 参数列表
+     * @param {HttpxDetails} details 配置
+     * @param {any[]} argumentsList 参数列表
      */
     function onReadyStateChangeCallBack(details, argumentsList) {
       if ("onreadystatechange" in details) {
@@ -2977,8 +2889,8 @@
 
     /**
      * onprogress上传进度-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} argumentsList 参数列表
+     * @param {HttpxDetails} details 配置
+     * @param {any[]} argumentsList 参数列表
      */
     function onProgressCallBack(details, argumentsList) {
       if ("onprogress" in details) {
@@ -2990,9 +2902,9 @@
 
     /**
      * onload加载完毕-触发
-     * @param {defaultDetails} details 配置
-     * @param {object} resolve 回调
-     * @param {object} response 响应
+     * @param {HttpxDetails} details 配置
+     * @param {()=>void} resolve 回调
+     * @param {any[]} argumentsList 参数列表
      */
     function onLoadCallBack(details, resolve, argumentsList) {
       /* X浏览器会因为设置了responseType导致不返回responseText */
@@ -3022,7 +2934,7 @@
 
     /**
      * GET 请求
-     * @param {...defaultDetails|string} arguments
+     * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
     this.get = async function () {
@@ -3045,7 +2957,7 @@
     };
     /**
      * POST 请求
-     * @param {...defaultDetails|string} arguments
+     * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
     this.post = async function () {
@@ -3067,7 +2979,7 @@
     };
     /**
      * HEAD 请求
-     * @param {...defaultDetails|string} arguments
+     * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
     this.head = async function () {
@@ -3091,7 +3003,7 @@
 
     /**
      * OPTIONS请求
-     * @param {...defaultDetails|string} arguments
+     * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
     this.options = async function () {
@@ -3115,7 +3027,7 @@
 
     /**
      * DELETE请求
-     * @param {...defaultDetails|string} arguments
+     * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
     this.delete = async function () {
@@ -3139,7 +3051,7 @@
 
     /**
      * PUT请求
-     * @param {...defaultDetails|string} arguments
+     * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
     this.put = async function () {
@@ -3162,7 +3074,7 @@
 
     /**
      * 覆盖当前配置
-     * @param {defaultDetails} details
+     * @param {HttpxDetails} details
      */
     this.config = function (details = {}) {
       if (Object.hasOwnProperty.call(details, "logDetails")) {
@@ -4249,7 +4161,7 @@
     let logCount = 0;
     /**
      * 解析Error的堆栈获取实际调用者的函数名及函数所在的位置
-     * @param {array} stack
+     * @param {string[]} stack
      * @returns {{
      *   name: string,
      *   position: string,
@@ -4260,8 +4172,8 @@
         name: "",
         position: "",
       };
-      for (let i = 0; i < stack.length; i++) {
-        let stackString = stack[i].trim();
+      for (let stackString of stack) {
+        stackString = stackString.trim();
         let stackFunctionName = stackString.match(/^at[\s]+(.+?)[\s]+/i);
         let stackFunctionNamePosition = stackString.match(
           /^at[\s]+.+[\s]+\((.+?)\)/i
@@ -4493,7 +4405,7 @@
 
   /**
    * 监听页面元素改变并处理
-   * @param {object|Node|HTMLElement} target 需要监听的元素，如果不存在，可以等待它出现
+   * @param {object|Node|NodeList} target 需要监听的元素，如果不存在，可以等待它出现
    * @param {{
    * config: MutationObserverInit,
    * callback: MutationCallback
@@ -5739,7 +5651,7 @@
     /* 检查每个参数是否为字符串类型 */
     for (let nodeSelector of nodeSelectors) {
       if (typeof nodeSelector !== "string") {
-        throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+        throw new Error("Utils.waitNode 参数必须都是 string 类型");
       }
     }
 
@@ -5747,12 +5659,14 @@
       /* 防止触发第二次回调 */
       let isReturn = false;
 
-      /* 检查所有选择器是否匹配到节点 */
+      /**
+       * 检查所有选择器是否匹配到节点
+       * @param {MutationObserver} observer
+       */
       let checkNodes = (observer) => {
         let isFind = true;
         let selectNodeArray = [];
-        for (let i = 0; i < nodeSelectors.length; i++) {
-          let selector = nodeSelectors[i];
+        for (let selector of nodeSelectors) {
           let element = document.querySelector(selector);
           if (!element) {
             /* 没找到，直接退出循环 */
@@ -5831,8 +5745,7 @@
       let checkNodes = (observer) => {
         let isFind = true;
         let selectNodeArray = [];
-        for (let i = 0; i < nodeSelectors.length; i++) {
-          let selector = nodeSelectors[i];
+        for (let selector of nodeSelectors) {
           let element = document.querySelector(selector);
           if (!element) {
             /* 没找到，直接退出循环 */
@@ -5895,8 +5808,7 @@
       /* 检查所有选择器是否存在任意匹配到元素 */
       let checkNodes = (observer) => {
         let selectNode = null;
-        for (let i = 0; i < nodeSelectors.length; i++) {
-          let selector = nodeSelectors[i];
+        for (let selector of nodeSelectors) {
           selectNode = document.querySelector(selector);
           if (selectNode) {
             /* 找到，退出循环 */
@@ -5960,8 +5872,8 @@
       let checkNodes = (observer) => {
         let isFind = true;
         let selectNodes = [];
-        for (let i = 0; i < nodeSelectors.length; i++) {
-          let nodeList = document.querySelectorAll(nodeSelectors[i]);
+        for (let selector of nodeSelectors) {
+          let nodeList = document.querySelectorAll(selector);
           if (nodeList.length === 0) {
             /* 没找到，直接退出循环 */
             isFind = false;
@@ -6026,8 +5938,8 @@
       /* 检查所有选择器是否匹配到节点 */
       let checkNodes = (observer) => {
         let selectNodes = [];
-        for (let i = 0; i < nodeSelectors.length; i++) {
-          selectNodes = document.querySelectorAll(nodeSelectors[i]);
+        for (let selector of nodeSelectors) {
+          selectNodes = document.querySelectorAll(selector);
           if (selectNodes.length) {
             /* 找到，退出循环 */
             break;
