@@ -24,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-12-28";
+  Utils.version = "2023-12-30";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -4100,17 +4100,18 @@
 
   /**
    * @typedef {object} UtilsLogDetails
-   * @property {boolean} tag 输出Tag
-   * @property {string} [successColor="blue"] log.success的颜色
-   * @property {string} [errorColor="red"] log.error的颜色
-   * @property {string} [infoColor="0"] log.info的颜色
-   * @property {boolean} debug 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置
-   * @property {boolean} autoClearConsole 当console输出超过logMaxCount数量自动清理控制台
-   * @property {boolean} logMaxCount console输出的最高数量，autoClearConsole开启则生效
+   * @property {boolean} [tag=true] 是否输出Tag，false的话其它的颜色也不输出，默认为true
+   * @property {string} [successColor="#0000FF"] log.success的颜色，默认#0000FF
+   * @property {string} [warnColor="0"] log.warn的颜色，默认0
+   * @property {string} [errorColor="#FF0000"] log.error的颜色，默认#FF0000
+   * @property {string} [infoColor="0"] log.info的颜色，默认0
+   * @property {boolean} [debug=false] 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置，默认false
+   * @property {boolean} [autoClearConsole=false] 当console输出超过logMaxCount数量自动清理控制台，默认false
+   * @property {boolean} [logMaxCount=999] console输出的最高数量，autoClearConsole开启则生效，默认999
    */
   /**
    * 日志对象
-   * @param {object} _GM_info_ 油猴管理器的API GM_info
+   * @param {object|undefined} _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
    * @example
     let log = new Utils.Log(GM_info);
     log.info("普通输出");
@@ -4121,6 +4122,9 @@
 
     log.error("错误输出");
     > 错误输出
+    
+    log.warn("警告输出");
+    > 警告输出
 
     log.tag = "自定义tag信息";
     log.info("自定义info的颜色","#e0e0e0");
@@ -4134,12 +4138,13 @@
     log.success("颜色为#31dc02");
     > 颜色为#31dc02
    */
-  Utils.Log = function (_GM_info_) {
-    if (typeof _GM_info_ !== "object") {
-      throw new Error(
-        'Utils.Log 请添加@grant GM_info且传入该参数,如果使用"use strict"; 就无法获取caller'
-      );
+  Utils.Log = function (
+    _GM_info_ = {
+      script: {
+        name: "Utils.Log",
+      },
     }
+  ) {
     let msgColorDetails = [
       "font-weight: bold; color: cornflowerblue",
       "font-weight: bold; color: cornflowerblue",
@@ -4151,9 +4156,10 @@
      */
     let details = {
       tag: true,
-      successColor: "blue",
-      errorColor: "red",
+      successColor: "#0000FF",
+      errorColor: "#FF0000",
       infoColor: "0",
+      warnColor: "0",
       debug: false,
       autoClearConsole: false,
       logMaxCount: 999,
@@ -4222,7 +4228,7 @@
     let recoveryList = [];
     /**
      * 检测清理控制台
-     * @this {this}
+     * @this {Utils.Log}
      */
     let checkClearConsole = function () {
       logCount++;
@@ -4232,26 +4238,19 @@
       }
     };
     /**
-     * 前面的TAG标志
+     * 输出内容
+     * @param {any} msg 需要输出的内容
+     * @param {string} color 颜色
+     * @param {string|undefined} otherStyle 其它CSS
+     * @this {Utils.Log}
      */
-    this.tag = _GM_info_?.script?.name || "Utils.Log";
-    /**
-     * 控制台-普通输出
-     * @param {any} msg
-     * @param {string} color
-     * @param {string} type
-     */
-    this.info = function (msg, color, type = "info") {
+    let printContent = function (msg, color, otherStyle) {
       checkClearConsole.apply(this);
-      let stack = new Error().stack.split("\n");
-      if (type === "info") {
-        color = color || details.infoColor;
-      }
-      stack.splice(0, 1);
-      let errorStackParse = parseErrorStack(stack);
-      let stackFunctionName = errorStackParse.name;
-      let stackFunctionNamePosition = errorStackParse.position;
-      let callerName = stackFunctionName;
+      otherStyle = otherStyle || "";
+      let stackSplit = new Error().stack.split("\n");
+      stackSplit.splice(0, 2);
+      let { name: callerName, position: callerPosition } =
+        parseErrorStack(stackSplit);
       if (typeof msg === "object") {
         /* 要输出的内容是个对象 */
         if (details.tag) {
@@ -4259,14 +4258,14 @@
             console.log(
               `%c[${this.tag}%c-%c${callerName}%c]%c `,
               ...msgColorDetails,
-              `color: ${color}`,
+              `color: ${color};${otherStyle}`,
               ...msg
             );
           } else {
             console.log(
               `%c[${this.tag}%c-%c${callerName}%c]%c `,
               ...msgColorDetails,
-              `color: ${color}`,
+              `color: ${color};${otherStyle}`,
               msg
             );
           }
@@ -4282,44 +4281,72 @@
           console.log(
             `%c[${this.tag}%c-%c${callerName}%c]%c ${msg}`,
             ...msgColorDetails,
-            `color: ${color}`
+            `color: ${color};${otherStyle}`
           );
         } else {
-          console.log(`%c${msg}`, `color: ${color}`);
+          console.log(`%c${msg}`, `color: ${color};${otherStyle}`);
         }
       }
       if (details.debug) {
-        console.log(stackFunctionNamePosition);
+        /* 如果开启调试模式，输出堆栈位置 */
+        console.log(callerPosition);
       }
+    };
+    /**
+     * 前面的TAG标志
+     */
+    this.tag = _GM_info_?.script?.name || "Utils.Log";
+    /**
+     * 控制台-普通输出
+     * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+     * @param {string|undefined} color 输出的颜色
+     * @param {string|undefined} otherStyle 其它CSS
+     */
+    this.info = function (msg, color = details.infoColor, otherStyle) {
+      printContent.call(this, msg, color, otherStyle);
+    };
+    /**
+     * 控制台-警告输出
+     * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+     * @param {string|undefined} color 输出的颜色
+     * @param {string|undefined} otherStyle 其它CSS
+     */
+    this.warn = function (
+      msg,
+      color = details.warnColor,
+      otherStyle = "background: #FEF6D5;padding: 4px 6px 4px 0px;"
+    ) {
+      printContent.call(this, msg, color, otherStyle);
     };
     /**
      * 控制台-错误输出
-     * @param {any} msg
-     * @param {string} color
+     * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+     * @param {string|undefined} color 输出的颜色
+     * @param {string|undefined} otherStyle 其它CSS
      */
-    this.error = function (msg, color) {
-      this.info(msg, color || details.errorColor, "error");
+    this.error = function (msg, color = details.errorColor, otherStyle) {
+      printContent.call(this, msg, color, otherStyle);
     };
     /**
      * 控制台-成功输出
-     * @param {any} msg
-     * @param {string} color
+     * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+     * @param {string|undefined} color 输出的颜色
+     * @param {string|undefined} otherStyle 其它CSS
      */
-    this.success = function (msg, color) {
-      this.info(msg, color || details.successColor, "success");
+    this.success = function (msg, color = details.successColor, otherStyle) {
+      printContent.call(this, msg, color, otherStyle);
     };
     /**
      * 控制台-输出表格
-     * @param {object} msgObj
+     * @param {object[]} msg
+     * @param {string|undefined} color 输出的颜色
+     * @param {string|undefined} otherStyle 其它CSS
      * @example
      * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
      */
-    this.table = function (msgObj) {
+    this.table = function (msg, color = details.infoColor, otherStyle = "") {
       checkClearConsole.apply(this);
       let stack = new Error().stack.split("\n");
-      if (type === "info") {
-        color = color || details.infoColor;
-      }
       stack.splice(0, 1);
       let errorStackParse = parseErrorStack(stack);
       let stackFunctionName = errorStackParse.name;
@@ -4328,9 +4355,9 @@
       console.log(
         `%c[${this.tag}%c-%c${callerName}%c]%c`,
         ...msgColorDetails,
-        `color: ${color}`
+        `color: ${color};${otherStyle}`
       );
-      console.table(msgObj);
+      console.table(msg);
       if (details.debug) {
         console.log(stackFunctionNamePosition);
       }
