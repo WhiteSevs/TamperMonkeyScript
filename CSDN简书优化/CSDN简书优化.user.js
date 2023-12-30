@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.23
+// @version      2023.12.30
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -20,7 +20,7 @@
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/456485/1302638/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1302637/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1303409/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1301773/DOMUtils.js
 // ==/UserScript==
 
@@ -385,7 +385,9 @@
             ul.toolbox-list div.tool-active-list,
             /* 右边按钮组的最上面的创作话题 */
             div.csdn-side-toolbar .activity-swiper-box,
-            .sidetool-writeguide-box .tip-box{
+            .sidetool-writeguide-box .tip-box,
+            /* 右下角的登录提示 */
+            .passport-login-tip-container{
               display: none !important;
             }
             .comment-list-box,
