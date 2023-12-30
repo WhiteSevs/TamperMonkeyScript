@@ -2,7 +2,7 @@
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.26
+// @version      2023.12.30
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -313,25 +313,47 @@
       ],
       wenshushu: [
         {
-          link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+          link_innerText: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_wenshushu", 20)
           )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
             GM_getValue("accessCode_after_text_wenshushu", 10)
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+          link_innerHTML: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_wenshushu", 100)
           )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
             GM_getValue("accessCode_after_html_wenshushu", 15)
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
-            /wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
-          shareCodeNeedRemoveStr:
-            /wss.ink\/f\/|ws28.cn\/f\/|wss1.cn\/f\/|wenshushu.cn\/f\/|wenshushu.cn\/k\//gi,
+            /wenshushu.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
+          shareCodeNeedRemoveStr: /wenshushu.cn\/f\/|wenshushu.cn\/k\//gi,
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /[0-9a-zA-Z]{4}/gi,
-          uiLinkShow: "wss.ink/f/{#shareCode#} 提取码: {#accessCode#}",
-          blank: "https://wss.ink/f/{#shareCode#}",
-          copyUrl: "https://wss.ink/f/{#shareCode#}\n密码：{#accessCode#}",
+          uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
+          blank: "https://www.wenshushu.cn/f/{#shareCode#}",
+          copyUrl:
+            "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
+        },
+        {
+          link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+            GM_getValue("innerText_wenshushu", 20)
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_wenshushu", 10)
+          )}}[0-9a-zA-Z]{4}|)`,
+          link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
+            GM_getValue("innerHTML_wenshushu", 100)
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_wenshushu", 15)
+          )}}[0-9a-zA-Z]{4}|)`,
+          shareCode:
+            /wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})|ws59.cn\/f\/([a-zA-Z0-9_-]{8,14})/gi,
+          shareCodeNeedRemoveStr:
+            /wss.ink\/f\/|ws28.cn\/f\/|wss1.cn\/f\/|ws59.cn\/f\//gi,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          accessCode: /[0-9a-zA-Z]{4}/gi,
+          uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
+          blank: "https://www.wenshushu.cn/f/{#shareCode#}",
+          copyUrl:
+            "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
         },
       ],
       nainiu: [
@@ -1181,6 +1203,18 @@
       baidu: function () {
         let that = this;
         /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
+        /**
          * 入口
          * @param {number} netDiskIndex 网盘名称索引下标
          * @param {string} shareCode
@@ -1188,6 +1222,10 @@
          * @returns
          */
         this.default = function (netDiskIndex, shareCode, accessCode) {
+          log.info([netDiskIndex, shareCode, accessCode]);
+          that.netDiskIndex = netDiskIndex;
+          that.shareCode = shareCode;
+          that.accessCode = accessCode;
           let url = GM_getValue("baidu-baiduwp-php-url");
           let postForm = GM_getValue("baidu-baiduwp-php-post-form");
           let enableCopy = GM_getValue("baidu-baiduwp-php-copy-url");
@@ -1249,6 +1287,18 @@
        */
       lanzou: function () {
         let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
         /* 蓝奏云域名 */
         let LanZouHostName = GM_getValue(
           "lanzou-host-name",
@@ -1356,6 +1406,7 @@
          * @param {string} accessCode
          */
         this.default = async function (netDiskIndex, shareCode, accessCode) {
+          log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
           that.accessCode = accessCode;
@@ -1544,7 +1595,7 @@
           if (sign) {
             postData_sign = sign[sign.length - 1];
             log.info(`获取Sign: ${postData_sign}`);
-            if (that.accessCode) {
+            if (utils.isNotNull(that.accessCode)) {
               log.info("传入参数=>有密码");
               postData_p = that.accessCode;
             } else {
@@ -1988,6 +2039,18 @@
        */
       tianyiyun: function () {
         let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
         let shareId = null;
         /* 猜测1是有密码，2是无密码 */
         let shareMode = 1;
@@ -2021,7 +2084,10 @@
           }
 
           log.info(["解析的JSON信息", shareInfoData]);
-          if (shareInfoData["needAccessCode"] && !that.accessCode) {
+          if (
+            shareInfoData["needAccessCode"] &&
+            utils.isNull(that.accessCode)
+          ) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
               undefined,
@@ -2473,20 +2539,52 @@
        */
       wenshushu: function () {
         let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
+        /**
+         * 用于header头x-token
+         * @type {string}
+         */
+        let token = null;
         this.code = {
           1004: "no token",
           1008: "您没有权限访问",
           1013: "糟糕，此任务已过期销毁，下次要记得续期",
+          1066: "对方设置的下载 / 预览次数已用完",
           1088: "糟糕，您访问的页面不存在",
         };
         this.default = async function (netDiskIndex, shareCode, accessCode) {
+          log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
           that.accessCode = accessCode;
           Qmsg.info("正在请求直链中...");
-          await that.getWss();
+          let token = await this.getWssToken();
+          if (!token) {
+            return;
+          }
+          let pidInfo = await this.getPid();
+          if (!pidInfo) {
+            return;
+          }
+          await this.getFileNList(pidInfo.bid, pidInfo.pid);
         };
-        this.getWss = async function () {
+        /**
+         * 获取token
+         * wss:xxxxxx
+         * @returns {Promise<string>}
+         */
+        this.getWssToken = async function () {
           let postResp = await httpx.post({
             url: "https://www.wenshushu.cn/ap/login/anonymous",
             responseType: "json",
@@ -2497,27 +2595,26 @@
             headers: {
               Accept: "application/json, text/plain, */*",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: window.location.origin,
+              Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
             },
           });
           log.success(postResp);
           if (!postResp.status) {
             return;
           }
-          let respData = postResp.data;
-          let jsonData = utils.toJSON(respData.responseText);
-          if (jsonData["code"] === 0) {
-            that.token = jsonData["data"]["token"];
-            await that.getPid();
-          } else if (jsonData["code"] in that.code) {
-            Qmsg.error(that.code[jsonData["code"]]);
+          let data = utils.toJSON(postResp.data.responseText);
+          if (data["code"] === 0) {
+            token = data["data"]["token"];
+            return data["data"]["token"];
+          } else if (data["code"] in that.code) {
+            Qmsg.error(that.code[data["code"]]);
           } else {
             Qmsg.error("获取wss失败");
           }
         };
         /**
          * 获取pid
-         * @returns {Promise}
+         * @returns {Promise<{bid:string,pid:string}> }
          */
         this.getPid = async function () {
           let postResp = await httpx.post({
@@ -2530,10 +2627,10 @@
               ufileid: "",
             }),
             headers: {
-              accept: "application/json, text/plain, */*",
-              "user-agent": utils.getRandomAndroidUA(),
-              referer: window.location.origin,
-              "x-token": that.token,
+              Accept: "application/json, text/plain, */*",
+              "User-Agent": utils.getRandomAndroidUA(),
+              Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
+              "x-token": token,
             },
           });
           log.success(postResp);
@@ -2541,13 +2638,14 @@
             return;
           }
           let respData = postResp.data;
-          let jsonData = utils.toJSON(respData.responseText);
-          if (jsonData["code"] === 0) {
-            let bid = jsonData["data"]["boxid"];
-            let pid = jsonData["data"]["ufileid"];
-            await that.getFileNList(bid, pid);
-          } else if (jsonData["code"] in that.code) {
-            Qmsg.error(that.code[jsonData["code"]]);
+          let data = utils.toJSON(respData.responseText);
+          if (data["code"] === 0) {
+            return {
+              bid: data["data"]["boxid"],
+              pid: data["data"]["ufileid"],
+            };
+          } else if (data["code"] in that.code) {
+            Qmsg.error(that.code[data["code"]]);
           } else {
             Qmsg.error("获取pid失败");
           }
@@ -2578,8 +2676,8 @@
             headers: {
               Accept: "application/json, text/plain, */*",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: window.location.origin,
-              "x-token": that.token,
+              Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
+              "x-token": token,
             },
           });
           log.success(postResp);
@@ -2630,8 +2728,8 @@
             headers: {
               Accept: "application/json, text/plain, */*",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: window.location.origin,
-              "x-token": that.token,
+              Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
+              "x-token": token,
             },
           });
           if (!postResp.status) {
@@ -2673,6 +2771,18 @@
        */
       _123pan: function () {
         let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
         this.code = {
           5103: "分享码错误或者分享地址错误",
           5104: "分享已过期",
@@ -3266,6 +3376,18 @@
        */
       jianguoyun: function () {
         let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
         this.errorCode = {
           UnAuthorized: "请先登录坚果云账号",
         };
@@ -3679,6 +3801,18 @@
        */
       nainiu: function () {
         let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
         const OK_CODE = "0000";
         this.default = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
@@ -4212,17 +4346,26 @@
       uc: function () {
         let that = this;
         /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
+        /**
          * 入口
          * @param {number} netDiskIndex 网盘名称索引下标
          * @param {string} shareCode
          * @param {string} accessCode
          * @returns
          */
-        this.default = async function (
-          netDiskIndex,
-          shareCode,
-          accessCode = ""
-        ) {
+        this.default = async function (netDiskIndex, shareCode, accessCode) {
+          log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
           that.accessCode = accessCode;
