@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2023.12.28
+// @version      2023.12.30
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -53,7 +53,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1249086/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1302638/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1302637/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1303409/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1301773/DOMUtils.js
 // ==/UserScript==
 
@@ -6125,6 +6125,16 @@
               });
             });
         },
+        /**
+         * 检测骨架屏
+         */
+        checkSkeleton() {
+          let appElement = document.querySelector("#app");
+          if (appElement && appElement.innerHTML === "") {
+            log.warn("检测到骨架屏，异常加载，刷新页面");
+            window.location.reload();
+          }
+        },
       };
 
       /**
@@ -6529,6 +6539,9 @@
         tiebaSearchConfig.run();
       }
       DOMUtils.ready(function () {
+        if (PopsPanel.getValue("baidu_tieba_checkSkeleton")) {
+          tiebaBusiness.checkSkeleton();
+        }
         utils
           .waitAnyNode(".tb-mobile-viewport", ".main-page-wrap")
           .then(async () => {
@@ -8155,6 +8168,18 @@
                   "新增搜索功能",
                   "baidu_tieba_add_search",
                   true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "检测骨架屏",
+                  "baidu_tieba_checkSkeleton",
+                  true,
+                  function (event, enable) {
+                    if (enable) {
+                      window.alert(
+                        "开启后，当页面加载完毕后检测到还是骨架屏，将会自动刷新页面。"
+                      );
+                    }
+                  }
                 ),
               ],
             },
