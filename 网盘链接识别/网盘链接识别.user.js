@@ -6172,7 +6172,7 @@
           this.initPop();
           this.setSuspensionEvent();
           this.setResizeEventListener();
-          this.setSuspensionDefaultPosition();
+          this.setSuspensionPosition();
         }
         this.backgroundSwitch();
       },
@@ -6409,7 +6409,7 @@
                           width: NetDiskUI.size,
                           height: NetDiskUI.size,
                         });
-                        NetDiskUI.suspension.setSuspensionDefaultPosition();
+                        NetDiskUI.suspension.setSuspensionPosition();
                       }
                     },
                     min: 15,
@@ -7599,15 +7599,28 @@
        * 设置window的resize事件监听，来重新设置悬浮按钮的位置
        */
       setResizeEventListener() {
-        let that = this;
-        DOMUtils.on(globalThis, "resize", undefined, function () {
-          that.setSuspensionDefaultPosition();
+        DOMUtils.on(globalThis, "resize", undefined, () => {
+          let activeElement = document.activeElement;
+          if (utils.isPhone()) {
+            if (["input", "textarea"].includes(activeElement.localName)) {
+              /* 可能是移动端的输入框弹出的键盘导致的resize */
+              return;
+            } else if (
+              (activeElement.hasAttribute("contenteditable") &&
+                activeElement.getAttribute("contenteditable") === "true") ||
+              activeElement.closest("[contenteditable='true']")
+            ) {
+              /* 可能是移动端的输入框弹出的键盘导致的resize */
+              return;
+            }
+          }
+          this.setSuspensionPosition();
         });
       },
       /**
        * 设置悬浮按钮位置
        */
-      setSuspensionDefaultPosition() {
+      setSuspensionPosition() {
         /* 最大的left偏移*/
         let maxLeftOffset = DOMUtils.width(globalThis) - NetDiskUI.size;
         /* 最大的top偏移 */
