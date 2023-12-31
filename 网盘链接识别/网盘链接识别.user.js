@@ -7612,6 +7612,9 @@
             ) {
               /* 可能是移动端的输入框弹出的键盘导致的resize */
               return;
+            }else if(!document.hasFocus()){
+              /* 页面失焦 */
+              return;
             }
           }
           this.setSuspensionPosition();
