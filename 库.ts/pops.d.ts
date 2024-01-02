@@ -562,6 +562,10 @@ declare interface PopsPanelInputDetails {
      * 是否是密码框
      */
     isPassword: boolean;
+    /**
+     * 是否是数字框
+     */
+    isNumber: boolean;
 }
 /**
  * pops.panel的 textarea

@@ -8018,14 +8018,18 @@
         }
         this.addElementAttributes(liElement, formConfig.attributes);
         this.setElementProps(liElement, formConfig.props);
+        let inputType = "text";
+        if (formConfig.isPassword) {
+          inputType = "password";
+        } else if (formConfig.isNumber) {
+          inputType = "number";
+        }
         liElement.innerHTML = `
         <div>
           ${formConfig.text}
         </div>
         <div class="pops-panel-input">
-          <input type="${
-            formConfig.isPassword ? "password" : "text"
-          }" placeholder="${formConfig.placeholder}">
+          <input type="${inputType}" placeholder="${formConfig.placeholder}">
         </div>
         `;
         let inputElement = liElement.querySelector("input");
