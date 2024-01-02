@@ -1,17 +1,18 @@
 # 选择调试工具
 
-支持`油猴脚本`的浏览器的`菜单`中进行切换`调试工具`
-代码中的压缩的代码是`erdua`和`VConsole`在`原压缩`的代码进行了`格式化`，并修改了`注册全局变量的方法`。
+通过油猴菜单，打开`设置`->`总设置`->`调试工具`，选择一个想使用的调试工具。
 
 当`开启`菜单功能`允许在iframe内运行`时，会自动将iframe的地址注册到油猴菜单中。
 
-## eruda菜单截图
+## 设置截图
 
-![https://picshack.net/ib/4NRKsbsjxd.png](https://picshack.net/ib/4NRKsbsjxd.png)
+[![pijdaGt.png](https://s11.ax1x.com/2024/01/02/pijdaGt.png)](https://imgse.com/i/pijdaGt)
 
-## VConsole菜单截图
+[![pijdDsS.png](https://s11.ax1x.com/2024/01/02/pijdDsS.png)](https://imgse.com/i/pijdDsS)
 
-![https://picshack.net/ib/P7OJtKQoOD.png](https://picshack.net/ib/P7OJtKQoOD.png)
+[![pijdrqg.png](https://s11.ax1x.com/2024/01/02/pijdrqg.png)](https://imgse.com/i/pijdrqg)
+
+[![pijdyZQ.png](https://s11.ax1x.com/2024/01/02/pijdyZQ.png)](https://imgse.com/i/pijdyZQ)
 
 ## erdua
 
