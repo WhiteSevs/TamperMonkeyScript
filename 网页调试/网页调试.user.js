@@ -169,8 +169,8 @@
             toClose: true,
           },
         },
-        width: "92vw",
-        height: "80vh",
+        width: utils.isPhone() ? "92vw" : "70vw",
+        height: utils.isPhone() ? "80vh" : "80vh",
         drag: true,
         only: true,
       });
