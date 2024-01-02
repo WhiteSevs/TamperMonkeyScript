@@ -6,13 +6,13 @@
 
 ## 设置截图
 
-[![pijdaGt.png](https://s11.ax1x.com/2024/01/02/pijdaGt.png)](https://imgse.com/i/pijdaGt)
+![pijdaGt.png](https://s11.ax1x.com/2024/01/02/pijdaGt.png)
 
-[![pijdDsS.png](https://s11.ax1x.com/2024/01/02/pijdDsS.png)](https://imgse.com/i/pijdDsS)
+![pijdDsS.png](https://s11.ax1x.com/2024/01/02/pijdDsS.png)
 
-[![pijdrqg.png](https://s11.ax1x.com/2024/01/02/pijdrqg.png)](https://imgse.com/i/pijdrqg)
+![pijdrqg.png](https://s11.ax1x.com/2024/01/02/pijdrqg.png)
 
-[![pijdyZQ.png](https://s11.ax1x.com/2024/01/02/pijdyZQ.png)](https://imgse.com/i/pijdyZQ)
+![pijdyZQ.png](https://s11.ax1x.com/2024/01/02/pijdyZQ.png)
 
 ## erdua
 
