@@ -132,17 +132,21 @@ def replaceContent(path, dataList):
 if __name__ == "__main__":
     libraryList = handleLibraryData(
         [
-            "449471",
-            "449512",
-            "449562",
-            "452322",
-            "455186",
-            "456470",
-            "456485",
-            "456607",
-            "462234",
-            "465550",
-            "465772",
+            "449471",  # Viewer
+            "449512",  # Xtiper
+            "449562",  # NZMsgBox
+            "452322",  # js-watermark
+            "455186",  # WhiteSevsUtils
+            "456470",  # 网盘链接识别-图标库
+            "456485",  # pops
+            "456607",  # GM_html2canvas
+            "462234",  # Message|Qmsg
+            "465550",  # JS-分页插件
+            "465772",  # DOMUtils
+            "482990",  # elementPlusIconSVG
+            "483694",  # Eruda-2
+            "483695",  # vConsole-2
+            "483696",  # PageSpy-2
         ]
     )
     replaceContent("./", libraryList)
