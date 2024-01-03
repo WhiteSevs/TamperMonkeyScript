@@ -54,7 +54,7 @@
 ## PageSpy
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy?label=SDK%20version)](https://www.npmjs.com/package/@huolala-tech/page-spy)
-- 当前版本：`1.4.10`
+- 当前版本：`1.4.11`
 - 项目主页
 [https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - 项目最新地址
