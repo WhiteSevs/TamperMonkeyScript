@@ -1,7 +1,8 @@
 ## 将跨域改为通过GM_xmlhttpRequest获取
 
-## 版本v1.4.1
+## 介绍
 
++ 版本：`1.4.1`
 + 文件地址：[https://html2canvas.hertzen.com/dist/html2canvas.js](https://html2canvas.hertzen.com/dist/html2canvas.js)
 + 项目地址：[https://html2canvas.hertzen.com/](https://html2canvas.hertzen.com/)
 
