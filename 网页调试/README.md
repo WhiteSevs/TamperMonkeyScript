@@ -24,14 +24,16 @@
 [https://cdn.jsdelivr.net/npm/eruda](https://cdn.jsdelivr.net/npm/eruda)
 [https://fastly.jsdelivr.net/npm/eruda](https://fastly.jsdelivr.net/npm/eruda)
 [https://testingcf.jsdelivr.net/npm/eruda](https://testingcf.jsdelivr.net/npm/eruda)
-- 【插件】[eruda-monitor](https://github.com/liriliri/eruda-monitor): 展示页面的 fps 和内存信息。
-- 【插件】[eruda-features](https://github.com/liriliri/eruda-features)：浏览器特性检测。
-- 【插件】[eruda-timing](https://github.com/liriliri/eruda-timing)：展示性能资源数据。
-- 【插件】[eruda-code](https://github.com/liriliri/eruda-code)：运行 JavaScript 代码。
-- 【插件】[eruda-benchmark](https://github.com/liriliri/eruda-benchmark)：运行 JavaScript 性能测试。
-- 【插件】[eruda-geolocation](https://github.com/liriliri/eruda-geolocation)：测试地理位置接口。
-- 【插件】[eruda-orientation](https://github.com/liriliri/eruda-orientation)：测试重力感应接口。
-- 【插件】[eruda-touches](https://github.com/liriliri/eruda-orientation)：可视化屏幕 Touch 事件触发。
+- 【插件】[eruda-monitor](https://github.com/liriliri/eruda-monitor): 展示页面的 fps 和内存信息
+- 【插件】[eruda-features](https://github.com/liriliri/eruda-features)：浏览器特性检测
+- 【插件】[eruda-timing](https://github.com/liriliri/eruda-timing)：展示性能资源数据
+- 【插件】[eruda-code](https://github.com/liriliri/eruda-code)：运行 JavaScript 代码
+- 【插件】[eruda-benchmark](https://github.com/liriliri/eruda-benchmark)：运行 JavaScript 性能测试
+- 【插件】[eruda-geolocation](https://github.com/WhiteSevs/eruda-geolocation)：测试地理位置接口
+- 【插件】[eruda-orientation](https://github.com/WhiteSevs/eruda-orientation)：测试重力感应接口
+- 【插件】[eruda-touches](https://github.com/liriliri/eruda-orientation)：可视化屏幕 Touch 事件触发（该插件可能无效）
+- 【插件】[eruda-outline-plugin](https://github.com/pomelo-chuan/eruda-outline-plugin)：给页面的元素添加边框
+- 【插件】[eruda-pixel](https://github.com/Faithree/eruda-pixel)：这是一个高精度的UI恢复辅助工具，致力于让前端开发人员头疼和崩溃。设计师检查工具。
 
 注意：页面中如果存在`CSP策略`，插件将无法加载。
 使用以下方式可禁用`CSP`
