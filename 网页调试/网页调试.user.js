@@ -29,7 +29,7 @@
 // @require         https://update.greasyfork.org/scripts/456485/1305152/pops.js
 // @require         https://update.greasyfork.org/scripts/483694/1305163/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1305166/vConsole-2.js
-// @require         https://update.greasyfork.org/scripts/483696/1305167/PageSpy-2.js
+// @require         https://update.greasyfork.org/scripts/483696/1305477/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1303409/WhiteSevsUtils.js
 // ==/UserScript==
 
