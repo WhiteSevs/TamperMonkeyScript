@@ -147,6 +147,7 @@ if __name__ == "__main__":
             "483694",  # Eruda-2
             "483695",  # vConsole-2
             "483696",  # PageSpy-2
+            "483765",  # Leaflet
         ]
     )
     replaceContent("./", libraryList)
