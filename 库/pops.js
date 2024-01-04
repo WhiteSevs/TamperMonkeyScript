@@ -2981,7 +2981,7 @@
     /**
      * 当前版本
      */
-    version: "2023.12.26",
+    version: "2024.1.4",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -3326,7 +3326,14 @@
     }
     section.pops-panel-container .pops-panel-forms-container-item ul li:last-child{border:0}
     section.pops-panel-container .pops-panel-forms-container-item>div{margin:10px;margin-left:20px;font-size:14px;text-align:left;}
-    
+    /* 主文字 */
+    section.pops-panel-container .pops-panel-forms-container-item .pops-panel-item-left-text .pops-panel-item-left-main-text {
+    }
+    /* 描述文字 */
+    section.pops-panel-container .pops-panel-forms-container-item .pops-panel-item-left-text .pops-panel-item-left-desc-text{
+      font-size: 12px;
+      color: #6c6c6c;
+    }
     /* 兼容移动端CSS */
     .pops[type-value="panel"].pops-panel-is-mobile{
       width: 92vw;
@@ -3348,8 +3355,9 @@
       margin: 5px 5px!important;
       padding: 5px 5px !important;
     }
-    .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container>ul > li div:nth-child(2){
-      width: 50%;
+    .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container >ul > li div:nth-child(2){
+      /* width: 50%; */
+      margin-left: 6px;
       text-align: right;
     }
     .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container .pops-panel-select select{
@@ -7874,9 +7882,15 @@
         }
         this.addElementAttributes(liElement, formConfig.attributes);
         this.setElementProps(liElement, formConfig.props);
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
         liElement.innerHTML = `
-        <div>
-          ${formConfig.text}
+        <div class="pops-panel-item-left-text">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
         </div>
         <div class="pops-panel-switch">
           <input class="pops-panel-switch__input" type="checkbox">
@@ -7934,9 +7948,15 @@
         }
         this.addElementAttributes(liElement, formConfig.attributes);
         this.setElementProps(liElement, formConfig.props);
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
         liElement.innerHTML = `
-        <div>
-          ${formConfig.text}
+        <div class="pops-panel-item-left-text">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
         </div>
         <div class="pops-panel-slider">
           <input type="range" min="${formConfig.min}" max="${formConfig.max}">
@@ -8024,9 +8044,15 @@
         } else if (formConfig.isNumber) {
           inputType = "number";
         }
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
         liElement.innerHTML = `
-        <div>
-          ${formConfig.text}
+        <div class="pops-panel-item-left-text">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
         </div>
         <div class="pops-panel-input">
           <input type="${inputType}" placeholder="${formConfig.placeholder}">
@@ -8102,9 +8128,16 @@
         }
         this.addElementAttributes(liElement, formConfig.attributes);
         this.setElementProps(liElement, formConfig.props);
+
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
         liElement.innerHTML = `
-        <div>
-          ${formConfig.text}
+        <div class="pops-panel-item-left-text">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
         </div>
         <div class="pops-panel-textarea">
           <textarea placeholder="${formConfig.placeholder}">
@@ -8145,9 +8178,15 @@
         }
         this.addElementAttributes(liElement, formConfig.attributes);
         this.setElementProps(liElement, formConfig.props);
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
         liElement.innerHTML = `
-        <div>
-          ${formConfig.text}
+        <div class="pops-panel-item-left-text">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
         </div>
         <div class="pops-panel-select">
           <select>
@@ -8231,9 +8270,15 @@
           <span>${buttonText}</span>
         </button>`;
 
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
         liElement.innerHTML = `
-        <div>
-          ${formConfig.text}
+        <div class="pops-panel-item-left-text">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
         </div>
         <div class="pops-panel-button">
           ${buttonHTML}
