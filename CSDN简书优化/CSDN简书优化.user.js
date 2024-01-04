@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.3
+// @version      2024.1.4
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转简书拦截URL
 // @author       WhiteSevs
 // @match        *://*.csdn.net/*
@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1305496/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1305999/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1305501/DOMUtils.js
 // ==/UserScript==
@@ -39,8 +39,7 @@
   const DOMUtils = window.DOMUtils.noConflict();
   const log = new utils.Log(GM_info);
   log.config({
-    logMaxCount: 20,
-    autoClearConsole: true,
+    autoClearConsole: false,
   });
   /**
    * 因为在有些页面上，比如：简书，当插入style元素到head中，该页面清除该元素
@@ -464,18 +463,26 @@
          */
         unBlockCopy() {
           log.info("取消禁止复制");
-          document.addEventListener("click", function (event) {
-            let target = event.target;
-            if (!target.classList.contains("hljs-button")) {
-              return;
+          document.addEventListener(
+            "click",
+            function (event) {
+              let target = event.target;
+              if (!target.classList.contains("hljs-button")) {
+                return;
+              }
+              utils.preventEvent(event);
+              /* 需要复制的文本 */
+              let copyText =
+                target.parentElement.innerText ||
+                target.parentElement.textContent;
+              utils.setClip(copyText);
+              log.success("点击复制 复制成功~");
+              target.setAttribute("data-title", "复制成功");
+            },
+            {
+              capture: true,
             }
-            utils.preventEvent(event);
-            /* 需要复制的文本 */
-            let copyText = target.parentElement.textContent;
-            utils.setClip(copyText);
-            log.success("点击复制 复制成功~");
-            target.setAttribute("data-title", "复制成功");
-          });
+          );
           let changeDataTitle = new utils.LockFunction(function (event) {
             let target = event.target;
             if (!target.localName === "pre") {
@@ -486,8 +493,12 @@
               ?.setAttribute("data-title", "复制");
           });
 
-          document.addEventListener("mouseenter", changeDataTitle.run, true);
-          document.addEventListener("mouseleave", changeDataTitle.run, true);
+          document.addEventListener("mouseenter", changeDataTitle.run, {
+            capture: true,
+          });
+          document.addEventListener("mouseleave", changeDataTitle.run, {
+            capture: true,
+          });
           /* 取消Ctrl+C的禁止 */
           utils.waitNode("#content_views").then((element) => {
             unsafeWindow?.$("#content_views")?.unbind("copy");
@@ -499,8 +510,14 @@
             });
           });
           /* 删除所有复制按钮的原有的复制事件 */
-          document.querySelectorAll(".hljs-button").forEach((item) => {
-            item.removeAttribute("onclick");
+          utils.waitNode(".hljs-button").then(() => {
+            setTimeout(() => {
+              document.querySelectorAll(".hljs-button").forEach((element) => {
+                element.removeAttribute("onclick");
+                element.removeAttribute("data-report-click");
+                element.setAttribute("data-title", "复制");
+              });
+            }, 250);
           });
         },
         /**
@@ -1198,6 +1215,9 @@
             if (PopsPanel.getValue("csdn_mobile_refactoringRecommendation")) {
               this.refactoringRecommendation();
             }
+            if (PopsPanel.getValue("csdn_mobile_unBlockCopy")) {
+              Optimization.csdn.PC.unBlockCopy();
+            }
           });
         },
       },
@@ -1451,15 +1471,20 @@
     },
     /**
      * 获取按钮配置
-     * @param {string} text
-     * @param {string} key
-     * @param {boolean} defaultValue
-     * @param {?(event:Event,value: boolean)=>boolean} _callback_
+     * @param {string} text 文字
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @param {?(event:Event,value: boolean)=>boolean} _callback_ 点击回调
+     * @param {string|undefined} description 描述
      */
-    getSwtichDetail(text, key, defaultValue, _callback_) {
+    getSwtichDetail(text, key, defaultValue, _callback_, description) {
+      /**
+       * @type {PopsPanelSwitchDetails}
+       */
       let result = {
         text: text,
         type: "switch",
+        description: description,
         attributes: {},
         getValue() {
           return Boolean(PopsPanel.getValue(key, defaultValue));
@@ -1615,9 +1640,11 @@
                   false
                 ),
                 PopsPanel.getSwtichDetail(
-                  "自动重定向至拦截的Url",
+                  "重定向链接",
                   "CSDNAutoJumpRedirect_PC",
-                  true
+                  true,
+                  undefined,
+                  "自动跳转CSDN拦截的Url链接"
                 ),
                 PopsPanel.getSwtichDetail(
                   "标识底部文章的CSDN下载",
@@ -1648,7 +1675,9 @@
                 PopsPanel.getSwtichDetail(
                   "劫持-禁止复制",
                   "csdn_pc_unBlockCopy",
-                  true
+                  true,
+                  undefined,
+                  "允许点击复制按钮进行复制"
                 ),
               ],
             },
@@ -1694,14 +1723,29 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "自动重定向至拦截的Url",
+                  "重定向链接",
                   "CSDNAutoJumpRedirect_Mobile",
-                  true
+                  true,
+                  undefined,
+                  "自动跳转CSDN拦截的Url链接"
                 ),
                 PopsPanel.getSwtichDetail(
                   "重构底部推荐",
                   "csdn_mobile_refactoringRecommendation",
                   true
+                ),
+              ],
+            },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "劫持-禁止复制",
+                  "csdn_mobile_unBlockCopy",
+                  true,
+                  undefined,
+                  "允许点击复制按钮进行复制"
                 ),
               ],
             },
@@ -1798,9 +1842,11 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "自动重定向至拦截的Url",
+                  "重定向链接",
                   "JianShuAutoJumpRedirect_PC",
-                  true
+                  true,
+                  undefined,
+                  "自动跳转简书拦截的Url链接"
                 ),
               ],
             },
@@ -1811,7 +1857,9 @@
                 PopsPanel.getSwtichDetail(
                   "拦截-剪贴板",
                   "JianShuRemoveClipboardHijacking",
-                  true
+                  true,
+                  undefined,
+                  "去除禁止复制"
                 ),
               ],
             },
@@ -1847,9 +1895,11 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "自动重定向至拦截的Url",
+                  "重定向链接",
                   "JianShuAutoJumpRedirect_Mobile",
-                  true
+                  true,
+                  undefined,
+                  "自动跳转简书拦截的Url链接"
                 ),
               ],
             },
@@ -1860,12 +1910,16 @@
                 PopsPanel.getSwtichDetail(
                   "拦截-剪贴板",
                   "JianShuRemoveClipboardHijacking_Mobile",
-                  true
+                  true,
+                  undefined,
+                  "去除禁止复制"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-唤醒/跳转App",
                   "JianShuHijackSchemeScriptLabel_Mobile",
-                  true
+                  true,
+                  undefined,
+                  "去除简书唤醒调用App"
                 ),
               ],
             },
