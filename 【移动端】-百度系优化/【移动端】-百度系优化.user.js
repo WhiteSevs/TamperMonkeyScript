@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.3
+// @version      2024.1.4
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -52,7 +52,7 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1305496/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1305999/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1305501/DOMUtils.js
 // ==/UserScript==
@@ -8093,15 +8093,20 @@
     },
     /**
      * 获取按钮配置
-     * @param {string} text
-     * @param {string} key
-     * @param {boolean} defaultValue
-     * @param {?(event:Event,value: boolean)=>boolean} _callback_
+     * @param {string} text 文字
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @param {?(event:Event,value: boolean)=>boolean} _callback_ 点击回调
+     * @param {string|undefined} description 描述
      */
-    getSwtichDetail(text, key, defaultValue, _callback_) {
+    getSwtichDetail(text, key, defaultValue, _callback_, description) {
+      /**
+       * @type {PopsPanelSwitchDetails}
+       */
       let result = {
         text: text,
         type: "switch",
+        description: description,
         attributes: {},
         getValue() {
           return Boolean(PopsPanel.getValue(key, defaultValue));
@@ -8178,7 +8183,8 @@
                       );
                       checkboxCoreElement.click();
                     }
-                  }
+                  },
+                  "与【功能-自动翻页】冲突"
                 ),
               ],
             },
@@ -8223,7 +8229,8 @@
                       );
                       checkboxCoreElement.click();
                     }
-                  }
+                  },
+                  "与上面的【自动点击翻页】冲突"
                 ),
                 PopsPanel.getSwtichDetail(
                   "console/控制台允许输出日志",
@@ -8256,22 +8263,30 @@
                 PopsPanel.getSwtichDetail(
                   "劫持-复制",
                   "baidu_search_hijack_copy",
-                  false
+                  false,
+                  undefined,
+                  "阻止百度复制xxx到剪贴板"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-Scheme唤醒App",
                   "baidu_search_hijack_scheme",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-OpenBox函数",
                   "baidu_search_hijack_openbox",
-                  false
+                  false,
+                  undefined,
+                  "优化搜索结果跳转"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-_onClick函数",
                   "baidu_search_hijack__onClick",
-                  false
+                  false,
+                  undefined,
+                  "优化搜索结果跳转"
                 ),
               ],
             },
@@ -8315,12 +8330,16 @@
                 PopsPanel.getSwtichDetail(
                   "劫持-唤醒App",
                   "baijiahao_hijack_wakeup",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-iframe唤醒App",
                   "baidu_baijiahao_hijack_iframe",
-                  true
+                  true,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-OpenBox函数",
@@ -8362,17 +8381,23 @@
                 PopsPanel.getSwtichDetail(
                   "拦截-唤醒App",
                   "baidu_mbd_hijack_wakeup",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "拦截-iframe唤醒App",
                   "baidu_mbd_hijack_iframe",
-                  true
+                  true,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-BoxJSBefore函数",
                   "baidu_mbd_hijack_BoxJSBefore",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
               ],
             },
@@ -8390,7 +8415,9 @@
                 PopsPanel.getSwtichDetail(
                   "新增搜索功能",
                   "baidu_tieba_add_search",
-                  true
+                  true,
+                  undefined,
+                  "在贴内和吧内右上角添加搜索按钮"
                 ),
                 PopsPanel.getSwtichDetail(
                   "检测骨架屏",
@@ -8538,7 +8565,9 @@
                 PopsPanel.getSwtichDetail(
                   "重定向xx吧跳转",
                   "baidu_tieba_topic_redirect_jump",
-                  true
+                  true,
+                  undefined,
+                  "点击帖子直接跳转"
                 ),
                 PopsPanel.getSwtichDetail(
                   "过滤重复帖子",
@@ -8548,7 +8577,9 @@
                 PopsPanel.getSwtichDetail(
                   "解除签到限制",
                   "baidu_tieba_removeForumSignInLimit",
-                  true
+                  true,
+                  undefined,
+                  "在登录情况下可点击签到"
                 ),
               ],
             },
@@ -8603,7 +8634,8 @@
                 PopsPanel.getSwtichDetail(
                   "实验性-请求携带Cookie",
                   "baidu_tieba_request_with_cookie",
-                  true
+                  true,
+                  undefined
                 ),
               ],
             },
@@ -8614,12 +8646,16 @@
                 PopsPanel.getSwtichDetail(
                   "劫持-唤醒App",
                   "baidu_tieba_hijack_wake_up",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "伪装客户端已调用",
                   "baidu_tieba_clientCallMasquerade",
-                  true
+                  true,
+                  undefined,
+                  "阻止弹窗"
                 ),
               ],
             },
@@ -8799,7 +8835,9 @@
                 PopsPanel.getSwtichDetail(
                   "拦截-唤醒App",
                   "baidu_map_hijack_wakeup",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
               ],
             },
@@ -8873,7 +8911,9 @@
                 PopsPanel.getSwtichDetail(
                   "拦截-唤醒App",
                   "baidu_haokan_hijack_wakeup",
-                  false
+                  false,
+                  undefined,
+                  "阻止唤醒调用App"
                 ),
               ],
             },
