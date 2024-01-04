@@ -461,6 +461,10 @@ declare interface PopsPanelSwitchDetails {
      */
     text: string;
     /**
+     * 左边的文字下面的描述，可为空
+     */
+    description: string | undefined;
+    /**
      * 类型
      */
     type: "switch";
@@ -493,6 +497,10 @@ declare interface PopsPanelSliderDetails {
      * 显示在左边的文字
      */
     text: string;
+    /**
+     * 左边的文字下面的描述，可为空
+     */
+    description: string | undefined;
     /**
      * 类型
      */
@@ -543,6 +551,10 @@ declare interface PopsPanelInputDetails {
      */
     text: string;
     /**
+     * 左边的文字下面的描述，可为空
+     */
+    description: string | undefined;
+    /**
      * 类型
      */
     type: "input";
@@ -588,6 +600,10 @@ declare interface PopsPanelTextAreaDetails {
      */
     text: string;
     /**
+     * 左边的文字下面的描述，可为空
+     */
+    description: string | undefined;
+    /**
      * 类型
      */
     type: "textarea";
@@ -626,6 +642,10 @@ declare interface PopsPanelSelectDetails {
      * 显示在左边的文字
      */
     text: string;
+    /**
+     * 左边的文字下面的描述，可为空
+     */
+    description: string | undefined;
     /**
      * 类型
      */
@@ -671,6 +691,10 @@ declare interface PopsPanelButtonDetails {
      * 显示在左边的文字
      */
     text: string;
+    /**
+     * 左边的文字下面的描述，可为空
+     */
+    description: string | undefined;
     /**
      * 类型
      */
