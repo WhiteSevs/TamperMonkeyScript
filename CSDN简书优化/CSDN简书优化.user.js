@@ -19,7 +19,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1305999/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1306546/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1305501/DOMUtils.js
 // ==/UserScript==

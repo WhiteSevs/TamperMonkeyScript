@@ -23,15 +23,15 @@
 // @resource        Resource_erudaTiming          https://fastly.jsdelivr.net/npm/eruda-timing
 // @resource        Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code
 // @resource        Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark
-// @resource        Resource_Leaflet              https://update.greasyfork.org/scripts/483765/1305864/Leaflet.js
+// @resource        Resource_Leaflet              https://update.greasyfork.org/scripts/483765/1306445/Leaflet.js
 // @resource        Resource_erudaGeolocation     https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation/eruda-geolocation.js
 // @resource        Resource_erudaOrientation     https://cdn.jsdelivr.net/gh/WhiteSevs/eruda-orientation/eruda-orientation.js
 // @resource        Resource_erudaTouches         https://fastly.jsdelivr.net/npm/eruda-touches
 // @resource        Resource_erudaOutlinePlugin   https://fastly.jsdelivr.net/npm/eruda-outline-plugin
 // @resource        Resource_erudaPixel           https://fastly.jsdelivr.net/npm/eruda-pixel
-// @require         https://update.greasyfork.org/scripts/456485/1305999/pops.js
-// @require         https://update.greasyfork.org/scripts/483694/1305786/Eruda-2.js
-// @require         https://update.greasyfork.org/scripts/483695/1305788/vConsole-2.js
+// @require         https://update.greasyfork.org/scripts/456485/1306546/pops.js
+// @require         https://update.greasyfork.org/scripts/483694/1306372/Eruda-2.js
+// @require         https://update.greasyfork.org/scripts/483695/1306373/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1305507/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
 // ==/UserScript==
