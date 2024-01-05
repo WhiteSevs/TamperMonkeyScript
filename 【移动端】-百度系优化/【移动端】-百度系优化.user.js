@@ -9386,16 +9386,16 @@
      * @param {(webpackExports: object|undefined)=>{}} checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
     hijackWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObecjt = undefined;
+      let originObject = undefined;
       Object.defineProperty(unsafeWindow, webpackName, {
         get() {
-          return originObecjt;
+          return originObject;
         },
         set(newValue) {
           log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originObecjt = newValue;
-          const originPush = originObecjt.push;
-          originObecjt.push = function (...args) {
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function (...args) {
             let _mainCoreData = args[0][0];
             if (
               mainCoreData == _mainCoreData ||
