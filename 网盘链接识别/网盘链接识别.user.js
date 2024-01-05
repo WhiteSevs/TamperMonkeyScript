@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.1.4
+// @version      2024.1.5
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -59,7 +59,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1289386/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1305999/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1306546/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1305501/DOMUtils.js
 // ==/UserScript==
@@ -1507,11 +1507,25 @@
               } else {
                 log.error("解析文件上传时间信息失败");
               }
-              await that.getLinkByIframe(iframeUrl, {
+              let downloadUrl = await that.getLinkByIframe(iframeUrl, {
                 fileName,
                 fileSize,
                 fileUploadTime,
               });
+              if (downloadUrl) {
+                downloadUrl = NetDiskFilterScheme.handleUrl(
+                  "lanzou-static-scheme-enable",
+                  "lanzou-static-scheme-forward",
+                  downloadUrl
+                );
+                NetDiskUI.staticView.oneFile({
+                  title: "蓝奏云单文件直链",
+                  fileName: fileName,
+                  fileSize: fileSize,
+                  downloadUrl: downloadUrl,
+                  fileUploadTime: fileUploadTime,
+                });
+              }
             } else {
               await that.getLink(respData);
             }
@@ -1621,7 +1635,17 @@
             if (respData.readyState === 4) {
               let json_data = utils.toJSON(respData.responseText);
               let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
+              if (
+                typeof json_data["url"] === "string" &&
+                (json_data["url"].startsWith("http") ||
+                  json_data["url"].startsWith(json_data["dom"]))
+              ) {
+                /* 有些情况下比如苹果的ipa文件的请求，json_data["url"]就是一个完整的链接 */
+                downloadUrl = json_data["url"];
+              }
+              /* json_data["zt"]表示状态，一般为1 */
               let zt = json_data["zt"];
+              /* json_data["inf"]一般是文件名，也可以看作是请求信息提示 */
               if ("密码不正确".indexOf(json_data["inf"]) != -1) {
                 Qmsg.error("密码不正确!");
                 NetDiskUI.newAccessCodeView(
@@ -1813,19 +1837,7 @@
               utils.getRandomAndroidUA()
             );
             log.info(downloadUrl);
-
-            downloadUrl = NetDiskFilterScheme.handleUrl(
-              "lanzou-static-scheme-enable",
-              "lanzou-static-scheme-forward",
-              downloadUrl
-            );
-            NetDiskUI.staticView.oneFile({
-              title: "蓝奏云单文件直链",
-              fileName: fileInfo.fileName,
-              fileSize: fileInfo.fileSize,
-              downloadUrl: downloadUrl,
-              fileUploadTime: fileInfo.fileUploadTime,
-            });
+            return downloadUrl;
           }
         };
         /**
@@ -1887,7 +1899,10 @@
             let QmsgLoading = Qmsg.loading("获取文件夹成功，解析文件直链中...");
             /* 获取多文件的数组信息 */
             let folder = json_data["text"];
-            /* 弹出内容 */
+            /**
+             * 弹出内容
+             * @type {PopsFolderDataConfig[]}
+             */
             let folderList = [];
             log.info(`本链接一共${folder.length}个文件`);
             for (let index = 0; index < folder.length; index++) {
@@ -1916,10 +1931,12 @@
                   if (folderDownloadInfo.success) {
                     return {
                       autoDownload: true,
+                      mode: "aBlank",
                       url: folderDownloadInfo.downloadUrl,
                     };
                   } else {
-                    Qmsg.error(folderDownloadInfo.downloadUrl);
+                    log.error(["获取下载信息失败：", folderDownloadInfo]);
+                    Qmsg.error(folderDownloadInfo.msg);
                   }
                 },
               });
@@ -1948,12 +1965,19 @@
           }
         };
         /**
-         * 多文件解析并返回html
+         * 多文件解析并返回html-vip
          * @param {string} paramShareCode 解析多文件获取的shareCode
          * @param {string} fileName 文件名
          * @param {string} fileSize 文件大小
          * @param {string} fileUploadTime 文件上传时间
-         * @async
+         * @returns {Promise<{
+         * success :boolean,
+         * fileName: string,
+         * fileSize: string,
+         * fileUploadTime: string,
+         * downloadUrl: ?string,
+         * msg: string,
+         * }>}
          */
         this.parseMoreFile = async function (
           paramShareCode,
@@ -1962,75 +1986,74 @@
           fileUploadTime
         ) {
           /* 根据获取到的json中多文件链接来获取单文件直链 */
-          let resultInfo = {};
           let getResp = await httpx.get({
-            url: that.handleUrl.tp(paramShareCode),
+            url: that.handleUrl.default(paramShareCode),
             headers: {
               Accept: "*/*",
-              "User-Agent": utils.getRandomAndroidUA(),
+              "User-Agent": utils.getRandomPCUA(),
               Referer: that.handleUrl.default(that.shareCode),
             },
           });
-          let respData = getResp.data;
-          if (getResp.status) {
-            let pageText = respData.responseText;
-            let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
-            let loadDown = pageText.match(that.regexp.loadDown.match);
-            let appleDown = pageText.match(that.regexp.appleDown.match);
-            if (utils.isNull(loadDown)) {
-              loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
-            }
-            if (utils.isNull(loadDown) && appleDown) {
-              appleDown = appleDown[appleDown.length - 1];
-              loadDownHost = [appleDown];
-              loadDown = [""];
-              log.success(["多文件-当前链接猜测为苹果的文件", appleDown]);
-            }
-            let submit_url = "javascript:;";
-            let downloadUrl = "";
-            if (utils.isNotNull(loadDownHost) && utils.isNotNull(loadDown)) {
-              let needRedirectDownloadUrl = `${
-                loadDownHost[loadDownHost.length - 1]
-              }${loadDown[loadDown.length - 1]}`;
-              downloadUrl = await NetDiskParse.getRedirectFinalUrl(
-                needRedirectDownloadUrl,
-                utils.getRandomAndroidUA()
-              );
-
-              submit_url = NetDiskFilterScheme.handleUrl(
-                "lanzou-static-scheme-enable",
-                "lanzou-static-scheme-forward",
-                downloadUrl
-              );
-              resultInfo["success"] = true;
-              resultInfo["downloadUrl"] = submit_url;
-            } else if (pageText.match("来晚啦...文件取消分享了</div>")) {
-              resultInfo["success"] = false;
-              fileSize = "来晚啦...文件取消分享了";
-            } else if (utils.isNull(loadDownHost)) {
-              log.error(pageText);
-              resultInfo["success"] = false;
-              fileSize = "获取sign的域名失败，请反馈开发者";
-            } else if (utils.isNull(loadDown)) {
-              log.error(pageText);
-              resultInfo["success"] = false;
-              fileSize = "获取sign失败，请反馈开发者";
-            } else {
-              resultInfo["success"] = false;
-              fileSize = "解析直链失败";
-            }
-            resultInfo["fileName"] = fileName;
-            resultInfo["fileSize"] = fileSize;
-            resultInfo["fileUploadTime"] = fileUploadTime;
-          } else {
-            log.error(respData);
-            resultInfo["success"] = false;
-            resultInfo["fileName"] = fileName;
-            resultInfo["fileSize"] = `解析失败，${getResp.msg}`;
+          log.info(getResp);
+          if (!getResp.status) {
+            return {
+              success: false,
+              fileName: fileName,
+              fileSize: fileSize,
+              fileUploadTime: fileUploadTime,
+              msg: `解析失败，${getResp.msg}`,
+              downloadUrl: null,
+            };
           }
-          return resultInfo;
+          let respData = getResp.data;
+          let pageText = respData.responseText;
+          let pageDOM = DOMUtils.parseHTML(pageText, true, true);
+          let pageIframeElement =
+            pageDOM.querySelector('iframe[class^="ifr"]') ||
+            pageDOM.querySelector('iframe[class^="n_downlink"]');
+          if (!pageIframeElement) {
+            return {
+              success: false,
+              fileName: fileName,
+              fileSize: fileSize,
+              fileUploadTime: fileUploadTime,
+              msg: `解析iframe链接失败`,
+              downloadUrl: null,
+            };
+          }
+          let iframeUrl = pageIframeElement.getAttribute("src");
+          log.error(["该链接需要重新通过iframe地址访问获取信息", iframeUrl]);
+          Qmsg.info("正在请求下载信息");
+          let downloadUrl = await that.getLinkByIframe(iframeUrl, {
+            fileName,
+            fileSize,
+            fileUploadTime,
+          });
+          if (downloadUrl) {
+            downloadUrl = NetDiskFilterScheme.handleUrl(
+              "lanzou-static-scheme-enable",
+              "lanzou-static-scheme-forward",
+              downloadUrl
+            );
+            return {
+              success: true,
+              fileName: fileName,
+              fileSize: fileSize,
+              fileUploadTime: fileUploadTime,
+              msg: "success",
+              downloadUrl: downloadUrl,
+            };
+          } else {
+            return {
+              success: false,
+              fileName: fileName,
+              fileSize: fileSize,
+              fileUploadTime: fileUploadTime,
+              msg: `获取下载链接失败`,
+              downloadUrl: null,
+            };
+          }
         };
-
         return this;
       },
       /**
@@ -2448,6 +2471,9 @@
           dirInfo,
           index = 0
         ) {
+          /**
+           * @type {PopsFolderDataConfig[]}
+           */
           let folderInfoList = [];
           let tempFolderInfoList = [];
           let tempFolderFileInfoList = [];
@@ -2513,7 +2539,7 @@
                   );
                   return {
                     autoDownload: true,
-                    blank: true,
+                    mode: "aBlank",
                     url: downloadUrl,
                   };
                 }
@@ -3060,6 +3086,9 @@
         this.getFolderInfo = function (infoList, index) {
           let folderInfoList = [];
           let tempFolderInfoList = [];
+          /**
+           * @type {PopsFolderDataConfig[]}
+           */
           let tempFolderFileInfoList = [];
           infoList.forEach((item) => {
             if (item.Type) {
@@ -3108,6 +3137,7 @@
                       return {
                         url: downloadInfo["data"]["DownloadURL"],
                         autoDownload: true,
+                        mode: "aBlank",
                       };
                     } else if (downloadInfo && downloadInfo["code"] === 401) {
                       Qmsg.error("请登录后下载");
@@ -3122,6 +3152,7 @@
                         item.DownloadUrl
                       ),
                       autoDownload: true,
+                      mode: "aBlank",
                     };
                   }
                 },
@@ -3470,6 +3501,9 @@
          */
         this.parseMoreFile = function (folderInfo, hash = "", fileName = "") {
           log.info(["解析多文件信息", folderInfo]);
+          /**
+           * @type {PopsFolderDataConfig[]}
+           */
           let folderInfoList = [];
           folderInfo.forEach((item) => {
             let fileName = item.relPath;
@@ -3503,6 +3537,7 @@
                 log.info(downloadUrl);
                 return {
                   autoDownload: true,
+                  mode: "aBlank",
                   url: downloadUrl,
                 };
               },
@@ -4861,6 +4896,9 @@
         this.getFolderInfo = function (infoList, stoken, index = 0) {
           let folderInfoList = [];
           let tempFolderInfoList = [];
+          /**
+           * @type {PopsFolderDataConfig[]}
+           */
           let tempFolderFileInfoList = [];
           infoList.forEach((item) => {
             if (item.dir == false && item.file_type === 1) {
@@ -4903,7 +4941,7 @@
                     } else {
                       return {
                         autoDownload: true,
-                        blank: true,
+                        mode: "aBlank",
                         url: fileDownloadUrl,
                       };
                     }
@@ -7613,7 +7651,7 @@
             ) {
               /* 可能是移动端的输入框弹出的键盘导致的resize */
               return;
-            }else if(!document.hasFocus()){
+            } else if (!document.hasFocus()) {
               /* 页面失焦 */
               return;
             }
@@ -8271,6 +8309,7 @@
                   } else {
                     return {
                       autoDownload: true,
+                      mode: "aBlank",
                       url: fileDetails.downloadUrl,
                     };
                   }
@@ -10211,7 +10250,7 @@
   const NetDiskPops = {
     /**
      * 普通信息框
-     * @param {object} details 配置
+     * @param {PopsAlertDetails} details 配置
      * @param {{
      * PC: {
      *  width: string,
@@ -10239,7 +10278,7 @@
     },
     /**
      * 询问框
-     * @param {object} details 配置
+     * @param {PopsConfirmDetails} details 配置
      * @param {?{
      * PC: {
      *  width: string,
@@ -10267,7 +10306,7 @@
     },
     /**
      * 加载层
-     * @param {object} details 配置
+     * @param {PopsLoadingDetails} details 配置
      * @returns {{
      * guid: string,
      * element: Element,
@@ -10293,7 +10332,7 @@
     },
     /**
      * 输入框
-     * @param {object} details 配置
+     * @param {PopsPromptDetails} details 配置
      * @param {?{
      * PC: {
      *  width: string,
@@ -10321,7 +10360,7 @@
     },
     /**
      * 文件夹
-     * @param {object} details 配置
+     * @param {PopsFolderDetails} details 配置
      * @returns {{
      * guid: string,
      * element: Element,
@@ -10339,7 +10378,7 @@
     },
     /**
      * 菜单面板
-     * @param {object} details 配置
+     * @param {PopsPanelDetails} details 配置
      * @returns {{
      * guid: string,
      * element: Element,
