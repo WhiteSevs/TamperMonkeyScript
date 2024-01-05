@@ -372,7 +372,7 @@ declare interface PopsFolderDataConfig {
     /**
      * 点击事件
      */
-    clickEvent: (event: Event, config: PopsFolderDataConfig) => ?{ autoDownload: boolean, url: string };
+    clickEvent: (event: Event, config: PopsFolderDataConfig) => ?Promise<{ autoDownload: boolean, url: string, mode: "a" | "aBlank" | "iframe" | "open" | "openBlank" }>;
 }
 /**
  * pops.panel的content配置信息
