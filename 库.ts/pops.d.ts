@@ -1575,6 +1575,23 @@ declare interface PopsFolderDetails {
         style: string;
     };
     /**
+     * 排序
+     */
+    sort: {
+        /**
+         * 比较的名字，默认为fileName
+         */
+        name: "fileName" | "fileSize" | "latestTime";
+        /**
+         * 是否降序，默认false（升序）
+         */
+        isDesc: boolean;
+        /**
+         * 触发排序的回调，如果返回true，则中止内部的排序
+         */
+        callback: (targert: HTMLElement, event: Event, sortName: "fileName" | "fileSize" | "latestTime", sortDesc: boolean) => boolean;
+    },
+    /**
      * 文件夹信息
      */
     folder: PopsFolderDataConfig[];
