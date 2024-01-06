@@ -5280,10 +5280,10 @@
 
   /**
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
-   * @param {[...any]|NodeList|function} data 数据|获取数据的方法
+   * @param {any[]|NodeList|function} data 数据|获取数据的方法
    * @param {string|function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
    * @param {boolean} [sortByDesc=true] 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
-   * @returns {[...any]} 返回比较排序完成的数组
+   * @returns {any[]} 返回比较排序完成的数组
    * @example
    * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]})
    * > [{time: '2022-2-2'},{time: '2022-1-1'}]
