@@ -1,4 +1,5 @@
 /// <reference path="../库.ts/pops.d.ts" />
+/// <reference path="../库.ts/DOMUtils.d.ts" />
 
 (function (global, factory) {
   /**
@@ -2302,9 +2303,9 @@
     /**
      * 绑定事件
      * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
-     * @param {string|[...string]} eventType 需要监听的事件
+     * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要监听的事件
      * @param {string|undefined} selector 子元素选择器
-     * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
+     * @param {((event: Event)=>void)|undefined} callback 绑定事件触发的回调函数
      * @param {boolean|AddEventListenerOptions|undefined} option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -2463,9 +2464,9 @@
     /**
      * 取消绑定事件
      * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
-     * @param {string|[...string]} eventType 需要取消监听的事件
+     * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要取消监听的事件
      * @param {string|undefined} selector 子元素选择器
-     * @param {(event:Event)=> void|undefined} callback 通过DOMUtils.on绑定的事件函数
+     * @param {((event: Event)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
      * @param {EventListenerOptions|boolean|undefined} option
      * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
      */
@@ -2583,7 +2584,7 @@
     /**
      * 主动触发事件
      * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
-     * @param {string|[...string]} eventType 需要触发的事件
+     * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要触发的事件
      * @param {object|undefined} details 赋予触发的Event的额外属性
      * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
      */
@@ -2621,7 +2622,9 @@
         eventTypeList.forEach((_eventType_) => {
           let event = new Event(_eventType_);
           if (details) {
-            Object.assign(event, details);
+            Object.keys(details).forEach((keyName) => {
+              event[keyName] = details[keyName];
+            });
           }
           if (useDispatchToTriggerEvent == false && _eventType_ in events) {
             events[_eventType_].forEach((eventsItem) => {
@@ -2653,7 +2656,7 @@
     /**
      * 获取元素的宽度
      * @param {HTMLElement} element - 要获取宽度的元素
-     * @returns {Number} - 元素的宽度，单位为像素
+     * @returns {number} - 元素的宽度，单位为像素
      */
     width(element) {
       if (PopsUtils.isWin(element)) {
@@ -2716,7 +2719,7 @@
     /**
      * 获取元素的高度
      * @param {HTMLElement} element - 要获取高度的元素
-     * @returns {Number} - 元素的高度，单位为像素
+     * @returns {number} - 元素的高度，单位为像素
      */
     height(element) {
       if (PopsUtils.isWin(element)) {
@@ -2778,7 +2781,7 @@
     /**
      * 获取元素的外部宽度（包括边框和外边距）
      * @param {HTMLElement} element - 要获取外部宽度的元素
-     * @returns {Number} - 元素的外部宽度，单位为像素
+     * @returns {number} - 元素的外部宽度，单位为像素
      */
     outerWidth(element) {
       if (PopsUtils.isWin(element)) {
@@ -2805,7 +2808,7 @@
     /**
      * 获取元素的外部高度（包括边框和外边距）
      * @param {HTMLElement} element - 要获取外部高度的元素
-     * @returns {Number} - 元素的外部高度，单位为像素
+     * @returns {number} - 元素的外部高度，单位为像素
      */
     outerHeight(element) {
       if (PopsUtils.isWin(element)) {
@@ -3205,6 +3208,7 @@
     table.pops-folder-list-table__body{height:100%;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
     .pops-folder-list table tr{line-height:1}
     .pops-folder-list-table__header-row{height:50px;line-height:50px;color:#818999;text-align:left;font-size:12px}
+    .pops-folder-list-table__header-row{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
     .pops-folder-list-table__body-row{height:50px;line-height:50px;color:#03081a;font-size:12px}
     .pops-folder-list-table__body-row:hover{background:#f5f6f7}
     .pops-folder-list table th{border:0;border-bottom:1px solid #f7f8fa}
@@ -3246,6 +3250,7 @@
     .pops-folder-list .text-ellip{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
     .pops-folder-list .content{color:#818999;position:relative;width:100%;text-align:left}
     .pops-folder-list .inline-block-v-middle{display:inline-block;vertical-align:middle}
+    .pops-folder-list .flex-a-i-center{display: flex;align-items: center;}
     .pops-folder-list .u-file-icon{display:inline-block;vertical-align:middle}
     .pops-folder-list .u-file-icon--list{width:32px;height:32px}
     .pops-folder-list .pops-folder-list-file-icon{line-height:1;position:relative;vertical-align:middle}
@@ -3265,6 +3270,20 @@
       flex-direction: row;
       height: 17px;
       flex-wrap: wrap;
+    }
+    .pops-folder-list .pops-folder-list-table__sort {
+      display: inline-flex;
+      margin-left: 4px;
+      flex-direction: column;
+    }
+    
+    .pops-folder-list .pops-folder-icon-arrow{
+      width: 10px;
+      height: 10px;
+      fill: #d4d7de;
+    }
+    .pops-folder-list .pops-folder-icon-active{
+      fill: #06a7ff;
     }
     .pops-folder-list .pops-folder-file-list-breadcrumb {
       padding: 0 20px;
@@ -4534,6 +4553,24 @@
          */
         folderFileListBreadcrumbPrimaryElement: animElement.querySelector(
           ".pops-folder-list .pops-folder-file-list-breadcrumb-primary"
+        ),
+        /**
+         * 文件夹排序按钮-文件名
+         */
+        folderListSortFileNameElement: animElement.querySelector(
+          '.pops-folder-list-table__sort[data-sort="fileName"]'
+        ),
+        /**
+         * 文件夹排序按钮-修改时间
+         */
+        folderListSortLatestTimeElement: animElement.querySelector(
+          '.pops-folder-list-table__sort[data-sort="latestTime"]'
+        ),
+        /**
+         * 文件夹排序按钮-文件大小
+         */
+        folderListSortFileSizeElement: animElement.querySelector(
+          '.pops-folder-list-table__sort[data-sort="fileSize"]'
         ),
       };
     },
@@ -6729,6 +6766,11 @@
         html: false,
         style: "",
       },
+      sort: {
+        name: "latestTime",
+        isDesc: false,
+        callback() {},
+      },
       folder: [
         {
           fileName: "测试文件夹",
@@ -6937,18 +6979,63 @@
                 <thead>
                   <tr class="pops-folder-list-table__header-row">
                     <th class="pops-folder-list-table__header-th cursor-p">
-                      <div class="text-ellip content inline-block-v-middle">
+                      <div class="text-ellip content flex-a-i-center">
                         <span>文件名</span>
+                        <div class="pops-folder-list-table__sort" data-sort="fileName">
+                          <div class="pops-folder-icon-arrow">
+                            <svg
+                              viewBox="0 0 1024 1024"
+                              version="1.1"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+                                class="pops-folder-icon-arrow-up"></path>
+                              <path
+                                d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+                                class="pops-folder-icon-arrow-down"></path>
+                            </svg>
+                          </div>
+                        </div>
                       </div>
                     </th>
                     <th class="pops-folder-list-table__header-th cursor-p">
-                      <div class="text-ellip content inline-block-v-middle">
+                      <div class="text-ellip content flex-a-i-center">
                         <span>修改时间</span>
+                        <div class="pops-folder-list-table__sort" data-sort="latestTime">
+                          <div class="pops-folder-icon-arrow">
+                            <svg
+                              viewBox="0 0 1024 1024"
+                              version="1.1"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+                                class="pops-folder-icon-arrow-up"></path>
+                              <path
+                                d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+                                class="pops-folder-icon-arrow-down"></path>
+                            </svg>
+                          </div>
+                        </div>
                       </div>
                     </th>
                     <th class="pops-folder-list-table__header-th cursor-p">
-                      <div class="text-ellip content inline-block-v-middle">
+                      <div class="text-ellip content flex-a-i-center">
                         <span>大小</span>
+                        <div class="pops-folder-list-table__sort" data-sort="fileSize">
+                          <div class="pops-folder-icon-arrow">
+                            <svg
+                              viewBox="0 0 1024 1024"
+                              version="1.1"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+                                class="pops-folder-icon-arrow-up"></path>
+                              <path
+                                d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+                                class="pops-folder-icon-arrow-down"></path>
+                            </svg>
+                          </div>
+                        </div>
                       </div>
                     </th>
                   </tr>
@@ -6996,6 +7083,9 @@
       btnOkElement,
       btnCancelElement,
       btnOtherElement,
+      folderListSortFileNameElement,
+      folderListSortLatestTimeElement,
+      folderListSortFileSizeElement,
     } = PopsHandler.handleQueryElement(animElement, PopsType);
     /**
      * 遮罩层元素
@@ -7136,7 +7226,7 @@
       fileNameElement["__value__"] = __value__;
       fileTimeElement["__value__"] = __value__;
       fileFormatSize["__value__"] = __value__;
-
+      folderELement["__value__"] = __value__;
       folderELement.appendChild(fileNameElement);
       folderELement.appendChild(fileTimeElement);
       folderELement.appendChild(fileFormatSize);
@@ -7202,12 +7292,13 @@
           </div>
           `;
       /* 存储原来的值 */
-      fileNameElement["__value__"] = {
+      let __value__ = {
         fileName: origin_fileName,
         latestTime: origin_latestTime,
         fileSize: origin_fileSize,
       };
-
+      fileNameElement["__value__"] = __value__;
+      folderELement["__value__"] = __value__;
       folderELement.appendChild(fileNameElement);
       return {
         folderELement,
@@ -7393,10 +7484,67 @@
       );
     }
     /**
+     * 对配置进行排序
+     * @param {PopsFolderDataConfig[]} _config_
+     * @param {"fileName"|"fileSize"|"latestTime"} sortName 比较的属性，默认fileName
+     * @param {boolean} isDesc 是否降序，默认false（升序）
+     */
+    function sortFolderConfig(_config_, sortName = "fileName", isDesc = false) {
+      _config_.sort((a, b) => {
+        let beforeVal = a[sortName];
+        let afterVal = b[sortName];
+        if (sortName === "fileName") {
+          /* 文件名，进行字符串转换 */
+          beforeVal = beforeVal.toString();
+          afterVal = afterVal.toString();
+        } else if (sortName === "fileSize") {
+          /* 文件大小，进行Float转换 */
+          beforeVal = parseFloat(beforeVal);
+          afterVal = parseFloat(afterVal);
+        } else if (sortName === "latestTime") {
+          /* 文件时间 */
+          beforeVal = new Date(beforeVal).getTime();
+          afterVal = new Date(afterVal).getTime();
+        }
+        if (typeof beforeVal === "string" && typeof afterVal === "string") {
+          let compareVal = beforeVal.localeCompare(afterVal);
+          if (isDesc) {
+            /* 降序 */
+            if (compareVal > 0) {
+              compareVal = -1;
+            } else if (compareVal < 0) {
+              compareVal = 1;
+            }
+          }
+          return compareVal;
+        } else {
+          if (beforeVal > afterVal) {
+            if (isDesc) {
+              /* 降序 */
+              return -1;
+            } else {
+              return 1;
+            }
+          } else if (beforeVal < afterVal) {
+            if (isDesc) {
+              /* 降序 */
+              return 1;
+            } else {
+              return -1;
+            }
+          } else {
+            return 0;
+          }
+        }
+      });
+      return _config_;
+    }
+    /**
      * 添加元素
      * @param {PopsFolderDataConfig[]} _config_
      */
     function addFolderElement(_config_) {
+      sortFolderConfig(_config_, config.sort.name, config.sort.isDesc);
       _config_.forEach((item) => {
         if (item["isFolder"]) {
           let { folderELement, fileNameElement } = pops.isPhone()
@@ -7439,6 +7587,122 @@
       breadcrumbAllFilesElementClickEvent(event, true, config.folder);
     });
 
+    /* 移除所有的当前排序的arrow */
+    function removeAllArrowActive() {
+      [
+        ...folderListSortFileNameElement.querySelectorAll(
+          ".pops-folder-icon-active"
+        ),
+        ...folderListSortLatestTimeElement.querySelectorAll(
+          ".pops-folder-icon-active"
+        ),
+        ...folderListSortFileSizeElement.querySelectorAll(
+          ".pops-folder-icon-active"
+        ),
+      ].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
+    }
+    /* 设置当前的排序的arrow */
+    function changeArrowActive(arrowUp, arrowDown, isDesc) {
+      removeAllArrowActive();
+      if (isDesc) {
+        arrowDown.classList.add("pops-folder-icon-active");
+      } else {
+        arrowUp.classList.add("pops-folder-icon-active");
+      }
+    }
+    /**
+     * 排序按钮的点击事件
+     * @param {Event} target
+     * @param {HTMLElement} event
+     * @param {string} sortName
+     * @returns
+     */
+    function arrowSortClickEvent(target, event, sortName) {
+      if (!event["notChangeSortRule"]) {
+        config.sort.name = sortName;
+        config.sort.isDesc = !config.sort.isDesc;
+      }
+      let arrowUp = target.querySelector(".pops-folder-icon-arrow-up");
+      let arrowDown = target.querySelector(".pops-folder-icon-arrow-down");
+      changeArrowActive(arrowUp, arrowDown, config.sort.isDesc);
+      if (
+        typeof config.sort.callback === "function" &&
+        config.sort.callback(
+          target,
+          event,
+          config.sort.name,
+          config.sort.isDesc
+        )
+      ) {
+        return;
+      }
+      let childrenList = [];
+      Array.from(folderListBodyElement.children).forEach((trElement) => {
+        let __value__ = trElement["__value__"];
+        __value__["target"] = trElement;
+        childrenList.push(__value__);
+      });
+      let sortedConfigList = sortFolderConfig(
+        childrenList,
+        config.sort.name,
+        config.sort.isDesc
+      );
+      sortedConfigList.forEach((item) => {
+        folderListBodyElement.appendChild(item.target);
+      });
+    }
+    /* 设置当前排序的图标按钮 */
+    PopsDOMUtils.on(
+      folderListSortFileNameElement.closest("th"),
+      "click",
+      undefined,
+      function (event) {
+        arrowSortClickEvent(folderListSortFileNameElement, event, "fileName");
+      },
+      {
+        capture: true,
+      }
+    );
+    PopsDOMUtils.on(
+      folderListSortLatestTimeElement.closest("th"),
+      "click",
+      undefined,
+      function (event) {
+        arrowSortClickEvent(
+          folderListSortLatestTimeElement,
+          event,
+          "latestTime"
+        );
+      },
+      {
+        capture: true,
+      }
+    );
+    PopsDOMUtils.on(
+      folderListSortFileSizeElement.closest("th"),
+      "click",
+      undefined,
+      function (event) {
+        arrowSortClickEvent(folderListSortFileSizeElement, event, "fileSize");
+      },
+      {
+        capture: true,
+      }
+    );
+    /* 设置默认触发的arrow */
+    if (config.sort.name === "fileName") {
+      PopsDOMUtils.trigger(folderListSortFileNameElement, "click", {
+        notChangeSortRule: true,
+      });
+    } else if (config.sort.name === "latestTime") {
+      PopsDOMUtils.trigger(folderListSortLatestTimeElement, "click", {
+        notChangeSortRule: true,
+      });
+    } else if (config.sort.name === "fileSize") {
+      PopsDOMUtils.trigger(folderListSortFileSizeElement, "click", {
+        notChangeSortRule: true,
+      });
+    }
     PopsHandler.handlePush(PopsType, {
       guid: guid,
       animElement: animElement,
