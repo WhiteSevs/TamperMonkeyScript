@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.1.5.21
+// @version      2024.1.6
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -22,7 +22,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1306546/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1305501/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1307066/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -86,9 +86,14 @@
         .bottom-button-box,
         /* 顶部的打开看看 */
         .nav-bar-box{
-            display: none !important;
+          display: none !important;
         }
 
+        /* 视频笔记 */
+        /* 底部评论区的- 打开小红书查看全部评论  */
+        #new-note-view-container .comment-box .comment-items .button-launch{
+          display: none !important;
+        }
         
         /* 用户主页 */
         /* 底部的-App内打开 */
@@ -97,9 +102,20 @@
         .main-container > .scroll-view-container > .launch-app-container:first-child,
         /* 底部的-打开小红书看更多精彩内容 */
         .bottom-launch-app-tip.show-bottom-bar{
-            display: none !important;
+          display: none !important;
         }
         `);
+      if (littleRedBookApi.isHomePage()) {
+        /* 首页 */
+        GM_addStyle(`
+        /* 底部的-App内打开 */
+        .container .launch-app-container,
+        /* 顶部的视频 */
+        .container .banner{
+          display: none !important;
+        }
+        `);
+      }
     },
     /**
      * 允许复制
@@ -107,8 +123,8 @@
     allowCopy() {
       GM_addStyle(`
         *{
-            -webkit-user-select: unset !important;
-            user-select: unset !important;
+            -webkit-user-select: unset;
+            user-select: unset;
         }
         `);
     },
@@ -133,6 +149,26 @@
             display: none !important;
         }
         `);
+    },
+    /**
+     * 屏蔽视频笔记的作者热门笔记
+     */
+    shieldAuthorHotNote() {
+      GM_addStyle(`
+      .user-notes-box.user-notes-clo-layout-container{
+        display: none !important;
+      }
+      `);
+    },
+    /**
+     * 屏蔽视频笔记的热门推荐
+     */
+    shieldHotRecommendNote() {
+      GM_addStyle(`
+      #new-note-view-container .recommend-box{
+        display: none !important;
+      }
+      `);
     },
   };
   /* 小红书api */
@@ -176,6 +212,67 @@
         Qmsg.error(data["msg"]);
       }
     },
+    /**
+     * 获取楼中楼页信息
+     * @returns {Promise<?{
+     * comments: any[],
+     * cursor: string,
+     * has_more: boolean,
+     * time: number,
+     * user_id: string,
+     * }>}
+     */
+    async getLzlPageInfo(
+      note_id = "",
+      root_comment_id = "",
+      num = 10,
+      cursor = "",
+      image_formats = "jpg,webp"
+    ) {
+      let getResp = await httpx.get(
+        `https://edith.xiaohongshu.com/api/sns/web/v2/comment/sub/page?note_id=${note_id}&root_comment_id=${root_comment_id}&num=${num}&cursor=${cursor}&image_formats=${image_formats}`,
+        {
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "User-Agent": utils.getRandomPCUA(),
+            Origin: "https://www.xiaohongshu.com",
+            Referer: "https://www.xiaohongshu.com/",
+            "X-T": Date.now(),
+          },
+        }
+      );
+      if (!getResp.status) {
+        return;
+      }
+      let data = utils.toJSON(getResp.data.responseText);
+      log.info(["获取楼中楼页信息", data]);
+      if (data["code"] === 0 || data["success"]) {
+        return data["data"];
+      } else {
+        Qmsg.error(data["msg"]);
+      }
+    },
+    /**
+     * 判断是否是笔记页面
+     */
+    isNotePage() {
+      return globalThis.location.pathname.startsWith("/discovery/item/");
+    },
+    /**
+     * 判断是否是用户主页页面
+     */
+    isUserHomePage() {
+      return globalThis.location.pathname.startsWith("/user/profile/");
+    },
+    /**
+     * 判断是否是主页
+     */
+    isHomePage() {
+      return (
+        globalThis.location.href === "https://www.xiaohongshu.com/" ||
+        globalThis.location.href === "https://www.xiaohongshu.com"
+      );
+    },
   };
   /* 小红书业务 */
   const littleRedBookBusiness = {
@@ -183,10 +280,6 @@
      * 优化评论浏览
      */
     optimizeCommentBrowsing() {
-      if (!globalThis.location.pathname.startsWith("/discovery/item/")) {
-        /* 必须是笔记页面 */
-        return;
-      }
       /* 评论 */
       const Comments = {
         QmsgLoading: undefined,
@@ -277,6 +370,10 @@
           let ip_location = data["ip_location"];
           /* 是否继续存在子评论 */
           let sub_comment_has_more = data["sub_comment_has_more"];
+          /* 楼中楼回复的总数量 */
+          let sub_comment_count = parseInt(data["sub_comment_count"]) || 0;
+          /* 加载楼中楼更多回复的时候需要的参数 */
+          let sub_comment_cursor = data["sub_comment_cursor"];
           /* 楼中楼评论的数据 */
           let sub_comments = data["sub_comments"];
           /* 评论的用户头像 */
@@ -320,6 +417,70 @@
               });
               commentItemElement.appendChild(subCommentElement);
             });
+            if (sub_comment_count !== sub_comments.length) {
+              /* 楼中楼回复还没加载完 */
+              /* 计算出还没加载完的楼中楼回复的数量 */
+              let endReplyCount = sub_comment_count - sub_comments.length;
+              /* 楼中楼的cursor */
+              let lzlCursor = sub_comment_cursor;
+              let showMoreElement = DOMUtils.createElement("div", {
+                className: "little-red-book-comments-reply-show-more",
+                innerText: `展开 ${endReplyCount} 条回复`,
+              });
+              async function showMoreEvent() {
+                let QmsgLoading = Qmsg.loading("加载中，请稍后...");
+                let pageInfo = await littleRedBookApi.getLzlPageInfo(
+                  Comments.noteData["id"],
+                  id,
+                  10,
+                  lzlCursor,
+                  undefined
+                );
+                QmsgLoading.close();
+                if (!pageInfo) {
+                  return;
+                }
+                /* 覆盖cursor */
+                lzlCursor = pageInfo.cursor;
+                /* 重新计算剩余的回复数量 */
+                endReplyCount = endReplyCount - pageInfo.comments.length;
+                /* 修改页面显示 */
+                showMoreElement.innerText = `展开 ${endReplyCount} 条回复`;
+                pageInfo.comments.forEach((subCommentInfo) => {
+                  let subCommentElement = DOMUtils.createElement("div", {
+                    className: "little-red-book-comments-reply-container",
+                    innerHTML: Comments.getCommentHTML({
+                      user_id: subCommentInfo["user_info"]["user_id"],
+                      user_avatar: subCommentInfo["user_info"]["image"],
+                      user_nickname: subCommentInfo["user_info"]["nickname"],
+                      content: Comments.converContent(
+                        subCommentInfo["content"]
+                      ),
+                      create_time: subCommentInfo["create_time"],
+                      ip_location: subCommentInfo["ip_location"],
+                    }),
+                  });
+                  DOMUtils.before(showMoreElement, subCommentElement);
+                });
+                if (!pageInfo.has_more) {
+                  /* 没有更多回复了 */
+                  DOMUtils.off(
+                    showMoreElement,
+                    "click",
+                    undefined,
+                    showMoreEvent,
+                    {
+                      capture: true,
+                    }
+                  );
+                  showMoreElement.remove();
+                }
+              }
+              DOMUtils.on(showMoreElement, "click", undefined, showMoreEvent, {
+                capture: true,
+              });
+              commentItemElement.appendChild(showMoreElement);
+            }
           }
           return commentItemElement;
         },
@@ -494,6 +655,15 @@
                 margin-left: 8px;
                 margin-bottom: 12px;
             }
+            .little-red-book-comments-reply-show-more {
+              padding-left: calc(52px + 24px + 12px);
+              height: 32px;
+              line-height: 32px;
+              color: #13386c;
+              cursor: pointer;
+              font-weight: 500;
+              font-size: 14px;
+            }
           </style>
           `,
         });
@@ -527,9 +697,6 @@
      * 点啥都不好使，都会跳转至下载页面
      */
     repariClick() {
-      if (!globalThis.location.pathname.startsWith("/user/profile/")) {
-        return;
-      }
       DOMUtils.on(
         document,
         "click",
@@ -642,6 +809,21 @@
         log.success(["点击浏览图片👉", imgList[index]]);
         viewIMG(imgList, index);
       });
+    },
+    /**
+     * 优化视频笔记的描述（可滚动）
+     */
+    optimizeVideoNoteDesc() {
+      GM_addStyle(`
+      .author-box .author-desc-wrapper .author-desc{
+        max-height: 70px !important;
+        overflow: auto !important;
+      }
+      /* 展开按钮 */
+      .author-box .author-desc-wrapper .author-desc .author-desc-trigger{
+        display: none !important;
+      }
+      `);
     },
     /**
      * PC端 允许复制
@@ -957,7 +1139,7 @@
               forms: [
                 PopsPanel.getSwtichDetail(
                   "优化评论浏览",
-                  "加载评论，未登录最多查看1页评论",
+                  "加载评论，未登录最多查看1页评论(包括楼中楼的)",
                   "little-red-book-optimizeCommentBrowsing",
                   true
                 ),
@@ -971,6 +1153,30 @@
                   "允许复制",
                   "可以复制笔记的内容",
                   "little-red-book-allowCopy",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "视频笔记",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "优化视频描述",
+                  "让视频描述可以滚动显示更多",
+                  "little-red-book-optimizeVideoNoteDesc",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】作者热门笔记",
+                  "建议开启",
+                  "little-red-book-shieldAuthorHotNote",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】热门推荐",
+                  "建议开启",
+                  "little-red-book-shieldHotRecommendNote",
                   true
                 ),
               ],
@@ -1049,33 +1255,51 @@
   if (PopsPanel.getValue("little-red-book-shieldAd")) {
     littleRedBookShield.shieldAd();
   }
-  if (PopsPanel.getValue("little-red-book-shieldBottomSearchFind")) {
-    littleRedBookShield.shieldBottomSearchFind();
-  }
-  if (PopsPanel.getValue("little-red-book-shieldBottomToorBar")) {
-    littleRedBookShield.shieldBottomToorBar();
-  }
   if (PopsPanel.getValue("little-red-book-allowCopy")) {
     littleRedBookShield.allowCopy();
   }
-  if (
-    PopsPanel.getValue("little-red-book-hijack-webpack-mask") ||
-    PopsPanel.getValue("little-red-book-hijack-webpack-scheme")
-  ) {
-    littleRedBookHijack.webpackChunkranchi();
-  }
-  if (PopsPanel.getValue("little-red-book-optimizeImageBrowsing")) {
-    littleRedBookBusiness.optimizeImageBrowsing();
+
+  if (littleRedBookApi.isNotePage()) {
+    if (PopsPanel.getValue("little-red-book-shieldBottomSearchFind")) {
+      littleRedBookShield.shieldBottomSearchFind();
+    }
+    if (PopsPanel.getValue("little-red-book-shieldBottomToorBar")) {
+      littleRedBookShield.shieldBottomToorBar();
+    }
+    if (
+      PopsPanel.getValue("little-red-book-hijack-webpack-mask") ||
+      PopsPanel.getValue("little-red-book-hijack-webpack-scheme")
+    ) {
+      littleRedBookHijack.webpackChunkranchi();
+    }
+    if (PopsPanel.getValue("little-red-book-optimizeImageBrowsing")) {
+      littleRedBookBusiness.optimizeImageBrowsing();
+    }
+    if (PopsPanel.getValue("little-red-book-optimizeVideoNoteDesc")) {
+      littleRedBookBusiness.optimizeVideoNoteDesc();
+    }
+    if (PopsPanel.getValue("little-red-book-shieldAuthorHotNote")) {
+      littleRedBookShield.shieldAuthorHotNote();
+    }
+    if (PopsPanel.getValue("little-red-book-shieldHotRecommendNote")) {
+      littleRedBookShield.shieldHotRecommendNote();
+    }
   }
   if (PopsPanel.getValue("little-red-book-pc-allow-copy")) {
     littleRedBookBusiness.allowPCCopy();
   }
+
   DOMUtils.ready(function () {
-    if (PopsPanel.getValue("little-red-book-optimizeCommentBrowsing")) {
-      littleRedBookBusiness.optimizeCommentBrowsing();
+    if (littleRedBookApi.isNotePage()) {
+      if (PopsPanel.getValue("little-red-book-optimizeCommentBrowsing")) {
+        littleRedBookBusiness.optimizeCommentBrowsing();
+      }
     }
-    if (PopsPanel.getValue("little-red-book-repariClick")) {
-      littleRedBookBusiness.repariClick();
+
+    if (littleRedBookApi.isUserHomePage()) {
+      if (PopsPanel.getValue("little-red-book-repariClick")) {
+        littleRedBookBusiness.repariClick();
+      }
     }
   });
   /* -----------------↑执行入口↑----------------- */
