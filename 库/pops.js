@@ -2981,7 +2981,7 @@
     /**
      * 当前版本
      */
-    version: "2024.1.5",
+    version: "2024.1.6",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -7238,10 +7238,10 @@
         {
           className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
           innerHTML: `<a>${name}</a>`,
+          _config_: _config_,
         },
         {
           title: "name",
-          _config_: _config_,
         }
       );
       return spanElement;
@@ -7249,37 +7249,21 @@
     /**
      * 顶部导航的点击事件
      * @param {Event} event
-     * @param {boolean} isTop
-     * @param {PopsFolderDataConfig} _config_
+     * @param {boolean} isTop 是否是全部文件按钮
+     * @param {PopsFolderDataConfig} _config_ 配置
      */
     function breadcrumbAllFilesElementClickEvent(event, isTop, _config_) {
       clearFolerRow();
-      let primaryElement = popsElement.querySelector(
-        ".pops-folder-file-list-breadcrumb-primary"
+      /* 获取当前的导航元素 */
+      let currentBreadcrumb = event.target.closest(
+        "span.pops-folder-file-list-breadcrumb-allFiles"
       );
-      if (isTop) {
-        Array.from(primaryElement.children).forEach((item) => {
-          if (item.getAttribute("title") !== "全部文件") {
-            item.remove();
-          }
-        });
+      if (currentBreadcrumb) {
+        while (currentBreadcrumb.nextElementSibling) {
+          currentBreadcrumb.nextElementSibling.remove();
+        }
       } else {
-        let childList = Array.from(primaryElement.children).filter((item) => {
-          return item.localName === "span";
-        });
-        let currentBreadcrumb = null;
-        for (let index = 0; index < childList.length; index++) {
-          let childConfig = childList[index]._config_;
-          if (childConfig == _config_) {
-            currentBreadcrumb = childList[index];
-            break;
-          }
-        }
-        if (currentBreadcrumb) {
-          while (currentBreadcrumb.nextElementSibling) {
-            currentBreadcrumb.nextElementSibling.remove();
-          }
-        }
+        console.error("获取导航按钮失败");
       }
       let loadingMask = pops.loading({
         parent: contentElement,
