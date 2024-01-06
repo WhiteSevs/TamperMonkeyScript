@@ -1,3 +1,5 @@
+/// <reference path="../库.ts/DOMUtils.d.ts" />
+
 /**
  * 自己常用的元素工具类
  * @copyright GPL-3.0-only
@@ -22,7 +24,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2023-12-16";
+  DOMUtils.version = "2024-1-6";
 
   let CommonUtils = {
     /**
@@ -743,9 +745,9 @@
   /**
    * 绑定事件
    * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
-   * @param {string|[...string]} eventType 需要监听的事件
+   * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要监听的事件
    * @param {string|undefined} selector 子元素选择器
-   * @param {(event: Event)=>{}|undefined} callback 绑定事件触发的回调函数
+   * @param {((event: Event)=>void)|undefined} callback 绑定事件触发的回调函数
    * @param {boolean|AddEventListenerOptions|undefined} option
    * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
    * + once 表示事件是否只触发一次。默认为false
@@ -925,9 +927,9 @@
   /**
    * 取消绑定事件
    * @param {HTMLElement|string|NodeList|Array|Window} element 需要取消绑定的元素|元素数组
-   * @param {string|[...string]} eventType 需要取消监听的事件
+   * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要取消监听的事件
    * @param {string|undefined} selector 子元素选择器
-   * @param {Function|undefined} callback 通过DOMUtils.on绑定的事件函数
+   * @param {((event:Event)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
    * @param {EventListenerOptions|boolean|undefined} option
    * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
    * @example
@@ -1055,7 +1057,7 @@
   /**
    * 主动触发事件
    * @param {HTMLElement|string|NodeList|Array|Window} element 需要触发的元素|元素数组|window
-   * @param {string|[...string]} eventType 需要触发的事件
+   * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要触发的事件
    * @param {object|undefined} details 赋予触发的Event的额外属性
    * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
    * @example
