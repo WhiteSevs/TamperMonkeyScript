@@ -61,7 +61,7 @@
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
 // @require      https://update.greasyfork.org/scripts/456485/1306546/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1305491/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1305501/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1307066/DOMUtils.js
 // ==/UserScript==
 
 (function () {
