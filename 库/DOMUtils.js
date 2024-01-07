@@ -24,7 +24,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2024-1-6";
+  DOMUtils.version = "2024-1-7";
 
   let CommonUtils = {
     /**
@@ -893,35 +893,28 @@
           _callback_.call(elementItem, event);
         }
       };
+      /* 判断元素是否是window */
+      let attributeEventName = CommonUtils.isWin(elementItem)
+        ? windowEventsName
+        : propEventsName;
       /* 遍历事件名设置元素事件 */
       eventTypeList.forEach((eventName) => {
         elementItem.addEventListener(eventName, ownCallBack, _option_);
-      });
 
-      if (_callback_ && _callback_.delegate) {
-        elementItem.setAttribute("data-delegate", _selector_);
-      }
-      if (CommonUtils.isWin(elementItem)) {
-        let elementEvents = elementItem[windowEventsName] || {};
-        elementEvents[eventType] = elementEvents[eventType] || [];
-        elementEvents[eventType].push({
+        if (_callback_ && _callback_.delegate) {
+          elementItem.setAttribute("data-delegate", _selector_);
+        }
+
+        let elementEvents = elementItem[attributeEventName] || {};
+        elementEvents[eventName] = elementEvents[eventName] || [];
+        elementEvents[eventName].push({
           selector: _selector_,
           option: _option_,
           callback: ownCallBack,
           originCallBack: _callback_,
         });
-        elementItem[windowEventsName] = elementEvents;
-      } else {
-        let elementEvents = elementItem[propEventsName] || {};
-        elementEvents[eventType] = elementEvents[eventType] || [];
-        elementEvents[eventType].push({
-          selector: _selector_,
-          option: _option_,
-          callback: ownCallBack,
-          originCallBack: _callback_,
-        });
-        elementItem[propEventsName] = elementEvents;
-      }
+        elementItem[attributeEventName] = elementEvents;
+      });
     });
   };
   /**
@@ -1028,15 +1021,16 @@
       eventTypeList.forEach((eventName) => {
         let handlers = elementEvents[eventName] || [];
         for (let index = 0; index < handlers.length; index++) {
+          let handler = handlers[index];
           if (
-            (!_selector_ || handlers[index].selector === _selector_) &&
+            (!_selector_ || handler.selector === _selector_) &&
             (!_callback_ ||
-              handlers[index].callback === _callback_ ||
-              handlers[index].originCallBack === _callback_)
+              handler.callback === _callback_ ||
+              handler.originCallBack === _callback_)
           ) {
             elementItem.removeEventListener(
               eventName,
-              handlers[index].callback,
+              handler.callback,
               _option_
             );
             handlers.splice(index--, 1);
@@ -1149,6 +1143,7 @@
   /**
    * 获取元素的宽度
    * @param {HTMLElement|string} element 要获取宽度的元素
+   * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
    * @returns {number} 元素的宽度，单位为像素
    * @example
    * // 获取元素a.xx的宽度
@@ -1163,7 +1158,7 @@
    * DOMUtils.width(document.querySelector("a.xx"),200)
    * DOMUtils.width("a.xx",200)
    */
-  DOMUtils.width = function (element) {
+  DOMUtils.width = function (element, isShow = false) {
     if (CommonUtils.isWin(element)) {
       return window.document.documentElement.clientWidth;
     }
@@ -1216,7 +1211,7 @@
     } else {
       /* 未显示 */
       let { recovery } = CommonUtils.showElement(element);
-      let width = DOMUtils.width(element);
+      let width = DOMUtils.width(element, true);
       recovery();
       return width;
     }
@@ -1224,6 +1219,7 @@
   /**
    * 获取元素的高度
    * @param {HTMLElement|string} element 要获取高度的元素
+   * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
    * @returns {number} 元素的高度，单位为像素
    * @example
    * // 获取元素a.xx的高度
@@ -1238,7 +1234,7 @@
    * DOMUtils.height(document.querySelector("a.xx"),200)
    * DOMUtils.height("a.xx",200)
    */
-  DOMUtils.height = function (element) {
+  DOMUtils.height = function (element, isShow = false) {
     if (CommonUtils.isWin(element)) {
       return window.document.documentElement.clientHeight;
     }
@@ -1290,7 +1286,7 @@
     } else {
       /* 未显示 */
       let { recovery } = CommonUtils.showElement(element);
-      let height = DOMUtils.height(element);
+      let height = DOMUtils.height(element, true);
       recovery();
       return height;
     }
@@ -1298,6 +1294,7 @@
   /**
    * 获取元素的外部宽度（包括边框和外边距）
    * @param {HTMLElement|string} element 要获取外部宽度的元素
+   * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
    * @returns {number} 元素的外部宽度，单位为像素
    * @example
    * // 获取元素a.xx的外部宽度
@@ -1308,7 +1305,7 @@
    * DOMUtils.outerWidth(window)
    * > 400
    */
-  DOMUtils.outerWidth = function (element) {
+  DOMUtils.outerWidth = function (element, isShow = false) {
     if (CommonUtils.isWin(element)) {
       return window.innerWidth;
     }
@@ -1325,7 +1322,7 @@
       return element.offsetWidth + marginLeft + marginRight;
     } else {
       let { recovery } = CommonUtils.showElement(element);
-      let outerWidth = DOMUtils.outerWidth(element);
+      let outerWidth = DOMUtils.outerWidth(element, true);
       recovery();
       return outerWidth;
     }
@@ -1333,6 +1330,7 @@
   /**
    * 获取元素的外部高度（包括边框和外边距）
    * @param {HTMLElement|string} element 要获取外部高度的元素
+   * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
    * @returns {number} 元素的外部高度，单位为像素
    * @example
    * // 获取元素a.xx的外部高度
@@ -1343,7 +1341,7 @@
    * DOMUtils.outerHeight(window)
    * > 700
    */
-  DOMUtils.outerHeight = function (element) {
+  DOMUtils.outerHeight = function (element, isShow = false) {
     if (CommonUtils.isWin(element)) {
       return window.innerHeight;
     }
@@ -1360,7 +1358,7 @@
       return element.offsetHeight + marginTop + marginBottom;
     } else {
       let { recovery } = CommonUtils.showElement(element);
-      let outerHeight = DOMUtils.outerHeight(element);
+      let outerHeight = DOMUtils.outerHeight(element, true);
       recovery();
       return outerHeight;
     }
