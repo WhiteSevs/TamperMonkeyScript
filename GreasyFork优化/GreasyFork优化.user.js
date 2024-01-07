@@ -1015,29 +1015,61 @@
         viewer.zoomTo(1);
         viewer.show();
       }
+      /**
+       * 获取<img>标签上的src属性
+       * @param {HTMLElement} element
+       * @returns {?string}
+       */
+      function getImgElementSrc(element) {
+        return (
+          element.getAttribute("data-src") ||
+          element.getAttribute("src") ||
+          element.getAttribute("alt")
+        );
+      }
       DOMUtils.on(document, "click", "img", function (event) {
-        let clickElement = event.target;
+        /**
+         * @type {HTMLElement}
+         */
+        let imgElement = event.target;
         /* 在超链接标签里 */
         if (
-          clickElement.parentElement?.localName === "a" &&
-          clickElement.hasAttribute("data-screenshots")
+          imgElement.parentElement?.localName === "a" &&
+          imgElement.hasAttribute("data-screenshots")
         ) {
           return;
         }
         /* Viewer的图片浏览 */
-        if (clickElement.closest(".viewer-container")) {
+        if (imgElement.closest(".viewer-container")) {
           return;
         }
         /* GreasFork自带的图片浏览 */
-        if (clickElement.closest(".lum-lightbox-position-helper")) {
+        if (imgElement.closest(".lum-lightbox-position-helper")) {
           return;
         }
-        let imgSrc =
-          clickElement.getAttribute("data-src") ||
-          clickElement.getAttribute("src") ||
-          clickElement.getAttribute("alt");
-        log.success(["点击浏览图片👉", imgSrc]);
-        viewIMG([imgSrc]);
+        /* 判断是否是user-content内的，如果是，多图片模式 */
+        let userContentElement = imgElement.closest(".user-content");
+        let imgList = [];
+        let imgIndex = 0;
+        let currentImgSrc = getImgElementSrc(imgElement);
+        if (userContentElement) {
+          userContentElement
+            .querySelectorAll("img")
+            .forEach((childImgElement) => {
+              let imgSrc = getImgElementSrc(childImgElement);
+              imgList.push(imgSrc);
+            });
+          imgIndex = imgList.indexOf(currentImgSrc);
+          if (imgIndex === -1) {
+            imgIndex = 0;
+          }
+        } else {
+          imgList.push(currentImgSrc);
+          imgIndex = 0;
+        }
+
+        log.success(["点击浏览图片👉", imgList, imgIndex]);
+        viewIMG(imgList, imgIndex);
       });
       /* 把上传的图片使用自定义图片预览 */
       document.querySelectorAll(".user-screenshots").forEach((element) => {
