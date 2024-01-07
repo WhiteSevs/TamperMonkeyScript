@@ -5181,21 +5181,26 @@
    *
    * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
    * @param {HTMLElement|Element|Node} element 目标元素
+   * @param {ChildNode} childTextNode 目标元素下的#text元素
    * @param {number|undefined} startIndex 开始坐标，可为空
    * @param {number|undefined} endIndex 结束坐标，可为空
    */
-  Utils.selectElementText = function (element, startIndex, endIndex) {
+  Utils.selectElementText = function (
+    element,
+    childTextNode,
+    startIndex,
+    endIndex
+  ) {
     let range = document.createRange();
     range.selectNodeContents(element);
-    if (startIndex != null && endIndex != null) {
-      if(element.firstChild){
-        range.setStart(element.firstChild, startIndex);
-        range.setEnd(element.firstChild, endIndex);
-      }else{
-        range.setStart(element, startIndex);
-        range.setEnd(element, endIndex);
+    if (childTextNode) {
+      if (childTextNode.nodeType !== Node.TEXT_NODE) {
+        throw new TypeError("childTextNode必须是#text元素");
       }
-      
+      if (startIndex != null && endIndex != null) {
+        range.setStart(childTextNode, startIndex);
+        range.setEnd(childTextNode, endIndex);
+      }
     }
 
     let selection = globalThis.getSelection();
