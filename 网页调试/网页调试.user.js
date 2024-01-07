@@ -23,7 +23,7 @@
 // @resource        Resource_erudaTiming          https://fastly.jsdelivr.net/npm/eruda-timing
 // @resource        Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code
 // @resource        Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark
-// @resource        Resource_Leaflet              https://update.greasyfork.org/scripts/483765/1307438/Leaflet.js
+// @resource        Resource_Leaflet              https://update.greasyfork.org/scripts/483765/1307701/Leaflet.js
 // @resource        Resource_erudaGeolocation     https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation/eruda-geolocation.js
 // @resource        Resource_erudaOrientation     https://cdn.jsdelivr.net/gh/WhiteSevs/eruda-orientation/eruda-orientation.js
 // @resource        Resource_erudaTouches         https://fastly.jsdelivr.net/npm/eruda-touches
@@ -33,7 +33,7 @@
 // @require         https://update.greasyfork.org/scripts/483694/1307569/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1307571/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1305507/PageSpy-2.js
-// @require         https://update.greasyfork.org/scripts/455186/1307607/WhiteSevsUtils.js
+// @require         https://update.greasyfork.org/scripts/455186/1307823/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
