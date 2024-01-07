@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.7
+// @version      2024.1.7.18
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -991,29 +991,39 @@
       DOMUtils.on(document, "click", "img", function (event) {
         let clickElement = event.target;
         /* 在超链接标签里 */
-        if (clickElement?.parentElement?.localName === "a") {
+        if (
+          clickElement.parentElement?.localName === "a" &&
+          clickElement.hasAttribute("data-screenshots")
+        ) {
           return;
         }
         /* Viewer的图片浏览 */
-        if (
-          clickElement?.parentElement?.className === "viewer-canvas" ||
-          clickElement?.parentElement?.hasAttribute("data-viewer-action")
-        ) {
+        if (clickElement.closest(".viewer-container")) {
           return;
         }
         /* GreasFork自带的图片浏览 */
-        if (
-          clickElement?.parentElement?.className ===
-          "lum-lightbox-position-helper"
-        ) {
+        if (clickElement.closest(".lum-lightbox-position-helper")) {
           return;
         }
         let imgSrc =
-          clickElement.getAttribute("src") ||
           clickElement.getAttribute("data-src") ||
+          clickElement.getAttribute("src") ||
           clickElement.getAttribute("alt");
         log.success(["点击浏览图片👉", imgSrc]);
         viewIMG([imgSrc]);
+      });
+      /* 把上传的图片使用自定义图片预览 */
+      document.querySelectorAll(".user-screenshots").forEach((element) => {
+        let linkElement = element.querySelector("a");
+        let imgSrc = linkElement.getAttribute("href");
+        let imgElement = element.querySelector("img");
+        imgElement.setAttribute("data-screenshots", true);
+        imgElement.setAttribute("data-src", imgSrc);
+        linkElement.setAttribute("href", "javascript:;");
+        /* img标签添加a标签后面 */
+        DOMUtils.after(linkElement, imgElement);
+        /* a标签删除 */
+        linkElement.remove();
       });
     },
     /**
@@ -1482,11 +1492,15 @@
       utils
         .waitNode("div#script-content div.code-container")
         .then((element) => {
-          let copyButton = DOMUtils.createElement("button", {
-            textContent: "复制代码",
-          },{
-            style: "margin-bottom: 1em;",
-          });
+          let copyButton = DOMUtils.createElement(
+            "button",
+            {
+              textContent: "复制代码",
+            },
+            {
+              style: "margin-bottom: 1em;",
+            }
+          );
           DOMUtils.on(copyButton, "click", async function () {
             let loading = Qmsg.loading("加载文件中...");
             let getResp = await httpx.get(
