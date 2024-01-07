@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.1.6
+// @version      2024.1.7
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -20,9 +20,9 @@
 // @connect      edith.xiaohongshu.com
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1307238/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1307239/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1307066/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1307584/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1307583/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1307582/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -105,7 +105,10 @@
           display: none !important;
         }
         `);
-      if (littleRedBookApi.isHomePage()) {
+      if (
+        littleRedBookRouter.isHomePage() ||
+        littleRedBookRouter.isSearchPage()
+      ) {
         /* 首页 */
         GM_addStyle(`
         /* 底部的-App内打开 */
@@ -252,6 +255,9 @@
         Qmsg.error(data["msg"]);
       }
     },
+  };
+  /* 小红书router */
+  const littleRedBookRouter = {
     /**
      * 判断是否是笔记页面
      */
@@ -272,6 +278,12 @@
         globalThis.location.href === "https://www.xiaohongshu.com/" ||
         globalThis.location.href === "https://www.xiaohongshu.com"
       );
+    },
+    /**
+     * 判断是否是搜索页面
+     */
+    isSearchPage() {
+      return globalThis.location.pathname.startsWith("/search_result/");
     },
   };
   /* 小红书业务 */
@@ -940,6 +952,36 @@
         },
       });
     },
+    /**
+     * 劫持vue，恢复属性__Ivue__
+     */
+    webPackVue() {
+      let originApply = unsafeWindow.Function.prototype.apply;
+      let isHijack = false;
+      unsafeWindow.Function.prototype.apply = function (...args) {
+        const result = originApply.call(this, ...args);
+        if (
+          !isHijack &&
+          args.length === 2 &&
+          args[0]?.addRoute &&
+          args[0]?.currentRoute &&
+          args[0]?.getRoutes &&
+          args[0]?.hasRoute &&
+          args[0]?.install &&
+          args[0]?.removeRoute
+        ) {
+          isHijack = !0;
+          let __vue__ = args[1][0];
+          log.success(["成功劫持vue，version版本：", __vue__.version]);
+          __vue__["mixin"]({
+            mounted: function () {
+              this.$el["__Ivue__"] = this;
+            },
+          });
+        }
+        return result;
+      };
+    },
   };
 
   /**
@@ -1235,6 +1277,18 @@
                 ),
               ],
             },
+            {
+              text: "劫持/拦截",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "劫持Vue",
+                  "恢复__vue__属性",
+                  "little-red-book-hijack-vue",
+                  false
+                ),
+              ],
+            },
           ],
         },
       ];
@@ -1252,6 +1306,9 @@
     }
   `);
   PopsPanel.initMenu();
+  if (PopsPanel.getValue("little-red-book-hijack-vue")) {
+    littleRedBookHijack.webPackVue();
+  }
   if (PopsPanel.getValue("little-red-book-shieldAd")) {
     littleRedBookShield.shieldAd();
   }
@@ -1259,7 +1316,7 @@
     littleRedBookShield.allowCopy();
   }
 
-  if (littleRedBookApi.isNotePage()) {
+  if (littleRedBookRouter.isNotePage()) {
     if (PopsPanel.getValue("little-red-book-shieldBottomSearchFind")) {
       littleRedBookShield.shieldBottomSearchFind();
     }
@@ -1290,13 +1347,13 @@
   }
 
   DOMUtils.ready(function () {
-    if (littleRedBookApi.isNotePage()) {
+    if (littleRedBookRouter.isNotePage()) {
       if (PopsPanel.getValue("little-red-book-optimizeCommentBrowsing")) {
         littleRedBookBusiness.optimizeCommentBrowsing();
       }
     }
 
-    if (littleRedBookApi.isUserHomePage()) {
+    if (littleRedBookRouter.isUserHomePage()) {
       if (PopsPanel.getValue("little-red-book-repariClick")) {
         littleRedBookBusiness.repariClick();
       }
