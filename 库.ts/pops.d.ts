@@ -1736,6 +1736,10 @@ declare interface PopsRightClickMenuDetails {
      */
     only?: boolean | undefined;
     /**
+     * 是否启用动画，默认true
+     */
+    isAnimation: boolean;
+    /**
      * 弹窗的显示层级，默认10000
      */
     zIndex?: number | undefined;
