@@ -1101,7 +1101,9 @@
       eventTypeList.forEach((_eventType_) => {
         let event = new Event(_eventType_);
         if (details) {
-          Object.assign(event, details);
+          Object.keys(details).forEach((keyName) => {
+            event[keyName] = details[keyName];
+          });
         }
         if (useDispatchToTriggerEvent == false && _eventType_ in events) {
           events[_eventType_].forEach((eventsItem) => {
