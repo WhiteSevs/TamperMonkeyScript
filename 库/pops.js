@@ -110,7 +110,7 @@
               ) {
                 PopsDOMUtils.on(
                   item.animElement,
-                  "animationend",
+                  PopsDOMUtils.getAnimationEndNameList(),
                   undefined,
                   function () {
                     item.animElement.remove();
@@ -177,7 +177,7 @@
                 }
                 PopsDOMUtils.off(
                   item.animElement,
-                  "animationend",
+                  PopsDOMUtils.getAnimationEndNameList(),
                   undefined,
                   animationendCallBack,
                   {
@@ -187,7 +187,7 @@
               }
               PopsDOMUtils.on(
                 item.animElement,
-                "animationend",
+                PopsDOMUtils.getAnimationEndNameList(),
                 undefined,
                 animationendCallBack,
                 {
@@ -248,7 +248,7 @@
               function animationendCallBack() {
                 PopsDOMUtils.off(
                   item.animElement,
-                  "animationend",
+                  PopsDOMUtils.getAnimationEndNameList(),
                   undefined,
                   animationendCallBack,
                   {
@@ -258,7 +258,7 @@
               }
               PopsDOMUtils.on(
                 item.animElement,
-                "animationend",
+                PopsDOMUtils.getAnimationEndNameList(),
                 undefined,
                 animationendCallBack,
                 {
@@ -2301,6 +2301,18 @@
    */
   let PopsDOMUtils = {
     /**
+     * 获取animationend的在各个浏览器的兼容名
+     */
+    getAnimationEndNameList() {
+      return [
+        "webkitAnimationEnd",
+        "mozAnimationEnd",
+        "MSAnimationEnd",
+        "oanimationend",
+        "animationend",
+      ];
+    },
+    /**
      * 绑定事件
      * @param {HTMLElement|string|NodeList|Array|Window} element 需要绑定的元素|元素数组|window
      * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要监听的事件
@@ -2430,35 +2442,27 @@
             _callback_.call(elementItem, event);
           }
         };
+        /* 判断元素是否是window */
+        let attributeEventName = PopsUtils.isWin(elementItem)
+          ? windowEventsName
+          : propEventsName;
         /* 遍历事件名设置元素事件 */
         eventTypeList.forEach((eventName) => {
           elementItem.addEventListener(eventName, ownCallBack, _option_);
-        });
+          if (_callback_ && _callback_.delegate) {
+            elementItem.setAttribute("data-delegate", _selector_);
+          }
 
-        if (_callback_ && _callback_.delegate) {
-          elementItem.setAttribute("data-delegate", _selector_);
-        }
-        if (PopsUtils.isWin(elementItem)) {
-          let elementEvents = elementItem[windowEventsName] || {};
-          elementEvents[eventType] = elementEvents[eventType] || [];
-          elementEvents[eventType].push({
+          let elementEvents = elementItem[attributeEventName] || {};
+          elementEvents[eventName] = elementEvents[eventName] || [];
+          elementEvents[eventName].push({
             selector: _selector_,
             option: _option_,
             callback: ownCallBack,
             originCallBack: _callback_,
           });
-          elementItem[windowEventsName] = elementEvents;
-        } else {
-          let elementEvents = elementItem[propEventsName] || {};
-          elementEvents[eventType] = elementEvents[eventType] || [];
-          elementEvents[eventType].push({
-            selector: _selector_,
-            option: _option_,
-            callback: ownCallBack,
-            originCallBack: _callback_,
-          });
-          elementItem[propEventsName] = elementEvents;
-        }
+          elementItem[attributeEventName] = elementEvents;
+        });
       });
     },
     /**
@@ -2656,9 +2660,10 @@
     /**
      * 获取元素的宽度
      * @param {HTMLElement} element - 要获取宽度的元素
+     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
      * @returns {number} - 元素的宽度，单位为像素
      */
-    width(element) {
+    width(element, isShow = false) {
       if (PopsUtils.isWin(element)) {
         return window.document.documentElement.clientWidth;
       }
@@ -2678,7 +2683,7 @@
           element.documentElement.clientWidth
         );
       }
-      if (PopsUtils.isShow(element)) {
+      if (isShow || PopsUtils.isShow(element)) {
         /* 已显示 */
         /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
 
@@ -2711,7 +2716,7 @@
       } else {
         /* 未显示 */
         let { recovery } = PopsUtils.showElement(element);
-        let width = PopsDOMUtils.width(element);
+        let width = PopsDOMUtils.width(element, true);
         recovery();
         return width;
       }
@@ -2719,9 +2724,10 @@
     /**
      * 获取元素的高度
      * @param {HTMLElement} element - 要获取高度的元素
+     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
      * @returns {number} - 元素的高度，单位为像素
      */
-    height(element) {
+    height(element, isShow = false) {
       if (PopsUtils.isWin(element)) {
         return window.document.documentElement.clientHeight;
       }
@@ -2741,7 +2747,7 @@
           element.documentElement.clientHeight
         );
       }
-      if (PopsUtils.isShow(element)) {
+      if (isShow || PopsUtils.isShow(element)) {
         /* 已显示 */
         /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
         /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
@@ -2773,7 +2779,7 @@
       } else {
         /* 未显示 */
         let { recovery } = PopsUtils.showElement(element);
-        let height = PopsDOMUtils.height(element);
+        let height = PopsDOMUtils.height(element, true);
         recovery();
         return height;
       }
@@ -2781,9 +2787,10 @@
     /**
      * 获取元素的外部宽度（包括边框和外边距）
      * @param {HTMLElement} element - 要获取外部宽度的元素
+     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
      * @returns {number} - 元素的外部宽度，单位为像素
      */
-    outerWidth(element) {
+    outerWidth(element, isShow = false) {
       if (PopsUtils.isWin(element)) {
         return window.innerWidth;
       }
@@ -2793,14 +2800,14 @@
       if (element == void 0) {
         return;
       }
-      if (PopsUtils.isShow(element)) {
+      if (isShow || PopsUtils.isShow(element)) {
         let style = getComputedStyle(element, null);
         let marginLeft = PopsUtils.getStyleValue(style, "marginLeft");
         let marginRight = PopsUtils.getStyleValue(style, "marginRight");
         return element.offsetWidth + marginLeft + marginRight;
       } else {
         let { recovery } = PopsUtils.showElement(element);
-        let outerWidth = PopsDOMUtils.outerWidth(element);
+        let outerWidth = PopsDOMUtils.outerWidth(element, true);
         recovery();
         return outerWidth;
       }
@@ -2808,9 +2815,10 @@
     /**
      * 获取元素的外部高度（包括边框和外边距）
      * @param {HTMLElement} element - 要获取外部高度的元素
+     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
      * @returns {number} - 元素的外部高度，单位为像素
      */
-    outerHeight(element) {
+    outerHeight(element, isShow = false) {
       if (PopsUtils.isWin(element)) {
         return window.innerHeight;
       }
@@ -2820,14 +2828,14 @@
       if (element == void 0) {
         return;
       }
-      if (PopsUtils.isShow(element)) {
+      if (isShow || PopsUtils.isShow(element)) {
         let style = getComputedStyle(element, null);
         let marginTop = PopsUtils.getStyleValue(style, "marginTop");
         let marginBottom = PopsUtils.getStyleValue(style, "marginBottom");
         return element.offsetHeight + marginTop + marginBottom;
       } else {
         let { recovery } = PopsUtils.showElement(element);
-        let outerHeight = PopsDOMUtils.outerHeight(element);
+        let outerHeight = PopsDOMUtils.outerHeight(element, true);
         recovery();
         return outerHeight;
       }
@@ -2984,7 +2992,7 @@
     /**
      * 当前版本
      */
-    version: "2024.1.6",
+    version: "2024.1.7",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -5974,11 +5982,16 @@
       config
     );
     eventDetails["iframeElement"] = iframeElement;
-    PopsDOMUtils.on(animElement, "animationend", undefined, function () {
-      /* 动画加载完毕 */
-      animElement.style.width = "0%";
-      animElement.style.height = "0%";
-    });
+    PopsDOMUtils.on(
+      animElement,
+      PopsDOMUtils.getAnimationEndNameList(),
+      undefined,
+      function () {
+        /* 动画加载完毕 */
+        animElement.style.width = "0%";
+        animElement.style.height = "0%";
+      }
+    );
 
     PopsDOMUtils.on(iframeElement, "load", undefined, function () {
       /* iframe加载中... */
@@ -5987,7 +6000,7 @@
         "iframeLoadingChange_85 0.3s forwards";
       PopsDOMUtils.on(
         contentLoadingElement,
-        "animationend",
+        PopsDOMUtils.getAnimationEndNameList(),
         undefined,
         function () {
           /* 动画加载完毕就移除 */
@@ -6397,13 +6410,7 @@
         close() {
           PopsDOMUtils.on(
             toolTipElement,
-            [
-              "webkitAnimationEnd",
-              "mozAnimationEnd",
-              "MSAnimationEnd",
-              "oanimationend",
-              "animationend",
-            ],
+            PopsDOMUtils.getAnimationEndNameList(),
             null,
             endEvent
           );
@@ -6441,13 +6448,7 @@
       );
       PopsDOMUtils.on(
         toolTipElement,
-        [
-          "webkitAnimationEnd",
-          "mozAnimationEnd",
-          "MSAnimationEnd",
-          "oanimationend",
-          "animationend",
-        ],
+        PopsDOMUtils.getAnimationEndNameList(),
         null,
         endEvent
       );
@@ -8824,6 +8825,7 @@
         },
       ],
       className: "",
+      isAnimation: true,
       only: false,
       zIndex: 10000,
       preventDefault: true,
@@ -8913,7 +8915,43 @@
       removeContextMenuEvent(target) {
         PopsDOMUtils.off(target, "contextmenu");
       },
-
+      /**
+       * 自动判断是否存在动画，存在动画就执行关闭动画并删除
+       * @param {HTMLElement} element
+       */
+      animationCloseMenu(element) {
+        /**
+         * 动画结束触发的事件
+         */
+        function transitionEndEvent(event) {
+          PopsDOMUtils.off(
+            element,
+            "transitionend",
+            undefined,
+            transitionEndEvent,
+            {
+              capture: true,
+            }
+          );
+          element.remove();
+        }
+        if (element.classList.contains(`pops-${PopsType}-anim-show`)) {
+          /* 有动画 */
+          PopsDOMUtils.on(
+            element,
+            "transitionend",
+            undefined,
+            transitionEndEvent,
+            {
+              capture: true,
+            }
+          );
+          element.classList.remove(`pops-${PopsType}-anim-show`);
+        } else {
+          /* 无动画 */
+          element.remove();
+        }
+      },
       /**
        * 关闭所有菜单
        * @param {HTMLElement} rootElement
@@ -8922,10 +8960,14 @@
         if (rootElement?.__menuData__?.root) {
           rootElement = rootElement?.__menuData__?.root;
         }
-        rootElement.__menuData__.child.forEach((element) => {
-          element.remove();
+        /**
+         * @type {HTMLElement[]}
+         */
+        let childMenuList = rootElement.__menuData__.child;
+        childMenuList.forEach((childMenuElement) => {
+          this.animationCloseMenu(childMenuElement);
         });
-        rootElement.remove();
+        this.animationCloseMenu(rootElement);
         PopsContextMenu.rootElement = null;
       },
       /**
@@ -8934,19 +8976,26 @@
        * @param {boolean} isChildren 是否是rightClickMenu的某一项的子菜单
        */
       getMenuContainerElement(zIndex, isChildren) {
-        return PopsUtils.parseTextToDOM(`
+        let menuElement = PopsUtils.parseTextToDOM(`
         <div class="pops-${PopsType}" ${isChildren ? 'is-children="true"' : ""}>
           <style type="text/css" data-from="pops-${PopsType}">
           .pops-${PopsType}{
             position: fixed;
             z-index: ${zIndex};
             text-align: center;
-            padding: 3px 0px;
             border-radius: 3px;
             font-size: 16px;
             font-weight: 500;
             background: #fff;
             box-shadow: 0px 1px 6px 1px #cacaca;
+          }
+          .pops-${PopsType}-anim-grid{
+            display: grid;
+            transition: 0.3s;
+            grid-template-rows: 0fr;
+          }
+          .pops-${PopsType}-anim-show{
+            grid-template-rows: 1fr;
           }
           .pops-${PopsType}-is-visited{
             background: #dfdfdf;
@@ -8968,22 +9017,44 @@
             animation: rotating 2s linear infinite;
           }
           .pops-${PopsType} li:hover{background:#dfdfdf;cursor:pointer}
-          .pops-${PopsType} ul{margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+          .pops-${PopsType} ul{
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            overflow: hidden;
+          }
           .pops-${PopsType} ul li {
             padding: 5px 10px;
+            margin: 2.5px 5px;
+            border-radius: 3px;
             display: flex;
             width: -webkit-fill-available;
             width: -moz-available;
             text-align: left;
-            margin: 2.5px 5px;
-            border-radius: 3px;
             user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             align-items: center;
+          }
+          .pops-${PopsType} ul li:first-child{
+            margin-top: 5px;
+          }
+          .pops-${PopsType} ul li:last-child{
+            margin-bottom: 5px;
           }
           </style>
           <ul></ul>
         </div>
         `);
+        /* 添加动画 */
+        if (config.isAnimation) {
+          PopsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-grid`);
+        }
+        return menuElement;
       },
       /**
        * 获取left、top偏移
@@ -9052,6 +9123,10 @@
           top: menuTopOffset,
           display: "",
         });
+        /* 过渡动画 */
+        if (config.isAnimation) {
+          PopsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
+        }
         return menuElement;
       },
       /**
@@ -9094,6 +9169,10 @@
           top: menuTopOffset,
           display: "",
         });
+        /* 过渡动画 */
+        if (config.isAnimation) {
+          PopsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
+        }
         return menuElement;
       },
       /**
@@ -9134,89 +9213,97 @@
             PopsDOMUtils.addClassName(menuLiElement, `pops-${PopsType}-item`);
           }
           /* 鼠标|触摸 移入事件 */
+          function liElementHoverEvent() {
+            Array.from(menuULElement.children).forEach((liElement) => {
+              PopsDOMUtils.removeClassName(
+                liElement,
+                `pops-${PopsType}-is-visited`
+              );
+              if (!liElement.__menuData__) {
+                return;
+              }
+              function removeElement(element) {
+                element.querySelectorAll("ul li").forEach((ele) => {
+                  if (ele?.__menuData__?.child) {
+                    removeElement(ele.__menuData__.child);
+                  }
+                });
+                element.remove();
+              }
+              /* 遍历根元素的上的__menuData__.child，判断 */
+              removeElement(liElement.__menuData__.child);
+            });
+            /* 清理根元素上的children不存在于页面中的元素 */
+            for (
+              let index = 0;
+              index < rootElement.__menuData__.child.length;
+              index++
+            ) {
+              let element = rootElement.__menuData__.child[index];
+              if (!document.contains(element)) {
+                rootElement.__menuData__.child.splice(index, 1);
+                index--;
+              }
+            }
+            PopsDOMUtils.addClassName(
+              menuLiElement,
+              `pops-${PopsType}-is-visited`
+            );
+            if (!item.item) {
+              return;
+            }
+            let rect = menuLiElement.getBoundingClientRect();
+            let childMenu = PopsContextMenu.showClildMenu(
+              {
+                clientX: rect.left + PopsDOMUtils.outerWidth(menuLiElement),
+                clientY: rect.top,
+                target: posInfo.target,
+              },
+              item.item,
+              rootElement,
+              menuLiElement
+            );
+            menuLiElement.__menuData__ = {
+              child: childMenu,
+            };
+          }
+          /**
+           * 点击事件
+           * @param {PointerEvent} event
+           * @returns
+           */
+          async function liElementClickEvent(event) {
+            if (typeof item.callback === "function") {
+              let callbackResult = await item.callback(
+                event,
+                posInfo,
+                menuLiElement
+              );
+              if (
+                typeof callbackResult === "boolean" &&
+                callbackResult == false
+              ) {
+                return;
+              }
+            }
+            /* 取消绑定的鼠标/触摸事件，防止关闭的时候再次触发 */
+            Array.from(menuULElement.children).forEach((liEle) => {
+              PopsDOMUtils.off(liEle, "mouseenter touchstart");
+            });
+            PopsContextMenu.closeAllMenu(rootElement);
+          }
           PopsDOMUtils.on(
             menuLiElement,
             "mouseenter touchstart",
             undefined,
-            function () {
-              Array.from(menuULElement.children).forEach((liElement) => {
-                PopsDOMUtils.removeClassName(
-                  liElement,
-                  `pops-${PopsType}-is-visited`
-                );
-                if (!liElement.__menuData__) {
-                  return;
-                }
-                for (
-                  let index = 0;
-                  index < rootElement.__menuData__.child.length;
-                  index++
-                ) {
-                  let element = rootElement.__menuData__.child[index];
-                  if (element == liElement.__menuData__.child) {
-                    element.remove();
-                    delete liElement.__menuData__;
-                    rootElement.__menuData__.child.splice(index, 1);
-                    index--;
-                  }
-                }
-              });
-              PopsDOMUtils.addClassName(
-                menuLiElement,
-                `pops-${PopsType}-is-visited`
-              );
-              if (!item.item) {
-                return;
-              }
-              let rect = menuLiElement.getBoundingClientRect();
-
-              let childMenu = PopsContextMenu.showClildMenu(
-                {
-                  clientX: rect.left + PopsDOMUtils.outerWidth(menuLiElement),
-                  clientY: rect.top,
-                  target: posInfo.target,
-                },
-                item.item,
-                rootElement,
-                menuLiElement
-              );
-              menuLiElement.__menuData__ = {
-                child: childMenu,
-              };
-            }
+            liElementHoverEvent
           );
-          /* popsUtils.jQuery.on(
-            menuLiElement,
-            "mouseleave touchend",
-            undefined,
-            function (event) {
-              if(!menuLiElement.__menuData__){
-                return;
-              }
-              
-            }
-          ); */
           /* 项-点击事件 */
           PopsDOMUtils.on(
             menuLiElement,
             "click",
             undefined,
-            async function (event) {
-              if (typeof item.callback === "function") {
-                let callbackResult = await item.callback(
-                  event,
-                  posInfo,
-                  menuLiElement
-                );
-                if (
-                  typeof callbackResult === "boolean" &&
-                  callbackResult == false
-                ) {
-                  return;
-                }
-              }
-              PopsContextMenu.closeAllMenu(rootElement);
-            }
+            liElementClickEvent
           );
 
           menuULElement.appendChild(menuLiElement);
