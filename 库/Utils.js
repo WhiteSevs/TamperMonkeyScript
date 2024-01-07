@@ -24,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2023-12-30";
+  Utils.version = "2024-1-7";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -808,6 +808,47 @@
     } else {
       return false;
     }
+  };
+
+  /**
+   * 函数重载实现
+   * @example
+   * let getUsers = Utils.createOverload();
+   * getUsers.addImpl("",()=>{
+   *    console.log("无参数");
+   * });
+   *
+   * getUsers.addImpl("boolean",()=>{
+   *    console.log("boolean");
+   * });
+   *
+   * getUsers.addImpl("string",()=>{
+   *    console.log("string");
+   * });
+   *
+   * getUsers.addImpl("number","string",()=>{
+   *    console.log("number string");
+   * });
+   */
+  Utils.createOverload = function () {
+    let fnMap = new Map();
+    function overload(...args) {
+      let key = args.map((it) => typeof it).join(",");
+      let fn = fnMap.get(key);
+      if (!fn) {
+        throw new TypeError("没有找到对应的实现");
+      }
+      return fn.apply(this, args);
+    }
+    overload.addImpl = function (...args) {
+      let fn = args.pop();
+      if (typeof fn !== "function") {
+        throw new TypeError("最后一个参数必须是函数");
+      }
+      let key = args.join(",");
+      fnMap.set(key, fn);
+    };
+    return overload;
   };
 
   /**
