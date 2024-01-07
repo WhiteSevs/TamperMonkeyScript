@@ -33,9 +33,9 @@
 // @require      https://update.greasyfork.org/scripts/449512/1305485/Xtiper.js
 // @require      https://update.greasyfork.org/scripts/449562/1305489/NZMsgBox.js
 // @require      https://update.greasyfork.org/scripts/452322/1305490/js-watermark.js
-// @require      https://update.greasyfork.org/scripts/456607/1307045/GM_html2canvas.js
+// @require      https://update.greasyfork.org/scripts/456607/1307565/GM_html2canvas.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://update.greasyfork.org/scripts/455186/1307239/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1307607/WhiteSevsUtils.js
 // ==/UserScript==
 
 (async function () {
@@ -727,12 +727,12 @@
         object:
           typeof html2canvas === "undefined" ? window.html2canvas : html2canvas,
         name: "html2canvas",
-        url: "https://update.greasyfork.org/scripts/456607/1307045/GM_html2canvas.js",
+        url: "https://update.greasyfork.org/scripts/456607/1307565/GM_html2canvas.js",
       },
       {
         object: utils,
         name: "utils",
-        url: "https://update.greasyfork.org/scripts/455186/1307239/WhiteSevsUtils.js",
+        url: "https://update.greasyfork.org/scripts/455186/1307607/WhiteSevsUtils.js",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,

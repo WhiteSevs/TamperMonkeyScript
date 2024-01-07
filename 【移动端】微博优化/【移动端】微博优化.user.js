@@ -3,7 +3,7 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.3
+// @version      2024.1.7
 // @description  劫持自动跳转登录，修复用户主页正确跳转
 // @author       WhiteSevs
 // @license      MIT
@@ -18,7 +18,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @connect      m.weibo.cn
-// @require      https://update.greasyfork.org/scripts/455186/1307239/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1307607/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
