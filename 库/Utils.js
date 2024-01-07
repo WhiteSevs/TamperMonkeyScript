@@ -1381,6 +1381,32 @@
   };
 
   /**
+   * 获取 transitionend 的在各个浏览器的兼容名
+   */
+  Utils.getTransitionEndNameList = function () {
+    return [
+      "webkitTransitionEnd",
+      "mozTransitionEnd",
+      "MSTransitionEnd",
+      "otransitionend",
+      "transitionend",
+    ];
+  };
+
+  /**
+   * 获取 animationend 的在各个浏览器的兼容名
+   */
+  Utils.getAnimationEndNameList = function () {
+    return [
+      "webkitAnimationEnd",
+      "mozAnimationEnd",
+      "MSAnimationEnd",
+      "oanimationend",
+      "animationend",
+    ];
+  };
+
+  /**
    * 获取NodeList或Array对象中的最后一个的值
    * @param {NodeList|Array} targetObj
    * @returns {any}
