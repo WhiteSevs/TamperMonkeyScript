@@ -293,7 +293,7 @@
         let defaultClose = function () {
           PopsDOMUtils.off(
             popsElement,
-            "transitionend",
+            PopsDOMUtils.getTransitionEndNameList(),
             undefined,
             defaultClose
           );
@@ -321,18 +321,33 @@
           };
           animationFrameId = window.requestAnimationFrame(checkStyle);
         };
-        PopsDOMUtils.on(popsElement, "transitionend", undefined, defaultClose);
+        PopsDOMUtils.on(
+          popsElement,
+          PopsDOMUtils.getTransitionEndNameList(),
+          undefined,
+          defaultClose
+        );
         if (["top", "bottom"].includes(config.direction)) {
           /* 如果为0，那么该元素当前状态是hide，直接手动触发动画结束事件 */
           if (parseInt(getComputedStyle(popsElement).height) < 2) {
-            popsElement.dispatchEvent(new Event("transitionend"));
+            PopsDOMUtils.trigger(
+              popsElement,
+              PopsDOMUtils.getTransitionEndNameList(),
+              undefined,
+              true
+            );
           } else {
             popsElement.style.height = "0px";
           }
         } else if (["left", "right"].includes(config.direction)) {
           /* 如果为0，那么该元素当前状态是hide，直接手动触发动画结束事件 */
           if (parseInt(getComputedStyle(popsElement).width) < 2) {
-            popsElement.dispatchEvent(new Event("transitionend"));
+            PopsDOMUtils.trigger(
+              popsElement,
+              PopsDOMUtils.getTransitionEndNameList(),
+              undefined,
+              true
+            );
           } else {
             popsElement.style.width = "0px";
           }
@@ -2310,6 +2325,18 @@
         "MSAnimationEnd",
         "oanimationend",
         "animationend",
+      ];
+    },
+    /**
+     * 获取 transitionend 的在各个浏览器的兼容名
+     */
+    getTransitionEndNameList() {
+      return [
+        "webkitTransitionEnd",
+        "mozTransitionEnd",
+        "MSTransitionEnd",
+        "otransitionend",
+        "transitionend",
       ];
     },
     /**
@@ -8926,7 +8953,7 @@
         function transitionEndEvent(event) {
           PopsDOMUtils.off(
             element,
-            "transitionend",
+            PopsDOMUtils.getTransitionEndNameList(),
             undefined,
             transitionEndEvent,
             {
@@ -8939,7 +8966,7 @@
           /* 有动画 */
           PopsDOMUtils.on(
             element,
-            "transitionend",
+            PopsDOMUtils.getTransitionEndNameList(),
             undefined,
             transitionEndEvent,
             {
