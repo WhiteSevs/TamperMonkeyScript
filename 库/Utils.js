@@ -1083,6 +1083,67 @@
   };
 
   /**
+   * 定位元素上的字符串，返回一个迭代器
+   * @param {HTMLElement|Element|Node} element 目标元素
+   * @param {string} text 需要定位的字符串
+   * @param {?(element:Element)=>boolean} filter 过滤器函数，true为排除该元素，该参数可为空
+   * @returns {Generator<HTMLElement|ChildNode, void, any>}
+   * @example
+   * let textIterator = Utils.findElementsWithText(document.documentElement,"xxxx");
+   * textIterator.next();
+   * > {value: ?HTMLElement, done: boolean, next: Function}
+   */
+  Utils.findElementsWithText = function* (element, text, filter) {
+    if (element.outerHTML.includes(text)) {
+      if (element.children.length === 0) {
+        let filterResult =
+          typeof filter === "function" ? filter(element) : false;
+        if (!filterResult) {
+          yield element;
+        }
+      } else {
+        let textElement = Array.from(element.childNodes).filter(
+          (ele) => ele.nodeType === Node.TEXT_NODE
+        );
+        for (let ele of textElement) {
+          if (ele.textContent.includes(text)) {
+            let filterResult =
+              typeof filter === "function" ? filter(element) : false;
+            if (!filterResult) {
+              yield ele;
+            }
+          }
+        }
+      }
+    }
+
+    for (let index = 0; index < element.children.length; index++) {
+      let childElement = element.children[index];
+      yield* Utils.findElementsWithText(childElement, text, filter);
+    }
+  };
+
+  /**
+   * 判断该元素是否可见，如果不可见，向上找它的父元素直至找到可见的元素
+   * @param {HTMLElement|Element|Node} element
+   * @returns {?HTMLElement}
+   * @example
+   * let visibleElement = Utils.findVisibleElement(document.querySelector("a.xx"));
+   * > <HTMLElement>
+   */
+  Utils.findVisibleElement = function (element) {
+    let currentElement = element;
+    while (currentElement) {
+      let elementRect = currentElement.getBoundingClientRect();
+      if (Boolean(elementRect.length)) {
+        return currentElement;
+      }
+      currentElement = currentElement.parentElement;
+    }
+    return null;
+  };
+
+  /**
    * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
    * @param {number} byteSize 字节
    * @param {boolean} [addType=true]
@@ -3914,16 +3975,7 @@
             domClientRect.top > viewportHeight
           );
         } else {
-          result = !(
-            domClientRect.bottom === 0 &&
-            domClientRect.height === 0 &&
-            domClientRect.left === 0 &&
-            domClientRect.right === 0 &&
-            domClientRect.top === 0 &&
-            domClientRect.width === 0 &&
-            domClientRect.x === 0 &&
-            domClientRect.y === 0
-          );
+          result = Boolean(domItem.getClientRects().length);
         }
       }
       if (!result) {
@@ -5122,6 +5174,33 @@
       }
       return originalListener.apply(this, arguments);
     };
+  };
+
+  /**
+   * 将元素上的文本或元素使用光标进行选中
+   *
+   * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
+   * @param {HTMLElement|Element|Node} element 目标元素
+   * @param {number|undefined} startIndex 开始坐标，可为空
+   * @param {number|undefined} endIndex 结束坐标，可为空
+   */
+  Utils.selectElementText = function (element, startIndex, endIndex) {
+    let range = document.createRange();
+    range.selectNodeContents(element);
+    if (startIndex != null && endIndex != null) {
+      if(element.firstChild){
+        range.setStart(element.firstChild, startIndex);
+        range.setEnd(element.firstChild, endIndex);
+      }else{
+        range.setStart(element, startIndex);
+        range.setEnd(element, endIndex);
+      }
+      
+    }
+
+    let selection = globalThis.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
   };
 
   /**
