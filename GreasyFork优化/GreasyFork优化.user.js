@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.7.18
+// @version      2024.1.8
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -19,7 +19,7 @@
 // @grant        GM_info
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
-// @require      https://update.greasyfork.org/scripts/462234/1284140/Message.js
+// @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1307606/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1307823/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1307605/DOMUtils.js
@@ -311,14 +311,16 @@
     },
     /**
      * 获取按钮配置
-     * @param {string} text
-     * @param {string} key
-     * @param {boolean} defaultValue
-     * @param {?(event:Event,value: boolean)=>boolean} _callback_
+     * @param {string} text 文字
+     * @param {string|undefined} description 描述
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @param {?(event:Event,value: boolean)=>boolean} _callback_ 点击回调
      */
-    getSwtichDetail(text, key, defaultValue, _callback_) {
+    getSwtichDetail(text, description, key, defaultValue, _callback_) {
       let result = {
         text: text,
+        description: description,
         type: "switch",
         attributes: {},
         getValue() {
@@ -398,7 +400,12 @@
               text: "功能",
               type: "forms",
               forms: [
-                PopsPanel.getSwtichDetail("自动登录", "autoLogin", true),
+                PopsPanel.getSwtichDetail(
+                  "自动登录",
+                  "自动登录当前保存的账号",
+                  "autoLogin",
+                  true
+                ),
                 {
                   text: "清空账号/密码",
                   type: "button",
@@ -533,19 +540,39 @@
               text: "功能",
               type: "forms",
               forms: [
-                PopsPanel.getSwtichDetail("美化页面", "beautifyPage", true),
+                PopsPanel.getSwtichDetail(
+                  "美化页面",
+                  "美化Button、Input等",
+                  "beautifyPage",
+                  true
+                ),
                 PopsPanel.getSwtichDetail(
                   "美化上传图片按钮",
+                  undefined,
                   "beautifyUploadImage",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
                   "代码页面添加复制代码按钮",
+                  undefined,
                   "addCopyCodeButton",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
+                  "优化图片浏览",
+                  "使用Viewer浏览图片",
+                  "optimizeImageBrowsing",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "覆盖图床图片跳转",
+                  "配合上面的【优化图片浏览】更优雅浏览图片",
+                  "overlayBedImageClickEvent",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
                   "美化Greasyfork Beautify脚本",
+                  "首先得安装Greasyfork Beautify脚本",
                   "beautifyGreasyforkBeautify",
                   true
                 ),
@@ -1015,7 +1042,9 @@
       /* 把上传的图片使用自定义图片预览 */
       document.querySelectorAll(".user-screenshots").forEach((element) => {
         let linkElement = element.querySelector("a");
-        let imgSrc = linkElement.getAttribute("href");
+        let imgSrc =
+          linkElement.getAttribute("data-href") ||
+          linkElement.getAttribute("href");
         let imgElement = element.querySelector("img");
         imgElement.setAttribute("data-screenshots", true);
         imgElement.setAttribute("data-src", imgSrc);
@@ -1024,6 +1053,27 @@
         DOMUtils.after(linkElement, imgElement);
         /* a标签删除 */
         linkElement.remove();
+      });
+    },
+    /**
+     * 覆盖图床图片的parentElement的a标签
+     */
+    overlayBedImageClickEvent() {
+      document.querySelectorAll(".user-content a>img").forEach((imgElement) => {
+        let linkElement = imgElement.parentElement;
+        let url = linkElement.getAttribute("href");
+        linkElement.setAttribute("data-href", url);
+        linkElement.removeAttribute("href");
+        DOMUtils.on(linkElement, "click", undefined, function (event) {
+          Qmsg.warning(
+            `拦截跳转：<a href="${url}" target="_blank">${url}</a>`,
+            {
+              html: true,
+              timeout: 5000,
+              zIndex: utils.getMaxZIndex(),
+            }
+          );
+        });
       });
     },
     /**
@@ -1071,9 +1121,6 @@
      * 美化页面markdown
      */
     beautifyPage() {
-      if (!PopsPanel.getValue("beautifyPage")) {
-        return;
-      }
       let beautifyMarkdownCSS = `
       code{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}
       table{text-indent:initial}
@@ -1353,9 +1400,6 @@
      * 美化 Greasyfork Beautify脚本
      */
     beautifyGreasyforkBeautify() {
-      if (!PopsPanel.getValue("beautifyGreasyforkBeautify")) {
-        return;
-      }
       let compatibleBeautifyCSS = `
       #main-header{
         background-color: #670000 !important;
@@ -1405,9 +1449,6 @@
      * 美化上传图片
      */
     beautifyUploadImage() {
-      if (!PopsPanel.getValue("beautifyUploadImage")) {
-        return;
-      }
       let beautifyCSS = `
       /* 隐藏 添加： */
       label[for="discussion_comments_attributes_0_attachments"],
@@ -1484,9 +1525,6 @@
      */
     addCopyCodeButton() {
       if (!window.location.pathname.endsWith("/code")) {
-        return;
-      }
-      if (!PopsPanel.getValue("addCopyCodeButton")) {
         return;
       }
       utils
@@ -1743,9 +1781,16 @@
 
   /* -----------------↓执行入口↓----------------- */
   PopsPanel.initMenu();
-  GreasyforkBusiness.beautifyPage();
-  GreasyforkBusiness.beautifyGreasyforkBeautify();
-  GreasyforkBusiness.beautifyUploadImage();
+  if (PopsPanel.getValue("beautifyPage")) {
+    GreasyforkBusiness.beautifyPage();
+  }
+  if (PopsPanel.getValue("beautifyGreasyforkBeautify")) {
+    GreasyforkBusiness.beautifyGreasyforkBeautify();
+  }
+  if (PopsPanel.getValue("beautifyUploadImage")) {
+    GreasyforkBusiness.beautifyUploadImage();
+  }
+
   DOMUtils.ready(function () {
     GreasyforkMenu.initEnv();
     if (PopsPanel.getValue("autoLogin")) {
@@ -1755,9 +1800,16 @@
     GreasyforkBusiness.setFindCodeSearchBtn();
     GreasyforkBusiness.repairImgShow();
     GreasyforkBusiness.repairCodeLineNumber();
-    GreasyforkBusiness.optimizeImageBrowsing();
+    if (PopsPanel.getValue("optimizeImageBrowsing")) {
+      GreasyforkBusiness.optimizeImageBrowsing();
+    }
+    if (PopsPanel.getValue("overlayBedImageClickEvent")) {
+      GreasyforkBusiness.overlayBedImageClickEvent();
+    }
     GreasyforkBusiness.scriptHomepageAddedTodaySUpdate();
-    GreasyforkBusiness.addCopyCodeButton();
+    if (PopsPanel.getValue("addCopyCodeButton")) {
+      GreasyforkBusiness.addCopyCodeButton();
+    }
     GreasyforkBusiness.addMarkdownCopyButton();
     GreasyforkBusiness.languageSelectorLocale();
   });
