@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    /* js版本 */
+    "target": "es6",
+    /* 编译使用，用不到 */
+    "module": "commonjs",
+    /* 输出路径，用不到 */
+    "outDir": "dist",
+    /* 是否启用严格模式，用不到 */
+    "strict": false,
+    /* 是否允许js */
+    "allowJs": true,
+    /* js文件进行代码检查 */
+    "checkJs": false,
+    /* 代码提示文件，不能模糊匹配，只能指定文件 */
+    "types": [
+      "./global.d.ts",
+      "./库.ts/DOMUtils.d.ts",
+      "./库.ts/pops.d.ts",
+      "./库.ts/Utils.d.ts"
+    ]
+  }
+}
