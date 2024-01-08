@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.7
+// @version      2024.1.8
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3300,6 +3300,10 @@
          * 当前吧名
          */
         forumName: undefined,
+        /**
+         * 高清图片映射
+         */
+        imageMap: new Map(),
       };
       /**
        * 贴吧加载评论
@@ -4827,9 +4831,7 @@
          * 查看-正序
          */
         async mainPositive() {
-          tiebaCommentConfig.param_tid =
-            window.location.pathname.match(/([0-9]+)/g)?.[0] ||
-            document.querySelector(".app-view")?.__vue__?.thread?.id;
+          tiebaCommentConfig.param_tid = tiebaBusiness.getCurrentForumPostTid();
           if (!tiebaCommentConfig.param_tid) {
             log.error("贴吧：未找到本页参数p");
             return;
@@ -4902,9 +4904,7 @@
          * 查看-倒序
          */
         async mainReverse() {
-          tiebaCommentConfig.param_tid =
-            window.location.pathname.match(/([0-9]+)/g)?.[0] ||
-            document.querySelector(".app-view")?.__vue__?.thread?.id;
+          tiebaCommentConfig.param_tid = tiebaBusiness.getCurrentForumPostTid();
           if (!tiebaCommentConfig.param_tid) {
             log.error("贴吧：未找到本页参数p");
             return;
@@ -6021,6 +6021,20 @@
           return tbMobileViewport || mainPageWrap || tbForum || appView;
         },
         /**
+         * 获取当前帖子的tid
+         * @returns {?string}
+         */
+        getCurrentForumPostTid() {
+          let tid = null;
+          let appViewVue = document.querySelector(".app-view")?.__vue__;
+          if (appViewVue?.thread?.id !== "" && appViewVue?.thread?.id != null) {
+            tid = appViewVue.thread.id.toString();
+          } else {
+            tid = window.location.pathname.match(/([0-9]+)/g)?.[0];
+          }
+          return tid;
+        },
+        /**
          * 添加滚动到顶部按钮
          */
         addScrollTopButton() {
@@ -6424,7 +6438,19 @@
                   let _imgSrc_ =
                     item.getAttribute("data-src") || item.getAttribute("src");
                   log.info(`获取图片: ${_imgSrc_}`);
-                  lazyImgList = [...lazyImgList, _imgSrc_];
+                  let imgUrlInfo = new URL(_imgSrc_);
+                  if (imgUrlInfo.pathname.startsWith("/forum/")) {
+                    let picName = imgUrlInfo.pathname.split("/").pop();
+                    let picIdSplit = picName.split(".");
+                    if (picIdSplit) {
+                      let picId = picIdSplit[0];
+                      if (tiebaData.imageMap.has(picId)) {
+                        _imgSrc_ = tiebaData.imageMap.get(picId);
+                        log.success(["替换成高清图片", _imgSrc_]);
+                      }
+                    }
+                  }
+                  lazyImgList.push(_imgSrc_);
                 });
                 log.info("图片列表👇");
                 log.info(lazyImgList);
@@ -6440,7 +6466,19 @@
                   let _imgSrc_ =
                     item.getAttribute("data-src") || item.getAttribute("src");
                   log.info(`获取图片: ${_imgSrc_}`);
-                  lazyImgList = [...lazyImgList, _imgSrc_];
+                  let imgUrlInfo = new URL(_imgSrc_);
+                  if (imgUrlInfo.pathname.startsWith("/forum/")) {
+                    let picName = imgUrlInfo.pathname.split("/").pop();
+                    let picIdSplit = picName.split(".");
+                    if (picIdSplit) {
+                      let picId = picIdSplit[0];
+                      if (tiebaData.imageMap.has(picId)) {
+                        _imgSrc_ = tiebaData.imageMap.get(picId);
+                        log.success(["替换成高清图片", _imgSrc_]);
+                      }
+                    }
+                  }
+                  lazyImgList.push(_imgSrc_);
                 });
                 log.info("评论区图片列表👇");
                 log.info(lazyImgList);
@@ -6470,6 +6508,38 @@
               imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
             });
           });
+        },
+        /**
+         * 初始化帖子内图片信息
+         */
+        initPostImageInfo() {
+          let forumName = tiebaBusiness.getCurrentForumName();
+          let tid = tiebaBusiness.getCurrentForumPostTid();
+          if (forumName && tid) {
+            baiduExtraApi.tieba
+              .getPictureGuide(forumName, tid)
+              .then((result) => {
+                if (!result) {
+                  log.error("获取图片信息失败");
+                  return;
+                }
+                log.success(["请求本贴图片信息", result]);
+                Object.values(result["pic_list"]).forEach((item) => {
+                  /* 图片id */
+                  let id =
+                    item?.["img"]?.["original"]?.["id"] ||
+                    item?.["img"]?.["medium"]?.["id"] ||
+                    item?.["img"]?.["screen"]?.["id"];
+                  let pictureUrl =
+                    item?.["img"]?.["original"]?.["waterurl"] ||
+                    item?.["img"]?.["screen"]?.["waterurl"];
+
+                  if (id != null && pictureUrl != null) {
+                    tiebaData.imageMap.set(id, pictureUrl);
+                  }
+                });
+              });
+          }
         },
         /**
          * 强制查看-贴子不存在或者已被删除
@@ -6762,6 +6832,9 @@
               tiebaData.forumName = tiebaBusiness.getCurrentForumName();
               if (tiebaData.forumName) {
                 log.info("当前吧：" + tiebaData.forumName);
+                if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+                  tiebaPost.initPostImageInfo();
+                }
                 clearInterval(interval);
               }
             }, 250);
@@ -9502,7 +9575,7 @@
     tieba: {
       /**
        * 签到吧
-       * @param {string} forumName 贴吧名
+       * @param {string} forumName 吧名
        * @param {string} tbs 应该是用户token
        * @returns {Promise<?boolean>}
        */
@@ -9582,6 +9655,49 @@
           return;
         }
         return PageData[1];
+      },
+      /**
+       * 获取帖子内的图片
+       * @param {string} forumName 吧名
+       * @param {string} tid 帖子的id
+       * @param {0|1} [see_lz=0]
+       * @param {number} [from_page=0]
+       * @param {string} [alt="jview"]
+       * @param {number} [next=1000]
+       * @param {number} [prev=1000]
+       * @returns {Promise<?{
+       * has_sep: ?boolean
+       * pic_amount: number,
+       * pic_list: object,
+       * }>}
+       */
+      async getPictureGuide(
+        forumName,
+        tid,
+        see_lz = 0,
+        from_page = 0,
+        alt = "jview",
+        next = 1000,
+        prev = 1000
+      ) {
+        let getResp = await httpx.get(
+          `https://tieba.baidu.com/photo/bw/picture/guide?kw=${forumName}&tid=${tid}&see_lz=${see_lz}&from_page=${from_page}&alt=${alt}&next=${next}&prev=${prev}&_=${Date.now()}`,
+          {
+            headers: {
+              Accept: "*/*",
+              Host: "tieba.baidu.com",
+              "User-Agent": utils.getRandomPCUA(),
+            },
+            responseType: "json",
+          }
+        );
+        if (!getResp.status) {
+          return;
+        }
+        let data = utils.toJSON(getResp.data.responseText);
+        if (data["no"] === 0 || data["error"] === "sucess!") {
+          return data["data"];
+        }
       },
     },
   };
