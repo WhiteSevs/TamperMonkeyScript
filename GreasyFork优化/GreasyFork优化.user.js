@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.8.21
+// @version      2024.1.8.21.13
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -1474,6 +1474,11 @@
         fill: #656d76;
         text-decoration: none;
         width: fit-content;
+        width: -moz-fit-content;
+      }
+      .script-tag-version a:hover svg{
+        color: #00a3f5;
+        fill: #00a3f5;
       }
       .script-tag-version a > span{
         margin-left: 0.25rem;
@@ -1514,7 +1519,7 @@
             .getAttribute("datetime");
           /* 更新日志 */
           let updateNote =
-            liElement.querySelector(".version-changelog").innerHTML;
+            liElement.querySelector(".version-changelog")?.innerHTML || "";
 
           let versionDateElement = DOMUtils.createElement("span", {
             className: "script-version-date",
