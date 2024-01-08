@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.8
+// @version      2024.1.8.21
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -541,20 +541,26 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "美化页面",
-                  "美化Button、Input等",
+                  "美化页面元素",
+                  "如button、input、textarea",
                   "beautifyPage",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
+                  "美化历史版本页面",
+                  "更直观的查看版本迭代",
+                  "beautifyHistoryVersionPage",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
                   "美化上传图片按钮",
-                  undefined,
+                  "放大上传区域",
                   "beautifyUploadImage",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
                   "代码页面添加复制代码按钮",
-                  undefined,
+                  "更优雅的复制",
                   "addCopyCodeButton",
                   true
                 ),
@@ -1150,9 +1156,9 @@
       );
     },
     /**
-     * 美化页面markdown
+     * 美化页面元素
      */
-    beautifyPage() {
+    beautifyPageElement() {
       let beautifyMarkdownCSS = `
       code{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}
       table{text-indent:initial}
@@ -1426,6 +1432,115 @@
             markupChoiceELement
           );
         }
+      });
+    },
+    /**
+     * 美化 历史版本 页面
+     */
+    beautifyHistoryVersionPage() {
+      if (!globalThis.location.pathname.endsWith("/versions")) {
+        return;
+      }
+      let displayCSS = `
+      .version-number,
+      .version-date,
+      .version-changelog{
+        display: none;
+      }
+      `;
+      /* 美化version页面 */
+      let beautifyVersionsPageCSS = `
+      ul.history_versions,
+      ul.history_versions li{
+        width: 100%;
+      }
+      ul.history_versions li{
+        display: flex;
+        flex-direction: column;
+        margin: 25px 0px;
+      }
+      .diff-controls input[type="radio"]:nth-child(2){
+        margin-left: 5px;
+      }
+      .flex-align-item-center{
+        display: flex;
+        align-items: center;
+      }
+      .script-tag{
+        margin-bottom: 8px;
+      }
+      .script-tag-version a{
+        color: #656d76;
+        fill: #656d76;
+        text-decoration: none;
+        width: fit-content;
+      }
+      .script-tag-version a > span{
+        margin-left: 0.25rem;
+      }
+      .script-note-box-body{
+        border-radius: 0.375rem;
+        border-style: solid;
+        border-width: max(1px, 0.0625rem);
+        border-color: #d0d7de;
+        color: #1f2328;
+        padding: 16px;
+        overflow-wrap: anywhere;
+      }
+      .script-note-box-body p{
+        margin-bottom: unset;
+      }
+      `;
+      GM_addStyle(beautifyVersionsPageCSS);
+      GM_addStyle(displayCSS);
+      DOMUtils.ready(function () {
+        let historyVersionsULElement = document.querySelector(
+          "ul.history_versions"
+        );
+        if (!historyVersionsULElement) {
+          Qmsg.error("未找到history_versions元素列表");
+          return;
+        }
+        /* 遍历每一个版本块 */
+        Array.from(historyVersionsULElement.children).forEach((liElement) => {
+          /* 版本链接 */
+          let versionUrl = liElement.querySelector(".version-number a").href;
+          /* 版本号 */
+          let versionNumber =
+            liElement.querySelector(".version-number a").innerText;
+          /* 更新日期 */
+          let versionDate = liElement
+            .querySelector(".version-date")
+            .getAttribute("datetime");
+          /* 更新日志 */
+          let updateNote =
+            liElement.querySelector(".version-changelog").innerHTML;
+
+          let versionDateElement = DOMUtils.createElement("span", {
+            className: "script-version-date",
+            innerHTML: utils.formatTime(versionDate, "yyyy年MM月dd日 hh:mm:ss"),
+          });
+          let tagElement = DOMUtils.createElement("div", {
+            className: "script-tag",
+            innerHTML: `
+            <div class="script-tag-version">
+              <a href="${versionUrl}}" class="flex-align-item-center">
+                <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                  <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
+                </svg>
+                <span>${versionNumber}</span>
+              </a>
+            </div>
+            `,
+          });
+          let boxBodyElement = DOMUtils.createElement("div", {
+            className: "script-note-box-body",
+            innerHTML: updateNote,
+          });
+          liElement.appendChild(versionDateElement);
+          liElement.appendChild(tagElement);
+          liElement.appendChild(boxBodyElement);
+        });
       });
     },
     /**
@@ -1814,7 +1929,10 @@
   /* -----------------↓执行入口↓----------------- */
   PopsPanel.initMenu();
   if (PopsPanel.getValue("beautifyPage")) {
-    GreasyforkBusiness.beautifyPage();
+    GreasyforkBusiness.beautifyPageElement();
+  }
+  if (PopsPanel.getValue("beautifyHistoryVersionPage")) {
+    GreasyforkBusiness.beautifyHistoryVersionPage();
   }
   if (PopsPanel.getValue("beautifyGreasyforkBeautify")) {
     GreasyforkBusiness.beautifyGreasyforkBeautify();
