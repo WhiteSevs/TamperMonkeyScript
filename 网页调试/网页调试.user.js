@@ -613,42 +613,48 @@
                   "api",
                   "pagespy-api",
                   GlobalDebug.pageSpyDefaultApi,
-                  "请输入api地址",
+                  "",
                   function (event, value) {
                     PopsPanel.setValue("pagespy-api", value.trim());
                   },
-                  "Server地址"
+                  "服务器地址的 Host"
                 ),
                 this.getInputDetail(
                   "clientOrigin",
                   "pagespy-clientOrigin",
                   GlobalDebug.pageSpyDefaultCliennOrigin,
-                  "请输入clientOrigin地址",
+                  "",
                   function (event, value) {
                     PopsPanel.setValue("pagespy-clientOrigin", value.trim());
                   },
-                  "调试端的地址"
+                  "服务器地址的 Origin"
                 ),
                 this.getInputDetail(
                   "project",
                   "pagespy-project",
                   "default",
-                  "请输入project"
+                  undefined,
+                  undefined,
+                  "项目名称"
                 ),
                 this.getInputDetail(
                   "title",
                   "pagespy-title",
                   "--",
-                  "请输入title"
+                  undefined,
+                  undefined,
+                  "自定义标题"
                 ),
                 this.getSwtichDetail(
-                  "自动渲染「圆形白底带 Logo」",
+                  "autoRender",
                   "pagespy-autoRender",
-                  true
+                  true,
+                  undefined,
+                  "自动渲染「圆形白底带 Logo」"
                 ),
                 {
                   text: "enableSSL",
-                  description: "是否启用https进行通信",
+                  description: "是否https",
                   type: "select",
                   attributes: {
                     "data-key": "pagespy-enableSSL",
