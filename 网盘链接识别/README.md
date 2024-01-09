@@ -8,7 +8,7 @@
 
 ## 🎁演示GIF
 
-[![网盘链接识别演示.gif](https://picshack.net/ib/g4ZLAh3vyC.gif)](https://picshack.net/ib/g4ZLAh3vyC.gif)
+![网盘链接识别演示.gif](https://picshack.net/ib/g4ZLAh3vyC.gif)
 
 ## 🌈 使用方式
 
@@ -131,7 +131,7 @@ Toast
 |     网址         |       网站的 url，末尾带/，如：<https://www.example.com/>        |
 |     表单参数     |       POST请求的表单参数，例如：`surl={#shareCode#}&pwd={#accessCode#}&Password=xxxxx`，其中参数中存在`{#shareCode#}`或者`{#accessCode#}`时，会自动把它们转换成`提取码`和`分享码` |
 
-[![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)](https://www.helloimg.com/image/ZPJRUv)
+![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)
 
 ### 2. Scheme 调用方式
 

@@ -1,5 +1,5 @@
 ## 🎁演示GIF
-[![CSDN-简书优化演示.gif](https://cdn.img.kggzs.cn/img/2023/46/20236413bd91368df.gif)](https://cdn.img.kggzs.cn/img/2023/46/20236413bd91368df.gif)
+![CSDN-简书优化演示.gif](https://vip.helloimg.com/images/2024/01/09/oI4xpC.gif)
 
 ## ![https://favicon.yandex.net/favicon/v2/https://www.csdn.net/?size=32](https://favicon.yandex.net/favicon/v2/https://www.csdn.net/?size=32) CSDN-桌面端
 
@@ -73,4 +73,4 @@
 
 ## 🏆部分图片
 
-[![oG9BTt.png](https://www.helloimg.com/images/2023/01/12/oG9BTt.png)](https://www.helloimg.com/image/oG9BTt)
+![oG9BTt.png](https://www.helloimg.com/images/2023/01/12/oG9BTt.png)

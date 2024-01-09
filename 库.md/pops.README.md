@@ -37,7 +37,7 @@ pops.alert({
 });
 ```
 
-[![pi72wJ1.png](https://s11.ax1x.com/2023/12/23/pi72wJ1.png)](https://imgse.com/i/pi72wJ1)
+![pi72wJ1.png](https://s11.ax1x.com/2023/12/23/pi72wJ1.png)
 
 ## pops.confirm
 
@@ -57,7 +57,7 @@ pops.confirm({
 });
 ```
 
-[![pi720Rx.png](https://s11.ax1x.com/2023/12/23/pi720Rx.png)](https://imgse.com/i/pi720Rx)
+![pi720Rx.png](https://s11.ax1x.com/2023/12/23/pi720Rx.png)
 
 ## pops.drawer
 
@@ -77,7 +77,7 @@ pops.drawer({
 });
 ```
 
-[![pi72rQK.png](https://s11.ax1x.com/2023/12/23/pi72rQK.png)](https://imgse.com/i/pi72rQK)
+![pi72rQK.png](https://s11.ax1x.com/2023/12/23/pi72rQK.png)
 
 ## pops.folder
 
@@ -110,7 +110,7 @@ pops.folder({
 });
 ```
 
-[![pi72ssO.png](https://s11.ax1x.com/2023/12/23/pi72ssO.png)](https://imgse.com/i/pi72ssO)
+![pi72ssO.png](https://s11.ax1x.com/2023/12/23/pi72ssO.png)
 
 ## pops.iframe
 
@@ -131,9 +131,9 @@ pops.iframe({
 });
 ```
 
-[![pi722od.png](https://s11.ax1x.com/2023/12/23/pi722od.png)](https://imgse.com/i/pi722od)
-[![pi72cee.png](https://s11.ax1x.com/2023/12/23/pi72cee.png)](https://imgse.com/i/pi72cee)
-[![pi72gdH.png](https://s11.ax1x.com/2023/12/23/pi72gdH.png)](https://imgse.com/i/pi72gdH)
+![pi722od.png](https://s11.ax1x.com/2023/12/23/pi722od.png)
+![pi72cee.png](https://s11.ax1x.com/2023/12/23/pi72cee.png)
+![pi72gdH.png](https://s11.ax1x.com/2023/12/23/pi72gdH.png)
 
 ## pops.loading
 
@@ -155,7 +155,7 @@ pops.loading({
 });
 ```
 
-[![pi72IQf.png](https://s11.ax1x.com/2023/12/23/pi72IQf.png)](https://imgse.com/i/pi72IQf)
+![pi72IQf.png](https://s11.ax1x.com/2023/12/23/pi72IQf.png)
 
 ## pops.panel
 

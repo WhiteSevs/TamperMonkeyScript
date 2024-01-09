@@ -54,7 +54,7 @@
 
 ### 3.自动标识`CSDN资源下载`
 
-[![image8c9419b80e31e98e.png](https://www.z4a.net/images/2022/11/16/image8c9419b80e31e98e.png)](https://www.z4a.net/image/2S85E6)
+![image8c9419b80e31e98e.png](https://www.z4a.net/images/2022/11/16/image8c9419b80e31e98e.png)
 
 ## 🎃 百度贴吧
 
