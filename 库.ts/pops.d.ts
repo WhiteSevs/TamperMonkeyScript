@@ -160,7 +160,7 @@ declare interface PopsMaskDetails {
      * @param originalRun 当toClose为true，它是关闭弹窗，当toHide为true，它是隐藏弹窗
      * @param config 配置信息
      */
-    clickCallBack: (originalRun: () => void, config: PopsAlertDetails | PopsDrawerDetails | PopsIframeDetails | PopsPromptDetails | PopsPromptBtmDetails | PopsLoadingDetails) => void
+    clickCallBack: (originalRun: () => void, config: PopsAlertDetails | PopsDrawerDetails | PopsIframeDetails | PopsPromptDetails | PopsFolderDetails | PopsLoadingDetails | PopsPanelDetails) => void
 }
 
 /**
@@ -178,7 +178,7 @@ declare interface PopsBtnCallBackEvent {
     /**
      * 弹窗元素
      */
-    popsElement: popsElement,
+    popsElement: HTMLElement,
     /**
      * 遮罩层元素
      */
@@ -207,6 +207,35 @@ declare interface PopsBtnCallBackEvent {
      * 显示弹窗
      */
     show: () => void;
+}
+/**
+ * pops.iframe的按钮的点击回调参数event
+ */
+declare interface PopsBtnIframeCallBackEvent {
+    /**
+     * 动画元素（包裹着弹窗元素）
+     */
+    animElement: HTMLElement;
+    /**
+     * 弹窗元素
+     */
+    popsElement: HTMLElement,
+    /**
+     * 遮罩层元素
+     */
+    maskElement: HTMLElement | undefined;
+    /**
+     * iframe元素
+     */
+    iframePopsElement: HTMLIFrameElement;
+    /**
+     * 使用的方法名
+     */
+    function: "iframe";
+    /**
+     * 唯一id
+     */
+    guid: string;
 }
 /**
  * pops.prompt按钮的点击回调参数event
@@ -372,7 +401,7 @@ declare interface PopsFolderDataConfig {
     /**
      * 点击事件
      */
-    clickEvent: (event: Event, config: PopsFolderDataConfig) => ?Promise<{ autoDownload: boolean, url: string, mode: "a" | "aBlank" | "iframe" | "open" | "openBlank" }>;
+    clickEvent: (event: Event, config: PopsFolderDataConfig) => Promise<{ autoDownload: boolean, url: string, mode: "a" | "aBlank" | "iframe" | "open" | "openBlank" }> | null;
 }
 /**
  * pops.panel的content配置信息
@@ -1709,7 +1738,68 @@ declare interface PopsPanelDetails {
     /**
      * 内容配置
      */
-    content: PopsPanelContentConfig[]
+    content: PopsPanelContentConfig[];
+    /**
+     * 按钮配置
+     */
+    btn: {
+        /**
+         * 右上角的关闭按钮
+         */
+        close: PopsHeaderCloseButtonDetails;
+    };
+    /**
+     * 遮罩层
+     */
+    mask: PopsMaskDetails;
+    /**
+     * 自定义className，默认为空
+     */
+    class: string;
+    /**
+     * 移动端适配的的className，默认为pops-panel-is-mobile
+     */
+    mobileClassName: string;
+    /**
+     * 是否是唯一的弹窗，默认false
+     */
+    only: boolean;
+    /**
+      *  弹窗宽度，默认700px
+      */
+    width: string;
+    /**
+     *  弹窗高度，默认500px
+     */
+    height: string;
+    /**
+     * 弹窗位置，默认center
+     */
+    position: PopsPosition;
+    /**
+     * 弹窗动画，默认pops-anim-fadein-zoom
+     */
+    animation: PopsAnimation;
+    /**
+     * 弹窗的显示层级，默认10000
+     */
+    zIndex: number;
+    /**
+     *  是否可以按钮标题栏进行拖拽，默认false
+     */
+    drag: boolean;
+    /**
+     * 是否限制拖拽在浏览器窗口内移动，默认true
+     */
+    dragLimit: boolean;
+    /**
+     * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
+     */
+    dragExtraDistance: number;
+    /**
+     * 是否禁用页面滚动，默认false
+     */
+    forbiddenScroll: boolean;
 }
 /**
  * pops.rightClickMenu
