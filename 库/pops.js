@@ -3410,7 +3410,7 @@
       padding: 5px 5px !important;
     }
     .pops[type-value="panel"].pops-panel-is-mobile section.pops-panel-container >ul > li div:nth-child(2){
-      /* width: 50%; */
+      max-width: 55%;
       margin-left: 6px;
       text-align: right;
     }
