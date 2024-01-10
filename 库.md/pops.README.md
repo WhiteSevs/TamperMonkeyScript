@@ -237,4 +237,13 @@ pops.tooltip({
 
 ![o7rCFr.png](https://vip.helloimg.com/images/2023/12/23/o7rCFr.png)
 
+## pops.searchSuggestion
+
+```js
+let suggestion = pops.searchSuggestion({
+    target: document.querySelector("input"),
+})
+suggestion.init();
+```
+
 ## 详情参数请看代码
