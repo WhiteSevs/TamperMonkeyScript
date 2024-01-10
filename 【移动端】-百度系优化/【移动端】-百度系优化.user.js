@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.9
+// @version      2024.1.10
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -52,7 +52,7 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1308707/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1309370/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1307823/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1307605/DOMUtils.js
 // ==/UserScript==
@@ -407,746 +407,6 @@
           "style[data-from='loadingView'][type='text/css'][data-author='whitesev']"
         )
       );
-    }
-  }
-
-  /**
-   * 动态的搜索建议组件
-   */
-  class SearchSuggestion {
-    constructor(paramConfig) {
-      let that = this;
-      this.config = {
-        /**
-         * 目标input元素
-         * @type {Element}
-         */
-        targetElement: paramConfig.targetElement,
-        /**
-         * 搜索的数据
-         * @type {array}
-         */
-        data: paramConfig.data || [],
-        /**
-         * 用于显示的数据
-         * @type {array}
-         */
-        showData: paramConfig.showData || [],
-        /**
-         * 是否使用absoult显示建议框
-         * @type {boolean}
-         * + true 默认 position为absoulte
-         * + false position为fixed
-         */
-        isAbsolute:
-          typeof paramConfig.isAbsolute === "undefined"
-            ? true
-            : paramConfig.isAbsolute,
-        /**
-         * 显示删除按钮
-         * @type {boolean}
-         * + true 默认 显示
-         * + false 不显示
-         */
-        showDeleteIcon:
-          typeof paramConfig.showDeleteIcon === "undefined"
-            ? true
-            : paramConfig.showDeleteIcon,
-        element: {
-          /**
-           * @type {string} div元素的className
-           */
-          searchSelectClassName:
-            (paramConfig.element &&
-              paramConfig.element.searchSelectClassName) ||
-            "WhiteSevsSearchSelect",
-          /**
-           * @type {string} ul元素的className
-           */
-          searchSelectHintClassName:
-            (paramConfig.element &&
-              paramConfig.element.searchSelectHintClassName) ||
-            "whiteSevSearchHint",
-          /**
-           * @type {string} div元素隐藏的className
-           */
-          searchSelectHideClassName:
-            (paramConfig.element &&
-              paramConfig.element.searchSelectHideClassName) ||
-            "WhiteSevsSearchSelectHide",
-        },
-        css: {
-          falInDuration:
-            (paramConfig.css && paramConfig.css.falInDuration) || 0.5,
-          falInTiming:
-            (paramConfig.css && paramConfig.css.falInTiming) || "linear",
-          falOutDuration:
-            (paramConfig.css && paramConfig.css.falOutDuration) || 0.5,
-          falOutTiming:
-            (paramConfig.css && paramConfig.css.falOutTiming) || "linear",
-          /**
-           * @type {number} 选择框距离输入框距离
-           */
-          PaddingTop: (paramConfig.css && paramConfig.css.PaddingTop) || 8,
-        },
-        /**
-         * 搜索没结果的html
-         * @type {string}
-         */
-        noSearchDataHTML:
-          paramConfig.noSearchDataHTML || '<li class="none">暂无其它数据</li>',
-        /**
-         * input元素内容改变时的回调，用于获取搜索建议列表
-         */
-        searchInputChangeCallBack:
-          paramConfig.searchInputChangeCallBack ||
-          function () {
-            return [];
-          },
-        /**
-         * 当前项点击的回调
-         * @param {string} 当前项点击的值
-         */
-        clickItemCallBack:
-          paramConfig.clickItemCallBack ||
-          function (text) {
-            that.setTargetInputValue(text);
-            that.config.targetElement.dispatchEvent(new Event("blur"));
-          },
-        /**
-         * 搜索项的删除回调
-         * @param {number} itemElementIndex 当前删除的项的下标
-         * @param {Element} itemElement 当前删除的项的元素
-         */
-        deleteItemCallBack:
-          paramConfig.deleteItemCallBack ||
-          function (itemElementIndex, itemElement) {
-            that.config.data.splice(dataId, 1);
-            that.config.showData.splice(dataId, 1);
-            itemElement.remove();
-            /* 把索引顺序重新排序一下 */
-            that.getSearchSelectItemElementList().forEach((item2, index2) => {
-              item2.setAttribute("data-id", index2);
-            });
-          },
-        /**
-         * 获取每一项的值，传入当前项，默认返回当前项
-         * @param {any} value
-         * @returns {any}
-         */
-        getItemValue:
-          paramConfig.getItemValue ||
-          function (value) {
-            return value;
-          },
-        /**
-         * 获取每一项的html，传入当前项，默认返回当前项
-         * @param {any} value
-         * @returns {any}
-         */
-        getItemHTML:
-          paramConfig.getItemHTML ||
-          function (value) {
-            return value;
-          },
-      };
-      /**
-       * 该对象执行中的存储的一些用于判断的flag或存储的数据
-       */
-      this.details = {
-        /**
-         * 当前点击的是否是删除按钮
-         * @type {boolean}
-         */
-        isDeleteClicked: false,
-      };
-      if (!this.getSearchSelectElement()) {
-        this.setSearchSelectElement();
-        this.setCSS();
-      }
-      this.setTargetInputEvent();
-      this.setItemEvent();
-      if (this.config.showData.length) {
-        this.update(this.config.showData);
-      }
-    }
-    /**
-     * 获取显示出搜索建议框的html
-     * @returns {string}
-     */
-    getSearchSelectHTML() {
-      return `
-      <div class="${this.config.element.searchSelectClassName}" style="display: none;">
-        <ul class="${this.config.element.searchSelectHintClassName}">
-            ${this.config.noSearchDataHTML}
-        </ul>
-      </div>`;
-    }
-    /**
-     * 获取显示出搜索建议框的每一项的html
-     * @param {any} item 当前项的值
-     * @param {number} index 当前项的下标
-     * @returns {string}
-     */
-    getSearchItemHTML(item, index) {
-      return `
-      <li 
-          class="item"
-          data-id="${index}"
-          data-value="${this.config.getItemValue(item)}">
-          ${this.config.getItemHTML(
-            item
-          )}${this.getSearchSelectDeleteIconHTML()}
-      </li>`;
-    }
-    /**
-     * 获取搜索建议框的元素
-     * @param {Element|undefined} doc
-     * @returns {Element|undefined}
-     */
-    getSearchSelectElement(doc) {
-      return (doc || document).querySelector(
-        "." + this.config.element.searchSelectClassName
-      );
-    }
-    /**
-     * 获取搜索建议框ul的元素
-     * @param {Element|undefined} doc
-     * @returns {Element|undefined}
-     */
-    getSearchSelectHintElement(doc) {
-      return (doc || document).querySelector(
-        "ul." + this.config.element.searchSelectHintClassName
-      );
-    }
-    /**
-     * 获取搜索建议框li的元素
-     * @param {Element|undefined} doc
-     * @returns {NodeList|undefined}
-     */
-    getSearchSelectItemElementList(doc) {
-      return (doc || document).querySelectorAll(
-        "ul." + this.config.element.searchSelectHintClassName + " li"
-      );
-    }
-    /**
-     * 获取删除按钮的html
-     * @returns {string}
-     */
-    getDeleteIconHTML() {
-      return `
-      <svg t="1669172591973" data-delete-search viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2719" width="16" height="16" style="position: absolute;right: 8px;">
-        <path data-delete-search d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z" p-id="2720" fill="#e3dfdd"></path>
-        <path data-delete-search d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z" p-id="2721" fill="#e3dfdd"></path>
-      </svg>
-      `;
-    }
-    /**
-     * 设置css
-     */
-    setCSS() {
-      let css = `
-      <style>
-      div.${this.config.element.searchSelectClassName}{
-          position: ${this.config.isAbsolute ? "absolute" : "fixed"};
-          z-index: ${utils.getMaxZIndex()};
-          top: 0;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 0;
-          margin-top: ${
-            this.config.targetElement.getBoundingClientRect().bottom +
-            this.config.css.PaddingTop
-          }px;
-      }
-      div.${this.config.element.searchSelectHideClassName}{
-          display: none;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }{
-          width: ${this.config.targetElement.getBoundingClientRect().width}px;
-          left: ${this.config.targetElement.getBoundingClientRect().left}px;
-          max-height: 300px;
-          overflow-x: hidden;
-          overflow-y: auto;
-          padding: 5px 0;
-          background-color: #fff;
-          box-sizing: border-box;
-          border-radius: 4px;
-          box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
-          position: absolute;
-          z-index: inherit;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      } li{
-          margin: 0;
-          line-height: normal;
-          padding: 7px 16px;
-          clear: both;
-          color: #515a6e;
-          font-size: 14px!important;
-          list-style: none;
-          cursor: pointer;
-          transition: background .2s ease-in-out;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          padding-right: 32px;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      } li:hover{
-          background-color: rgba(0, 0, 0, .1);
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      } .none{
-          padding: 0 16px;
-          text-align: center;
-          color: #ccc;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      } .active{
-          color: #57a3f3;
-      }
-      /*定义滚动条高宽及背景
-      高宽分别对应横竖滚动条的尺寸*/
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }::-webkit-scrollbar {
-          width: 5px;
-          height: 5px;
-          background-color: #fff;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }::-moz-scrollbar {
-          width: 5px;
-          height: 5px;
-          background-color: #fff;
-      }
-      /*定义滚动条轨道
-      内阴影+圆角*/
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }::-webkit-scrollbar-track {
-          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          border-radius: 2px;
-          background-color: #fff;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }::-moz-scrollbar-track {
-          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          border-radius: 2px;
-          background-color: #fff;
-      }
-      /*定义滑块
-      内阴影+圆角*/
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }::-webkit-scrollbar-thumb {
-          border-radius: 2px;
-          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          background-color: #ccc;
-      }
-      div.${this.config.element.searchSelectClassName} ul.${
-        this.config.element.searchSelectHintClassName
-      }::-moz-scrollbar-thumb {
-          border-radius: 2px;
-          -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-          background-color: #ccc;
-      }
-      @keyframes searchSelectFalIn {
-          from {
-              opacity: 0;
-              display:none;
-          }
-          to {
-              display:block;
-              opacity: 1;
-          }
-      }
-      @keyframes searchSelectFalOut {
-          from {
-              display:block;
-              opacity: 1;
-          }
-          to {
-              opacity: 0;
-              display:none;
-          }
-      }
-  </style>`;
-      document.body.appendChild(this.parseTextToElement(css));
-    }
-    /**
-     * 把搜索元素添加到页面中
-     */
-    setSearchSelectElement() {
-      document.body.appendChild(
-        this.parseTextToElement(this.getSearchSelectHTML())
-      );
-    }
-    /**
-     * 字符串转元素
-     * @param {string} text
-     * @returns {Element}
-     */
-    parseTextToElement(text) {
-      text = text
-        .replace(/^[\n|\s]*/g, "")
-        .replace(/[\n|\s]*$/g, ""); /* 去除前后的换行和空格 */
-      let objE = document.createElement("div");
-      objE.innerHTML = text;
-      let result = objE.children.length == 1 ? objE.children[0] : objE.children;
-      return result;
-    }
-    /**
-     * 添加正在搜索中
-     */
-    addSearching() {
-      this.getSearchSelectHintElement().appendChild(
-        this.parseTextToElement(`<li class="searching">正在搜索中...</li>`)
-      );
-    }
-    /**
-     * 删除正在搜索中的提示
-     */
-    removeSearching() {
-      this.getSearchSelectHintElement().querySelector("li.searching")?.remove();
-    }
-    /**
-     * 删除已有的搜索结果
-     */
-    removeAllSearch() {
-      this.getSearchSelectItemElementList().forEach((item) => item.remove());
-    }
-    /**
-     * 动态设置搜索建议框的宽度，因为目标输入框元素可能是动态隐藏的
-     */
-    changeSelectCSS() {
-      this.getSearchSelectHintElement().style.width =
-        this.config.targetElement.getBoundingClientRect().width + "px";
-      this.getSearchSelectHintElement().style.left =
-        this.config.targetElement.getBoundingClientRect().left + "px";
-    }
-    /**
-     * 获取后面的删除按钮html
-     * @returns {string}
-     */
-    getSearchSelectDeleteIconHTML() {
-      if (this.config.showDeleteIcon) {
-        return `
-        <svg data-delete-search t="1669172591973" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2719" width="16" height="16" style="position: absolute;right: 8px;">
-          <path data-delete-search d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z" p-id="2720" fill="#e3dfdd"></path>
-          <path data-delete-search d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z" p-id="2721" fill="#e3dfdd"></path>
-        </svg>`;
-      } else {
-        return "";
-      }
-    }
-    /**
-     * 更新页面显示的搜索结果
-     * @param {array} data
-     */
-    update(data) {
-      if (!Array.isArray(data)) {
-        throw new Error("传入的数据不是数组");
-      }
-      let that = this;
-      this.config.showData = this.arrayDistinct(data);
-      this.removeAllSearch();
-      let parentUlDOM = this.getSearchSelectHintElement();
-      if (!this.config.showData.length) {
-        this.clear();
-        if (this.config.targetElement.value === "") {
-          this.config.data.forEach((item, index) => {
-            parentUlDOM.appendChild(
-              that.parseTextToElement(that.getSearchItemHTML(item, index))
-            );
-          });
-          this.setItemEvent();
-        } else {
-          this.config.targetElement.dispatchEvent(new Event("focus"));
-        }
-      } else {
-        this.config.showData.forEach((item, index) => {
-          parentUlDOM.appendChild(
-            that.parseTextToElement(that.getSearchItemHTML(item, index))
-          );
-        });
-        this.setItemEvent();
-      }
-    }
-    /**
-     * 数组去重
-     * @param {array} data
-     * @returns {array}
-     */
-    arrayDistinct(data = []) {
-      let result = [];
-      data = new Set(data);
-      for (let item of data.values()) {
-        result = [item, ...result];
-      }
-      return result;
-    }
-    /**
-     * 清空当前的建议
-     */
-    clear() {
-      this.config.showData = [];
-      this.removeAllSearch();
-      this.getSearchSelectHintElement().appendChild(
-        this.parseTextToElement(this.config.noSearchDataHTML)
-      );
-    }
-    /**
-     * 隐藏建议框
-     */
-    hide() {
-      this.getSearchSelectElement().setAttribute("style", "display: none;");
-    }
-    /**
-     * 显示建议框
-     */
-    show() {
-      this.getSearchSelectElement().removeAttribute("style");
-    }
-    /**
-     * 设置目标输入框的值
-     * @param {string} value
-     */
-    setTargetInputValue(value) {
-      this.config.targetElement.value = value;
-    }
-    /**
-     * 设置目标输入框的各种事件
-     */
-    setTargetInputEvent() {
-      let that = this;
-      function _focus_event_(event) {
-        that.getSearchSelectElement().setAttribute(
-          "style",
-          `
-                    -moz-animation: searchSelectFalIn ${
-                      that.config.css.falInDuration
-                    }s 1 ${that.config.css.falInTiming};
-                    -webkit-animation: searchSelectFalIn ${
-                      that.config.css.falInDuration
-                    }s 1 ${that.config.css.falInTiming};
-                    -o-animation: searchSelectFalIn ${
-                      that.config.css.falInDuration
-                    }s 1 ${that.config.css.falInTiming};
-                    -ms-animation: searchSelectFalIn ${
-                      that.config.css.falInDuration
-                    }s 1 ${that.config.css.falInTiming};
-                    margin-top: ${
-                      that.config.targetElement.getBoundingClientRect().bottom +
-                      that.config.css.PaddingTop
-                    }px;
-                    `
-        );
-
-        that.changeSelectCSS();
-      }
-      function _blur_event_(event) {
-        setTimeout(() => {
-          if (that.details.isDeleteClicked) {
-            return;
-          }
-          if (
-            getComputedStyle(that.getSearchSelectElement()).display === "none"
-          ) {
-            return;
-          }
-          that.getSearchSelectElement().setAttribute(
-            "style",
-            `
-              -moz-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
-              that.falOutTiming
-            };
-              -webkit-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
-              that.falOutTiming
-            };
-              -o-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
-              that.falOutTiming
-            };
-              -ms-animation: searchSelectFalOut ${that.falOutDuration}s 1 ${
-              that.falOutTiming
-            };
-              margin-top: ${
-                that.config.targetElement.getBoundingClientRect().bottom +
-                that.config.css.PaddingTop
-              }px;
-                        `
-          );
-          setTimeout(() => {
-            that
-              .getSearchSelectElement()
-              .setAttribute("style", "display:none;");
-          }, that.falOutDuration * 1000);
-        }, 100);
-      }
-      function _click_event(event) {
-        event.target.dispatchEvent(new Event("focus"));
-      }
-      async function _propertychange_event_(event) {
-        that.config.targetElement.dispatchEvent(new Event("focus"));
-        let getListResult = await that.getList(event.target.value);
-        that.update(getListResult);
-      }
-      /* 禁用输入框自动提示 */
-      this.config.targetElement.setAttribute("autocomplete", "off");
-      /* 输入框获取焦点事件 */
-      this.config.targetElement.addEventListener("focus", _focus_event_, true);
-      /* 输入框点击事件 */
-      this.config.targetElement.addEventListener("click", _click_event, true);
-      /* 输入框失去焦点事件 */
-      this.config.targetElement.addEventListener("blur", _blur_event_, false);
-      /* 输入框内容改变事件 */
-      this.config.targetElement.addEventListener(
-        "input",
-        _propertychange_event_,
-        true
-      );
-      const userDocumentClickEvent = function () {
-        let checkDOM = that.getSearchSelectHintElement();
-        let mouseClickPosX = Number(
-          window.event.clientX
-        ); /* 鼠标相对屏幕横坐标 */
-        let mouseClickPosY = Number(
-          window.event.clientY
-        ); /* 鼠标相对屏幕纵坐标 */
-        let elementPosXLeft = Number(
-          checkDOM.getBoundingClientRect().left
-        ); /* 要检测的元素的相对屏幕的横坐标最左边 */
-        let elementPosXRight = Number(
-          checkDOM.getBoundingClientRect().right
-        ); /* 要检测的元素的相对屏幕的横坐标最右边 */
-        let elementPosYTop = Number(
-          checkDOM.getBoundingClientRect().top
-        ); /* 要检测的元素的相对屏幕的纵坐标最上边 */
-        let elementPosYBottom = Number(
-          checkDOM.getBoundingClientRect().bottom
-        ); /* 要检测的元素的相对屏幕的纵坐标最下边 */
-        if (
-          !(
-            mouseClickPosX >= elementPosXLeft &&
-            mouseClickPosX <= elementPosXRight &&
-            mouseClickPosY >= elementPosYTop &&
-            mouseClickPosY <= elementPosYBottom
-          ) &&
-          !(
-            checkDOM.innerHTML.includes(window.event.target.innerHTML) ||
-            that.config.targetElement.innerHTML.includes(
-              window.event.target.innerHTML
-            )
-          )
-        ) {
-          /* 不在点击范围内或元素上，隐藏 */
-          that.details.isDeleteClicked = false;
-          that.config.targetElement.dispatchEvent(new Event("blur"));
-        }
-      };
-      document.addEventListener("touchstart", userDocumentClickEvent);
-      document.addEventListener("click", userDocumentClickEvent);
-
-      this.removeTargetInputEvent = function () {
-        this.config.targetElement.removeAttribute("autocomplete");
-        this.config.targetElement.removeEventListener(
-          "focus",
-          _focus_event_,
-          true
-        );
-        this.config.targetElement.removeEventListener(
-          "click",
-          _click_event,
-          true
-        );
-        this.config.targetElement.removeEventListener(
-          "blur",
-          _blur_event_,
-          false
-        );
-        this.config.targetElement.removeEventListener(
-          "input",
-          _propertychange_event_,
-          true
-        );
-        document.removeEventListener("touchstart", userDocumentClickEvent);
-        document.removeEventListener("click", userDocumentClickEvent);
-      };
-    }
-    /**
-     * 移除目标输入框的各种事件
-     */
-    removeTargetInputEvent() {}
-    /**
-     * 设置搜索建议各个项的事件
-     */
-    setItemEvent() {
-      let that = this;
-      this.getSearchSelectItemElementList().forEach((item, index) => {
-        ((item2) => {
-          item2.addEventListener(
-            "click",
-            function (event) {
-              utils.preventEvent(event);
-              that.details.isDeleteClicked = false;
-              that.config.targetElement.dispatchEvent(new Event("focus"));
-              let clickElement = event.target;
-              if (
-                clickElement.hasAttribute("data-delete-search") &&
-                (clickElement.localName === "svg" ||
-                  clickElement.localName === "path")
-              ) {
-                /* 是删除按钮 */
-                that.details.isDeleteClicked = true;
-                let dataId = parseInt(item2.getAttribute("data-id"));
-                that.config.deleteItemCallBack(dataId, item2);
-                if (that.config.data.length === 0) {
-                  that.clear();
-                }
-              } else {
-                that.config.clickItemCallBack(this.getAttribute("data-value"));
-              }
-            },
-            true
-          );
-        })(item, index);
-      });
-    }
-    /**
-     * 获取数组数据
-     * @param {string} text
-     * @returns
-     */
-    getList(text) {
-      let event = {};
-      let that = this;
-      event.text = text;
-      event.targetElement = this.targetElement;
-      event.data = this.config.data;
-      event.showData = this.config.showData;
-      this.removeSearching();
-      this.addSearching();
-      return new Promise(async (resolve) => {
-        let result = await that.config.searchInputChangeCallBack(event);
-        if (this.config.targetElement.value !== "" && result.length == 0) {
-          this.config.targetElement.dispatchEvent(new Event("focus"));
-        }
-        that.removeSearching();
-        resolve(result);
-      });
     }
   }
 
@@ -5294,6 +4554,9 @@
        */
       const tiebaSearchConfig = {
         isSetClickEvent: false,
+        /**
+         * @type {PopsSearchSuggestionResult}
+         */
         searchSuggestion: null,
         /**
          * 获取搜索建议
@@ -5365,79 +4628,61 @@
               }
             );
 
-            this.searchSuggestion = new SearchSuggestion({
-              isAbsolute: false,
-              showDeleteIcon: false,
-              targetElement: document.querySelector("#tieba-search"),
-              getItemValue: function (item) {
-                return item.fname;
-              },
-              getItemHTML: function (itemData) {
-                return `
-                  <div class="forum_item">
-                    <img class="forum_image" src="${itemData.fpic}">
-                    <div class="forum_right">
-                      <div class="forum_name">${itemData.fname}</div>
-                      <div class="forum_desc">${itemData.forum_desc}</div>
-                    </div>
-                  </div>`;
-              },
-              /**
-               * 输入框内容改变触发的事件
-               * @param {{
-               * text: string,
-               * data: array,
-               * showData: array
-               * }} info
-               */
-              searchInputChangeCallBack: async (info) => {
-                /* 
-                  {
-                      "text": "r",
-                      "data": [],
-                      "showData": []
-                  }
-                  */
-                let searchText = info.text;
-                let result = [];
-                log.success("搜索中...");
-                let suggestionData = await tiebaSearchConfig.getSuggestion(
-                  searchText
-                );
-                if (utils.isNull(suggestionData)) {
-                  return result;
-                }
-                log.success(suggestionData);
-                result = suggestionData.query_match.search_data || [];
+            async function getData(inputValue) {
+              let result = [];
+              log.success("搜索中...");
+              let suggestionData = await tiebaSearchConfig.getSuggestion(
+                inputValue
+              );
+              if (utils.isNull(suggestionData)) {
                 return result;
+              }
+              log.success(suggestionData);
+              result = suggestionData.query_match.search_data || [];
+              return result;
+            }
+            this.searchSuggestion = pops.searchSuggestion({
+              className: "WhiteSevsSearchSelect",
+              target: document.querySelector("#tieba-search"),
+              data: [],
+              isAbsolute: false,
+              followTargetWidth: true,
+              deleteIcon: {
+                enable: false,
               },
-              clickItemCallBack: (text) => {
+              itemClickCallBack(event, liElement, data) {
                 window.location.href =
-                  "https://tieba.baidu.com/f?ie=utf-8&kw=" + text;
+                  "https://tieba.baidu.com/f?ie=utf-8&kw=" + data.fname;
+              },
+              getData: getData,
+              getItemHTML(item) {
+                return `
+                <div class="forum_item">
+                  <img class="forum_image" src="${item.fpic}">
+                  <div class="forum_right">
+                    <div class="forum_name">${item.fname}</div>
+                    <div class="forum_desc">${item.forum_desc}</div>
+                  </div>
+                </div>
+                `;
               },
             });
+            this.searchSuggestion.init();
+            this.searchSuggestion.setAllEvent();
             log.success("初始化默认搜索...");
-            tiebaSearchConfig.searchSuggestion.config
-              .searchInputChangeCallBack({
-                text: "",
-                data: [],
-                showData: [],
-              })
-              .then((result) => {
-                if (result.length) {
-                  tiebaSearchConfig.searchSuggestion.update(result);
-                }
-              });
+            getData("").then((result) => {
+              if (result.length) {
+                this.searchSuggestion.update(result);
+              }
+            });
           });
         },
         setSuggestionCSS() {
           GM_addStyle(`
               .WhiteSevsSearchSelect .forum_item{
-                /* height: 32px;
-                padding: 6px 8px;
-                line-height: 16px; */
                 display: flex;
                 text-wrap: wrap;
+                align-items: center;
               }
               .WhiteSevsSearchSelect .forum_image{
                 float: left;
@@ -5445,7 +4690,6 @@
                 height: 32px;
               }
               .WhiteSevsSearchSelect .forum_right{
-                /* height: 32px; */
                 float: left;
                 margin-left: 8px;
                 color: #999;
@@ -5900,7 +5144,7 @@
           log.success("当前是在吧内");
           lockFunction = new utils.LockFunction(_scroll_event_, this);
           tiebaCommentConfig.removeScrollListener();
-          this.searchSuggestion.removeTargetInputEvent();
+          this.searchSuggestion.removeAllEvent();
           let searchInputElement = document.querySelector("#tieba-search");
           /* 搜索框显示出来 */
           searchInputElement.previousElementSibling.style.display = "none";
