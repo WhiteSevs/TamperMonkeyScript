@@ -58,10 +58,11 @@
 🎈注意：默认配置的`test.jikejishu.com`是测试使用，别人也可以看得到你的调试信息，包括Cookie，如果可以请自己部署一个调试服务器
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy?label=SDK%20version)](https://www.npmjs.com/package/@huolala-tech/page-spy)
-- 当前版本：`1.5.6`
+- 当前版本：`1.5.7`
 - 项目主页
 [https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - 项目最新地址
 [https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy)
 [https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy)
 [https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy)
+- 文件最新地址：[https://www.npmjs.com/package/@huolala-tech/page-spy/file/e81551d3e8a861f9e3b5778475d6a9588fc4b3a0e31fd975b59a93732617853a](https://www.npmjs.com/package/@huolala-tech/page-spy/file/e81551d3e8a861f9e3b5778475d6a9588fc4b3a0e31fd975b59a93732617853a)
