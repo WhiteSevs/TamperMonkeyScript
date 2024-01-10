@@ -29,9 +29,9 @@
 // @resource        Resource_erudaTouches         https://fastly.jsdelivr.net/npm/eruda-touches
 // @resource        Resource_erudaOutlinePlugin   https://fastly.jsdelivr.net/npm/eruda-outline-plugin
 // @resource        Resource_erudaPixel           https://fastly.jsdelivr.net/npm/eruda-pixel
-// @require         https://update.greasyfork.org/scripts/456485/1308707/pops.js
-// @require         https://update.greasyfork.org/scripts/483694/1309031/Eruda-2.js
-// @require         https://update.greasyfork.org/scripts/483695/1309034/vConsole-2.js
+// @require         https://update.greasyfork.org/scripts/456485/1309370/pops.js
+// @require         https://update.greasyfork.org/scripts/483694/1309312/Eruda-2.js
+// @require         https://update.greasyfork.org/scripts/483695/1309313/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1309273/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1307823/WhiteSevsUtils.js
 // ==/UserScript==
