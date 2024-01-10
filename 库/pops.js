@@ -3019,7 +3019,7 @@
     /**
      * 当前版本
      */
-    version: "2024.1.7",
+    version: "2024.1.10",
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -3953,6 +3953,20 @@
     100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
     }
     `,
+    commonCSS: `
+    .pops-flex-items-center{
+      display: flex;
+      align-items: center;
+    }
+    .pops-flex-y-center{
+      display: flex;
+      justify-content: space-between;
+    }
+    .pops-flex-x-center{
+      display: flex;
+      align-content: center;
+    }
+    `,
     /**
      * icon图标的svg代码
      */
@@ -4314,7 +4328,9 @@
       ${this.config.animationCSS}
   
       ${this.config.animCSS}
-  
+        
+      ${this.config.commonCSS}
+
       `,
       },
       {
@@ -9356,5 +9372,456 @@
     };
   };
 
+  /**
+   * 搜索建议悬浮窗
+   * @param {PopsSearchSuggestionDetails} details
+   */
+  pops.searchSuggestion = function (details) {
+    PopsHandler.handleInit();
+    let config = {
+      target: null,
+      data: [
+        {
+          value: "数据1",
+          text: "数据1-html",
+        },
+        {
+          value: "数据2",
+          text: "数据2-html",
+        },
+      ],
+      deleteIcon: {
+        enable: true,
+        callback(event, liElement, data) {
+          console.log("删除当前项", [event, liElement, data]);
+          liElement.remove();
+        },
+      },
+      className: "",
+      isAbsolute: true,
+      isAnimation: true,
+      width: "250px",
+      maxHeight: "300px",
+      followTargetWidth: true,
+      topDistance: 0,
+      zIndex: 10000,
+      searchingTip: "正在搜索中...",
+      toSearhNotResultHTML: '<li data-none="true">暂无其它数据</li>',
+      getItemHTML(item) {
+        return item.text;
+      },
+      async getData(value) {
+        console.log("当前输入框的值是：", value);
+        return [];
+      },
+      itemClickCallBack(event, liElement, data) {
+        console.log("item项的点击回调", [event, liElement, data]);
+        this.target.value = data.value;
+      },
+    };
+    config = PopsUtils.assignJSON(config, details);
+    if (config.target == null) {
+      throw new TypeError("config.target 不能为空");
+    }
+    if (details.data) {
+      config.data = details.data;
+    }
+    const guid = PopsUtils.getRandomGUID();
+    const PopsType = "rightClickMenu";
+
+    const SearchSuggestion = {
+      /**
+       * 根元素
+       * @type {HTMLElement}
+       */
+      root: null,
+      /**
+       * ul元素
+       * @type {HTMLUListElement}
+       */
+      hintULElement: null,
+      /**
+       * 初始化
+       */
+      init() {
+        this.root = this.getSearchSelectElement();
+        this.hintULElement = this.root.querySelector("ul");
+        this.update(config.data);
+        this.changeHintULElementWidth();
+        this.changeHintULElementPosition();
+
+        this.hide();
+        if (config.isAnimation) {
+          this.root.classList.add(`pops-${PopsType}-animation`);
+        }
+        (document.body || document.documentElement).appendChild(this.root);
+      },
+      /**
+       * 获取显示出搜索建议框的html
+       */
+      getSearchSelectElement() {
+        let element = PopsDOMUtils.createElement(
+          "div",
+          {
+            className: `pops-${PopsType}-search-suggestion`,
+            innerHTML: `
+            <style>
+            .pops-${PopsType}-animation{
+              -moz-animation: searchSelectFalIn 0.5s 1 linear;
+              -webkit-animation: searchSelectFalIn 0.5s 1 linear;
+              -o-animation: searchSelectFalIn 0.5s 1 linear;
+              -ms-animation: searchSelectFalIn 0.5s 1 linear;
+            }
+            .pops-${PopsType}-search-suggestion{
+              position: ${config.isAbsolute ? "absolute" : "fixed"};
+              z-index: ${config.zIndex};
+              top: 0;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              height: 0;
+              margin-top: 8px;
+            }
+            ul.pops-${PopsType}-search-suggestion-hint{
+              width: 0;
+              left: 0;
+              max-height: ${config.maxHeight};
+              overflow-x: hidden;
+              overflow-y: auto;
+              padding: 5px 0;
+              background-color: #fff;
+              box-sizing: border-box;
+              border-radius: 4px;
+              box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
+              position: absolute;
+            }
+            ul.pops-${PopsType}-search-suggestion-hint li{
+              padding: 7px;
+              margin: 0;
+              clear: both;
+              color: #515a6e;
+              font-size: 14px;
+              list-style: none;
+              cursor: pointer;
+              transition: background .2s ease-in-out;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            ul.pops-${PopsType}-search-suggestion-hint li[data-none]{
+              text-align: center;
+              font-size: 12px;
+              color: #8e8e8e;
+            }
+            ul.pops-${PopsType}-search-suggestion-hint li:hover{
+              background-color: rgba(0, 0, 0, .1);
+            }            
+            </style>
+            <ul class="pops-${PopsType}-search-suggestion-hint">
+                ${config.toSearhNotResultHTML}
+            </ul>
+          `,
+          },
+          {
+            "data-guid": guid,
+          }
+        );
+        if (config.className !== "" && config.className != null) {
+          PopsDOMUtils.addClassName(element, config.className);
+        }
+        return element;
+      },
+      /**
+       * 获取显示出搜索建议框的每一项的html
+       * @param {PopsSearchSuggestionData} item 当前项的值
+       * @param {number} index 当前项的下标
+       */
+      getSearchItemLiElement(item, index) {
+        return PopsDOMUtils.createElement("li", {
+          className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
+          "data-index": index,
+          "data-value": this.getItemDataValue(item),
+          innerHTML: `
+          ${config.getItemHTML(item)}
+          ${config.deleteIcon.enable ? this.getDeleteIconHTML() : ""}
+          `,
+        });
+      },
+      /**
+       * 获取data-value值
+       * @param {PopsSearchSuggestionData} item
+       */
+      getItemDataValue(item) {
+        return item;
+      },
+      /**
+       * 设置搜索建议框每一项的点击事件
+       * @param {HTMLLIElement} liElement
+       */
+      setSearchItemClickEvent(liElement) {
+        PopsDOMUtils.on(
+          liElement,
+          "click",
+          undefined,
+          (event) => {
+            PopsUtils.preventEvent(event);
+            if (event.target.closest(`.pops-${PopsType}-delete-icon`)) {
+              /* 点击的是删除按钮 */
+              config.deleteIcon.callback(
+                event,
+                liElement,
+                liElement["data-value"]
+              );
+              if (!this.hintULElement.children.length) {
+                /* 全删完了 */
+                this.clear();
+              }
+            } else {
+              /* 点击项主体 */
+              config.itemClickCallBack(
+                event,
+                liElement,
+                liElement["data-value"]
+              );
+            }
+          },
+          {
+            capture: true,
+          }
+        );
+      },
+      /**
+       * 监听输入框内容改变
+       */
+      setInputChangeEvent() {
+        /* 是input输入框 */
+        /* 禁用输入框自动提示 */
+        config.target.setAttribute("autocomplete", "off");
+        /* 内容改变事件 */
+        PopsDOMUtils.on(
+          config.target,
+          "input",
+          undefined,
+          async (event) => {
+            let getListResult = await config.getData(event.target.value);
+            this.update(getListResult);
+          },
+          {
+            capture: true,
+          }
+        );
+      },
+      /**
+       * 移除输入框内容改变的监听
+       */
+      removeInputChangeEvent() {
+        PopsDOMUtils.off(config.target, "input", undefined, undefined, {
+          capture: true,
+        });
+      },
+      /**
+       * 设置显示搜索建议框的事件
+       */
+      setShowEvent() {
+        let context = this;
+        function showEvent() {
+          context.changeHintULElementPosition();
+          context.changeHintULElementWidth();
+          context.show();
+        }
+        /* 焦点 */
+        PopsDOMUtils.on(config.target, "focus", undefined, showEvent, {
+          capture: true,
+        });
+        /* 点击事件 */
+        PopsDOMUtils.on(config.target, "click", undefined, showEvent, {
+          capture: true,
+        });
+      },
+      /**
+       * 移除显示搜索建议框的事件
+       */
+      removeShowEvent() {
+        PopsDOMUtils.off(config.target, "focus", undefined, undefined, {
+          capture: true,
+        });
+        PopsDOMUtils.off(config.target, "click", undefined, undefined, {
+          capture: true,
+        });
+      },
+      /**
+       * 设置隐藏搜索建议框的事件
+       */
+      setHideEvent() {
+        /**
+         * @param {Event} event
+         */
+        function checkClickInSearchSuggestion(event) {
+          if (event.target instanceof Node) {
+            if (SearchSuggestion.root.contains(event.target)) {
+              /* 点击在里面的 */
+              return;
+            } else if (event.target.contains(config.target)) {
+              /* 点击在目标元素上的 */
+              return;
+            }
+            SearchSuggestion.hide();
+          }
+        }
+        /* 全局点击事件 */
+        PopsDOMUtils.on(
+          document,
+          "click",
+          undefined,
+          checkClickInSearchSuggestion,
+          {
+            capture: true,
+          }
+        );
+        /* 全局触摸屏点击事件 */
+        PopsDOMUtils.on(
+          document,
+          "touchstart",
+          undefined,
+          checkClickInSearchSuggestion,
+          {
+            capture: true,
+          }
+        );
+      },
+      /**
+       * 移除隐藏搜索建议框的事件
+       */
+      removeHideEvent() {
+        PopsDOMUtils.off(document, "click", undefined, undefined, {
+          capture: true,
+        });
+        PopsDOMUtils.off(document, "touchstart", undefined, undefined, {
+          capture: true,
+        });
+      },
+      /**
+       * 设置所有监听
+       */
+      setAllEvent() {
+        this.setInputChangeEvent();
+        this.setHideEvent();
+        this.setShowEvent();
+      },
+      /**
+       * 移除所有监听
+       */
+      removeAllEvent() {
+        this.removeInputChangeEvent();
+        this.removeHideEvent();
+        this.removeShowEvent();
+      },
+      /**
+       * 获取删除按钮的html
+       */
+      getDeleteIconHTML(size = 16, fill = "#bababa") {
+        return `
+        <svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+          <path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
+          <path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
+        </svg>
+        `;
+      },
+      /**
+       * 设置当前正在搜索中的提示
+       */
+      setPromptsInSearch() {
+        let isSearchingElement = PopsDOMUtils.createElement("li", {
+          className: `pops-${PopsType}-search-suggestion-hint-searching-item`,
+          innerHTML: config.searchingTip,
+        });
+        SearchSuggestion.hintULElement.appendChild(isSearchingElement);
+      },
+      /**
+       * 移除正在搜索中的提示
+       */
+      removePromptsInSearch() {
+        SearchSuggestion.hintULElement
+          .querySelector(
+            `li.pops-${PopsType}-search-suggestion-hint-searching-item`
+          )
+          ?.remove();
+      },
+      /**
+       * 清空所有的搜索结果
+       */
+      clearAllSearchItemLi() {
+        SearchSuggestion.hintULElement.innerHTML = "";
+      },
+      /**
+       * 修改搜索建议框的位置(top、left)
+       * 因为目标元素可能是动态隐藏的
+       */
+      changeHintULElementPosition() {
+        let targetRect = config.isAbsolute
+          ? PopsDOMUtils.offset(config.target)
+          : config.target.getBoundingClientRect();
+        SearchSuggestion.hintULElement.style.top =
+          targetRect.height + targetRect.top + config.topDistance + "px";
+        SearchSuggestion.hintULElement.style.left = targetRect.left + "px";
+      },
+      /**
+       * 修改搜索建议框的width
+       * 因为目标元素可能是动态隐藏的
+       */
+      changeHintULElementWidth() {
+        let targetRect = config.target.getBoundingClientRect();
+        if (config.followTargetWidth) {
+          SearchSuggestion.hintULElement.style.width = targetRect.width + "px";
+        } else {
+          SearchSuggestion.hintULElement.style.width = config.width;
+        }
+      },
+      /**
+       * 更新页面显示的搜索结果
+       * @param {PopsSearchSuggestionData[]} data
+       */
+      update(data = []) {
+        if (!Array.isArray(data)) {
+          throw new TypeError("传入的数据不是数组");
+        }
+        config.data = data;
+        /* 清空已有的搜索结果 */
+        if (config.data.length) {
+          this.clearAllSearchItemLi();
+          /* 添加进ul中 */
+          config.data.forEach((item, index) => {
+            let itemElement = this.getSearchItemLiElement(item, index);
+            this.setSearchItemClickEvent(itemElement);
+            this.hintULElement.appendChild(itemElement);
+          });
+        } else {
+          /* 清空 */
+          this.clear();
+        }
+      },
+      /**
+       * 清空当前的搜索结果并显示无结果
+       */
+      clear() {
+        this.clearAllSearchItemLi();
+        this.hintULElement.appendChild(
+          PopsUtils.parseTextToDOM(config.toSearhNotResultHTML)
+        );
+      },
+      /**
+       * 隐藏搜索建议框
+       */
+      hide() {
+        this.root.style.display = "none";
+      },
+      /**
+       * 显示搜索建议框
+       */
+      show() {
+        this.root.style.display = "";
+      },
+    };
+    return SearchSuggestion;
+  };
   return pops;
 });
