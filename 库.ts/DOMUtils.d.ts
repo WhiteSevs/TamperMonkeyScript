@@ -114,7 +114,13 @@ type DOMUtils_OtherEventType = "message" |
     "show" |
     "storage" |
     "toggle" |
-    "wheel";
+    "wheel" |
+    "propertychange";
+
+/**
+ * 触摸事件
+ */
+type DOMUtils_TouchEventType = "touchstart" | "touchmove" | "touchend" | "touchcancel" | "touchenter" | "touchleave";
 
 /**
  * 事件类型
@@ -129,4 +135,5 @@ type DOMUtils_EventType = DOMUtils_MouseEventType |
     DOMUtils_MediaEventType |
     DOMUtils_AnimationEventType |
     DOMUtils_TransitionEventType |
-    DOMUtils_OtherEventType;
+    DOMUtils_OtherEventType |
+    DOMUtils_TouchEventType;
