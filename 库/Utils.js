@@ -24,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2024-1-7";
+  Utils.version = "2024-1-11";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -5409,9 +5409,12 @@
    * @param {?HTMLElement} element 目标元素
    * @param {?FullscreenOptions} options 配置，一般不用
    * @example
-   * Utils.enterFullscreen();
+   * Utils.enterFullScreen();
    */
-  Utils.enterFullscreen = function (element = document.body, options) {
+  Utils.enterFullScreen = function (
+    element = document.documentElement,
+    options
+  ) {
     try {
       if (element.requestFullscreen) {
         element.requestFullscreen(options);
@@ -5422,13 +5425,35 @@
       } else if (element.msRequestFullscreen) {
         element.msRequestFullscreen();
       } else {
-        throw new Error("该浏览器不支持全屏API");
+        throw new TypeError("该浏览器不支持全屏API");
       }
     } catch (err) {
       console.error(err);
     }
   };
 
+  /**
+   * 使浏览器退出全屏
+   * @param {?HTMLElement} element 目标元素
+   * @returns {Promise<void>}
+   * @example
+   * Utils.exitFullScreen();
+   */
+  Utils.exitFullScreen = function (element = document.documentElement) {
+    if (document.exitFullscreen) {
+      return document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      return document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      return document.mozCancelFullScreen();
+    } else if (document.webkitCancelFullScreen) {
+      return document.webkitCancelFullScreen();
+    } else {
+      return new Promise((resolve, reject) => {
+        reject(new TypeError("该浏览器不支持全屏API"));
+      });
+    }
+  };
   /**
    * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
    * @param {any[]|NodeList|function} data 数据|获取数据的方法
