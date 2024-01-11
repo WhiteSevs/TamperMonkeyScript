@@ -115,7 +115,8 @@ type DOMUtils_OtherEventType = "message" |
     "storage" |
     "toggle" |
     "wheel" |
-    "propertychange";
+    "propertychange" |
+    "fullscreenchange";
 
 /**
  * 触摸事件
