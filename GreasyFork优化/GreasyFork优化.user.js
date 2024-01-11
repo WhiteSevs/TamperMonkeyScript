@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.11
+// @version      2024.1.11.16
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -20,7 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1309370/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1309819/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1309760/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1309759/DOMUtils.js
 // ==/UserScript==
@@ -72,7 +72,7 @@
 
   /* -----------------↓函数区域↓----------------- */
   /**
-   * GreasyFork的配置
+   * GreasyFork的api
    */
   const GreasyforkApi = {
     /**
@@ -180,6 +180,41 @@
         return;
       }
       return postResp;
+    },
+    /**
+     * 获取用户的信息，包括脚本列表、未上架的脚本、库
+     * @returns {Promise<?{
+     * id: number,
+     * name: string,
+     * scripts: GreasyForkScriptInfo[],
+     * scriptList: GreasyForkScriptInfo[],
+     * scriptLibraryList: GreasyForkScriptInfo[],
+     * url: string,
+     * }>}
+     */
+    async getUserInfo(userId) {
+      let getResp = await fetch(
+        `https://greasyfork.org/zh-CN/users/${userId}.json`,
+        {
+          method: "GET",
+        }
+      );
+      log.success(getResp);
+      if (getResp.status !== 200) {
+        Qmsg.error("获取用户信息失败");
+        return;
+      }
+      let data = await getResp.json();
+      data["scriptList"] = [];
+      data["scriptLibraryList"] = [];
+      data["scripts"].forEach((scriptInfo) => {
+        if (scriptInfo["code_url"].endsWith(".user.js")) {
+          data["scriptList"].push(scriptInfo);
+        } else {
+          data["scriptLibraryList"].push(scriptInfo);
+        }
+      });
+      return data;
     },
   };
 
@@ -346,6 +381,7 @@
     },
     /**
      * 获取配置内容
+     * @returns {PopsPanelContentConfig[]}
      */
     getContent() {
       return [
@@ -431,7 +467,7 @@
                   type: "button",
                   buttonIconIsLoading: false,
                   buttonType: "primary",
-                  buttonText: "点击同步",
+                  buttonText: "一键同步",
                   callback(event) {
                     if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
                       PopsPanel.setValue(
@@ -465,7 +501,7 @@
                   type: "button",
                   buttonIconIsLoading: false,
                   buttonType: "primary",
-                  buttonText: "点击同步",
+                  buttonText: "一键同步",
                   callback(event) {
                     if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
                       PopsPanel.setValue(
@@ -499,7 +535,7 @@
                   type: "button",
                   buttonIconIsLoading: false,
                   buttonType: "primary",
-                  buttonText: "点击同步",
+                  buttonText: "一键同步",
                   callback(event) {
                     if (!window.location.pathname.match(/\/.+\/users\/.+/gi)) {
                       PopsPanel.setValue(
@@ -632,6 +668,32 @@
               ],
             },
           ],
+        },
+        {
+          id: "greasy-fork-panel-config-script-list",
+          title: "脚本列表",
+          callback(event, rightHeaderElement, rightContainerElement) {
+            GreasyforkBusiness.UIScriptList(
+              "script-list",
+              event,
+              rightHeaderElement,
+              rightContainerElement
+            );
+          },
+          forms: [],
+        },
+        {
+          id: "greasy-fork-panel-config-library",
+          title: "库",
+          callback(event, rightHeaderElement, rightContainerElement) {
+            GreasyforkBusiness.UIScriptList(
+              "script-library",
+              event,
+              rightHeaderElement,
+              rightContainerElement
+            );
+          },
+          forms: [],
         },
       ];
     },
@@ -1426,6 +1488,11 @@
       GM_addStyle(beautifyButtonCSS);
       GM_addStyle(beautifyRadioCSS);
       GM_addStyle(beautifyTextAreaCSS);
+      GM_addStyle(`
+      p:has(input[type="submit"][name="update-and-sync"]){
+        margin-top: 10px;
+      }
+      `);
       DOMUtils.ready(function () {
         let markupChoiceELement = document.querySelector(
           'a[target="markup_choice"][href*="daringfireball.net"]'
@@ -1437,6 +1504,17 @@
             }),
             markupChoiceELement
           );
+        }
+
+        if (
+          globalThis.location.pathname.endsWith("/admin") &&
+          !document.querySelector('input[type="submit"][name="update-only"]')
+        ) {
+          GM_addStyle(`
+          .indented{
+            padding-left: unset;
+          }
+          `);
         }
       });
     },
@@ -2007,6 +2085,195 @@
         timer = setTimeout(() => {
           window.location.href = jumpUrl;
         }, 3000);
+      }
+    },
+    /**
+     * 面板-脚本列表|库
+     * @param {"script-list"|"script-library"} type
+     * @param {Event} event
+     * @param {HTMLLIElement} rightHeaderElement
+     * @param {HTMLLIElement} rightContainerElement
+     * @returns
+     */
+    async UIScriptList(type, event, rightHeaderElement, rightContainerElement) {
+      if (!GreasyforkMenu.isLogin) {
+        Qmsg.error("请先登录账号！");
+        return;
+      }
+      let userLinkElement = GreasyforkMenu.getUserLinkElement();
+      let userId = userLinkElement.href
+        .split("/")
+        .pop()
+        .match(/([0-9]+)/)[0];
+      let loading = pops.loading({
+        mask: {
+          enable: true,
+        },
+        parent: rightContainerElement,
+        content: {
+          text: "获取信息中，请稍后...",
+        },
+      });
+      let userInfo = await GreasyforkApi.getUserInfo(userId);
+      loading.close();
+      if (!userInfo) {
+        return;
+      }
+      log.info(userInfo);
+      GM_addStyle(`
+      .w-script-list-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #e5e5e5;
+        font-size: 16px;
+        text-align: left;
+      }
+      .w-script-version,
+      .w-script-fan-score,
+      .w-script-create-time,
+      .w-script-update-time,
+      .w-script-locale,
+      .w-script-sync-type{
+        font-size: 14px;
+        color: #7c7c7c;
+      }
+      .w-script-fan-score {
+        margin-left: unset !important;
+        text-align: unset !important;
+        max-width: unset !important;
+      }
+      .w-script-deleted{
+        text-decoration: line-through;
+        font-style: italic;
+        color: red;
+      }
+      .w-script-deleted .w-script-name::before {
+        content: "【删除】";
+      }
+      `);
+      let scriptList =
+        type === "script-list"
+          ? userInfo["scriptList"]
+          : userInfo["scriptLibraryList"];
+      Qmsg.success(`获取成功，共 ${scriptList.length} 个`);
+      for (const scriptInfo of scriptList) {
+        let liElement = DOMUtils.createElement("li", {
+          className: "w-script-list-item",
+          innerHTML: `
+          <div class="w-script-info">
+            <div class="w-script-name">
+              <a href="${scriptInfo["url"]}" target="_blank">${
+            scriptInfo["name"]
+          }</a>
+            </div>
+            <div class="w-script-fan-score">
+              <p>评分：${scriptInfo["fan_score"]}</p>
+            </div>
+            <div class="w-script-locale">
+              <p>语言：${scriptInfo["locale"]}</p>
+            </div>
+            <div class="w-script-version">
+              <p>版本：${scriptInfo["version"]}</p>
+            </div>
+            <div class="w-script-update-time">
+              <p>更新：${utils.getDaysDifference(
+                new Date(scriptInfo["code_updated_at"]).getTime(),
+                undefined,
+                "auto"
+              )}前</p>
+            </div>
+          </div>
+          `,
+        });
+        let scriptInfoElement = liElement.querySelector(".w-script-info");
+        let buttonElement = DOMUtils.createElement("div", {
+          className: "pops-panel-button",
+          innerHTML: `
+          <button type="primary" data-icon="" data-righticon="false">
+            <span>同步代码</span>
+          </button>
+          `,
+        });
+        if (scriptInfo["deleted"]) {
+          /* 该脚本已给删除 */
+          liElement.classList.add("w-script-deleted");
+          buttonElement.querySelector("button").setAttribute("disabled", true);
+        }
+
+        DOMUtils.on(buttonElement, "click", undefined, async function () {
+          log.success(["同步", scriptInfo]);
+          let btn = buttonElement.querySelector("button");
+          let span = buttonElement.querySelector("button span");
+          let iconElement = DOMUtils.createElement(
+            "i",
+            {
+              className: "pops-bottom-icon",
+              innerHTML: pops.config.iconSVG.loading,
+            },
+            {
+              "is-loading": true,
+            }
+          );
+          btn.setAttribute("disabled", true);
+          btn.setAttribute("data-icon", true);
+          span.innerText = "同步中...";
+          DOMUtils.before(span, iconElement);
+          let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
+            scriptInfo["id"]
+          );
+          if (codeSyncFormData) {
+            const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY =
+              "script[script_sync_type_id]";
+            if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
+              /* 1是手动同步、2是自动同步、3是webhook同步 */
+              let syncTypeId = codeSyncFormData.get(
+                SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
+              );
+              let syncMode = "";
+              if (syncTypeId.toString() === "1") {
+                syncMode = "手动";
+              } else if (syncTypeId.toString() === "2") {
+                syncMode = "自动";
+              } else if (syncTypeId.toString() === "3") {
+                syncMode = "webhook";
+              }
+              let oldSyncTypeElement = liElement.querySelector(
+                ".w-script-sync-type"
+              );
+              if (oldSyncTypeElement) {
+                oldSyncTypeElement.querySelector(
+                  "p"
+                ).innerText = `同步方式：${syncMode}`;
+              } else {
+                DOMUtils.append(
+                  scriptInfoElement,
+                  `
+                  <div class="w-script-sync-type">
+                    <p>同步方式：${syncMode}</p>
+                  </div>
+                  `
+                );
+              }
+              let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
+                scriptInfo["id"],
+                codeSyncFormData
+              );
+              if (syncUpdateResponse) {
+                Qmsg.success("同步成功");
+              } else {
+                Qmsg.error("同步失败");
+              }
+            } else {
+              Qmsg.error("该脚本未设置同步信息");
+            }
+          }
+
+          btn.removeAttribute("disabled");
+          btn.removeAttribute("data-icon");
+          span.innerText = "同步代码";
+          iconElement.remove();
+        });
+        liElement.appendChild(buttonElement);
+        rightContainerElement.appendChild(liElement);
       }
     },
   };
