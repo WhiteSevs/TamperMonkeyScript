@@ -24,7 +24,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2024-1-7";
+  DOMUtils.version = "2024-1-11";
 
   let CommonUtils = {
     /**
@@ -1637,7 +1637,8 @@
   /**
    * 当鼠标移入或移出元素时触发事件
    * @param {HTMLElement|string} element 当前元素
-   * @param {(event:Event)=>{}} handler 事件处理函数
+   * @param {((event: Event)=>void)|undefined} handler 事件处理函数
+   * @param {boolean|AddEventListenerOptions|undefined} option 配置
    * @example
    * // 监听a.xx元素的移入或移出
    * DOMUtils.hover(document.querySelector("a.xx"),()=>{
@@ -1647,15 +1648,15 @@
    *   console.log("移入/移除");
    * })
    */
-  DOMUtils.hover = function (element, handler) {
+  DOMUtils.hover = function (element, handler, option) {
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
     if (element == void 0) {
       return;
     }
-    DOMUtils.on(element, "mouseenter", null, handler);
-    DOMUtils.on(element, "mouseleave", null, handler);
+    DOMUtils.on(element, "mouseenter", null, handler, option);
+    DOMUtils.on(element, "mouseleave", null, handler, option);
   };
 
   /**
@@ -1667,11 +1668,11 @@
    * DOMUtils.show("a.xx")
    */
   DOMUtils.show = function (element) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
     if (element == void 0) {
       return;
+    }
+    if (typeof element === "string") {
+      element = document.querySelector(element);
     }
     element.style.display = "";
   };
@@ -1685,19 +1686,21 @@
    * DOMUtils.hide("a.xx")
    */
   DOMUtils.hide = function (element) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
     if (element == void 0) {
       return;
+    }
+    if (typeof element === "string") {
+      element = document.querySelector(element);
     }
     element.style.display = "none";
   };
 
   /**
    * 当按键松开时触发事件
-   * @param {HTMLElement|string} element 当前元素
-   * @param {Function} handler 事件处理函数
+   * keydown - > keypress - > keyup
+   * @param {HTMLElement|string} target 当前元素
+   * @param {((event: KeyboardEvent)=>void)|undefined} handler 事件处理函数
+   * @param {boolean|AddEventListenerOptions|undefined} option 配置
    * @example
    * // 监听a.xx元素的按键松开
    * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
@@ -1707,20 +1710,22 @@
    *   console.log("按键松开");
    * })
    */
-  DOMUtils.keyup = function (element, handler) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
-    if (element == void 0) {
+  DOMUtils.keyup = function (target, handler, option) {
+    if (target == void 0) {
       return;
     }
-    DOMUtils.on(element, "keyup", null, handler);
+    if (typeof target === "string") {
+      target = document.querySelector(target);
+    }
+    DOMUtils.on(target, "keyup", null, handler, option);
   };
 
   /**
    * 当按键按下时触发事件
-   * @param {HTMLElement|string} element 当前元素
-   * @param {Function} handler 事件处理函数
+   * keydown - > keypress - > keyup
+   * @param {Node|Window|globalThis|string} target 目标
+   * @param {((event: KeyboardEvent)=>void)|undefined} handler 事件处理函数
+   * @param {boolean|AddEventListenerOptions|undefined} option 配置
    * @example
    * // 监听a.xx元素的按键按下
    * DOMUtils.keydown(document.querySelector("a.xx"),()=>{
@@ -1730,14 +1735,39 @@
    *   console.log("按键按下");
    * })
    */
-  DOMUtils.keydown = function (element, handler) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
-    if (element == void 0) {
+  DOMUtils.keydown = function (target, handler, option) {
+    if (target == void 0) {
       return;
     }
-    DOMUtils.on(element, "keydown", null, handler);
+    if (typeof target === "string") {
+      target = document.querySelector(target);
+    }
+    DOMUtils.on(target, "keydown", null, handler, option);
+  };
+
+  /**
+   * 当按键按下时触发事件
+   * keydown - > keypress - > keyup
+   * @param {Node|Window|globalThis|string} target 目标
+   * @param {((event: KeyboardEvent)=>void)|undefined} handler 事件处理函数
+   * @param {boolean|AddEventListenerOptions|undefined} option 配置
+   * @example
+   * // 监听a.xx元素的按键按下
+   * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
+   *   console.log("按键按下");
+   * })
+   * DOMUtils.keypress("a.xx",()=>{
+   *   console.log("按键按下");
+   * })
+   */
+  DOMUtils.keypress = function (target, handler, option) {
+    if (target == void 0) {
+      return;
+    }
+    if (typeof target === "string") {
+      target = document.querySelector(target);
+    }
+    DOMUtils.on(target, "keypress", null, handler, option);
   };
 
   /**
@@ -1755,11 +1785,11 @@
    * })
    */
   DOMUtils.fadeIn = function (element, duration = 400, callback) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
     if (element == void 0) {
       return;
+    }
+    if (typeof element === "string") {
+      element = document.querySelector(element);
     }
     element.style.opacity = 0;
     element.style.display = "";
@@ -1796,11 +1826,11 @@
    * })
    */
   DOMUtils.fadeOut = function (element, duration = 400, callback) {
-    if (typeof element === "string") {
-      element = document.querySelector(element);
-    }
     if (element == void 0) {
       return;
+    }
+    if (typeof element === "string") {
+      element = document.querySelector(element);
     }
     element.style.opacity = 1;
     let start = null;
