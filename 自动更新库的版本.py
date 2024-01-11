@@ -7,6 +7,8 @@ import winreg
 # 不更新的js文件名
 notUpdateFileNameList = ["蛋仔乐消除", "ImmortalWrt-passwall优化", "问卷星随机答案"]
 
+# 不建议将库设置为自动同步，因为代码无更新的时候，它也会自动更新版本id
+
 
 def get_ie_proxy():
     try:
