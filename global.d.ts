@@ -604,3 +604,13 @@ declare namespace GMTypes {
         name?: string;
     }
 }
+
+
+
+interface Object {
+    /**
+     *  静态方法返回一个给定对象的自有可枚举字符串键属性值组成的数组
+     * + https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/values
+     */
+    values(o: Object): string[];
+}
