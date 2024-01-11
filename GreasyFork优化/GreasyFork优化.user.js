@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.11.16
+// @version      2024.1.11.17
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -57,13 +57,13 @@
   });
   const httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
-    onabort: function () {
+    onabort() {
       Qmsg.error("请求被取消");
     },
-    ontimeout: function () {
+    ontimeout() {
       Qmsg.error("请求超时");
     },
-    onerror: function (response) {
+    onerror(response) {
       Qmsg.error("请求异常");
       log.error(["httpx-onerror", response]);
     },
@@ -215,6 +215,53 @@
         }
       });
       return data;
+    },
+  };
+
+  /**
+   * GreasyFork的css
+   */
+  const GreasyforkCSS = {
+    UIScriptListCSS: `
+        .w-script-list-item {
+          padding: 10px 0;
+          border-bottom: 1px solid #e5e5e5;
+          font-size: 16px;
+          text-align: left;
+        }
+        .w-script-version,
+        .w-script-fan-score,
+        .w-script-create-time,
+        .w-script-update-time,
+        .w-script-locale,
+        .w-script-sync-type{
+          font-size: 14px;
+          color: #7c7c7c;
+        }
+        .w-script-fan-score {
+          margin-left: unset !important;
+          text-align: unset !important;
+          max-width: unset !important;
+        }
+        .w-script-deleted{
+          text-decoration: line-through;
+          font-style: italic;
+          color: red;
+        }
+        .w-script-deleted .w-script-name::before {
+          content: "【删除】";
+        }
+    `,
+    /**
+     * 初始化
+     */
+    init() {
+      Object.keys(this)
+        .filter((value) => typeof this[value] === "string")
+        .forEach((keyName) => {
+          log.info("添加CSS：" + keyName);
+          GM_addStyle(this[keyName]);
+        });
     },
   };
 
@@ -2120,36 +2167,6 @@
         return;
       }
       log.info(userInfo);
-      GM_addStyle(`
-      .w-script-list-item {
-        padding: 10px 0;
-        border-bottom: 1px solid #e5e5e5;
-        font-size: 16px;
-        text-align: left;
-      }
-      .w-script-version,
-      .w-script-fan-score,
-      .w-script-create-time,
-      .w-script-update-time,
-      .w-script-locale,
-      .w-script-sync-type{
-        font-size: 14px;
-        color: #7c7c7c;
-      }
-      .w-script-fan-score {
-        margin-left: unset !important;
-        text-align: unset !important;
-        max-width: unset !important;
-      }
-      .w-script-deleted{
-        text-decoration: line-through;
-        font-style: italic;
-        color: red;
-      }
-      .w-script-deleted .w-script-name::before {
-        content: "【删除】";
-      }
-      `);
       let scriptList =
         type === "script-list"
           ? userInfo["scriptList"]
@@ -2280,6 +2297,7 @@
   /* -----------------↑函数区域↑----------------- */
 
   /* -----------------↓执行入口↓----------------- */
+  GreasyforkCSS.init();
   PopsPanel.initMenu();
   if (PopsPanel.getValue("beautifyPage")) {
     GreasyforkBusiness.beautifyPageElement();
