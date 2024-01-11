@@ -8685,7 +8685,7 @@
        */
       setAsideItemClickEvent(asideLiElement, asideConfig) {
         let that = this;
-        PopsDOMUtils.on(asideLiElement, "click", undefined, function () {
+        PopsDOMUtils.on(asideLiElement, "click", undefined, function (event) {
           that.clearContainer();
           that.clearAsideItemIsVisited();
           that.setAsideItemIsVisited(asideLiElement);
@@ -8756,6 +8756,15 @@
               `calc( 100% - ${
                 sectionContainerHeaderULElementHeight + contentContainerOffset
               }px )`
+            );
+          }
+
+          if (typeof asideConfig.callback === "function") {
+            /* 执行回调 */
+            asideConfig.callback(
+              event,
+              that.sectionContainerHeaderULElement,
+              that.sectionContainerULElement
             );
           }
         });

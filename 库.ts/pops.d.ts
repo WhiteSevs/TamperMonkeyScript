@@ -439,6 +439,10 @@ declare interface PopsPanelContentConfig {
      * 子配置
      */
     forms: PopsPanelFormsDetailsArray;
+    /**
+     * 左侧容器的点击回调
+     */
+    callback: ((event: Event, rightHeaderElement: HTMLUListElement, rightContainerElement: HTMLUListElement) => void) | undefined;
 }
 /**
  * pops.panel的 forms
