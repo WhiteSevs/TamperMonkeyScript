@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.9
+// @version      2024.1.11
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,8 +21,8 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1309370/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1307823/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1307605/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1309760/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1309759/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -559,9 +559,15 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "代码页面添加复制代码按钮",
+                  "【代码】页面添加复制代码按钮",
                   "更优雅的复制",
                   "addCopyCodeButton",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【代码】页面快捷键",
+                  "【F】键全屏、【Alt+Shift+F】键宽屏",
+                  "fullScreenOptimization",
                   true
                 ),
                 PopsPanel.getSwtichDetail(
@@ -578,7 +584,7 @@
                 ),
                 PopsPanel.getSwtichDetail(
                   "美化Greasyfork Beautify脚本",
-                  "首先得安装Greasyfork Beautify脚本",
+                  '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>',
                   "beautifyGreasyforkBeautify",
                   true
                 ),
@@ -1573,6 +1579,9 @@
       #script-content code{
         word-wrap: break-word;
       }
+      .code-container ::selection {
+        background-color: #3D4556 !important;
+      }
       `;
 
       GM_addStyle(compatibleBeautifyCSS);
@@ -1717,6 +1726,78 @@
           });
           DOMUtils.before(element, copyButton);
         });
+    },
+    /**
+     * F11全屏，代码全屏
+     */
+    fullScreenOptimization() {
+      if (!window.location.pathname.endsWith("/code")) {
+        return;
+      }
+      GM_addStyle(`
+      .code-wide-screen{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        min-width: 100%;
+        min-height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        z-index: 10000;
+      }
+      `);
+      let isFullScreen = false;
+      DOMUtils.keydown(
+        window,
+        function (...args) {
+          /**
+           * @type {KeyboardEvent}
+           */
+          let event = args[0];
+          if (event.key.toLowerCase() === "f") {
+            let codeElement = document.querySelector(
+              "#script-content div.code-container code"
+            );
+            if (event.altKey && event.shiftKey) {
+              /* 宽屏 */
+              utils.preventEvent(event);
+              if (codeElement.classList.contains("code-wide-screen")) {
+                /* 当前处于宽屏状态，退出宽屏 */
+                codeElement.classList.remove("code-wide-screen");
+              } else {
+                /* 进入宽屏 */
+                codeElement.classList.add("code-wide-screen");
+              }
+            } else if (
+              !event.altKey &&
+              !event.ctrlKey &&
+              !event.shiftKey &&
+              !event.metaKey
+            ) {
+              /* 全屏 */
+              utils.preventEvent(event);
+              if (isFullScreen) {
+                /* 退出全屏 */
+                utils.exitFullScreen(codeElement);
+                isFullScreen = false;
+              } else {
+                /* 进入全屏 */
+                utils.enterFullScreen(codeElement);
+                isFullScreen = true;
+              }
+            }
+          }
+        },
+        {
+          capture: true,
+        }
+      );
     },
     /**
      * 在Markdown右上角添加复制按钮
@@ -1945,7 +2026,9 @@
   if (PopsPanel.getValue("beautifyUploadImage")) {
     GreasyforkBusiness.beautifyUploadImage();
   }
-
+  if (PopsPanel.getValue("fullScreenOptimization")) {
+    GreasyforkBusiness.fullScreenOptimization();
+  }
   DOMUtils.ready(function () {
     GreasyforkMenu.initEnv();
     if (PopsPanel.getValue("autoLogin")) {
