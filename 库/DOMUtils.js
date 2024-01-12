@@ -24,7 +24,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2024-1-11";
+  DOMUtils.version = "2024-1-12";
 
   let CommonUtils = {
     /**
@@ -925,6 +925,7 @@
    * @param {((event:Event)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
    * @param {EventListenerOptions|boolean|undefined} option
    * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+   * @param {(value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[])=> boolean} filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
    * @example
    * // 取消监听元素a.xx的click事件
    * DOMUtils.off(document.querySelector("a.xx"),"click")
@@ -935,7 +936,14 @@
    * // 取消监听全局下的a.xx的点击事件
    * DOMUtils.off(document,"click","a.xx")
    */
-  DOMUtils.off = function (element, eventType, selector, callback, option) {
+  DOMUtils.off = function (
+    element,
+    eventType,
+    selector,
+    callback,
+    option,
+    filter
+  ) {
     /**
      * 获取option配置
      * @param {any[]} args
@@ -1019,15 +1027,30 @@
         elementEvents = elementItem[propEventsName] || {};
       }
       eventTypeList.forEach((eventName) => {
+        /**
+         * @type {DOMUtilsEventListenerOptionsAttribute[]}
+         */
         let handlers = elementEvents[eventName] || [];
+        if (typeof filter === "function") {
+          handlers = handlers.filter(filter);
+        }
         for (let index = 0; index < handlers.length; index++) {
           let handler = handlers[index];
+          let flag = !1;
+          if (!_selector_ || handler.selector === _selector_) {
+            /* selector不为空，进行selector判断 */
+            flag = !0;
+          }
           if (
-            (!_selector_ || handler.selector === _selector_) &&
-            (!_callback_ ||
-              handler.callback === _callback_ ||
-              handler.originCallBack === _callback_)
+            !_callback_ ||
+            handler.callback === _callback_ ||
+            handler.originCallBack === _callback_
           ) {
+            /* callback不为空，进行callback判断 */
+            flag = !0;
+          }
+
+          if (flag) {
             elementItem.removeEventListener(
               eventName,
               handler.callback,
@@ -1037,6 +1060,7 @@
           }
         }
         if (handlers.length === 0) {
+          /* 如果没有任意的handler，那么删除该属性 */
           delete elementEvents[eventType];
         }
       });
