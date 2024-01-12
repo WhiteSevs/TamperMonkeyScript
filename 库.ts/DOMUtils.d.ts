@@ -138,3 +138,27 @@ type DOMUtils_EventType = DOMUtils_MouseEventType |
     DOMUtils_TransitionEventType |
     DOMUtils_OtherEventType |
     DOMUtils_TouchEventType;
+
+
+
+/**
+ * 元素上的events属性
+ */
+declare interface DOMUtilsEventListenerOptionsAttribute {
+    /**
+     * 自定义的ownCallBack
+     */
+    callback: () => void;
+    /**
+     * 属性配置
+     */
+    option: AddEventListenerOptions;
+    /**
+     * 用户添加的事件
+     */
+    originCallBack: () => void;
+    /**
+     * 子元素选择器
+     */
+    selector: string | undefined;
+}
