@@ -803,12 +803,12 @@ declare interface PopsRightClickMenuDataDetails {
     text: string | (() => string);
     /**
      * 点击的回调函数
-     * @param event 事件
-     * @param contextMenuEvent contextmenu事件
+     * @param clickEvent 点击菜单的click事件
+     * @param contextMenuEvent 触发的contextmenu事件
      * @param liElement <li>元素
      * 
      */
-    callback: (event: Event, contextMenuEvent: Event, liElement: HTMLLIElement) => boolean | undefined;
+    callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | undefined;
     /**
      * 子项配置
      */
