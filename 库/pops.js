@@ -3017,9 +3017,12 @@
    */
   pops.config = {
     /**
-     * 当前版本
+     * 版本号
      */
-    version: "2024.1.10",
+    version: "2024.1.14",
+    /**
+     * 弹窗CSS
+     */
     css: `@charset "utf-8";
     .pops {
       background-color: #fff;
@@ -3653,6 +3656,9 @@
     .pops-tip[data-motion=fadeInRight]{-webkit-animation-name:pops-motion-fadeInRight;animation-name:pops-motion-fadeInRight;}
 
     `,
+    /**
+     * 动画className的CSS
+     */
     animCSS: `
     .pops-anim[anim=pops-anim-spread]{animation:pops-anim-spread .3s;}
     .pops-anim[anim=pops-anim-shake]{animation:pops-anim-shake .3s;}
@@ -3953,6 +3959,9 @@
     100%{opacity:0;-webkit-transform:translateX(20px);transform:translateX(20px);-ms-transform:translateX(20px);}
     }
     `,
+    /**
+     * 通用CSS
+     */
     commonCSS: `
     .pops-flex-items-center{
       display: flex;
@@ -8794,7 +8803,7 @@
    * 右键菜单
    * @param { PopsRightClickMenuDetails } details 配置
    */
-  pops.rightClickMenu = function (details) {
+  pops.rightClickMenu = function (details = {}) {
     let that = this;
     PopsHandler.handleInit();
     /**
@@ -8808,32 +8817,48 @@
           icon: pops.config.iconSVG.search,
           iconIsLoading: false,
           text: "搜索",
-          callback(event) {
-            console.log("点击：" + this.text, event);
+          callback(clickEvent, contextMenuEvent, liElement) {
+            console.log("点击：" + this.text, [
+              clickEvent,
+              contextMenuEvent,
+              liElement,
+            ]);
           },
         },
         {
           icon: pops.config.iconSVG.documentCopy,
           iconIsLoading: false,
           text: "复制",
-          callback(event) {
-            console.log("点击：" + this.text, event);
+          callback(clickEvent, contextMenuEvent, liElement) {
+            console.log("点击：" + this.text, [
+              clickEvent,
+              contextMenuEvent,
+              liElement,
+            ]);
           },
         },
         {
           icon: pops.config.iconSVG.delete,
           text: "删除",
           iconIsLoading: false,
-          callback(event) {
-            console.log("点击：" + this.text, event);
+          callback(clickEvent, contextMenuEvent, liElement) {
+            console.log("点击：" + this.text, [
+              clickEvent,
+              contextMenuEvent,
+              liElement,
+            ]);
           },
         },
         {
           icon: pops.config.iconSVG.loading,
           iconIsLoading: true,
           text: "加载",
-          callback(event) {
-            console.log("点击：" + this.text, event);
+          callback(clickEvent, contextMenuEvent, liElement) {
+            console.log("点击：" + this.text, [
+              clickEvent,
+              contextMenuEvent,
+              liElement,
+            ]);
             return false;
           },
         },
@@ -8841,8 +8866,12 @@
           icon: pops.config.iconSVG.elemePlus,
           iconIsLoading: true,
           text: "饿了么",
-          callback(event) {
-            console.log("点击：" + this.text, event);
+          callback(clickEvent, contextMenuEvent, liElement) {
+            console.log("点击：" + this.text, [
+              clickEvent,
+              contextMenuEvent,
+              liElement,
+            ]);
             return false;
           },
           item: [
@@ -8850,25 +8879,36 @@
               icon: "",
               iconIsLoading: false,
               text: "处理文件",
-              callback(event) {
-                console.log("点击：" + this.text, event);
+              callback(clickEvent, contextMenuEvent, liElement) {
+                console.log("点击：" + this.text, [
+                  clickEvent,
+                  contextMenuEvent,
+                  liElement,
+                ]);
               },
             },
             {
               icon: "",
               iconIsLoading: false,
               text: "其它处理",
-              callback(event) {
-                console.log("点击：" + this.text, event);
-                return false;
+              callback(clickEvent, contextMenuEvent, liElement) {
+                console.log("点击：" + this.text, [
+                  clickEvent,
+                  contextMenuEvent,
+                  liElement,
+                ]);
               },
               item: [
                 {
                   icon: pops.config.iconSVG.view,
                   iconIsLoading: false,
                   text: "查看",
-                  callback(event) {
-                    console.log("点击：" + this.text, event);
+                  callback(clickEvent, contextMenuEvent, liElement) {
+                    console.log("点击：" + this.text, [
+                      clickEvent,
+                      contextMenuEvent,
+                      liElement,
+                    ]);
                   },
                 },
               ],
@@ -8941,31 +8981,46 @@
         );
       },
       /**
+       * contextmenu事件
+       * @param {PointerEvent} event
+       */
+      contextMenuEvent(event) {
+        if (config.preventDefault) {
+          PopsUtils.preventEvent(event);
+        }
+        if (PopsContextMenu.rootElement) {
+          PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+        }
+        PopsContextMenu.rootElement = PopsContextMenu.showMenu(
+          event,
+          config.data
+        );
+      },
+      /**
        * 添加contextmenu事件
        * @param {HTMLElement|globalThis|Window} target 目标
        * @param {?string} selector 子元素选择器
-       * @param {boolean} [preventDefault=true] 是否阻止默认事件触发
        */
-      addContextMenuEvent(target, selector, preventDefault = true) {
-        PopsDOMUtils.on(target, "contextmenu", selector, function (event) {
-          if (preventDefault) {
-            PopsUtils.preventEvent(event);
-          }
-          if (PopsContextMenu.rootElement) {
-            PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
-          }
-          PopsContextMenu.rootElement = PopsContextMenu.showMenu(
-            event,
-            config.data
-          );
-        });
+      addContextMenuEvent(target, selector) {
+        PopsDOMUtils.on(
+          target,
+          "contextmenu",
+          selector,
+          PopsContextMenu.contextMenuEvent
+        );
       },
       /**
        * 移除contextmenu事件
        * @param {HTMLElement|globalThis|Window} target 目标
+       * @param {?string} selector 子元素选择器
        */
       removeContextMenuEvent(target) {
-        PopsDOMUtils.off(target, "contextmenu");
+        PopsDOMUtils.off(
+          target,
+          "contextmenu",
+          string,
+          PopsContextMenu.contextMenuEvent
+        );
       },
       /**
        * 自动判断是否存在动画，存在动画就执行关闭动画并删除
@@ -9141,20 +9196,16 @@
       },
       /**
        * 显示菜单
-       * @param {{
-       * clientX: number,
-       * clientY: number,
-       * target: HTMLElement
-       * }|Event} posInfo 信息
+       * @param {PointerEvent} menuEvent 触发的事件
        * @param {PopsRightClickMenuDataDetails[]} _config_
        */
-      showMenu(posInfo, _config_) {
+      showMenu(menuEvent, _config_) {
         let menuElement = this.getMenuContainerElement(config.zIndex, false);
         menuElement.__menuData__ = {
           child: [],
         };
         PopsContextMenu.addMenuLiELement(
-          posInfo,
+          menuEvent,
           menuElement,
           menuElement,
           _config_
@@ -9167,8 +9218,8 @@
         document.body.appendChild(menuElement);
         let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(
           menuElement,
-          posInfo.clientX,
-          posInfo.clientY
+          menuEvent.clientX,
+          menuEvent.clientY
         );
         PopsDOMUtils.css(menuElement, {
           left: menuLeftOffset,
@@ -9183,16 +9234,22 @@
       },
       /**
        * 显示子菜单
+       * @param {Event} menuEvent 事件
        * @param {{
        * clientX: number,
-       * clientY: number,
-       * target: HTMLElement
-       * }|Event} posInfo 信息
+       * clientY: number
+       * }} posInfo 位置信息
        * @param {PopsRightClickMenuDataDetails[]} _config_
        * @param {?HTMLDivElement} rootElement 根菜单元素
        * @param {?HTMLLIElement} targetLiElement 父li项元素
        */
-      showClildMenu(posInfo, _config_, rootElement, targetLiElement) {
+      showClildMenu(
+        menuEvent,
+        posInfo,
+        _config_,
+        rootElement,
+        targetLiElement
+      ) {
         let menuElement = this.getMenuContainerElement(config.zIndex, true);
         menuElement.__menuData__ = {
           parent: targetLiElement,
@@ -9200,7 +9257,7 @@
         };
         rootElement.__menuData__.child.push(menuElement);
         PopsContextMenu.addMenuLiELement(
-          posInfo,
+          menuEvent,
           rootElement,
           menuElement,
           _config_
@@ -9229,16 +9286,12 @@
       },
       /**
        * 获取菜单项的元素
-       * @param {{
-       * clientX: number,
-       * clientY: number,
-       * target: HTMLElement
-       * }|Event} posInfo 信息
-       * @param {HTMLElement} rootElement
-       * @param {HTMLDivElement} menuElement
-       * @param {PopsRightClickMenuDataDetails[]} _config_
+       * @param {PointerEvent} menuEvent 事件
+       * @param {HTMLElement} rootElement 根元素
+       * @param {HTMLDivElement} menuElement 菜单元素
+       * @param {PopsRightClickMenuDataDetails[]} _config_ 配置
        */
-      addMenuLiELement(posInfo, rootElement, menuElement, _config_) {
+      addMenuLiELement(menuEvent, rootElement, menuElement, _config_) {
         let menuULElement = menuElement.querySelector("ul");
         _config_.forEach((item) => {
           /**
@@ -9306,10 +9359,10 @@
             }
             let rect = menuLiElement.getBoundingClientRect();
             let childMenu = PopsContextMenu.showClildMenu(
+              menuEvent,
               {
                 clientX: rect.left + PopsDOMUtils.outerWidth(menuLiElement),
                 clientY: rect.top,
-                target: posInfo.target,
               },
               item.item,
               rootElement,
@@ -9321,14 +9374,14 @@
           }
           /**
            * 点击事件
-           * @param {PointerEvent} event
+           * @param {PointerEvent} clickEvent
            * @returns
            */
-          async function liElementClickEvent(event) {
+          async function liElementClickEvent(clickEvent) {
             if (typeof item.callback === "function") {
               let callbackResult = await item.callback(
-                event,
-                posInfo,
+                clickEvent,
+                menuEvent,
                 menuLiElement
               );
               if (
