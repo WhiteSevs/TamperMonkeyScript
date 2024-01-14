@@ -20,9 +20,9 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1309819/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1311382/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1309760/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1309759/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1310369/DOMUtils.js
 // ==/UserScript==
 
 (function () {
