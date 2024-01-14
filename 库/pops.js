@@ -9436,7 +9436,7 @@
       config.data = details.data;
     }
     const guid = PopsUtils.getRandomGUID();
-    const PopsType = "rightClickMenu";
+    const PopsType = "searchSuggestion";
 
     const SearchSuggestion = {
       /**
