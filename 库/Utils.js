@@ -134,7 +134,7 @@
           setTimeout(() => {
               resolve(responseText + 'test');
           }, 3000);
-      });
+        });
       };
     });
 
@@ -1018,10 +1018,11 @@
    * 下载base64格式的数据
    * @param {string} base64Data	需要转换的base64数据
    * @param {string} fileName	需要保存的文件名
+   * @param {boolean|undefined} isIFrame 是否使用iframe进行下载
    * @example
    * Utils.downloadBase64("data:image/jpeg:base64/,xxxxxx");
    **/
-  Utils.downloadBase64 = function (base64Data, fileName) {
+  Utils.downloadBase64 = function (base64Data, fileName, isIFrame = false) {
     if (typeof base64Data !== "string") {
       throw new Error(
         "Utils.downloadBase64 参数 base64Data 必须为 string 类型"
@@ -1030,10 +1031,28 @@
     if (typeof fileName !== "string") {
       throw new Error("Utils.downloadBase64 参数 fileName 必须为 string 类型");
     }
-    let aLink = document.createElement("a");
-    aLink.download = fileName;
-    aLink.href = base64Data;
-    aLink.click();
+    if (isIFrame) {
+      /* 使用iframe */
+      const iframeElement = document.createElement("iframe");
+      iframeElement.style.display = "none";
+      iframeElement.src = base64Data;
+      document.body.appendChild(iframeElement);
+      setTimeout(() => {
+        iframeElement.contentWindow.document.execCommand(
+          "SaveAs",
+          true,
+          fileName
+        );
+        document.body.removeChild(iframeElement);
+      }, 100);
+    } else {
+      /* 使用A标签 */
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("target", "_blank");
+      linkElement.download = fileName;
+      linkElement.href = base64Data;
+      linkElement.click();
+    }
   };
 
   /**
@@ -1903,6 +1922,23 @@
    */
   Utils.getTextStorageSize = function (text, addType = true) {
     return Utils.formatByteToSize(Utils.getTextLength(text), addType);
+  };
+
+  /**
+   * 获取迅雷协议的Url
+   * @param {string} url Url链接或者其它信息
+   */
+  Utils.getThunderUrl = function (url) {
+    if (url == null) {
+      throw new TypeError("url不能为空");
+    }
+    if (typeof url !== "string") {
+      throw new TypeError("url必须是string类型");
+    }
+    if (url.trim() === "") {
+      throw new TypeError("url不能为空字符串或纯空格");
+    }
+    return `thunder://${globalThis.btoa("AA" + url + "ZZ")}`;
   };
 
   /**
