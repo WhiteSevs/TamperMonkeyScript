@@ -3,11 +3,12 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.7
-// @description  劫持自动跳转登录，修复用户主页正确跳转
+// @version      2024.1.15
+// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
 // @author       WhiteSevs
 // @license      MIT
-// @match        *://m.weibo.cn/*
+// @match        http*://m.weibo.cn/*
+// @match        http*://huati.weibo.cn/*
 // @run-at       document-start
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -18,7 +19,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @connect      m.weibo.cn
-// @require      https://update.greasyfork.org/scripts/455186/1309760/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1311795/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
@@ -27,6 +28,7 @@
    * @type {import("../库/Utils")}
    */
   const utils = window.Utils.noConflict();
+  const httpx = new utils.Httpx(GM_xmlhttpRequest);
   const log = new utils.Log(GM_info);
   log.config({
     debug: false,
@@ -91,6 +93,76 @@
     },
   };
 
+  /* 微博话题 */
+  const WeiBoHuaTi = {
+    initMenu() {
+      WeiBoMenu.menu.add([
+        {
+          key: "huati_weibo_masquerade_weibo_client_app",
+          text: "伪装为微博客户端",
+          enable: true,
+        },
+        {
+          key: "huati_weibo_get_more_celebrity_calendar_information",
+          text: "获取更多名人日程表信息",
+          enable: true,
+        },
+      ]);
+    },
+    /**
+     * 伪装微博
+     */
+    isWeibo() {
+      utils.waitNodeWithInterval("#loadMore", 10000).then(async () => {
+        await utils.waitVueByInterval(
+          () => {
+            return document.querySelector("#loadMore");
+          },
+          (__vue__) => {
+            return typeof __vue__.isWeibo === "boolean";
+          },
+          250,
+          10000
+        );
+        let loadMoreVue = document.querySelector("#loadMore")?.__vue__;
+        if (!loadMoreVue) {
+          log.error("未发现#loadMore上的__vue__");
+          return;
+        }
+        loadMoreVue.isWeibo = true;
+      });
+    },
+    /**
+     * 劫持请求
+     */
+    hijackNetWork() {
+      const ajaxHooker = utils.ajaxHooker();
+      ajaxHooker.hook((request) => {
+        if (request.url.startsWith("/ajax/super/starschedule?")) {
+          request.response = async (res) => {
+            let getResp = await httpx.get(request.url, {
+              headers: {
+                Host: globalThis.location.hostname,
+                Accept: "application/json, text/plain, */*",
+                "X-Requested-With": "XMLHttpRequest",
+                "sec-ch-ua-mobile": "?1",
+                "User-Agent": utils.getRandomAndroidUA() + " Weibo (__weibo__)",
+                "sec-ch-ua-platform": "Android",
+                "Sec-Fetch-Site": "same-origin",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Dest": "empty",
+                Referer: globalThis.location.href,
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+              },
+            });
+            res.response = getResp.data.response;
+            res.responseText = getResp.data.responseText;
+          };
+        }
+      });
+    },
+  };
   const WebBoHijack = {
     /**
      * 劫持Function.prototype.apply;
@@ -307,12 +379,23 @@
   /* -----------------↑函数区域↑----------------- */
 
   /* -----------------↓执行入口↓----------------- */
-
-  WeiBoMenu.initMenu();
-  WeiBoMenu.startMenuFunc();
-  WeiBoBusiness.addRemoveAdsCSS();
-  WebBoHijack.hijackNetWork();
-  WebBoHijack.hijackVueRouter();
+  if (globalThis.location.hostname === "huati.weibo.cn") {
+    WeiBoHuaTi.initMenu();
+    if (WeiBoMenu.menu.get("huati_weibo_masquerade_weibo_client_app")) {
+      WeiBoHuaTi.isWeibo();
+    }
+    if (
+      WeiBoMenu.menu.get("huati_weibo_get_more_celebrity_calendar_information")
+    ) {
+      WeiBoHuaTi.hijackNetWork();
+    }
+  } else if (globalThis.location.hostname === "m.weibo.cn") {
+    WeiBoMenu.initMenu();
+    WeiBoMenu.startMenuFunc();
+    WeiBoBusiness.addRemoveAdsCSS();
+    WebBoHijack.hijackNetWork();
+    WebBoHijack.hijackVueRouter();
+  }
 
   /* -----------------↑执行入口↑----------------- */
 })();
