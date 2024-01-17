@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.11.17
+// @version      2024.1.17
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -1170,17 +1170,28 @@
         }
         /* 判断是否是user-content内的，如果是，多图片模式 */
         let userContentElement = imgElement.closest(".user-content");
+        /* 图片链接数组 */
         let imgList = [];
+        /* 当前图片的下标 */
         let imgIndex = 0;
+        /* 图片元素数组 */
+        let imgElementList = [];
+        /* 当前的图片的链接 */
         let currentImgSrc = getImgElementSrc(imgElement);
         if (userContentElement) {
           userContentElement
             .querySelectorAll("img")
             .forEach((childImgElement) => {
+              imgElementList.push(childImgElement);
               let imgSrc = getImgElementSrc(childImgElement);
+              if (childImgElement.parentElement?.localName === "a") {
+                imgSrc =
+                  childImgElement.parentElement.getAttribute("data-href") ||
+                  childImgElement.parentElement.href;
+              }
               imgList.push(imgSrc);
             });
-          imgIndex = imgList.indexOf(currentImgSrc);
+          imgIndex = imgElementList.indexOf(imgElement);
           if (imgIndex === -1) {
             imgIndex = 0;
           }
@@ -1219,7 +1230,7 @@
         linkElement.removeAttribute("href");
         DOMUtils.on(linkElement, "click", undefined, function (event) {
           Qmsg.warning(
-            `拦截跳转：<a href="${url}" target="_blank">${url}</a>`,
+            `<div style="overflow-wrap: anywhere;">拦截跳转：<a href="${url}" target="_blank">${url}</a></div>`,
             {
               html: true,
               timeout: 5000,
