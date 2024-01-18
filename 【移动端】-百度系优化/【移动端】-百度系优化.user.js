@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.11
+// @version      2024.1.18
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -4579,8 +4579,8 @@
           let respData = getResp.data;
           return utils.toJSON(respData.responseText);
         },
-        run() {
-          this.setSuggestionCSS();
+        init() {
+          this.initCSS();
           utils.waitNode("div.more-btn-desc").then((element) => {
             element.outerHTML = `
               <input type="search" id="tieba-search" placeholder="请输入搜索内容..." style="display: none;padding: 0 10px;height: 32px;line-height: 32px;font-size: 14px;border-radius: 5px;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;-o-appearance: none;appearance: none;border: 1px solid #000000;outline: none;flex: 1;margin: 0px 40px;" autocomplete="off">
@@ -4677,33 +4677,37 @@
             });
           });
         },
-        setSuggestionCSS() {
+        /**
+         * 初始化CSS
+         */
+        initCSS() {
+          /* 搜索建议框的CSS */
           GM_addStyle(`
-              .WhiteSevsSearchSelect .forum_item{
-                display: flex;
-                text-wrap: wrap;
-                align-items: center;
-              }
-              .WhiteSevsSearchSelect .forum_image{
-                float: left;
-                width: 32px;
-                height: 32px;
-              }
-              .WhiteSevsSearchSelect .forum_right{
-                float: left;
-                margin-left: 8px;
-                color: #999;
-                width: 88%;
-              }
-              .WhiteSevsSearchSelect .forum_name{
-                color: #000;
-                font-size: 14px;
-                font-weight: 700;
-              }
-              .WhiteSevsSearchSelect .forum_name::after{
-                content:"吧";
-              }
-              `);
+          .WhiteSevsSearchSelect .forum_item{
+            display: flex;
+            text-wrap: wrap;
+            align-items: center;
+          }
+          .WhiteSevsSearchSelect .forum_image{
+            float: left;
+            width: 32px;
+            height: 32px;
+          }
+          .WhiteSevsSearchSelect .forum_right{
+            float: left;
+            margin-left: 8px;
+            color: #999;
+            width: 88%;
+          }
+          .WhiteSevsSearchSelect .forum_name{
+            color: #000;
+            font-size: 14px;
+            font-weight: 700;
+          }
+          .WhiteSevsSearchSelect .forum_name::after{
+            content:"吧";
+          }
+          `);
         },
         /**
          * 帖子外搜索(也就是首页搜索吧)
@@ -4747,6 +4751,10 @@
            */
           let searchType = 0;
           /**
+           * 当前搜索的内容
+           */
+          let currentSearchText = "";
+          /**
            * 获取搜索结果
            * @param {string} [qw=""] 搜索的关键字
            * @param {number} [pn=0] 当前页码
@@ -4758,6 +4766,7 @@
            * @returns {Promise}
            */
           async function getSearchResult(qw = "", pn = 0, sm = 1, kw = "") {
+            currentSearchText = qw;
             if (sm === 3) {
               sm = "1&only_thread=1";
             }
@@ -4839,77 +4848,245 @@
                   "https://tieba.baidu.com/home/main?un=" +
                   gbkEncoder.encode(author);
                 let time = item.querySelector(".p_date").textContent;
-                result = [
-                  ...result,
-                  {
-                    url: url,
-                    title: title,
-                    content: content,
-                    forum: forum,
-                    author: author,
-                    authorHomeUrl: authorHomeUrl,
-                    time: time,
-                  },
-                ];
+                let imgList = [];
+                item
+                  .querySelectorAll("img.p_pic")
+                  .forEach((pictureImg) =>
+                    imgList.push(
+                      pictureImg.getAttribute("original") || pictureImg.src
+                    )
+                  );
+                result.push({
+                  url: url,
+                  title: title,
+                  content: content,
+                  forum: forum,
+                  author: author,
+                  authorHomeUrl: authorHomeUrl,
+                  time: time,
+                  media: imgList,
+                });
               });
             return result;
           }
-          function getItemHTML(item) {
-            return `
-                    <div class="s_post">
-                      <span class="p_title">
-                        <a href="${item["url"]}" target="_blank">${item["title"]}</a>
-                      </span>
-                      <div class="p_content">${item["content"]}</div>
-                      <div>
-                        <a class="p_forum" href="https://tieba.baidu.com/f?kw=${item["forum"]}" target="_blank">
-                          <font class="p_violet">${item["forum"]}</font>
-                        </a>
-                      </div>
-                      <div>
-                        <a class="p_author" href="${item["authorHomeUrl"]}" target="_blank">
-                          <font class="p_violet">${item["author"]}</font>
-                        </a>
-                      </div>
-                      <div>
-                        <font class="p_date">${item["time"]}</font>
-                      </div>
-                    </div>`;
+          function getItemElement(item) {
+            let time = item["time"];
+            let newTime = utils.getDaysDifference(
+              utils.formatToTimeStamp(time),
+              undefined,
+              "auto"
+            );
+            if (
+              newTime.endsWith("小时") ||
+              newTime.endsWith("分钟") ||
+              newTime.endsWith("秒")
+            ) {
+              /* 今天内的时间全都转换成xx时|分|秒前 */
+              time = newTime + "前";
+            }
+            if (searchModel === 3) {
+              /* 只看主题贴时，高亮搜索关键字 */
+              item["title"] = item["title"].replaceAll(
+                currentSearchText,
+                "<em>" + currentSearchText + "</em>"
+              );
+            }
+            let resultElement = DOMUtils.createElement("div", {
+              className: "s_post search_result",
+              innerHTML: `
+              <div class="search-result-media">
+                <div class="search-result-media-left">
+                  <img src="data:image/png;base64,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">
+                </div>
+                <div class="search-result-media-body">
+                  <h4 class="search-result-media-body-author-name">${item["author"]}</h4>
+                  <p class="search-result-media-body-time">${time}</p>
+                </div>
+              </div>
+              <div class="search-result-title">
+                <h1 class="search-result-title-h1">
+                  <span class="search-result-title-span">${item["title"]}</span>
+                </h1>
+              </div>
+              <div class="search-result-content">
+                <span class="search-result-content-span">${item["content"]}</span>
+              </div>
+              <div class="search-result-bottom-toolbar">
+                  <span class="search-result-bottom-toolbar-span">${item["forum"]}</span>
+              </div>
+              `,
+            });
+            let userAvatarElement = resultElement.querySelector(
+              ".search-result-media-left img"
+            );
+            let userNameElement = resultElement.querySelector(
+              ".search-result-media-body-author-name"
+            );
+            let mediaElement = resultElement.querySelector(
+              ".search-result-media"
+            );
+            let titleElement = resultElement.querySelector(
+              ".search-result-title"
+            );
+            let contentElement = resultElement.querySelector(
+              ".search-result-content"
+            );
+            let contentSpanElement = resultElement.querySelector(
+              ".search-result-content-span"
+            );
+            let bottomToolbarElement = resultElement.querySelector(
+              ".search-result-bottom-toolbar"
+            );
+            /* 获取用户信息，替换用户头像 */
+            tiebaApi
+              .getUserHomeInfoByUN(item["author"])
+              .then((userHomeInfo) => {
+                if (!userHomeInfo) {
+                  return;
+                }
+                userAvatarElement.src = tiebaApi.getUserAvatar(
+                  userHomeInfo["data"]["portrait"]
+                );
+                userNameElement.innerText =
+                  userHomeInfo["data"]["show_nickname"];
+              });
+
+            [
+              { element: mediaElement, url: item["authorHomeUrl"] },
+              { element: [titleElement, contentElement], url: item["url"] },
+              {
+                element: bottomToolbarElement,
+                url: `https://tieba.baidu.com/f?kw=${item["forum"]}`,
+              },
+            ].forEach((item) => {
+              DOMUtils.on(
+                item.element,
+                "click",
+                undefined,
+                function (event) {
+                  utils.preventEvent(event);
+                  globalThis.open(item.url, "_blank");
+                },
+                {
+                  capture: true,
+                }
+              );
+            });
+
+            let content_BDE_Image = resultElement.querySelectorAll(
+              ".search-result-content img.BDE_Image"
+            );
+            let repetitiveImageList = [];
+            content_BDE_Image.forEach((BDE_Image) => {
+              let originalImageIndex = item["media"].findIndex((src) => {
+                return src.includes(BDE_Image.src);
+              });
+              if (originalImageIndex !== -1) {
+                let originalImage = item["media"][originalImageIndex];
+                BDE_Image.src = originalImage;
+                repetitiveImageList.push(originalImage);
+                item["media"].splice(originalImageIndex, 1);
+              }
+            });
+            item["media"].forEach((mediaSrc) => {
+              DOMUtils.append(
+                contentSpanElement,
+                DOMUtils.createElement("img", {
+                  className: "BDE_Image",
+                  src: mediaSrc,
+                })
+              );
+            });
+            return resultElement;
           }
           function setCSS() {
+            GM_addStyle(`
+            .search-result-content img.BDE_Smiley{
+              width: .2rem;
+              height: .2rem;
+              vertical-align: middle;
+            }
+            .search-result-content img:not(.BDE_Smiley){
+              margin-top: 8px;
+              max-width: 350px;
+              cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
+              height: auto;
+              width: auto;
+              width: 100%;
+            }
+            .s_post.search_result {
+              background: #f7f7fa;
+              margin: 0.08rem .08rem;
+              border-radius: .12rem;
+              padding: .11rem .11rem;
+            }
+            `);
             GM_addStyle(`
             .s_post,
             .s_order,
             .s_search {
               margin: 25px;
             }
-            .s_post .p_title{
-                
-            }
-            .s_post .p_content{
-              overflow-wrap: break-word;
-            }
             .s_post em{
               color: #e10900;
               font-style: normal;
             }
-            .s_post a.p_forum::before{
-              content:"贴吧：";
-              color: #000000;
+
+
+            .search-result-media {
+              display: flex;
+              align-items: center;
             }
-            .s_post a.p_author::before{
-              content:"作者：";
-              color: #000000;
+            
+            .search-result-media-left {
+              padding-right: .08rem;
             }
-            .s_post font.p_date::before{
-              content:"时间：";
-              color: #000000;
+            
+            .search-result-media-left img {
+              width: .35rem;
+              height: .35rem;
+              border-radius: 50%;
             }
-            .s_post font.p_date{
-                color: green;
+            
+            .search-result-media-body-author-name {
+              margin-top: .02rem;
+              color: #272829;
+              font-weight: 400;
+              font-size: .16rem;
+              line-height: .15rem;
             }
-            .s_order a{
-              color: -webkit-link;
+            
+            .search-result-media-body-time {
+              margin-top: .06rem;
+              color: #a2a6a8;
+              font-size: .12rem;
+              line-height: .12rem;
+            }
+            
+            h1.search-result-title-h1 {
+              font-size: 0.16rem;
+            }
+            .search-result-content {
+              min-height: 66px;
+            }
+            span.search-result-content-span {
+              color: #141414;
+              text-overflow: ellipsis;
+              display: inline;
+              word-break: break-all;
+            }
+            
+            .search-result-title ,
+            .search-result-content,
+            .search-result-bottom-toolbar{
+              margin-top: 0.08rem;
+            }
+            
+            span.search-result-bottom-toolbar-span {
+              color: #b7b9c1;
+            }
+            span.search-result-bottom-toolbar-span::before{
+              content:"贴吧："   
             }
             `);
           }
@@ -5024,11 +5201,13 @@
               }
               log.success("当前搜索的范围吧：" + tiebaData.forumName);
             }
+            /* 搜索的吧，留空是全吧搜索 */
+            let searchKW = searchType === 1 ? "" : tiebaData.forumName;
             let searchResult = await getSearchResult(
               searchText,
               undefined,
               searchModel,
-              tiebaData.forumName
+              searchKW
             );
             tiebaCommentConfig.removeScrollListener();
             if (!searchResult) {
@@ -5069,15 +5248,14 @@
               <a>按相关性顺序</a>
               <span class="split_line">|</span>
               <a>只看主题贴</a>
-              <span class="split_line">|</span>
               `,
             });
             setCurrentOrderHTML(searchElement, orderElement);
             DOMUtils.append(contentElement, searchElement);
             DOMUtils.append(contentElement, orderElement);
-            searchResult.forEach((item) => {
-              DOMUtils.append(contentElement, getItemHTML(item));
-            });
+            for (const searchResultItem of searchResult) {
+              DOMUtils.append(contentElement, getItemElement(searchResultItem));
+            }
             loadingView.hide();
             if (nextPageUrl) {
               addScrollListener();
@@ -5131,9 +5309,9 @@
               return;
             }
             log.success(searchResult);
-            searchResult.forEach((item) => {
-              DOMUtils.append(contentElement, getItemHTML(item));
-            });
+            for (const searchResultItem of searchResult) {
+              DOMUtils.append(contentElement, getItemElement(searchResultItem));
+            }
             loadingView.hide();
             if (!nextPageUrl) {
               removeScrollListener();
@@ -6006,6 +6184,43 @@
         },
       };
 
+      /**
+       * 贴吧api
+       * + https://www.52fisher.cn/93.html
+       */
+      const tiebaApi = {
+        /**
+         * 根据un获取个人主页信息
+         * @param {string} un
+         */
+        async getUserHomeInfoByUN(un) {
+          let getResp = await httpx.get(
+            `https://tieba.baidu.com/home/get/panel?ie=utf-8&un=${un}`,
+            {
+              headers: {
+                "User-Agent": utils.getRandomPCUA(),
+                Host: "tieba.baidu.com",
+                Referer: "https://tieba.baidu.com/",
+              },
+            }
+          );
+          if (!getResp.status) {
+            return;
+          }
+          let data = utils.toJSON(getResp.data.responseText);
+          if (data["no"] !== 0) {
+            return;
+          }
+          return data;
+        },
+        /**
+         * 根据portrait获取用户头像
+         */
+        getUserAvatar(portrait) {
+          let authorImgId = "6LZ1dD3d1sgCo2Kml5_Y_D3";
+          return `https://gss0.bdstatic.com/${authorImgId}/sys/portrait/item/${portrait}`;
+        },
+      };
       if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
         tiebaBusiness.clientCallMasquerade();
       }
@@ -6063,7 +6278,7 @@
         }
       }
       if (PopsPanel.getValue("baidu_tieba_add_search")) {
-        tiebaSearchConfig.run();
+        tiebaSearchConfig.init();
       }
       DOMUtils.ready(function () {
         if (PopsPanel.getValue("baidu_tieba_checkSkeleton")) {
