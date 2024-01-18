@@ -20,8 +20,8 @@
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/456485/1311382/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1311795/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1310369/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1313624/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1313623/DOMUtils.js
 // ==/UserScript==
 
 (function () {
