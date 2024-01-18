@@ -24,7 +24,7 @@
   /**
    * @type {string} 元素工具类的版本
    */
-  DOMUtils.version = "2024-1-12";
+  DOMUtils.version = "2024-1-18";
 
   let CommonUtils = {
     /**
@@ -701,26 +701,26 @@
 
   /**
    * 移除元素
-   * @param {HTMLElement|string|NodeList} element 目标元素
+   * @param {HTMLElement|string|NodeList|Element[]} target 目标元素
    * @example
    * // 元素a.xx前面添加一个元素
    * DOMUtils.remove(document.querySelector("a.xx"))
    * DOMUtils.remove(document.querySelectorAll("a.xx"))
    * DOMUtils.remove("a.xx")
    * */
-  DOMUtils.remove = function (element) {
-    if (typeof element === "string") {
-      element = document.querySelectorAll(element);
+  DOMUtils.remove = function (target) {
+    if (typeof target === "string") {
+      target = document.querySelectorAll(target);
     }
-    if (element == void 0) {
+    if (target == void 0) {
       return;
     }
-    if (element instanceof NodeList || element instanceof Array) {
-      element.forEach(function (item) {
-        DOMUtils.remove(item);
-      });
+    if (target instanceof NodeList || target instanceof Array) {
+      for (const element of target) {
+        DOMUtils.remove(element);
+      }
     } else {
-      element.remove();
+      target.remove();
     }
   };
   /**
@@ -1685,38 +1685,52 @@
 
   /**
    * 显示元素
-   * @param {HTMLElement|string} element 当前元素
+   * @param {HTMLElement|string|NodeList|Element[]} target 当前元素
    * @example
    * // 显示a.xx元素
    * DOMUtils.show(document.querySelector("a.xx"))
+   * DOMUtils.show(document.querySelectorAll("a.xx"))
    * DOMUtils.show("a.xx")
    */
-  DOMUtils.show = function (element) {
-    if (element == void 0) {
+  DOMUtils.show = function (target) {
+    if (target == void 0) {
       return;
     }
-    if (typeof element === "string") {
-      element = document.querySelector(element);
+    if (typeof target === "string") {
+      target = document.querySelectorAll(target);
     }
-    element.style.display = "";
+    if (target instanceof NodeList || target instanceof Array) {
+      for (const element of target) {
+        DOMUtils.show(element);
+      }
+    } else {
+      target.style.display = "";
+    }
   };
 
   /**
    * 隐藏元素
-   * @param {HTMLElement|string} element 当前元素
+   * @param {HTMLElement|string|NodeList|Element[]} target 当前元素
    * @example
    * // 隐藏a.xx元素
    * DOMUtils.hide(document.querySelector("a.xx"))
+   * DOMUtils.hide(document.querySelectorAll("a.xx"))
    * DOMUtils.hide("a.xx")
    */
-  DOMUtils.hide = function (element) {
-    if (element == void 0) {
+  DOMUtils.hide = function (target) {
+    if (target == void 0) {
       return;
     }
-    if (typeof element === "string") {
-      element = document.querySelector(element);
+    if (typeof target === "string") {
+      target = document.querySelectorAll(target);
     }
-    element.style.display = "none";
+    if (target instanceof NodeList || target instanceof Array) {
+      for (const element of target) {
+        DOMUtils.hide(element);
+      }
+    } else {
+      target.style.display = "none";
+    }
   };
 
   /**
