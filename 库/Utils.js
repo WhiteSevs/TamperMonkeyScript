@@ -24,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2024-1-11";
+  Utils.version = "2024-1-18";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -1532,8 +1532,8 @@
    * 获取天数差异，如何获取某个时间与另一个时间相差的天数
    * @param {number} [timestamp1= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
    * @param {number} [timestamp2= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
-   * @param {"年"|"月"|"天"|"时"|"分"|"秒"|"auto"} [type= "天"] 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
-   * @returns {number}
+   * @param {"年"|"月"|"天"|"时"|"分"|"秒"|"auto"} [type = "天"] 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
+   * @returns {number|string}
    * @example
    * Utils.getDaysDifference(new Date().getTime());
    * > 0
