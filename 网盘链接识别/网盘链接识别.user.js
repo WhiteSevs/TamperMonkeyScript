@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAACsJJREFUeF7tXW+IHdUVP2c2u8kHIQYL0TRIaK1SgrFFaZsvVkpAo6YR1LJpa9jUd++83SUpSrUNBFRCrVgxNOv+mTOvJBBNmtpamoQG9UNBKLHFDzEtFttKBdOYQENE/Lb75vZd2cVNum/uvXNnZt/MnoGQD+/c8+d3fu+c+2f2PgR+ljQCuKSj5+CBCbDEScAEYAIscQSWePhcAZgASxyBJR4+VwAmQHEIjIyM3DAzM/M1pdSXEfEWALgVANbkaPE0ABwhomdz1GmtSgixHxF3Wg8wC55HxPeVUu8DgP7/jRUrVvxpbGzsY/PQbBK5VwCd9Ha7vVkptRkA9L8yHiKisAxDczaklL8GgAfLsImIryql3gSAqBPnh3nazI0AjUZjbRAEjwLAI3k6aKtLKbUjjuODtvI+cs1m894kSY776Mg49hwAxHkSIRcCSCl10nXy12YMLI9hrxDR/XkoMukQQrQQ8WGTXIGfn0PEZ6IoGvO14U0AKeUJALjH15Ecxr9ARHn2464uCSEOI+K2HHz2VXGUiAZ9lHgRQEp5BgBu9nEgr7FBEGyZmprSZCz8EUIMIuKRwg3ZGfiAiK63E/1/qcwEkFJ+BAArsxrOedzLRPSdnHWmqgvD8EBntj5Ups0UWxeI6NosvmQigBDibUTckMVgAWNKXwHMxSClfBwAtgPA+gLiclX5GhHd6TrImQBhGO5RSu11MHQREY8nSXICEf/R399/bnx8/KLD+CUl2plf3BgEwa1JktyOiN8HgKscAHCuhE4EaDabQ0mSHLBxSCml5weHlFKHWq3WBZsxLHM5AlLKLwLAQwCwCwBWWeLzKBHts5S1fx9ASnkdALxluZPXIiJh6wTLpSMwPDx8U7vd/iEADFtgdTZJko2tVuushawTAZ4EgCdMSpVSW+M4PmaS48/dEZBSWuWgMznfR0R6X8b4WLUA228/Ig5GUXTUaJUFMiMghNiEiK+bFCxbtuxLExMT/zLJ2RLAhnmTRDRiMsif+yMQhuFupdTTaZoQcZfNTqEVAYQQf0TEO1IMXurr69s4OTn5rn94rMEGAYul+Ekiutuky0iAoaGhqwcGBi4ZFD1FRLpK8FMSAkKIHyHiz9PM2bQBIwGklPcBwO9SDH0CAF8hovdKip3NAECj0VgdBMHf05aHSqntcRwfSm0VJjSllD8DgJ90k1NKTcVxbLM8MZnizx0RkFL+BgC6noAi4nNRFD3mSwB96NH1xKnMc3hHfGovbnEoZdweNraAMAxPKaW+0Q1NRFwfRdE7tUe7BwOUUuqTWL3j2u0xHhIZCSCl1K8gdT1pIiKjjh7ErhYujY6OXjM9Pf3ftGBM+TEmT0qpfAzUAukeDsI3P0yAHk6ujWtMABuUaizDBKhxcm1CYwLYoFRjGSZAjZNrExoTwAalGsswAWqcXJvQmAA2KNVYhglQ4+TahMYEsEGpxjK1IYCU8vcAcJvlW8dVTqn+C9+3iGhrHkHUggCmIPIAqhd1mA5qbHw2YWeysehnAWVetGADaMkyzn/Jc6V/dSDAeQBYXTLwvWLOeF5vcrQOBEg9bjYBUPXPTSXaFB8TwIRQj3/OBDC8cNLj+fN2r+oEOE1EX/VBwVTCfHRXYWzBBDDmx7gKMNyF92PfO/pMBPAFKO9Zsyupio7PNz9GAuiAuyzVcrmZo2iA6k4A3/xYEUAb0Xfjtdvt+xBxlVLqeF538jEB8nmrOmt+rAngWvps5ZkA+RDAFu8r5XqBAP9J2f8/R0SfzxrcQuMWgXClxueKVS8QQB8CfbuL48fyOjSZ078IBCg1vsoRYHYSs+BuYN4rgDRbc8CVabMIW5UkwLyZ7O2zAbxR1MWPZVeAeZVH3y5eeHyVJYCr41nlF4sAWf0tetyizwGKDnCx9wHKjs/VHhPgCsR6oS+7JtFHngnABPDhT/XG8hzg8pxxBeAKUL1vsY/HXAG4AvCNJ/M4wC2AW4BPQa3eWG4B3AK4BXAL6F65eCOoelXdyWNuAdwCuAVwC+AWMIcALwN5GejUQisvzHMAngPwHIDnADwH4DlAFw7wPkDlu3x6ADwHyDgHCMPwLqXUJgCYDoLgpampqb9VkSt1JUDW/FgtA6WUvwSAH1yR8Bc7vxSmf9i4Uk8dCeCTHyMBDL8a9j0iOlwlBtSNAL75sSGA/v1Z/TPmCz3/JqIvMAEWDwEppVd+bAhQq3VzDSuAV36YABXfCvYlNBOACbC01s2+35jF6/YLW/aNhysAVwCuAPMRqNpWMFcAx5rsC5ijucLFfePhFsAtgFsAt4AUDviWmMJroKMBjsfxNJABc2RYyeK++VmKc4CevrfPlT9MAEfEZn+cqrR7CR3dcxZnAjhD9unl16XdS5jBPachTAAnuD4Tnr0Bvefu7XMNhwngiljN5JkANUuoazhMAFfEaia/6ATo7+//3Pj4+MWa4VqZcAwEOE9E16UFY7MPkLZu1ro3ENFfK4NYjRwVQtyIiO92CwkR34yiaKMvAY4BwJZuSpRSD8Rx/Nsa4VqZUMIw3KaUSnsr+1dEtM2LAEKIvYi4J4VlB6Mo2lEZ1GrkqBBiEhGbKSE9Q0S7vQggpfwuALyUouRikiTrW63WhRph2/OhSCn1q/qnAeCqlOp8dxzHJ70IMDIycsPMzMw/05QopR6L4/i5nketRg5KKZ8EgCfSQlq+fPnKsbGxj70IoAdLKf8AAJtTmHYmjuNbaoRvT4cyPDx8U7vdPgUAq1Ja86tRFN1lCsS4CtAKwjDcqZTab1DWIiJhMsif+yMgpZwAgGGDpqeISFeJ1MeKADZtQFtRSm2N41ivGvgpCAGb0t8p2ucA4DYi+tDkhhUBZtvA8wDwiFEh4mAURUdNcvy5OwJCiE2I+LrFSKtvv9ZjTYBGo7E2CALdd9ZaODDZ19f3i8nJya6bFBY6WGQeAmEY7lZKPW0BivW334kAs1VAVwBdCWyeSwCg5w2HOvcIvGczgGUuR6DRaKxGRH0Hw0OIuMEGH0TcFUXRmI2sMwFmSXACAO6xNQAAnyilXuysIv4cBMFfoih6x2HskhIdHR29Znp6eo1Saj0iPgAA30qb6S8AzlEiGnQBzboFzFcqpTwDADe7GCpIVm+EHCGiZwvSn6pWCLEfEXcuhu0FbH5ARNe7+pKJALOV4CMAWOlqsCB56sx4w4J0L6h29o2iB8u0mWLrAhFdm8WXzATQxoQQb9v2pizOuYxRSu2I4/igy5isss1m894kSY5nHZ/zuNeI6M6sOr0IoI2GYbhHKbU3qwM5jnulcyx9f476uqoSQrQQ8eEybBlsvOz7G8veBNAONpvNoSRJfgoAaxYRlBeIqJR+3DmHP9w5h089Zi0Yh7N6NUZE+3zt5EKA2TmBfvNE92G9HVw6EYIg2DI1NaVXKIU/QohBRDxSuKGFDexLkuT5VqulSeD95EaAOU+klJ8SQSn1TUS8w9tDOwXepdDOzGdSYRgeUEoNuY7LKH8SEU/29fWdnJiY0LeC5fbkToD5ng0NDV09MDCgSfB1AFiHiOuUUusAINOMtUvUpa8A5pH9cQDYDgDrc8sIgH6vQk+uzyRJcqa/v/9U3kmf72uhBMgRFFZVEAJMgIKArYpaJkBVMlWQn0yAgoCtilomQFUyVZCfTICCgK2KWiZAVTJVkJ9MgIKArYra/wGYigzMiqJYZwAAAABJRU5ErkJggg==
-// @version      2024.1.15
+// @version      2024.1.19
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -221,7 +221,7 @@
           /**
            * shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
            */
-          shareCodeNotMatch: /^(ajax|file|undefined|1125)/gi,
+          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved)/gi,
           shareCodeNeedRemoveStr: /lanzou[a-z]{0,1}.com\/(tp\/|u\/|)/gi,
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{3,})/gi,
@@ -251,10 +251,7 @@
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /lanzn.com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
-          /**
-           * shareCode参数中不可能存在的链接，如果shareCode存在这些，那就拒绝匹配
-           */
-          shareCodeNotMatch: /^(ajax|file|undefined|1125)/gi,
+          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved)/gi,
           shareCodeNeedRemoveStr: /lanzn.com\/(tp\/|u\/|)/gi,
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{3,})/gi,
@@ -270,6 +267,36 @@
             "lanzou-host-name",
             NetDiskData.lanzou_defaultHostName
           )}/{#shareCode#}\n密码：{#accessCode#}`,
+        },
+        {
+          link_innerText: `lanzou[a-z]{0,1}.com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
+            GM_getValue("innerText_lanzou", 20)
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_text_lanzou", 10)
+          )}}[a-zA-Z0-9]{3,6}|)`,
+          link_innerHTML: `lanzou[a-z]{0,1}.com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
+            GM_getValue("innerHTML_lanzou", 100)
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+            GM_getValue("accessCode_after_html_lanzou", 15)
+          )}}[a-zA-Z0-9]{3,6}|)`,
+          shareCode:
+            /lanzou[a-z]{0,1}.com\/s\/([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
+          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved)/gi,
+          shareCodeNeedRemoveStr: /lanzou[a-z]{0,1}.com\/s\//gi,
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          accessCode: /([0-9a-zA-Z]{3,})/gi,
+          uiLinkShow: `${GM_getValue(
+            "lanzou-host-name",
+            NetDiskData.lanzou_defaultHostName
+          )}/s/{#shareCode#} 提取码: {#accessCode#}`,
+          blank: `https://${GM_getValue(
+            "lanzou-host-name",
+            NetDiskData.lanzou_defaultHostName
+          )}/s/{#shareCode#}`,
+          copyUrl: `https://${GM_getValue(
+            "lanzou-host-name",
+            NetDiskData.lanzou_defaultHostName
+          )}/s/{#shareCode#}\n密码：{#accessCode#}`,
         },
       ],
       tianyiyun: [
@@ -940,9 +967,13 @@
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
+              let decodeUrl = window.location.href;
+              try {
+                decodeUrl = decodeURIComponent(decodeUrl);
+              } catch (error) {}
               NetDiskWorker.postMessage({
                 regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
-                pageText: decodeURIComponent(window.location.href),
+                pageText: decodeUrl,
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
@@ -994,12 +1025,15 @@
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
+              try {
+                decodeUrl = decodeURIComponent(decodeUrl);
+              } catch (error) {}
               NetDiskWorker.postMessage({
                 regexp: new RegExp(
                   netDiskListItem[`link_${matchTextRange}`],
                   "gi"
                 ),
-                pageText: decodeURIComponent(window.location.href),
+                pageText: decodeUrl,
                 netDiskName: netDiskName,
                 netDiskIndex: index,
               });
@@ -1356,7 +1390,10 @@
           "lanzou-host-name",
           NetDiskData.lanzou_defaultHostName
         );
-        this.handleUrl = {
+        /**
+         * 路由
+         */
+        this.router = {
           default(pathName = "") {
             if (pathName.startsWith("/")) {
               pathName = pathName.replace(/^\//, "");
@@ -1368,6 +1405,12 @@
               pathName = pathName.replace(/^\//, "");
             }
             return `https://${LanZouHostName}/tp/${pathName}`;
+          },
+          s(pathName = "") {
+            if (pathName.startsWith("/")) {
+              pathName = pathName.replace(/^\//, "");
+            }
+            return `https://${LanZouHostName}/s/${pathName}`;
           },
         };
         this.regexp = {
@@ -1465,7 +1508,11 @@
           that.regexp.unicode.isUnicode = Boolean(
             that.shareCode.match(that.regexp.unicode.match)
           );
-          await that.getFileLink();
+          if (netDiskIndex === 2) {
+            await that.getMoreFile(that.router.s(that.shareCode));
+          } else {
+            await that.getFileLink();
+          }
         };
         /**
          * 获取文件链接
@@ -1473,14 +1520,14 @@
          * @returns
          */
         this.getFileLink = async function (getShareCodeByPageAgain = false) {
-          let url = that.handleUrl.default(that.shareCode);
+          let url = that.router.default(that.shareCode);
           log.info("蓝奏云-获取文件下载链接" + url);
           let getResp = await httpx.get({
             url: url,
             headers: {
               Accept: "*/*",
               "User-Agent": utils.getRandomPCUA(),
-              Referer: that.handleUrl.default(that.shareCode),
+              Referer: url,
             },
             onerror() {},
           });
@@ -1685,13 +1732,13 @@
               log.info("传入参数=>无密码");
             }
             let postResp = await httpx.post({
-              url: that.handleUrl.default("ajaxm.php"),
+              url: that.router.default("ajaxm.php"),
               responseType: "json",
               headers: {
                 "Content-Type":
                   "application/x-www-form-urlencoded; charset=UTF-8",
                 "User-Agent": utils.getRandomAndroidUA(),
-                Referer: that.handleUrl.default(that.shareCode),
+                Referer: that.router.default(that.shareCode),
               },
               data: `action=downprocess&sign=${postData_sign}&p=${postData_p}`,
             });
@@ -1814,14 +1861,14 @@
          */
         this.getLinkByIframe = async function (urlPathName, fileInfo) {
           log.info([urlPathName, fileInfo]);
-          let iFrameUrl = that.handleUrl.default(urlPathName);
+          let iFrameUrl = that.router.default(urlPathName);
           let getResp = await httpx.get({
             url: iFrameUrl,
             headers: {
               Accept:
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
               "User-Agent": utils.getRandomPCUA(),
-              Referer: that.handleUrl.default(that.shareCode),
+              Referer: that.router.default(that.shareCode),
             },
           });
           if (!getResp.status) {
@@ -1863,11 +1910,11 @@
           let postData = `action=downprocess&signs=${ajaxdata}&sign=${sign}&websign=${ciucjdsdc}&ves=1&websignkey=${aihidcms}`;
           log.success("ajaxm.php的请求参数-> " + postData);
           let postResp = await httpx.post({
-            url: that.handleUrl.default("ajaxm.php"),
+            url: that.router.default("ajaxm.php"),
             headers: {
               Accept: "application/json, text/javascript, */*",
               "Content-Type": "application/x-www-form-urlencoded",
-              Referer: that.handleUrl.default(that.shareCode),
+              Referer: that.router.default(that.shareCode),
               "User-Agent": utils.getRandomPCUA(),
             },
             data: postData,
@@ -1910,14 +1957,18 @@
         };
         /**
          * 多文件获取
+         * @param {string} url 链接
          */
-        this.getMoreFile = async function () {
+        this.getMoreFile = async function (url) {
+          if (url == null) {
+            url = that.router.default(that.shareCode);
+          }
           let getResp = await httpx.get({
-            url: that.handleUrl.default(that.shareCode),
+            url: url,
             headers: {
               Accept: "*/*",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: that.handleUrl.default(that.shareCode),
+              Referer: url,
             },
           });
           if (!getResp.status) {
@@ -1943,13 +1994,13 @@
           let postData = `lx=${lx}&fid=${fid}&uid=${uid}&pg=${pgs}&rep=0&t=${t}&k=${k}&up=1&ls=1&pwd=${that.accessCode}`;
           log.info(`多文件请求参数：${postData}`);
           let postResp = await httpx.post({
-            url: that.handleUrl.default("filemoreajax.php"),
+            url: that.router.default("filemoreajax.php"),
             responseType: "json",
             headers: {
               "Content-Type":
                 "application/x-www-form-urlencoded; charset=UTF-8",
               "User-Agent": utils.getRandomAndroidUA(),
-              Referer: that.handleUrl.default(that.shareCode),
+              Referer: url,
             },
             data: postData,
           });
@@ -2055,11 +2106,11 @@
         ) {
           /* 根据获取到的json中多文件链接来获取单文件直链 */
           let getResp = await httpx.get({
-            url: that.handleUrl.default(paramShareCode),
+            url: that.router.default(paramShareCode),
             headers: {
               Accept: "*/*",
               "User-Agent": utils.getRandomPCUA(),
-              Referer: that.handleUrl.default(that.shareCode),
+              Referer: that.router.default(that.shareCode),
             },
           });
           log.info(getResp);
