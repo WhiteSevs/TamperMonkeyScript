@@ -153,6 +153,9 @@
      * 当没有accessCode时，使用该正则去除不需要的字符串
      */
     noAccessCodeRegExp: /( |提取码:|{#accessCode#}|\?pwd=)/gi,
+    /**
+     * @type {NetDiskRegular}
+     */
     regular: {
       baidu: [
         {
