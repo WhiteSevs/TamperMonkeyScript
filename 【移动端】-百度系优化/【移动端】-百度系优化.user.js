@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.18.23
+// @version      2024.1.21
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1025,6 +1025,9 @@
       }
 
       const handleItemURL = {
+        /**
+         * @type {UtilsDictionaryonstructor}
+         */
         originURLMap: null,
         /**
          * 判断链接是否是百度的中转链接
@@ -1034,8 +1037,13 @@
          * + false 不是百度的中转链接
          */
         isBaiDuTransferStation(url) {
-          url = decodeURIComponent(url);
-          return url.startsWith("https://m.baidu.com/from");
+          try {
+            url = decodeURIComponent(url);
+            return url.startsWith("https://m.baidu.com/from");
+          } catch (error) {
+            log.error(error);
+            return false;
+          }
         },
         /**
          * 判断链接是否是黑名单链接，不进行处理
@@ -1049,15 +1057,12 @@
             new RegExp("^http(s|)://m.baidu.com/productcard", "g"),
             new RegExp("^http(s|)://ks.baidu.com"),
           ];
-          let flag = false;
-          for (let index = 0; index < blackList.length; index++) {
-            let blackUrlRegexp = blackList[index];
+          for (const blackUrlRegexp of blackList) {
             if (url.match(blackUrlRegexp)) {
-              flag = true;
-              break;
+              return true;
             }
           }
-          return flag;
+          return false;
         },
         /**
          * 为搜索结果每一条设置原始链接
@@ -1081,7 +1086,7 @@
               return;
             }
             item.href = articleURL;
-            log.info("替换成新链接: " + articleURL);
+            //log.info("替换成新链接: " + articleURL);
           });
           /* 这个是百度笔记(可能) */
           targetNode
@@ -1094,7 +1099,7 @@
               ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
-                log.info("替换成新链接2: " + domOriginUrl);
+                //log.info("替换成新链接2: " + domOriginUrl);
               }
             });
           /* 对搜索结果中存在的视频进行处理 */
@@ -1108,7 +1113,7 @@
               ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
-                log.info("视频替换成新链接1: " + domOriginUrl);
+                //log.info("视频替换成新链接1: " + domOriginUrl);
               }
             });
           /* 对搜索结果中存在的视频进行处理 */
@@ -1122,7 +1127,7 @@
               ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
-                log.info("视频替换成新链接2: " + domOriginUrl);
+                //log.info("视频替换成新链接2: " + domOriginUrl);
               }
             });
         },
@@ -1147,7 +1152,7 @@
         /**
          * 由于部分真实链接存储在 script 标签中，得取出
          * @param {Element} targetNode 目标元素
-         * @returns {Map}
+         * @returns {UtilsDictionaryonstructor}
          */
         parseScriptDOMOriginUrlMap(targetNode) {
           let urlMap = new utils.Dictionary();
@@ -2033,74 +2038,105 @@
        */
       const handleNextPage = {
         /**
-         * 滚动事件对象
-         */
-        scrollLockFunction: null,
-        /**
          * 当前页
          */
         currentPage: 1,
+        /**
+         * 观察器
+         * @type {IntersectionObserver}
+         */
+        intersectionObserver: null,
         init() {
           this.initPageLineCSS();
-          this.scrollLockFunction = new utils.LockFunction(
-            this.scrollEvent,
-            this
-          );
-          loadingView.initLoadingView();
-          loadingView.hide();
+          loadingView.initLoadingView(true);
           DOMUtils.after(
             document.querySelector("#page-controller"),
             loadingView.getLoadingViewElement()
           );
-          this.setNextPageScrollListener();
+          this.setNextPageLoadingObserver();
         },
         /**
          * 设置滚动事件
          */
-        setNextPageScrollListener() {
-          DOMUtils.on(
-            document,
-            "scroll",
-            undefined,
-            this.scrollLockFunction.run,
-            {
-              capture: true,
-              once: false,
-              passive: true,
-            }
-          );
+        setNextPageLoadingObserver() {
+          let isLoadingNextPage = false;
+          if (typeof IntersectionObserver === "undefined") {
+            DOMUtils.on(
+              document,
+              "scroll",
+              undefined,
+              async () => {
+                if (isLoadingNextPage) {
+                  return;
+                }
+                if (!utils.isNearBottom(window.innerHeight / 3)) {
+                  return;
+                }
+                isLoadingNextPage = true;
+                await this.scrollEvent();
+                await utils.sleep(150);
+                isLoadingNextPage = false;
+              },
+              {
+                capture: true,
+                passive: true,
+                once: false,
+              }
+            );
+          } else {
+            this.intersectionObserver = new IntersectionObserver(
+              async (entries) => {
+                if (!isLoadingNextPage && entries[0].isIntersecting) {
+                  isLoadingNextPage = true;
+                  await this.scrollEvent();
+                  isLoadingNextPage = false;
+                }
+              },
+              { threshold: 0 }
+            );
+            this.intersectionObserver.observe(loadingView.loadingViewElement);
+          }
         },
         /**
          * 移除滚动事件
          */
-        removeNextPageScrollListener() {
-          DOMUtils.off(
-            document,
-            "scroll",
-            undefined,
-            this.scrollLockFunction.run,
-            {
-              capture: true,
-            }
-          );
-          log.info("取消绑定scroll", "#f400ff");
+        removeNextPageLoadingObserver() {
+          if (typeof IntersectionObserver === "undefined") {
+            DOMUtils.off(
+              document,
+              "scroll",
+              undefined,
+              undefined,
+              {
+                capture: true,
+              },
+              (value) => {
+                return value.originCallBack
+                  .toString()
+                  .includes("isLoadingNextPage");
+              }
+            );
+            loadingView.destory();
+            log.info("取消监听：scroll", "#f400ff");
+          } else {
+            this.intersectionObserver.disconnect();
+            this.intersectionObserver = null;
+            loadingView.destory();
+            log.info("取消观察器：intersectionObserver", "#f400ff");
+          }
         },
         /**
          * 滚动事件
          * @async
          */
         async scrollEvent() {
-          if (!utils.isNearBottom(window.innerHeight / 3)) {
-            return;
-          }
-          loadingView.show();
+          log.success(`正在加载第 ${handleNextPage.currentPage} 页`);
           let nextPageUrl =
             document.querySelector(".new-nextpage")?.getAttribute("href") ||
             document.querySelector(".new-nextpage-only")?.getAttribute("href");
           if (!nextPageUrl) {
-            log.info("获取不到下一页，怀疑已加载所有的搜索结果");
-            handleNextPage.removeNextPageScrollListener();
-            loadingView.destory();
+            log.warn("获取不到下一页，怀疑已加载所有的搜索结果");
+            handleNextPage.removeNextPageLoadingObserver();
             return;
           }
           let params_pn = new URL(nextPageUrl).search.match(/[0-9]+/);
@@ -2122,7 +2158,6 @@
           let respData = getResp.data;
           if (getResp.status) {
             log.success("响应的finalUrl: " + respData["finalUrl"]);
-            loadingView.hide();
             let nextPageHTMLNode = DOMUtils.parseHTML(
               respData.responseText,
               true,
@@ -2136,7 +2171,6 @@
               });
             let nextPageScriptOriginUrlMap =
               handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
-            log.info(["下一页的网址Map", nextPageScriptOriginUrlMap.items]);
             handleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
 
             nextPageHTMLNode
@@ -2177,7 +2211,7 @@
               );
             } else {
               log.info("已加载所有的搜索结果");
-              handleNextPage.removeNextPageScrollListener();
+              handleNextPage.removeNextPageLoadingObserver();
             }
             if (PopsPanel.getValue("baidu_search_sync_next_page_address")) {
               window.history.pushState("forward", null, nextPageUrl);
@@ -2238,11 +2272,12 @@
       /**
        * 简单UA-自动点击下一页
        */
-      const handleSearchCraftUserAgentPage = {
+      const handleNextPage_SearchCraft = {
         /**
-         * 滚动事件对象
+         * 观察器
+         * @type {IntersectionObserver}
          */
-        scrollLockFunction: null,
+        intersectionObserver: null,
         init() {
           let isSearchCraft = navigator?.userAgent?.includes("SearchCraft");
           log.success(
@@ -2252,49 +2287,98 @@
                 : GM_Menu.getEnableFalseEmoji()
             }`
           );
-          this.scrollLockFunction = new utils.LockFunction(
-            this.scrollEvent,
-            this
-          );
-          this.setNextPageScrollListener();
+          if (isSearchCraft) {
+            this.setNextPageInterSectionObserver();
+          }
         },
         /**
          * 设置滚动事件
          */
-        setNextPageScrollListener() {
-          document.addEventListener("scroll", this.scrollLockFunction.run);
+        setNextPageInterSectionObserver() {
+          let isLoadingNextPage = false;
+          let nextPageElement = document.querySelector(
+            ".infinite-load-wrap .se-infiniteload-text"
+          );
+          if (typeof IntersectionObserver === "undefined") {
+            DOMUtils.on(
+              document,
+              "scroll",
+              undefined,
+              async () => {
+                if (isLoadingNextPage) {
+                  return;
+                }
+                if (!utils.isNearBottom(window.innerHeight / 3)) {
+                  return;
+                }
+                isLoadingNextPage = true;
+                nextPageElement = document.querySelector(
+                  ".infinite-load-wrap .se-infiniteload-text"
+                );
+                await this.scrollEvent(nextPageElement);
+                await utils.sleep(150);
+                isLoadingNextPage = false;
+              },
+              {
+                capture: true,
+                passive: true,
+                once: false,
+              }
+            );
+          } else {
+            this.intersectionObserver = new IntersectionObserver(
+              async (entries) => {
+                if (!isLoadingNextPage && entries[0].isIntersecting) {
+                  isLoadingNextPage = true;
+                  await this.scrollEvent(entries[0].target);
+                  isLoadingNextPage = false;
+                }
+              },
+              { threshold: 0 }
+            );
+            this.intersectionObserver.observe(nextPageElement);
+          }
         },
         /**
          * 移除滚动事件
          */
-        removeNextPageScrollListener() {
-          document.removeEventListener("scroll", this.scrollLockFunction.run);
-          log.info("取消绑定scroll", "#f400ff");
+        removeNextPageInterSectionObserver() {
+          if (typeof IntersectionObserver === "undefined") {
+            DOMUtils.off(
+              document,
+              "scroll",
+              undefined,
+              undefined,
+              {
+                capture: true,
+              },
+              (value) => {
+                return value.originCallBack
+                  .toString()
+                  .includes("isLoadingNextPage");
+              }
+            );
+            log.info("取消监听：scroll", "#f400ff");
+          } else {
+            this.intersectionObserver?.disconnect();
+            this.intersectionObserver = null;
+            log.info("取消观察器：intersectionObserver", "#f400ff");
+          }
         },
         /**
          * 滚动事件
          * @async
          */
-        async scrollEvent() {
-          if (!utils.isNearBottom(window.innerHeight / 3)) {
-            return;
-          }
-          let nextPageElement = document.querySelector(
-            ".infinite-load-wrap .se-infiniteload-text"
-          );
-          if (!nextPageElement) {
-            await utils.sleep(300);
-            return;
-          }
-          if (nextPageElement.textContent.includes("更多结果")) {
+        async scrollEvent(nextPageElement) {
+          let elementText =
+            nextPageElement.textContent || nextPageElement.innerText;
+          if (elementText.includes("更多结果")) {
+            log.success("点击【更多结果】");
             nextPageElement.click();
             await utils.sleep(500);
-            return;
-          } else if (
-            nextPageElement.textContent.includes("到底了 没有更多内容了")
-          ) {
+          } else if (elementText.includes("到底了 没有更多内容了")) {
             log.error("到底了 没有更多内容了，移除滚动监听");
-            handleSearchCraftUserAgentPage.removeNextPageScrollListener();
+            handleNextPage_SearchCraft.removeNextPageInterSectionObserver();
           }
         },
       };
@@ -2353,11 +2437,9 @@
               let videoPlayerList = document.querySelectorAll(
                 "[class*='-video-player']"
               );
-              if (!utils.isNull(videoPlayerList)) {
-                videoPlayerList.forEach((item) => {
-                  item.remove();
-                });
-                log.success(["删除视频", videoPlayerList]);
+              if (videoPlayerList.length) {
+                videoPlayerList.forEach((item) => item.remove());
+                log.success(["禁止自动播放视频", videoPlayerList]);
               }
             },
             undefined,
@@ -2426,7 +2508,7 @@
               "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
             )
           ) {
-            handleSearchCraftUserAgentPage.init();
+            handleNextPage_SearchCraft.init();
           }
           if (
             window.location.href.startsWith("https://m.baidu.com/sf/vsearch")
