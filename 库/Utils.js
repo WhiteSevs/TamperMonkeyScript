@@ -24,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2024-1-18";
+  Utils.version = "2024-1-21";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -887,6 +887,7 @@
 
   /**
    * 字典
+   * @type {UtilsDictionary}
    * @example
    * let dictionary = new Utils.Dictionary();
    * let dictionary2 = new Utils.Dictionary();
@@ -901,15 +902,42 @@
     this.items = {};
     /**
      * 检查是否有某一个键
-     * @param {any} key 键
+     * @param {string} key 键
      * @returns {boolean}
      */
     this.has = function (key) {
       return this.items.hasOwnProperty(key);
     };
     /**
+     * 检查已有的键中是否以xx开头
+     * @param {string} key 需要匹配的键
+     * @returns {boolean}
+     */
+    this.startsWith = function (key) {
+      let allKeys = this.keys();
+      for (const keyName of allKeys) {
+        if (keyName.startsWith(key)) {
+          return true;
+        }
+      }
+      return false;
+    };
+    /**
+     * 获取以xx开头的键的值
+     * @param {string} key 需要匹配的键
+     * @returns {any}
+     */
+    this.getStartsWith = function (key) {
+      let allKeys = this.keys();
+      for (const keyName of allKeys) {
+        if (keyName.startsWith(key)) {
+          return this.items[keyName];
+        }
+      }
+    };
+    /**
      * 为字典添加某一个值
-     * @param {any} key 键
+     * @param {string} key 键
      * @param {any} val 值，默认为""
      */
     this.set = function (key, val = "") {
@@ -920,7 +948,7 @@
     };
     /**
      * 删除某一个键
-     * @param {any} key 键
+     * @param {string} key 键
      * @returns {boolean}
      */
     this.delete = function (key) {
@@ -932,15 +960,15 @@
     };
     /**
      * 获取某个键的值
-     * @param {any} key 键
-     * @returns {any|undefined}
+     * @param {string} key 键
+     * @returns {any}
      */
     this.get = function (key) {
       return this.has(key) ? this.items[key] : void 0;
     };
     /**
      * 返回字典中的所有值
-     * @returns {[...any]}
+     * @returns {any[]}
      */
     this.values = function () {
       let resultList = [];
@@ -966,21 +994,20 @@
     };
     /**
      * 获取字典所有的键
-     * @returns
      */
     this.keys = function () {
       return Object.keys(this.items);
     };
     /**
      * 返回字典本身
-     * @returns
+     * @returns {object}
      */
     this.getItems = function () {
       return this.items;
     };
     /**
      * 合并另一个字典
-     * @param {Dictionary} data 需要合并的字典
+     * @param {object} data 需要合并的字典
      */
     this.concat = function (data) {
       this.items = Utils.assign(this.items, data.getItems());
