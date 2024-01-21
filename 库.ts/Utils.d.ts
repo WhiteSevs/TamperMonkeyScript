@@ -1040,3 +1040,36 @@ declare interface HttpxAsyncResult {
      */
     type: "onload" | "onerror" | "ontimeout" | "onabort"
 }
+
+
+
+declare interface UtilsDictionaryonstructor {
+    /** 检查是否有某一个键 */
+    has: (key: string) => boolean;
+    /** 检查已有的键中是否以xx开头 */
+    startsWith: (key: string) => boolean;
+    /** 获取以xx开头的键的值 */
+    getStartsWith: (key: string) => any;
+    /** 为字典添加某一个值 */
+    set: (key: string, val: any) => void;
+    /** 删除某一个键 */
+    delete: (key: string) => boolean;
+    /** 获取某个键的值 */
+    get: (key: string) => any;
+    /** 返回字典中的所有值 */
+    values: () => any[];
+    /** 清空字典 */
+    clear: () => void;
+    /** 获取字典的长度 */
+    size: () => number;
+    /** 获取字典所有的键 */
+    keys: () => string[];
+    /** 返回字典本身 */
+    getItems: () => object;
+    /** 合并另一个字典 */
+    concat: (data: object) => void;
+}
+
+declare interface UtilsDictionary {
+    new(): UtilsDictionaryonstructor;
+}
