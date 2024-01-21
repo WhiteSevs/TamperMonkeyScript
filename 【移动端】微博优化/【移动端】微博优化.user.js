@@ -19,7 +19,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
 // @connect      m.weibo.cn
-// @require      https://update.greasyfork.org/scripts/455186/1313624/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1314984/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
