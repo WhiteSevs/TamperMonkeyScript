@@ -54,3 +54,11 @@ declare interface NetDiskRegular {
     [key: string]: NetDiskRegularOption[];
 }
 
+
+/** 存储的访问码的值 */
+declare interface NetDiskDictData {
+    /** 访问码 */
+    accessCode: string|undefined;
+    /** 匹配规则的下标 */
+    netDiskIndex: number;
+}
