@@ -2555,7 +2555,7 @@
           discussionTitleElement.setAttribute("data-repeat-count", oldCount);
           discussionTitleElement.setAttribute(
             "data-repeat-tip-show",
-            `相同：${oldCount}`
+            `已过滤：${oldCount}`
           );
           log.success([
             "过滤重复内容：" + discussionInfo.snippet,
