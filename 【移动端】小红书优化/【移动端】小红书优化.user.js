@@ -20,7 +20,7 @@
 // @connect      edith.xiaohongshu.com
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1311382/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1314984/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1313623/DOMUtils.js
 // ==/UserScript==
