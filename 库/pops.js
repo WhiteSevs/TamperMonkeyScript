@@ -3019,7 +3019,7 @@
     /**
      * 版本号
      */
-    version: "2024.1.14",
+    version: "2024.1.22",
     /**
      * 弹窗CSS
      */
@@ -8166,15 +8166,21 @@
       /**
        * 为元素添加自定义属性
        * @param {HTMLElement} element
-       * @param {object} attributes
+       * @param {object | object[]} attributes
        */
       addElementAttributes(element, attributes) {
         if (attributes == null) {
           return;
         }
-        Object.keys(attributes).forEach((attributeName) => {
-          element.setAttribute(attributeName, attributes[attributeName]);
-        });
+        if (Array.isArray(attributes)) {
+          attributes.forEach((attrObject) => {
+            this.addElementAttributes(element, attrObject);
+          });
+        } else {
+          Object.keys(attributes).forEach((attributeName) => {
+            element.setAttribute(attributeName, attributes[attributeName]);
+          });
+        }
       },
       /**
        * 为元素设置(自定义)属性
