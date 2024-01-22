@@ -115,7 +115,14 @@ type PopsTextAlign = "center" |
     "revert-layer" |
     "unset"
 
-type PopsPanelFormsDetailsArray = Array<PopsPanelSwitchDetails | PopsPanelSliderDetails | PopsPanelInputDetails | PopsPanelTextAreaDetails | PopsPanelSelectDetails | PopsPanelButtonDetails | PopsPanelOwnDetails>
+type PopsPanelFormsDetailsArray =
+    PopsPanelSwitchDetails[] |
+    PopsPanelSliderDetails[] |
+    PopsPanelInputDetails[] |
+    PopsPanelTextAreaDetails[] |
+    PopsPanelSelectDetails[] |
+    PopsPanelButtonDetails[] |
+    PopsPanelOwnDetails[]
 
 /**
  * 现有的pops.xxx的类型
