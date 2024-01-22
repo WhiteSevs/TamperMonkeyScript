@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.22
+// @version      2024.1.22.23
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -2447,121 +2447,160 @@
       const filterReplyUserList =
         filterReplyUser.trim() === "" ? [] : filterReplyUser.split("\n");
 
+      /**
+       * @type {Map<string,HTMLElement>}
+       */
       const SNIPPET_MAP = new Map();
-      document
-        .querySelectorAll(".discussion-list-container")
-        .forEach((listContainer) => {
-          const discussionInfo = {
-            /** 脚本名 @type {string} */
-            scriptName: listContainer.querySelector("a.script-link").innerText,
-            /** 脚本主页地址 @type {string} */
-            scriptUrl: listContainer.querySelector("a.script-link").href,
-            /** 脚本id @type {string} */
-            scriptId: GreasyforkApi.getScriptId(
-              listContainer.querySelector("a.script-link").href
-            ),
-            /** 发布的用户名 @type {string} */
-            postUserName: listContainer.querySelector("a.user-link").innerText,
-            /** 发布的用户主页地址 @type {string} */
-            postUserHomeUrl: listContainer.querySelector("a.user-link").href,
-            /** 发布的用户id @type {string} */
-            postUserId: GreasyforkApi.getUserId(
-              listContainer.querySelector("a.user-link").href
-            ),
-            /** 发布的时间 */
-            postTimeStamp: new Date(
-              listContainer
-                .querySelector("relative-time")
-                .getAttribute("datetime")
-            ),
-            /** 发布的地址 @type {string} */
-            snippetUrl: listContainer.querySelector("a.discussion-title").href,
-            /** 发布的内容片段 @type {string} */
-            snippet: listContainer.querySelector("span.discussion-snippet")
-              .innerText,
-            /** 回复的用户名 @type {?string} */
-            replyUserName: undefined,
-            /** 回复的用户主页地址 @type {?string} */
-            replyUserHomeUrl: undefined,
-            /** 回复的用户id @type {?string} */
-            replyUserId: undefined,
-            /** 回复的时间 */
-            replyTimeStamp: undefined,
-          };
 
-          if (
-            listContainer.querySelector(
-              ".discussion-meta-item .discussion-meta-item"
-            )
-          ) {
-            discussionInfo.replyUserName = listContainer.querySelector(
-              ".discussion-meta-item .discussion-meta-item a.user-link"
-            ).innerText;
-            discussionInfo.replyUserHomeUrl = listContainer.querySelector(
-              ".discussion-meta-item .discussion-meta-item a.user-link"
-            ).href;
-            discussionInfo.replyUserId = GreasyforkApi.getUserId(
-              discussionInfo.replyUserHomeUrl
-            );
-            discussionInfo.replyTimeStamp = new Date(
-              listContainer
-                .querySelector(
-                  ".discussion-meta-item .discussion-meta-item relative-time"
-                )
-                .getAttribute("datetime")
+      GM_addStyle(`
+      .discussion-list-container {
+        --discusstion-repeat-color: #ffa700;
+      }
+      
+      .discussion-list-container a.discussion-title[data-repeat-tip-show]::before {
+        content: attr(data-repeat-tip-show);
+        color: var(--discusstion-repeat-color);
+        border-radius: 5px;
+        border: 2px solid var(--discusstion-repeat-color);
+        padding: 2px 5px;
+        font-weight: 800;
+        font-size: 14px;
+      }
+      `);
+      let discussionListContainer = document.querySelectorAll(
+        ".discussion-list-container"
+      );
+
+      Array.from(discussionListContainer).forEach((listContainer, index) => {
+        if (!listContainer.querySelector("a.script-link")) {
+          return;
+        }
+        const discussionInfo = {
+          /** 脚本名 @type {string} */
+          scriptName: listContainer.querySelector("a.script-link").innerText,
+          /** 脚本主页地址 @type {string} */
+          scriptUrl: listContainer.querySelector("a.script-link").href,
+          /** 脚本id @type {string} */
+          scriptId: GreasyforkApi.getScriptId(
+            listContainer.querySelector("a.script-link").href
+          ),
+          /** 发布的用户名 @type {string} */
+          postUserName: listContainer.querySelector("a.user-link").innerText,
+          /** 发布的用户主页地址 @type {string} */
+          postUserHomeUrl: listContainer.querySelector("a.user-link").href,
+          /** 发布的用户id @type {string} */
+          postUserId: GreasyforkApi.getUserId(
+            listContainer.querySelector("a.user-link").href
+          ),
+          /** 发布的时间 */
+          postTimeStamp: new Date(
+            listContainer
+              .querySelector("relative-time")
+              .getAttribute("datetime")
+          ),
+          /** 发布的地址 @type {string} */
+          snippetUrl: listContainer.querySelector("a.discussion-title").href,
+          /** 发布的内容片段 @type {string} */
+          snippet: listContainer.querySelector("span.discussion-snippet")
+            .innerText,
+          /** 回复的用户名 @type {?string} */
+          replyUserName: undefined,
+          /** 回复的用户主页地址 @type {?string} */
+          replyUserHomeUrl: undefined,
+          /** 回复的用户id @type {?string} */
+          replyUserId: undefined,
+          /** 回复的时间 */
+          replyTimeStamp: undefined,
+        };
+
+        if (
+          listContainer.querySelector(
+            ".discussion-meta-item .discussion-meta-item"
+          )
+        ) {
+          discussionInfo.replyUserName = listContainer.querySelector(
+            ".discussion-meta-item .discussion-meta-item a.user-link"
+          ).innerText;
+          discussionInfo.replyUserHomeUrl = listContainer.querySelector(
+            ".discussion-meta-item .discussion-meta-item a.user-link"
+          ).href;
+          discussionInfo.replyUserId = GreasyforkApi.getUserId(
+            discussionInfo.replyUserHomeUrl
+          );
+          discussionInfo.replyTimeStamp = new Date(
+            listContainer
+              .querySelector(
+                ".discussion-meta-item .discussion-meta-item relative-time"
+              )
+              .getAttribute("datetime")
+          );
+        }
+
+        if (
+          SNIPPET_MAP.has(discussionInfo.snippet) &&
+          PopsPanel.getValue("greasyfork-discussions-filter-duplicate-comments")
+        ) {
+          let discussionTitleElement = SNIPPET_MAP.get(
+            discussionInfo.snippet
+          ).querySelector("a.discussion-title");
+          discussionTitleElement.setAttribute("data-repeat-tip-show", true);
+          let oldCount = 0;
+
+          if (discussionTitleElement.hasAttribute("data-repeat-count")) {
+            oldCount = parseInt(
+              discussionTitleElement.getAttribute("data-repeat-count")
             );
           }
+          oldCount++;
+          discussionTitleElement.setAttribute("data-repeat-count", oldCount);
+          discussionTitleElement.setAttribute(
+            "data-repeat-tip-show",
+            `相同：${oldCount}`
+          );
+          log.success([
+            "过滤重复内容：" + discussionInfo.snippet,
+            discussionInfo,
+          ]);
+          listContainer.remove();
+          return;
+        }
 
-          if (
-            SNIPPET_MAP.has(discussionInfo.snippet) &&
-            PopsPanel.getValue(
-              "greasyfork-discussions-filter-duplicate-comments"
-            )
-          ) {
-            log.success(
-              "过滤重复内容：" + discussionInfo.snippet,
-              discussionInfo
-            );
+        SNIPPET_MAP.set(discussionInfo.snippet, listContainer);
+        for (const filterScriptId of filterScriptList) {
+          if (discussionInfo.scriptId === filterScriptId) {
+            log.success([
+              "过滤脚本id：" + discussionInfo.scriptId,
+              discussionInfo,
+            ]);
             listContainer.remove();
             return;
           }
+        }
 
-          SNIPPET_MAP.set(discussionInfo.snippet, "");
-          for (const filterScriptId of filterScriptList) {
-            if (discussionInfo.scriptId === filterScriptId) {
+        for (const filterPostUserId of filterPostUserList) {
+          if (discussionInfo.postUserId === filterPostUserId) {
+            log.success([
+              "过滤发布用户id：" + discussionInfo.postUserId,
+              discussionInfo,
+            ]);
+            listContainer.remove();
+            return;
+          }
+        }
+
+        if (discussionInfo.replyUserName) {
+          for (const filterReplyUserId of filterReplyUserList) {
+            if (discussionInfo.replyUserId === filterReplyUserId) {
               log.success([
-                "过滤脚本id：" + discussionInfo.scriptId,
+                "过滤回复用户id：" + discussionInfo.replyUserId,
                 discussionInfo,
               ]);
               listContainer.remove();
               return;
             }
           }
-
-          for (const filterPostUserId of filterPostUserList) {
-            if (discussionInfo.postUserId === filterPostUserId) {
-              log.success([
-                "过滤发布用户id：" + discussionInfo.postUserId,
-                discussionInfo,
-              ]);
-              listContainer.remove();
-              return;
-            }
-          }
-
-          if (discussionInfo.replyUserName) {
-            for (const filterReplyUserId of filterReplyUserList) {
-              if (discussionInfo.replyUserId === filterReplyUserId) {
-                log.success([
-                  "过滤回复用户id：" + discussionInfo.replyUserId,
-                  discussionInfo,
-                ]);
-                listContainer.remove();
-                return;
-              }
-            }
-          }
-        });
+        }
+      });
     },
   };
   /* -----------------↑函数区域↑----------------- */
