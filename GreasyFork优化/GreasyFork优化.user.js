@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.17
+// @version      2024.1.22
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -20,7 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1311382/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1314984/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1313623/DOMUtils.js
 // ==/UserScript==
@@ -93,21 +93,29 @@
     },
     /**
      * 从字符串中提取Id
-     * @param {?string} url
+     * @param {?string} text
      * @returns {string}
      */
-    getScriptId(url) {
-      return (url || window.location.pathname).match(/\/scripts\/([\d]+)/i)[1];
+    getScriptId(text) {
+      return (text || window.location.pathname).match(/\/scripts\/([\d]+)/i)[1];
+    },
+    /**
+     * 从字符串中提取用户id
+     * @param {?string} text
+     * @returns {string}
+     */
+    getUserId(text) {
+      return (text || window.location.pathname).match(/\/users\/([\d]+)/i)[1];
     },
     /**
      * 从字符串中提取脚本名
-     * @param {?string} url
+     * @param {?string} text
      * @returns {?string}
      */
-    getScriptName(url) {
+    getScriptName(text) {
       let pathname = window.location.pathname;
-      if (url != null) {
-        pathname = new URL(url).pathname;
+      if (text != null) {
+        pathname = new URL(text).pathname;
       }
       pathname = decodeURIComponent(pathname);
       pathname = pathname.split("/");
@@ -252,6 +260,14 @@
           content: "【删除】";
         }
     `,
+    OwnCSS: `
+      .whitesev-hide{
+        display: none;
+      }
+     .whitesev-hide-important{
+        display: none !important;
+      }
+    `,
     /**
      * 初始化
      */
@@ -375,7 +391,7 @@
     showPanel() {
       pops.panel({
         title: {
-          text: `${GM_info?.script?.name || "CSDN|简书优化"}-设置`,
+          text: `${GM_info?.script?.name || "GreasyFork优化"}-设置`,
           position: "center",
         },
         content: this.getContent(),
@@ -711,6 +727,112 @@
                       });
                     return result;
                   })(),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: "greasy-fork-panel-config-discussions",
+          title: "论坛",
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "过滤重复的评论",
+                  "过滤掉重复的评论数量(≥2)",
+                  "greasyfork-discussions-filter-duplicate-comments",
+                  false,
+                  undefined
+                ),
+              ],
+            },
+            {
+              text: "过滤脚本(id)",
+              type: "forms",
+              forms: [
+                {
+                  type: "own",
+                  getLiElementCallBack(liElement) {
+                    let textareaDiv = DOMUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="请输入脚本id，每行一个"></textarea>`,
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    let textarea = textareaDiv.querySelector("textarea");
+                    const KEY = "greasyfork-discussions-filter-script";
+                    textarea.value = PopsPanel.getValue(KEY, "");
+                    DOMUtils.on(textarea, "input", undefined, function (event) {
+                      PopsPanel.setValue(KEY, event.target.value);
+                    });
+                    liElement.appendChild(textareaDiv);
+                    return liElement;
+                  },
+                },
+              ],
+            },
+            {
+              text: "过滤发布的用户(id)",
+              type: "forms",
+              forms: [
+                {
+                  type: "own",
+                  getLiElementCallBack(liElement) {
+                    let textareaDiv = DOMUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="请输入用户id，每行一个"></textarea>`,
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    let textarea = textareaDiv.querySelector("textarea");
+                    const KEY = "greasyfork-discussions-filter-post-user";
+                    textarea.value = PopsPanel.getValue(KEY, "");
+                    DOMUtils.on(textarea, "input", undefined, function (event) {
+                      PopsPanel.setValue(KEY, event.target.value);
+                    });
+                    liElement.appendChild(textareaDiv);
+                    return liElement;
+                  },
+                },
+              ],
+            },
+            {
+              text: "过滤回复的用户(id)",
+              type: "forms",
+              forms: [
+                {
+                  type: "own",
+                  getLiElementCallBack(liElement) {
+                    let textareaDiv = DOMUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="请输入用户id，每行一个"></textarea>`,
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    let textarea = textareaDiv.querySelector("textarea");
+                    const KEY = "greasyfork-discussions-filter-reply-user";
+                    textarea.value = PopsPanel.getValue(KEY, "");
+                    DOMUtils.on(textarea, "input", undefined, function (event) {
+                      PopsPanel.setValue(KEY, event.target.value);
+                    });
+                    liElement.appendChild(textareaDiv);
+                    return liElement;
+                  },
                 },
               ],
             },
@@ -2304,6 +2426,143 @@
         rightContainerElement.appendChild(liElement);
       }
     },
+    /**
+     * 论坛-过滤
+     */
+    filterDiscussions() {
+      const FILTER_SCRIPT_KEY = "greasyfork-discussions-filter-script";
+      const FILTER_POST_USER_KEY = "greasyfork-discussions-filter-post-user";
+      const FILTER_REPLY_USER_KEY = "greasyfork-discussions-filter-reply-user";
+      if (!globalThis.location.pathname.endsWith("/discussions")) {
+        return;
+      }
+      const filterScript = PopsPanel.getValue(FILTER_SCRIPT_KEY, "");
+      const filterPostUser = PopsPanel.getValue(FILTER_POST_USER_KEY, "");
+      const filterReplyUser = PopsPanel.getValue(FILTER_REPLY_USER_KEY, "");
+
+      const filterScriptList =
+        filterScript.trim() === "" ? [] : filterScript.split("\n");
+      const filterPostUserList =
+        filterPostUser.trim() === "" ? [] : filterPostUser.split("\n");
+      const filterReplyUserList =
+        filterReplyUser.trim() === "" ? [] : filterReplyUser.split("\n");
+
+      const SNIPPET_MAP = new Map();
+      document
+        .querySelectorAll(".discussion-list-container")
+        .forEach((listContainer) => {
+          const discussionInfo = {
+            /** 脚本名 @type {string} */
+            scriptName: listContainer.querySelector("a.script-link").innerText,
+            /** 脚本主页地址 @type {string} */
+            scriptUrl: listContainer.querySelector("a.script-link").href,
+            /** 脚本id @type {string} */
+            scriptId: GreasyforkApi.getScriptId(
+              listContainer.querySelector("a.script-link").href
+            ),
+            /** 发布的用户名 @type {string} */
+            postUserName: listContainer.querySelector("a.user-link").innerText,
+            /** 发布的用户主页地址 @type {string} */
+            postUserHomeUrl: listContainer.querySelector("a.user-link").href,
+            /** 发布的用户id @type {string} */
+            postUserId: GreasyforkApi.getUserId(
+              listContainer.querySelector("a.user-link").href
+            ),
+            /** 发布的时间 */
+            postTimeStamp: new Date(
+              listContainer
+                .querySelector("relative-time")
+                .getAttribute("datetime")
+            ),
+            /** 发布的地址 @type {string} */
+            snippetUrl: listContainer.querySelector("a.discussion-title").href,
+            /** 发布的内容片段 @type {string} */
+            snippet: listContainer.querySelector("span.discussion-snippet")
+              .innerText,
+            /** 回复的用户名 @type {?string} */
+            replyUserName: undefined,
+            /** 回复的用户主页地址 @type {?string} */
+            replyUserHomeUrl: undefined,
+            /** 回复的用户id @type {?string} */
+            replyUserId: undefined,
+            /** 回复的时间 */
+            replyTimeStamp: undefined,
+          };
+
+          if (
+            listContainer.querySelector(
+              ".discussion-meta-item .discussion-meta-item"
+            )
+          ) {
+            discussionInfo.replyUserName = listContainer.querySelector(
+              ".discussion-meta-item .discussion-meta-item a.user-link"
+            ).innerText;
+            discussionInfo.replyUserHomeUrl = listContainer.querySelector(
+              ".discussion-meta-item .discussion-meta-item a.user-link"
+            ).href;
+            discussionInfo.replyUserId = GreasyforkApi.getUserId(
+              discussionInfo.replyUserHomeUrl
+            );
+            discussionInfo.replyTimeStamp = new Date(
+              listContainer
+                .querySelector(
+                  ".discussion-meta-item .discussion-meta-item relative-time"
+                )
+                .getAttribute("datetime")
+            );
+          }
+
+          if (
+            SNIPPET_MAP.has(discussionInfo.snippet) &&
+            PopsPanel.getValue(
+              "greasyfork-discussions-filter-duplicate-comments"
+            )
+          ) {
+            log.success(
+              "过滤重复内容：" + discussionInfo.snippet,
+              discussionInfo
+            );
+            listContainer.remove();
+            return;
+          }
+
+          SNIPPET_MAP.set(discussionInfo.snippet, "");
+          for (const filterScriptId of filterScriptList) {
+            if (discussionInfo.scriptId === filterScriptId) {
+              log.success([
+                "过滤脚本id：" + discussionInfo.scriptId,
+                discussionInfo,
+              ]);
+              listContainer.remove();
+              return;
+            }
+          }
+
+          for (const filterPostUserId of filterPostUserList) {
+            if (discussionInfo.postUserId === filterPostUserId) {
+              log.success([
+                "过滤发布用户id：" + discussionInfo.postUserId,
+                discussionInfo,
+              ]);
+              listContainer.remove();
+              return;
+            }
+          }
+
+          if (discussionInfo.replyUserName) {
+            for (const filterReplyUserId of filterReplyUserList) {
+              if (discussionInfo.replyUserId === filterReplyUserId) {
+                log.success([
+                  "过滤回复用户id：" + discussionInfo.replyUserId,
+                  discussionInfo,
+                ]);
+                listContainer.remove();
+                return;
+              }
+            }
+          }
+        });
+    },
   };
   /* -----------------↑函数区域↑----------------- */
 
@@ -2346,6 +2605,7 @@
     }
     GreasyforkBusiness.addMarkdownCopyButton();
     GreasyforkBusiness.languageSelectorLocale();
+    GreasyforkBusiness.filterDiscussions();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
