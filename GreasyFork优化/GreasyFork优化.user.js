@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.22.23
+// @version      2024.1.23
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -1564,7 +1564,7 @@
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        white-space: nowrap;
+        white-space: normal;
         outline: none;
         font-size: 14px;
         user-select: none;
@@ -1885,56 +1885,69 @@
       `;
       GM_addStyle(beautifyCSS);
       DOMUtils.ready(function () {
-        let clearErrorTip = function () {
-          while (fileElement.nextElementSibling) {
-            fileElement.parentElement.removeChild(
-              fileElement.nextElementSibling
-            );
+        /**
+         * 清空错误的提示
+         * @param {HTMLElement} element
+         */
+        function clearErrorTip(element) {
+          while (element.nextElementSibling) {
+            element.parentElement.removeChild(element.nextElementSibling);
           }
-        };
-        let fileElement = document.querySelector('input[type="file"]');
-        DOMUtils.on(fileElement, "change", function (event) {
-          clearErrorTip();
-          /**
-           * @type {File[]}
-           */
-          let chooseImageFiles = event.currentTarget.files;
-          if (chooseImageFiles.length === 0) {
+        }
+        let fileElementList = document.querySelectorAll('input[type="file"]');
+        fileElementList.forEach((fileElement) => {
+          if (fileElement.getAttribute("name") === "code_upload") {
             return;
           }
-          log.info(["选择的图片", chooseImageFiles]);
-          if (chooseImageFiles.length > 5) {
-            DOMUtils.after(
-              fileElement,
-              DOMUtils.createElement("p", {
-                textContent: `❌ 最多同时长传5张图片`,
-              })
-            );
+          if (
+            fileElement.hasAttribute("accept") &&
+            fileElement.getAttribute("accept").includes("javascript")
+          ) {
+            return;
           }
-          /**
-           * @type {File[]}
-           */
-          let notAllowImage = [];
-          Array.from(chooseImageFiles).forEach((imageFile) => {
-            if (
-              imageFile.size > 204800 ||
-              !imageFile.type.match(/png|gif|jpeg|webp/i)
-            ) {
-              notAllowImage.push(imageFile);
+          DOMUtils.on(fileElement, "change", function (event) {
+            clearErrorTip(event.target);
+            /**
+             * @type {File[]}
+             */
+            let chooseImageFiles = event.currentTarget.files;
+            if (chooseImageFiles.length === 0) {
+              return;
             }
-          });
-          if (notAllowImage.length === 0) {
-            return;
-          }
-          notAllowImage.forEach((imageFile) => {
-            DOMUtils.after(
-              fileElement,
-              DOMUtils.createElement("p", {
-                textContent: `❌ 图片：${
-                  imageFile.name
-                } 大小：${utils.formatByteToSize(imageFile.size)}`,
-              })
-            );
+            log.info(["选择的图片", chooseImageFiles]);
+            if (chooseImageFiles.length > 5) {
+              DOMUtils.after(
+                fileElement,
+                DOMUtils.createElement("p", {
+                  textContent: `❌ 最多同时长传5张图片`,
+                })
+              );
+            }
+            /**
+             * @type {File[]}
+             */
+            let notAllowImage = [];
+            Array.from(chooseImageFiles).forEach((imageFile) => {
+              if (
+                imageFile.size > 204800 ||
+                !imageFile.type.match(/png|gif|jpeg|webp/i)
+              ) {
+                notAllowImage.push(imageFile);
+              }
+            });
+            if (notAllowImage.length === 0) {
+              return;
+            }
+            notAllowImage.forEach((imageFile) => {
+              DOMUtils.after(
+                fileElement,
+                DOMUtils.createElement("p", {
+                  textContent: `❌ 图片：${
+                    imageFile.name
+                  } 大小：${utils.formatByteToSize(imageFile.size)}`,
+                })
+              );
+            });
           });
         });
       });
