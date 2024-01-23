@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
-// @icon         https://m.baidu.com/favicon.ico
+// @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.23
+// @version      2024.1.23.17
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3932,44 +3932,42 @@
          * 插入只看楼主的按钮
          */
         insertOnlyLZ() {
-          let replySwitchElement = document.querySelector("#replySwitch");
-          if (!replySwitchElement) {
-            log.error("元素#replySwitch不存在");
+          let replyRightContainer = document.querySelector(
+            ".reply-right-container"
+          );
+          if (!replyRightContainer) {
+            log.error("元素.reply-right-container不存在");
             return;
           }
-          let onlyLzInnerElement = DOMUtils.createElement(
-            "div",
-            {
-              className: "white-only-lz",
-              textContent: "只看楼主",
-            },
-            {
-              style: `
-              display: -webkit-flex;
-              display: -ms-flexbox;
-              display: flex;
-              -webkit-box-align: center;
-              -moz-box-align: center;
-              -webkit-align-items: center;
-              -moz-align-items: center;
-              -ms-flex-align: center;
-              align-items: center;
-              line-height: .24rem;
-              border-radius: .14rem;
-              font-size: .13rem;
-              color: #614ec2;
-            `,
-            }
-          );
-          replySwitchElement.appendChild(onlyLzInnerElement);
-          let quxiaoonlylz_css = `
-                      .white-only-lz-qx:before {
-                          content: "取消";
-                      }
-                      .white-only-lz-none {
-                          display: none;
-                      }`;
-          GM_addStyle(quxiaoonlylz_css);
+          GM_addStyle(`
+          .white-only-lz{
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -moz-box-align: center;
+            -webkit-align-items: center;
+            -moz-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            line-height: .24rem;
+            border-radius: .14rem;
+            font-size: .13rem;
+            color: #614ec2;
+            margin-right: 16px;
+          }
+          .white-only-lz-qx:before {
+            content: "取消";
+          }
+          .white-only-lz-none {
+            display: none;
+          }
+          `);
+          let onlyLzInnerElement = DOMUtils.createElement("div", {
+            className: "white-only-lz",
+            textContent: "只看楼主",
+          });
+          replyRightContainer.appendChild(onlyLzInnerElement);
           DOMUtils.on(
             document.querySelector(".white-only-lz"),
             "click",
@@ -3989,60 +3987,100 @@
             log.error("元素#replySwitch不存在");
             return;
           }
-          let btnElement = DOMUtils.createElement(
-            "div",
-            {
-              className: "white-btn-comment-reverse",
-            },
-            {
-              style: `
-              display: -webkit-flex;
-              display: -ms-flexbox;
-              display: flex;
-              -webkit-box-align: center;
-              -moz-box-align: center;
-              -webkit-align-items: center;
-              -moz-align-items: center;
-              -ms-flex-align: center;
-              align-items: center;
-              line-height: .24rem;
-              border-radius: .14rem;
-              font-size: .13rem;
-              color: #614ec2;
-              width: auto;
-              margin-left: auto;
-              margin-right: 15px;
-            `,
-            }
+          GM_addStyle(`
+          .reply-right-container {
+            display: flex;
+            align-items: center;
+            flex-direction: row-reverse;
+          }
+          .btn-comment-reverse-pack{
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: inline-block;
+            white-space: nowrap;
+            text-align: center;
+            height: .29rem;
+            line-height: .29rem;
+            border-radius: .15rem;
+            color: #a3a2a8;
+            font-size: 13px;
+            background-color: #f3f2f5;
+          }
+          .btn-comment-reverse-pack .tab-item{
+            display: inline-block;
+            width: .48rem;
+          }
+          .btn-comment-reverse-pack .selected-tab-item{
+            position: relative;
+            z-index: 99;
+            color: #141414;
+          }
+          .btn-comment-reverse-pack .selected-tab-item:after{
+            content: "";
+            z-index: -99;
+            position: absolute;
+            top: 0;
+            left: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            display: block;
+            height: .29rem;
+            width: .48rem;
+            border-radius: .15rem;
+            border: .01rem solid #f3f2f5;
+            background-color: #fff;
+            color: #141414;
+          }
+          `);
+          let replyRightContainer = DOMUtils.createElement("div", {
+            className: "reply-right-container",
+          });
+          let btnElement = DOMUtils.createElement("div", {
+            className: "btn-comment-reverse-pack",
+            innerHTML: `
+              <span class="tab-item selected-tab-item" data-positive>正序</span>
+              <span class="tab-item" data-reverse>倒序</span>`,
+          });
+          /**
+           * 正序
+           * @type {HTMLSpanElement}
+           */
+          const positiveElement = btnElement.querySelector(
+            ".tab-item[data-positive]"
           );
-          replySwitchElement.appendChild(btnElement);
-          let btnCSS = `
-                      .white-btn-comment:before {
-                          content: "正序";
-                      }
-                      .white-btn-comment-reverse:before {
-                          content: "倒序";
-                      }
-                      .white-btn-comment-reverse-none {
-                          display: none;
-                      }`;
-          GM_addStyle(btnCSS);
-          DOMUtils.on(".white-btn-comment-reverse", "click", (event) => {
+          /**
+           * 倒序
+           * @type {HTMLSpanElement}
+           */
+          const reverseElement = btnElement.querySelector(
+            ".tab-item[data-reverse]"
+          );
+          replyRightContainer.appendChild(btnElement);
+          replySwitchElement.appendChild(replyRightContainer);
+          let isReverse = false;
+          function clearSelected() {
+            positiveElement.classList.remove("selected-tab-item");
+            reverseElement.classList.remove("selected-tab-item");
+          }
+          DOMUtils.on(btnElement, "click", () => {
+            isReverse = !isReverse;
             tiebaCommentConfig.removeScrollListener();
             DOMUtils.remove(".post-item");
-            if (
-              event.currentTarget.getAttribute("class") === "white-btn-comment"
-            ) {
-              event.currentTarget.setAttribute(
-                "class",
-                "white-btn-comment-reverse"
-              );
-              tiebaCommentConfig.mainPositive();
-              log.info("获取评论===>正序");
-            } else {
-              event.currentTarget.setAttribute("class", "white-btn-comment");
+            clearSelected();
+            if (isReverse) {
+              /* 倒序 */
+              reverseElement.classList.add("selected-tab-item");
+              positiveElement.classList.remove("selected-tab-item");
+              reverseElement.classList.add("selected-tab-item");
               tiebaCommentConfig.mainReverse();
               log.info("获取评论===>倒序");
+            } else {
+              /* 正序 */
+              positiveElement.classList.add("selected-tab-item");
+              reverseElement.classList.remove("selected-tab-item");
+              positiveElement.classList.add("selected-tab-item");
+              tiebaCommentConfig.mainPositive();
+              log.info("获取评论===>正序");
             }
           });
         },
@@ -4744,6 +4782,8 @@
                   <div class="forum_right">
                     <div class="forum_name">${item.fname}</div>
                     <div class="forum_desc">${item.forum_desc}</div>
+                    <div class="forum_member">${item.member_num}</div>
+                    <div class="forum_thread">${item.thread_num}</div>
                   </div>
                 </div>
                 `;
@@ -4788,6 +4828,21 @@
           }
           .WhiteSevsSearchSelect .forum_name::after{
             content:"吧";
+          }
+          .WhiteSevsSearchSelect .forum_member,
+          .WhiteSevsSearchSelect .forum_thread{
+            margin: 4px 0px;
+            padding: 0 0 0 18px;
+            color: #999;
+            font-weight: 400;
+            font-size: 12px;
+            background: url(//tb2.bdstatic.com/tb/static-common/img/suggestion/sugestion_ed6a819.png) no-repeat;
+          }
+          .WhiteSevsSearchSelect .forum_member{
+            background-position: 0 0;
+          }
+          .WhiteSevsSearchSelect .forum_thread{
+            background-position: 0 -26px;
           }
           `);
         },
@@ -5107,7 +5162,10 @@
               padding: .11rem .11rem;
             }
             `);
-            if (globalThis.location.search.startsWith("?kw=")) {
+            if (
+              globalThis.location.search.startsWith("?kw=") ||
+              globalThis.location.pathname === "/f"
+            ) {
               /* 吧内和贴内的background不同 */
               GM_addStyle(`
               .s_post.search_result{
@@ -8183,7 +8241,9 @@
                 PopsPanel.getSwtichDetail(
                   "记住当前选择的看帖排序",
                   "baidu_tieba_remember_user_post_sort",
-                  true
+                  true,
+                  undefined,
+                  "记住选择的发布/回复"
                 ),
                 PopsPanel.getSwtichDetail(
                   "重定向xx吧跳转",
@@ -8220,22 +8280,29 @@
                         "开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
                       );
                     }
-                  }
+                  },
+                  "使浏览器后退变成关闭楼中楼弹窗"
                 ),
                 PopsPanel.getSwtichDetail(
                   "新增滚动到顶部按钮",
                   "baidu_tieba_add_scroll_top_button_in_forum",
-                  true
+                  true,
+                  undefined,
+                  "向下滚动的距离>页面高度*2就会出现按钮"
                 ),
                 PopsPanel.getSwtichDetail(
                   "优化查看评论",
                   "baidu_tieba_optimize_see_comments",
-                  true
+                  true,
+                  undefined,
+                  "可以查看更多的评论"
                 ),
                 PopsPanel.getSwtichDetail(
                   "优化图片点击预览",
                   "baidu_tieba_optimize_image_preview",
-                  true
+                  true,
+                  undefined,
+                  "使用Viewer查看图片"
                 ),
                 PopsPanel.getSwtichDetail(
                   "强制查看被屏蔽的帖子",
@@ -8247,18 +8314,22 @@
                         "开启后，如果查看的帖子显示【贴子不存在或者已被删除】，且该帖子在PC端可以查看，那么该修复可以生效。"
                       );
                     }
-                  }
+                  },
+                  "PC端可以查看帖子该功能才能正确生效"
                 ),
                 PopsPanel.getSwtichDetail(
                   "点击楼主头像正确跳转主页",
                   "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-                  true
+                  true,
+                  undefined,
+                  "点击头像正确跳转至用户主页"
                 ),
                 PopsPanel.getSwtichDetail(
                   "实验性-请求携带Cookie",
                   "baidu_tieba_request_with_cookie",
-                  true,
-                  undefined
+                  false,
+                  undefined,
+                  "非浏览器插件使用"
                 ),
               ],
             },
