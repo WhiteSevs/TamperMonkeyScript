@@ -2446,7 +2446,7 @@
       const FILTER_SCRIPT_KEY = "greasyfork-discussions-filter-script";
       const FILTER_POST_USER_KEY = "greasyfork-discussions-filter-post-user";
       const FILTER_REPLY_USER_KEY = "greasyfork-discussions-filter-reply-user";
-      if (!globalThis.location.pathname.endsWith("/discussions")) {
+      if (!globalThis.location.pathname.includes("/discussions")) {
         return;
       }
       const filterScript = PopsPanel.getValue(FILTER_SCRIPT_KEY, "");
