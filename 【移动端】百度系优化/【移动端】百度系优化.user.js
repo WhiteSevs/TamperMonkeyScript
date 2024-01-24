@@ -53,7 +53,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1314984/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1316817/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1313623/DOMUtils.js
 // ==/UserScript==
 
@@ -1026,7 +1026,7 @@
 
       const handleItemURL = {
         /**
-         * @type {UtilsDictionaryonstructor}
+         * @type {UtilsDictionaryConstructor}
          */
         originURLMap: null,
         /**
@@ -1152,7 +1152,7 @@
         /**
          * 由于部分真实链接存储在 script 标签中，得取出
          * @param {Element} targetNode 目标元素
-         * @returns {UtilsDictionaryonstructor}
+         * @returns {UtilsDictionaryConstructor}
          */
         parseScriptDOMOriginUrlMap(targetNode) {
           let urlMap = new utils.Dictionary();
