@@ -1043,7 +1043,7 @@ declare interface HttpxAsyncResult {
 
 
 
-declare interface UtilsDictionaryonstructor {
+declare interface UtilsDictionaryConstructor {
     /** 检查是否有某一个键 */
     has: (key: string) => boolean;
     /** 检查已有的键中是否以xx开头 */
@@ -1070,6 +1070,282 @@ declare interface UtilsDictionaryonstructor {
     concat: (data: object) => void;
 }
 
+/** 字典 */
 declare interface UtilsDictionary {
-    new(): UtilsDictionaryonstructor;
+    new(): UtilsDictionaryConstructor;
+}
+
+/** 请求的response配置 */
+declare interface UtilsAjaxHookResponseOptions {
+    /**
+     * （重定向后的）Url
+     */
+    finalUrl: string;
+    /**
+     * 响应码
+     */
+    status: HttpxStatus;
+    /**
+     * 响应头
+     */
+    responseHeaders: HttpxHeaders;
+    /**
+     * 响应内容
+     */
+    response?: string;
+    /**
+     * 响应内容文本
+     */
+    responseText?: string;
+}
+/** hook请求的配置 */
+declare interface UtilsAjaxHookRequestOptions {
+    /**
+     * 只读属性。一个字符串，表明请求类型是xhr还是fetch
+     */
+    type: "xhr";
+    /**
+     * 请求的Url
+     */
+    url: string;
+    /**
+     * 请求的url和method，可以直接修改
+     */
+    method: HttpxMethod;
+    /**
+     * 是否取消请求，设置为true即可取消本次请求
+     */
+    abort: boolean;
+    /**
+     * 请求头，可以直接修改
+     */
+    headers: HttpxHeaders;
+    /**
+     * 请求携带的数据，可以直接修改
+     */
+    data?: any;
+    /**
+     * 响应内容，必须通过一个回调函数进行读取和修改。
+     * 
+     * 响应内容为一个对象，包含finalUrl、status、responseHeaders和被读取的响应数据，除响应数据可修改，其他属性是只读的。
+     * 
+     * 响应数据是哪个属性取决于哪个属性被读取，xhr可能的属性为response、responseText、responseXML，fetch可能的属性为arrayBuffer、blob、formData、json、text。
+     * 
+     * 在控制台输出时，xhr响应将包含所有属性，但只有被读取过的属性具有明确的值。修改对应属性即可影响读取结果，进而实现响应数据的修改。
+     */
+    response?: (res: UtilsAjaxHookResponseOptions) => void;
+    /**
+     * 只读属性。异步请求为true，同步请求为false，异步特性无法作用于同步请求
+     */
+    async: boolean;
+}
+
+/** 过滤规则配置 */
+declare interface UtilsAjaxHookFilterOptions {
+    /**
+     * 应是xhr或fetch
+     */
+    type?: "xhr" | "fetch";
+    /**
+     * 字符串或正则表达式，无需完全匹配
+     */
+    url?: string;
+    /**
+     * 请求方法
+     */
+    method?: HttpxMethod;
+    /**
+     * 是否异步
+     */
+    async?: boolean;
+}
+
+/** Utils.ajaxHooker */
+declare interface UtilsAjaxHookResult {
+    /**
+     * 劫持
+     * @example
+        ajaxHooker.hook(request => {
+            if (request.url === 'https://www.example.com/') {
+                request.response = res => {
+                    console.log(res);
+                    res.responseText += 'test';
+                };
+            }
+        });
+      * @example
+        // 异步特性无法作用于同步请求，但同步修改仍然有效
+        // 你可以将以上所有可修改属性赋值为Promise，原请求将被阻塞直至Promise完成（若发生reject，数据将不会被修改）
+        // 此特性可用于异步劫持。以下是一个异步修改响应数据的例子
+        ajaxHooker.hook(request => {
+            request.response = res => {
+                const responseText = res.responseText; // 注意保存原数据
+                res.responseText = new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve(responseText + 'test');
+                    }, 3000);
+                });
+            };
+        });
+
+        // 也可以传入async回调函数以实现异步
+        ajaxHooker.hook(async request => {
+            request.data = await modifyData(request.data);
+            request.response = async res => {
+                res.responseText = await modifyResponse(res.responseText);
+            };
+        });
+     */
+    hook(callback: (request: UtilsAjaxHookRequestOptions) => void | Promise<undefined>): void;
+    /**
+     * 过滤
+     * @example
+        // 应于hook方法之前执行，此方法若尽早执行，有助于提升性能。
+        // 为hook方法设置过滤规则，只有符合规则的请求才会触发hook。过滤规则是一个对象数组，参考下例
+        ajaxHooker.filter([
+            {type: 'xhr', url: 'www.example.com', method: 'GET', async: true},
+            {url: /^http/},
+        ]);
+     */
+    filter(filterOptions: UtilsAjaxHookFilterOptions[]): void;
+    /**
+     * 阻止xhr和fetch被改写
+     * @example
+        // 如果库劫持失败，可能是其他代码对xhr/fetch进行了二次劫持，protect方法会尝试阻止xhr和fetch被改写。应于document-start阶段尽早执行，部分网页下可能引发错误，谨慎使用。
+        ajaxHooker.protect();
+     */
+    protect(): void;
+    /**
+     * 取消劫持
+     * @example
+        // 将xhr和fetch恢复至劫持前的状态，调用此方法后，hook方法不再生效。
+        ajaxHooker.unhook();
+     */
+    unhook(): void;
+}
+
+
+
+declare interface UtilsGMCookieListOptions {
+    /** 默认为当前的url */
+    url: string;
+    /** 默认为当前的域名(window.location.hostname) */
+    domain: string;
+    /** 需要检索的Cookie的名字 */
+    name: string;
+    /** 需要检索的Cookie的路径，默认为"/" */
+    path: string;
+}
+
+declare interface UtilsGMCookieListResult {
+    /** 为 window.location.hostname */
+    domain: string;
+    expirationDate: null;
+    hostOnly: true;
+    httpOnly: false;
+    name: string;
+    path: "/";
+    sameSite: "unspecified";
+    secure: true;
+    session: false;
+    value: string;
+}
+
+declare interface UtilsGMCookieSetOptions {
+    /** 默认为当前的url */
+    url: string;
+    /** 默认为当前的域名(window.location.hostname) */
+    domain: string;
+    /** 需要检索的Cookie的名字 */
+    name: string;
+    /** 需要检索的Cookie的路径，默认为"/" */
+    path: string;
+    /** 值 */
+    value: string;
+    /**  */
+    secure: boolean;
+    /**  */
+    httpOnly: boolean;
+    /**  Cookie过期时间，默认为30天 */
+    expirationDate: number;
+}
+
+declare interface UtilsGMCookieDeleteOptions {
+    /** 默认为当前的url */
+    url: string;
+    /** 需要检索的Cookie的名字 */
+    name: string;
+}
+
+declare interface UtilsGMMenuClickCallBackData {
+    /** 菜单键名 */
+    key: string;
+    /** 是否启用 */
+    enable: boolean;
+    /** 点击前的enable值 */
+    oldEnable: boolean;
+    /** 触发的事件 */
+    event: MouseEvent | KeyboardEvent;
+    /** 将enable值写入本地的回调，设置参数false就不保存到本地 */
+    storeValue: (enable: boolean) => void;
+}
+
+declare interface UtilsGMMenuOptions {
+    /**（必须）菜单的本地键key，不可重复，会覆盖 */
+    key: string;
+    /**（必须）菜单的文本 */
+    text: string;
+    /** 菜单的开启状态，默认为false */
+    enable: boolean | undefined;
+    /** 使用条件：TamperMonkey版本>5.0，如果id和已注册的菜单id相同，可修改当前已注册菜单的options */
+    id: number | undefined;
+    /**  */
+    accessKey: string | undefined;
+    /** 自动关闭菜单，可不设置 */
+    autoClose: boolean | undefined;
+    /** 使用条件：TamperMonkey版本>5.0，使用菜单项的鼠标悬浮上的工具提示，可为空 */
+    title: string | undefined;
+    /** 点击菜单后自动刷新网页，默认为true */
+    autoReload: boolean | undefined;
+    /** 菜单的显示文本，未设置的话则自动根据enable在前面加上图标 */
+    showText: (text: string, enable: boolean) => void;
+    /** 点击菜单的回调 */
+    callback: (data: UtilsGMMenuClickCallBackData) => void;
+    /** 是否允许菜单进行存储值，默认true允许 */
+    isStoreValue?: boolean;
+}
+
+declare interface UtilsGMMenuConstructorOptions {
+    /** 配置，可为空 */
+    data: UtilsGMMenuOptions[] | undefined;
+    /** 全局菜单点击菜单后自动刷新网页，默认为true */
+    autoReload: boolean | undefined;
+    /** （必须）油猴函数@grant GM_getValue */
+    GM_getValue: Function;
+    /** （必须）油猴函数@grant GM_setValue */
+    GM_setValue: Function;
+    /** （必须）油猴函数@grant GM_registerMenuCommand */
+    GM_registerMenuCommand: Function;
+    /** （必须）油猴函数@grant GM_unregisterMenuCommand */
+    GM_unregisterMenuCommand: Function;
+}
+
+/** Utils.Log的初始化配置 */
+declare interface UtilsLogOptions {
+    /** 是否输出Tag，false的话其它的颜色也不输出，默认为true */
+    tag?: boolean;
+    /** log.success的颜色，默认#0000FF */
+    successColor?: string;
+    /** log.warn的颜色，默认0 */
+    warnColor?: string;
+    /** log.error的颜色，默认#FF0000 */
+    errorColor?: string;
+    /** log.info的颜色，默认0 */
+    infoColor?: string;
+    /** 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置，默认false */
+    debug?: boolean;
+    /** 当console输出超过logMaxCount数量自动清理控制台，默认false */
+    autoClearConsole?: boolean;
+    /** console输出的最高数量，autoClearConsole开启则生效，默认999 */
+    logMaxCount?: boolean;
 }
