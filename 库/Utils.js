@@ -24,7 +24,7 @@
   /**
    * @type {string} 工具类的版本
    */
-  Utils.version = "2024-1-21";
+  Utils.version = "2024-1-25";
   /**
    * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
    * @function
@@ -70,94 +70,13 @@
   };
 
   /**
-   * @callback UtilsAjaxHookHook
-   * @param { XMLHttpRequest } request
-   */
-  /**
-   * @typedef {object} UtilsAjaxHookFilterArray
-   * @property {?"xhr"|"fetch"} type 可选，应是xhr或fetch
-   * @property {?string|RegExp} url 可选，字符串或正则表达式，无需完全匹配。
-   * @property {?string} method 可选，不区分大小写。
-   * @property {?boolean} async 可选，布尔值。
-   */
-  /**
-   * @callback UtilsAjaxHookFilter
-   * @param { UtilsAjaxHookFilterArray[] } filterArray
-   */
-  /**
-   * @typedef {object} UtilsAjaxHookResult
-   * @property { (request: UtilsAjaxHookHook )=>{} } hook 劫持
-   * @property {UtilsAjaxHookFilter} filter 过滤
-   * @property {()=>{}} protect 阻止xhr和fetch被改写
-   * @property {()=>{}} unhook 取消劫持
-   */
-  /**
    * ajax劫持库，支持xhr和fetch劫持。
    * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
    * + 作者：cxxjackie
    * + 版本：1.3.3
    * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
-   * 
+   *
    * @returns { UtilsAjaxHookResult }
-   * 
-   * @example
-    // 核心方法，通过一个回调函数进行劫持，每次请求发生时自动调用回调函数。可以将所有劫持放在同一回调函数中，也可以多次调用hook方法。
-    ajaxHooker.hook(request => {
-      console.log(request);
-    });
-   * @example
-    // response
-    // 响应内容，必须通过一个回调函数进行读取和修改。响应内容为一个对象
-    // 包含finalUrl、status、responseHeaders和被读取的响应数据
-    // 除响应数据可修改，其他属性是只读的。
-    // 响应数据是哪个属性取决于哪个属性被读取
-    // xhr可能的属性为response、responseText、responseXML
-    // fetch可能的属性为arrayBuffer、blob、formData、json、text
-    // 在控制台输出时，xhr响应将包含所有属性，但只有被读取过的属性具有明确的值
-    // 修改对应属性即可影响读取结果，进而实现响应数据的修改
-    ajaxHooker.hook(request => {
-      if (request.url === 'https://www.example.com/') {
-        request.response = res => {
-          console.log(res);
-          res.responseText += 'test';
-        };
-      }
-    });
-    @example
-    // 异步特性无法作用于同步请求，但同步修改仍然有效
-    // 你可以将以上所有可修改属性赋值为Promise，原请求将被阻塞直至Promise完成（若发生reject，数据将不会被修改）
-    // 此特性可用于异步劫持。以下是一个异步修改响应数据的例子
-    ajaxHooker.hook(request => {
-      request.response = res => {
-        const responseText = res.responseText; // 注意保存原数据
-        res.responseText = new Promise(resolve => {
-          setTimeout(() => {
-              resolve(responseText + 'test');
-          }, 3000);
-        });
-      };
-    });
-
-    // 也可以传入async回调函数以实现异步
-    ajaxHooker.hook(async request => {
-      request.data = await modifyData(request.data);
-      request.response = async res => {
-        res.responseText = await modifyResponse(res.responseText);
-      };
-    });
-    @example
-    // 应于hook方法之前执行，此方法若尽早执行，有助于提升性能。
-    // 为hook方法设置过滤规则，只有符合规则的请求才会触发hook。过滤规则是一个对象数组，参考下例
-    ajaxHooker.filter([
-      {type: 'xhr', url: 'www.example.com', method: 'GET', async: true},
-      {url: /^http/},
-    ]);
-    @example
-    // 如果库劫持失败，可能是其他代码对xhr/fetch进行了二次劫持，protect方法会尝试阻止xhr和fetch被改写。应于document-start阶段尽早执行，部分网页下可能引发错误，谨慎使用。
-    ajaxHooker.protect();
-    @example
-    // 将xhr和fetch恢复至劫持前的状态，调用此方法后，hook方法不再生效。
-    ajaxHooker.unhook();
    */
   Utils.ajaxHooker = function () {
     "use strict";
@@ -1997,32 +1916,6 @@
   };
 
   /**
-   * @typedef {object} GM_Cookie_ListDetails
-   * @property {string} url 默认为当前的url
-   * @property {string} domain 默认为当前的域名(window.location.hostname)
-   * @property {string} name 需要检索的Cookie的名字
-   * @property {string} path 需要检索的Cookie的路径，默认为"/"
-   */
-
-  /**
-   * @typedef {object} GM_Cookie_SetDetails
-   * @property {string} url 默认为当前的url
-   * @property {string} domain 默认为当前的域名(window.location.hostname)
-   * @property {string} name 需要检索的Cookie的名字
-   * @property {string} path 需要检索的Cookie的路径，默认为"/"
-   * @property {string} value 值
-   * @property {boolean} secure
-   * @property {boolean} httpOnly
-   * @property {number} expirationDate Cookie过期时间，默认为30天
-   */
-
-  /**
-   * @typedef {object} GM_Cookie_DeleteDetails
-   * @property {string} url 默认为当前的url
-   * @property {string} name 需要检索的Cookie的名字
-   */
-
-  /**
    * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
    * @example
     let GM_cookie = new Utils.GM_Cookie();
@@ -2052,17 +1945,18 @@
   Utils.GM_Cookie = function () {
     /**
      * 获取Cookie
-     * @param {GM_Cookie_ListDetails} [paramDetails={}]
-     * @param {function|undefined} callback
+     * @param {UtilsGMCookieListOptions} [paramDetails={}]
+     * @param {?(data: UtilsGMCookieListResult[], error: ?TypeError)=> void} callback
      * + cookies object[]
      * + error string|undefined
      */
     this.list = function (paramDetails = {}, callback = () => {}) {
+      /** @type {UtilsGMCookieListResult[]} */
       let resultData = [];
       try {
         let details = {
-          url: window.location.href,
-          domain: window.location.hostname,
+          url: globalThis.location.href,
+          domain: globalThis.location.hostname,
           name: "",
           path: "/",
         };
@@ -2077,21 +1971,18 @@
               ? details.name
               : new RegExp("^" + details.name, "g");
           if (itemName.match(nameRegexp)) {
-            resultData = [
-              ...resultData,
-              {
-                domain: window.location.hostname,
-                expirationDate: void 0,
-                hostOnly: true,
-                httpOnly: false,
-                name: itemName,
-                path: "/",
-                sameSite: "unspecified",
-                secure: true,
-                session: false,
-                value: itemValue,
-              },
-            ];
+            resultData.push({
+              domain: globalThis.location.hostname,
+              expirationDate: void 0,
+              hostOnly: true,
+              httpOnly: false,
+              name: itemName,
+              path: "/",
+              sameSite: "unspecified",
+              secure: true,
+              session: false,
+              value: itemValue,
+            });
             return;
           }
         });
@@ -2103,8 +1994,8 @@
 
     /**
      * 设置Cookie
-     * @param {GM_Cookie_SetDetails} [paramDetails={}]
-     * @param {function|undefined} callback
+     * @param {UtilsGMCookieSetOptions} [paramDetails={}]
+     * @param {?(error: ?TypeError)=> void} callback
      */
     this.set = function (paramDetails = {}, callback = () => {}) {
       try {
@@ -2141,8 +2032,8 @@
 
     /**
      * 删除Cookie
-     * @param {GM_Cookie_DeleteDetails} [paramDetails={}]
-     * @param {function|undefined} callback
+     * @param {UtilsGMCookieDeleteOptions} [paramDetails={}]
+     * @param {?(error: ?TypeError)=> void} callback
      */
     this.delete = (paramDetails = {}, callback = () => {}) => {
       try {
@@ -2163,41 +2054,8 @@
   };
 
   /**
-   * @typedef {object} GM_Menu_CallBack
-   * @property {string} key 当前菜单键名
-   * @property {boolean} enable 当前菜单enable值
-   * @property {boolean} oldEnable 点击之前enable值
-   * @property {MouseEvent|KeyboardEvent} event 触发事件
-   * @property { (enable: boolean)=> {} } storeValue 将enable值写入本地
-   */
-
-  /**
-   * @typedef {object} GM_Menu_Details
-   * @property {string} key （必须）菜单的本地键key，不可重复，会覆盖
-   * @property {string} text （必须）菜单的文本
-   * @property {boolean|undefined} enable 菜单的开启状态，默认为false
-   * @property {number|undefined} id 使用条件：TamperMonkey版本>5.0，如果id和已注册的菜单id相同，可修改当前已注册菜单的options
-   * @property {string|undefined} accessKey
-   * @property {boolean|undefined} autoClose 自动关闭菜单，可不设置
-   * @property {string|undefined} title 使用条件：TamperMonkey版本>5.0，使用菜单项的鼠标悬浮上的工具提示，可为空
-   * @property {boolean|undefined} autoReload 点击菜单后自动刷新网页，默认为true
-   * @property { (text:string,enable:boolean)=>{} } showText 菜单的显示文本，未设置的话则自动根据enable在前面加上图标
-   * @property {(data: GM_Menu_CallBack)=>{}} callback 点击菜单的回调
-   * @property { boolean } [isStoreValue=true] 是否允许菜单进行存储值，默认true允许
-   */
-
-  /**
-   * @typedef {object} GM_Menu_Config
-   * @property {GM_Menu_Details[]} data 配置，可为空
-   * @property {boolean|undefined} autoReload 全局菜单点击菜单后自动刷新网页，默认为true
-   * @property {function} GM_getValue （必须）油猴函数@grant GM_getValue
-   * @property {function} GM_setValue （必须）油猴函数@grant GM_setValue
-   * @property {function} GM_registerMenuCommand （必须）油猴函数@grant GM_registerMenuCommand
-   * @property {function} GM_unregisterMenuCommand （必须）油猴函数@grant GM_unregisterMenuCommand
-   */
-  /**
    * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
-   * @param { GM_Menu_Config } details 传递的菜单配置
+   * @param { UtilsGMMenuConstructorOptions } details 传递的菜单配置
    * @example
     let GM_Menu = new Utils.GM_Menu({
       data: [
@@ -2320,7 +2178,7 @@
     let that = this;
     /**
      * 注册的菜单的映射信息
-     * @type {Map<number,GM_Menu_Details>}
+     * @type {Map<number,UtilsGMMenuConstructorOptions>}
      */
     let menuIdMap = new Map();
 
@@ -2366,7 +2224,7 @@
 
     /**
      * 对菜单数据进行处理
-     * @param { GM_Menu_Details } data
+     * @param { UtilsGMMenuConstructorOptions } data
      * @returns { any[] }
      */
     let handleMenuData = function (data) {
@@ -2452,8 +2310,8 @@
 
     /**
      * 处理初始化配置
-     * @param { GM_Menu_Details } _detail_
-     * @returns { GM_Menu_Details }
+     * @param { UtilsGMMenuConstructorOptions } _detail_
+     * @returns { UtilsGMMenuConstructorOptions }
      */
     let handleInitDetail = function (_detail_) {
       _detail_.enable = Boolean(
@@ -2470,7 +2328,7 @@
     };
     /**
      * 初始化数据
-     * @returns { GM_Menu_Details[] }
+     * @returns { UtilsGMMenuConstructorOptions[] }
      */
     let init = function () {
       menuIdMap.clear();
@@ -2482,7 +2340,7 @@
 
     /**
      * 注册油猴菜单
-     * @param { ?GM_Menu_Config[] } _data_ 如果存在，使用它
+     * @param { UtilsGMMenuConstructorOptions[]|undefined } _data_ 如果存在，使用它
      */
     let register = function (_data_) {
       (_data_ || data).forEach((item) => {
@@ -2495,7 +2353,7 @@
     /**
      * 获取目标菜单配置
      * @param {string} menuKey 菜单-键key
-     * @returns {GM_Menu_Details}
+     * @returns {UtilsGMMenuConstructorOptions}
      */
     let getTargetMenu = function (menuKey) {
       return data.find((item) => item.key == menuKey);
@@ -2651,7 +2509,7 @@
     };
     /**
      * 新增菜单数据
-     * @param {GM_Menu_Details[]|GM_Menu_Details} paramData
+     * @param {UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions} paramData
      */
     this.add = function (paramData) {
       if (Array.isArray(paramData)) {
@@ -2663,7 +2521,7 @@
     };
     /**
      * 更新菜单数据
-     * @param { GM_Menu_Details[]|GM_Menu_Details|undefined } options 数据
+     * @param { UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions|undefined } options 数据
      */
     this.update = function (options) {
       let optionsList = [];
@@ -2688,11 +2546,11 @@
     };
     /**
      * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
-     * @param { GM_Menu_Details[]|GM_Menu_Details|undefined } options 配置
+     * @param { UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions|undefined } options 配置
      */
     this.updateOptionsWithId = function (options) {
       /**
-       * @type {GM_Menu_Details[]}
+       * @type {UtilsGMMenuConstructorOptions[]}
        */
       let optionsList = [];
       if (Array.isArray(options)) {
@@ -4281,19 +4139,12 @@
   };
 
   /**
-   * @typedef {object} UtilsLogDetails
-   * @property {boolean} [tag=true] 是否输出Tag，false的话其它的颜色也不输出，默认为true
-   * @property {string} [successColor="#0000FF"] log.success的颜色，默认#0000FF
-   * @property {string} [warnColor="0"] log.warn的颜色，默认0
-   * @property {string} [errorColor="#FF0000"] log.error的颜色，默认#FF0000
-   * @property {string} [infoColor="0"] log.info的颜色，默认0
-   * @property {boolean} [debug=false] 是否开启debug模式，true会在控制台每次调用时输出调用函数的所在位置，false不会输出位置，默认false
-   * @property {boolean} [autoClearConsole=false] 当console输出超过logMaxCount数量自动清理控制台，默认false
-   * @property {boolean} [logMaxCount=999] console输出的最高数量，autoClearConsole开启则生效，默认999
-   */
-  /**
    * 日志对象
-   * @param {object|undefined} _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+   * @param {{
+   * "script": {
+   *    "name": string,
+   *  }
+   * }|undefined} _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
    * @example
     let log = new Utils.Log(GM_info);
     log.info("普通输出");
@@ -4334,7 +4185,7 @@
       "font-weight: bold; color: cornflowerblue",
     ];
     /**
-     * @type {UtilsLogDetails}
+     * @type {UtilsLogOptions}
      */
     let details = {
       tag: true,
@@ -4546,7 +4397,7 @@
     };
     /**
      * 配置Log对象的颜色
-     * @param {UtilsLogDetails} paramDetails 配置信息
+     * @param {UtilsLogOptions} paramDetails 配置信息
      */
     this.config = function (paramDetails) {
       details = Object.assign(details, paramDetails);
