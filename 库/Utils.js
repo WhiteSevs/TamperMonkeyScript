@@ -4094,9 +4094,9 @@
 
   /**
    * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-   * @param {function|string} func 需要执行的函数
-   * @param {function|undefined} scope 函数作用域
-   * @param {number} [unLockDelayTime=0] 延迟xx毫秒后解锁，默认0
+   * @param {()=> any | Promise<any>} callback 需要执行的函数
+   * @param {function|undefined} context 函数作用域
+   * @param {number} [delayTime=0] 延迟xx毫秒后解锁，默认0
    * @example
     let lock = new Utils.LockFunction(()=>{console.log(1)}))
     lock.run();
@@ -4106,10 +4106,10 @@
     await lock.run();
     > 1
    **/
-  Utils.LockFunction = function (func, scope, unLockDelayTime = 0) {
+  Utils.LockFunction = function (callback, context, delayTime = 0) {
     let flag = false;
     let that = this;
-    scope = scope || this;
+    context = context || this;
     /**
      * 锁
      */
@@ -4122,18 +4122,17 @@
     this.unlock = function () {
       setTimeout(() => {
         flag = false;
-      }, unLockDelayTime);
+      }, delayTime);
     };
     /**
      * 执行
-     * @param  {...any} funArgs 参数
      */
-    this.run = async function (...funArgs) {
+    this.run = async function (...args) {
       if (flag) {
         return;
       }
       that.lock();
-      await func.apply(scope, funArgs); /* arguments调用 */
+      await callback.apply(context, args);
       that.unlock();
     };
   };
@@ -5091,6 +5090,27 @@
   };
 
   /**
+   * 将数字进行正/负转换
+   * @param {number} num 需要进行转换的数字
+   */
+  Utils.reverseNumber = function (num) {
+    let reversedNum = 0;
+    let isNegative = false;
+
+    if (num < 0) {
+      isNegative = true;
+      num = Math.abs(num);
+    }
+
+    while (num > 0) {
+      reversedNum = reversedNum * 10 + (num % 10);
+      num = Math.floor(num / 10);
+    }
+
+    return isNegative ? -reversedNum : reversedNum;
+  };
+
+  /**
    * 将元素上的文本或元素使用光标进行选中
    *
    * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
@@ -5222,8 +5242,8 @@
 
   /**
    * 【异步函数】等待N秒执行函数
-   * @param {function|string} delayToExecuteFunction	待执行的函数(字符串)
-   * @param {number} [delayTime=0]	延时时间(ms)
+   * @param {function|string} callback 待执行的函数(字符串)
+   * @param {number} [delayTime=0] 延时时间(ms)
    * @example
    * await Utils.setTimeout(()=>{}, 2500);
    * > ƒ tryCatchObj() {}
@@ -5231,19 +5251,18 @@
    * await Utils.setTimeout("()=>{console.log(12345)}", 2500);
    * > ƒ tryCatchObj() {}
    **/
-  Utils.setTimeout = async function (delayToExecuteFunction, delayTime = 0) {
-    if (
-      typeof delayToExecuteFunction !== "function" &&
-      typeof delayToExecuteFunction !== "string"
-    ) {
-      throw new Error("Utils.setTimeout 参数 func 必须为 function|string 类型");
+  Utils.setTimeout = async function (callback, delayTime = 0) {
+    if (typeof callback !== "function" && typeof callback !== "string") {
+      throw new TypeError(
+        "Utils.setTimeout 参数 callback 必须为 function|string 类型"
+      );
     }
     if (typeof delayTime !== "number") {
-      throw new Error("Utils.setTimeout 参数 delayTime 必须为 number 类型");
+      throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(Utils.tryCatch().run(delayToExecuteFunction));
+        resolve(Utils.tryCatch().run(callback));
       }, delayTime);
     });
   };
@@ -5598,7 +5617,12 @@
 
   /**
    * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-   * @returns {{run:function,config:function,error:function}} - 返回一个对象，其中包含 error 和 run 两个方法。
+   * @returns {
+   * {
+   *  run:  function,
+   *  config: function,
+   *  error:  function
+   * }} - 返回一个对象，其中包含 error 和 run 两个方法。
    * @example
    * Utils.tryCatch().error().run(()=>{console.log(1)});
    * > 1
@@ -5606,15 +5630,14 @@
    * Utils.tryCatch().config({log:true}).error((error)=>{console.log(error)}).run(()=>{throw new Error('测试错误')});
    * > ()=>{throw new Error('测试错误')}出现错误
    */
-  Utils.tryCatch = function () {
+  Utils.tryCatch = function (...args) {
     /* 定义变量和函数 */
-    let func = null;
-    let funcThis = null;
-    let handleErrorFunc = null;
+    let callbackFunction = null;
+    let context = null;
+    let handleError = null;
     let defaultDetails = {
       log: true,
     };
-    let funcArgs = arguments;
     /**
      * @function tryCatchObj
      * @description 空函数，用于链式调用。
@@ -5623,7 +5646,9 @@
 
     /**
      * 配置
-     * @param {object} paramDetails
+     * @param {{
+     * log: boolean
+     * }} paramDetails
      */
     tryCatchObj.config = function (paramDetails) {
       defaultDetails = Utils.assign(defaultDetails, paramDetails);
@@ -5631,61 +5656,61 @@
     };
     /**
      * 设置错误处理函数。
-     * @param {function|string} handler - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-     * @returns {function} - 返回 tryCatchObj 函数。
+     * @param {function|string} handler 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @returns {function} 返回 tryCatchObj 函数。
      */
     tryCatchObj.error = function (handler) {
-      handleErrorFunc = handler;
+      handleError = handler;
       return tryCatchObj;
     };
 
     /**
      * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-     * @param {function|string} fn - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-     * @param {object|null} fnThis - 待执行函数的作用域，用于apply指定
-     * @returns {any|function} - 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
-     * @throws {Error} - 如果传入参数不符合要求，则会抛出相应类型的错误。
+     * @param {function|string} callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @param {object|null} __context__ 待执行函数的作用域，用于apply指定
+     * @returns {any|function} 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
+     * @throws {Error} 如果传入参数不符合要求，则会抛出相应类型的错误。
      */
-    tryCatchObj.run = function (fn, fnThis) {
-      func = fn;
-      funcThis = fnThis;
-      let result = executeTryCatch(func, handleErrorFunc, funcThis);
+    tryCatchObj.run = function (callback, __context__) {
+      callbackFunction = callback;
+      context = __context__;
+      let result = executeTryCatch(callbackFunction, handleError, context);
       return result !== void 0 ? result : tryCatchObj;
     };
 
     /**
      * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-     * @param {function|string} func - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+     * @param {function|string} callback - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {function|string|null} handleErrorFunc - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
      * @param {object|null} funcThis - 待执行函数的作用域，用于apply指定
      * @returns {any|undefined} - 如果函数有返回值，则返回该返回值；否则返回 undefined。
      */
-    function executeTryCatch(func, handleErrorFunc, funcThis) {
+    function executeTryCatch(callback, handleErrorFunc, funcThis) {
       let result = void 0;
       try {
-        if (typeof func === "string") {
+        if (typeof callback === "string") {
           (function () {
-            eval(func);
-          }).apply(funcThis, funcArgs);
+            eval(callback);
+          }).apply(funcThis, args);
         } else {
-          result = func.apply(funcThis, funcArgs);
+          result = callback.apply(funcThis, args);
         }
       } catch (error) {
         if (defaultDetails.log) {
           console.log(
-            `%c ${func?.name ? func?.name : func + "出现错误"} `,
+            `%c ${callback?.name ? callback?.name : callback + "出现错误"} `,
             "color: #f20000"
           );
           console.log(`%c 错误原因：${error}`, "color: #f20000");
-          console.trace(func);
+          console.trace(callback);
         }
         if (handleErrorFunc) {
           if (typeof handleErrorFunc === "string") {
             result = function () {
               return eval(handleErrorFunc);
-            }.apply(funcThis, [...funcArgs, error]);
+            }.apply(funcThis, [...args, error]);
           } else {
-            result = handleErrorFunc.apply(funcThis, [...funcArgs, error]);
+            result = handleErrorFunc.apply(funcThis, [...args, error]);
           }
         }
       }
@@ -5735,7 +5760,7 @@
    * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
    * @param {function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
    * @example
-   * await Utils.waitArrayLoopToEnd([func,func,func],xxxFunction);
+   * await Utils.waitArrayLoopToEnd([callback,callback,callback],xxxcallback);
    **/
   Utils.waitArrayLoopToEnd = function (data, handleFunc) {
     if (typeof handleFunc !== "function" && typeof handleFunc !== "string") {
