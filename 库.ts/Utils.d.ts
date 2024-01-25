@@ -1092,7 +1092,7 @@ declare interface UtilsAjaxHookResponseOptions {
     /**
      * 响应内容
      */
-    response?: string;
+    response?: string | Blob | ArrayBuffer | XMLDocument | FormData;
     /**
      * 响应内容文本
      */
