@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.1.25
+// @version      2024.1.26
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -103,22 +103,20 @@
    * 数据配置
    */
   const NetDiskData = {
-    /**
-     * 蓝奏云默认主机域名
-     */
+    /** 蓝奏云默认主机域名 */
     lanzou_defaultHostName: "www.lanzout.com",
-    /**
-     * 是否点击网盘小图标寻找shareCode
-     */
+    /** 是否点击网盘小图标寻找shareCode */
     iconDefaultClickEventToFindShareCode: true,
-    /**
-     * 是否点击网盘小图标寻找shareCode且使用光标选中
-     */
+    /** 是否点击网盘小图标寻找shareCode且使用光标选中 */
     iconDefaultClickEventToFindShareCodeWithSelect: true,
-    /**
-     * 是否点击网盘小图标（循环）寻找shareCode
-     */
+    /** 是否点击网盘小图标（循环）寻找shareCode */
     iconDefaultClickEventToFindShareCodeByLoop: true,
+    /** 匹配间隔默认时间(s) */
+    defaultMatchIntervalTime: 0.8,
+    /** 匹配间隔最小时间(s) */
+    matchIntervalMinTime: 0.0,
+    /** 匹配间隔最打时间(s) */
+    matchIntervalMaxTime: 5.0,
   };
 
   const NetDisk = {
@@ -138,6 +136,7 @@
     isMatching: false,
     /**
      * 匹配到的链接
+     * @type {Set}
      */
     matchLink: null,
     /**
@@ -5919,7 +5918,7 @@
       if (!matchLink.length) {
         setTimeout(() => {
           NetDiskUI.isHandleMatch = false;
-        }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
+        }, parseFloat(GM_getValue("delaytime", NetDiskData.defaultMatchIntervalTime)) * 1000);
         return;
       }
       /* 已匹配到的网盘，用于显示图标 */
@@ -5937,7 +5936,7 @@
       }
       setTimeout(() => {
         NetDiskUI.isHandleMatch = false;
-      }, parseFloat(GM_getValue("delaytime", 0.8)) * 1000);
+      }, parseFloat(GM_getValue("delaytime", NetDiskData.defaultMatchIntervalTime)) * 1000);
     },
     /**
      * Worker失败回调
@@ -6075,10 +6074,6 @@
      */
     opacity: parseFloat(GM_getValue("opacity", 1)),
     /**
-     * 是否已创建设置界面
-     */
-    isCreatedUISetting: false,
-    /**
      * 是否正在文本匹配中
      */
     isHandleMatch: false,
@@ -6088,8 +6083,23 @@
     isSwitchRandomBackground: false,
     /**
      * 链接弹窗的对象
+     * @type {{
+     * guid: string,
+     * element: Element,
+     * animElement: HTMLElement,
+     * popsElement: Element,
+     * maskElement: Element,
+     * close: Function,
+     * hide: Function,
+     * show: Function,
+     * }}
      */
     uiLinkAlias: null,
+    /**
+     * 悬浮按钮
+     * @type {HTMLElement}
+     */
+    suspensionNode: null,
     /**
      * 单文件直链弹窗的唯一标识
      */
@@ -6331,6 +6341,12 @@
        */
       isShow: false,
       /**
+       * 是否已设置事件
+       */
+      isSetEvent: false,
+      /** 是否正在切换背景 */
+      isRandBg: false,
+      /**
        * 显示悬浮按钮
        */
       show() {
@@ -6338,9 +6354,12 @@
           this.isShow = true;
           this.createUI();
           this.initPop();
+          this.setSuspensionPosition();
+        }
+        if (!this.isSetEvent) {
+          this.isSetEvent = true;
           this.setSuspensionEvent();
           this.setResizeEventListener();
-          this.setSuspensionPosition();
         }
         this.backgroundSwitch();
       },
@@ -6376,7 +6395,7 @@
           NetDiskUI.opacity = 1;
         }
         this.loadCSS();
-        let suspensionNode = DOMUtils.createElement(
+        NetDiskUI.suspensionNode = DOMUtils.createElement(
           "div",
           {
             id: "whitesevSuspensionId",
@@ -6397,7 +6416,7 @@
           `,
           }
         );
-        document.body.appendChild(suspensionNode);
+        document.body.appendChild(NetDiskUI.suspensionNode);
       },
       /**
        * 所有的弹窗初始化设置
@@ -6882,7 +6901,8 @@
                     type: "slider",
                     attributes: {
                       "data-key": "delaytime",
-                      "data-default-value": 0.8,
+                      "data-default-value":
+                        NetDiskData.defaultMatchIntervalTime,
                     },
                     getValue() {
                       return GM_getValue(
@@ -6896,8 +6916,8 @@
                     getToolTipContent(value) {
                       return `${value}s`;
                     },
-                    min: 0.6,
-                    max: 5.0,
+                    min: NetDiskData.matchIntervalMinTime,
+                    max: NetDiskData.matchIntervalMaxTime,
                     step: 0.1,
                   },
                   {
@@ -10440,21 +10460,27 @@
     monitorDOMInsert() {
       NetDiskWorker.initWorkerBlobLink();
       NetDiskWorker.initWorker();
-      utils.mutationObserver(document.body || document.documentElement, {
-        callback: async (mutations) => {
-          if (NetDiskUI.isHandleMatch) {
-            /* 当前正在处理文本正则匹配中 */
-            return;
-          }
-          NetDiskUI.isHandleMatch = true;
-          if (GM_getValue("readClipboard", false)) {
-            NetDisk.clipboardText = await NetDisk.getClipboardText();
-          }
-          if (typeof NetDisk.clipboardText !== "string") {
-            NetDisk.clipboardText = "";
-          }
-          NetDisk.matchPageLink();
-        },
+      /**
+       * 观察者的事件
+       * @param {?MutationRecord[]} mutations
+       * @returns
+       */
+      async function observeEvent(mutations) {
+        if (NetDiskUI.isHandleMatch) {
+          /* 当前正在处理文本正则匹配中 */
+          return;
+        }
+        NetDiskUI.isHandleMatch = true;
+        if (GM_getValue("readClipboard", false)) {
+          NetDisk.clipboardText = await NetDisk.getClipboardText();
+        }
+        if (typeof NetDisk.clipboardText !== "string") {
+          NetDisk.clipboardText = "";
+        }
+        NetDisk.matchPageLink();
+      }
+      utils.mutationObserver(document.documentElement, {
+        callback: observeEvent,
         config: {
           /* 子节点的变动（新增、删除或者更改） */
           childList: true,
@@ -10465,7 +10491,7 @@
         },
       });
       /* 主动触发一次，因为有的页面上没触发mutationObserver */
-      NetDisk.matchPageLink();
+      observeEvent();
     },
   };
 
