@@ -77,4 +77,34 @@ declare interface NetDiskWorkerOptions {
      * 匹配的规则
      */
     regular: NetDiskRegular;
+    /**
+     * 开始时间
+     */
+    startTime: Date,
+}
+
+/** worker处理完毕的的传递的数据 */
+declare interface NetDiskWorkerCallBackOptions {
+    /** 消息 */
+    msg: string;
+    /** 是否匹配完毕 */
+    isMatchingEnd: boolean;
+    /** 匹配的网盘规则的名 */
+    netDiskName: undefined | string;
+    /** 匹配的网盘规则的下标 */
+    netDiskIndex: undefined | string;
+    /** 匹配到的数据 */
+    data: string[],
+    /**
+     * + isMatchingEnd: true 所有规则全部匹配到的数量
+     * + isMatchingEnd: false 当前循环的规则匹配到的数量
+     */
+    count: number,
+    /** 匹配开始时间 */
+    startTime: number,
+    /**
+     * + isMatchingEnd: true 当前循环的规则匹配结束的时间
+     * + isMatchingEnd: false 所有规则匹配结束的时间
+     */
+    endTime: number,
 }
