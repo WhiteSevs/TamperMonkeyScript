@@ -2047,3 +2047,22 @@ declare interface PopsSearchSuggestionResult {
      */
     show: () => void;
 }
+
+declare interface PopsCallResult {
+    /** 唯一标识id */
+    guid: string;
+    /** 元素 */
+    element: Element;
+    /** 动画层元素 */
+    animElement: HTMLElement;
+    /** pops元素 */
+    popsElement: Element;
+    /** 遮罩层元素 */
+    maskElement?: Element;
+    /** 关闭弹窗 */
+    close: Function;
+    /** 隐藏弹窗 */
+    hide: Function;
+    /** 显示弹窗 */
+    show: Function;
+}
