@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAACsJJREFUeF7tXW+IHdUVP2c2u8kHIQYL0TRIaK1SgrFFaZsvVkpAo6YR1LJpa9jUd++83SUpSrUNBFRCrVgxNOv+mTOvJBBNmtpamoQG9UNBKLHFDzEtFttKBdOYQENE/Lb75vZd2cVNum/uvXNnZt/MnoGQD+/c8+d3fu+c+2f2PgR+ljQCuKSj5+CBCbDEScAEYAIscQSWePhcAZgASxyBJR4+VwAmQHEIjIyM3DAzM/M1pdSXEfEWALgVANbkaPE0ABwhomdz1GmtSgixHxF3Wg8wC55HxPeVUu8DgP7/jRUrVvxpbGzsY/PQbBK5VwCd9Ha7vVkptRkA9L8yHiKisAxDczaklL8GgAfLsImIryql3gSAqBPnh3nazI0AjUZjbRAEjwLAI3k6aKtLKbUjjuODtvI+cs1m894kSY776Mg49hwAxHkSIRcCSCl10nXy12YMLI9hrxDR/XkoMukQQrQQ8WGTXIGfn0PEZ6IoGvO14U0AKeUJALjH15Ecxr9ARHn2464uCSEOI+K2HHz2VXGUiAZ9lHgRQEp5BgBu9nEgr7FBEGyZmprSZCz8EUIMIuKRwg3ZGfiAiK63E/1/qcwEkFJ+BAArsxrOedzLRPSdnHWmqgvD8EBntj5Ups0UWxeI6NosvmQigBDibUTckMVgAWNKXwHMxSClfBwAtgPA+gLiclX5GhHd6TrImQBhGO5RSu11MHQREY8nSXICEf/R399/bnx8/KLD+CUl2plf3BgEwa1JktyOiN8HgKscAHCuhE4EaDabQ0mSHLBxSCml5weHlFKHWq3WBZsxLHM5AlLKLwLAQwCwCwBWWeLzKBHts5S1fx9ASnkdALxluZPXIiJh6wTLpSMwPDx8U7vd/iEADFtgdTZJko2tVuushawTAZ4EgCdMSpVSW+M4PmaS48/dEZBSWuWgMznfR0R6X8b4WLUA228/Ig5GUXTUaJUFMiMghNiEiK+bFCxbtuxLExMT/zLJ2RLAhnmTRDRiMsif+yMQhuFupdTTaZoQcZfNTqEVAYQQf0TEO1IMXurr69s4OTn5rn94rMEGAYul+Ekiutuky0iAoaGhqwcGBi4ZFD1FRLpK8FMSAkKIHyHiz9PM2bQBIwGklPcBwO9SDH0CAF8hovdKip3NAECj0VgdBMHf05aHSqntcRwfSm0VJjSllD8DgJ90k1NKTcVxbLM8MZnizx0RkFL+BgC6noAi4nNRFD3mSwB96NH1xKnMc3hHfGovbnEoZdweNraAMAxPKaW+0Q1NRFwfRdE7tUe7BwOUUuqTWL3j2u0xHhIZCSCl1K8gdT1pIiKjjh7ErhYujY6OXjM9Pf3ftGBM+TEmT0qpfAzUAukeDsI3P0yAHk6ujWtMABuUaizDBKhxcm1CYwLYoFRjGSZAjZNrExoTwAalGsswAWqcXJvQmAA2KNVYhglQ4+TahMYEsEGpxjK1IYCU8vcAcJvlW8dVTqn+C9+3iGhrHkHUggCmIPIAqhd1mA5qbHw2YWeysehnAWVetGADaMkyzn/Jc6V/dSDAeQBYXTLwvWLOeF5vcrQOBEg9bjYBUPXPTSXaFB8TwIRQj3/OBDC8cNLj+fN2r+oEOE1EX/VBwVTCfHRXYWzBBDDmx7gKMNyF92PfO/pMBPAFKO9Zsyupio7PNz9GAuiAuyzVcrmZo2iA6k4A3/xYEUAb0Xfjtdvt+xBxlVLqeF538jEB8nmrOmt+rAngWvps5ZkA+RDAFu8r5XqBAP9J2f8/R0SfzxrcQuMWgXClxueKVS8QQB8CfbuL48fyOjSZ078IBCg1vsoRYHYSs+BuYN4rgDRbc8CVabMIW5UkwLyZ7O2zAbxR1MWPZVeAeZVH3y5eeHyVJYCr41nlF4sAWf0tetyizwGKDnCx9wHKjs/VHhPgCsR6oS+7JtFHngnABPDhT/XG8hzg8pxxBeAKUL1vsY/HXAG4AvCNJ/M4wC2AW4BPQa3eWG4B3AK4BXAL6F65eCOoelXdyWNuAdwCuAVwC+AWMIcALwN5GejUQisvzHMAngPwHIDnADwH4DlAFw7wPkDlu3x6ADwHyDgHCMPwLqXUJgCYDoLgpampqb9VkSt1JUDW/FgtA6WUvwSAH1yR8Bc7vxSmf9i4Uk8dCeCTHyMBDL8a9j0iOlwlBtSNAL75sSGA/v1Z/TPmCz3/JqIvMAEWDwEppVd+bAhQq3VzDSuAV36YABXfCvYlNBOACbC01s2+35jF6/YLW/aNhysAVwCuAPMRqNpWMFcAx5rsC5ijucLFfePhFsAtgFsAt4AUDviWmMJroKMBjsfxNJABc2RYyeK++VmKc4CevrfPlT9MAEfEZn+cqrR7CR3dcxZnAjhD9unl16XdS5jBPachTAAnuD4Tnr0Bvefu7XMNhwngiljN5JkANUuoazhMAFfEaia/6ATo7+//3Pj4+MWa4VqZcAwEOE9E16UFY7MPkLZu1ro3ENFfK4NYjRwVQtyIiO92CwkR34yiaKMvAY4BwJZuSpRSD8Rx/Nsa4VqZUMIw3KaUSnsr+1dEtM2LAEKIvYi4J4VlB6Mo2lEZ1GrkqBBiEhGbKSE9Q0S7vQggpfwuALyUouRikiTrW63WhRph2/OhSCn1q/qnAeCqlOp8dxzHJ70IMDIycsPMzMw/05QopR6L4/i5nketRg5KKZ8EgCfSQlq+fPnKsbGxj70IoAdLKf8AAJtTmHYmjuNbaoRvT4cyPDx8U7vdPgUAq1Ja86tRFN1lCsS4CtAKwjDcqZTab1DWIiJhMsif+yMgpZwAgGGDpqeISFeJ1MeKADZtQFtRSm2N41ivGvgpCAGb0t8p2ucA4DYi+tDkhhUBZtvA8wDwiFEh4mAURUdNcvy5OwJCiE2I+LrFSKtvv9ZjTYBGo7E2CALdd9ZaODDZ19f3i8nJya6bFBY6WGQeAmEY7lZKPW0BivW334kAs1VAVwBdCWyeSwCg5w2HOvcIvGczgGUuR6DRaKxGRH0Hw0OIuMEGH0TcFUXRmI2sMwFmSXACAO6xNQAAnyilXuysIv4cBMFfoih6x2HskhIdHR29Znp6eo1Saj0iPgAA30qb6S8AzlEiGnQBzboFzFcqpTwDADe7GCpIVm+EHCGiZwvSn6pWCLEfEXcuhu0FbH5ARNe7+pKJALOV4CMAWOlqsCB56sx4w4J0L6h29o2iB8u0mWLrAhFdm8WXzATQxoQQb9v2pizOuYxRSu2I4/igy5isss1m894kSY5nHZ/zuNeI6M6sOr0IoI2GYbhHKbU3qwM5jnulcyx9f476uqoSQrQQ8eEybBlsvOz7G8veBNAONpvNoSRJfgoAaxYRlBeIqJR+3DmHP9w5h089Zi0Yh7N6NUZE+3zt5EKA2TmBfvNE92G9HVw6EYIg2DI1NaVXKIU/QohBRDxSuKGFDexLkuT5VqulSeD95EaAOU+klJ8SQSn1TUS8w9tDOwXepdDOzGdSYRgeUEoNuY7LKH8SEU/29fWdnJiY0LeC5fbkToD5ng0NDV09MDCgSfB1AFiHiOuUUusAINOMtUvUpa8A5pH9cQDYDgDrc8sIgH6vQk+uzyRJcqa/v/9U3kmf72uhBMgRFFZVEAJMgIKArYpaJkBVMlWQn0yAgoCtilomQFUyVZCfTICCgK2KWiZAVTJVkJ9MgIKArYra/wGYigzMiqJYZwAAAABJRU5ErkJggg==
-// @version      2024.1.26
+// @version      2024.1.27
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -129,7 +129,7 @@
      * 链接字典
      * @type {UtilsDictionaryConstructor}
      */
-    linkDict: null,
+    linkDict: void 0,
     /**
      * 是否正在匹配链接中
      */
@@ -138,7 +138,7 @@
      * 匹配到的链接
      * @type {Set}
      */
-    matchLink: null,
+    matchLink: void 0,
     /**
      * 是否成功匹配到链接
      */
@@ -843,6 +843,16 @@
       ],
     },
     /**
+     * 初始化
+     */
+    init() {
+      if (!this.isInit) {
+        this.matchLink = new Set();
+        this.initLinkDict();
+        this.isInit = true;
+      }
+    },
+    /**
      * 初始化字典
      */
     initLinkDict() {
@@ -859,164 +869,41 @@
      */
     ignoreStrRemove(text, isHTML = false) {
       let ignoreNodeList = [
-        document.querySelector(".whitesevPopOneFile") /* 单文件直链弹窗 */,
-        document.querySelector(".whitesevPopMoreFile") /* 多文件直链弹窗 */,
-        document.querySelector(
-          ".whitesevPop-whitesevPopSetting"
-        ) /* 设置页面弹窗 */,
-        document.querySelector(
-          ".whitesevPopNetDiskHistoryMatch"
-        ) /* 历史存储记录弹窗 */,
+        /** 单文件直链弹窗 */
+        document.querySelector(".whitesevPopOneFile"),
+        /** 多文件直链弹窗 */
+        document.querySelector(".whitesevPopMoreFile"),
+        /** 设置页面弹窗 */
+        document.querySelector(".whitesevPop-whitesevPopSetting"),
+        /** 历史存储记录弹窗 */
+        document.querySelector(".whitesevPopNetDiskHistoryMatch"),
+        /** 历史存储记录弹窗 */
         document.querySelector(
           ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table"
-        ) /* 历史存储记录弹窗 */,
-        /* 自定义规则弹窗 */
+        ),
+        /** 自定义规则弹窗 */
         document.querySelector(
           ".whitesevPopNetDiskAccessCodeRule .netdiskrecord-table"
         ),
-        /* 添加/修改自定义规则弹窗 */
+        /** 添加/修改自定义规则弹窗 */
         document.querySelector(".whitesevPopNetDiskAccessCodeRuleAddOrEdit"),
       ];
       ignoreNodeList.forEach((ignoreElement) => {
-        if (ignoreElement == null) {
+        if (ignoreElement == void 0) {
           return;
         }
-        let innerItemText = isHTML
-          ? ignoreElement.innerHTML
-          : ignoreElement.innerText;
-        innerItemText = innerItemText == null ? "" : innerItemText;
-        text = text.replaceAll(innerItemText, "");
+        if (isHTML) {
+          if (ignoreElement.innerHTML != void 0) {
+            text = text.replaceAll(ignoreElement.innerHTML, "");
+          }
+        } else {
+          let text = ignoreElement.innerText || ignoreElement.textContent;
+          if (text != void 0) {
+            text = text.replaceAll(text, "");
+          }
+        }
       });
       return text;
-    },
-    /**
-     * 对页面进行match，处理匹配网盘链接
-     */
-    matchPageLink() {
-      if (!this.isInit) {
-        this.matchLink = new Set();
-        this.initLinkDict();
-        this.isInit = true;
-      }
-      /* 选择的进行匹配的项 all、innerText、innerHTML */
-      let matchTextRange = GM_getValue("pageMatchRange", "all");
-      /* 对innerText 和 innerHTML进行match */
-      if (matchTextRange.toLowerCase() === "all") {
-        let pageText = this.ignoreStrRemove(document.documentElement.innerText);
-        let pageHTML = this.ignoreStrRemove(
-          document.documentElement.innerHTML,
-          true
-        );
-        Object.keys(this.regular).forEach((netDiskName) => {
-          let item = this.regular[netDiskName];
-          item.forEach((netDiskListItem, index) => {
-            NetDiskWorker.postMessage({
-              regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
-              pageText: pageText,
-              netDiskName: netDiskName,
-              netDiskIndex: index,
-            });
-            NetDiskWorker.postMessage({
-              regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
-              pageText: pageHTML,
-              netDiskName: netDiskName,
-              netDiskIndex: index,
-            });
-            if (NetDisk.clipboardText.trim() !== "") {
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
-                pageText: NetDisk.clipboardText,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
-                pageText: NetDisk.clipboardText,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-            }
-            if (NetDisk.allowMatchLocationHref) {
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(netDiskListItem["link_innerText"], "gi"),
-                pageText: window.location.href,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-              let decodeUrl = window.location.href;
-              try {
-                decodeUrl = decodeURIComponent(decodeUrl);
-              } catch (error) {}
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(netDiskListItem["link_innerHTML"], "gi"),
-                pageText: decodeUrl,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-            }
-          });
-        });
-      } else {
-        let pageText = "";
-        if (matchTextRange.toLowerCase() === "innertext") {
-          /* 对innerText进行match */
-          pageText = this.ignoreStrRemove(document.documentElement.innerText);
-        } else {
-          /* 对innerHTML进行match */
-          pageText = this.ignoreStrRemove(
-            document.documentElement.innerHTML,
-            true
-          );
-        }
-        Object.keys(this.regular).forEach((netDiskName) => {
-          let item = this.regular[netDiskName];
-          item.forEach((netDiskListItem, index) => {
-            NetDiskWorker.postMessage({
-              regexp: new RegExp(
-                netDiskListItem[`link_${matchTextRange}`],
-                "gi"
-              ),
-              pageText: pageText,
-              netDiskName: netDiskName,
-              netDiskIndex: index,
-            });
-            if (NetDisk.clipboardText.trim() !== "") {
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(
-                  netDiskListItem[`link_${matchTextRange}`],
-                  "gi"
-                ),
-                pageText: NetDisk.clipboardText,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-            }
-            if (NetDisk.allowMatchLocationHref) {
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(
-                  netDiskListItem[`link_${matchTextRange}`],
-                  "gi"
-                ),
-                pageText: window.location.href,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-              try {
-                decodeUrl = decodeURIComponent(decodeUrl);
-              } catch (error) {}
-              NetDiskWorker.postMessage({
-                regexp: new RegExp(
-                  netDiskListItem[`link_${matchTextRange}`],
-                  "gi"
-                ),
-                pageText: decodeUrl,
-                netDiskName: netDiskName,
-                netDiskIndex: index,
-              });
-            }
-          });
-        });
-      }
     },
     /**
      * 处理链接，将匹配到的链接转为参数和密码存入字典中
@@ -1091,8 +978,8 @@
       let netDiskMatchRegular = this.regular[netDiskName][netDiskIndex];
       let shareCodeMatch = url.match(netDiskMatchRegular.shareCode);
       if (
-        shareCodeMatch == null ||
-        (shareCodeMatch != null && shareCodeMatch.length === 0)
+        shareCodeMatch == void 0 ||
+        (shareCodeMatch != void 0 && shareCodeMatch.length === 0)
       ) {
         log.error(`根据链接获取shareCode失败`);
         log.error([[...arguments], netDiskMatchRegular.shareCode]);
@@ -1107,7 +994,7 @@
         );
       }
       let shareCodeNotMatch = netDiskMatchRegular.shareCodeNotMatch;
-      if (shareCodeNotMatch != null && shareCode.match(shareCodeNotMatch)) {
+      if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
         log.error(`不可能的shareCode => ${shareCode}`);
         return "";
       }
@@ -1138,7 +1025,7 @@
           return "";
         }
         /* 过滤掉match内的undefined或null的值 */
-        accessCode = accessCode.filter((item) => item != null);
+        accessCode = accessCode.filter((item) => item != void 0);
         accessCode = accessCode[0];
         if (accessCode.startsWith("http")) {
           /* 排除不可能的accessCode */
@@ -1192,7 +1079,7 @@
      */
     handleLinkShow(netDiskName, netDiskIndex, shareCode, accessCode) {
       let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
-      if (netDiskMatchRegular == null) {
+      if (netDiskMatchRegular == void 0) {
         Qmsg.error("BUG: 获取uiLink规则失败");
         log.error([
           "BUG: 分析参数",
@@ -1300,11 +1187,11 @@
           let enableCopy = GM_getValue("baidu-baiduwp-php-copy-url");
           if (!url) {
             Qmsg.error("请先在设置中配置百度网盘-网址");
-            return null;
+            return void 0;
           }
           if (!postForm) {
             Qmsg.error("请先在设置中配置百度网盘-表单参数");
-            return null;
+            return void 0;
           }
           postForm = postForm.replaceAll("{#shareCode#}", shareCode);
           postForm = postForm.replaceAll("{#accessCode#}", accessCode);
@@ -1536,7 +1423,7 @@
             Qmsg.error("请求失败，请重试");
             return;
           }
-          if (respData.responseText == null) {
+          if (respData.responseText == void 0) {
             log.error(respData);
             Qmsg.error("获取网页内容为空");
             return;
@@ -1675,7 +1562,7 @@
          */
         this.getLink = async function (response) {
           let pageText = response.responseText;
-          if (pageText == null) {
+          if (pageText == void 0) {
             log.error("shareCode错误，重新从页面中获取");
             await that.getFileLink(true);
             return;
@@ -1943,7 +1830,7 @@
          * @param {string} url 链接
          */
         this.getMoreFile = async function (url) {
-          if (url == null) {
+          if (url == void 0) {
             url = that.router.default(that.shareCode);
           }
           let getResp = await httpx.get({
@@ -2104,7 +1991,7 @@
               fileSize: fileSize,
               fileUploadTime: fileUploadTime,
               msg: `解析失败，${getResp.msg}`,
-              downloadUrl: null,
+              downloadUrl: void 0,
             };
           }
           let respData = getResp.data;
@@ -2120,7 +2007,7 @@
               fileSize: fileSize,
               fileUploadTime: fileUploadTime,
               msg: `解析iframe链接失败`,
-              downloadUrl: null,
+              downloadUrl: void 0,
             };
           }
           let iframeUrl = pageIframeElement.getAttribute("src");
@@ -2152,7 +2039,7 @@
               fileSize: fileSize,
               fileUploadTime: fileUploadTime,
               msg: `获取下载链接失败`,
-              downloadUrl: null,
+              downloadUrl: void 0,
             };
           }
         };
@@ -2178,7 +2065,7 @@
          * 提取码
          */
         this.accessCode = "";
-        let shareId = null;
+        let shareId = void 0;
         /* 猜测1是有密码，2是无密码 */
         let shareMode = 1;
         this.code = {
@@ -2240,7 +2127,7 @@
           if ("shareMode" in shareInfoData) {
             shareMode = shareInfoData["shareMode"];
           }
-          if (shareId == null) {
+          if (shareId == void 0) {
             return;
           }
           if (shareInfoData.isFolder) {
@@ -2686,7 +2573,7 @@
          * 用于header头x-token
          * @type {string}
          */
-        let token = null;
+        let token = void 0;
         this.code = {
           1004: "no token",
           1008: "您没有权限访问",
@@ -3031,7 +2918,10 @@
               return false;
             }
             let HasPwd = g_initialProps.res.data.HasPwd;
-            if (HasPwd && (that.accessCode == null || that.accessCode === "")) {
+            if (
+              HasPwd &&
+              (that.accessCode == void 0 || that.accessCode === "")
+            ) {
               /* 该链接需要密码但是没有获取到 */
               Qmsg.error("密码缺失!");
               NetDiskUI.newAccessCodeView(
@@ -3345,7 +3235,7 @@
                 arguments["length"] > 0x2 && void 0x0 !== arguments[0x2]
                   ? arguments[0x2]
                   : 0x8;
-            if (0x0 === arguments["length"]) return null;
+            if (0x0 === arguments["length"]) return void 0;
             "object" === typeof param
               ? (param_time = param)
               : (0xa === ("" + param)["length"] &&
@@ -3668,7 +3558,7 @@
               Referer: `https://www.jianguoyun.com/p/${that.shareCode}`,
             },
           };
-          let requestResp = null;
+          let requestResp = void 0;
           if (that.accessCode === "") {
             requestResp = await httpx.get(requestDetails);
           } else {
@@ -3700,7 +3590,7 @@
             log.success("size ===> " + fileSize);
             if (
               fileNeedsPassword &&
-              (that.accessCode == null || that.accessCode === "")
+              (that.accessCode == void 0 || that.accessCode === "")
             ) {
               /* 需要密码但没密码 */
               Qmsg.error("密码不正确!");
@@ -3736,12 +3626,12 @@
               );
               return;
             }
-            if (fileHash === "" || fileHash == null) {
+            if (fileHash === "" || fileHash == void 0) {
               log.error("hash为空，可能文件被撤销分享了");
               Qmsg.error(`文件分享已被撤销`);
               return;
             }
-            if (fileSize == null && isdir == false) {
+            if (fileSize == void 0 && isdir == false) {
               log.error("无size，可能文件被删除了");
               Qmsg.error(`“${fileName}”文件已被拥有者（“${fileOwner}”）删除`);
               return;
@@ -3997,7 +3887,7 @@
             NetDiskUI.staticView.moreFile("奶牛快传多文件直链", folderInfoList);
           } else {
             /* 单文件 */
-            let downloadUrl = null;
+            let downloadUrl = void 0;
             if (checkLinkValidityInfo["zipDownload"]) {
               downloadUrl = await that.getZipFileDownloadUrl(
                 that.shareCode,
@@ -4088,7 +3978,7 @@
                   resultJSON["data"]["firstFolder"]["updated_at"]
                 ),
               };
-            } else if (resultJSON["data"]["firstFile"] == null) {
+            } else if (resultJSON["data"]["firstFile"] == void 0) {
               /* 文件夹类型 */
               Qmsg.success("该链接为文件夹类型");
               return {
@@ -4420,7 +4310,7 @@
             Qmsg.error("当前脚本环境缺失API 【GM_download】");
             return;
           }
-          let abortDownload = null;
+          let abortDownload = void 0;
           let downloadingQmsg = Qmsg.loading("下载中...", {
             showClose: true,
             onClose() {
@@ -5281,7 +5171,7 @@
     iframeDownload(url = "") {
       let downloadIframe = document.createElement("iframe");
       downloadIframe.onload = function () {
-        downloadUrl.onload = null;
+        downloadUrl.onload = void 0;
         downloadIframe.remove();
       };
       downloadIframe.src = url;
@@ -5318,7 +5208,7 @@
         GM_setValue("_123pan_User_Authorization", authorToken);
       },
     },
-    default() {
+    init() {
       Object.keys(NetDiskAuthorization.netDisk).forEach((keyName) => {
         this.netDisk[keyName]();
       });
@@ -5371,13 +5261,13 @@
      * @type {boolean} 自动输入访问码是否开启
      */
     enable: Boolean(GM_getValue("autoFillAccessCode")),
-    shareCode: null,
-    accessCode: null,
-    netDiskName: null,
+    shareCode: void 0,
+    accessCode: void 0,
+    netDiskName: void 0,
     /**
      * 入口
      */
-    default() {
+    init() {
       if (!this.tempData) {
         return;
       }
@@ -5831,7 +5721,7 @@
     /**
      * @type {Worker}
      */
-    GM_matchWorker: null,
+    GM_matchWorker: void 0,
     /**
      * 初始化Worker的Blob链接
      */
@@ -5842,22 +5732,67 @@
           "message",
           function (event) {
             let data = event.data;
-            let link_regexp = data["regexp"];
-            let pageText = data["pageText"];
-            let netDiskName = data["netDiskName"];
-            let netDiskIndex = data["netDiskIndex"];
-            let matchData = pageText.match(link_regexp);
-            matchData = matchData ? matchData : [];
+            const NetDiskRegularNameList = Object.keys(data.regular);
+            let matchedCount = 0;
+            for (const netDiskName of NetDiskRegularNameList) {
+              const netDiskRegular = data.regular[netDiskName];
+              for (let index = 0; index < netDiskRegular.length; index++) {
+                const netDiskRegularItem = netDiskRegular[index];
+                let regexpList = [];
+                if (data.matchTextRange === "all") {
+                  regexpList.push(
+                    new RegExp(netDiskRegularItem["link_innerText"], "gi")
+                  );
+                  regexpList.push(
+                    new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
+                  );
+                } else if (data.matchTextRange === "innertext") {
+                  regexpList.push(
+                    new RegExp(netDiskRegularItem["link_innerText"], "gi")
+                  );
+                } else if (data.matchTextRange === "innerhtml") {
+                  regexpList.push(
+                    new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
+                  );
+                } else {
+                  throw new TypeError(
+                    "未知的匹配范围：" + data.matchTextRange
+                  );
+                }
+                for (const regexp of regexpList) {
+                  for (const text of data.textList) {
+                    let matchData = text.match(regexp);
+                    if(matchData && matchData.length){
+                      matchedCount = matchedCount + matchData.length;
+                      this.postMessage({
+                        msg: "Success Match Count：" + matchData.length.toString(),
+                        isMatchingEnd: false,
+                        netDiskName: netDiskName,
+                        netDiskIndex: index,
+                        data: matchData,
+                        count: matchData.length,
+                        startTime: data.startTime,
+                        endTime: Date.now(),
+                      });
+                    }
+                  }
+                }
+              }
+            }
             this.postMessage({
-              msg: matchData.length
-                ? "workercallback: success! " + matchData.length.toString()
-                : "workercallback: none",
-              netDiskName: netDiskName,
-              netDiskIndex: netDiskIndex,
-              data: matchData,
+              msg: "Match End",
+              isMatchingEnd: true,
+              netDiskName: undefined,
+              netDiskIndex: undefined,
+              data: [],
+              count: matchedCount,
+              startTime: data.startTime,
+              endTime: Date.now(),
             });
           },
-          false
+          {
+            capture: true,
+          }
         );
       })();
       `;
@@ -5871,54 +5806,132 @@
     initWorker() {
       try {
         NetDiskWorker.GM_matchWorker = new Worker(NetDiskWorker.blobUrl);
-        NetDiskWorker.GM_matchWorker.onmessage = function (event) {
-          NetDiskWorker.successCallBack(
-            event.data["data"],
-            event.data["netDiskName"],
-            event.data["netDiskIndex"]
-          );
-        };
-        NetDiskWorker.GM_matchWorker.onerror = function (error) {
-          NetDiskWorker.errorCallBack(error);
-        };
+        NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
+        NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
       } catch (error) {
-        log.error(error);
+        log.error(error.message);
         log.error(
           "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用另类方法"
         );
-        this.GM_matchWorker = {
+        NetDiskWorker.GM_matchWorker = {
+          /**
+           *
+           * @param {NetDiskWorkerOptions} data
+           */
           postMessage(data) {
+            let matchedCount = 0;
             try {
-              let link_regexp = data["regexp"];
-              let pageText = data["pageText"];
-              let netDiskName = data["netDiskName"];
-              let netDiskIndex = data["netDiskIndex"];
-              let matchData = pageText.match(link_regexp);
-              matchData = matchData ? matchData : [];
-              NetDiskWorker.successCallBack(
-                matchData,
-                netDiskName,
-                netDiskIndex
-              );
+              const NetDiskRegularNameList = Object.keys(data.regular);
+              for (const netDiskName of NetDiskRegularNameList) {
+                const netDiskRegular = data.regular[netDiskName];
+                for (let index = 0; index < netDiskRegular.length; index++) {
+                  const netDiskRegularItem = netDiskRegular[index];
+                  let regexpList = [];
+                  if (data.matchTextRange === "all") {
+                    regexpList.push(
+                      new RegExp(netDiskRegularItem["link_innerText"], "gi")
+                    );
+                    regexpList.push(
+                      new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
+                    );
+                  } else if (data.matchTextRange === "innertext") {
+                    regexpList.push(
+                      new RegExp(netDiskRegularItem["link_innerText"], "gi")
+                    );
+                  } else if (data.matchTextRange === "innerhtml") {
+                    regexpList.push(
+                      new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
+                    );
+                  } else {
+                    throw new TypeError(
+                      "未知的匹配范围：" + data.matchTextRange
+                    );
+                  }
+                  for (const regexp of regexpList) {
+                    for (const text of data.textList) {
+                      let matchData = text.match(regexp);
+                      if (matchData && matchData.length) {
+                        matchedCount = matchedCount + matchData.length;
+                        NetDiskWorker.onMessage(
+                          new MessageEvent("message", {
+                            data: {
+                              msg:
+                                "Success Match Count：" +
+                                matchData.length.toString(),
+                              isMatchingEnd: false,
+                              netDiskName: netDiskName,
+                              netDiskIndex: index,
+                              data: matchData,
+                              count: matchData.length,
+                              startTime: data.startTime,
+                              endTime: Date.now(),
+                            },
+                          })
+                        );
+                      }
+                    }
+                  }
+                }
+              }
             } catch (error) {
-              NetDiskWorker.errorCallBack(error);
+              NetDiskWorker.onError(error);
+            } finally {
+              NetDiskWorker.onMessage(
+                new MessageEvent("message", {
+                  data: {
+                    msg: "Match End",
+                    isMatchingEnd: true,
+                    netDiskName: undefined,
+                    netDiskIndex: undefined,
+                    data: [],
+                    count: matchedCount,
+                    startTime: data.startTime,
+                    endTime: Date.now(),
+                  },
+                })
+              );
             }
           },
         };
       }
     },
     /**
+     * Worker的onmessage
+     * @param {MessageEvent} event
+     */
+    onMessage(event) {
+      /** @type {NetDiskWorkerCallBackOptions} */
+      const data = event.data;
+      if (data["isMatchingEnd"]) {
+        if (data.count) {
+          log.success(`匹配用时${Date.now() - data.startTime}ms`);
+        }
+        NetDiskWorker.matchingEndCallBack();
+      } else {
+        NetDiskWorker.successCallBack(
+          data["data"],
+          data["netDiskName"],
+          data["netDiskIndex"]
+        );
+      }
+    },
+    /**
+     * Worker的onerror
+     * @param {ErrorEvent} error
+     */
+    onError(error) {
+      NetDiskWorker.errorCallBack(error);
+    },
+    /**
      * worker处理文件匹配后的回调
-     * @param {string} matchLink
+     * @param {string[]} matchLink
      * @param {string} netDiskName
      * @param {number} netDiskIndex
      */
     successCallBack(matchLink, netDiskName, netDiskIndex) {
       /* 匹配为空，释放锁 */
       if (!matchLink.length) {
-        setTimeout(() => {
-          NetDiskUI.isHandleMatch = false;
-        }, parseFloat(GM_getValue("delaytime", NetDiskData.defaultMatchIntervalTime)) * 1000);
+        NetDiskWorker.matchingEndCallBack();
         return;
       }
       /* 已匹配到的网盘，用于显示图标 */
@@ -5934,30 +5947,40 @@
       if (NetDisk.hasMatchLink) {
         NetDiskUI.suspension.show();
       }
-      setTimeout(() => {
-        NetDiskUI.isHandleMatch = false;
-      }, parseFloat(GM_getValue("delaytime", NetDiskData.defaultMatchIntervalTime)) * 1000);
+      NetDiskWorker.matchingEndCallBack();
     },
     /**
      * Worker失败回调
      * @param {object} error
      */
     errorCallBack(error) {
-      NetDiskUI.isHandleMatch = false;
+      NetDiskWorker.matchingEndCallBack(true);
       log.error(["Worker Error", error]);
     },
     /**
+     * 匹配结束回调
+     * @param {boolean} isNow 是否立刻释放锁
+     */
+    matchingEndCallBack(isNow) {
+      if (isNow) {
+        NetDiskUI.isHandleMatch = false;
+      } else {
+        const delaytime =
+          parseFloat(
+            GM_getValue("delaytime", NetDiskData.defaultMatchIntervalTime)
+          ) * 1000;
+        setTimeout(() => {
+          NetDiskWorker.matchingEndCallBack(true);
+        }, delaytime);
+      }
+    },
+    /**
      * 传递数据给worker内进行处理匹配
-     * @param {{
-     * regexp: RegExp,
-     * pageText: string,
-     * netDiskName: string,
-     * netDiskIndex: number
-     * }} message 数据
+     * @param {NetDiskWorkerOptions} message 数据
      * @param { StructuredSerializeOptions | undefined } options 配置
      */
     postMessage(message, options) {
-      this.GM_matchWorker.postMessage(message, options);
+      NetDiskWorker.GM_matchWorker.postMessage(message, options);
     },
   };
 
@@ -6053,7 +6076,7 @@
      * @returns {string}
      */
     getFormatRule(rule) {
-      return JSON.stringify(rule || this.getRule(), null, 4);
+      return JSON.stringify(rule || this.getRule(), void 0, 4);
     },
   };
 
@@ -6083,23 +6106,14 @@
     isSwitchRandomBackground: false,
     /**
      * 链接弹窗的对象
-     * @type {{
-     * guid: string,
-     * element: Element,
-     * animElement: HTMLElement,
-     * popsElement: Element,
-     * maskElement: Element,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @type {PopsCallResult}
      */
-    uiLinkAlias: null,
+    uiLinkAlias: void 0,
     /**
      * 悬浮按钮
      * @type {HTMLElement}
      */
-    suspensionNode: null,
+    suspensionNode: void 0,
     /**
      * 单文件直链弹窗的唯一标识
      */
@@ -6986,22 +7000,47 @@
                       },
                     ],
                   },
-                  getSwtichDetail("读取剪贴板", "readClipboard", false),
-                  getSwtichDetail("存储匹配记录", "saveMatchNetDisk", false),
+                  getSwtichDetail(
+                    "读取剪贴板",
+                    "readClipboard",
+                    false,
+                    undefined,
+                    "火狐浏览器不生效"
+                  ),
+                  getSwtichDetail(
+                    "存储匹配记录",
+                    "saveMatchNetDisk",
+                    false,
+                    undefined,
+                    "对应【历史匹配记录】"
+                  ),
                   getSwtichDetail(
                     "自动输入访问码",
                     "autoFillAccessCode",
-                    false
+                    false,
+                    undefined,
+                    "访问链接时自动输入访问码"
                   ),
                   getSwtichDetail(
                     "获取重定向后的直链",
                     "getTheDirectLinkAfterRedirection",
-                    false
+                    false,
+                    undefined,
+                    "获取直链重定向之后的链接"
                   ),
                   getSwtichDetail(
                     "允许匹配当前URL",
                     "allowMatchLocationHref",
-                    false
+                    false,
+                    undefined,
+                    "匹配window.location.href"
+                  ),
+                  getSwtichDetail(
+                    "添加元素时进行匹配",
+                    "isAddedNodesToMatch",
+                    false,
+                    undefined,
+                    "当监听到页面添加元素时才进行匹配文本"
                   ),
                 ],
               },
@@ -7730,7 +7769,7 @@
         /**
          * @type {number[]}
          */
-        let netDiskLinkViewTimer = null;
+        let netDiskLinkViewTimer = void 0;
         let moveFlag = false;
         /* 是否是双击 */
         let isDouble = false;
@@ -7842,7 +7881,7 @@
          */
         dragNode.on(["click", "tap"], function (event) {
           clearTimeout(netDiskLinkViewTimer);
-          netDiskLinkViewTimer = null;
+          netDiskLinkViewTimer = void 0;
           if (isDouble) {
             isDouble = false;
             /* 判定为双击 */
@@ -8187,13 +8226,13 @@
             btn: {
               ok: {
                 callback(event) {
-                  NetDiskUI.uiLinkAlias = null;
+                  NetDiskUI.uiLinkAlias = void 0;
                   event.close();
                 },
               },
               close: {
                 callback(event) {
-                  NetDiskUI.uiLinkAlias = null;
+                  NetDiskUI.uiLinkAlias = void 0;
                   event.close();
                 },
               },
@@ -8206,7 +8245,7 @@
               },
               clickCallBack() {
                 NetDiskUI.uiLinkAlias.close();
-                NetDiskUI.uiLinkAlias = null;
+                NetDiskUI.uiLinkAlias = void 0;
               },
             },
             class: "whitesevPop",
@@ -8427,15 +8466,15 @@
         /**
          * @type {?Generator<HTMLElement, void, any>}
          */
-        let findGenerator = null;
+        let findGenerator = void 0;
         /**
          * @type {?IteratorResult<HTMLElement, void>}
          */
-        let iterator = null;
+        let iterator = void 0;
         /**
          * 上一个的shareCode
          */
-        let prevSearchShareCode = null;
+        let prevSearchShareCode = void 0;
         DOMUtils.on(
           document,
           "click",
@@ -8454,18 +8493,18 @@
               Qmsg.error("获取data-sharecode属性失败");
               return;
             }
-            if (prevSearchShareCode == null) {
+            if (prevSearchShareCode == void 0) {
               prevSearchShareCode = dataSharecode;
             } else if (prevSearchShareCode !== dataSharecode) {
               /* 切换到另一个shareCode搜索 */
               log.info(
                 `上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`
               );
-              findGenerator = null;
-              iterator = null;
+              findGenerator = void 0;
+              iterator = void 0;
               prevSearchShareCode = dataSharecode;
             }
-            if (findGenerator == null) {
+            if (findGenerator == void 0) {
               /* 未找到元素或者已迭代完毕 */
               findGenerator = utils.findElementsWithText(
                 document.documentElement,
@@ -8621,8 +8660,8 @@
                 Qmsg.info("已经定位至最后一个元素了");
                 return;
               }
-              findGenerator = null;
-              iterator = null;
+              findGenerator = void 0;
+              iterator = void 0;
             }
           }
         );
@@ -9315,7 +9354,7 @@
        */
       setSearchEvent() {
         let isSeaching = false; /* 当前搜索的状态 */
-        let searchLoading = null; /* 搜索中的遮罩层 */
+        let searchLoading = void 0; /* 搜索中的遮罩层 */
         let that = this;
         function searchEvent() {
           if (isSeaching) {
@@ -9393,7 +9432,7 @@
             ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page > *"
           );
           searchLoading?.close();
-          searchLoading = null;
+          searchLoading = void 0;
           isSeaching = false;
         }
 
@@ -9608,7 +9647,7 @@
        */
       getNetDiskHistoryMatchData() {
         let data = GM_getValue(this.storageKey);
-        if (data == null) {
+        if (data == void 0) {
           data = [];
           GM_setValue(this.storageKey, data);
         }
@@ -10403,11 +10442,21 @@
               ok: {
                 text: "识别",
                 callback() {
-                  NetDisk.clipboardText =
+                  let inputText =
                     popsConfirm.popsElement?.querySelector(
                       ".netdisk-match-paste-text"
                     )?.value || "";
-                  NetDisk.matchPageLink();
+                  if (inputText.trim() !== "") {
+                    NetDiskWorker.postMessage({
+                      textList: [inputText],
+                      matchTextRange: GM_getValue(
+                        "pageMatchRange",
+                        "all"
+                      ).toLowerCase(),
+                      regular: NetDisk.regular,
+                      startTime: Date.now(),
+                    });
+                  }
                 },
               },
             },
@@ -10461,6 +10510,11 @@
       NetDiskWorker.initWorkerBlobLink();
       NetDiskWorker.initWorker();
       /**
+       * 设置-判定为添加元素才进行匹配
+       * @type {boolean}
+       */
+      const isAddedNodesToMatch = GM_getValue("isAddedNodesToMatch");
+      /**
        * 观察者的事件
        * @param {?MutationRecord[]} mutations
        * @returns
@@ -10470,14 +10524,80 @@
           /* 当前正在处理文本正则匹配中 */
           return;
         }
+        if (isAddedNodesToMatch && mutations && mutations.length) {
+          let hasAddNodes = false;
+          for (const mutation of mutations) {
+            if (
+              mutation.addedNodes &&
+              mutation.addedNodes instanceof NodeList
+            ) {
+              for (const addedNodeList of mutation.addedNodes) {
+                if (addedNodeList.length) {
+                  hasAddNodes = true;
+                  break;
+                }
+              }
+              if (hasAddNodes) {
+                break;
+              }
+            }
+          }
+          if (!hasAddNodes) {
+            return;
+          }
+        }
         NetDiskUI.isHandleMatch = true;
+        /** 开始时间 */
+        const startTime = Date.now();
         if (GM_getValue("readClipboard", false)) {
           NetDisk.clipboardText = await NetDisk.getClipboardText();
         }
         if (typeof NetDisk.clipboardText !== "string") {
           NetDisk.clipboardText = "";
         }
-        NetDisk.matchPageLink();
+        let matchTextRangeLowerCase = GM_getValue(
+          "pageMatchRange",
+          "all"
+        ).toLowerCase();
+        let matchTextList = [];
+        if (matchTextRangeLowerCase === "all") {
+          let pageText = NetDisk.ignoreStrRemove(
+            document.documentElement.innerText
+          );
+          let pageHTML = NetDisk.ignoreStrRemove(
+            document.documentElement.innerHTML,
+            true
+          );
+          matchTextList.push(pageText);
+          matchTextList.push(pageHTML);
+        } else if (matchTextRangeLowerCase === "innertext") {
+          let pageText = NetDisk.ignoreStrRemove(
+            document.documentElement.innerText
+          );
+          matchTextList.push(pageText);
+        } else {
+          let pageHTML = NetDisk.ignoreStrRemove(
+            document.documentElement.innerHTML,
+            true
+          );
+          matchTextList.push(pageHTML);
+        }
+        if (NetDisk.clipboardText.trim() !== "") {
+          matchTextList.push(NetDisk.clipboardText);
+        }
+        if (NetDisk.allowMatchLocationHref) {
+          let decodeUrl = window.location.href;
+          try {
+            decodeUrl = decodeURIComponent(decodeUrl);
+          } catch (error) {}
+          matchTextList.push(decodeUrl);
+        }
+        NetDiskWorker.postMessage({
+          textList: matchTextList,
+          matchTextRange: matchTextRangeLowerCase,
+          regular: NetDisk.regular,
+          startTime: startTime,
+        });
       }
       utils.mutationObserver(document.documentElement, {
         callback: observeEvent,
@@ -10723,16 +10843,7 @@
      *  height: string
      * }
      * }} sizeConfig 大小配置
-     * @returns {{
-     * guid: string,
-     * element: Element,
-     * animElement: HTMLElement,
-     * popsElement: Element,
-     * maskElement: Element,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @returns {PopsCallResult}
      */
     alert(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
@@ -10751,16 +10862,7 @@
      *  height: string
      * }
      * }} sizeConfig 大小配置
-     * @returns {{
-     * guid: string,
-     * element: HTMLElement,
-     * animElement: HTMLElement,
-     * popsElement: HTMLElement,
-     * maskElement: HTMLElement,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @returns {PopsCallResult}
      */
     confirm(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
@@ -10769,16 +10871,7 @@
     /**
      * 加载层
      * @param {PopsLoadingDetails} details 配置
-     * @returns {{
-     * guid: string,
-     * element: Element,
-     * animElement: HTMLElement,
-     * popsElement: Element,
-     * maskElement: Element,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @returns {PopsCallResult}
      */
     loading(details) {
       if (typeof details["animation"] === "undefined") {
@@ -10805,16 +10898,7 @@
      *  height: string
      * }
      * }} sizeConfig 大小配置
-     * @returns {{
-     * guid: string,
-     * element: Element,
-     * animElement: HTMLElement,
-     * popsElement: Element,
-     * maskElement: Element,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @returns {PopsCallResult}
      */
     prompt(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
@@ -10823,16 +10907,7 @@
     /**
      * 文件夹
      * @param {PopsFolderDetails} details 配置
-     * @returns {{
-     * guid: string,
-     * element: Element,
-     * animElement: HTMLElement,
-     * popsElement: Element,
-     * maskElement: Element,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @returns {PopsCallResult}
      */
     folder(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
@@ -10852,16 +10927,7 @@
     /**
      * 菜单面板
      * @param {PopsPanelDetails} details 配置
-     * @returns {{
-     * guid: string,
-     * element: Element,
-     * animElement: HTMLElement,
-     * popsElement: Element,
-     * maskElement: Element,
-     * close: Function,
-     * hide: Function,
-     * show: Function,
-     * }}
+     * @returns {PopsCallResult}
      */
     panel(details, sizeConfig) {
       details = this.handleDetails(details, sizeConfig);
@@ -10898,7 +10964,7 @@
         dragLimit: GM_getValue("pcDragLimit", NetDiskUI.defaultPCDragLimit),
         forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
       };
-      if (sizeConfig != null) {
+      if (sizeConfig != void 0) {
         defaultDetails.width = pops.isPhone()
           ? sizeConfig.Mobile.width
           : sizeConfig.PC.width;
@@ -11007,8 +11073,9 @@
         log.error(["httpx-onerror", response]);
       },
     });
-    NetDiskAutoFillAccessCode.default();
-    NetDiskAuthorization.default();
+    NetDisk.init();
+    NetDiskAutoFillAccessCode.init();
+    NetDiskAuthorization.init();
     NetDiskUI.monitorDOMInsert();
     NetDiskShortcut.initGlobalKeyboardListener();
   });
