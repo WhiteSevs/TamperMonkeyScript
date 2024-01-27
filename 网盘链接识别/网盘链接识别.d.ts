@@ -58,7 +58,23 @@ declare interface NetDiskRegular {
 /** 存储的访问码的值 */
 declare interface NetDiskDictData {
     /** 访问码 */
-    accessCode: string|undefined;
+    accessCode: string | undefined;
     /** 匹配规则的下标 */
     netDiskIndex: number;
+}
+
+/** worker的传递的数据 */
+declare interface NetDiskWorkerOptions {
+    /**
+     * 待匹配的字符串数组
+     */
+    textList: string[];
+    /**
+     * 规则匹配的类型
+     */
+    matchTextRange: "all" | "innertext" | "innerhtml";
+    /**
+     * 匹配的规则
+     */
+    regular: NetDiskRegular;
 }
