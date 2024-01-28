@@ -18,12 +18,8 @@
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg)](https://www.npmjs.com/package/eruda)
 - 当前版本：`3.0.1`
-- 项目主页
-[https://github.com/liriliri/eruda](https://github.com/liriliri/eruda)
-- 项目最新地址
-[https://cdn.jsdelivr.net/npm/eruda](https://cdn.jsdelivr.net/npm/eruda)
-[https://fastly.jsdelivr.net/npm/eruda](https://fastly.jsdelivr.net/npm/eruda)
-[https://testingcf.jsdelivr.net/npm/eruda](https://testingcf.jsdelivr.net/npm/eruda)
+- 项目主页<br>[https://github.com/liriliri/eruda](https://github.com/liriliri/eruda)
+- 项目最新地址<br>[https://cdn.jsdelivr.net/npm/eruda](https://cdn.jsdelivr.net/npm/eruda)<br>[https://fastly.jsdelivr.net/npm/eruda](https://fastly.jsdelivr.net/npm/eruda)<br>[https://testingcf.jsdelivr.net/npm/eruda](https://testingcf.jsdelivr.net/npm/eruda)
 - 【插件】[eruda-monitor](https://github.com/liriliri/eruda-monitor): 展示页面的 fps 和内存信息
 - 【插件】[eruda-features](https://github.com/liriliri/eruda-features)：浏览器特性检测
 - 【插件】[eruda-timing](https://github.com/liriliri/eruda-timing)：展示性能资源数据
@@ -46,24 +42,15 @@
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/vconsole/latest.svg)](https://www.npmjs.com/package/vconsole)
 - 当前版本：`3.15.1`
-- 项目主页
-[https://github.com/Tencent/vConsole](https://github.com/Tencent/vConsole)
-- 项目最新地址
-[https://cdn.jsdelivr.net/npm/vconsole](https://cdn.jsdelivr.net/npm/vconsole)
-[https://fastly.jsdelivr.net/npm/vconsole](https://fastly.jsdelivr.net/npm/vconsole)
-[https://testingcf.jsdelivr.net/npm/vconsole](https://testingcf.jsdelivr.net/npm/vconsole)
+- 项目主页<br>[https://github.com/Tencent/vConsole](https://github.com/Tencent/vConsole)
+- 项目最新地址<br>[https://cdn.jsdelivr.net/npm/vconsole](https://cdn.jsdelivr.net/npm/vconsole)<br>[https://fastly.jsdelivr.net/npm/vconsole](https://fastly.jsdelivr.net/npm/vconsole)<br>[https://testingcf.jsdelivr.net/npm/vconsole](https://testingcf.jsdelivr.net/npm/vconsole)
 
 ## PageSpy
 
 🎈注意：默认配置的`test.jikejishu.com`是测试使用，别人也可以看得到你的调试信息，包括Cookie，如果可以请自己部署一个调试服务器
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser)](https://www.npmjs.com/package/@huolala-tech/page-spy-browser)
-- 当前版本：`1.6.6`
-- 项目主页
-[https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
-- SDK地址
-[https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser](https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser)
-- 项目最新地址
-[https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
-[https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
-[https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
+- 当前版本：`1.7.1`
+- 项目主页<br>[https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
+- SDK地址<br>[https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser](https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser)
+- 项目最新地址<br>[https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
