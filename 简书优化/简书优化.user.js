@@ -18,8 +18,8 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1317196/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1313623/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1318703/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
 (function () {
