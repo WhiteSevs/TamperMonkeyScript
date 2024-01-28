@@ -20,26 +20,10 @@
     global.Utils = factory(global.Utils);
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
+  /** @type {Utils} */
   const Utils = {};
-  /**
-   * @type {string} 工具类的版本
-   */
-  Utils.version = "2024-1-25";
-  /**
-   * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
-   * @function
-   * @param {object} [target={}]	目标端
-   * @param {object} [source={}]	源端
-   * @returns {object}
-   * @example
-   * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
-   * > {
-            "1": 1,
-            "2": {
-                "3": 4
-            }
-        }
-   **/
+  Utils.version = "2024-1-28";
+
   Utils.assign = function (target = {}, source = {}) {
     if (Array.isArray(source)) {
       let canTraverse = source.filter((item) => {
@@ -69,15 +53,6 @@
     return target;
   };
 
-  /**
-   * ajax劫持库，支持xhr和fetch劫持。
-   * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
-   * + 作者：cxxjackie
-   * + 版本：1.3.3
-   * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
-   *
-   * @returns { UtilsAjaxHookResult }
-   */
   Utils.ajaxHooker = function () {
     "use strict";
     const win = window.unsafeWindow || document.defaultView || window;
@@ -651,13 +626,6 @@
     };
   };
 
-  /**
-   * 根据坐标点击canvas元素的内部位置
-   * @param {HTMLCanvasElement} canvasElement 画布元素
-   * @param {number} [clientX=0] X坐标，默认值0
-   * @param {number} [clientY=0] Y坐标，默认值0
-   * @param {window} [view=globalThis] 触发的事件目标
-   */
   Utils.canvasClickByPosition = function (
     canvasElement,
     clientX = 0,
@@ -683,16 +651,6 @@
     canvas.dispatchEvent(new MouseEvent("mouseup", eventInit));
   };
 
-  /**
-   * 【手机】检测点击的地方是否在该元素区域内
-   * @param {Element|Node} element	需要检测的元素
-   * @returns {boolean}
-   * + true 点击在元素上
-   * + false 未点击在元素上
-   * @example
-   * Utils.checkUserClickInNode(document.querySelector(".xxx"));
-   * > false
-   **/
   Utils.checkUserClickInNode = function (element) {
     if (!Utils.isDOM(element)) {
       throw new Error(
@@ -729,26 +687,6 @@
     }
   };
 
-  /**
-   * 函数重载实现
-   * @example
-   * let getUsers = Utils.createOverload();
-   * getUsers.addImpl("",()=>{
-   *    console.log("无参数");
-   * });
-   *
-   * getUsers.addImpl("boolean",()=>{
-   *    console.log("boolean");
-   * });
-   *
-   * getUsers.addImpl("string",()=>{
-   *    console.log("string");
-   * });
-   *
-   * getUsers.addImpl("number","string",()=>{
-   *    console.log("number string");
-   * });
-   */
   Utils.createOverload = function () {
     let fnMap = new Map();
     function overload(...args) {
@@ -770,17 +708,6 @@
     return overload;
   };
 
-  /**
-   * 删除某个父元素，父元素可能在上层或上上层或上上上层...
-   * @param {Element|Node} element	当前元素
-   * @param {string} targetSelector	判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
-   * @returns {boolean}
-   * + true 已删除
-   * + false 未删除
-   * @example
-   * Utils.deleteParentNode(document.querySelector("a"),".xxx");
-   * > true
-   **/
   Utils.deleteParentNode = function (element, targetSelector) {
     if (element == null) {
       throw new Error("Utils.deleteParentNode 参数 target 不能为 null");
@@ -804,19 +731,6 @@
     return result;
   };
 
-  /**
-   * 字典
-   * @type {UtilsDictionary}
-   * @example
-   * let dictionary = new Utils.Dictionary();
-   * let dictionary2 = new Utils.Dictionary();
-   * dictionary.set("test","111");
-   * dictionary.get("test");
-   * > '111'
-   * dictionary.has("test");
-   * > true
-   * dictionary.concat(dictionary2);
-   **/
   Utils.Dictionary = function () {
     this.items = {};
     /**
@@ -933,16 +847,6 @@
     };
   };
 
-  /**
-   * 主动触发事件
-   * @param {HTMLElement} element 元素
-   * @param {string|[...string]} eventName 事件名称，可以是字符串，也可是字符串格式的列表
-   * @param {object|undefined} details 赋予触发的Event的额外属性
-   * + true 使用Proxy代理Event并设置获取isTrusted永远为True
-   * + false (默认) 不对Event进行Proxy代理
-   * @example
-   * Utils.dispatchEvent(document.querySelector("input","input"))
-   */
   Utils.dispatchEvent = function (element, eventName, details) {
     let eventNameList = [];
     if (typeof eventName === "string") {
@@ -960,14 +864,6 @@
     });
   };
 
-  /**
-   * 下载base64格式的数据
-   * @param {string} base64Data	需要转换的base64数据
-   * @param {string} fileName	需要保存的文件名
-   * @param {boolean|undefined} isIFrame 是否使用iframe进行下载
-   * @example
-   * Utils.downloadBase64("data:image/jpeg:base64/,xxxxxx");
-   **/
   Utils.downloadBase64 = function (base64Data, fileName, isIFrame = false) {
     if (typeof base64Data !== "string") {
       throw new Error(
@@ -1001,20 +897,6 @@
     }
   };
 
-  /**
-   * 选中页面中的文字，类似Ctrl+F的选中
-   * @param {string} [str=""]	需要寻找的字符串
-   * @param {boolean} [caseSensitive=false]
-   * + true 区分大小写
-   * + false (默认) 不区分大小写
-   * @returns {boolean|undefined}
-   * + true 找到
-   * + false 未找到
-   * + undefined 不可使用该Api
-   * @example
-   * Utils.findVisibleText("xxxxx");
-   * > true
-   **/
   Utils.findWebPageVisibleText = function (str = "", caseSensitive = false) {
     let TRange = null;
     let strFound;
@@ -1047,17 +929,6 @@
     return strFound ? true : false;
   };
 
-  /**
-   * 定位元素上的字符串，返回一个迭代器
-   * @param {HTMLElement|Element|Node} element 目标元素
-   * @param {string} text 需要定位的字符串
-   * @param {?(element:Element)=>boolean} filter 过滤器函数，true为排除该元素，该参数可为空
-   * @returns {Generator<HTMLElement|ChildNode, void, any>}
-   * @example
-   * let textIterator = Utils.findElementsWithText(document.documentElement,"xxxx");
-   * textIterator.next();
-   * > {value: ?HTMLElement, done: boolean, next: Function}
-   */
   Utils.findElementsWithText = function* (element, text, filter) {
     if (element.outerHTML.includes(text)) {
       if (element.children.length === 0) {
@@ -1088,14 +959,6 @@
     }
   };
 
-  /**
-   * 判断该元素是否可见，如果不可见，向上找它的父元素直至找到可见的元素
-   * @param {HTMLElement|Element|Node} element
-   * @returns {?HTMLElement}
-   * @example
-   * let visibleElement = Utils.findVisibleElement(document.querySelector("a.xx"));
-   * > <HTMLElement>
-   */
   Utils.findVisibleElement = function (element) {
     let currentElement = element;
     while (currentElement) {
@@ -1108,22 +971,6 @@
     return null;
   };
 
-  /**
-   * 格式化byte为KB、MB、GB、TB、PB、EB、ZB、YB、BB、NB、DB
-   * @param {number} byteSize 字节
-   * @param {boolean} [addType=true]
-   * + true (默认) 添加单位
-   * + false 不添加单位
-   * @returns {string|number}
-   * + {string} 当addType为true时，且保留小数点末尾2位
-   * + {number} 当addType为false时，且保留小数点末尾2位
-   * @example
-   * Utils.formatByteToSize("812304");
-   * > '793.27KB'
-   * @example
-   * Utils.formatByteToSize("812304",false);
-   * > 793.27
-   **/
   Utils.formatByteToSize = function (byteSize, addType = true) {
     byteSize = parseInt(byteSize);
     if (isNaN(byteSize)) {
@@ -1156,19 +1003,6 @@
     return result;
   };
 
-  /**
-   * 应用场景: 当你想要获取数组形式的元素时，它可能是其它的选择器，那么需要按照先后顺序填入参数
-   * 第一个是优先级最高的，依次下降，如果都没有，返回空列表
-   * 支持document.querySelectorAll、$("")、()=>{return document.querySelectorAll("")}
-   * @param {...NodeList|function} NodeList
-   * @returns {...Element}
-   * @example
-   * Utils.getNodeListValue(document.querySelectorAll("div.xxx"),document.querySelectorAll("a.xxx"));
-   * > [...div,div,div]
-   * @example
-   * Utils.getNodeListValue(divGetFunction,aGetFunction);
-   * > [...div,div,div]
-   */
   Utils.getNodeListValue = function () {
     let resultArray = [];
     for (let arg of arguments) {
@@ -1185,28 +1019,6 @@
     return resultArray;
   };
 
-  /**
-   * 获取格式化后的时间
-   * @param {string|number} [text= new Date()]	需要格式化的字符串或者时间戳
-   * @param {string} [formatType = "yyyy-MM-dd HH:mm:ss"]	格式化成的显示类型
-   * + yyyy 年
-   * + MM 月
-   * + dd 天
-   * + HH 时 (24小时制)
-   * + hh 时 (12小时制)
-   * + mm 分
-   * + ss 秒
-   * @returns {string}	返回格式化后的时间
-   * @example
-   * Utils.formatTime("2022-08-21 23:59:00","HH:mm:ss");
-   * > '23:59:00'
-   * @example
-   * Utils.formatTime(1899187424988,"HH:mm:ss");
-   * > '15:10:13'
-   * @example
-   * Utils.formatTime()
-   * > '2023-1-1 00:00:00'
-   **/
   Utils.formatTime = function (
     text = new Date(),
     formatType = "yyyy-MM-dd HH:mm:ss"
@@ -1254,16 +1066,6 @@
     return formatType;
   };
 
-  /**
-   * 字符串格式的时间转时间戳
-   * @param {string} text	字符串格式的时间，例如：
-   * + 2022-11-21 00:00:00
-   * + 00:00:00
-   * @returns {number} 返回时间戳
-   * @example
-   * Utils.formatToTimeStamp("2022-11-21 00:00:00");
-   * > 1668960000000
-   **/
   Utils.formatToTimeStamp = function (text) {
     /* 把字符串格式的时间（完整，包括日期和时间）格式化成时间 */
     if (typeof text !== "string") {
@@ -1287,15 +1089,6 @@
     return timestamp;
   };
 
-  /**
-   * gbk格式的url编码,来自https://greasyfork.org/zh-CN/scripts/427726-gbk-url-js
-   * @example
-   * let gbkEncoder = new Utils.GBKEncoder();
-   * gbkEncoder.encode("测试");
-   * > '%B2%E2%CA%D4'
-   * gbkEncoder.decode("%B2%E2%CA%D4");
-   * > 测试
-   */
   Utils.GBKEncoder = function () {
     function handleText(text) {
       text = text
@@ -1406,9 +1199,6 @@
     return this;
   };
 
-  /**
-   * 获取 transitionend 的在各个浏览器的兼容名
-   */
   Utils.getTransitionEndNameList = function () {
     return [
       "webkitTransitionEnd",
@@ -1419,9 +1209,6 @@
     ];
   };
 
-  /**
-   * 获取 animationend 的在各个浏览器的兼容名
-   */
   Utils.getAnimationEndNameList = function () {
     return [
       "webkitAnimationEnd",
@@ -1432,33 +1219,10 @@
     ];
   };
 
-  /**
-   * 获取NodeList或Array对象中的最后一个的值
-   * @param {NodeList|Array} targetObj
-   * @returns {any}
-   * @example
-   * Utils.getArrayLastValue(document.querySelectorAll("div"));
-   * > div
-   * @example
-   * Utils.getArrayLastValue([1,2,3,4,5]);
-   * > 5
-   */
   Utils.getArrayLastValue = function (targetObj) {
     return targetObj[targetObj.length - 1];
   };
 
-  /**
-   * 使用场景：当想获取的元素可能是不同的选择器的时候，按顺序优先级获取
-   * 参数类型可以是Element或者是Function
-   * @returns {any} 如果都没有的话，返回null
-   * @example
-   * // 如果a.aaa不存在的话，取a.bbb，这里假设a.aaa不存在
-   * Utils.getArrayRealValue(document.querySelector("a.aaa"),document.querySelector("a.bbb"));
-   * > a.bbb
-   * @example
-   * Utils.getArrayRealValue(()=>{return document.querySelector("a.aaa").href},()=>{document.querySelector("a.bbb").getAttribute("data-href")});
-   * > javascript:;
-   */
   Utils.getArrayRealValue = function () {
     let result = null;
     for (let arg of arguments) {
@@ -1474,22 +1238,9 @@
     return result;
   };
 
-  /**
-   * 获取天数差异，如何获取某个时间与另一个时间相差的天数
-   * @param {number} [timestamp1= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
-   * @param {number} [timestamp2= new Date().getTime()] 时间戳(毫秒|秒)，不区分哪个更大
-   * @param {"年"|"月"|"天"|"时"|"分"|"秒"|"auto"} [type = "天"] 返回的数字的表达的类型，比如：年、月、天、时、分、秒、auto，默认天
-   * @returns {number|string}
-   * @example
-   * Utils.getDaysDifference(new Date().getTime());
-   * > 0
-   * @example
-   * Utils.getDaysDifference(new Date().getTime(),undefined,"秒");
-   * > 0
-   */
   Utils.getDaysDifference = function (
-    timestamp1 = new Date().getTime(),
-    timestamp2 = new Date().getTime(),
+    timestamp1 = Date.now(),
+    timestamp2 = Date.now(),
     type = "天"
   ) {
     type = type.trim();
@@ -1556,14 +1307,6 @@
     return diffValue;
   };
 
-  /**
-   * 获取元素的选择器字符串
-   * @param {HTMLElement} element
-   * @returns {string|undefined}
-   * @example
-   * Utils.getElementSelector(document.querySelector("a"))
-   * > '.....'
-   */
   Utils.getElementSelector = function (element) {
     if (!element) return;
     if (!element.parentElement) return;
@@ -1588,22 +1331,6 @@
     return selector;
   };
 
-  /**
-   * 获取最大值
-   * @returns {any}
-   * @example
-   * Utils.getMaxValue(1,3,5,7,9)
-   * > 9
-   * @example
-   * Utils.getMaxValue([1,3,5])
-   * > 5
-   * @example
-   * Utils.getMaxValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
-   * > 456
-   * @example
-   * Utils.getMaxValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
-   * > 2
-   */
   Utils.getMaxValue = function () {
     let result = [...arguments];
     let newResult = [];
@@ -1636,13 +1363,6 @@
     }
   };
 
-  /**
-   * 获取页面中最大的z-index再+1
-   * @returns {number}
-   * @example
-   * Utils.getMaxZIndex();
-   * > 1001
-   **/
   Utils.getMaxZIndex = function () {
     let nodeIndexList = [];
     document.querySelectorAll("*").forEach((element) => {
@@ -1656,22 +1376,6 @@
     return nodeIndexList.length ? Math.max(...nodeIndexList) + 1 : 0;
   };
 
-  /**
-   * 获取最小值
-   * @returns {any}
-   * @example
-   * Utils.getMinValue(1,3,5,7,9)
-   * > 1
-   * @example
-   * Utils.getMinValue([1,3,5])
-   * > 1
-   * @example
-   * Utils.getMinValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
-   * > 123
-   * @example
-   * Utils.getMinValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
-   * > 0
-   */
   Utils.getMinValue = function () {
     let result = [...arguments];
     let newResult = [];
@@ -1704,13 +1408,6 @@
     }
   };
 
-  /**
-   * 获取随机的安卓手机User-Agent
-   * @returns {string} 返回随机字符串
-   * @example
-   * Utils.getRandomAndroidUA();
-   * > 'Mozilla/5.0 (Linux; Android 10; MI 13 Build/OPR1.170623.027; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.3490.40 Mobile Safari/537.36'
-   **/
   Utils.getRandomAndroidUA = function () {
     let androidVersion = Utils.getRandomValue(10, 14);
     let mobileNameList = [
@@ -1737,28 +1434,6 @@
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
   };
 
-  /**
-   * 获取随机值
-   * @returns {any}
-   * @example
-   * Utils.getRandomValue([1,2,3])
-   * > 3
-   * @example
-   * Utils.getRandomValue({1:"结果1",2:"结果2",3:"结果3"}})
-   * > 结果2
-   * @example
-   * Utils.getRandomValue(1,9)
-   * > 9
-   * @example
-   * Utils.getRandomValue(1,9,6,99)
-   * > 6
-   * @example
-   * Utils.getRandomValue({1:1},{2:2})
-   * > {1: 1}
-   * @example
-   * Utils.getRandomValue()
-   * > undefined
-   */
   Utils.getRandomValue = function () {
     let result = [...arguments];
     if (result.length > 1) {
@@ -1793,24 +1468,7 @@
       }
     }
   };
-  /**
-   * 获取随机的电脑端User-Agent
-   * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
-   * + Windows NT 13：代表Window11系统
-   * + Windows NT 10.0：代表Window10系统
-   * + Windows NT 6.1：代表windows7系统
-   * + WOW64：Windows-on-Windows 64-bit，32位的应用程序运行于此64位处理器上
-   * + Win64：64位
-   * + AppleWebKit/537.36：浏览器内核
-   * + KHTML：HTML排版引擎
-   * + like Gecko：这不是Geckeo 浏览器，但是运行起来像Geckeo浏览器
-   * + Chrome/106.0.5068.19：Chrome版本号
-   * + Safari/537.36：宣称自己是Safari？
-   * @returns {string} 返回随机字符串
-   * @example
-   * Utils.getRandomPCUA();
-   * > 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5068.19 Safari/537.36'
-   **/
+
   Utils.getRandomPCUA = function () {
     let chromeVersion1 = Utils.getRandomValue(110, 120);
     let chromeVersion2 = Utils.getRandomValue(0, 0);
@@ -1819,13 +1477,6 @@
     return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
   };
 
-  /**
-   * 获取元素上的使用React框架的实例属性，目前包括reactFiber、reactProps、reactEvents、reactEventHandlers、reactInternalInstance
-   * @param {HTMLElement} element 需要获取的目标元素
-   * @returns {object}
-   * @example
-   * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
-   */
   Utils.getReactObj = function (element) {
     let result = {};
     Object.keys(element).forEach((domPropsName) => {
@@ -1841,39 +1492,16 @@
     return result;
   };
 
-  /**
-   * 获取文本的字符长度
-   * @param {string} text
-   * @returns {number}
-   * @example
-   * Utils.getTextLength("测试文本")
-   * > 12
-   */
   Utils.getTextLength = function (text) {
     let encoder = new TextEncoder();
     let bytes = encoder.encode(text);
     return bytes.length;
   };
 
-  /**
-   * 获取文本占据的空间大小，返回自动的单位，如12 Kb,14 K,20 MB，1 GB
-   * @param {string} text 目标字符串
-   * @param {boolean} [addType=true]
-   * + true (默认) 自动添加单位
-   * + false 不添加单位
-   * @returns {string}
-   * @example
-   * Utils.getTextStorageSize("测试文本");
-   * > '12.00B'
-   */
   Utils.getTextStorageSize = function (text, addType = true) {
     return Utils.formatByteToSize(Utils.getTextLength(text), addType);
   };
 
-  /**
-   * 获取迅雷协议的Url
-   * @param {string} url Url链接或者其它信息
-   */
   Utils.getThunderUrl = function (url) {
     if (url == null) {
       throw new TypeError("url不能为空");
@@ -1887,14 +1515,6 @@
     return `thunder://${globalThis.btoa("AA" + url + "ZZ")}`;
   };
 
-  /**
-   * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
-   * @param {string} cssText css字符串
-   * @returns {HTMLElement} 返回添加的CSS标签
-   * @example
-   * Utils.GM_addStyle("html{}");
-   * > <style type="text/css">html{}</style>
-   */
   Utils.GM_addStyle = function (cssText) {
     if (typeof cssText !== "string") {
       throw new Error("Utils.GM_addStyle 参数cssText 必须为String类型");
@@ -1915,41 +1535,7 @@
     return cssNode;
   };
 
-  /**
-   * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
-   * @example
-    let GM_cookie = new Utils.GM_Cookie();
-    GM_cookie.list({name:"xxx_cookie_xxx"},function(cookies,error){
-        if (!error) {
-            console.log(cookies);
-            console.log(cookies.value);
-        } else {
-            console.error(error);
-        }
-    });
-    GM_cookie.set({name:"xxx_cookie_test_xxx",value:"这是Cookie测试值"},function(error){
-        if (error) {
-            console.error(error);
-        } else {
-            console.log('Cookie set successfully.');
-        }
-    })
-    GM_cookie.delete({name:"xxx_cookie_test_xxx"},function(error){
-        if (error) {
-            console.error(error);
-        } else {
-            console.log('Cookie set successfully.');
-        }
-    })
-   **/
   Utils.GM_Cookie = function () {
-    /**
-     * 获取Cookie
-     * @param {UtilsGMCookieListOptions} [paramDetails={}]
-     * @param {?(data: UtilsGMCookieListResult[], error: ?TypeError)=> void} callback
-     * + cookies object[]
-     * + error string|undefined
-     */
     this.list = function (paramDetails = {}, callback = () => {}) {
       /** @type {UtilsGMCookieListResult[]} */
       let resultData = [];
@@ -1992,11 +1578,6 @@
       }
     };
 
-    /**
-     * 设置Cookie
-     * @param {UtilsGMCookieSetOptions} [paramDetails={}]
-     * @param {?(error: ?TypeError)=> void} callback
-     */
     this.set = function (paramDetails = {}, callback = () => {}) {
       try {
         let details = {
@@ -2030,11 +1611,6 @@
       }
     };
 
-    /**
-     * 删除Cookie
-     * @param {UtilsGMCookieDeleteOptions} [paramDetails={}]
-     * @param {?(error: ?TypeError)=> void} callback
-     */
     this.delete = (paramDetails = {}, callback = () => {}) => {
       try {
         let details = {
@@ -2053,97 +1629,6 @@
     };
   };
 
-  /**
-   * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
-   * @param { UtilsGMMenuConstructorOptions } details 传递的菜单配置
-   * @example
-    let GM_Menu = new Utils.GM_Menu({
-      data: [
-        {
-          menu_key: "menu_key",
-          text: "测试按钮",
-          enable: true,
-          accessKey: "a",
-          autoClose: false,
-          showText(text, enable) {
-            return "[" + (enable ? "√" : "×") + "]" + text;
-          },
-          callback(data) {
-            console.log("点击菜单，值修改为", data.enable);
-          },
-        },
-      ],
-      autoReload: false,
-      GM_getValue,
-      GM_setValue,
-      GM_registerMenuCommand,
-      GM_unregisterMenuCommand,
-    });
-
-
-    // 获取某个菜单项的值
-    GM_Menu.get("menu_key");
-    > true
-
-    // 获取某个菜单项的开启/关闭后显示的文本
-    GM_Menu.getShowTextValue("menu_key");
-    > √测试按钮
-
-    // 添加键为menu_key2的菜单项
-    GM_Menu.add({
-      key:"menu_key2",
-      text: "测试按钮2",
-      enable: false,
-      showText(text,enable){
-        return "[" + (enable ? "√" : "×") + "]" + text;
-      },
-      callback(data){
-        console.log("点击菜单，值修改为",data.enable);
-      }
-    });
-    // 使用数组的方式添加多个菜单，如menu_key3、menu_key4
-    GM_Menu.add([
-      {
-        key:"menu_key3",
-        text: "测试按钮3",
-        enable: false,
-        showText(text,enable){
-          return "[" + (enable ? "√" : "×") + "]" + text;
-        },
-        callback(data){
-          console.log("点击菜单，值修改为",data.enable);
-        }
-      },
-      {
-        key:"menu_key4",
-        text: "测试按钮4",
-        enable: false,
-        showText(text,enable){
-          return "[" + (enable ? "√" : "×") + "]" + text;
-        },
-        callback(data){
-          console.log("点击菜单，值修改为",data.enable);
-        }
-      }
-    ]);
-
-    // 更新键为menu_key的显示文字和点击回调
-    GM_Menu.update({
-      menu_key:{
-        text: "更新后的测试按钮",
-        enable: true,
-        showText(text,enable){
-          return "[" + (enable ? "√" : "×") + "]" + text;
-        },
-        callback(data){
-          console.log("点击菜单更新后的测试按钮，新值修改为",data.enable);
-        }
-      }
-    });
-
-    // 删除键为menu_key的菜单
-    GM_Menu.delete("menu_key");
-   **/
   Utils.GM_Menu = function (details) {
     /* 配置数据 */
     let data = details.data || [];
@@ -2588,30 +2073,6 @@
     this.update();
   };
 
-  /**
-   * 基于Function prototype，能够勾住和释放任何函数
-   * 
-   * .hook
-   * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
-   * + hookFunc {string} 替换的hook函数
-   * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
-   * + methodName {string} 匿名函数需显式传入目标函数名eg:this.Begin = function(){....};}
-   * 
-   * .unhook
-   * + realFunc {string} 用于保存原始函数的函数名称,用于unHook
-   * + funcName {string} 被Hook的函数名称
-   * + context {object} 目标函数所在对象,用于hook非window对象下的函数，如String.protype.slice,carInstance1
-   * @example
-    let hook = new Utils.Hooks();
-    hook.initEnv();
-    function myFunction(){
-        console.log("我自己需要执行的函数");
-    }
-    function testFunction(){
-        console.log("正常执行的函数");
-    }
-    testFunction.hook(testFunction,myFunction,window);
-   **/
   Utils.Hooks = function () {
     this.initEnv = function () {
       Function.prototype.hook = function (realFunc, hookFunc, context) {
@@ -2684,44 +2145,6 @@
     };
   };
 
-  /**
-   * 为减少代码量和回调，把GM_xmlhttpRequest封装
-   * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
-   * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
-   * @param {Function} _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest（必须）
-   * @example
-    let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-    let postResp = await httpx.post({
-      url:url,
-      data:JSON.stringify({
-        test:1
-      }),
-      timeout: 5000
-    });
-    console.log(postResp);
-    > {
-      status: true,
-      data: {responseText: "...", response: xxx,...},
-      msg: "请求完毕",
-      type: "onload",
-    }
-
-    if(postResp === "onload" && postResp.status){
-    // onload
-    }else if(postResp === "ontimeout"){
-    // ontimeout
-    }
-   * @example
-    // 也可以先配置全局参数
-    let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-    httpx.config({
-      timeout: 5000,
-      async: false,
-      responseType: "html",
-      redirect: "follow",
-    })
-    // 优先级为 默认details < 全局details < 单独的details
-   */
   Utils.Httpx = function (_GM_xmlHttpRequest_) {
     if (typeof _GM_xmlHttpRequest_ !== "function") {
       throw new Error(
@@ -3051,7 +2474,7 @@
     };
 
     /**
-     * OPTIONS请求
+     * OPTIONS 请求
      * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
@@ -3075,7 +2498,7 @@
     };
 
     /**
-     * DELETE请求
+     * DELETE 请求
      * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
@@ -3099,7 +2522,7 @@
     };
 
     /**
-     * PUT请求
+     * PUT 请求
      * @param {...HttpxDetails|string} arguments
      * @returns {Promise< HttpxAsyncResult >}
      */
@@ -3133,34 +2556,6 @@
     };
   };
 
-  /**
-   * 浏览器端的indexedDB操作封装
-   * @example
-    let db = new Utils.indexedDB('web_DB', 'nav_text')
-    let data = {name:'管理员', roleId: 1, type: 1};
-    db.save('list',data).then((resolve)=>{
-        console.log(resolve,'存储成功')
-    })
-
-    db.get('list').then((resolve)=>{
-        console.log(resolve,'查询成功')
-    })
-
-    db.getPaging('list',20,10).then((resolve)=>{
-        console.log(resolve,'查询分页偏移第20，一共10行成功');
-    })
-
-    db.delete('list').then(resolve=>{
-        console.log(resolve,'删除成功---->>>>>>name')
-    })
-
-    db.deleteAll().then(resolve=>{
-        console.log(resolve,'清除数据库---->>>>>>name')
-    })
-   * @param {string} [dbName="default_db"] 数据存储名
-   * @param {string} [storeName="default_form"] 表名
-   * @param {number} [dbVersion=1] indexDB的版本号
-   **/
   Utils.indexedDB = function (
     dbName = "default_db",
     storeName = "default_form",
@@ -3515,29 +2910,12 @@
     };
   };
 
-  /**
-   * 判断目标函数是否是Native Code
-   * @param {function} target
-   * @returns {boolean}
-   * + true 是Native
-   * + false 不是Native
-   * @example
-   * Utils.isNativeFunc(window.location.assign)
-   * > true
-   */
   Utils.isNativeFunc = function (target) {
     return Boolean(
       target.toString().match(/^function .*\(\) { \[native code\] }$/)
     );
   };
 
-  /**
-   * 判断当前的位置是否位于页面底部附近
-   * @param {number} [nearValue=50] 判断在页面底部的误差值，默认:50
-   * @returns {boolean}
-   * + true 在底部附近
-   * + false 不在底部附近
-   */
   Utils.isNearBottom = function (nearValue = 50) {
     var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     var windowHeight =
@@ -3546,24 +2924,10 @@
     return scrollTop + windowHeight >= documentHeight - nearValue;
   };
 
-  /**
-   * 判断对象是否是元素
-   * @param {any} target
-   * @returns {boolean}
-   * + true 是元素
-   * + false 不是元素
-   * @example
-   * Utils.isDOM(document.querySelector("a"))
-   * > true
-   */
   Utils.isDOM = function (target) {
     return target instanceof Node;
   };
 
-  /**
-   * 判断浏览器是否支持全屏
-   * @returns {boolean}
-   */
   Utils.isFullscreenEnabled = function () {
     return !!(
       document.fullscreenEnabled ||
@@ -3572,16 +2936,7 @@
       document.msFullScreenEnabled
     );
   };
-  /**
-   * 判断对象是否是jQuery对象
-   * @param {any} target
-   * @returns {boolean}
-   * + true 是jQuery对象
-   * + false 不是jQuery对象
-   * @example
-   * Utils.isJQuery($("a"))
-   * > true
-   */
+
   Utils.isJQuery = function (target) {
     let result = false;
     if (typeof jQuery === "object" && target instanceof jQuery) {
@@ -3734,77 +3089,14 @@
     return result;
   };
 
-  /**
-   * 判断当前设备是否是移动端
-   * @param {string} [userAgent=navigator.userAgent] UA字符串，默认使用当前的navigator.userAgent
-   * @returns {boolean}
-   * + true 是移动端
-   * + false 不是移动端
-   * @example
-   * Utils.isPhone();
-   * > true
-   **/
   Utils.isPhone = function (userAgent = navigator.userAgent) {
     return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
   };
 
-  /**
-   * 判断对象是否不为空
-   * @param {any} obj
-   * @returns {boolean}
-   * + true 不为空
-   * + false 为空
-   * @example
-   * Utils.isNotNull("123");
-   * > true
-   */
   Utils.isNotNull = function () {
     return !Utils.isNull.apply(this, arguments);
   };
 
-  /**
-   * 判断对象或数据是否为空
-   * String类型，如 ""、"null"、"undefined"、"   "
-   * Number类型，如 0
-   * Object类型，如 {}
-   * @param {arguments} obj 需要判断的变量
-   * @returns {boolean}
-   * + true 为空
-   * + false 不为空
-   * @example
-    Utils.isNull({});
-    > true
-   * @example
-    Utils.isNull([]);
-    > true
-   * @example
-    Utils.isNull(" ");
-    > true
-   * @example
-    Utils.isNull(function(){});
-    > true
-   * @example
-    Utils.isNull(()=>{}));
-    > true
-   * @example
-    Utils.isNull("undefined");
-    > true
-   * @example
-    Utils.isNull("null");
-    > true
-   * @example
-    Utils.isNull(" ", false);
-    > true
-   * @example
-    Utils.isNull([1],[]);
-    > false
-   * @example
-    Utils.isNull([],[1]);
-    > false
-   * @example
-    Utils.isNull(false,[123]);
-    > false
-   **/
   Utils.isNull = function () {
     let result = true;
     let checkList = [...arguments];
@@ -3857,19 +3149,6 @@
     return result;
   };
 
-  /**
-   * 判断元素是否在页面中可见
-   * @param {[...HTMLElement]|NodeList} element 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
-   * @param {boolean} [inView=false]
-   * + true 在窗口可视区域
-   * + false 不在窗口可视区域
-   * @returns {boolean}
-   * + true 可见
-   * + false 不可见
-   * @example
-   * Utils.isVisible(document.documentElement)
-   * > true
-   */
   Utils.isVisible = function (element, inView = false) {
     let needCheckDomList = [];
     if (element instanceof Array || element instanceof NodeList) {
@@ -3907,15 +3186,6 @@
     return result;
   };
 
-  /**
-   * 判断是否是Via浏览器环境
-   * @returns {boolean}
-   * + true 是Via
-   * + false 不是Via
-   * @example
-   * Utils.isWebView_Via()
-   * > false
-   */
   Utils.isWebView_Via = function () {
     let result = true;
     if (typeof top.window.via === "object") {
@@ -3939,15 +3209,6 @@
     return result;
   };
 
-  /**
-   * 判断是否是X浏览器环境
-   * @returns {boolean}
-   * + true 是X浏览器
-   * + false 不是X浏览器
-   * @example
-   * Utils.isWebView_X()
-   * > false
-   */
   Utils.isWebView_X = function () {
     let result = true;
     if (typeof top.window.mbrowser === "object") {
@@ -3971,14 +3232,6 @@
     return result;
   };
 
-  /**
-   * 把对象内的value值全部取出成数组
-   * @param {object} target 目标对象
-   * @returns {object} 返回数组
-   * @example
-   * Utils.parseObjectToArray({"工具类":"jsonToArray","return","Array"});
-   * > ['jsonToArray', 'Array']
-   **/
   Utils.parseObjectToArray = function (target) {
     if (typeof target !== "object") {
       throw new Error(
@@ -3992,68 +3245,6 @@
     return result;
   };
 
-  /**
-   * 监听某个元素键盘按键事件或window全局按键事件
-   * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
-   * @param {Window|Node|HTMLElement|globalThis} target 需要监听的对象，可以是全局Window或者某个元素
-   * @param {"keyup"|"keypress"|"keydown"} eventName 事件名，默认keypress
-   * @param {?(keyName: string, keyValue:string,otherCodeList: string[], event: KeyboardEvent)=>{}} callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
-   * @example 
-      Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
-          if(keyName === "Enter"){
-              console.log("回车按键的值是："+keyValue)
-          }
-          if(otherKey.indexOf("ctrl") && keyName === "Enter" ){
-              console.log("Ctrl和回车键");
-        }
-      })
-   * @example
-  字母和数字键的键码值(keyCode)
-	按键	键码	按键	键码	按键	键码	按键	键码
-	A	65	J	74	S	83	1	49
-	B	66	K	75	T	84	2	50
-	C	67	L	76	U	85	3	51
-	D	68	M	77	V	86	4	52
-	E	69	N	78	W	87	5	53
-	F	70	O	79	X	88	6	54
-	G	71	P	80	Y	89	7	55
-	H	72	Q	81	Z	90	8	56
-	I	73	R	82	0	48	9	57
-
-	数字键盘上的键的键码值(keyCode)	
-	功能键键码值(keyCode)
-	按键	键码	按键  	键码	按键	键码	按键	键码
-	0	96	8	104	F1	112	F7	118
-	1	97	9	105	F2	113	F8	119
-	2	98	*	106	F3	114	F9	120
-	3	99	+	107	F4	115	F10	121
-	4	100	Enter	108	F5	116	F11	122
-	5	101	-	109	F6	117	F12	123
-	6	102	.	110	 	 	 	 
-	7	103	/	111	 	 
-	
-	控制键键码值(keyCode)
-	按键		键码	按键		键码	按键		键码	按键		键码
-	BackSpace	8	Esc		27	→		39	-_		189
-	Tab		9	Spacebar	32	↓		40	.>		190
-	Clear		12	Page Up		33	Insert		45	/?		191
-	Enter		13	Page Down	34	Delete		46	`~		192
-	Shift		16	End		35	Num Lock	144	[{		219
-	Control		17	Home		36	;:		186	\|		220
-	Alt		18	←		37	=+		187	]}		221
-	Cape Lock	20	↑		38	,<		188	'"		222
-
-	多媒体键码值(keyCode)
-	按键		键码
-	音量加		175
-	音量减		174
-	停止		179
-	静音		173
-	浏览器		172
-	邮件		180
-	搜索		170
-	收藏		171
-   **/
   Utils.listenKeyboard = function (target, eventName = "keypress", callback) {
     if (
       typeof target !== "object" ||
@@ -4092,20 +3283,6 @@
     };
   };
 
-  /**
-   * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-   * @param {()=> any | Promise<any>} callback 需要执行的函数
-   * @param {function|undefined} context 函数作用域
-   * @param {number} [delayTime=0] 延迟xx毫秒后解锁，默认0
-   * @example
-    let lock = new Utils.LockFunction(()=>{console.log(1)}))
-    lock.run();
-    > 1
-   * @example
-    let lock = new Utils.LockFunction(()=>{console.log(1)}),true) -- 异步操作
-    await lock.run();
-    > 1
-   **/
   Utils.LockFunction = function (callback, context, delayTime = 0) {
     let flag = false;
     let that = this;
@@ -4137,39 +3314,6 @@
     };
   };
 
-  /**
-   * 日志对象
-   * @param {{
-   * "script": {
-   *    "name": string,
-   *  }
-   * }|undefined} _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
-   * @example
-    let log = new Utils.Log(GM_info);
-    log.info("普通输出");
-    > 普通输出
-
-    log.success("成功输出");
-    > 成功输出
-
-    log.error("错误输出");
-    > 错误输出
-    
-    log.warn("警告输出");
-    > 警告输出
-
-    log.tag = "自定义tag信息";
-    log.info("自定义info的颜色","#e0e0e0");
-    > 自定义info的颜色
-
-    log.config({
-      successColor: "#31dc02",
-      errorColor: "#e02d2d",
-      infoColor: "black",
-    })
-    log.success("颜色为#31dc02");
-    > 颜色为#31dc02
-   */
   Utils.Log = function (
     _GM_info_ = {
       script: {
@@ -4428,15 +3572,6 @@
     };
   };
 
-  /**
-   * 合并数组内的JSON的值字符串
-   * @param {[...any]} data 需要合并的数组
-   * @param {function|string|undefined} handleFunc 处理的函数|JSON的key
-   * @returns {string}
-   * @example
-   * Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
-   * > '数组内数据部分字段合并成字符串->mergeToString'
-   **/
   Utils.mergeArrayToString = function (data, handleFunc) {
     if (!(data instanceof Array)) {
       throw new Error("Utils.mergeArrayToString 参数 data 必须为 Array 类型");
@@ -4462,29 +3597,6 @@
     return content;
   };
 
-  /**
-   * 监听页面元素改变并处理
-   * @param {object|Node|NodeList} target 需要监听的元素，如果不存在，可以等待它出现
-   * @param {{
-   * config: MutationObserverInit,
-   * callback: MutationCallback
-   * }} observer_config MutationObserver的配置
-   * @example
-    Utils.mutationObserver(document.querySelector("div.xxxx"),{
-      "callback":(mutations, observer)=>{},
-      "config":{childList:true,attributes:true}
-    });
-   * @example
-    Utils.mutationObserver(document.querySelectorAll("div.xxxx"),{
-      "callback":(mutations, observer)=>{},
-      "config":{childList:true,attributes:true}}
-    );
-   * @example
-    Utils.mutationObserver($("div.xxxx"),{
-    "callback":(mutations, observer)=>{},
-    "config":{childList:true,attributes:true}}
-    );
-   **/
   Utils.mutationObserver = function (target, observer_config) {
     if (
       !(target instanceof Node) &&
@@ -4548,6 +3660,7 @@
       window.MutationObserver ||
       window.webkitMutationObserver ||
       window.MozMutationObserver;
+    /** @type {MutationObserver} */
     let mutationObserver = new MutationObserver(function (mutations, observer) {
       observer_config?.callback(mutations, observer);
     });
@@ -4571,13 +3684,6 @@
     return mutationObserver;
   };
 
-  /**
-   * 去除全局window下的Utils，返回控制权
-   * @returns {Utils}
-   * @example
-   * let utils = Utils.noConflict();
-   * > ...
-   */
   Utils.noConflict = function () {
     if (window.Utils) {
       delete window.Utils;
@@ -4588,38 +3694,6 @@
     return Utils;
   };
 
-  /**
-   * 恢复/释放该对象内的为function，让它无效/有效
-   * @param {object} needReleaseObject 需要操作的对象
-   * @param {string} needReleaseName 需要操作的对象的名字
-   * @param {array} [functionNameList=[]] 需要释放的方法，如果为空，默认全部方法
-   * @param {boolean} [release=true]
-   * + true (默认) 释放该对象下的某些方法
-   * + false 恢复该对象下的某些方法
-   * @example
-    // 释放该方法
-    Utils.noConflictFunc(console,"console",["log"],true);
-    console.log;
-    > () => {}
-
-   * @example
-    // 恢复该方法
-    Utils.noConflictFunc(console,"console",["log"],false);
-    console.log;
-    > ƒ log() { [native code] }
-
-   * @example
-    // 释放所有方法
-    Utils.noConflictFunc(console,"console",[],true);
-    console.debug;
-    > () => {}
-
-   * @example
-    // 恢复所有方法
-    Utils.noConflictFunc(console,"console",[],false);
-    console.debug;
-    > ƒ log() { [native code] }
-   **/
   Utils.noConflictFunc = function (
     needReleaseObject,
     needReleaseName,
@@ -4740,14 +3814,7 @@
       }
     }
   };
-  /**
-   * base64转blob
-   * @param {string} dataUri base64的数据
-   * @returns {string} blob的链接
-   * @example
-   * Utils.parseBase64ToBlob("data:image/jpeg;base64,.....");
-   * > blob://xxxxxxx
-   **/
+
   Utils.parseBase64ToBlob = function (dataUri) {
     if (typeof dataUri !== "string") {
       throw new Error(
@@ -4767,15 +3834,6 @@
     });
   };
 
-  /**
-   * base64转File对象
-   * @param {string} dataUri	base64的数据
-   * @param {string} [fileName="example"] 文件名，默认为example
-   * @returns {File} blob的链接
-   * @example
-   * Utils.parseBase64ToFile("data:image/jpeg;base64,.....","测试文件");
-   * > object
-   **/
   Utils.parseBase64ToFile = function (dataUri, fileName = "example") {
     if (typeof dataUri !== "string") {
       throw new Error(
@@ -4800,29 +3858,6 @@
     });
   };
 
-  /**
-   * 将正则匹配到的结果取出最后一个值并转换成int格式
-   * @param {[...any]} [matchList=[]] 正则匹配的列表
-   * @param {number|string} [defaultValue=0] 正则匹配的列表为空时，或者正则匹配的列表最后一项不为Int，返回该默认值0
-   * @example
-   * Utils.parseInt(["dadaadada123124","123124"],0);
-   * > 123124
-   *
-   * @example
-   * Utils.parseInt(null,0);
-   * > 0
-   * @example
-   * Utils.parseInt(["aaaaaa"]);
-   * > 0
-   *
-   * @example
-   * Utils.parseInt(["aaaaaa"],"66");
-   * > 66
-   *
-   * @example
-   * Utils.parseInt(["aaaaaaa"],"aa");
-   * > NaN
-   **/
   Utils.parseInt = function (matchList = [], defaultValue = 0) {
     if (matchList == null) {
       return parseInt(defaultValue);
@@ -4834,15 +3869,6 @@
     return parseValue;
   };
 
-  /**
-   * blob转File对象
-   * @param {string} blobUrl	需要转换的blob的链接
-   * @param {string} [fileName="example"]	转换成的File对象的文件名称，默认为example
-   * @returns {Promise<File|Error>}
-   * @example
-   * Utils.parseBlobToFile("blob://xxxxx");
-   * > object
-   **/
   Utils.parseBlobToFile = async function (blobUrl, fileName = "example") {
     return new Promise((resolve, reject) => {
       fetch(blobUrl)
@@ -4858,15 +3884,6 @@
     });
   };
 
-  /**
-   * 解析CDATA格式的内容字符串
-   * @param {string} [text=""] 传入CDATA字符串
-   * @returns {string} 返回解析出的内容
-   * @example
-   * let xml = "<root><![CDATA[This is some CDATA content.]]></root>";
-   * console.log(Utils.parseCDATA(xml));
-   * > This is some CDATA content.
-   */
   Utils.parseCDATA = function (text = "") {
     let result = "";
     let cdataRegexp = /<\!\[CDATA\[([\s\S]*)\]\]>/;
@@ -4877,15 +3894,6 @@
     return result;
   };
 
-  /**
-   * 【异步函数】File对象转base64
-   * @async
-   * @param {File} fileObj	需要转换的File对象
-   * @returns {Promise<string>}
-   * @example
-   * await Utils.parseFileToBase64(object);
-   * > 'data:image/jpeg:base64/,xxxxxx'
-   **/
   Utils.parseFileToBase64 = async function (fileObj) {
     let reader = new FileReader();
     reader.readAsDataURL(fileObj);
@@ -4896,30 +3904,11 @@
     });
   };
 
-  /**
-   * 解析字符串
-   * @param {string} text 要解析的 DOMString。它必须包含 HTML、xml、xhtml+xml 或 svg 文档。
-   * @param {"text/html"|"text/xml"|"application/xml"|"application/xhtml+xml"|"image/svg+xml"} [mimeType="text/html"] 解析成的类型，包括：text/html（默认）、text/xml、application/xml、application/xhtml+xml、image/svg+xml
-   * @returns {HTMLElement|XMLDocument|SVGElement}
-   * @example
-   * Utils.parseFromString("<p>123<p>");
-   * > #document
-   */
   Utils.parseFromString = function (text, mimeType = "text/html") {
     let parser = new DOMParser();
     return parser.parseFromString(text, mimeType);
   };
 
-  /**
-   * 阻止事件传递
-   * @param {HTMLElement} element 要进行处理的元素
-   * @param {?string|[...string]} eventNameList 要阻止的事件名|列表
-   * @param {Event|undefined} paramEvent 事件
-   * @example
-   * Utils.preventEvent(document.querySelector("a"),"click")
-   * @example
-   * Utils.preventEvent(event);
-   */
   Utils.preventEvent = function (element, eventNameList = []) {
     function stopEvent(event) {
       /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
@@ -4944,23 +3933,6 @@
     }
   };
 
-  /**
-   * 在canvas元素节点上绘制进度圆圈
-   * @param {{
-   * canvasNode : ?HTMLCanvasElement,
-   * deg: number,
-   * progress: number,
-   * lineWidth: number,
-   * lineBgColor: string,
-   * lineColor: string,
-   * fontSize: string,
-   * circleRadius: string,
-   * draw: ?()=>{}
-   * }} paramConfig 配置信息
-   * @example
-    let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
-    progress.draw();
-   * **/
   Utils.Progress = function (paramConfig) {
     this.config = {
       /**
@@ -5060,11 +4032,6 @@
     }.bind(this);
   };
 
-  /**
-   * 劫持Event的isTrust为true，注入时刻，ducument-start
-   * @example
-   * Utils.registerTrustClickEvent()
-   */
   Utils.registerTrustClickEvent = function (isTrustValue = true) {
     function trustEvent(event) {
       return new Proxy(event, {
@@ -5089,10 +4056,6 @@
     };
   };
 
-  /**
-   * 将数字进行正/负转换
-   * @param {number} num 需要进行转换的数字
-   */
   Utils.reverseNumber = function (num) {
     let reversedNum = 0;
     let isNegative = false;
@@ -5110,15 +4073,6 @@
     return isNegative ? -reversedNum : reversedNum;
   };
 
-  /**
-   * 将元素上的文本或元素使用光标进行选中
-   *
-   * 注意，如果设置startIndex和endIndex，且元素上并无可选则的坐标，那么会报错
-   * @param {HTMLElement|Element|Node} element 目标元素
-   * @param {ChildNode} childTextNode 目标元素下的#text元素
-   * @param {number|undefined} startIndex 开始坐标，可为空
-   * @param {number|undefined} endIndex 结束坐标，可为空
-   */
   Utils.selectElementText = function (
     element,
     childTextNode,
@@ -5142,28 +4096,6 @@
     selection.addRange(range);
   };
 
-  /**
-   * 复制到剪贴板
-   * @param {any} data - 需要复制到剪贴板的文本
-   * @param {{type:string,mimetype:string}|string} [info="text/plain"]
-   * @example
-   * Utils.setClip({1:2});
-   * > {"1":2}
-   * @example
-   * Utils.setClip( ()=>{
-   *   console.log(1)
-   * });
-   * > ()=>{console.log(1)}
-   * @example
-   * Utils.setClip("xxxx");
-   * > xxxx
-   * @example
-   * Utils.setClip("xxxx","html");
-   * > xxxx
-   * @example
-   * Utils.setClip("xxxx","text/plain");
-   * > xxxx
-   **/
   Utils.setClip = async function (data, info = "text/plain") {
     if (typeof data === "object") {
       if (data instanceof Element) {
@@ -5240,17 +4172,6 @@
     });
   };
 
-  /**
-   * 【异步函数】等待N秒执行函数
-   * @param {function|string} callback 待执行的函数(字符串)
-   * @param {number} [delayTime=0] 延时时间(ms)
-   * @example
-   * await Utils.setTimeout(()=>{}, 2500);
-   * > ƒ tryCatchObj() {}
-   * @example
-   * await Utils.setTimeout("()=>{console.log(12345)}", 2500);
-   * > ƒ tryCatchObj() {}
-   **/
   Utils.setTimeout = async function (callback, delayTime = 0) {
     if (typeof callback !== "function" && typeof callback !== "string") {
       throw new TypeError(
@@ -5267,12 +4188,6 @@
     });
   };
 
-  /**
-   * 【异步函数】延迟xxx毫秒
-   * @param {number} [delayTime=0] 延时时间(ms)
-   * @example
-   * await Utils.sleep(2500)
-   **/
   Utils.sleep = async function (delayTime = 0) {
     if (typeof delayTime !== "number") {
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
@@ -5284,15 +4199,6 @@
     });
   };
 
-  /**
-   * 向右拖动滑块
-   * @param {string|Element|Node} selector 选择器|元素
-   * @param {number} [offsetX= window.innerWidth] 水平拖动长度，默认浏览器宽度
-   * @example
-   * Utils.dragSlider("#xxxx");
-   * @example
-   * Utils.dragSlider("#xxxx",100);
-   */
   Utils.dragSlider = function (selector, offsetX = window.innerWidth) {
     function initMouseEvent(eventName, offSetX, offSetY) {
       let win = unsafeWindow || window;
@@ -5337,13 +4243,6 @@
     sliderElement.dispatchEvent(initMouseEvent("mouseout", x1, y1));
   };
 
-  /**
-   * 使浏览器进入全屏
-   * @param {?HTMLElement} element 目标元素
-   * @param {?FullscreenOptions} options 配置，一般不用
-   * @example
-   * Utils.enterFullScreen();
-   */
   Utils.enterFullScreen = function (
     element = document.documentElement,
     options
@@ -5365,13 +4264,6 @@
     }
   };
 
-  /**
-   * 使浏览器退出全屏
-   * @param {?HTMLElement} element 目标元素
-   * @returns {Promise<void>}
-   * @example
-   * Utils.exitFullScreen();
-   */
   Utils.exitFullScreen = function (element = document.documentElement) {
     if (document.exitFullscreen) {
       return document.exitFullscreen();
@@ -5387,19 +4279,7 @@
       });
     }
   };
-  /**
-   * 数组按照内部某个值的大小比对排序，如[{"time":"2022-1-1"},{"time":"2022-2-2"}]
-   * @param {any[]|NodeList|function} data 数据|获取数据的方法
-   * @param {string|function} getPropertyValueFunc 数组内部项的某个属性的值的方法，参数为这个项
-   * @param {boolean} [sortByDesc=true] 排序方式，默认true倒序(值最大排第一个，如:6、5、4、3...)，false为升序(值最小排第一个，如:1、2、3、4...)
-   * @returns {any[]} 返回比较排序完成的数组
-   * @example
-   * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]})
-   * > [{time: '2022-2-2'},{time: '2022-1-1'}]
-   * @example
-   * Utils.sortListByProperty([{"time":"2022-1-1"},{"time":"2022-2-2"}],(item)=>{return item["time"]},false)
-   * > [{time: '2022-1-1'},{time: '2022-2-2'}]
-   **/
+
   Utils.sortListByProperty = function (
     data,
     getPropertyValueFunc,
@@ -5502,12 +4382,6 @@
     return result;
   };
 
-  /**
-   * 字符串转正则，用于把字符串中不规范的字符进行转义
-   * @param {string} targetString 需要进行转换的字符串
-   * @param {"g"|"i"|"m"|"u"|"y"} [flags="ig"] 正则标志
-   * @returns {RegExp}
-   */
   Utils.stringToRegular = function (targetString, flags = "ig") {
     let reg;
     flags = flags.toLowerCase();
@@ -5526,12 +4400,6 @@
     return reg;
   };
 
-  /**
-   * 字符串首字母转大写
-   * @param {string} targetString 目标字符串
-   * @param {boolean} [otherStrToLowerCase=false] 剩余部分字符串转小写，默认false
-   * @returns
-   */
   Utils.stringTitleToUpperCase = function (
     targetString,
     otherStrToLowerCase = false
@@ -5545,12 +4413,6 @@
     return newTargetString;
   };
 
-  /**
-   * 字符串首字母转小写
-   * @param {string} targetString 目标字符串
-   * @param {boolean} [otherStrToLowerCase=false] 剩余部分字符串转大写，默认false
-   * @returns
-   */
   Utils.stringTitleToLowerCase = function (
     targetString,
     otherStrToUpperCase = false
@@ -5564,15 +4426,6 @@
     return newTargetString;
   };
 
-  /**
-   * 字符串转Object对象，类似'{"test":""}' => {"test":""}
-   * @param {string} data
-   * @param {(error:Error)=>{}} errorCallBack 错误回调
-   * @returns {object}
-   * @example
-   * Utils.toJSON("{123:123}")
-   * > {123:123}
-   */
   Utils.toJSON = function (data, errorCallBack = () => {}) {
     let result = {};
     if (typeof data === "object") {
@@ -5615,21 +4468,6 @@
     return result;
   };
 
-  /**
-   * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-   * @returns {
-   * {
-   *  run:  function,
-   *  config: function,
-   *  error:  function
-   * }} - 返回一个对象，其中包含 error 和 run 两个方法。
-   * @example
-   * Utils.tryCatch().error().run(()=>{console.log(1)});
-   * > 1
-   * @example
-   * Utils.tryCatch().config({log:true}).error((error)=>{console.log(error)}).run(()=>{throw new Error('测试错误')});
-   * > ()=>{throw new Error('测试错误')}出现错误
-   */
   Utils.tryCatch = function (...args) {
     /* 定义变量和函数 */
     let callbackFunction = null;
@@ -5721,24 +4559,6 @@
     return tryCatchObj;
   };
 
-  /**
-   * 数组去重，去除重复的值
-   * @param {[...any]} uniqueArrayData 需要去重的数组
-   * @param {[...any]} compareArrayData 用来比较的数组
-   * @param {(item1,item2)=>{}} compareFun 数组比较方法，如果值相同，去除该数据
-   * @returns {object} 返回去重完毕的数组
-   * @example
-   * Utils.uniqueArray([1,2,3],[1,2],(item,item2)=>{return item===item2 ? true:false});
-   * > [3]
-   *
-   * @example
-   * Utils.uniqueArray([1,2,3],[1,2]);
-   * > [3]
-   *
-   * @example
-   * Utils.uniqueArray([{"key":1,"value":2},{"key":2}],[{"key":1}],(item,item2)=>{return item["key"] === item2["key"] ? true:false});
-   * > [{"key": 2}]
-   **/
   Utils.uniqueArray = function (
     uniqueArrayData = [],
     compareArrayData = [],
@@ -5754,14 +4574,6 @@
     );
   };
 
-  /**
-   * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
-   * @async
-   * @param {[...any] | [...HTMLElement]} data	需要遍历的数组
-   * @param {function} handleFunc	对该数组进行操作的函数，该函数的参数为数组格式的参数,[数组下标，数组项]
-   * @example
-   * await Utils.waitArrayLoopToEnd([callback,callback,callback],xxxcallback);
-   **/
   Utils.waitArrayLoopToEnd = function (data, handleFunc) {
     if (typeof handleFunc !== "function" && typeof handleFunc !== "string") {
       throw new Error(
@@ -5775,20 +4587,6 @@
     );
   };
 
-  /**
-   * 等待指定元素出现，支持多个selector
-   * @param {...string} nodeSelectors 一个或多个节点选择器，必须为字符串类型
-   * @returns {Promise<HTMLElement|HTMLElement[]>}
-   * @example
-   * Utils.waitNode("div.xxx").then( element =>{
-   *  console.log(element); // div.xxx => HTMLElement
-   * })
-   * @example
-   * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-   *  console.log(elementList[0]); // div.xxx => HTMLElement
-   *  console.log(elementList[1]); // a.xxx => HTMLElement
-   * })
-   */
   Utils.waitNode = async function (...nodeSelectors) {
     /* 检查每个参数是否为字符串类型 */
     for (let nodeSelector of nodeSelectors) {
@@ -5845,21 +4643,6 @@
     });
   };
 
-  /**
-   * 在规定时间内，等待任意元素出现，支持多个selector，如果未出现，则关闭监听
-   * @param {string[]|string} [nodeSelectorsList=[]] 一个或多个节点选择器，必须为字符串类型
-   * @param {number} [maxTime=0] xx毫秒(ms)后关闭监听，默认0ms
-   * @returns {Promise<HTMLElement|HTMLElement[]|undefined>}
-   * @example
-   * Utils.waitNodeWithInterval("a.xxx",30000).then(element=>{
-   *   console.log(element);
-   * })
-   * @example
-   * Utils.waitNodeWithInterval(["div.xxx","a.xxx"],30000).then(elementList=>{
-   *   console.log(elementList[0]); // div.xxx => HTMLElement
-   *   console.log(elementList[1]); // a.xxx => HTMLElement
-   * })
-   */
   Utils.waitNodeWithInterval = async function (
     nodeSelectorsList = [],
     maxTime = 0
@@ -5926,15 +4709,7 @@
       }, maxTime);
     });
   };
-  /**
-   * 等待任意元素出现，支持多个selector
-   * @param  {...any} nodeSelectors 一个或多个节点选择器，必须为字符串类型
-   * @returns {Promise<HTMLElement>}
-   * @example
-   * Utils.waitAnyNode("div.xxx","a.xxx").then( element =>{
-   *   console.log(element); // a.xxx => HTMLElement
-   * })
-   */
+
   Utils.waitAnyNode = async function (...nodeSelectors) {
     /* 检查每个参数是否为字符串类型 */
     for (let nodeSelector of nodeSelectors) {
@@ -5980,24 +4755,6 @@
     });
   };
 
-  /**
-   * 等待指定元素出现，支持多个selector
-   * @param  {...string} nodeSelectors
-   * @returns {Promise<NodeList|NodeList[]>} 当nodeSelectors为数组多个时，
-   * 返回如：[ NodeList, NodeList ]，
-   * 当nodeSelectors为单个时，
-   * 返回如：NodeList。
-   * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
-   * @example
-   * Utils.waitNodeList("div.xxx").then( nodeList =>{
-   *  console.log(nodeList) // div.xxx => NodeList
-   * })
-   * @example
-   * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-   *  console.log(nodeListArray[0]) // div.xxx => NodeList
-   *  console.log(nodeListArray[1]) // a.xxx => NodeList
-   * })
-   */
   Utils.waitNodeList = async function (...nodeSelectors) {
     /* 检查每个参数是否为字符串类型 */
     for (let nodeSelector of nodeSelectors) {
@@ -6051,20 +4808,6 @@
     });
   };
 
-  /**
-   * 等待任意元素出现，支持多个selector
-   * @param  {...string} nodeSelectors
-   * @returns {Promise<NodeList>} 返回NodeList
-   * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
-   * @example
-   * Utils.waitAnyNodeList("div.xxx").then( nodeList =>{
-   *  console.log(nodeList) // div.xxx => NodeList
-   * })
-   * @example
-   * Utils.waitAnyNodeList("div.xxx","a.xxx").then( nodeList =>{
-   *  console.log(nodeList) // a.xxx => NodeList
-   * })
-   */
   Utils.waitAnyNodeList = async function (...nodeSelectors) {
     /* 检查每个参数是否为字符串类型 */
     for (let nodeSelector of nodeSelectors) {
@@ -6110,19 +4853,6 @@
     });
   };
 
-  /**
-   * 等待对象上的属性出现
-   * @param {object|()=>object} checkObj 检查的对象
-   * @param {string} checkPropertyName 检查的对象的属性名
-   * @returns {Promise<any>}
-   * @example
-   * await Utils.waitProperty(window,"test");
-   * console.log("test success set");
-   *
-   * window.test = 1;
-   * > "test success set"
-   *
-   */
   Utils.waitProperty = async function (checkObj, checkPropertyName) {
     return new Promise((resolve) => {
       let obj = checkObj;
@@ -6145,17 +4875,6 @@
     });
   };
 
-  /**
-   * 在规定时间内等待对象上的属性出现
-   * @param {object| ()=> object } checkObj 检查的对象
-   * @param {string| (obj: any)=>boolean } checkPropertyName 检查的对象的属性名
-   * @param {number} [intervalTimer=250] 检查间隔时间（ms），默认250ms
-   * @param {number} [maxTime=-1] 限制在多长时间内，默认-1(不限制时间)
-   * @returns {Promise<any|undefined>}
-   * @example
-   * await Utils.waitPropertyByInterval(window,"test");
-   * console.log("test success set");
-   */
   Utils.waitPropertyByInterval = async function (
     checkObj,
     checkPropertyName,
@@ -6189,26 +4908,6 @@
     });
   };
 
-  /**
-   * 在规定时间内等待元素上的__vue__属性或者__vue__属性上的某个值出现出现
-   * @param {HTMLElement|()=>HTMLElement } element 目标元素
-   * @param {string|(__vue__:object)=> boolean |undefined} propertyName vue上的属性名
-   * @param {number} [timer=250] 间隔时间（ms），默认250ms
-   * @param {number} [maxTime=-1] 限制在多长时间内，默认-1(不限制时间)
-   * @param {"__vue__"|string} vueName vue挂载的属性名
-   * @example
-   * await Utils.waitVueByInterval(
-   * function(){
-   *    return document.querySelector("a.xx")
-   * },
-   * function(__vue__){
-   *    return Boolean(__vue__.xxx == null);
-   * },
-   * 250,
-   * 10000,
-   * "__vue__"
-   * )
-   */
   Utils.waitVueByInterval = async function (
     element,
     propertyName,
@@ -6242,20 +4941,6 @@
     );
   };
 
-  /**
-   * 观察对象的set、get
-   * @param {object} target 观察的对象
-   * @param {string} propertyName 观察的对象的属性名
-   * @param {?(value)=>{}} getCallBack 触发get的回调，可以自定义返回特定值
-   * @param {?(value)=>{}} setCallBack 触发set的回调，参数为将要设置的value
-   * @example
-   * Utils.watchObject(window,"test",()=>{return 111;},(value)=>{console.log("test出现，值是",value)});
-   *
-   * window.test = 1;
-   * > test出现，值是 1
-   * console.log(window.test);
-   * > 111;
-   */
   Utils.watchObject = function (
     target,
     propertyName,
