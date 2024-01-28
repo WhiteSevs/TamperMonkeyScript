@@ -27,12 +27,10 @@ npm install -g @huolala-tech/page-spy-api
 ## 信息
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser)](https://www.npmjs.com/package/@huolala-tech/page-spy-browser)
-- 当前版本：`1.6.6`
+- 当前版本：`1.7.1`
 - 项目主页
 [https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - SDK地址
 [https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser](https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser)
 - 项目最新地址
-[https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
-[https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
-[https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
+[https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
