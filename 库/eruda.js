@@ -15,9 +15,9 @@ let initEruda = function (
    * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
    */
   /*! eruda v3.0.1 https://eruda.liriliri.io/ */
-  !(function (e, t) {
-    e[erudaName] = t();
-  })(currentWindow, function () {
+  !(function (global, factory) {
+    global[erudaName] = factory(global);
+  })(currentWindow, function (window) {
     return (function () {
       var __webpack_modules__ = {
           422: function (e, t, n) {
