@@ -2532,6 +2532,11 @@ declare interface Utils {
      **/
     isPhone(userAgent?: string): boolean;
     /**
+     * 判断传递的字符串是否是由相同的字符组成
+     * @param str 需要判断的字符串，长度(.length)需要≥2
+     */
+    isSameChars(str: string): boolean;
+    /**
      * 判断对象是否不为空
      * @returns {boolean}
      * + true 不为空

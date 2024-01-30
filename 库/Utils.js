@@ -3093,6 +3093,32 @@
     return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
   };
 
+  Utils.isSameChars = function (str) {
+    if (typeof str !== "string") {
+      throw new TypeError("参数 str 必须是 string 类型");
+    }
+    if (str.length < 2) {
+      return false;
+    }
+    str = str.toLowerCase();
+    const charCount = {};
+    for (let i = 0; i < str.length; i++) {
+      let char = str[i];
+      if (charCount[char]) {
+        charCount[char]++;
+      } else {
+        charCount[char] = 1;
+      }
+    }
+    const firstCharCount = charCount[str[0]];
+    for (let char in charCount) {
+      if (charCount[char] !== firstCharCount) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   Utils.isNotNull = function () {
     return !Utils.isNull.apply(this, arguments);
   };
