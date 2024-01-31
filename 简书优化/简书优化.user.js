@@ -3,7 +3,7 @@
 // @icon         https://www.jianshu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/485483
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.23
+// @version      2024.1.31
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -18,7 +18,7 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1319951/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1320376/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
@@ -103,7 +103,9 @@
             #index-aside-download-qrbox,
             .baidu-app-download-2eIkf_1,
             /* 底部的"小礼物走一走，来简书关注我"、赞赏支持和更多精彩内容，就在简书APP */
-            div[role="main"] > div > section:first-child > div:nth-last-child(2){
+            div[role="main"] > div > section:first-child > div:nth-last-child(2),
+            /* 它的内部是script标签，可能影响部分评论之间的高度问题 */
+            div.adad_container{
               display:none !important;
             }
             body.reader-day-mode.normal-size {
