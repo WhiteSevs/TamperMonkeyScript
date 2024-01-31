@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-1-28";
+  Utils.version = "2024-1-31";
 
   Utils.assign = function (target = {}, source = {}) {
     if (Array.isArray(source)) {
@@ -3102,21 +3102,18 @@
     }
     str = str.toLowerCase();
     const charCount = {};
-    for (let i = 0; i < str.length; i++) {
-      let char = str[i];
-      if (charCount[char]) {
+    for (const char of str) {
+      if (char in charCount) {
         charCount[char]++;
       } else {
         charCount[char] = 1;
       }
     }
-    const firstCharCount = charCount[str[0]];
-    for (let char in charCount) {
-      if (charCount[char] !== firstCharCount) {
-        return false;
-      }
+    if (Object.keys(charCount).length === 1) {
+      return true;
+    } else {
+      return false;
     }
-    return true;
   };
 
   Utils.isNotNull = function () {
@@ -4492,6 +4489,22 @@
         result = JSON.parse(data);
       });
     return result;
+  };
+
+  Utils.toSearchParamsStr = function (obj) {
+    let searhParamsStr = "";
+    if (Array.isArray(obj)) {
+      obj.forEach((item) => {
+        if (searhParamsStr === "") {
+          searhParamsStr += Utils.toSearchParamsStr(item);
+        } else {
+          searhParamsStr += "&" + Utils.toSearchParamsStr(item);
+        }
+      });
+    } else {
+      searhParamsStr = new URLSearchParams(Object.entries(obj)).toString();
+    }
+    return searhParamsStr;
   };
 
   Utils.tryCatch = function (...args) {
