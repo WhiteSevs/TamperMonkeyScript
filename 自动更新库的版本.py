@@ -150,6 +150,7 @@ if __name__ == "__main__":
             "483695",  # vConsole-2
             "483696",  # PageSpy-2
             "483765",  # Leaflet
+            "486152",  # Crypto-JS
         ]
     )
     replaceContent("./", libraryList)
