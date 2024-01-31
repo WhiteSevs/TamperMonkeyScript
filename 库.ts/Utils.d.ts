@@ -3080,6 +3080,11 @@ declare interface Utils {
      */
     toJSON(data: string, errorCallBack?: (error: Error) => void): object;
     /**
+     * 对象转为UrlSearchParams格式的字符串
+     * @param obj 目标对象，可以是对象组成的数组
+     */
+    toSearchParamsStr(obj: object|object[]): string;
+    /**
      * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @returns 返回一个对象，其中包含 error 和 run 两个方法。
      * @example
@@ -3108,10 +3113,10 @@ declare interface Utils {
      * Utils.uniqueArray([{"key":1,"value":2},{"key":2}],[{"key":1}],(item,item2)=>{return item["key"] === item2["key"] ? true:false});
      * > [{"key": 2}]
      **/
-    uniqueArray(
-        uniqueArrayData?: any[],
-        compareArrayData?: any[],
-        compareFun?: (item1: any, item2: any) => boolean
+    uniqueArray<T extends any, TT extends any>(
+        uniqueArrayData?: T[],
+        compareArrayData?: TT[],
+        compareFun?: (item1: T, item2: TT) => boolean
     ): any[];
     /**
      * 等待函数数组全部执行完毕，注意，每个函数的顺序不是同步
