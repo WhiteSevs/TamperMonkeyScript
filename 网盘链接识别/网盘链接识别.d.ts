@@ -22,6 +22,8 @@ declare interface NetDiskRegularOption {
      * 正则：需要替换空的，比如pan.baidu.com/s/替换为空
      */
     shareCodeNeedRemoveStr: RegExp;
+    /** （可选）值为规则名，如果匹配到的shareCode在目标规则匹配到的shareCode中，那么取消匹配 */
+    shareCodeExcludeRegular?: string[];
     /**
      * 正则：用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码
      */
@@ -87,19 +89,15 @@ declare interface NetDiskWorkerOptions {
 declare interface NetDiskWorkerCallBackOptions {
     /** 消息 */
     msg: string;
-    /** 是否匹配完毕 */
-    isMatchingEnd: boolean;
-    /** 匹配的网盘规则的名 */
-    netDiskName: undefined | string;
-    /** 匹配的网盘规则的下标 */
-    netDiskIndex: undefined | string;
     /** 匹配到的数据 */
-    data: string[],
-    /**
-     * + isMatchingEnd: true 所有规则全部匹配到的数量
-     * + isMatchingEnd: false 当前循环的规则匹配到的数量
-     */
-    count: number,
+    data: {
+        /** 匹配的网盘规则的名 */
+        netDiskName: undefined | string;
+        /** 匹配的网盘规则的下标 */
+        netDiskIndex: undefined | string;
+        /** 匹配到的数据 */
+        data: RegExpMatchArray;
+    }[],
     /** 匹配开始时间 */
     startTime: number,
     /**
