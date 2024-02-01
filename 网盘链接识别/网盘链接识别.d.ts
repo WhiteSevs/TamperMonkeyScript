@@ -2,6 +2,8 @@
  * 网盘匹配规则配置
  */
 declare interface NetDiskRegularOption {
+    /** 是否启用 */
+    enable: boolean;
     /**
      * 正则字符串：使用innerText进行匹配
      */
