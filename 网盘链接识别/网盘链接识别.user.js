@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAACsJJREFUeF7tXW+IHdUVP2c2u8kHIQYL0TRIaK1SgrFFaZsvVkpAo6YR1LJpa9jUd++83SUpSrUNBFRCrVgxNOv+mTOvJBBNmtpamoQG9UNBKLHFDzEtFttKBdOYQENE/Lb75vZd2cVNum/uvXNnZt/MnoGQD+/c8+d3fu+c+2f2PgR+ljQCuKSj5+CBCbDEScAEYAIscQSWePhcAZgASxyBJR4+VwAmQHEIjIyM3DAzM/M1pdSXEfEWALgVANbkaPE0ABwhomdz1GmtSgixHxF3Wg8wC55HxPeVUu8DgP7/jRUrVvxpbGzsY/PQbBK5VwCd9Ha7vVkptRkA9L8yHiKisAxDczaklL8GgAfLsImIryql3gSAqBPnh3nazI0AjUZjbRAEjwLAI3k6aKtLKbUjjuODtvI+cs1m894kSY776Mg49hwAxHkSIRcCSCl10nXy12YMLI9hrxDR/XkoMukQQrQQ8WGTXIGfn0PEZ6IoGvO14U0AKeUJALjH15Ecxr9ARHn2464uCSEOI+K2HHz2VXGUiAZ9lHgRQEp5BgBu9nEgr7FBEGyZmprSZCz8EUIMIuKRwg3ZGfiAiK63E/1/qcwEkFJ+BAArsxrOedzLRPSdnHWmqgvD8EBntj5Ups0UWxeI6NosvmQigBDibUTckMVgAWNKXwHMxSClfBwAtgPA+gLiclX5GhHd6TrImQBhGO5RSu11MHQREY8nSXICEf/R399/bnx8/KLD+CUl2plf3BgEwa1JktyOiN8HgKscAHCuhE4EaDabQ0mSHLBxSCml5weHlFKHWq3WBZsxLHM5AlLKLwLAQwCwCwBWWeLzKBHts5S1fx9ASnkdALxluZPXIiJh6wTLpSMwPDx8U7vd/iEADFtgdTZJko2tVuushawTAZ4EgCdMSpVSW+M4PmaS48/dEZBSWuWgMznfR0R6X8b4WLUA228/Ig5GUXTUaJUFMiMghNiEiK+bFCxbtuxLExMT/zLJ2RLAhnmTRDRiMsif+yMQhuFupdTTaZoQcZfNTqEVAYQQf0TEO1IMXurr69s4OTn5rn94rMEGAYul+Ekiutuky0iAoaGhqwcGBi4ZFD1FRLpK8FMSAkKIHyHiz9PM2bQBIwGklPcBwO9SDH0CAF8hovdKip3NAECj0VgdBMHf05aHSqntcRwfSm0VJjSllD8DgJ90k1NKTcVxbLM8MZnizx0RkFL+BgC6noAi4nNRFD3mSwB96NH1xKnMc3hHfGovbnEoZdweNraAMAxPKaW+0Q1NRFwfRdE7tUe7BwOUUuqTWL3j2u0xHhIZCSCl1K8gdT1pIiKjjh7ErhYujY6OXjM9Pf3ftGBM+TEmT0qpfAzUAukeDsI3P0yAHk6ujWtMABuUaizDBKhxcm1CYwLYoFRjGSZAjZNrExoTwAalGsswAWqcXJvQmAA2KNVYhglQ4+TahMYEsEGpxjK1IYCU8vcAcJvlW8dVTqn+C9+3iGhrHkHUggCmIPIAqhd1mA5qbHw2YWeysehnAWVetGADaMkyzn/Jc6V/dSDAeQBYXTLwvWLOeF5vcrQOBEg9bjYBUPXPTSXaFB8TwIRQj3/OBDC8cNLj+fN2r+oEOE1EX/VBwVTCfHRXYWzBBDDmx7gKMNyF92PfO/pMBPAFKO9Zsyupio7PNz9GAuiAuyzVcrmZo2iA6k4A3/xYEUAb0Xfjtdvt+xBxlVLqeF538jEB8nmrOmt+rAngWvps5ZkA+RDAFu8r5XqBAP9J2f8/R0SfzxrcQuMWgXClxueKVS8QQB8CfbuL48fyOjSZ078IBCg1vsoRYHYSs+BuYN4rgDRbc8CVabMIW5UkwLyZ7O2zAbxR1MWPZVeAeZVH3y5eeHyVJYCr41nlF4sAWf0tetyizwGKDnCx9wHKjs/VHhPgCsR6oS+7JtFHngnABPDhT/XG8hzg8pxxBeAKUL1vsY/HXAG4AvCNJ/M4wC2AW4BPQa3eWG4B3AK4BXAL6F65eCOoelXdyWNuAdwCuAVwC+AWMIcALwN5GejUQisvzHMAngPwHIDnADwH4DlAFw7wPkDlu3x6ADwHyDgHCMPwLqXUJgCYDoLgpampqb9VkSt1JUDW/FgtA6WUvwSAH1yR8Bc7vxSmf9i4Uk8dCeCTHyMBDL8a9j0iOlwlBtSNAL75sSGA/v1Z/TPmCz3/JqIvMAEWDwEppVd+bAhQq3VzDSuAV36YABXfCvYlNBOACbC01s2+35jF6/YLW/aNhysAVwCuAPMRqNpWMFcAx5rsC5ijucLFfePhFsAtgFsAt4AUDviWmMJroKMBjsfxNJABc2RYyeK++VmKc4CevrfPlT9MAEfEZn+cqrR7CR3dcxZnAjhD9unl16XdS5jBPachTAAnuD4Tnr0Bvefu7XMNhwngiljN5JkANUuoazhMAFfEaia/6ATo7+//3Pj4+MWa4VqZcAwEOE9E16UFY7MPkLZu1ro3ENFfK4NYjRwVQtyIiO92CwkR34yiaKMvAY4BwJZuSpRSD8Rx/Nsa4VqZUMIw3KaUSnsr+1dEtM2LAEKIvYi4J4VlB6Mo2lEZ1GrkqBBiEhGbKSE9Q0S7vQggpfwuALyUouRikiTrW63WhRph2/OhSCn1q/qnAeCqlOp8dxzHJ70IMDIycsPMzMw/05QopR6L4/i5nketRg5KKZ8EgCfSQlq+fPnKsbGxj70IoAdLKf8AAJtTmHYmjuNbaoRvT4cyPDx8U7vdPgUAq1Ja86tRFN1lCsS4CtAKwjDcqZTab1DWIiJhMsif+yMgpZwAgGGDpqeISFeJ1MeKADZtQFtRSm2N41ivGvgpCAGb0t8p2ucA4DYi+tDkhhUBZtvA8wDwiFEh4mAURUdNcvy5OwJCiE2I+LrFSKtvv9ZjTYBGo7E2CALdd9ZaODDZ19f3i8nJya6bFBY6WGQeAmEY7lZKPW0BivW334kAs1VAVwBdCWyeSwCg5w2HOvcIvGczgGUuR6DRaKxGRH0Hw0OIuMEGH0TcFUXRmI2sMwFmSXACAO6xNQAAnyilXuysIv4cBMFfoih6x2HskhIdHR29Znp6eo1Saj0iPgAA30qb6S8AzlEiGnQBzboFzFcqpTwDADe7GCpIVm+EHCGiZwvSn6pWCLEfEXcuhu0FbH5ARNe7+pKJALOV4CMAWOlqsCB56sx4w4J0L6h29o2iB8u0mWLrAhFdm8WXzATQxoQQb9v2pizOuYxRSu2I4/igy5isss1m894kSY5nHZ/zuNeI6M6sOr0IoI2GYbhHKbU3qwM5jnulcyx9f476uqoSQrQQ8eEybBlsvOz7G8veBNAONpvNoSRJfgoAaxYRlBeIqJR+3DmHP9w5h089Zi0Yh7N6NUZE+3zt5EKA2TmBfvNE92G9HVw6EYIg2DI1NaVXKIU/QohBRDxSuKGFDexLkuT5VqulSeD95EaAOU+klJ8SQSn1TUS8w9tDOwXepdDOzGdSYRgeUEoNuY7LKH8SEU/29fWdnJiY0LeC5fbkToD5ng0NDV09MDCgSfB1AFiHiOuUUusAINOMtUvUpa8A5pH9cQDYDgDrc8sIgH6vQk+uzyRJcqa/v/9U3kmf72uhBMgRFFZVEAJMgIKArYpaJkBVMlWQn0yAgoCtilomQFUyVZCfTICCgK2KWiZAVTJVkJ9MgIKArYra/wGYigzMiqJYZwAAAABJRU5ErkJggg==
-// @version      2024.2.1
+// @version      2024.2.1.15
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -172,23 +172,21 @@
           enable: GM_getValue("baidu-enable", true),
           link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_baidu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+          )}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,${parseInt(
             GM_getValue("accessCode_after_text_baidu", 10)
           )}}[0-9a-zA-Z]{4}|)`,
           link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_baidu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+          )}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,${parseInt(
             GM_getValue("accessCode_after_html_baidu", 15)
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi,
           shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi,
-          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          checkAccessCode: /(密码|访问码|提取码|pwd=)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{4})/gi,
-          uiLinkShow:
-            "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
+          uiLinkShow: "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
           blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
-          copyUrl:
-            "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}\n密码：{#accessCode#}",
+          copyUrl: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
         },
       ],
       lanzou: [
@@ -206,7 +204,7 @@
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /(lanzou[a-z]{0,1}|lanpw|lanzn|lanpv).com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
-          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved)/gi,
+          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved|console)/gi,
           shareCodeNeedRemoveStr:
             /(lanzou[a-z]{0,1}|lanpw|lanzn|lanpv).com\/(tp\/|u\/|)/gi,
           shareCodeExcludeRegular: ["lanzouyx"],
@@ -239,7 +237,7 @@
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /(lanzou[a-z]{0,1}|lanpw|lanzn|lanpv).com\/s\/([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
-          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved)/gi,
+          shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved|console)/gi,
           shareCodeNeedRemoveStr:
             /(lanzou[a-z]{0,1}|lanpw|lanzn|lanpv).com\/s\//gi,
           shareCodeExcludeRegular: ["lanzouyx"],
@@ -264,18 +262,18 @@
           enable: GM_getValue("lanzouyx-enable", true),
           link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,${parseInt(
             GM_getValue("innerText_lanzouyx", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+          )}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,${parseInt(
             GM_getValue("accessCode_after_text_lanzouyx", 10)
           )}}[a-zA-Z0-9]{3,6}|)`,
           link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,${parseInt(
             GM_getValue("innerHTML_lanzouyx", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
+          )}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,${parseInt(
             GM_getValue("accessCode_after_html_lanzouyx", 15)
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_\-]{5,22})/gi,
           shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved)/gi,
           shareCodeNeedRemoveStr: /ilanzou.com\/s\//gi,
-          checkAccessCode: /(密码|访问码|提取码|code=)[\s\S]+/g,
+          checkAccessCode: /(密码|访问码|提取码|\?code=)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{3,})/gi,
           uiLinkShow: `www.ilanzou.com/s/{#shareCode#} 提取码: {#accessCode#}`,
           blank: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
@@ -3229,6 +3227,7 @@
                   that.accessCode
                 ),
                 "wenshushu",
+                that.netDiskIndex,
                 that.shareCode,
                 that.accessCode
               );
@@ -5512,33 +5511,12 @@
     async parse(netDiskName, netDiskIndex, shareCode, accessCode) {
       Qmsg.info("正在获取直链");
       if (this.netDisk[netDiskName]) {
-        let parseObj = new this.netDisk[netDiskName]();
+        let parseObj = new NetDiskParse.netDisk[netDiskName]();
         await parseObj.default(netDiskIndex, shareCode, accessCode);
       } else {
         log.error(`${netDiskName} 不存在解析`);
         Qmsg.error("该链接不存在解析功能");
       }
-    },
-    /**
-     * 复制到剪贴板
-     * @param {string} netDiskName
-     * @param {string} shareCode
-     * @param {string} accessCode
-     * @param {string} toastText 提示的文字
-     */
-    setClipboard(
-      netDiskName,
-      shareCode,
-      accessCode,
-      toastText = "提取码已复制"
-    ) {
-      utils.setClip(accessCode);
-      GM_setValue("tempNetDiskInfo", {
-        shareCode: shareCode,
-        accessCode: accessCode,
-        netDiskName: netDiskName,
-      });
-      Qmsg.success(toastText);
     },
     /**
      * 复制到剪贴板
@@ -5569,26 +5547,34 @@
      * 新标签页打开
      * @param {string} url 网址
      * @param {string} netDiskName
+     * @param {number|string} netDiskIndex
      * @param {string} shareCode
      * @param {string} accessCode
      */
-    blank(url, netDiskName, shareCode, accessCode) {
-      if (accessCode) {
-        NetDiskParse.setClipboard(netDiskName, shareCode, accessCode);
-        Qmsg.info("1.5秒后跳转该链接");
-      }
+    blank(url, netDiskName, netDiskIndex, shareCode, accessCode) {
       log.success(["新标签页打开", [...arguments]]);
       /* 百度网盘会拒绝referrer不安全访问 */
       document
         .querySelector("meta[name='referrer']")
         ?.setAttribute("content", "no-referrer");
-      /* 增加延迟跳转，因为要等待accessCode复制到剪贴板 */
-      setTimeout(
-        () => {
+      if (
+        utils.isNotNull(accessCode) &&
+        GM_getValue(`${netDiskName}-open-blank-with-copy-accesscode`)
+      ) {
+        /* 增加延迟跳转，因为要等待accessCode复制到剪贴板 */
+        utils.setClip(accessCode);
+        GM_setValue("tempNetDiskInfo", {
+          shareCode: shareCode,
+          accessCode: accessCode,
+          netDiskName: netDiskName,
+        });
+        Qmsg.info("1.5秒后跳转该链接");
+        setTimeout(() => {
           window.open(url, "_blank");
-        },
-        accessCode ? 1500 : 0
-      );
+        }, 1500);
+      } else {
+        window.open(url, "_blank");
+      }
     },
     /**
      * 将链接转为Scheme格式并打开
@@ -7774,6 +7760,7 @@
               key: "baidu",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -7879,6 +7866,7 @@
               checkbox_enable: true,
               checkbox_oneOrMoreStatic: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -7923,6 +7911,7 @@
               checkbox_enable: true,
               checkbox_oneOrMoreStatic: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -7941,6 +7930,7 @@
               checkbox_oneOrMoreStatic: true,
               checkbox_static_description: "需要登录才可以下载",
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -7957,6 +7947,7 @@
               key: "hecaiyun",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -7971,6 +7962,7 @@
               key: "aliyun",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -7986,6 +7978,7 @@
               checkbox_enable: true,
               checkbox_oneStatic: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -8003,6 +7996,7 @@
               checkbox_enable: true,
               checkbox_oneOrMoreStatic: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -8021,6 +8015,7 @@
               checkbox_oneOrMoreStatic: true,
               checkbox_static_description: "需要登录才可下载>100MB的文件",
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -8037,6 +8032,7 @@
               key: "weiyun",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -8051,6 +8047,7 @@
               key: "xunlei",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -8065,6 +8062,7 @@
               key: "_115pan",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -8079,6 +8077,7 @@
               key: "chengtong",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -8093,6 +8092,7 @@
               key: "kuake",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -8114,6 +8114,7 @@
               checkbox_enable: true,
               checkbox_oneOrMoreStatic: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -8130,6 +8131,7 @@
               key: "onedrive",
               checkbox_enable: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
               range_innerText_default_value: 20,
               range_accessCode_after_text: true,
@@ -8145,6 +8147,7 @@
               checkbox_enable: true,
               checkbox_oneOrMoreStatic: true,
               checkbox_openBlank: true,
+              checkbox_openBlankWithCopyAccessCode: true,
               checkbox_static_scheme: true,
               text_static_scheme_forward: true,
               range_innerText: true,
@@ -8302,14 +8305,14 @@
                 });
               }
               /* 新标签页打开 */
-              if (item.checkbox_openBlank) {
+              if (item.checkbox_openBlank != null) {
                 functionFormsList.push({
                   text: "新标签页打开",
                   type: "switch",
                   description: "关闭为默认复制链接",
                   attributes: {
                     "data-key": `${item.key}-open-enable`,
-                    "data-default-value": false,
+                    "data-default-value": item.checkbox_openBlank,
                   },
                   getValue() {
                     return Boolean(
@@ -8339,6 +8342,30 @@
                         checkboxCoreElement.click();
                       }
                     }
+                  },
+                });
+              }
+              /* 新标签页打开时复制访问码 */
+              if (item.checkbox_openBlankWithCopyAccessCode != null) {
+                functionFormsList.push({
+                  text: "跳转时携带访问码",
+                  type: "switch",
+                  description: "新标签页打开时，如果存在访问码就复制到剪贴板",
+                  attributes: {
+                    "data-key": `${item.key}-open-blank-with-copy-accesscode`,
+                    "data-default-value":
+                      item.checkbox_openBlankWithCopyAccessCode,
+                  },
+                  getValue() {
+                    return Boolean(
+                      GM_getValue(
+                        this.attributes["data-key"],
+                        this.attributes["data-default-value"]
+                      )
+                    );
+                  },
+                  callback(event, value) {
+                    GM_setValue(this.attributes["data-key"], Boolean(value));
                   },
                 });
               }
@@ -9062,7 +9089,13 @@
             let url = NetDisk.regular[netDiskName][netDiskIndex].blank
               .replace(/{#shareCode#}/gi, shareCode)
               .replace(/{#accessCode#}/gi, accessCode);
-            NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
+            NetDiskParse.blank(
+              url,
+              netDiskName,
+              netDiskIndex,
+              shareCode,
+              accessCode
+            );
           } else if (staticEnable) {
             NetDiskParse.parse(
               netDiskName,
@@ -9432,7 +9465,13 @@
                 let url = NetDisk.regular[netDiskName][netDiskIndex].blank
                   .replace(/{#shareCode#}/gi, shareCode)
                   .replace(/{#accessCode#}/gi, accessCode);
-                NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
+                NetDiskParse.blank(
+                  url,
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  accessCode
+                );
               },
             },
             {
@@ -10217,7 +10256,13 @@
                   shareCode,
                   accessCode
                 );
-                NetDiskParse.blank(url, netDiskName, shareCode, accessCode);
+                NetDiskParse.blank(
+                  url,
+                  netDiskName,
+                  netDiskIndex,
+                  shareCode,
+                  accessCode
+                );
               },
             },
             {
