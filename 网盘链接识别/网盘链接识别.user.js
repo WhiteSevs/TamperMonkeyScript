@@ -8284,7 +8284,7 @@
                   description: "开启可匹配该网盘",
                   attributes: {
                     "data-key": `${item.key}-enable`,
-                    "data-default-value": item.checkbox_enable,
+                    "data-default-value": true,
                   },
                   getValue() {
                     return Boolean(
@@ -8312,7 +8312,7 @@
                   description: "关闭为默认复制链接",
                   attributes: {
                     "data-key": `${item.key}-open-enable`,
-                    "data-default-value": item.checkbox_openBlank,
+                    "data-default-value": false,
                   },
                   getValue() {
                     return Boolean(
@@ -8353,8 +8353,7 @@
                   description: "新标签页打开时，如果存在访问码就复制到剪贴板",
                   attributes: {
                     "data-key": `${item.key}-open-blank-with-copy-accesscode`,
-                    "data-default-value":
-                      item.checkbox_openBlankWithCopyAccessCode,
+                    "data-default-value": false,
                   },
                   getValue() {
                     return Boolean(
