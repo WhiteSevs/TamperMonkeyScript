@@ -108,6 +108,7 @@ Toast
 |---|:---:|:---:|:---:|:---:|:---:|:---:| --- |
 | [![https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16](https://favicon.yandex.net/favicon/v2/https://pan.baidu.com/?size=16)](https://pan.baidu.com/) 百度网盘 | √ | | | | 20/300 | 10/15 | 自行配置第三方网站解析 |
 | [![https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.lanzoux.com/?size=16)](https://www.lanzoux.com/) 蓝奏云 | √ | √ | √ | √ | 20/300 | 10/15 |
+| [![https://favicon.yandex.net/favicon/v2/https://www.ilanzou.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.ilanzou.com/?size=16)](https://www.ilanzou.com/) 蓝奏云优享 | √ | √ | √ | √ | 20/300 | 10/15 |
 | [![https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16](https://favicon.yandex.net/favicon/v2/https://cloud.189.cn/?size=16)](https://cloud.189.cn/) 天翼云 | √ | √(需登录) |√(需登录) | √ | 20/300 | 10/15 |
 | [![https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16](https://favicon.yandex.net/favicon/v2/https://yun.139.com/?size=16)](https://yun.139.com/) 中国移动云盘(原:和彩云) | √ | | |  | 20/300 | 10/15 |
 | [![https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16](https://favicon.yandex.net/favicon/v2/https://www.aliyundrive.com/?size=16)](https://www.aliyundrive.com/) 阿里云 | √ | | |  | 20/300 | 10/15 |
