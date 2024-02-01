@@ -239,8 +239,7 @@
           shareCode:
             /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
           shareCodeNotMatch: /^(ajax|file|undefined|1125|unproved|console)/gi,
-          shareCodeNeedRemoveStr:
-            /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
+          shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
           shareCodeExcludeRegular: ["lanzouyx"],
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
           accessCode: /([0-9a-zA-Z]{3,})/gi,
