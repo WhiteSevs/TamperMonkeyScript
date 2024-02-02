@@ -1041,7 +1041,7 @@
         isBaiDuTransferStation(url) {
           try {
             url = decodeURIComponent(url);
-            return utils.startsWith(url,"https://(m|m2).baidu.com/from");
+            return utils.startsWith(url, "https://(m|m2).baidu.com/from");
           } catch (error) {
             log.error(error);
             return false;
@@ -1429,9 +1429,7 @@
           }
           /* 有些url是错误的， */
           if (utils.isNotNull(url)) {
-            if (
-              utils.startsWith(url, "http(s|)://nourl.baidu.com")
-            ) {
+            if (utils.startsWith(url, "http(s|)://nourl.baidu.com")) {
               url = "";
             }
           }
@@ -2515,7 +2513,10 @@
             handleNextPage_SearchCraft.init();
           }
           if (
-            utils.startsWith(window.location.href,"https://(m|m2).baidu.com/sf/vsearch")
+            utils.startsWith(
+              window.location.href,
+              "https://(m|m2).baidu.com/sf/vsearch"
+            )
           ) {
             utils
               .waitNode("#realtime-container .c-infinite-scroll")
