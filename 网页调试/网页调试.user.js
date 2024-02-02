@@ -32,7 +32,7 @@
 // @require         https://update.greasyfork.org/scripts/456485/1315529/pops.js
 // @require         https://update.greasyfork.org/scripts/483694/1319661/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1319662/vConsole-2.js
-// @require         https://update.greasyfork.org/scripts/483696/1318687/PageSpy-2.js
+// @require         https://update.greasyfork.org/scripts/483696/1321534/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // ==/UserScript==
 
@@ -732,7 +732,7 @@
   const GlobalDebug = {
     erudaVersion: "3.0.1",
     vConsoleVersion: "3.15.1",
-    pageSpyVersion: "1.6.6",
+    pageSpyVersion: "1.7.5",
     pageSpyDefaultApi: "test.jikejishu.com",
     pageSpyDefaultCliennOrigin: "https://test.jikejishu.com",
     iframeUrlList: [],
