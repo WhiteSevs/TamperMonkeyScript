@@ -3,11 +3,12 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.31
+// @version      2024.2.2
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @match        *://m.baidu.com/*
+// @match        *://m2.baidu.com/*
 // @match        *://www.baidu.com/*
 // @match        *://baijiahao.baidu.com/*
 // @match        *://tieba.baidu.com/*
@@ -37,6 +38,7 @@
 // @match        *://aistudy.baidu.com/*
 // @connect      www.baidu.com
 // @connect      m.baidu.com
+// @connect      m2.baidu.com
 // @connect      tieba.baidu.com
 // @connect      www.tieba.com
 // @connect      baike.baidu.com
@@ -53,7 +55,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1320376/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
@@ -1020,7 +1022,7 @@
      * 百度搜索
      */
     search() {
-      if (!this.url.match(/^http(s|):\/\/(m|www).baidu.com\/.*/g)) {
+      if (!this.url.match(/^http(s|):\/\/(m|m2|www).baidu.com\/.*/g)) {
         return;
       }
 
@@ -1039,7 +1041,7 @@
         isBaiDuTransferStation(url) {
           try {
             url = decodeURIComponent(url);
-            return url.startsWith("https://m.baidu.com/from");
+            return utils.startsWith(url,"https://(m|m2).baidu.com/from");
           } catch (error) {
             log.error(error);
             return false;
@@ -1054,7 +1056,7 @@
          */
         isBlackList(url) {
           let blackList = [
-            new RegExp("^http(s|)://m.baidu.com/productcard", "g"),
+            new RegExp("^http(s|)://(m|m2).baidu.com/productcard", "g"),
             new RegExp("^http(s|)://ks.baidu.com"),
           ];
           for (const blackUrlRegexp of blackList) {
@@ -1418,15 +1420,17 @@
             }
           }
           /* 因为链接中存在%25，需要正确替换成% */
-          if (!utils.isNull(url) && url.startsWith("https://m.baidu.com/sf?")) {
+          if (
+            !utils.isNull(url) &&
+            utils.startsWith(url, "https://(m|m2).baidu.com/sf?")
+          ) {
             url = decodeURIComponent(url);
             /* url = url.replaceAll("%25","%") */
           }
           /* 有些url是错误的， */
           if (utils.isNotNull(url)) {
             if (
-              url.startsWith("http://nourl.baidu.com") ||
-              url.startsWith("https://nourl.baidu.com")
+              utils.startsWith(url, "http(s|)://nourl.baidu.com")
             ) {
               url = "";
             }
@@ -2511,7 +2515,7 @@
             handleNextPage_SearchCraft.init();
           }
           if (
-            window.location.href.startsWith("https://m.baidu.com/sf/vsearch")
+            utils.startsWith(window.location.href,"https://(m|m2).baidu.com/sf/vsearch")
           ) {
             utils
               .waitNode("#realtime-container .c-infinite-scroll")
@@ -7813,7 +7817,8 @@
         {
           id: "baidu-panel-config-search",
           title: "搜索",
-          headerTitle: "百度搜索<br />m.baidu.com<br />www.baidu.com",
+          headerTitle:
+            "百度搜索<br />m.baidu.com<br />m2.baidu.com<br />www.baidu.com",
           forms: [
             {
               text: "主页",
@@ -8826,7 +8831,7 @@
   const baiduHijack = {
     /**
      * 劫持剪贴板写入
-     * + 百度搜索(m.baidu.com|www.baidu.com)
+     * + 百度搜索(m.baidu.com|m2.baidu.com|www.baidu.com)
      *
      * Function.prototype.apply
      */
@@ -8865,7 +8870,7 @@
     },
     /**
      * 劫持百度搜索某些项的点击事件
-     * + 百度搜索(m.baidu.com|www.baidu.com)
+     * + 百度搜索(m.baidu.com|m2.baidu.com|www.baidu.com)
      *
      * Object.defineProperty
      * @param {string} menuKeyName
@@ -8902,7 +8907,7 @@
     },
     /**
      * 劫持apply的Scheme调用
-     * + 百度搜索(m.baidu.com|www.baidu.com)
+     * + 百度搜索(m.baidu.com|m2.baidu.com|www.baidu.com)
      *
      * Function.prototype.apply
      */
@@ -8976,7 +8981,7 @@
     },
     /**
      * 劫持OpenBox
-     * + 百度搜索(m.baidu.com|www.baidu.com)
+     * + 百度搜索(m.baidu.com|m2.baidu.com|www.baidu.com)
      *
      * window.OpenBox
      */
@@ -9017,7 +9022,7 @@
     /**
      * 劫持全局setTimeout
      * + 百度地图(map.baidu.com)
-     * + 百度搜索(m.baidu.com|www.baidu.com)
+     * + 百度搜索(m.baidu.com|m2.baidu.com|www.baidu.com)
      *
      * window.setTimeout
      * @param {RegExp|string} [matchStr=""] 需要进行匹配的函数字符串
