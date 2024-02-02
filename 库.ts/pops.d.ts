@@ -122,7 +122,8 @@ type PopsPanelFormsDetailsArray =
     PopsPanelTextAreaDetails[] |
     PopsPanelSelectDetails[] |
     PopsPanelButtonDetails[] |
-    PopsPanelOwnDetails[]
+    PopsPanelOwnDetails[] |
+    PopsPanelFormsDetails[]
 
 /**
  * 现有的pops.xxx的类型
@@ -408,7 +409,7 @@ declare interface PopsFolderDataConfig {
     /**
      * 点击事件
      */
-    clickEvent: (event: Event, config: PopsFolderDataConfig) => Promise<{ autoDownload: boolean, url: string, mode: "a" | "aBlank" | "iframe" | "open" | "openBlank" }> | null;
+    clickEvent: (event: MouseEvent | PointerEvent, config: PopsFolderDataConfig) => Promise<{ autoDownload: boolean, url: string, mode: "a" | "aBlank" | "iframe" | "open" | "openBlank" }> | null;
 }
 /**
  * pops.panel的content配置信息
@@ -449,7 +450,7 @@ declare interface PopsPanelContentConfig {
     /**
      * 左侧容器的点击回调
      */
-    callback: ((event: Event, rightHeaderElement: HTMLUListElement, rightContainerElement: HTMLUListElement) => void) | undefined;
+    callback: ((event: MouseEvent | PointerEvent, rightHeaderElement: HTMLUListElement, rightContainerElement: HTMLUListElement) => void) | undefined;
 }
 /**
  * pops.panel的 forms
@@ -515,7 +516,7 @@ declare interface PopsPanelSwitchDetails {
     /**
      * switch开启/关闭触发的回调函数
      */
-    callback: (event: Event, value: boolean) => void;
+    callback: (event: InputEvent, value: boolean) => void;
 }
 /**
  * pops.panel的 slider
@@ -552,7 +553,7 @@ declare interface PopsPanelSliderDetails {
     /**
      * 滑块的值改变触发的回调函数
      */
-    callback: (event: Event, value: number) => void;
+    callback: (event: InputEvent, value: number) => void;
     /**
      * 获取tooltip的提示内容，可自定义，默认为slider的值
      */
@@ -575,25 +576,25 @@ declare interface PopsPanelSliderDetails {
  */
 declare interface PopsPanelInputDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
     text: string;
     /**
-     * 左边的文字下面的描述，可为空
+     * （可选）左边的文字下面的描述
      */
-    description: string | undefined;
+    description?: string;
     /**
      * 类型
      */
@@ -605,19 +606,23 @@ declare interface PopsPanelInputDetails {
     /**
      * 输入框的值改变触发的回调函数
      */
-    callback: (event: Event, value: string) => void;
+    callback: (event: InputEvent, value: string) => void;
     /**
-     * 输入框内的提示
+     * （可选）输入框内的提示
      */
-    placeholder: string;
+    placeholder?: string;
     /**
-     * 是否是密码框
+     * （可选）是否是密码框
      */
-    isPassword: boolean;
+    isPassword?: boolean;
     /**
-     * 是否是数字框
+     * （可选）是否是数字框
      */
-    isNumber: boolean;
+    isNumber?: boolean;
+    /**
+     * （可选）自己调用的处理回调函数
+     */
+    handlerCallBack(liElement: HTMLLinkElement, inputElement: HTMLInputElement): void;
 }
 /**
  * pops.panel的 textarea
@@ -656,7 +661,7 @@ declare interface PopsPanelTextAreaDetails {
      * @param event 事件
      * @param value 当前的textarea内的值
      */
-    callback: (event: Event, value: string) => void;
+    callback: (event: InputEvent, value: string) => void;
     /**
      * 输入框内的提示
      */
@@ -700,7 +705,7 @@ declare interface PopsPanelSelectDetails {
      * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
      * @param isSelectedText 当前选中的文本
      */
-    callback: (event: Event, isSelectedValue: string, isSelectedText: string) => void;
+    callback: (event: PointerEvent, isSelectedValue: string, isSelectedText: string) => void;
     /**
      * 选择器内的数据组
      * + value是真正的值
@@ -762,7 +767,7 @@ declare interface PopsPanelButtonDetails {
     /**
      * 点击button触发的事件
      */
-    callback: (event: Event) => void;
+    callback: (event: MouseEvent | PointerEvent) => void;
 }
 /**
  * pops.panel的 own
@@ -1629,7 +1634,7 @@ declare interface PopsFolderDetails {
         /**
          * 触发排序的回调，如果返回true，则中止内部的排序
          */
-        callback: (targert: HTMLElement, event: Event, sortName: "fileName" | "fileSize" | "latestTime", sortDesc: boolean) => boolean;
+        callback: (targert: HTMLElement, event: PointerEvent, sortName: "fileName" | "fileSize" | "latestTime", sortDesc: boolean) => boolean;
     },
     /**
      * 文件夹信息
@@ -1887,7 +1892,7 @@ declare interface PopsSearchSuggestionDetails {
         /**
          * 点击回调
          */
-        callback: (event: Event, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
+        callback: (event: PointerEvent, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
     };
     /**
      * 自定义的className
@@ -1935,12 +1940,16 @@ declare interface PopsSearchSuggestionDetails {
     getItemHTML: (item: PopsSearchSuggestionData) => string;
     /**
      * 当config.target触发input时自动调用该函数来获取数据
+     * @param value 当前输入框的值
      */
     getData: (value: string) => Promise<any[]>;
     /**
      * 每一项的点击回调
+     * @param event 触发的事件
+     * @param liElement 每一项的元素
+     * @param data config.data的数据
      */
-    itemClickCallBack: (event: Event, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
+    itemClickCallBack: (event: PointerEvent, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
 }
 
 declare interface PopsSearchSuggestionResult {
