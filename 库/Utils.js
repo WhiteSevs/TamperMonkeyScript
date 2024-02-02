@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-1-31";
+  Utils.version = "2024-2-2";
 
   Utils.assign = function (target = {}, source = {}) {
     if (Array.isArray(source)) {
@@ -4434,6 +4434,30 @@
       newTargetString = newTargetString + targetString.slice(1);
     }
     return newTargetString;
+  };
+
+  Utils.startsWith = function (target, searchString, position = 0) {
+    if (position > target.length) {
+      /* 超出目标字符串的长度 */
+      return false;
+    }
+    if (position !== 0) {
+      target = target.slice(position, target.length);
+    }
+    let searchStringRegexp = searchString;
+    if (typeof searchString === "string") {
+      searchStringRegexp = new RegExp(`^${searchString}`);
+    } else if (Array.isArray(searchString)) {
+      let flag = false;
+      for (const searcStr of searchString) {
+        if (!Utils.startsWith(target, searcStr, position)) {
+          flag = true;
+          break;
+        }
+      }
+      return flag;
+    }
+    return Boolean(target.match(searchStringRegexp));
   };
 
   Utils.stringTitleToLowerCase = function (
