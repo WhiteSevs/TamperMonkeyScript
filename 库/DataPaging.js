@@ -222,16 +222,11 @@ let DataPaging = {};
     };
     constructor(details) {
       Object.assign(this.CONFIG, details);
-      this.addCSS();
     }
     /**
      * 添加CSS
      */
-    addCSS() {
-      if (this.isAddCSS) {
-        return;
-      }
-      this.isAddCSS = true;
+    addCSS(target) {
       let cssNode = document.createElement("style");
       cssNode.setAttribute("type", "text/css");
       cssNode.innerHTML = `@charset "utf-8";
@@ -293,7 +288,7 @@ let DataPaging = {};
         color: #8a8a8a;
       }
       `;
-      document.head.appendChild(cssNode);
+      (target || document.head).appendChild(cssNode);
     }
     /**
      * 获取分页元素
@@ -687,7 +682,6 @@ let DataPaging = {};
      */
     changeConfig(details) {
       Object.assign(this.CONFIG, details);
-      this.addCSS();
     }
 
     /**
@@ -696,22 +690,19 @@ let DataPaging = {};
      * 且重新计算的数据的页数大于当前页（第3页）时，当前页不变，若小于当前页（第3页），则当前页为计算好的最大页
      * @param {[...any]} data 新的数据
      */
-    refresh(data){
-      if(data.length === this.CONFIG.data.length){
+    refresh(data) {
+      if (data.length === this.CONFIG.data.length) {
         return;
       }
       this.CONFIG.data = data;
       let currentPage = this.PAGE_CONFIG.getCurrentPage();
-      let maxPage = Math.ceil(
-        data.length / this.CONFIG.pageCount
-      );
-      if(currentPage > maxPage){
+      let maxPage = Math.ceil(data.length / this.CONFIG.pageCount);
+      if (currentPage > maxPage) {
         currentPage = maxPage;
       }
       this.CONFIG.currentPage = currentPage;
       let parentElement = this.DOM_CONFIG.dataPagingNode.dom.parentElement;
       this.append(parentElement);
-
     }
   }
   DataPaging = Paging;
