@@ -150,7 +150,7 @@ type PopsButtonSize = "large" | "small"
  */
 declare interface PopsMaskDetails {
     /**
-     * 是否启用
+     * 是否启用遮罩层，默认false
      */
     enable: boolean;
     clickEvent: {
@@ -206,15 +206,15 @@ declare interface PopsBtnCallBackEvent {
     /**
      * 关闭弹窗
      */
-    close: () => void;
+    close(): void;
     /**
      * 隐藏弹窗
      */
-    hide: () => void;
+    hide(): void;
     /**
      * 显示弹窗
      */
-    show: () => void;
+    show(): void;
 }
 /**
  * pops.iframe的按钮的点击回调参数event
@@ -268,15 +268,15 @@ declare interface PopsPromptBtnCallBackEvent {
     /**
      * 关闭弹窗
      */
-    close: () => void;
+    close():void;
     /**
      * 隐藏弹窗
      */
-    hide: () => void;
+    hide():void;
     /**
      * 显示弹窗
      */
-    show: () => void;
+    show():void;
     /**
      * 输入的内容
      */
@@ -317,7 +317,7 @@ declare interface PopsButtonDetails {
     /**
      * 按钮点击的回调
      */
-    callback: (event: PopsBtnCallBackEvent) => void;
+    callback(event: PopsBtnCallBackEvent): void;
 }
 
 /**
@@ -935,6 +935,10 @@ declare interface PopsAlertDetails {
      * 是否禁用页面滚动，默认false
      */
     forbiddenScroll: boolean;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 
 /**
@@ -1064,6 +1068,10 @@ declare interface PopsConfirmDetails {
      * 是否禁用页面滚动，默认false
      */
     forbiddenScroll: boolean;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.prompt
@@ -1204,6 +1212,10 @@ declare interface PopsPromptDetails {
      * 是否禁用页面滚动，默认false
      */
     forbiddenScroll: boolean;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.loading
@@ -1254,6 +1266,14 @@ declare interface PopsLoadingDetails {
      * 是否禁用页面滚动，默认false
      */
     forbiddenScroll: boolean;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
+    /**
+     * （可选）添加主CSS，默认为true，当页面中存在anim覆盖时，可能会有一些样式问题，取消添加该CSS即可解决
+     */
+    addIndexCSS? : boolean;
 }
 /**
  * pops.iframe
@@ -1398,7 +1418,11 @@ declare interface PopsIframeDetails {
      * 是否启用沙箱，默认false
      */
     sandbox?: boolean;
-    loadEndCallBack?: (eventDetails: PopsEventDetails) => void
+    loadEndCallBack?: (eventDetails: PopsEventDetails) => void;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.tooltip
@@ -1461,6 +1485,10 @@ declare interface PopsToolTipDetails {
      * + 当position为top或者bottom，这个距离是左、右距离
      */
     otherDistance: number;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.drawer
@@ -1593,6 +1621,10 @@ declare interface PopsDrawerDetails {
      * border-radius，根据direction自动适应，默认为5
      */
     borderRadius: number;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.folder
@@ -1725,6 +1757,10 @@ declare interface PopsFolderDetails {
      * 是否禁用页面滚动，默认false
      */
     forbiddenScroll: boolean;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.panel
@@ -1816,6 +1852,10 @@ declare interface PopsPanelDetails {
      * 是否禁用页面滚动，默认false
      */
     forbiddenScroll: boolean;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 /**
  * pops.rightClickMenu
@@ -1853,6 +1893,10 @@ declare interface PopsRightClickMenuDetails {
      * 是否阻止默认contextmenu事件
      */
     preventDefault?: boolean | undefined;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 
 /**
@@ -1950,6 +1994,10 @@ declare interface PopsSearchSuggestionDetails {
      * @param data config.data的数据
      */
     itemClickCallBack: (event: PointerEvent, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
+    /**
+     * （可选）自定义style
+     */
+    style?: string;
 }
 
 declare interface PopsSearchSuggestionResult {
@@ -2060,6 +2108,10 @@ declare interface PopsSearchSuggestionResult {
 declare interface PopsCallResult {
     /** 唯一标识id */
     guid: string;
+    /** 影子元素 */
+    $shadowContainer: HTMLDivElement;
+    /** 影子元素的根节点 */
+    $shadowRoot: ShadowRoot;
     /** 元素 */
     element: Element;
     /** 动画层元素 */
@@ -2069,9 +2121,9 @@ declare interface PopsCallResult {
     /** 遮罩层元素 */
     maskElement?: Element;
     /** 关闭弹窗 */
-    close: Function;
+    close(): void;
     /** 隐藏弹窗 */
-    hide: Function;
+    hide(): void;
     /** 显示弹窗 */
-    show: Function;
+    show(): void;
 }
