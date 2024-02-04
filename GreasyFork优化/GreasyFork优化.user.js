@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.1.24
+// @version      2024.2.3
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -19,8 +19,8 @@
 // @grant        GM_info
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
-// @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
+// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
+// @require      https://update.greasyfork.org/scripts/456485/1322685/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
@@ -516,10 +516,11 @@
                       PopsPanel.deleteValue("user");
                       PopsPanel.deleteValue("pwd");
                       Qmsg.success("已清空账号/密码");
-                      document.querySelector(
+                      let $shadowRoot = event.target.getRootNode();
+                      $shadowRoot.querySelector(
                         `li[data-key="user"] .pops-panel-input input`
                       ).value = "";
-                      document.querySelector(
+                      $shadowRoot.querySelector(
                         `li[data-key="pwd"] .pops-panel-input input`
                       ).value = "";
                     }
@@ -2310,6 +2311,7 @@
         content: {
           text: "获取信息中，请稍后...",
         },
+        addIndexCSS: false,
       });
       let userInfo = await GreasyforkApi.getUserInfo(userId);
       loading.close();
