@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.2.3
+// @version      2024.2.4
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -66,10 +66,10 @@
 // @exclude      /^http(s|):\/\/cloudgame\.ds\.163\.com\/.*$/
 // @exclude      /^http(s|):\/\/cloudgame\.webapp\.163\.com\/.*$/
 // @exclude      /^http(s|):\/\/cg\.163\.com\/.*$/
-// @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
+// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1320377/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1322685/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/486152/1320483/Crypto-JS.js
@@ -901,26 +901,7 @@
      * @returns {string}
      */
     ignoreStrRemove(text, isHTML = false) {
-      let ignoreNodeList = [
-        /** 单文件直链弹窗 */
-        document.querySelector(".whitesevPopOneFile"),
-        /** 多文件直链弹窗 */
-        document.querySelector(".whitesevPopMoreFile"),
-        /** 设置页面弹窗 */
-        document.querySelector(".whitesevPop-whitesevPopSetting"),
-        /** 历史存储记录弹窗 */
-        document.querySelector(".whitesevPopNetDiskHistoryMatch"),
-        /** 历史存储记录弹窗 */
-        document.querySelector(
-          ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table"
-        ),
-        /** 自定义规则弹窗 */
-        document.querySelector(
-          ".whitesevPopNetDiskAccessCodeRule .netdiskrecord-table"
-        ),
-        /** 添加/修改自定义规则弹窗 */
-        document.querySelector(".whitesevPopNetDiskAccessCodeRuleAddOrEdit"),
-      ];
+      let ignoreNodeList = [];
       ignoreNodeList.forEach((ignoreElement) => {
         if (ignoreElement == void 0) {
           return;
@@ -5553,6 +5534,15 @@
      */
     blank(url, netDiskName, netDiskIndex, shareCode, accessCode) {
       log.success(["新标签页打开", [...arguments]]);
+      if (NetDiskAutoFillAccessCode.enable) {
+        GM_setValue("tempNetDiskInfo", {
+          url: url,
+          netDiskName: netDiskName,
+          netDiskIndex: netDiskIndex,
+          shareCode: shareCode,
+          accessCode: accessCode,
+        });
+      }
       /* 百度网盘会拒绝referrer不安全访问 */
       document
         .querySelector("meta[name='referrer']")
@@ -5563,11 +5553,6 @@
       ) {
         /* 增加延迟跳转，因为要等待accessCode复制到剪贴板 */
         utils.setClip(accessCode);
-        GM_setValue("tempNetDiskInfo", {
-          shareCode: shareCode,
-          accessCode: accessCode,
-          netDiskName: netDiskName,
-        });
         Qmsg.info("1.5秒后跳转该链接");
         setTimeout(() => {
           window.open(url, "_blank");
@@ -5663,21 +5648,6 @@
           .replaceAll("{#accessCode#}", "");
       }
       return copyUrl;
-    },
-    /**
-     * 在iframe内访问资源，但是可能页面存在同源策略，会导致iframe不生效
-     * @param {string} url
-     */
-    iframeDownload(url = "") {
-      let downloadIframe = document.createElement("iframe");
-      downloadIframe.onload = function () {
-        downloadUrl.onload = void 0;
-        downloadIframe.remove();
-      };
-      downloadIframe.src = url;
-      downloadIframe.style.display = "none";
-      downloadIframe.style.height = "0";
-      document.body.appendChild(downloadIframe);
     },
   };
 
@@ -6716,6 +6686,23 @@
    * 弹窗UI界面
    */
   const NetDiskUI = {
+    /** 元素对象实例 */
+    Alias: {
+      /**
+       * 链接弹窗的对象
+       * @type {PopsCallResult}
+       */
+      uiLinkAlias: void 0,
+      /**
+       * 历史匹配记录弹窗的对象
+       * @type {PopsCallResult}
+       */
+      historyAlias: void 0,
+      /**
+       * 设置弹窗的对象
+       */
+      settingAlias: void 0,
+    },
     /**
      * 已匹配到的网盘图标字典
      * @type {Set<string>}
@@ -6737,28 +6724,6 @@
      * 是否正在循环切换按钮背景
      */
     isSwitchRandomBackground: false,
-    /**
-     * 链接弹窗的对象
-     * @type {PopsCallResult}
-     */
-    uiLinkAlias: void 0,
-    /**
-     * 悬浮按钮
-     * @type {HTMLElement}
-     */
-    suspensionNode: void 0,
-    /**
-     * 单文件直链弹窗的唯一标识
-     */
-    uiLinkParseAlias: "单文件直链层",
-    /**
-     * 多文件直链弹窗的唯一标识
-     */
-    uiLinkParseMoreAlias: "多文件直链层",
-    /**
-     * 重输密码弹窗的唯一标识
-     */
-    uiPasswordAlias: "重输密码层",
     /**
      * 是否默认弹窗可以拖拽
      */
@@ -6984,6 +6949,10 @@
      */
     suspension: {
       /**
+       * @type {HTMLDivElement}
+       */
+      suspensionNode: null,
+      /**
        * 是否已显示
        */
       isShow: false,
@@ -7041,13 +7010,21 @@
           GM_setValue("opacity", 1);
           NetDiskUI.opacity = 1;
         }
-        this.loadCSS();
-        NetDiskUI.suspensionNode = DOMUtils.createElement(
+        let $shadowContainer = DOMUtils.createElement("div", {
+          className: "whitesev-suspension-shadow-container",
+        });
+        let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+        this.suspensionNode = DOMUtils.createElement(
           "div",
           {
             id: "whitesevSuspensionId",
             className: "whitesevSuspension",
             innerHTML: `
+            <style type="text/css">
+
+            ${this.getCSS()}
+
+            </style>
             <div class="whitesevSuspensionMain">
               <div class="whitesevSuspensionFloor">
                 <div class="netdisk"></div>
@@ -7063,7 +7040,8 @@
           `,
           }
         );
-        document.body.appendChild(NetDiskUI.suspensionNode);
+        $shadowRoot.appendChild(this.suspensionNode);
+        document.body.appendChild($shadowContainer);
       },
       /**
        * 所有的弹窗初始化设置
@@ -7082,11 +7060,12 @@
        * 显示设置界面
        */
       showSettingView() {
-        if (document.querySelector(".pops.whitesevPopSetting")) {
+        if (NetDiskUI.Alias.settingAlias) {
           log.error("设置界面已存在");
           Qmsg.error("设置界面已存在");
           return;
         }
+        const that = this;
         /**
          *
          * @param {string} text
@@ -7123,6 +7102,96 @@
             },
           };
         }
+        /**
+         *
+         * @param {string} text
+         * @param {string} description
+         * @param {string} key
+         * @param {number} defaultValue
+         * @param {number} min
+         * @param {number} max
+         * @param {number|undefined} step
+         * @param {undefined|(event: PointerEvent,value: number)=> void} callback
+         * @param {undefined|(value: number)=> string|number} getToolTipContent
+         * @returns
+         */
+        function getSliderDetail(
+          text,
+          description,
+          key,
+          defaultValue,
+          min,
+          max,
+          step,
+          callback,
+          getToolTipContent
+        ) {
+          return {
+            text: text,
+            type: "slider",
+            description: description,
+            attributes: {
+              "data-key": key,
+              "data-default-value": defaultValue,
+            },
+            getValue() {
+              return GM_getValue(key, defaultValue);
+            },
+            callback(event, value) {
+              GM_setValue(key, value);
+              if (typeof callback === "function") {
+                callback(event, value);
+              }
+            },
+            getToolTipContent(value) {
+              if (typeof getToolTipContent === "function") {
+                return getToolTipContent(value);
+              } else {
+                return value;
+              }
+            },
+            min: min,
+            max: max,
+            step: step,
+          };
+        }
+        /**
+         *
+         * @param {string} text
+         * @param {string} description
+         * @param {string} key
+         * @param {any} defaultValue
+         * @param {any[]} data
+         * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} callback
+         */
+        function getSelectDetail(
+          text,
+          description,
+          key,
+          defaultValue,
+          data,
+          callback
+        ) {
+          return {
+            text: text,
+            type: "select",
+            description: description,
+            attributes: {
+              "data-key": key,
+              "data-default-value": defaultValue,
+            },
+            getValue() {
+              return GM_getValue(key, defaultValue);
+            },
+            callback(event, isSelectedValue, isSelectedText) {
+              GM_setValue(key, isSelectedValue);
+              if (typeof callback === "function") {
+                callback(event, isSelectedValue, isSelectedText);
+              }
+            },
+            data: data,
+          };
+        }
         let contentDetails = [
           {
             id: "netdisk-panel-config-all-setting",
@@ -7134,23 +7203,12 @@
                 text: "弹窗",
                 type: "forms",
                 forms: [
-                  {
-                    text: "动画",
-                    type: "select",
-                    attributes: {
-                      "data-key": "popsAnimation",
-                      "data-default-value": NetDiskUI.defaultAnimation,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(this.attributes["data-key"], isSelectedValue);
-                    },
-                    data: [
+                  getSelectDetail(
+                    "动画",
+                    "显示/关闭的动画效果",
+                    "popsAnimation",
+                    NetDiskUI.defaultAnimation,
+                    [
                       {
                         value: "",
                         text: "无",
@@ -7215,22 +7273,28 @@
                         value: "pops-anim-gather",
                         text: "gather",
                       },
-                    ],
-                  },
+                    ]
+                  ),
                   getSwtichDetail(
                     "点击弹窗遮罩层关闭弹窗",
                     "clickMaskToCloseDialog",
-                    NetDiskUI.defaultClickMaskToCloseDialog
+                    NetDiskUI.defaultClickMaskToCloseDialog,
+                    void 0,
+                    "点击遮罩层触发关闭弹窗事件"
                   ),
                   getSwtichDetail(
                     "可拖拽窗口",
                     "pcDrag",
-                    NetDiskUI.defaultPCDrag
+                    NetDiskUI.defaultPCDrag,
+                    void 0,
+                    "长按标题栏可拖拽"
                   ),
                   getSwtichDetail(
                     "限制拖拽距离",
                     "pcDragLimit",
-                    NetDiskUI.defaultPCDragLimit
+                    NetDiskUI.defaultPCDragLimit,
+                    void 0,
+                    "限制在浏览器可视窗口内拖动"
                   ),
                 ],
               },
@@ -7239,24 +7303,12 @@
                 text: "文件弹窗",
                 type: "forms",
                 forms: [
-                  {
-                    text: "排序名",
-                    type: "select",
-                    description: "当前的规则",
-                    attributes: {
-                      "data-key": "pops-folder-sort-name",
-                      "data-default-value": NetDiskUI.defaultSortName,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(this.attributes["data-key"], isSelectedValue);
-                    },
-                    data: [
+                  getSelectDetail(
+                    "排序名",
+                    "当前的规则",
+                    "pops-folder-sort-name",
+                    NetDiskUI.defaultSortName,
+                    [
                       {
                         value: "fileName",
                         text: "文件名",
@@ -7269,26 +7321,14 @@
                         value: "fileSize",
                         text: "大小",
                       },
-                    ],
-                  },
-                  {
-                    text: "排序规则",
-                    type: "select",
-                    description: "当前的规则",
-                    attributes: {
-                      "data-key": "pops-folder-sort-is-desc",
-                      "data-default-value": NetDiskUI.defaultSortDesc,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(this.attributes["data-key"], isSelectedValue);
-                    },
-                    data: [
+                    ]
+                  ),
+                  getSelectDetail(
+                    "排序规则",
+                    "当前的规则",
+                    "pops-folder-sort-is-desc",
+                    NetDiskUI.defaultSortDesc,
+                    [
                       {
                         value: false,
                         text: "升序",
@@ -7297,8 +7337,8 @@
                         value: true,
                         text: "降序",
                       },
-                    ],
-                  },
+                    ]
+                  ),
                 ],
               },
               {
@@ -7332,105 +7372,78 @@
                 text: "悬浮按钮",
                 type: "forms",
                 forms: [
-                  {
-                    text: "大小",
-                    type: "slider",
-                    attributes: {
-                      "data-key": "size",
-                      "data-default-value": 50,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], value);
+                  getSliderDetail(
+                    "大小",
+                    "悬浮按钮的大小",
+                    "size",
+                    50,
+                    15,
+                    250,
+                    void 0,
+                    (event, value) => {
                       NetDiskUI.size = parseInt(value);
                       if (NetDiskUI.suspension.isShow) {
-                        DOMUtils.css("#whitesevSuspensionId", {
+                        DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
                           width: NetDiskUI.size,
                           height: NetDiskUI.size,
                         });
                         NetDiskUI.suspension.setSuspensionPosition();
                       }
                     },
-                    min: 15,
-                    max: 250,
-                  },
-                  {
-                    text: "透明度",
-                    type: "slider",
-                    attributes: {
-                      "data-key": "opacity",
-                      "data-default-value": 1,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], value);
+                    (value) => {
+                      return `${value}px`;
+                    }
+                  ),
+                  getSliderDetail(
+                    "透明度",
+                    "值越小越透明",
+                    "opacity",
+                    1,
+                    0.1,
+                    1,
+                    0.1,
+                    (event, value) => {
                       NetDiskUI.opacity = parseFloat(value);
                       if (NetDiskUI.suspension.isShow) {
-                        DOMUtils.css("#whitesevSuspensionId", {
+                        DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
                           opacity: NetDiskUI.opacity,
                         });
                       }
-                    },
-                    min: 0.1,
-                    max: 1,
-                    step: 0.1,
-                  },
-                  {
-                    text: "背景轮播时间",
-                    type: "slider",
-                    attributes: {
-                      "data-key": "randbg-time",
-                      "data-default-value": 1500,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], value);
-                    },
-                    getToolTipContent(value) {
+                    }
+                  ),
+                  getSliderDetail(
+                    "背景轮播时间",
+                    "淡入/淡出的时间",
+                    "randbg-time",
+                    1500,
+                    0,
+                    10000,
+                    100,
+                    void 0,
+                    (value) => {
                       return `${value}ms`;
-                    },
-                    min: 0,
-                    max: 10000,
-                    step: 100,
-                  },
-                  {
-                    text: "背景显示时间",
-                    type: "slider",
-                    attributes: {
-                      "data-key": "randbg-show-time",
-                      "data-default-value": 1200,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], value);
-                    },
-                    getToolTipContent(value) {
+                    }
+                  ),
+                  getSliderDetail(
+                    "背景显示时间",
+                    "图标显示的持续时间",
+                    "randbg-show-time",
+                    1200,
+                    0,
+                    10000,
+                    100,
+                    void 0,
+                    (value) => {
                       return `${value}ms`;
-                    },
-                    min: 0,
-                    max: 10000,
-                    step: 100,
-                  },
+                    }
+                  ),
+                  getSwtichDetail(
+                    "吸附边缘",
+                    "suspended-button-adsorption-edge",
+                    false,
+                    void 0,
+                    "移动悬浮按钮松开后自动吸附边缘"
+                  ),
                 ],
               },
               {
@@ -7438,23 +7451,12 @@
                 text: "Toast",
                 type: "forms",
                 forms: [
-                  {
-                    text: "位置",
-                    type: "select",
-                    attributes: {
-                      "data-key": "qmsg-position",
-                      "data-default-value": "top",
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(this.attributes["data-key"], isSelectedValue);
-                    },
-                    data: [
+                  getSelectDetail(
+                    "位置",
+                    "九宫格位置",
+                    "qmsg-position",
+                    "top",
+                    [
                       {
                         value: "topleft",
                         text: "左上角",
@@ -7491,28 +7493,14 @@
                         value: "bottomright",
                         text: "右下角",
                       },
-                    ],
-                  },
-                  {
-                    text: "同时最多显示的数量",
-                    type: "select",
-                    attributes: {
-                      "data-key": "qmsg-maxnums",
-                      "data-default-value": 3,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(
-                        this.attributes["data-key"],
-                        parseInt(isSelectedValue)
-                      );
-                    },
-                    data: [
+                    ]
+                  ),
+                  getSelectDetail(
+                    "同时最多显示的数量",
+                    void 0,
+                    "qmsg-maxnums",
+                    3,
+                    [
                       {
                         value: 1,
                         text: "1",
@@ -7533,8 +7521,8 @@
                         value: 5,
                         text: "5",
                       },
-                    ],
-                  },
+                    ]
+                  ),
                   getSwtichDetail("逆序弹出", "qmsg-showreverse", false),
                 ],
               },
@@ -7543,47 +7531,25 @@
                 text: "功能",
                 type: "forms",
                 forms: [
-                  {
-                    text: "匹配间隔",
-                    type: "slider",
-                    attributes: {
-                      "data-key": "delaytime",
-                      "data-default-value":
-                        NetDiskData.defaultMatchIntervalTime,
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], value);
-                    },
-                    getToolTipContent(value) {
+                  getSliderDetail(
+                    "匹配间隔",
+                    "匹配文本完毕后的延迟xxx秒允许下一次匹配",
+                    "delaytime",
+                    NetDiskData.defaultMatchIntervalTime,
+                    NetDiskData.matchIntervalMinTime,
+                    NetDiskData.matchIntervalMaxTime,
+                    0.1,
+                    void 0,
+                    (value) => {
                       return `${value}s`;
-                    },
-                    min: NetDiskData.matchIntervalMinTime,
-                    max: NetDiskData.matchIntervalMaxTime,
-                    step: 0.1,
-                  },
-                  {
-                    text: "匹配类型",
-                    type: "select",
-                    attributes: {
-                      "data-key": "pageMatchRange",
-                      "data-default-value": "all",
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(this.attributes["data-key"], isSelectedValue);
-                    },
-                    data: [
+                    }
+                  ),
+                  getSelectDetail(
+                    "匹配类型",
+                    "匹配的文本类型",
+                    "pageMatchRange",
+                    "all",
+                    [
                       {
                         value: "all",
                         text: "全部",
@@ -7596,25 +7562,14 @@
                         value: "innerHTML",
                         text: "超文本",
                       },
-                    ],
-                  },
-                  {
-                    text: "历史记录排序规则",
-                    type: "select",
-                    attributes: {
-                      "data-key": "netdisk-history-match-ordering-rule",
-                      "data-default-value": "按 更新时间 - 降序",
-                    },
-                    getValue() {
-                      return GM_getValue(
-                        this.attributes["data-key"],
-                        this.attributes["data-default-value"]
-                      );
-                    },
-                    callback(event, isSelectedValue, isSelectedText) {
-                      GM_setValue(this.attributes["data-key"], isSelectedValue);
-                    },
-                    data: [
+                    ]
+                  ),
+                  getSelectDetail(
+                    "历史记录排序规则",
+                    "需要开启【存储匹配记录】",
+                    "netdisk-history-match-ordering-rule",
+                    "按 更新时间 - 降序",
+                    [
                       {
                         value: "按 记录时间 - 升序",
                         text: "按 记录时间 - 升序",
@@ -7631,8 +7586,8 @@
                         value: "按 更新时间 - 降序",
                         text: "按 更新时间 - 降序",
                       },
-                    ],
-                  },
+                    ]
+                  ),
                   getSwtichDetail(
                     "读取剪贴板",
                     "readClipboard",
@@ -7703,23 +7658,23 @@
         };
         let shortcurFormsDetailsList = [
           {
-            text: "打开设置界面",
+            text: "【打开】设置界面",
             key: "netdisk-keyboard-open-setting",
           },
           {
-            text: "打开历史匹配记录",
+            text: "【打开】历史匹配记录",
             key: "netdisk-keyboard-open-history-matching-records",
           },
           {
-            text: "打开访问码规则",
+            text: "【打开】访问码规则",
             key: "netdisk-keyboard-open-accesscode-rule",
           },
           {
-            text: "打开用户自定义规则",
+            text: "【打开】用户自定义规则",
             key: "netdisk-keyboard-open-user-rule",
           },
           {
-            text: "打开主动识别文本",
+            text: "【打开】主动识别文本",
             key: "netdisk-keyboard-open-proactively-recognize-text",
           },
         ];
@@ -7777,6 +7732,8 @@
                     {
                       text: "启用解析站",
                       type: "switch",
+                      description:
+                        "开源项目：<a href='https://github.com/yuantuo666/baiduwp-php' target='_blank'>https://github.com/yuantuo666/baiduwp-php</a>",
                       attributes: {
                         "data-key": "baidu-static-enable",
                         "data-default-value": false,
@@ -7799,6 +7756,7 @@
                     {
                       text: "跳转时复制链接",
                       type: "switch",
+                      description: "跳转至解析站时复制百度网盘链接",
                       attributes: {
                         "data-key": "baidu-baiduwp-php-copy-url",
                         "data-default-value": false,
@@ -7819,8 +7777,9 @@
                       },
                     },
                     {
-                      text: "解析站网址",
+                      text: "网址",
                       type: "input",
+                      description: "解析站的网址Url",
                       attributes: {
                         "data-key": "baidu-baiduwp-php-url",
                         "data-default-value": "",
@@ -7840,6 +7799,7 @@
                     {
                       text: "表单参数",
                       type: "input",
+                      description: "跳转时携带的参数",
                       attributes: {
                         "data-key": "baidu-baiduwp-php-post-form",
                         "data-default-value": "",
@@ -8165,47 +8125,28 @@
             if (item.range_innerText || item.range_accessCode_after_text) {
               let matchTextList = [];
               if (item.range_innerText) {
-                matchTextList.push({
-                  text: "提取码间隔前的字符长度",
-                  type: "slider",
-                  attributes: {
-                    "data-key": "innerText_" + item.key,
-                    "data-default-value": item.range_innerText_default_value,
-                  },
-                  getValue() {
-                    return GM_getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                  },
-                  callback(event, value) {
-                    GM_setValue(this.attributes["data-key"], value);
-                  },
-                  min: 0,
-                  max: 100,
-                });
+                matchTextList.push(
+                  getSliderDetail(
+                    "间隔前",
+                    "提取码间隔前的字符长度",
+                    "innerText_" + item.key,
+                    item.range_innerText_default_value,
+                    0,
+                    100
+                  )
+                );
               }
               if (item.range_accessCode_after_text) {
-                matchTextList.push({
-                  text: "提取码间隔后的字符长度",
-                  type: "slider",
-                  attributes: {
-                    "data-key": "accessCode_after_text_" + item.key,
-                    "data-default-value":
-                      item.range_accessCode_after_text_default_value,
-                  },
-                  getValue() {
-                    return GM_getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                  },
-                  callback(event, value) {
-                    GM_setValue(this.attributes["data-key"], value);
-                  },
-                  min: 0,
-                  max: 100,
-                });
+                matchTextList.push(
+                  getSliderDetail(
+                    "间隔后",
+                    "提取码间隔后的字符长度",
+                    "accessCode_after_text_" + item.key,
+                    item.range_accessCode_after_text_default_value,
+                    0,
+                    100
+                  )
+                );
               }
               if (matchTextList.length) {
                 formsList.push({
@@ -8218,48 +8159,29 @@
             if (item.range_innerHTML || item.range_accessCode_after_html) {
               let matchTextList = [];
               if (item.range_innerHTML) {
-                matchTextList.push({
-                  text: "提取码间隔前的字符长度",
-                  type: "slider",
-                  attributes: {
-                    "data-key": "innerHTML_" + item.key,
-                    "data-default-value": item.range_innerHTML_default_value,
-                  },
-                  getValue() {
-                    return GM_getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                  },
-                  callback(event, value) {
-                    GM_setValue(this.attributes["data-key"], value);
-                  },
-                  min: 0,
-                  max: 500,
-                });
+                matchTextList.push(
+                  getSliderDetail(
+                    "间隔前",
+                    "提取码间隔前的字符长度",
+                    "innerHTML_" + item.key,
+                    item.range_innerHTML_default_value,
+                    0,
+                    500
+                  )
+                );
               }
 
               if (item.range_accessCode_after_html) {
-                matchTextList.push({
-                  text: "提取码间隔后的字符长度",
-                  type: "slider",
-                  attributes: {
-                    "data-key": "accessCode_after_html_" + item.key,
-                    "data-default-value":
-                      item.range_accessCode_after_html_default_value,
-                  },
-                  getValue() {
-                    return GM_getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                  },
-                  callback(event, value) {
-                    GM_setValue(this.attributes["data-key"], value);
-                  },
-                  min: 0,
-                  max: 200,
-                });
+                matchTextList.push(
+                  getSliderDetail(
+                    "间隔后",
+                    "提取码间隔后的字符长度",
+                    "accessCode_after_html_" + item.key,
+                    item.range_accessCode_after_html_default_value,
+                    0,
+                    200
+                  )
+                );
               }
               if (matchTextList.length) {
                 formsList.push({
@@ -8328,14 +8250,15 @@
                       item.checkbox_oneStatic ||
                       item.checkbox_oneOrMoreStatic
                     ) {
+                      let $shadowRoot = event.target.getRootNode();
                       /* 新标签页打开和单/文件解析只能开启一个 */
                       /**
                        * @type {HTMLInputElement}
                        */
-                      let checkboxElement = document.querySelector(
+                      let checkboxElement = $shadowRoot.querySelector(
                         `li[data-key="${item.key}-static-enable"] input[type=checkbox]`
                       );
-                      let checkboxCoreElement = document.querySelector(
+                      let checkboxCoreElement = $shadowRoot.querySelector(
                         `li[data-key="${item.key}-static-enable"] span.pops-panel-switch__core`
                       );
                       if (value == true && checkboxElement.checked == true) {
@@ -8392,14 +8315,15 @@
                   callback(event, value) {
                     GM_setValue(this.attributes["data-key"], Boolean(value));
                     if (item.checkbox_openBlank) {
+                      let $shadowRoot = event.target.getRootNode();
                       /* 新标签页打开和单/文件解析只能开启一个 */
                       /**
                        * @type {HTMLInputElement}
                        */
-                      let checkboxElement = document.querySelector(
+                      let checkboxElement = $shadowRoot.querySelector(
                         `li[data-key="${item.key}-open-enable"] input[type=checkbox]`
                       );
-                      let checkboxCoreElement = document.querySelector(
+                      let checkboxCoreElement = $shadowRoot.querySelector(
                         `li[data-key="${item.key}-open-enable"] span.pops-panel-switch__core`
                       );
                       if (value == true && checkboxElement.checked == true) {
@@ -8437,6 +8361,7 @@
                     functionFormsList.push({
                       text: "Scheme链接",
                       type: "input",
+                      description: "自定义的Scheme链接",
                       attributes: {
                         "data-key": `${item.key}-static-scheme-forward`,
                         "data-default-value": "",
@@ -8503,13 +8428,28 @@
         }
         addNetDiskSetting();
 
-        NetDiskPops.panel(
+        NetDiskUI.Alias.settingAlias = NetDiskPops.panel(
           {
             title: {
               text: `${GM_info?.script?.name || "网盘链接识别"}-设置`,
               position: "center",
             },
             content: contentDetails,
+            btn: {
+              close: {
+                enable: true,
+                callback(event) {
+                  event.close();
+                  NetDiskUI.Alias.settingAlias = void 0;
+                },
+              },
+            },
+            mask: {
+              clickCallBack(originalRun) {
+                originalRun();
+                NetDiskUI.Alias.settingAlias = void 0;
+              },
+            },
             class: "whitesevPopSetting",
           },
           NetDiskUI.popsStyle.settingView
@@ -8519,7 +8459,7 @@
        * 设置 悬浮按钮所有事件
        */
       setSuspensionEvent() {
-        let needDragElement = document.querySelector("#whitesevSuspensionId");
+        let needDragElement = NetDiskUI.suspension.suspensionNode;
         let dragNode = new AnyTouch(needDragElement);
         /**
          * @type {number[]}
@@ -8538,16 +8478,9 @@
         dragNode.on("pan", function (event) {
           if (!moveFlag) {
             moveFlag = true;
-            if (event.nativeEvent.offsetX) {
-              clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
-            } else {
-              clickElementLeftOffset = parseInt(event.getOffset().x);
-            }
-            if (event.nativeEvent.offsetY) {
-              clickElementTopOffset = parseInt(event.nativeEvent.offsetY);
-            } else {
-              clickElementTopOffset = parseInt(event.getOffset().y);
-            }
+            let rect = needDragElement.getBoundingClientRect();
+            clickElementLeftOffset = event.x - rect.left;
+            clickElementTopOffset = event.y - rect.top;
             DOMUtils.css(needDragElement, {
               cursor: "move",
               transition: "none",
@@ -8558,9 +8491,6 @@
            */
           if (event.phase === "move") {
             /* 悬浮按钮大小不能超过250px */
-            if (clickElementLeftOffset > 250 || clickElementTopOffset > 250) {
-              return;
-            }
             /* left偏移最大值 */
             let maxLeftOffset = DOMUtils.width(globalThis) - NetDiskUI.size;
             /* top偏移的最大值 */
@@ -8589,7 +8519,6 @@
               GM_setValue("suspensionX", currentSuspensionLeftOffset);
               GM_setValue("suspensionY", currentSuspensionTopOffset);
             }
-
             DOMUtils.css(needDragElement, {
               left: currentSuspensionLeftOffset + "px",
               top: currentSuspensionTopOffset + "px",
@@ -8608,25 +8537,31 @@
             let currentSuspensionLeftOffset = parseInt(
               DOMUtils.css(needDragElement, "left")
             );
-            let setCSSLeft = 0;
-            /* 判断悬浮按钮是否在右边区域 */
-            if (currentSuspensionLeftOffset >= DOMUtils.width(globalThis) / 2) {
-              /* 设置悬浮按钮的left偏移 */
-              setCSSLeft = DOMUtils.width(globalThis) - NetDiskUI.size;
-              if (NetDiskUI.suspension.isTopWindow()) {
-                GM_setValue("isRight", true);
+            if (GM_getValue("suspended-button-adsorption-edge")) {
+              let setCSSLeft = 0;
+              /* 判断悬浮按钮是否在右边区域 */
+              if (
+                currentSuspensionLeftOffset >=
+                DOMUtils.width(globalThis) / 2
+              ) {
+                /* 设置悬浮按钮的left偏移 */
+                setCSSLeft = DOMUtils.width(globalThis) - NetDiskUI.size;
+                if (NetDiskUI.suspension.isTopWindow()) {
+                  GM_setValue("isRight", true);
+                }
+              } else {
+                if (NetDiskUI.suspension.isTopWindow()) {
+                  GM_setValue("isRight", false);
+                }
               }
-            } else {
               if (NetDiskUI.suspension.isTopWindow()) {
-                GM_setValue("isRight", false);
+                GM_setValue("suspensionX", setCSSLeft);
               }
+              DOMUtils.css(needDragElement, {
+                left: setCSSLeft + "px",
+              });
             }
-            if (NetDiskUI.suspension.isTopWindow()) {
-              GM_setValue("suspensionX", setCSSLeft);
-            }
-
             DOMUtils.css(needDragElement, {
-              left: setCSSLeft + "px",
               transition: "left 300ms ease 0s",
             });
           }
@@ -8730,33 +8665,34 @@
         /* 用户自己拖动设置的悬浮按钮top偏移 */
         let userSetTopOffset = GM_getValue("suspensionY", defaultTopOffset);
 
-        /* 如果存在isRight变量，悬浮按钮放到最右边，否则最左边 */
-        if (GM_getValue("isRight")) {
-          userSetLeftOffset = maxLeftOffset;
-        } else {
-          userSetLeftOffset = 0;
-        }
-        /* 如果用户设置的top偏移超出最大的top偏移，那么设置用户的偏移为默认的最大top偏移 */
-        if (userSetTopOffset > maxTopOffset) {
-          userSetTopOffset = maxTopOffset;
-        } else if (userSetTopOffset < 0) {
-          /* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
-          userSetTopOffset = 0;
-        }
+        if (GM_getValue("suspended-button-adsorption-edge")) {
+          /* 如果isRight为true，悬浮按钮放到最右边，否则最左边 */
+          if (GM_getValue("isRight")) {
+            userSetLeftOffset = maxLeftOffset;
+          } else {
+            userSetLeftOffset = 0;
+          }
+          /* 如果用户设置的top偏移超出最大的top偏移，那么设置用户的偏移为默认的最大top偏移 */
+          if (userSetTopOffset > maxTopOffset) {
+            userSetTopOffset = maxTopOffset;
+          } else if (userSetTopOffset < 0) {
+            /* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
+            userSetTopOffset = 0;
+          }
 
-        if (NetDiskUI.suspension.isTopWindow()) {
-          /* 当前窗口是顶部窗口，才可以保存移动的值 */
-          GM_setValue("suspensionX", userSetLeftOffset);
-          GM_setValue("suspensionY", userSetTopOffset);
+          if (NetDiskUI.suspension.isTopWindow()) {
+            /* 当前窗口是顶部窗口，才可以保存移动的值 */
+            GM_setValue("suspensionX", userSetLeftOffset);
+            GM_setValue("suspensionY", userSetTopOffset);
+          }
         }
-
-        DOMUtils.css("#whitesevSuspensionId", {
+        DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
           left: userSetLeftOffset + "px",
           top: userSetTopOffset + "px",
         });
       },
-      loadCSS() {
-        GM_addStyle(`
+      getCSS() {
+        return `
 					.whitesevSuspension{
 						top: 0;
 						position:fixed;
@@ -8800,7 +8736,7 @@
 					.whitesevPop-content p[pop]{
 						height: 100%;
 					}
-				`);
+				`;
       },
       /**
        * 悬浮按钮背景轮播 效果为淡入淡出
@@ -8852,7 +8788,9 @@
         let switchBgShowTime = 1200; /* 淡入或淡出后的延迟切换时间 */
         currentList = getRandBgList();
         let randBgSrc = currentList[currentIndex];
-        let randBgNode = document.querySelector(".whitesevSuspension .netdisk");
+        let randBgNode = NetDiskUI.suspension.suspensionNode.querySelector(
+          ".whitesevSuspension .netdisk"
+        );
         DOMUtils.css(randBgNode, "background-image", `url(${randBgSrc})`);
         if (
           currentList.length < 2 ||
@@ -8873,27 +8811,25 @@
      * 主视图
      */
     view: {
-      isInitCSS: false,
-      isRegisterEvent: false,
       show() {
-        if (!this.isInitCSS) {
-          this.isInitCSS = true;
-          this.addCSS();
-        }
-        if (!this.isRegisterEvent) {
-          this.isRegisterEvent = true;
-          this.registerIconGotoPagePosition();
-          this.registerNetDiskUrlContextMenu();
-          this.setNetDiskUrlClickEvent(".netdisk-url a");
-        }
-        if (!NetDiskUI.uiLinkAlias) {
+        if (!NetDiskUI.Alias.uiLinkAlias) {
           this.createView();
+          this.registerNetDiskUrlContextMenu(
+            NetDiskUI.Alias.uiLinkAlias.$shadowRoot
+          );
+          this.registerIconGotoPagePosition(
+            NetDiskUI.Alias.uiLinkAlias.$shadowRoot
+          );
+          this.setNetDiskUrlClickEvent(
+            NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
+            ".netdisk-url a"
+          );
         } else {
-          NetDiskUI.uiLinkAlias.show();
+          NetDiskUI.Alias.uiLinkAlias.show();
         }
       },
-      addCSS() {
-        GM_addStyle(`
+      getCSS() {
+        return `
 				.netdisk-url-box:last-child{padding:0 0 10px 0}
         .netdisk-url-div{display:flex;align-items:center;width:100%;margin:10px 0}
         .netdisk-icon{margin:0 4px;display:contents}
@@ -8932,7 +8868,7 @@
         .netdisk-url a:focus-visible{outline:0}
         .whitesevPop-content p[pop]{text-indent:0}
         .whitesevPop-button[type=primary]{border-color:#2d8cf0;background-color:#2d8cf0}
-				`);
+				`;
       },
       /**
        * 创建视图
@@ -8968,7 +8904,7 @@
 					<div class="netdisk-url-box-all">
 						${viewAddHTML}
 					</div>`;
-        NetDiskUI.uiLinkAlias = NetDiskPops.alert(
+        NetDiskUI.Alias.uiLinkAlias = NetDiskPops.alert(
           {
             title: {
               text: "网盘",
@@ -8981,29 +8917,25 @@
             btn: {
               ok: {
                 callback(event) {
-                  NetDiskUI.uiLinkAlias = void 0;
+                  NetDiskUI.Alias.uiLinkAlias = void 0;
                   event.close();
                 },
               },
               close: {
                 callback(event) {
-                  NetDiskUI.uiLinkAlias = void 0;
+                  NetDiskUI.Alias.uiLinkAlias = void 0;
                   event.close();
                 },
               },
             },
             mask: {
-              enable: true,
-              clickEvent: {
-                toHide: false,
-                toClose: true,
-              },
-              clickCallBack() {
-                NetDiskUI.uiLinkAlias.close();
-                NetDiskUI.uiLinkAlias = void 0;
+              clickCallBack(originalRun) {
+                originalRun();
+                NetDiskUI.Alias.uiLinkAlias = void 0;
               },
             },
             class: "whitesevPop",
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.mainView
         );
@@ -9061,9 +8993,10 @@
        * data-open-enable-key string
        * data-static-enable-key string
        * data-scheme-enable-key string
+       * @param {*} target
        * @param {string} clickNodeSelector - 元素选择器
        */
-      setNetDiskUrlClickEvent(clickNodeSelector) {
+      setNetDiskUrlClickEvent(target, clickNodeSelector) {
         function clickEvent(event) {
           event.target.setAttribute("isvisited", "true");
           let netDiskName = event.target.getAttribute("data-netdisk");
@@ -9118,7 +9051,7 @@
             );
           }
         }
-        DOMUtils.on(document.body, "click", clickNodeSelector, clickEvent);
+        DOMUtils.on(target, "click", clickNodeSelector, clickEvent);
       },
       /**
        * 注册右键菜单
@@ -9163,7 +9096,7 @@
           shareCode,
           accessCode
         );
-        if (!NetDiskUI.uiLinkAlias) {
+        if (!NetDiskUI.Alias.uiLinkAlias) {
           return;
         }
         log.info([netDiskName, netDiskIndex, shareCode, accessCode]);
@@ -9183,7 +9116,7 @@
           uiLink
         );
         DOMUtils.append(
-          NetDiskUI.uiLinkAlias.popsElement.querySelector(
+          NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector(
             ".netdisk-url-box-all"
           ),
           insertDOM
@@ -9203,7 +9136,7 @@
           shareCode,
           accessCode
         );
-        if (!NetDiskUI.uiLinkAlias) {
+        if (!NetDiskUI.Alias.uiLinkAlias) {
           return;
         }
         let uiLink = NetDisk.handleLinkShow(
@@ -9212,9 +9145,10 @@
           shareCode,
           accessCode
         );
-        let needChangeDOM = NetDiskUI.uiLinkAlias.popsElement.querySelector(
-          `.netdisk-url a[data-sharecode='${shareCode}'][data-netdisk-index='${netDiskIndex}']`
-        );
+        let needChangeDOM =
+          NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector(
+            `.netdisk-url a[data-sharecode='${shareCode}'][data-netdisk-index='${netDiskIndex}']`
+          );
         log.info("修改网盘链接视图");
         log.info(needChangeDOM);
         needChangeDOM.setAttribute("data-accesscode", accessCode);
@@ -9223,7 +9157,7 @@
       /**
        * 设置点击图标按钮导航至该网盘链接所在网页中位置
        */
-      registerIconGotoPagePosition() {
+      registerIconGotoPagePosition(target) {
         /**
          * @type {?Generator<HTMLElement, void, any>}
          */
@@ -9237,7 +9171,7 @@
          */
         let prevSearchShareCode = void 0;
         DOMUtils.on(
-          document,
+          target,
           "click",
           ".whitesevPop .netdisk-icon .netdisk-icon-img",
           function (event) {
@@ -9269,8 +9203,7 @@
               /* 未找到元素或者已迭代完毕 */
               findGenerator = utils.findElementsWithText(
                 document.documentElement,
-                dataSharecode,
-                (element) => Boolean(element.closest(".pops"))
+                dataSharecode
               );
               iterator = findGenerator.next();
             }
@@ -9430,9 +9363,9 @@
       /**
        * 设置全局监听url的右击菜单事件
        */
-      registerNetDiskUrlContextMenu() {
+      registerNetDiskUrlContextMenu(target) {
         NetDiskUI.view.registerContextMenu(
-          document,
+          target,
           ".whitesevPop .netdisk-url a",
           [
             {
@@ -9507,22 +9440,18 @@
      * 显示直链的弹窗
      */
     staticView: {
-      isLoadCSS: false,
-      addCSS() {
-        if (!this.isLoadCSS) {
-          this.isLoadCSS = true;
-          GM_addStyle(`
-          .pops-folder-list .list-name-text{
-            max-width: 300px;
-          }
-          .netdisk-static-link-onefile .pops-folder-list .list-name-text{
-            max-width: 220px;
-          }
-          .netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text{
-            max-width: unset;
-          }
-          `);
+      getCSS() {
+        return `
+        .pops-folder-list .list-name-text{
+          max-width: 300px;
         }
+        .netdisk-static-link-onefile .pops-folder-list .list-name-text{
+          max-width: 220px;
+        }
+        .netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text{
+          max-width: unset;
+        }
+        `;
       },
       /**
        * 单文件直链弹窗
@@ -9546,7 +9475,6 @@
        * }} fileDetails 配置
        */
       oneFile(fileDetails) {
-        this.addCSS();
         log.success(["成功获取单文件直链", fileDetails]);
         Qmsg.success("成功获取单文件直链");
         NetDiskPops.folder(
@@ -9591,6 +9519,7 @@
               },
             },
             class: "netdisk-static-link-onefile",
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.oneFileStaticView
         );
@@ -9610,7 +9539,6 @@
        * }[]} [folderInfoList=[]] 文件夹信息
        */
       moreFile(title, folderInfoList = []) {
-        this.addCSS();
         Qmsg.success("成功获取多文件直链");
         log.success(["多文件直链信息", folderInfoList]);
         NetDiskPops.folder(
@@ -9619,6 +9547,7 @@
               text: title,
             },
             folder: folderInfoList,
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.moreFileStaticView
         );
@@ -9639,7 +9568,7 @@
       shareCode,
       okCallBack = () => {}
     ) {
-      NetDiskPops.prompt(
+      const accessCodeConfirm = NetDiskPops.prompt(
         {
           title: {
             text: title,
@@ -9664,10 +9593,13 @@
                 let currentItemSelector = `.netdisk-url a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
                 let currentHistoryItemSelector = `.netdiskrecord-link a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
                 let currentItemElement =
-                  document.querySelector(currentItemSelector);
-                let currentHistoryItemElement = document.querySelector(
-                  currentHistoryItemSelector
-                );
+                  NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(
+                    currentItemSelector
+                  );
+                let currentHistoryItemElement =
+                  NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(
+                    currentHistoryItemSelector
+                  );
                 if (currentItemElement) {
                   currentItemElement.setAttribute(
                     "data-accesscode",
@@ -9703,11 +9635,13 @@
        * 注册键盘回车事件
        */
       utils.listenKeyboard(
-        document.querySelector(".pops-prompt-content input"),
+        accessCodeConfirm.$shadowRoot,
         "keypress",
         (keyName) => {
           if (keyName === "Enter") {
-            document.querySelector(".pops-prompt-btn-ok")?.click();
+            accessCodeConfirm.$shadowRoot
+              .querySelector(".pops-prompt-btn-ok")
+              ?.click();
           }
         }
       );
@@ -9721,14 +9655,6 @@
        */
       storageKey: "netDiskHistoryMatch",
       /**
-       * 是否已添加CSS
-       */
-      isAddCss: false,
-      /**
-       * 是否已设置DOM事件
-       */
-      isSetSearchEvent: false,
-      /**
        * 是否已设置其它DOM事件
        */
       isSetOtherEvent: false,
@@ -9736,7 +9662,6 @@
        * 显示弹窗
        */
       show() {
-        this.addCSS();
         let data = this.getNetDiskHistoryMatchData();
         let dataHTML = "";
         let that = this;
@@ -9754,7 +9679,7 @@
         <div class="netdiskrecord-page">
 
         </div>`;
-        NetDiskPops.confirm(
+        NetDiskUI.Alias.historyAlias = NetDiskPops.confirm(
           {
             title: {
               text: "历史匹配记录",
@@ -9771,11 +9696,13 @@
                 enable: true,
                 callback(event) {
                   event.close();
+                  NetDiskUI.Alias.historyAlias = void 0;
                 },
               },
               close: {
                 callback(event) {
                   event.close();
+                  NetDiskUI.Alias.historyAlias = void 0;
                 },
               },
               cancel: {
@@ -9801,17 +9728,23 @@
                         callback(okEvent) {
                           that.clearNetDiskHistoryMatchData();
                           DOMUtils.remove(
-                            ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
+                            NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(
+                              ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
+                            )
                           );
                           okEvent.close();
                           DOMUtils.html(
-                            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page",
+                            NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
+                              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page"
+                            ),
                             ""
                           );
                           DOMUtils.text(
-                            ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other",
+                            NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
+                              ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+                            ),
                             DOMUtils.text(
-                              document.querySelector(
+                              NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
                                 ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
                               )
                             ).replace(/[\d]+/gi, "0")
@@ -9827,24 +9760,27 @@
                 },
               },
             },
+            mask: {
+              clickCallBack(originalRun) {
+                originalRun();
+                NetDiskUI.Alias.historyAlias = null;
+              },
+            },
             class: "whitesevPopNetDiskHistoryMatch",
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.historyMatchView
         );
         this.setDataPaging(data);
-        this.setEvent();
+        this.setEvent(NetDiskUI.Alias.historyAlias.$shadowRoot);
         this.setSearchEvent();
         this.setContextMenuEvent();
       },
       /**
-       * 添加CSS
+       * 获取CSS
        */
-      addCSS() {
-        if (this.isAddCss) {
-          return;
-        }
-        this.isAddCss = true;
-        GM_addStyle(`
+      getCSS() {
+        return `
         .whitesevPopNetDiskHistoryMatch .pops-confirm-content ul{
 
         }
@@ -9943,7 +9879,7 @@
           max-width: 80px;
           align-self: center;
         }
-        `);
+        `;
       },
       /**
        * 获取显示出的每一项的html
@@ -10022,59 +9958,54 @@
       /**
        * 设置只执行一次的事件
        */
-      setEvent() {
-        if (this.isSetSearchEvent) {
-          return;
-        }
+      setEvent(target) {
         let that = this;
-        this.isSetEvent = true;
         NetDiskUI.view.setNetDiskUrlClickEvent(
+          target,
           ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a"
         );
 
         /**
          * 设置删除按钮点击事件
          */
-        let setdeleteBtnEvent = function () {
-          DOMUtils.on(
-            document,
-            "click",
-            ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
-            function (event) {
-              /* 删除中的遮罩层 */
-              let deleteLoading = NetDiskPops.loading({
-                parent: document.querySelector(
-                  ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
-                ),
-                content: {
-                  text: "删除中...",
-                },
-                only: true,
-              });
-              let clickNode = event.target;
-              let dataJSON = clickNode.getAttribute("data-json");
-              clickNode.closest("li")?.remove();
-              that.deleteNetDiskHistoryMatchData(dataJSON);
-              deleteLoading?.close();
-              let totalNumberText = DOMUtils.text(
-                document.querySelector(
-                  ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-                )
-              );
-              let totalNumber = totalNumberText.match(/[\d]+/gi);
-              totalNumber = parseInt(totalNumber[totalNumber.length - 1]);
-              totalNumber--;
-              totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber);
-              DOMUtils.text(
-                document.querySelector(
-                  ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-                ),
-                totalNumberText
-              );
-            }
-          );
-        };
-        setdeleteBtnEvent();
+        DOMUtils.on(
+          target,
+          "click",
+          ".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
+          function (event) {
+            /* 删除中的遮罩层 */
+            let deleteLoading = NetDiskPops.loading({
+              parent: target.querySelector(
+                ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
+              ),
+              content: {
+                text: "删除中...",
+              },
+              only: true,
+              addIndexCSS: false,
+            });
+            let clickNode = event.target;
+            let dataJSON = clickNode.getAttribute("data-json");
+            clickNode.closest("li")?.remove();
+            that.deleteNetDiskHistoryMatchData(dataJSON);
+            deleteLoading?.close();
+            let totalNumberText = DOMUtils.text(
+              target.querySelector(
+                ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+              )
+            );
+            let totalNumber = totalNumberText.match(/[\d]+/gi);
+            totalNumber = parseInt(totalNumber[totalNumber.length - 1]);
+            totalNumber--;
+            totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber);
+            DOMUtils.text(
+              target.querySelector(
+                ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
+              ),
+              totalNumberText
+            );
+          }
+        );
       },
       /**
        * 设置分页
@@ -10099,19 +10030,22 @@
               }
               startIndex++;
             }
-            DOMUtils.remove(
-              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
-            );
+            NetDiskUI.Alias.historyAlias.$shadowRoot
+              .querySelectorAll(
+                ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+              )
+              .forEach((ele) => ele.remove());
             DOMUtils.append(
-              document.querySelector(
+              NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
                 ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
               ),
               dataHTML
             );
           },
         });
+        dataPaging.addCSS(NetDiskUI.Alias.historyAlias.$shadowRoot);
         dataPaging.append(
-          document.querySelector(
+          NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
             ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page"
           )
         );
@@ -10129,15 +10063,16 @@
           }
           isSeaching = true;
           searchLoading = NetDiskPops.loading({
-            parent: document.querySelector(
+            parent: NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
               ".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
             ),
             content: {
               text: "搜索中...",
             },
             only: true,
+            addIndexCSS: false,
           });
-          let inputText = document
+          let inputText = NetDiskUI.Alias.historyAlias.$shadowRoot
             .querySelector(
               ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
             )
@@ -10153,11 +10088,13 @@
               }
               historyDataHTML += that.getTableHTML(item);
             });
-            DOMUtils.remove(
-              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
-            );
+            NetDiskUI.Alias.historyAlias.$shadowRoot
+              .querySelectorAll(
+                ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+              )
+              .forEach((ele) => ele.remove());
             DOMUtils.append(
-              document.querySelector(
+              NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
                 ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
               ),
               historyDataHTML
@@ -10189,14 +10126,20 @@
             }
           });
           DOMUtils.remove(
-            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+            NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
+            )
           );
           DOMUtils.append(
-            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul",
+            NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
+            ),
             isFindHTML
           );
           DOMUtils.remove(
-            ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page > *"
+            NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(
+              ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page > *"
+            )
           );
           searchLoading?.close();
           searchLoading = void 0;
@@ -10204,7 +10147,7 @@
         }
 
         utils.listenKeyboard(
-          document.querySelector(
+          NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
             ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
           ),
           "keypress",
@@ -10220,7 +10163,9 @@
        */
       setContextMenuEvent() {
         NetDiskUI.view.registerContextMenu(
-          document.querySelector(".whitesevPopNetDiskHistoryMatch"),
+          NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
+            ".whitesevPopNetDiskHistoryMatch"
+          ),
           ".netdiskrecord-link a",
           [
             {
@@ -10453,10 +10398,6 @@
      */
     accessCodeRule: {
       /**
-       * 是否已初始化
-       */
-      isInit: false,
-      /**
        * 弹窗的className
        */
       accessCodeRuleDialogClassName: "whitesevPopNetDiskAccessCodeRule",
@@ -10465,7 +10406,6 @@
        */
       show() {
         let that = this;
-        this.init();
         let popsConfirm = NetDiskPops.confirm(
           {
             title: {
@@ -10544,6 +10484,7 @@
               },
             },
             class: this.accessCodeRuleDialogClassName,
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.accessCodeRuleView
         );
@@ -10585,11 +10526,8 @@
         });
         return result;
       },
-      init() {
-        if (this.isInit) {
-          return;
-        }
-        GM_addStyle(`
+      getCSS() {
+        return `
         .pops-confirm-content .whitesev-accesscode-rule{
           display: flex;
           align-items: center;
@@ -10627,7 +10565,7 @@
           margin: 20px 10px;
           padding: 10px;
         }
-        `);
+        `;
       },
       /**
        * 显示规则弹窗进行添加/修改
@@ -10796,14 +10734,21 @@
        * @param {HTMLElement} element
        */
       setDeleteAllBtnText(element) {
-        (
+        if (
           element.querySelector(
             ".pops-confirm-btn button.pops-confirm-btn-other"
-          ) ||
-          document.querySelector(
-            ".whitesevPopNetDiskAccessCodeRule .pops-confirm-btn button.pops-confirm-btn-other"
           )
-        ).textContent = `清空所有(${this.getValue().length})`;
+        ) {
+          element.querySelector(
+            ".pops-confirm-btn button.pops-confirm-btn-other"
+          ).textContent = `清空所有(${this.getValue().length})`;
+        } else if (element.getRootNode() instanceof ShadowRoot) {
+          element
+            .getRootNode()
+            .querySelector(
+              ".whitesevPopNetDiskAccessCodeRule .pops-confirm-btn button.pops-confirm-btn-other"
+            ).textContent = `清空所有(${this.getValue().length})`;
+        }
       },
       /**
        * 校验填写的匹配网站正则规则是否正确
@@ -10980,10 +10925,8 @@
      * 用户自定义规则
      */
     customRules: {
-      isInitCSS: false,
       show() {
         let that = this;
-        this.initCSS();
         let popsConfirm = NetDiskPops.confirm(
           {
             title: {
@@ -11131,18 +11074,18 @@
               },
             },
             class: "whitesevPopNetDiskCustomRules",
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.customRulesView
         );
         popsConfirm.popsElement.querySelector("textarea").value =
           NetDiskCustomRules.getFormatRule();
       },
-      initCSS() {
-        if (this.isInitCSS) {
-          return;
+      getCSS() {
+        return `
+        .pops[type-value=confirm] .pops-confirm-content{
+          overflow: hidden;
         }
-        this.isInitCSS = true;
-        GM_addStyle(`
         .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea{
           width: 100%;
           height: 100%;
@@ -11189,16 +11132,14 @@
         .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {
           border-color: #3677f0;
         }
-        `);
+        `;
       },
     },
     /**
      * 主动识别文本
      */
     matchPasteText: {
-      isInitCSS: false,
       show() {
-        this.initCSS();
         let popsConfirm = NetDiskPops.confirm(
           {
             title: {
@@ -11234,18 +11175,19 @@
               },
             },
             class: "whitesevPopNetDiskMatchPasteText",
+            style: this.getCSS(),
           },
           NetDiskUI.popsStyle.matchPasteTextView
         );
         popsConfirm.popsElement.querySelector("textarea").focus();
       },
-      initCSS() {
-        if (this.isInitCSS) {
-          return;
+      getCSS() {
+        return `
+        .pops[type-value=confirm] .pops-confirm-content{
+          overflow: hidden;
         }
-        this.isInitCSS = true;
-        GM_addStyle(`
         .netdisk-match-paste-text {
+          --textarea-bd-color: #dcdfe6;
           display: inline-block;
           resize: vertical;
           padding: 5px 15px;
@@ -11253,7 +11195,7 @@
           box-sizing: border-box;
           color: #606266;
           background-color: #fff;
-          border: 1px solid #dcdfe6;
+          border: 1px solid var(--textarea-bd-color);
           border-radius: 4px;
           transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
           outline: none;
@@ -11266,14 +11208,13 @@
           height: 100%;
           font-size: 16px;
         }
-        .netdisk-match-paste-text:focus{
-            outline: none;
-            border-color: #3677f0;
-        }
         .netdisk-match-paste-text:hover{
-            border-color: #c0c4cc;
+          --textarea-bd-color: #c0c4cc;
         }
-        `);
+        .netdisk-match-paste-text:focus{
+          --textarea-bd-color: #3677f0;
+        }
+        `;
       },
     },
     /**
@@ -11304,13 +11245,8 @@
               mutation.addedNodes &&
               mutation.addedNodes instanceof NodeList
             ) {
-              for (const addedNodeList of mutation.addedNodes) {
-                if (addedNodeList.length) {
-                  hasAddNodes = true;
-                  break;
-                }
-              }
-              if (hasAddNodes) {
+              if (mutation.addedNodes.length) {
+                hasAddNodes = true;
                 break;
               }
             }
@@ -11708,7 +11644,7 @@
     },
     /**
      *
-     * @param {object} details
+     * @param {PopsConfirmDetails} details
      * @param {?{
      * PC: {
      *  width: string,
@@ -11719,34 +11655,42 @@
      *  height: string
      * }
      * }} sizeConfig 大小配置
-     * @returns {object}
      */
     handleDetails(details, sizeConfig) {
-      let defaultDetails = {
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: GM_getValue(
-              "clickMaskToCloseDialog",
-              NetDiskUI.defaultClickMaskToCloseDialog
-            ),
-          },
+      Object.assign(
+        {
+          animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
+          drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
+          dragLimit: GM_getValue("pcDragLimit", NetDiskUI.defaultPCDragLimit),
+          forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
         },
-        animation: GM_getValue("popsAnimation", NetDiskUI.defaultAnimation),
-        drag: GM_getValue("pcDrag", NetDiskUI.defaultPCDrag),
-        dragLimit: GM_getValue("pcDragLimit", NetDiskUI.defaultPCDragLimit),
-        forbiddenScroll: NetDiskUI.defaultForbiddenScroll,
-      };
-      if (sizeConfig != void 0) {
-        defaultDetails.width = pops.isPhone()
+        details
+      );
+      if (sizeConfig != null) {
+        details.width = pops.isPhone()
           ? sizeConfig.Mobile.width
           : sizeConfig.PC.width;
-        defaultDetails.height = pops.isPhone()
+        details.height = pops.isPhone()
           ? sizeConfig.Mobile.height
           : sizeConfig.PC.height;
       }
-      Object.assign(defaultDetails, details);
-      return defaultDetails;
+
+      if (details.mask == null) {
+        details.mask = {};
+      }
+      if (details.mask.enable == null) {
+        details.mask.enable = true;
+      }
+      if (details.mask.clickEvent == null) {
+        details.mask.clickEvent = {};
+      }
+      if (details.mask.clickEvent.toClose == null) {
+        details.mask.clickEvent.toClose = GM_getValue(
+          "clickMaskToCloseDialog",
+          NetDiskUI.defaultClickMaskToCloseDialog
+        );
+      }
+      return details;
     },
   };
 
