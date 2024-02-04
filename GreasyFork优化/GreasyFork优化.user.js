@@ -20,7 +20,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1322685/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1322734/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
@@ -272,12 +272,7 @@
      * 初始化
      */
     init() {
-      Object.keys(this)
-        .filter((value) => typeof this[value] === "string")
-        .forEach((keyName) => {
-          log.info("添加CSS：" + keyName);
-          GM_addStyle(this[keyName]);
-        });
+      GM_addStyle(this.OwnCSS);
     },
   };
 
@@ -401,6 +396,7 @@
             toClose: true,
           },
         },
+        style: GreasyforkCSS.UIScriptListCSS,
         width: pops.isPhone() ? "92vw" : "800px",
         height: pops.isPhone() ? "80vh" : "600px",
         only: true,
