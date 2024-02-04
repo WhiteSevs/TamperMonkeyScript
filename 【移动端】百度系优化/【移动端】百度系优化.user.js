@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.3
+// @version      2024.2.4
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -26,8 +26,8 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
-// @require      https://update.greasyfork.org/scripts/462234/1307862/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1315529/pops.js
+// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
+// @require      https://update.greasyfork.org/scripts/456485/1322685/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
@@ -1122,10 +1122,10 @@
             return data["originUrl"];
           } else if (data["log"]) {
             /* 隐藏在log的mu中 */
-            let url = undefined;
+            let url = void 0;
             try {
               url = utils.toJSON(data["log"])["mu"];
-              utils.isNull(url) && (url = undefined);
+              utils.isNull(url) && (url = void 0);
             } catch (error) {}
             return url;
           }
@@ -2045,7 +2045,7 @@
             DOMUtils.on(
               document,
               "scroll",
-              undefined,
+              void 0,
               async () => {
                 if (isLoadingNextPage) {
                   return;
@@ -2086,8 +2086,8 @@
             DOMUtils.off(
               document,
               "scroll",
-              undefined,
-              undefined,
+              void 0,
+              void 0,
               {
                 capture: true,
               },
@@ -2284,7 +2284,7 @@
             DOMUtils.on(
               document,
               "scroll",
-              undefined,
+              void 0,
               async () => {
                 if (isLoadingNextPage) {
                   return;
@@ -2328,8 +2328,8 @@
             DOMUtils.off(
               document,
               "scroll",
-              undefined,
-              undefined,
+              void 0,
+              void 0,
               {
                 capture: true,
               },
@@ -2423,7 +2423,7 @@
                 log.success(["禁止自动播放视频", videoPlayerList]);
               }
             },
-            undefined,
+            void 0,
             250
           );
           handleHijack.run();
@@ -2624,7 +2624,7 @@
         /**
          * 当前吧名
          */
-        forumName: undefined,
+        forumName: void 0,
         /**
          * 高清图片映射
          */
@@ -2723,7 +2723,7 @@
                   return document.querySelector(".app-view").__vue__
                     .isHitMedicalPost;
                 },
-                undefined,
+                void 0,
                 10000
               )
               .then(() => {
@@ -2741,7 +2741,7 @@
                       ?.reply_num === "number"
                   );
                 },
-                undefined,
+                void 0,
                 10000
               )
               .then(() => {
@@ -3758,11 +3758,8 @@
             );
             /* 获取时间差 */
             let itemUserCommentTime =
-              utils.getDaysDifference(
-                item["now_time"] * 1000,
-                undefined,
-                "auto"
-              ) + "前";
+              utils.getDaysDifference(item["now_time"] * 1000, void 0, "auto") +
+              "前";
             /* 用户ip？好像没有 */
             let itemUserCommentIp = "";
             if (item["location"] && item["location"]["name"]) {
@@ -4688,7 +4685,6 @@
           return utils.toJSON(respData.responseText);
         },
         init() {
-          this.initCSS();
           utils.waitNode("div.more-btn-desc").then((element) => {
             element.outerHTML = `
               <input type="search" id="tieba-search" placeholder="请输入搜索内容..." style="display: none;padding: 0 10px;height: 32px;line-height: 32px;font-size: 14px;border-radius: 5px;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;-o-appearance: none;appearance: none;border: 1px solid #000000;outline: none;flex: 1;margin: 0px 40px;" autocomplete="off">
@@ -4750,14 +4746,17 @@
               return result;
             }
             this.searchSuggestion = pops.searchSuggestion({
+              selfDocument: document,
               className: "WhiteSevsSearchSelect",
               target: document.querySelector("#tieba-search"),
+              inputTarget: document.querySelector("#tieba-search"),
               data: [],
               isAbsolute: false,
               followTargetWidth: true,
               deleteIcon: {
                 enable: false,
               },
+              topDistance: 4,
               itemClickCallBack(event, liElement, data) {
                 window.location.href =
                   "https://tieba.baidu.com/f?ie=utf-8&kw=" + data.fname;
@@ -4776,6 +4775,47 @@
                 </div>
                 `;
               },
+              style: `
+              .WhiteSevsSearchSelect .forum_item{
+                display: flex;
+                text-wrap: wrap;
+                align-items: center;
+              }
+              .WhiteSevsSearchSelect .forum_image{
+                float: left;
+                width: 32px;
+                height: 32px;
+              }
+              .WhiteSevsSearchSelect .forum_right{
+                float: left;
+                margin-left: 8px;
+                color: #999;
+                width: 88%;
+              }
+              .WhiteSevsSearchSelect .forum_name{
+                color: #000;
+                font-size: 14px;
+                font-weight: 700;
+              }
+              .WhiteSevsSearchSelect .forum_name::after{
+                content:"吧";
+              }
+              .WhiteSevsSearchSelect .forum_member,
+              .WhiteSevsSearchSelect .forum_thread{
+                margin: 4px 0px;
+                padding: 0 0 0 18px;
+                color: #999;
+                font-weight: 400;
+                font-size: 12px;
+                background: url(//tb2.bdstatic.com/tb/static-common/img/suggestion/sugestion_ed6a819.png) no-repeat;
+              }
+              .WhiteSevsSearchSelect .forum_member{
+                background-position: 0 0;
+              }
+              .WhiteSevsSearchSelect .forum_thread{
+                background-position: 0 -26px;
+              }
+              `,
             });
             this.searchSuggestion.init();
             this.searchSuggestion.setAllEvent();
@@ -4786,53 +4826,6 @@
               }
             });
           });
-        },
-        /**
-         * 初始化CSS
-         */
-        initCSS() {
-          /* 搜索建议框的CSS */
-          GM_addStyle(`
-          .WhiteSevsSearchSelect .forum_item{
-            display: flex;
-            text-wrap: wrap;
-            align-items: center;
-          }
-          .WhiteSevsSearchSelect .forum_image{
-            float: left;
-            width: 32px;
-            height: 32px;
-          }
-          .WhiteSevsSearchSelect .forum_right{
-            float: left;
-            margin-left: 8px;
-            color: #999;
-            width: 88%;
-          }
-          .WhiteSevsSearchSelect .forum_name{
-            color: #000;
-            font-size: 14px;
-            font-weight: 700;
-          }
-          .WhiteSevsSearchSelect .forum_name::after{
-            content:"吧";
-          }
-          .WhiteSevsSearchSelect .forum_member,
-          .WhiteSevsSearchSelect .forum_thread{
-            margin: 4px 0px;
-            padding: 0 0 0 18px;
-            color: #999;
-            font-weight: 400;
-            font-size: 12px;
-            background: url(//tb2.bdstatic.com/tb/static-common/img/suggestion/sugestion_ed6a819.png) no-repeat;
-          }
-          .WhiteSevsSearchSelect .forum_member{
-            background-position: 0 0;
-          }
-          .WhiteSevsSearchSelect .forum_thread{
-            background-position: 0 -26px;
-          }
-          `);
         },
         /**
          * 帖子外搜索(也就是首页搜索吧)
@@ -4914,39 +4907,44 @@
                 "pn"
               )} 页`
             );
-            let getResp = await httpx.get({
+            let getResp = await fetch(url, {
               url: url,
               headers: {
-                Referer: window.location.href,
-                Host: "tieba.baidu.com",
-                Accept:
+                accept:
                   "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "accept-language":
+                  "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+                "cache-control": "no-cache",
+                pragma: "no-cache",
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": '"Windows"',
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "none",
               },
-              responseType: "html",
             });
-            if (!getResp.status) {
-              if (getResp.data.responseText === "") {
-                log.error(getResp);
+            let respArrayBuffer = await getResp.arrayBuffer();
+            if (!respArrayBuffer) {
+              log.error("获取ArrayBuffer失败");
+            }
+            let decoder = new TextDecoder("gbk");
+            let respText = decoder.decode(respArrayBuffer);
+            if (!getResp.ok) {
+              if (respText.trim() === "") {
+                log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
                 return "获取内容为空，可能触发了百度校验，请刷新网页再试";
-              } else if (
-                getResp.data &&
-                getResp.data?.responseText?.match("wappass.baidu.com")
-              ) {
-                let url = getResp.data.responseText.match(/href="(.*?)"/)[1];
-                log.error("触发百度校验: " + url);
-                window.location.href = url;
+              }
+              if (respText.match("wappass.baidu.com")) {
+                let wappassUrl = respText.match(/href="(.*?)"/)[1];
+                log.error("触发百度校验: " + wappassUrl);
+                window.location.href = wappassUrl;
                 return "触发百度校验";
               }
-              log.error(getResp);
+              log.error(respText);
               return;
             }
             log.success(getResp);
-            let respData = getResp.data;
-            let searchDoc = DOMUtils.parseHTML(
-              respData.responseText,
-              true,
-              true
-            );
+            let searchDoc = DOMUtils.parseHTML(respText, true, true);
             if (searchDoc.querySelector(".search_noresult")) {
               return "抱歉，没有找到与“" + originText + "”相关的结果。";
             }
@@ -4998,7 +4996,7 @@
             let time = item["time"];
             let newTime = utils.getDaysDifference(
               utils.formatToTimeStamp(time),
-              undefined,
+              void 0,
               "auto"
             );
             if (
@@ -5067,31 +5065,34 @@
               ".search-result-bottom-toolbar"
             );
             /* 获取用户信息，替换用户头像 */
-            tiebaApi
-              .getUserHomeInfoByUN(item["author"])
-              .then((userHomeInfo) => {
-                if (!userHomeInfo) {
-                  return;
-                }
-                userAvatarElement.src = tiebaApi.getUserAvatar(
-                  userHomeInfo["data"]["portrait"]
-                );
-                userNameElement.innerText =
-                  userHomeInfo["data"]["show_nickname"];
-              });
+            if (PopsPanel.getValue("baidu_tieba_search_opt_user_info")) {
+              tiebaApi
+                .getUserHomeInfoByUN(item["author"])
+                .then((userHomeInfo) => {
+                  if (!userHomeInfo) {
+                    return;
+                  }
+                  userAvatarElement.src = tiebaApi.getUserAvatar(
+                    userHomeInfo["data"]["portrait"]
+                  );
+                  userNameElement.innerText =
+                    userHomeInfo["data"]["show_nickname"];
+                });
+            }
 
-            [
+            let eleList = [
               { element: mediaElement, url: item["authorHomeUrl"] },
               { element: [titleElement, contentElement], url: item["url"] },
               {
                 element: bottomToolbarElement,
                 url: `https://tieba.baidu.com/f?kw=${item["forum"]}`,
               },
-            ].forEach((item) => {
+            ];
+            eleList.forEach((item) => {
               DOMUtils.on(
                 item.element,
                 "click",
-                undefined,
+                void 0,
                 function (event) {
                   utils.preventEvent(event);
                   globalThis.open(item.url, "_blank");
@@ -5345,7 +5346,7 @@
             let searchKW = searchType === 1 ? "" : tiebaData.forumName;
             let searchResult = await getSearchResult(
               searchText,
-              undefined,
+              void 0,
               searchModel,
               searchKW
             );
@@ -5503,7 +5504,7 @@
               log.info("伪装客户端已调用 " + key);
               return JSON.stringify({
                 value: 1,
-                date: utils.formatTime(undefined, "yyyyMMdd"),
+                date: utils.formatTime(void 0, "yyyyMMdd"),
               });
             } else if (
               key.startsWith("p_w_new_slient") ||
@@ -5532,7 +5533,7 @@
           ];
           masqueradeParamsList.forEach((masqueradeParam) => {
             window.localStorage.setItem(
-              masqueradeParam + utils.formatTime(undefined, "yyyy-MM-dd"),
+              masqueradeParam + utils.formatTime(void 0, "yyyy-MM-dd"),
               1
             );
           });
@@ -5541,7 +5542,7 @@
             masqueradeParamsList.forEach((item) => {
               if (
                 keyName.startsWith(item) &&
-                !keyName.endsWith(utils.formatTime(undefined, "yyyy-MM-dd"))
+                !keyName.endsWith(utils.formatTime(void 0, "yyyy-MM-dd"))
               ) {
                 log.success("删除过期键 ===> " + keyName);
                 window.localStorage.removeItem(keyName);
@@ -5697,7 +5698,7 @@
         checkSkeleton() {
           let appElement = document.querySelector("#app");
           if (appElement && appElement.innerHTML === "") {
-            log.warn("检测到骨架屏，异常加载，刷新页面");
+            Qmsg.warning("检测到骨架屏，异常加载，刷新页面");
             window.location.reload();
           }
         },
@@ -6253,7 +6254,7 @@
                     .isErrorThread === "boolean"
                 );
               },
-              undefined,
+              void 0,
               10000
             );
             let appViewVue = document.querySelector(".app-view").__vue__;
@@ -7926,35 +7927,35 @@
                   "劫持-复制",
                   "baidu_search_hijack_copy",
                   false,
-                  undefined,
+                  void 0,
                   "阻止百度复制xxx到剪贴板"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-Scheme唤醒App",
                   "baidu_search_hijack_scheme",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-OpenBox函数",
                   "baidu_search_hijack_openbox",
                   false,
-                  undefined,
+                  void 0,
                   "优化搜索结果跳转"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-_onClick函数",
                   "baidu_search_hijack__onClick",
                   false,
-                  undefined,
+                  void 0,
                   "优化搜索结果跳转"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-setTimeout",
                   "baidu_search_hijack_setTimeout",
                   false,
-                  undefined,
+                  void 0,
                   "可阻止获取定位、视频播放"
                 ),
               ],
@@ -8000,14 +8001,14 @@
                   "劫持-唤醒App",
                   "baijiahao_hijack_wakeup",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-iframe唤醒App",
                   "baidu_baijiahao_hijack_iframe",
                   true,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
@@ -8051,21 +8052,21 @@
                   "拦截-唤醒App",
                   "baidu_mbd_hijack_wakeup",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "拦截-iframe唤醒App",
                   "baidu_mbd_hijack_iframe",
                   true,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "劫持-BoxJSBefore函数",
                   "baidu_mbd_hijack_BoxJSBefore",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
               ],
@@ -8078,27 +8079,35 @@
           headerTitle: "百度贴吧<br />tieba.baidu.com<br />www.tieba.com",
           forms: [
             {
-              text: "功能",
+              text: "通用",
               type: "forms",
               forms: [
-                PopsPanel.getSwtichDetail(
-                  "新增搜索功能",
-                  "baidu_tieba_add_search",
-                  true,
-                  undefined,
-                  "在贴内和吧内右上角添加搜索按钮"
-                ),
                 PopsPanel.getSwtichDetail(
                   "检测骨架屏",
                   "baidu_tieba_checkSkeleton",
                   true,
-                  function (event, enable) {
-                    if (enable) {
-                      window.alert(
-                        "开启后，当页面加载完毕后检测到还是骨架屏，将会自动刷新页面。"
-                      );
-                    }
-                  }
+                  void 0,
+                  "当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
+                ),
+              ],
+            },
+            {
+              text: "搜索功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "启用",
+                  "baidu_tieba_add_search",
+                  true,
+                  void 0,
+                  "在贴内和吧内右上角添加搜索按钮"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "获取详细信息",
+                  "baidu_tieba_search_opt_user_info",
+                  true,
+                  void 0,
+                  "将搜索结果的【用户名/头像】替换成请求获取的【用户名/头像】"
                 ),
               ],
             },
@@ -8230,26 +8239,28 @@
                   "记住当前选择的看帖排序",
                   "baidu_tieba_remember_user_post_sort",
                   true,
-                  undefined,
+                  void 0,
                   "记住选择的发布/回复"
                 ),
                 PopsPanel.getSwtichDetail(
                   "重定向xx吧跳转",
                   "baidu_tieba_topic_redirect_jump",
                   true,
-                  undefined,
+                  void 0,
                   "点击帖子直接跳转"
                 ),
                 PopsPanel.getSwtichDetail(
                   "过滤重复帖子",
                   "baidu_tieba_filterDuplicatePosts",
-                  false
+                  false,
+                  void 0,
+                  "过滤掉重复id的帖"
                 ),
                 PopsPanel.getSwtichDetail(
                   "解除签到限制",
                   "baidu_tieba_removeForumSignInLimit",
                   true,
-                  undefined,
+                  void 0,
                   "在登录情况下可点击签到"
                 ),
               ],
@@ -8275,21 +8286,21 @@
                   "新增滚动到顶部按钮",
                   "baidu_tieba_add_scroll_top_button_in_forum",
                   true,
-                  undefined,
+                  void 0,
                   "向下滚动的距离>页面高度*2就会出现按钮"
                 ),
                 PopsPanel.getSwtichDetail(
                   "优化查看评论",
                   "baidu_tieba_optimize_see_comments",
                   true,
-                  undefined,
+                  void 0,
                   "可以查看更多的评论"
                 ),
                 PopsPanel.getSwtichDetail(
                   "优化图片点击预览",
                   "baidu_tieba_optimize_image_preview",
                   true,
-                  undefined,
+                  void 0,
                   "使用Viewer查看图片"
                 ),
                 PopsPanel.getSwtichDetail(
@@ -8309,14 +8320,14 @@
                   "点击楼主头像正确跳转主页",
                   "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
                   true,
-                  undefined,
+                  void 0,
                   "点击头像正确跳转至用户主页"
                 ),
                 PopsPanel.getSwtichDetail(
                   "实验性-请求携带Cookie",
                   "baidu_tieba_request_with_cookie",
                   false,
-                  undefined,
+                  void 0,
                   "非浏览器插件使用"
                 ),
               ],
@@ -8329,14 +8340,14 @@
                   "劫持-唤醒App",
                   "baidu_tieba_hijack_wake_up",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
                 PopsPanel.getSwtichDetail(
                   "伪装客户端已调用",
                   "baidu_tieba_clientCallMasquerade",
                   true,
-                  undefined,
+                  void 0,
                   "阻止弹窗"
                 ),
               ],
@@ -8518,7 +8529,7 @@
                   "拦截-唤醒App",
                   "baidu_map_hijack_wakeup",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
               ],
@@ -8594,7 +8605,7 @@
                   "拦截-唤醒App",
                   "baidu_haokan_hijack_wakeup",
                   false,
-                  undefined,
+                  void 0,
                   "阻止唤醒调用App"
                 ),
               ],
@@ -9021,7 +9032,7 @@
      * 当前 "core:67"
      * + 百度贴吧(tieba.baidu.com)
      *
-     * https://tb3.bdstatic.com/tb/wise/wise-main-core/static/js/collect~download~frs~gaokao~index~pb~userpost.0bd802e3.js
+     * https://tb3.bdstatic.com/tb/wise/wise-main-core/static/js/collect~download~frs~gaokao~index~pb~userpost.e5a81d45.js
      * tiebaNewWakeup.js v3.0.3
      * (c) 2018-2023 liugui01
      * Released under the BaiDuTieBa License.
@@ -9038,7 +9049,7 @@
           log.success(["成功劫持webpack调用函数", webpackExports]);
           let codeId = webpackExports?.["i"];
           webpackExports.exports.getSchema = function () {
-            log.info(["阻止调用getSchema", ...arguments]);
+            // log.info(["阻止调用getSchema", ...arguments]);
           };
           webpackExports.exports.getToken = function () {
             log.info(["阻止调用getToken", ...arguments]);
@@ -9069,7 +9080,7 @@
      * @param {(webpackExports: object|undefined)=>{}} checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
     hijackWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = undefined;
+      let originObject = void 0;
       Object.defineProperty(unsafeWindow, webpackName, {
         get() {
           return originObject;
@@ -9140,7 +9151,7 @@
       Function.prototype.call = function () {
         if (
           arguments.length === 2 &&
-          arguments[0] === undefined &&
+          arguments[0] === void 0 &&
           arguments[1] != null &&
           "arg" in arguments[1] &&
           "delegate" in arguments[1] &&
