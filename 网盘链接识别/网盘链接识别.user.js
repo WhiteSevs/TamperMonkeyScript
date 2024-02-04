@@ -69,7 +69,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1320377/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1270548/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1322685/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1322734/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/486152/1320483/Crypto-JS.js
@@ -5761,9 +5761,11 @@
     /**
      * 临时数据
      * @type {{
+     * url: string,
+     * netDiskName: string,
+     * netDiskIndex: number,
      * shareCode: string,
      * accessCode: string,
-     * netDiskName: string,
      * }|undefined}
      */
     tempData: GM_getValue("tempNetDiskInfo"),
@@ -5771,11 +5773,33 @@
      * @type {boolean} 自动输入访问码是否开启
      */
     enable: Boolean(GM_getValue("autoFillAccessCode")),
+    /**
+     * 网盘链接
+     * @type {string}
+     */
+    url: void 0,
+    /**
+     * 分享码
+     * @type {string}
+     */
     shareCode: void 0,
+    /**
+     * 访问码
+     * @type {string}
+     */
     accessCode: void 0,
+    /**
+     * 规则名
+     * @type {string}
+     */
     netDiskName: void 0,
     /**
-     * 入口
+     * 规则下标
+     * @type {number}
+     */
+    netDiskIndex: void 0,
+    /**
+     * 初始化
      */
     init() {
       if (!this.tempData) {
@@ -5784,9 +5808,11 @@
       if (!this.enable) {
         return;
       }
+      this.url = this.tempData["url"];
+      this.netDiskName = this.tempData["netDiskName"];
+      this.netDiskIndex = this.tempData["netDiskIndex"];
       this.shareCode = this.tempData["shareCode"];
       this.accessCode = this.tempData["accessCode"];
-      this.netDiskName = this.tempData["netDiskName"];
       if (utils.isNull(this.accessCode)) {
         return;
       }
@@ -5826,6 +5852,31 @@
           utils.dispatchEvent(element, "input");
           document.querySelector("div.verify-form #submitBtn")?.click();
         });
+      }
+      if (
+        window.location.hostname === "pan.baidu.com" &&
+        window.location.pathname === "/wap/init" &&
+        window.location.search.startsWith("?surl=")
+      ) {
+        log.success(["自动填写链接", this.tempData]);
+        utils
+          .waitNode(
+            "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"
+          )
+          .then((inputElement) => {
+            if (!utils.isVisible(inputElement)) {
+              log.error("输入框不可见，不输入密码");
+              return;
+            }
+            Qmsg.success("自动填入访问码");
+            inputElement.value = this.accessCode;
+            utils.dispatchEvent(inputElement, "input");
+            document
+              .querySelector(
+                "div.extractWrap div.extract-content button.m-button"
+              )
+              ?.click();
+          });
       }
     },
     /**
