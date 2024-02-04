@@ -268,15 +268,15 @@ declare interface PopsPromptBtnCallBackEvent {
     /**
      * 关闭弹窗
      */
-    close():void;
+    close(): void;
     /**
      * 隐藏弹窗
      */
-    hide():void;
+    hide(): void;
     /**
      * 显示弹窗
      */
-    show():void;
+    show(): void;
     /**
      * 输入的内容
      */
@@ -1273,7 +1273,7 @@ declare interface PopsLoadingDetails {
     /**
      * （可选）添加主CSS，默认为true，当页面中存在anim覆盖时，可能会有一些样式问题，取消添加该CSS即可解决
      */
-    addIndexCSS? : boolean;
+    addIndexCSS?: boolean;
 }
 /**
  * pops.iframe
@@ -1918,9 +1918,17 @@ declare interface PopsSearchSuggestionData {
  */
 declare interface PopsSearchSuggestionDetails {
     /**
-     * 目标元素，一般是input
+     * 当前的环境，可以是document，可以是shadowroot，默认是document
      */
-    target: HTMLInputElement;
+    selfDocument: Document,
+    /**
+     * 目标元素，一般是跟随它的位置变化，监听它的focus/click
+     */
+    target: HTMLElement;
+    /**
+     * 目标input元素，监听它的focus/click/input事件
+     */
+    inputTarget: HTMLInputElement;
     /**
      * 数据
      */
@@ -2126,4 +2134,23 @@ declare interface PopsCallResult {
     hide(): void;
     /** 显示弹窗 */
     show(): void;
+}
+
+declare interface PopsLayerConfig {
+    /** 固定id */
+    guid: string;
+    /** 动画元素 */
+    animElement: HTMLDivElement;
+    /** 主元素 */
+    popsElement: HTMLDivElement;
+    /** 遮罩层元素 */
+    maskElement?: HTMLDivElement;
+
+}
+
+declare interface PopsLayerCommonConfig extends PopsLayerConfig {
+    /** shadow容器 */
+    $shadowContainer: HTMLDivElement;
+    /** shadow容器的shandowRoot */
+    $shadowRoot: ShadowRoot;
 }
