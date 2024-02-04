@@ -1,13 +1,14 @@
 /*
  * @Date: 2022-11-18 13:38:41
  * @LastEditors: 白柒 893177236@qq.com
- * @LastEditTime: 2024-01-08 00:21:12
+ * @LastEditTime: 2024-02-04 16:08:58
  * @原地址: https://www.jq22.com/jquery-info23550
  * @说明: 修改config配置{"position":"topleft|top|topright|centerleft|center|centerright|bottomleft|bottomright|bottom"} 九宫格，
  * 		  九个位置弹出，修改原center为显示中间，top代替原center
  * @说明: 新增config配置{"contentWrap":true}，长文本全部显示(支持换行)，默认为false
  * @说明: 新增config配置{"showIcon":true}，可关闭左边的图标
  * @说明: 新增config配置{"zIndex": 50000}，可自定义z-index层级
+ * @说明: 替换至shadowRoot，不会受页面的CSS影响了
  */
 (function (global, factory) {
   /**
@@ -124,6 +125,7 @@
    * @property {number} [timeout=2500] 最大显示的时长(ms)，默认为2500ms
    * @property {"info"|"warning"|"success"|"error"|"loading"} type 类型，支持'info','warning','success','error','loading'
    * @property {number} [zIndex=50000] z-index值，默认为50000
+   * @property {string} [style] 自定义的style，默认为空
    */
 
   /**
@@ -145,6 +147,7 @@
       timeout: 2500,
       type: "info",
       zIndex: 50000,
+      style: void 0,
     },
     global && global.QMSG_GLOBALS && global.QMSG_GLOBALS.DEFAULTS
   );
@@ -325,11 +328,33 @@
 	  `;
     $elem.classList.add(namespacify("item"));
     $elem.setAttribute(namespacify("uuid"), oMsg.uuid);
-    var $wrapper = document.querySelector(
+    var $shadowContainer = document.querySelector(".qmsg-shadow-container");
+    if (!$shadowContainer) {
+      $shadowContainer = document.createElement("div");
+      $shadowContainer.className = "qmsg-shadow-container";
+      $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+      let __$wrapper__ = document.createElement("div");
+      __$wrapper__.classList.add(
+        NAMESPACE,
+        namespacify("wrapper"),
+        namespacify("is-initialized")
+      );
+      __$wrapper__.classList.add($positionClassName);
+      $shadowRoot.appendChild(PLUGIN_CSS.getStyleElement());
+      $shadowRoot.appendChild(__$wrapper__);
+      if (oMsg.settings.style != null) {
+        let __$ownStyle__ = documentc.createElement("style");
+        __$ownStyle__.setAttribute("type", "text/css");
+        __$ownStyle__.innerHTML = oMsg.settings.style;
+        $shadowRoot.appendChild(__$ownStyle__);
+      }
+      document.body.appendChild($shadowContainer);
+    }
+    var $shadowRoot = $shadowContainer.shadowRoot;
+    var $wrapper = $shadowRoot.querySelector(
       `.${NAMESPACE}.${$positionClassName}`
     );
     if (!$wrapper) {
-      /* 不存在就添加 */
       $wrapper = document.createElement("div");
       $wrapper.classList.add(
         NAMESPACE,
@@ -337,7 +362,7 @@
         namespacify("is-initialized")
       );
       $wrapper.classList.add($positionClassName);
-      document.body.appendChild($wrapper);
+      $shadowRoot.appendChild($wrapper);
     }
     if (oMsg.settings.showReverse) {
       $wrapper.style.flexDirection = "column-reverse";
@@ -501,7 +526,7 @@
    * @param {Object} config 配置
    * @private
    */
-  function mergeArgs(txt, config) {
+  function mergeArgs(txt = "", config) {
     var opts = Object.assign({}, DEFAULTS);
     if (arguments.length === 0) {
       return opts;
@@ -727,29 +752,13 @@
           25%,75%{opacity:.75;transform:translateX(-4px);}
           50%{opacity:.25;transform:translateX(4px);}
           }`,
-    init() {
+    getStyleElement() {
       let cssResourceNode = document.createElement("style");
       cssResourceNode.setAttribute("type", "text/css");
       cssResourceNode.setAttribute("data-insert-from", "qmsg");
       cssResourceNode.innerHTML = this.css;
-      if (document.head) {
-        document.head.append(cssResourceNode);
-      } else if (document.documentElement) {
-        if (document.documentElement.childNodes.length === 0) {
-          document.documentElement.appendChild(cssResourceNode);
-        } else {
-          document.documentElement.insertBefore(
-            cssResourceNode,
-            document.documentElement.childNodes[
-              document.documentElement.childNodes.length - 1
-            ]
-          );
-        }
-      } else {
-        throw new Error("未找到可以插入到页面中的元素");
-      }
+      return cssResourceNode;
     },
   };
-  PLUGIN_CSS.init();
   return Qmsg;
 });
