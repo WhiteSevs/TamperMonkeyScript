@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-2";
+  Utils.version = "2024-2-6";
 
   Utils.assign = function (target = {}, source = {}) {
     if (Array.isArray(source)) {
@@ -2374,21 +2374,25 @@
 
     /**
      * onload加载完毕-触发
-     * @param {HttpxDetails} details 配置
+     * @param {HttpxDetails} details 请求的配置
      * @param {()=>void} resolve 回调
-     * @param {any[]} argumentsList 参数列表
+     * @param {...HttpxAsyncResultData[]} argumentsList 参数列表
      */
     function onLoadCallBack(details, resolve, argumentsList) {
       /* X浏览器会因为设置了responseType导致不返回responseText */
       let response = argumentsList[0];
       if (
         details.responseType === "json" &&
-        Utils.isNull(response.responseText) &&
-        typeof response.response === "object"
+        Utils.isNull(response["responseText"]) &&
+        typeof response["response"] === "object"
       ) {
         Utils.tryCatch().run(() => {
-          response.responseText = JSON.stringify(response.response);
+          response["responseText"] = JSON.stringify(response["response"]);
         });
+      }
+      /* Stay扩展中没有finalUrl，对应的是responseURL */
+      if (response["finalUrl"] == null && response["responseURL"] != null) {
+        response["finalUrl"] = response["responseURL"];
       }
       /* 状态码2xx都是成功的 */
       if (Math.floor(response.status / 100) === 2) {
