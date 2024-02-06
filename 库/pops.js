@@ -100,8 +100,8 @@
      */
     configRemove(targets, guid, removeAll = false) {
       /**
-       * 
-       * @param {PopsLayerCommonConfig} item 
+       *
+       * @param {PopsLayerCommonConfig} item
        */
       function removeItem(item) {
         item?.animElement?.remove();
@@ -112,45 +112,46 @@
       targets.forEach((target) => {
         target.forEach(
           /**
-           * @param {PopsLayerCommonConfig} item 
-           * @param {number} index 
+           * @param {PopsLayerCommonConfig} item
+           * @param {number} index
            */
           (item, index) => {
-          if (removeAll || item["guid"] === guid) {
-            if (
-              pops.config.animation.hasOwnProperty(
-                item.animElement.getAttribute("anim")
-              )
-            ) {
-              item.animElement.style.width = "100%";
-              item.animElement.style.height = "100%";
-              item.animElement.style["animation-name"] =
-                item.animElement.getAttribute("anim") + "-reverse";
+            if (removeAll || item["guid"] === guid) {
               if (
                 pops.config.animation.hasOwnProperty(
-                  item.animElement.style["animation-name"]
+                  item.animElement.getAttribute("anim")
                 )
               ) {
-                PopsDOMUtils.on(
-                  item.animElement,
-                  PopsDOMUtils.getAnimationEndNameList(),
-                  void 0,
-                  function () {
-                    removeItem(item);
-                  },
-                  {
-                    capture: true,
-                  }
-                );
+                item.animElement.style.width = "100%";
+                item.animElement.style.height = "100%";
+                item.animElement.style["animation-name"] =
+                  item.animElement.getAttribute("anim") + "-reverse";
+                if (
+                  pops.config.animation.hasOwnProperty(
+                    item.animElement.style["animation-name"]
+                  )
+                ) {
+                  PopsDOMUtils.on(
+                    item.animElement,
+                    PopsDOMUtils.getAnimationEndNameList(),
+                    void 0,
+                    function () {
+                      removeItem(item);
+                    },
+                    {
+                      capture: true,
+                    }
+                  );
+                } else {
+                  removeItem(item);
+                }
               } else {
                 removeItem(item);
               }
-            } else {
-              removeItem(item);
+              target.splice(index, 1);
             }
-            target.splice(index, 1);
           }
-        });
+        );
       });
 
       return targets;
@@ -3693,9 +3694,11 @@
       section.pops-panel-container .pops-panel-forms-container-item>div{margin:10px;margin-left:20px;font-size:14px;text-align:left;}
       /* 主文字 */
       section.pops-panel-container .pops-panel-forms-container-item .pops-panel-item-left-text .pops-panel-item-left-main-text {
+        line-height: 2;
       }
       /* 描述文字 */
       section.pops-panel-container .pops-panel-forms-container-item .pops-panel-item-left-text .pops-panel-item-left-desc-text{
+        line-height: 1;
         font-size: 12px;
         color: #6c6c6c;
       }
@@ -8151,6 +8154,7 @@
       },
       class: "",
       mobileClassName: "pops-panel-is-mobile",
+      isMobile: false,
       only: false,
       width: "700px",
       height: "500px",
@@ -8218,7 +8222,7 @@
       contentAsideElement,
       contentSectionContainerElement,
     } = PopsHandler.handleQueryElement(animElement, PopsType);
-    if (pops.isPhone()) {
+    if (config.isMobile || pops.isPhone()) {
       PopsDOMUtils.addClassName(popsElement, config.mobileClassName);
     }
     /**
