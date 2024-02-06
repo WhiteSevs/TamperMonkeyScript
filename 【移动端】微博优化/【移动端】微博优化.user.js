@@ -21,8 +21,8 @@
 // @grant        GM_info
 // @connect      m.weibo.cn
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1323788/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1323854/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1324038/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1323906/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
