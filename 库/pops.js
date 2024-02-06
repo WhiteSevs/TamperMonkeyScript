@@ -2893,7 +2893,7 @@
    */
   pops.config = {
     /** 版本号 */
-    version: "2024.1.22",
+    version: "2024.2.7",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
@@ -4264,7 +4264,7 @@
       </svg>
       `,
       keyboard: `
-      <svg viewBox="0 0 1123 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
         <path
@@ -7127,25 +7127,66 @@
       psd: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABdUExURUxpcUOv/0uw/zer/123/0+x/1q2/jOp/zSm+Uew/zKp/zys/1O0/1e1/0Ku/0+z/1q2/0mx//7//164/vf8/9vw/+r2/yie86HX/sno/7Dd/5TR/W6//H/H/Eyv911ykpAAAAAKdFJOUwB7Pf+fHN2g/p8jQekrAAACx0lEQVRYw+2Y7WKrIAyG12JXJn4xEQG193+ZJwnYOdedE7r9O74qBQyPARNb+/Jy6NChQ2ydT8W3OufjLkX/N71ecnmvff+rxC/+dT8jXnB8162sLhK7T/As4glgHR1xT0Vs0iW6PGKxYXxo35FBJGC9B37p4BOLdXhd42e9QdaxXecRi5opLpEN5BITsKL9oao8YkGoqkpIrJAIRY2azuFR8IB31bvPXQuY5zzgA8hOJwbwbTWevY3yof+GV3Hm/NZG29ab9yhjrOsq6E57C2Ub9zcWMEoP7x8yvqPOalOicoANAu0AsuCqce0j5QJNmPt+cQMQ7fwzoI7AaURNdueizgRq3CJQKiXl6GH2Xn/QyIAN1BqsdQS6BmvSAXDQO6ERF6hX4BSrAYGNnp3HqJw1eYhlDlCRh1TtcA2DmixFJkTl3ct8IE65whC3S49YSzG0PAt8H1wIAaPGeFxI46cJmiY8DYS0M4YyZZawkGaGIJpDmJs8YANbAqZk9ouUOPFwgyAapWySEQvYRBHQrI+bUSoKb+unVkoVTXTDA9LFCWiG4JxbejnKppG0mHiTa4JpKHM9TKk3Iq+RcvKDoRvUJptngBJFU1RyvM3BU14/AxQEVI1aByNxHG/OYtb8ALiqcq5SAlYTgW0+UO2BkHjWzbqZTPRQsYEwS4Xzi0BFY2Gb4R5jFGEawlMNjOAcDxgFgWzspO6S0xC/tYwNcJsQp9Q1B7h4COgNEHLOD9YO3kUeigO8rgB5629SbYljvSzLfBtH8QxQYJBsgfhdEKP8zssCAlEKsQViD4V5arGBQgmBKEGVeNBwkZpCxS4hWECRoWyg+m3gb3lYRvPyXpapsjlRZnlYpm2tf7pEmcqSBzyVDyUe9nJ+wZ73gx+jolivAdeSLc6M4f1WcnmS+S51Yfp45b+RXk7Xf+r0xL8Zhw4d+n/1B13vfAhtdKi2AAAAAElFTkSuQmCC",
       dwg: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABaUExURUxpcXvGVIbNYXvHVHzJWYbNYXbDTWu9QHrGU4jOZHLBSW+/RYDJWmy+QoXMYHzHVYjOZHfET2m7P4LLXf3/+/T+7u3+5MXrsaXbiVyuMZjUeNb2xOP81bPjmuZ7vy0AAAAKdFJOUwA9z1wc33ign591Bg7OAAACdUlEQVRYw+2Yi3KjIBRAm51UI4gKxMei+f/f3PsQNU3SXtzOdGfWo0W4wBGFau3b28HBwYGYU1a85JSuOxfNZ/w6p/rem895TzQWTfOtxjP1qWCDtJoLK1WyMcM+VUUu1pJ3ls6nSDEW1UpTvSLBWFRf0iQZXwn93jFuhd7fK/2SJhgL9Hh0ecp5P4tn3xzwYmPhX0En2SL7nXkirEIPNA/xspAIL9Cw9CUmsV85dG3bBcjNgSUjeVJcykeG9nrtAmX9/MNJtk9Yk7B5cqbLvymsdwjr2LOmBIVtU3OMQ9xGJIQOQHSFGzBegR5zoV4Qj7DeQiumbVGIx26gEXICpAvr4bqlHe5r04WWhB1BQvsdwo5uX4/GvxCGgejBMv4mJpwZjoY0IY7C9nSZNB+jI1DY8tXfsJGVCi3Rt8tUjBoDelrn5mbBJxVi29qqG60XXDLtqFjYXudQd1N8VqEQUUNPTNA/jhCyE0cHRUNMEiq+cbiwV2E3cFTvGKHjqQ34bB0Jespy1NlkIQwR0aG7I2iOJwmVje1BG6atbwpQxbUqZYRq3ej9NIJ1GjGHwk21SKgiFndL7xQU0jvFLlWERJhHE3ehuQnTNI2WZmOxUQuhcDsK44xzJCx5vdyRJFzRYQShf6xQ+U8J9VOh3inU4NMAaTULccWUmopUrRQ3kAkfqQJgn1TsFBpaO+77hHp+xOwXmo9DhNVoOLipMlKh0dibd8waLq7HWDBGJDQJ/IgwM3zHIm5JlpQ33CV/wZ6wj1t7UT4KaLY5R4noMyB3EXN32BRiRHLF8H2rnRAt/JY65zJfLv8iPWf5l2Q7/ptxcHDw//IHYWiLelDcDu8AAAAASUVORK5CYII=",
     };
-    Folder_ICON.rar = Folder_ICON.zip;
-    Folder_ICON["7z"] = Folder_ICON.zip;
-    Folder_ICON.iso = Folder_ICON.zip;
-
-    Folder_ICON.jpg = Folder_ICON.png;
-    Folder_ICON.jpeg = Folder_ICON.png;
-    Folder_ICON.ico = Folder_ICON.png;
-    Folder_ICON.webp = Folder_ICON.png;
-
-    Folder_ICON.dmg = Folder_ICON.ipa;
-
+    /* 办公几件套 */
     Folder_ICON.docx = Folder_ICON.doc;
     Folder_ICON.rtf = Folder_ICON.doc;
     Folder_ICON.xlsx = Folder_ICON.xls;
     Folder_ICON.pptx = Folder_ICON.ppt;
 
-    Folder_ICON.htm = Folder_ICON.html;
-    Folder_ICON.py = Folder_ICON.html;
-    Folder_ICON.vue = Folder_ICON.html;
+    Folder_ICON.dmg = Folder_ICON.ipa;
+
+    Folder_ICON.json = Folder_ICON.js;
+
+    /* 压缩包 */
+    let zipIconList = [
+      "rar",
+      "7z",
+      "arj",
+      "bz2",
+      "cab",
+      "iso",
+      "jar",
+      "lz",
+      "lzh",
+      "tar",
+      "uue",
+      "xz",
+      "z",
+      "zipx",
+      "zst",
+      "001",
+    ];
+
+    /* 图片 */
+    let imageIconList = ["jpg", "jpeg", "ico", "webp"];
+
+    /* 代码语言 */
+    let codeLanguageIconList = [
+      "htm",
+      "py",
+      "vue",
+      "bat",
+      "sh",
+      "vbs",
+      "java",
+      "kt",
+    ];
+
+    /* Android安装包 */
+    let androidIconList = ["apk", "apkm", "xapk"];
+
+    zipIconList.forEach((keyName) => {
+      Folder_ICON[keyName] = Folder_ICON.zip;
+    });
+    imageIconList.forEach((keyName) => {
+      Folder_ICON[keyName] = Folder_ICON.png;
+    });
+    codeLanguageIconList.forEach((keyName) => {
+      Folder_ICON[keyName] = Folder_ICON.html;
+    });
+    androidIconList.forEach((keyName) => {
+      Folder_ICON[keyName] = Folder_ICON.apk;
+    });
 
     config = PopsUtils.assignJSON(config, details);
     if (details?.folder) {
@@ -7204,7 +7245,6 @@
                           <div class="pops-folder-icon-arrow">
                             <svg
                               viewBox="0 0 1024 1024"
-                              version="1.1"
                               xmlns="http://www.w3.org/2000/svg">
                               <path
                                 d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
@@ -7224,7 +7264,6 @@
                           <div class="pops-folder-icon-arrow">
                             <svg
                               viewBox="0 0 1024 1024"
-                              version="1.1"
                               xmlns="http://www.w3.org/2000/svg">
                               <path
                                 d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
@@ -7244,7 +7283,6 @@
                           <div class="pops-folder-icon-arrow">
                             <svg
                               viewBox="0 0 1024 1024"
-                              version="1.1"
                               xmlns="http://www.w3.org/2000/svg">
                               <path
                                 d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
@@ -10026,7 +10064,7 @@
        */
       getDeleteIconHTML(size = 16, fill = "#bababa") {
         return `
-        <svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+        <svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
           <path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
           <path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
         </svg>
