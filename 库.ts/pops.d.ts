@@ -1813,6 +1813,12 @@ declare interface PopsPanelDetails {
      */
     mobileClassName: string;
     /**
+     * 是否强制是移动端，默认false
+     * + true 强制为移动端
+     * + false 自动根据UA判断是否是移动端
+     */
+    isMobile: boolean;
+    /**
      * 是否是唯一的弹窗，默认false
      */
     only: boolean;
