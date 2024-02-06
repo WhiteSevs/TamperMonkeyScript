@@ -87,7 +87,7 @@
      * 伪装微博
      */
     isWeibo() {
-      utils.waitNodeWithInterval("#loadMore", 10000).then(async () => {
+      utils.waitNodeWithInterval("#loadMore", 10000).then(async (ele) => {
         await utils.waitVueByInterval(
           () => {
             return document.querySelector("#loadMore");
@@ -98,7 +98,8 @@
           250,
           10000
         );
-        let loadMoreVue = document.querySelector("#loadMore")?.__vue__;
+        let $loadMore = document.querySelector("#loadMore");
+        let loadMoreVue = $loadMore?.__vue__;
         if (!loadMoreVue) {
           log.error("未发现#loadMore上的__vue__");
           return;
@@ -753,7 +754,7 @@
               forms: [
                 PopsPanel.getSwtichDetail(
                   "伪装微博客户端",
-                  void 0,
+                  "可以隐藏底部的【在微博内打开】",
                   "huati_weibo_masquerade_weibo_client_app",
                   true
                 ),
