@@ -2407,10 +2407,6 @@
         }
       } else {
         /* 默认的百度搜索 */
-        if (!PopsPanel.getValue("baidu_search_show_log")) {
-          log.error("禁止控制台输出日志");
-          log.disable();
-        }
         if (PopsPanel.getValue("baidu_search_disable_autoplay_video")) {
           log.success("【禁止】自动播放视频");
           let funcLock = new utils.LockFunction(
@@ -4927,14 +4923,22 @@
             if (!respArrayBuffer) {
               log.error("获取ArrayBuffer失败");
             }
-            let decoder = new TextDecoder("gbk");
+            let encoding = "gb18030";
+            if (
+              getResp.headers.has("Content-Type") &&
+              getResp.headers.get("Content-Type").includes("charset=utf-8")
+            ) {
+              encoding = "utf-8";
+            }
+            log.info("当前编码：" + encoding);
+            let decoder = new TextDecoder(encoding);
             let respText = decoder.decode(respArrayBuffer);
             if (!getResp.ok) {
               if (respText.trim() === "") {
                 log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
                 return "获取内容为空，可能触发了百度校验，请刷新网页再试";
               }
-              if (respText.match("wappass.baidu.com")) {
+              if (respText.match("wappass.baidu.com") || respText.match("https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html")) {
                 let wappassUrl = respText.match(/href="(.*?)"/)[1];
                 log.error("触发百度校验: " + wappassUrl);
                 window.location.href = wappassUrl;
@@ -7897,11 +7901,6 @@
                   "与上面的【自动点击翻页】冲突"
                 ),
                 PopsPanel.getSwtichDetail(
-                  "console/控制台允许输出日志",
-                  "baidu_search_show_log",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
                   "同步地址",
                   "baidu_search_sync_next_page_address",
                   false,
@@ -7911,12 +7910,15 @@
                         "开启后，且开启【自动翻页】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
                       );
                     }
-                  }
+                  },
+                  "地址同步自动翻页的地址"
                 ),
                 PopsPanel.getSwtichDetail(
-                  "优化大家还在搜",
+                  "【优化】大家还在搜",
                   "baidu_search_refactor_everyone_is_still_searching",
-                  true
+                  true,
+                  void 0,
+                  "正确新标签页打开搜索"
                 ),
               ],
             },
