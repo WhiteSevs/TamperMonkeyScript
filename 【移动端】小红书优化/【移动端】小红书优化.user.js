@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.1.9
+// @version      2024.2.6
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -20,7 +20,7 @@
 // @connect      edith.xiaohongshu.com
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1322734/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1323788/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
@@ -31,6 +31,10 @@
    * @type {import("../库/Qmsg")}
    */
   const Qmsg = window.Qmsg;
+  /**
+   * @type {import("../库/pops")}
+   */
+  const pops = window.pops;
   /**
    * @type {import("../库/Utils")}
    */
@@ -1092,8 +1096,9 @@
             toClose: true,
           },
         },
-        width: pops.isPhone() ? "92vw" : "800px",
-        height: pops.isPhone() ? "80vh" : "600px",
+        isMobile: true,
+        width: "92vw",
+        height: "80vh",
         only: true,
         drag: true,
       });
