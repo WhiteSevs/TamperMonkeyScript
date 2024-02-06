@@ -4938,7 +4938,12 @@
                 log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
                 return "获取内容为空，可能触发了百度校验，请刷新网页再试";
               }
-              if (respText.match("wappass.baidu.com") || respText.match("https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html")) {
+              if (
+                respText.match("wappass.baidu.com") ||
+                respText.match(
+                  "https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html"
+                )
+              ) {
                 let wappassUrl = respText.match(/href="(.*?)"/)[1];
                 log.error("触发百度校验: " + wappassUrl);
                 window.location.href = wappassUrl;
