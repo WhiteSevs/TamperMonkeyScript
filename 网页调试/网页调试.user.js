@@ -33,7 +33,7 @@
 // @require         https://update.greasyfork.org/scripts/483694/1319661/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1319662/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1321534/PageSpy-2.js
-// @require         https://update.greasyfork.org/scripts/455186/1321476/WhiteSevsUtils.js
+// @require         https://update.greasyfork.org/scripts/455186/1323854/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
