@@ -4714,6 +4714,7 @@
     nodeSelectorsList = [],
     maxTime = 0
   ) {
+    /** @type {string[]} */
     let nodeSelectors = [];
     /* 检查每个参数是否为字符串类型 */
     if (Array.isArray(nodeSelectorsList)) {
