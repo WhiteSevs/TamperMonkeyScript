@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.6.19
+// @version      2024.2.7
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1534,22 +1534,21 @@
           }
 
           document.querySelectorAll(".c-result.result").forEach((item) => {
-            let dataLog = utils.toJSON(
-              item.getAttribute("data-log")
-            ); /* 获取属性上的LOG */
-            let searchArticleOriginal_link = dataLog["mu"]; /* 真实链接 */
+            /* 获取属性上的LOG */
+            let dataLog = utils.toJSON(item.getAttribute("data-log"));
+            /* 真实链接 */
+            let searchArticleOriginal_link = dataLog["mu"];
+            if (
+              baiduSearchRule.handleCustomRule(item, searchArticleOriginal_link)
+            ) {
+              item.remove();
+              return;
+            }
             if (
               PopsPanel.getValue(
                 "baidu_search_blocking_everyone_is_still_searching"
               )
             ) {
-              if (
-                searchArticleOriginal_link.match(/recommend_list.baidu.com/g) ||
-                item.getAttribute("tpl") === "recommend_list"
-              ) {
-                item?.remove();
-                log.success("删除广告 ==> 大家还在搜");
-              }
               if (item.textContent.substring(0, 5) === "大家还在搜") {
                 item?.remove();
                 log.success("删除广告 ==> 大家都在搜（能看到的）");
@@ -1567,11 +1566,6 @@
                 }
               });
             }
-            /* 这个是必须删除的，点击搜索结果却跳出来除了影响心情没有一点用 */
-            if (item.querySelector(".c-atom-afterclick-recomm-wrap")) {
-              item.querySelector(".c-atom-afterclick-recomm-wrap")?.remove();
-              log.success("删除广告 ==> 大家还在搜:隐藏的(点击后，跳出来的)");
-            }
             let bottomLogoElement =
               item.querySelectorAll(".c-color-source"); /* 底部标识 */
             if (bottomLogoElement.length) {
@@ -1583,31 +1577,13 @@
               });
             }
 
+            /* 添加CSDN下载标识 */
             if (
               searchArticleOriginal_link.match(
                 /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
               )
             ) {
               handleItemURL.addCSDNFlag(item);
-            }
-            if (item.getAttribute("srcid")?.match(/(sigma|vid_fourfold)/g)) {
-              item.remove();
-              log.success("删除推荐 ==> xxx 相关 xxx");
-            }
-            if (
-              searchArticleOriginal_link.match(/expert.baidu.com/g) &&
-              PopsPanel.getValue("baidu_search_shield_baidu_health")
-            ) {
-              item?.remove();
-              log.success("删除广告 ==> 百度健康");
-            }
-            if (searchArticleOriginal_link.match(/author.baidu.com\/home\//g)) {
-              item?.remove();
-              log.success("删除广告 ==> 百家号聚合");
-            }
-            if (dataLog["ensrcid"] == "wenda_inquiry") {
-              item?.remove();
-              log.success("删除广告 ==> 问一问");
             }
           });
         },
@@ -2407,30 +2383,6 @@
         }
       } else {
         /* 默认的百度搜索 */
-        if (PopsPanel.getValue("baidu_search_disable_autoplay_video")) {
-          log.success("【禁止】自动播放视频");
-          let funcLock = new utils.LockFunction(
-            () => {
-              let videoPlayerList = document.querySelectorAll(
-                "[class*='-video-player']"
-              );
-              if (videoPlayerList.length) {
-                videoPlayerList.forEach((item) => item.remove());
-                log.success(["禁止自动播放视频", videoPlayerList]);
-              }
-            },
-            void 0,
-            250
-          );
-          handleHijack.run();
-          utils.mutationObserver(document.documentElement, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            callback: funcLock.run,
-          });
-        }
         handleEveryOneSearch.refactorEveryoneIsStillSearching =
           PopsPanel.getValue(
             "baidu_search_refactor_everyone_is_still_searching"
@@ -7866,18 +7818,8 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "【禁止】自动播放视频",
-                  "baidu_search_disable_autoplay_video",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
                   "【屏蔽】大家还在搜",
                   "baidu_search_blocking_everyone_is_still_searching",
-                  true
-                ),
-                PopsPanel.getSwtichDetail(
-                  "【屏蔽】百度健康相关结果",
-                  "baidu_search_shield_baidu_health",
                   true
                 ),
               ],
@@ -7923,7 +7865,7 @@
                   "baidu_search_refactor_everyone_is_still_searching",
                   true,
                   void 0,
-                  "正确新标签页打开搜索"
+                  "正确新标签页打开"
                 ),
               ],
             },
@@ -7966,6 +7908,40 @@
                   void 0,
                   "可阻止获取定位、视频播放"
                 ),
+              ],
+            },
+            {
+              text: "自定义拦截规则，<a href='https://greasyfork.org/zh-CN/scripts/418349' target=''>查看规则文档(在最下面)</>",
+              type: "forms",
+              forms: [
+                {
+                  type: "own",
+                  getLiElementCallBack(liElement) {
+                    let $textAreaContainer = DOMUtils.createElement("div", {
+                      className: "pops-panel-textarea",
+                      innerHTML: `
+                        <style type="text/css">
+                        .pops-panel-textarea{
+                          width: 100%;
+                        }
+                        .pops-panel-textarea textarea{
+                          min-height: 2.5rem;
+                          overflow: hidden;
+                          white-space: pre;
+                        }
+                        </style>
+                        <textarea></textarea>
+                        `,
+                    });
+                    let $textArea =
+                      $textAreaContainer.querySelector("textarea");
+                    /* 自定义规则 */
+                    let customRule = baiduSearchRule.getLocalRule();
+                    $textArea.value = customRule;
+                    liElement.appendChild($textAreaContainer);
+                    return liElement;
+                  },
+                },
               ],
             },
           ],
@@ -8822,6 +8798,164 @@
     },
   };
 
+  /** 百度搜索自定义拦截规则 */
+  const baiduSearchRule = {
+    defaultRule: `match-href##expert.baidu.com
+match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
+match-href##author.baidu.com/home/
+match-attr##srcid##(sigma|vid_fourfold)
+match-attr##data-log##wenda_inquiry
+match-attr##data-log##http://author.baidu.com/home/
+remove-child##.c-atom-afterclick-recomm-wrap
+remove-child##[class*='-video-player']`,
+    /**
+     * @type { {
+     * mode: "match-href"|"match-attr"|"contains-child"|"remove-child",
+     * matchText?: RegExp,
+     * attr?: string;
+     * moreRule?: {
+     *  mode: "match-href"|"match-attr"|"contains-child"|"remove-child",
+     *  matchText?: RegExp,
+     *  attr?: string;
+     * }[],
+     * }[]}
+     */
+    rule: [],
+    init() {
+      let localRule = this.getLocalRule();
+      this.rule = this.parseRule(localRule);
+    },
+    /** 获取本地存储的自定义拦截规则 */
+    getLocalRule() {
+      return PopsPanel.getValue(
+        "baidu-search-interception-rules",
+        this.defaultRule
+      ).trim();
+    },
+    /**
+     * 把规则进行转换
+     * @param {string} rule
+     */
+    parseRule(localRule) {
+      let result = [];
+      function parseOneRule(ruleItem) {
+        let cRuleItemSplit = ruleItem.split("##");
+        if (!cRuleItemSplit.length) {
+          log.error(["无效规则", ruleItem]);
+          return;
+        }
+        let ruleName = cRuleItemSplit[0];
+        let ruleNameLowerCase = ruleName.toLowerCase();
+        let endRule = ruleItem.replace(ruleName + "##", "");
+        if (ruleNameLowerCase === "match-href") {
+          return {
+            rule: ruleItem,
+            mode: ruleNameLowerCase,
+            matchText: new RegExp(endRule),
+          };
+        } else if (ruleNameLowerCase === "match-attr") {
+          let otherRuleSplit = endRule.split("##");
+          if (otherRuleSplit.length === 1) {
+            log.error(["无效规则", ruleItem]);
+            return;
+          }
+          let attrName = otherRuleSplit[0];
+          let attrValueMatch = endRule.replace(attrName + "##", "");
+          return {
+            rule: ruleItem,
+            mode: ruleNameLowerCase,
+            attr: attrName,
+            matchText: new RegExp(attrValueMatch),
+          };
+        } else if (
+          ruleNameLowerCase === "contains-child" ||
+          ruleNameLowerCase === "remove-child"
+        ) {
+          return {
+            rule: ruleItem,
+            mode: ruleNameLowerCase,
+            matchText: endRule,
+          };
+        } else {
+          log.error(["无效规则", ruleItem]);
+        }
+      }
+
+      localRule.split("\n").forEach((ruleItem) => {
+        ruleItem = ruleItem.trim();
+        if (ruleItem === "") {
+          return;
+        }
+        let moreRule = ruleItem.split("&&&&");
+        if (moreRule.length === 1) {
+          let parsedRule = parseOneRule(ruleItem);
+          if (parsedRule) {
+            result.push(parsedRule);
+          }
+        } else {
+          let resultRule = [];
+          moreRule.forEach((oneRule) => {
+            oneRule = oneRule.trim();
+            let parsedRule = parseOneRule(oneRule);
+            if (parsedRule) {
+              resultRule.push(parsedRule);
+            }
+          });
+          result.push({
+            mode: "more-rule",
+            moreRule: resultRule,
+          });
+        }
+      });
+      return result;
+    },
+    /**
+     * 执行自定义规则，拦截返回true
+     * @param {HTMLDivElement} element
+     * @param {string} url 真实链接
+     */
+    handleCustomRule(element, url) {
+      function handleOneRule(ruleItem) {
+        if (ruleItem.mode === "match-href") {
+          if (url.match(ruleItem.matchText)) {
+            return true;
+          }
+        } else if (ruleItem.mode === "match-attr") {
+          if (
+            element.hasAttribute(ruleItem.attr) &&
+            element.getAttribute(ruleItem.attr).match(ruleItem.matchText)
+          ) {
+            return true;
+          }
+        } else if (ruleItem.mode === "contains-child") {
+          if (element.querySelector(ruleItem.matchText)) {
+            return true;
+          }
+        } else if (ruleItem.mode === "remove-child") {
+          element.querySelector(ruleItem["matchText"])?.remove();
+        }
+      }
+      for (const ruleItem of this.rule) {
+        if (ruleItem.moreRule) {
+          let flag = true;
+          for (const oneRule of ruleItem.moreRule) {
+            if (!handleOneRule(oneRule)) {
+              flag = false;
+              break;
+            }
+          }
+          if (flag) {
+            return true;
+          }
+        } else {
+          if (handleOneRule(ruleItem)) {
+            return true;
+          }
+        }
+      }
+    },
+  };
+
   /**
    * 百度劫持
    */
@@ -9336,6 +9470,7 @@
   /* --------------入口-------------- */
   const loadingView = new LoadingView(true);
   PopsPanel.initMenu();
+  baiduSearchRule.init();
   baidu.init();
   /* --------------入口-------------- */
 })();
