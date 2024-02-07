@@ -139,6 +139,13 @@ type DOMUtils_EventType = DOMUtils_MouseEventType |
     DOMUtils_OtherEventType |
     DOMUtils_TouchEventType;
 
+type DOMUtilsCreateElementAttributesMap = {
+    style?: string;
+    id?: string;
+    class?: string;
+    "data-"?: string;
+    type?: string;
+}
 
 /**
  * 元素上的events属性
@@ -213,11 +220,14 @@ declare interface DOMUtils {
      * > <div>测试</div>
      */
     createElement<K extends keyof HTMLElementTagNameMap>(
+        /** 元素名 */
         tagName: K,
-        property: {
+        /** 属性 */
+        property?: {
             [P in keyof HTMLElementTagNameMap[K]]: HTMLElementTagNameMap[K][P]
-        } | undefined,
-        attributes: object | undefined
+        },
+        /** 自定义属性 */
+        attributes?: DOMUtilsCreateElementAttributesMap
     ): HTMLElementTagNameMap[K];
     /**
      * 获取或设置元素的样式属性值
