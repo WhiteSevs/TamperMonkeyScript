@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.7.14
+// @version      2024.2.7.21
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1549,7 +1549,8 @@
                 "baidu_search_blocking_everyone_is_still_searching"
               )
             ) {
-              if (item.textContent.substring(0, 5) === "大家还在搜") {
+              let $title = item.querySelector(".rw-little-title");
+              if ($title && $title.textContent.startsWith("大家还在搜")) {
                 item?.remove();
                 log.success("删除广告 ==> 大家都在搜（能看到的）");
               }
@@ -1566,8 +1567,8 @@
                 }
               });
             }
-            let bottomLogoElement =
-              item.querySelectorAll(".c-color-source"); /* 底部标识 */
+            /* 底部标识 */
+            let bottomLogoElement = item.querySelectorAll(".c-color-source");
             if (bottomLogoElement.length) {
               bottomLogoElement.forEach((_item_) => {
                 if (_item_.outerText.match(/百度(APP内打开|手机助手)/)) {
