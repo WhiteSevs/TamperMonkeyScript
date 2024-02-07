@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.7
+// @version      2024.2.7.14
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -7925,9 +7925,9 @@
                           width: 100%;
                         }
                         .pops-panel-textarea textarea{
-                          min-height: 2.5rem;
-                          overflow: hidden;
+                          min-height: 3.6rem;
                           white-space: pre;
+                          border-radius: 0 !important;
                         }
                         </style>
                         <textarea></textarea>
@@ -8800,13 +8800,23 @@
 
   /** 百度搜索自定义拦截规则 */
   const baiduSearchRule = {
-    defaultRule: `match-href##expert.baidu.com
+    defaultRule: `
+// 百度健康
+match-href##expert.baidu.com
+
+// 大家还在搜
 match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
-match-href##author.baidu.com/home/
-match-attr##srcid##(sigma|vid_fourfold)
-match-attr##data-log##wenda_inquiry
-match-attr##data-log##http://author.baidu.com/home/
+// 大家还在搜:隐藏的(点击后，跳出来的
 remove-child##.c-atom-afterclick-recomm-wrap
+
+// 百家号聚合
+match-href##author.baidu.com/home/
+
+// xxx 相关 xxx
+match-attr##srcid##(sigma|vid_fourfold)
+// 问一问
+match-attr##data-log##wenda_inquiry
+// 自动播放视频
 remove-child##[class*='-video-player']`,
     /**
      * @type { {
@@ -8884,6 +8894,9 @@ remove-child##[class*='-video-player']`,
       localRule.split("\n").forEach((ruleItem) => {
         ruleItem = ruleItem.trim();
         if (ruleItem === "") {
+          return;
+        }
+        if (ruleItem.startsWith("//")) {
           return;
         }
         let moreRule = ruleItem.split("&&&&");
