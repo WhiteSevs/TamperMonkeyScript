@@ -880,93 +880,107 @@ declare interface HttpxDetails {
      */
     url: string;
     /**
-     * 超时时间，默认5000，可为空
+     * 请求方法
      */
-    timeout: number | undefined;
+    method?: "GET" | "POST" | "PUT" | "HEAD" | "OPTIONS" | "DELETE";
     /**
-     * 是否异步，默认false，可为空
+     * 超时时间，默认5000，可为空
+     * 
+     * 当fetch为true时，该值不生效
      */
-    async: boolean;
+    timeout?: number;
     /**
      * 响应类型，默认document，可为空
      */
-    responseType: "arraybuffer" | "blob" | "json" | "stream" | "document" | undefined;
+    responseType?: "arraybuffer" | "blob" | "json" | "stream" | "document";
     /**
      * 请求头，可为空
      */
-    headers: HttpxHeaders;
+    headers?: HttpxHeaders;
     /**
      *  当使用post时，该值会生效，可为空
      */
-    data: string | undefined;
+    data?: string;
     /**
      * 当触发重定向的使用规则，默认follow，可为空
      */
-    redirect: "follow" | "error" | "manual" | undefined;
+    redirect?: "follow" | "error" | "manual";
     /**
      * 自定义Cookie，可为空
      */
-    cookie: string | undefined;
+    cookie?: string;
     /**
      * 以二进制模式发送数据字符串，可为空
      */
-    binary: Uint8ArrayConstructor | ArrayBufferConstructor | DataViewConstructor | Blob | File | undefined;
+    binary?: Uint8ArrayConstructor | ArrayBufferConstructor | DataViewConstructor | Blob | File;
     /**
      * 是否缓存资源，默认true，可为空
      */
-    nocache: boolean | undefined;
+    nocache?: boolean;
     /**
      * 是否重新验证可能缓存的内容，默认true，可为空
      */
-    revalidate: boolean | undefined;
+    revalidate?: boolean;
     /**
      * 将该对象添加到响应的属性中，可为空
      */
-    context: object | undefined;
+    context?: object;
     /**
      * 重写mimeType，可为空
      */
-    overrideMimeType: string | undefined;
+    overrideMimeType?: string;
     /**
      * 是否匿名不发送Cookie，默认为false，可为空
      */
-    anonymous: boolean | undefined;
+    anonymous?: boolean;
     /**
      * 是否使用fetch来发送请求，默认为false，可为空
      */
-    fetch: boolean | undefined;
+    fetch?: boolean;
+    /**
+     * 使用fetch请求的配置
+     */
+    fetchInit?: RequestInit;
     /**
      * 身份验证的用户名
      */
-    user: string | undefined;
+    user?: string;
     /**
      * 身份验证的密码
      */
-    password: string | undefined;
+    password?: string;
     /**
-     * 当请求被取消或中断，触发该回调，可为空
+     * （可选）当请求被取消或中断，触发该回调
      */
-    onabort: (() => void) | undefined;
+    onabort?: (() => void);
     /**
-     * 当请求异常，触发该回调，如404，可为空
+     * （可选）当请求异常，触发该回调，如404
      */
-    onerror: (() => void) | undefined;
+    onerror?: (() => void);
     /**
-     * 当请求超时，触发该回调，可为空
+     * （可选）当请求超时，触发该回调
      */
-    ontimeout: (() => void) | undefined;
+    ontimeout?: (() => void);
     /**
-     * 当请求开始，触发该回调，可为空
+     * （可选）当请求开始，触发该回调
      */
-    onloadstart: (() => void) | undefined;
+    onloadstart?: (() => void);
     /**
-     * 当请求状态改变，触发该回调，可为空
+     * （可选）当请求成功时，触发该回调
      */
-    onreadystatechange: (() => void) | undefined;
+    onload?: (() => void);
     /**
-     * 当请求上传文件进度改变，触发该回调，可为空
+     * （可选）当请求状态改变，触发该回调
+     * 
+     * fetch为true时该回调不触发
      */
-    onprogress: (() => void) | undefined;
+    onreadystatechange?: (() => void);
+    /**
+     * （可选）当请求上传文件进度改变，触发该回调
+     * 
+     * fetch为true时该回调不触发
+     */
+    onprogress?: (() => void);
 
 }
 /**
@@ -984,6 +998,8 @@ declare interface HttpxAsyncResultData {
      * + 2 载入完成
      * + 3 交互
      * + 4 完成
+     * 
+     * 当请求头fetch为true时，该值固定为4
      */
     readyState: 0 | 1 | 2 | 3 | 4;
     /**
@@ -999,6 +1015,10 @@ declare interface HttpxAsyncResultData {
      */
     response: object | string | HTMLElement;
     /**
+     * 当请求头fetch为true时，该属性存在
+     */
+    responseFetchHeaders?: Headers;
+    /**
      * 响应头的Headers
      */
     responseHeaders: string;
@@ -1009,11 +1029,11 @@ declare interface HttpxAsyncResultData {
     /**
      * 是请求中设置的responseType，没有设置的话默认为undefined
      */
-    responseType: string | undefined;
+    responseType?: string;
     /**
      * the response data as XML document
      */
-    responseXML: XMLDocument | undefined;
+    responseXML?: XMLDocument;
 }
 /**
  * 响应的数据
@@ -3072,7 +3092,7 @@ declare interface Utils {
      * @param searchString 需要搜索的字符串
      * @param position （可选）目标字符串的判断起点，要求≥0，默认为0
      */
-    startsWith(target: string, searchString: string|RegExp|string[], position?: number): boolean;
+    startsWith(target: string, searchString: string | RegExp | string[], position?: number): boolean;
     /**
      * 字符串首字母转小写
      * @param targetString 目标字符串
