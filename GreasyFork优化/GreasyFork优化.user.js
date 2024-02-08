@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.6
+// @version      2024.2.8.16
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,7 +21,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1324038/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1323906/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1324684/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
@@ -133,8 +133,9 @@
       return new Promise(async (resolve) => {
         let scriptStatsRequest = await httpx.get({
           url: `https://greasyfork.org/scripts/${scriptId}/stats.json`,
-          onerror: function () {},
-          ontimeout: function () {},
+          fetch: true,
+          onerror() {},
+          ontimeout() {},
         });
         if (!scriptStatsRequest.status) {
           resolve(false);
@@ -150,15 +151,18 @@
      * @returns {Promise<?FormData>}
      */
     async getSourceCodeSyncFormData(scriptId) {
-      let getResp = await fetch(
-        `https://greasyfork.org/zh-CN/scripts/${scriptId}/admin`
+      let getResp = await httpx.get(
+        `https://greasyfork.org/zh-CN/scripts/${scriptId}/admin`,
+        {
+          fetch: true,
+        }
       );
       log.success(getResp);
-      if (getResp.status !== 200) {
+      if (!getResp.status) {
         Qmsg.error("请求admin内容失败");
         return;
       }
-      let adminHTML = await getResp.text();
+      let adminHTML = getResp.data.responseText;
       let adminHTMLElement = DOMUtils.parseHTML(adminHTML, false, true);
       let formElement = adminHTMLElement.querySelector("form.edit_script");
       if (!formElement) {
@@ -175,15 +179,15 @@
      * @returns {Promise<?Response>}
      */
     async sourceCodeSync(scriptId, data) {
-      let postResp = await fetch(
+      let postResp = await httpx.get(
         `https://greasyfork.org/zh-CN/scripts/${scriptId}/sync_update`,
         {
-          method: "POST",
-          body: data,
+          fetch: true,
+          data: data,
         }
       );
       log.success(postResp);
-      if (postResp.status !== 200) {
+      if (!postResp.status) {
         Qmsg.error("源代码同步失败");
         return;
       }
@@ -201,18 +205,18 @@
      * }>}
      */
     async getUserInfo(userId) {
-      let getResp = await fetch(
+      let getResp = await httpx.get(
         `https://greasyfork.org/zh-CN/users/${userId}.json`,
         {
-          method: "GET",
+          fetch: true,
         }
       );
       log.success(getResp);
-      if (getResp.status !== 200) {
+      if (!getResp.status) {
         Qmsg.error("获取用户信息失败");
         return;
       }
-      let data = await getResp.json();
+      let data = utils.toJSON(getResp.data.responseText);
       data["scriptList"] = [];
       data["scriptLibraryList"] = [];
       data["scripts"].forEach((scriptInfo) => {
@@ -223,6 +227,135 @@
         }
       });
       return data;
+    },
+    /**
+     * 获取用户的收藏集
+     * @param {string} userId
+     * @returns {Promise<?{
+     * id: string,
+     * name: string,
+     * }[]>}
+     */
+    async getUserCollection(userId) {
+      let getResp = await httpx.get(
+        `https://greasyfork.org/zh-CN/users/${userId}`,
+        {
+          fetch: true,
+        }
+      );
+      log.info(["获取用户的收藏集", getResp]);
+      if (!getResp.status) {
+        Qmsg.error("获取用户的收藏集失败");
+        return;
+      }
+      let respText = getResp.data.responseText;
+      let respDocument = DOMUtils.parseHTML(respText, true, true);
+      let userScriptSets = respDocument.querySelector("#user-script-sets");
+      if (!userScriptSets) {
+        log.error("解析Script Sets失败");
+        return;
+      }
+      let scriptSetsIdList = [];
+      userScriptSets.querySelectorAll("li").forEach((liElement) => {
+        let setsUrl = liElement.querySelector("a:last-child").href;
+        if (setsUrl.includes("?fav=1")) {
+          /* 自带的收藏夹 */
+          return;
+        }
+        let setsName = liElement.querySelector("a").innerText;
+        let setsId = setsUrl.match(/\/sets\/([\d]+)\//)[1];
+        scriptSetsIdList.push({
+          id: setsId,
+          name: setsName,
+        });
+      });
+
+      return scriptSetsIdList;
+    },
+    /**
+     * 获取某个收藏集的信息
+     * @param {string} userId 用户id
+     * @param {string} setsId 收藏集id
+     * @returns {Promise<?FormData>}
+     */
+    async getUserCollectionInfo(userId, setsId) {
+      let getResp = await httpx.get(
+        `https://greasyfork.org/zh-CN/users/${userId}/sets/${setsId}/edit`,
+        {
+          fetch: true,
+        }
+      );
+      if (!getResp.status) {
+        Qmsg.error(`获取收藏集${setsId}失败`);
+        return;
+      }
+      let respText = getResp.data.responseText;
+      let respDocument = DOMUtils.parseHTML(respText, true, true);
+      let edit_script_set_form = respDocument.querySelector(
+        '[id^="edit_script_set"]'
+      );
+      let formData = new FormData();
+      edit_script_set_form
+        .querySelectorAll("input[name]")
+        .forEach((inputEle) => {
+          formData.append(inputEle.getAttribute("name"), inputEle.value);
+        });
+      edit_script_set_form
+        .querySelectorAll("textarea[name]")
+        .forEach((inputEle) => {
+          formData.append(inputEle.getAttribute("name"), inputEle.value);
+        });
+      edit_script_set_form
+        .querySelectorAll("select[name]")
+        .forEach((selectEle) => {
+          formData.append(
+            selectEle.getAttribute("name"),
+            selectEle.querySelector("option[selected]")?.value ||
+              selectEle.options[0].value
+          );
+        });
+      formData.delete("remove-scripts-included[]");
+      let csrfToken = respDocument.querySelector('meta[name="csrf-token"]');
+      if (csrfToken.hasAttribute("content")) {
+        let authenticity_token = csrfToken.getAttribute("content");
+        formData.set("authenticity_token", authenticity_token);
+      }
+      return formData;
+    },
+    /**
+     * 更新用户的某个收藏集的表单信息
+     * @param {string} userId 用户id
+     * @param {string} setsId 收藏集id
+     * @param {string} data
+     * @param {Promise<?Document>}
+     */
+    async updateUserSetsInfo(userId, setsId, data) {
+      let postResp = await httpx.post(
+        `https://greasyfork.org/zh-CN/users/${userId}/sets/${setsId}`,
+        {
+          fetch: true,
+          headers: {
+            accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-language":
+              "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cache-control": "no-cache",
+            "content-type": "application/x-www-form-urlencoded",
+            pragma: "no-cache",
+          },
+          fetchInit: {
+            referrerPolicy: "strict-origin-when-cross-origin",
+          },
+          data: data,
+        }
+      );
+      if (!postResp.status) {
+        Qmsg.error("更新收藏集表单请求失败");
+        return;
+      }
+      let respText = postResp.data.responseText;
+      let respDocument = DOMUtils.parseHTML(respText, true, true);
+      return respDocument;
     },
   };
 
@@ -906,7 +1039,7 @@
     },
     /**
      * 获取当前登录用户的a标签元素
-     * @returns {?HTMLElement}
+     * @returns {?HTMLAnchorElement}
      */
     getUserLinkElement() {
       return document.querySelector("#nav-user-info span.user-profile-link a");
@@ -1094,11 +1227,11 @@
           return;
         }
         let loginTip = Qmsg.loading("正在登录中...");
-        let postResp = null;
-        try {
-          postResp = await fetch("https://greasyfork.org/zh-CN/users/sign_in", {
-            method: "POST",
-            body: encodeURI(
+        let postResp = await httpx.post(
+          "https://greasyfork.org/zh-CN/users/sign_in",
+          {
+            fetch: true,
+            data: encodeURI(
               `authenticity_token=${csrfToken.getAttribute(
                 "content"
               )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
@@ -1106,19 +1239,15 @@
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
-          });
-        } catch (error) {
-          log.error(error);
-          Qmsg.error("请求失败，请在控制台查看原因");
-          return;
-        }
+          }
+        );
         loginTip.destroy();
-        if (!postResp.ok) {
+        if (!postResp.status) {
           log.error(postResp);
           Qmsg.error("登录失败，请在控制台查看原因");
           return;
         }
-        let respText = await postResp.text();
+        let respText = postResp.data.responseText;
         let parseLoginHTMLNode = DOMUtils.parseHTML(respText, true, true);
         if (
           parseLoginHTMLNode.querySelectorAll(
@@ -1156,6 +1285,260 @@
           scriptId = scriptId[scriptId.length - 1];
           window.location.href = GreasyforkApi.getCodeSearchUrl(
             `greasyfork.org/scripts/${scriptId}`
+          );
+        });
+      });
+    },
+    /**
+     * 添加收藏按钮
+     */
+    setCollectScriptBtn() {
+      utils.waitNode("ul#script-links li.current span").then(() => {
+        let collectBtn = DOMUtils.createElement("li", {
+          innerHTML: `<a href="javascript:;"><span>收藏</span></a>`,
+        });
+        DOMUtils.append(document.querySelector("ul#script-links"), collectBtn);
+        DOMUtils.on(collectBtn, "click", async function () {
+          let scriptId = window.location.pathname.match(/scripts\/([\d]+)/i);
+          if (!scriptId) {
+            log.error([scriptId, window.location.pathname]);
+            Qmsg.error("获取脚本id失败");
+            return;
+          }
+          scriptId = scriptId[scriptId.length - 1];
+          if (!GreasyforkMenu.isLogin) {
+            Qmsg.error("请先登录账号");
+            log.error("请先登录账号");
+            return;
+          }
+          let userId = GreasyforkApi.getUserId(
+            GreasyforkMenu.getUserLinkElement().href
+          );
+          if (userId == null) {
+            Qmsg.error("获取用户id失败");
+            log.error("获取用户id失败");
+            return;
+          }
+          let loading = Qmsg.loading("获取收藏夹中...");
+          let userCollection = await GreasyforkApi.getUserCollection(userId);
+          loading.close();
+          if (!userCollection) {
+            return;
+          }
+          let alertHTML = "";
+          userCollection.forEach((userCollectInfo) => {
+            alertHTML += `
+            <li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
+              <div class="user-collect-name">${userCollectInfo.name}</div>
+              <div class="user-collect-btn-container">
+                <div class="pops-panel-button collect-add-script-id">
+                  <button type="primary" data-icon="" data-righticon="">
+                    <span>添加</span>
+                  </button>
+                </div>
+                <div class="pops-panel-button collect-delete-script-id">
+                  <button type="danger" data-icon="" data-righticon="">
+                    <span>删除</span>
+                  </button>
+                </div>
+              </div>
+            </li>
+            `;
+          });
+          let collectionDialog = pops.alert({
+            title: {
+              text: "收藏集",
+              position: "center",
+            },
+            content: {
+              html: true,
+              text: `<ul>${alertHTML}</ul>`,
+            },
+            mask: {
+              enable: true,
+              clickEvent: {
+                toClose: true,
+              },
+            },
+            style: `
+            .user-collect-item{
+              cursor: pointer;
+              -webkit-user-select: none;
+              user-select: none;
+              padding: 5px 10px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            }
+            .user-collect-name{
+
+            }
+            .user-collect-item:hover{
+              background: #e5e5e5;
+            }
+            .user-collect-btn-container{
+              margin-left: 10px;
+              display: flex;
+            }
+            `,
+            width: pops.isPhone() ? "92vw" : "500px",
+            height: pops.isPhone() ? "80vh" : "400px",
+            drag: true,
+            only: true,
+          });
+          /* 添加事件 */
+          DOMUtils.on(
+            collectionDialog.$shadowRoot,
+            "click",
+            ".collect-add-script-id",
+            async function (event) {
+              /** @type {HTMLLIElement} */
+              let currentSelectCollectInfo =
+                event.target.closest(".user-collect-item");
+              let setsId = currentSelectCollectInfo.dataset.id;
+              let setsName = currentSelectCollectInfo.dataset.name;
+              let loading = Qmsg.loading("添加中...");
+              let formData = await GreasyforkApi.getUserCollectionInfo(
+                userId,
+                setsId
+              );
+              let addFormData = new FormData();
+              let saveFormData = new FormData();
+              for (const [key, value] of formData.entries()) {
+                addFormData.append(key, value);
+                saveFormData.append(key, value);
+              }
+              addFormData.set("add-script", scriptId);
+              addFormData.set("script-action", "i");
+              saveFormData.append("scripts-included[]", scriptId);
+              saveFormData.set("save", 1);
+              let addData = Array.from(new URLSearchParams(addFormData))
+                .map(
+                  ([key, value]) =>
+                    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+                )
+                .join("&");
+              let saveData = Array.from(new URLSearchParams(saveFormData))
+                .map(
+                  ([key, value]) =>
+                    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+                )
+                .join("&");
+              log.info(["添加的数据", addData]);
+              log.info(["保存的数据", saveData]);
+              let addResult = await GreasyforkApi.updateUserSetsInfo(
+                userId,
+                setsId,
+                addData
+              );
+              if (!addResult) {
+                loading.close();
+                return;
+              }
+              let changeScriptSet =
+                addResult.querySelector(".change-script-set");
+              let section = changeScriptSet.querySelector("section");
+              let alertElement = section.querySelector(".alert");
+              if (alertElement) {
+                pops.alert({
+                  title: {
+                    text: "添加失败",
+                    position: "center",
+                  },
+                  content: {
+                    text: alertElement.innerHTML,
+                    html: true,
+                  },
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: true,
+                    },
+                  },
+                  style: `
+                  .pops-alert-content{
+                    font-style: italic;
+                    background-color: #ffc;
+                    border: none;
+                    border-left: 6px solid #FFEB3B;
+                    padding: .5em;
+                  }
+                  `,
+                  drag: true,
+                  dragLimit: true,
+                  width: pops.isPhone() ? "88vw" : "400px",
+                  height: pops.isPhone() ? "50vh" : "300px",
+                });
+              } else {
+                await GreasyforkApi.updateUserSetsInfo(
+                  userId,
+                  setsId,
+                  saveData
+                );
+                Qmsg.success("添加成功");
+              }
+              loading.close();
+            }
+          );
+          /* 删除事件 */
+          DOMUtils.on(
+            collectionDialog.$shadowRoot,
+            "click",
+            ".collect-delete-script-id",
+            async function (event) {
+              /** @type {HTMLLIElement} */
+              let currentSelectCollectInfo =
+                event.target.closest(".user-collect-item");
+              let setsId = currentSelectCollectInfo.dataset.id;
+              let setsName = currentSelectCollectInfo.dataset.name;
+              let loading = Qmsg.loading("删除中...");
+              let formData = await GreasyforkApi.getUserCollectionInfo(
+                userId,
+                setsId
+              );
+              let deleteFormData = new FormData();
+              let saveFormData = new FormData();
+              for (const [key, value] of formData.entries()) {
+                deleteFormData.append(key, value);
+                if (
+                  key === "scripts-included[]" &&
+                  value.toString() === scriptId.toString()
+                ) {
+                  continue;
+                }
+                saveFormData.append(key, value);
+              }
+              deleteFormData.set("remove-scripts-included[]", scriptId);
+              deleteFormData.set("remove-selected-scripts", "i");
+              deleteFormData.delete("script-action");
+              saveFormData.set("save", 1);
+              let removeData = Array.from(new URLSearchParams(deleteFormData))
+                .map(
+                  ([key, value]) =>
+                    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+                )
+                .join("&");
+              let saveData = Array.from(new URLSearchParams(saveFormData))
+                .map(
+                  ([key, value]) =>
+                    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+                )
+                .join("&");
+              log.info(["删除的数据", removeData]);
+              log.info(["保存的数据", saveData]);
+              let removeResult = await GreasyforkApi.updateUserSetsInfo(
+                userId,
+                setsId,
+                removeData
+              );
+              if (!removeResult) {
+                loading.close();
+                return;
+              }
+              await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
+              Qmsg.success("删除成功");
+              loading.close();
+            }
           );
         });
       });
@@ -1977,6 +2360,7 @@
             let getResp = await httpx.get(
               `https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
               {
+                fetch: true,
                 responseType: "json",
               }
             );
@@ -2645,6 +3029,7 @@
     }
     GreasyforkMenu.handleLocalGotoCallBack();
     GreasyforkBusiness.setFindCodeSearchBtn();
+    GreasyforkBusiness.setCollectScriptBtn();
     GreasyforkBusiness.repairImgShow();
     GreasyforkBusiness.repairCodeLineNumber();
     if (PopsPanel.getValue("optimizeImageBrowsing")) {
