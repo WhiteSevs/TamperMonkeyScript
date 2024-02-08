@@ -166,8 +166,11 @@ declare interface DOMUtilsEventListenerOptionsAttribute {
     /**
      * 子元素选择器
      */
-    selector: string | undefined;
+    selector?: string;
 }
+
+type ParseHTMLReturnType<T1, T2> = T1 extends true ? (T2 extends true ? Document : ChildNode)
+    : ChildNode;
 
 declare interface DOMUtils {
     /** 版本号 */
@@ -542,7 +545,7 @@ declare interface DOMUtils {
         element: HTMLElement | string | NodeList | HTMLElement[] | Window,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         callback: (event: Event | PointerEvent | MouseEvent) => void,
-        option: boolean | AddEventListenerOptions | undefined,
+        option?: boolean | AddEventListenerOptions,
     ): void;
     /**
      * 绑定事件
@@ -571,9 +574,9 @@ declare interface DOMUtils {
     on(
         element: HTMLElement | string | NodeList | HTMLElement[] | Window,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        selector: string | undefined,
+        selector: string,
         callback: (event: Event | MouseEvent | PointerEvent) => void,
-        option: boolean | AddEventListenerOptions | undefined,
+        option?: boolean | AddEventListenerOptions,
     ): void;
     /**
      * 取消绑定事件
@@ -605,10 +608,13 @@ declare interface DOMUtils {
     off(
         element: HTMLElement | string | NodeList | HTMLElement[] | Window,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        selector?: string | undefined,
+        selector?: string,
         callback?: (event: Event) => void,
-        option?: boolean | AddEventListenerOptions | undefined,
-        filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean, ...args: any[]
+        option?: boolean | AddEventListenerOptions,
+        filter?: (
+            value: DOMUtilsEventListenerOptionsAttribute,
+            index: number, array: DOMUtilsEventListenerOptionsAttribute[]
+        ) => boolean, ...args: any[]
     ): void;
     /**
      * 主动触发事件
@@ -627,7 +633,7 @@ declare interface DOMUtils {
     trigger(
         element: HTMLElement | string | NodeList | any[] | Window,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        details?: object | undefined,
+        details?: object,
         useDispatchToTriggerEvent?: boolean
     ): void;
     /**
@@ -803,7 +809,13 @@ declare interface DOMUtils {
      * 将字符串转为Element元素
      * @param html
      * @param useParser （可选）是否使用DOMParser来生成元素，有些时候通过DOMParser生成的元素有点问题
-     * @param isComplete （可选）是否是完整的，true则包括#document
+     * + true 使用DOMPraser来转换字符串
+     * + false 创建一个div，里面放入字符串，然后提取firstChild
+     * @param isComplete （可选）是否是完整的
+     * + true 如果useParser为true，那么返回整个使用DOMParser转换成的Document
+     * 如果useParser为false，返回一个DIV元素，DIV元素内包裹着需要转换的字符串
+     * + false 如果useParser为true，那么返回整个使用DOMParser转换成的Document的body
+     * 如果useParser为false，返回一个DIV元素的firstChild
      * @example
      * // 将字符串转为Element元素
      * DOMUtils.parseHTML("<a href='xxxx'></a>")
@@ -821,7 +833,7 @@ declare interface DOMUtils {
      * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
      * > #document
      */
-    parseHTML(html: string, useParser?: boolean, isComplete?: boolean): HTMLElement;
+    parseHTML<T1, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): ParseHTMLReturnType<T1, T2>;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -839,7 +851,7 @@ declare interface DOMUtils {
     hover(
         element: HTMLElement | string,
         handler: (event: Event) => void,
-        option: boolean | AddEventListenerOptions | undefined
+        option?: boolean | AddEventListenerOptions
     ): void;
     /**
      * 显示元素
@@ -879,7 +891,7 @@ declare interface DOMUtils {
     keyup(
         target: HTMLElement | string | Window,
         handler: (event: KeyboardEvent) => void,
-        option: boolean | AddEventListenerOptions | undefined
+        option?: boolean | AddEventListenerOptions
     ): void;
     /**
      * 当按键按下时触发事件
@@ -899,7 +911,7 @@ declare interface DOMUtils {
     keydown(
         target: Node | Window | typeof globalThis | string,
         handler: (event: KeyboardEvent) => void,
-        option: boolean | AddEventListenerOptions | undefined
+        option?: boolean | AddEventListenerOptions
     ): void;
     /**
      * 当按键按下时触发事件
@@ -916,7 +928,11 @@ declare interface DOMUtils {
      *   console.log("按键按下");
      * })
      */
-    keypress(target: Node | Window | typeof globalThis | string, handler: (event: KeyboardEvent) => void, option: boolean | AddEventListenerOptions | undefined): void;
+    keypress(
+        target: Node | Window | typeof globalThis | string,
+        handler: (event: KeyboardEvent) => void,
+        option?: boolean | AddEventListenerOptions
+    ): void;
     /**
      * 淡入元素
      * @param element 当前元素
@@ -965,6 +981,7 @@ declare interface DOMUtils {
      */
     toggle(element: HTMLElement | string): void;
 }
+
 declare var DOMUtils: {
     prototype: DOMUtils;
 }
