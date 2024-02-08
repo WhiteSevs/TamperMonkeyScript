@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.8.16
+// @version      2024.2.8.18
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1212,13 +1212,26 @@
           return urlMap;
         },
         /**
+         * 判断传入的链接是否不是正确的真实链接
+         * @param {string} url
+         */
+        isNotRlLinkUrl(url) {
+          if (utils.isNull(url)) {
+            return true;
+          }
+          if (!url?.startsWith("http")) {
+            return true;
+          }
+        },
+        /**
          * 解析DOM节点上隐藏在属性中的真正url
-         * @param {HTMLElement} targetNode 目标元素
+         * @param {HTMLElement} element 目标元素
          * @returns {?string}
          */
-        parseDOMAttrOriginUrl(targetNode) {
+        parseDOMAttrOriginUrl(element) {
           let url = null;
-          let dataLog = targetNode.getAttribute("data-log");
+          let dataLog = element.getAttribute("data-log");
+          let $article = element.querySelector("article");
           if (dataLog && dataLog !== "{") {
             /* 百度在a标签上的data-log="{" */
             try {
@@ -1229,8 +1242,17 @@
               log.error(error);
             }
           }
-          if (utils.isNull(url)) {
-            let dataIVK = targetNode.getAttribute("data-ivk");
+          if (this.isNotRlLinkUrl(url)) {
+            let rlLinkDataUrl =
+              $article?.getAttribute("rl-link-data-url") ||
+              element.getAttribute("rl-link-data-url");
+            if (rlLinkDataUrl) {
+              url = rlLinkDataUrl;
+            }
+          }
+
+          if (this.isNotRlLinkUrl(url)) {
+            let dataIVK = element.getAttribute("data-ivk");
             if (dataIVK) {
               try {
                 dataIVK = utils.toJSON(dataIVK);
@@ -1263,8 +1285,8 @@
             }
           }
 
-          if (utils.isNull(url)) {
-            let rlLinkDataLog = targetNode.getAttribute("rl-link-data-log");
+          if (this.isNotRlLinkUrl(url)) {
+            let rlLinkDataLog = element.getAttribute("rl-link-data-log");
             if (rlLinkDataLog) {
               try {
                 rlLinkDataLog = utils.toJSON(rlLinkDataLog);
@@ -1300,8 +1322,8 @@
             }
           }
 
-          if (utils.isNull(url)) {
-            let rlLinkDataIvk = targetNode.getAttribute("rl-link-data-ivk");
+          if (this.isNotRlLinkUrl(url)) {
+            let rlLinkDataIvk = element.getAttribute("rl-link-data-ivk");
             if (rlLinkDataIvk) {
               try {
                 rlLinkDataIvk = utils.toJSON(rlLinkDataIvk);
@@ -1334,24 +1356,20 @@
             }
           }
 
-          if (utils.isNull(url)) {
-            let articleDataLog = targetNode
-              .querySelector("article")
-              ?.getAttribute("rl-link-data-log");
+          if (this.isNotRlLinkUrl(url)) {
+            let articleDataLog = $article?.getAttribute("rl-link-data-log");
             if (articleDataLog) {
               try {
                 articleDataLog = utils.toJSON(articleDataLog);
                 url = articleDataLog.mu;
               } catch (error) {
                 log.error("article DOM的属性的rl-link-data-log不存在👇");
-                log.error(targetNode);
+                log.error(element);
               }
             }
           }
-          if (utils.isNull(url)) {
-            let articleLinkDataIVK = targetNode
-              .querySelector("article")
-              ?.getAttribute("rl-link-data-ivk");
+          if (this.isNotRlLinkUrl(url)) {
+            let articleLinkDataIVK = $article?.getAttribute("rl-link-data-ivk");
             if (articleLinkDataIVK) {
               try {
                 articleLinkDataIVK = utils.toJSON(articleLinkDataIVK);
@@ -1377,7 +1395,7 @@
             }
           }
 
-          if (utils.isNull(url)) {
+          if (this.isNotRlLinkUrl(url)) {
             url = null;
             /* log.error(["未在元素节点中找到隐藏的原始URL", jQDOM]); */
           } else {
@@ -1390,23 +1408,23 @@
             }
           }
 
-          if (utils.isNull(url)) {
+          if (this.isNotRlLinkUrl(url)) {
             /* 最新资讯上的隐藏的链接 */
-            let labelUrl = targetNode.getAttribute("label-url");
+            let labelUrl = element.getAttribute("label-url");
             if (labelUrl) {
               url = labelUrl;
             }
           }
           /* 因为链接中存在%25，需要正确替换成% */
           if (
-            !utils.isNull(url) &&
+            !this.isNotRlLinkUrl(url) &&
             utils.startsWith(url, "http(s|)://(m[0-9]{0,2}|www).baidu.com/sf?")
           ) {
             url = decodeURIComponent(url);
             /* url = url.replaceAll("%25","%") */
           }
           /* 有些url是错误的， */
-          if (utils.isNotNull(url)) {
+          if (!this.isNotRlLinkUrl(url)) {
             if (utils.startsWith(url, "http(s|)://nourl.baidu.com")) {
               url = "";
             }
@@ -1624,20 +1642,19 @@
          * @returns {Promise}
          */
         async replaceLink() {
+          /** @type {HTMLDivElement} */
           let searchResultList = Array.from(
             document.querySelectorAll(".c-result.result")
           );
-          for (const searchResultIndex in searchResultList) {
-            let item = searchResultList[searchResultIndex];
+          for (const searchResultItem of searchResultList) {
             let resultItemOriginURL =
-              handleItemURL.parseDOMAttrOriginUrl(
-                item
-              ); /* 根据已获取的真实链接取值 */
+              handleItemURL.parseDOMAttrOriginUrl(searchResultItem);
+            /* 根据已获取的真实链接取值 */
             if (utils.isNull(resultItemOriginURL)) {
               /* 未取到值 */
               continue;
             }
-            let articleElement = item.querySelector("article");
+            let articleElement = searchResultItem.querySelector("article");
             /* 不处理没有article标签的元素 */
             if (!articleElement) {
               continue;
@@ -1653,12 +1670,12 @@
             }
 
             if (
-              item.getAttribute("tpl") === "wenda_abstract" &&
-              item.getAttribute("preventClick") == null
+              searchResultItem.getAttribute("tpl") === "wenda_abstract" &&
+              searchResultItem.getAttribute("preventClick") == null
             ) {
               /* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
-              item.setAttribute("preventClick", "true");
-              DOMUtils.on(item, "click", function (event) {
+              searchResultItem.setAttribute("preventClick", "true");
+              DOMUtils.on(searchResultItem, "click", function (event) {
                 utils.preventEvent(event);
                 let clickNode = event.target;
                 if (
@@ -1698,7 +1715,10 @@
               }
             }
             /* 替换链接 */
-            handleItemURL.setArticleOriginUrl(item, resultItemOriginURL);
+            handleItemURL.setArticleOriginUrl(
+              searchResultItem,
+              resultItemOriginURL
+            );
             articleElement.setAttribute("rl-link-href", resultItemOriginURL);
           }
         },
