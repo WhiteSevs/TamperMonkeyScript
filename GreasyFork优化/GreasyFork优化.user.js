@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.8.16
+// @version      2024.2.10.11
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,7 +21,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1324038/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1324684/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1325417/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
@@ -292,29 +292,13 @@
       let respText = getResp.data.responseText;
       let respDocument = DOMUtils.parseHTML(respText, true, true);
       let edit_script_set_form = respDocument.querySelector(
-        '[id^="edit_script_set"]'
+        'form[id^="edit_script_set"]'
       );
-      let formData = new FormData();
-      edit_script_set_form
-        .querySelectorAll("input[name]")
-        .forEach((inputEle) => {
-          formData.append(inputEle.getAttribute("name"), inputEle.value);
-        });
-      edit_script_set_form
-        .querySelectorAll("textarea[name]")
-        .forEach((inputEle) => {
-          formData.append(inputEle.getAttribute("name"), inputEle.value);
-        });
-      edit_script_set_form
-        .querySelectorAll("select[name]")
-        .forEach((selectEle) => {
-          formData.append(
-            selectEle.getAttribute("name"),
-            selectEle.querySelector("option[selected]")?.value ||
-              selectEle.options[0].value
-          );
-        });
-      formData.delete("remove-scripts-included[]");
+      if (!edit_script_set_form) {
+        Qmsg.error("获取表单元素#edit_script_set失败");
+        return;
+      }
+      let formData = new FormData(edit_script_set_form);
       let csrfToken = respDocument.querySelector('meta[name="csrf-token"]');
       if (csrfToken.hasAttribute("content")) {
         let authenticity_token = csrfToken.getAttribute("content");
@@ -1362,7 +1346,6 @@
             },
             style: `
             .user-collect-item{
-              cursor: pointer;
               -webkit-user-select: none;
               user-select: none;
               padding: 5px 10px;
@@ -1374,7 +1357,7 @@
 
             }
             .user-collect-item:hover{
-              background: #e5e5e5;
+              
             }
             .user-collect-btn-container{
               margin-left: 10px;
@@ -1402,12 +1385,8 @@
                 userId,
                 setsId
               );
-              let addFormData = new FormData();
-              let saveFormData = new FormData();
-              for (const [key, value] of formData.entries()) {
-                addFormData.append(key, value);
-                saveFormData.append(key, value);
-              }
+              let addFormData = utils.cloneFormData(formData);
+              let saveFormData = utils.cloneFormData(formData);
               addFormData.set("add-script", scriptId);
               addFormData.set("script-action", "i");
               saveFormData.append("scripts-included[]", scriptId);
