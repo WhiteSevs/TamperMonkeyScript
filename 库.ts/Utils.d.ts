@@ -1854,6 +1854,11 @@ declare interface Utils {
      **/
     checkUserClickInNode(element: Element | Node): boolean;
     /**
+     * 复制formData数据
+     * @param formData 需要clone的数据
+     */
+    cloneFormData(formData: FormData): FormData;
+    /**
      * 函数重载实现
      * @example
      * let getUsers = Utils.createOverload();

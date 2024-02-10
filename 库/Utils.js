@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-6";
+  Utils.version = "2024-2-10";
 
   Utils.assign = function (target = {}, source = {}) {
     if (Array.isArray(source)) {
@@ -685,6 +685,14 @@
     } else {
       return false;
     }
+  };
+
+  Utils.cloneFormData = function (formData) {
+    let clonedFormData = new FormData();
+    for (let [key, value] of formData.entries()) {
+      clonedFormData.append(key, value);
+    }
+    return clonedFormData;
   };
 
   Utils.createOverload = function () {
