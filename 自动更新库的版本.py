@@ -130,71 +130,46 @@ class ScriptFile:
             patternMatch = re.findall(pattern, content)
             if len(patternMatch):
                 replaced_content = re.sub(pattern, replacement, replaced_content)
-                findData = [item for item in patternMatch if item != ""]
-                oldVersion = ""
-                if len(findData):
-                    oldVersionMatch = re.compile(
+                find_data = [item for item in patternMatch if item != ""]
+                old_library_script_version = ""
+                if len(find_data):
+                    old_library_script_version_match = re.compile(
                         rf"update.greasyfork.org/scripts/{scriptInfo.id}/([\d]+)/"
-                    ).search(findData[0])
-                    if oldVersionMatch:
-                        oldVersion = oldVersionMatch[1]
-                if oldVersion != scriptInfo.version and int(oldVersion) < int(
-                    scriptInfo.version
-                ):
+                    ).search(find_data[0])
+                    if old_library_script_version_match:
+                        old_library_script_version = old_library_script_version_match[1]
+                if old_library_script_version != scriptInfo.version and int(
+                    old_library_script_version
+                ) < int(scriptInfo.version):
                     flag = True
                     print(
-                        f"""库【{scriptInfo.name}】 {len(patternMatch)}处 版本: {oldVersion} => {scriptInfo.version}"""
+                        f"""库【{scriptInfo.name}】 {len(patternMatch)}处 版本: {old_library_script_version} => {scriptInfo.version}"""
                     )
 
-                    versionPattern = r"""// @version([\s]+)(.+)"""
-                    versionPatternMatch = re.findall(versionPattern, replaced_content)
-                    if update_meta_version and len(versionPatternMatch):
-                        spaceStr = versionPatternMatch[0][0]
-                        oldVersionStr = versionPatternMatch[0][1]
+                    version_pattern = r"""// @version([\s]+)(.+)"""
+                    version_pattern_match = re.findall(
+                        version_pattern, replaced_content
+                    )
+                    if update_meta_version and len(version_pattern_match):
+                        space_str = version_pattern_match[0][0]
+                        old_version = version_pattern_match[0][1]
 
-                        oldVersionStrSplit = oldVersionStr.split(".")
+                        new_version = self.get_version(old_version)
 
-                        newVersionStr = ""
-                        newVersionStr_3 = self.get_new_script_version_meta(
-                            "%#Y.%#m.%#d"
-                        )
-                        newVersionStr_4 = self.get_new_script_version_meta(
-                            "%#Y.%#m.%#d.%#H"
-                        )
-                        newVersionStr_5 = self.get_new_script_version_meta(
-                            "%#Y.%#m.%#d.%#H.%#M"
-                        )
-                        if len(oldVersionStrSplit) == 3:
-                            # 年 月 日
-                            if oldVersionStr == newVersionStr_3:
-                                newVersionStr = newVersionStr_4
-                            else:
-                                newVersionStr = newVersionStr_3
-                        elif len(oldVersionStrSplit) == 4:
-                            # 年 月 日 时
-                            if oldVersionStr != newVersionStr_4:
-                                newVersionStr = newVersionStr_4
-                        elif len(oldVersionStrSplit) == 5:
-                            # 年 月 日 时 分
-                            if oldVersionStr != newVersionStr_5:
-                                newVersionStr = newVersionStr_5
-                        else:
-                            pass
-                        if newVersionStr != "":
-                            oldVersionMetaStr = (
-                                f"""// @version{spaceStr}{oldVersionStr}"""
+                        if new_version is not None:
+                            old_version_meta = (
+                                f"""// @version{space_str}{old_version}"""
                             )
-                            newVersionMetaStr = (
-                                f"""// @version{spaceStr}{newVersionStr_4}"""
+                            new_version_meta = (
+                                f"""// @version{space_str}{new_version}"""
                             )
-
                             replaced_content = re.sub(
-                                oldVersionMetaStr,
-                                newVersionMetaStr,
+                                old_version_meta,
+                                new_version_meta,
                                 replaced_content,
                             )
                             print(
-                                f"""{len(versionPatternMatch)}处 meta信息@version：{oldVersionStr} => {newVersionStr}"""
+                                f"""{len(version_pattern_match)}处 meta信息@version：{old_version} => {new_version}"""
                             )
 
         if content != replaced_content and flag:
@@ -203,6 +178,80 @@ class ScriptFile:
             print("当前文件: " + file_name)
             print("")
             print("")
+
+    def convert_version_to_time(self, version):
+        "版本号转换成时间"
+        version_parts = version.split(".")
+        time_parts = []
+        for i, part in enumerate(version_parts):
+            if i == 0:
+                time_parts.append(int(part))
+            else:
+                time_parts.append(int(part) if part else 0)
+
+        return datetime.datetime(*time_parts)
+
+    def get_version(self, old_version: str) -> str | None:
+        "获取版本号"
+        old_version_split = old_version.split(".")
+        new_version = None
+        new_version_3 = self.get_new_script_version_meta("%#Y.%#m.%#d")
+        new_version_4 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H")
+        new_version_5 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H.%#M")
+
+        if len(old_version_split) == 3:
+            # 年 月 日
+            old_version_time = self.convert_version_to_time(
+                f"{old_version_split[0]}-{old_version_split[1]}-{old_version_split[2]} 00:00:00"
+            )
+            new_version_time = datetime.datetime.strptime(
+                self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
+            )
+            if new_version_time > old_version_time:
+                new_version = new_version_3
+            elif new_version_time == old_version_time:
+                new_version = new_version_4
+        elif len(old_version_split) == 4:
+            # 年 月 日 时
+            old_version_time = self.convert_version_to_time(
+                f"{old_version_split[0]}-{old_version_split[1]}-{old_version_split[2]} {old_version_split[3]}:00:00"
+            )
+            new_version_time = datetime.datetime.strptime(
+                self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
+            )
+            new_version_time_2 = datetime.datetime.strptime(
+                self.get_current_time("%Y-%m-%d %H:00:00"), "%Y-%m-%d %H:%M:%S"
+            )
+            if new_version_time > old_version_time:
+                new_version = new_version_3
+            elif (
+                new_version_time_2 < old_version_time
+                and new_version_time > old_version_time
+            ):
+                new_version = new_version_4
+            elif new_version_time_2 == old_version_time:
+                new_version = new_version_5
+        elif len(old_version_split) == 5:
+            # 年 月 日 时 分
+            old_version_time = self.convert_version_to_time(
+                f"{old_version_split[0]}-{old_version_split[1]}-{old_version_split[2]} {old_version_split[3]}:{old_version_split[4]}:00"
+            )
+            new_version_time = datetime.datetime.strptime(
+                self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
+            )
+            new_version_time_2 = datetime.datetime.strptime(
+                self.get_current_time("%Y-%m-%d %H:%M:00"), "%Y-%m-%d %H:%M:%S"
+            )
+            if new_version_time > old_version_time:
+                new_version = new_version_3
+            elif (
+                new_version_time_2 < old_version_time
+                and new_version_time > old_version_time
+            ):
+                new_version = new_version_5
+        else:
+            pass
+        return new_version
 
     def traverse_user_js(
         self,
