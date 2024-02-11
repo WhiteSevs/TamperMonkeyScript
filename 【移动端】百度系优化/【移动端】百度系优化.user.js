@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.10
+// @version      2024.2.11.11
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -27,7 +27,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1324038/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1325417/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1325839/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
@@ -5921,6 +5921,17 @@
        */
       const tiebaPost = {
         /**
+         * @type {{
+         * bsize: string,
+         * origin_size: number,
+         * origin_src: string,
+         * size: string,
+         * src: string,
+         * type: number
+         * }[]}
+         */
+        mainPostImgList: [],
+        /**
          * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
          */
         optimizeImagePreview() {
@@ -5978,24 +5989,34 @@
                 }
                 utils.preventEvent(event);
                 let lazyImgList = [];
-                parentMain.querySelectorAll("img.img").forEach((item) => {
-                  let _imgSrc_ =
-                    item.getAttribute("data-src") || item.getAttribute("src");
-                  log.info(`获取图片: ${_imgSrc_}`);
-                  let imgUrlInfo = new URL(_imgSrc_);
-                  if (imgUrlInfo.pathname.startsWith("/forum/")) {
-                    let picName = imgUrlInfo.pathname.split("/").pop();
-                    let picIdSplit = picName.split(".");
-                    if (picIdSplit) {
-                      let picId = picIdSplit[0];
-                      if (tiebaData.imageMap.has(picId)) {
-                        _imgSrc_ = tiebaData.imageMap.get(picId);
-                        log.success(["替换成高清图片", _imgSrc_]);
+                if (tiebaPost.mainPostImgList.length) {
+                  tiebaPost.mainPostImgList.forEach((item) => {
+                    lazyImgList.push(item.src);
+                  });
+                } else {
+                  Array.from(parentMain.querySelectorAll("img.img")).forEach(
+                    (item) => {
+                      let _imgSrc_ =
+                        item.getAttribute("data-src") ||
+                        item.getAttribute("src");
+                      log.info(`获取图片: ${_imgSrc_}`);
+                      let imgUrlInfo = new URL(_imgSrc_);
+                      if (imgUrlInfo.pathname.startsWith("/forum/")) {
+                        let picName = imgUrlInfo.pathname.split("/").pop();
+                        let picIdSplit = picName.split(".");
+                        if (picIdSplit) {
+                          let picId = picIdSplit[0];
+                          if (tiebaData.imageMap.has(picId)) {
+                            _imgSrc_ = tiebaData.imageMap.get(picId);
+                            log.success(["替换成高清图片", _imgSrc_]);
+                          }
+                        }
                       }
+                      lazyImgList.push(_imgSrc_);
                     }
-                  }
-                  lazyImgList.push(_imgSrc_);
-                });
+                  );
+                }
+
                 log.info("图片列表👇");
                 log.info(lazyImgList);
                 viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
@@ -6034,22 +6055,50 @@
             }
           });
           DOMUtils.ready(function () {
-            utils.waitNodeWithInterval("div.img-sudoku img", 10000).then(() => {
-              let imgSudoKuElement = document.querySelector("div.img-sudoku");
-              let imgSudoKuImageElementList =
-                imgSudoKuElement.querySelectorAll("img.img");
-              log.success([
-                "重构主内容的图片",
-                imgSudoKuElement,
-                imgSudoKuImageElementList,
-              ]);
-              imgSudoKuImageElementList.forEach((element) => {
-                if (element.hasAttribute("data-src")) {
-                  element.src = element.getAttribute("data-src");
-                }
-              });
-              /* 通过重新赋值innerHTML来覆盖原有的事件 */
-              imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
+            utils.waitNodeWithInterval("div.img-sudoku", 10000).then(() => {
+              utils
+                .waitNodeWithInterval("div.img-sudoku img", 10000)
+                .then(() => {
+                  let imgSudoKuElement =
+                    document.querySelector("div.img-sudoku");
+                  let imgSudoKuImageElementList =
+                    imgSudoKuElement.querySelectorAll("img.img");
+                  log.success([
+                    "重构主内容的图片",
+                    imgSudoKuElement,
+                    imgSudoKuImageElementList,
+                  ]);
+                  imgSudoKuImageElementList.forEach((element) => {
+                    if (element.hasAttribute("data-src")) {
+                      element.src = element.getAttribute("data-src");
+                    }
+                  });
+                  /* 通过重新赋值innerHTML来覆盖原有的事件 */
+                  imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
+                });
+              utils
+                .waitVueByInterval(
+                  () => {
+                    return document.querySelector("div.img-sudoku");
+                  },
+                  (__vue__) => {
+                    return __vue__?.imgs != null;
+                  },
+                  250,
+                  10000
+                )
+                .then((isFind) => {
+                  if (!isFind) {
+                    return;
+                  }
+                  let imgSudoKuElement =
+                    document.querySelector("div.img-sudoku");
+                  tiebaPost.mainPostImgList = imgSudoKuElement.__vue__.imgs;
+                  log.success([
+                    "Vue上隐藏的帖子高清图片列表",
+                    tiebaPost.mainPostImgList,
+                  ]);
+                });
             });
           });
         },
@@ -6791,13 +6840,15 @@
       /* 
         示例
         https://mbd.baidu.com/newspage/data/landingsuper?isBdboxFrom=1&pageType=1&context=%7B%22nid%22%3A%22news_8924612668430208297%22,%22sourceFrom%22%3A%22bjh%22%7D
+        https://mbd.baidu.com/newspage/data/dtlandingshare?sourceFrom=share_ugc&nid=dt_5121203594593120342
         */
       GM_addStyle(this.css.mbd);
       log.info("插入CSS规则");
       if (PopsPanel.getValue("baidu_mbd_block_exciting_comments")) {
         GM_addStyle(`
         div#commentModule,
-        #comment{
+        #comment,
+        #page_wrapper > div > div[class^="borderBottom-"]{
           display: none !important;
         }
         `);
@@ -6827,6 +6878,14 @@
           display: none !important;
         }
         `);
+      }
+      if (PopsPanel.getValue("baidu_mbd_camouflage_lite_baiduboxapp")) {
+        let oldNavigatorUserAgent = unsafeWindow.navigator.userAgent;
+        Object.defineProperty(unsafeWindow.navigator, "userAgent", {
+          get() {
+            return oldNavigatorUserAgent + " lite baiduboxapp";
+          },
+        });
       }
       if (PopsPanel.getValue("baidu_mbd_hijack_wakeup")) {
         baiduHijack.hijackFunctionCall_BaiJiaHao_Map();
@@ -8045,6 +8104,18 @@
                   "【屏蔽】底部工具栏",
                   "baidu_mbd_shield_bottom_toolbar",
                   false
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "伪装成lite baiduboxapp",
+                  "baidu_mbd_camouflage_lite_baiduboxapp",
+                  true,
+                  void 0,
+                  "可以优化浏览体验"
                 ),
               ],
             },
@@ -9323,24 +9394,24 @@ remove-child##[class*='-video-player']`,
      */
     hijackFunctionCall_BaiJiaHao_Map() {
       let originCall = Function.prototype.call;
-      Function.prototype.call = function () {
+      Function.prototype.call = function (...args) {
         if (
-          arguments.length === 2 &&
-          arguments[0] === void 0 &&
-          arguments[1] != null &&
-          "arg" in arguments[1] &&
-          "delegate" in arguments[1] &&
-          "done" in arguments[1] &&
-          "method" in arguments[1] &&
-          "next" in arguments[1] &&
-          "prev" in arguments[1]
+          args.length === 2 &&
+          args[0] === void 0 &&
+          args[1] != null &&
+          "arg" in args[1] &&
+          "delegate" in args[1] &&
+          "done" in args[1] &&
+          "method" in args[1] &&
+          "next" in args[1] &&
+          "prev" in args[1]
         ) {
-          log.success(["修改参数", arguments[1]]);
-          arguments[1]["method"] = "return";
-          arguments[1]["next"] = "end";
-          arguments[1]["prev"] = 24;
+          log.success(["修改参数", args[1]]);
+          args[1]["method"] = "return";
+          args[1]["next"] = "end";
+          args[1]["prev"] = 24;
         }
-        let result = originCall.apply(this, arguments);
+        let result = originCall.apply(this, args);
         return result;
       };
     },
