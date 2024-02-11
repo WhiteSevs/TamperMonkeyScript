@@ -194,6 +194,7 @@ class ScriptFile:
     def get_version(self, old_version: str) -> str | None:
         "获取版本号"
         old_version_split = old_version.split(".")
+        old_version_time = self.convert_version_to_time(old_version)
         new_version = None
         new_version_3 = self.get_new_script_version_meta("%#Y.%#m.%#d")
         new_version_4 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H")
@@ -201,9 +202,6 @@ class ScriptFile:
 
         if len(old_version_split) == 3:
             # 年 月 日
-            old_version_time = self.convert_version_to_time(
-                f"{old_version_split[0]}-{old_version_split[1]}-{old_version_split[2]} 00:00:00"
-            )
             new_version_time = datetime.datetime.strptime(
                 self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
             )
@@ -213,9 +211,6 @@ class ScriptFile:
                 new_version = new_version_4
         elif len(old_version_split) == 4:
             # 年 月 日 时
-            old_version_time = self.convert_version_to_time(
-                f"{old_version_split[0]}-{old_version_split[1]}-{old_version_split[2]} {old_version_split[3]}:00:00"
-            )
             new_version_time = datetime.datetime.strptime(
                 self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
             )
@@ -233,9 +228,6 @@ class ScriptFile:
                 new_version = new_version_5
         elif len(old_version_split) == 5:
             # 年 月 日 时 分
-            old_version_time = self.convert_version_to_time(
-                f"{old_version_split[0]}-{old_version_split[1]}-{old_version_split[2]} {old_version_split[3]}:{old_version_split[4]}:00"
-            )
             new_version_time = datetime.datetime.strptime(
                 self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
             )
