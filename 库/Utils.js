@@ -5109,6 +5109,9 @@
     intervalTimer = 250,
     maxTime = -1
   ) {
+    if (checkObj == null) {
+      throw new TypeError("checkObj 不能为空对象 ");
+    }
     let isResolve = false;
     return new Promise((resolve) => {
       let interval = setInterval(() => {
@@ -5146,27 +5149,38 @@
     if (element == null) {
       throw new Error("Utils.waitVueByInterval 参数element 不能为空");
     }
+    let flag = false;
     await Utils.waitPropertyByInterval(
       element,
       function (targetElement) {
-        if (typeof propertyName === "undefined") {
-          return vueName in targetElement;
+        if (targetElement == null) {
+          return false;
+        }
+        if (!(vueName in targetElement)) {
+          return false;
+        }
+        if (propertyName == null) {
+          return true;
+        }
+        let vueObject = targetElement[vueName];
+        if (typeof propertyName === "string") {
+          if (propertyName in vueObject) {
+            flag = true;
+            return true;
+          }
         } else {
-          if (vueName in targetElement) {
-            if (typeof propertyName === "string") {
-              return propertyName in targetElement[vueName];
-            } else {
-              /* Function */
-              return propertyName(targetElement[vueName]);
-            }
-          } else {
-            return false;
+          /* Function */
+          if (propertyName(vueObject)) {
+            flag = true;
+            return true;
           }
         }
+        return false;
       },
       timer,
       maxTime
     );
+    return flag;
   };
 
   Utils.watchObject = function (

@@ -3267,7 +3267,7 @@ declare interface Utils {
     /**
      * 在规定时间内等待元素上的__vue__属性或者__vue__属性上的某个值出现出现
      * @param element 目标元素
-     * @param propertyName vue上的属性名
+     * @param propertyName （可选）vue上的属性名或者传递一个获取属性的方法返回boolean
      * @param timer （可选）间隔时间（ms），默认：250(ms)
      * @param maxTime（可选） 限制在多长时间内，默认：-1(不限制时间)
      * @param vueName （可选）vue挂载的属性名，默认：__vue__
@@ -3290,7 +3290,7 @@ declare interface Utils {
         timer?: number,
         maxTime?: number,
         vueName?: "__vue__" | string
-    ): Promise<void>;
+    ): Promise<boolean>;
     /**
      * 观察对象的set、get
      * @param target 观察的对象
@@ -3316,4 +3316,19 @@ declare interface Utils {
 
 declare var Utils: {
     prototype: Utils;
+}
+
+declare interface Vue2Context {
+    _isVue: true;
+    $options: object;
+    $parent: Vue2Context;
+    $root: Vue2Context;
+    $children: Vue2Context[];
+    $vnode: object;
+    $slots: object;
+    $scopedSlots: object;
+    $attrs: object;
+    $listeners: object;
+    $store: object;
+    $el: Element;
 }
