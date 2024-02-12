@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.11
+// @version      2024.2.12
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -956,7 +956,7 @@
           id: "greasy-fork-panel-config-script-list",
           title: "脚本列表",
           callback(event, rightHeaderElement, rightContainerElement) {
-            GreasyforkBusiness.UIScriptList(
+            Greasyfork.UIScriptList(
               "script-list",
               event,
               rightHeaderElement,
@@ -969,7 +969,7 @@
           id: "greasy-fork-panel-config-library",
           title: "库",
           callback(event, rightHeaderElement, rightContainerElement) {
-            GreasyforkBusiness.UIScriptList(
+            Greasyfork.UIScriptList(
               "script-library",
               event,
               rightHeaderElement,
@@ -1189,7 +1189,7 @@
   /**
    * GreasyFork的业务功能
    */
-  const GreasyforkBusiness = {
+  const Greasyfork = {
     /**
      * 自动登录
      */
@@ -2980,50 +2980,77 @@
         }
       });
     },
+    /**
+     * 检测gf页面是否正确加载，有时候会出现
+     * We're down for maintenance. Check back again soon.
+     */
+    checkPage() {
+      DOMUtils.ready(() => {
+        if (
+          document.body.firstElementChild &&
+          document.body.firstElementChild.localName === "p" &&
+          document.body.firstElementChild.innerText.includes(
+            "We're down for maintenance. Check back again soon."
+          )
+        ) {
+          let checkPageTime = parseInt(
+            GM_getValue("greasyfork-check-page-time", 0)
+          );
+          if (checkPageTime && Date.now() - checkPageTime > 5 * 1000) {
+            /* 上次重载时间在5秒内的话就拒绝重载 */
+            Qmsg.error("5秒内拒绝反复重载");
+            return;
+          }
+          GM_setValue("greasyfork-check-page-time", Date.now());
+          window.location.reload();
+        }
+      });
+    },
   };
   /* -----------------↑函数区域↑----------------- */
 
   /* -----------------↓执行入口↓----------------- */
+  Greasyfork.checkPage();
   GreasyforkCSS.init();
   PopsPanel.initMenu();
   if (PopsPanel.getValue("beautifyPage")) {
-    GreasyforkBusiness.beautifyPageElement();
+    Greasyfork.beautifyPageElement();
   }
   if (PopsPanel.getValue("beautifyHistoryVersionPage")) {
-    GreasyforkBusiness.beautifyHistoryVersionPage();
+    Greasyfork.beautifyHistoryVersionPage();
   }
   if (PopsPanel.getValue("beautifyGreasyforkBeautify")) {
-    GreasyforkBusiness.beautifyGreasyforkBeautify();
+    Greasyfork.beautifyGreasyforkBeautify();
   }
   if (PopsPanel.getValue("beautifyUploadImage")) {
-    GreasyforkBusiness.beautifyUploadImage();
+    Greasyfork.beautifyUploadImage();
   }
   if (PopsPanel.getValue("fullScreenOptimization")) {
-    GreasyforkBusiness.fullScreenOptimization();
+    Greasyfork.fullScreenOptimization();
   }
   DOMUtils.ready(function () {
     GreasyforkMenu.initEnv();
     if (PopsPanel.getValue("autoLogin")) {
-      GreasyforkBusiness.autoLogin();
+      Greasyfork.autoLogin();
     }
     GreasyforkMenu.handleLocalGotoCallBack();
-    GreasyforkBusiness.setFindCodeSearchBtn();
-    GreasyforkBusiness.setCollectScriptBtn();
-    GreasyforkBusiness.repairImgShow();
-    GreasyforkBusiness.repairCodeLineNumber();
+    Greasyfork.setFindCodeSearchBtn();
+    Greasyfork.setCollectScriptBtn();
+    Greasyfork.repairImgShow();
+    Greasyfork.repairCodeLineNumber();
     if (PopsPanel.getValue("optimizeImageBrowsing")) {
-      GreasyforkBusiness.optimizeImageBrowsing();
+      Greasyfork.optimizeImageBrowsing();
     }
     if (PopsPanel.getValue("overlayBedImageClickEvent")) {
-      GreasyforkBusiness.overlayBedImageClickEvent();
+      Greasyfork.overlayBedImageClickEvent();
     }
-    GreasyforkBusiness.scriptHomepageAddedTodaySUpdate();
+    Greasyfork.scriptHomepageAddedTodaySUpdate();
     if (PopsPanel.getValue("addCopyCodeButton")) {
-      GreasyforkBusiness.addCopyCodeButton();
+      Greasyfork.addCopyCodeButton();
     }
-    GreasyforkBusiness.addMarkdownCopyButton();
-    GreasyforkBusiness.languageSelectorLocale();
-    GreasyforkBusiness.filterDiscussions();
+    Greasyfork.addMarkdownCopyButton();
+    Greasyfork.languageSelectorLocale();
+    Greasyfork.filterDiscussions();
   });
   /* -----------------↑执行入口↑----------------- */
 })();
