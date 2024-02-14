@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.11.12
+// @version      2024.2.14
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -27,7 +27,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1324038/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1325839/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1327170/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
@@ -2363,7 +2363,14 @@
        * 处理劫持
        */
       const handleHijack = {
-        run() {
+        init() {
+          if (PopsPanel.getValue("baidu_search_hijack_define")) {
+            Object.defineProperty(unsafeWindow, "define", {
+              get(...args) {
+                return function (...args) {};
+              },
+            });
+          }
           if (PopsPanel.getValue("baidu_search_hijack_openbox")) {
             baiduHijack.hijackOpenBox();
           }
@@ -2402,6 +2409,7 @@
           `);
         }
       } else {
+        handleHijack.init();
         /* 默认的百度搜索 */
         handleEveryOneSearch.refactorEveryoneIsStillSearching =
           PopsPanel.getValue(
@@ -2581,7 +2589,9 @@
      * + isShowModal 是否显示需要登录的弹窗【继续操作需要登录贴吧账号】
      */
     tieba() {
-      if (!this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com/g)) {
+      if (
+        !this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com/g)
+      ) {
         return;
       }
 
@@ -6401,7 +6411,11 @@
       }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
-      if (this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/p\//g)) {
+      if (
+        this.url.match(
+          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com\/p\//g
+        )
+      ) {
         if (PopsPanel.getValue("baidu_tieba_optimize_see_comments")) {
           log.success("优化查看评论");
           tiebaCommentConfig.init();
@@ -6417,14 +6431,18 @@
       }
       if (
         this.url.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba).com\/mo\/q\/newtopic\/topicTemplate/g
+          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com\/mo\/q\/newtopic\/topicTemplate/g
         )
       ) {
         if (PopsPanel.getValue("baidu_tieba_topic_redirect_jump")) {
           tiebaHome.redirectJump();
         }
       }
-      if (this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba).com\/f\?/g)) {
+      if (
+        this.url.match(
+          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com\/f\?/g
+        )
+      ) {
         /* 吧内 */
         if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
           tiebaBaNei.rememberPostSort();
@@ -7953,6 +7971,13 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
+                  "劫持-define函数",
+                  "baidu_search_hijack_define",
+                  false,
+                  void 0,
+                  "开启后将禁止原有的define"
+                ),
+                PopsPanel.getSwtichDetail(
                   "劫持-复制",
                   "baidu_search_hijack_copy",
                   false,
@@ -9099,7 +9124,7 @@ remove-child##[class*='-video-player']`,
             });
           }
         } catch (error) {
-          log.error(error);
+          //log.error(error);
         }
         return originApply.call(this, ...arguments);
       };
@@ -9163,7 +9188,7 @@ remove-child##[class*='-video-player']`,
             return;
           }
         } catch (error) {
-          log.error(error);
+          /*log.error(error);*/
         }
         return originApply.call(this, ...arguments);
       };
