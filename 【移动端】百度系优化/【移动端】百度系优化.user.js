@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.14
+// @version      2024.2.14.19
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -2983,8 +2983,6 @@
           let timeStamp = Date.now();
           let nextPageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
           let nextPageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
-          log.info("请求下一页评论的url: " + nextPageUrl);
-          log.info("帖子所有评论的url: " + nextPageAllCommentUrl);
           let pageDOM = await tiebaCommentConfig.getPageComment(nextPageUrl);
           let pageCommentList = await tiebaCommentConfig.getPageCommentList(
             nextPageAllCommentUrl
@@ -3054,8 +3052,6 @@
           let timeStamp = Date.now();
           let pageUrl = `https://tieba.baidu.com/p/${tiebaCommentConfig.param_tid}?pn=${tiebaCommentConfig.page}${tiebaCommentConfig.extraSearchSignParams}`;
           let pageAllCommentUrl = `https://tieba.baidu.com/p/totalComment?t=${timeStamp}&tid=${tiebaCommentConfig.param_tid}&fid=${tiebaCommentConfig.param_forum_id}&pn=${tiebaCommentConfig.page}&see_lz=0${tiebaCommentConfig.extraSearchSignParams}`;
-          log.info("请求上一页评论的url: " + pageUrl);
-          log.info("帖子所有评论的url: " + pageAllCommentUrl);
           let pageDOM = await tiebaCommentConfig.getPageComment(pageUrl);
           let pageCommentList = await tiebaCommentConfig.getPageCommentList(
             pageAllCommentUrl
@@ -3200,8 +3196,7 @@
             let childSpanElementList = Array.from(
               ele_tail_wrap.querySelectorAll("span")
             );
-            for (let index = 0; index < childSpanElementList.length; index++) {
-              let childSpanElement = childSpanElementList[index];
+            for (const childSpanElement of childSpanElementList) {
               if (childSpanElement.hasAttribute("class")) {
                 continue;
               }
@@ -3277,6 +3272,19 @@
               userAvatarObj.pathname.match(/\/item\/(.+)/i);
             if (userAvatarObjMatch) {
               userPortrait = userAvatarObjMatch[1];
+            }
+          }
+          if (PopsPanel.getValue("baidu_tieba_shield_commnets_baodating")) {
+            /* 屏蔽贴吧包打听 */
+            if (user_id != null && user_id.toString() === "6421022725") {
+              return;
+            } else if (
+              userPortrait != null &&
+              userPortrait
+                .toString()
+                .includes("tb.1.4c46bb61.pOGb2yswbMUBKOIUpteLvg")
+            ) {
+              return;
             }
           }
           let post_id = data_field["content"]["post_id"];
@@ -4374,7 +4382,7 @@
           }
           let getResp = await httpx.get(getDetails);
           let respData = getResp.data;
-          log.success(["获取第一页的评论", respData]);
+          log.success(["获取评论", getResp]);
           if (getResp.status) {
             let pageCommentHTMLElement = DOMUtils.parseHTML(
               respData.responseText,
@@ -4428,6 +4436,7 @@
               Referer: "tieba.baidu.com",
             },
           });
+          log.info(["获取楼中楼评论", getResp]);
           let respData = getResp.data;
           if (getResp.status) {
             let data = utils.toJSON(respData.responseText);
@@ -4437,7 +4446,7 @@
               userList: data["data"]["user_list"],
             };
           } else if (getResp.type === "onerror") {
-            log.error("取第一页的评论的评论数据失败 👇");
+            log.error("获取楼中楼评论数据失败 👇");
             log.error(getResp);
           }
         },
@@ -4519,7 +4528,7 @@
             log.error("评论数据获取失败");
             return;
           }
-          log.info("成功获取第一页评论和其第一页的楼中楼评论");
+          log.info("成功获取第一页评论和楼中楼评论");
           let jumpInputBrightDOM = pageDOM.querySelector(".jump_input_bright");
           tiebaCommentConfig.maxPage = 1;
           if (jumpInputBrightDOM) {
@@ -4594,7 +4603,7 @@
             log.error("评论数据获取失败");
             return;
           }
-          log.info("成功获取第一页评论和其第一页的楼中楼评论");
+          log.info("成功获取第一页评论和楼中楼评论");
           tiebaCommentConfig.maxPage = 1;
           let jumpInputBrightDOM = pageDOM.querySelector(".jump_input_bright");
           if (jumpInputBrightDOM) {
@@ -8423,6 +8432,13 @@
                   true,
                   void 0,
                   "点击头像正确跳转至用户主页"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "屏蔽机器人",
+                  "baidu_tieba_shield_commnets_baodating",
+                  true,
+                  void 0,
+                  "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
                 ),
                 PopsPanel.getSwtichDetail(
                   "实验性-请求携带Cookie",
