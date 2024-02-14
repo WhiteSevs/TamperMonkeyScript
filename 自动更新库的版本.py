@@ -152,8 +152,8 @@ class ScriptFile:
                     )
                     if update_meta_version and len(version_pattern_match):
                         space_str = version_pattern_match[0][0]
-                        old_version = version_pattern_match[0][1]
-
+                        old_version: str = version_pattern_match[0][1]
+                        old_version = old_version.strip()
                         new_version = self.get_version(old_version)
 
                         if new_version is not None:
@@ -199,7 +199,6 @@ class ScriptFile:
         new_version_3 = self.get_new_script_version_meta("%#Y.%#m.%#d")
         new_version_4 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H")
         new_version_5 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H.%#M")
-
         if len(old_version_split) == 3:
             # 年 月 日
             new_version_time = datetime.datetime.strptime(
