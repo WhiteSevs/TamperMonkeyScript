@@ -84,9 +84,9 @@ declare const GM_info: {
     [key: string]: any;
 };
 /**
- * 添加CSS样式到页面中
+ * 添加CSS样式到页面中并返回该样式CSS元素
  */
-declare function GM_addStyle(css: string): HTMLElement;
+declare function GM_addStyle(css: string): HTMLStyleElement;
 
 /**
  * 删除本地存储的值
