@@ -1813,8 +1813,9 @@ declare interface Utils {
     version: string;
     /** 
      * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
-     * @param target 目标端
-     * @param source 源端
+     * @param target 目标数据
+     * @param source 源数据
+     * @param isAdd 是否可以追加键，默认false
      * @example
      * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
      * > 
@@ -1825,7 +1826,11 @@ declare interface Utils {
             }
         }
      */
-    assign(target?: object, source?: object): any;
+    assign<T1, T2 extends object, T3 extends boolean>(
+        target: T1,
+        source: T2,
+        isAdd?: T3
+    ): T3 extends true ? T1 & T2 : T1;
     /**
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -1841,7 +1846,12 @@ declare interface Utils {
      * @param clientY Y坐标，默认值0
      * @param view 触发的事件目标
      */
-    canvasClickByPosition(canvasElement: HTMLCanvasElement, clientX?: number, clientY?: number, view?: Window & typeof globalThis): void;
+    canvasClickByPosition(
+        canvasElement: HTMLCanvasElement,
+        clientX?: number,
+        clientY?: number,
+        view?: Window & typeof globalThis
+    ): void;
     /**
      * 【手机】检测点击的地方是否在该元素区域内
      * @param element 需要检测的元素
@@ -1857,7 +1867,7 @@ declare interface Utils {
      * 复制formData数据
      * @param formData 需要clone的数据
      */
-    cloneFormData(formData: FormData): FormData;
+    cloneFormData<T extends FormData>(formData: T): T;
     /**
      * 函数重载实现
      * @example
@@ -1932,7 +1942,7 @@ declare interface Utils {
      * @example
      * Utils.downloadBase64("data:image/jpeg:base64/,xxxxxx");
      **/
-    downloadBase64(base64Data: string, fileName: string, isIFrame?: boolean | undefined): void;
+    downloadBase64(base64Data: string, fileName: string, isIFrame?: boolean): void;
     /**
      * 选中页面中的文字，类似Ctrl+F的选中
      * @param str （可选）需要寻找的字符串，默认为空
@@ -2026,7 +2036,18 @@ declare interface Utils {
      * Utils.formatTime()
      * > '2023-1-1 00:00:00'
      **/
-    formatTime(text?: string | number, formatType?: string): string;
+    formatTime(
+        text?: string | number,
+        formatType?:
+            "yyyy-MM-dd HH:mm:ss" |
+            "yyyy/MM/dd HH:mm:ss" |
+            "yyyy年MM月dd日 HH时mm分ss秒" |
+            "yyyyMMdd" |
+            "yyyy_MM_dd_HH_mm_ss" |
+            "yyyy年MM月dd日 hh:mm:ss" |
+            "yyyy-MM-dd" |
+            "HH:mm:ss"
+    ): string;
     /**
      * 字符串格式的时间转时间戳
      * @param text	字符串格式的时间，例如：
@@ -2152,12 +2173,13 @@ declare interface Utils {
      */
     getMaxValue(val: object[], handler: (index: number, value: any) => number): number;
     /**
-     * 获取页面中最大的z-index再+1
+     * 获取页面中最大的z-index
+     * @param deviation 获取最大的z-index值的偏移，默认是+1
      * @example
      * Utils.getMaxZIndex();
      * > 1001
      **/
-    getMaxZIndex(): number;
+    getMaxZIndex(deviation?: number): number;
     /**
      * 获取最小值
      * @example

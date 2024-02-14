@@ -22,9 +22,9 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-10";
+  Utils.version = "2024-2-14";
 
-  Utils.assign = function (target = {}, source = {}) {
+  Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
       let canTraverse = source.filter((item) => {
         return typeof item === "object";
@@ -33,23 +33,46 @@
         return source;
       }
     }
-    for (let targetKeyName in target) {
-      let targetValue = target[targetKeyName];
-      if (targetKeyName in source) {
-        let sourceValue = source[targetKeyName];
-        if (typeof sourceValue === "object" && !Utils.isDOM(sourceValue)) {
-          /* 源端的值是object类型，且不是元素对象 */
-          if (Object.keys(sourceValue).length) {
-            target[targetKeyName] = Utils.assign(targetValue, sourceValue);
-          } else {
-            target[targetKeyName] = sourceValue;
+    if (isAdd) {
+      for (const sourceKeyName in source) {
+        const targetKeyName = sourceKeyName;
+        let targetValue = target[targetKeyName];
+        let sourceValue = source[sourceKeyName];
+        if (
+          sourceKeyName in target &&
+          typeof sourceValue === "object" &&
+          !Utils.isDOM(sourceValue)
+        ) {
+          /* 源端的值是object类型，且不是元素节点 */
+          target[sourceKeyName] = Utils.assign(targetValue, sourceValue, isAdd);
+          continue;
+        }
+        target[sourceKeyName] = sourceValue;
+      }
+    } else {
+      for (const targetKeyName in target) {
+        if (targetKeyName in source) {
+          let targetValue = target[targetKeyName];
+          let sourceValue = source[targetKeyName];
+          if (
+            typeof sourceValue === "object" &&
+            !Utils.isDOM(sourceValue) &&
+            Object.keys(sourceValue).length
+          ) {
+            /* 源端的值是object类型，且不是元素节点 */
+            target[targetKeyName] = Utils.assign(
+              targetValue,
+              sourceValue,
+              isAdd
+            );
+            continue;
           }
-        } else {
           /* 直接赋值 */
           target[targetKeyName] = sourceValue;
         }
       }
     }
+
     return target;
   };
 
@@ -1371,8 +1394,9 @@
     }
   };
 
-  Utils.getMaxZIndex = function () {
+  Utils.getMaxZIndex = function (deviation = 1) {
     let nodeIndexList = [];
+    deviation = Number.isNaN(deviation) ? 1 : deviation;
     document.querySelectorAll("*").forEach((element) => {
       let nodeStyle = window.getComputedStyle(element);
       /* 不对position为static和display为none的元素进行获取它们的z-index */
@@ -1380,8 +1404,12 @@
         nodeIndexList = nodeIndexList.concat(parseInt(nodeStyle.zIndex));
       }
     });
-    nodeIndexList = nodeIndexList.filter(Boolean); /* 过滤非Boolean类型 */
-    return nodeIndexList.length ? Math.max(...nodeIndexList) + 1 : 0;
+    /* 过滤非Boolean类型 */
+    nodeIndexList = nodeIndexList.filter(Boolean);
+    let currentMaxZIndex = nodeIndexList.length
+      ? Math.max(...nodeIndexList)
+      : 0;
+    return currentMaxZIndex + deviation;
   };
 
   Utils.getMinValue = function () {
@@ -1530,8 +1558,14 @@
     let cssNode = document.createElement("style");
     cssNode.setAttribute("type", "text/css");
     cssNode.innerHTML = cssText;
-    if (document.documentElement.childNodes.length === 0) {
+    if (document.head) {
+      /* 插入head最后 */
+      document.head.appendChild(cssNode);
+    } else if (document.body) {
       /* 插入body后 */
+      document.body.appendChild(cssNode);
+    } else if (document.documentElement.childNodes.length === 0) {
+      /* 插入#html第一个元素后 */
       document.documentElement.appendChild(cssNode);
     } else {
       /* 插入head前面 */
@@ -2355,14 +2389,45 @@
       onLoad(details, resolve, argumentsList) {
         /* X浏览器会因为设置了responseType导致不返回responseText */
         let response = argumentsList[0];
+        /* responseText为空，response不为空的情况 */
         if (
-          details.responseType === "json" &&
           Utils.isNull(response["responseText"]) &&
-          typeof response["response"] === "object"
+          Utils.isNotNull(response["response"])
         ) {
-          Utils.tryCatch().run(() => {
-            response["responseText"] = JSON.stringify(response["response"]);
-          });
+          if (typeof response["response"] === "object") {
+            Utils.tryCatch().run(() => {
+              response["responseText"] = JSON.stringify(response["response"]);
+            });
+          } else {
+            response["responseText"] = response["response"];
+          }
+        }
+
+        /* response为空，responseText不为空的情况 */
+        if (
+          response["response"] == null &&
+          typeof response["responseText"] === "string" &&
+          response["responseText"].trim() !== ""
+        ) {
+          if (details.responseType === "json") {
+            response["response"] = Utils.toJSON(response["responseText"]);
+          } else if (details.responseType === "document") {
+            let parser = new DOMParser();
+            response["response"] = parser.parseFromString(
+              response["responseText"],
+              "text/html"
+            );
+          } else if (details.responseType === "arraybuffer") {
+            let encoder = new TextEncoder();
+            let arrayBuffer = encoder.encode(response["responseText"]);
+            response["response"] = arrayBuffer;
+          } else if (details.responseType === "blob") {
+            let encoder = new TextEncoder();
+            let arrayBuffer = encoder.encode(response["responseText"]);
+            response["response"] = new Blob([arrayBuffer]);
+          } else {
+            response["response"] = response["responseText"];
+          }
         }
         /* Stay扩展中没有finalUrl，对应的是responseURL */
         if (response["finalUrl"] == null && response["responseURL"] != null) {
