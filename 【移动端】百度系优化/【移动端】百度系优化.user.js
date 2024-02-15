@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.14.19
+// @version      2024.2.15
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -26,9 +26,9 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1324038/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1327170/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1327727/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1327728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
 // ==/UserScript==
 
 (function () {
@@ -3889,7 +3889,7 @@
             dialog.removeAttribute("data-on");
             DOMUtils.on(dialog, utils.getTransitionEndNameList(), function () {
               DOMUtils.off(dialog, utils.getTransitionEndNameList());
-              log.success("关闭楼中楼回复弹窗");
+              log.success("关闭楼中楼回复弹窗_click");
               dialog.remove();
               if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
                 resumeBack();
@@ -3903,7 +3903,7 @@
             dialog.removeAttribute("data-on");
             DOMUtils.on(dialog, utils.getTransitionEndNameList(), function () {
               DOMUtils.off(dialog, utils.getTransitionEndNameList());
-              log.success("关闭楼中楼回复弹窗");
+              log.success("关闭楼中楼回复弹窗_urlchange");
               dialog.remove();
             });
           }

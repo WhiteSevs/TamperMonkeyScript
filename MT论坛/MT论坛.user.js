@@ -5,7 +5,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @description  更新日志: 相关库的更新;
-// @version      2024.2.14
+// @version      2024.2.15
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -35,7 +35,7 @@
 // @require      https://update.greasyfork.org/scripts/452322/1305490/js-watermark.js
 // @require      https://update.greasyfork.org/scripts/456607/1309371/GM_html2canvas.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
-// @require      https://update.greasyfork.org/scripts/455186/1327170/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1327728/WhiteSevsUtils.js
 // ==/UserScript==
 
 (async function () {
@@ -732,7 +732,7 @@
       {
         object: utils,
         name: "utils",
-        url: "https://update.greasyfork.org/scripts/455186/1327170/WhiteSevsUtils.js",
+        url: "https://update.greasyfork.org/scripts/455186/1327728/WhiteSevsUtils.js",
       },
       {
         object: typeof hljs === "undefined" ? window.hljs : hljs,
