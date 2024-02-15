@@ -22,9 +22,10 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherDOMUtils) {
   /** @type {DOMUtils} */
   const DOMUtils = {};
-  DOMUtils.version = "2024-1-28";
+  DOMUtils.version = "2024-2-15";
 
-  let CommonUtils = {
+  /** 通用工具类 */
+  const CommonDOMUtils = {
     /**
      * 判断元素是否已显示或已连接
      * @param {HTMLElement} element
@@ -107,6 +108,16 @@
       return true;
     },
   };
+
+  /* 数据 */
+  const DOMUtilsData = {
+    /** .on绑定的事件 */
+    SymbolEvents: Symbol(
+      "events_" +
+        (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+    ),
+  };
+
   DOMUtils.attr = function (element, attrName, attrValue) {
     if (typeof element === "string") {
       element = document.querySelector(element);
@@ -526,7 +537,7 @@
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
-    if (element == void 0) {
+    if (element == null) {
       return;
     }
     /**
@@ -547,14 +558,6 @@
     } else if (typeof eventType === "string") {
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
-    /**
-     * 元素属性上自定义的用于暂存事件的对象名
-     */
-    let propEventsName = "events";
-    /**
-     * window属性上自定义的用于暂存事件的对象名
-     */
-    let windowEventsName = "DOMUtilsGlobalEvents";
     /**
      * @type {?string}
      */
@@ -585,7 +588,7 @@
         let target = event.target;
         if (_selector_) {
           /* 存在自定义子元素选择器 */
-          let totalParent = CommonUtils.isWin(elementItem)
+          let totalParent = CommonDOMUtils.isWin(elementItem)
             ? document.documentElement
             : elementItem;
           if (target.matches(_selector_)) {
@@ -611,10 +614,7 @@
           _callback_.call(elementItem, event);
         }
       };
-      /* 判断元素是否是window */
-      let attributeEventName = CommonUtils.isWin(elementItem)
-        ? windowEventsName
-        : propEventsName;
+
       /* 遍历事件名设置元素事件 */
       eventTypeList.forEach((eventName) => {
         elementItem.addEventListener(eventName, ownCallBack, _option_);
@@ -622,8 +622,9 @@
         if (_callback_ && _callback_.delegate) {
           elementItem.setAttribute("data-delegate", _selector_);
         }
-
-        let elementEvents = elementItem[attributeEventName] || {};
+        /* 获取对象上的事件 */
+        let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
+        /* 初始化对象上的xx事件 */
         elementEvents[eventName] = elementEvents[eventName] || [];
         elementEvents[eventName].push({
           selector: _selector_,
@@ -631,7 +632,8 @@
           callback: ownCallBack,
           originCallBack: _callback_,
         });
-        elementItem[attributeEventName] = elementEvents;
+        /* 覆盖事件 */
+        elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
       });
     });
   };
@@ -667,7 +669,7 @@
     if (typeof element === "string") {
       element = document.querySelectorAll(element);
     }
-    if (element == void 0) {
+    if (element == null) {
       return;
     }
     /**
@@ -689,23 +691,18 @@
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
     /**
-     * 元素属性上自定义的用于暂存事件的对象名
-     */
-    let propEventsName = "events";
-    /**
-     * window属性上自定义的用于暂存事件的对象名
-     */
-    let windowEventsName = "DOMUtilsGlobalEvents";
-    /**
+     * 子元素选择器
      * @type {?string}
      */
     let _selector_ = selector;
     /**
+     * 事件的回调函数
      * @type {(event:Event)=>{}}
      */
     let _callback_ = callback;
 
     /**
+     * 事件的配置
      * @type {EventListenerOptions}
      */
     let _option_ = {
@@ -720,26 +717,20 @@
       _option_ = getOption(args, 4, _option_);
     }
     elementList.forEach((elementItem) => {
-      let elementEvents = {};
-      if (CommonUtils.isWin(elementItem)) {
-        elementEvents = elementItem[windowEventsName] || {};
-      } else {
-        elementEvents = elementItem[propEventsName] || {};
-      }
+      /* 获取对象上的事件 */
+      let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
       eventTypeList.forEach((eventName) => {
-        /**
-         * @type {DOMUtilsEventListenerOptionsAttribute[]}
-         */
+        /** @type {DOMUtilsEventListenerOptionsAttribute[]} */
         let handlers = elementEvents[eventName] || [];
         if (typeof filter === "function") {
           handlers = handlers.filter(filter);
         }
         for (let index = 0; index < handlers.length; index++) {
           let handler = handlers[index];
-          let flag = !1;
+          let flag = false;
           if (!_selector_ || handler.selector === _selector_) {
             /* selector不为空，进行selector判断 */
-            flag = !0;
+            flag = true;
           }
           if (
             !_callback_ ||
@@ -747,7 +738,7 @@
             handler.originCallBack === _callback_
           ) {
             /* callback不为空，进行callback判断 */
-            flag = !0;
+            flag = true;
           }
 
           if (flag) {
@@ -764,11 +755,57 @@
           delete elementEvents[eventType];
         }
       });
-      if (CommonUtils.isWin(elementItem)) {
-        elementItem[windowEventsName] = elementEvents;
-      } else {
-        elementItem[propEventsName] = elementEvents;
-      }
+      elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+    });
+  };
+
+  DOMUtils.offAll = function (element, eventType) {
+    if (typeof element === "string") {
+      element = document.querySelectorAll(element);
+    }
+    if (element == null) {
+      return;
+    }
+    /**
+     * @type {HTMLElement[]}
+     */
+    let elementList = [];
+    if (element instanceof NodeList || Array.isArray(element)) {
+      elementList = [...element];
+    } else {
+      elementList.push(element);
+    }
+    /**
+     * @type {string[]}
+     */
+    let eventTypeList = [];
+    if (Array.isArray(eventType)) {
+      eventTypeList = eventTypeList.concat(eventType);
+    } else if (typeof eventType === "string") {
+      eventTypeList = eventTypeList.concat(eventType.split(" "));
+    }
+    elementList.forEach((elementItem) => {
+      Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
+        if (!symbolEvents.toString().startsWith("Symbol(events_")) {
+          return;
+        }
+        let elementEvents = elementItem[symbolEvents] || {};
+        let iterEventNameList = eventTypeList.length
+          ? eventTypeList
+          : Object.keys(elementEvents);
+        iterEventNameList.forEach((eventName) => {
+          let handlers = elementEvents[eventName];
+          if (!handlers) {
+            return;
+          }
+          for (const handler of handlers) {
+            elementItem.removeEventListener(eventName, handler.callback, {
+              capture: handler["option"]["capture"],
+            });
+          }
+          delete elementItem[symbolEvents][eventName];
+        });
+      });
     });
   };
 
@@ -781,7 +818,7 @@
     if (typeof element === "string") {
       element = document.querySelector(element);
     }
-    if (element == void 0) {
+    if (element == null) {
       return;
     }
     let elementList = [];
@@ -791,23 +828,15 @@
       elementList = [element];
     }
     let eventTypeList = [];
-    if (!eventType) {
-      for (let type in events) {
-        eventTypeList = [...eventTypeList, type];
-      }
-    } else if (Array.isArray(eventType)) {
+    if (Array.isArray(eventType)) {
       eventTypeList = eventType;
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
     }
 
     elementList.forEach((elementItem) => {
-      let events = {};
-      if (CommonUtils.isWin(elementItem)) {
-        events = elementItem["DOMUtilsGlobalEvents"] || {};
-      } else {
-        events = elementItem.events || {};
-      }
+      /* 获取对象上的事件 */
+      let events = elementItem[DOMUtilsData.SymbolEvents] || {};
       eventTypeList.forEach((_eventType_) => {
         let event = new Event(_eventType_);
         if (details) {
@@ -841,7 +870,7 @@
   };
 
   DOMUtils.width = function (element, isShow = false) {
-    if (CommonUtils.isWin(element)) {
+    if (CommonDOMUtils.isWin(element)) {
       return window.document.documentElement.clientWidth;
     }
     if (typeof element === "string") {
@@ -860,27 +889,30 @@
         element.documentElement.clientWidth
       );
     }
-    if (CommonUtils.isShow(element)) {
+    if (CommonDOMUtils.isShow(element)) {
       /* 已显示 */
       /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
 
       /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
-      if (parseFloat(CommonUtils.getStyleValue(element, "width")) > 0) {
-        return parseFloat(CommonUtils.getStyleValue(element, "width"));
+      if (parseFloat(CommonDOMUtils.getStyleValue(element, "width")) > 0) {
+        return parseFloat(CommonDOMUtils.getStyleValue(element, "width"));
       }
 
       /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
       if (element.offsetWidth > 0) {
-        let borderLeftWidth = CommonUtils.getStyleValue(
+        let borderLeftWidth = CommonDOMUtils.getStyleValue(
           element,
           "borderLeftWidth"
         );
-        let borderRightWidth = CommonUtils.getStyleValue(
+        let borderRightWidth = CommonDOMUtils.getStyleValue(
           element,
           "borderRightWidth"
         );
-        let paddingLeft = CommonUtils.getStyleValue(element, "paddingLeft");
-        let paddingRight = CommonUtils.getStyleValue(element, "paddingRight");
+        let paddingLeft = CommonDOMUtils.getStyleValue(element, "paddingLeft");
+        let paddingRight = CommonDOMUtils.getStyleValue(
+          element,
+          "paddingRight"
+        );
         let backHeight =
           parseFloat(element.offsetWidth) -
           parseFloat(borderLeftWidth) -
@@ -892,7 +924,7 @@
       return 0;
     } else {
       /* 未显示 */
-      let { recovery } = CommonUtils.showElement(element);
+      let { recovery } = CommonDOMUtils.showElement(element);
       let width = DOMUtils.width(element, true);
       recovery();
       return width;
@@ -900,7 +932,7 @@
   };
 
   DOMUtils.height = function (element, isShow = false) {
-    if (CommonUtils.isWin(element)) {
+    if (CommonDOMUtils.isWin(element)) {
       return window.document.documentElement.clientHeight;
     }
     if (typeof element === "string") {
@@ -919,26 +951,29 @@
         element.documentElement.clientHeight
       );
     }
-    if (CommonUtils.isShow(element)) {
+    if (CommonDOMUtils.isShow(element)) {
       /* 已显示 */
       /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
       /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
-      if (parseFloat(CommonUtils.getStyleValue(element, "height")) > 0) {
-        return parseFloat(CommonUtils.getStyleValue(element, "height"));
+      if (parseFloat(CommonDOMUtils.getStyleValue(element, "height")) > 0) {
+        return parseFloat(CommonDOMUtils.getStyleValue(element, "height"));
       }
 
       /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
       if (element.offsetHeight > 0) {
-        let borderTopWidth = CommonUtils.getStyleValue(
+        let borderTopWidth = CommonDOMUtils.getStyleValue(
           element,
           "borderTopWidth"
         );
-        let borderBottomWidth = CommonUtils.getStyleValue(
+        let borderBottomWidth = CommonDOMUtils.getStyleValue(
           element,
           "borderBottomWidth"
         );
-        let paddingTop = CommonUtils.getStyleValue(element, "paddingTop");
-        let paddingBottom = CommonUtils.getStyleValue(element, "paddingBottom");
+        let paddingTop = CommonDOMUtils.getStyleValue(element, "paddingTop");
+        let paddingBottom = CommonDOMUtils.getStyleValue(
+          element,
+          "paddingBottom"
+        );
         let backHeight =
           parseFloat(element.offsetHeight) -
           parseFloat(borderTopWidth) -
@@ -950,7 +985,7 @@
       return 0;
     } else {
       /* 未显示 */
-      let { recovery } = CommonUtils.showElement(element);
+      let { recovery } = CommonDOMUtils.showElement(element);
       let height = DOMUtils.height(element, true);
       recovery();
       return height;
@@ -958,7 +993,7 @@
   };
 
   DOMUtils.outerWidth = function (element, isShow = false) {
-    if (CommonUtils.isWin(element)) {
+    if (CommonDOMUtils.isWin(element)) {
       return window.innerWidth;
     }
     if (typeof element === "string") {
@@ -967,13 +1002,13 @@
     if (element == void 0) {
       return;
     }
-    if (CommonUtils.isShow(element)) {
+    if (CommonDOMUtils.isShow(element)) {
       let style = getComputedStyle(element, null);
-      let marginLeft = CommonUtils.getStyleValue(style, "marginLeft");
-      let marginRight = CommonUtils.getStyleValue(style, "marginRight");
+      let marginLeft = CommonDOMUtils.getStyleValue(style, "marginLeft");
+      let marginRight = CommonDOMUtils.getStyleValue(style, "marginRight");
       return element.offsetWidth + marginLeft + marginRight;
     } else {
-      let { recovery } = CommonUtils.showElement(element);
+      let { recovery } = CommonDOMUtils.showElement(element);
       let outerWidth = DOMUtils.outerWidth(element, true);
       recovery();
       return outerWidth;
@@ -981,7 +1016,7 @@
   };
 
   DOMUtils.outerHeight = function (element, isShow = false) {
-    if (CommonUtils.isWin(element)) {
+    if (CommonDOMUtils.isWin(element)) {
       return window.innerHeight;
     }
     if (typeof element === "string") {
@@ -990,13 +1025,13 @@
     if (element == void 0) {
       return;
     }
-    if (CommonUtils.isShow(element)) {
+    if (CommonDOMUtils.isShow(element)) {
       let style = getComputedStyle(element, null);
-      let marginTop = CommonUtils.getStyleValue(style, "marginTop");
-      let marginBottom = CommonUtils.getStyleValue(style, "marginBottom");
+      let marginTop = CommonDOMUtils.getStyleValue(style, "marginTop");
+      let marginBottom = CommonDOMUtils.getStyleValue(style, "marginBottom");
       return element.offsetHeight + marginTop + marginBottom;
     } else {
-      let { recovery } = CommonUtils.showElement(element);
+      let { recovery } = CommonDOMUtils.showElement(element);
       let outerHeight = DOMUtils.outerHeight(element, true);
       recovery();
       return outerHeight;
