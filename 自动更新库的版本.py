@@ -145,32 +145,26 @@ class ScriptFile:
                     print(
                         f"""库【{scriptInfo.name}】 {len(patternMatch)}处 版本: {old_library_script_version} => {scriptInfo.version}"""
                     )
+        if flag:
+            version_pattern = r"""// @version([\s]+)(.+)"""
+            version_pattern_match = re.findall(version_pattern, replaced_content)
+            if update_meta_version and len(version_pattern_match):
+                space_str = version_pattern_match[0][0]
+                old_version: str = version_pattern_match[0][1]
+                old_version = old_version.strip()
+                new_version = self.get_version(old_version)
 
-                    version_pattern = r"""// @version([\s]+)(.+)"""
-                    version_pattern_match = re.findall(
-                        version_pattern, replaced_content
+                if new_version is not None:
+                    old_version_meta = f"""// @version{space_str}{old_version}"""
+                    new_version_meta = f"""// @version{space_str}{new_version}"""
+                    replaced_content = re.sub(
+                        old_version_meta,
+                        new_version_meta,
+                        replaced_content,
                     )
-                    if update_meta_version and len(version_pattern_match):
-                        space_str = version_pattern_match[0][0]
-                        old_version: str = version_pattern_match[0][1]
-                        old_version = old_version.strip()
-                        new_version = self.get_version(old_version)
-
-                        if new_version is not None:
-                            old_version_meta = (
-                                f"""// @version{space_str}{old_version}"""
-                            )
-                            new_version_meta = (
-                                f"""// @version{space_str}{new_version}"""
-                            )
-                            replaced_content = re.sub(
-                                old_version_meta,
-                                new_version_meta,
-                                replaced_content,
-                            )
-                            print(
-                                f"""{len(version_pattern_match)}处 meta信息@version：{old_version} => {new_version}"""
-                            )
+                    print(
+                        f"""{len(version_pattern_match)}处 meta信息@version：{old_version} => {new_version}"""
+                    )
 
         if content != replaced_content and flag:
             with open(file=file_path, mode="w", encoding="utf-8", errors="ignore") as f:
