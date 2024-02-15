@@ -617,6 +617,15 @@ declare interface DOMUtils {
         ) => boolean, ...args: any[]
     ): void;
     /**
+     * 取消绑定所有的事件
+     * @param element 需要取消绑定的元素|元素数组
+     * @param eventType （可选）需要取消监听的事件
+     */
+    offAll(
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window,
+        eventType?: DOMUtils_EventType | DOMUtils_EventType[],
+    ): void;
+    /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件

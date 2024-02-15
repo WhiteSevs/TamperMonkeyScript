@@ -2280,6 +2280,12 @@ declare interface Utils {
         reactInternalInstance: object;
     } | void;
     /**
+     * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
+     * @param target 目标对象
+     * @param keyName （可选）Symbol名或者Symbol对象
+     */
+    getSymbol(target: object, keyName?: string|symbol): any;
+    /**
      * 获取文本的字符长度
      * @param text
      * @example
