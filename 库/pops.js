@@ -18,10 +18,13 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherPops) {
   "use strict";
 
-  /**
-   * 工具类
-   */
+  /** 工具类 */
   let PopsUtils = {
+    /** .on绑定的事件 @type {unique symbol} */
+    SymbolEvents: Symbol(
+      "events_" +
+        (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+    ),
     assignJSON(target, source) {
       /* JSON数据存在即替换 */
       if (source == null) {
@@ -2187,9 +2190,7 @@
     },
   };
 
-  /**
-   * 元素工具类
-   */
+  /** 元素工具类 */
   let PopsDOMUtils = {
     /**
      * 获取animationend的在各个浏览器的兼容名
@@ -2282,14 +2283,6 @@
         eventTypeList = eventTypeList.concat(eventType.split(" "));
       }
       /**
-       * 元素属性上自定义的用于暂存事件的对象名
-       */
-      let propEventsName = "events";
-      /**
-       * window属性上自定义的用于暂存事件的对象名
-       */
-      let windowEventsName = "DOMUtilsGlobalEvents";
-      /**
        * @type {?string}
        */
       let _selector_ = selector;
@@ -2319,7 +2312,7 @@
           let target = event.target;
           if (_selector_) {
             /* 存在自定义子元素选择器 */
-            let totalParent = PopsUtils.isWin(elementItem)
+            let totalParent = CommonUtils.isWin(elementItem)
               ? document.documentElement
               : elementItem;
             if (target.matches(_selector_)) {
@@ -2345,18 +2338,17 @@
             _callback_.call(elementItem, event);
           }
         };
-        /* 判断元素是否是window */
-        let attributeEventName = PopsUtils.isWin(elementItem)
-          ? windowEventsName
-          : propEventsName;
+
         /* 遍历事件名设置元素事件 */
         eventTypeList.forEach((eventName) => {
           elementItem.addEventListener(eventName, ownCallBack, _option_);
+
           if (_callback_ && _callback_.delegate) {
             elementItem.setAttribute("data-delegate", _selector_);
           }
-
-          let elementEvents = elementItem[attributeEventName] || {};
+          /* 获取对象上的事件 */
+          let elementEvents = elementItem[PopsUtils.SymbolEvents] || {};
+          /* 初始化对象上的xx事件 */
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: _selector_,
@@ -2364,7 +2356,8 @@
             callback: ownCallBack,
             originCallBack: _callback_,
           });
-          elementItem[attributeEventName] = elementEvents;
+          /* 覆盖事件 */
+          elementItem[PopsUtils.SymbolEvents] = elementEvents;
         });
       });
     },
@@ -2423,14 +2416,6 @@
         eventTypeList = eventTypeList.concat(eventType.split(" "));
       }
       /**
-       * 元素属性上自定义的用于暂存事件的对象名
-       */
-      let propEventsName = "events";
-      /**
-       * window属性上自定义的用于暂存事件的对象名
-       */
-      let windowEventsName = "DOMUtilsGlobalEvents";
-      /**
        * @type {?string}
        */
       let _selector_ = selector;
@@ -2454,38 +2439,47 @@
         _option_ = getOption(args, 4, _option_);
       }
       elementList.forEach((elementItem) => {
-        let elementEvents = {};
-        if (PopsUtils.isWin(elementItem)) {
-          elementEvents = elementItem[windowEventsName] || {};
-        } else {
-          elementEvents = elementItem[propEventsName] || {};
-        }
+        /* 获取对象上的事件 */
+        let elementEvents = elementItem[PopsUtils.SymbolEvents] || {};
         eventTypeList.forEach((eventName) => {
+          /**
+           * @type {DOMUtilsEventListenerOptionsAttribute[]}
+           */
           let handlers = elementEvents[eventName] || [];
+          if (typeof filter === "function") {
+            handlers = handlers.filter(filter);
+          }
           for (let index = 0; index < handlers.length; index++) {
+            let handler = handlers[index];
+            let flag = !1;
+            if (!_selector_ || handler.selector === _selector_) {
+              /* selector不为空，进行selector判断 */
+              flag = !0;
+            }
             if (
-              (!_selector_ || handlers[index].selector === _selector_) &&
-              (!_callback_ ||
-                handlers[index].callback === _callback_ ||
-                handlers[index].originCallBack === _callback_)
+              !_callback_ ||
+              handler.callback === _callback_ ||
+              handler.originCallBack === _callback_
             ) {
+              /* callback不为空，进行callback判断 */
+              flag = !0;
+            }
+
+            if (flag) {
               elementItem.removeEventListener(
                 eventName,
-                handlers[index].callback,
+                handler.callback,
                 _option_
               );
               handlers.splice(index--, 1);
             }
           }
           if (handlers.length === 0) {
+            /* 如果没有任意的handler，那么删除该属性 */
             delete elementEvents[eventType];
           }
         });
-        if (PopsUtils.isWin(elementItem)) {
-          elementItem[windowEventsName] = elementEvents;
-        } else {
-          elementItem[propEventsName] = elementEvents;
-        }
+        elementItem[PopsUtils.SymbolEvents] = elementEvents;
       });
     },
     /**
@@ -2499,7 +2493,7 @@
       if (typeof element === "string") {
         element = document.querySelector(element);
       }
-      if (element == null) {
+      if (element == void 0) {
         return;
       }
       let elementList = [];
@@ -2509,23 +2503,15 @@
         elementList = [element];
       }
       let eventTypeList = [];
-      if (!eventType) {
-        for (let type in events) {
-          eventTypeList = [...eventTypeList, type];
-        }
-      } else if (Array.isArray(eventType)) {
+      if (Array.isArray(eventType)) {
         eventTypeList = eventType;
       } else if (typeof eventType === "string") {
         eventTypeList = eventType.split(" ");
       }
 
       elementList.forEach((elementItem) => {
-        let events = {};
-        if (PopsUtils.isWin(elementItem)) {
-          events = elementItem["DOMUtilsGlobalEvents"] || {};
-        } else {
-          events = elementItem.events || {};
-        }
+        /* 获取对象上的事件 */
+        let events = elementItem[PopsUtils.SymbolEvents] || {};
         eventTypeList.forEach((_eventType_) => {
           let event = new Event(_eventType_);
           if (details) {
@@ -2887,13 +2873,13 @@
     },
   };
 
+  /** 弹窗 */
   let pops = {};
-  /**
-   * 配置
-   */
+
+  /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.2.7",
+    version: "2024.2.15",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
