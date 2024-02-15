@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-14";
+  Utils.version = "2024-2-15";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -1526,6 +1526,34 @@
       }
     });
     return result;
+  };
+
+  Utils.getSymbol = function (target, keyName) {
+    if (typeof target !== "object") {
+      throw new TypeError("target不是一个对象");
+    }
+    let objectsSymbols = Object.getOwnPropertySymbols(target);
+    if (typeof keyName === "string") {
+      let findSymbol = objectsSymbols.find((key) => {
+        return key.toString() === keyName;
+      });
+      if (findSymbol) {
+        return target[findSymbol];
+      }
+    } else if (typeof keyName === "symbol") {
+      let findSymbol = objectsSymbols.find((key) => {
+        return key === keyName;
+      });
+      if (findSymbol) {
+        return target[findSymbol];
+      }
+    } else {
+      let result = {};
+      objectsSymbols.forEach((item) => {
+        result[item] = target[item];
+      });
+      return result;
+    }
   };
 
   Utils.getTextLength = function (text) {
