@@ -1063,36 +1063,36 @@ declare interface HttpxAsyncResult {
 
 
 
-declare interface UtilsDictionaryConstructor {
+declare interface UtilsDictionaryConstructor<K extends string | number | symbol, V> {
     /** 检查是否有某一个键 */
-    has: (key: string) => boolean;
+    has: (key: K) => boolean;
     /** 检查已有的键中是否以xx开头 */
-    startsWith: (key: string) => boolean;
+    startsWith: (key: K) => boolean;
     /** 获取以xx开头的键的值 */
-    getStartsWith: (key: string) => any;
+    getStartsWith: (key: K) => V;
     /** 为字典添加某一个值 */
-    set: (key: string, val: any) => void;
+    set: (key: K, val: V) => void;
     /** 删除某一个键 */
-    delete: (key: string) => boolean;
+    delete: (key: K) => boolean;
     /** 获取某个键的值 */
-    get: (key: string) => any;
+    get: (key: K) => V;
     /** 返回字典中的所有值 */
-    values: () => any[];
+    values: () => V[];
     /** 清空字典 */
     clear: () => void;
     /** 获取字典的长度 */
     size: () => number;
     /** 获取字典所有的键 */
-    keys: () => string[];
+    keys: () => K[];
     /** 返回字典本身 */
-    getItems: () => object;
+    getItems: () => Record<K, V>;
     /** 合并另一个字典 */
-    concat: (data: object) => void;
+    concat: (data: UtilsDictionaryConstructor<K, V>) => void;
 }
 
 /** 字典 */
 declare interface UtilsDictionary {
-    new(): UtilsDictionaryConstructor;
+    new(): UtilsDictionaryConstructor<any, any>;
 }
 
 /** gbk编码 */
@@ -2284,7 +2284,7 @@ declare interface Utils {
      * @param target 目标对象
      * @param keyName （可选）Symbol名或者Symbol对象
      */
-    getSymbol(target: object, keyName?: string|symbol): any;
+    getSymbol(target: object, keyName?: string | symbol): any;
     /**
      * 获取文本的字符长度
      * @param text
