@@ -2312,7 +2312,7 @@
           let target = event.target;
           if (_selector_) {
             /* 存在自定义子元素选择器 */
-            let totalParent = CommonUtils.isWin(elementItem)
+            let totalParent = PopsUtils.isWin(elementItem)
               ? document.documentElement
               : elementItem;
             if (target.matches(_selector_)) {
@@ -2879,7 +2879,7 @@
   /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.2.15",
+    version: "2024.2.16",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
