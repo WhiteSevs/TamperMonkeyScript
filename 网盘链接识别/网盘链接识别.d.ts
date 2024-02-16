@@ -62,8 +62,21 @@ declare interface NetDiskRegular {
 /** 存储的访问码的值 */
 declare interface NetDiskDictData {
     /** 访问码 */
-    accessCode: string | undefined;
+    accessCode: string;
     /** 匹配规则的下标 */
+    netDiskIndex?: number;
+    /** 是否锁定访问码不允许修改，默认false */
+    isForceAccessCode?: boolean;
+}
+
+declare interface NetiDiskHandleObject {
+    /** 分享码 */
+    shareCode: string;
+    /** 访问码 */
+    accessCode: string;
+    /** 规则名 */
+    netDiskName: string;
+    /** 下标 */
     netDiskIndex: number;
 }
 
@@ -94,9 +107,9 @@ declare interface NetDiskWorkerCallBackOptions {
     /** 匹配到的数据 */
     data: {
         /** 匹配的网盘规则的名 */
-        netDiskName: undefined | string;
+        netDiskName?: string;
         /** 匹配的网盘规则的下标 */
-        netDiskIndex: undefined | string;
+        netDiskIndex?: string;
         /** 匹配到的数据 */
         data: RegExpMatchArray;
     }[],
