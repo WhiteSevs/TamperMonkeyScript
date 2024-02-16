@@ -948,15 +948,18 @@
      */
     handleShareCode(netDiskName, netDiskIndex, url) {
       /* 当前执行的规则 */
-      let netDiskMatchRegular = this.regular[netDiskName][netDiskIndex];
+      let netDiskMatchRegular = NetDisk.regular[netDiskName][netDiskIndex];
       let shareCodeMatch = url.match(netDiskMatchRegular.shareCode);
       if (
         shareCodeMatch == void 0 ||
         (shareCodeMatch != void 0 && shareCodeMatch.length === 0)
       ) {
         log.error(`根据链接获取shareCode失败`);
-        log.error([[...arguments], netDiskMatchRegular.shareCode]);
-        return "";
+        log.error([
+          [netDiskName, netDiskIndex, url],
+          netDiskMatchRegular.shareCode,
+        ]);
+        return;
       }
       let shareCode = shareCodeMatch[0];
       if (netDiskMatchRegular.shareCodeNeedRemoveStr) {
@@ -969,7 +972,7 @@
       let shareCodeNotMatch = netDiskMatchRegular.shareCodeNotMatch;
       if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
         log.error(`不可能的shareCode => ${shareCode}`);
-        return "";
+        return;
       }
       /* %E7%BD%91%E7%9B%98 => 网盘 */
       shareCode = decodeURI(shareCode);
@@ -978,7 +981,7 @@
         utils.isSameChars(shareCode)
       ) {
         /* 排除掉由相同字符组成的分享码 */
-        return "";
+        return;
       }
       return shareCode;
     },
@@ -6492,17 +6495,17 @@
     },
     /**
      * worker处理文件匹配后的回调
-     * @param {NetDiskWorkerCallBackOptions} data
+     * @param {NetDiskWorkerCallBackOptions} options
      */
-    successCallBack(data) {
+    successCallBack(options) {
       /* 匹配为空，释放锁 */
-      if (!data.data.length) {
+      if (!options.data.length) {
         NetDiskWorker.matchingEndCallBack();
         return;
       }
       /** @type {NetiDiskHandleObject[]} */
       const handleNetDiskList = [];
-      for (const matchData of data.data) {
+      for (const matchData of options.data) {
         /* 已匹配到的网盘，用于显示图标 */
         NetDisk.matchLink.add(matchData.netDiskName);
         /**
@@ -6533,11 +6536,20 @@
       /* 过滤掉重复的 */
       let filterHandleNetDiskList = handleNetDiskList.filter(
         (value, index, selfArray) => {
-          return (
-            selfArray.findIndex(
-              (obj) => JSON.stringify(obj) === JSON.stringify(value)
-            ) === index
-          );
+          let isFind =
+            selfArray.findIndex((obj) => {
+              /* 过滤掉同样配置的 */
+              /* 或者是netDiskName、netDiskIndex相同，且shareCode前面存在重复的 */
+              return (
+                JSON.stringify(obj) === JSON.stringify(value)
+                //JSON.stringify(obj) === JSON.stringify(value) ||
+                //(obj.netDiskName === value.netDiskName &&
+                //  obj.netDiskIndex === value.netDiskIndex &&
+                //  obj.shareCode.startsWith(value.shareCode)) ||
+                //value.shareCode.startsWith(obj.shareCode)
+              );
+            }) === index;
+          return isFind;
         }
       );
       filterHandleNetDiskList.forEach((item) => {
@@ -6547,15 +6559,10 @@
         }
       });
       filterHandleNetDiskList.forEach((item) => {
-        /** 分享码 @type {string} */
         const shareCode = item.shareCode;
-        /** 访问码 @type {string} */
         const accessCode = item.accessCode;
-        /** 规则名 @type {string} */
         const netDiskName = item.netDiskName;
-        /** 规则下标 @type {number} */
         const netDiskIndex = item.netDiskIndex;
-        /** 当前的规则 */
         const currentRegular = NetDisk.regular[netDiskName][netDiskIndex];
         if (
           currentRegular.shareCodeExcludeRegular &&
@@ -6569,7 +6576,7 @@
               excludeDict.startsWith(shareCode) ||
               currentTempDict.startsWith(shareCode)
             ) {
-              log.info(
+              log.warn(
                 `${netDiskName}：该分享码【${shareCode}】与已匹配到该分享码的规则【${excludeRegularName}】冲突`
               );
               return;
@@ -6582,31 +6589,37 @@
         NetDisk.hasMatchLink = true;
         if (currentDict.startsWith(shareCode)) {
           /* 存在该访问码 */
-          /**
-           * 根据shareCode获取accessCode和netDiskIndex信息
-           */
+          /* 根据shareCode获取accessCode和netDiskIndex信息 */
           let shareCodeDict = currentDict.getStartsWith(shareCode);
           if (
-            utils.isNull(shareCodeDict.accessCode) &&
-            !utils.isNull(accessCode) &&
             typeof shareCodeDict.isForceAccessCode === "boolean" &&
-            !shareCodeDict.isForceAccessCode
+            shareCodeDict.isForceAccessCode
           ) {
-            /* 当前已存储的没有accessCode且当前提取的accessCode不为空 */
-            currentDict.set(
-              shareCode,
-              NetDisk.getLinkDickObj(accessCode, netDiskIndex, false)
-            );
-            NetDiskUI.view.changeLinkView(
-              netDiskName,
-              netDiskIndex,
-              shareCode,
-              accessCode
-            );
-            log.info(
-              `已存在该链接，但无密码，设置密码 ${netDiskName} ${netDiskIndex}: ${shareCode}  ===> ${accessCode}`
-            );
+            /* 该访问码已被锁定，禁止修改 */
+            return;
           }
+          if (utils.isNotNull(shareCodeDict.accessCode)) {
+            /* 已匹配到的访问码不为空，不设置新的 */
+            return;
+          }
+          if (utils.isNull(accessCode)) {
+            /* 访问码为空，不设置新的 */
+            return;
+          }
+
+          currentDict.set(
+            shareCode,
+            NetDisk.getLinkDickObj(accessCode, netDiskIndex, false)
+          );
+          NetDiskUI.view.changeLinkView(
+            netDiskName,
+            netDiskIndex,
+            shareCode,
+            accessCode
+          );
+          log.info(
+            `该匹配项无密码，设置密码 ${netDiskName} ${netDiskIndex}: ${shareCode}  ===> ${accessCode}`
+          );
         } else {
           /* 不存在该访问码，添加新的进去 */
           currentDict.set(
