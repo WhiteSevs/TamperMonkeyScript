@@ -983,6 +983,10 @@
         /* 排除掉由相同字符组成的分享码 */
         return;
       }
+      /* 排除掉以http|https结尾的分享码 */
+      if (shareCode.endsWith("http") || shareCode.endsWith("https")) {
+        return;
+      }
       return shareCode;
     },
     /**
