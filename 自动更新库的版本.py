@@ -82,7 +82,12 @@ class ScriptNetWork:
 class ScriptFile:
     "脚本文件处理"
 
-    notUpdateFileNameList = ["蛋仔乐消除", "ImmortalWrt-passwall优化", "问卷星随机答案"]
+    notUpdateFileNameList = [
+        "蛋仔乐消除",
+        "ImmortalWrt-passwall优化",
+        "问卷星随机答案",
+        "MT论坛",
+    ]
     "不更新的js文件名"
 
     # 不建议将库设置为自动同步，因为代码无更新的时候，它也会自动更新版本id
