@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.16
+// @version      2024.2.18
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3399,11 +3399,6 @@
           if (newCommentDOM == null) {
             return;
           }
-          newCommentDOM.querySelectorAll("a").forEach((item) => {
-            item.setAttribute("data-href", item.href);
-            item.removeAttribute("href");
-            item.removeAttribute("target");
-          });
 
           /* 评论，点击头像跳转到这个人的空间 */
           newCommentDOM
@@ -4208,6 +4203,107 @@
           }
         },
         /**
+         * 获取第XX页的评论（不包括楼中楼评论）
+         * @param {string} url
+         * @returns {?HTMLElement|string}
+         */
+        async getPageComment(url) {
+          let getDetails = {
+            url: url,
+            headers: {
+              "User-Agent": utils.getRandomPCUA(),
+              Referer: "tieba.baidu.com",
+            },
+          };
+          if (PopsPanel.getValue("baidu_tieba_request_with_cookie")) {
+            log.success("贴吧-发送请求携带cookie");
+            getDetails.headers["Cookie"] = document.cookie;
+          }
+          let getResp = await httpx.get(getDetails);
+          let respData = getResp.data;
+          log.success(["获取评论", getResp]);
+          if (getResp.status) {
+            let pageCommentHTMLElement = DOMUtils.parseHTML(
+              respData.responseText,
+              true,
+              true
+            );
+            if (
+              pageCommentHTMLElement.title === "百度安全验证" ||
+              respData.finalUrl.startsWith("https://wappass.baidu.com")
+            ) {
+              log.error("触发百度安全验证 👇" + respData.finalUrl);
+              log.error(respData);
+              return "触发百度安全验证";
+              /* let gotoBaiduWappass = confirm("触发百度安全验证，是否前往："+respData.finalUrl);
+              if(gotoBaiduWappass){
+                window.location.href = respData.finalUrl;
+              } */
+            } else {
+              return pageCommentHTMLElement;
+            }
+          } else if (getResp.type === "onerror") {
+            if (
+              typeof respData.error === "string" &&
+              respData.error.match("wappass.baidu.com")
+            ) {
+              let url = respData.error.match(/"(.*?)"/)[1];
+              log.error("触发百度校验: " + url);
+              let gotoBaiduWappass = confirm(
+                "触发百度安全验证，是否前往：" + url
+              );
+              if (gotoBaiduWappass) {
+                window.location.href = url;
+              }
+            } else {
+              log.error("获取评论数据失败 👇");
+              log.error(respData);
+            }
+          }
+        },
+        /**
+         * 获取第XX页的所有楼中楼评论
+         * @param {string} url
+         * @returns { {commentList: any[], userList: any[]} }
+         */
+        async getPageCommentList(url) {
+          let getResp = await httpx.get({
+            url: url,
+            headers: {
+              Accept: "application/json, text/javascript, */*; q=0.01",
+              "User-Agent": utils.getRandomPCUA(),
+              Referer: "tieba.baidu.com",
+            },
+          });
+          log.info(["获取楼中楼评论", getResp]);
+          let respData = getResp.data;
+          if (getResp.status) {
+            let data = utils.toJSON(respData.responseText);
+            log.success(["帖子评论信息JSON", data]);
+            return {
+              commentList: data["data"]["comment_list"],
+              userList: data["data"]["user_list"],
+            };
+          } else if (getResp.type === "onerror") {
+            log.error("获取楼中楼评论数据失败 👇");
+            log.error(getResp);
+          }
+        },
+        /**
+         * 插入加载中的html
+         */
+        insertLoadingHTML() {
+          if (!loadingView.isExists()) {
+            log.info("插入loading");
+            loadingView.initLoadingView();
+            loadingView.hide();
+            document
+              .querySelector(".main-page-wrap")
+              .appendChild(loadingView.getLoadingViewElement());
+          }
+        },
+
+        /**
          * 插入只看楼主的按钮
          */
         insertOnlyLZ() {
@@ -4362,106 +4458,6 @@
               log.info("获取评论===>正序");
             }
           });
-        },
-        /**
-         * 获取第XX页的评论（不包括楼中楼评论）
-         * @param {string} url
-         * @returns {?HTMLElement|string}
-         */
-        async getPageComment(url) {
-          let getDetails = {
-            url: url,
-            headers: {
-              "User-Agent": utils.getRandomPCUA(),
-              Referer: "tieba.baidu.com",
-            },
-          };
-          if (PopsPanel.getValue("baidu_tieba_request_with_cookie")) {
-            log.success("贴吧-发送请求携带cookie");
-            getDetails.headers["Cookie"] = document.cookie;
-          }
-          let getResp = await httpx.get(getDetails);
-          let respData = getResp.data;
-          log.success(["获取评论", getResp]);
-          if (getResp.status) {
-            let pageCommentHTMLElement = DOMUtils.parseHTML(
-              respData.responseText,
-              true,
-              true
-            );
-            if (
-              pageCommentHTMLElement.title === "百度安全验证" ||
-              respData.finalUrl.startsWith("https://wappass.baidu.com")
-            ) {
-              log.error("触发百度安全验证 👇" + respData.finalUrl);
-              log.error(respData);
-              return "触发百度安全验证";
-              /* let gotoBaiduWappass = confirm("触发百度安全验证，是否前往："+respData.finalUrl);
-              if(gotoBaiduWappass){
-                window.location.href = respData.finalUrl;
-              } */
-            } else {
-              return pageCommentHTMLElement;
-            }
-          } else if (getResp.type === "onerror") {
-            if (
-              typeof respData.error === "string" &&
-              respData.error.match("wappass.baidu.com")
-            ) {
-              let url = respData.error.match(/"(.*?)"/)[1];
-              log.error("触发百度校验: " + url);
-              let gotoBaiduWappass = confirm(
-                "触发百度安全验证，是否前往：" + url
-              );
-              if (gotoBaiduWappass) {
-                window.location.href = url;
-              }
-            } else {
-              log.error("获取评论数据失败 👇");
-              log.error(respData);
-            }
-          }
-        },
-        /**
-         * 获取第XX页的所有楼中楼评论
-         * @param {string} url
-         * @returns { {commentList: any[], userList: any[]} }
-         */
-        async getPageCommentList(url) {
-          let getResp = await httpx.get({
-            url: url,
-            headers: {
-              Accept: "application/json, text/javascript, */*; q=0.01",
-              "User-Agent": utils.getRandomPCUA(),
-              Referer: "tieba.baidu.com",
-            },
-          });
-          log.info(["获取楼中楼评论", getResp]);
-          let respData = getResp.data;
-          if (getResp.status) {
-            let data = utils.toJSON(respData.responseText);
-            log.success(["帖子评论信息JSON", data]);
-            return {
-              commentList: data["data"]["comment_list"],
-              userList: data["data"]["user_list"],
-            };
-          } else if (getResp.type === "onerror") {
-            log.error("获取楼中楼评论数据失败 👇");
-            log.error(getResp);
-          }
-        },
-        /**
-         * 插入加载中的html
-         */
-        insertLoadingHTML() {
-          if (!loadingView.isExists()) {
-            log.info("插入loading");
-            loadingView.initLoadingView();
-            loadingView.hide();
-            document
-              .querySelector(".main-page-wrap")
-              .appendChild(loadingView.getLoadingViewElement());
-          }
         },
         /**
          * 动态显示只看楼主
