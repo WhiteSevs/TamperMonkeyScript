@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-15";
+  Utils.version = "2024-2-19";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -2328,6 +2328,16 @@
         }
         /* method值统一大写，兼容Via */
         details.method = details.method.toUpperCase();
+        /* 判断是否是以http开头，否则主动加上origin */
+        try {
+          new URL(details.url);
+        } catch (error) {
+          if (details.url.startsWith("/")) {
+            details.url = globalThis.location.origin + details.url;
+          } else {
+            details.url = globalThis.location.origin + "/" + details.url;
+          }
+        }
         return details;
       },
     };
