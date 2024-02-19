@@ -3,7 +3,7 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.16
+// @version      2024.2.19
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
 // @author       WhiteSevs
 // @license      MIT
@@ -19,10 +19,11 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_info
+// @grant        unsafeWindow
 // @connect      m.weibo.cn
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1328217/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1327728/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1329875/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
@@ -131,7 +132,7 @@
                 "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
               },
             });
-            res.response = getResp.data.response;
+            res.response = getResp.data.responseText;
             res.responseText = getResp.data.responseText;
           };
         }
