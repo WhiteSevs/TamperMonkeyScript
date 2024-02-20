@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.2.19
+// @version      2024.2.20
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)和坚果云(需登录)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -1179,7 +1179,7 @@
          * @param {string} accessCode
          * @returns
          */
-        this.default = function (netDiskIndex, shareCode, accessCode) {
+        this.init = function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -1372,7 +1372,7 @@
          * @param {string} shareCode
          * @param {string} accessCode
          */
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -1950,7 +1950,7 @@
               });
             }
             QmsgLoading.close();
-            NetDiskUI.staticView.moreFile("蓝奏云多文件直链", folderList);
+            NetDiskUI.staticView.moreFile("蓝奏云文件解析", folderList);
           } else if ("密码不正确".indexOf(info) !== -1) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
@@ -2201,7 +2201,7 @@
          * @param {string} shareCode
          * @param {string} accessCode
          */
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -2619,7 +2619,7 @@
          * @param {string} accessCode
          * @returns
          */
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -2693,7 +2693,7 @@
             );
             QmsgLoading.close();
             log.info("递归完毕");
-            NetDiskUI.staticView.moreFile("天翼云多文件直链", folderInfoList);
+            NetDiskUI.staticView.moreFile("天翼云文件解析", folderInfoList);
             return;
           } else {
             /* 单文件 */
@@ -3113,7 +3113,7 @@
           1066: "对方设置的下载 / 预览次数已用完",
           1088: "糟糕，您访问的页面不存在",
         };
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -3343,7 +3343,7 @@
           "-4000": "请求超时",
           104: "文件已失效",
         };
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -3414,7 +3414,7 @@
             let folderInfoList = that.getFolderInfo(infoLists, 0);
             QmsgLoading.close();
             log.info("递归完毕");
-            NetDiskUI.staticView.moreFile("123盘多文件直链", folderInfoList);
+            NetDiskUI.staticView.moreFile("123盘文件解析", folderInfoList);
           }
         };
         /**
@@ -3950,7 +3950,7 @@
         this.errorCode = {
           UnAuthorized: "请先登录坚果云账号",
         };
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -3975,10 +3975,7 @@
             Qmsg_loading.close();
 
             /* 坚果云盘没有上传时间信息(暂时是这样的) */
-            NetDiskUI.staticView.moreFile(
-              "坚果云多文件直链",
-              newFolderInfoList
-            );
+            NetDiskUI.staticView.moreFile("坚果云文件解析", newFolderInfoList);
           } else {
             /* 是文件 */
             let fileSize = utils.formatByteToSize(downloadParams["size"]);
@@ -4377,7 +4374,7 @@
          */
         this.accessCode = "";
         const OK_CODE = "0000";
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -4417,7 +4414,7 @@
             );
             QmsgLoading.close();
             log.info("递归完毕");
-            NetDiskUI.staticView.moreFile("奶牛快传多文件直链", folderInfoList);
+            NetDiskUI.staticView.moreFile("奶牛快传文件解析", folderInfoList);
           } else {
             /* 单文件 */
             let downloadUrl = void 0;
@@ -4927,7 +4924,7 @@
          * @param {string} accessCode
          * @returns
          */
-        this.default = async function (netDiskIndex, shareCode, accessCode) {
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
           log.info([netDiskIndex, shareCode, accessCode]);
           that.netDiskIndex = netDiskIndex;
           that.shareCode = shareCode;
@@ -4996,7 +4993,7 @@
             let folderInfoList = that.getFolderInfo(detail, stoken, 0);
             QmsgLoading.close();
             log.info("递归完毕");
-            NetDiskUI.staticView.moreFile("UC网盘多文件直链", folderInfoList);
+            NetDiskUI.staticView.moreFile("UC网盘文件解析", folderInfoList);
             return;
           }
         };
@@ -5520,6 +5517,355 @@
         };
         return this;
       },
+      /**
+       * 阿里云盘
+       * @constructor
+       * @returns {object}
+       */
+      aliyun: function () {
+        let that = this;
+        /**
+         * 所在规则的下标
+         */
+        this.netDiskIndex = 0;
+        /**
+         * 分享码
+         */
+        this.shareCode = "";
+        /**
+         * 提取码
+         */
+        this.accessCode = "";
+        this.X_Share_Token_Data = {
+          expire_time: "2000-01-01T00:00:00.000Z",
+          expires_in: 7200,
+          share_token: "",
+        };
+        /**
+         * 入口
+         * @param {number} netDiskIndex 网盘名称索引下标
+         * @param {string} shareCode
+         * @param {string} accessCode
+         * @returns
+         */
+        this.init = async function (netDiskIndex, shareCode, accessCode) {
+          log.info([netDiskIndex, shareCode, accessCode]);
+          that.netDiskIndex = netDiskIndex;
+          that.shareCode = shareCode;
+          that.accessCode = accessCode;
+          if (
+            globalThis.location.hostname !== "www.aliyundrive.com" &&
+            globalThis.location.hostname !== "www.alipan.com"
+          ) {
+            Qmsg.error(
+              `请在阿里云盘页面解析，<a target="_blank" href="${NetDiskParse.getBlankUrl(
+                "aliyun",
+                that.netDiskIndex,
+                that.shareCode,
+                that.accessCode
+              )}">点我前往</a>`,
+              {
+                html: true,
+                timeout: 10000,
+              }
+            );
+            return;
+          }
+          let detail = await this.list_by_share(shareCode, "root");
+          if (!detail) {
+            return;
+          }
+          Qmsg.info("正在解析链接");
+          let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
+          let folderInfoList = that.getFolderInfo(detail, 0);
+          QmsgLoading.close();
+          log.info("解析完毕");
+          NetDiskUI.staticView.moreFile("阿里云盘文件解析", folderInfoList);
+        };
+        /**
+         * 弹窗使用-获取文件夹信息
+         * @param {{
+         * category?: string,
+         * domain_id?: string,
+         * file_extension?: string,
+         * mime_extension?: string,
+         * mime_type?: string,
+         * punish_flag: number,
+         * created_at: string,
+         * domain_id: string,
+         * drive_id: string,
+         * file_id: string,
+         * name: string,
+         * parent_file_id:string,
+         * share_id: string,
+         * type: string,
+         * updated_at: string,
+         * }[]} infoList
+         * @return {Promise<{
+         * fileName: string,
+         * fileSize: string|number,
+         * fileType: ?string,
+         * createTime: ?string,
+         * latestTime: ?string,
+         * isFolder: boolean,
+         * index: ?number,
+         * clickCallBack: ?(event:Event,_config_: object)=>{}
+         * }[]>}
+         */
+        this.getFolderInfo = function (infoList, index = 0) {
+          let folderInfoList = [];
+          let tempFolderInfoList = [];
+          /**
+           * @type {PopsFolderDataConfig[]}
+           */
+          let tempFolderFileInfoList = [];
+          infoList.forEach((item) => {
+            if (item.type !== "folder") {
+              /* 文件 */
+              tempFolderFileInfoList.push({
+                fileName: item.name,
+                fileSize: item.size,
+                fileType: item.file_extension,
+                createTime: item.created_at,
+                latestTime: item.updated_at,
+                isFolder: false,
+                index: index,
+                async clickEvent() {
+                  let fileDownloadUrl = await that.get_share_link_download_url(
+                    item.share_id,
+                    item.file_id
+                  );
+                  return {
+                    autoDownload: true,
+                    mode: "aBlank",
+                    url: fileDownloadUrl,
+                  };
+                },
+              });
+            } else {
+              /* 文件夹 */
+              tempFolderInfoList.push({
+                fileName: item.name,
+                fileSize: 0,
+                fileType: "",
+                createTime: item.created_at,
+                latestTime: item.updated_at,
+                isFolder: true,
+                index: index,
+                async clickEvent() {
+                  let newDetail = await that.list_by_share(
+                    item.share_id,
+                    item.file_id
+                  );
+                  if (newDetail) {
+                    return that.getFolderInfo(newDetail, index + 1);
+                  } else {
+                    return [];
+                  }
+                },
+              });
+            }
+          });
+
+          tempFolderInfoList.sort((a, b) =>
+            a["fileName"].localeCompare(b["fileName"])
+          );
+          tempFolderFileInfoList.sort((a, b) =>
+            a["fileName"].localeCompare(b["fileName"])
+          );
+          folderInfoList = folderInfoList.concat(tempFolderInfoList);
+          folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
+          log.info(["getFilesInfoByRec", folderInfoList]);
+          return folderInfoList;
+        };
+        /**
+         * 列出文件列表
+         * @param {string} share_id
+         * @param {string} parent_file_id 父项，根是root
+         * @param {"name"} order_by 根据xxx排序
+         * @param {"ASC"|"DESC"} order_direction 排序规则(升序/降序)
+         * @returns {Promise<{
+         * category?: string,
+         * domain_id?: string,
+         * file_extension?: string,
+         * mime_extension?: string,
+         * mime_type?: string,
+         * punish_flag: number,
+         * created_at: string,
+         * domain_id: string,
+         * drive_id: string,
+         * file_id: string,
+         * name: string,
+         * parent_file_id:string,
+         * share_id: string,
+         * type: string,
+         * updated_at: string,
+         * }[]>}
+         */
+        this.list_by_share = async function (
+          share_id,
+          parent_file_id,
+          order_by = "name",
+          order_direction = "DESC"
+        ) {
+          let postResp = await httpx.post(
+            "https://api.aliyundrive.com/adrive/v2/file/list_by_share",
+            {
+              data: JSON.stringify({
+                share_id: share_id,
+                parent_file_id: parent_file_id,
+                limit: 20,
+                image_thumbnail_process: "image/resize,w_256/format,jpeg",
+                image_url_process:
+                  "image/resize,w_1920/format,jpeg/interlace,1",
+                video_thumbnail_process:
+                  "video/snapshot,t_1000,f_jpg,ar_auto,w_256",
+                order_by: order_by,
+                order_direction: order_direction,
+              }),
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json",
+                Origin: "https://www.aliyundrive.com",
+                Referer: "https://www.aliyundrive.com/",
+                "X-Canary": that.get_X_Canary(),
+                "X-Device-Id": that.get_X_Device_Id(),
+                "X-Share-Token": await that.get_X_Share_Token(
+                  that.shareCode,
+                  that.accessCode
+                ),
+                "User-Agent": utils.getRandomPCUA(),
+              },
+              onerror() {},
+            }
+          );
+          if (!postResp.status) {
+            that.handle_request_error(postResp);
+            return;
+          }
+          let data = utils.toJSON(postResp.data.responseText);
+          log.info(["列出文件列表：", data]);
+          return data["items"];
+        };
+        /**
+         * 获取文件的下载链接
+         * @returns {Promise<string>}
+         */
+        this.get_share_link_download_url = async function (share_id, file_id) {
+          let postResp = await httpx.post(
+            "https://api.aliyundrive.com/v2/file/get_share_link_download_url",
+            {
+              data: JSON.stringify({
+                expire_sec: 600,
+                file_id: file_id,
+                share_id: share_id,
+              }),
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json",
+                Origin: "https://www.aliyundrive.com",
+                Referer: "https://www.aliyundrive.com/",
+                "Content-Type": "application/json;charset=UTF-8",
+                Authorization: "Bearer " + that.getAuthorization(),
+                "X-Share-Token": await that.get_X_Share_Token(
+                  that.shareCode,
+                  that.accessCode
+                ),
+                "User-Agent": utils.getRandomPCUA(),
+              },
+              onerror() {},
+            }
+          );
+          if (!postResp.status) {
+            that.handle_request_error(postResp);
+            return;
+          }
+          let data = utils.toJSON(postResp.data.responseText);
+          log.info(["获取文件的下载链接：", data]);
+          return data["download_url"];
+        };
+        /**
+         * 处理请求的错误
+         * @param {HttpxAsyncResult} postResp
+         */
+        this.handle_request_error = function (postResp) {
+          log.error(postResp);
+          let errData = utils.toJSON(postResp.data.responseText);
+          Qmsg.error(errData["message"]);
+        };
+        /**
+         * 获取用户鉴权值
+         * 来源：localStorage => token.access_token
+         */
+        this.getAuthorization = function () {
+          let token = unsafeWindow.localStorage.getItem("token");
+          if (utils.isNotNull(token)) {
+            token = utils.toJSON(token);
+            let access_token = token["access_token"];
+            log.success(["获取阿里云盘的access_token：", access_token]);
+            return access_token;
+          } else {
+            log.error("获取access_token失败，请先登录账号！");
+            Qmsg.error("获取access_token失败，请先登录账号！");
+          }
+        };
+        /**
+         * 获取header请求头 X-Canary
+         */
+        this.get_X_Canary = function () {
+          return "client=web,app=share,version=v2.3.1";
+        };
+        /**
+         * 获取header请求头 X-Device-Id
+         */
+        this.get_X_Device_Id = function () {
+          let cna = unsafeWindow.localStorage.getItem("cna");
+          if (utils.isNotNull(cna)) {
+            log.success(["获取阿里云盘的X-Device-Id：", cna]);
+            return cna;
+          } else {
+            log.error("获取X-Device-Id失败");
+            Qmsg.error("获取X-Device-Id失败");
+          }
+        };
+        /**
+         * 获取header请求头 X-Share-Token
+         * 来源：localStorage => shareToken.share_token
+         */
+        this.get_X_Share_Token = async function (share_id, share_pwd) {
+          if (new Date() < new Date(that.X_Share_Token_Data.expire_time)) {
+            return that.X_Share_Token_Data.share_token;
+          }
+          let postResp = await httpx.post(
+            "https://api.aliyundrive.com/v2/share_link/get_share_token",
+            {
+              data: JSON.stringify({
+                share_id: share_id,
+                share_pwd: share_pwd,
+              }),
+              headers: {
+                Accept: "application/json, text/plain, */*",
+                "Content-Type": "application/json",
+                Origin: "https://www.aliyundrive.com",
+                Referer: "https://www.aliyundrive.com/",
+                "X-Canary": that.get_X_Canary(),
+                "X-Device-Id": that.get_X_Device_Id(),
+                "User-Agent": utils.getRandomPCUA(),
+              },
+              onerror() {},
+            }
+          );
+          if (!postResp.status) {
+            that.handle_request_error(postResp);
+            return;
+          }
+          let data = utils.toJSON(postResp.data.responseText);
+          that.X_Share_Token_Data = data;
+          log.info(["获取share_token：", that.X_Share_Token_Data]);
+          return that.X_Share_Token_Data["share_token"];
+        };
+        return this;
+      },
     },
     /**
      * 网盘链接解析
@@ -5532,7 +5878,7 @@
       Qmsg.info("正在获取直链");
       if (this.netDisk[netDiskName]) {
         let parseObj = new NetDiskParse.netDisk[netDiskName]();
-        await parseObj.default(netDiskIndex, shareCode, accessCode);
+        await parseObj.init(netDiskIndex, shareCode, accessCode);
       } else {
         log.error(`${netDiskName} 不存在解析`);
         Qmsg.error("该链接不存在解析功能");
@@ -5706,7 +6052,7 @@
       /**
        * 123网盘，一般用于>100MB的文件直链获取
        */
-      _123pan: function () {
+      _123pan() {
         if (window.location.hostname !== "www.123pan.com") {
           return;
         }
@@ -5727,7 +6073,7 @@
       /**
        * 蓝奏优选
        */
-      lanzouyx: function () {
+      lanzouyx() {
         /* 目前uuid可生成，userId可以通过请求获取到，暂不需要获取本地存储的 */
         return;
         if (window.location.hostname !== "www.ilanzou.com") {
@@ -8022,6 +8368,7 @@
               type: "阿里云",
               key: "aliyun",
               checkbox_enable: true,
+              checkbox_oneOrMoreStatic: true,
               checkbox_openBlank: true,
               checkbox_openBlankWithCopyAccessCode: true,
               range_innerText: true,
@@ -9501,7 +9848,6 @@
        */
       oneFile(fileDetails) {
         log.success(["成功获取单文件直链", fileDetails]);
-        Qmsg.success("成功获取单文件直链");
         NetDiskPops.folder(
           {
             title: {
@@ -9564,8 +9910,7 @@
        * }[]} [folderInfoList=[]] 文件夹信息
        */
       moreFile(title, folderInfoList = []) {
-        Qmsg.success("成功获取多文件直链");
-        log.success(["多文件直链信息", folderInfoList]);
+        log.success(["文件解析信息", folderInfoList]);
         NetDiskPops.folder(
           {
             title: {
