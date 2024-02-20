@@ -55,6 +55,7 @@
 // @connect      jianguoyun.com
 // @connect      cowtransfer.com
 // @connect      cowcs.com
+// @connect      aliyundrive.com
 // @exclude      /^http(s|):\/\/s1\.hdslb\.com\/.*$/
 // @exclude      /^http(s|):\/\/www\.bilibili\.com\/video.*$/
 // @exclude      /^http(s|):\/\/message\.bilibili\.com\/.*$/
@@ -5636,8 +5637,8 @@
                 fileName: item.name,
                 fileSize: item.size,
                 fileType: item.file_extension,
-                createTime: item.created_at,
-                latestTime: item.updated_at,
+                createTime: new Date(item.created_at).getTime(),
+                latestTime: new Date(item.updated_at).getTime(),
                 isFolder: false,
                 index: index,
                 async clickEvent() {
@@ -5645,10 +5646,19 @@
                     item.share_id,
                     item.file_id
                   );
+                  if (!fileDownloadUrl) {
+                    return;
+                  }
+                  let schemeDownloadUrl = NetDiskFilterScheme.handleUrl(
+                    "aliyun-static-scheme-enable",
+                    "aliyun-static-scheme-forward",
+                    fileDownloadUrl
+                  );
+                  /* 如果已被scheme过滤，那么不进行GM_download下载 */
                   return {
                     autoDownload: true,
                     mode: "aBlank",
-                    url: fileDownloadUrl,
+                    url: schemeDownloadUrl,
                   };
                 },
               });
