@@ -2879,7 +2879,7 @@
   /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.2.16",
+    version: "2024.2.21",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
@@ -3596,7 +3596,7 @@
         -webkit-flex-direction: row;
         -ms-flex-direction: row;
         flex-direction: row;
-        height: 17px;
+        min-height: 17px;
         flex-wrap: wrap;
       }
       .pops-folder-list .pops-folder-list-table__sort {
@@ -3614,7 +3614,7 @@
         fill: #06a7ff;
       }
       .pops-folder-list .pops-folder-file-list-breadcrumb {
-        padding: 0 20px;
+        padding: 4px 20px;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
         display: -webkit-box;
@@ -3634,7 +3634,7 @@
         -webkit-justify-content: start;
         -ms-flex-pack: start;
         justify-content: flex-start;
-        height: 35px;
+        min-height: 35px;
       }
       .pops-folder-list .pops-folder-file-list-breadcrumb-allFiles{font-size:12px;color:#333;line-height:20px;font-weight:700;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-wrap:normal}
       .pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a{color:#999}
