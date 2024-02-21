@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.2.21.14
+// @version      2024.2.21.15
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -379,11 +379,11 @@
           /* 评论内容 */
           let content = data["content"];
           /* 发布时间 */
-          let create_time = data["create_time"];
+          let create_time = data["create_time"] || parseInt(data["time"]);
           /* 发布的id，用于加载楼中楼评论 */
           let id = data["id"];
           /* 发布者的ip地址 */
-          let ip_location = data["ip_location"];
+          let ip_location = data["ip_location"] || data["ipLocation"];
           /* 是否继续存在子评论 */
           let sub_comment_has_more = data["sub_comment_has_more"];
           /* 楼中楼回复的总数量 */
@@ -391,13 +391,14 @@
           /* 加载楼中楼更多回复的时候需要的参数 */
           let sub_comment_cursor = data["sub_comment_cursor"];
           /* 楼中楼评论的数据 */
-          let sub_comments = data["sub_comments"];
+          let sub_comments = data["sub_comments"] || data["subComments"];
           /* 评论的用户头像 */
-          let user_avatar = data["user_info"]["image"];
+          let user_avatar = (data["user_info"] || data["user"])["image"];
           /* 评论的用户名 */
-          let user_nickname = data["user_info"]["nickname"];
+          let user_nickname = (data["user_info"] || data["user"])["nickname"];
           /* 评论的用户id */
-          let user_id = data["user_info"]["user_id"];
+          let user_id =
+            data?.["user_info"]?.["user_id"] || data?.["user"]?.["userId"];
 
           content = Comments.converContent(content);
           /* 创建元素 */
@@ -693,6 +694,8 @@
         let pageInfo = await littleRedBookApi.getPageInfo(
           Comments.noteData["id"]
         );
+        /* 延迟一会儿 */
+        await utils.sleep(800);
         if (pageInfo) {
           Comments.currentCursor = pageInfo.cursor;
           pageInfo.comments.forEach((commentItem) => {
@@ -703,6 +706,13 @@
           if (pageInfo.has_more) {
             Comments.addSrollEventListener();
           }
+        } else if (Comments.commentData && Comments.commentData["comments"]) {
+          /* 从固定的评论中加载 */
+          log.info("从固定的评论中加载");
+          Comments.commentData["comments"].forEach((commentItem) => {
+            let commentItemElement = Comments.getCommentElement(commentItem);
+            commentContainer.appendChild(commentItemElement);
+          });
         }
         loading.close();
         DOMUtils.append(noteViewContainer, commentContainer);
