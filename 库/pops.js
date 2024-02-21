@@ -3880,7 +3880,7 @@
         -webkit-appearance: none;
         appearance: none;
         box-shadow: 0 0 0 1px #dcdfe6 inset;
-        border-radius: 4px;
+        border-radius: 0;
         transition: box-shadow .2s cubic-bezier(.645, .045, .355, 1);
         border: none;
       }
