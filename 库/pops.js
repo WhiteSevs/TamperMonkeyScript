@@ -9164,15 +9164,11 @@
        * 全局点击检测
        * @param {TouchEvent|PointerEvent} event
        */
-      windowCheckClick(event) {
+      windowCheckClickEvent(event) {
         if (!PopsContextMenu.rootElement) {
           return;
         }
         if (event.target.closest(`.pops-${PopsType}`)) {
-          return;
-        }
-        if (event.target === config.target) {
-          /* shadowRoot */
           return;
         }
         if (
@@ -9185,6 +9181,19 @@
         PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
       },
       /**
+       * target为shadowRoot或shadowRoot内的全局点击检测
+       * @param {TouchEvent|PointerEvent} event
+       */
+      shadowRootCheckClickEvent(event) {
+        if (!PopsContextMenu.rootElement) {
+          return;
+        }
+        if (event.target.closest(`.pops-${PopsType}`)) {
+          return;
+        }
+        PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
+      },
+      /**
        * 添加全局点击检测事件
        */
       addWindowCheckClickListener() {
@@ -9192,11 +9201,23 @@
           globalThis,
           "click touchstart",
           void 0,
-          PopsContextMenu.windowCheckClick,
+          PopsContextMenu.windowCheckClickEvent,
           {
             capture: true,
           }
         );
+        const $shadowRoot = config.target.getRootNode();
+        if ($shadowRoot instanceof ShadowRoot) {
+          PopsDOMUtils.on(
+            $shadowRoot,
+            "click touchstart",
+            void 0,
+            PopsContextMenu.shadowRootCheckClickEvent,
+            {
+              capture: true,
+            }
+          );
+        }
       },
       /**
        * 移除全局点击检测事件
@@ -9206,11 +9227,23 @@
           globalThis,
           "click touchstart",
           void 0,
-          PopsContextMenu.windowCheckClick,
+          PopsContextMenu.windowCheckClickEvent,
           {
             capture: true,
           }
         );
+        const $shadowRoot = config.target.getRootNode();
+        if ($shadowRoot instanceof ShadowRoot) {
+          PopsDOMUtils.off(
+            $shadowRoot,
+            "click touchstart",
+            void 0,
+            PopsContextMenu.windowCheckClickEvent,
+            {
+              capture: true,
+            }
+          );
+        }
       },
       /**
        * contextmenu事件
