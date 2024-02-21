@@ -22,7 +22,7 @@
 // @grant        unsafeWindow
 // @connect      m.weibo.cn
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1331238/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1331250/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1329875/WhiteSevsUtils.js
 // ==/UserScript==
 
