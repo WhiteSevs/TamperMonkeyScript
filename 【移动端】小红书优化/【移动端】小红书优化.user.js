@@ -215,6 +215,9 @@
       log.info(["获取页信息", data]);
       if (data["code"] === 0 || data["success"]) {
         return data["data"];
+      } else if (data["code"] === -101) {
+        /* 未登录 */
+        return;
       } else {
         Qmsg.error(data["msg"]);
       }
