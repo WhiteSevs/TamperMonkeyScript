@@ -3,7 +3,7 @@
 // @icon         https://www.jianshu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/485483
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.19
+// @version      2024.2.21
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -17,7 +17,7 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/456485/1328217/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1330878/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1329875/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
 // ==/UserScript==
