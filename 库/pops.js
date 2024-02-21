@@ -9162,13 +9162,24 @@
       rootElement: null,
       /**
        * 全局点击检测
-       * @param {Event} event
+       * @param {TouchEvent|PointerEvent} event
        */
       windowCheckClick(event) {
         if (!PopsContextMenu.rootElement) {
           return;
         }
         if (event.target.closest(`.pops-${PopsType}`)) {
+          return;
+        }
+        if (event.target === config.target) {
+          /* shadowRoot */
+          return;
+        }
+        if (
+          event.target.className &&
+          event.target.className === "pops-shadow-container" &&
+          event.target.shadowRoot != null
+        ) {
           return;
         }
         PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
