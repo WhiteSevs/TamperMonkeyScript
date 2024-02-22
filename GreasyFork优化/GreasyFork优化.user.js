@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.21.14
+// @version      2024.2.22
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -125,6 +125,22 @@
           return name.match(/[\d]+-(.+)/)[1];
         }
       }
+    },
+    /**
+     * 获取需要切换语言的Url
+     */
+    getSwitchLanguageUrl(localeLanguage = "zh-CN") {
+      let url = window.location.origin;
+      let urlSplit = window.location.pathname.split("/");
+      urlSplit[1] = localeLanguage;
+      url = url + urlSplit.join("/");
+      url += window.location.search;
+      if (window.location.search === "") {
+        url += "?locale_override=1";
+      } else if (!window.location.search.includes("locale_override=1")) {
+        url += "&locale_override=1";
+      }
+      return url;
     },
     /**
      * 获取脚本统计数据
@@ -341,6 +357,22 @@
       let respText = postResp.data.responseText;
       let respDocument = DOMUtils.parseHTML(respText, true, true);
       return respDocument;
+    },
+    /**
+     * 切换语言
+     * @param {string} url
+     */
+    async switchLanguage(url) {
+      let getResp = await httpx.get(url, {
+        fetch: true,
+        headers: {
+          "Upgrade-Insecure-Requests": 1,
+        },
+      });
+      if (!getResp.status) {
+        return;
+      }
+      log.info(getResp);
     },
   };
 
@@ -754,6 +786,52 @@
               text: "功能",
               type: "forms",
               forms: [
+                {
+                  text: "固定当前语言",
+                  type: "select",
+                  attributes: {
+                    "data-key": "language-selector-locale",
+                    "data-default-value": "zh-CN",
+                  },
+                  getValue() {
+                    return PopsPanel.getValue(
+                      this.attributes["data-key"],
+                      this.attributes["data-default-value"]
+                    );
+                  },
+                  callback(event, isSelectedValue, isSelectedText) {
+                    PopsPanel.setValue(
+                      this.attributes["data-key"],
+                      isSelectedValue
+                    );
+                  },
+                  data: (function () {
+                    let result = [
+                      {
+                        value: "",
+                        text: "无",
+                      },
+                    ];
+                    document
+                      .querySelectorAll(
+                        "select#language-selector-locale option"
+                      )
+                      .forEach((element) => {
+                        let value = element.getAttribute("value");
+                        if (value === "help") {
+                          return;
+                        }
+                        let text = (
+                          element.innerText || element.textContent
+                        ).trim();
+                        result.push({
+                          value: value,
+                          text: text,
+                        });
+                      });
+                    return result;
+                  })(),
+                },
                 PopsPanel.getSwtichDetail(
                   "美化页面元素",
                   "如button、input、textarea",
@@ -802,47 +880,6 @@
                   "beautifyGreasyforkBeautify",
                   true
                 ),
-                {
-                  text: "固定当前语言",
-                  type: "select",
-                  attributes: {
-                    "data-key": "language-selector-locale",
-                    "data-default-value": "zh-CN",
-                  },
-                  getValue() {
-                    return PopsPanel.getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                  },
-                  callback(event, isSelectedValue, isSelectedText) {
-                    PopsPanel.setValue(
-                      this.attributes["data-key"],
-                      isSelectedValue
-                    );
-                  },
-                  data: (function () {
-                    let result = [];
-                    document
-                      .querySelectorAll(
-                        "select#language-selector-locale option"
-                      )
-                      .forEach((element) => {
-                        let value = element.getAttribute("value");
-                        if (value === "help") {
-                          return;
-                        }
-                        let text = (
-                          element.innerText || element.textContent
-                        ).trim();
-                        result.push({
-                          value: value,
-                          text: text,
-                        });
-                      });
-                    return result;
-                  })(),
-                },
               ],
             },
           ],
@@ -2619,16 +2656,16 @@
         .filter((item) => Boolean(item))[0];
       log.success("选择语言：" + localeLanguage);
       log.success("当前语言：" + currentLocaleLanguage);
+      if (utils.isNull(localeLanguage)) {
+        return;
+      }
       if (localeLanguage === currentLocaleLanguage) {
         return;
       } else {
         let timer = null;
-        let replaceUrlRegular = new RegExp(
-          `^${window.location.origin}/${currentLocaleLanguage}`
-        );
-        let newUrl = `${window.location.origin}/${localeLanguage}`;
-        let jumpUrl = window.location.href.replace(replaceUrlRegular, newUrl);
-        log.success("新Url：" + jumpUrl);
+        let url = GreasyforkApi.getSwitchLanguageUrl(localeLanguage);
+        GreasyforkApi.switchLanguage(url);
+        log.success("新Url：" + url);
         Qmsg.loading(
           `当前语言：${currentLocaleLanguage}，3秒后切换至：${localeLanguage}`,
           {
@@ -2639,9 +2676,11 @@
             },
           }
         );
-        Qmsg.info("导航至：" + jumpUrl);
+        Qmsg.info("导航至：" + url, {
+          timeout: 3000,
+        });
         timer = setTimeout(() => {
-          window.location.href = jumpUrl;
+          window.location.href = url;
         }, 3000);
       }
     },
