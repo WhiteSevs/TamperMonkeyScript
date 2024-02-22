@@ -40,6 +40,7 @@
 
 (async function () {
   "use strict";
+  const console = unsafeWindow.console;
   /**
    * @type {import("../库/Utils")}
    */

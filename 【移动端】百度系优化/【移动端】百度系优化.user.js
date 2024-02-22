@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.21.11
+// @version      2024.2.22
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -27,7 +27,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1331250/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1329875/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1331636/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
 // ==/UserScript==
 
@@ -56,7 +56,7 @@
    * @type {import("../库/DOMUtils")}
    */
   const DOMUtils = window.DOMUtils.noConflict();
-  const log = new utils.Log(GM_info);
+  const log = new utils.Log(GM_info, unsafeWindow.console || console);
   log.config({
     debug: DEBUG,
     logMaxCount: 20000,

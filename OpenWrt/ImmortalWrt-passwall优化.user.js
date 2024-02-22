@@ -27,7 +27,7 @@
    * @type {import("../库/Utils")}
    */
   const utils = window.Utils.noConflict();
-  let log = new utils.Log(GM_info);
+  let log = new utils.Log(GM_info, unsafeWindow.console || console);
   let httpx = new utils.Httpx(GM_xmlhttpRequest);
   httpx.config({
     onabort: function () {

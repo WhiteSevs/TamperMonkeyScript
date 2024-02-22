@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.2.21.15
+// @version      2024.2.22
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -21,7 +21,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1331250/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1329875/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1331636/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
 // ==/UserScript==
 
@@ -51,7 +51,7 @@
     showClose: false,
     showReverse: false,
   });
-  const log = new utils.Log(GM_info);
+  const log = new utils.Log(GM_info, unsafeWindow.console || console);
   log.config({
     debug: false,
   });
