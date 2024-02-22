@@ -991,6 +991,4 @@ declare interface DOMUtils {
     toggle(element: HTMLElement | string): void;
 }
 
-declare var DOMUtils: {
-    prototype: DOMUtils;
-}
+declare var DOMUtils: DOMUtils;
