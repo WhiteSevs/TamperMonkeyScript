@@ -1760,12 +1760,16 @@ declare interface UtilsLogConstructor {
 declare interface UtilsLog {
     /**
      * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+     * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
      */
-    new(_GM_info_: {
-        script: {
-            name: string,
-        }
-    }): UtilsLogConstructor;
+    new(
+        _GM_info_: {
+            script: {
+                name: string,
+            }
+        },
+        console: Console,
+    ): UtilsLogConstructor;
 }
 
 /** Progress */
@@ -3342,9 +3346,7 @@ declare interface Utils {
 
 }
 
-declare var Utils: {
-    prototype: Utils;
-}
+declare var Utils: Utils;
 
 declare interface Vue2Context {
     _isVue: true;
