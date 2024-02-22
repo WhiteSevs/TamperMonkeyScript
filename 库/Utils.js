@@ -3609,7 +3609,8 @@
       script: {
         name: "Utils.Log",
       },
-    }
+    },
+    console = globalThis.console,
   ) {
     let msgColorDetails = [
       "font-weight: bold; color: cornflowerblue",
