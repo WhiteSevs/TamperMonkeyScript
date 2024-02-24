@@ -6660,10 +6660,11 @@
                 let main_content = respObj.querySelector(".BK-main-content");
                 nextPageContent = main_content.innerHTML;
                 if (main_content.children.length <= 2) {
-                  log.info("已到达最大页" + (page - 1));
+                  log.info("已到达最大页：" + (page - 1));
+                  Qmsg.success("已到达最大页：" + (page - 1));
                   insertUrlToImageNode();
                   setImageWidthHeight();
-                  loadingView.setText("已到达最大页" + (page - 1));
+                  loadingView.destory();
                   break;
                 } else {
                   loadingView.setText("正在加载页 " + page, true);
