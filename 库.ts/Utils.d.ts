@@ -988,6 +988,15 @@ declare interface HttpxDetails {
  */
 declare interface HttpxAsyncResultData {
     /**
+     * 如果fetch为true，且返回的headers中的Content-Type存在text/event-stream或者是主动设置的responseType为stream
+     * 则存在该属性为true
+     */
+    isStream?: boolean;
+    /**
+     * 如果fetch为true，则存在该属性为true
+     */
+    isFetch?: boolean;
+    /**
      * 当数据加载完毕后的，经过所有重定向后的最终URL
      */
     finalUrl: string;
@@ -1013,7 +1022,7 @@ declare interface HttpxAsyncResultData {
     /**
      *  响应内容，根据responseType，如果是html，那就是Document类型，如果是json，那么类型是Object类型
      */
-    response: object | string | HTMLElement;
+    response: Document | ReadableStream | ArrayBuffer | string | Blob;
     /**
      * 当请求头fetch为true时，该属性存在
      */
