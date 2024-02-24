@@ -2575,13 +2575,47 @@
         Object.assign(fetchInit, newDetails.fetchInit || {});
         fetch(newDetails.url, fetchInit)
           .then(async (resp) => {
-            let headersText = "";
+            /**
+             * @type {HttpxAsyncResultData}
+             */
+            let httpxResponse = {
+              isFetch: true,
+              finalUrl: resp.url,
+              readyState: 4,
+              status: resp.status,
+              statusText: resp.statusText,
+              response: void 0,
+              responseFetchHeaders: resp.headers,
+              responseHeaders: "",
+              responseText: void 0,
+              responseType: newDetails.responseType,
+              responseXML: void 0,
+            };
+            Object.assign(httpxResponse, newDetails.context || {});
+
             for (const [key, value] of resp.headers.entries()) {
-              headersText += `${key}: ${value}\n`;
+              httpxResponse.responseHeaders += `${key}: ${value}\n`;
             }
 
+            /* 如果是流式传输，直接返回 */
+            if (
+              newDetails.responseType === "stream" ||
+              (resp.headers.has("Content-Type") &&
+                resp.headers.get("Content-Type").includes("text/event-stream"))
+            ) {
+              httpxResponse["isStream"] = true;
+              httpxResponse.response = resp.body;
+              delete httpxResponse.responseText;
+              delete httpxResponse.responseXML;
+              newDetails.onload(httpxResponse);
+              return;
+            }
+
+            /** 响应 */
             let response = "";
+            /** 响应字符串 */
             let responseText = "";
+            /** 响应xml文档 */
             let responseXML = "";
 
             let arrayBuffer = await resp.arrayBuffer;
@@ -2608,28 +2642,14 @@
               response = parser.parseFromString(responseText, "text/html");
             } else if (newDetails.responseType === "json") {
               response = Utils.toJSON(responseText);
-            } else if (newDetails.responseType === "stream") {
-              response = responseText;
             }
             let parser = new DOMParser();
             responseXML = parser.parseFromString(responseText, "text/xml");
-            /**
-             * @type {HttpxAsyncResultData}
-             */
-            let httpxResponse = {
-              isFetch: true,
-              finalUrl: resp.url,
-              readyState: 4,
-              status: resp.status,
-              statusText: resp.statusText,
-              response: response,
-              responseFetchHeaders: resp.headers,
-              responseHeaders: headersText,
-              responseText: responseText,
-              responseType: newDetails.responseType,
-              responseXML: responseXML,
-            };
-            Object.assign(httpxResponse, newDetails.context || {});
+
+            httpxResponse.response = response;
+            httpxResponse.responseText = responseText;
+            httpxResponse.responseXML = responseXML;
+
             newDetails.onload(httpxResponse);
           })
           .catch((err) => {
@@ -3610,7 +3630,7 @@
         name: "Utils.Log",
       },
     },
-    console = globalThis.console,
+    console = globalThis.console
   ) {
     let msgColorDetails = [
       "font-weight: bold; color: cornflowerblue",
