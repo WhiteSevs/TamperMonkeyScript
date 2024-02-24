@@ -468,13 +468,6 @@
                   void 0,
                   "加载完毕后自动显示面板内容"
                 ),
-                this.getSwtichDetail(
-                  "本地存储配置",
-                  "vconsole-save-data-with-gm",
-                  false,
-                  void 0,
-                  "使用油猴函数保存配置到本地，不会因为网站改变导致配置改变"
-                ),
               ],
             },
             {
