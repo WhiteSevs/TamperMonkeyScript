@@ -4343,7 +4343,7 @@
     }.bind(this);
   };
 
-  Utils.registerTrustClickEvent = function (isTrustValue = true) {
+  Utils.registerTrustClickEvent = function (isTrustValue = true, filter) {
     function trustEvent(event) {
       return new Proxy(event, {
         get: function (target, property) {
@@ -4355,15 +4355,39 @@
         },
       });
     }
+    if (filter == null) {
+      filter = function (typeName) {
+        return typeName === "click";
+      };
+    }
     const originalListener = EventTarget.prototype.addEventListener;
-    EventTarget.prototype.addEventListener = function () {
-      if (arguments[0] === "click") {
-        const fn = arguments[1];
-        arguments[1] = function (e) {
-          fn.call(this, trustEvent(e));
-        };
+    EventTarget.prototype.addEventListener = function (...args) {
+      let type = args[0];
+      let callback = args[1];
+      let options = args[2];
+      if (filter(type)) {
+        if (typeof callback === "function") {
+          args[1] = function (event) {
+            callback.call(this, trustEvent(event));
+          };
+        } else if (typeof callback === "object" && "handleEvent" in callback) {
+          let oldHandleEvent = callback["handleEvent"];
+          
+          args[1]["handleEvent"] = function (event) {
+            if (event == null) {
+              return;
+            }
+            try {
+              /* Proxy对象使用instanceof会报错 */
+              event instanceof Proxy;
+              oldHandleEvent.call(this, trustEvent(event));
+            } catch (error) {
+              event["isTrusted"] = isTrustValue;
+            }
+          };
+        }
       }
-      return originalListener.apply(this, arguments);
+      return originalListener.apply(this, args);
     };
   };
 

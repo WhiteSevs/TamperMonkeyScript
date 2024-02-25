@@ -3008,10 +3008,11 @@ declare interface Utils {
     /**
      * 劫持Event的isTrust为true，注入时刻，ducument-start
      * @param isTrustValue （可选）让isTrusted为true
+     * @param filter （可选）过滤出需要的事件名，true为需要，false为不需要
      * @example
      * Utils.registerTrustClickEvent()
      */
-    registerTrustClickEvent(isTrustValue?: boolean): void;
+    registerTrustClickEvent(isTrustValue?: boolean, filter?: (typeName: string) => boolean): void;
     /**
      * 将数字进行正/负转换
      * @param num 需要进行转换的数字
