@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.24
+// @version      2024.2.25
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -29,7 +29,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1332775/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1332776/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1333127/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1332779/showdown.js
 // ==/UserScript==
@@ -751,19 +751,7 @@
 			}
 		`,
       baike: `
-			.BK-after-content-wrapper,
-			.yitiao-container,
-			.BK-content-load,
-			#J-tashuo-button-fixed,
-			#J-super-layer-promote,
-      /* 底部的参考资料展开图标 */
-      #J-reference-unfold{
-				display:none !important;
-			}
-			#J-other-content,
-      #J-reference li.reference-hide{
-				display:block !important;
-			}
+
 		`,
       zhidao: `
 			/* .dec + div, */
@@ -6573,141 +6561,91 @@
       if (!this.url.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)) {
         return;
       }
-      let page = 1;
       GM_addStyle(this.css.baike);
       log.info("插入CSS规则");
-      /**
-       * 获取到的图片大小要重新设置
-       */
-      function setImageWidthHeight() {
-        document.querySelectorAll(".col-para").forEach((item) => {
-          item.setAttribute("style", "width: 42.936vw;margin: 0 auto;");
-          let content_img_item = item.querySelector(".content-img-item");
-          let content_img_link = item.querySelector(".content-img-link");
-          let content_album = item.querySelector(".content-album");
-          content_album?.setAttribute("style", "");
-          if (content_album) {
-            content_img_item = item.querySelector(".content-album-item");
-            content_img_link = item.querySelector(".content-album-link");
-          }
-          content_img_item?.setAttribute(
-            "style",
-            "max-height: 39vw;max-width: 30vw;border-radius: 0.09rem;margin: 0 auto;overflow: hidden;"
-          );
-          content_img_link?.setAttribute("style", "width: 30vw;");
-        });
-      }
-
-      /**
-       * 获取到的要重新将图片链接插入到img标签中
-       */
-      function insertUrlToImageNode() {
-        document.querySelectorAll(".lazy-img").forEach((item) => {
-          let content_img = item.parentElement.parentElement.parentElement;
-          let img_url = content_img.getAttribute("data-src")
-            ? content_img.getAttribute("data-src")
-            : item.getAttribute("data-url");
-          if (img_url != null) {
-            item.innerHTML = `<img src="${img_url}"></img>`;
-          }
-        });
-      }
-      /**
-       * 循环加载更多内容
-       */
-      function loadMore() {
-        utils
-          .waitNodeList(".BK-main-content", "#J-gotoPC-top")
-          .then(async () => {
-            let nextPageNode = document.querySelector("#J-gotoPC-top");
-            let nextPageUrl = nextPageNode.href;
-            let nextUrlObj = new URL(nextPageUrl);
-            let itemId = nextUrlObj.pathname.match(
-              new RegExp("/item/.+?/([0-9]+)", "i")
-            );
-            if (!itemId) {
-              log.error(nextPageUrl);
-              log.error("匹配id失败");
+      if (PopsPanel.getValue("baidu_baike_automatically_expand_next_page")) {
+        let old_Box = null;
+        Object.defineProperty(unsafeWindow, "Box", {
+          get() {
+            if (old_Box == null) {
               return;
             }
-            log.success(`获取下一页地址: ${nextPageUrl}`);
-            loadingView.initLoadingView();
-            log.success(document.querySelector(".BK-main-content"));
-            DOMUtils.after(
-              document.querySelector(".BK-main-content"),
-              loadingView.getLoadingViewElement()
-            );
-            while (1) {
-              loadingView.show();
-              let nextPageUrl = `https://baike.baidu.com${
-                nextUrlObj.pathname
-              }?wpf=3&ldr=1&page=${page}&insf=1&_=${new Date().getTime()}`;
-              log.info(nextPageUrl);
-              let getResp = await httpx.get({
-                url: nextPageUrl,
-                headers: {
-                  "User-Agent":
-                    "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/112.0.0.0",
-                },
-              });
-              let respData = getResp.data;
-              if (getResp.status) {
-                let respObj = DOMUtils.parseHTML(
-                  respData.responseText,
-                  true,
-                  true
-                );
-                let main_content = respObj.querySelector(".BK-main-content");
-                nextPageContent = main_content.innerHTML;
-                if (main_content.children.length <= 2) {
-                  log.info("已到达最大页：" + (page - 1));
-                  Qmsg.success("已到达最大页：" + (page - 1));
-                  insertUrlToImageNode();
-                  setImageWidthHeight();
-                  loadingView.destory();
-                  break;
-                } else {
-                  loadingView.setText("正在加载页 " + page, true);
-                  log.info(nextPageContent);
-                  DOMUtils.append(
-                    document.querySelector(".BK-main-content"),
-                    nextPageContent
-                  );
-                  /* 等待350ms，防止被百度识别为机器人 */
-                  await utils.sleep(350);
+            return new Proxy(old_Box, {
+              get(target, prop, receiver) {
+                if (
+                  (prop === "isBox" || prop === "$isBox") &&
+                  PopsPanel.getValue("baidu-baike-Box-isBox")
+                ) {
+                  return true;
                 }
-                if (PopsPanel.getValue("baidu_baike_sync_next_page_address")) {
-                  window.history.pushState("forward", null, respData.finalUrl);
+                if (
+                  (prop === "isLiteBox" || prop === "$isLiteBox") &&
+                  PopsPanel.getValue("baidu-baike-Box-isLiteBox")
+                ) {
+                  return true;
                 }
-                page++;
-              } else if (getResp.type === "onerror") {
-                log.error("请求失败 👇");
-                log.error(respData);
-                insertUrlToImageNode();
-                setImageWidthHeight();
-                loadingView.setText("请求失败");
-                loadingView.hideIcon();
-                break;
-              } else if (getResp.type === "ontimeout") {
-                log.error("请求超时 👇");
-                insertUrlToImageNode();
-                setImageWidthHeight();
-                loadingView.setText("请求超时");
-                loadingView.hideIcon();
-                break;
-              } else {
-                log.error("未知错误");
-                insertUrlToImageNode();
-                setImageWidthHeight();
-                loadingView.setText("未知错误");
-                loadingView.hideIcon();
-                break;
-              }
-            }
-          });
-      }
-      if (PopsPanel.getValue("baidu_baike_automatically_expand_next_page")) {
-        loadMore();
+                if (
+                  (prop === "isInfoBox" || prop === "$isInfoBox") &&
+                  PopsPanel.getValue("baidu-baike-Box-isInfoBox")
+                ) {
+                  return true;
+                }
+                if (
+                  (prop === "isIOS" || prop === "$isIOS") &&
+                  PopsPanel.getValue("baidu-baike-Box-isIOS")
+                ) {
+                  return true;
+                }
+                if (
+                  (prop === "isAndroid" || prop === "$isAndroid") &&
+                  PopsPanel.getValue("baidu-baike-Box-isAndroid")
+                ) {
+                  return true;
+                }
+                if (
+                  (prop === "isAndroid" || prop === "$isAndroid") &&
+                  PopsPanel.getValue("baidu-baike-Box-isAndroid")
+                ) {
+                  return true;
+                }
+                if (prop === "android") {
+                  let android = Reflect.get(target, prop, receiver);
+                  if (
+                    android["invokeApp"] &&
+                    PopsPanel.getValue("baidu-baike-Box-android.invokeApp")
+                  ) {
+                    android["invokeApp"] = function (...args) {
+                      log.info(["阻止调用android.invokeApp", args]);
+                    };
+                  }
+                  if (
+                    android["invokeLiteApp"] &&
+                    PopsPanel.getValue("baidu-baike-Box-android.invokeLiteApp")
+                  ) {
+                    android["invokeLiteApp"] = function (...args) {
+                      log.info(["阻止调用android.invokeLiteApp", args]);
+                    };
+                  }
+                }
+                if (prop === "ios") {
+                  let ios = Reflect.get(target, prop, receiver);
+                  if (
+                    ios["invokeLiteApp"] &&
+                    PopsPanel.getValue("baidu-baike-Box-ios.invokeApp")
+                  ) {
+                    ios["invokeLiteApp"] = function (...args) {
+                      log.info(["阻止调用ios.invokeApp", args]);
+                    };
+                  }
+                }
+                return Reflect.get(target, prop, receiver);
+              },
+            });
+          },
+          set(value) {
+            old_Box = value;
+          },
+        });
       }
     },
     /**
@@ -7713,8 +7651,10 @@
      * @type {PopsCallResult}
      */
     dialogAlias: null,
+    /** 是否正在进行初始化参数 */
+    isIniting: false,
+    /** 是否已初始化参数 */
     isInitParams: false,
-    isInitShowdownExtension: false,
     aisearch_id: null,
     pvId: null,
     sessionId: null,
@@ -7726,6 +7666,22 @@
      * }[]}
      */
     question: [],
+    async init() {
+      if (!this.isInitParams) {
+        this.isIniting = true;
+        Qmsg.info("初始化参数中...");
+        this.isInitParams = Boolean(await this.initParams());
+        this.isIniting = false;
+        if (this.isInitParams) {
+          Qmsg.success("初始化成功！");
+          this.init();
+        } else {
+          Qmsg.error("初始化参数失败");
+        }
+      } else if (!this.isIniting) {
+        this.showChatGPTDialog();
+      }
+    },
     /**
      * 初始化参数
      * @param {string} [queryText=""] 需要提问的问题
@@ -7771,6 +7727,14 @@
      * 显示ChatGPT回答弹窗
      */
     showChatGPTDialog() {
+      if (YiYan.dialogAlias != null) {
+        if (!YiYan.dialogAlias.popsElement.getClientRects().length) {
+          YiYan.dialogAlias.show();
+        } else {
+          log.info("请勿重复打开");
+        }
+        return;
+      }
       YiYan.dialogAlias = pops.alert({
         title: {
           text: "<p style='width:100%;'>文心一言</p>",
@@ -8313,115 +8277,6 @@
         DOMUtils.before(ele, codeHeader);
       });
     },
-    showdownExtension() {
-      function katexTohtml(rawHtml) {
-        // console.log("========katexTohtml start=======")
-        let renderedHtml = rawHtml;
-        try {
-          renderedHtml = rawHtml
-            .replace(/<em>/g, "")
-            .replace(/<\/em>/g, "")
-            .replace(/\$\$(.*?)\$\$/g, (_, tex) => {
-              //debugger
-              return katex.renderToString(toRawText(tex), katex_options);
-            });
-          renderedHtml = renderedHtml.replace(/\$(.*?)\$/g, (_, tex) => {
-            //debugger
-            return katex.renderToString(toRawText(tex), katex_options);
-          });
-        } catch (ex) {
-          log.error(ex);
-        }
-
-        // console.log("========katexTohtml end=======")
-        //console.log(renderedHtml)
-
-        return renderedHtml;
-      }
-      showdown.extension("myext", function () {
-        return [
-          //to katex
-          {
-            type: "output",
-            filter: function (source, converter, options) {
-              //debugger
-              return katexTohtml(source);
-            },
-          },
-          // filter xss
-          {
-            type: "output",
-            filter: function (source, converter, options) {
-              //debugger
-              return source
-                .replace(/<script/gi, "&lt;script")
-                .replace(/<meta/gi, "&lt;meta");
-            },
-          },
-          //Adds simple footnotes
-
-          {
-            type: "output",
-            filter: (text) =>
-              text.replace(
-                /^\[\^([\d\w]+)\]:\s*((\n+(\s{2,4}|\t).+)+)$/gm,
-                (str, name, rawContent, _, padding) => {
-                  const content = converter.makeHtml(
-                    rawContent.replace(new RegExp(`^${padding}`, "gm"), "")
-                  );
-                  return `<div class="footnote" id="footnote-${name}"><a href="#footnote-${name}"><sup>[${name}]</sup></a>:${content}</div>`;
-                }
-              ),
-          },
-          {
-            type: "lang",
-            filter: (text) =>
-              text.replace(
-                /^\[\^([\d\w]+)\]:( |\n)((.+\n)*.+)$/gm,
-                (str, name, _, content) =>
-                  `<small class="footnote" id="footnote-${name}"><a href="#footnote-${name}"><sup>[${name}]</sup></a>: ${content}</small>`
-              ),
-          },
-          {
-            type: "lang",
-            filter: (text) =>
-              text.replace(
-                /\[\^([\d\w]+)\]/m,
-                (str, name) =>
-                  `<a href="#footnote-${name}"><sup>[${name}]</sup></a>`
-              ),
-          },
-
-          //replace \n
-          {
-            type: "lang",
-            filter: (text) => text.replace(/\\n+/g, "\n"),
-          },
-          /**
-           * Showdown Icon Extension, Glyphicon and FontAwesome support for showdown
-           * http://github.com/dbtek/showdown-icon
-           * 2014, Ismail Demirbilek
-           * License: MIT
-           */
-          {
-            type: "lang",
-            regex: "\\B(\\\\)?@glyphicon-([\\S]+)\\b",
-            replace: function (a, b, c) {
-              return b === "\\"
-                ? a
-                : '<span class="glyphicon glyphicon-' + c + '">' + "</span>";
-            },
-          },
-          {
-            type: "lang",
-            regex: "\\B(\\\\)?@fa-([\\S]+)\\b",
-            replace: function (a, b, c) {
-              return b === "\\" ? a : '<i class="fa fa-' + c + '">' + "</i>";
-            },
-          },
-        ];
-      });
-    },
     /**
      * 清除提问历史
      */
@@ -8463,6 +8318,9 @@
      */
     initMenu() {
       this.initLocalDefaultValue();
+      if (top !== self) {
+        return;
+      }
       GM_Menu.add([
         {
           key: "show_pops_panel_setting",
@@ -8484,19 +8342,8 @@
           showText(text) {
             return text;
           },
-          callback: async () => {
-            if (!YiYan.isInitShowdownExtension) {
-              YiYan.isInitShowdownExtension = true;
-              YiYan.showdownExtension();
-            }
-            if (!YiYan.isInitParams) {
-              Qmsg.info("初始化参数中...");
-              YiYan.isInitParams = Boolean(await YiYan.initParams());
-              if (YiYan.isInitParams) {
-                Qmsg.success("初始化成功！");
-                YiYan.showChatGPTDialog();
-              }
-            }
+          callback: () => {
+            YiYan.init();
           },
         },
         {
@@ -9293,25 +9140,64 @@
           headerTitle: "百度百科<br />baike.baidu.com<br />wapbaike.baidu.com",
           forms: [
             {
-              text: "功能",
+              text: "劫持Box",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "自动加载更多内容",
-                  "baidu_baike_automatically_expand_next_page",
-                  true
+                  "isBox",
+                  "baidu-baike-Box-isBox",
+                  true,
+                  void 0,
+                  "Box.isBox和Box.$isBox强制返回true"
                 ),
                 PopsPanel.getSwtichDetail(
-                  "同步地址",
-                  "baidu_baike_sync_next_page_address",
+                  "isLiteBox",
+                  "baidu-baike-Box-isLiteBox",
                   false,
-                  function (event, enable) {
-                    if (enable) {
-                      alert(
-                        "开启后，且开启【自动加载更多内容】，当自动加载到第N页时，浏览器地址也会跟随改变，刷新网页就是当前加载的第N页"
-                      );
-                    }
-                  }
+                  void 0,
+                  "Box.isLiteBox和Box.$isLiteBox强制返回true"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "isInfoBox",
+                  "baidu-baike-Box-isInfoBox",
+                  false,
+                  void 0,
+                  "Box.isInfoBox和Box.$isInfoBox强制返回true"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "isIOS",
+                  "baidu-baike-Box-isIOS",
+                  false,
+                  void 0,
+                  "Box.isIOS和Box.$isIOS强制返回true"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "isAndroid",
+                  "baidu-baike-Box-isAndroid",
+                  false,
+                  void 0,
+                  "Box.isAndroid和Box.$isAndroid强制返回true"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "android.invokeApp",
+                  "baidu-baike-Box-android.invokeApp",
+                  true,
+                  void 0,
+                  "Box.android.invokeApp()置空"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "android.invokeLiteApp",
+                  "baidu-baike-Box-android.invokeLiteApp",
+                  true,
+                  void 0,
+                  "Box.android.invokeLiteApp()置空"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "ios.invokeApp",
+                  "baidu-baike-Box-ios.invokeApp",
+                  true,
+                  void 0,
+                  "Box.ios.invokeApp()置空"
                 ),
               ],
             },
