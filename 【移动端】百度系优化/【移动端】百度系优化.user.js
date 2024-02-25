@@ -5695,11 +5695,16 @@
          * 检测骨架屏
          */
         checkSkeleton() {
-          let appElement = document.querySelector("#app");
-          if (appElement && appElement.innerHTML === "") {
-            Qmsg.warning("检测到骨架屏，异常加载，刷新页面");
-            window.location.reload();
-          }
+          setTimeout(() => {
+            let appElement = document.querySelector("#app");
+            if (appElement && appElement.innerHTML === "") {
+              Qmsg.warning("检测到骨架屏，异常加载，刷新页面", {
+                onClose() {
+                  window.location.reload();
+                },
+              });
+            }
+          }, 900);
         },
       };
 
