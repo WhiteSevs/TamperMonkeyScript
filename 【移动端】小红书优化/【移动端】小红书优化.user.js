@@ -1022,6 +1022,9 @@
      */
     initMenu() {
       this.initLocalDefaultValue();
+      if (top !== self) {
+        return;
+      }
       GM_Menu.add([
         {
           key: "show_pops_panel_setting",

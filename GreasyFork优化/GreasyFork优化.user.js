@@ -447,6 +447,9 @@
      */
     initMenu() {
       this.initLocalDefaultValue();
+      if (top !== self) {
+        return;
+      }
       GreasyforkMenu.menu.add([
         {
           key: "show_pops_panel_setting",

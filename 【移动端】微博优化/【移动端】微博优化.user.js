@@ -483,6 +483,9 @@
     /** 初始化菜单 */
     initMenu() {
       this.initLocalDefaultValue();
+      if (top !== self) {
+        return;
+      }
       WeiBoMenu.menu.add([
         {
           key: "show_pops_panel_setting",

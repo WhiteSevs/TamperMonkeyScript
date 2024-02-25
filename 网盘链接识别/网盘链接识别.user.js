@@ -12161,6 +12161,9 @@
      * 初始化
      */
     init() {
+      if (top !== self) {
+        return;
+      }
       GM_Menu.add([
         {
           key: "showSetting",
