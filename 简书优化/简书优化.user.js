@@ -3,7 +3,7 @@
 // @icon         https://www.jianshu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/485483
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.25
+// @version      2024.2.25.19
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -366,7 +366,7 @@
      */
     initMenu() {
       this.initLocalDefaultValue();
-      if (top !== self) {
+      if (unsafeWindow.top !== unsafeWindow.self) {
         return;
       }
       GM_Menu.add([

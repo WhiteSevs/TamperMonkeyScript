@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.2.25
+// @version      2024.2.25.19
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -1022,7 +1022,7 @@
      */
     initMenu() {
       this.initLocalDefaultValue();
-      if (top !== self) {
+      if (unsafeWindow.top !== unsafeWindow.self) {
         return;
       }
       GM_Menu.add([
