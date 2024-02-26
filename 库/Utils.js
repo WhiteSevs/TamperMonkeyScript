@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-19";
+  Utils.version = "2024-2-26";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -737,6 +737,17 @@
       fnMap.set(key, fn);
     };
     return overload;
+  };
+
+  Utils.debounce = function (fn, delay = 0) {
+    let timer = null;
+    const context = this;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(context, args);
+      }, delay);
+    };
   };
 
   Utils.deleteParentNode = function (element, targetSelector) {
@@ -1463,7 +1474,7 @@
       "MI 13 Build/OPR1.170623.027; wv",
     ];
     let randomMobile = Utils.getRandomValue(mobileNameList);
-    let chromeVersion1 = Utils.getRandomValue(110, 120);
+    let chromeVersion1 = Utils.getRandomValue(110, 121);
     let chromeVersion2 = Utils.getRandomValue(0, 0);
     let chromeVersion3 = Utils.getRandomValue(2272, 6099);
     let chromeVersion4 = Utils.getRandomValue(1, 218);
@@ -1506,7 +1517,7 @@
   };
 
   Utils.getRandomPCUA = function () {
-    let chromeVersion1 = Utils.getRandomValue(110, 120);
+    let chromeVersion1 = Utils.getRandomValue(110, 121);
     let chromeVersion2 = Utils.getRandomValue(0, 0);
     let chromeVersion3 = Utils.getRandomValue(2272, 6099);
     let chromeVersion4 = Utils.getRandomValue(1, 218);
@@ -4372,7 +4383,7 @@
           };
         } else if (typeof callback === "object" && "handleEvent" in callback) {
           let oldHandleEvent = callback["handleEvent"];
-          
+
           args[1]["handleEvent"] = function (event) {
             if (event == null) {
               return;

@@ -1908,6 +1908,12 @@ declare interface Utils {
         addImpl(...args: (string | Function)[]): void;
     };
     /**
+     * 防抖函数
+     * @param fn 需要触发的回调
+     * @param delay 防抖判定时间(毫秒)，默认是0ms
+     */
+    debounce<T extends (...args: any) => any>(fn: Parameters<T>, delay?: number): ReturnType<T>;
+    /**
      * 删除某个父元素，父元素可能在上层或上上层或上上上层...
      * @param element 当前元素
      * @param targetSelector 判断是否满足父元素，参数为当前处理的父元素，满足返回true，否则false
