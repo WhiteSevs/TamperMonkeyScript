@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.25.19
+// @version      2024.2.26
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -29,7 +29,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1332775/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1333127/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1333612/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1332779/showdown.js
 // ==/UserScript==
@@ -683,7 +683,9 @@
       /* 底部评论滚动栏 */
       div.diy-guide-wrapper,
       /* 底部评论滚动栏上面的空白 */
-      .individuality{
+      .individuality,
+      /* 吧内的广告 */
+      .tb-threadlist__wrapper .tb-banner-wrapper-defensive{
 				display:none !important;
 			}
 			body.tb-modal-open{
@@ -2384,6 +2386,17 @@
         },
       };
 
+      /**
+       * 处理百度搜索自定义的样式添加
+       */
+      const handleUserOwnStyle = {
+        getUserStyle() {
+          return PopsPanel.getValue("baidu-search-user-style", "");
+        },
+      };
+
+      log.info("插入用户CSS规则");
+      GM_addStyle(handleUserOwnStyle.getUserStyle());
       if (window.location.pathname.startsWith("/bh")) {
         /* 百度健康 */
         log.info("插入CSS规则");
@@ -8257,7 +8270,7 @@
         if (codeElement.classList.length >= 2) {
           language = codeElement.classList[0];
         }
-        let copyText = codeElement.innerHTML;
+        let copyText = codeElement.innerText || codeElement.textContent;
         let codeHeader = DOMUtils.createElement("div", {
           className: "code-header",
           innerHTML: `
@@ -8653,13 +8666,14 @@
                   type: "own",
                   getLiElementCallBack(liElement) {
                     let $textAreaContainer = DOMUtils.createElement("div", {
-                      className: "pops-panel-textarea",
+                      className:
+                        "pops-panel-textarea baidu-search-interception-rule",
                       innerHTML: `
                         <style type="text/css">
-                        .pops-panel-textarea{
+                        .baidu-search-interception-rule{
                           width: 100%;
                         }
-                        .pops-panel-textarea textarea{
+                        .baidu-search-interception-rule textarea{
                           min-height: 3.6rem;
                           white-space: pre;
                           border-radius: 0 !important;
@@ -8678,9 +8692,56 @@
                       $textArea,
                       "input propertychange",
                       void 0,
-                      function (event) {
-                        BaiduSearchRule.setLocalRule(event.target.value);
+                      utils.debounce(function () {
+                        BaiduSearchRule.setLocalRule($textArea.value);
+                      }, 100)
+                    );
+                    return liElement;
+                  },
+                },
+              ],
+            },
+            {
+              text: "自定义样式",
+              type: "forms",
+              forms: [
+                {
+                  type: "own",
+                  getLiElementCallBack(liElement) {
+                    let $textAreaContainer = DOMUtils.createElement("div", {
+                      className: "pops-panel-textarea baidu-search-user-style",
+                      innerHTML: `
+                      <style type="text/css">
+                      .baidu-search-user-style{
+                        width: 100%;
                       }
+                      .baidu-search-user-style textarea{
+                        min-height: 3.6rem;
+                        white-space: pre;
+                        border-radius: 0 !important;
+                      }
+                      </style>
+                      <textarea></textarea>
+                      `,
+                    });
+                    let $textArea =
+                      $textAreaContainer.querySelector("textarea");
+                    /* 自定义样式 */
+                    $textArea.value = PopsPanel.getValue(
+                      "baidu-search-user-style",
+                      ""
+                    );
+                    liElement.appendChild($textAreaContainer);
+                    DOMUtils.on(
+                      $textArea,
+                      "input propertychange",
+                      void 0,
+                      utils.debounce(function () {
+                        PopsPanel.setValue(
+                          "baidu-search-user-style",
+                          $textArea.value
+                        );
+                      }, 100)
                     );
                     return liElement;
                   },
