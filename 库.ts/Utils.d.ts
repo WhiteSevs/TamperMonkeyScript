@@ -67,6 +67,38 @@ type HttpxStatus = 100 |
  */
 type HttpxMethod = "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE" | "PATCH"
 
+type HttpxRedirect = "follow" | "error" | "manual";
+
+type HttpxBinary = Uint8ArrayConstructor | ArrayBufferConstructor | DataViewConstructor | Blob | File;
+
+type HttpxResponseCallBackType = "onload" | "onerror" | "ontimeout" | "onabort";
+
+type HttpxResponseMap = {
+    "arraybuffer": ArrayBuffer,
+    "blob": Blob,
+    "json": object,
+    "stream": ReadableStream<string>,
+    "document": Document,
+    undefined: string,
+}
+
+type JSTypeMap = {
+    "string": string,
+    "number": number,
+    "boolean": boolean,
+    "object": object,
+    "symbol": symbol,
+    "bigint": bigint,
+    "undefined": undefined,
+    "null": null,
+}
+
+type JSTypeNames = keyof JSTypeMap;
+
+type ArgsType<T extends JSTypeNames[]> = {
+    [I in keyof T]: JSTypeMap[T[I]];
+}
+
 /**
  * headers的配置
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers
@@ -882,7 +914,7 @@ declare interface HttpxDetails {
     /**
      * 请求方法
      */
-    method?: "GET" | "POST" | "PUT" | "HEAD" | "OPTIONS" | "DELETE";
+    method?: HttpxMethod;
     /**
      * 超时时间，默认5000，可为空
      * 
@@ -892,7 +924,7 @@ declare interface HttpxDetails {
     /**
      * 响应类型，默认document，可为空
      */
-    responseType?: "arraybuffer" | "blob" | "json" | "stream" | "document";
+    responseType?: keyof HttpxResponseMap;
     /**
      * 请求头，可为空
      */
@@ -904,7 +936,7 @@ declare interface HttpxDetails {
     /**
      * 当触发重定向的使用规则，默认follow，可为空
      */
-    redirect?: "follow" | "error" | "manual";
+    redirect?: HttpxRedirect;
     /**
      * 自定义Cookie，可为空
      */
@@ -912,7 +944,7 @@ declare interface HttpxDetails {
     /**
      * 以二进制模式发送数据字符串，可为空
      */
-    binary?: Uint8ArrayConstructor | ArrayBufferConstructor | DataViewConstructor | Blob | File;
+    binary?: HttpxBinary;
     /**
      * 是否缓存资源，默认true，可为空
      */
@@ -986,7 +1018,7 @@ declare interface HttpxDetails {
 /**
  * 响应的数据的data
  */
-declare interface HttpxAsyncResultData {
+declare interface HttpxAsyncResultData<T extends HttpxDetails> {
     /**
      * 如果fetch为true，且返回的headers中的Content-Type存在text/event-stream或者是主动设置的responseType为stream
      * 则存在该属性为true
@@ -1022,7 +1054,7 @@ declare interface HttpxAsyncResultData {
     /**
      *  响应内容，根据responseType，如果是html，那就是Document类型，如果是json，那么类型是Object类型
      */
-    response: Document | ReadableStream | ArrayBuffer | string | Blob;
+    response: HttpxResponseMap[keyof HttpxResponseMap];
     /**
      * 当请求头fetch为true时，该属性存在
      */
@@ -1038,7 +1070,7 @@ declare interface HttpxAsyncResultData {
     /**
      * 是请求中设置的responseType，没有设置的话默认为undefined
      */
-    responseType?: string;
+    responseType?: keyof HttpxResponseMap;
     /**
      * the response data as XML document
      */
@@ -1047,7 +1079,7 @@ declare interface HttpxAsyncResultData {
 /**
  * 响应的数据
  */
-declare interface HttpxAsyncResult {
+declare interface HttpxAsyncResult<T extends HttpxDetails> {
     /**
      * 请求状态，状态码为200为成功true，否则false
      */
@@ -1055,11 +1087,11 @@ declare interface HttpxAsyncResult {
     /**
      * 请求的数据，当status为false时，data中可能也存在数据
      */
-    data: HttpxAsyncResultData;
+    data: HttpxAsyncResultData<T>;
     /**
      * 请求的配置
      */
-    details: HttpxDetails;
+    details: T;
     /**
      * 请求的成功/失败消息
      */
@@ -1067,7 +1099,7 @@ declare interface HttpxAsyncResult {
     /**
      * 当前触发响应的类型
      */
-    type: "onload" | "onerror" | "ontimeout" | "onabort"
+    type: HttpxResponseCallBackType
 }
 
 
@@ -1347,37 +1379,73 @@ declare interface UtilsHooks {
 declare interface UtilsHttpxConstrustor {
     /**
      * GET 请求
-     * @param args
+     * @param details 配置
      */
-    get(...args: (string | HttpxDetails)[]): Promise<HttpxAsyncResult>;
+    get<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    /**
+     * GET 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    get<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
     /**
      * POST 请求
-     * @param args
+     * @param details 配置
      */
-    post(...args: (string | HttpxDetails)[]): Promise<HttpxAsyncResult>;
+    post<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    /**
+     * POST 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    post<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
     /**
      * HEAD 请求
-     * @param args
+     * @param details 配置
      */
-    head(...args: (string | HttpxDetails)[]): Promise<HttpxAsyncResult>;
+    head<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    /**
+     * HEAD 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    head<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
     /**
      * OPTIONS 请求
-     * @param args
+     * @param details 配置
      */
-    options(...args: (string | HttpxDetails)[]): Promise<HttpxAsyncResult>;
+    options<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    /**
+     * OPTIONS 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    options<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
     /**
      * DELETE 请求
-     * @param args
+     * @param details 配置
      */
-    delete(...args: (string | HttpxDetails)[]): Promise<HttpxAsyncResult>;
+    delete<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+    /**
+     * DELETE 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    delete<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
     /**
      * PUT 请求
-     * @param args
+     * @param details 配置
      */
-    put(...args: (string | HttpxDetails)[]): Promise<HttpxAsyncResult>;
+    put<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
     /**
-     * 覆盖当前配置
-     * @param details
+     * PUT 请求
+     * @param url 网址
+     * @param details 配置
+     */
+    put<T extends HttpxDetails>(url: string, details: T): Promise<HttpxAsyncResult<T>>;
+    /**
+     * 覆盖全局配置
+     * @param details 配置
      */
     config(details?: HttpxDetails): void;
 }
@@ -1905,7 +1973,10 @@ declare interface Utils {
         /**
          * 前面的参数都是字符串，最后一个参数是函数
          */
-        addImpl(...args: (string | Function)[]): void;
+        addImpl<T extends JSTypeNames[]>(...args: [
+            ...T,
+            (...args: ArgsType<T>) => any
+        ]): void;
     };
     /**
      * 防抖函数
