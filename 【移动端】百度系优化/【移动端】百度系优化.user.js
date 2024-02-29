@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.26
+// @version      2024.2.29
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -2848,7 +2848,6 @@
               white-space: nowrap;
               -o-text-overflow: ellipsis;
               text-overflow: ellipsis;
-              color: #141414;
               font-weight: 400;
           }
           .user-line .user-info .desc-info[data-v-188c0e84] {
@@ -2879,7 +2878,6 @@
           .thread-text[data-v-ab14b3fe] {
               font-size: .13rem;
               line-height: .21rem;
-              color: #141414;
               text-align: justify;
               word-break: break-all;
           }
@@ -2931,7 +2929,6 @@
           .thread-text[data-v-ab14b3fe] {
               font-size: .13rem;
               line-height: .26rem;
-              color: #141414;
               text-align: justify;
               word-break: break-all;
           }
@@ -2946,10 +2943,7 @@
               height: .28rem;
               margin-left: .04rem
           }
-          /* 修改@的颜色 */
-          .text-content .at{
-            color: #614FBC !important;
-          }`);
+          `);
           GM_addStyle(`
           .thread-text .BDE_Smiley {
               width: .2rem;
@@ -2966,7 +2960,7 @@
           }
           .text-content .at{
               font-weight: 600;
-              color: #a3a1a9;
+              color: #614FBC;
           }`);
           /* 隐藏百度贴吧精选帖子的底部空栏 */
           GM_addStyle(`
