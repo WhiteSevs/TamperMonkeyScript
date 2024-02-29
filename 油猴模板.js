@@ -18,241 +18,258 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
+// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
+// @require      https://update.greasyfork.org/scripts/456485/1332775/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1323906/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1318702/DOMUtils.js
 // ==/UserScript==
 
 (function () {
-  /**
-   * @type {import("../库/Utils")}
-   */
+  /** @type {import("../库/pops")} */
+  const pops = window.pops;
+  /** @type {import("../库/Viewer")} */
+  const Viewer = window.Viewer;
+  /** @type {import("../库/Qmsg")} */
+  const Qmsg = window.Qmsg;
+  /** @type {import("../库/Utils")} */
   const utils = window.Utils.noConflict();
-  /**
-   * @type {import("../库/DOMUtils")}
-   */
+  /**@type {import("../库/DOMUtils")} */
   const DOMUtils = window.DOMUtils.noConflict();
-  const log = new utils.Log(GM_info);
 
-  /* 全局配置 */
-  const GLOBAL_CONFIG = {
-    /* 命名空间 */
-    nameSpace: "GLOBAL_CONFIG",
-    /* config数据 */
-    data: {},
-  };
+  const log = new utils.Log(GM_info, unsafeWindow.console || console);
+  /** 油猴菜单 */
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue,
+    GM_setValue,
+    GM_registerMenuCommand,
+    GM_unregisterMenuCommand,
+  });
+  /* 配置控制台日志 */
+  log.config({
+    debug: false,
+    logMaxCount: 20000,
+    autoClearConsole: true,
+    tag: true,
+  });
+  /* 配置吐司Qmsg */
+  Qmsg.config({
+    position: "bottom",
+    html: true,
+    maxNums: 5,
+    autoClose: true,
+    showClose: false,
+    showReverse: true,
+  });
 
-  /* 在document-start就插入的CSS */
-  const GLOBAL_CSS = {
-    /* 命名空间 */
-    nameSpace: "GLOBAL_CSS",
-    /* CSS数据 */
-    data: [
-      {
-        /* 添加的CSS */
-        css: ``,
-        /* 该CSS的作用或描述 */
-        desc: "",
-      },
-    ],
-    /* 延迟添加的CSS元素列表 */
-    delayCSSNode: [],
-    /* 添加到页面的元素列表 */
-    node: [],
-    /**
-     * 初始化全局CSS
-     */
-    init() {
-      this.data.forEach((item) => {
-        this.node = [...this.node, GM_addStyle(item.css)];
-      });
-      t;
+  /**
+   * 配置面板
+   */
+  const PopsPanel = {
+    /** 本地存储的总键名 */
+    key: "GM_Panel",
+    /** 属性attributes的data-key */
+    attributeDataKey_Name: "data-key",
+    /** 属性attributes的data-default-value */
+    attributeDataDefaultValue_Name: "data-default-value",
+    /** 初始化菜单 */
+    initMenu() {
+      this.initLocalDefaultValue();
+      if (unsafeWindow.top !== unsafeWindow.self) {
+        /* 不允许在iframe内重复注册 */
+        return;
+      }
+      GM_Menu.add([
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            this.showPanel();
+          },
+        },
+      ]);
     },
-  };
-
-  /* 全局执行函数，存在DOM未加载和加载完毕执行的函数 */
-  const GLOBAL_RUN = {
-    /* 命名空间 */
-    nameSpace: "GLOBAL_RUN",
-    /**
-     * 初始化
-     * @param {Array} domStartCallBack dom未加载回调
-     * @param {Array} domReadyCallBack dom加载完毕回调
-     */
-    init(domStartCallBack = [], domReadyCallBack = []) {
-      /* 注册window函数 */
-      GLOBAL_WINDOW.init();
-      /* 注册全局CSS */
-      GLOBAL_CSS.init();
-      /* 注册menu菜单 */
-      GLOBAL_GM_MENU.init();
-      /* 执行document-start时需要执行的函数 */
-      this.exec(domStartCallBack);
-      $(() => {
-        /* 执行document-ready时需要执行的函数 */
-        this.exec(domReadyCallBack);
-      });
-    },
-    /**
-     * 调用函数
-     * @param {Function} callBackList 需要执行的函数数组
-     */
-    exec(callBackList = []) {
-      /* 如果该函数url匹配成功执行，回调加载这个函数的CSS */
-      var addGlobalCss = function () {
-        if (typeof arguments[0] === "string" && arguments[0] != "") {
-          let addCSSNode = GM_addStyle(arguments[0]);
-          GLOBAL_CSS.delayCSSNode = [...GLOBAL_CSS.delayCSSNode, addCSSNode];
-          return addCSSNode;
+    /** 初始化本地设置默认的值 */
+    initLocalDefaultValue() {
+      let content = this.getContent();
+      content.forEach((item) => {
+        if (!item["forms"]) {
+          return;
         }
+        item.forms.forEach((__item__) => {
+          if (__item__.forms) {
+            __item__.forms.forEach((containerItem) => {
+              if (!containerItem.attributes) {
+                return;
+              }
+              let key = containerItem.attributes[this.attributeDataKey_Name];
+              let defaultValue =
+                containerItem.attributes[this.attributeDataDefaultValue_Name];
+              if (this.getValue(key) == null) {
+                this.setValue(key, defaultValue);
+              }
+            });
+          } else {
+          }
+        });
+      });
+    },
+    /**
+     * 设置值
+     * @param {string} key 键
+     * @param {any} value 值
+     */
+    setValue(key, value) {
+      let localValue = GM_getValue(this.key, {});
+      localValue[key] = value;
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 获取值
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @returns {any}
+     */
+    getValue(key, defaultValue) {
+      let localValue = GM_getValue(this.key, {});
+      return localValue[key] ?? defaultValue;
+    },
+    /**
+     * 删除值
+     * @param {string} key 键
+     */
+    deleteValue(key) {
+      let localValue = GM_getValue(this.key, {});
+      delete localValue[key];
+      GM_setValue(this.key, localValue);
+    },
+    /**
+     * 显示设置面板
+     */
+    showPanel() {
+      pops.panel({
+        title: {
+          text: `${GM_info?.script?.name || ""}-设置`,
+          position: "center",
+        },
+        content: this.getContent(),
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+          },
+        },
+        isMobile: true,
+        width: "92vw",
+        height: "80vh",
+        drag: true,
+        only: true,
+      });
+    },
+    /**
+     * 获取checkbox按钮配置
+     * @param {string} text 文字
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @param {?string} description （可选）描述
+     * @param {?(event: InputEvent,value: boolean)=>boolean} clickCallBack （可选）点击回调
+     * @returns {PopsPanelSwitchDetails}
+     */
+    getSwtichDetail(text, key, defaultValue, description, clickCallBack) {
+      /**
+       * @type {PopsPanelSwitchDetails}
+       */
+      let result = {
+        text: text,
+        type: "switch",
+        description: description,
+        attributes: {},
+        getValue() {
+          return Boolean(PopsPanel.getValue(key, defaultValue));
+        },
+        callback(event, value) {
+          log.success(`${value ? "开启" : "关闭"} ${text}`);
+          if (typeof clickCallBack === "function") {
+            if (clickCallBack(event, value)) {
+              return;
+            }
+          }
+          PopsPanel.setValue(key, Boolean(value));
+        },
       };
-      callBackList.forEach((item) => {
-        try {
-          item(addGlobalCss);
-        } catch (error) {
-          log.error(error);
-        }
-      });
+      result.attributes[this.attributeDataKey_Name] = key;
+      result.attributes[this.attributeDataDefaultValue_Name] =
+        Boolean(defaultValue);
+      return result;
+    },
+    /**
+     * 获取下拉列表配置
+     * @param {string} text 文字
+     * @param {string} key 键
+     * @param {any} defaultValue 默认值
+     * @param {{
+     * value: any,
+     * text: string,
+     * }[]} data 数据
+     * @param {string} description （可选）描述
+     * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
+     * @returns {PopsPanelSelectDetails}
+     */
+    getSelectDetail(
+      text,
+      key,
+      defaultValue,
+      data,
+      description,
+      selectCallBack
+    ) {
+      return {
+        text: text,
+        type: "select",
+        description: description,
+        attributes: {
+          "data-key": key,
+          "data-default-value": defaultValue,
+        },
+        getValue() {
+          return GM_getValue(key, defaultValue);
+        },
+        callback(event, isSelectedValue, isSelectedText) {
+          GM_setValue(key, isSelectedValue);
+          if (typeof selectCallBack === "function") {
+            selectCallBack(event, isSelectedValue, isSelectedText);
+          }
+        },
+        data: data,
+      };
+    },
+    /**
+     * 获取配置内容
+     * @returns {PopsPanelContentConfig[]}
+     */
+    getContent() {
+      return [
+        {
+          id: "panel-config-",
+          title: "通用",
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [this.getSwtichDetail()],
+            },
+          ],
+        },
+      ];
     },
   };
 
-  /* 全局通用API函数 */
-  const GLOBAL_API = {};
+  /* ---------------------入口--------------------- */
+  PopsPanel.initMenu();
 
-  /* 注册到window的全局函数，比如替换GM_addStyle */
-  const GLOBAL_WINDOW = {
-    init() {
-      Object.keys(this).forEach((keyName) => {
-        if (keyName.toLowerCase() === "init") {
-          return;
-        }
-        window[keyName] = this[keyName];
-      });
-    },
-  };
-
-  /* 注册到tampermonkey的菜单项 */
-  const GLOBAL_GM_MENU = {
-    /* GM_Menu对象 */
-    _gm_menu_: null,
-    /* 点击后自动刷新网页 */
-    _auto_reload_: false,
-    /* 初始化 */
-    init() {
-      let notExecFunctionNameList = ["init", "get"];
-      let menuJSON = {};
-      Object.keys(this).forEach((keyName) => {
-        if (notExecFunctionNameList.indexOf(keyName) !== -1) {
-          return;
-        }
-        if (this[keyName].checkRegister && this[keyName].checkRegister()) {
-          menuJSON[keyName] = this[keyName];
-          delete menuJSON[keyName]["checkRegister"];
-        }
-      });
-      this._gm_menu_ = new utils.GM_Menu(
-        menuJSON,
-        this._auto_reload_,
-        GM_getValue,
-        GM_setValue,
-        GM_registerMenuCommand,
-        GM_unregisterMenuCommand
-      );
-    },
-    /* 根据自己设置的key获取值 */
-    get(gmKeyName) {
-      return this._gm_menu_.get(gmKeyName);
-    },
-    /* Your code here... */
-  };
-
-  /* 桌面端执行，设置的函数开头必须为domStart_或者domReady_ */
-  /* 每个函数都会传入一个添加CSS的函数，调用该函数添加CSS，不直接使用GM_addStyle了 */
-  const ENTRANCE_DESKTOP = {
-    /* 命名空间 */
-    nameSpace: "ENTRANCE_DESKTOP",
-    /* 配置 */
-    config: {},
-    init() {
-      /* 不被执行的keyName */
-      let notExecFunctionNameList = ["config", "init"];
-      /* dom start执行的函数 */
-      let needExecFunctionNameListByDomStart = [];
-      /* dom ready执行的函数 */
-      let needExecFunctionNameListByDOMReady = [];
-      Object.keys(this).forEach((functionName) => {
-        if (
-          notExecFunctionNameList.indexOf(functionName) !== -1 ||
-          typeof this[functionName] !== "function"
-        ) {
-          return;
-        }
-        if (functionName.toLowerCase().startsWith("domStart_")) {
-          needExecFunctionNameListByDomStart = [
-            ...needExecFunctionNameListByDomStart,
-            functionName,
-          ];
-        } else if (functionName.toLowerCase().startsWith("domReady_")) {
-          needExecFunctionNameListByDomStart = [
-            ...needExecFunctionNameListByDomStart,
-            functionName,
-          ];
-        } else {
-          log.error(`不被执行的函数名字 ${functionName}`);
-        }
-      });
-      GLOBAL_RUN.init(
-        needExecFunctionNameListByDomStart,
-        needExecFunctionNameListByDOMReady
-      );
-    },
-    /* 通用接口-复用 */
-    api: {},
-  };
-
-  /* 移动端执行，设置的函数开头必须为domStart_或者domReady_ */
-  /* 每个函数都会传入一个添加CSS的函数，调用该函数添加CSS，不直接使用GM_addStyle了 */
-  const ENTRANCE_MOBILE = {
-    /* 命名空间 */
-    nameSpace: "ENTRANCE_MOBILE",
-    config: {},
-    init() {
-      /* 不被执行的keyName */
-      let notExecFunctionNameList = ["config", "init"];
-      /* dom start执行的函数 */
-      let needExecFunctionNameListByDomStart = [];
-      /* dom ready执行的函数 */
-      let needExecFunctionNameListByDOMReady = [];
-      Object.keys(this).forEach((functionName) => {
-        if (
-          notExecFunctionNameList.indexOf(functionName) !== -1 ||
-          typeof this[functionName] !== "function"
-        ) {
-          return;
-        }
-        if (functionName.toLowerCase().startsWith("domStart_")) {
-          needExecFunctionNameListByDomStart = [
-            ...needExecFunctionNameListByDomStart,
-            functionName,
-          ];
-        } else if (functionName.toLowerCase().startsWith("domReady_")) {
-          needExecFunctionNameListByDomStart = [
-            ...needExecFunctionNameListByDomStart,
-            functionName,
-          ];
-        } else {
-          log.error(`不被执行的函数名字 ${functionName}`);
-        }
-      });
-      GLOBAL_RUN.init(
-        needExecFunctionNameListByDomStart,
-        needExecFunctionNameListByDOMReady
-      );
-    },
-    /* 通用接口-复用 */
-    api: {},
-  };
-  /* 执行 桌面端初始化 */
-  ENTRANCE_DESKTOP.init();
-  /* 执行 移动端初始化 */
-  ENTRANCE_MOBILE.init();
+  /* ---------------------入口--------------------- */
 })();
