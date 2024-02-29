@@ -229,9 +229,9 @@ declare interface PopsBtnIframeCallBackEvent {
      */
     popsElement: HTMLElement,
     /**
-     * 遮罩层元素
+     * 遮罩层元素，如果未设置，那么不存在
      */
-    maskElement: HTMLElement | undefined;
+    maskElement?: HTMLElement;
     /**
      * iframe元素
      */
@@ -254,9 +254,9 @@ declare interface PopsPromptBtnCallBackEvent {
      */
     animElement: HTMLElement;
     /**
-     * 遮罩层元素
+     * 遮罩层元素，如果未设置，那么不存在
      */
-    maskElement: HTMLElement | undefined;
+    maskElement?: HTMLElement;
     /**
      * 按钮调用类型
      */
@@ -424,25 +424,25 @@ declare interface PopsPanelContentConfig {
      */
     title: string;
     /**
-     * 中间顶部的标题
+     * （可选）中间顶部的标题
      */
-    headerTitle?: string | undefined;
+    headerTitle?: string;
     /**
-     * 内容高度是否自动适应（与headerTitle的高度有关）
+     * （可选）内容高度是否自动适应（与headerTitle的高度有关）
      */
-    autoAdaptionContentHeight?: string | undefined;
+    autoAdaptionContentHeight?: string;
     /**
-     * 是否是默认的，指打开弹窗的先显示出来的内容
+     * （可选）是否是默认的，指打开弹窗的先显示出来的内容
      */
-    isDefault?: boolean | undefined;
+    isDefault?: boolean;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
     attributes?: object[] | object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props?: HTMLElement | undefined;
+    props?: HTMLElement;
     /**
      * 子配置
      */
@@ -457,17 +457,17 @@ declare interface PopsPanelContentConfig {
  */
 declare interface PopsPanelFormsDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
@@ -486,25 +486,25 @@ declare interface PopsPanelFormsDetails {
  */
 declare interface PopsPanelSwitchDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
     text: string;
     /**
-     * 左边的文字下面的描述，可为空
+     * （可选）左边的文字下面的描述
      */
-    description: string | undefined;
+    description?: string;
     /**
      * 类型
      */
@@ -523,25 +523,25 @@ declare interface PopsPanelSwitchDetails {
  */
 declare interface PopsPanelSliderDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
     text: string;
     /**
-     * 左边的文字下面的描述，可为空
+     * （可选）左边的文字下面的描述
      */
-    description: string | undefined;
+    description?: string;
     /**
      * 类型
      */
@@ -567,9 +567,9 @@ declare interface PopsPanelSliderDetails {
      */
     max: number;
     /**
-     * 每次滑动的间隔值
+     * （可选）每次滑动的间隔值
      */
-    step: number | null;
+    step?: number;
 }
 /**
  * pops.panel的 input
@@ -629,25 +629,25 @@ declare interface PopsPanelInputDetails {
  */
 declare interface PopsPanelTextAreaDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
     text: string;
     /**
-     * 左边的文字下面的描述，可为空
+     * （可选）左边的文字下面的描述
      */
-    description: string | undefined;
+    description?: string;
     /**
      * 类型
      */
@@ -672,25 +672,25 @@ declare interface PopsPanelTextAreaDetails {
  */
 declare interface PopsPanelSelectDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
     text: string;
     /**
-     * 左边的文字下面的描述，可为空
+     * （可选）左边的文字下面的描述
      */
-    description: string | undefined;
+    description?: string;
     /**
      * 类型
      */
@@ -712,7 +712,7 @@ declare interface PopsPanelSelectDetails {
      * + text是显示的文字
      */
     data: {
-        value: string;
+        value: any;
         text: string;
     }[];
 }
@@ -721,25 +721,25 @@ declare interface PopsPanelSelectDetails {
  */
 declare interface PopsPanelButtonDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 显示在左边的文字
      */
     text: string;
     /**
-     * 左边的文字下面的描述，可为空
+     * （可选）左边的文字下面的描述
      */
-    description: string | undefined;
+    description?: string;
     /**
      * 类型
      */
@@ -775,17 +775,17 @@ declare interface PopsPanelButtonDetails {
  */
 declare interface PopsPanelOwnDetails {
     /**
-     * className属性
+     * （可选）className属性
      */
-    className: string | null;
+    className?: string;
     /**
-     * 自定义元素属性
+     * （可选）自定义元素属性
      */
-    attributes: object | null;
+    attributes?: object;
     /**
-     * 自定义属性
+     * （可选）自定义属性
      */
-    props: HTMLElement | null;
+    props?: HTMLElement;
     /**
      * 类型
      */
