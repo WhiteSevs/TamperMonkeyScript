@@ -10347,6 +10347,15 @@ remove-child##[class*='-video-player']`,
   };
 
   /* --------------入口-------------- */
+  if (typeof unsafeWindow.BaiDuOptimization !== "number") {
+    unsafeWindow.BaiDuOptimization = 0;
+  } else {
+    unsafeWindow.BaiDuOptimization++;
+    log.warn(
+      "阻止脚本容器反复执行本脚本 " + unsafeWindow.BaiDuOptimization + " 次"
+    );
+    return;
+  }
   const loadingView = new LoadingView(true);
   PopsPanel.initMenu();
   BaiduSearchRule.init();
