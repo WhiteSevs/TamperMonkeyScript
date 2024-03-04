@@ -27,8 +27,6 @@
 (function () {
   /** @type {import("../库/pops")} */
   const pops = window.pops;
-  /** @type {import("../库/Viewer")} */
-  const Viewer = window.Viewer;
   /** @type {import("../库/Qmsg")} */
   const Qmsg = window.Qmsg;
   /** @type {import("../库/Utils")} */
