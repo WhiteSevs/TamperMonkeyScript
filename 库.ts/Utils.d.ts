@@ -2733,6 +2733,10 @@ declare interface Utils {
      **/
     isNull(...args: any[]): boolean;
     /**
+     * 判断浏览器主题是否是暗黑|深色模式
+     */
+    isThemeDark(): boolean;
+    /**
      * 判断元素是否在页面中可见
      * @param element 需要检查的元素，可以是普通元素|数组形式的元素|通过querySelectorAll获取的元素数组
      * @param inView
