@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-2-26";
+  Utils.version = "2024-3-2";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -3208,20 +3208,6 @@
     };
   };
 
-  Utils.isNativeFunc = function (target) {
-    return Boolean(
-      target.toString().match(/^function .*\(\) { \[native code\] }$/)
-    );
-  };
-
-  Utils.isNearBottom = function (nearValue = 50) {
-    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    var windowHeight =
-      window.innerHeight || document.documentElement.clientHeight;
-    var documentHeight = document.documentElement.scrollHeight;
-    return scrollTop + windowHeight >= documentHeight - nearValue;
-  };
-
   Utils.isDOM = function (target) {
     return target instanceof Node;
   };
@@ -3387,31 +3373,18 @@
     return result;
   };
 
-  Utils.isPhone = function (userAgent = navigator.userAgent) {
-    return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
+  Utils.isNativeFunc = function (target) {
+    return Boolean(
+      target.toString().match(/^function .*\(\) { \[native code\] }$/)
+    );
   };
 
-  Utils.isSameChars = function (str) {
-    if (typeof str !== "string") {
-      throw new TypeError("参数 str 必须是 string 类型");
-    }
-    if (str.length < 2) {
-      return false;
-    }
-    str = str.toLowerCase();
-    const charCount = {};
-    for (const char of str) {
-      if (char in charCount) {
-        charCount[char]++;
-      } else {
-        charCount[char] = 1;
-      }
-    }
-    if (Object.keys(charCount).length === 1) {
-      return true;
-    } else {
-      return false;
-    }
+  Utils.isNearBottom = function (nearValue = 50) {
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var windowHeight =
+      window.innerHeight || document.documentElement.clientHeight;
+    var documentHeight = document.documentElement.scrollHeight;
+    return scrollTop + windowHeight >= documentHeight - nearValue;
   };
 
   Utils.isNotNull = function () {
@@ -3468,6 +3441,37 @@
     }
 
     return result;
+  };
+
+  Utils.isPhone = function (userAgent = navigator.userAgent) {
+    return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
+  };
+
+  Utils.isSameChars = function (str) {
+    if (typeof str !== "string") {
+      throw new TypeError("参数 str 必须是 string 类型");
+    }
+    if (str.length < 2) {
+      return false;
+    }
+    str = str.toLowerCase();
+    const charCount = {};
+    for (const char of str) {
+      if (char in charCount) {
+        charCount[char]++;
+      } else {
+        charCount[char] = 1;
+      }
+    }
+    if (Object.keys(charCount).length === 1) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  Utils.isThemeDark = function () {
+    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
   };
 
   Utils.isVisible = function (element, inView = false) {
