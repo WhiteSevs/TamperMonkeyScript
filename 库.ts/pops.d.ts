@@ -1468,13 +1468,27 @@ declare interface PopsToolTipDetails {
      */
     only: boolean;
     /**
-     * 触发显示事件的回调
+     * 监听的事件配置
      */
-    triggerShowEventCallBack: (toolTipElement: HTMLElement) => void;
+    eventOption: AddEventListenerOptions,
     /**
-     * 触发关闭事件的回调
+     * 触发显示前的回调
+     * 返回值为false可阻止显示
      */
-    triggerCloseEventCallBack: (toolTipElement: HTMLElement) => void;
+    showBeforeCallBack: () => boolean | void;
+    /**
+     * 触发显示后的回调
+     */
+    showAfterCallBack: (toolTipElement: HTMLElement) => void;
+    /**
+     * 触发关闭前的回调
+     * 返回值为false可阻止关闭
+     */
+    closeBeforeCallBack: (toolTipElement: HTMLElement) => boolean | void;
+    /**
+     * 触发关闭后的回调
+     */
+    closeAfterCallBack: (toolTipElement: HTMLElement) => void;
     /**
      * 箭头与目标的的距离，默认12.5(px)
      */
