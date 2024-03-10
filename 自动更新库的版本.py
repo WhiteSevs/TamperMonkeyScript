@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from ast import Try
 import os
 import re
 import httpx
@@ -193,11 +194,15 @@ class ScriptFile:
     def get_version(self, old_version: str) -> str | None:
         "获取版本号"
         old_version_split = old_version.split(".")
-        old_version_time = self.convert_version_to_time(old_version)
         new_version = None
         new_version_3 = self.get_new_script_version_meta("%#Y.%#m.%#d")
         new_version_4 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H")
         new_version_5 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H.%#M")
+        try:
+            old_version_time = self.convert_version_to_time(old_version)
+        except:
+            print("不规范版本号: " + old_version)
+            return new_version_3
         if len(old_version_split) == 3:
             # 年 月 日
             new_version_time = datetime.datetime.strptime(
