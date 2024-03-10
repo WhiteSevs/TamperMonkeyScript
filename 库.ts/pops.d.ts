@@ -827,14 +827,10 @@ declare interface PopsRightClickMenuDataDetails {
     item: PopsRightClickMenuDataDetails[] | null;
 }
 
-
 /**
- * pops.alert
+ * 标题配置
  */
-declare interface PopsAlertDetails {
-    /**
-     * 标题配置
-     */
+declare interface PopsTitleConfig {
     title: {
         /**
          * 标题文字
@@ -852,10 +848,12 @@ declare interface PopsAlertDetails {
          * 文字的自定义CSS
          */
         style: string;
-    };
-    /**
-     * 内容配置
-     */
+    }
+}
+/**
+ * 内容配置
+ */
+declare interface PopsContentConfig {
     content: {
         /**
          * 内容文字
@@ -869,124 +867,25 @@ declare interface PopsAlertDetails {
          * 文字的自定义CSS
          */
         style: string;
-    };
-    /**
-     * 按钮配置
-     */
+    }
+}
+/**
+ * 按钮配置
+ */
+declare interface PopsButtonConfig {
     btn: {
         /**
-         * 按钮的位置，默认left
-         */
+        * 按钮的位置，默认left
+        */
         position: PopsJustifyContent;
-        /**
-         * 确定按钮
-         */
-        ok: PopsButtonDetails;
         /**
          * 右上角的关闭按钮
          */
         close: PopsHeaderCloseButtonDetails;
-    };
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-     *  弹窗宽度，默认350px
-     */
-    width: string;
-    /**
-     *  弹窗高度，默认200px
-     */
-    height: string;
-    /**
-     * 弹窗位置，默认center
-     */
-    position: PopsPosition;
-    /**
-     * 弹窗动画，默认pops-anim-fadein-zoom
-     */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     *  是否可以按钮标题栏进行拖拽，默认false
-     */
-    drag: boolean;
-    /**
-     * 是否限制拖拽在浏览器窗口内移动，默认true
-     */
-    dragLimit: boolean;
-    /**
-     * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-     */
-    dragExtraDistance: number;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
-    /**
-     * （可选）自定义style
-     */
-    style?: string;
+    }
 }
-
-/**
- * pops.confirm
- */
-declare interface PopsConfirmDetails {
-    /**
-     * 标题配置
-     */
-    title: {
-        /**
-         * 标题文字
-         */
-        text: string;
-        /**
-         * 文字的位置
-         */
-        position: PopsTextAlign;
-        /**
-         * 文字是否是html
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
-    /**
-     * 内容配置
-     */
-    content: {
-        /**
-         * 内容文字
-         */
-        text: string;
-        /**
-         * 文字是否是html
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
-    /**
-     * 按钮配置
-     */
-    btn: {
+declare interface PopsMoreButtonConfig {
+    btn: Omit<PopsButtonConfig["btn"], ""> & {
         /**
          * 是否合并按钮
          */
@@ -1000,10 +899,6 @@ declare interface PopsConfirmDetails {
          */
         reverse: boolean;
         /**
-         * 按钮的位置，默认left
-         */
-        position: PopsJustifyContent;
-        /**
          * 确定按钮
          */
         ok: PopsButtonDetails;
@@ -1015,43 +910,12 @@ declare interface PopsConfirmDetails {
          * 其他按钮
          */
         other: PopsButtonDetails;
-        /**
-         * 右上角的关闭按钮
-         */
-        close: PopsHeaderCloseButtonDetails;
-    };
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-     *  弹窗宽度，默认350px
-     */
-    width: string;
-    /**
-     *  弹窗高度，默认200px
-     */
-    height: string;
-    /**
-     * 弹窗位置，默认center
-     */
-    position: PopsPosition;
-    /**
-     * 弹窗动画，默认pops-anim-fadein-zoom
-     */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
+    }
+}
+/**
+ * 拖拽配置
+ */
+declare interface PopsDragConfig {
     /**
      *  是否可以按钮标题栏进行拖拽，默认false
      */
@@ -1065,39 +929,97 @@ declare interface PopsConfirmDetails {
      */
     dragExtraDistance: number;
     /**
+     * （可选）拖动中的回调
+     * @param moveElement 当前拖动的元素
+     * @param left 当前left值
+     * @param top 当前的top值
+     */
+    dragMoveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+    /**
+     * （可选）拖动结束的回调
+     * @param moveElement 当前拖动的元素
+     * @param left 当前left值
+     * @param top 当前的top值
+     */
+    dragEndCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+}
+/**
+ * 通用配置
+ */
+declare interface PopsCommonConfig {
+    /**
+     * 自定义的className，默认为空
+     */
+    class: string;
+    /**
+     * 是否是唯一的，默认false
+     */
+    only: boolean;
+    /**
+     *  宽度，默认350px
+     */
+    width: string;
+    /**
+     *  高度，默认200px
+     */
+    height: string;
+    /**
+     * 位置，默认center
+     */
+    position: PopsPosition;
+    /**
+     * 动画，默认pops-anim-fadein-zoom
+     */
+    animation: PopsAnimation;
+    /**
+     * z-index显示层级，默认10000
+     */
+    zIndex: number;
+    /**
+     * 遮罩层
+     */
+    mask: PopsMaskDetails;
+    /**
      * 是否禁用页面滚动，默认false
+     * 
+     * 暂时不会生效
      */
     forbiddenScroll: boolean;
     /**
      * （可选）自定义style
      */
     style?: string;
+    /**
+     * 在元素添加到页面前的事件
+     * @param $shadowRoot 根元素
+     * @param $shadowContainer 容器
+     */
+    beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot, $shadowContainer: HTMLDivElement) => void;
+}
+/**
+ * pops.alert
+ */
+declare interface PopsAlertDetails extends PopsTitleConfig, PopsContentConfig, PopsDragConfig, PopsCommonConfig {
+    /**
+     * 按钮配置
+     */
+    btn: Omit<PopsButtonConfig["btn"], ""> & {
+        /**
+         * 确定按钮
+         */
+        ok: PopsButtonDetails;
+    };
+}
+
+/**
+ * pops.confirm
+ */
+declare interface PopsConfirmDetails extends PopsTitleConfig, PopsContentConfig, PopsMoreButtonConfig, PopsDragConfig, PopsCommonConfig {
 }
 /**
  * pops.prompt
  */
-declare interface PopsPromptDetails {
-    /**
-     * 标题配置
-     */
-    title: {
-        /**
-         * 标题文字
-         */
-        text: string;
-        /**
-         * 文字的位置
-         */
-        position: PopsTextAlign;
-        /**
-         * 文字是否是html
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
+declare interface PopsPromptDetails extends PopsTitleConfig, PopsDragConfig, PopsMoreButtonConfig, PopsCommonConfig {
     /**
      * 内容配置
      */
@@ -1123,104 +1045,15 @@ declare interface PopsPromptDetails {
          */
         placeholder: string;
         /**
-         * 文字的自定义CSS
+         * （可选）文字的自定义CSS
          */
         style: string;
     };
-    /**
-     * 按钮配置
-     */
-    btn: {
-        /**
-         * 是否合并按钮
-         */
-        merge: boolean;
-        /**
-         * 是否对合并的按钮逆反
-         */
-        mergeReverse: boolean;
-        /**
-         * 是否逆反
-         */
-        reverse: boolean;
-        /**
-         * 按钮的位置，默认left
-         */
-        position: PopsJustifyContent;
-        /**
-         * 确定按钮
-         */
-        ok: PopsButtonDetails;
-        /**
-         * 取消按钮
-         */
-        cancel: PopsButtonDetails;
-        /**
-         * 其他按钮
-         */
-        other: PopsButtonDetails;
-        /**
-         * 右上角的关闭按钮
-         */
-        close: PopsHeaderCloseButtonDetails;
-    };
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-     *  弹窗宽度，默认350px
-     */
-    width: string;
-    /**
-     *  弹窗高度，默认200px
-     */
-    height: string;
-    /**
-     * 弹窗位置，默认center
-     */
-    position: PopsPosition;
-    /**
-     * 弹窗动画，默认pops-anim-fadein-zoom
-     */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     *  是否可以按钮标题栏进行拖拽，默认false
-     */
-    drag: boolean;
-    /**
-     * 是否限制拖拽在浏览器窗口内移动，默认true
-     */
-    dragLimit: boolean;
-    /**
-     * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-     */
-    dragExtraDistance: number;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
-    /**
-     * （可选）自定义style
-     */
-    style?: string;
 }
 /**
  * pops.loading
  */
-declare interface PopsLoadingDetails {
+declare interface PopsLoadingDetails extends Omit<PopsCommonConfig, "width" | "height" | "position"|"beforeAppendToPageCallBack"> {
     /**
      * 父元素，默认为document.body
      */
@@ -1228,48 +1061,12 @@ declare interface PopsLoadingDetails {
     /**
      * 内容配置
      */
-    content: {
-        /**
-         * 文字
-         */
-        text: string;
+    content: Omit<PopsContentConfig["content"], "html"> & {
         /**
          * 图标
          */
         icon: string;
-        /**
-         * 自定义CSS
-         */
-        style: string;
     };
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-         * 弹窗动画，默认pops-anim-fadein-zoom
-         */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
-    /**
-     * （可选）自定义style
-     */
-    style?: string;
     /**
      * （可选）添加主CSS，默认为true，当页面中存在anim覆盖时，可能会有一些样式问题，取消添加该CSS即可解决
      */
@@ -1278,28 +1075,7 @@ declare interface PopsLoadingDetails {
 /**
  * pops.iframe
  */
-declare interface PopsIframeDetails {
-    /**
-     * 标题配置
-     */
-    title: {
-        /**
-         * 标题文字
-         */
-        text: string;
-        /**
-         * 文字的位置
-         */
-        position: PopsTextAlign;
-        /**
-         * 文字是否是html
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
+declare interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, PopsCommonConfig {
     /**
      * 加载配置
      */
@@ -1359,57 +1135,9 @@ declare interface PopsIframeDetails {
         };
     };
     /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
      * 加载的地址，默认为window.location.href
      */
     url?: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-     *  弹窗宽度，默认350px
-     */
-    width: string;
-    /**
-     *  弹窗高度，默认200px
-     */
-    height: string;
-    /**
-     * 弹窗位置，默认center
-     */
-    position: PopsPosition;
-    /**
-     * 弹窗动画，默认pops-anim-fadein-zoom
-     */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     *  是否可以按钮标题栏进行拖拽，默认false
-     */
-    drag: boolean;
-    /**
-     * 是否限制拖拽在浏览器窗口内移动，默认true
-     */
-    dragLimit: boolean;
-    /**
-     * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-     */
-    dragExtraDistance: number;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
     /**
      * 右上角按钮顺序：最小化、最大化、窗口化、关闭
      */
@@ -1418,11 +1146,11 @@ declare interface PopsIframeDetails {
      * 是否启用沙箱，默认false
      */
     sandbox?: boolean;
-    loadEndCallBack?: (eventDetails: PopsEventDetails) => void;
     /**
-     * （可选）自定义style
+     * 加载完毕的回调
+     * @param eventDetails
      */
-    style?: string;
+    loadEndCallBack?: (eventDetails: PopsEventDetails) => void;
 }
 /**
  * pops.tooltip
@@ -1503,110 +1231,28 @@ declare interface PopsToolTipDetails {
      * （可选）自定义style
      */
     style?: string;
+    /**
+     * 在元素添加到页面前的事件
+     * 
+     * 当tooltip添加到ShadowRoot内时也会触发
+     * @param $shadowRoot 根元素
+     * @param $shadowContainer 容器
+     */
+    beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot, $shadowContainer: HTMLDivElement) => void;
 }
 /**
  * pops.drawer
  */
-declare interface PopsDrawerDetails {
+declare interface PopsDrawerDetails extends PopsContentConfig, PopsMoreButtonConfig, Omit<PopsCommonConfig, "width" | "height" | "position" | "animation"> {
     /**
      * 标题
      */
-    title: {
+    title: PopsTitleConfig & {
         /**
          * 是否启用，默认true
          */
         enable: boolean;
-        /**
-         * 位置，默认center
-         */
-        position: PopsTextAlign;
-        /**
-         * 文字
-         */
-        text: string;
-        /**
-         * 文字是否是html，默认false
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
     };
-    /**
-     * 内容
-     */
-    content: {
-        /**
-         * 文字
-         */
-        text: string;
-        /**
-         * 文字是否是html，默认false
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
-    /**
-     * 按钮配置
-     */
-    btn: {
-        /**
-         * 是否合并按钮
-         */
-        merge: boolean;
-        /**
-         * 是否对合并的按钮逆反
-         */
-        mergeReverse: boolean;
-        /**
-         * 是否逆反
-         */
-        reverse: boolean;
-        /**
-         * 按钮的位置，默认left
-         */
-        position: PopsJustifyContent;
-        /**
-         * 确定按钮
-         */
-        ok: PopsButtonDetails;
-        /**
-         * 取消按钮
-         */
-        cancel: PopsButtonDetails;
-        /**
-         * 其他按钮
-         */
-        other: PopsButtonDetails;
-        /**
-         * 右上角的关闭按钮
-         */
-        close: PopsHeaderCloseButtonDetails;
-    };
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
     /**
      * 打开的方向，默认为right
      */
@@ -1635,36 +1281,11 @@ declare interface PopsDrawerDetails {
      * border-radius，根据direction自动适应，默认为5
      */
     borderRadius: number;
-    /**
-     * （可选）自定义style
-     */
-    style?: string;
 }
 /**
  * pops.folder
  */
-declare interface PopsFolderDetails {
-    /**
-     * 标题配置
-     */
-    title: {
-        /**
-         * 标题文字
-         */
-        text: string;
-        /**
-         * 文字的位置
-         */
-        position: PopsTextAlign;
-        /**
-         * 文字是否是html
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
+declare interface PopsFolderDetails extends PopsTitleConfig, PopsDragConfig, PopsMoreButtonConfig, PopsCommonConfig {
     /**
      * 排序
      */
@@ -1686,121 +1307,11 @@ declare interface PopsFolderDetails {
      * 文件夹信息
      */
     folder: PopsFolderDataConfig[];
-    /**
-     * 按钮配置
-     */
-    btn: {
-        /**
-         * 是否合并按钮
-         */
-        merge: boolean;
-        /**
-         * 是否对合并的按钮逆反
-         */
-        mergeReverse: boolean;
-        /**
-         * 是否逆反
-         */
-        reverse: boolean;
-        /**
-         * 按钮的位置，默认left
-         */
-        position: PopsJustifyContent;
-        /**
-         * 确定按钮
-         */
-        ok: PopsButtonDetails;
-        /**
-         * 取消按钮
-         */
-        cancel: PopsButtonDetails;
-        /**
-         * 其他按钮
-         */
-        other: PopsButtonDetails;
-        /**
-         * 右上角的关闭按钮
-         */
-        close: PopsHeaderCloseButtonDetails;
-    };
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-     *  弹窗宽度，默认350px
-     */
-    width: string;
-    /**
-     *  弹窗高度，默认200px
-     */
-    height: string;
-    /**
-     * 弹窗位置，默认center
-     */
-    position: PopsPosition;
-    /**
-     * 弹窗动画，默认pops-anim-fadein-zoom
-     */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     *  是否可以按钮标题栏进行拖拽，默认false
-     */
-    drag: boolean;
-    /**
-     * 是否限制拖拽在浏览器窗口内移动，默认true
-     */
-    dragLimit: boolean;
-    /**
-     * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-     */
-    dragExtraDistance: number;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
-    /**
-     * （可选）自定义style
-     */
-    style?: string;
 }
 /**
  * pops.panel
  */
-declare interface PopsPanelDetails {
-    /**
-     * 标题配置
-     */
-    title: {
-        /**
-         * 标题文字
-         */
-        text: string;
-        /**
-         * 文字的位置
-         */
-        position: PopsTextAlign;
-        /**
-         * 文字是否是html
-         */
-        html: boolean;
-        /**
-         * 文字的自定义CSS
-         */
-        style: string;
-    };
+declare interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsCommonConfig {
     /**
      * 内容配置
      */
@@ -1815,14 +1326,6 @@ declare interface PopsPanelDetails {
         close: PopsHeaderCloseButtonDetails;
     };
     /**
-     * 遮罩层
-     */
-    mask: PopsMaskDetails;
-    /**
-     * 自定义className，默认为空
-     */
-    class: string;
-    /**
      * 移动端适配的的className，默认为pops-panel-is-mobile
      */
     mobileClassName: string;
@@ -1832,50 +1335,6 @@ declare interface PopsPanelDetails {
      * + false 自动根据UA判断是否是移动端
      */
     isMobile: boolean;
-    /**
-     * 是否是唯一的弹窗，默认false
-     */
-    only: boolean;
-    /**
-      *  弹窗宽度，默认700px
-      */
-    width: string;
-    /**
-     *  弹窗高度，默认500px
-     */
-    height: string;
-    /**
-     * 弹窗位置，默认center
-     */
-    position: PopsPosition;
-    /**
-     * 弹窗动画，默认pops-anim-fadein-zoom
-     */
-    animation: PopsAnimation;
-    /**
-     * 弹窗的显示层级，默认10000
-     */
-    zIndex: number;
-    /**
-     *  是否可以按钮标题栏进行拖拽，默认false
-     */
-    drag: boolean;
-    /**
-     * 是否限制拖拽在浏览器窗口内移动，默认true
-     */
-    dragLimit: boolean;
-    /**
-     * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
-     */
-    dragExtraDistance: number;
-    /**
-     * 是否禁用页面滚动，默认false
-     */
-    forbiddenScroll: boolean;
-    /**
-     * （可选）自定义style
-     */
-    style?: string;
 }
 /**
  * pops.rightClickMenu
@@ -1917,6 +1376,12 @@ declare interface PopsRightClickMenuDetails {
      * （可选）自定义style
      */
     style?: string;
+    /**
+     * 在元素添加到页面前的事件
+     * @param $shadowRoot 根元素
+     * @param $shadowContainer 容器
+     */
+    beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot, $shadowContainer: HTMLDivElement) => void;
 }
 
 /**
@@ -2141,13 +1606,13 @@ declare interface PopsCallResult {
     /** 影子元素的根节点 */
     $shadowRoot: ShadowRoot;
     /** 元素 */
-    element: Element;
+    element: HTMLDivElement;
     /** 动画层元素 */
-    animElement: HTMLElement;
+    animElement: HTMLDivElement;
     /** pops元素 */
-    popsElement: Element;
+    popsElement: HTMLDivElement;
     /** 遮罩层元素 */
-    maskElement?: Element;
+    maskElement?: HTMLDivElement;
     /** 关闭弹窗 */
     close(): void;
     /** 隐藏弹窗 */

@@ -356,6 +356,13 @@ declare interface DOMUtils {
         useDispatchToTriggerEvent?: boolean
     ): void;
     /**
+     * 获取移动元素的transform偏移
+     */
+    getTransform(element: HTMLElement): {
+        transformLeft: number,
+        transformTop: number,
+    };
+    /**
      * 设置元素的value属性值
      * @param element 目标元素
      * @param value （可选）value属性值

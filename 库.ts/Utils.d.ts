@@ -903,6 +903,83 @@ declare interface HttpxHeaders {
      */
     "X-XSS-Protection": string;
 }
+declare interface HttpxRequestInit extends RequestInit {
+    /**
+     * 请求的 body 信息：可能是一个 Blob、BufferSource、FormData、URLSearchParams 或者 USVString 对象。
+     * 
+     * 注意 GET 或 HEAD 方法的请求不能包含 body 信息。
+     */
+    body?: BodyInit | null;
+    /**
+     * 请求的 cache 模式：default、 no-store、 reload 、 no-cache、 force-cache 或者 only-if-cached
+     * 
+     * + 默认值: no-cache
+     */
+    cache?: RequestCache;
+    /**
+     *  请求的 credentials，如 omit、same-origin 或者 include。
+     * 
+     * 为了在当前域名内自动发送 cookie，必须提供这个选项
+     * 
+     * 从 Chrome 50 开始，这个属性也可以接受 FederatedCredential (en-US) 实例或是一个 PasswordCredential (en-US) 实例。
+     * 
+     * + 默认值: include
+     */
+    credentials?: RequestCredentials;
+    /**
+     * 请求的头信息，形式为 Headers 的对象或包含 ByteString 值的对象字面量。
+     */
+    headers?: HeadersInit;
+    /**
+     *  包括请求的 subresource integrity 值（例如： sha256-BpfBw7ivV8q2jLiT13fxDYAe2tJllusRSZ273h2nFSE=）。
+     */
+    integrity?: string;
+    /**
+     * 保持连接
+     */
+    keepalive?: boolean;
+    /**
+     * 请求使用的方法，如 GET、POST。
+     * 
+     * + 默认值: GET
+     */
+    method?: HttpxMethod;
+    /**
+     * 请求的模式，如 cors、no-cors 或者 same-origin。
+     * + 默认值: cors
+     */
+    mode?: RequestMode;
+    /**
+     * 可用的 redirect 模式：follow (自动重定向), error (如果产生重定向将自动终止并且抛出一个错误），或者 manual (手动处理重定向)。
+     * 
+     * 在 Chrome 中默认使用 follow（Chrome 47 之前的默认值是 manual）。
+     * 
+     * + 默认值: follow
+     */
+    redirect?: RequestRedirect;
+    /**
+     * 一个 USVString 可以是 no-referrer、client 或一个 URL。默认是 client。
+     */
+    referrer?: "no-referrer" | "client" | string;
+    /**
+     * 指定了 HTTP 头部 referer 字段的值。
+     * 
+     * 可能为以下值之一：no-referrer、 no-referrer-when-downgrade、origin、origin-when-cross-origin、 unsafe-url。
+     * 
+     * + 默认值: origin-when-cross-origin
+     */
+    referrerPolicy?: ReferrerPolicy;
+    /**
+     * 用于设置请求信号的中止信号。
+     * 
+     * + 默认值: 自己设置的signal中止信号
+     */
+    signal?: AbortSignal | null;
+    /**
+     * 只能为空。用于解除与任何窗口的请求的关联。
+     */
+    window?: null;
+}
 /**
  * 请求的配置
  */
@@ -972,7 +1049,7 @@ declare interface HttpxDetails {
     /**
      * 使用fetch请求的配置
      */
-    fetchInit?: RequestInit;
+    fetchInit?: HttpxRequestInit;
     /**
      * 身份验证的用户名
      */
@@ -1014,6 +1091,18 @@ declare interface HttpxDetails {
      */
     onprogress?: (() => void);
 
+}
+declare interface HttpxDetailsConfig extends HttpxDetails {
+    /**
+     * （可选）是否输出请求配置
+     */
+    logDetails?: boolean;
+    /**
+     * 发送请求前的回调
+     * 如果返回false则阻止本次返回
+     * @param details 当前的请求配置
+     */
+    beforeRequestCallBack(details: HttpxDetails): boolean | void;
 }
 /**
  * 响应的数据的data
@@ -1447,12 +1536,17 @@ declare interface UtilsHttpxConstrustor {
      * 覆盖全局配置
      * @param details 配置
      */
-    config(details?: HttpxDetails): void;
+    config(details?: HttpxDetailsConfig): void;
+    /**
+     * 修改xmlHttpRequest
+     * @param httpRequest 网络请求函数
+     */
+    setXMLHttpRequest(httpRequest: Function): void;
 }
 
 /** Httpx */
 declare interface UtilsHttpx {
-    new(_GM_xmlHttpRequest_: () => void): UtilsHttpxConstrustor;
+    new(xmlHttpRequest: Function): UtilsHttpxConstrustor;
 }
 
 /** indexedDB */
@@ -1832,7 +1926,32 @@ declare interface UtilsLogConstructor {
     /** 恢复输出 */
     recovery(): void;
 }
-
+/** Utils.LockFunction */
+declare interface UtilsLockFunction {
+    /**
+     * @param callback 需要执行的函数
+     * @param context （可选）函数作用域，默认：this(Utils)
+     * @param delayTime （可选）延迟xx毫秒后解锁，默认：0
+     */
+    new <K extends () => any | Promise<any>>(
+        callback: K,
+        context?: Function,
+        delayTime?: number
+    ): {
+        /**
+         * 上锁
+         */
+        lock: () => void,
+        /**
+         * 解锁
+         */
+        unlock: () => void,
+        /**
+         * 执行函数
+         */
+        run: () => ReturnType<K>,
+    }
+}
 /** Utils.Log */
 declare interface UtilsLog {
     /**
@@ -2855,9 +2974,6 @@ declare interface Utils {
     };
     /**
      * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
-     * @param callback 需要执行的函数
-     * @param context （可选）函数作用域，默认：this(Utils)
-     * @param delayTime （可选）延迟xx毫秒后解锁，默认：0
      * @example
       let lock = new Utils.LockFunction(()=>{console.log(1)}))
       lock.run();
@@ -2867,11 +2983,7 @@ declare interface Utils {
       await lock.run();
       > 1
      **/
-    LockFunction(
-        callback: () => any | Promise<any>,
-        context?: Function,
-        delayTime?: number
-    ): void;
+    LockFunction: UtilsLockFunction;
     /**
      * 日志对象
      * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
