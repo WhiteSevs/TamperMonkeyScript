@@ -121,3 +121,13 @@ declare interface NetDiskWorkerCallBackOptions {
      */
     endTime: number,
 }
+declare interface NetDiskCheckLinkValidityStatus {
+    /**
+     * 状态码
+     */
+    code: number;
+    /**
+     * 状态码的解释
+     */
+    msg: string;
+}
