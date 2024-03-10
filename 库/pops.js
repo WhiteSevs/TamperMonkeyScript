@@ -73,6 +73,31 @@
       return `${randomId()}${randomId()}-${randomId()}-${randomId()}-${randomId()}-${randomId()}${randomId()}${randomId()}`;
     },
     /**
+     * 判断元素/页面中是否包含该元素
+     * @param {HTMLElement} target （可选）
+     * @param {HTMLElement[]|HTMLElement} sourceList
+     */
+    contains(target, sourceList) {
+      if (arguments.length === 1) {
+        return this.contains(
+          document.body || document.documentElement,
+          arguments[0]
+        );
+      }
+      if (typeof sourceList[Symbol.iterator] === "function") {
+        let flag = true;
+        for (const sourceNode of sourceList) {
+          if (!target.contains(sourceNode)) {
+            flag = false;
+            break;
+          }
+        }
+        return flag;
+      } else {
+        return this.contains(target, [sourceList]);
+      }
+    },
+    /**
      * 元素后追加元素
      * @param {HTMLElement} target （可选）
      * @param {HTMLElement[]|HTMLElement} sourceList
@@ -421,7 +446,9 @@
      * dragElement: HTMLElement,
      * limit: boolean,
      * extraDistance: number,
-     * container: Element|Window
+     * container: Element|Window,
+     * moveCallBack?: (moveElement: HTMLElement,left: number,top: number) => void,
+     * endCallBack?: (moveElement: HTMLElement,left: number,top: number)=> void,
      * }} options
      */
     drag(moveElement, options = {}) {
@@ -453,21 +480,17 @@
       function getTransform(element) {
         let transform_left = 0;
         let transform_top = 0;
-        if (globalThis.getComputedStyle(element).transform !== "none") {
-          transform_left = parseInt(
-            globalThis
-              .getComputedStyle(element)
-              .transform.match(/\((.+)\)/)[1]
-              .split(",")[4]
-          );
-          transform_top = parseInt(
-            globalThis
-              .getComputedStyle(element)
-              .transform.match(/\((.+)\)/)[1]
-              .split(",")[5]
-          );
-          transform_left = Math.abs(transform_left);
-          transform_top = Math.abs(transform_top);
+        let elementTransform = globalThis.getComputedStyle(element).transform;
+        if (
+          elementTransform !== "none" &&
+          elementTransform != null &&
+          elementTransform !== ""
+        ) {
+          let elementTransformSplit = elementTransform
+            .match(/\((.+)\)/)[1]
+            .split(",");
+          transform_left = Math.abs(parseInt(elementTransformSplit[4]));
+          transform_top = Math.abs(parseInt(elementTransformSplit[5]));
         }
         return {
           transformLeft: transform_left,
@@ -534,14 +557,15 @@
           //}
           resumeMoveElementStyle = changeMoveElementStyle(moveElement);
         }
+
+        /** 当前移动的left偏移 */
+        let currentMoveLeftOffset =
+          event.x - clickElementLeftOffset + transformLeft;
+        /** 当前移动的top偏移 */
+        let currentMoveTopOffset =
+          event.y - clickElementTopOffset + transformTop;
         /* 拖拽移动 */
         if (event.phase === "move") {
-          /* 当前移动的left偏移 */
-          let currentMoveLeftOffset =
-            event.x - clickElementLeftOffset + transformLeft;
-          /* 当前移动的top偏移 */
-          let currentMoveTopOffset =
-            event.y - clickElementTopOffset + transformTop;
           if (options.limit) {
             /* 限制在容器内移动 */
             /* left偏移最大值 */
@@ -589,6 +613,13 @@
               currentMoveTopOffset -= options.extraDistance;
             }
           }
+          if (typeof options.moveCallBack === "function") {
+            options.moveCallBack(
+              moveElement,
+              currentMoveLeftOffset,
+              currentMoveTopOffset
+            );
+          }
           PopsDOMUtils.css(moveElement, {
             left: currentMoveLeftOffset + "px",
             top: currentMoveTopOffset + "px",
@@ -601,6 +632,13 @@
           if (typeof resumeMoveElementStyle === "function") {
             resumeMoveElementStyle();
             resumeMoveElementStyle = null;
+          }
+          if (typeof options.endCallBack === "function") {
+            options.endCallBack(
+              moveElement,
+              currentMoveLeftOffset,
+              currentMoveTopOffset
+            );
           }
         }
       });
@@ -2508,7 +2546,6 @@
       } else if (typeof eventType === "string") {
         eventTypeList = eventType.split(" ");
       }
-
       elementList.forEach((elementItem) => {
         /* 获取对象上的事件 */
         let events = elementItem[PopsUtils.SymbolEvents] || {};
@@ -2879,7 +2916,7 @@
   /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.2.21",
+    version: "2024.3.10",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
@@ -2902,8 +2939,8 @@
         overflow: hidden;
         transition: all .35s
       }
-      .pops-anim{position:fixed;top:0;right:0;bottom:0;left:0;margin:0;width:100%;height:100%;}
-      
+      .pops-anim{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;}
+      .pops-anim[anim=""]{top:unset;right:unset;bottom:unset;left:unset;width:unset;height:unset;transition:none;}
       /* 底部图标动画和样式 */
       .pops i.pops-bottom-icon[is-loading="true"]{animation: rotating 2s linear infinite;}
       .pops i.pops-bottom-icon{height:1em;width:1em;line-height:1em;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor;color:inherit;font-size:inherit}
@@ -2977,6 +3014,9 @@
 
         --container-title-height: 55px;
         --container-bottom-btn-height: 55px;
+      }
+      .pops[data-bottom-btn="false"]{
+        --container-bottom-btn-height: 0px;
       }
       .pops button {
         white-space: nowrap;
@@ -3432,7 +3472,12 @@
       .pops[type-value=alert] .pops-alert-title{width:100%;height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=alert] .pops-alert-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
       .pops[type-value=alert] .pops-alert-content p[pops]{padding:5px 10px;color:#333;text-indent:15px;font-size:14px;}
-      .pops[type-value=alert] .pops-alert-content{position:absolute;top:var(--container-title-height);bottom:var(--container-bottom-btn-height);overflow:auto;width:100%;height:auto;word-break:break-word;}
+      .pops[type-value=alert] .pops-alert-content{
+        width:100%;
+        height: calc(100% - var(--container-title-height) - var(--container-bottom-btn-height));
+        overflow: auto;
+        word-break:break-word;
+      }
       .pops[type-value=alert] .pops-alert-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
 
       `,
@@ -3441,7 +3486,12 @@
       .pops[type-value=confirm] .pops-confirm-title{width:100%;height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=confirm] .pops-confirm-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
       .pops[type-value=confirm] .pops-confirm-content p[pops]{padding:5px 10px;color:#333;text-indent:15px;font-size:14px;}
-      .pops[type-value=confirm] .pops-confirm-content{position:absolute;top:var(--container-title-height);bottom:var(--container-bottom-btn-height);overflow:auto;width:100%;height:auto;word-break:break-word;}
+      .pops[type-value=confirm] .pops-confirm-content{
+        width:100%;
+        height: calc(100% - var(--container-title-height) - var(--container-bottom-btn-height));
+        overflow: auto;
+        word-break:break-word;
+      }
       .pops[type-value=confirm] .pops-confirm-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
  
       `,
@@ -3450,7 +3500,12 @@
       .pops[type-value=prompt] .pops-prompt-title{width:100%;height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=prompt] .pops-prompt-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
       .pops[type-value=prompt] .pops-prompt-content p[pops]{padding:5px 10px;color:#333;text-indent:15px;font-size:14px;}
-      .pops[type-value=prompt] .pops-prompt-content{position:absolute;top:var(--container-title-height);bottom:var(--container-bottom-btn-height);overflow:auto;width:100%;height:auto;word-break:break-word;}
+      .pops[type-value=prompt] .pops-prompt-content{
+        width:100%;
+        height: calc(100% - var(--container-title-height) - var(--container-bottom-btn-height));
+        overflow: auto;
+        word-break:break-word;
+      }
       .pops[type-value=prompt] .pops-prompt-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
       .pops[type-value=prompt] input[pops]{padding:5px 10px;font-size:18px;}
       .pops[type-value=prompt] textarea[pops]{padding:5px 10px;font-size:14px;resize:none;}
@@ -3505,7 +3560,12 @@
       .pops[type-value=iframe] .pops-iframe-title{width:calc(100% - 0px);height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=iframe] .pops-iframe-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
       .pops[type-value=iframe] .pops-iframe-content p[pops]{padding:5px 10px;color:#333;text-indent:15px;font-size:14px;}
-      .pops[type-value=iframe] .pops-iframe-content{position:absolute;top:var(--container-title-height);bottom:0;overflow:auto;width:100%;height:auto;word-break:break-word;}
+      .pops[type-value=iframe] .pops-iframe-content{
+        width:100%;
+        height: calc(100% - var(--container-title-height));
+        overflow: auto;
+        word-break:break-word;
+      }
       .pops-loading{position:absolute;top:40px;right:0;bottom:0;left:0;z-index:5;background-color:#fff;}
       .pops-loading:before{position:absolute;top:50%;left:50%;z-index:3;display:block;margin:-20px 0 0 -20px;padding:20px;border:4px solid #ddd;border-radius:50%;content:"";border-top-color:transparent;animation:pops-anim-wait-rotate 1.2s linear infinite;}
       .pops[type-value=iframe].pops[type-module=min]{top:unset!important;bottom:0;max-width:200px;max-height:53px;transform:none;}
@@ -3530,7 +3590,12 @@
       .pops[type-value=folder] .pops-folder-title{width:100%;height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=folder] .pops-folder-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
       .pops[type-value=folder] .pops-folder-content p[pops]{padding:5px 10px;color:#333;text-indent:15px;font-size:14px;}
-      .pops[type-value=folder] .pops-folder-content{position:absolute;top:var(--container-title-height);bottom:var(--container-bottom-btn-height);overflow:auto;width:100%;height:auto;word-break:break-word;}
+      .pops[type-value=folder] .pops-folder-content{
+        width:100%;
+        height: calc(100% - var(--container-title-height) - var(--container-bottom-btn-height));
+        overflow: auto;
+        word-break:break-word;
+      }
       .pops[type-value=folder] .pops-folder-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
       .pops-folder-list .cursor-p{cursor:pointer}
       .pops-folder-list a{background:0 0;text-decoration:none;-webkit-tap-highlight-color:transparent;color:#05082c}
@@ -3654,7 +3719,12 @@
 
       .pops[type-value=panel] .pops-panel-title{width:100%;height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=panel] .pops-panel-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
-      .pops[type-value=panel] .pops-panel-content{position:absolute;top:var(--container-title-height);bottom:var(--container-bottom-btn-height);overflow:hidden;width:100%;height:auto;word-break:break-word;}
+      .pops[type-value=panel] .pops-panel-content{
+        width:100%;
+        height: calc(100% - var(--container-title-height) - var(--container-bottom-btn-height));
+        overflow: auto;
+        word-break:break-word;
+      }
       .pops[type-value=panel] .pops-panel-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
       
       /* ↓panel的CSS↓ */
@@ -3731,7 +3801,7 @@
         font-size: 14px;
       }
       /* switch的CSS */
-      section.pops-panel-container .pops-panel-switch {
+      .pops-panel-switch {
         display: inline-flex;
         flex-direction: row-reverse;
         align-items: center;
@@ -3741,14 +3811,14 @@
         height: 32px;
         vertical-align: middle
       }
-      section.pops-panel-container .pops-panel-switch input.pops-panel-switch__input {
+      .pops-panel-switch input.pops-panel-switch__input {
         position: absolute;
         width: 0;
         height: 0;
         opacity: 0;
         margin: 0
       }
-      section.pops-panel-container .pops-panel-switch span.pops-panel-switch__core {
+      .pops-panel-switch span.pops-panel-switch__core {
         display: inline-flex;
         position: relative;
         align-items: center;
@@ -3762,7 +3832,7 @@
         cursor: pointer;
         transition: border-color .3s,background-color .3s
       }
-      section.pops-panel-container .pops-panel-switch .pops-panel-switch__action {
+      .pops-panel-switch .pops-panel-switch__action {
         position: absolute;
         left: 1px;
         border-radius: 100%;
@@ -3775,12 +3845,12 @@
         align-items: center;
         color: #dcdfe6
       }
-      section.pops-panel-container .pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core{border-color:#409eff;background-color:#409eff}
-      section.pops-panel-container .pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action{left:calc(100% - 17px);color:#409eff}
+      .pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core{border-color:#409eff;background-color:#409eff}
+      .pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action{left:calc(100% - 17px);color:#409eff}
       /* switch的CSS */
       
-      /* slider的CSS */
-      section.pops-panel-container .pops-panel-slider{overflow:hidden;height:25px;line-height:25px;display:flex;align-items:center}
+      /* slider旧的CSS */
+      section.pops-panel-container .pops-panel-slider:has(>input[type=range]){overflow:hidden;height:25px;line-height:25px;display:flex;align-items:center}
       section.pops-panel-container .pops-panel-slider input[type=range] {
         height: 6px;
         background: #e4e7ed;
@@ -3816,13 +3886,232 @@
         height: 6px;
         border-image: linear-gradient(#409eff,#409eff) 0 fill/9 25 9 0/0 0 0 100vw;
       }
+      /* slider旧的CSS */
+
+      /* slider的CSS */
+      .pops-slider {
+        --pops-slider-color-white: #ffffff;
+        --pops-slider-color-primary: #409eff;
+        --pops-slider-color-info: #909399;
+        --pops-slider-text-color-placeholder: #a8abb2;
+        --pops-slider-border-color-light: #e4e7ed;
+        --pops-slider-border-radius-circle: 100%;
+        --pops-slider-transition-duration-fast: 0.2s;
+
+        --pops-slider-main-bg-color: var(--pops-slider-color-primary);
+        --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);
+        --pops-slider-stop-bg-color: var(--pops-slider-color-white);
+        --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);
+        --pops-slider-border-radius: 3px;
+        --pops-slider-height: 6px;
+        --pops-slider-button-size: 20px;
+        --pops-slider-button-wrapper-size: 36px;
+        --pops-slider-button-wrapper-offset: -15px;
+      }
+
+      .pops-slider {
+        width: 100%;
+        height: 32px;
+        display: flex;
+        align-items: center;
+      }
+
+      .pops-slider-width{
+        flex: 0 0 52%;
+        margin-left: 10px;
+      }
+
+      .pops-slider__runway {
+        flex: 1;
+        height: var(--pops-slider-height);
+        background-color: var(--pops-slider-runway-bg-color);
+        border-radius: var(--pops-slider-border-radius);
+        position: relative;
+        cursor: pointer;
+      }
+
+      .pops-slider__runway.show-input {
+        margin-right: 30px;
+        width: auto;
+      }
+
+      .pops-slider__runway.pops-slider-is-disabled {
+        cursor: default;
+      }
+
+      .pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {
+        background-color: var(--pops-slider-disabled-color);
+      }
+
+      .pops-slider__runway.pops-slider-is-disabled .pops-slider__button {
+        border-color: var(--pops-slider-disabled-color);
+      }
+
+      .pops-slider__runway.pops-slider-is-disabled
+        .pops-slider__button:hover,
+      .pops-slider__runway.pops-slider-is-disabled
+        .pops-slider__button.hover,
+      .pops-slider__runway.pops-slider-is-disabled
+        .pops-slider__button.dragging {
+        cursor: not-allowed;
+      }
+
+      .pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,
+      .pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,
+      .pops-slider__runway.pops-slider-is-disabled
+        .pops-slider__button.dragging {
+        transform: scale(1);
+      }
+
+      .pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,
+      .pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,
+      .pops-slider__runway.pops-slider-is-disabled
+        .pops-slider__button.dragging {
+        cursor: not-allowed;
+      }
+
+      .pops-slider__input {
+        flex-shrink: 0;
+        width: 130px;
+      }
+
+      .pops-slider__bar {
+        height: var(--pops-slider-height);
+        background-color: var(--pops-slider-main-bg-color);
+        border-top-left-radius: var(--pops-slider-border-radius);
+        border-bottom-left-radius: var(--pops-slider-border-radius);
+        position: absolute;
+      }
+
+      .pops-slider__button-wrapper {
+        height: var(--pops-slider-button-wrapper-size);
+        width: var(--pops-slider-button-wrapper-size);
+        position: absolute;
+        z-index: 1;
+        top: var(--pops-slider-button-wrapper-offset);
+        transform: translate(-50%);
+        background-color: transparent;
+        text-align: center;
+        user-select: none;
+        line-height: normal;
+        outline: none;
+      }
+
+      .pops-slider__button-wrapper:after {
+        display: inline-block;
+        content: "";
+        height: 100%;
+        vertical-align: middle;
+      }
+
+      .pops-slider__button:hover,
+      .pops-slider__button.hover {
+        cursor: grab;
+      }
+
+      .pops-slider__button {
+        display: inline-block;
+        width: var(--pops-slider-button-size);
+        height: var(--pops-slider-button-size);
+        vertical-align: middle;
+        border: solid 2px var(--pops-slider-main-bg-color);
+        background-color: var(--pops-slider-color-white);
+        border-radius: 50%;
+        box-sizing: border-box;
+        transition: var(--pops-slider-transition-duration-fast);
+        user-select: none;
+      }
+
+      .pops-slider__button:hover,
+      .pops-slider__button.hover,
+      .pops-slider__button.dragging {
+        transform: scale(1.2);
+      }
+
+      .pops-slider__button:hover,
+      .pops-slider__button.hover {
+        cursor: grab;
+      }
+
+      .pops-slider__button.dragging {
+        cursor: grabbing;
+      }
+
+      .pops-slider__stop {
+        position: absolute;
+        height: var(--pops-slider-height);
+        width: var(--pops-slider-height);
+        border-radius: var(--pops-slider-border-radius-circle);
+        background-color: var(--pops-slider-stop-bg-color);
+        transform: translate(-50%);
+      }
+
+      .pops-slider__marks {
+        top: 0;
+        left: 12px;
+        width: 18px;
+        height: 100%;
+      }
+
+      .pops-slider__marks-text {
+        position: absolute;
+        transform: translate(-50%);
+        font-size: 14px;
+        color: var(--pops-slider-color-info);
+        margin-top: 15px;
+        white-space: pre;
+      }
+
+      .pops-slider.is-vertical {
+        position: relative;
+        display: inline-flex;
+        width: auto;
+        height: 100%;
+        flex: 0;
+      }
+
+      .pops-slider.is-vertical .pops-slider__runway {
+        width: var(--pops-slider-height);
+        height: 100%;
+        margin: 0 16px;
+      }
+
+      .pops-slider.is-vertical .pops-slider__bar {
+        width: var(--pops-slider-height);
+        height: auto;
+        border-radius: 0 0 3px 3px;
+      }
+
+      .pops-slider.is-vertical .pops-slider__button-wrapper {
+        top: auto;
+        left: var(--pops-slider-button-wrapper-offset);
+        transform: translateY(50%);
+      }
+
+      .pops-slider.is-vertical .pops-slider__stop {
+        transform: translateY(50%);
+      }
+
+      .pops-slider.is-vertical .pops-slider__marks-text {
+        margin-top: 0;
+        left: 15px;
+        transform: translateY(50%);
+      }
+
+      .pops-slider--large {
+        height: 40px;
+      }
+
+      .pops-slider--small {
+        height: 24px;
+      }
       /* slider的CSS */
       
       /* input的CSS */
-      section.pops-panel-container .pops-panel-input{display:flex;align-items:center;border:1px solid #dcdfe6;border-radius:4px;background-color:#ffffff}
-      section.pops-panel-container .pops-panel-input:hover{box-shadow:0 0 0 1px #c0c4cc inset}
-      section.pops-panel-container .pops-panel-input:has(input:focus){outline:0;border:1px solid #409eff;border-radius:4px;box-shadow:none}
-      section.pops-panel-container .pops-panel-input input {
+      .pops-panel-input{display:flex;align-items:center;border:1px solid #dcdfe6;border-radius:4px;background-color:#ffffff}
+      .pops-panel-input:hover{box-shadow:0 0 0 1px #c0c4cc inset}
+      .pops-panel-input:has(input:focus){outline:0;border:1px solid #409eff;border-radius:4px;box-shadow:none}
+      .pops-panel-input input {
         display: inline-flex;
         justify-content: center;
         align-items: center;
@@ -3846,7 +4135,7 @@
         text-align: start;
         width: 100%
       }    
-      section.pops-panel-container .pops-panel-input span.pops-panel-input__suffix {
+      .pops-panel-input span.pops-panel-input__suffix {
         display: inline-flex;
         white-space: nowrap;
         flex-shrink: 0;
@@ -3860,14 +4149,14 @@
         width: 18px;
         height: 18px
       }    
-      section.pops-panel-container .pops-panel-input span.pops-panel-input__suffix-inner{pointer-events:all;display:inline-flex;align-items:center;justify-content:center}
-      section.pops-panel-container .pops-panel-input .pops-panel-icon{cursor:pointer}
-      section.pops-panel-container .pops-panel-input .pops-panel-icon{height:inherit;line-height:inherit;display:flex;justify-content:center;align-items:center;transition:all .3s}
-      section.pops-panel-container .pops-panel-input .pops-panel-icon svg{height:1em;width:1em}
+      .pops-panel-input span.pops-panel-input__suffix-inner{pointer-events:all;display:inline-flex;align-items:center;justify-content:center}
+      .pops-panel-input .pops-panel-icon{cursor:pointer}
+      .pops-panel-input .pops-panel-icon{height:inherit;line-height:inherit;display:flex;justify-content:center;align-items:center;transition:all .3s}
+      .pops-panel-input .pops-panel-icon svg{height:1em;width:1em}
       /* input的CSS */
   
       /* textarea的CSS */
-      section.pops-panel-container .pops-panel-textarea textarea {
+      .pops-panel-textarea textarea {
         width: 100%;
         vertical-align: bottom;
         position: relative;
@@ -3887,12 +4176,12 @@
         transition: box-shadow .2s cubic-bezier(.645, .045, .355, 1);
         border: none;
       }
-      section.pops-panel-container .pops-panel-textarea textarea:hover{box-shadow:0 0 0 1px #c0c4cc inset}
-      section.pops-panel-container .pops-panel-textarea textarea:focus{outline:0;box-shadow:0 0 0 1px #409eff inset}
+      .pops-panel-textarea textarea:hover{box-shadow:0 0 0 1px #c0c4cc inset}
+      .pops-panel-textarea textarea:focus{outline:0;box-shadow:0 0 0 1px #409eff inset}
       /* textarea的CSS */
   
       /* select的CSS */
-      section.pops-panel-container .pops-panel-select select {
+      .pops-panel-select select {
         height: 32px;
         line-height: 32px;
         font-size: 14px;
@@ -3904,8 +4193,8 @@
         background: #ffffff;
         box-shadow: none;
       }    
-      section.pops-panel-container .pops-panel-select select:hover{box-shadow:0 0 0 1px #c0c4cc inset}
-      section.pops-panel-container .pops-panel-select select:focus{border:1px solid #409eff;box-shadow:none}
+      .pops-panel-select select:hover{box-shadow:0 0 0 1px #c0c4cc inset}
+      .pops-panel-select select:focus{border:1px solid #409eff;box-shadow:none}
       /* select的CSS */
 
       `,
@@ -4885,8 +5174,9 @@
      * @param {"alert"|"confirm"|"iframe"|"loading"|"prompt"|"drawer"|"folder"|"panel"} type
      * @param {object} config
      * @param {string} html
+     * @param {string} bottomBtnHTML
      */
-    getAnimHTML(guid, type, config, html = "") {
+    getAnimHTML(guid, type, config, html = "", bottomBtnHTML = "") {
       let popsAnimStyle = "";
       let popsStyle = "";
       let popsPosition = config.position || "";
@@ -4900,6 +5190,8 @@
       if (config.height != null) {
         popsStyle += `height: ${config.height};`;
       }
+      /* 是否存在底部按钮 */
+      let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
       return `<div 
                   class="pops-anim"
                   anim="${config.animation || ""}"
@@ -4912,6 +5204,7 @@
                 }
                 <div
                     class="pops ${config.class || ""}"
+                    data-bottom-btn="${hasBottomBtn}"
                     type-value="${type}"
                     style="${popsStyle}"
                     position="${popsPosition}"
@@ -4976,9 +5269,9 @@
       }
       if (
         !(
-          config.btn.ok.enable ||
-          config.btn.cancel.enable ||
-          config.btn.other.enable
+          config.btn?.ok?.enable ||
+          config.btn?.cancel?.enable ||
+          config.btn?.other?.enable
         )
       ) {
         return "";
@@ -5222,8 +5515,11 @@
       drag: false,
       dragLimit: true,
       dragExtraDistance: 3,
+      dragMoveCallBack() {},
+      dragEndCallBack() {},
       forbiddenScroll: false,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     let guid = PopsUtils.getRandomGUID();
@@ -5264,9 +5560,9 @@
               : `<p pops style="${contentPStyle}">${config.content.text}</p>`
           }
       </div>
-      ${bottomBtnHTML}`
+      ${bottomBtnHTML}`,
+      bottomBtnHTML
     );
-
     /**
      * 弹窗的主元素，包括动画层
      */
@@ -5329,6 +5625,9 @@
 
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     if (maskElement != null) {
       animElement.after(maskElement);
@@ -5348,6 +5647,8 @@
         dragElement: titleElement,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
+        moveCallBack: config.dragMoveCallBack,
+        endCallBack: config.dragEndCallBack,
       });
     }
 
@@ -5451,8 +5752,11 @@
       drag: false,
       dragLimit: true,
       dragExtraDistance: 3,
+      dragMoveCallBack() {},
+      dragEndCallBack() {},
       forbiddenScroll: false,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     let guid = PopsUtils.getRandomGUID();
@@ -5493,13 +5797,13 @@
           
 				</div>
 				${bottomBtnHTML}
-    `
+    `,
+      bottomBtnHTML
     );
     /**
      * 弹窗的主元素，包括动画层
      */
     let animElement = PopsElementHandler.parseElement(animHTML);
-
     let {
       popsElement,
       titleElement,
@@ -5566,6 +5870,9 @@
 
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     if (maskElement != null) {
       animElement.after(maskElement);
@@ -5580,10 +5887,13 @@
     });
     /* 拖拽 */
     if (config.drag) {
+      0;
       PopsUtils.drag(popsElement, {
         dragElement: titleElement,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
+        moveCallBack: config.dragMoveCallBack,
+        endCallBack: config.dragEndCallBack,
       });
     }
     return PopsHandler.handleResultDetails(eventDetails);
@@ -5693,8 +6003,11 @@
       drag: false,
       dragLimit: true,
       dragExtraDistance: 3,
+      dragMoveCallBack() {},
+      dragEndCallBack() {},
       forbiddenScroll: false,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     let guid = PopsUtils.getRandomGUID();
@@ -5740,7 +6053,8 @@
     }
     </div>
    ${bottomBtnHTML}
-    `
+    `,
+      bottomBtnHTML
     );
     /**
      * 弹窗的主元素，包括动画层
@@ -5823,6 +6137,9 @@
     );
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     if (maskElement != null) {
       animElement.after(maskElement);
@@ -5841,6 +6158,8 @@
         dragElement: titleElement,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
+        moveCallBack: config.dragMoveCallBack,
+        endCallBack: config.dragEndCallBack,
       });
     }
     /* 设置自动获取焦点 */
@@ -5915,7 +6234,8 @@
       }
       <p pops style="${contentPStyle}">${config.content.text}</p>
     </div>
-    `
+    `,
+      ""
     );
 
     /**
@@ -6018,6 +6338,8 @@
       drag: false,
       dragLimit: true,
       dragExtraDistance: 3,
+      dragMoveCallBack() {},
+      dragEndCallBack() {},
       width: "300px",
       height: "250px",
       topRightButton: "min|max|mise|close",
@@ -6039,6 +6361,7 @@
         },
       },
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     if (config.url == null) {
@@ -6093,7 +6416,8 @@
           </iframe>
         </div>
         ${config.loading.enable ? iframeLoadingHTML : ""}
-    `
+    `,
+      ""
     );
     /**
      * 弹窗的主元素，包括动画层
@@ -6179,6 +6503,9 @@
     });
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     if (maskElement != null) {
       animElement.after(maskElement);
@@ -6189,6 +6516,8 @@
         dragElement: titleElement,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
+        moveCallBack: config.dragMoveCallBack,
+        endCallBack: config.dragEndCallBack,
       });
     }
     let normalLeft = "";
@@ -6373,11 +6702,19 @@
       triggerCloseEventName: "mouseleave touchend",
       zIndex: 10000,
       only: false,
-      triggerShowEventCallBack() {},
-      triggerCloseEventCallBack() {},
+      eventOption: {
+        passive: false,
+        capture: true,
+        once: false,
+      },
+      showBeforeCallBack() {},
+      showAfterCallBack() {},
+      closeBeforeCallBack() {},
+      closeAfterCallBack() {},
       arrowDistance: 12.5,
       otherDistance: 0,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     if (!(config.target instanceof HTMLElement)) {
@@ -6501,9 +6838,22 @@
     /**
      * 显示提示框
      */
-    let showToolTipNode = function () {
-      PopsUtils.appendChild($shadowRoot, toolTipElement);
-      PopsUtils.appendChild($shadowContainer);
+    function showToolTipNode() {
+      if (typeof config.showBeforeCallBack === "function") {
+        let result = config.showBeforeCallBack();
+        if (typeof result === "boolean" && !result) {
+          return;
+        }
+      }
+      if (!PopsUtils.contains($shadowRoot, toolTipElement)) {
+        PopsUtils.appendChild($shadowRoot, toolTipElement);
+      }
+      if (!PopsUtils.contains($shadowContainer)) {
+        if (typeof config.beforeAppendToPageCallBack === "function") {
+          config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+        }
+        PopsUtils.appendChild($shadowContainer);
+      }
       setToolTipPosition(
         getToolTipPosition(
           config.target,
@@ -6511,22 +6861,28 @@
           config.otherDistance
         )
       );
-      if (typeof config.triggerShowEventCallBack === "function") {
-        config.triggerShowEventCallBack(toolTipElement);
+      if (typeof config.showAfterCallBack === "function") {
+        config.showAfterCallBack(toolTipElement);
       }
-    };
+    }
     /**
      * 关闭提示框
      */
-    let closeToolTipNode = function () {
+    function closeToolTipNode() {
+      if (typeof config.closeBeforeCallBack === "function") {
+        let result = config.closeBeforeCallBack(toolTipElement);
+        if (typeof result === "boolean" && !result) {
+          return;
+        }
+      }
       toolTipElement.setAttribute(
         "data-motion",
         toolTipElement.getAttribute("data-motion").replace("fadeIn", "fadeOut")
       );
-      if (typeof config.triggerCloseEventCallBack === "function") {
-        config.triggerCloseEventCallBack(toolTipElement);
+      if (typeof config.closeAfterCallBack === "function") {
+        config.closeAfterCallBack(toolTipElement);
       }
-    };
+    }
     /**
      * 绑定 显示事件
      */
@@ -6535,7 +6891,8 @@
         config.target,
         config.triggerShowEventName,
         null,
-        showToolTipNode
+        showToolTipNode,
+        config.eventOption
       );
     }
     /**
@@ -6546,7 +6903,8 @@
         config.target,
         config.triggerCloseEventName,
         null,
-        closeToolTipNode
+        closeToolTipNode,
+        config.eventOption
       );
     }
     /**
@@ -6557,7 +6915,10 @@
         config.target,
         null,
         config.triggerShowEventName,
-        showToolTipNode
+        showToolTipNode,
+        {
+          capture: true,
+        }
       );
     }
     /**
@@ -6568,7 +6929,10 @@
         config.target,
         null,
         config.triggerCloseEventName,
-        closeToolTipNode
+        closeToolTipNode,
+        {
+          capture: true,
+        }
       );
     }
 
@@ -6594,7 +6958,8 @@
             toolTipElement,
             PopsDOMUtils.getAnimationEndNameList(),
             null,
-            endEvent
+            endEvent,
+            config.eventOption
           );
           closeToolTipNode();
         },
@@ -6615,7 +6980,8 @@
           if (parseInt(getComputedStyle(this)) > 0.5) {
             this.style.animationPlayState = "paused";
           }
-        }
+        },
+        config.eventOption
       );
       /**
        * 退出动画
@@ -6626,13 +6992,15 @@
         void 0,
         function () {
           this.style.animationPlayState = "running";
-        }
+        },
+        config.eventOption
       );
       PopsDOMUtils.on(
         toolTipElement,
         PopsDOMUtils.getAnimationEndNameList(),
         null,
-        endEvent
+        endEvent,
+        config.eventOption
       );
 
       onShowEvent();
@@ -6643,8 +7011,8 @@
         $shadowRoot: $shadowRoot,
         config: config,
         toolTipNode: toolTipElement,
-        show: null,
-        close: null,
+        show: showToolTipNode,
+        close: closeToolTipNode,
         off() {
           offShowEvent();
           offCloseEvent();
@@ -6753,6 +7121,7 @@
       closeDelay: 0,
       borderRadius: 0,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     let guid = PopsUtils.getRandomGUID();
@@ -6803,7 +7172,8 @@
       </div>
 
       ${bottomBtnHTML}
-      `
+      `,
+      bottomBtnHTML
     );
     /**
      * 弹窗的主元素，包括动画层
@@ -6925,6 +7295,9 @@
     });
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     setTimeout(() => {
       setTimeout(() => {
@@ -7085,8 +7458,11 @@
       drag: false,
       dragLimit: true,
       dragExtraDistance: 3,
+      dragMoveCallBack() {},
+      dragEndCallBack() {},
       forbiddenScroll: false,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     /**
      * 图标
@@ -7310,7 +7686,8 @@
           </div>
 				</div>
 				${bottomBtnHTML}
-    `
+    `,
+      bottomBtnHTML
     );
     /**
      * 弹窗的主元素，包括动画层
@@ -7391,6 +7768,9 @@
     );
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     if (maskElement != null) {
       animElement.after(maskElement);
@@ -7952,6 +8332,8 @@
         dragElement: titleElement,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
+        moveCallBack: config.dragMoveCallBack,
+        endCallBack: config.dragEndCallBack,
       });
     }
     PopsHandler.handlePush(PopsType, {
@@ -7996,7 +8378,7 @@
           id: "whitesev-panel-config-1",
           title: "菜单配置1",
           headerTitle: "菜单配置1",
-          isDefault: false,
+          isDefault: true,
           attributes: [
             {
               "data-test": "test",
@@ -8083,7 +8465,7 @@
           id: "whitesev-panel-config-2",
           title: "菜单配置2",
           headerTitle: "菜单配置2",
-          isDefault: true,
+          isDefault: false,
           attributes: [
             {
               "data-value": "value",
@@ -8191,8 +8573,11 @@
       drag: false,
       dragLimit: true,
       dragExtraDistance: 3,
+      dragMoveCallBack() {},
+      dragEndCallBack() {},
       forbiddenScroll: false,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     if (details && Array.isArray(details.content)) {
@@ -8234,7 +8619,8 @@
             <ul></ul>
           </section>
       </div>
-      `
+      `,
+      ""
     );
     /**
      * 弹窗的主元素，包括动画层
@@ -8297,6 +8683,9 @@
 
     /* 创建到页面中 */
     PopsUtils.appendChild($shadowRoot, elementList);
+    if (typeof config.beforeAppendToPageCallBack === "function") {
+      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+    }
     PopsUtils.appendChild($shadowContainer);
     /* 追加遮罩层元素 */
     if (maskElement != null) {
@@ -8499,8 +8888,7 @@
        * type ==> slider
        * @param {PopsPanelSliderDetails} formConfig
        * @returns
-       */
-      getSectionContainerItem_slider(formConfig) {
+       */ getSectionContainerItem_slider(formConfig) {
         let liElement = document.createElement("li");
         liElement.__formConfig__ = formConfig;
         if (formConfig.className) {
@@ -8514,14 +8902,14 @@
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         liElement.innerHTML = `
-        <div class="pops-panel-item-left-text">
-          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-          ${leftDescriptionText}
-        </div>
-        <div class="pops-panel-slider">
-          <input type="range" min="${formConfig.min}" max="${formConfig.max}">
-        </div>
-        `;
+       <div class="pops-panel-item-left-text">
+         <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+         ${leftDescriptionText}
+       </div>
+       <div class="pops-panel-slider">
+         <input type="range" min="${formConfig.min}" max="${formConfig.max}">
+       </div>
+       `;
         /**
          * @type {HTMLInputElement}
          */
@@ -8571,6 +8959,555 @@
             }
           }
         );
+        return liElement;
+      },
+      /**
+       * 获取中间容器的元素<li>
+       * type ==> slider
+       * @param {PopsPanelSliderDetails} formConfig
+       * @returns
+       */
+      getSectionContainerItem_slider_new(formConfig) {
+        let liElement = document.createElement("li");
+        liElement.__formConfig__ = formConfig;
+        if (formConfig.className) {
+          liElement.className = formConfig.className;
+        }
+        this.addElementAttributes(liElement, formConfig.attributes);
+        this.setElementProps(liElement, formConfig.props);
+        /* 左边底部的描述的文字 */
+        let leftDescriptionText = "";
+        if (Boolean(formConfig.description)) {
+          leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
+        }
+        liElement.innerHTML = `
+        <div class="pops-panel-item-left-text" style="flex: 1;">
+          <p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+          ${leftDescriptionText}
+        </div>
+        <div class="pops-slider pops-slider-width">
+          <div class="pops-slider__runway">
+            <div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
+            <div
+              class="pops-slider__button-wrapper"
+              style="left: 0%">
+              <div class="pops-slider__button"></div>
+            </div>
+          </div>
+        </div>
+        `;
+        const Slider = {
+          /**
+           * 值
+           */
+          value: formConfig.getValue(),
+          /**
+           * 最小值
+           */
+          min: formConfig.min,
+          /**
+           * 最大值
+           */
+          max: formConfig.max,
+          /**
+           * 间隔
+           */
+          step: formConfig.step || 1,
+          $data: {
+            /**
+             * 是否正在移动
+             */
+            isMove: false,
+            /**
+             * 是否已初始化已拖拽的距离
+             */
+            isInitDragPosition: false,
+            /**
+             * 是否正在检测是否停止拖拽
+             */
+            isCheckingStopDragMove: false,
+            /**
+             * 总宽度（px）
+             */
+            totalWidth: 0,
+            /**
+             * 每一块的间隔（px）
+             */
+            stepPx: 0,
+            /**
+             * 已拖拽的距离（px）
+             */
+            dragWidth: 0,
+            /**
+             * 已拖拽的百分比
+             */
+            dragPercent: 0,
+            /**
+             * 每一次块的信息
+             * 例如：当最小值是2，最大值是10，step为2
+             * 那么生成[2,4,6,8,10] 共计5个
+             * 又获取到当前滑块总长度是200px
+             * 那么生成映射
+             * 2 => 0px~40px
+             * 4 => 40px~80px
+             * 6 => 80px~120px
+             * 8 => 120px~160px
+             * 10 => 160px~200px
+             * @type {Map<number,{
+             * value: number,
+             * px: number,
+             * pxLeft: number,
+             * pxRight: number,
+             * percent: number,
+             * }>}
+             */
+            stepBlockMap: new Map(),
+          },
+          $ele: {
+            slider: liElement.querySelector(".pops-slider"),
+            runAway: liElement.querySelector(".pops-slider__runway"),
+            bar: liElement.querySelector(".pops-slider__bar"),
+            buttonWrapper: liElement.querySelector(
+              ".pops-slider__button-wrapper"
+            ),
+            button: liElement.querySelector(".pops-slider__button"),
+            /**
+             * @type {{
+             * guid: string,
+             * $shadowContainer: HTMLDivElement,
+             * $shadowRoot: ShadowRoot,
+             * config: PopsToolTipDetails,
+             * toolTipNode: HTMLDivElement,
+             * show: ()=>void,
+             * close: ()=>void,
+             * off: ()=>void,
+             * on: ()=>void,
+             * }}
+             */
+            tooltip: null,
+          },
+          $interval: {
+            isCheck: false,
+          },
+          $tooltip: null,
+          init() {
+            this.initEleData();
+            this.setToolTipEvent();
+            this.setPanEvent();
+            this.setRunAwayClickEvent();
+            this.intervalInit();
+          },
+          /**
+           * 10s内循环获取slider的宽度等信息
+           * 获取到了就可以初始化left的值
+           * @param {number} [checkStepTime=200] 每次检测的间隔时间
+           * @param {number} [maxTime=10000] 最大的检测时间
+           */
+          intervalInit(checkStepTime = 200, maxTime = 10000) {
+            if (this.$interval.isCheck) {
+              return;
+            }
+            this.$interval.isCheck = true;
+            let isSuccess = false;
+            let oldTotalWidth = this.$data.totalWidth;
+            let timer = null;
+            let interval = setInterval(() => {
+              if (isSuccess) {
+                this.$interval.isCheck = false;
+                clearTimeout(timer);
+                clearInterval(interval);
+              } else {
+                this.initTotalWidth();
+                if (this.$data.totalWidth !== 0) {
+                  isSuccess = true;
+                  if (this.$data.totalWidth !== oldTotalWidth) {
+                    /* slider的总宽度改变了 */
+                    this.initStepMap();
+                    this.initSliderPosition();
+                  }
+                }
+              }
+            }, checkStepTime);
+            /* 最长检测时间是10s */
+            timer = setTimeout(() => {
+              clearInterval(interval);
+            }, maxTime);
+          },
+          /**
+           * 把数据添加到元素上
+           */
+          initEleData() {
+            this.$ele.slider.setAttribute("data-min", this.min);
+            this.$ele.slider.setAttribute("data-max", this.max);
+            this.$ele.slider.setAttribute("data-value", this.value);
+            this.$ele.slider.setAttribute("data-step", this.step);
+            this.$ele.slider["data-min"] = this.min;
+            this.$ele.slider["data-max"] = this.max;
+            this.$ele.slider["data-value"] = this.value;
+            this.$ele.slider["data-step"] = this.step;
+          },
+          /**
+           * 初始化滑块的总长度的数据(px)
+           */
+          initTotalWidth() {
+            this.$data.totalWidth = PopsDOMUtils.width(this.$ele.runAway);
+          },
+          /**
+           * 初始化每一个块的具体数据信息
+           */
+          initStepMap() {
+            let index = 0;
+            // 计算出份数
+            let blockNums = (this.max - this.min) / this.step;
+            // 计算出每一份占据的px
+            this.$data.stepPx = this.$data.totalWidth / blockNums;
+            let widthPx = 0;
+            for (
+              let stepValue = this.min;
+              stepValue <= this.max;
+              stepValue += this.step
+            ) {
+              let value = this.formatValue(stepValue);
+              let info = {};
+              if (value === this.min) {
+                // 起始
+                info = {
+                  value: value,
+                  px: 0,
+                  pxLeft: 0,
+                  pxRight: this.$data.stepPx / 2,
+                  percent: 0,
+                };
+              } else {
+                info = {
+                  value: value,
+                  px: widthPx,
+                  pxLeft: widthPx - this.$data.stepPx / 2,
+                  pxRight: widthPx + this.$data.stepPx / 2,
+                  percent: widthPx / this.$data.totalWidth,
+                };
+                //if (value === this.max) {
+                //  info["pxLeft"] = this.$data.stepBlockMap.get(
+                //    index - 1
+                //  ).pxRight;
+                //  info["pxRight"] = this.$data.totalWidth;
+                //}
+              }
+              this.$data.stepBlockMap.set(index, info);
+              index++;
+              widthPx += this.$data.stepPx;
+            }
+          },
+          /**
+           * 初始化slider的默认起始left的百分比值
+           */
+          initSliderPosition() {
+            /* 设置起始默认style的left值 */
+            let percent = 0;
+            for (const [
+              index,
+              stepBlockInfo,
+            ] of this.$data.stepBlockMap.entries()) {
+              /* 判断值是否和区域内的值相等 */
+              if (stepBlockInfo.value == this.value) {
+                percent = stepBlockInfo.percent;
+                this.$data.dragWidth = stepBlockInfo.px;
+                break;
+              }
+            }
+            percent = this.formatValue(percent * 100);
+            this.setSliderPosition(percent);
+          },
+          /**
+           * 判断数字是否是浮点数
+           * @param {number} num
+           * @returns
+           */
+          isFloat(num) {
+            return Number(num) === num && num % 1 !== 0;
+          },
+          /**
+           * 值改变的回调
+           * @param {any} event
+           * @param {number} value
+           */
+          valueChangeCallBack(event, value) {
+            if (typeof formConfig.callback === "function") {
+              formConfig.callback(event, value);
+            }
+          },
+          /**
+           * 根据拖拽距离获取滑块应该在的区间和值
+           */
+          getDragInfo(dragX) {
+            let result = this.$data.stepBlockMap.get(0);
+            for (const [
+              index,
+              stepBlockInfo,
+            ] of this.$data.stepBlockMap.entries()) {
+              if (
+                stepBlockInfo.pxLeft <= dragX &&
+                dragX < stepBlockInfo.pxRight
+              ) {
+                result = stepBlockInfo;
+                break;
+              }
+            }
+            return result;
+          },
+          /**
+           * 获取滑块的当前脱拖拽占据的百分比
+           * @param {number} dragWidth
+           */
+          getSliderPositonPercent(dragWidth) {
+            return dragWidth / this.$data.totalWidth;
+          },
+          /**
+           * 根据step格式化value
+           * @param {number} num
+           */
+          formatValue(num) {
+            if (this.isFloat(this.step)) {
+              num = parseFloat(num.toFixed(2));
+            } else {
+              num = parseInt(num);
+            }
+            return num;
+          },
+          /**
+           * 设置滑块的位置偏移（left）
+           * @param {number} percent 百分比
+           */
+          setSliderPosition(percent) {
+            if (parseInt(percent) === 1) {
+              percent = 1;
+            }
+            if (percent > 1) {
+              percent = percent / 100;
+            }
+            /* 滑块按钮的偏移 */
+            this.$ele.buttonWrapper.style.left = `${percent * 100}%`;
+            /* 滑块进度的宽度 */
+            this.$ele.bar.style.width = `${percent * 100}%`;
+          },
+          /**
+           * 禁止拖拽
+           */
+          disableDrag() {
+            this.$ele.runAway.classList.add("pops-slider-is-disabled");
+          },
+          /**
+           * 允许拖拽
+           */
+          allowDrag() {
+            this.$ele.runAway.classList.remove("pops-slider-is-disabled");
+          },
+          /**
+           * 判断当前滑块是否被禁用
+           */
+          isDisabledDrag() {
+            return this.$ele.runAway.classList.contains(
+              "pops-slider-is-disabled"
+            );
+          },
+          /**
+           * 设置进度条点击定位的事件
+           */
+          setRunAwayClickEvent() {
+            PopsDOMUtils.on(
+              this.$ele.runAway,
+              "click",
+              void 0,
+              /**
+               *
+               * @param {PointerEvent} event
+               */
+              (event) => {
+                if (
+                  event.target !== this.$ele.runAway &&
+                  event.target !== this.$ele.bar
+                ) {
+                  return;
+                }
+                let clickX = parseFloat(event.offsetX);
+                this.dragStartCallBack();
+                this.dragMoveCallBack(event, clickX, this.value);
+                this.dragEndCallBack(clickX);
+              },
+              {
+                capture: false,
+              }
+            );
+          },
+          /**
+           * 拖拽开始的回调，如果返回false，禁止拖拽
+           */
+          dragStartCallBack() {
+            if (!this.$data.isMove) {
+              if (this.isDisabledDrag()) {
+                return false;
+              }
+              this.$data.isMove = true;
+            }
+            return true;
+          },
+          /**
+           * 拖拽中的回调
+           * @param {MouseEvent|TouchEvent} event 事件
+           * @param {number} dragX 当前拖拽的距离
+           * @param {number} oldValue 旧的值
+           */
+          dragMoveCallBack(event, dragX, oldValue) {
+            let dragPercent = 0;
+            if (dragX <= 0) {
+              dragPercent = 0;
+              this.value = this.min;
+            } else if (dragX >= this.$data.totalWidth) {
+              dragPercent = 1;
+              this.value = this.max;
+            } else {
+              const dragInfo = this.getDragInfo(dragX);
+              dragPercent = dragInfo.percent;
+              this.value = this.formatValue(dragInfo.value);
+            }
+            this.$data.dragPercent = dragPercent;
+            this.setSliderPosition(this.$data.dragPercent);
+            this.showToolTip();
+            if (oldValue !== this.value) {
+              this.valueChangeCallBack(event, this.value);
+            }
+          },
+          /**
+           * 拖拽结束的回调
+           */
+          dragEndCallBack(dragX) {
+            this.$data.isMove = false;
+            if (dragX <= 0) {
+              this.$data.dragWidth = 0;
+            } else if (dragX >= this.$data.totalWidth) {
+              this.$data.dragWidth = this.$data.totalWidth;
+            } else {
+              this.$data.dragWidth = dragX;
+            }
+            this.closeToolTip();
+          },
+          /**
+           * 设置点击拖拽事件
+           */
+          setPanEvent() {
+            const AnyTouch = PopsUtils.AnyTouch();
+            this.$tooltip = new AnyTouch(this.$ele.button, {
+              preventEvent() {
+                return false;
+              },
+            });
+            /**
+             * 当前的拖拽的距离px
+             * @type {number}
+             */
+            let currentDragX = 0;
+            /* 监听拖拽 */
+            this.$tooltip.on("at:move", (event) => {
+              if (!this.dragStartCallBack()) {
+                return;
+              }
+              let oldValue = this.value;
+              const runAwayRect = this.$ele.runAway.getBoundingClientRect();
+              let displacementX =
+                event.x - (runAwayRect.left + globalThis.screenX);
+              if (displacementX <= 0) {
+                displacementX = 0;
+              } else if (displacementX >= runAwayRect.width) {
+                displacementX = runAwayRect.width;
+              }
+              currentDragX = displacementX;
+              /* 拖拽移动 */
+              this.dragMoveCallBack(event, currentDragX, oldValue);
+            });
+            /* 监听触点离开，处理某些情况下，拖拽松开，但是未触发pan事件，可以通过设置这个来关闭tooltip */
+            this.$tooltip.on("at:end", (event) => {
+              this.dragEndCallBack(currentDragX);
+            });
+          },
+          /**
+           * 显示悬浮的
+           */
+          showToolTip() {
+            this.$ele.tooltip.show();
+          },
+          /**
+           * 关闭悬浮的
+           */
+          closeToolTip() {
+            this.$ele.tooltip.close();
+          },
+          /**
+           * 检测在1000ms内，是否停止了拖拽
+           */
+          checkStopDragMove() {
+            if (this.$data.isCheckingStopDragMove) {
+              return;
+            }
+            this.$data.isCheckingStopDragMove = true;
+            let interval = setInterval(() => {
+              if (!this.$data.isMove) {
+                this.$data.isCheckingStopDragMove = false;
+                this.closeToolTip();
+                clearInterval(interval);
+              }
+            }, 200);
+            setTimeout(() => {
+              this.$data.isCheckingStopDragMove = false;
+              clearInterval(interval);
+            }, 2000);
+          },
+          /**
+           * 设置拖拽按钮的悬浮事件
+           */
+          setToolTipEvent() {
+            /**
+             * 获取提示的内容
+             */
+            function getToolTipContent() {
+              if (typeof formConfig.getToolTipContent === "function") {
+                return formConfig.getToolTipContent(Slider.value);
+              } else {
+                return Slider.value;
+              }
+            }
+            let tooltipContent = null;
+            this.$ele.tooltip = pops.tooltip({
+              target: this.$ele.button,
+              content: getToolTipContent,
+              zIndex: 1000000,
+              className: "github-tooltip",
+              only: false,
+              eventOption: {
+                capture: true,
+                passive: true,
+              },
+              showBeforeCallBack: () => {
+                this.intervalInit();
+              },
+              showAfterCallBack: (toolTipNode) => {
+                tooltipContent.innerText = getToolTipContent();
+              },
+              closeBeforeCallBack: () => {
+                if (this.$data.isMove) {
+                  this.checkStopDragMove();
+                  return false;
+                }
+              },
+              alwaysShow: false,
+              only: false,
+              position: "top",
+              arrowDistance: 10,
+            });
+            tooltipContent = this.$ele.tooltip.toolTipNode.querySelector("div");
+          },
+        };
+        Slider.init();
+        liElement.Slider = Slider;
         return liElement;
       },
       /**
@@ -8880,7 +9817,7 @@
         if (formConfig["type"] === "switch") {
           return this.getSectionContainerItem_switch(formConfig);
         } else if (formConfig["type"] === "slider") {
-          return this.getSectionContainerItem_slider(formConfig);
+          return this.getSectionContainerItem_slider_new(formConfig);
         } else if (formConfig["type"] === "input") {
           return this.getSectionContainerItem_input(formConfig);
         } else if (formConfig["type"] === "textarea") {
@@ -9005,6 +9942,8 @@
         dragElement: titleElement,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
+        moveCallBack: config.dragMoveCallBack,
+        endCallBack: config.dragEndCallBack,
       });
     }
     return PopsHandler.handleResultDetails(eventDetails);
@@ -9138,6 +10077,7 @@
       zIndex: 10000,
       preventDefault: true,
       style: void 0,
+      beforeAppendToPageCallBack() {},
     };
     config = PopsUtils.assignJSON(config, details);
     if (config.target == null) {
@@ -9493,6 +10433,9 @@
         PopsUtils.appendChild($shadowRoot, menuElement);
         /* 添加到页面 */
         if (!document.contains($shadowContainer)) {
+          if (typeof config.beforeAppendToPageCallBack === "function") {
+            config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+          }
           PopsUtils.appendChild($shadowContainer);
         }
         let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(
