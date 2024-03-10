@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.10
+// @version      2024.3.10.20
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,8 +21,8 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1340586/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1340538/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1340659/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1340696/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1340539/DOMUtils.js
 // ==/UserScript==
 
