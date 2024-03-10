@@ -1063,7 +1063,6 @@
       let scriptNode = document.createElement("script");
       scriptNode.src = scriptJs;
       scriptNode.setAttribute("type", "application/javascript");
-      scriptNode.setAttribute("crossorigin", "anonymous");
       if (scriptEmbedded) {
         scriptNode.setAttribute("embedded", true);
       }
@@ -1072,8 +1071,9 @@
         function (event) {
           if (event.target === scriptNode) {
             globalThis.alert(
-              "调试工具【Chii】脚本加载失败，可能是页面存在CSP策略问题导致无法加载，也可能是来源js文件异常: " +
-                scriptNode.src
+              `调试工具【Chii】脚本加载失败
+              可能原因1：CSP策略阻止了加载第三方域的js文件
+              可能原因2：目标js无效`
             );
           }
         },
