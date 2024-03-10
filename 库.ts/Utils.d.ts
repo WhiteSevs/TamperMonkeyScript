@@ -1195,29 +1195,45 @@ declare interface HttpxAsyncResult<T extends HttpxDetails> {
 
 declare interface UtilsDictionaryConstructor<K extends string | number | symbol, V> {
     /** 检查是否有某一个键 */
-    has: (key: K) => boolean;
+    has(key: K): boolean;
     /** 检查已有的键中是否以xx开头 */
-    startsWith: (key: K) => boolean;
+    startsWith(key: K): boolean;
     /** 获取以xx开头的键的值 */
-    getStartsWith: (key: K) => V;
+    getStartsWith(key: K): V;
     /** 为字典添加某一个值 */
-    set: (key: K, val: V) => void;
+    set(key: K, val: V): void;
     /** 删除某一个键 */
-    delete: (key: K) => boolean;
+    delete(key: K): boolean;
     /** 获取某个键的值 */
-    get: (key: K) => V;
+    get(key: K): V;
     /** 返回字典中的所有值 */
-    values: () => V[];
+    values(): V[];
     /** 清空字典 */
-    clear: () => void;
+    clear(): void;
     /** 获取字典的长度 */
-    size: () => number;
+    size(): number;
     /** 获取字典所有的键 */
-    keys: () => K[];
+    keys(): K[];
     /** 返回字典本身 */
-    getItems: () => Record<K, V>;
+    getItems(): Record<K, V>;
     /** 合并另一个字典 */
-    concat: (data: UtilsDictionaryConstructor<K, V>) => void;
+    concat(data: UtilsDictionaryConstructor<K, V>): void;
+    /**
+     * 迭代器
+     */
+    entries(): IterableIterator<[K, V]>;
+    /**
+     * 可迭代
+     */
+    [Symbol.iterator](): IterableIterator<[K, V]>;
+    /**
+     * .toString()和.toLocaleString()输出的字符串
+     */
+    [Symbol.toStringTag](): string;
+    /**
+     * 同this.size()
+     */
+    get length(): number;
 }
 
 /** 字典 */
@@ -2224,6 +2240,10 @@ declare interface Utils {
      */
     getNodeListValue(...args: (NodeList | (() => HTMLElement))[]): Element[];
     /**
+     * 自动判断N个参数，获取非空的值，如果都是空，返回最后一个值
+     */
+    getNonNullValue(...args: any[]): any;
+    /**
      * 获取格式化后的时间
      * @param text （可选）需要格式化的字符串或者时间戳，默认：new Date()
      * @param formatType （可选）格式化成的显示类型，默认：yyyy-MM-dd HH:mm:ss
@@ -2810,9 +2830,12 @@ declare interface Utils {
     isNotNull(...args: any[]): boolean;
     /**
      * 判断对象或数据是否为空
-     * String类型，如 ""、"null"、"undefined"、"   "
-     * Number类型，如 0
-     * Object类型，如 {}
+     * + `String`判空的值，如 ""、"null"、"undefined"、"   "
+     * + `Number`判空的值，如 0
+     * + `Object`判空的值，如 {}、null、undefined
+     * + `Array`(存在属性Symbol.iterator)判空的值，如 []
+     * + `Boolean`判空的值，如false
+     * + `Function`判空的值，如()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}
      * @returns
      * + true 为空
      * + false 不为空
