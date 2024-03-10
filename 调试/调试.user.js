@@ -2,7 +2,7 @@
 // @name         调试
 // @namespace    https://greasyfork.org/zh-CN/scripts/475424
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.2.26
+// @version      2024.3.10
 // @description  用于调试油猴、ChromeXt和相关API
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -35,8 +35,8 @@
 // @grant        GM.ChromeXt
 // @connect      *
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/455186/1333612/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1327726/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1340538/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1340539/DOMUtils.js
 // ==/UserScript==
 
 (function () {
