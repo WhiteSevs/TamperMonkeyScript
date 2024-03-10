@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-3-2";
+  Utils.version = "2024-3-7";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -2226,11 +2226,9 @@
     };
   };
 
-  Utils.Httpx = function (_GM_xmlHttpRequest_) {
-    if (typeof _GM_xmlHttpRequest_ !== "function") {
-      throw new Error(
-        "Utils.Httpx 请先加入@grant GM_xmlhttpRequest在开头且传入该参数"
-      );
+  Utils.Httpx = function (xmlHttpRequest) {
+    if (typeof xmlHttpRequest !== "function") {
+      console.warn("Httpx未传入GM_xmlhttpRequest函数，强制默认使用fetch");
     }
     /**
      * @type {HttpxDetails}
@@ -2266,6 +2264,15 @@
      */
     let LOG_DETAILS = false;
 
+    const HttpxRequestHook = {
+      /**
+       * 发送请求前的回调
+       * 如果返回false则阻止本次返回
+       * @param {HttpxDetails} details 当前的请求配置
+       */
+      beforeRequestCallBack(details) {},
+    };
+
     const HttpxRequestDetails = {
       /**
        * 获取请求配置
@@ -2275,7 +2282,7 @@
        * @returns
        */
       get(method, resolve, details) {
-        return {
+        let result = {
           url: details.url || defaultDetails.url,
           method: (method || "GET").toString().toUpperCase(),
           timeout: details.timeout || defaultDetails.timeout,
@@ -2317,6 +2324,10 @@
             HttpxCallBack.onLoad(details, resolve, args);
           },
         };
+        if (typeof xmlHttpRequest !== "function") {
+          result.fetch = true;
+        }
+        return result;
       },
       /**
        * 处理发送请求的details，去除值为undefined、空function的值
@@ -2350,6 +2361,54 @@
           }
         }
         return details;
+      },
+      /**
+       * 处理fetch的配置
+       * @param {HttpxDetails} details
+       */
+      handleFetchDetail(details) {
+        /**
+         * fetch的请求配置
+         * @type {RequestInit}
+         **/
+        let fetchRequestInit = {};
+        if (
+          (details.method === "GET" || details.method === "HEAD") &&
+          details.data != null
+        ) {
+          /* GET 或 HEAD 方法的请求不能包含 body 信息 */
+          delete details.data;
+        }
+        /* 中止信号控制器 */
+        let abortController = new AbortController();
+        let signal = abortController.signal;
+        signal.onabort = () => {
+          details.onabort({
+            isFetch: true,
+            responseText: "",
+            response: null,
+            readyState: 4,
+            responseHeaders: "",
+            status: 0,
+            statusText: "",
+            error: "aborted",
+          });
+        };
+        fetchRequestInit.method = details.method ?? "GET";
+        fetchRequestInit.headers = details.headers;
+        fetchRequestInit.body = details.data;
+        fetchRequestInit.mode = "cors";
+        fetchRequestInit.credentials = "include";
+        fetchRequestInit.cache = "no-cache";
+        fetchRequestInit.redirect = "follow";
+        fetchRequestInit.referrerPolicy = "origin-when-cross-origin";
+        fetchRequestInit.signal = signal;
+        Object.assign(fetchRequestInit, details.fetchInit || {});
+        return {
+          fetchDetails: details,
+          fetchRequestInit: fetchRequestInit,
+          abortController: abortController,
+        };
       },
     };
     const HttpxCallBack = {
@@ -2530,8 +2589,16 @@
         if (LOG_DETAILS) {
           console.log("Httpx请求配置👇", details);
         }
+        if (typeof HttpxRequestHook.beforeRequestCallBack === "function") {
+          let hookResult = HttpxRequestHook.beforeRequestCallBack(details);
+          if (typeof hookResult === "boolean" && !hookResult) {
+            return;
+          }
+        }
         if (details.fetch) {
-          this.fetch(details);
+          const { fetchDetails, fetchRequestInit, abortController } =
+            HttpxRequestDetails.handleFetchDetail(details);
+          this.fetch(fetchDetails, fetchRequestInit, abortController);
         } else {
           delete details.fetchInit;
           this.xmlHttpRequest(details);
@@ -2542,49 +2609,16 @@
        * @param {HttpxDetails} details
        */
       xmlHttpRequest(details) {
-        _GM_xmlHttpRequest_(details);
+        xmlHttpRequest(details);
       },
       /**
        * 使用fetch发送请求
        * @param {HttpxDetails} details
+       * @param {RequestInit} fetchRequestInit
+       * @param {AbortController} abortController
        */
-      fetch(details) {
-        let newDetails = details;
-        /** @type {RequestInit} */
-        let fetchInit = {};
-        if (
-          (newDetails.method === "GET" || newDetails.method === "HEAD") &&
-          newDetails.data != null
-        ) {
-          /* GET 或 HEAD 方法的请求不能包含 body 信息 */
-          delete newDetails.data;
-        }
-        /* 中止信号控制器 */
-        let abortController = new AbortController();
-        let signal = abortController.signal;
-        signal.onabort = () => {
-          newDetails.onabort({
-            isFetch: true,
-            responseText: "",
-            response: null,
-            readyState: 4,
-            responseHeaders: "",
-            status: 0,
-            statusText: "",
-            error: "aborted",
-          });
-        };
-        fetchInit.method = newDetails.method ?? "GET";
-        fetchInit.headers = newDetails.headers;
-        fetchInit.body = newDetails.data;
-        fetchInit.mode = "cors";
-        fetchInit.credentials = "include";
-        fetchInit.cache = "no-cache";
-        fetchInit.redirect = "follow";
-        fetchInit.referrerPolicy = "origin-when-cross-origin";
-        fetchInit.signal = signal;
-        Object.assign(fetchInit, newDetails.fetchInit || {});
-        fetch(newDetails.url, fetchInit)
+      fetch(details, fetchRequestInit, abortController) {
+        fetch(details.url, fetchRequestInit)
           .then(async (resp) => {
             /**
              * @type {HttpxAsyncResultData}
@@ -2599,10 +2633,10 @@
               responseFetchHeaders: resp.headers,
               responseHeaders: "",
               responseText: void 0,
-              responseType: newDetails.responseType,
+              responseType: details.responseType,
               responseXML: void 0,
             };
-            Object.assign(httpxResponse, newDetails.context || {});
+            Object.assign(httpxResponse, details.context || {});
 
             for (const [key, value] of resp.headers.entries()) {
               httpxResponse.responseHeaders += `${key}: ${value}\n`;
@@ -2610,7 +2644,7 @@
 
             /* 如果是流式传输，直接返回 */
             if (
-              newDetails.responseType === "stream" ||
+              details.responseType === "stream" ||
               (resp.headers.has("Content-Type") &&
                 resp.headers.get("Content-Type").includes("text/event-stream"))
             ) {
@@ -2618,7 +2652,7 @@
               httpxResponse.response = resp.body;
               delete httpxResponse.responseText;
               delete httpxResponse.responseXML;
-              newDetails.onload(httpxResponse);
+              details.onload(httpxResponse);
               return;
             }
 
@@ -2644,14 +2678,17 @@
             responseText = textDecoder.decode(await resp.arrayBuffer());
             response = responseText;
 
-            if (newDetails.responseType === "arraybuffer") {
+            if (details.responseType === "arraybuffer") {
               response = arrayBuffer;
-            } else if (newDetails.responseType === "blob") {
+            } else if (details.responseType === "blob") {
               response = new Blob([arrayBuffer]);
-            } else if (newDetails.responseType === "document") {
+            } else if (
+              details.responseType === "document" ||
+              details.responseType == null
+            ) {
               let parser = new DOMParser();
               response = parser.parseFromString(responseText, "text/html");
-            } else if (newDetails.responseType === "json") {
+            } else if (details.responseType === "json") {
               response = Utils.toJSON(responseText);
             }
             let parser = new DOMParser();
@@ -2661,15 +2698,15 @@
             httpxResponse.responseText = responseText;
             httpxResponse.responseXML = responseXML;
 
-            newDetails.onload(httpxResponse);
+            details.onload(httpxResponse);
           })
           .catch((err) => {
             if (err.name === "AbortError") {
               return;
             }
-            newDetails.onerror({
+            details.onerror({
               isFetch: true,
-              finalUrl: newDetails.url,
+              finalUrl: details.url,
               readyState: 4,
               status: 0,
               statusText: "",
@@ -2678,9 +2715,9 @@
               error: err,
             });
           });
-        newDetails.onloadstart({
+        details.onloadstart({
           isFetch: true,
-          finalUrl: newDetails.url,
+          finalUrl: details.url,
           readyState: 1,
           responseHeaders: "",
           responseText: "",
@@ -2694,6 +2731,30 @@
         };
       },
     };
+
+    /**
+     * 覆盖当前配置
+     * @param {HttpxDetailsConfig} details
+     */
+    this.config = function (details = {}) {
+      if (
+        "logDetails" in details &&
+        typeof details["logDetails"] === "boolean"
+      ) {
+        LOG_DETAILS = details["logDetails"];
+      }
+
+      defaultDetails = Utils.assign(defaultDetails, details);
+    };
+
+    /**
+     * 修改xmlHttpRequest
+     * @param {Function} httpRequest 网络请求函数
+     */
+    this.setXMLHttpRequest = function (httpRequest) {
+      xmlHttpRequest = httpRequest;
+    };
+
     /**
      * GET 请求
      * @param {...HttpxDetails|string} args
@@ -2840,17 +2901,6 @@
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
-    };
-
-    /**
-     * 覆盖当前配置
-     * @param {HttpxDetails} details
-     */
-    this.config = function (details = {}) {
-      if (Object.hasOwnProperty.call(details, "logDetails")) {
-        LOG_DETAILS = details["logDetails"];
-      }
-      defaultDetails = Utils.assign(defaultDetails, details);
     };
   };
 
