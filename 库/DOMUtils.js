@@ -40,18 +40,15 @@
      * @returns {{recovery: Function}} - 恢复
      */
     showElement(element) {
-      let oldStyleAttribute = element.getAttribute("style");
-      element.setAttribute(
+      let dupNode = element.cloneNode(true);
+      dupNode.setAttribute(
         "style",
-        "visibility: !important;display:block !important;"
+        "visibility: hidden !important;display:block !important;"
       );
+      document.documentElement.appendChild(dupNode);
       return {
         recovery() {
-          if (oldStyleAttribute) {
-            element.setAttribute("style", oldStyleAttribute);
-          } else {
-            element.removeAttribute("style");
-          }
+          dupNode.remove();
         },
       };
     },
@@ -100,6 +97,9 @@
         return true;
       }
       if (target === self) {
+        return true;
+      }
+      if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
         return true;
       }
       if (target?.Math?.toString() !== "[object Math]") {
@@ -315,6 +315,34 @@
     } else {
       DOMUtils.on(element, "focus", null, handler);
     }
+  };
+
+  DOMUtils.getTransform = function (element, isShow = false) {
+    let transform_left = 0;
+    let transform_top = 0;
+    if (!(isShow || (!isShow && CommonDOMUtils.isShow(element)))) {
+      /* 未显示 */
+      let { recovery } = CommonDOMUtils.showElement(element);
+      let transformInfo = DOMUtils.getTransform(element, true);
+      recovery();
+      return transformInfo;
+    }
+    let elementTransform = globalThis.getComputedStyle(element).transform;
+    if (
+      elementTransform !== "none" &&
+      elementTransform != null &&
+      elementTransform !== ""
+    ) {
+      let elementTransformSplit = elementTransform
+        .match(/\((.+)\)/)[1]
+        .split(",");
+      transform_left = Math.abs(parseInt(elementTransformSplit[4]));
+      transform_top = Math.abs(parseInt(elementTransformSplit[5]));
+    }
+    return {
+      transformLeft: transform_left,
+      transformTop: transform_top,
+    };
   };
 
   DOMUtils.val = function (element, value) {
@@ -889,7 +917,7 @@
         element.documentElement.clientWidth
       );
     }
-    if (CommonDOMUtils.isShow(element)) {
+    if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
       /* 已显示 */
       /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
 
@@ -951,7 +979,7 @@
         element.documentElement.clientHeight
       );
     }
-    if (CommonDOMUtils.isShow(element)) {
+    if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
       /* 已显示 */
       /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
       /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
@@ -1002,7 +1030,7 @@
     if (element == void 0) {
       return;
     }
-    if (CommonDOMUtils.isShow(element)) {
+    if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
       let style = getComputedStyle(element, null);
       let marginLeft = CommonDOMUtils.getStyleValue(style, "marginLeft");
       let marginRight = CommonDOMUtils.getStyleValue(style, "marginRight");
@@ -1025,7 +1053,7 @@
     if (element == void 0) {
       return;
     }
-    if (CommonDOMUtils.isShow(element)) {
+    if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
       let style = getComputedStyle(element, null);
       let marginTop = CommonDOMUtils.getStyleValue(style, "marginTop");
       let marginBottom = CommonDOMUtils.getStyleValue(style, "marginBottom");
