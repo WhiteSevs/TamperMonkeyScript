@@ -8586,7 +8586,6 @@
     let guid = PopsUtils.getRandomGUID();
     const PopsType = "panel";
     config = PopsHandler.handleOnly(PopsType, config);
-
     let maskHTML = PopsElementHandler.getMaskHTML(guid, config.zIndex);
     let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
     let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
