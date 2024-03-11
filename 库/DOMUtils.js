@@ -20,6 +20,19 @@
     global.DOMUtils = factory(global.DOMUtils);
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherDOMUtils) {
+  const ObjectAssign = Object.assign;
+  const ObjectDefineProperty = Object.defineProperty;
+  const ObjectCreate = Object.create;
+  const ObjectEntries = Object.entries;
+  const ObjectFreeze = Object.freeze;
+  const ObjectGetOwnPropertySymbols = Object.getOwnPropertySymbols;
+  const ObjectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  const ObjectKeys = Object.keys;
+  const ObjectToString = Object.prototype.toString;
+  const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
+  const ObjectValues = Object.values;
+
+  const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
   /** @type {DOMUtils} */
   const DOMUtils = {};
   DOMUtils.version = "2024-2-15";
@@ -144,11 +157,11 @@
     if (attributes == void 0) {
       attributes = {};
     }
-    Object.keys(property).forEach((key) => {
+    ObjectKeys(property).forEach((key) => {
       let value = property[key];
       tempElement[key] = value;
     });
-    Object.keys(attributes).forEach((key) => {
+    ObjectKeys(attributes).forEach((key) => {
       let value = attributes[key];
       if (typeof value === "object") {
         /* object转字符串 */
@@ -630,7 +643,7 @@
             /* 在上层与主元素之间寻找可以被selector所匹配到的 */
             let closestElement = target.closest(_selector_);
             /* event的target值不能直接修改 */
-            Object.defineProperty(event, "target", {
+            ObjectDefineProperty(event, "target", {
               get() {
                 return closestElement;
               },
@@ -813,14 +826,14 @@
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
     elementList.forEach((elementItem) => {
-      Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
+      ObjectGetOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
         if (!symbolEvents.toString().startsWith("Symbol(events_")) {
           return;
         }
         let elementEvents = elementItem[symbolEvents] || {};
         let iterEventNameList = eventTypeList.length
           ? eventTypeList
-          : Object.keys(elementEvents);
+          : ObjectKeys(elementEvents);
         iterEventNameList.forEach((eventName) => {
           let handlers = elementEvents[eventName];
           if (!handlers) {
@@ -868,7 +881,7 @@
       eventTypeList.forEach((_eventType_) => {
         let event = new Event(_eventType_);
         if (details) {
-          Object.keys(details).forEach((keyName) => {
+          ObjectKeys(details).forEach((keyName) => {
             event[keyName] = details[keyName];
           });
         }
@@ -1106,7 +1119,7 @@
     if (typeof styles !== "object" || styles === void 0) {
       throw new TypeError("styles must be an object");
     }
-    if (Object.keys(styles).length === 0) {
+    if (ObjectKeys(styles).length === 0) {
       throw new Error("styles must contain at least one property");
     }
     let start = performance.now();
