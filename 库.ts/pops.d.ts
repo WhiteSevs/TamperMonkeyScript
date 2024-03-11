@@ -510,13 +510,17 @@ declare interface PopsPanelSwitchDetails {
      */
     type: "switch";
     /**
+     * （可选）是否禁用
+     */
+    disabled?: false;
+    /**
      * 获取该项的值的回调函数
      */
-    getValue: () => boolean;
+    getValue(): boolean;
     /**
      * switch开启/关闭触发的回调函数
      */
-    callback: (event: InputEvent, value: boolean) => void;
+    callback(event: InputEvent, value: boolean): void;
 }
 /**
  * pops.panel的 slider
@@ -547,17 +551,21 @@ declare interface PopsPanelSliderDetails {
      */
     type: "slider";
     /**
+     * （可选）是否禁用
+     */
+    disabled?: false,
+    /**
      * 获取该项的值的回调函数
      */
-    getValue: () => number;
+    getValue(): number;
     /**
      * 滑块的值改变触发的回调函数
      */
-    callback: (event: InputEvent, value: number) => void;
+    callback(event: InputEvent, value: number): void;
     /**
      * 获取tooltip的提示内容，可自定义，默认为slider的值
      */
-    getToolTipContent: (value: number) => string;
+    getToolTipContent(value: number): string;
     /**
      * 滑块的最小值
      */
@@ -600,13 +608,17 @@ declare interface PopsPanelInputDetails {
      */
     type: "input";
     /**
+     * （可选）是否禁用
+     */
+    disabled?: false,
+    /**
      * 获取该项的值的回调函数
      */
-    getValue: () => string;
+    getValue(): string;
     /**
      * 输入框的值改变触发的回调函数
      */
-    callback: (event: InputEvent, value: string) => void;
+    callback(event: InputEvent, value: string): void;
     /**
      * （可选）输入框内的提示
      */
@@ -1053,7 +1065,7 @@ declare interface PopsPromptDetails extends PopsTitleConfig, PopsDragConfig, Pop
 /**
  * pops.loading
  */
-declare interface PopsLoadingDetails extends Omit<PopsCommonConfig, "width" | "height" | "position"|"beforeAppendToPageCallBack"> {
+declare interface PopsLoadingDetails extends Omit<PopsCommonConfig, "width" | "height" | "position" | "beforeAppendToPageCallBack"> {
     /**
      * 父元素，默认为document.body
      */
