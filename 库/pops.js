@@ -17,6 +17,19 @@
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherPops) {
   "use strict";
+  const ObjectAssign = Object.assign;
+  const ObjectDefineProperty = Object.defineProperty;
+  const ObjectCreate = Object.create;
+  const ObjectEntries = Object.entries;
+  const ObjectFreeze = Object.freeze;
+  const ObjectGetOwnPropertySymbols = Object.getOwnPropertySymbols;
+  const ObjectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  const ObjectKeys = Object.keys;
+  const ObjectToString = Object.prototype.toString;
+  const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
+  const ObjectValues = Object.values;
+
+  const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
 
   /** 工具类 */
   let PopsUtils = {
@@ -401,7 +414,7 @@
       let maxZIndex = 0;
       let maxZIndexElement = null;
 
-      Object.keys(pops.config.layer).forEach((item) => {
+      ObjectKeys(pops.config.layer).forEach((item) => {
         pops.config.layer[item].forEach(
           /**
            * @param {PopsLayerCommonConfig} item2
@@ -426,7 +439,7 @@
      */
     getKeyFrames(sheet) {
       let result = {};
-      Object.keys(sheet.cssRules).forEach((key) => {
+      ObjectKeys(sheet.cssRules).forEach((key) => {
         if (
           sheet.cssRules[key].type === 7 &&
           sheet.cssRules[key].name.startsWith("pops-anim-")
@@ -452,7 +465,7 @@
      * }} options
      */
     drag(moveElement, options = {}) {
-      options = Object.assign(
+      options = ObjectAssign(
         {
           limit: true,
           extraDistance: 3,
@@ -685,8 +698,7 @@
                 d.__proto__ = b;
               }) ||
             function (d, b) {
-              for (var p in b)
-                if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+              for (var p in b) if (ObjectHasOwnProperty.call(b, p)) d[p] = b[p];
             };
           return extendStatics(d, b);
         };
@@ -704,18 +716,18 @@
           }
           d.prototype =
             b === null
-              ? Object.create(b)
+              ? ObjectCreate(b)
               : ((__.prototype = b.prototype), new __());
         }
 
         var __assign = function () {
           __assign =
-            Object.assign ||
+            ObjectAssign ||
             function __assign(t) {
               for (var s, i = 1, n = arguments.length; i < n; i++) {
                 s = arguments[i];
                 for (var p in s)
-                  if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+                  if (ObjectHasOwnProperty.call(s, p)) t[p] = s[p];
               }
               return t;
             };
@@ -1013,7 +1025,7 @@
             x = _a.x,
             y = _a.y;
           var currentTarget = nativeEvent.currentTarget;
-          return Object.assign(basicsInput, {
+          return ObjectAssign(basicsInput, {
             id: id,
             x: x,
             y: y,
@@ -1143,7 +1155,7 @@
           } else {
             event = new Event(typeName, eventInit);
           }
-          Object.assign(event, data, {
+          ObjectAssign(event, data, {
             match: function () {
               return (
                 payload.targets &&
@@ -1247,7 +1259,7 @@
               var supportsPassive_1 = false;
               try {
                 var opts = {};
-                Object.defineProperty(opts, "passive", {
+                ObjectDefineProperty(opts, "passive", {
                   get: function () {
                     supportsPassive_1 = true;
                   },
@@ -2080,7 +2092,7 @@
         ss: checkTime(time.getSeconds()),
         /* 秒 */
       };
-      Object.keys(timeRegexp).forEach(function (key) {
+      ObjectKeys(timeRegexp).forEach(function (key) {
         let replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
       });
@@ -2364,7 +2376,7 @@
               /* 在上层与主元素之间寻找可以被selector所匹配到的 */
               let closestElement = target.closest(_selector_);
               /* event的target值不能直接修改 */
-              Object.defineProperty(event, "target", {
+              ObjectDefineProperty(event, "target", {
                 get() {
                   return closestElement;
                 },
@@ -2552,7 +2564,7 @@
         eventTypeList.forEach((_eventType_) => {
           let event = new Event(_eventType_);
           if (details) {
-            Object.keys(details).forEach((keyName) => {
+            ObjectKeys(details).forEach((keyName) => {
               event[keyName] = details[keyName];
             });
           }
@@ -2891,11 +2903,11 @@
       if (attributes == void 0) {
         attributes = {};
       }
-      Object.keys(property).forEach((key) => {
+      ObjectKeys(property).forEach((key) => {
         let value = property[key];
         tempElement[key] = value;
       });
-      Object.keys(attributes).forEach((key) => {
+      ObjectKeys(attributes).forEach((key) => {
         let value = attributes[key];
         if (typeof value === "object") {
           /* object转字符串 */
@@ -3069,7 +3081,7 @@
         background-color: var(--button-bg-color);
       }
       .pops button:disabled {
-        cursor:not-allowed;
+        cursor: not-allowed;
         color: var(--button-color);
         border-color: var(--button-bd-color);
         background-color: var(--button-bg-color);
@@ -3509,7 +3521,7 @@
       .pops[type-value=prompt] .pops-prompt-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
       .pops[type-value=prompt] input[pops]{padding:5px 10px;font-size:18px;}
       .pops[type-value=prompt] textarea[pops]{padding:5px 10px;font-size:14px;resize:none;}
-      .pops[type-value=prompt] input[pops],.pops[type-value=prompt] textarea[pops]{position:absolute;top:0;left:0;width:100%;height:100%;outline:0;border:0;color:#333;}
+      .pops[type-value=prompt] input[pops],.pops[type-value=prompt] textarea[pops]{width:100%;height:100%;outline:0;border:0;color:#333;}
 
       `,
       loadingCSS: `
@@ -3556,6 +3568,9 @@
       
       `,
       iframeCSS: `
+      .pops[type-value=iframe]{
+        --container-title-height: 55px;
+      }
       .pops[type-value] .pops-iframe-title{display: flex;align-items: center;justify-content: space-between;}
       .pops[type-value=iframe] .pops-iframe-title{width:calc(100% - 0px);height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
       .pops[type-value=iframe] .pops-iframe-title p[pops]{width:100%;overflow:hidden;color:#333;text-indent:15px;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:18px;line-height:var(--container-title-height);}
@@ -3563,7 +3578,7 @@
       .pops[type-value=iframe] .pops-iframe-content{
         width:100%;
         height: calc(100% - var(--container-title-height));
-        overflow: auto;
+        overflow: hidden;
         word-break:break-word;
       }
       .pops-loading{position:absolute;top:40px;right:0;bottom:0;left:0;z-index:5;background-color:#fff;}
@@ -3571,12 +3586,21 @@
       .pops[type-value=iframe].pops[type-module=min]{top:unset!important;bottom:0;max-width:200px;max-height:53px;transform:none;}
       .pops[type-value=iframe].pops[type-module=min] .pops-header-control[type=min]{display:none;}
       .pops[type-value=iframe].pops[type-module=max]{top:unset!important;left:unset!important;width:100%!important;height:100%!important;transform:none;}
-      .pops[type-value=iframe] iframe[pops]{position:absolute;top:0;top:calc(0% + 2px);left:0;left:calc(0% + 2px);width:100%;width:calc(100% - 4px);height:100%;height:calc(100% - 4px);border:0;}
+      .pops[type-value=iframe] iframe[pops]{width:calc(100% - 4px);height:calc(100% - 4px);border:0;}
       .pops-iframe-content-global-loading{position:absolute;top:0;left:0;z-index:999999;width:0;height:4px;background:linear-gradient(to right,#4995dd,#fff,rgb(202 224 246));animation:iframeLoadingChange 2s forwards;}
       `,
       drawerCSS: `
+      .pops[type-value=drawer] {
+        position: fixed;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, .08), 0px 12px 32px rgba(0, 0, 0, .12), 0px 8px 16px -8px rgba(0, 0, 0, .16);
+        overflow: hidden;
+        transition: all .3s;
+      }
       .pops[type-value] .pops-drawer-title{display: flex;align-items: center;justify-content: space-between;}
-      .pops[type-value=drawer]{position: absolute;box-sizing: border-box;display: flex;flex-direction: column;box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, .08), 0px 12px 32px rgba(0, 0, 0, .12), 0px 8px 16px -8px rgba(0, 0, 0, .16);overflow: hidden;transition: all .3s;}
+      
       .pops[type-value=drawer][direction=top]{width: 100%;left: 0;right: 0;top: 0;}
       .pops[type-value=drawer][direction=bottom]{width: 100%;left: 0;right: 0;bottom: 0;}
       .pops[type-value=drawer][direction=left]{height: 100%;top: 0;bottom: 0;left: 0;}
@@ -3817,6 +3841,13 @@
         height: 0;
         opacity: 0;
         margin: 0
+      }
+      .pops-panel-switch:has(input.pops-panel-switch__input:disabled),
+      .pops-panel-switch[data-disabled],
+      .pops-panel-switch[data-disabled] .pops-panel-switch__core,
+      .pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core{
+        cursor: not-allowed;
+        opacity: .6;
       }
       .pops-panel-switch span.pops-panel-switch__core {
         display: inline-flex;
@@ -5016,7 +5047,7 @@
      * } }
      */
     handleResultDetails(details) {
-      let _details_ = Object.assign({}, details);
+      let _details_ = ObjectAssign({}, details);
       delete _details_["type"];
       delete _details_["function"];
       delete _details_["type"];
@@ -5038,7 +5069,7 @@
           let _event_ = {
             type: type,
           };
-          _event_ = Object.assign(event, _event_);
+          _event_ = ObjectAssign(event, _event_);
           callback(_event_);
         },
         {
@@ -5104,7 +5135,7 @@
             type: type,
             text: inputElement.value,
           };
-          _event_ = Object.assign(event, _event_);
+          _event_ = ObjectAssign(event, _event_);
           callback(_event_);
         },
         {
@@ -7262,7 +7293,7 @@
       { other: btnOtherElement },
     ];
     needHandleClickEventList.forEach((item) => {
-      let btnName = Object.keys(item)[0];
+      let btnName = ObjectKeys(item)[0];
       PopsHandler.handleClickEvent(
         item[btnName],
         btnName,
@@ -8771,7 +8802,7 @@
             this.addElementAttributes(element, attrObject);
           });
         } else {
-          Object.keys(attributes).forEach((attributeName) => {
+          ObjectKeys(attributes).forEach((attributeName) => {
             element.setAttribute(attributeName, attributes[attributeName]);
           });
         }
@@ -8785,7 +8816,7 @@
         if (props == null) {
           return;
         }
-        Object.keys(props).forEach((propName) => {
+        ObjectKeys(props).forEach((propName) => {
           element[propName] = props[propName];
         });
       },
@@ -8853,33 +8884,99 @@
           </span>
         </div>
         `;
-        let switchElement = liElement.querySelector(".pops-panel-switch");
-        /**
-         * @type {HTMLInputElement}
-         */
-        let switchInputElement = liElement.querySelector(
-          ".pops-panel-switch__input"
-        );
-        let switchCoreElement = liElement.querySelector(
-          ".pops-panel-switch__core"
-        );
-        let switched = Boolean(formConfig.getValue());
-        setSwitchChecked(switchElement, switchInputElement, switched);
-        PopsDOMUtils.on(switchCoreElement, "click", void 0, function (event) {
-          let checkedValue = false;
-          if (
-            !PopsDOMUtils.containsClassName(
-              switchElement,
-              "pops-panel-switch-is-checked"
-            )
-          ) {
-            checkedValue = true;
-          }
-          setSwitchChecked(switchElement, switchInputElement, checkedValue);
-          if (typeof formConfig.callback === "function") {
-            formConfig.callback(event, checkedValue);
-          }
-        });
+        const PopsPanelSwitch = {
+          [Symbol.toStringTag]: "PopsPanelSwitch",
+          $data: {
+            value: Boolean(formConfig.getValue()),
+          },
+          $ele: {
+            /**
+             * @type {HTMLDivElement}
+             */
+            switch: liElement.querySelector(".pops-panel-switch"),
+            /**
+             * @type {HTMLInputElement}
+             */
+            input: liElement.querySelector(".pops-panel-switch__input"),
+            /**
+             * @type {HTMLSpanElement}
+             */
+            core: liElement.querySelector(".pops-panel-switch__core"),
+          },
+          init() {
+            this.setStatus(this.$data.value);
+            if (formConfig.disabled) {
+              this.disable();
+            }
+            this.setClickEvent();
+          },
+          setClickEvent() {
+            let that = this;
+            PopsDOMUtils.on(this.$ele.core, "click", void 0, function (event) {
+              if (
+                that.$ele.input.disabled ||
+                that.$ele.switch.hasAttribute("data-disabled")
+              ) {
+                return;
+              }
+              that.$data.value = that.getStatus();
+              that.setStatus(that.$data.value);
+              if (typeof formConfig.callback === "function") {
+                formConfig.callback(event, that.$data.value);
+              }
+            });
+          },
+          /**
+           * 设置状态
+           */
+          setStatus(isChecked = false) {
+            isChecked = Boolean(isChecked);
+            this.$ele.input.checked = isChecked;
+            if (isChecked) {
+              PopsDOMUtils.addClassName(
+                this.$ele.switch,
+                "pops-panel-switch-is-checked"
+              );
+            } else {
+              PopsDOMUtils.removeClassName(
+                this.$ele.switch,
+                "pops-panel-switch-is-checked"
+              );
+            }
+          },
+          /**
+           * 根据className来获取逆反值
+           */
+          getStatus() {
+            let checkedValue = false;
+            if (
+              !PopsDOMUtils.containsClassName(
+                this.$ele.switch,
+                "pops-panel-switch-is-checked"
+              )
+            ) {
+              checkedValue = true;
+            }
+            return checkedValue;
+          },
+          /**
+           * 禁用复选框
+           */
+          disable() {
+            this.$ele.input.disabled = true;
+            this.$ele.switch.setAttribute("data-disabled", true);
+          },
+          /**
+           * 启用复选框
+           */
+          notDisable() {
+            this.$ele.input.disabled = false;
+            this.$ele.switch.removeAttribute("data-disabled");
+          },
+        };
+
+        PopsPanelSwitch.init();
+        liElement["data-switch"] = PopsPanelSwitch;
         return liElement;
       },
       /**
@@ -8995,7 +9092,8 @@
           </div>
         </div>
         `;
-        const Slider = {
+        const PopsPanelSlider = {
+          [Symbol.toStringTag]: "PopsPanelSlider",
           /**
            * 值
            */
@@ -9095,6 +9193,9 @@
             this.setPanEvent();
             this.setRunAwayClickEvent();
             this.intervalInit();
+            if (formConfig.disabled) {
+              this.disableDrag();
+            }
           },
           /**
            * 10s内循环获取slider的宽度等信息
@@ -9469,9 +9570,9 @@
              */
             function getToolTipContent() {
               if (typeof formConfig.getToolTipContent === "function") {
-                return formConfig.getToolTipContent(Slider.value);
+                return formConfig.getToolTipContent(PopsPanelSlider.value);
               } else {
-                return Slider.value;
+                return PopsPanelSlider.value;
               }
             }
             let tooltipContent = null;
@@ -9505,8 +9606,8 @@
             tooltipContent = this.$ele.tooltip.toolTipNode.querySelector("div");
           },
         };
-        Slider.init();
-        liElement.Slider = Slider;
+        PopsPanelSlider.init();
+        liElement["data-slider"] = PopsPanelSlider;
         return liElement;
       },
       /**
@@ -10601,7 +10702,7 @@
            */
           async function liElementClickEvent(clickEvent) {
             if (typeof item.callback === "function") {
-              Object.defineProperty(menuEvent, "target", {
+              ObjectDefineProperty(menuEvent, "target", {
                 get() {
                   return menuEventTarget;
                 },
