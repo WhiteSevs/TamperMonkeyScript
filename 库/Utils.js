@@ -1761,33 +1761,34 @@
   Utils.GM_Menu = function (details) {
     /* 配置数据 */
     let data = details.data || [];
-    /* 获取存储的数据 */
-    let _GM_getValue_ = details.GM_getValue;
-    /* 设置数据到存储 */
-    let _GM_setValue_ = details.GM_setValue;
-    /* 注册菜单 */
-    let _GM_registerMenuCommand_ = details.GM_registerMenuCommand;
-    /* 卸载菜单 */
-    let _GM_unregisterMenuCommand_ = details.GM_unregisterMenuCommand;
-    if (typeof _GM_getValue_ !== "function") {
-      throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_getValue，且传入该对象"
-      );
-    }
-    if (typeof _GM_setValue_ !== "function") {
-      throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_setValue，且传入该对象"
-      );
-    }
-    if (typeof _GM_registerMenuCommand_ !== "function") {
-      throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_registerMenuCommand，且传入该对象"
-      );
-    }
-    if (typeof _GM_unregisterMenuCommand_ !== "function") {
-      throw new Error(
-        "Utils.GM_Menu 请在脚本开头加上 @grant  GM_unregisterMenuCommand，且传入该对象"
-      );
+    const GM_Api = {
+      /**
+       * 获取存储的数据
+       * @type {GM_getValue}
+       */
+      getValue: details.GM_getValue,
+      /**
+       * 设置数据到存储
+       * @type {GM_setValue}
+       */
+      setValue: details.GM_setValue,
+      /**
+       * 注册菜单
+       * @type {GM_registerMenuCommand}
+       */
+      registerMenuCommand: details.GM_registerMenuCommand,
+      /**
+       * 卸载菜单
+       * @type {GM_unregisterMenuCommand}
+       */
+      unregisterMenuCommand: details.GM_unregisterMenuCommand,
+    };
+    for (const keyName of Object.keys(GM_Api)) {
+      if (typeof GM_Api[keyName] !== "function") {
+        throw new Error(
+          `Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`
+        );
+      }
     }
     let that = this;
     /**
@@ -1820,74 +1821,74 @@
      * @param {string} key 键
      * @returns {boolean}
      */
-    let getLocalMenuData = function (key, defaultValue) {
-      let localData = _GM_getValue_(LocalStorage_Key_Name, {});
+    function getLocalMenuData(key, defaultValue) {
+      let localData = GM_Api.getValue(LocalStorage_Key_Name, {});
       return localData[key] == null ? defaultValue : localData[key];
-    };
+    }
 
     /**
      * 设置本地存储菜单键值
      * @param {string} key 键
      * @param {boolean} value 值
      */
-    let setLocalMenuData = function (key, value) {
-      let localData = _GM_getValue_(LocalStorage_Key_Name, {});
+    function setLocalMenuData(key, value) {
+      let localData = GM_Api.getValue(LocalStorage_Key_Name, {});
       localData[key] = value;
-      _GM_setValue_(LocalStorage_Key_Name, localData);
-    };
+      GM_Api.setValue(LocalStorage_Key_Name, localData);
+    }
 
     /**
      * 对菜单数据进行处理
-     * @param { UtilsGMMenuConstructorOptions } data
+     * @param { UtilsGMMenuConstructorOptions } menuOption
      * @returns { any[] }
      */
-    let handleMenuData = function (data) {
+    function handleMenuData(menuOption) {
       /* 本地存储的键名 */
-      let menuLocalDataItemKey = data.key;
+      let menuLocalDataItemKey = menuOption.key;
       /* 文本 */
-      let text = data.text;
+      let text = menuOption.text;
       /* 菜单默认开启的状态 */
       let defaultEnable = Boolean(
-        getLocalMenuData(menuLocalDataItemKey, data.enable)
+        getLocalMenuData(menuLocalDataItemKey, menuOption.enable)
       );
       /* 油猴菜单上显示的文本 */
-      let showText = data.showText(text, defaultEnable);
+      let showText = menuOption.showText(text, defaultEnable);
       /* 用户点击后的回调 */
-      let defaultClickCallBack = data.callback;
+      let defaultClickCallBack = menuOption.callback;
 
       let menuOptions = {
         /**
          * 菜单的id
          */
-        id: data.id,
+        id: menuOption.id,
         /**
          * 点击菜单项后是否应关闭弹出菜单
          */
-        autoClose: data.autoClose,
+        autoClose: menuOption.autoClose,
         /**
          * 菜单项的可选访问键
          */
-        accessKey: data.accessKey,
+        accessKey: menuOption.accessKey,
         /**
          * 菜单项的鼠标悬浮上的工具提示
          */
-        title: data.title,
+        title: menuOption.title,
       };
       /* 点击菜单后触发callback后的网页是否刷新 */
-      data.autoReload =
-        typeof data.autoReload !== "boolean"
+      menuOption.autoReload =
+        typeof menuOption.autoReload !== "boolean"
           ? Default_AutoReload
-          : data.autoReload;
-      data.isStoreValue =
-        typeof data.isStoreValue !== "boolean"
+          : menuOption.autoReload;
+      menuOption.isStoreValue =
+        typeof menuOption.isStoreValue !== "boolean"
           ? Default_IsStoreValue
-          : data.isStoreValue;
+          : menuOption.isStoreValue;
       /* 用户点击菜单后的回调函数 */
-      let clickCallBack = function (event) {
+      function clickCallBack(event) {
         let localEnable = Boolean(
           getLocalMenuData(menuLocalDataItemKey, defaultEnable)
         );
-        if (data.isStoreValue) {
+        if (menuOption.isStoreValue) {
           setLocalMenuData(menuLocalDataItemKey, !localEnable);
         }
         if (typeof defaultClickCallBack === "function") {
@@ -1902,16 +1903,18 @@
           });
         }
         /* 不刷新网页就刷新菜单 */
-        if (data.autoReload) {
+        if (menuOption.autoReload) {
           window.location.reload();
         } else {
           that.update();
         }
-      };
+      }
       let menuOptionsLength = Object.values(menuOptions).filter(
         (_item_) => _item_ != null
       ).length;
 
+      return [showText, clickCallBack];
+      /* 下面的暂不启用 */
       if (menuOptionsLength === 0) {
         return [showText, clickCallBack];
       } else if (menuOptionsLength === 1 && menuOptions.accessKey != null) {
@@ -1920,58 +1923,60 @@
         /* 这个是版本 > 4.20.6186才会有的选项 */
         return [showText, clickCallBack, menuOptions];
       }
-    };
+    }
 
     /**
      * 处理初始化配置
-     * @param { UtilsGMMenuConstructorOptions } _detail_
+     * @param { UtilsGMMenuConstructorOptions } menuOption
      * @returns { UtilsGMMenuConstructorOptions }
      */
-    let handleInitDetail = function (_detail_) {
-      _detail_.enable = Boolean(
-        getLocalMenuData(_detail_.key, _detail_.enable)
+    function handleInitDetail(menuOption) {
+      menuOption.enable = Boolean(
+        getLocalMenuData(menuOption.key, menuOption.enable)
       );
-      if (typeof _detail_.showText !== "function") {
-        _detail_.showText = function (_text_, _enable_) {
+      if (typeof menuOption.showText !== "function") {
+        menuOption.showText = function (menuText, menuEnable) {
           return (
-            (_enable_ ? Enable_True_Emoji : Enable_False_Emoji) + " " + _text_
+            (menuEnable ? Enable_True_Emoji : Enable_False_Emoji) +
+            " " +
+            menuText
           );
         };
       }
-      return _detail_;
-    };
+      return menuOption;
+    }
     /**
      * 初始化数据
      * @returns { UtilsGMMenuConstructorOptions[] }
      */
-    let init = function () {
+    function init() {
       menuIdMap.clear();
       data.forEach((dataItem, dataIndex) => {
         dataItem = handleInitDetail(dataItem);
         data[dataIndex].enable = dataItem.enable;
       });
-    };
+    }
 
     /**
      * 注册油猴菜单
-     * @param { UtilsGMMenuConstructorOptions[]|undefined } _data_ 如果存在，使用它
+     * @param { ?UtilsGMMenuConstructorOptions[] } menuOptions 如果存在，使用它
      */
-    let register = function (_data_) {
-      (_data_ || data).forEach((item) => {
-        let resultList = handleMenuData(item);
-        data.id = _GM_registerMenuCommand_(...resultList);
-        menuIdMap.set(data.id, item);
+    function register(menuOptions) {
+      (menuOptions || data).forEach((menuOption) => {
+        let resultList = handleMenuData(menuOption);
+        data.id = GM_Api.registerMenuCommand(...resultList);
+        menuIdMap.set(data.id, menuOption);
       });
-    };
+    }
 
     /**
      * 获取目标菜单配置
      * @param {string} menuKey 菜单-键key
      * @returns {UtilsGMMenuConstructorOptions}
      */
-    let getTargetMenu = function (menuKey) {
+    function getTargetMenu(menuKey) {
       return data.find((item) => item.key == menuKey);
-    };
+    }
     /**
      * 根据键值获取enable值
      * @param {string} menuKey 菜单-键key
@@ -2160,33 +2165,32 @@
     };
     /**
      * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
-     * @param { UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions|undefined } options 配置
+     * 暂时用不到该api，因为需要油猴版本>5.0，其它的类似油猴的扩展可能没实现这个
+     * @param { UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions } menuOptions 配置
      */
-    this.updateOptionsWithId = function (options) {
+    this.updateOptionsWithId = function (menuOptions) {
       /**
        * @type {UtilsGMMenuConstructorOptions[]}
        */
       let optionsList = [];
-      if (Array.isArray(options)) {
+      if (Array.isArray(menuOptions)) {
         /* 是数组 */
-        optionsList = optionsList.concat(options);
-      } else if (options != null) {
+        optionsList = optionsList.concat(menuOptions);
+      } else if (menuOptions != null) {
         /* 是单个配置 */
-        optionsList.push(options);
+        optionsList.push(menuOptions);
       }
       for (let option of optionsList) {
         menuIdMap.forEach((value, key) => {
           if (key === option.id) {
             option = handleInitDetail(option);
             let findDataIndex = data.findIndex(
-              (_item_) => _item_.key === value.key
+              (item) => item.key === value.key
             );
             if (findDataIndex !== -1) {
               Object.assign(data[findDataIndex], option);
             }
-            let resultList = handleMenuData(option);
-            _GM_registerMenuCommand_(...resultList);
-            menuIdMap.set(option.id, option);
+            register([option]);
           }
         });
       }
@@ -2196,7 +2200,7 @@
      * @param {number} menuId 已注册的菜单id
      */
     this.delete = function (menuId) {
-      _GM_unregisterMenuCommand_(menuId);
+      GM_Api.unregisterMenuCommand(menuId);
     };
 
     this.update();
