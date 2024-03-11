@@ -35,6 +35,9 @@
 // ==/UserScript==
 
 (function () {
+  if(typeof unsafeWindow === "undefined"){
+    unsafeWindow = globalThis;
+  }
   /**
    * 是否为调试模式
    */

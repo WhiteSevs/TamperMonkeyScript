@@ -27,6 +27,9 @@
 // ==/UserScript==
 
 (function () {
+  if(typeof unsafeWindow === "undefined"){
+    unsafeWindow = globalThis;
+  }
   /* -----------------↓公共配置↓----------------- */
   /**
    * @type {import("../库/Qmsg")}

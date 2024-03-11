@@ -22,7 +22,7 @@
 // ==/UserScript==
 
 (function () {
-  if(typeof unsafeWindow === "undefined"){
+  if (typeof unsafeWindow === "undefined") {
     unsafeWindow = globalThis;
   }
   /**

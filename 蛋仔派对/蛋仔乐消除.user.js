@@ -23,6 +23,9 @@
 
 (function () {
   "use strict";
+  if(typeof unsafeWindow === "undefined"){
+    unsafeWindow = globalThis;
+  }
   const utils = Utils.noConflict();
   let config = {
     score: 1566 /* 分数 */,

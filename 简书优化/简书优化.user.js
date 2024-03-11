@@ -23,6 +23,9 @@
 // ==/UserScript==
 
 (function () {
+  if(typeof unsafeWindow === "undefined"){
+    unsafeWindow = globalThis;
+  }
   /**
    * @type {import("../库/pops")}
    */
