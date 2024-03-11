@@ -624,8 +624,16 @@
       /* 这是存在selector的情况 */
       _option_ = getOption(args, 4, _option_);
     }
+    /**
+     * 如果是once，那么删除该监听和元素上的事件和监听
+     */
+    function checkOptionOnceToRemoveEventListener() {
+      if (_option_.once) {
+        DOMUtils.off(element, eventType, selector, callback, option);
+      }
+    }
     elementList.forEach((elementItem) => {
-      let ownCallBack = function (event) {
+      function ownCallBack(event) {
         let target = event.target;
         if (_selector_) {
           /* 存在自定义子元素选择器 */
@@ -635,7 +643,7 @@
           if (target.matches(_selector_)) {
             /* 当前目标可以被selector所匹配到 */
             _callback_.call(target, event);
-            return;
+            checkOptionOnceToRemoveEventListener();
           } else if (
             target.closest(_selector_) &&
             totalParent.contains(target.closest(_selector_))
@@ -649,12 +657,13 @@
               },
             });
             _callback_.call(closestElement, event);
-            return;
+            checkOptionOnceToRemoveEventListener();
           }
         } else {
           _callback_.call(elementItem, event);
+          checkOptionOnceToRemoveEventListener();
         }
-      };
+      }
 
       /* 遍历事件名设置元素事件 */
       eventTypeList.forEach((eventName) => {
