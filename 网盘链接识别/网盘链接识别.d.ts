@@ -50,6 +50,10 @@ declare interface NetDiskRegularOption {
      * 用于复制到剪贴板的链接
      */
     copyUrl: string;
+    /**
+     * （可选）用于验证链接有效性
+     */
+    checkLinkValidity?: boolean;
 }
 /**
  * 网盘匹配规则
@@ -121,6 +125,28 @@ declare interface NetDiskWorkerCallBackOptions {
      */
     endTime: number,
 }
+declare interface NetDiskCheckLinkValidityOption {
+    /**
+     * .netdisk-url-box元素项
+     */
+    netDiskViewBox: HTMLDivElement;
+    /**
+     * 规则名
+     */
+    netDiskName: string;
+    /**
+     * 规则下标
+     */
+    netDiskIndex: number;
+    /**
+     * 分享码
+     */
+    shareCode: string;
+    /**
+     * 访问码
+     */
+    accessCode: string
+}
 declare interface NetDiskCheckLinkValidityStatus {
     /**
      * 状态码
@@ -130,4 +156,9 @@ declare interface NetDiskCheckLinkValidityStatus {
      * 状态码的解释
      */
     msg: string;
+    /**
+     * 设置元素状态
+     * @param ele netdisk-status元素
+     */
+    setView(ele: HTMLDivElement, checkInfo: NetDiskCheckLinkValidityOption): void;
 }
