@@ -20,6 +20,19 @@
     global.Utils = factory(global.Utils);
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
+  const ObjectAssign = Object.assign;
+  const ObjectDefineProperty = Object.defineProperty;
+  const ObjectCreate = Object.create;
+  const ObjectEntries = Object.entries;
+  const ObjectFreeze = Object.freeze;
+  const ObjectGetOwnPropertySymbols = Object.getOwnPropertySymbols;
+  const ObjectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  const ObjectKeys = Object.keys;
+  const ObjectToString = Object.prototype.toString;
+  const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
+  const ObjectValues = Object.values;
+
+  const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
   /** @type {Utils} */
   const Utils = {};
   Utils.version = "2024-3-7";
@@ -57,7 +70,7 @@
           if (
             typeof sourceValue === "object" &&
             !Utils.isDOM(sourceValue) &&
-            Object.keys(sourceValue).length
+            ObjectKeys(sourceValue).length
           ) {
             /* 源端的值是object类型，且不是元素节点 */
             target[targetKeyName] = Utils.assign(
@@ -79,8 +92,8 @@
   Utils.ajaxHooker = function () {
     "use strict";
     const win = window.unsafeWindow || document.defaultView || window;
-    const toString = Object.prototype.toString;
-    const getDescriptor = Object.getOwnPropertyDescriptor;
+    const toString = ObjectToString;
+    const getDescriptor = ObjectGetOwnPropertyDescriptor;
     const hookFns = [];
     const realXhr = win.XMLHttpRequest;
     const realFetch = win.fetch;
@@ -109,7 +122,7 @@
       console.error(err);
     }
     function defineProp(obj, prop, getter, setter) {
-      Object.defineProperty(obj, prop, {
+      ObjectDefineProperty(obj, prop, {
         configurable: true,
         enumerable: true,
         get: getter,
@@ -120,7 +133,7 @@
       defineProp(obj, prop, () => value, emptyFn);
     }
     function writable(obj, prop, value = obj[prop]) {
-      Object.defineProperty(obj, prop, {
+      ObjectDefineProperty(obj, prop, {
         configurable: true,
         enumerable: true,
         writable: true,
@@ -578,7 +591,7 @@
       if (toString.call(url) === "[object Request]") {
         init = {};
         for (const prop of fetchInitProps) init[prop] = url[prop];
-        Object.assign(init, options);
+        ObjectAssign(init, options);
         url = url.url;
       }
       url = url.toString();
@@ -630,7 +643,7 @@
       });
     }
     win.XMLHttpRequest = fakeXhr;
-    Object.keys(realXhr).forEach((key) => (fakeXhr[key] = realXhr[key]));
+    ObjectKeys(realXhr).forEach((key) => (fakeXhr[key] = realXhr[key]));
     fakeXhr.prototype = realXhr.prototype;
     win.fetch = fakeFetch;
     return {
@@ -866,13 +879,13 @@
        * @returns {number}
        */
       size() {
-        return Object.keys(this.items).length;
+        return ObjectKeys(this.items).length;
       }
       /**
        * 获取字典所有的键
        */
       keys() {
-        return Object.keys(this.items);
+        return ObjectKeys(this.items);
       }
       /**
        * 返回字典本身
@@ -901,7 +914,7 @@
       get entries() {
         let that = this;
         return function* () {
-          let itemKeys = Object.keys(that.getItems());
+          let itemKeys = ObjectKeys(that.getItems());
           for (const keyName of itemKeys) {
             yield [keyName, that.get(keyName)];
           }
@@ -937,7 +950,7 @@
     eventNameList.forEach((_eventName_) => {
       let event = new Event(_eventName_);
       if (details) {
-        Object.assign(event, details);
+        ObjectAssign(event, details);
       }
       element.dispatchEvent(event);
     });
@@ -1149,7 +1162,7 @@
       ss: checkTime(time.getSeconds()),
       /* 秒 */
     };
-    Object.keys(timeRegexp).forEach(function (key) {
+    ObjectKeys(timeRegexp).forEach(function (key) {
       let replaecRegexp = new RegExp(key, "g");
       formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
     });
@@ -1432,7 +1445,7 @@
       ) {
         let data = result[0];
         let handleDataFunc = result[1];
-        Object.keys(data).forEach((keyName) => {
+        ObjectKeys(data).forEach((keyName) => {
           newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
         });
       } else {
@@ -1482,7 +1495,7 @@
       ) {
         let data = result[0];
         let handleDataFunc = result[1];
-        Object.keys(data).forEach((keyName) => {
+        ObjectKeys(data).forEach((keyName) => {
           newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
         });
       } else {
@@ -1551,11 +1564,11 @@
         return paramData[Math.floor(Math.random() * paramData.length)];
       } else if (
         typeof paramData === "object" &&
-        Object.keys(paramData).length > 0
+        ObjectKeys(paramData).length > 0
       ) {
         let paramObjDataKey =
-          Object.keys(paramData)[
-            Math.floor(Math.random() * Object.keys(paramData).length)
+          ObjectKeys(paramData)[
+            Math.floor(Math.random() * ObjectKeys(paramData).length)
           ];
         return paramData[paramObjDataKey];
       } else {
@@ -1574,7 +1587,7 @@
 
   Utils.getReactObj = function (element) {
     let result = {};
-    Object.keys(element).forEach((domPropsName) => {
+    ObjectKeys(element).forEach((domPropsName) => {
       if (domPropsName.startsWith("__react")) {
         let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
         if (propsName in result) {
@@ -1591,7 +1604,7 @@
     if (typeof target !== "object") {
       throw new TypeError("target不是一个对象");
     }
-    let objectsSymbols = Object.getOwnPropertySymbols(target);
+    let objectsSymbols = ObjectGetOwnPropertySymbols(target);
     if (typeof keyName === "string") {
       let findSymbol = objectsSymbols.find((key) => {
         return key.toString() === keyName;
@@ -1783,7 +1796,7 @@
        */
       unregisterMenuCommand: details.GM_unregisterMenuCommand,
     };
-    for (const keyName of Object.keys(GM_Api)) {
+    for (const keyName of ObjectKeys(GM_Api)) {
       if (typeof GM_Api[keyName] !== "function") {
         throw new Error(
           `Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`
@@ -1909,7 +1922,7 @@
           that.update();
         }
       }
-      let menuOptionsLength = Object.values(menuOptions).filter(
+      let menuOptionsLength = ObjectValues(menuOptions).filter(
         (_item_) => _item_ != null
       ).length;
 
@@ -2154,7 +2167,7 @@
       optionsList.forEach((item) => {
         let targetMenu = getTargetMenu(item.key);
         if (targetMenu) {
-          Object.assign(targetMenu, item);
+          ObjectAssign(targetMenu, item);
         }
       });
       menuIdMap.forEach((value, key) => {
@@ -2188,7 +2201,7 @@
               (item) => item.key === value.key
             );
             if (findDataIndex !== -1) {
-              Object.assign(data[findDataIndex], option);
+              ObjectAssign(data[findDataIndex], option);
             }
             register([option]);
           }
@@ -2268,20 +2281,26 @@
       };
     };
     this.cleanEnv = function () {
-      if (Function.prototype.hasOwnProperty("hook")) {
+      if (FunctionHasOwnProperty("hook")) {
         delete Function.prototype.hook;
       }
-      if (Function.prototype.hasOwnProperty("unhook")) {
+      if (FunctionHasOwnProperty("unhook")) {
         delete Function.prototype.unhook;
       }
       return true;
     };
   };
 
-  Utils.Httpx = function (xmlHttpRequest) {
-    if (typeof xmlHttpRequest !== "function") {
+  Utils.Httpx = function (__xmlHttpRequest__) {
+    if (typeof __xmlHttpRequest__ !== "function") {
       console.warn("Httpx未传入GM_xmlhttpRequest函数，强制默认使用fetch");
     }
+    const GM_Api = {
+      /**
+       * @type {GM_xmlhttpRequest}
+       */
+      xmlHttpRequest: __xmlHttpRequest__,
+    };
     /**
      * @type {HttpxDetails}
      */
@@ -2376,12 +2395,12 @@
             HttpxCallBack.onLoad(details, resolve, args);
           },
         };
-        if (typeof xmlHttpRequest !== "function") {
+        if (typeof GM_Api.xmlHttpRequest !== "function") {
           result.fetch = true;
         }
         if (typeof result.headers === "object") {
           /* 使用assign替换且添加 */
-          Object.keys(details.headers).forEach((keyName, index) => {
+          ObjectKeys(details.headers).forEach((keyName, index) => {
             if (keyName in result.headers && details.headers[keyName] == null) {
               /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
               Reflect.deleteProperty(result.headers, keyName);
@@ -2394,7 +2413,7 @@
         }
         if (typeof details.fetchInit === "object") {
           /* 使用assign替换且添加 */
-          Object.keys(details.fetchInit).forEach((keyName, index) => {
+          ObjectKeys(details.fetchInit).forEach((keyName, index) => {
             if (
               keyName in result.fetchInit &&
               details.fetchInit[keyName] == null
@@ -2416,7 +2435,7 @@
        * @returns {HttpxDetails}
        */
       handle(details) {
-        Object.keys(details).forEach((keyName) => {
+        ObjectKeys(details).forEach((keyName) => {
           if (
             details[keyName] == null ||
             (details[keyName] instanceof Function &&
@@ -2484,7 +2503,7 @@
         fetchRequestInit.redirect = "follow";
         fetchRequestInit.referrerPolicy = "origin-when-cross-origin";
         fetchRequestInit.signal = signal;
-        Object.assign(fetchRequestInit, details.fetchInit || {});
+        ObjectAssign(fetchRequestInit, details.fetchInit || {});
         return {
           fetchDetails: details,
           fetchRequestInit: fetchRequestInit,
@@ -2690,7 +2709,7 @@
        * @param {HttpxDetails} details
        */
       xmlHttpRequest(details) {
-        xmlHttpRequest(details);
+        GM_Api.xmlHttpRequest(details);
       },
       /**
        * 使用fetch发送请求
@@ -2717,7 +2736,7 @@
               responseType: details.responseType,
               responseXML: void 0,
             };
-            Object.assign(httpxResponse, details.context || {});
+            ObjectAssign(httpxResponse, details.context || {});
 
             for (const [key, value] of resp.headers.entries()) {
               httpxResponse.responseHeaders += `${key}: ${value}\n`;
@@ -2833,7 +2852,7 @@
      * @param {Function} httpRequest 网络请求函数
      */
     this.setXMLHttpRequest = function (httpRequest) {
-      xmlHttpRequest = httpRequest;
+      GM_Api.xmlHttpRequest = httpRequest;
     };
 
     /**
@@ -3539,7 +3558,7 @@
           } else if (typeof objItem[Symbol.iterator] === "function") {
             itemResult = objItem.length === 0;
           } else {
-            itemResult = Object.keys(objItem).length === 0;
+            itemResult = ObjectKeys(objItem).length === 0;
           }
           break;
         case "number":
@@ -3588,7 +3607,7 @@
         charCount[char] = 1;
       }
     }
-    if (Object.keys(charCount).length === 1) {
+    if (ObjectKeys(charCount).length === 1) {
       return true;
     } else {
       return false;
@@ -3639,8 +3658,8 @@
   Utils.isWebView_Via = function () {
     let result = true;
     if (typeof top.window.via === "object") {
-      for (const key in Object.values(top.window.via)) {
-        if (Object.hasOwnProperty.call(top.window.via, key)) {
+      for (const key in ObjectValues(top.window.via)) {
+        if (ObjectHasOwnProperty.call(top.window.via, key)) {
           let objValueFunc = top.window.via[key];
           if (
             typeof objValueFunc === "function" &&
@@ -3662,8 +3681,8 @@
   Utils.isWebView_X = function () {
     let result = true;
     if (typeof top.window.mbrowser === "object") {
-      for (const key in Object.values(top.window.mbrowser)) {
-        if (Object.hasOwnProperty.call(top.window.mbrowser, key)) {
+      for (const key in ObjectValues(top.window.mbrowser)) {
+        if (ObjectHasOwnProperty.call(top.window.mbrowser, key)) {
           let objValueFunc = top.window.mbrowser[key];
           if (
             typeof objValueFunc === "function" &&
@@ -3689,7 +3708,7 @@
       );
     }
     let result = [];
-    Object.keys(target).forEach(function (keyName) {
+    ObjectKeys(target).forEach(function (keyName) {
       result = result.concat(target[keyName]);
     });
     return result;
@@ -3994,14 +4013,14 @@
      * @param {UtilsLogOptions} paramDetails 配置信息
      */
     this.config = function (paramDetails) {
-      details = Object.assign(details, paramDetails);
+      details = ObjectAssign(details, paramDetails);
     };
     /**
      * 禁用输出
      */
     this.disable = function () {
       let that = this;
-      Object.keys(this)
+      ObjectKeys(this)
         .filter((keyName) => Boolean(keyName.match(/info|error|success|table/)))
         .forEach((keyName) => {
           let value = {};
@@ -4016,7 +4035,7 @@
     this.recovery = function () {
       let that = this;
       recoveryList.forEach((item) => {
-        let keyName = Object.keys(item);
+        let keyName = ObjectKeys(item);
         that[keyName] = item[keyName];
       });
       recoveryList = [];
@@ -4038,7 +4057,7 @@
       });
     } else {
       data.forEach((item) => {
-        Object.values(item)
+        ObjectValues(item)
           .filter((item2) => typeof item2 === "string")
           .forEach((item3) => {
             content += item3;
@@ -4192,7 +4211,7 @@
         return;
       }
       window[needReleaseKey] = cloneObj(needReleaseObject);
-      Object.values(needReleaseObject).forEach((value) => {
+      ObjectValues(needReleaseObject).forEach((value) => {
         if (typeof value === "function") {
           needReleaseObject[value.name] = () => {};
         }
@@ -4203,7 +4222,7 @@
      */
     function releaseOne() {
       Array.from(functionNameList).forEach((item) => {
-        Object.values(needReleaseObject).forEach((value) => {
+        ObjectValues(needReleaseObject).forEach((value) => {
           if (typeof value === "function") {
             if (typeof window[needReleaseKey] === "undefined") {
               window[needReleaseKey] = {};
@@ -4225,7 +4244,7 @@
         /* 未存在 */
         return;
       }
-      Object.assign(needReleaseObject, window[needReleaseKey]);
+      ObjectAssign(needReleaseObject, window[needReleaseKey]);
       delete window[needReleaseKey];
     }
 
@@ -4241,7 +4260,7 @@
         if (window[needReleaseKey][item]) {
           needReleaseObject[item] = window[needReleaseKey][item];
           delete window[needReleaseKey][item];
-          if (Object.keys(window[needReleaseKey]).length === 0) {
+          if (ObjectKeys(window[needReleaseKey]).length === 0) {
             delete window[needReleaseKey];
           }
         }
@@ -4978,7 +4997,7 @@
         }
       });
     } else {
-      searhParamsStr = new URLSearchParams(Object.entries(obj)).toString();
+      searhParamsStr = new URLSearchParams(ObjectEntries(obj)).toString();
     }
     return searhParamsStr;
   };
@@ -5375,10 +5394,10 @@
       if (typeof checkObj === "function") {
         obj = checkObj();
       }
-      if (Object.hasOwnProperty.call(obj, checkPropertyName)) {
+      if (ObjectHasOwnProperty.call(obj, checkPropertyName)) {
         resolve(obj[checkPropertyName]);
       } else {
-        Object.defineProperty(obj, checkPropertyName, {
+        ObjectDefineProperty(obj, checkPropertyName, {
           set: function (value) {
             try {
               resolve(value);
@@ -5409,7 +5428,7 @@
         }
         if (
           (typeof checkPropertyName === "function" && checkPropertyName(obj)) ||
-          Object.hasOwnProperty.call(obj, checkPropertyName)
+          ObjectHasOwnProperty.call(obj, checkPropertyName)
         ) {
           isResolve = true;
           clearInterval(interval);
@@ -5485,7 +5504,7 @@
     }
 
     if (typeof getCallBack === "function") {
-      Object.defineProperty(target, propertyName, {
+      ObjectDefineProperty(target, propertyName, {
         get() {
           if (typeof getCallBack === "function") {
             return getCallBack(value);
@@ -5495,7 +5514,7 @@
         },
       });
     } else if (typeof setCallBack === "function") {
-      Object.defineProperty(target, propertyName, {
+      ObjectDefineProperty(target, propertyName, {
         set(value) {
           if (typeof setCallBack === "function") {
             setCallBack(value);
@@ -5503,7 +5522,7 @@
         },
       });
     } else {
-      Object.defineProperty(target, propertyName, {
+      ObjectDefineProperty(target, propertyName, {
         get() {
           if (typeof getCallBack === "function") {
             return getCallBack(value);
