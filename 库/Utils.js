@@ -2352,7 +2352,7 @@
        * @param {HttpxDetails} details 请求配置
        * @returns
        */
-      get(method, resolve, details) {
+      getDetails(method, resolve, details) {
         let result = {
           url: details.url || defaultDetails.url,
           method: (method || "GET").toString().toUpperCase(),
@@ -2399,31 +2399,40 @@
           result.fetch = true;
         }
         if (typeof result.headers === "object") {
-          /* 使用assign替换且添加 */
-          ObjectKeys(details.headers).forEach((keyName, index) => {
-            if (keyName in result.headers && details.headers[keyName] == null) {
-              /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
-              Reflect.deleteProperty(result.headers, keyName);
-            } else {
-              result.headers[keyName] = details.headers[keyName];
-            }
-          });
+          if (typeof details.headers === "object") {
+            ObjectKeys(details.headers).forEach((keyName, index) => {
+              if (
+                keyName in result.headers &&
+                details.headers[keyName] == null
+              ) {
+                /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
+                Reflect.deleteProperty(result.headers, keyName);
+              } else {
+                result.headers[keyName] = details.headers[keyName];
+              }
+            });
+          } else {
+            /* details.headers为空 */
+            /* 不做处理 */
+          }
         } else {
           result.headers = details.headers;
         }
-        if (typeof details.fetchInit === "object") {
+        if (typeof result.fetchInit === "object") {
           /* 使用assign替换且添加 */
-          ObjectKeys(details.fetchInit).forEach((keyName, index) => {
-            if (
-              keyName in result.fetchInit &&
-              details.fetchInit[keyName] == null
-            ) {
-              /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
-              Reflect.deleteProperty(result.fetchInit, keyName);
-            } else {
-              result.fetchInit[keyName] = details.fetchInit[keyName];
-            }
-          });
+          if (typeof details.fetchInit === "object") {
+            ObjectKeys(details.fetchInit).forEach((keyName, index) => {
+              if (
+                keyName in result.fetchInit &&
+                details.fetchInit[keyName] == null
+              ) {
+                /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
+                Reflect.deleteProperty(result.fetchInit, keyName);
+              } else {
+                result.fetchInit[keyName] = details.fetchInit[keyName];
+              }
+            });
+          }
         } else {
           result.fetchInit = details.fetchInit;
         }
@@ -2872,7 +2881,7 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.get("get", resolve, details);
+        let requestDetails = HttpxRequestDetails.getDetails("get", resolve, details);
         delete requestDetails.onprogress;
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
@@ -2895,7 +2904,7 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.get("post", resolve, details);
+        let requestDetails = HttpxRequestDetails.getDetails("post", resolve, details);
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2917,7 +2926,7 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.get("head", resolve, details);
+        let requestDetails = HttpxRequestDetails.getDetails("head", resolve, details);
         delete requestDetails.onprogress;
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
@@ -2941,7 +2950,7 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.get(
+        let requestDetails = HttpxRequestDetails.getDetails(
           "options",
           resolve,
           details
@@ -2969,7 +2978,7 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.get(
+        let requestDetails = HttpxRequestDetails.getDetails(
           "delete",
           resolve,
           details
@@ -2997,7 +3006,7 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.get("put", resolve, details);
+        let requestDetails = HttpxRequestDetails.getDetails("put", resolve, details);
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
