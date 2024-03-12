@@ -35,9 +35,18 @@ declare interface NetDiskRegularOption {
      */
     accessCode: RegExp;
     /**
-     * (可选)正则：用于判断提取到的accessCode是否是错误的accessCode
+     * （可选）正则：用于判断提取到的accessCode是否是错误的accessCode
      */
     acceesCodeNotMatch?: RegExp;
+    /**
+     * （可选）用于对matchText进行提取需要的关键内容
+     * 
+     * 会自动进行正则转换，正则模式i
+     * 
+     * 提取到的内容会被转换成以下格式，可在uiLinkShow、blank、copyUrl中使用
+     * + 类似：{#$1#}、{#$2#}...
+     */
+    paramMatch?: RegExp;
     /**
      * 用于显示在弹窗中的字符串
      */
@@ -69,6 +78,10 @@ declare interface NetDiskDictData {
     accessCode: string;
     /** 匹配规则的下标 */
     netDiskIndex?: number;
+    /**
+     * 匹配的文本
+     */
+    matchText: string;
     /** 是否锁定访问码不允许修改，默认false */
     isForceAccessCode?: boolean;
 }
@@ -82,6 +95,10 @@ declare interface NetiDiskHandleObject {
     netDiskName: string;
     /** 下标 */
     netDiskIndex: number;
+    /**
+     * 匹配的文本
+     */
+    matchText: string;
 }
 
 /** worker的传递的数据 */
@@ -161,4 +178,98 @@ declare interface NetDiskCheckLinkValidityStatus {
      * @param ele netdisk-status元素
      */
     setView(ele: HTMLDivElement, checkInfo: NetDiskCheckLinkValidityOption): void;
+}
+
+
+declare interface NetDiskUserCustomRuleRegexp {
+    /**
+     * 当设置中匹配类型为文本/全部，使用该规则
+     */
+    link_innerText: string;
+    /**
+     * 当设置中匹配类型为超文本/全部，使用该规则
+     */
+    link_innerHTML: string;
+    /**
+     * 用于提取出shareCode
+     */
+    shareCode: string;
+    /**
+     * 用于删除提取出的shareCode前面的域名、路径字符串
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    shareCodeNeedRemoveStr: string;
+    /**
+     * 用于判断提取码是否存在
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    checkAccessCode?: string;
+    /**
+     * 匹配提取码
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    accessCode?: string;
+    /**
+     * 用于排除肯定不是提取码的关键字
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    acceesCodeNotMatch?: string;
+    /**
+     * （可选）用于对matchText进行提取需要的关键内容
+     * 
+     * 会自动进行正则转换，正则模式i
+     * 
+     * 提取到的内容会被转换成以下格式，可在uiLinkShow、blank、copyUrl中使用
+     * + 类似：{#$1#}、{#$2#}...
+     */
+    paramMatch?: string,
+    /**
+     * 显示出的链接
+     */
+    uiLinkShow: string;
+    /**
+     * 用于超链接打开，提取码会自动复制到剪贴板
+     */
+    blank: string;
+    /**
+     * 用于复制到剪贴板
+     */
+    copyUrl: string;
+    /**
+     * （可选）用于验证链接有效性
+     */
+    checkLinkValidity?: boolean;
+}
+declare interface NetDiskUserCustomRuleSetting {
+    name?: string;
+    isBlank?: boolean;
+}
+declare interface NetDiskUserCustomRule {
+    /**
+     * 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
+     */
+    key: string;
+    /**
+     * 用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
+     */
+    icon: string;
+    /**
+     * 匹配规则
+     */
+    regexp: NetDiskUserCustomRuleRegexp;
+    /**
+     * 设置
+     */
+    setting: NetDiskUserCustomRuleSetting;
+    /**
+     * （可选）验证链接有效性的函数
+     * + `参数1`: netDiskIndex: number
+     * + `参数2`: shareCode: string
+     * + `参数3`: accessCode: string
+     */
+    checkLinkValidityFunction?: string;
 }
