@@ -32,6 +32,8 @@
   const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
   const ObjectValues = Object.values;
 
+  const ReflectDeleteProperty = Reflect.deleteProperty;
+
   const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
   /** @type {Utils} */
   const Utils = {};
@@ -752,6 +754,16 @@
     return overload;
   };
 
+  Utils.deepClone = function (obj) {
+    if (obj === void 0) return void 0;
+    if (obj === null) return null;
+    let clone = obj instanceof Array ? [] : {};
+    for (const [key, value] of ObjectEntries(obj)) {
+      clone[key] = typeof value === "object" ? deepClone(value) : value;
+    }
+    return clone;
+  };
+
   Utils.debounce = function (fn, delay = 0) {
     let timer = null;
     const context = this;
@@ -842,7 +854,7 @@
        */
       delete(key) {
         if (this.has(key)) {
-          delete this.items[key];
+          ReflectDeleteProperty(this.items, key);
           return true;
         }
         return false;
@@ -2276,16 +2288,16 @@
           return false;
         }
         _context[_funcName] = _context["realFunc" + _funcName];
-        delete _context["realFunc_" + _funcName];
+        ReflectDeleteProperty(_context, "realFunc_" + _funcName);
         return true;
       };
     };
     this.cleanEnv = function () {
       if (FunctionHasOwnProperty("hook")) {
-        delete Function.prototype.hook;
+        ReflectDeleteProperty(unction.prototype, "hook");
       }
       if (FunctionHasOwnProperty("unhook")) {
-        delete Function.prototype.unhook;
+        ReflectDeleteProperty(unction.prototype, "unhook");
       }
       return true;
     };
@@ -2353,24 +2365,30 @@
        * @returns
        */
       getDetails(method, resolve, details) {
+        /**
+         * @type {HttpxDetails}
+         */
         let result = {
           url: details.url || defaultDetails.url,
           method: (method || "GET").toString().toUpperCase(),
           timeout: details.timeout || defaultDetails.timeout,
           responseType: details.responseType || defaultDetails.responseType,
-          headers: defaultDetails.headers,
+          /* 对象使用深拷贝 */
+          headers: Utils.deepClone(defaultDetails.headers),
           data: details.data || defaultDetails.data,
           redirect: details.redirect || defaultDetails.redirect,
           cookie: details.cookie || defaultDetails.cookie,
           binary: details.binary || defaultDetails.binary,
           nocache: details.nocache || defaultDetails.nocache,
           revalidate: details.revalidate || defaultDetails.revalidate,
-          context: details.context || defaultDetails.context,
+          /* 对象使用深拷贝 */
+          context: Utils.deepClone(details.context || defaultDetails.context),
           overrideMimeType:
             details.overrideMimeType || defaultDetails.overrideMimeType,
           anonymous: details.anonymous || defaultDetails.anonymous,
           fetch: details.fetch || defaultDetails.fetch,
-          fetchInit: defaultDetails.fetchInit,
+          /* 对象使用深拷贝 */
+          fetchInit: Utils.deepClone(defaultDetails.fetchInit),
           user: details.user || defaultDetails.user,
           password: details.password || defaultDetails.password,
           onabort(...args) {
@@ -2406,7 +2424,7 @@
                 details.headers[keyName] == null
               ) {
                 /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
-                Reflect.deleteProperty(result.headers, keyName);
+                ReflectDeleteProperty(result.headers, keyName);
               } else {
                 result.headers[keyName] = details.headers[keyName];
               }
@@ -2427,7 +2445,7 @@
                 details.fetchInit[keyName] == null
               ) {
                 /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
-                Reflect.deleteProperty(result.fetchInit, keyName);
+                ReflectDeleteProperty(result.fetchInit, keyName);
               } else {
                 result.fetchInit[keyName] = details.fetchInit[keyName];
               }
@@ -2450,7 +2468,7 @@
             (details[keyName] instanceof Function &&
               Utils.isNull(details[keyName]))
           ) {
-            delete details[keyName];
+            ReflectDeleteProperty(details, keyName);
             return;
           }
         });
@@ -2486,7 +2504,7 @@
           details.data != null
         ) {
           /* GET 或 HEAD 方法的请求不能包含 body 信息 */
-          delete details.data;
+          ReflectDeleteProperty(details, "data");
         }
         /* 中止信号控制器 */
         let abortController = new AbortController();
@@ -2709,7 +2727,7 @@
             HttpxRequestDetails.handleFetchDetail(details);
           this.fetch(fetchDetails, fetchRequestInit, abortController);
         } else {
-          delete details.fetchInit;
+          ReflectDeleteProperty(details, "fetchInit");
           this.xmlHttpRequest(details);
         }
       },
@@ -2759,8 +2777,8 @@
             ) {
               httpxResponse["isStream"] = true;
               httpxResponse.response = resp.body;
-              delete httpxResponse.responseText;
-              delete httpxResponse.responseXML;
+              ReflectDeleteProperty(httpxResponse, "responseText");
+              ReflectDeleteProperty(httpxResponse, "responseXML");
               details.onload(httpxResponse);
               return;
             }
@@ -2881,8 +2899,12 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.getDetails("get", resolve, details);
-        delete requestDetails.onprogress;
+        let requestDetails = HttpxRequestDetails.getDetails(
+          "get",
+          resolve,
+          details
+        );
+        ReflectDeleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2904,7 +2926,11 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.getDetails("post", resolve, details);
+        let requestDetails = HttpxRequestDetails.getDetails(
+          "post",
+          resolve,
+          details
+        );
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2926,8 +2952,12 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.getDetails("head", resolve, details);
-        delete requestDetails.onprogress;
+        let requestDetails = HttpxRequestDetails.getDetails(
+          "head",
+          resolve,
+          details
+        );
+        ReflectDeleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2955,7 +2985,7 @@
           resolve,
           details
         );
-        delete requestDetails.onprogress;
+        ReflectDeleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2983,7 +3013,7 @@
           resolve,
           details
         );
-        delete requestDetails.onprogress;
+        ReflectDeleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -3006,7 +3036,11 @@
         details = args[0];
       }
       return new Promise((resolve) => {
-        let requestDetails = HttpxRequestDetails.getDetails("put", resolve, details);
+        let requestDetails = HttpxRequestDetails.getDetails(
+          "put",
+          resolve,
+          details
+        );
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -4165,7 +4199,7 @@
 
   Utils.noConflict = function () {
     if (window.Utils) {
-      delete window.Utils;
+      ReflectDeleteProperty(window, "Utils");
     }
     if (AnotherUtils) {
       window.Utils = AnotherUtils;
@@ -4254,7 +4288,7 @@
         return;
       }
       ObjectAssign(needReleaseObject, window[needReleaseKey]);
-      delete window[needReleaseKey];
+      ReflectDeleteProperty(window, "needReleaseKey");
     }
 
     /**
@@ -4268,9 +4302,9 @@
       Array.from(functionNameList).forEach((item) => {
         if (window[needReleaseKey][item]) {
           needReleaseObject[item] = window[needReleaseKey][item];
-          delete window[needReleaseKey][item];
+          ReflectDeleteProperty(window[needReleaseKey], item);
           if (ObjectKeys(window[needReleaseKey]).length === 0) {
-            delete window[needReleaseKey];
+            ReflectDeleteProperty(window, needReleaseKey);
           }
         }
       });
