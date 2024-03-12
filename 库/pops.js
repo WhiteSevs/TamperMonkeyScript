@@ -2357,6 +2357,14 @@
         /* 这是存在selector的情况 */
         _option_ = getOption(args, 4, _option_);
       }
+      /**
+       * 如果是once，那么删除该监听和元素上的事件和监听
+       */
+      function checkOptionOnceToRemoveEventListener() {
+        if (_option_.once) {
+          PopsDOMUtils.off(element, eventType, selector, callback, option);
+        }
+      }
       elementList.forEach((elementItem) => {
         let ownCallBack = function (event) {
           let target = event.target;
@@ -2368,6 +2376,7 @@
             if (target.matches(_selector_)) {
               /* 当前目标可以被selector所匹配到 */
               _callback_.call(target, event);
+              checkOptionOnceToRemoveEventListener();
               return;
             } else if (
               target.closest(_selector_) &&
@@ -2382,10 +2391,12 @@
                 },
               });
               _callback_.call(closestElement, event);
+              checkOptionOnceToRemoveEventListener();
               return;
             }
           } else {
             _callback_.call(elementItem, event);
+            checkOptionOnceToRemoveEventListener();
           }
         };
 
