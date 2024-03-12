@@ -2114,6 +2114,11 @@ declare interface Utils {
         ]): void;
     };
     /**
+     * 深拷贝
+     * @param obj 对象
+     */
+    deepClone<T extends object|undefined|null>(obj?: object):T;
+    /**
      * 防抖函数
      * @param fn 需要触发的回调
      * @param delay 防抖判定时间(毫秒)，默认是0ms
