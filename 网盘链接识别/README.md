@@ -322,6 +322,28 @@ declare interface NetDiskUserCustomRule {
      * + `参数1`: netDiskIndex: number
      * + `参数2`: shareCode: string
      * + `参数3`: accessCode: string
+     * 
+     * `this`包含以下Api:
+     * + NetDiskRequire
+     * + CryptoJS
+     * + httpx
+     * + utils
+     * + DOMUtils
+     * + window
+     * + unsafeWindow
+     * + NetDiskCheckLinkValidity
+     * + log
+     * + Qmsg
+     * + pops
+     * 
+     * `@returns`返回值必须是NetDiskCheckLinkValidity.status内的任意属性值
+     * 其中包括
+     * NetDiskCheckLinkValidity.status.loading
+     * NetDiskCheckLinkValidity.status.success
+     * NetDiskCheckLinkValidity.status.error
+     * NetDiskCheckLinkValidity.status.failed
+     * NetDiskCheckLinkValidity.status.needAccessCode
+     * NetDiskCheckLinkValidity.status.unknown
      */
     checkLinkValidityFunction?: string;
 }
