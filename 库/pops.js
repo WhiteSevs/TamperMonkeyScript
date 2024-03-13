@@ -3116,22 +3116,23 @@
         --button-font-size: 12px;
         --button-border-radius: 4px;
       }
-      
-      .pops button[data-rightIcon="true"] {
+      .pops-panel-button-no-icon .pops-panel-button_inner i{
+        display: none;
+      }
+      .pops-panel-button-right-icon{
+        
+      }
+      .pops-panel-button-right-icon .pops-panel-button_inner{
         flex-direction: row-reverse;
       }
-      
-      .pops button[data-rightIcon="true"] span {
+      .pops-panel-button-right-icon .pops-panel-button_inner i{
+
+      }
+      .pops-panel-button .pops-panel-button_inner i:has(svg),
+      .pops-panel-button-right-icon .pops-panel-button-text{
         margin-right: 6px;
       }
-      
-      .pops button[data-rightIcon="false"] span {
-        margin-left: 6px;
-      }
-      
-      .pops button[data-icon=""] span {
-        margin-left: unset;
-      }
+
         
       .pops button[type=default]{--button-color:#333333;--button-bd-color:#dcdfe6;--button-bg-color:#ffffff;}
       .pops button[type=default]:active{--button-color:#409eff;--button-bd-color:#409eff;--button-bg-color:#ecf5ff;}
@@ -3750,6 +3751,11 @@
 
       `,
       panelCSS: `
+      .pops[type-value=panel]{
+        --el-disabled-text-color: #a8abb2;
+        --el-disabled-bg-color: #f5f7fa;
+        --el-disabled-border-color: #e4e7ed;
+      }
       .pops[type-value] .pops-panel-title{display: flex;align-items: center;justify-content: space-between;}
 
       .pops[type-value=panel] .pops-panel-title{width:100%;height:var(--container-title-height);border-bottom:1px solid #e5e5e5;}
@@ -4175,7 +4181,8 @@
         padding: 8px 8px;
         font-size: 14px;
         text-align: start;
-        width: 100%
+        width: 100%;
+        flex: 1;
       }    
       .pops-panel-input span.pops-panel-input__suffix {
         display: inline-flex;
@@ -4188,13 +4195,35 @@
         transition: all .3s;
         pointer-events: none;
         margin: 0 8px;
-        width: 18px;
-        height: 18px
       }    
       .pops-panel-input span.pops-panel-input__suffix-inner{pointer-events:all;display:inline-flex;align-items:center;justify-content:center}
       .pops-panel-input .pops-panel-icon{cursor:pointer}
       .pops-panel-input .pops-panel-icon{height:inherit;line-height:inherit;display:flex;justify-content:center;align-items:center;transition:all .3s}
       .pops-panel-input .pops-panel-icon svg{height:1em;width:1em}
+
+      .pops-input-disabled{
+        background-color: var(--el-disabled-bg-color);
+        box-shadow: 0 0 0 1px var(--el-disabled-border-color) inset;
+      }
+      .pops-panel-input.pops-input-disabled{
+        border: none;
+      }
+      .pops-panel-input.pops-input-disabled:hover{
+        box-shadow: 0 0 0 1px var(--el-disabled-border-color) inset;
+      }
+      .pops-panel-input input:disabled,
+      .pops-panel-input input:disabled + .pops-panel-input__suffix{
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        color: var(--el-disabled-text-color);
+        -webkit-text-fill-color: var(--el-disabled-text-color);
+        cursor: not-allowed;
+      }
+      .pops-panel-input input:disabled + .pops-panel-input__suffix{
+        display: none;
+      }
       /* input的CSS */
   
       /* textarea的CSS */
@@ -4219,6 +4248,7 @@
         border: none;
       }
       .pops-panel-textarea textarea:hover{box-shadow:0 0 0 1px #c0c4cc inset}
+      .pops-panel-textarea-disable .pops-panel-textarea textarea:hover{box-shadow:none}
       .pops-panel-textarea textarea:focus{outline:0;box-shadow:0 0 0 1px #409eff inset}
       /* textarea的CSS */
   
@@ -4236,6 +4266,7 @@
         box-shadow: none;
       }    
       .pops-panel-select select:hover{box-shadow:0 0 0 1px #c0c4cc inset}
+      .pops-panel-select-disable .pops-panel-select select:hover{box-shadow:none}
       .pops-panel-select select:focus{border:1px solid #409eff;box-shadow:none}
       /* select的CSS */
 
@@ -8995,7 +9026,8 @@
        * type ==> slider
        * @param {PopsPanelSliderDetails} formConfig
        * @returns
-       */ getSectionContainerItem_slider(formConfig) {
+       */
+      getSectionContainerItem_slider(formConfig) {
         let liElement = document.createElement("li");
         liElement.__formConfig__ = formConfig;
         if (formConfig.className) {
@@ -9628,17 +9660,6 @@
        * @returns
        */
       getSectionContainerItem_input(formConfig) {
-        function setCircleClearIconSVG(targetElement, inputElement) {
-          targetElement.innerHTML = pops.config.iconSVG.circleClose;
-          PopsDOMUtils.on(targetElement, "click", void 0, function () {
-            /* 清空内容 */
-            inputElement.value = "";
-            targetElement.innerHTML = "";
-            inputElement.focus();
-            /* 主动触发事件 */
-            inputElement.dispatchEvent(new Event("input"));
-          });
-        }
         let liElement = document.createElement("li");
         liElement.__formConfig__ = formConfig;
         if (formConfig.className) {
@@ -9666,62 +9687,190 @@
           <input type="${inputType}" placeholder="${formConfig.placeholder}">
         </div>
         `;
-        let inputElement = liElement.querySelector("input");
-        inputElement.value = formConfig.getValue();
-        let iconElement = document.createElement("span");
-        iconElement.className = "pops-panel-input__suffix";
-        iconElement.innerHTML = `
-        <span class="pops-panel-input__suffix-inner">
-          <i class="pops-panel-icon"></i>
-        </span>
-        `;
-        let isView = true;
-        let iElement = iconElement.querySelector("i.pops-panel-icon");
-        /* 如果是密码框，放进图标 */
-        if (formConfig.isPassword) {
-          iElement.innerHTML = pops.config.iconSVG.view;
-          PopsDOMUtils.on(iElement, "click", void 0, function () {
-            iElement.innerHTML = "";
-            if (isView) {
-              isView = false;
-              /* 显示输入框内容，且更换图标为隐藏图标 */
-              inputElement.setAttribute("type", "text");
-              iElement.innerHTML = pops.config.iconSVG.hide;
+        const PopsPanelInput = {
+          [Symbol.toStringTag]: "PopsPanelInput",
+          $ele: {
+            /**
+             * @type {HTMLDivElement}
+             */
+            panelInput: liElement.querySelector(".pops-panel-input"),
+            /**
+             * @type {HTMLInputElement}
+             */
+            input: liElement.querySelector("input"),
+            inputSpanIcon: document.createElement("span"),
+            /**
+             * @type {HTMLSpanElement}
+             */
+            inputSpanIconInner: null,
+            /**
+             * @type {HTMLElement}
+             */
+            icon: null,
+          },
+          $data: {
+            value: formConfig.getValue(),
+            isView: false,
+          },
+          init() {
+            this.initEle();
+            this.setInputValue(this.$data.value);
+            /* 如果是密码框，放进图标 */
+            if (formConfig.isPassword) {
+              this.setCircleIcon(pops.config.iconSVG.view);
+              this.setCircleIconClickEvent();
             } else {
-              isView = true;
-              /* 隐藏输入框内容，且更换图标为显示图标 */
-              inputElement.setAttribute("type", "password");
-              iElement.innerHTML = pops.config.iconSVG.view;
-            }
-          });
-        }
-        /* 先判断预设值是否为空，不为空添加清空图标按钮 */
-        if (inputElement.value != "" && !formConfig.isPassword) {
-          setCircleClearIconSVG(iElement, inputElement);
-        }
-        /* 监听内容改变 */
-        PopsDOMUtils.on(
-          inputElement,
-          ["input", "propertychange"],
-          void 0,
-          function (event) {
-            if (!formConfig.isPassword) {
-              if (event.target.value !== "" && iElement.innerHTML === "") {
-                /* 不为空，显示清空图标 */
-                setCircleClearIconSVG(iElement, inputElement);
-              } else if (event.target.value === "") {
-                iElement.innerHTML = "";
+              /* 先判断预设值是否为空，不为空添加清空图标按钮 */
+              if (this.$ele.input.value != "") {
+                this.setCircleIcon(pops.config.iconSVG.circleClose);
+                this.setCircleIconClickEvent();
               }
             }
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event, event.target.value);
+
+            this.setInputChangeEvent();
+            if (formConfig.disabled) {
+              this.disable();
             }
-          }
-        );
-        if (typeof formConfig.handlerCallBack === "function") {
-          formConfig.handlerCallBack(liElement, inputElement);
-        }
-        inputElement.parentElement.appendChild(iconElement);
+            if (typeof formConfig.handlerCallBack === "function") {
+              formConfig.handlerCallBack(liElement, this.$ele.input);
+            }
+          },
+          /**
+           * 初始化$ele的配置
+           */
+          initEle() {
+            this.$ele.input.parentElement.insertBefore(
+              this.$ele.inputSpanIcon,
+              this.$ele.input.nextSibling
+            );
+            this.$ele.inputSpanIcon.className = "pops-panel-input__suffix";
+            this.$ele.inputSpanIcon.innerHTML = `
+            <span class="pops-panel-input__suffix-inner">
+              <i class="pops-panel-icon"></i>
+            </span>
+            `;
+            this.$ele.inputSpanIconInner =
+              this.$ele.inputSpanIcon.querySelector(
+                ".pops-panel-input__suffix-inner"
+              );
+            this.$ele.icon =
+              this.$ele.inputSpanIcon.querySelector(".pops-panel-icon");
+          },
+          /**
+           * 禁用
+           */
+          disable() {
+            this.$ele.input.disabled = true;
+            this.$ele.panelInput.classList.add("pops-input-disabled");
+          },
+          /**
+           * 取消禁用
+           */
+          notDisable() {
+            this.$ele.input.disabled = false;
+            this.$ele.panelInput.classList.remove("pops-input-disabled");
+          },
+          /**
+           * 判断是否已被禁用
+           */
+          isDisabled() {
+            return this.$ele.input.disabled;
+          },
+          /**
+           * 设置输入框内容
+           * @param {string} [value=""] 值
+           */
+          setInputValue(value = "") {
+            this.$ele.input.value = value;
+          },
+          /**
+           * 设置input元素的type
+           * @param {string} [typeValue="text"] type值
+           */
+          setInputType(typeValue = "text") {
+            this.$ele.input.setAttribute("type", typeValue);
+          },
+          /**
+           * 删除图标按钮
+           */
+          removeCircleIcon() {
+            this.$ele.icon.innerHTML = "";
+          },
+          /**
+           * 添加清空图标按钮
+           * @param {string} [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
+           */
+          setCircleIcon(svgHTML = pops.config.iconSVG.circleClose) {
+            this.$ele.icon.innerHTML = svgHTML;
+          },
+          /**
+           * 添加图标按钮的点击事件
+           */
+          setCircleIconClickEvent() {
+            PopsDOMUtils.on(this.$ele.icon, "click", void 0, () => {
+              if (this.isDisabled()) {
+                return;
+              }
+              /* 删除图标 */
+              this.removeCircleIcon();
+              if (formConfig.isPassword) {
+                /* 密码输入框 */
+                if (this.$data.isView) {
+                  /* 当前可见 => 点击改变为隐藏 */
+                  this.$data.isView = false;
+                  /* 显示输入框内容，且更换图标为隐藏图标 */
+                  this.setInputType("text");
+                  this.setCircleIcon(pops.config.iconSVG.hide);
+                } else {
+                  /* 当前不可见 => 点击改变为显示 */
+                  this.$data.isView = true;
+                  /* 隐藏输入框内容，且更换图标为显示图标 */
+                  this.setInputType("password");
+                  this.setCircleIcon(pops.config.iconSVG.view);
+                }
+              } else {
+                /* 普通输入框 */
+                /* 清空内容 */
+                this.setInputValue("");
+                /* 获取焦点 */
+                this.$ele.input.focus();
+                /* 触发内容改变事件 */
+                this.$ele.input.dispatchEvent(new Event("input"));
+              }
+            });
+          },
+          /**
+           * 监听输入框内容改变
+           */
+          setInputChangeEvent() {
+            PopsDOMUtils.on(
+              this.$ele.input,
+              ["input", "propertychange"],
+              void 0,
+              (event) => {
+                this.$data.value = this.$ele.input.value;
+                if (!formConfig.isPassword) {
+                  /* 不是密码框 */
+                  if (
+                    this.$ele.input.value !== "" &&
+                    this.$ele.icon.innerHTML === ""
+                  ) {
+                    /* 不为空，显示清空图标 */
+                    this.setCircleIcon(pops.config.iconSVG.circleClose);
+                    this.setCircleIconClickEvent();
+                  } else if (this.$ele.input.value === "") {
+                    this.removeCircleIcon();
+                  }
+                }
+                if (typeof formConfig.callback === "function") {
+                  formConfig.callback(event, this.$ele.input.value);
+                }
+              }
+            );
+          },
+        };
+        PopsPanelInput.init();
+        liElement["data-input"] = PopsPanelInput;
         return liElement;
       },
       /**
@@ -9754,24 +9903,73 @@
           </textarea>
         </div>
         `;
-        /**
-         * @type {HTMLTextAreaElement}
-         */
-        let textAreaElement = liElement.querySelector(
-          ".pops-panel-textarea textarea"
-        );
-        textAreaElement.value = formConfig.getValue();
-        /* 监听内容改变 */
-        PopsDOMUtils.on(
-          textAreaElement,
-          ["input", "propertychange"],
-          void 0,
-          function (event) {
-            if (typeof formConfig.callback === "function") {
-              formConfig.callback(event, event.target.value);
+
+        const PopsPanelTextArea = {
+          [Symbol.toStringTag]: "PopsPanelTextArea",
+          $ele: {
+            /**
+             * @type {HTMLDivElement}
+             */
+            panelTextarea: liElement.querySelector(".pops-panel-textarea"),
+            /**
+             * @type {HTMLTextAreaElement}
+             */
+            textarea: liElement.querySelector(".pops-panel-textarea textarea"),
+          },
+          $data: {
+            value: formConfig.getValue(),
+          },
+          init() {
+            this.setValue(this.$data.value);
+            this.setChangeEvent();
+            if (formConfig.disabled) {
+              this.disable();
             }
-          }
-        );
+          },
+          disable() {
+            this.$ele.textarea.setAttribute("disabled", true);
+            this.$ele.panelTextarea.classList.add(
+              "pops-panel-textarea-disable"
+            );
+          },
+          notDisable() {
+            this.$ele.textarea.removeAttribute("disabled", true);
+            this.$ele.panelTextarea.classList.remove(
+              "pops-panel-textarea-disable"
+            );
+          },
+          isDisabled() {
+            return (
+              this.$ele.textarea.hasAttribute("disabled") ||
+              this.$ele.panelTextarea.classList.hasAttribute(
+                "pops-panel-textarea-disable"
+              )
+            );
+          },
+          setValue(value) {
+            this.$ele.textarea.value = value;
+          },
+          /**
+           * 监听选择内容改变
+           */
+          setChangeEvent() {
+            PopsDOMUtils.on(
+              this.$ele.textarea,
+              ["input", "propertychange"],
+              void 0,
+              (event) => {
+                this.$data.value = event.target.value;
+                if (typeof formConfig.callback === "function") {
+                  formConfig.callback(event, event.target.value);
+                }
+              }
+            );
+          },
+        };
+
+        PopsPanelTextArea.init();
+        liElement["data-textarea"] = PopsPanelTextArea;
+
         return liElement;
       },
       /**
@@ -9805,33 +10003,77 @@
         </div>
         `;
 
-        let selectElement = liElement.querySelector(
-          ".pops-panel-select select"
-        );
-        let defaultValue = formConfig.getValue();
-
-        formConfig.data.forEach((item) => {
-          let optionElement = document.createElement("option");
-          optionElement.__value__ = item.value;
-          if (item.value === defaultValue) {
-            optionElement.setAttribute("selected", true);
-          }
-          optionElement.innerText = item.text;
-          selectElement.appendChild(optionElement);
-        });
-        /* 监听选择内容改变 */
-        PopsDOMUtils.on(selectElement, "change", void 0, function (event) {
-          if (typeof formConfig.callback === "function") {
+        const PopsPanelSelect = {
+          [Symbol.toStringTag]: "PopsPanelSelect",
+          $ele: {
             /**
-             * @type {HTMLOptionElement}
+             * @type {HTMLDivElement}
              */
-            let isSelectedElement = event.target[event.target.selectedIndex];
-            let isSelectedValue = isSelectedElement.__value__;
-            let isSelectedText =
-              isSelectedElement.innerText || isSelectedElement.textContent;
-            formConfig.callback(event, isSelectedValue, isSelectedText);
-          }
-        });
+            panelSelect: liElement.querySelector(".pops-panel-select"),
+            /**
+             * @type {HTMLSelectElement}
+             */
+            select: liElement.querySelector(".pops-panel-select select"),
+          },
+          $data: {
+            defaultValue: formConfig.getValue(),
+          },
+          init() {
+            this.initOption();
+            this.setChangeEvent();
+            if (formConfig.disabled) {
+              this.disable();
+            }
+          },
+          disable() {
+            this.$ele.select.setAttribute("disabled", true);
+            this.$ele.panelSelect.classList.add("pops-panel-select-disable");
+          },
+          notDisable() {
+            this.$ele.select.removeAttribute("disabled", true);
+            this.$ele.panelSelect.classList.remove("pops-panel-select-disable");
+          },
+          isDisabled() {
+            return (
+              this.$ele.select.hasAttribute("disabled") ||
+              this.$ele.panelSelect.classList.hasAttribute(
+                "pops-panel-select-disable"
+              )
+            );
+          },
+          initOption() {
+            formConfig.data.forEach((dataItem) => {
+              let optionElement = document.createElement("option");
+              optionElement.__value__ = dataItem.value;
+              if (dataItem.value === this.$data.defaultValue) {
+                optionElement.setAttribute("selected", true);
+              }
+              optionElement.innerText = dataItem.text;
+              this.$ele.select.appendChild(optionElement);
+            });
+          },
+          /**
+           * 监听选择内容改变
+           */
+          setChangeEvent() {
+            PopsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
+              if (typeof formConfig.callback === "function") {
+                /**
+                 * @type {HTMLOptionElement}
+                 */
+                let isSelectedElement =
+                  event.target[event.target.selectedIndex];
+                let isSelectedValue = isSelectedElement.__value__;
+                let isSelectedText =
+                  isSelectedElement.innerText || isSelectedElement.textContent;
+                formConfig.callback(event, isSelectedValue, isSelectedText);
+              }
+            });
+          },
+        };
+
+        PopsPanelSelect.init();
+        liElement["data-select"] = PopsPanelSelect;
         return liElement;
       },
       /**
@@ -9848,37 +10090,6 @@
         }
         this.addElementAttributes(liElement, formConfig.attributes);
         this.setElementProps(liElement, formConfig.props);
-        let iconHTML = "";
-        let hasIconSVG = false;
-        if (
-          typeof formConfig.buttonIcon === "string" &&
-          formConfig.buttonIcon.trim() !== ""
-        ) {
-          hasIconSVG = true;
-          iconHTML = `
-          <i class="pops-bottom-icon" is-loading="${Boolean(
-            formConfig.buttonIconIsLoading
-          )}">
-            ${
-              formConfig.buttonIcon in pops.config.iconSVG
-                ? pops.config.iconSVG[formConfig.buttonIcon]
-                : formConfig.buttonIcon
-            }
-          </i>`;
-        }
-        let buttonText = formConfig.buttonText;
-        if (typeof formConfig.buttonText === "function") {
-          buttonText = formConfig.buttonText();
-        }
-        let buttonHTML = `
-        <button 
-                type="${formConfig.buttonType}"
-                data-icon="${hasIconSVG ? "true" : ""}"
-                data-rightIcon="${Boolean(formConfig.buttonIsRightIcon)}"
-        >
-          ${iconHTML}
-          <span>${buttonText}</span>
-        </button>`;
 
         /* 左边底部的描述的文字 */
         let leftDescriptionText = "";
@@ -9891,17 +10102,138 @@
           ${leftDescriptionText}
         </div>
         <div class="pops-panel-button">
-          ${buttonHTML}
+          <button class="pops-panel-button_inner">
+            <i class="pops-bottom-icon"></i>
+            <span class="pops-panel-button-text"></span>
+          </button>
         </div>
         `;
 
-        let buttonElement = liElement.querySelector("button");
-        PopsDOMUtils.on(buttonElement, "click", void 0, function (event) {
-          if (typeof formConfig.callback === "function") {
-            formConfig.callback(event);
-          }
-        });
-
+        const PopsPanelButton = {
+          [Symbol.toStringTag]: "PopsPanelButton",
+          $ele: {
+            panelButton: liElement.querySelector(".pops-panel-button"),
+            button: liElement.querySelector(
+              ".pops-panel-button .pops-panel-button_inner"
+            ),
+            icon: liElement.querySelector(
+              ".pops-panel-button .pops-bottom-icon"
+            ),
+            spanText: liElement.querySelector(
+              ".pops-panel-button .pops-panel-button-text"
+            ),
+          },
+          $data: {},
+          init() {
+            this.$ele.panelButton.appendChild(this.$ele.button);
+            this.initButton();
+            this.setClickEvent();
+          },
+          initButton() {
+            if (
+              typeof formConfig.buttonIcon === "string" &&
+              formConfig.buttonIcon.trim() !== ""
+            ) {
+              /* 存在icon图标且不为空 */
+              if (formConfig.buttonIcon in pops.config.iconSVG) {
+                this.setIconSVG(pops.config.iconSVG[formConfig.buttonIcon]);
+              } else {
+                this.setIconSVG(formConfig.buttonIcon);
+              }
+              this.showIcon();
+            } else {
+              this.hideIcon();
+            }
+            /* 按钮文字 */
+            let buttonText = formConfig.buttonText;
+            if (typeof formConfig.buttonText === "function") {
+              buttonText = formConfig.buttonText();
+            }
+            this.setButtonType(formConfig.buttonType);
+            if (formConfig.buttonIsRightIcon) {
+              this.setIconRight();
+            } else {
+              this.setIconLeft();
+            }
+            if (formConfig.disable) {
+              this.disable();
+            }
+            this.setButtonText(buttonText);
+            this.setIconLoadingStatus(formConfig.buttonIconIsLoading);
+          },
+          disable() {
+            this.$ele.button.setAttribute("disabled", "true");
+          },
+          notDisable() {
+            this.$ele.button.removeAttribute("disabled");
+          },
+          /**
+           * 隐藏icon图标
+           */
+          hideIcon() {
+            this.$ele.panelButton.classList.add("pops-panel-button-no-icon");
+          },
+          /**
+           * 显示icon图标
+           */
+          showIcon() {
+            this.$ele.panelButton.classList.remove("pops-panel-button-no-icon");
+          },
+          /**
+           * 设置icon图标的svg
+           */
+          setIconSVG(svgHTML) {
+            this.$ele.icon.innerHTML = svgHTML;
+          },
+          /**
+           * 设置icon图标是否旋转
+           * @param {boolean} status
+           */
+          setIconLoadingStatus(status) {
+            this.$ele.icon.setAttribute("is-loading", Boolean(status));
+          },
+          /**
+           * 设置属性上是否存在icon图标
+           */
+          setHasIcon(value) {
+            this.$ele.button.setAttribute("data-icon", Boolean(value));
+          },
+          /**
+           * 设置按钮类型
+           * @param {string} typeValue
+           */
+          setButtonType(typeValue) {
+            this.$ele.button.setAttribute("type", typeValue);
+          },
+          /**
+           * 添加按钮的图标在右边
+           */
+          setIconRight() {
+            this.$ele.button.classList.add("pops-panel-button-right-icon");
+          },
+          /**
+           * （默认）添加按钮的图标在左边
+           */
+          setIconLeft() {
+            this.$ele.button.classList.remove("pops-panel-button-right-icon");
+          },
+          /**
+           * 设置按钮文本
+           * @param {string} text
+           */
+          setButtonText(text) {
+            this.$ele.spanText.innerHTML = text;
+          },
+          setClickEvent() {
+            PopsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
+              if (typeof formConfig.callback === "function") {
+                formConfig.callback(event);
+              }
+            });
+          },
+        };
+        PopsPanelButton.init();
+        liElement["data-button"] = PopsPanelButton;
         return liElement;
       },
       /**
@@ -9921,7 +10253,7 @@
       },
       /**
        * 获取中间容器的元素<li>
-       * @param {PopsPanelSwitchDetails|PopsPanelSliderDetails|PopsPanelInputDetails|PopsPanelTextAreaDetails|PopsPanelSelectDetails|PopsPanelButtonDetails|PopsPanelOwnDetails} formConfig
+       * @param {PopsPanelFormsTotalDetails} formConfig
        * @returns
        */
       getSectionContainerItem(formConfig) {
@@ -9951,6 +10283,24 @@
        */
       setAsideItemClickEvent(asideLiElement, asideConfig) {
         let that = this;
+        /**
+         *
+         * @param {HTMLUListElement} ulElement
+         * @param {PopsPanelFormsTotalDetails} formConfig
+         */
+        function uListContainerAddItem(ulElement, formConfig) {
+          let liElement = that.getSectionContainerItem(formConfig);
+          if (liElement) {
+            ulElement.appendChild(liElement);
+          }
+          if (typeof formConfig.afterAddToUListCallBack === "function") {
+            formConfig.afterAddToUListCallBack(
+              ulElement,
+              liElement,
+              formConfig
+            );
+          }
+        }
         PopsDOMUtils.on(asideLiElement, "click", void 0, function (event) {
           that.clearContainer();
           that.clearAsideItemIsVisited();
@@ -9990,19 +10340,13 @@
               );
               that.setElementProps(formContainerElement, formConfig.props);
               childForms.forEach((childFormConfig) => {
-                let element = that.getSectionContainerItem(childFormConfig);
-                if (element) {
-                  formContainerULElement.appendChild(element);
-                }
+                uListContainerAddItem(formContainerULElement, childFormConfig);
               });
               formContainerElement.appendChild(formContainerULElement);
               that.sectionContainerULElement.appendChild(formContainerElement);
             } else {
-              let itemLiElement = that.getSectionContainerItem(formConfig);
               /* 如果成功创建，加入到中间容器中 */
-              if (itemLiElement) {
-                that.sectionContainerULElement.appendChild(itemLiElement);
-              }
+              uListContainerAddItem(that.sectionContainerULElement, formConfig);
             }
           });
 
