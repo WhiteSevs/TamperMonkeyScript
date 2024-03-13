@@ -114,7 +114,14 @@ type PopsTextAlign = "center" |
     "revert" |
     "revert-layer" |
     "unset"
-
+type PopsPanelFormsTotalDetails =
+    PopsPanelSwitchDetails |
+    PopsPanelSliderDetails |
+    PopsPanelInputDetails |
+    PopsPanelTextAreaDetails |
+    PopsPanelSelectDetails |
+    PopsPanelButtonDetails |
+    PopsPanelOwnDetails
 type PopsPanelFormsDetailsArray =
     PopsPanelSwitchDetails[] |
     PopsPanelSliderDetails[] |
@@ -281,6 +288,19 @@ declare interface PopsPromptBtnCallBackEvent {
      * 输入的内容
      */
     text: string;
+}
+declare interface PopsPanelCommonFormDetails {
+    /**
+     * 在添加到<ul>元素后触发该回调
+     * @param ulElement 添加到的<ul>元素
+     * @param liElement 当前的<li>元素
+     * @param formConfig 配置
+     */
+    afterAddToUListCallBack(
+        ulElement: HTMLUListElement,
+        liElement: HTMLLIElement,
+        formConfig: PopsPanelFormsTotalDetails
+    ): void;
 }
 /**
  * 按钮配置
@@ -484,7 +504,7 @@ declare interface PopsPanelFormsDetails {
 /**
  * pops.panel的 switch
  */
-declare interface PopsPanelSwitchDetails {
+declare interface PopsPanelSwitchDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
@@ -525,7 +545,7 @@ declare interface PopsPanelSwitchDetails {
 /**
  * pops.panel的 slider
  */
-declare interface PopsPanelSliderDetails {
+declare interface PopsPanelSliderDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
@@ -582,7 +602,7 @@ declare interface PopsPanelSliderDetails {
 /**
  * pops.panel的 input
  */
-declare interface PopsPanelInputDetails {
+declare interface PopsPanelInputDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
@@ -610,7 +630,7 @@ declare interface PopsPanelInputDetails {
     /**
      * （可选）是否禁用
      */
-    disabled?: false,
+    disabled?: boolean,
     /**
      * 获取该项的值的回调函数
      */
@@ -639,7 +659,7 @@ declare interface PopsPanelInputDetails {
 /**
  * pops.panel的 textarea
  */
-declare interface PopsPanelTextAreaDetails {
+declare interface PopsPanelTextAreaDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
@@ -665,15 +685,19 @@ declare interface PopsPanelTextAreaDetails {
      */
     type: "textarea";
     /**
+     * （可选）是否禁用
+     */
+    disabled?: boolean,
+    /**
      * 获取该项的值的回调函数
      */
-    getValue: () => string;
+    getValue(): string;
     /**
      * textarea输入框的值改变触发的回调函数
      * @param event 事件
      * @param value 当前的textarea内的值
      */
-    callback: (event: InputEvent, value: string) => void;
+    callback(event: InputEvent, value: string): void;
     /**
      * 输入框内的提示
      */
@@ -682,7 +706,7 @@ declare interface PopsPanelTextAreaDetails {
 /**
  * pops.panel的 select
  */
-declare interface PopsPanelSelectDetails {
+declare interface PopsPanelSelectDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
@@ -708,16 +732,20 @@ declare interface PopsPanelSelectDetails {
      */
     type: "select";
     /**
+     * （可选）是否禁用
+     */
+    disabled?: boolean,
+    /**
      * 获取该项的值的回调函数
      */
-    getValue: () => string;
+    getValue(): string;
     /**
      * 选择器的值改变触发的回调函数
      * @param event 事件
      * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
      * @param isSelectedText 当前选中的文本
      */
-    callback: (event: PointerEvent, isSelectedValue: string, isSelectedText: string) => void;
+    callback(event: PointerEvent, isSelectedValue: string, isSelectedText: string): void;
     /**
      * 选择器内的数据组
      * + value是真正的值
@@ -731,7 +759,7 @@ declare interface PopsPanelSelectDetails {
 /**
  * pops.panel的 button
  */
-declare interface PopsPanelButtonDetails {
+declare interface PopsPanelButtonDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
@@ -756,6 +784,10 @@ declare interface PopsPanelButtonDetails {
      * 类型
      */
     type: "button";
+    /**
+     * （可选）是否禁用
+     */
+    disable?: boolean;
     /**
      * 按钮的类型
      */
@@ -785,7 +817,7 @@ declare interface PopsPanelButtonDetails {
  * pops.panel的 own
  * 自定义的
  */
-declare interface PopsPanelOwnDetails {
+declare interface PopsPanelOwnDetails extends PopsPanelCommonFormDetails {
     /**
      * （可选）className属性
      */
