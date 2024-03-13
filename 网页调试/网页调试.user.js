@@ -33,7 +33,7 @@
 // @require         https://update.greasyfork.org/scripts/483694/1319661/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1319662/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1342206/PageSpy-2.js
-// @require         https://update.greasyfork.org/scripts/455186/1341797/WhiteSevsUtils.js
+// @require         https://update.greasyfork.org/scripts/455186/1342261/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
@@ -771,6 +771,13 @@
                   void 0,
                   "调试端是下面配置的【调试页面Url】"
                 ),
+                this.getSwtichDetail(
+                  "检测script加载",
+                  "chii-check-script-load",
+                  true,
+                  void 0,
+                  "失败会有alert提示弹出"
+                ),
                 this.getInputDetail(
                   "调试页面Url",
                   "chii-debug-url",
@@ -1211,32 +1218,34 @@
         return;
       }
       ChiiHeight.init();
-      let scriptJs = PopsPanel.getValue(
+      if (PopsPanel.getValue("chii-check-script-load")) {
+        function checkChiiScriptLoad(event) {
+          if (event.target === scriptNode) {
+            globalThis.alert(
+              `调试工具【Chii】脚本加载失败
+              可能原因1：CSP策略阻止了加载第三方域的js文件
+              可能原因2：目标js无效`
+            );
+            unsafeWindow.removeEventListener("error", checkChiiScriptLoad, {
+              capture: true,
+            });
+          }
+        }
+        unsafeWindow.addEventListener("error", checkChiiScriptLoad, {
+          capture: true,
+        });
+      }
+      let scriptJsUrl = PopsPanel.getValue(
         "chii-target-js",
         this.chiiDetaultScriptJs
       );
       let scriptEmbedded = PopsPanel.getValue("chii-script-embedded", true);
       let scriptNode = document.createElement("script");
-      scriptNode.src = scriptJs;
+      scriptNode.src = scriptJsUrl;
       scriptNode.setAttribute("type", "application/javascript");
       if (scriptEmbedded) {
         scriptNode.setAttribute("embedded", true);
       }
-      function checkChiiScriptLoad(event) {
-        if (event.target === scriptNode) {
-          globalThis.alert(
-            `调试工具【Chii】脚本加载失败
-            可能原因1：CSP策略阻止了加载第三方域的js文件
-            可能原因2：目标js无效`
-          );
-          unsafeWindow.removeEventListener("error", checkChiiScriptLoad, {
-            capture: true,
-          });
-        }
-      }
-      unsafeWindow.addEventListener("error", checkChiiScriptLoad, {
-        capture: true,
-      });
       (document.head || document.body || document.documentElement).appendChild(
         scriptNode
       );
