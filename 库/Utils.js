@@ -2481,7 +2481,9 @@
         try {
           new URL(details.url);
         } catch (error) {
-          if (details.url.startsWith("/")) {
+          if (details.url.startsWith("//")) {
+            details.url = globalThis.location.protocol + details.url;
+          } else if (details.url.startsWith("/")) {
             details.url = globalThis.location.origin + details.url;
           } else {
             details.url = globalThis.location.origin + "/" + details.url;
