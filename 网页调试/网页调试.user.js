@@ -1222,21 +1222,21 @@
       if (scriptEmbedded) {
         scriptNode.setAttribute("embedded", true);
       }
-      unsafeWindow.addEventListener(
-        "error",
-        function (event) {
-          if (event.target === scriptNode) {
-            globalThis.alert(
-              `调试工具【Chii】脚本加载失败
-              可能原因1：CSP策略阻止了加载第三方域的js文件
-              可能原因2：目标js无效`
-            );
-          }
-        },
-        {
-          capture: true,
+      function checkChiiScriptLoad(event) {
+        if (event.target === scriptNode) {
+          globalThis.alert(
+            `调试工具【Chii】脚本加载失败
+            可能原因1：CSP策略阻止了加载第三方域的js文件
+            可能原因2：目标js无效`
+          );
+          unsafeWindow.removeEventListener("error", checkChiiScriptLoad, {
+            capture: true,
+          });
         }
-      );
+      }
+      unsafeWindow.addEventListener("error", checkChiiScriptLoad, {
+        capture: true,
+      });
       (document.head || document.body || document.documentElement).appendChild(
         scriptNode
       );
