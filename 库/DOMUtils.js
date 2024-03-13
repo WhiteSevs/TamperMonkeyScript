@@ -888,11 +888,16 @@
       /* 获取对象上的事件 */
       let events = elementItem[DOMUtilsData.SymbolEvents] || {};
       eventTypeList.forEach((_eventType_) => {
-        let event = new Event(_eventType_);
-        if (details) {
-          ObjectKeys(details).forEach((keyName) => {
-            event[keyName] = details[keyName];
-          });
+        let event = null;
+        if (details && details instanceof Event) {
+          event = details;
+        } else {
+          event = new Event(_eventType_);
+          if (details) {
+            ObjectKeys(details).forEach((keyName) => {
+              event[keyName] = details[keyName];
+            });
+          }
         }
         if (useDispatchToTriggerEvent == false && _eventType_ in events) {
           events[_eventType_].forEach((eventsItem) => {
