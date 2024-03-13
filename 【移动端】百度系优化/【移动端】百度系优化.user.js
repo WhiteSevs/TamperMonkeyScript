@@ -40,6 +40,9 @@
   }
   const UnSafeWindowObjectDefineProperty = unsafeWindow.Object.defineProperty;
   const ObjectDefineProperty = Object.defineProperty;
+  const ObjectKeys = Object.keys;
+  const ObjectValues = Object.values;
+  const ObjectAssign = Object.assign;
   /**
    * 是否为调试模式
    */
@@ -3258,7 +3261,7 @@
          */
         getNewCommentInnerElement: (element, pageCommentList) => {
           let data_field = utils.toJSON(element.getAttribute("data-field"));
-          if (Object.keys(data_field).length == 0) {
+          if (ObjectKeys(data_field).length == 0) {
             return;
           }
           let user_id = data_field["author"]["user_id"];
@@ -6250,7 +6253,7 @@
                   return;
                 }
                 log.success(["请求本贴图片信息", result]);
-                Object.values(result["pic_list"]).forEach((item) => {
+                ObjectValues(result["pic_list"]).forEach((item) => {
                   /* 图片id */
                   let id =
                     item?.["img"]?.["original"]?.["id"] ||
@@ -9776,10 +9779,10 @@
       let oldData = GM_getValue("GM_Menu_Local_Map");
       let currentData = GM_getValue(this.key, {});
       if (oldData) {
-        Object.assign(currentData, oldData);
+        ObjectAssign(currentData, oldData);
         GM_setValue(this.key, currentData);
         GM_deleteValue("GM_Menu_Local_Map");
-        alert("共迁移数据量：" + Object.keys(oldData).length);
+        alert("共迁移数据量：" + ObjectKeys(oldData).length);
       } else {
         alert("不存在旧数据");
       }
@@ -10259,7 +10262,7 @@ remove-child##[class*='-video-player']`,
                 Array.isArray(_mainCoreData) &&
                 JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
             ) {
-              Object.keys(args[0][1]).forEach((keyName) => {
+              ObjectKeys(args[0][1]).forEach((keyName) => {
                 let originSwitchFunc = args[0][1][keyName];
                 args[0][1][keyName] = function (..._args) {
                   let result = originSwitchFunc.call(this, ..._args);
