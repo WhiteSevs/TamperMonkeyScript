@@ -636,7 +636,7 @@ declare interface DOMUtils {
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
-     * @param details 赋予触发的Event的额外属性
+     * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
      * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的click事件
