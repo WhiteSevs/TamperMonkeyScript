@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.14
+// @version      2024.3.14.14
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -2454,16 +2454,20 @@
          */
         openResultBlank() {
           function globalResultClickEvent(event) {
-            utils.preventEvent(event);
             let url = null;
             let srcElement = event.srcElement;
+            let eventTarget = event.target;
             if (srcElement) {
               if (srcElement.closest("a")) {
                 let anchorNode = srcElement.closest("a");
                 if (utils.isNotNull(anchorNode.href)) {
                   log.info([
                     "链接来自上层a元素",
-                    [event, srcElement, anchorNode],
+                    {
+                      event,
+                      srcElement,
+                      anchorNode,
+                    },
                   ]);
                   url = anchorNode.href;
                 }
@@ -2473,22 +2477,33 @@
                 if (utils.isNotNull(rlLinkHref)) {
                   log.info([
                     "链接来自上层含有[rl-link-href]属性的元素",
-                    [event, srcElement, rlLinkHrefNode],
+                    {
+                      event,
+                      srcElement,
+                      rlLinkHrefNode,
+                    },
                   ]);
                   url = rlLinkHref;
                 }
               }
             } else {
-              let $resultNode = event.target.querySelector("article");
+              let $resultNode = eventTarget.querySelector("article");
               url = $resultNode.getAttribute("rl-link-href");
               log.info([
                 "链接来自顶层向下寻找article元素",
-                [event, event.target, $resultNode],
+                { event, eventTarget, $resultNode },
               ]);
             }
             if (utils.isNull(url)) {
+              log.info([
+                "未找到有效链接",
+                { event, eventTarget, srcElement, url },
+              ]);
+              return;
             }
-            log.success(["捕捉的点击事件，新标签页打开", [url]]);
+            /* 阻止事件传递 */
+            utils.preventEvent(event);
+            log.success(["捕捉的点击事件，新标签页打开", { url }]);
             window.open(url, "_blank");
           }
           DOMUtils.on(
