@@ -3080,8 +3080,7 @@
         background-color: var(--button-bg-color);
         outline: 0;
       }
-      .pops button:hover,
-      .pops button:focus{
+      .pops button:hover{
         color: var(--button-color);
         border-color: var(--button-bd-color);
         background-color: var(--button-bg-color);
@@ -3136,43 +3135,43 @@
         
       .pops button[type=default]{--button-color:#333333;--button-bd-color:#dcdfe6;--button-bg-color:#ffffff;}
       .pops button[type=default]:active{--button-color:#409eff;--button-bd-color:#409eff;--button-bg-color:#ecf5ff;}
-      .pops button[type=default]:focus,.pops button[type=default]:hover{--button-color:#409eff;--button-bd-color:#c6e2ff;--button-bg-color:#ecf5ff;}
+      .pops button[type=default]:hover{--button-color:#409eff;--button-bd-color:#c6e2ff;--button-bg-color:#ecf5ff;}
       .pops button[type=default]:focus-visible{outline:2px solid #a0cfff;outline-offset:1px;}
       .pops button[type=default]:disabled{--button-color:#a8abb2;--button-bd-color:#fff;--button-bg-color:#e4e7ed;}
 
       .pops button[type=primary]{--button-color:#ffffff;--button-bd-color:#409eff;--button-bg-color:#409eff;}
       .pops button[type=primary]:active{--button-color:#ffffff;--button-bd-color:#337ecc;--button-bg-color:#337ecc;}
-      .pops button[type=primary]:focus,.pops button[type=primary]:hover{--button-color:#ffffff;--button-bd-color:#79bbff;--button-bg-color:#79bbff;}
+      .pops button[type=primary]:hover{--button-color:#ffffff;--button-bd-color:#79bbff;--button-bg-color:#79bbff;}
       .pops button[type=primary]:focus-visible{outline:2px solid #a0cfff;outline-offset:1px;}
       .pops button[type=primary]:disabled{--button-color:#ffffff;--button-bd-color:#a0cfff;--button-bg-color:#a0cfff;}
       
       .pops button[type=success]{--button-color:#ffffff;--button-bd-color:#4cae4c;--button-bg-color:#5cb85c;}
       .pops button[type=success]:active{--button-color:#ffffff;--button-bd-color:#529b2e;--button-bg-color:#529b2e;}
-      .pops button[type=success]:focus,.pops button[type=success]:hover{--button-color:#ffffff;--button-bd-color:#95d475;--button-bg-color:#95d475;}
+      .pops button[type=success]:hover{--button-color:#ffffff;--button-bd-color:#95d475;--button-bg-color:#95d475;}
       .pops button[type=success]:focus-visible{outline:2px solid #b3e19d;outline-offset:1px;}
       .pops button[type=success]:disabled{--button-color:#ffffff;--button-bd-color:#b3e19d;--button-bg-color:#b3e19d;}
       
       .pops button[type=info]{--button-color:#ffffff;--button-bd-color:#909399;--button-bg-color:#909399;}
       .pops button[type=info]:active{--button-color:#ffffff;--button-bd-color:#73767a;--button-bg-color:#73767a;}
-      .pops button[type=info]:focus,.pops button[type=info]:hover{--button-color:#ffffff;--button-bd-color:#b1b3b8;--button-bg-color:#b1b3b8;}
+      .pops button[type=info]:hover{--button-color:#ffffff;--button-bd-color:#b1b3b8;--button-bg-color:#b1b3b8;}
       .pops button[type=info]:focus-visible{outline:2px solid #c8c9cc;outline-offset:1px;}
       .pops button[type=info]:disabled{--button-color:#ffffff;--button-bd-color:#c8c9cc;--button-bg-color:#c8c9cc;}
       
       .pops button[type=warning]{--button-color:#ffffff;--button-bd-color:#e6a23c;--button-bg-color:#e6a23c;}
       .pops button[type=warning]:active{--button-color:#ffffff;--button-bd-color:#b88230;--button-bg-color:#b88230;}
-      .pops button[type=warning]:focus,.pops button[type=warning]:hover{--button-color:#ffffff;--button-bd-color:#eebe77;--button-bg-color:#eebe77;}
+      .pops button[type=warning]:hover{--button-color:#ffffff;--button-bd-color:#eebe77;--button-bg-color:#eebe77;}
       .pops button[type=warning]:focus-visible{outline:2px solid #f3d19e;outline-offset:1px;}
       .pops button[type=warning]:disabled{--button-color:#ffffff;--button-bd-color:#f3d19e;--button-bg-color:#f3d19e;}
       
       .pops button[type=danger]{--button-color:#ffffff;--button-bd-color:#f56c6c;--button-bg-color:#f56c6c;}
       .pops button[type=danger]:active{--button-color:#ffffff;--button-bd-color:#c45656;--button-bg-color:#c45656;}
-      .pops button[type=danger]:focus,.pops button[type=danger]:hover{--button-color:#ffffff;--button-bd-color:#f89898;--button-bg-color:#f89898;}
+      .pops button[type=danger]:hover{--button-color:#ffffff;--button-bd-color:#f89898;--button-bg-color:#f89898;}
       .pops button[type=danger]:focus-visible{outline:2px solid #fab6b6;outline-offset:1px;}
       .pops button[type=danger]:disabled{--button-color:#ffffff;--button-bd-color:#fab6b6;--button-bg-color:#fab6b6;}
       
       .pops button[type=xiaomi-primary]{--button-color:#ffffff;--button-bd-color:#ff5c00;--button-bg-color:#ff5c00;}
       .pops button[type=xiaomi-primary]:active{--button-color:#ffffff;--button-bd-color:#da4f00;--button-bg-color:#da4f00;}
-      .pops button[type=xiaomi-primary]:focus,.pops button[type=xiaomi-primary]:hover{--button-color:#ffffff;--button-bd-color:#ff7e29;--button-bg-color:#ff7e29;}
+      .pops button[type=xiaomi-primary]:hover{--button-color:#ffffff;--button-bd-color:#ff7e29;--button-bg-color:#ff7e29;}
       .pops button[type=xiaomi-primary]:focus-visible{outline:2px solid #fab6b6;outline-offset:1px;}
       .pops button[type=xiaomi-primary]:disabled{--button-color:#ffffff;--button-bd-color:#fad5b6;--button-bg-color:#fad5b6;}
 
