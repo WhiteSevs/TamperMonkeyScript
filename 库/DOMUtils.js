@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherDOMUtils) {
   const OriginPrototype = {
     Array: {
-      isArray: Array.isArray,
+      isArray: globalThis.Array.isArray,
     },
     Function: {
       hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
