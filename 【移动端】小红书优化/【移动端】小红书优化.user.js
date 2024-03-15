@@ -2,7 +2,7 @@
 // @name        【移动端】小红书优化
 // @namespace    https://greasyfork.org/zh-CN/users/521923-whitesevs
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
-// @version      2024.3.13.19
+// @version      2024.3.15
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -20,7 +20,7 @@
 // @connect      edith.xiaohongshu.com
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1342149/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1343137/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1342261/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1342148/DOMUtils.js
 // ==/UserScript==
