@@ -3685,27 +3685,32 @@
     return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
   };
 
-  Utils.isSameChars = function (str) {
-    if (typeof str !== "string") {
+  Utils.isSameChars = function (targetStr, coefficient = 1) {
+    if (typeof targetStr !== "string") {
       throw new TypeError("参数 str 必须是 string 类型");
     }
-    if (str.length < 2) {
+    if (targetStr.length < 2) {
       return false;
     }
-    str = str.toLowerCase();
-    const charCount = {};
-    for (const char of str) {
-      if (char in charCount) {
-        charCount[char]++;
+    targetStr = targetStr.toLowerCase();
+    const targetCharMap = {};
+    let targetStrLength = 0;
+    for (const char of targetStr) {
+      if (OriginPrototype.Object.hasOwnProperty.call(targetCharMap, char)) {
+        targetCharMap[char]++;
       } else {
-        charCount[char] = 1;
+        targetCharMap[char] = 1;
+      }
+      targetStrLength++;
+    }
+    let result = false;
+    for (const char in targetCharMap) {
+      if (targetCharMap[char] / targetStrLength >= coefficient) {
+        result = true;
+        break;
       }
     }
-    if (OriginPrototype.Object.keys(charCount).length === 1) {
-      return true;
-    } else {
-      return false;
-    }
+    return result;
   };
 
   Utils.isThemeDark = function () {
