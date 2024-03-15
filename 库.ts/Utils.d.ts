@@ -2117,7 +2117,7 @@ declare interface Utils {
      * 深拷贝
      * @param obj 对象
      */
-    deepClone<T extends object|undefined|null>(obj?: object):T;
+    deepClone<T extends object | undefined | null>(obj?: object): T;
     /**
      * 防抖函数
      * @param fn 需要触发的回调
@@ -2820,9 +2820,10 @@ declare interface Utils {
     isPhone(userAgent?: string): boolean;
     /**
      * 判断传递的字符串是否是由相同的字符组成
-     * @param str 需要判断的字符串，长度(.length)需要≥2
+     * @param targetStr 需要判断的字符串，长度(.length)需要≥2
+     * @param coefficient 系数（默认:1），某个字符重复的系数大于它那么就是返回true，默认全部
      */
-    isSameChars(str: string): boolean;
+    isSameChars(targetStr: string, coefficient: number): boolean;
     /**
      * 判断对象是否不为空
      * @returns {boolean}
