@@ -20,22 +20,47 @@
     global.DOMUtils = factory(global.DOMUtils);
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherDOMUtils) {
-  const ObjectAssign = Object.assign;
-  const ObjectDefineProperty = Object.defineProperty;
-  const ObjectCreate = Object.create;
-  const ObjectEntries = Object.entries;
-  const ObjectFreeze = Object.freeze;
-  const ObjectGetOwnPropertySymbols = Object.getOwnPropertySymbols;
-  const ObjectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  const ObjectKeys = Object.keys;
-  const ObjectToString = Object.prototype.toString;
-  const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
-  const ObjectValues = Object.values;
-
-  const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
+  const OriginPrototype = {
+    Array: {
+      isArray: Array.isArray,
+    },
+    Function: {
+      hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
+      apply: globalThis.Function.prototype.apply,
+      call: globalThis.Function.prototype.call,
+    },
+    Object: {
+      assign: globalThis.Object.assign,
+      defineProperty: globalThis.Object.defineProperty,
+      create: globalThis.Object.create,
+      entries: globalThis.Object.entries,
+      freeze: globalThis.Object.freeze,
+      getOwnPropertySymbols: globalThis.Object.getOwnPropertySymbols,
+      getOwnPropertyDescriptor: globalThis.Object.getOwnPropertyDescriptor,
+      getPrototypeOf: globalThis.Object.getPrototypeOf,
+      hasOwnProperty: globalThis.Object.hasOwnProperty,
+      keys: globalThis.Object.keys,
+      toString: globalThis.Object.toString,
+      values: globalThis.Object.values,
+    },
+    Reflect: {
+      deleteProperty: globalThis.Reflect.deleteProperty,
+      get: globalThis.Reflect.get,
+      has: globalThis.Reflect.has,
+      set: globalThis.Reflect.set,
+    },
+    URL: {
+      createObjectURL: globalThis.URL.createObjectURL,
+    },
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+    setInterval: globalThis.setInterval,
+    clearInterval: globalThis.clearInterval,
+    getComputedStyle: globalThis.getComputedStyle,
+  };
   /** @type {DOMUtils} */
   const DOMUtils = {};
-  DOMUtils.version = "2024-2-15";
+  DOMUtils.version = "2024-3-15";
 
   /** 通用工具类 */
   const CommonDOMUtils = {
@@ -157,11 +182,11 @@
     if (attributes == void 0) {
       attributes = {};
     }
-    ObjectKeys(property).forEach((key) => {
+    OriginPrototype.Object.keys(property).forEach((key) => {
       let value = property[key];
       tempElement[key] = value;
     });
-    ObjectKeys(attributes).forEach((key) => {
+    OriginPrototype.Object.keys(attributes).forEach((key) => {
       let value = attributes[key];
       if (typeof value === "object") {
         /* object转字符串 */
@@ -209,7 +234,9 @@
     }
     if (typeof property === "string") {
       if (value === void 0) {
-        return getComputedStyle(element).getPropertyValue(property);
+        return OriginPrototype.getComputedStyle(element).getPropertyValue(
+          property
+        );
       } else {
         if (value === "string" && value.includes("!important")) {
           element.style.setProperty(property, value, "important");
@@ -340,7 +367,7 @@
       recovery();
       return transformInfo;
     }
-    let elementTransform = globalThis.getComputedStyle(element).transform;
+    let elementTransform = OriginPrototype.getComputedStyle(element).transform;
     if (
       elementTransform !== "none" &&
       elementTransform != null &&
@@ -651,7 +678,7 @@
             /* 在上层与主元素之间寻找可以被selector所匹配到的 */
             let closestElement = target.closest(_selector_);
             /* event的target值不能直接修改 */
-            ObjectDefineProperty(event, "target", {
+            OriginPrototype.Object.defineProperty(event, "target", {
               get() {
                 return closestElement;
               },
@@ -835,27 +862,29 @@
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
     elementList.forEach((elementItem) => {
-      ObjectGetOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
-        if (!symbolEvents.toString().startsWith("Symbol(events_")) {
-          return;
-        }
-        let elementEvents = elementItem[symbolEvents] || {};
-        let iterEventNameList = eventTypeList.length
-          ? eventTypeList
-          : ObjectKeys(elementEvents);
-        iterEventNameList.forEach((eventName) => {
-          let handlers = elementEvents[eventName];
-          if (!handlers) {
+      OriginPrototype.Object.getOwnPropertySymbols(elementItem).forEach(
+        (symbolEvents) => {
+          if (!symbolEvents.toString().startsWith("Symbol(events_")) {
             return;
           }
-          for (const handler of handlers) {
-            elementItem.removeEventListener(eventName, handler.callback, {
-              capture: handler["option"]["capture"],
-            });
-          }
-          delete elementItem[symbolEvents][eventName];
-        });
-      });
+          let elementEvents = elementItem[symbolEvents] || {};
+          let iterEventNameList = eventTypeList.length
+            ? eventTypeList
+            : OriginPrototype.Object.keys(elementEvents);
+          iterEventNameList.forEach((eventName) => {
+            let handlers = elementEvents[eventName];
+            if (!handlers) {
+              return;
+            }
+            for (const handler of handlers) {
+              elementItem.removeEventListener(eventName, handler.callback, {
+                capture: handler["option"]["capture"],
+              });
+            }
+            delete elementItem[symbolEvents][eventName];
+          });
+        }
+      );
     });
   };
 
@@ -894,7 +923,7 @@
         } else {
           event = new Event(_eventType_);
           if (details) {
-            ObjectKeys(details).forEach((keyName) => {
+            OriginPrototype.Object.keys(details).forEach((keyName) => {
               event[keyName] = details[keyName];
             });
           }
@@ -1058,7 +1087,7 @@
       return;
     }
     if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
-      let style = getComputedStyle(element, null);
+      let style = OriginPrototype.getComputedStyle(element, null);
       let marginLeft = CommonDOMUtils.getStyleValue(style, "marginLeft");
       let marginRight = CommonDOMUtils.getStyleValue(style, "marginRight");
       return element.offsetWidth + marginLeft + marginRight;
@@ -1081,7 +1110,7 @@
       return;
     }
     if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
-      let style = getComputedStyle(element, null);
+      let style = OriginPrototype.getComputedStyle(element, null);
       let marginTop = CommonDOMUtils.getStyleValue(style, "marginTop");
       let marginBottom = CommonDOMUtils.getStyleValue(style, "marginBottom");
       return element.offsetHeight + marginTop + marginBottom;
@@ -1096,19 +1125,19 @@
   DOMUtils.ready = function (callback) {
     function completed() {
       document.removeEventListener("DOMContentLoaded", completed);
-      window.removeEventListener("load", completed);
+      globalThis.removeEventListener("load", completed);
       callback();
     }
     if (
       document.readyState === "complete" ||
       (document.readyState !== "loading" && !document.documentElement.doScroll)
     ) {
-      window.setTimeout(callback);
+      OriginPrototype.setTimeout(callback);
     } else {
       /* 监听DOMContentLoaded事件 */
       document.addEventListener("DOMContentLoaded", completed);
       /* 监听load事件 */
-      window.addEventListener("load", completed);
+      globalThis.addEventListener("load", completed);
     }
   };
 
@@ -1133,17 +1162,18 @@
     if (typeof styles !== "object" || styles === void 0) {
       throw new TypeError("styles must be an object");
     }
-    if (ObjectKeys(styles).length === 0) {
+    if (OriginPrototype.Object.keys(styles).length === 0) {
       throw new Error("styles must contain at least one property");
     }
     let start = performance.now();
     let from = {};
     let to = {};
     for (let prop in styles) {
-      from[prop] = element.style[prop] || getComputedStyle(element)[prop];
+      from[prop] =
+        element.style[prop] || OriginPrototype.getComputedStyle(element)[prop];
       to[prop] = styles[prop];
     }
-    let timer = setInterval(function () {
+    let timer = OriginPrototype.setInterval(function () {
       let timePassed = performance.now() - start;
       let progress = timePassed / duration;
       if (progress > 1) {
@@ -1154,7 +1184,7 @@
           from[prop] + (to[prop] - from[prop]) * progress + "px";
       }
       if (progress === 1) {
-        clearInterval(timer);
+        OriginPrototype.clearInterval(timer);
         if (callback) {
           callback();
         }
@@ -1400,7 +1430,10 @@
     if (element == void 0) {
       return;
     }
-    if (getComputedStyle(element).getPropertyValue("display") === "none") {
+    if (
+      OriginPrototype.getComputedStyle(element).getPropertyValue("display") ===
+      "none"
+    ) {
       DOMUtils.show(element);
     } else {
       DOMUtils.hide(element);

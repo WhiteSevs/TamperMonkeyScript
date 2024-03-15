@@ -17,22 +17,47 @@
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherPops) {
   "use strict";
-  const ObjectAssign = Object.assign;
-  const ObjectDefineProperty = Object.defineProperty;
-  const ObjectCreate = Object.create;
-  const ObjectEntries = Object.entries;
-  const ObjectFreeze = Object.freeze;
-  const ObjectGetOwnPropertySymbols = Object.getOwnPropertySymbols;
-  const ObjectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  const ObjectKeys = Object.keys;
-  const ObjectToString = Object.prototype.toString;
-  const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
-  const ObjectValues = Object.values;
 
-  const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
+  const OriginPrototype = {
+    Array: {
+      isArray: Array.isArray,
+    },
+    Function: {
+      hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
+      apply: globalThis.Function.prototype.apply,
+      call: globalThis.Function.prototype.call,
+    },
+    Object: {
+      assign: globalThis.Object.assign,
+      defineProperty: globalThis.Object.defineProperty,
+      create: globalThis.Object.create,
+      entries: globalThis.Object.entries,
+      freeze: globalThis.Object.freeze,
+      getOwnPropertySymbols: globalThis.Object.getOwnPropertySymbols,
+      getOwnPropertyDescriptor: globalThis.Object.getOwnPropertyDescriptor,
+      getPrototypeOf: globalThis.Object.getPrototypeOf,
+      hasOwnProperty: globalThis.Object.hasOwnProperty,
+      keys: globalThis.Object.keys,
+      toString: globalThis.Object.toString,
+      values: globalThis.Object.values,
+    },
+    Reflect: {
+      deleteProperty: globalThis.Reflect.deleteProperty,
+      get: globalThis.Reflect.get,
+      has: globalThis.Reflect.has,
+      set: globalThis.Reflect.set,
+    },
+    URL: {
+      createObjectURL: globalThis.URL.createObjectURL,
+    },
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+    setInterval: globalThis.setInterval,
+    clearInterval: globalThis.clearInterval,
+  };
 
   /** 工具类 */
-  let PopsUtils = {
+  const PopsUtils = {
     /** .on绑定的事件 @type {unique symbol} */
     SymbolEvents: Symbol(
       "events_" +
@@ -414,7 +439,7 @@
       let maxZIndex = 0;
       let maxZIndexElement = null;
 
-      ObjectKeys(pops.config.layer).forEach((item) => {
+      OriginPrototype.Object.keys(pops.config.layer).forEach((item) => {
         pops.config.layer[item].forEach(
           /**
            * @param {PopsLayerCommonConfig} item2
@@ -439,7 +464,7 @@
      */
     getKeyFrames(sheet) {
       let result = {};
-      ObjectKeys(sheet.cssRules).forEach((key) => {
+      OriginPrototype.Object.keys(sheet.cssRules).forEach((key) => {
         if (
           sheet.cssRules[key].type === 7 &&
           sheet.cssRules[key].name.startsWith("pops-anim-")
@@ -465,7 +490,7 @@
      * }} options
      */
     drag(moveElement, options = {}) {
-      options = ObjectAssign(
+      options = OriginPrototype.Object.assign(
         {
           limit: true,
           extraDistance: 3,
@@ -698,7 +723,9 @@
                 d.__proto__ = b;
               }) ||
             function (d, b) {
-              for (var p in b) if (ObjectHasOwnProperty.call(b, p)) d[p] = b[p];
+              for (var p in b)
+                if (OriginPrototype.Object.hasOwnProperty.call(b, p))
+                  d[p] = b[p];
             };
           return extendStatics(d, b);
         };
@@ -716,18 +743,19 @@
           }
           d.prototype =
             b === null
-              ? ObjectCreate(b)
+              ? OriginPrototype.Object.create(b)
               : ((__.prototype = b.prototype), new __());
         }
 
         var __assign = function () {
           __assign =
-            ObjectAssign ||
+            OriginPrototype.Object.assign ||
             function __assign(t) {
               for (var s, i = 1, n = arguments.length; i < n; i++) {
                 s = arguments[i];
                 for (var p in s)
-                  if (ObjectHasOwnProperty.call(s, p)) t[p] = s[p];
+                  if (OriginPrototype.Object.hasOwnProperty.call(s, p))
+                    t[p] = s[p];
               }
               return t;
             };
@@ -1025,7 +1053,7 @@
             x = _a.x,
             y = _a.y;
           var currentTarget = nativeEvent.currentTarget;
-          return ObjectAssign(basicsInput, {
+          return OriginPrototype.Object.assign(basicsInput, {
             id: id,
             x: x,
             y: y,
@@ -1155,7 +1183,7 @@
           } else {
             event = new Event(typeName, eventInit);
           }
-          ObjectAssign(event, data, {
+          OriginPrototype.Object.assign(event, data, {
             match: function () {
               return (
                 payload.targets &&
@@ -1259,7 +1287,7 @@
               var supportsPassive_1 = false;
               try {
                 var opts = {};
-                ObjectDefineProperty(opts, "passive", {
+                OriginPrototype.Object.defineProperty(opts, "passive", {
                   get: function () {
                     supportsPassive_1 = true;
                   },
@@ -2092,7 +2120,7 @@
         ss: checkTime(time.getSeconds()),
         /* 秒 */
       };
-      ObjectKeys(timeRegexp).forEach(function (key) {
+      OriginPrototype.Object.keys(timeRegexp).forEach(function (key) {
         let replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
       });
@@ -2241,7 +2269,7 @@
   };
 
   /** 元素工具类 */
-  let PopsDOMUtils = {
+  const PopsDOMUtils = {
     /**
      * 获取animationend的在各个浏览器的兼容名
      */
@@ -2385,7 +2413,7 @@
               /* 在上层与主元素之间寻找可以被selector所匹配到的 */
               let closestElement = target.closest(_selector_);
               /* event的target值不能直接修改 */
-              ObjectDefineProperty(event, "target", {
+              OriginPrototype.Object.defineProperty(event, "target", {
                 get() {
                   return closestElement;
                 },
@@ -2575,7 +2603,7 @@
         eventTypeList.forEach((_eventType_) => {
           let event = new Event(_eventType_);
           if (details) {
-            ObjectKeys(details).forEach((keyName) => {
+            OriginPrototype.Object.keys(details).forEach((keyName) => {
               event[keyName] = details[keyName];
             });
           }
@@ -2914,11 +2942,11 @@
       if (attributes == void 0) {
         attributes = {};
       }
-      ObjectKeys(property).forEach((key) => {
+      OriginPrototype.Object.keys(property).forEach((key) => {
         let value = property[key];
         tempElement[key] = value;
       });
-      ObjectKeys(attributes).forEach((key) => {
+      OriginPrototype.Object.keys(attributes).forEach((key) => {
         let value = attributes[key];
         if (typeof value === "object") {
           /* object转字符串 */
@@ -2934,12 +2962,12 @@
   };
 
   /** 弹窗 */
-  let pops = {};
+  const pops = {};
 
   /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.3.10",
+    version: "2024.3.15",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
@@ -5088,7 +5116,7 @@
      * } }
      */
     handleResultDetails(details) {
-      let _details_ = ObjectAssign({}, details);
+      let _details_ = OriginPrototype.Object.assign({}, details);
       delete _details_["type"];
       delete _details_["function"];
       delete _details_["type"];
@@ -5110,7 +5138,7 @@
           let _event_ = {
             type: type,
           };
-          _event_ = ObjectAssign(event, _event_);
+          _event_ = OriginPrototype.Object.assign(event, _event_);
           callback(_event_);
         },
         {
@@ -5176,7 +5204,7 @@
             type: type,
             text: inputElement.value,
           };
-          _event_ = ObjectAssign(event, _event_);
+          _event_ = OriginPrototype.Object.assign(event, _event_);
           callback(_event_);
         },
         {
@@ -7334,7 +7362,7 @@
       { other: btnOtherElement },
     ];
     needHandleClickEventList.forEach((item) => {
-      let btnName = ObjectKeys(item)[0];
+      let btnName = OriginPrototype.Object.keys(item)[0];
       PopsHandler.handleClickEvent(
         item[btnName],
         btnName,
@@ -8843,7 +8871,7 @@
             this.addElementAttributes(element, attrObject);
           });
         } else {
-          ObjectKeys(attributes).forEach((attributeName) => {
+          OriginPrototype.Object.keys(attributes).forEach((attributeName) => {
             element.setAttribute(attributeName, attributes[attributeName]);
           });
         }
@@ -8857,7 +8885,7 @@
         if (props == null) {
           return;
         }
-        ObjectKeys(props).forEach((propName) => {
+        OriginPrototype.Object.keys(props).forEach((propName) => {
           element[propName] = props[propName];
         });
       },
@@ -11056,7 +11084,7 @@
            */
           async function liElementClickEvent(clickEvent) {
             if (typeof item.callback === "function") {
-              ObjectDefineProperty(menuEvent, "target", {
+              OriginPrototype.Object.defineProperty(menuEvent, "target", {
                 get() {
                   return menuEventTarget;
                 },

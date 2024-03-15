@@ -20,27 +20,50 @@
     global.Utils = factory(global.Utils);
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
-  const ObjectAssign = Object.assign;
-  const ObjectDefineProperty = Object.defineProperty;
-  const ObjectCreate = Object.create;
-  const ObjectEntries = Object.entries;
-  const ObjectFreeze = Object.freeze;
-  const ObjectGetOwnPropertySymbols = Object.getOwnPropertySymbols;
-  const ObjectGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  const ObjectKeys = Object.keys;
-  const ObjectToString = Object.prototype.toString;
-  const ObjectHasOwnProperty = Object.prototype.hasOwnProperty;
-  const ObjectValues = Object.values;
-
-  const ReflectDeleteProperty = Reflect.deleteProperty;
-
-  const FunctionHasOwnProperty = Function.prototype.hasOwnProperty;
+  const OriginPrototype = {
+    Array: {
+      isArray: Array.isArray,
+    },
+    Function: {
+      hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
+      apply: globalThis.Function.prototype.apply,
+      call: globalThis.Function.prototype.call,
+    },
+    Object: {
+      assign: globalThis.Object.assign,
+      defineProperty: globalThis.Object.defineProperty,
+      create: globalThis.Object.create,
+      entries: globalThis.Object.entries,
+      freeze: globalThis.Object.freeze,
+      getOwnPropertySymbols: globalThis.Object.getOwnPropertySymbols,
+      getOwnPropertyDescriptor: globalThis.Object.getOwnPropertyDescriptor,
+      getPrototypeOf: globalThis.Object.getPrototypeOf,
+      hasOwnProperty: globalThis.Object.hasOwnProperty,
+      keys: globalThis.Object.keys,
+      toString: globalThis.Object.toString,
+      values: globalThis.Object.values,
+    },
+    Reflect: {
+      deleteProperty: globalThis.Reflect.deleteProperty,
+      get: globalThis.Reflect.get,
+      has: globalThis.Reflect.has,
+      set: globalThis.Reflect.set,
+    },
+    URL: {
+      createObjectURL: globalThis.URL.createObjectURL,
+    },
+    fetch: globalThis.fetch,
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+    setInterval: globalThis.setInterval,
+    clearInterval: globalThis.clearInterval,
+  };
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-3-7";
+  Utils.version = "2024-3-15";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
-    if (Array.isArray(source)) {
+    if (OriginPrototype.Array.isArray(source)) {
       let canTraverse = source.filter((item) => {
         return typeof item === "object";
       });
@@ -72,7 +95,7 @@
           if (
             typeof sourceValue === "object" &&
             !Utils.isDOM(sourceValue) &&
-            ObjectKeys(sourceValue).length
+            OriginPrototype.Object.keys(sourceValue).length
           ) {
             /* 源端的值是object类型，且不是元素节点 */
             target[targetKeyName] = Utils.assign(
@@ -94,8 +117,8 @@
   Utils.ajaxHooker = function () {
     "use strict";
     const win = window.unsafeWindow || document.defaultView || window;
-    const toString = ObjectToString;
-    const getDescriptor = ObjectGetOwnPropertyDescriptor;
+    const toString = OriginPrototype.Object.toString;
+    const getDescriptor = OriginPrototype.Object.getOwnPropertyDescriptor;
     const hookFns = [];
     const realXhr = win.XMLHttpRequest;
     const realFetch = win.fetch;
@@ -124,7 +147,7 @@
       console.error(err);
     }
     function defineProp(obj, prop, getter, setter) {
-      ObjectDefineProperty(obj, prop, {
+      OriginPrototype.Object.defineProperty(obj, prop, {
         configurable: true,
         enumerable: true,
         get: getter,
@@ -135,7 +158,7 @@
       defineProp(obj, prop, () => value, emptyFn);
     }
     function writable(obj, prop, value = obj[prop]) {
-      ObjectDefineProperty(obj, prop, {
+      OriginPrototype.Object.defineProperty(obj, prop, {
         configurable: true,
         enumerable: true,
         writable: true,
@@ -645,13 +668,15 @@
       });
     }
     win.XMLHttpRequest = fakeXhr;
-    ObjectKeys(realXhr).forEach((key) => (fakeXhr[key] = realXhr[key]));
+    OriginPrototype.Object.keys(realXhr).forEach(
+      (key) => (fakeXhr[key] = realXhr[key])
+    );
     fakeXhr.prototype = realXhr.prototype;
     win.fetch = fakeFetch;
     return {
       hook: (fn) => hookFns.push(fn),
       filter: (arr) => {
-        filter = Array.isArray(arr) && arr;
+        filter = OriginPrototype.Array.isArray(arr) && arr;
       },
       protect: () => {
         readonly(win, "XMLHttpRequest", fakeXhr);
@@ -758,7 +783,7 @@
     if (obj === void 0) return void 0;
     if (obj === null) return null;
     let clone = obj instanceof Array ? [] : {};
-    for (const [key, value] of ObjectEntries(obj)) {
+    for (const [key, value] of OriginPrototype.Object.entries(obj)) {
       clone[key] = typeof value === "object" ? deepClone(value) : value;
     }
     return clone;
@@ -768,8 +793,8 @@
     let timer = null;
     const context = this;
     return function (...args) {
-      clearTimeout(timer);
-      timer = setTimeout(function () {
+      OriginPrototype.clearTimeout(timer);
+      timer = OriginPrototype.setTimeout(function () {
         fn.apply(context, args);
       }, delay);
     };
@@ -854,7 +879,7 @@
        */
       delete(key) {
         if (this.has(key)) {
-          ReflectDeleteProperty(this.items, key);
+          OriginPrototype.Reflect.deleteProperty(this.items, key);
           return true;
         }
         return false;
@@ -891,13 +916,13 @@
        * @returns {number}
        */
       size() {
-        return ObjectKeys(this.items).length;
+        return OriginPrototype.Object.keys(this.items).length;
       }
       /**
        * 获取字典所有的键
        */
       keys() {
-        return ObjectKeys(this.items);
+        return OriginPrototype.Object.keys(this.items);
       }
       /**
        * 返回字典本身
@@ -926,7 +951,7 @@
       get entries() {
         let that = this;
         return function* () {
-          let itemKeys = ObjectKeys(that.getItems());
+          let itemKeys = OriginPrototype.Object.keys(that.getItems());
           for (const keyName of itemKeys) {
             yield [keyName, that.get(keyName)];
           }
@@ -956,13 +981,13 @@
     if (typeof eventName === "string") {
       eventNameList = [eventName];
     }
-    if (Array.isArray(eventName)) {
+    if (OriginPrototype.Array.isArray(eventName)) {
       eventNameList = [...eventName];
     }
     eventNameList.forEach((_eventName_) => {
       let event = new Event(_eventName_);
       if (details) {
-        ObjectAssign(event, details);
+        OriginPrototype.Object.assign(event, details);
       }
       element.dispatchEvent(event);
     });
@@ -983,7 +1008,7 @@
       iframeElement.style.display = "none";
       iframeElement.src = base64Data;
       document.body.appendChild(iframeElement);
-      setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         iframeElement.contentWindow.document.execCommand(
           "SaveAs",
           true,
@@ -1174,7 +1199,7 @@
       ss: checkTime(time.getSeconds()),
       /* 秒 */
     };
-    ObjectKeys(timeRegexp).forEach(function (key) {
+    OriginPrototype.Object.keys(timeRegexp).forEach(function (key) {
       let replaecRegexp = new RegExp(key, "g");
       formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
     });
@@ -1457,7 +1482,7 @@
       ) {
         let data = result[0];
         let handleDataFunc = result[1];
-        ObjectKeys(data).forEach((keyName) => {
+        OriginPrototype.Object.keys(data).forEach((keyName) => {
           newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
         });
       } else {
@@ -1507,7 +1532,7 @@
       ) {
         let data = result[0];
         let handleDataFunc = result[1];
-        ObjectKeys(data).forEach((keyName) => {
+        OriginPrototype.Object.keys(data).forEach((keyName) => {
           newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
         });
       } else {
@@ -1572,15 +1597,17 @@
       }
     } else if (result.length === 1) {
       let paramData = result[0];
-      if (Array.isArray(paramData)) {
+      if (OriginPrototype.Array.isArray(paramData)) {
         return paramData[Math.floor(Math.random() * paramData.length)];
       } else if (
         typeof paramData === "object" &&
-        ObjectKeys(paramData).length > 0
+        OriginPrototype.Object.keys(paramData).length > 0
       ) {
         let paramObjDataKey =
-          ObjectKeys(paramData)[
-            Math.floor(Math.random() * ObjectKeys(paramData).length)
+          OriginPrototype.Object.keys(paramData)[
+            Math.floor(
+              Math.random() * OriginPrototype.Object.keys(paramData).length
+            )
           ];
         return paramData[paramObjDataKey];
       } else {
@@ -1599,7 +1626,7 @@
 
   Utils.getReactObj = function (element) {
     let result = {};
-    ObjectKeys(element).forEach((domPropsName) => {
+    OriginPrototype.Object.keys(element).forEach((domPropsName) => {
       if (domPropsName.startsWith("__react")) {
         let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
         if (propsName in result) {
@@ -1616,7 +1643,7 @@
     if (typeof target !== "object") {
       throw new TypeError("target不是一个对象");
     }
-    let objectsSymbols = ObjectGetOwnPropertySymbols(target);
+    let objectsSymbols = OriginPrototype.Object.getOwnPropertySymbols(target);
     if (typeof keyName === "string") {
       let findSymbol = objectsSymbols.find((key) => {
         return key.toString() === keyName;
@@ -1808,7 +1835,7 @@
        */
       unregisterMenuCommand: details.GM_unregisterMenuCommand,
     };
-    for (const keyName of ObjectKeys(GM_Api)) {
+    for (const keyName of OriginPrototype.Object.keys(GM_Api)) {
       if (typeof GM_Api[keyName] !== "function") {
         throw new Error(
           `Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`
@@ -1934,7 +1961,7 @@
           that.update();
         }
       }
-      let menuOptionsLength = ObjectValues(menuOptions).filter(
+      let menuOptionsLength = OriginPrototype.Object.values(menuOptions).filter(
         (_item_) => _item_ != null
       ).length;
 
@@ -2156,7 +2183,7 @@
      * @param {UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions} paramData
      */
     this.add = function (paramData) {
-      if (Array.isArray(paramData)) {
+      if (OriginPrototype.Array.isArray(paramData)) {
         data = data.concat(paramData);
       } else {
         data.push(paramData);
@@ -2169,7 +2196,7 @@
      */
     this.update = function (options) {
       let optionsList = [];
-      if (Array.isArray(options)) {
+      if (OriginPrototype.Array.isArray(options)) {
         /* 是数组 */
         optionsList = optionsList.concat(options);
       } else if (options != null) {
@@ -2179,7 +2206,7 @@
       optionsList.forEach((item) => {
         let targetMenu = getTargetMenu(item.key);
         if (targetMenu) {
-          ObjectAssign(targetMenu, item);
+          OriginPrototype.Object.assign(targetMenu, item);
         }
       });
       menuIdMap.forEach((value, key) => {
@@ -2198,7 +2225,7 @@
        * @type {UtilsGMMenuConstructorOptions[]}
        */
       let optionsList = [];
-      if (Array.isArray(menuOptions)) {
+      if (OriginPrototype.Array.isArray(menuOptions)) {
         /* 是数组 */
         optionsList = optionsList.concat(menuOptions);
       } else if (menuOptions != null) {
@@ -2213,7 +2240,7 @@
               (item) => item.key === value.key
             );
             if (findDataIndex !== -1) {
-              ObjectAssign(data[findDataIndex], option);
+              OriginPrototype.Object.assign(data[findDataIndex], option);
             }
             register([option]);
           }
@@ -2288,16 +2315,19 @@
           return false;
         }
         _context[_funcName] = _context["realFunc" + _funcName];
-        ReflectDeleteProperty(_context, "realFunc_" + _funcName);
+        OriginPrototype.Reflect.deleteProperty(
+          _context,
+          "realFunc_" + _funcName
+        );
         return true;
       };
     };
     this.cleanEnv = function () {
-      if (FunctionHasOwnProperty("hook")) {
-        ReflectDeleteProperty(unction.prototype, "hook");
+      if (OriginPrototype.Function.hasOwnProperty("hook")) {
+        OriginPrototype.Reflect.deleteProperty(unction.prototype, "hook");
       }
-      if (FunctionHasOwnProperty("unhook")) {
-        ReflectDeleteProperty(unction.prototype, "unhook");
+      if (OriginPrototype.Function.hasOwnProperty("unhook")) {
+        OriginPrototype.Reflect.deleteProperty(unction.prototype, "unhook");
       }
       return true;
     };
@@ -2418,17 +2448,22 @@
         }
         if (typeof result.headers === "object") {
           if (typeof details.headers === "object") {
-            ObjectKeys(details.headers).forEach((keyName, index) => {
-              if (
-                keyName in result.headers &&
-                details.headers[keyName] == null
-              ) {
-                /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
-                ReflectDeleteProperty(result.headers, keyName);
-              } else {
-                result.headers[keyName] = details.headers[keyName];
+            OriginPrototype.Object.keys(details.headers).forEach(
+              (keyName, index) => {
+                if (
+                  keyName in result.headers &&
+                  details.headers[keyName] == null
+                ) {
+                  /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
+                  OriginPrototype.Reflect.deleteProperty(
+                    result.headers,
+                    keyName
+                  );
+                } else {
+                  result.headers[keyName] = details.headers[keyName];
+                }
               }
-            });
+            );
           } else {
             /* details.headers为空 */
             /* 不做处理 */
@@ -2439,17 +2474,22 @@
         if (typeof result.fetchInit === "object") {
           /* 使用assign替换且添加 */
           if (typeof details.fetchInit === "object") {
-            ObjectKeys(details.fetchInit).forEach((keyName, index) => {
-              if (
-                keyName in result.fetchInit &&
-                details.fetchInit[keyName] == null
-              ) {
-                /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
-                ReflectDeleteProperty(result.fetchInit, keyName);
-              } else {
-                result.fetchInit[keyName] = details.fetchInit[keyName];
+            OriginPrototype.Object.keys(details.fetchInit).forEach(
+              (keyName, index) => {
+                if (
+                  keyName in result.fetchInit &&
+                  details.fetchInit[keyName] == null
+                ) {
+                  /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
+                  OriginPrototype.Reflect.deleteProperty(
+                    result.fetchInit,
+                    keyName
+                  );
+                } else {
+                  result.fetchInit[keyName] = details.fetchInit[keyName];
+                }
               }
-            });
+            );
           }
         } else {
           result.fetchInit = details.fetchInit;
@@ -2462,13 +2502,13 @@
        * @returns {HttpxDetails}
        */
       handle(details) {
-        ObjectKeys(details).forEach((keyName) => {
+        OriginPrototype.Object.keys(details).forEach((keyName) => {
           if (
             details[keyName] == null ||
             (details[keyName] instanceof Function &&
               Utils.isNull(details[keyName]))
           ) {
-            ReflectDeleteProperty(details, keyName);
+            OriginPrototype.Reflect.deleteProperty(details, keyName);
             return;
           }
         });
@@ -2506,7 +2546,7 @@
           details.data != null
         ) {
           /* GET 或 HEAD 方法的请求不能包含 body 信息 */
-          ReflectDeleteProperty(details, "data");
+          OriginPrototype.Reflect.deleteProperty(details, "data");
         }
         /* 中止信号控制器 */
         let abortController = new AbortController();
@@ -2532,7 +2572,10 @@
         fetchRequestInit.redirect = "follow";
         fetchRequestInit.referrerPolicy = "origin-when-cross-origin";
         fetchRequestInit.signal = signal;
-        ObjectAssign(fetchRequestInit, details.fetchInit || {});
+        OriginPrototype.Object.assign(
+          fetchRequestInit,
+          details.fetchInit || {}
+        );
         return {
           fetchDetails: details,
           fetchRequestInit: fetchRequestInit,
@@ -2729,7 +2772,7 @@
             HttpxRequestDetails.handleFetchDetail(details);
           this.fetch(fetchDetails, fetchRequestInit, abortController);
         } else {
-          ReflectDeleteProperty(details, "fetchInit");
+          OriginPrototype.Reflect.deleteProperty(details, "fetchInit");
           this.xmlHttpRequest(details);
         }
       },
@@ -2765,7 +2808,7 @@
               responseType: details.responseType,
               responseXML: void 0,
             };
-            ObjectAssign(httpxResponse, details.context || {});
+            OriginPrototype.Object.assign(httpxResponse, details.context || {});
 
             for (const [key, value] of resp.headers.entries()) {
               httpxResponse.responseHeaders += `${key}: ${value}\n`;
@@ -2779,8 +2822,14 @@
             ) {
               httpxResponse["isStream"] = true;
               httpxResponse.response = resp.body;
-              ReflectDeleteProperty(httpxResponse, "responseText");
-              ReflectDeleteProperty(httpxResponse, "responseXML");
+              OriginPrototype.Reflect.deleteProperty(
+                httpxResponse,
+                "responseText"
+              );
+              OriginPrototype.Reflect.deleteProperty(
+                httpxResponse,
+                "responseXML"
+              );
               details.onload(httpxResponse);
               return;
             }
@@ -2906,7 +2955,7 @@
           resolve,
           details
         );
-        ReflectDeleteProperty(requestDetails, "onprogress");
+        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2959,7 +3008,7 @@
           resolve,
           details
         );
-        ReflectDeleteProperty(requestDetails, "onprogress");
+        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2987,7 +3036,7 @@
           resolve,
           details
         );
-        ReflectDeleteProperty(requestDetails, "onprogress");
+        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -3015,7 +3064,7 @@
           resolve,
           details
         );
-        ReflectDeleteProperty(requestDetails, "onprogress");
+        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -3603,7 +3652,7 @@
           } else if (typeof objItem[Symbol.iterator] === "function") {
             itemResult = objItem.length === 0;
           } else {
-            itemResult = ObjectKeys(objItem).length === 0;
+            itemResult = OriginPrototype.Object.keys(objItem).length === 0;
           }
           break;
         case "number":
@@ -3652,7 +3701,7 @@
         charCount[char] = 1;
       }
     }
-    if (ObjectKeys(charCount).length === 1) {
+    if (OriginPrototype.Object.keys(charCount).length === 1) {
       return true;
     } else {
       return false;
@@ -3703,8 +3752,8 @@
   Utils.isWebView_Via = function () {
     let result = true;
     if (typeof top.window.via === "object") {
-      for (const key in ObjectValues(top.window.via)) {
-        if (ObjectHasOwnProperty.call(top.window.via, key)) {
+      for (const key in OriginPrototype.Object.values(top.window.via)) {
+        if (OriginPrototype.Object.hasOwnProperty.call(top.window.via, key)) {
           let objValueFunc = top.window.via[key];
           if (
             typeof objValueFunc === "function" &&
@@ -3726,8 +3775,10 @@
   Utils.isWebView_X = function () {
     let result = true;
     if (typeof top.window.mbrowser === "object") {
-      for (const key in ObjectValues(top.window.mbrowser)) {
-        if (ObjectHasOwnProperty.call(top.window.mbrowser, key)) {
+      for (const key in OriginPrototype.Object.values(top.window.mbrowser)) {
+        if (
+          OriginPrototype.Object.hasOwnProperty.call(top.window.mbrowser, key)
+        ) {
           let objValueFunc = top.window.mbrowser[key];
           if (
             typeof objValueFunc === "function" &&
@@ -3753,7 +3804,7 @@
       );
     }
     let result = [];
-    ObjectKeys(target).forEach(function (keyName) {
+    OriginPrototype.Object.keys(target).forEach(function (keyName) {
       result = result.concat(target[keyName]);
     });
     return result;
@@ -3811,7 +3862,7 @@
      * 解锁
      */
     this.unlock = function () {
-      setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         flag = false;
       }, delayTime);
     };
@@ -3945,7 +3996,7 @@
       if (typeof msg === "object") {
         /* 要输出的内容是个对象 */
         if (details.tag) {
-          if (Array.isArray(msg) && msg.length < 5) {
+          if (OriginPrototype.Array.isArray(msg) && msg.length < 5) {
             console.log(
               `%c[${this.tag}%c-%c${callerName}%c]%c `,
               ...msgColorDetails,
@@ -3961,7 +4012,7 @@
             );
           }
         } else {
-          if (Array.isArray(msg) && msg.length < 5) {
+          if (OriginPrototype.Array.isArray(msg) && msg.length < 5) {
             console.log(...msg);
           } else {
             console.log(msg);
@@ -4058,14 +4109,14 @@
      * @param {UtilsLogOptions} paramDetails 配置信息
      */
     this.config = function (paramDetails) {
-      details = ObjectAssign(details, paramDetails);
+      details = OriginPrototype.Object.assign(details, paramDetails);
     };
     /**
      * 禁用输出
      */
     this.disable = function () {
       let that = this;
-      ObjectKeys(this)
+      OriginPrototype.Object.keys(this)
         .filter((keyName) => Boolean(keyName.match(/info|error|success|table/)))
         .forEach((keyName) => {
           let value = {};
@@ -4080,7 +4131,7 @@
     this.recovery = function () {
       let that = this;
       recoveryList.forEach((item) => {
-        let keyName = ObjectKeys(item);
+        let keyName = OriginPrototype.Object.keys(item);
         that[keyName] = item[keyName];
       });
       recoveryList = [];
@@ -4102,7 +4153,7 @@
       });
     } else {
       data.forEach((item) => {
-        ObjectValues(item)
+        OriginPrototype.Object.values(item)
           .filter((item2) => typeof item2 === "string")
           .forEach((item3) => {
             content += item3;
@@ -4201,7 +4252,7 @@
 
   Utils.noConflict = function () {
     if (window.Utils) {
-      ReflectDeleteProperty(window, "Utils");
+      OriginPrototype.Reflect.deleteProperty(window, "Utils");
     }
     if (AnotherUtils) {
       window.Utils = AnotherUtils;
@@ -4225,7 +4276,7 @@
         "Utils.noConflictFunc 参数 needReleaseName 必须为 string 类型"
       );
     }
-    if (!Array.isArray(functionNameList)) {
+    if (!OriginPrototype.Array.isArray(functionNameList)) {
       throw new Error(
         "Utils.noConflictFunc 参数 functionNameList 必须为 Array 类型"
       );
@@ -4256,7 +4307,7 @@
         return;
       }
       window[needReleaseKey] = cloneObj(needReleaseObject);
-      ObjectValues(needReleaseObject).forEach((value) => {
+      OriginPrototype.Object.values(needReleaseObject).forEach((value) => {
         if (typeof value === "function") {
           needReleaseObject[value.name] = () => {};
         }
@@ -4267,7 +4318,7 @@
      */
     function releaseOne() {
       Array.from(functionNameList).forEach((item) => {
-        ObjectValues(needReleaseObject).forEach((value) => {
+        OriginPrototype.Object.values(needReleaseObject).forEach((value) => {
           if (typeof value === "function") {
             if (typeof window[needReleaseKey] === "undefined") {
               window[needReleaseKey] = {};
@@ -4289,8 +4340,8 @@
         /* 未存在 */
         return;
       }
-      ObjectAssign(needReleaseObject, window[needReleaseKey]);
-      ReflectDeleteProperty(window, "needReleaseKey");
+      OriginPrototype.Object.assign(needReleaseObject, window[needReleaseKey]);
+      OriginPrototype.Reflect.deleteProperty(window, "needReleaseKey");
     }
 
     /**
@@ -4304,9 +4355,11 @@
       Array.from(functionNameList).forEach((item) => {
         if (window[needReleaseKey][item]) {
           needReleaseObject[item] = window[needReleaseKey][item];
-          ReflectDeleteProperty(window[needReleaseKey], item);
-          if (ObjectKeys(window[needReleaseKey]).length === 0) {
-            ReflectDeleteProperty(window, needReleaseKey);
+          OriginPrototype.Reflect.deleteProperty(window[needReleaseKey], item);
+          if (
+            OriginPrototype.Object.keys(window[needReleaseKey]).length === 0
+          ) {
+            OriginPrototype.Reflect.deleteProperty(window, needReleaseKey);
           }
         }
       });
@@ -4721,7 +4774,7 @@
       throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         resolve(Utils.tryCatch().run(callback));
       }, delayTime);
     });
@@ -4732,7 +4785,7 @@
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         resolve();
       }, delayTime);
     });
@@ -4908,7 +4961,7 @@
       getDataFunc = data;
       data = data();
     }
-    if (Array.isArray(data)) {
+    if (OriginPrototype.Array.isArray(data)) {
       data.sort(sortFunc);
     } else if (data instanceof NodeList || Utils.isJQuery(data)) {
       sortNodeFunc(data, getDataFunc);
@@ -4963,7 +5016,7 @@
     let searchStringRegexp = searchString;
     if (typeof searchString === "string") {
       searchStringRegexp = new RegExp(`^${searchString}`);
-    } else if (Array.isArray(searchString)) {
+    } else if (OriginPrototype.Array.isArray(searchString)) {
       let flag = false;
       for (const searcStr of searchString) {
         if (!Utils.startsWith(target, searcStr, position)) {
@@ -5033,7 +5086,7 @@
 
   Utils.toSearchParamsStr = function (obj) {
     let searhParamsStr = "";
-    if (Array.isArray(obj)) {
+    if (OriginPrototype.Array.isArray(obj)) {
       obj.forEach((item) => {
         if (searhParamsStr === "") {
           searhParamsStr += Utils.toSearchParamsStr(item);
@@ -5042,7 +5095,9 @@
         }
       });
     } else {
-      searhParamsStr = new URLSearchParams(ObjectEntries(obj)).toString();
+      searhParamsStr = new URLSearchParams(
+        OriginPrototype.Object.entries(obj)
+      ).toString();
     }
     return searhParamsStr;
   };
@@ -5229,7 +5284,7 @@
     /** @type {string[]} */
     let nodeSelectors = [];
     /* 检查每个参数是否为字符串类型 */
-    if (Array.isArray(nodeSelectorsList)) {
+    if (OriginPrototype.Array.isArray(nodeSelectorsList)) {
       for (let nodeSelector of nodeSelectorsList) {
         if (typeof nodeSelector !== "string") {
           throw new Error(
@@ -5284,7 +5339,7 @@
           checkNodes(observer);
         },
       });
-      setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         mutationObserver.disconnect();
       }, maxTime);
     });
@@ -5439,10 +5494,10 @@
       if (typeof checkObj === "function") {
         obj = checkObj();
       }
-      if (ObjectHasOwnProperty.call(obj, checkPropertyName)) {
+      if (OriginPrototype.Object.hasOwnProperty.call(obj, checkPropertyName)) {
         resolve(obj[checkPropertyName]);
       } else {
-        ObjectDefineProperty(obj, checkPropertyName, {
+        OriginPrototype.Object.defineProperty(obj, checkPropertyName, {
           set: function (value) {
             try {
               resolve(value);
@@ -5466,24 +5521,24 @@
     }
     let isResolve = false;
     return new Promise((resolve) => {
-      let interval = setInterval(() => {
+      let interval = OriginPrototype.setInterval(() => {
         let obj = checkObj;
         if (typeof checkObj === "function") {
           obj = checkObj();
         }
         if (
           (typeof checkPropertyName === "function" && checkPropertyName(obj)) ||
-          ObjectHasOwnProperty.call(obj, checkPropertyName)
+          OriginPrototype.Object.hasOwnProperty.call(obj, checkPropertyName)
         ) {
           isResolve = true;
-          clearInterval(interval);
+          OriginPrototype.clearInterval(interval);
           resolve(obj[checkPropertyName]);
         }
       }, intervalTimer);
       if (maxTime !== -1) {
-        setTimeout(() => {
+        OriginPrototype.setTimeout(() => {
           if (!isResolve) {
-            clearInterval(interval);
+            OriginPrototype.clearInterval(interval);
             resolve();
           }
         }, maxTime);
@@ -5549,7 +5604,7 @@
     }
 
     if (typeof getCallBack === "function") {
-      ObjectDefineProperty(target, propertyName, {
+      OriginPrototype.Object.defineProperty(target, propertyName, {
         get() {
           if (typeof getCallBack === "function") {
             return getCallBack(value);
@@ -5559,7 +5614,7 @@
         },
       });
     } else if (typeof setCallBack === "function") {
-      ObjectDefineProperty(target, propertyName, {
+      OriginPrototype.Object.defineProperty(target, propertyName, {
         set(value) {
           if (typeof setCallBack === "function") {
             setCallBack(value);
@@ -5567,7 +5622,7 @@
         },
       });
     } else {
-      ObjectDefineProperty(target, propertyName, {
+      OriginPrototype.Object.defineProperty(target, propertyName, {
         get() {
           if (typeof getCallBack === "function") {
             return getCallBack(value);
