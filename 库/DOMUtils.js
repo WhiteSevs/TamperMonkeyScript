@@ -43,19 +43,6 @@
       toString: globalThis.Object.toString,
       values: globalThis.Object.values,
     },
-    Reflect: {
-      deleteProperty: globalThis.Reflect.deleteProperty,
-      get: globalThis.Reflect.get,
-      has: globalThis.Reflect.has,
-      set: globalThis.Reflect.set,
-    },
-    URL: {
-      createObjectURL: globalThis.URL.createObjectURL,
-    },
-    setTimeout: globalThis.setTimeout,
-    clearTimeout: globalThis.clearTimeout,
-    setInterval: globalThis.setInterval,
-    clearInterval: globalThis.clearInterval,
     getComputedStyle: globalThis.getComputedStyle,
   };
   /** @type {DOMUtils} */
@@ -1132,7 +1119,7 @@
       document.readyState === "complete" ||
       (document.readyState !== "loading" && !document.documentElement.doScroll)
     ) {
-      OriginPrototype.setTimeout(callback);
+      setTimeout(callback);
     } else {
       /* 监听DOMContentLoaded事件 */
       document.addEventListener("DOMContentLoaded", completed);
@@ -1173,7 +1160,7 @@
         element.style[prop] || OriginPrototype.getComputedStyle(element)[prop];
       to[prop] = styles[prop];
     }
-    let timer = OriginPrototype.setInterval(function () {
+    let timer = setInterval(function () {
       let timePassed = performance.now() - start;
       let progress = timePassed / duration;
       if (progress > 1) {
@@ -1184,7 +1171,7 @@
           from[prop] + (to[prop] - from[prop]) * progress + "px";
       }
       if (progress === 1) {
-        OriginPrototype.clearInterval(timer);
+        clearInterval(timer);
         if (callback) {
           callback();
         }

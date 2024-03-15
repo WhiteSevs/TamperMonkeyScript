@@ -41,19 +41,6 @@
       toString: globalThis.Object.toString,
       values: globalThis.Object.values,
     },
-    Reflect: {
-      deleteProperty: globalThis.Reflect.deleteProperty,
-      get: globalThis.Reflect.get,
-      has: globalThis.Reflect.has,
-      set: globalThis.Reflect.set,
-    },
-    URL: {
-      createObjectURL: globalThis.URL.createObjectURL,
-    },
-    setTimeout: globalThis.setTimeout,
-    clearTimeout: globalThis.clearTimeout,
-    setInterval: globalThis.setInterval,
-    clearInterval: globalThis.clearInterval,
   };
 
   /** 工具类 */
@@ -234,7 +221,7 @@
     hide(popsType, source, guid, config, animElement, maskElement) {
       let popsElement = animElement.querySelector(".pops[type-value]");
       if (popsType === "drawer") {
-        OriginPrototype.setTimeout(() => {
+        setTimeout(() => {
           maskElement.style.setProperty("display", "none");
           if (["top", "bottom"].includes(config.direction)) {
             popsElement.style.setProperty("height", 0);
@@ -305,7 +292,7 @@
     show(popsType, source, guid, config, animElement, maskElement) {
       let popsElement = animElement.querySelector(".pops[type-value]");
       if (popsType === "drawer") {
-        OriginPrototype.setTimeout(() => {
+        setTimeout(() => {
           maskElement.style.setProperty("display", "");
           if (["top", "bottom"].includes(config.direction)) {
             popsElement.style.setProperty("height", config.size);
@@ -424,7 +411,7 @@
       }
 
       if (popsType === "drawer") {
-        OriginPrototype.setTimeout(() => {
+        setTimeout(() => {
           transitionendEvent();
         }, config.closeDelay);
       } else {
@@ -1689,7 +1676,7 @@
             prevTapTime = void 0;
           }
           function countDownToFail() {
-            countDownToFailTimer = OriginPrototype.setTimeout(function () {
+            countDownToFailTimer = setTimeout(function () {
               context.state = 2;
               reset();
             }, context.waitNextTapTime);
@@ -1726,7 +1713,7 @@
             if (TYPE_END !== phase) return;
             context.state = 0;
             if (test()) {
-              OriginPrototype.clearTimeout(countDownToFailTimer);
+              clearTimeout(countDownToFailTimer);
               if (
                 isValidDistanceFromPrevTap({ x: x, y: y }, context) &&
                 isValidInterval(context.waitNextTapTime)
@@ -1855,8 +1842,8 @@
               pointLength = computed.pointLength;
             if (TYPE_START === phase && context.pointLength === pointLength) {
               resetState(context);
-              OriginPrototype.clearTimeout(timeoutId);
-              timeoutId = OriginPrototype.setTimeout(function () {
+              clearTimeout(timeoutId);
+              timeoutId = setTimeout(function () {
                 context.state = 1;
                 at.emit2(context.name, computed, context);
               }, context.minPressTime);
@@ -1873,7 +1860,7 @@
                 (context.minPressTime > deltaTime &&
                   [TYPE_END, TYPE_CANCEL].includes(phase))
               ) {
-                OriginPrototype.clearTimeout(timeoutId);
+                clearTimeout(timeoutId);
                 context.state = 2;
               }
             }
@@ -1971,8 +1958,8 @@
           var timeID;
           at.beforeEach(function (type, next) {
             if ("tap" === type) {
-              OriginPrototype.clearTimeout(timeID);
-              timeID = OriginPrototype.setTimeout(function () {
+              clearTimeout(timeID);
+              timeID = setTimeout(function () {
                 if ([0, 2].includes(doubleTapContext.state)) {
                   next();
                 }
@@ -4835,7 +4822,7 @@
         animationStyle
       );
       this.config.animation = PopsUtils.getKeyFrames(animationStyle.sheet);
-      OriginPrototype.setTimeout(() => {
+      setTimeout(() => {
         animationStyle.remove();
       }, 50);
     }
@@ -6817,7 +6804,7 @@
       void 0,
       (event) => {
         PopsUtils.configRemove([that.config.layer.iframe], guid, false);
-        OriginPrototype.setTimeout(() => {
+        setTimeout(() => {
           let allIsMinElementList = [];
           pops.config.layer.iframe.forEach((item) => {
             if (
@@ -7485,8 +7472,8 @@
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
     PopsUtils.appendChild($shadowContainer);
-    OriginPrototype.setTimeout(() => {
-      OriginPrototype.setTimeout(() => {
+    setTimeout(() => {
+      setTimeout(() => {
         popsElement.style.setProperty("transform", "");
       }, config.openDelay);
     }, 50);
@@ -8281,12 +8268,12 @@
                   document.createElement("iframe");
                 downloadIframeLinkElement.src = downloadInfo.url;
                 downloadIframeLinkElement.onload = function () {
-                  OriginPrototype.setTimeout(() => {
+                  setTimeout(() => {
                     downloadIframeLinkElement.remove();
                   }, 1000);
                 };
                 $shadowRoot.appendChild(downloadIframeLinkElement);
-                OriginPrototype.setTimeout(() => {
+                setTimeout(() => {
                   downloadIframeLinkElement.remove();
                 }, 3 * 60 * 1000);
               } else {
@@ -9367,11 +9354,11 @@
             let isSuccess = false;
             let oldTotalWidth = this.$data.totalWidth;
             let timer = null;
-            let interval = OriginPrototype.setInterval(() => {
+            let interval = setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
-                OriginPrototype.clearTimeout(timer);
-                OriginPrototype.clearInterval(interval);
+                clearTimeout(timer);
+                clearInterval(interval);
               } else {
                 this.initTotalWidth();
                 if (this.$data.totalWidth !== 0) {
@@ -9389,8 +9376,8 @@
               }
             }, checkStepTime);
             /* 最长检测时间是10s */
-            timer = OriginPrototype.setTimeout(() => {
-              OriginPrototype.clearInterval(interval);
+            timer = setTimeout(() => {
+              clearInterval(interval);
             }, maxTime);
           },
           /**
@@ -9755,16 +9742,16 @@
               return;
             }
             this.$data.isCheckingStopDragMove = true;
-            let interval = OriginPrototype.setInterval(() => {
+            let interval = setInterval(() => {
               if (!this.$data.isMove) {
                 this.$data.isCheckingStopDragMove = false;
                 this.closeToolTip();
-                OriginPrototype.clearInterval(interval);
+                clearInterval(interval);
               }
             }, 200);
-            OriginPrototype.setTimeout(() => {
+            setTimeout(() => {
               this.$data.isCheckingStopDragMove = false;
-              OriginPrototype.clearInterval(interval);
+              clearInterval(interval);
             }, 2000);
           },
           /**

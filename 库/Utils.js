@@ -45,18 +45,7 @@
     },
     Reflect: {
       deleteProperty: globalThis.Reflect.deleteProperty,
-      get: globalThis.Reflect.get,
-      has: globalThis.Reflect.has,
-      set: globalThis.Reflect.set,
     },
-    URL: {
-      createObjectURL: globalThis.URL.createObjectURL,
-    },
-    fetch: globalThis.fetch,
-    setTimeout: globalThis.setTimeout,
-    clearTimeout: globalThis.clearTimeout,
-    setInterval: globalThis.setInterval,
-    clearInterval: globalThis.clearInterval,
   };
   /** @type {Utils} */
   const Utils = {};
@@ -793,8 +782,8 @@
     let timer = null;
     const context = this;
     return function (...args) {
-      OriginPrototype.clearTimeout(timer);
-      timer = OriginPrototype.setTimeout(function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
         fn.apply(context, args);
       }, delay);
     };
@@ -1008,7 +997,7 @@
       iframeElement.style.display = "none";
       iframeElement.src = base64Data;
       document.body.appendChild(iframeElement);
-      OriginPrototype.setTimeout(() => {
+      setTimeout(() => {
         iframeElement.contentWindow.document.execCommand(
           "SaveAs",
           true,
@@ -3867,7 +3856,7 @@
      * 解锁
      */
     this.unlock = function () {
-      OriginPrototype.setTimeout(() => {
+      setTimeout(() => {
         flag = false;
       }, delayTime);
     };
@@ -4779,7 +4768,7 @@
       throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      OriginPrototype.setTimeout(() => {
+      setTimeout(() => {
         resolve(Utils.tryCatch().run(callback));
       }, delayTime);
     });
@@ -4790,7 +4779,7 @@
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      OriginPrototype.setTimeout(() => {
+      setTimeout(() => {
         resolve();
       }, delayTime);
     });
@@ -5344,7 +5333,7 @@
           checkNodes(observer);
         },
       });
-      OriginPrototype.setTimeout(() => {
+      setTimeout(() => {
         mutationObserver.disconnect();
       }, maxTime);
     });
@@ -5526,7 +5515,7 @@
     }
     let isResolve = false;
     return new Promise((resolve) => {
-      let interval = OriginPrototype.setInterval(() => {
+      let interval = setInterval(() => {
         let obj = checkObj;
         if (typeof checkObj === "function") {
           obj = checkObj();
@@ -5536,14 +5525,14 @@
           OriginPrototype.Object.hasOwnProperty.call(obj, checkPropertyName)
         ) {
           isResolve = true;
-          OriginPrototype.clearInterval(interval);
+          clearInterval(interval);
           resolve(obj[checkPropertyName]);
         }
       }, intervalTimer);
       if (maxTime !== -1) {
-        OriginPrototype.setTimeout(() => {
+        setTimeout(() => {
           if (!isResolve) {
-            OriginPrototype.clearInterval(interval);
+            clearInterval(interval);
             resolve();
           }
         }, maxTime);
