@@ -201,6 +201,18 @@ declare interface NetDiskCheckLinkValidityStatus {
     setView(ele: HTMLDivElement, checkInfo: NetDiskCheckLinkValidityOption): void;
 }
 
+declare interface NetDiskAutoFillAccessCodeOption {
+    /** 链接 */
+    url: string;
+    /** 规则名 */
+    netDiskName: string;
+    /** 规则下标 */
+    netDiskIndex: number;
+    /** 分享码 */
+    shareCode: string;
+    /** 访问码 */
+    accessCode: string;
+}
 
 declare interface NetDiskUserCustomRuleRegexp {
     /**
@@ -269,6 +281,72 @@ declare interface NetDiskUserCustomRuleSetting {
     name?: string;
     isBlank?: boolean;
 }
+
+declare interface NetDiskUserCustomRuleContext {
+    /**
+     * 当前的规则
+     */
+    rule: NetDiskUserCustomRule;
+    /**
+     * 网络请求js文件
+     */
+    NetDiskRequire: {
+        file(path: any, options: any): Promise<boolean>;
+    };
+    /**
+     * 加密使用
+     */
+    CryptoJS: object;
+    /**
+     * 网络请求
+     */
+    httpx: UtilsHttpxConstrustor;
+    /**
+     * 工具类
+     */
+    utils: Utils;
+    /**
+     * 元素工具类
+     */
+    DOMUtils: DOMUtils;
+    /**
+     * 上下文的window，在油猴中是被Proxy的window
+     */
+    window: Window & typeof globalThis;
+    /**
+     * 页面的window
+     */
+    unsafeWindow: Window & typeof globalThis;
+    /**
+     * 用于返回校验状态
+     */
+    NetDiskCheckLinkValidity: object;
+    /**
+     * 日志输出
+     */
+    log: UtilsLogConstructor;
+    /**
+     * Toast吐司
+     */
+    Qmsg: object;
+    /**
+     * 弹窗
+     */
+    pops: object;
+    /**
+     * 本规则的数据存储
+     */
+    setValue(key: string, value: any): void;
+    /**
+     * 本规则的数据获取
+     */
+    getValue(key: string): any;
+    /**
+     * 本规则的数据删除
+     */
+    deleteValue(key: string): void;
+}
+
 declare interface NetDiskUserCustomRule {
     /**
      * 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
@@ -292,27 +370,50 @@ declare interface NetDiskUserCustomRule {
      * + `参数2`: shareCode: string
      * + `参数3`: accessCode: string
      * 
-     * `this`包含以下Api:
-     * + NetDiskRequire
-     * + CryptoJS
-     * + httpx
-     * + utils
-     * + DOMUtils
-     * + window
-     * + unsafeWindow
-     * + NetDiskCheckLinkValidity
-     * + log
-     * + Qmsg
-     * + pops
+     * `this`是`NetDiskUserCustomRuleContext`对象:
      * 
      * `@returns`返回值必须是NetDiskCheckLinkValidity.status内的任意属性值
      * 其中包括
-     * NetDiskCheckLinkValidity.status.loading
-     * NetDiskCheckLinkValidity.status.success
-     * NetDiskCheckLinkValidity.status.error
-     * NetDiskCheckLinkValidity.status.failed
-     * NetDiskCheckLinkValidity.status.needAccessCode
-     * NetDiskCheckLinkValidity.status.unknown
+     * + this.NetDiskCheckLinkValidity.status.loading
+     * + this.NetDiskCheckLinkValidity.status.success
+     * + this.NetDiskCheckLinkValidity.status.error
+     * + this.NetDiskCheckLinkValidity.status.failed
+     * + this.NetDiskCheckLinkValidity.status.needAccessCode
+     * + this.NetDiskCheckLinkValidity.status.unknown
+     * @example
+     * return this.NetDiskCheckLinkValidity.status.unknown;
      */
     checkLinkValidityFunction?: string;
+    /**
+     * （可选）鉴权函数，运行于页面加载完毕，可在这里来获取需要的值并存储
+     * @example
+     * if(window.location.hostname === "pan.baidu.com"){
+     *     if(typeof this.unsafeWindow.localStorage.getItem("xxxxxx") === "string"){
+     *         this.setValue("baidu-xxxx",this.unsafeWindow.localStorage.getItem("xxxxxx"));
+     *     }
+     * }
+     */
+    AuthorizationFunction?: string;
+    /**
+     * （可选）自动添加访问码函数
+     * 通过NetDiskParse.blank函数来打开网盘链接会触发该函数执行
+     * 会判断条件，需要满足=>key相同、accessCode不为空、开启自动输入访问码功能、网址中存在该shareCode
+     * + `参数1`: netDiskInfo: NetDiskAutoFillAccessCodeOption
+     */
+    AutoFillAccessCodeFunction?: string;
+    /**
+     * （可选）解析网盘链接函数
+     * 需要强制返回this
+     * 入口函数为`init`
+     * + `参数1`: netDiskIndex: number
+     * + `参数2`: shareCode: string
+     * + `参数3`: accessCode: string
+     * @example
+     * let that = this;
+     * this.init = async function(netDiskIndex, shareCode, accessCode){
+     *      console.log(netDiskIndex, shareCode, accessCode);
+     * }
+     * return this;
+     */
+    parseFunction?: string;
 }
