@@ -21,9 +21,6 @@
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   const OriginPrototype = {
-    Array: {
-      isArray: globalThis.Array.isArray,
-    },
     Function: {
       hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
       apply: globalThis.Function.prototype.apply,
@@ -43,16 +40,13 @@
       toString: globalThis.Object.toString,
       values: globalThis.Object.values,
     },
-    Reflect: {
-      deleteProperty: globalThis.Reflect.deleteProperty,
-    },
   };
   /** @type {Utils} */
   const Utils = {};
   Utils.version = "2024-3-15";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
-    if (OriginPrototype.Array.isArray(source)) {
+    if (Array.isArray(source)) {
       let canTraverse = source.filter((item) => {
         return typeof item === "object";
       });
@@ -665,7 +659,7 @@
     return {
       hook: (fn) => hookFns.push(fn),
       filter: (arr) => {
-        filter = OriginPrototype.Array.isArray(arr) && arr;
+        filter = Array.isArray(arr) && arr;
       },
       protect: () => {
         readonly(win, "XMLHttpRequest", fakeXhr);
@@ -868,7 +862,7 @@
        */
       delete(key) {
         if (this.has(key)) {
-          OriginPrototype.Reflect.deleteProperty(this.items, key);
+          Reflect.deleteProperty(this.items, key);
           return true;
         }
         return false;
@@ -970,7 +964,7 @@
     if (typeof eventName === "string") {
       eventNameList = [eventName];
     }
-    if (OriginPrototype.Array.isArray(eventName)) {
+    if (Array.isArray(eventName)) {
       eventNameList = [...eventName];
     }
     eventNameList.forEach((_eventName_) => {
@@ -1586,7 +1580,7 @@
       }
     } else if (result.length === 1) {
       let paramData = result[0];
-      if (OriginPrototype.Array.isArray(paramData)) {
+      if (Array.isArray(paramData)) {
         return paramData[Math.floor(Math.random() * paramData.length)];
       } else if (
         typeof paramData === "object" &&
@@ -2172,7 +2166,7 @@
      * @param {UtilsGMMenuConstructorOptions[]|UtilsGMMenuConstructorOptions} paramData
      */
     this.add = function (paramData) {
-      if (OriginPrototype.Array.isArray(paramData)) {
+      if (Array.isArray(paramData)) {
         data = data.concat(paramData);
       } else {
         data.push(paramData);
@@ -2185,7 +2179,7 @@
      */
     this.update = function (options) {
       let optionsList = [];
-      if (OriginPrototype.Array.isArray(options)) {
+      if (Array.isArray(options)) {
         /* 是数组 */
         optionsList = optionsList.concat(options);
       } else if (options != null) {
@@ -2214,7 +2208,7 @@
        * @type {UtilsGMMenuConstructorOptions[]}
        */
       let optionsList = [];
-      if (OriginPrototype.Array.isArray(menuOptions)) {
+      if (Array.isArray(menuOptions)) {
         /* 是数组 */
         optionsList = optionsList.concat(menuOptions);
       } else if (menuOptions != null) {
@@ -2304,19 +2298,16 @@
           return false;
         }
         _context[_funcName] = _context["realFunc" + _funcName];
-        OriginPrototype.Reflect.deleteProperty(
-          _context,
-          "realFunc_" + _funcName
-        );
+        Reflect.deleteProperty(_context, "realFunc_" + _funcName);
         return true;
       };
     };
     this.cleanEnv = function () {
       if (OriginPrototype.Function.hasOwnProperty("hook")) {
-        OriginPrototype.Reflect.deleteProperty(unction.prototype, "hook");
+        Reflect.deleteProperty(unction.prototype, "hook");
       }
       if (OriginPrototype.Function.hasOwnProperty("unhook")) {
-        OriginPrototype.Reflect.deleteProperty(unction.prototype, "unhook");
+        Reflect.deleteProperty(unction.prototype, "unhook");
       }
       return true;
     };
@@ -2444,10 +2435,7 @@
                   details.headers[keyName] == null
                 ) {
                   /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
-                  OriginPrototype.Reflect.deleteProperty(
-                    result.headers,
-                    keyName
-                  );
+                  Reflect.deleteProperty(result.headers, keyName);
                 } else {
                   result.headers[keyName] = details.headers[keyName];
                 }
@@ -2470,10 +2458,7 @@
                   details.fetchInit[keyName] == null
                 ) {
                   /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
-                  OriginPrototype.Reflect.deleteProperty(
-                    result.fetchInit,
-                    keyName
-                  );
+                  Reflect.deleteProperty(result.fetchInit, keyName);
                 } else {
                   result.fetchInit[keyName] = details.fetchInit[keyName];
                 }
@@ -2497,7 +2482,7 @@
             (details[keyName] instanceof Function &&
               Utils.isNull(details[keyName]))
           ) {
-            OriginPrototype.Reflect.deleteProperty(details, keyName);
+            Reflect.deleteProperty(details, keyName);
             return;
           }
         });
@@ -2535,7 +2520,7 @@
           details.data != null
         ) {
           /* GET 或 HEAD 方法的请求不能包含 body 信息 */
-          OriginPrototype.Reflect.deleteProperty(details, "data");
+          Reflect.deleteProperty(details, "data");
         }
         /* 中止信号控制器 */
         let abortController = new AbortController();
@@ -2761,7 +2746,7 @@
             HttpxRequestDetails.handleFetchDetail(details);
           this.fetch(fetchDetails, fetchRequestInit, abortController);
         } else {
-          OriginPrototype.Reflect.deleteProperty(details, "fetchInit");
+          Reflect.deleteProperty(details, "fetchInit");
           this.xmlHttpRequest(details);
         }
       },
@@ -2811,14 +2796,8 @@
             ) {
               httpxResponse["isStream"] = true;
               httpxResponse.response = resp.body;
-              OriginPrototype.Reflect.deleteProperty(
-                httpxResponse,
-                "responseText"
-              );
-              OriginPrototype.Reflect.deleteProperty(
-                httpxResponse,
-                "responseXML"
-              );
+              Reflect.deleteProperty(httpxResponse, "responseText");
+              Reflect.deleteProperty(httpxResponse, "responseXML");
               details.onload(httpxResponse);
               return;
             }
@@ -2944,7 +2923,7 @@
           resolve,
           details
         );
-        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
+        Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -2997,7 +2976,7 @@
           resolve,
           details
         );
-        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
+        Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -3025,7 +3004,7 @@
           resolve,
           details
         );
-        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
+        Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -3053,7 +3032,7 @@
           resolve,
           details
         );
-        OriginPrototype.Reflect.deleteProperty(requestDetails, "onprogress");
+        Reflect.deleteProperty(requestDetails, "onprogress");
         requestDetails = HttpxRequestDetails.handle(requestDetails);
         HttpxRequest.request(requestDetails);
       });
@@ -3990,7 +3969,7 @@
       if (typeof msg === "object") {
         /* 要输出的内容是个对象 */
         if (details.tag) {
-          if (OriginPrototype.Array.isArray(msg) && msg.length < 5) {
+          if (Array.isArray(msg) && msg.length < 5) {
             console.log(
               `%c[${this.tag}%c-%c${callerName}%c]%c `,
               ...msgColorDetails,
@@ -4006,7 +3985,7 @@
             );
           }
         } else {
-          if (OriginPrototype.Array.isArray(msg) && msg.length < 5) {
+          if (Array.isArray(msg) && msg.length < 5) {
             console.log(...msg);
           } else {
             console.log(msg);
@@ -4246,7 +4225,7 @@
 
   Utils.noConflict = function () {
     if (window.Utils) {
-      OriginPrototype.Reflect.deleteProperty(window, "Utils");
+      Reflect.deleteProperty(window, "Utils");
     }
     if (AnotherUtils) {
       window.Utils = AnotherUtils;
@@ -4270,7 +4249,7 @@
         "Utils.noConflictFunc 参数 needReleaseName 必须为 string 类型"
       );
     }
-    if (!OriginPrototype.Array.isArray(functionNameList)) {
+    if (!Array.isArray(functionNameList)) {
       throw new Error(
         "Utils.noConflictFunc 参数 functionNameList 必须为 Array 类型"
       );
@@ -4335,7 +4314,7 @@
         return;
       }
       OriginPrototype.Object.assign(needReleaseObject, window[needReleaseKey]);
-      OriginPrototype.Reflect.deleteProperty(window, "needReleaseKey");
+      Reflect.deleteProperty(window, "needReleaseKey");
     }
 
     /**
@@ -4349,11 +4328,11 @@
       Array.from(functionNameList).forEach((item) => {
         if (window[needReleaseKey][item]) {
           needReleaseObject[item] = window[needReleaseKey][item];
-          OriginPrototype.Reflect.deleteProperty(window[needReleaseKey], item);
+          Reflect.deleteProperty(window[needReleaseKey], item);
           if (
             OriginPrototype.Object.keys(window[needReleaseKey]).length === 0
           ) {
-            OriginPrototype.Reflect.deleteProperty(window, needReleaseKey);
+            Reflect.deleteProperty(window, needReleaseKey);
           }
         }
       });
@@ -4955,7 +4934,7 @@
       getDataFunc = data;
       data = data();
     }
-    if (OriginPrototype.Array.isArray(data)) {
+    if (Array.isArray(data)) {
       data.sort(sortFunc);
     } else if (data instanceof NodeList || Utils.isJQuery(data)) {
       sortNodeFunc(data, getDataFunc);
@@ -5010,7 +4989,7 @@
     let searchStringRegexp = searchString;
     if (typeof searchString === "string") {
       searchStringRegexp = new RegExp(`^${searchString}`);
-    } else if (OriginPrototype.Array.isArray(searchString)) {
+    } else if (Array.isArray(searchString)) {
       let flag = false;
       for (const searcStr of searchString) {
         if (!Utils.startsWith(target, searcStr, position)) {
@@ -5080,7 +5059,7 @@
 
   Utils.toSearchParamsStr = function (obj) {
     let searhParamsStr = "";
-    if (OriginPrototype.Array.isArray(obj)) {
+    if (Array.isArray(obj)) {
       obj.forEach((item) => {
         if (searhParamsStr === "") {
           searhParamsStr += Utils.toSearchParamsStr(item);
@@ -5278,7 +5257,7 @@
     /** @type {string[]} */
     let nodeSelectors = [];
     /* 检查每个参数是否为字符串类型 */
-    if (OriginPrototype.Array.isArray(nodeSelectorsList)) {
+    if (Array.isArray(nodeSelectorsList)) {
       for (let nodeSelector of nodeSelectorsList) {
         if (typeof nodeSelector !== "string") {
           throw new Error(

@@ -19,9 +19,6 @@
   "use strict";
 
   const OriginPrototype = {
-    Array: {
-      isArray: globalThis.Array.isArray,
-    },
     Function: {
       hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
       apply: globalThis.Function.prototype.apply,

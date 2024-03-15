@@ -21,9 +21,6 @@
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherDOMUtils) {
   const OriginPrototype = {
-    Array: {
-      isArray: globalThis.Array.isArray,
-    },
     Function: {
       hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
       apply: globalThis.Function.prototype.apply,
@@ -43,7 +40,6 @@
       toString: globalThis.Object.toString,
       values: globalThis.Object.values,
     },
-    getComputedStyle: globalThis.getComputedStyle,
   };
   /** @type {DOMUtils} */
   const DOMUtils = {};
@@ -221,9 +217,7 @@
     }
     if (typeof property === "string") {
       if (value === void 0) {
-        return OriginPrototype.getComputedStyle(element).getPropertyValue(
-          property
-        );
+        return getComputedStyle(element).getPropertyValue(property);
       } else {
         if (value === "string" && value.includes("!important")) {
           element.style.setProperty(property, value, "important");
@@ -354,7 +348,7 @@
       recovery();
       return transformInfo;
     }
-    let elementTransform = OriginPrototype.getComputedStyle(element).transform;
+    let elementTransform = getComputedStyle(element).transform;
     if (
       elementTransform !== "none" &&
       elementTransform != null &&
@@ -1074,7 +1068,7 @@
       return;
     }
     if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
-      let style = OriginPrototype.getComputedStyle(element, null);
+      let style = getComputedStyle(element, null);
       let marginLeft = CommonDOMUtils.getStyleValue(style, "marginLeft");
       let marginRight = CommonDOMUtils.getStyleValue(style, "marginRight");
       return element.offsetWidth + marginLeft + marginRight;
@@ -1097,7 +1091,7 @@
       return;
     }
     if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
-      let style = OriginPrototype.getComputedStyle(element, null);
+      let style = getComputedStyle(element, null);
       let marginTop = CommonDOMUtils.getStyleValue(style, "marginTop");
       let marginBottom = CommonDOMUtils.getStyleValue(style, "marginBottom");
       return element.offsetHeight + marginTop + marginBottom;
@@ -1156,8 +1150,7 @@
     let from = {};
     let to = {};
     for (let prop in styles) {
-      from[prop] =
-        element.style[prop] || OriginPrototype.getComputedStyle(element)[prop];
+      from[prop] = element.style[prop] || getComputedStyle(element)[prop];
       to[prop] = styles[prop];
     }
     let timer = setInterval(function () {
@@ -1417,10 +1410,7 @@
     if (element == void 0) {
       return;
     }
-    if (
-      OriginPrototype.getComputedStyle(element).getPropertyValue("display") ===
-      "none"
-    ) {
+    if (getComputedStyle(element).getPropertyValue("display") === "none") {
       DOMUtils.show(element);
     } else {
       DOMUtils.hide(element);
