@@ -73,6 +73,7 @@
 - `透明度`：设置悬浮按钮的透明度(0.1~1)，数值越低悬浮按钮越透明
 - `背景轮播时间`：当匹配到多个网盘链接时，会按本值时间进行切换已匹配到的网盘图标
 - `背景显示时间`：当匹配到多个网盘链接时，会按照本值设置网盘图标显示的停留时间
+- `吸附边缘`：移动悬浮按钮松开后自动吸附在浏览器的边缘
 
 Toast
 
@@ -80,13 +81,23 @@ Toast
 - `同时显示最多数量`：设置Toast最多同时显示的数量
 - `逆序弹出`：设置Toast显示的顺序
 
+小窗模式
+
+- `宽度`：设置小窗宽度(px)
+- `高度`：设置小窗最大高度(px)
+- `启用`：是否开启小窗模式
+
+匹配记录
+
+- `修复存储记录`：如果【匹配记录】弹窗打不开，可能是存储的数据缺失某些字段，可尝试点击此处进行修复
+- `排序规则`：排序
+- `保存匹配记录`：将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看
+
 功能
 
 - `匹配间隔`：监听网页动态加载来进行匹配，值越大每次匹配的间隔时间越长，请设置合适的时间，值太小可能会导致浏览器卡顿，(0.6秒~5秒)
 - `匹配类型`：可选择普通文本`innerText`(默认)、超文本`innerHTML`和全部(包括`innerText`和`innerHTML`)
-- `历史记录排序规则`：功能历史匹配记录中的显示的网盘链接排序规则
 - `读取剪贴板`：读取剪贴板内容，识别网盘链接`（注意：只有在使用chromium内核中且当前网址为https中才会生效，使用Gecko内核的浏览器不生效，Safari中未测试）`
-- `存储匹配记录`：开启该设置可把每次匹配到的网盘链接进行存储
 - `自动输入访问码`：开启后可通过`右击`或`长按`出现的菜单选项`访问链接`，如果存在访问码，将自动填入访问码，目前存在部分网盘未实现自动填入(没找到这个网盘的存在链接的)
 - `获取重定向后的直链`：开启后可对某些网盘直链解析链接进行重定向后的链接获取
 - `允许匹配当前URL`：开启后会每次加载时额外匹配当前URL地址，比如蓝奏云链接
@@ -233,6 +244,18 @@ abcd
 - 规则定义
 
 ```ts
+declare interface NetDiskAutoFillAccessCodeOption {
+    /** 链接 */
+    url: string;
+    /** 规则名 */
+    netDiskName: string;
+    /** 规则下标 */
+    netDiskIndex: number;
+    /** 分享码 */
+    shareCode: string;
+    /** 访问码 */
+    accessCode: string;
+}
 declare interface NetDiskUserCustomRuleRegexp {
     /**
      * 当设置中匹配类型为文本/全部，使用该规则
@@ -300,6 +323,70 @@ declare interface NetDiskUserCustomRuleSetting {
     name?: string;
     isBlank?: boolean;
 }
+declare interface NetDiskUserCustomRuleContext {
+    /**
+     * 当前的规则
+     */
+    rule: NetDiskUserCustomRule;
+    /**
+     * 网络请求js文件
+     */
+    NetDiskRequire: {
+        file(path: any, options: any): Promise<boolean>;
+    };
+    /**
+     * 加密使用
+     */
+    CryptoJS: object;
+    /**
+     * 网络请求
+     */
+    httpx: UtilsHttpxConstrustor;
+    /**
+     * 工具类
+     */
+    utils: Utils;
+    /**
+     * 元素工具类
+     */
+    DOMUtils: DOMUtils;
+    /**
+     * 上下文的window，在油猴中是被Proxy的window
+     */
+    window: Window & typeof globalThis;
+    /**
+     * 页面的window
+     */
+    unsafeWindow: Window & typeof globalThis;
+    /**
+     * 用于返回校验状态
+     */
+    NetDiskCheckLinkValidity: object;
+    /**
+     * 日志输出
+     */
+    log: UtilsLogConstructor;
+    /**
+     * Toast吐司
+     */
+    Qmsg: object;
+    /**
+     * 弹窗
+     */
+    pops: object;
+    /**
+     * 本规则的数据存储
+     */
+    setValue(key: string, value: any): void;
+    /**
+     * 本规则的数据获取
+     */
+    getValue(key: string): any;
+    /**
+     * 本规则的数据删除
+     */
+    deleteValue(key: string): void;
+}
 declare interface NetDiskUserCustomRule {
     /**
      * 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
@@ -323,29 +410,52 @@ declare interface NetDiskUserCustomRule {
      * + `参数2`: shareCode: string
      * + `参数3`: accessCode: string
      * 
-     * `this`包含以下Api:
-     * + NetDiskRequire
-     * + CryptoJS
-     * + httpx
-     * + utils
-     * + DOMUtils
-     * + window
-     * + unsafeWindow
-     * + NetDiskCheckLinkValidity
-     * + log
-     * + Qmsg
-     * + pops
+     * `this`是`NetDiskUserCustomRuleContext`对象:
      * 
      * `@returns`返回值必须是NetDiskCheckLinkValidity.status内的任意属性值
      * 其中包括
-     * NetDiskCheckLinkValidity.status.loading
-     * NetDiskCheckLinkValidity.status.success
-     * NetDiskCheckLinkValidity.status.error
-     * NetDiskCheckLinkValidity.status.failed
-     * NetDiskCheckLinkValidity.status.needAccessCode
-     * NetDiskCheckLinkValidity.status.unknown
+     * + this.NetDiskCheckLinkValidity.status.loading
+     * + this.NetDiskCheckLinkValidity.status.success
+     * + this.NetDiskCheckLinkValidity.status.error
+     * + this.NetDiskCheckLinkValidity.status.failed
+     * + this.NetDiskCheckLinkValidity.status.needAccessCode
+     * + this.NetDiskCheckLinkValidity.status.unknown
+     * @example
+     * return this.NetDiskCheckLinkValidity.status.unknown;
      */
     checkLinkValidityFunction?: string;
+    /**
+     * （可选）鉴权函数，运行于页面加载完毕，可在这里来获取需要的值并存储
+     * @example
+     * if(window.location.hostname === "pan.baidu.com"){
+     *     if(typeof this.unsafeWindow.localStorage.getItem("xxxxxx") === "string"){
+     *         this.setValue("baidu-xxxx",this.unsafeWindow.localStorage.getItem("xxxxxx"));
+     *     }
+     * }
+     */
+    AuthorizationFunction?: string;
+    /**
+     * （可选）自动添加访问码函数
+     * 通过NetDiskParse.blank函数来打开网盘链接会触发该函数执行
+     * 会判断条件，需要满足=>key相同、accessCode不为空、开启自动输入访问码功能、网址中存在该shareCode
+     * + `参数1`: netDiskInfo: NetDiskAutoFillAccessCodeOption
+     */
+    AutoFillAccessCodeFunction?: string;
+    /**
+     * （可选）解析网盘链接函数
+     * 需要强制返回this
+     * 入口函数为`init`
+     * + `参数1`: netDiskIndex: number
+     * + `参数2`: shareCode: string
+     * + `参数3`: accessCode: string
+     * @example
+     * let that = this;
+     * this.init = async function(netDiskIndex, shareCode, accessCode){
+     *      console.log(netDiskIndex, shareCode, accessCode);
+     * }
+     * return this;
+     */
+    parseFunction?: string;
 }
 ```
 
