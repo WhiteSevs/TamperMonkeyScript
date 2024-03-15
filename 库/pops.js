@@ -234,7 +234,7 @@
     hide(popsType, source, guid, config, animElement, maskElement) {
       let popsElement = animElement.querySelector(".pops[type-value]");
       if (popsType === "drawer") {
-        setTimeout(() => {
+        OriginPrototype.setTimeout(() => {
           maskElement.style.setProperty("display", "none");
           if (["top", "bottom"].includes(config.direction)) {
             popsElement.style.setProperty("height", 0);
@@ -305,7 +305,7 @@
     show(popsType, source, guid, config, animElement, maskElement) {
       let popsElement = animElement.querySelector(".pops[type-value]");
       if (popsType === "drawer") {
-        setTimeout(() => {
+        OriginPrototype.setTimeout(() => {
           maskElement.style.setProperty("display", "");
           if (["top", "bottom"].includes(config.direction)) {
             popsElement.style.setProperty("height", config.size);
@@ -424,7 +424,7 @@
       }
 
       if (popsType === "drawer") {
-        setTimeout(() => {
+        OriginPrototype.setTimeout(() => {
           transitionendEvent();
         }, config.closeDelay);
       } else {
@@ -1689,7 +1689,7 @@
             prevTapTime = void 0;
           }
           function countDownToFail() {
-            countDownToFailTimer = setTimeout(function () {
+            countDownToFailTimer = OriginPrototype.setTimeout(function () {
               context.state = 2;
               reset();
             }, context.waitNextTapTime);
@@ -1726,7 +1726,7 @@
             if (TYPE_END !== phase) return;
             context.state = 0;
             if (test()) {
-              clearTimeout(countDownToFailTimer);
+              OriginPrototype.clearTimeout(countDownToFailTimer);
               if (
                 isValidDistanceFromPrevTap({ x: x, y: y }, context) &&
                 isValidInterval(context.waitNextTapTime)
@@ -1855,8 +1855,8 @@
               pointLength = computed.pointLength;
             if (TYPE_START === phase && context.pointLength === pointLength) {
               resetState(context);
-              clearTimeout(timeoutId);
-              timeoutId = setTimeout(function () {
+              OriginPrototype.clearTimeout(timeoutId);
+              timeoutId = OriginPrototype.setTimeout(function () {
                 context.state = 1;
                 at.emit2(context.name, computed, context);
               }, context.minPressTime);
@@ -1873,7 +1873,7 @@
                 (context.minPressTime > deltaTime &&
                   [TYPE_END, TYPE_CANCEL].includes(phase))
               ) {
-                clearTimeout(timeoutId);
+                OriginPrototype.clearTimeout(timeoutId);
                 context.state = 2;
               }
             }
@@ -1971,8 +1971,8 @@
           var timeID;
           at.beforeEach(function (type, next) {
             if ("tap" === type) {
-              clearTimeout(timeID);
-              timeID = setTimeout(function () {
+              OriginPrototype.clearTimeout(timeID);
+              timeID = OriginPrototype.setTimeout(function () {
                 if ([0, 2].includes(doubleTapContext.state)) {
                   next();
                 }
@@ -2265,6 +2265,92 @@
       event?.stopPropagation();
       /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
       event?.stopImmediatePropagation();
+    },
+  };
+
+  /**
+   * 浮点数工具类
+   */
+  const MathFloatUtils = {
+    /**
+     * 判断数字是否是浮点数
+     * @param {number} num
+     * @returns
+     */
+    isFloat(num) {
+      return Number(num) === num && num % 1 !== 0;
+    },
+    /**
+     * 浮点数加法
+     * @param {number} number1
+     * @param {number} number2
+     */
+    add(number1, number2) {
+      let number1length, number2length, powValue;
+      try {
+        number1length = number1.toString().split(".")[1].length;
+      } catch (error) {
+        number1length = 0;
+      }
+      try {
+        number2length = number2.toString().split(".")[1].length;
+      } catch (error) {
+        number2length = 0;
+      }
+      powValue = Math.pow(10, Math.max(number1length, number2length));
+      return Math.round(number1 * powValue + number2 * powValue) / powValue;
+    },
+    /**
+     * 减法
+     * @param {number} number1
+     * @param {number} number2
+     * @returns
+     */
+    sub(number1, number2) {
+      let number1length, number2length, powValue;
+      try {
+        number1length = number1.toString().split(".")[1].length;
+      } catch (error) {
+        number1length = 0;
+      }
+      try {
+        number2length = number2.toString().split(".")[1].length;
+      } catch (error) {
+        number2length = 0;
+      }
+      powValue = Math.pow(10, Math.max(number1length, number2length));
+      let fixedValue =
+        number1length >= number2length ? number1length : number2length;
+      return (
+        Math.round(number1 * powValue - number2 * powValue) / powValue
+      ).toFixed(fixedValue);
+    },
+    /**
+     * 除法
+     * @param {number} number1
+     * @param {number} number2
+     */
+    division(number1, number2) {
+      let number1length,
+        number2length,
+        number1ReplaceValue,
+        number2ReplaceValue;
+      try {
+        number1length = number1.toString().split(".")[1].length;
+      } catch (error) {
+        number1length = 0;
+      }
+      try {
+        number2length = number2.toString().split(".")[1].length;
+      } catch (error) {
+        number2length = 0;
+      }
+      number1ReplaceValue = Number(number1.toString().replace(".", ""));
+      number2ReplaceValue = Number(number2.toString().replace(".", ""));
+      return (
+        (number1ReplaceValue / number2ReplaceValue) *
+        Math.pow(10, number2length - number1length)
+      );
     },
   };
 
@@ -4749,7 +4835,7 @@
         animationStyle
       );
       this.config.animation = PopsUtils.getKeyFrames(animationStyle.sheet);
-      setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         animationStyle.remove();
       }, 50);
     }
@@ -6731,7 +6817,7 @@
       void 0,
       (event) => {
         PopsUtils.configRemove([that.config.layer.iframe], guid, false);
-        setTimeout(() => {
+        OriginPrototype.setTimeout(() => {
           let allIsMinElementList = [];
           pops.config.layer.iframe.forEach((item) => {
             if (
@@ -7399,8 +7485,8 @@
       config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
     }
     PopsUtils.appendChild($shadowContainer);
-    setTimeout(() => {
-      setTimeout(() => {
+    OriginPrototype.setTimeout(() => {
+      OriginPrototype.setTimeout(() => {
         popsElement.style.setProperty("transform", "");
       }, config.openDelay);
     }, 50);
@@ -8195,12 +8281,12 @@
                   document.createElement("iframe");
                 downloadIframeLinkElement.src = downloadInfo.url;
                 downloadIframeLinkElement.onload = function () {
-                  setTimeout(() => {
+                  OriginPrototype.setTimeout(() => {
                     downloadIframeLinkElement.remove();
                   }, 1000);
                 };
                 $shadowRoot.appendChild(downloadIframeLinkElement);
-                setTimeout(() => {
+                OriginPrototype.setTimeout(() => {
                   downloadIframeLinkElement.remove();
                 }, 3 * 60 * 1000);
               } else {
@@ -9281,26 +9367,30 @@
             let isSuccess = false;
             let oldTotalWidth = this.$data.totalWidth;
             let timer = null;
-            let interval = setInterval(() => {
+            let interval = OriginPrototype.setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
-                clearTimeout(timer);
-                clearInterval(interval);
+                OriginPrototype.clearTimeout(timer);
+                OriginPrototype.clearInterval(interval);
               } else {
                 this.initTotalWidth();
                 if (this.$data.totalWidth !== 0) {
                   isSuccess = true;
                   if (this.$data.totalWidth !== oldTotalWidth) {
                     /* slider的总宽度改变了 */
-                    this.initStepMap();
+                    if (MathFloatUtils.isFloat(this.step)) {
+                      this.initFloatStepMap();
+                    } else {
+                      this.initStepMap();
+                    }
                     this.initSliderPosition();
                   }
                 }
               }
             }, checkStepTime);
             /* 最长检测时间是10s */
-            timer = setTimeout(() => {
-              clearInterval(interval);
+            timer = OriginPrototype.setTimeout(() => {
+              OriginPrototype.clearInterval(interval);
             }, maxTime);
           },
           /**
@@ -9340,7 +9430,53 @@
               let value = this.formatValue(stepValue);
               let info = {};
               if (value === this.min) {
-                // 起始
+                /* 起始 */
+                info = {
+                  value: value,
+                  px: 0,
+                  pxLeft: 0,
+                  pxRight: this.$data.stepPx / 2,
+                  percent: 0,
+                };
+              } else {
+                info = {
+                  value: value,
+                  px: widthPx,
+                  pxLeft: widthPx - this.$data.stepPx / 2,
+                  pxRight: widthPx + this.$data.stepPx / 2,
+                  percent: widthPx / this.$data.totalWidth,
+                };
+                //if (value === this.max) {
+                //  info["pxLeft"] = this.$data.stepBlockMap.get(
+                //    index - 1
+                //  ).pxRight;
+                //  info["pxRight"] = this.$data.totalWidth;
+                //}
+              }
+              this.$data.stepBlockMap.set(index, info);
+              index++;
+              widthPx += this.$data.stepPx;
+            }
+          },
+          /**
+           * 初始化每一个块的具体数据信息（浮点）
+           */
+          initFloatStepMap() {
+            let index = 0;
+            // 计算出份数
+            let blockNums = (this.max - this.min) / this.step;
+            // 计算出每一份占据的px
+            this.$data.stepPx = this.$data.totalWidth / blockNums;
+            let widthPx = 0;
+            for (
+              let stepValue = this.min;
+              stepValue <= this.max;
+              stepValue = MathFloatUtils.add(stepValue, this.step)
+            ) {
+              let value = this.formatValue(stepValue);
+              let info = {};
+              if (value === this.min) {
+                /* 起始 */
                 info = {
                   value: value,
                   px: 0,
@@ -9437,7 +9573,7 @@
            * @param {number} num
            */
           formatValue(num) {
-            if (this.isFloat(this.step)) {
+            if (MathFloatUtils.isFloat(this.step)) {
               num = parseFloat(num.toFixed(2));
             } else {
               num = parseInt(num);
@@ -9619,16 +9755,16 @@
               return;
             }
             this.$data.isCheckingStopDragMove = true;
-            let interval = setInterval(() => {
+            let interval = OriginPrototype.setInterval(() => {
               if (!this.$data.isMove) {
                 this.$data.isCheckingStopDragMove = false;
                 this.closeToolTip();
-                clearInterval(interval);
+                OriginPrototype.clearInterval(interval);
               }
             }, 200);
-            setTimeout(() => {
+            OriginPrototype.setTimeout(() => {
               this.$data.isCheckingStopDragMove = false;
-              clearInterval(interval);
+              OriginPrototype.clearInterval(interval);
             }, 2000);
           },
           /**
