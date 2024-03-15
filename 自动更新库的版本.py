@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from ast import Try
+from ast import Module, Try
+from hmac import new
 import os
 import re
 import httpx
@@ -114,6 +115,12 @@ class ScriptFile:
         formatted_time = current_time.strftime(format_str)
         return formatted_time
 
+    def get_tomorrow_zero_time(self):
+        "获取明天的0点时间"
+        return datetime.datetime.now().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) + datetime.timedelta(days=1)
+
     def handle_file_content(
         self,
         scriptInfoList: list[ScriptInfo],
@@ -158,7 +165,7 @@ class ScriptFile:
                 space_str = version_pattern_match[0][0]
                 old_version: str = version_pattern_match[0][1]
                 old_version = old_version.strip()
-                new_version = self.get_version(old_version)
+                new_version = self.get_new_version(old_version)
 
                 if new_version is not None:
                     old_version_meta = f"""// @version{space_str}{old_version}"""
@@ -191,59 +198,109 @@ class ScriptFile:
 
         return datetime.datetime(*time_parts)
 
-    def get_version(self, old_version: str) -> str | None:
-        "获取版本号"
-        old_version_split = old_version.split(".")
+    def get_new_version(self, version: str) -> str | None:
+        "获取新的版本号"
+        compare_time = {
+            "day": {
+                "version": self.get_new_script_version_meta("%#Y.%#m.%#d"),
+                "time": datetime.datetime.strptime(
+                    self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
+                ),
+            },
+            "tomorrow": {
+                "version": self.get_tomorrow_zero_time().strftime("%#Y.%#m.%#d"),
+                "time": self.get_tomorrow_zero_time(),
+            },
+            "hour": {
+                "version": self.get_new_script_version_meta("%#Y.%#m.%#d.%#H"),
+                "time": datetime.datetime.strptime(
+                    self.get_current_time("%Y-%m-%d %H:00:00"), "%Y-%m-%d %H:%M:%S"
+                ),
+            },
+            "nextHour": {
+                "time": datetime.datetime.now() + datetime.timedelta(hours=1),
+            },
+            "minute": {
+                "version": self.get_new_script_version_meta("%#Y.%#m.%#d.%#H.%#M"),
+                "time": datetime.datetime.strptime(
+                    self.get_current_time("%Y-%m-%d %H:%M:00"), "%Y-%m-%d %H:%M:%S"
+                ),
+            },
+        }
+        version_split_length = version.split(".")
         new_version = None
-        new_version_3 = self.get_new_script_version_meta("%#Y.%#m.%#d")
-        new_version_4 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H")
-        new_version_5 = self.get_new_script_version_meta("%#Y.%#m.%#d.%#H.%#M")
         try:
-            old_version_time = self.convert_version_to_time(old_version)
-        except:
-            print("不规范版本号: " + old_version)
-            return new_version_3
-        if len(old_version_split) == 3:
-            # 年 月 日
-            new_version_time = datetime.datetime.strptime(
-                self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
-            )
-            if new_version_time > old_version_time:
-                new_version = new_version_3
-            elif new_version_time == old_version_time:
-                new_version = new_version_4
-        elif len(old_version_split) == 4:
-            # 年 月 日 时
-            new_version_time = datetime.datetime.strptime(
-                self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
-            )
-            new_version_time_2 = datetime.datetime.strptime(
-                self.get_current_time("%Y-%m-%d %H:00:00"), "%Y-%m-%d %H:%M:%S"
-            )
-            if new_version_time > old_version_time:
-                new_version = new_version_3
+            version_info = {
+                "version": version,
+                "time": self.convert_version_to_time(version),
+            }
+        except Exception:
+            print("不规范的版本号: " + version)
+            return compare_time["day"]["version"]
+        # 例如当前版本号是2023.3.1 转换为时间就是2023-3-1 00:00:00
+        if len(version_split_length) == 3:
+            # 日
+            # 当前：2023.3.1 ==> 2023-3-1 00:00:00
+            # 现在：2023.3.2 ==> 2023-3-2 00:00:00
+            # 只有日期大于才成立，同一天不符合条件
+            # 赋值为3位的版本号
+            if version_info["time"] < compare_time["day"]["time"]:
+                new_version = compare_time["day"]["version"]
+            # 当前：2023.3.1   ==> 2023-3-1 00:00:00
+            # 现在：2023.3.1.6 ==> 2023-3-1 06:00:00
+            # 同一天才符合条件
+            # 赋值为4位的版本号
+            elif version_info["time"] > compare_time["day"]["time"]:
+                new_version = compare_time["hour"]["version"]
+        elif len(version_split_length) == 4:
+            # 时
+            # 当前：2023.3.1.6 ==> 2023-3-1 06:00:00
+            # 现在：2023.3.2   ==> 2023-3-2 00:00:00
+            # 只有日期大于才成立，同一天不符合条件
+            # 赋值为3位的版本号
+            if version_info["time"] < compare_time["day"]["time"]:
+                new_version = compare_time["day"]["version"]
+            # 当前：2023.3.1.6  ==> 2023-3-1 06:00:00
+            # 现在：2023.3.1.12 ==> 2023-3-1 12:00:00
+            # 同一天才符合条件
+            # 赋值为4位的版本号
             elif (
-                new_version_time_2 < old_version_time
-                and new_version_time > old_version_time
+                compare_time["hour"]["time"] < version_info["time"]
+                and version_info["time"] < compare_time["tomorrow"]["time"]
             ):
-                new_version = new_version_4
-            elif new_version_time_2 == old_version_time:
-                new_version = new_version_5
-        elif len(old_version_split) == 5:
-            # 年 月 日 时 分
-            new_version_time = datetime.datetime.strptime(
-                self.get_current_time("%Y-%m-%d 00:00:00"), "%Y-%m-%d %H:%M:%S"
-            )
-            new_version_time_2 = datetime.datetime.strptime(
-                self.get_current_time("%Y-%m-%d %H:%M:00"), "%Y-%m-%d %H:%M:%S"
-            )
-            if new_version_time > old_version_time:
-                new_version = new_version_3
+                new_version = compare_time["hour"]["version"]
+            # 当前：2023.3.1.6    ==> 2023-3-1 06:00:00
+            # 现在：2023.3.1.6.30 ==> 2023-3-1 06:30:00
+            # 同一小时才符合条件
+            # 赋值为5位的版本号
+            elif compare_time["minute"]["time"] == version_info["time"]:
+                new_version = compare_time["minute"]["version"]
+        elif len(version_split_length) == 5:
+            # 分
+            # 当前：2023.3.1.6.30 ==> 2023-3-1 06:30:00
+            # 现在：2023.3.2      ==> 2023-3-2 00:00:00
+            # 只有日期大于才成立，同一天不符合条件
+            # 赋值为3位的版本号
+            if version_info["time"] < compare_time["day"]["time"]:
+                new_version = compare_time["day"]["version"]
+            # 当前：2023.3.1.6.30 ==> 2023-3-1 06:30:00
+            # 现在：2023.3.1.12   ==> 2023-3-1 12:30:00
+            # 同一天才符合条件
+            # 赋值为4位的版本号
             elif (
-                new_version_time_2 < old_version_time
-                and new_version_time > old_version_time
+                compare_time["hour"]["time"] < version_info["time"]
+                and version_info["time"] < compare_time["tomorrow"]["time"]
             ):
-                new_version = new_version_5
+                new_version = compare_time["hour"]["version"]
+            # 当前：2023.3.1.6.30 ==> 2023-3-1 06:30:00
+            # 现在：2023.3.1.6.40 ==> 2023-3-1 06:40:00
+            # 同一小时才符合条件
+            # 赋值为5位的版本号
+            elif (
+                compare_time["hour"]["time"] < version_info["time"]
+                and version_info["time"] < compare_time["nextHour"]["time"]
+            ):
+                new_version = compare_time["minute"]["version"]
         else:
             pass
         return new_version
