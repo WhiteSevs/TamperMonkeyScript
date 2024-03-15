@@ -19,9 +19,9 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1343293/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1343292/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1343291/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1343308/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // ==/UserScript==
 
 (function () {

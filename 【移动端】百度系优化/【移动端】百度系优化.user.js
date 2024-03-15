@@ -28,9 +28,9 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1343293/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1343292/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1343291/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1343308/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1332779/showdown.js
 // ==/UserScript==
 

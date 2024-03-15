@@ -35,8 +35,8 @@
 // @grant        GM.ChromeXt
 // @connect      *
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/455186/1343292/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1343291/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // ==/UserScript==
 
 (function () {
