@@ -289,17 +289,40 @@ declare interface PopsPromptBtnCallBackEvent {
      */
     text: string;
 }
-declare interface PopsPanelCommonFormDetails {
+declare interface PopsPanelRightAsideContainerOptions {
+    /** 把获取的项<li>元素添加到这个<ul>元素内 */
+    ulElement: HTMLUListElement,
+    /**  */
+    sectionContainerULElement?: HTMLUListElement
+    /**  */
+    formContainerListElement?: HTMLLIElement
+    /**  */
+    formHeaderDivElement?: HTMLDivElement
+}
+declare interface PopsPanelCommonDetails {
     /**
      * 在添加到<ul>元素后触发该回调
-     * @param ulElement 添加到的<ul>元素
-     * @param liElement 当前的<li>元素
      * @param formConfig 配置
+     * @param container 右侧容器的元素
      */
     afterAddToUListCallBack(
-        ulElement: HTMLUListElement,
-        liElement: HTMLLIElement,
-        formConfig: PopsPanelFormsTotalDetails
+        formConfig: PopsPanelFormsTotalDetails,
+        container: PopsPanelRightAsideContainerOptions,
+    ): void;
+}
+declare interface PopsPanelCommonFormsDetails {
+    /**
+     * 在添加到右侧容器的<li>元素后触发该回调
+     * @param formConfig 配置
+     * @param parentLiElement item的总<li>元素
+     * @param headerDivElement parentLiElement的子<div>元素，一般是text的内容
+     * @param formContainerULElement parentLiElement的子<ul>元素
+     */
+    afterAddToListCallBack(
+        formConfig: PopsPanelFormsDetails,
+        parentLiElement: HTMLLIElement,
+        headerDivElement: HTMLDivElement,
+        formContainerULElement: HTMLUListElement
     ): void;
 }
 /**
@@ -475,7 +498,7 @@ declare interface PopsPanelContentConfig {
 /**
  * pops.panel的 forms
  */
-declare interface PopsPanelFormsDetails {
+declare interface PopsPanelFormsDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -504,7 +527,7 @@ declare interface PopsPanelFormsDetails {
 /**
  * pops.panel的 switch
  */
-declare interface PopsPanelSwitchDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelSwitchDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -545,7 +568,7 @@ declare interface PopsPanelSwitchDetails extends PopsPanelCommonFormDetails {
 /**
  * pops.panel的 slider
  */
-declare interface PopsPanelSliderDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelSliderDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -602,7 +625,7 @@ declare interface PopsPanelSliderDetails extends PopsPanelCommonFormDetails {
 /**
  * pops.panel的 input
  */
-declare interface PopsPanelInputDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelInputDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -659,7 +682,7 @@ declare interface PopsPanelInputDetails extends PopsPanelCommonFormDetails {
 /**
  * pops.panel的 textarea
  */
-declare interface PopsPanelTextAreaDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -706,7 +729,7 @@ declare interface PopsPanelTextAreaDetails extends PopsPanelCommonFormDetails {
 /**
  * pops.panel的 select
  */
-declare interface PopsPanelSelectDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -759,7 +782,7 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonFormDetails {
 /**
  * pops.panel的 button
  */
-declare interface PopsPanelButtonDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelButtonDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -817,7 +840,7 @@ declare interface PopsPanelButtonDetails extends PopsPanelCommonFormDetails {
  * pops.panel的 own
  * 自定义的
  */
-declare interface PopsPanelOwnDetails extends PopsPanelCommonFormDetails {
+declare interface PopsPanelOwnDetails extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
