@@ -1673,9 +1673,9 @@
     return `thunder://${globalThis.btoa("AA" + url + "ZZ")}`;
   };
 
-  Utils.GM_addStyle = function (cssText) {
+  Utils.addStyle = function (cssText) {
     if (typeof cssText !== "string") {
-      throw new Error("Utils.GM_addStyle 参数cssText 必须为String类型");
+      throw new Error("Utils.addStyle 参数cssText 必须为String类型");
     }
     let cssNode = document.createElement("style");
     cssNode.setAttribute("type", "text/css");

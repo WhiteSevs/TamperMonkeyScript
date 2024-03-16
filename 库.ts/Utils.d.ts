@@ -2027,6 +2027,15 @@ declare interface UtilsTryCatch {
 declare interface Utils {
     /** 版本 */
     version: string;
+    /**
+     * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
+     * @param cssText css字符串
+     * @returns 返回添加的CSS标签
+     * @example
+     * Utils.GM_addStyle("html{}");
+     * > <style type="text/css">html{}</style>
+     */
+    addStyle(cssText: string): HTMLStyleElement;
     /** 
      * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
      * @param target 目标数据
@@ -2543,15 +2552,6 @@ declare interface Utils {
      * @param url Url链接或者其它信息
      */
     getThunderUrl(url: string): string;
-    /**
-     * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
-     * @param cssText css字符串
-     * @returns 返回添加的CSS标签
-     * @example
-     * Utils.GM_addStyle("html{}");
-     * > <style type="text/css">html{}</style>
-     */
-    GM_addStyle(cssText: string): HTMLStyleElement;
     /**
      * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
      * @example
