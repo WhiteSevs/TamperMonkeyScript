@@ -17,8 +17,8 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/456485/1343849/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1343930/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1343928/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // ==/UserScript==
 
@@ -42,7 +42,7 @@
   log.config({
     autoClearConsole: false,
   });
-  const GM_addStyle = utils.GM_addStyle;
+  const GM_addStyle = utils.addStyle;
   /**
    * 菜单
    */
