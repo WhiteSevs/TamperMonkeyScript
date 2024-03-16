@@ -3,7 +3,7 @@
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.3.15.18
+// @version      2024.3.16
 // @description  功能增强、浏览美化、屏蔽悬浮工具栏
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -19,13 +19,13 @@
 // @grant        unsafeWindow
 // @run-at       document-start
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1343308/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1343849/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // ==/UserScript==
 
 (function () {
-  if(typeof unsafeWindow === "undefined"){
+  if (typeof unsafeWindow === "undefined") {
     unsafeWindow = globalThis;
   }
   /** @type {import("../库/pops")} */
@@ -400,7 +400,7 @@
     /** 初始化菜单 */
     initMenu() {
       this.initLocalDefaultValue();
-      if (unsafeWindow.top !== unsafeWindow.self) {
+      if (!this.isTopWindow()) {
         /* 不允许在iframe内重复注册 */
         return;
       }
@@ -444,6 +444,9 @@
         });
       });
     },
+    isTopWindow() {
+      return unsafeWindow.window.self === unsafeWindow.window.top;
+    },
     /**
      * 设置值
      * @param {string} key 键
@@ -479,7 +482,7 @@
     showPanel() {
       pops.panel({
         title: {
-          text: `${GM_info?.script?.name || ""}-设置`,
+          text: `${GM_info?.script?.name || "贴吧优化"}-设置`,
           position: "center",
         },
         content: this.getContent(),
@@ -490,8 +493,8 @@
           },
         },
         isMobile: true,
-        width: "92vw",
-        height: "80vh",
+        width: "600px",
+        height: "450px",
         drag: true,
         only: true,
       });
@@ -503,9 +506,17 @@
      * @param {boolean} defaultValue 默认值
      * @param {?string} description （可选）描述
      * @param {?(event: InputEvent,value: boolean)=>boolean} clickCallBack （可选）点击回调
+     * @param {?boolean} disabled
      * @returns {PopsPanelSwitchDetails}
      */
-    getSwtichDetail(text, key, defaultValue, description, clickCallBack) {
+    getSwtichDetail(
+      text,
+      key,
+      defaultValue,
+      description,
+      clickCallBack,
+      disabled
+    ) {
       /**
        * @type {PopsPanelSwitchDetails}
        */
@@ -514,6 +525,7 @@
         type: "switch",
         description: description,
         attributes: {},
+        disabled: disabled,
         getValue() {
           return Boolean(PopsPanel.getValue(key, defaultValue));
         },
@@ -582,11 +594,111 @@
         {
           id: "panel-config-",
           title: "通用",
+          forms: [],
+        },
+        {
+          id: "panel-config-banei",
+          title: "吧内",
+          headerTitle: "",
           forms: [
             {
               text: "功能",
               type: "forms",
-              forms: [this.getSwtichDetail()],
+              forms: [
+                this.getSwtichDetail(
+                  "美化页面",
+                  "tieba-banei-beautify-page",
+                  false,
+                  "CSS美化(暂不生效)",
+                  void 0,
+                  true
+                ),
+                this.getSwtichDetail(
+                  "美化看帖的信息流",
+                  "tieba-banei-beautify-info-flow",
+                  true,
+                  "",
+                  void 0,
+                  void 0
+                ),
+              ],
+            },
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "【屏蔽】右侧悬浮工具栏",
+                  "tieba-banei-shield-right-toolbar",
+                  true,
+                  "",
+                  void 0,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】右侧用户信息块",
+                  "tieba-banei-shield-right-user-info-block",
+                  true,
+                  "",
+                  void 0,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】置顶的搜索栏",
+                  "tieba-banei-shield-search-main-fixed",
+                  true,
+                  "",
+                  void 0,
+                  void 0
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "panel-config-tiezi",
+          title: "帖子",
+          headerTitle: "",
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "美化页面",
+                  "tieba-tiezi-beautify-page",
+                  true,
+                  "CSS美化",
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "优化楼中楼回复浏览",
+                  "tieba-tiezi-optimization-lzl-reply-view",
+                  true,
+                  "在回复左边添加一个【查看回复】按钮，可直接看楼中楼回复",
+                  void 0
+                ),
+              ],
+            },
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "【屏蔽】右侧悬浮工具栏",
+                  "tieba-tiezi-shield-right-toolbar",
+                  true,
+                  "",
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】贴内右侧用户信息块",
+                  "tieba-tiezi-shield-right-user-info-block",
+                  true,
+                  "",
+                  void 0
+                ),
+              ],
             },
           ],
         },
@@ -752,11 +864,40 @@
    * 帖子
    */
   const TieBaTieZi = {
+    $data: {
+      /** 已执行过的函数名 */
+      isRunFunctionName: [],
+    },
     init() {
-      this.beautifyPage();
-      this.optimizationLzlReplyView();
-      this.shieldRightToolBar();
-      this.shieldRightUserInfoBlock();
+      if (PopsPanel.getValue("tieba-tiezi-beautify-page")) {
+        this.onlyRun(this.beautifyPage);
+      }
+      if (PopsPanel.getValue("tieba-tiezi-optimization-lzl-reply-view")) {
+        this.onlyRun(this.optimizationLzlReplyView);
+      }
+      if (PopsPanel.getValue("tieba-tiezi-shield-right-toolbar")) {
+        this.onlyRun(this.shieldRightToolBar);
+      }
+      if (PopsPanel.getValue("tieba-tiezi-shield-right-user-info-block")) {
+        this.onlyRun(this.shieldRightUserInfoBlock);
+      }
+    },
+    /**
+     * 防止函数重复运行
+     * @param {Function} func
+     * @param {?string} funcName
+     */
+    onlyRun(func, funcName) {
+      if (typeof func !== "function") {
+        throw new TypeError("参数 func 不能为空");
+      }
+      if (typeof funcName !== "string") {
+        funcName = func.name;
+      }
+      if (this.$data.isRunFunctionName.indexOf(funcName) === -1) {
+        func();
+        this.$data.isRunFunctionName.push(funcName);
+      }
     },
     /**
      * 美化页面
@@ -986,6 +1127,11 @@
             `,
             html: true,
           },
+          btn: {
+            ok: {
+              enable: false,
+            },
+          },
           mask: {
             enable: true,
             clickEvent: {
@@ -997,6 +1143,9 @@
           width: "700px",
           height: "600px",
           style: `
+          .whitesev-load-view{
+            color: #9a9a9a;
+          }
           .whitesev-reply-dialog-sheet-other-content{
             --whitesev-avatar-width: 40px;
             --whitesev-avatar-margin-right: 10px;
@@ -1276,6 +1425,14 @@
             );
           });
       }
+      function setGlobalClickEvent() {
+        DOMUtils.on(document, "click", ".j_lzl_new", (event) => {
+          containerClick(
+            event.target.closest(".l_post").querySelector(".j_lzl_container")
+          );
+        });
+      }
+      setGlobalClickEvent();
       const lockCallBack = new utils.LockFunction(handleLzlSee);
       utils.mutationObserver(document.documentElement, {
         config: {
@@ -1286,11 +1443,6 @@
           lockCallBack.run();
         },
       });
-      DOMUtils.on(document, "click", ".j_lzl_new", (event) => {
-        containerClick(
-          event.target.closest(".l_post").querySelector(".j_lzl_container")
-        );
-      });
     },
   };
 
@@ -1299,26 +1451,46 @@
    */
   const TieBaBaNei = {
     $data: {
-      isInit_beautifyPage: false,
-      isInit_shieldRightToolBar: false,
-      isInit_beautifyInfoFlow: false,
+      /** 已执行过的函数名 */
+      isRunFunctionName: [],
     },
     init() {
-      if (!this.isInit_beautifyPage) {
-        this.isInit_beautifyPage = true;
-        this.beautifyPage();
+      if (PopsPanel.getValue("tieba-banei-beautify-page")) {
+        this.onlyRun(this.beautifyPage);
       }
-      if (!this.isInit_shieldRightToolBar) {
-        this.isInit_shieldRightToolBar = true;
-        this.shieldRightToolBar();
+      if (PopsPanel.getValue("tieba-banei-shield-right-toolbar")) {
+        this.onlyRun(this.shieldRightToolBar);
       }
-
+      if (PopsPanel.getValue("tieba-banei-shield-search-main-fixed")) {
+        this.onlyRun(this.shieldSearchMainFixed);
+      }
       if (TieBaRouter.isBaNei_KanTie()) {
         log.info("吧内-看帖");
-        this.shieldRightUserInfoBlock();
+        if (PopsPanel.getValue("tieba-banei-shield-right-user-info-block")) {
+          this.onlyRun(this.shieldRightUserInfoBlock);
+        }
         DOMUtils.ready(() => {
-          this.beautifyInfoFlow();
+          if (PopsPanel.getValue("tieba-banei-beautify-info-flow")) {
+            this.onlyRun(this.beautifyInfoFlow);
+          }
         });
+      }
+    },
+    /**
+     * 防止函数重复运行
+     * @param {Function} func
+     * @param {?string} funcName
+     */
+    onlyRun(func, funcName) {
+      if (typeof func !== "function") {
+        throw new TypeError("参数 func 不能为空");
+      }
+      if (typeof funcName !== "string") {
+        funcName = func.name;
+      }
+      if (this.$data.isRunFunctionName.indexOf(funcName) === -1) {
+        func();
+        this.$data.isRunFunctionName.push(funcName);
       }
     },
     /**
@@ -1329,10 +1501,7 @@
      * 美化信息流
      */
     beautifyInfoFlow() {
-      if (!this.isInit_beautifyInfoFlow) {
-        this.isInit_beautifyInfoFlow = true;
-
-        GM_addStyle(`
+      GM_addStyle(`
         li.thread_top_list_folder {
           border-bottom: 1px dotted #e4e6eb !important;
         }
@@ -1407,7 +1576,6 @@
           color: initial;
         }
         `);
-      }
       function handleThread() {
         let threadList = Array.from(
           document.querySelectorAll(".j_thread_list")
@@ -1552,10 +1720,36 @@
           // 把发帖时间添加到发帖用户后面
           const tieziUserInfo =
             threadInfoElement.querySelector(".tiezi-user-info");
+          // 格式化一下时间，有以下格式
+          // 2023-3  年-月
+          // 3-15    月-日
+          // 12:00   时-分
+          let formatCreateTime = threadInfo.createTime;
+          let nowTimeDate = new Date();
+          if (typeof threadInfo.createTime === "string") {
+            threadInfo.createTime = threadInfo.createTime.trim();
+            let createTimeSplit = threadInfo.createTime.split("-");
+            let createTimeSplit2 = threadInfo.createTime.split(":");
+            if (createTimeSplit.length === 2) {
+              if (createTimeSplit[0].length === 4) {
+                // 年-月
+                // 不做处理，不知道具体的天，时，分，会导致误判
+              } else {
+                // 月-日
+                // 做处理，补上年
+                formatCreateTime = `${nowTimeDate.getFullYear()}-${
+                  createTimeSplit[0]
+                }-${createTimeSplit[1]}`;
+              }
+            } else if (createTimeSplit2.length === 2) {
+              // 时-分
+              // 说明是今天的，不做处理
+            }
+          }
           tieziUserInfo.appendChild(
             DOMUtils.createElement("span", {
               className: "tiezi-create-time",
-              innerText: threadInfo.createTime,
+              innerText: formatCreateTime,
             })
           );
           // 把发帖回帖时间添加到回帖用户后面（如果存在）
@@ -1617,6 +1811,16 @@
     shieldRightToolBar() {
       GM_addStyle(`.tbui_aside_float_bar{display: none !important;}`);
     },
+    /**
+     * 屏蔽顶部搜索栏
+     */
+    shieldSearchMainFixed() {
+      GM_addStyle(`
+      .search_main_fixed{
+        display: none !important;
+      }
+      `);
+    },
   };
 
   /**
@@ -1643,6 +1847,5 @@
   /* ---------------------入口--------------------- */
   PopsPanel.initMenu();
   TieBa.init();
-
   /* ---------------------入口--------------------- */
 })();
