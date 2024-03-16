@@ -10452,13 +10452,20 @@
           that.clearContainer();
           that.clearAsideItemIsVisited();
           that.setAsideItemIsVisited(asideLiElement);
-          let containerHeaderTitleLIElement = document.createElement("li");
-          containerHeaderTitleLIElement.__asideConfig__ = asideConfig;
-          containerHeaderTitleLIElement.innerHTML =
-            asideConfig.headerTitle || asideConfig.title;
-          that.sectionContainerHeaderULElement.appendChild(
-            containerHeaderTitleLIElement
-          );
+          /* 顶部标题栏，存在就设置 */
+          let headerTitleText = asideConfig.headerTitle || asideConfig.title;
+          if (
+            typeof headerTitleText === "string" &&
+            headerTitleText.trim() !== ""
+          ) {
+            let containerHeaderTitleLIElement = document.createElement("li");
+            containerHeaderTitleLIElement.__asideConfig__ = asideConfig;
+            containerHeaderTitleLIElement.innerHTML = headerTitleText;
+            that.sectionContainerHeaderULElement.appendChild(
+              containerHeaderTitleLIElement
+            );
+          }
+
           /**
            * @type {PopsPanelFormsDetailsArray}
            */
