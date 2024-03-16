@@ -16,8 +16,9 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/456485/1343849/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
+// @require      https://update.greasyfork.org/scripts/456485/1343930/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1343928/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // ==/UserScript==
 
@@ -37,11 +38,18 @@
    * @type {import("../库/DOMUtils")}
    */
   const DOMUtils = window.DOMUtils.noConflict();
+  /**
+   * @type {import("../库/Qmsg")}
+   */
+  const Qmsg = window.Qmsg;
+
   const log = new utils.Log(GM_info, unsafeWindow.console || console);
   log.config({
     autoClearConsole: false,
   });
-  const GM_addStyle = utils.GM_addStyle;
+
+  const GM_addStyle = utils.addStyle;
+
   /**
    * 油猴菜单
    */
@@ -51,6 +59,17 @@
     GM_registerMenuCommand,
     GM_unregisterMenuCommand,
   });
+
+  /* 配置吐司Qmsg */
+  Qmsg.config({
+    position: "top",
+    html: true,
+    maxNums: 5,
+    autoClose: true,
+    showClose: false,
+    showReverse: true,
+  });
+
   /**
    * 移除元素（未出现也可以等待出现）
    * @param {string} selectorText 元素选择器
@@ -63,13 +82,13 @@
     });
   };
 
-  const Optimization = {
-    csdn: {
+  const CSDN = {
+    blog: {
       /**
-       * 判断是否是CSDN
+       * 判断是否是博客
        */
-      locationMatch() {
-        return Boolean(/csdn.net/i.test(window.location.origin));
+      isBlogRouter() {
+        return Boolean(/blog.csdn.net/i.test(window.location.origin));
       },
       PC: {
         /**
@@ -78,7 +97,7 @@
         init() {
           this.addCSS();
           if (PopsPanel.getValue("CSDNAutoJumpRedirect_PC")) {
-            Optimization.csdn.PC.jumpRedirect();
+            CSDN.blog.PC.jumpRedirect();
           }
           if (PopsPanel.getValue("csdn_pc_cknow")) {
             this.cKnow();
@@ -98,6 +117,9 @@
           if (PopsPanel.getValue("csdnShieldBottomRecommendArticle")) {
             this.csdnShieldBottomRecommendArticle();
           }
+          if (PopsPanel.getValue("csdnShieldBottomSkillTree")) {
+            this.csdnShieldBottomSkillTree();
+          }
           if (PopsPanel.getValue("csdnShieldBottomFloatingToolbar")) {
             this.csdnShieldBottomFloatingToolbar();
           }
@@ -109,6 +131,9 @@
           }
           if (PopsPanel.getValue("csdn_pc_shieldTopToolbar")) {
             this.shieldTopToolbar();
+          }
+          if (PopsPanel.getValue("csdn_pc_shieldArticleSearchTip")) {
+            this.shieldArticleSearchTip();
           }
           this.initRightToolbarOffset();
           DOMUtils.ready(() => {
@@ -138,55 +163,66 @@
             this.addWenKuCSS();
           }
         },
+        getDefaultShieldCSS() {
+          return `
+.ecommend-item-box.recommend-recommend-box,
+.login-mark,
+.opt-box.text-center,
+.leftPop,
+#csdn-shop-window,
+.toolbar-advert,
+.hide-article-box,
+.user-desc.user-desc-fix,
+.recommend-card-box,
+.more-article,
+.article-show-more,
+#csdn-toolbar-profile-nologin,
+.guide-rr-first,
+#recommend-item-box-tow,
+/* 发文章得原力分图片提示 */
+div.csdn-toolbar-creative-mp,
+/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */
+#toolBarBox div.write-guide-buttom-box,
+/* 觉得还不错? 一键收藏 */
+ul.toolbox-list div.tool-active-list,
+/* 右边按钮组的最上面的创作话题 */
+div.csdn-side-toolbar .activity-swiper-box,
+.sidetool-writeguide-box .tip-box,
+/* 右下角的登录提示 */
+.passport-login-tip-container{
+  display: none !important;
+}`;
+        },
         addCSS() {
+          let shieldCSS = PopsPanel.getValue(
+            "csdn-pc-css",
+            this.getDefaultShieldCSS()
+          );
+          GM_addStyle(shieldCSS);
           GM_addStyle(`
-            .ecommend-item-box.recommend-recommend-box,
-            .login-mark,
-            .opt-box.text-center,
-            .leftPop,
-            #csdn-shop-window,
-            .toolbar-advert,
-            .hide-article-box,
-            .user-desc.user-desc-fix,
-            .recommend-card-box,
-            .more-article,
-            .article-show-more,
-            #csdn-toolbar-profile-nologin,
-            .guide-rr-first,
-            #recommend-item-box-tow,
-            /* 发文章得原力分图片提示 */
-            div.csdn-toolbar-creative-mp,
-            /* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */
-            #toolBarBox div.write-guide-buttom-box,
-            /* 觉得还不错? 一键收藏 */
-            ul.toolbox-list div.tool-active-list,
-            /* 右边按钮组的最上面的创作话题 */
-            div.csdn-side-toolbar .activity-swiper-box,
-            .sidetool-writeguide-box .tip-box,
-            /* 右下角的登录提示 */
-            .passport-login-tip-container{
-              display: none !important;
-            }
-            .comment-list-box,
-            main div.blog-content-box pre{
-              max-height: none !important;
-            }
-            .blog_container_aside,
-            #nav{
-              margin-left: -45px;
-            }
-            .recommend-right.align-items-stretch.clearfix,.dl_right_fixed{
-              margin-left: 45px;
-            }
-            #content_views pre,
-            #content_views pre code{
-              user-select: text !important;
-            }
-            #article_content,
-            .user-article.user-article-hide{
-              height: auto !important;
-              overflow: auto !important;
-            }
+          /* 自动展开代码块 */
+          .comment-list-box,
+          main div.blog-content-box pre{
+            max-height: none !important;
+          }
+          /* 自动展开全文 */
+          #article_content,
+          .user-article.user-article-hide{
+            height: auto !important;
+            overflow: auto !important;
+          }
+          .blog_container_aside,
+          #nav{
+            margin-left: -45px;
+          }
+          .recommend-right.align-items-stretch.clearfix,.dl_right_fixed{
+            margin-left: 45px;
+          }
+          #content_views,
+          #content_views pre,
+          #content_views pre code{
+            user-select: text !important;
+          }
           `);
         },
         /**
@@ -521,12 +557,8 @@
         autoExpandContent() {
           log.info("自动展开内容块");
           GM_addStyle(`
-            pre.set-code-hide{
-              height: auto !important;
-            }
-            pre.set-code-hide .hide-preCode-box{
-              display: none !important;
-            }
+            pre.set-code-hide{height: auto !important;}
+            pre.set-code-hide .hide-preCode-box{display: none !important;}
           `);
         },
         /**
@@ -534,44 +566,34 @@
          */
         shieldRightToolbar() {
           log.info("屏蔽右侧工具栏");
-          GM_addStyle(`
-          div.csdn-side-toolbar{
-            display: none !important;
-          }
-          `);
+          GM_addStyle(`div.csdn-side-toolbar{display: none !important;}`);
         },
         /**
          * 屏蔽底部推荐文章
          */
         csdnShieldBottomRecommendArticle() {
           log.info("屏蔽底部推荐文章");
-          GM_addStyle(`
-          main > div.recommend-box {
-            display: none !important;
-          }
-          `);
+          GM_addStyle(`main > div.recommend-box {display: none !important;}`);
+        },
+        /**
+         * 屏蔽底部xx技能树
+         */
+        csdnShieldBottomSkillTree() {
+          GM_addStyle(`#treeSkill{display: none !important;}`);
         },
         /**
          * 屏蔽底部悬浮工具栏
          */
         csdnShieldBottomFloatingToolbar() {
           log.info("屏蔽底部悬浮工具栏");
-          GM_addStyle(`
-          #toolBarBox {
-            display: none !important;
-          }
-          `);
+          GM_addStyle(`#toolBarBox{display: none !important;}`);
         },
         /**
          * 屏蔽左侧博客信息
          */
         shieldLeftBlogContainerAside() {
           log.success("【屏蔽】左侧博客信息");
-          GM_addStyle(`
-          aside.blog_container_aside{
-            display: none !important;
-          }
-          `);
+          GM_addStyle(`aside.blog_container_aside{display: none !important;}`);
         },
         /**
          * 【屏蔽】右侧目录信息
@@ -589,11 +611,13 @@
          * 屏蔽顶部Toolbar
          */
         shieldTopToolbar() {
-          GM_addStyle(`
-          #toolbarBox{
-            display: none !important;
-          }
-          `);
+          GM_addStyle(`#toolbarBox{display: none !important;}`);
+        },
+        /**
+         * 屏蔽文章内的选中搜索悬浮提示
+         */
+        shieldArticleSearchTip() {
+          GM_addStyle(`#articleSearchTip{display: none !important;}`);
         },
         /**
          * 去除CSDN拦截其它网址的url并自动跳转
@@ -658,7 +682,7 @@
             this.shieldTopToolbar();
           }
           if (PopsPanel.getValue("CSDNAutoJumpRedirect_Mobile")) {
-            Optimization.csdn.PC.jumpRedirect();
+            CSDN.blog.PC.jumpRedirect();
           }
           if (PopsPanel.getValue("csdn_mobile_cknow")) {
             this.cKnow();
@@ -671,11 +695,38 @@
               this.refactoringRecommendation();
             }
             if (PopsPanel.getValue("csdn_mobile_unBlockCopy")) {
-              Optimization.csdn.PC.unBlockCopy();
+              CSDN.blog.PC.unBlockCopy();
             }
           });
         },
+        getDefaultShieldCSS() {
+          return `
+#operate,.feed-Sign-span,
+.view_comment_box,
+.weixin-shadowbox.wap-shadowbox,
+.feed-Sign-span,
+.user-desc.user-desc-fix,
+.comment_read_more_box,
+#content_views pre.set-code-hide .hide-preCode-box,
+/* 登录弹窗 */
+.passport-login-container,
+.hljs-button[data-title='登录后复制'],
+.article-show-more,
+#treeSkill,
+div.btn_open_app_prompt_div,
+div.readall_box,
+div.aside-header-fixed,
+div.feed-Sign-weixin,
+div.ios-shadowbox{
+  display:none !important;
+}`;
+        },
         addCSS() {
+          let shieldCSS = PopsPanel.getValue(
+            `csdn-mobile-shield-css`,
+            this.getDefaultShieldCSS()
+          );
+          GM_addStyle(shieldCSS);
           GM_addStyle(`
           #mainBox{
             width: auto;
@@ -683,24 +734,6 @@
           .user-desc.user-desc-fix{
             height: auto  !important;
             overflow: auto !important;
-          }
-          #operate,.feed-Sign-span,
-          .view_comment_box,
-          .weixin-shadowbox.wap-shadowbox,
-          .feed-Sign-span,
-          .user-desc.user-desc-fix,
-          .comment_read_more_box,
-          #content_views pre.set-code-hide .hide-preCode-box,
-          .passport-login-container,
-          .hljs-button[data-title='登录后复制'],
-          .article-show-more,
-          #treeSkill,
-          div.btn_open_app_prompt_div,
-          div.readall_box,
-          div.aside-header-fixed,
-          div.feed-Sign-weixin,
-          div.ios-shadowbox{
-            display:none !important;
           }
           .component-box .praise {
             background: #ff5722;
@@ -732,6 +765,7 @@
           #comment{
             max-height: none !important;
           }
+          #content_views,
           #content_views pre,
           #content_views pre code{
             webkit-touch-callout: text !important;
@@ -952,11 +986,11 @@
         }
       },
     },
-    huaWeiCSDN: {
+    blogHuaWei: {
       /**
        * 判断是否是CSDN
        */
-      locationMatch() {
+      isBlogRouter() {
         return Boolean(/huaweicloud.csdn.net/i.test(window.location.origin));
       },
       PC: {
@@ -991,17 +1025,24 @@
             this.huaweiCSDNShieldTheBottomForMoreRecommendations();
           }
         },
+        getDefaultShieldCSS() {
+          return `
+/* 底部免费抽xxx奖品广告 */
+div.siderbar-box,
+/* 华为开发者联盟加入社区 */
+div.user-desc.user-desc-fix,
+/* 点击阅读全文 */
+div.article-show-more{
+  display: none !important;
+}`;
+        },
         addCSS() {
+          let shieldCSS = PopsPanel.getValue(
+            `csdn-blog-huawei-shield-css`,
+            this.getDefaultShieldCSS()
+          );
+          GM_addStyle(shieldCSS);
           GM_addStyle(`
-          /* 底部免费抽xxx奖品广告 */
-          div.siderbar-box,
-          /* 华为开发者联盟加入社区 */
-          div.user-desc.user-desc-fix,
-          /* 点击阅读全文 */
-          div.article-show-more{
-            display: none !important;
-          }
-
           /* 自动展开全文 */
           .main-content .user-article{
             height: auto !important;
@@ -1062,6 +1103,53 @@
         },
       },
     },
+    wenku: {
+      isWenKuRouter() {
+        return Boolean(/wenku.csdn.net/i.test(window.location.origin));
+      },
+      PC: {
+        init() {
+          this.addCSS();
+          if (PopsPanel.getValue("wenku_shieldResourceRecommend")) {
+            this.shieldResourceRecommend();
+          }
+          if (PopsPanel.getValue("wenku_shieldRightUserInfo")) {
+            this.shieldRightUserInfo();
+          }
+          if (PopsPanel.getValue("wenku_shieldRightToolBar")) {
+            this.shieldRightToolBar();
+          }
+        },
+        getDefaultShieldCSS() {
+          return ``;
+        },
+        addCSS() {
+          let shieldCSS = PopsPanel.getValue(
+            "csdn-wenku-shield-css",
+            this.getDefaultShieldCSS()
+          );
+          GM_addStyle(shieldCSS);
+        },
+        /**
+         * 【屏蔽】资源推荐
+         */
+        shieldResourceRecommend() {
+          GM_addStyle(`#recommend{display:none !important;}`);
+        },
+        /**
+         * 【屏蔽】右侧用户信息
+         */
+        shieldRightUserInfo() {
+          GM_addStyle(`.layout-right{display:none !important;}`);
+        },
+        /**
+         * 【屏蔽】右侧悬浮工具栏
+         */
+        shieldRightToolBar() {
+          GM_addStyle(`.csdn-side-toolbar {display:none !important;}`);
+        },
+      },
+    },
   };
 
   /**
@@ -1102,15 +1190,14 @@
           },
         },
         {
-          key: "transfer_old_data",
-          text: "🔧 迁移旧数据",
+          key: "gotoCSDNCKnow",
+          text: "⚙ 前往C知道",
           autoReload: false,
-          isStoreValue: false,
           showText(text) {
             return text;
           },
-          callback: () => {
-            this.transferOldData();
+          callback() {
+            window.open("https://so.csdn.net/so/ai?", "_blank");
           },
         },
       ]);
@@ -1229,13 +1316,73 @@
       return result;
     },
     /**
+     * 获取自定义配置的规则的textarea
+     * @returns {PopsPanelOwnDetails}
+     */
+    getOwnextAreaRule(text, key, defaultValue, className) {
+      return {
+        text: text,
+        type: "forms",
+        forms: [
+          {
+            type: "own",
+            afterAddToUListCallBack(formConfig, rightContainerOptions) {
+              DOMUtils.on(
+                rightContainerOptions.formHeaderDivElement.querySelector("a"),
+                "click",
+                void 0,
+                () => {
+                  PopsPanel.deleteValue(key);
+                  rightContainerOptions.ulElement.querySelector(
+                    "textarea"
+                  ).value = defaultValue;
+                  Qmsg.success("已重置");
+                }
+              );
+            },
+            getLiElementCallBack(liElement) {
+              let $textAreaContainer = DOMUtils.createElement("div", {
+                className: `pops-panel-textarea ${className}`,
+                innerHTML: `
+                  <style type="text/css">
+                  .${className}{
+                    width: 100%;
+                  }
+                  .${className} textarea{
+                    min-height: 400px;
+                    white-space: pre;
+                    border-radius: 0 !important;
+                  }
+                  </style>
+                  <textarea></textarea>
+                  `,
+              });
+              let $textArea = $textAreaContainer.querySelector("textarea");
+              $textArea.value = PopsPanel.getValue(key, defaultValue);
+              liElement.appendChild($textAreaContainer);
+              DOMUtils.on(
+                $textArea,
+                "input propertychange",
+                void 0,
+                utils.debounce(() => {
+                  PopsPanel.setValue(key, $textArea.value);
+                }, 100)
+              );
+              return liElement;
+            },
+          },
+        ],
+      };
+    },
+    /**
      * 获取配置内容
+     * @returns {PopsPanelFormsDetailsArray}
      */
     getContent() {
       return [
         {
           id: "csdn-panel-config-pc",
-          title: "桌面端",
+          title: "博客",
           forms: [
             {
               text: "屏蔽",
@@ -1249,6 +1396,11 @@
                 PopsPanel.getSwtichDetail(
                   "【屏蔽】底部文章",
                   "csdnShieldBottomRecommendArticle",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】底部xx技能树",
+                  "csdnShieldBottomSkillTree",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
@@ -1275,6 +1427,13 @@
                   "【屏蔽】顶部工具栏",
                   "csdn_pc_shieldTopToolbar",
                   false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】搜索悬浮工具栏",
+                  "csdn_pc_shieldArticleSearchTip",
+                  false,
+                  void 0,
+                  "选中文字弹出的，例如：搜索、评论、笔记"
                 ),
                 PopsPanel.getSwtichDetail(
                   "【屏蔽】底部的悬浮工具栏",
@@ -1405,11 +1564,17 @@
                 ),
               ],
             },
+            this.getOwnextAreaRule(
+              "自定义屏蔽CSS，<a href='javascript:;'>点击重置</a>",
+              "csdn-pc-shield-css",
+              CSDN.blog.PC.getDefaultShieldCSS(),
+              "csdn-pc-shield-css"
+            ),
           ],
         },
         {
           id: "csdn-panel-config-mobile",
-          title: "移动端",
+          title: "博客(移动端)",
           forms: [
             {
               text: "屏蔽",
@@ -1473,11 +1638,17 @@
                 ),
               ],
             },
+            this.getOwnextAreaRule(
+              "自定义屏蔽CSS，<a href='javascript:;'>点击重置</a>",
+              "csdn-mobile-shield-css",
+              CSDN.blog.Mobile.getDefaultShieldCSS(),
+              "csdn-mobile-shield-css"
+            ),
           ],
         },
         {
           id: "csdn-panel-config-huawei",
-          title: "华为云开发者联盟",
+          title: "博客(华为开发者联盟)",
           forms: [
             {
               text: "屏蔽",
@@ -1524,44 +1695,59 @@
                 ),
               ],
             },
+            this.getOwnextAreaRule(
+              "自定义屏蔽CSS，<a href='javascript:;'>点击重置</a>",
+              "csdn-blog-huawei-shield-css",
+              CSDN.blogHuaWei.PC.getDefaultShieldCSS(),
+              "csdn-blog-huawei-shield-css"
+            ),
+          ],
+        },
+        {
+          id: "csdn-panel-config-pc",
+          title: "文库",
+          forms: [
+            {
+              text: "屏蔽",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】资源推荐",
+                  "wenku_shieldResourceRecommend",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】右侧用户信息",
+                  "wenku_shieldRightUserInfo",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】右侧悬浮工具栏",
+                  "wenku_shieldRightToolBar",
+                  false
+                ),
+              ],
+            },
+            this.getOwnextAreaRule(
+              "自定义屏蔽CSS，<a href='javascript:;'>点击重置</a>",
+              "csdn-wenku-shield-css",
+              CSDN.wenku.PC.getDefaultShieldCSS(),
+              "csdn-wenku-shield-css"
+            ),
           ],
         },
       ];
-    },
-    /**
-     * 迁移旧数据
-     */
-    transferOldData() {
-      let oldData = GM_getValue("GM_Menu_Local_Map");
-      let currentData = GM_getValue(this.key, {});
-      if (oldData) {
-        Object.assign(currentData, oldData);
-        GM_setValue(this.key, currentData);
-        GM_deleteValue("GM_Menu_Local_Map");
-        alert("共迁移数据量：" + Object.keys(oldData).length);
-      } else {
-        alert("不存在旧数据");
-      }
     },
   };
 
   PopsPanel.initMenu();
 
-  if (Optimization.huaWeiCSDN.locationMatch()) {
-    Optimization.huaWeiCSDN.PC.init();
-  } else if (Optimization.csdn.locationMatch()) {
-    GM_Menu.add({
-      key: "gotoCSDNCKnow",
-      text: "⚙ 前往C知道",
-      autoReload: false,
-      showText(text) {
-        return text;
-      },
-      callback() {
-        window.open("https://so.csdn.net/so/ai?", "_blank");
-      },
-    });
-    Optimization.csdn.init();
+  if (CSDN.blogHuaWei.isBlogRouter()) {
+    CSDN.blogHuaWei.PC.init();
+  } else if (CSDN.blog.isBlogRouter()) {
+    CSDN.blog.init();
+  } else if (CSDN.wenku.isWenKuRouter()) {
+    CSDN.wenku.PC.init();
   } else {
     log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
   }
