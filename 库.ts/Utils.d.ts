@@ -2551,7 +2551,7 @@ declare interface Utils {
      * Utils.GM_addStyle("html{}");
      * > <style type="text/css">html{}</style>
      */
-    GM_addStyle(cssText: string): HTMLStyleElement;
+    GM_addStyle(cssText: string | any): HTMLStyleElement;
     /**
      * 对于GM_cookie的兼容写法，当无法使用GM_cookie时可以使用这个,但是并不完全兼容，有些写不出来且限制了httponly是无法访问的
      * @example
