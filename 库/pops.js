@@ -10432,20 +10432,16 @@
         let that = this;
         /**
          *
-         * @param {HTMLUListElement} ulElement
          * @param {PopsPanelFormsTotalDetails} formConfig
+         * @param {PopsPanelRightAsideContainerOptions} containerOptions
          */
-        function uListContainerAddItem(ulElement, formConfig) {
-          let liElement = that.getSectionContainerItem(formConfig);
-          if (liElement) {
-            ulElement.appendChild(liElement);
+        function uListContainerAddItem(formConfig, containerOptions) {
+          let itemLiElement = that.getSectionContainerItem(formConfig);
+          if (itemLiElement) {
+            containerOptions["ulElement"].appendChild(itemLiElement);
           }
           if (typeof formConfig.afterAddToUListCallBack === "function") {
-            formConfig.afterAddToUListCallBack(
-              ulElement,
-              liElement,
-              formConfig
-            );
+            formConfig.afterAddToUListCallBack(formConfig, containerOptions);
           }
         }
         PopsDOMUtils.on(asideLiElement, "click", void 0, function (event) {
@@ -10476,31 +10472,47 @@
                * @type {PopsPanelFormsDetailsArray}
                */
               let childForms = formConfig["forms"];
-
-              let formContainerElement = document.createElement("li");
+              /* 父<li>元素 */
+              let formContainerListElement = document.createElement("li");
+              /* 子<ul>元素 */
               let formContainerULElement = document.createElement("ul");
-              formContainerElement.className =
+              formContainerListElement.className =
                 "pops-panel-forms-container-item";
-              formContainerElement.innerHTML = `<div>${formConfig["text"]}</div>`;
+              /* 区域头部的文字 */
+              let formHeaderDivElement = PopsDOMUtils.createElement("div", {
+                className: "pops-panel-forms-container-item-header-text",
+              });
+              formHeaderDivElement.innerHTML = formConfig["text"];
+              /* 加进容器内 */
+              formContainerListElement.appendChild(formHeaderDivElement);
               if (formConfig.className) {
                 PopsDOMUtils.addClassName(
-                  formContainerElement,
+                  formContainerListElement,
                   formConfig.className
                 );
               }
               that.addElementAttributes(
-                formContainerElement,
+                formContainerListElement,
                 formConfig.attributes
               );
-              that.setElementProps(formContainerElement, formConfig.props);
+              that.setElementProps(formContainerListElement, formConfig.props);
               childForms.forEach((childFormConfig) => {
-                uListContainerAddItem(formContainerULElement, childFormConfig);
+                uListContainerAddItem(childFormConfig, {
+                  ulElement: formContainerULElement,
+                  sectionContainerULElement: that.sectionContainerULElement,
+                  formContainerListElement: formContainerListElement,
+                  formHeaderDivElement: formHeaderDivElement,
+                });
               });
-              formContainerElement.appendChild(formContainerULElement);
-              that.sectionContainerULElement.appendChild(formContainerElement);
+              formContainerListElement.appendChild(formContainerULElement);
+              that.sectionContainerULElement.appendChild(
+                formContainerListElement
+              );
             } else {
               /* 如果成功创建，加入到中间容器中 */
-              uListContainerAddItem(that.sectionContainerULElement, formConfig);
+              uListContainerAddItem(formConfig, {
+                ulElement: that.sectionContainerULElement,
+              });
             }
           });
 
