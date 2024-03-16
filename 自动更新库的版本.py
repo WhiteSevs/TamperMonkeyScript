@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from ast import Module, Try
-from hmac import new
+from git.repo import Repo
 import os
 import re
 import httpx
@@ -90,6 +89,8 @@ class ScriptFile:
         "问卷星随机答案",
         "MT论坛",
     ]
+    repo_path = os.path.dirname(os.path.realpath(__file__))
+    repo = Repo(repo_path)
     "不更新的js文件名"
 
     # 不建议将库设置为自动同步，因为代码无更新的时候，它也会自动更新版本id
@@ -121,6 +122,23 @@ class ScriptFile:
             hour=0, minute=0, second=0, microsecond=0
         ) + datetime.timedelta(days=1)
 
+    def get_need_git_commit(self, file_path) -> bool:
+        """获取是否在git中需要commit，如果是，那么需要进行更新版本号"""
+        # 确保文件路径是相对于仓库根目录的
+        relative_file_path = os.path.relpath(file_path, self.repo_path)
+        # 检查文件是否被修改但还未添加到暂存区
+        if self.repo.is_dirty(path=relative_file_path):
+            return True
+        # 检查文件是否已经在暂存区但还未提交
+        for diff_obj in self.repo.index.diff(None):
+            if relative_file_path == diff_obj.a_path:
+                # 文件在暂存区但不在HEAD中（新增的文件）
+                return True
+            elif relative_file_path == diff_obj.b_path and diff_obj.new_file:
+                # 文件是重命名或复制操作中的新文件
+                return True
+        return False
+
     def handle_file_content(
         self,
         scriptInfoList: list[ScriptInfo],
@@ -136,6 +154,7 @@ class ScriptFile:
         with open(file=file_path, mode="r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
             replaced_content = content
+        # 用于判断是否进行更新内容
         flag = False
         for scriptInfo in scriptInfoList:
             pattern = rf"""https://update.greasyfork.org/scripts/{scriptInfo.id}/[\d]+/{scriptInfo.name}.js"""
@@ -158,15 +177,17 @@ class ScriptFile:
                     print(
                         f"""库【{scriptInfo.name}】 {len(patternMatch)}处 版本: {old_library_script_version} => {scriptInfo.version}"""
                     )
+        if not flag:
+            flag = self.get_need_git_commit(file_path)
         if flag:
             version_pattern = r"""// @version([\s]+)(.+)"""
             version_pattern_match = re.findall(version_pattern, replaced_content)
             if update_meta_version and len(version_pattern_match):
+                # 参数是更新且能找到@version的meta块
                 space_str = version_pattern_match[0][0]
                 old_version: str = version_pattern_match[0][1]
                 old_version = old_version.strip()
                 new_version = self.get_new_version(old_version)
-
                 if new_version is not None:
                     old_version_meta = f"""// @version{space_str}{old_version}"""
                     new_version_meta = f"""// @version{space_str}{new_version}"""
@@ -226,6 +247,9 @@ class ScriptFile:
                     self.get_current_time("%Y-%m-%d %H:%M:00"), "%Y-%m-%d %H:%M:%S"
                 ),
             },
+            "nextMinute": {
+                "time": datetime.datetime.now() + datetime.timedelta(minutes=1),
+            },
         }
         version_split_length = version.split(".")
         new_version = None
@@ -238,71 +262,30 @@ class ScriptFile:
             print("不规范的版本号: " + version)
             return compare_time["day"]["version"]
         # 例如当前版本号是2023.3.1 转换为时间就是2023-3-1 00:00:00
-        if len(version_split_length) == 3:
-            # 日
-            # 当前：2023.3.1 ==> 2023-3-1 00:00:00
-            # 现在：2023.3.2 ==> 2023-3-2 00:00:00
-            # 只有日期大于才成立，同一天不符合条件
-            # 赋值为3位的版本号
-            if version_info["time"] < compare_time["day"]["time"]:
-                new_version = compare_time["day"]["version"]
-            # 当前：2023.3.1   ==> 2023-3-1 00:00:00
-            # 现在：2023.3.1.6 ==> 2023-3-1 06:00:00
-            # 同一天才符合条件
-            # 赋值为4位的版本号
-            elif version_info["time"] > compare_time["day"]["time"]:
-                new_version = compare_time["hour"]["version"]
-        elif len(version_split_length) == 4:
-            # 时
-            # 当前：2023.3.1.6 ==> 2023-3-1 06:00:00
-            # 现在：2023.3.2   ==> 2023-3-2 00:00:00
-            # 只有日期大于才成立，同一天不符合条件
-            # 赋值为3位的版本号
-            if version_info["time"] < compare_time["day"]["time"]:
-                new_version = compare_time["day"]["version"]
-            # 当前：2023.3.1.6  ==> 2023-3-1 06:00:00
-            # 现在：2023.3.1.12 ==> 2023-3-1 12:00:00
-            # 同一天才符合条件
-            # 赋值为4位的版本号
-            elif (
-                compare_time["hour"]["time"] < version_info["time"]
-                and version_info["time"] < compare_time["tomorrow"]["time"]
-            ):
-                new_version = compare_time["hour"]["version"]
-            # 当前：2023.3.1.6    ==> 2023-3-1 06:00:00
-            # 现在：2023.3.1.6.30 ==> 2023-3-1 06:30:00
-            # 同一小时才符合条件
-            # 赋值为5位的版本号
-            elif compare_time["minute"]["time"] == version_info["time"]:
-                new_version = compare_time["minute"]["version"]
-        elif len(version_split_length) == 5:
-            # 分
-            # 当前：2023.3.1.6.30 ==> 2023-3-1 06:30:00
-            # 现在：2023.3.2      ==> 2023-3-2 00:00:00
-            # 只有日期大于才成立，同一天不符合条件
-            # 赋值为3位的版本号
-            if version_info["time"] < compare_time["day"]["time"]:
-                new_version = compare_time["day"]["version"]
-            # 当前：2023.3.1.6.30 ==> 2023-3-1 06:30:00
-            # 现在：2023.3.1.12   ==> 2023-3-1 12:30:00
-            # 同一天才符合条件
-            # 赋值为4位的版本号
-            elif (
-                compare_time["hour"]["time"] < version_info["time"]
-                and version_info["time"] < compare_time["tomorrow"]["time"]
-            ):
-                new_version = compare_time["hour"]["version"]
-            # 当前：2023.3.1.6.30 ==> 2023-3-1 06:30:00
-            # 现在：2023.3.1.6.40 ==> 2023-3-1 06:40:00
-            # 同一小时才符合条件
-            # 赋值为5位的版本号
-            elif (
-                compare_time["hour"]["time"] < version_info["time"]
-                and version_info["time"] < compare_time["nextHour"]["time"]
-            ):
-                new_version = compare_time["minute"]["version"]
+        # day的时间是2023-3-2 00:00:00
+        # tomorrow的时间是2023-3-3 00:00:00
+        if (
+            version_info["time"] < compare_time["day"]["time"]
+            or version_info["time"] > compare_time["tomorrow"]["time"]
+        ):
+            """ 版本号是今天之前或者今天之后，直接改为今天的三位版本号 """
+            new_version = compare_time["day"]["version"]
         else:
-            pass
+            """ 今天 """
+            """ 当前的小时之前，通通变成四位 """
+            #      2023.3.1.12 √
+            #      2023.3.1.14 ×
+            # hour 2023.3.1.14
+            if version_info["time"] < compare_time["hour"]["time"]:
+                new_version = compare_time["hour"]["version"]
+            #        2023.3.1.14
+            # hour   2023.3.1.14
+            # 同一小时，但是在分钟之前
+            elif (
+                version_info["time"].hour == compare_time["hour"]["time"].hour
+                and version_info["time"] < compare_time["minute"]["time"]
+            ):
+                new_version = compare_time["minute"]["version"]
         return new_version
 
     def traverse_user_js(
@@ -330,6 +313,26 @@ class ScriptFile:
                     file_name=fileName,
                     update_meta_version=update_meta_version,
                 )
+
+
+def check_file_for_commit(repo_path, file_path):
+    # 初始化 Git 仓库对象
+    repo = Repo(repo_path)
+
+    # 确保文件路径是相对于仓库根目录的
+    relative_file_path = os.path.relpath(file_path, repo_path)
+    # 检查文件是否被修改但还未添加到暂存区
+    if repo.is_dirty(path=relative_file_path):
+        return True
+    # 检查文件是否已经在暂存区但还未提交
+    for diff_obj in repo.index.diff(None):
+        if relative_file_path == diff_obj.a_path:
+            # 文件在暂存区但不在HEAD中（新增的文件）
+            return True
+        elif relative_file_path == diff_obj.b_path and diff_obj.new_file:
+            # 文件是重命名或复制操作中的新文件
+            return True
+    return False
 
 
 if __name__ == "__main__":
