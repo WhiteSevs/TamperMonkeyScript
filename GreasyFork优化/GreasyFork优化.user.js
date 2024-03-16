@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.15.18
+// @version      2024.3.16
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -21,7 +21,7 @@
 // @connect      greasyfork.org
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1343308/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1343849/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1343307/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1343306/DOMUtils.js
 // ==/UserScript==
@@ -3055,9 +3055,14 @@
           let checkPageTime = parseInt(
             GM_getValue("greasyfork-check-page-time", 0)
           );
-          if (checkPageTime && Date.now() - checkPageTime > 5 * 1000) {
+          if (checkPageTime && Date.now() - checkPageTime < 5 * 1000) {
             /* 上次重载时间在5秒内的话就拒绝重载 */
-            Qmsg.error("5秒内拒绝反复重载");
+            Qmsg.error(
+              `上次重载时间 ${utils.formatTime(
+                checkPageTime,
+                "yyyy-MM-dd HH:mm:ss"
+              )}，5秒内拒绝反复重载`
+            );
             return;
           }
           GM_setValue("greasyfork-check-page-time", Date.now());
