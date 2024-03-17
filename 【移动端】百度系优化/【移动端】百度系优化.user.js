@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.16
+// @version      2024.3.17
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -36,7 +36,7 @@
 
 (function () {
   if (typeof unsafeWindow === "undefined") {
-    unsafeWindow = globalThis;
+    unsafeWindow = globalThis || window;
   }
   const OriginPrototype = {
     Object: {
@@ -8866,7 +8866,7 @@
      */
     deleteValue(key) {
       let localValue = GM_getValue(this.key, {});
-      delete localValue[key];
+      Reflect.deleteProperty(localValue, key);
       GM_setValue(this.key, localValue);
     },
     /**
@@ -8929,6 +8929,7 @@
     },
     /**
      * 获取配置内容
+     * @returns {PopsPanelFormsDetailsArray}
      */
     getContent() {
       return [
@@ -9122,11 +9123,27 @@
               ],
             },
             {
-              text: "自定义拦截规则，<a href='https://greasyfork.org/zh-CN/scripts/418349' target=''>查看规则文档(在最下面)</>",
+              text: "自定义拦截规则<br><a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
               type: "forms",
               forms: [
                 {
                   type: "own",
+                  afterAddToUListCallBack(formConfig, rightContainerOptions) {
+                    DOMUtils.on(
+                      rightContainerOptions.formHeaderDivElement.querySelector(
+                        "a.baidu-search-shield-css-reset"
+                      ),
+                      "click",
+                      void 0,
+                      () => {
+                        BaiduSearchRule.clearLocalRule();
+                        rightContainerOptions.ulElement.querySelector(
+                          "textarea"
+                        ).value = BaiduSearchRule.defaultRule;
+                        Qmsg.success("已重置");
+                      }
+                    );
+                  },
                   getLiElementCallBack(liElement) {
                     let $textAreaContainer = DOMUtils.createElement("div", {
                       className:
@@ -10176,6 +10193,10 @@ remove-child##[class*='-video-player']`,
     /** 设置本地存储的自定义拦截规则 */
     setLocalRule(rule) {
       PopsPanel.setValue("baidu-search-interception-rules", rule);
+    },
+    /** 清空规则 */
+    clearLocalRule() {
+      PopsPanel.deleteValue("baidu-search-interception-rules");
     },
     /**
      * 把规则进行转换
