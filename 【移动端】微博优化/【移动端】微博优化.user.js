@@ -3,7 +3,7 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.16
+// @version      2024.3.17
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
 // @author       WhiteSevs
 // @license      MIT
@@ -23,7 +23,7 @@
 // @connect      m.weibo.cn
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1343930/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1343928/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1344414/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
