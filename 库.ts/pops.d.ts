@@ -304,6 +304,27 @@ declare interface PopsPanelCommonDetails {
      * 在添加到<ul>元素后触发该回调
      * @param formConfig 配置
      * @param container 右侧容器的元素
+     * @example
+     * // 例如在type为own时
+     * afterAddToUListCallBack(formConfig, container) {
+     * DOMUtils.on(
+        container.formHeaderDivElement.querySelector(
+        "a"
+        ),
+        "click",
+        void 0,
+        () => {
+        PopsPanel.deleteValue("xxxx");
+        container.ulElement.querySelector(
+            "textarea"
+        ).value = xxxxx.defaultValue;
+        Qmsg.success("已重置");
+        }
+    );
+     * }
+     * 
+     * // 例如在type为forms时
+     * container内只有container.ulElement这个属性
      */
     afterAddToUListCallBack(
         formConfig: PopsPanelFormsTotalDetails,
