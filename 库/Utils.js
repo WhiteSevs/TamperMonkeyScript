@@ -43,7 +43,7 @@
   };
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-3-15";
+  Utils.version = "2024-3-17";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -4677,59 +4677,142 @@
     } else {
       textType = "text/plain";
     }
-    let textBlob = new Blob([data], { type: textType });
-    let clipboardObject = navigator.clipboard;
-    /**
-     * 第二种方式进行复制
-     * @param {(value: any) => void} _resolve_ 回调
-     * @param {string} _copyText_ 复制的文字
-     */
-    function anotherCopy(_resolve_, _copyText_) {
-      let copyElement = document.createElement("textarea");
-      copyElement.value = _copyText_;
-      copyElement.setAttribute("type", "text");
-      copyElement.setAttribute("style", "opacity:0;position:absolute;");
-      copyElement.setAttribute("readonly", "readonly");
-      document.body.appendChild(copyElement);
-      copyElement.select();
-      document.execCommand("copy");
-      document.body.removeChild(copyElement);
-      _resolve_();
-    }
-    /**
-     * 运行复制
-     * @param {(value: any) => void} _resolve_ 回调
-     */
-    function runCopy(_resolve_) {
-      if (typeof ClipboardItem === "undefined") {
-        console.error("当前环境中不存在ClipboardItem对象，使用第二种方式");
-        anotherCopy(_resolve_, data);
-      } else if (clipboardObject) {
-        clipboardObject
-          .write([
-            new ClipboardItem({
-              [textType]: textBlob,
-            }),
-          ])
-          .then(() => {
-            _resolve_();
-          })
-          .catch((err) => {
-            console.error("复制失败，使用第二种方式，error👉", err);
-            anotherCopy(_resolve_, data);
-          });
-      } else {
-        anotherCopy(_resolve_, data);
+    class UtilsClipboard {
+      /** @type {Function(value: boolean | PromiseLike<boolean>)} */
+      #resolve;
+      /** @type {any|string} */
+      #copyData;
+      /** @type {string} */
+      #copyDataType;
+      constructor(resolve, copyData, copyDataType) {
+        this.#resolve = resolve;
+        this.#copyData = copyData;
+        this.#copyDataType = copyDataType;
+      }
+      async init() {
+        let requestPermissionStatus = await this.requestClipboardPermission();
+        if (
+          this.hasClipboard() &&
+          (this.hasClipboardWrite() || this.hasClipboardWriteText())
+        ) {
+          try {
+            await this.copyDataByClipboard();
+          } catch (error) {
+            console.error("复制失败，使用第二种方式，error👉", error);
+            this.copyTextByTextArea();
+          }
+        } else {
+          this.copyTextByTextArea();
+        }
+        this.#resolve();
+        this.destroy();
+      }
+      destroy() {
+        this.#resolve = null;
+        this.#copyData = null;
+        this.#copyDataType = null;
+      }
+      isText() {
+        return this.#copyDataType.includes("text");
+      }
+      hasClipboard() {
+        return navigator?.clipboard != null;
+      }
+      hasClipboardWrite() {
+        return navigator?.clipboard?.write != null;
+      }
+      hasClipboardWriteText() {
+        return navigator?.clipboard?.writeText != null;
+      }
+      /**
+       * 使用textarea和document.execCommand("copy")来复制文字
+       */
+      copyTextByTextArea() {
+        let copyElement = document.createElement("textarea");
+        copyElement.value = this.#copyData;
+        copyElement.setAttribute("type", "text");
+        copyElement.setAttribute("style", "opacity:0;position:absolute;");
+        copyElement.setAttribute("readonly", "readonly");
+        document.body.appendChild(copyElement);
+        copyElement.select();
+        document.execCommand("copy");
+        document.body.removeChild(copyElement);
+      }
+      /**
+       * 申请剪贴板权限
+       * @returns {Promise<boolean>}
+       */
+      requestClipboardPermission() {
+        return new Promise((resolve, reject) => {
+          if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions
+              .query({
+                name: "clipboard-write",
+              })
+              .then((permissionStatus) => {
+                resolve(true);
+              })
+              .catch(
+                /** @param {TypeError} error */
+                (error) => {
+                  console.error([
+                    "申请剪贴板权限失败，尝试直接写入👉",
+                    error.message ?? error.name ?? error.stack,
+                  ]);
+                  resolve(false);
+                }
+              );
+          } else {
+            resolve(false);
+          }
+        });
+      }
+      /**
+       * 使用clipboard直接写入数据到剪贴板
+       * @returns {Promise<boolean>}
+       */
+      copyDataByClipboard() {
+        return new Promise((resolve, reject) => {
+          if (this.isText()) {
+            /* 只复制文字 */
+            navigator.clipboard
+              .writeText(copyText)
+              .then(() => {
+                resolve(true);
+              })
+              .catch((error) => {
+                reject(error);
+              });
+          } else {
+            /* 可复制对象 */
+            let textBlob = new Blob([this.#copyData], {
+              type: this.#copyDataType,
+            });
+            navigator.clipboard
+              .write([
+                new ClipboardItem({
+                  [this.#copyDataType]: textBlob,
+                }),
+              ])
+              .then(() => {
+                resolve(true);
+              })
+              .catch((error) => {
+                reject(error);
+              });
+          }
+        });
       }
     }
     return new Promise((resolve) => {
+      const utilsClipboard = new UtilsClipboard(resolve, data, textType);
       if (document.hasFocus()) {
-        runCopy(resolve);
+        utilsClipboard.init();
       } else {
         window.addEventListener(
           "focus",
           () => {
-            runCopy(resolve);
+            utilsClipboard.init();
           },
           { once: true }
         );
