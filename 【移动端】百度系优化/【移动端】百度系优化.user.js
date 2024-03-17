@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.17.21
+// @version      2024.3.17.23
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -10146,15 +10146,12 @@
     defaultRule: `
 // 百度健康
 match-href##expert.baidu.com
-
 // 大家还在搜
 match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
-// 大家还在搜:隐藏的(点击后，跳出来的
+// 大家还在搜:隐藏的(点击后，跳出来的)
 remove-child##.c-atom-afterclick-recomm-wrap
-
 // 百家号聚合
 match-href##author.baidu.com/home/
-
 // xxx 相关 xxx
 match-attr##srcid##(sigma|vid_fourfold)
 // 问一问
@@ -10162,7 +10159,11 @@ match-attr##data-log##wenda_inquiry
 // 自动播放视频
 remove-child##[class*='-video-player']
 // 百度游戏
-match-attr##srcid##yx_entity_san`,
+match-attr##srcid##yx_entity_san
+// 大家还在看
+match-attr##srcid##yl_recommend_list
+// 百度-智能小程序
+match-attr##srcid##xcx_multi`,
     /**
      * @type { {
      * mode: "match-href"|"match-attr"|"contains-child"|"remove-child",
