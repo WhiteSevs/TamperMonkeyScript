@@ -226,7 +226,7 @@ let DataPaging = {};
     /**
      * 添加CSS
      */
-    addCSS(target) {
+    addCSS(target = document.head) {
       let cssNode = document.createElement("style");
       cssNode.setAttribute("type", "text/css");
       cssNode.innerHTML = `@charset "utf-8";
@@ -288,7 +288,7 @@ let DataPaging = {};
         color: #8a8a8a;
       }
       `;
-      (target || document.head).appendChild(cssNode);
+      target.appendChild(cssNode);
     }
     /**
      * 获取分页元素
