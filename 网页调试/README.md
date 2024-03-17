@@ -6,13 +6,15 @@
 
 ## 设置截图
 
-![pijdaGt.png](https://s11.ax1x.com/2024/01/02/pijdaGt.png)
+![图片1](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-46-48.png)
 
-![pijdDsS.png](https://s11.ax1x.com/2024/01/02/pijdDsS.png)
+![图片2](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-10.png)
 
-![pijdrqg.png](https://s11.ax1x.com/2024/01/02/pijdrqg.png)
+![图片3](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-29.png)
 
-![pijdyZQ.png](https://s11.ax1x.com/2024/01/02/pijdyZQ.png)
+![图片4](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-43.png)
+
+![图片4](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-55.png)
 
 ## erdua
 
@@ -50,7 +52,7 @@
 🎈注意：默认配置的`test.jikejishu.com`是测试使用，别人也可以看得到你的调试信息，包括Cookie，如果可以请自己部署一个调试服务器
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=page-spy-browser)](https://www.npmjs.com/package/@huolala-tech/page-spy-browser)
-- 当前版本：`1.7.7`
+- 当前版本：`1.7.8`
 - 项目主页<br>[https://github.com/HuolalaTech/page-spy-web](https://github.com/HuolalaTech/page-spy-web)
 - SDK地址<br>[https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser](https://github.com/HuolalaTech/page-spy/tree/main/packages/page-spy-browser)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://cdn.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://fastly.jsdelivr.net/npm/@huolala-tech/page-spy-browser)<br>[https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser](https://testingcf.jsdelivr.net/npm/@huolala-tech/page-spy-browser)
