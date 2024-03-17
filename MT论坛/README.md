@@ -67,7 +67,7 @@
 
 ## 3.自动加载评论
 
-![Co0DAX.gif](https://www.helloimg.com/images/2021/06/25/Co0DAX.gif)
+![Co0DAX.gif](https://vip.helloimg.com/i/2024/03/17/65f68b7835abf.gif)
 
 ## 4.手机版小黑屋
 
@@ -75,16 +75,15 @@
 
 ## 5.付费主题白嫖列表
 
-![ZNuB0u.gif](https://www.helloimg.com/images/2022/08/14/ZNuB0u.gif)
+![ZNuB0u.gif](https://vip.helloimg.com/i/2024/03/17/65f68b79ac9d2.gif)
 
 ## 6.帖外图片预览
 
-![ZNjyGQ.gif](https://www.helloimg.com/images/2022/08/14/ZNjyGQ.gif)
+![ZNjyGQ.gif](https://vip.helloimg.com/i/2024/03/17/65f68b7b2ba4d.gif)
 
 ## 7.小窗口浏览
 
 ![5f815af373a243e83184fe04c9b7c3bd.gif](https://www.z4a.net/images/2023/07/23/5f815af373a243e83184fe04c9b7c3bd.gif)
-
 
 ## 8.发帖、编辑、回复预览
 

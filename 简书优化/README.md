@@ -1,8 +1,8 @@
 ## 🎁菜单截图
 
-![oIYcFM.png](https://vip.helloimg.com/images/2024/01/23/oIYcFM.png)
+![PixPin_2024-03-17_14-26-35.png](https://vip.helloimg.com/i/2024/03/17/65f68c948b5d9.png)
 
-![oIYWTX.png](https://vip.helloimg.com/images/2024/01/23/oIYWTX.png)
+![PixPin_2024-03-17_14-26-54.png](https://vip.helloimg.com/i/2024/03/17/65f68c962300c.png)
 
 ## ![https://favicon.yandex.net/favicon/v2/https://www.jianshu.com/?size=32](https://favicon.yandex.net/favicon/v2/https://www.jianshu.com/?size=32) 简书（桌面端&移动端）
 

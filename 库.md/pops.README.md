@@ -182,7 +182,7 @@ pops.panel({
 });
 ```
 
-![o7kyTc.png](https://vip.helloimg.com/images/2023/12/23/o7kyTc.png)
+![o7kyTc.png](https://vip.helloimg.com/i/2024/03/17/65f68c239ece4.png)
 
 ## pops.prompt
 
@@ -202,7 +202,7 @@ pops.prompt({
 });
 ```
 
-![o7rGnT.png](https://vip.helloimg.com/images/2023/12/23/o7rGnT.png)
+![o7rGnT.png](https://vip.helloimg.com/i/2024/03/17/65f68c25cf459.png)
 
 ## pops.rightClickMenu
 
@@ -222,7 +222,7 @@ pops.rightClickMenu({
 });
 ```
 
-![o7r5Uq.png](https://vip.helloimg.com/images/2023/12/23/o7r5Uq.png)
+![o7r5Uq.png](https://vip.helloimg.com/i/2024/03/17/65f68c281dcb0.png)
 
 ## pops.tooltip
 
@@ -235,7 +235,7 @@ pops.tooltip({
 });
 ```
 
-![o7rCFr.png](https://vip.helloimg.com/images/2023/12/23/o7rCFr.png)
+![o7rCFr.png](https://vip.helloimg.com/i/2024/03/17/65f68c299c729.png)
 
 ## pops.searchSuggestion
 

@@ -147,7 +147,7 @@ Toast
 |     网址         |       网站的 url，末尾带/，如：<https://www.example.com/>        |
 |     表单参数     |       POST请求的表单参数，例如：`surl={#shareCode#}&pwd={#accessCode#}&Password=xxxxx`，其中参数中存在`{#shareCode#}`或者`{#accessCode#}`时，会自动把它们转换成`提取码`和`分享码` |
 
-![ZPJRUv.png](https://www.helloimg.com/images/2022/05/26/ZPJRUv.png)
+![1710656878147.png](https://vip.helloimg.com/i/2024/03/17/65f68ccf70d0d.png)
 
 ### 2. Scheme 调用方式
 
