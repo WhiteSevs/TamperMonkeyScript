@@ -21,24 +21,8 @@
   }
 })(typeof window !== "undefined" ? window : this, function (AnotherDOMUtils) {
   const OriginPrototype = {
-    Function: {
-      hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
-      apply: globalThis.Function.prototype.apply,
-      call: globalThis.Function.prototype.call,
-    },
     Object: {
-      assign: globalThis.Object.assign,
-      defineProperty: globalThis.Object.defineProperty,
-      create: globalThis.Object.create,
-      entries: globalThis.Object.entries,
-      freeze: globalThis.Object.freeze,
-      getOwnPropertySymbols: globalThis.Object.getOwnPropertySymbols,
-      getOwnPropertyDescriptor: globalThis.Object.getOwnPropertyDescriptor,
-      getPrototypeOf: globalThis.Object.getPrototypeOf,
-      hasOwnProperty: globalThis.Object.hasOwnProperty,
-      keys: globalThis.Object.keys,
-      toString: globalThis.Object.toString,
-      values: globalThis.Object.values,
+      defineProperty: Object.defineProperty,
     },
   };
   /** @type {DOMUtils} */
@@ -165,11 +149,11 @@
     if (attributes == void 0) {
       attributes = {};
     }
-    OriginPrototype.Object.keys(property).forEach((key) => {
+    Object.keys(property).forEach((key) => {
       let value = property[key];
       tempElement[key] = value;
     });
-    OriginPrototype.Object.keys(attributes).forEach((key) => {
+    Object.keys(attributes).forEach((key) => {
       let value = attributes[key];
       if (typeof value === "object") {
         /* object转字符串 */
@@ -843,29 +827,27 @@
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
     elementList.forEach((elementItem) => {
-      OriginPrototype.Object.getOwnPropertySymbols(elementItem).forEach(
-        (symbolEvents) => {
-          if (!symbolEvents.toString().startsWith("Symbol(events_")) {
+      Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
+        if (!symbolEvents.toString().startsWith("Symbol(events_")) {
+          return;
+        }
+        let elementEvents = elementItem[symbolEvents] || {};
+        let iterEventNameList = eventTypeList.length
+          ? eventTypeList
+          : Object.keys(elementEvents);
+        iterEventNameList.forEach((eventName) => {
+          let handlers = elementEvents[eventName];
+          if (!handlers) {
             return;
           }
-          let elementEvents = elementItem[symbolEvents] || {};
-          let iterEventNameList = eventTypeList.length
-            ? eventTypeList
-            : OriginPrototype.Object.keys(elementEvents);
-          iterEventNameList.forEach((eventName) => {
-            let handlers = elementEvents[eventName];
-            if (!handlers) {
-              return;
-            }
-            for (const handler of handlers) {
-              elementItem.removeEventListener(eventName, handler.callback, {
-                capture: handler["option"]["capture"],
-              });
-            }
-            delete elementItem[symbolEvents][eventName];
-          });
-        }
-      );
+          for (const handler of handlers) {
+            elementItem.removeEventListener(eventName, handler.callback, {
+              capture: handler["option"]["capture"],
+            });
+          }
+          delete elementItem[symbolEvents][eventName];
+        });
+      });
     });
   };
 
@@ -904,7 +886,7 @@
         } else {
           event = new Event(_eventType_);
           if (details) {
-            OriginPrototype.Object.keys(details).forEach((keyName) => {
+            Object.keys(details).forEach((keyName) => {
               event[keyName] = details[keyName];
             });
           }
@@ -1143,7 +1125,7 @@
     if (typeof styles !== "object" || styles === void 0) {
       throw new TypeError("styles must be an object");
     }
-    if (OriginPrototype.Object.keys(styles).length === 0) {
+    if (Object.keys(styles).length === 0) {
       throw new Error("styles must contain at least one property");
     }
     let start = performance.now();

@@ -19,24 +19,8 @@
   "use strict";
 
   const OriginPrototype = {
-    Function: {
-      hasOwnProperty: globalThis.Function.prototype.hasOwnProperty,
-      apply: globalThis.Function.prototype.apply,
-      call: globalThis.Function.prototype.call,
-    },
     Object: {
-      assign: globalThis.Object.assign,
-      defineProperty: globalThis.Object.defineProperty,
-      create: globalThis.Object.create,
-      entries: globalThis.Object.entries,
-      freeze: globalThis.Object.freeze,
-      getOwnPropertySymbols: globalThis.Object.getOwnPropertySymbols,
-      getOwnPropertyDescriptor: globalThis.Object.getOwnPropertyDescriptor,
-      getPrototypeOf: globalThis.Object.getPrototypeOf,
-      hasOwnProperty: globalThis.Object.hasOwnProperty,
-      keys: globalThis.Object.keys,
-      toString: globalThis.Object.toString,
-      values: globalThis.Object.values,
+      defineProperty: Object.defineProperty,
     },
   };
 
@@ -423,7 +407,7 @@
       let maxZIndex = 0;
       let maxZIndexElement = null;
 
-      OriginPrototype.Object.keys(pops.config.layer).forEach((item) => {
+      Object.keys(pops.config.layer).forEach((item) => {
         pops.config.layer[item].forEach(
           /**
            * @param {PopsLayerCommonConfig} item2
@@ -448,7 +432,7 @@
      */
     getKeyFrames(sheet) {
       let result = {};
-      OriginPrototype.Object.keys(sheet.cssRules).forEach((key) => {
+      Object.keys(sheet.cssRules).forEach((key) => {
         if (
           sheet.cssRules[key].type === 7 &&
           sheet.cssRules[key].name.startsWith("pops-anim-")
@@ -474,7 +458,7 @@
      * }} options
      */
     drag(moveElement, options = {}) {
-      options = OriginPrototype.Object.assign(
+      options = Object.assign(
         {
           limit: true,
           extraDistance: 3,
@@ -708,8 +692,7 @@
               }) ||
             function (d, b) {
               for (var p in b)
-                if (OriginPrototype.Object.hasOwnProperty.call(b, p))
-                  d[p] = b[p];
+                if (Object.hasOwnProperty.call(b, p)) d[p] = b[p];
             };
           return extendStatics(d, b);
         };
@@ -727,19 +710,18 @@
           }
           d.prototype =
             b === null
-              ? OriginPrototype.Object.create(b)
+              ? Object.create(b)
               : ((__.prototype = b.prototype), new __());
         }
 
         var __assign = function () {
           __assign =
-            OriginPrototype.Object.assign ||
+            Object.assign ||
             function __assign(t) {
               for (var s, i = 1, n = arguments.length; i < n; i++) {
                 s = arguments[i];
                 for (var p in s)
-                  if (OriginPrototype.Object.hasOwnProperty.call(s, p))
-                    t[p] = s[p];
+                  if (Object.hasOwnProperty.call(s, p)) t[p] = s[p];
               }
               return t;
             };
@@ -1037,7 +1019,7 @@
             x = _a.x,
             y = _a.y;
           var currentTarget = nativeEvent.currentTarget;
-          return OriginPrototype.Object.assign(basicsInput, {
+          return Object.assign(basicsInput, {
             id: id,
             x: x,
             y: y,
@@ -1167,7 +1149,7 @@
           } else {
             event = new Event(typeName, eventInit);
           }
-          OriginPrototype.Object.assign(event, data, {
+          Object.assign(event, data, {
             match: function () {
               return (
                 payload.targets &&
@@ -2104,7 +2086,7 @@
         ss: checkTime(time.getSeconds()),
         /* 秒 */
       };
-      OriginPrototype.Object.keys(timeRegexp).forEach(function (key) {
+      Object.keys(timeRegexp).forEach(function (key) {
         let replaecRegexp = new RegExp(key, "g");
         formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
       });
@@ -2673,7 +2655,7 @@
         eventTypeList.forEach((_eventType_) => {
           let event = new Event(_eventType_);
           if (details) {
-            OriginPrototype.Object.keys(details).forEach((keyName) => {
+            Object.keys(details).forEach((keyName) => {
               event[keyName] = details[keyName];
             });
           }
@@ -3012,11 +2994,11 @@
       if (attributes == void 0) {
         attributes = {};
       }
-      OriginPrototype.Object.keys(property).forEach((key) => {
+      Object.keys(property).forEach((key) => {
         let value = property[key];
         tempElement[key] = value;
       });
-      OriginPrototype.Object.keys(attributes).forEach((key) => {
+      Object.keys(attributes).forEach((key) => {
         let value = attributes[key];
         if (typeof value === "object") {
           /* object转字符串 */
@@ -5186,7 +5168,7 @@
      * } }
      */
     handleResultDetails(details) {
-      let _details_ = OriginPrototype.Object.assign({}, details);
+      let _details_ = Object.assign({}, details);
       delete _details_["type"];
       delete _details_["function"];
       delete _details_["type"];
@@ -5208,7 +5190,7 @@
           let _event_ = {
             type: type,
           };
-          _event_ = OriginPrototype.Object.assign(event, _event_);
+          _event_ = Object.assign(event, _event_);
           callback(_event_);
         },
         {
@@ -5274,7 +5256,7 @@
             type: type,
             text: inputElement.value,
           };
-          _event_ = OriginPrototype.Object.assign(event, _event_);
+          _event_ = Object.assign(event, _event_);
           callback(_event_);
         },
         {
@@ -7432,7 +7414,7 @@
       { other: btnOtherElement },
     ];
     needHandleClickEventList.forEach((item) => {
-      let btnName = OriginPrototype.Object.keys(item)[0];
+      let btnName = Object.keys(item)[0];
       PopsHandler.handleClickEvent(
         item[btnName],
         btnName,
@@ -8941,7 +8923,7 @@
             this.addElementAttributes(element, attrObject);
           });
         } else {
-          OriginPrototype.Object.keys(attributes).forEach((attributeName) => {
+          Object.keys(attributes).forEach((attributeName) => {
             element.setAttribute(attributeName, attributes[attributeName]);
           });
         }
@@ -8955,7 +8937,7 @@
         if (props == null) {
           return;
         }
-        OriginPrototype.Object.keys(props).forEach((propName) => {
+        Object.keys(props).forEach((propName) => {
           element[propName] = props[propName];
         });
       },
