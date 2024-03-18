@@ -203,41 +203,47 @@ jumpwsv://go?package=com.xunlei.downloadprovider
 &activity=com.xunlei.downloadprovider.launch.dispatch.mocklink.LinkDLBtFileExplorerActivity&intentAction=android.intent.action.VIEW&intentData={#intentAction#}&intentExtra=
 ```
 
-### 3. 什么是提取码间隔前`Text/HTML`？
+### 3. 什么是提取码文本匹配`Text/HTML`-`间隔前`？
 
 网盘链接分为两块，`分享码`和`提取码`，其中，由于网站的网盘链接的多样性，`分享码`和`提取码关键字`之间可能存在很长的干扰的字符串，比如：👇
 
-```js
+```text
 https://pan.baidu.com/s/xxxxxxxxxx
 这个是干扰字符串
 提取码：
-本贴隐藏内容
+本贴的隐藏内容
 abcd
 ```
 
-那么这个`这个是干扰字符串`中文就是干扰的字符串，设置间隔长度即为设置`分享码`和`提取码关键字`之间的最大干扰字符串长度。
+那么这个`这个是干扰字符串`中文就是干扰的字符串，设置间隔长度即为设置`分享码`和`提取码关键字`之间的`最大的`干扰字符串长度。
+例如这个就需要设置值`＞8`才能匹配到访问码
+
 `Text`是对应`匹配类型`为`普通文本`
 `HTML`是对应`匹配类型`为`超文本`
 
-### 4. 什么是提取码间隔后`Text/HTML`？
+### 4. 什么是提取码文本匹配`Text/HTML`-`间隔后`？
 
 当匹配提取码关键字时，如`密码`、`提取码`、`访问码`时，它们后面的字母就是访问码，但是有些时候存在干扰字符串，比如：👇
 
-```js
+```text
 https://pan.baidu.com/s/xxxxxxxxxx
+这个是干扰字符串
 提取码：
-本贴隐藏内容
+本贴的隐藏内容
 abcd
 ```
 
-那么这个`本贴隐藏内容`中文就是干扰的字符串，设置间隔长度即为设置`提取码关键字`和`提取码`之间的最大干扰字符串长度。
+那么这个`：\n本贴隐藏内容`中文就是干扰的字符串，设置间隔长度即为设置`提取码关键字`和`提取码`之间的最大干扰字符串长度。
+例如这个就需要设置值`＞9`才能匹配到访问码
+
 `Text`是对应`匹配类型`为`普通文本`
 `HTML`是对应`匹配类型`为`超文本`
 
 ### 5. 为什么在设置中开启`读取剪贴板`且剪贴板中存在网盘链接，但是并没有成功识别？
 
-1. 可能是设置中需要识别的网盘自定义的`提取码间隔前/后(Text/HTML)`不够准确。
-2. 该功能只能在`Chromium内核`中生效，如Edge、Chrome、Kiwi中、Via、X浏览器，且当前网址必须是https安全网站，http不可以，使用`Gecko内核`的浏览器的话，API不会生效，如fireFox、可拓，Safari无法测试。
+浏览器Api兼容性查看：
+[https://caniuse.com/mdn-api_permissions_permission_clipboard-read](https://caniuse.com/mdn-api_permissions_permission_clipboard-read)
+[https://caniuse.com/mdn-api_clipboard_readtext](https://caniuse.com/mdn-api_clipboard_readtext)
 
 ### 6. 如何配置自定义规则
 
