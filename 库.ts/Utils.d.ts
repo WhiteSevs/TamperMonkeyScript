@@ -1437,17 +1437,17 @@ declare interface UtilsGMMenuConstructor {
      * 新增菜单数据
      * @param paramData
      */
-    add(paramData: UtilsGMMenuConstructorOptions[] | UtilsGMMenuConstructorOptions): void;
+    add(paramData: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
     /**
      * 更新菜单数据
      * @param options 数据
      */
-    update(options?: UtilsGMMenuConstructorOptions[] | UtilsGMMenuConstructorOptions | undefined): void;
+    update(options?: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
     /**
      * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
      * @param options 配置
      */
-    updateOptionsWithId(options?: UtilsGMMenuConstructorOptions[] | UtilsGMMenuConstructorOptions | undefined): void;
+    updateOptionsWithId(options?: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
     /**
      * 卸载菜单
      * @param menuId 已注册的菜单id
