@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.17.23
+// @version      2024.3.18
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -8799,18 +8799,6 @@
             YiYan.init();
           },
         },
-        {
-          key: "transfer_old_data",
-          text: "🔧 迁移旧数据",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.transferOldData();
-          },
-        },
       ]);
     },
     /**
@@ -8997,7 +8985,9 @@
                 PopsPanel.getSwtichDetail(
                   "【屏蔽】大家还在搜",
                   "baidu_search_blocking_everyone_is_still_searching",
-                  true
+                  true,
+                  void 0,
+                  "用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
                 ),
               ],
             },
@@ -10123,21 +10113,6 @@
           ],
         },
       ];
-    },
-    /**
-     * 迁移旧数据
-     */
-    transferOldData() {
-      let oldData = GM_getValue("GM_Menu_Local_Map");
-      let currentData = GM_getValue(this.key, {});
-      if (oldData) {
-        OriginPrototype.Object.assign(currentData, oldData);
-        GM_setValue(this.key, currentData);
-        GM_deleteValue("GM_Menu_Local_Map");
-        alert("共迁移数据量：" + OriginPrototype.Object.keys(oldData).length);
-      } else {
-        alert("不存在旧数据");
-      }
     },
   };
 

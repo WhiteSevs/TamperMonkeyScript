@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.17.21
+// @version      2024.3.18
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -464,18 +464,6 @@
           },
           callback: () => {
             this.showPanel();
-          },
-        },
-        {
-          key: "transfer_old_data",
-          text: "🔧 迁移旧数据",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.transferOldData();
           },
         },
       ]);
@@ -1023,21 +1011,6 @@
           forms: [],
         },
       ];
-    },
-    /**
-     * 迁移旧数据
-     */
-    transferOldData() {
-      let oldData = GM_getValue("GM_Menu_Local_Map");
-      let currentData = GM_getValue(this.key, {});
-      if (oldData) {
-        Object.assign(currentData, oldData);
-        GM_setValue(this.key, currentData);
-        GM_deleteValue("GM_Menu_Local_Map");
-        Qmsg.success("共迁移数据量：" + Object.keys(oldData).length);
-      } else {
-        Qmsg.info("不存在旧数据");
-      }
     },
   };
 

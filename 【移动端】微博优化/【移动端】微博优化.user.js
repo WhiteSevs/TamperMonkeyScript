@@ -3,7 +3,7 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.17.21
+// @version      2024.3.18
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
 // @author       WhiteSevs
 // @license      MIT
@@ -502,18 +502,6 @@
             this.showPanel();
           },
         },
-        {
-          key: "transfer_old_data",
-          text: "🔧 迁移旧数据",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.transferOldData();
-          },
-        },
       ]);
     },
     /** 初始化本地设置默认的值 */
@@ -824,19 +812,6 @@
           ],
         },
       ];
-    },
-    /** 迁移旧数据 */
-    transferOldData() {
-      let oldData = GM_getValue("GM_Menu_Local_Map");
-      let currentData = GM_getValue(this.key, {});
-      if (oldData) {
-        Object.assign(currentData, oldData);
-        GM_setValue(this.key, currentData);
-        GM_deleteValue("GM_Menu_Local_Map");
-        Qmsg.success("共迁移数据量：" + Object.keys(oldData).length);
-      } else {
-        Qmsg.info("不存在旧数据");
-      }
     },
   };
   /* -----------------↑函数区域↑----------------- */

@@ -3,7 +3,7 @@
 // @icon         https://www.jianshu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/485483
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.17.21
+// @version      2024.3.18
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -385,18 +385,6 @@
             this.showPanel();
           },
         },
-        {
-          key: "transfer_old_data",
-          text: "🔧 迁移旧数据",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.transferOldData();
-          },
-        },
       ]);
     },
     /**
@@ -641,21 +629,6 @@
           ],
         },
       ];
-    },
-    /**
-     * 迁移旧数据
-     */
-    transferOldData() {
-      let oldData = GM_getValue("GM_Menu_Local_Map");
-      let currentData = GM_getValue(this.key, {});
-      if (oldData) {
-        Object.assign(currentData, oldData);
-        GM_setValue(this.key, currentData);
-        GM_deleteValue("GM_Menu_Local_Map");
-        alert("共迁移数据量：" + Object.keys(oldData).length);
-      } else {
-        alert("不存在旧数据");
-      }
     },
   };
 
