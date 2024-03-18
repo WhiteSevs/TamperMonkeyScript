@@ -2,7 +2,7 @@
 // @name            网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version         2024.3.17.21
+// @version         2024.3.18
 // @author          WhiteSevs
 // @description     内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @icon            data:image/png;base64,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
@@ -100,6 +100,9 @@
           },
         },
       ]);
+    },
+    isTopWindow() {
+      return unsafeWindow.window.self === unsafeWindow.window.top;
     },
     /**
      * 初始化本地设置默认的值
@@ -287,6 +290,7 @@
                     "data-key": "currentDebug",
                     "data-default-value": "eruda",
                   },
+                  description: "挑一个喜欢的调试工具吧:)",
                   getValue() {
                     return PopsPanel.getValue(
                       this.attributes["data-key"],
@@ -319,9 +323,18 @@
                   ],
                 },
                 this.getSwtichDetail(
-                  "允许在iframe内运行",
+                  "允许在iframe内加载",
                   "allowRunInIframe",
-                  false
+                  false,
+                  void 0,
+                  "如果指定本脚本的容器并没有在iframe内执行本脚本，那么该功能将不会生效"
+                ),
+                this.getSwtichDetail(
+                  "主动加载调试工具",
+                  "autoLoadDebugTool",
+                  true,
+                  void 0,
+                  "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
                 ),
               ],
             },
@@ -909,6 +922,16 @@
    * 全局调试
    */
   const GlobalDebug = {
+    $data: {
+      /** 当前的调试工具是否已执行 */
+      isLoadDebugTool: false,
+      /** 当前已执行的调试工具名 */
+      loadDebugToolName: void 0,
+    },
+    $ele: {
+      /** 隐藏调试工具的style元素 */
+      hideDebugToolCSSNode: void 0,
+    },
     erudaVersion: "3.0.1",
     vConsoleVersion: "3.15.1",
     pageSpyVersion: "1.7.8",
@@ -921,7 +944,7 @@
      * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
      */
     handleIframe() {
-      if (top === self) {
+      if (PopsPanel.isTopWindow()) {
         return true;
       }
       if (!PopsPanel.getValue("allowRunInIframe")) {
@@ -953,17 +976,138 @@
       console.log(`网页调试：当前使用的调试工具【${currentDebugTool}】`);
       if (currentDebugTool === "vconsole") {
         /* vConsole */
+        this.$data.isLoadDebugTool = true;
+        this.$data.loadDebugToolName = "vconsole";
         this.vConsole();
       } else if (currentDebugTool === "pagespy") {
         /* PageSpy */
+        this.$data.isLoadDebugTool = true;
+        this.$data.loadDebugToolName = "pagespy";
         this.pageSpy();
       } else if (currentDebugTool === "eruda") {
         /* eruda */
+        this.$data.isLoadDebugTool = true;
+        this.$data.loadDebugToolName = "eruda";
         this.eruda();
       } else if (currentDebugTool === "chii") {
+        /* chii */
+        this.$data.isLoadDebugTool = true;
+        this.$data.loadDebugToolName = "chii";
         this.chii();
       } else {
         console.error("当前未配置该调试工具的运行");
+      }
+    },
+    /**
+     * 在脚本菜单中添加控制当前的调试工具状态的菜单按钮
+     */
+    addControlDebugToolScriptMenu() {
+      if (!PopsPanel.isTopWindow()) {
+        console.warn("不在iframe内重复添加菜单按钮");
+        return;
+      }
+      let menuData = {
+        key: "debug_tool_show_hide_control",
+        text: "☯ 加载并显示调试工具",
+        autoReload: false,
+        isStoreValue: false,
+        showText(text) {
+          return text;
+        },
+        callback: (data) => {
+          changeMenu(data);
+        },
+      };
+      /**
+       *
+       * @param {UtilsGMMenuClickCallBackData} data
+       */
+      const changeMenu = (data) => {
+        if (GlobalDebug.$data.isLoadDebugTool) {
+          /* 状态：已加载 */
+          if (GlobalDebug.$ele.hideDebugToolCSSNode) {
+            /* 状态：已加载且添加了隐藏CSS */
+            /* 进行移除隐藏CSS */
+            /* 菜单状态：【隐藏调试工具】 */
+            this.showDebugTool();
+            menuData.text = "🌑 隐藏调试工具";
+            GM_Menu.update(menuData);
+          } else {
+            /* 状态：已加载且未添加隐藏CSS */
+            /* 进行添加隐藏CSS */
+            /* 菜单状态：【显示调试工具】 */
+            this.hideDebugTool();
+            menuData.text = "🌕 显示调试工具";
+            GM_Menu.update(menuData);
+          }
+        } else {
+          /* 状态：未加载，加载并显示 */
+          /* 进行执行调试工具 */
+          /* 菜单状态：【隐藏调试工具】 */
+          this.showDebugTool();
+          menuData.text = "🌑 隐藏调试工具";
+          GM_Menu.update(menuData);
+        }
+      };
+      GM_Menu.add(menuData);
+    },
+    /**
+     * 判断页面中是否已存在隐藏调试工具的CSS元素节点
+     * @returns
+     */
+    hasHideDebugToolCSSNode() {
+      return document.documentElement.contains(this.$ele.hideDebugToolCSSNode);
+    },
+    /**
+     * 创建隐藏调试工具的CSS元素
+     * @returns
+     */
+    createHideDebugToolCSSNode() {
+      let cssNode = document.createElement("style");
+      cssNode.setAttribute("type", "text/css");
+      cssNode.setAttribute("data-from", "hide-debug-tool");
+      cssNode.innerHTML = `
+        #eruda{
+          display: none !important;
+        }
+        #__vconsole{
+          display: none !important;
+        }
+        #__pageSpy{
+          display: none !important;
+        }
+        .__chobitsu-hide__ > iframe,
+        .__chobitsu-hide__:has(iframe){
+          display: none !important;
+        }
+        `;
+      return cssNode;
+    },
+    /**
+     * 隐藏当前的调试工具
+     */
+    hideDebugTool() {
+      if (this.$ele.hideDebugToolCSSNode == null) {
+        console.log("未创建隐藏【调试工具】的style元素 => 创建元素");
+        this.$ele.hideDebugToolCSSNode = this.createHideDebugToolCSSNode();
+      }
+      if (!this.hasHideDebugToolCSSNode()) {
+        console.log("页面不存在隐藏【调试工具】的style元素 => 添加元素");
+        document.documentElement.appendChild(this.$ele.hideDebugToolCSSNode);
+      }
+    },
+    /**
+     * 显示当前的调试工具
+     */
+    showDebugTool() {
+      if (this.$ele.hideDebugToolCSSNode) {
+        console.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
+        document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
+        this.$ele.hideDebugToolCSSNode = null;
+      }
+      if (!this.$data.isLoadDebugTool) {
+        console.log("尚未运行【调试工具】 => 运行调试工具");
+        this.runDebugTool();
       }
     },
     eruda() {
@@ -1258,6 +1402,10 @@
   };
   PopsPanel.initMenu();
   if (GlobalDebug.handleIframe()) {
-    GlobalDebug.runDebugTool();
+    if (PopsPanel.getValue("autoLoadDebugTool")) {
+      GlobalDebug.runDebugTool();
+    } else {
+      GlobalDebug.addControlDebugToolScriptMenu();
+    }
   }
 })();
