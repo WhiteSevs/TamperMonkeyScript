@@ -11739,8 +11739,8 @@
         {
           title: {
             text: title,
-            position: "left",
-            html: true,
+            position: "center",
+            html: false,
           },
           btn: {
             reverse: true,
