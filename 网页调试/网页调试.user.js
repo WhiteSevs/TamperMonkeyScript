@@ -83,7 +83,7 @@
      */
     initMenu() {
       this.initLocalDefaultValue();
-      if (unsafeWindow.top !== unsafeWindow.self) {
+      if (!this.isTopWindow()) {
         return;
       }
       GM_Menu.add([
@@ -95,8 +95,8 @@
           showText(text) {
             return text;
           },
-          callback: () => {
-            this.showPanel();
+          callback() {
+            PopsPanel.showPanel();
           },
         },
       ]);
