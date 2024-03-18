@@ -3873,11 +3873,11 @@
       section.pops-panel-container .pops-panel-forms-container-item>div{margin:10px;margin-left:20px;font-size:14px;text-align:left;}
       /* 主文字 */
       section.pops-panel-container .pops-panel-forms-container-item .pops-panel-item-left-text .pops-panel-item-left-main-text {
-        line-height: 2;
+        //line-height: 2;
       }
       /* 描述文字 */
       section.pops-panel-container .pops-panel-forms-container-item .pops-panel-item-left-text .pops-panel-item-left-desc-text{
-        line-height: 1;
+        //line-height: 1;
         font-size: 12px;
         color: #6c6c6c;
       }
