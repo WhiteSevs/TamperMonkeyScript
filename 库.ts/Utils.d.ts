@@ -1223,6 +1223,10 @@ declare interface UtilsDictionaryConstructor<K extends string | number | symbol,
      */
     entries(): IterableIterator<[K, V]>;
     /**
+     * 循环字典
+     */
+    forEach(callbackfn: (value: V, key: K, dictionary: UtilsDictionaryConstructor<K, V>) => void): void;
+    /**
      * 可迭代
      */
     [Symbol.iterator](): IterableIterator<[K, V]>;
@@ -1303,46 +1307,46 @@ declare interface UtilsGMMenuClickCallBackData {
     /** 触发的事件 */
     event: MouseEvent | KeyboardEvent;
     /** 将enable值写入本地的回调，设置参数false就不保存到本地 */
-    storeValue: (enable: boolean) => void;
+    storeValue(enable: boolean): void;
 }
 
 declare interface UtilsGMMenuOptions {
-    /**（必须）菜单的本地键key，不可重复，会覆盖 */
+    /** 菜单的本地键key，不可重复，会覆盖 */
     key: string;
-    /**（必须）菜单的文本 */
+    /** 菜单的文本 */
     text: string;
-    /** 菜单的开启状态，默认为false */
-    enable: boolean | undefined;
-    /** 使用条件：TamperMonkey版本>5.0，如果id和已注册的菜单id相同，可修改当前已注册菜单的options */
-    id: number | undefined;
-    /**  */
-    accessKey: string | undefined;
-    /** 自动关闭菜单，可不设置 */
-    autoClose: boolean | undefined;
-    /** 使用条件：TamperMonkey版本>5.0，使用菜单项的鼠标悬浮上的工具提示，可为空 */
-    title: string | undefined;
-    /** 点击菜单后自动刷新网页，默认为true */
-    autoReload: boolean | undefined;
+    /** （可选）菜单的开启状态，默认为false */
+    enable?: boolean;
+    /** （可选）使用条件：TamperMonkey版本>5.0，如果id和已注册的菜单id相同，可修改当前已注册菜单的options */
+    id?: number;
+    /** （可选）An optional access key. Please see the description below. Either options or accessKey can be specified. */
+    accessKey?: string;
+    /** （可选）自动关闭菜单，可不设置 */
+    autoClose?: boolean;
+    /** 使用条件：TamperMonkey版本>5.0，使用菜单项的鼠标悬浮上的工具提示*/
+    title?: string;
+    /** （可选）点击菜单后自动刷新网页，默认为true */
+    autoReload?: boolean;
     /** 菜单的显示文本，未设置的话则自动根据enable在前面加上图标 */
-    showText: (text: string, enable: boolean) => void;
+    showText(text: string, enable: boolean): string;
     /** 点击菜单的回调 */
-    callback: (data: UtilsGMMenuClickCallBackData) => void;
+    callback(data: UtilsGMMenuClickCallBackData): void;
     /** 是否允许菜单进行存储值，默认true允许 */
     isStoreValue?: boolean;
 }
 
 declare interface UtilsGMMenuConstructorOptions {
-    /** 配置，可为空 */
-    data: UtilsGMMenuOptions[] | undefined;
-    /** 全局菜单点击菜单后自动刷新网页，默认为true */
-    autoReload: boolean | undefined;
-    /** （必须）油猴函数@grant GM_getValue */
+    /** （可选）配置*/
+    data?: UtilsGMMenuOptions[];
+    /** （可选）全局菜单点击菜单后自动刷新网页，默认为true */
+    autoReload?: boolean;
+    /**  油猴函数 @grant GM_getValue */
     GM_getValue: Function;
-    /** （必须）油猴函数@grant GM_setValue */
+    /**  油猴函数 @grant GM_setValue */
     GM_setValue: Function;
-    /** （必须）油猴函数@grant GM_registerMenuCommand */
+    /**  油猴函数 @grant GM_registerMenuCommand */
     GM_registerMenuCommand: Function;
-    /** （必须）油猴函数@grant GM_unregisterMenuCommand */
+    /**  油猴函数 @grant GM_unregisterMenuCommand */
     GM_unregisterMenuCommand: Function;
 }
 
@@ -1440,9 +1444,10 @@ declare interface UtilsGMMenuConstructor {
     add(paramData: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
     /**
      * 更新菜单数据
+     * 方式：先卸载全部的菜单，再重新注册菜单
      * @param options 数据
      */
-    update(options?: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
+    update(options?: UtilsGMMenuOptions[] | UtilsGMMenuOptions): Promise<void>;
     /**
      * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
      * @param options 配置
