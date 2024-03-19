@@ -3947,41 +3947,39 @@
       stackSplit.splice(0, 2);
       let { name: callerName, position: callerPosition } =
         parseErrorStack(stackSplit);
-      if (typeof msg === "object") {
-        /* 要输出的内容是个对象 */
-        if (details.tag) {
-          if (Array.isArray(msg) && msg.length < 5) {
-            console.log(
-              `%c[${this.tag}%c-%c${callerName}%c]%c `,
-              ...msgColorDetails,
-              `color: ${color};${otherStyle}`,
-              ...msg
-            );
-          } else {
-            console.log(
-              `%c[${this.tag}%c-%c${callerName}%c]%c `,
-              ...msgColorDetails,
-              `color: ${color};${otherStyle}`,
-              msg
-            );
-          }
-        } else {
-          if (Array.isArray(msg) && msg.length < 5) {
-            console.log(...msg);
-          } else {
-            console.log(msg);
-          }
-        }
-      } else {
-        if (details.tag) {
+      let tagName = this.tag;
+      function consoleMsg(_msg_) {
+        if (typeof _msg_ === "string") {
           console.log(
-            `%c[${this.tag}%c-%c${callerName}%c]%c ${msg}`,
+            `%c[${tagName}%c-%c${callerName}%c]%c %s`,
             ...msgColorDetails,
-            `color: ${color};${otherStyle}`
+            `color: ${color};${otherStyle}`,
+            _msg_
+          );
+        } else if (typeof _msg_ === "number") {
+          console.log(
+            `%c[${tagName}%c-%c${callerName}%c]%c %d`,
+            ...msgColorDetails,
+            `color: ${color};${otherStyle}`,
+            _msg_
+          );
+        } else if (typeof _msg_ === "object") {
+          console.log(
+            `%c[${tagName}%c-%c${callerName}%c]%c %o`,
+            ...msgColorDetails,
+            `color: ${color};${otherStyle}`,
+            _msg_
           );
         } else {
-          console.log(`%c${msg}`, `color: ${color};${otherStyle}`);
+          console.log(_msg_);
         }
+      }
+      if (Array.isArray(msg)) {
+        msg.forEach((item) => {
+          consoleMsg(item);
+        });
+      } else {
+        consoleMsg(msg);
       }
       if (details.debug) {
         /* 如果开启调试模式，输出堆栈位置 */
