@@ -16,15 +16,15 @@ dataPaging.append(document.querySelector("body > div"));
 let DataPaging = {};
 (function () {
   class Paging {
-    /**
-     * 是否已添加CSS
-     */
-    isAddCSS = false;
     CONFIG = {
-      data: [] /* 数据 */,
-      pageCount: 5 /* 每一页显示的数据数量 */,
-      pageStep: 3 /* 当前能最多显示出来的页码 */,
-      currentPage: 1 /* 当前页码 */,
+      /* 数据 */
+      data: [],
+      /* 每一页显示的数据数量 */
+      pageCount: 5,
+      /* 当前能最多显示出来的页码 */
+      pageStep: 3,
+      /* 当前页码 */
+      currentPage: 1,
       /**
        * 当前页码改变的回调
        * @param {number} page 当前页
@@ -32,22 +32,27 @@ let DataPaging = {};
       pageChangeCallBack: function (page) {},
       /* 上一页按钮 */
       prevBtn: {
-        enable: true /* 是否启用 */,
-        callBack: function () {} /* 点击事件回调 */,
+        /* 是否启用 */
+        enable: true,
+        /* 点击事件回调 */
+        callBack: function () {},
       },
       /* 下一页按钮 */
       nextBtn: {
-        enable: true /* 是否启用 */,
+        /* 是否启用 */
+        enable: true,
         callBack: function () {},
       },
       /* 第一页按钮 */
       firstBtn: {
-        enable: true /* 是否启用 */,
+        /* 是否启用 */
+        enable: true,
         callBack: function () {},
       },
       /* 最后一页按钮 */
       lastBtn: {
-        enable: true /* 是否启用 */,
+        /* 是否启用 */
+        enable: true,
         callBack: function () {},
       },
     };
@@ -221,7 +226,7 @@ let DataPaging = {};
       },
     };
     constructor(details) {
-      Object.assign(this.CONFIG, details);
+      this.changeConfig(details);
     }
     /**
      * 添加CSS
@@ -354,14 +359,14 @@ let DataPaging = {};
       /* 比如计算出的页码总共有5个，设置中当前能显示出的页码按钮元素为3个 */
       if (that.CONFIG.pageStep > that.PAGE_CONFIG.maxPage) {
         for (
-          currentPage;
-          currentPage <= that.PAGE_CONFIG.maxPage;
-          currentPage++
+          let _currentPage = currentPage;
+          _currentPage <= that.PAGE_CONFIG.maxPage;
+          _currentPage++
         ) {
           let pageBtnNode = document.createElement("a");
-          that.DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
-          pageBtnNode.innerText = currentPage;
-          if (that.CONFIG.currentPage === currentPage) {
+          that.DOM_CONFIG.setAttributeWithPageId(pageBtnNode, _currentPage);
+          pageBtnNode.innerText = _currentPage;
+          if (that.CONFIG.currentPage === _currentPage) {
             that.DOM_CONFIG.setAttributeWithCurrentPage(pageBtnNode);
           }
           this.setPageBtnClickEvent(pageBtnNode, dataPagingNode);
@@ -372,7 +377,7 @@ let DataPaging = {};
         if (currentPage + that.CONFIG.pageStep > that.PAGE_CONFIG.maxPage) {
           currentPage = that.PAGE_CONFIG.maxPage;
           let needAppendNodeList = [];
-          for (let i = 0; i < that.CONFIG.pageStep; i++) {
+          for (let index = 0; index < that.CONFIG.pageStep; index++) {
             let pageBtnNode = document.createElement("a");
             that.DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
             pageBtnNode.innerText = currentPage;
@@ -389,7 +394,7 @@ let DataPaging = {};
           });
         } else {
           /* 当前页 在计算出的页码内 */
-          for (let i = 0; i < that.CONFIG.pageStep; i++) {
+          for (let index = 0; index < that.CONFIG.pageStep; index++) {
             let pageBtnNode = document.createElement("a");
             that.DOM_CONFIG.setAttributeWithPageId(pageBtnNode, currentPage);
             pageBtnNode.innerText = currentPage;
@@ -694,6 +699,7 @@ let DataPaging = {};
       if (data.length === this.CONFIG.data.length) {
         return;
       }
+      this.CONFIG.data = [];
       this.CONFIG.data = data;
       let currentPage = this.PAGE_CONFIG.getCurrentPage();
       let maxPage = Math.ceil(data.length / this.CONFIG.pageCount);
