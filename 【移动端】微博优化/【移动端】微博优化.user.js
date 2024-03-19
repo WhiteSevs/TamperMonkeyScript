@@ -61,7 +61,9 @@
       /* 主内容底部的小程序横幅推荐 */
       #app > div.lite-page-wrap > div > div.main > div > div.wrap,
       /* 底部悬浮的在微博内打开 */
-      #app .woo-frame.blog-config-page div.weibo-btn-box{
+      #app .woo-frame.blog-config-page div.weibo-btn-box,
+      /* 顶部的新闻信息流 */
+      #app .woo-frame div.woo-panel-container.news-banner{
         display: none !important;
       }`);
     },
