@@ -3,7 +3,7 @@
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @namespace    https://greasyfork.org/zh-CN/scripts/480094
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.18.19
+// @version      2024.3.19.14
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
 // @author       WhiteSevs
 // @license      MIT
@@ -22,12 +22,12 @@
 // @grant        unsafeWindow
 // @connect      m.weibo.cn
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1345075/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1345076/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1345454/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1345501/WhiteSevsUtils.js
 // ==/UserScript==
 
 (function () {
-  if(typeof unsafeWindow === "undefined"){
+  if (typeof unsafeWindow === "undefined") {
     unsafeWindow = globalThis;
   }
   /* -----------------↓公共配置↓----------------- */
@@ -59,7 +59,9 @@
       /* 底部中间的 登录/注册按钮 */
       #app div.main-wrap div.login-box,
       /* 主内容底部的小程序横幅推荐 */
-      #app > div.lite-page-wrap > div > div.main > div > div.wrap{
+      #app > div.lite-page-wrap > div > div.main > div > div.wrap,
+      /* 底部悬浮的在微博内打开 */
+      #app .woo-frame.blog-config-page div.weibo-btn-box{
         display: none !important;
       }`);
     },
@@ -117,6 +119,7 @@
     hijackNetWork() {
       const ajaxHooker = utils.ajaxHooker();
       ajaxHooker.hook((request) => {
+        log.info(["ajaxHookr: ", request.url]);
         if (request.url.startsWith("/ajax/super/starschedule?")) {
           request.response = async (res) => {
             let getResp = await httpx.get(request.url, {
@@ -195,25 +198,25 @@
      * 劫持Function.prototype.apply;
      */
     hijackApply() {
-      let originApply = Function.prototype.apply;
-      Function.prototype.apply = function () {
-        if (arguments.length !== 2) {
-          return originApply.call(this, ...arguments);
+      let originApply = unsafeWindow.Function.prototype.apply;
+      unsafeWindow.Function.prototype.apply = function (...args) {
+        if (args.length !== 2) {
+          return originApply.call(this, ...args);
         }
-        if (arguments.length === 2 && !Array.isArray(arguments[1])) {
-          return originApply.call(this, ...arguments);
+        if (args.length === 2 && !Array.isArray(args[1])) {
+          return originApply.call(this, ...args);
         }
-        if (typeof arguments[1][0] !== "string") {
-          return originApply.call(this, ...arguments);
+        if (typeof args[1][0] !== "string") {
+          return originApply.call(this, ...args);
         }
         /**
          * @type {string}
          */
-        const ApiPath = arguments[1][0];
+        const ApiPath = args[1][0];
         /**
          * @type {object}
          */
-        const ApiSearchParams = arguments[1]?.[1]?.["params"];
+        const ApiSearchParams = args[1]?.[1]?.["params"];
         if (
           ApiPath === "api/attitudes/create" &&
           PopsPanel.getValue("weibo_apply_attitudes_create")
@@ -339,18 +342,18 @@
             });
           });
         } else {
-          log.info(["请求API：", ApiPath, ApiSearchParams]);
+          //log.info(["请求API：", ApiPath, ApiSearchParams]);
         }
-        return originApply.call(this, ...arguments);
+        return originApply.call(this, ...args);
       };
     },
     /**
      * 拦截网络
      */
     hijackNetWork() {
-      let ajaxHooker = utils.ajaxHooker();
+      const ajaxHooker = utils.ajaxHooker();
       ajaxHooker.hook(function (request) {
-        log.info(request.url);
+        log.info(["ajaxHookr: ", request.url]);
         if (
           request.url.startsWith("https://m.weibo.cn/api/config") &&
           PopsPanel.getValue("weibo_request_api_config")
@@ -364,11 +367,10 @@
             data.data.preferQuickapp = 0;
             data.data.login = true;
             data.data.uid = "";
-            delete data.data.loginUrl;
-            delete data.data.wx_callback;
-            delete data.data.wx_authorize;
-            delete data.data.passport_login_url;
-
+            Reflect.deleteProperty(data.data, "loginUrl");
+            Reflect.deleteProperty(data.data, "wx_callback");
+            Reflect.deleteProperty(data.data, "wx_authorize");
+            Reflect.deleteProperty(data.data, "passport_login_url");
             log.success("伪装已登录");
             _request_.responseText = JSON.stringify(data);
           };
@@ -389,6 +391,17 @@
               };
             }
             _request_.responseText = JSON.stringify(data);
+          };
+        } else if (
+          request.url.startsWith("https://m.weibo.cn/status/push?") &&
+          PopsPanel.getValue("weibo_request_status_push")
+        ) {
+          /**
+           * 重构响应
+           */
+          request.response = function (_request_) {
+            let data = utils.toJSON(_request_.responseText);
+            _request_.json = {};
           };
         }
       });
@@ -446,6 +459,10 @@
           250,
           10000
         );
+        if (!document.querySelector("#app").__vue__) {
+          log.error("#app的vue属性不存在");
+          return;
+        }
         let vueRouterPush = document.querySelector("#app").__vue__.$router.push;
         log.success("拦截Vue路由跳转");
         document.querySelector("#app").__vue__.$router.push = function (
@@ -469,6 +486,17 @@
           }
           return vueRouterPush.apply(this, arguments);
         };
+      });
+    },
+    /**
+     * 禁止Service Worker注册
+     */
+    hijackServiceWorkerRegister() {
+      let oldRegister = unsafeWindow.navigator.serviceWorker.register;
+      Object.defineProperty(unsafeWindow.navigator.serviceWorker, "register", {
+        get() {
+          return function () {};
+        },
       });
     },
   };
@@ -555,7 +583,7 @@
      */
     deleteValue(key) {
       let localValue = GM_getValue(this.key, {});
-      delete localValue[key];
+      Reflect.deleteProperty(localValue, key);
       GM_setValue(this.key, localValue);
     },
     /** 显示设置面板 */
@@ -708,7 +736,7 @@
               ],
             },
             {
-              text: "网络请求",
+              text: "网络请求(不一定能劫持到)",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
@@ -723,6 +751,12 @@
                   "weibo_request_comments_hot",
                   true
                 ),
+                PopsPanel.getSwtichDetail(
+                  "/status/push",
+                  "Api为获取顶部的热点新闻信息流",
+                  "weibo_request_status_push",
+                  true
+                ),
               ],
             },
             {
@@ -733,6 +767,18 @@
                   "优化跳转用户主页",
                   "可以正确跳转至用户主页",
                   "weibo_router_profile_to_user_home",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "函数禁用",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "navigator.serviceWorker.register",
+                  "禁止注册",
+                  "weibo_hijack_navigator_service_worker_register",
                   true
                 ),
               ],
@@ -756,7 +802,7 @@
               ],
             },
             {
-              text: "网络请求",
+              text: "网络请求(不一定能劫持到)",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
@@ -819,6 +865,9 @@
   /* -----------------↓执行入口↓----------------- */
   WeiBoMenu.init();
   PopsPanel.initMenu();
+  if (PopsPanel.getValue("weibo_hijack_navigator_service_worker_register")) {
+    WebBoHijack.hijackServiceWorkerRegister();
+  }
   if (globalThis.location.hostname === "huati.weibo.cn") {
     if (PopsPanel.getValue("huati_weibo_masquerade_weibo_client_app")) {
       WeiBoHuaTi.isWeibo();
@@ -829,15 +878,15 @@
       WeiBoHuaTi.hijackNetWork();
     }
   } else if (globalThis.location.hostname === "m.weibo.cn") {
+    WebBoHijack.hijackNetWork();
+    WebBoHijack.hijackApply();
+    WebBoHijack.hijackVueRouter();
     if (PopsPanel.getValue("weibo_remove_ads")) {
       WeiBo.shieldAds();
     }
     if (PopsPanel.getValue("weibo_shield_bottom_bar")) {
       WeiBo.shieldBottomBar();
     }
-    WebBoHijack.hijackApply();
-    WebBoHijack.hijackNetWork();
-    WebBoHijack.hijackVueRouter();
   } else if (globalThis.location.hostname === "h5.video.weibo.com") {
     if (PopsPanel.getValue("weibo_video_shield_bottom_toolbar")) {
       WeiBoVideo.shieldBottomToolBar();
