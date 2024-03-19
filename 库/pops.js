@@ -543,7 +543,9 @@
           };
         }
       }
-      let { transformLeft, transformTop } = getTransform(moveElement);
+      let transformInfo = getTransform(moveElement);
+      let transformLeft = transformInfo.transformLeft;
+      let transformTop = transformInfo.transformTop;
       let resumeMoveElementStyle = null;
       anyTouchElement.on("pan", function (event) {
         if (!isMove) {
@@ -551,6 +553,9 @@
           let rect = options.dragElement.getBoundingClientRect();
           clickElementLeftOffset = event.x - rect.left;
           clickElementTopOffset = event.y - rect.top;
+          transformInfo = getTransform(moveElement);
+          transformLeft = transformInfo.transformLeft;
+          transformTop = transformInfo.transformTop;
           //if (event.nativeEvent.offsetX) {
           //  clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
           //} else {
@@ -3019,7 +3024,7 @@
   /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.3.15",
+    version: "2024.3.19",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
@@ -3052,7 +3057,16 @@
       .pops-mask{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;border:0;border-radius:0;background-color:rgba(0,0,0,.4);box-shadow:none;transition:none;}
 
 
-      .pops-header-controls button.pops-header-control[type=close],
+      .pops-header-controls button.pops-header-control[type][data-header]{
+        float: right;
+        margin: 0 0;
+        outline: 0;
+        border: 0;
+        border-color: #888;
+        background-color: transparent;
+        color: #888;
+        cursor: pointer;
+      }
       .pops-header-controls button.pops-header-control[type=max],
       .pops-header-controls button.pops-header-control[type=mise],
       .pops-header-controls button.pops-header-control[type=min]{position:relative;float:right;margin:0 2px;outline:0!important;border:0;border-color:#888;background-color:transparent;color:#888;cursor:pointer;transition:all .3s ease-in-out;}
@@ -3258,18 +3272,13 @@
       `,
       /** 通用的CSS */
       common: `
-      .pops-flex-items-center{
-        display: flex;
-        align-items: center;
-      }
-      .pops-flex-y-center{
-        display: flex;
-        justify-content: space-between;
-      }
-      .pops-flex-x-center{
-        display: flex;
-        align-content: center;
-      }
+      .pops-flex-items-center{display: flex;align-items: center;}
+      .pops-flex-y-center{display: flex;justify-content: space-between;}
+      .pops-flex-x-center{display: flex;align-content: center;}
+      .pops-hide {display: none;}
+      .pops-hide-important {display: none !important;}
+      .pops-no-border{border: 0;}
+      .pops-no-border-important{border: 0;}
       `,
       /** 动画 */
       anim: `
@@ -5399,7 +5408,7 @@
         if (config.btn?.close?.enable) {
           closeHTML = `
           <div class="pops-header-controls">
-            <button class="pops-header-control" type="close">
+            <button class="pops-header-control" type="close" data-header>
               <i class="pops-icon">${pops.config.iconSVG["close"]}</i>
             </button>
           </div>`;
