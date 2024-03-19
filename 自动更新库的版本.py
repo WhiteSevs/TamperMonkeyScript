@@ -5,6 +5,7 @@ import re
 import httpx
 import winreg
 import datetime
+import urllib.parse
 
 
 class ScriptInfo:
@@ -57,7 +58,7 @@ class ScriptNetWork:
         )
         respJson = response.json()
         code_url = respJson["code_url"]
-        version = re.compile(rf"\/{script_id}\/([\d]+)\/").search(code_url)
+        version = re.compile(rf"/{script_id}/([\d]+)/").search(code_url)
         if version:
             version = version[1]
         version = str(version)
@@ -157,7 +158,8 @@ class ScriptFile:
         # 用于判断是否进行更新内容
         flag = False
         for scriptInfo in scriptInfoList:
-            pattern = rf"""https://update.greasyfork.org/scripts/{scriptInfo.id}/[\d]+/{scriptInfo.name}.js"""
+            encode_script_name = urllib.parse.quote(scriptInfo.name)
+            pattern = rf"""https://update.greasyfork.org/scripts/{scriptInfo.id}/[\d]+/{encode_script_name}.js"""
             replacement = scriptInfo.code_url
             patternMatch = re.findall(pattern, content)
             if len(patternMatch):
