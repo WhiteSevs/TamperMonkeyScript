@@ -11070,21 +11070,37 @@
                 );
                 DOMUtils.before(buttonHeaderControl, launchIcon);
                 DOMUtils.before(buttonHeaderControl, shrinkIcon);
-                DOMUtils.on(launchIcon, "click", void 0, function () {
-                  /* 展开-切换为收缩图标 */
-                  launchIcon.classList.add("pops-hide-important");
-                  shrinkIcon.classList.remove("pops-hide-important");
-                  alertContent.classList.remove("pops-hide-important");
-                  GM_setValue("netdisl-small-window-shrink-status", false);
-                });
-                DOMUtils.on(shrinkIcon, "click", void 0, function () {
-                  /* 收缩-切换为展开图标 */
-                  shrinkIcon.classList.add("pops-hide-important");
-                  launchIcon.classList.remove("pops-hide-important");
-                  alertContent.classList.add("pops-hide-important");
-                  alertContent.classList.add("pops-no-border-important");
-                  GM_setValue("netdisl-small-window-shrink-status", true);
-                });
+                DOMUtils.on(
+                  launchIcon,
+                  "click",
+                  void 0,
+                  function () {
+                    /* 展开-切换为收缩图标 */
+                    launchIcon.classList.add("pops-hide-important");
+                    shrinkIcon.classList.remove("pops-hide-important");
+                    alertContent.classList.remove("pops-hide-important");
+                    GM_setValue("netdisl-small-window-shrink-status", false);
+                  },
+                  {
+                    capture: true,
+                  }
+                );
+                DOMUtils.on(
+                  shrinkIcon,
+                  "click",
+                  void 0,
+                  function () {
+                    /* 收缩-切换为展开图标 */
+                    shrinkIcon.classList.add("pops-hide-important");
+                    launchIcon.classList.remove("pops-hide-important");
+                    alertContent.classList.add("pops-hide-important");
+                    alertContent.classList.add("pops-no-border-important");
+                    GM_setValue("netdisl-small-window-shrink-status", true);
+                  },
+                  {
+                    capture: true,
+                  }
+                );
                 if (GM_getValue("netdisl-small-window-shrink-status", false)) {
                   shrinkIcon.click();
                 } else {
