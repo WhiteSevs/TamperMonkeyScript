@@ -4753,7 +4753,7 @@
           if (this.isText()) {
             /* 只复制文字 */
             navigator.clipboard
-              .writeText(copyText)
+              .writeText(this.#copyData)
               .then(() => {
                 resolve(true);
               })
