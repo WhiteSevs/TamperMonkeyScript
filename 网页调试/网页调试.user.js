@@ -18,17 +18,18 @@
 // @grant           GM_deleteValue
 // @grant           GM_setClipboard
 // @grant           GM_getResourceText
-// @resource        Resource_erudaMonitor         https://fastly.jsdelivr.net/npm/eruda-monitor
-// @resource        Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features
-// @resource        Resource_erudaTiming          https://fastly.jsdelivr.net/npm/eruda-timing
-// @resource        Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code
-// @resource        Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark
-// @resource        Resource_Leaflet              https://update.greasyfork.org/scripts/483765/1309677/Leaflet.js
-// @resource        Resource_erudaGeolocation     https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation/eruda-geolocation.js
-// @resource        Resource_erudaOrientation     https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-orientation/eruda-orientation.js
-// @resource        Resource_erudaTouches         https://fastly.jsdelivr.net/npm/eruda-touches
-// @resource        Resource_erudaOutlinePlugin   https://fastly.jsdelivr.net/npm/eruda-outline-plugin
-// @resource        Resource_erudaPixel           https://fastly.jsdelivr.net/npm/eruda-pixel
+// @resource        Resource_erudaMonitor             https://fastly.jsdelivr.net/npm/eruda-monitor
+// @resource        Resource_erudaFeatures            https://fastly.jsdelivr.net/npm/eruda-features
+// @resource        Resource_erudaTiming              https://fastly.jsdelivr.net/npm/eruda-timing
+// @resource        Resource_erudaCode                https://fastly.jsdelivr.net/npm/eruda-code
+// @resource        Resource_erudaBenchmark           https://fastly.jsdelivr.net/npm/eruda-benchmark
+// @resource        Resource_Leaflet                  https://update.greasyfork.org/scripts/483765/1309677/Leaflet.js
+// @resource        Resource_erudaGeolocation         https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation/eruda-geolocation.js
+// @resource        Resource_erudaOrientation         https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-orientation/eruda-orientation.js
+// @resource        Resource_erudaTouches             https://fastly.jsdelivr.net/npm/eruda-touches
+// @resource        Resource_erudaOutlinePlugin       https://fastly.jsdelivr.net/npm/eruda-outline-plugin
+// @resource        Resource_erudaPixel               https://fastly.jsdelivr.net/npm/eruda-pixel
+// @resource        Resource_vConsoleVueDevtools      https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9/dist/vue_plugin.min.js
 // @require         https://update.greasyfork.org/scripts/456485/1345972/pops.js
 // @require         https://update.greasyfork.org/scripts/483694/1345961/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1319662/vConsole-2.js
