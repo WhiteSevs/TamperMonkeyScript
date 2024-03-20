@@ -46,6 +46,9 @@
 - 当前版本：`3.15.1`
 - 项目主页<br>[https://github.com/Tencent/vConsole](https://github.com/Tencent/vConsole)
 - 项目最新地址<br>[https://cdn.jsdelivr.net/npm/vconsole](https://cdn.jsdelivr.net/npm/vconsole)<br>[https://fastly.jsdelivr.net/npm/vconsole](https://fastly.jsdelivr.net/npm/vconsole)<br>[https://testingcf.jsdelivr.net/npm/vconsole](https://testingcf.jsdelivr.net/npm/vconsole)
+- 【插件】[vconsole-stats-plugin](https://github.com/smackgg/vConsole-Stats): A vConsole plugin which can show Stats in front-end.
+- 【插件】[vconsole-outputlog-plugin](https://github.com/sunlanda/vconsole-outputlog-plugin): 使用该插件可以复制或下载console中打印的log
+- 【插件】[vconsole-vue-devtools-plugin](https://github.com/sunlanda/vconsole-outputlog-plugin): Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
 
 ## PageSpy
 
