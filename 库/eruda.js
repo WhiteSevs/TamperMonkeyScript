@@ -8697,11 +8697,7 @@ let initEruda = function (
                           rememberPos: !0,
                           pos: this._getDefPos(),
                         }));
-                        e.switch(
-                          t,
-                          "rememberPos",
-                          "Remember Entry Button Position"
-                        ),
+                        e.switch(t, "rememberPos", "记住按钮拖动的位置"),
                           this._resetPos();
                       },
                     },
@@ -8975,18 +8971,18 @@ let initEruda = function (
                           }),
                           e
                             .separator()
-                            .select(n, "theme", "Theme", D()(ie.getThemes()))
-                            .range(n, "transparency", "Transparency", {
+                            .select(n, "theme", "主题", D()(ie.getThemes()))
+                            .range(n, "transparency", "透明度", {
                               min: 0.2,
                               max: 1,
                               step: 0.01,
                             })
-                            .range(n, "displaySize", "Display Size", {
+                            .range(n, "displaySize", "显示尺寸", {
                               min: 40,
                               max: 100,
                               step: 1,
                             })
-                            .button("Restore defaults and reload", function () {
+                            .button("恢复默认值并重新加载", function () {
                               var e = Ze("local"),
                                 t = JSON.parse(JSON.stringify(e));
                               C()(t, function (t, n) {
@@ -9548,36 +9544,20 @@ let initEruda = function (
                         o &&
                           o
                             .text(Et()(this.name))
-                            .switch(n, "asyncRender", "Asynchronous Rendering")
-                            .switch(
-                              n,
-                              "jsExecution",
-                              "Enable JavaScript Execution"
-                            )
-                            .switch(n, "catchGlobalErr", "Catch Global Errors")
-                            .switch(n, "overrideConsole", "Override Console")
-                            .switch(
-                              n,
-                              "displayIfErr",
-                              "Auto Display If Error Occurs"
-                            )
-                            .switch(
-                              n,
-                              "displayExtraInfo",
-                              "Display Extra Information"
-                            )
+                            .switch(n, "asyncRender", "异步渲染")
+                            .switch(n, "jsExecution", "启用JavaScript执行")
+                            .switch(n, "catchGlobalErr", "捕捉全局错误")
+                            .switch(n, "overrideConsole", "覆盖console")
+                            .switch(n, "displayIfErr", "发生错误时自动显示")
+                            .switch(n, "displayExtraInfo", "显示额外信息")
                             .switch(
                               n,
                               "displayUnenumerable",
-                              "Display Unenumerable Properties"
+                              "显示不可枚举属性"
                             )
-                            .switch(
-                              n,
-                              "displayGetterVal",
-                              "Access Getter Value"
-                            )
-                            .switch(n, "lazyEvaluation", "Lazy Evaluation")
-                            .select(n, "maxLogNum", "Max Log Number", [
+                            .switch(n, "displayGetterVal", "访问Getter值")
+                            .switch(n, "lazyEvaluation", "懒惰计算法")
+                            .select(n, "maxLogNum", "最大日志数量", [
                               "infinite",
                               "250",
                               "125",
@@ -11015,11 +10995,7 @@ let initEruda = function (
                       n &&
                         (n
                           .text("Elements")
-                          .switch(
-                            t,
-                            "overrideEventTarget",
-                            "Catch Event Listeners"
-                          ),
+                          .switch(t, "overrideEventTarget", "捕捉事件监听"),
                         n.separator());
                     },
                   },
@@ -12572,8 +12548,8 @@ let initEruda = function (
                         this._container
                           .get("settings")
                           .text("Resources")
-                          .switch(t, "hideErudaSetting", "Hide Eruda Setting")
-                          .switch(t, "observeElement", "Auto Refresh Elements")
+                          .switch(t, "hideErudaSetting", "隐藏Eruda设置")
+                          .switch(t, "observeElement", "自动刷新元素")
                           .separator();
                     },
                   },
@@ -13049,7 +13025,7 @@ let initEruda = function (
                           this._container
                             .get("settings")
                             .text("Sources")
-                            .switch(t, "showLineNum", "Show Line Numbers")
+                            .switch(t, "showLineNum", "显示行号")
                             .separator();
                       },
                     },
