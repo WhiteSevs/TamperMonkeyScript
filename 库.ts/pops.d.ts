@@ -795,12 +795,23 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
     callback(event: PointerEvent, isSelectedValue: string, isSelectedText: string): void;
     /**
      * 选择器内的数据组
-     * + value是真正的值
-     * + text是显示的文字
      */
     data: {
+        /**
+         * 真正的值
+         */
         value: any;
+        /**
+         * 显示的文字
+         */
         text: string;
+        /**
+         * （可选）是否禁用项
+         * 触发条件：
+         * + 点击select元素
+         * + select元素触发change事件
+         */
+        disable?(value: any): boolean;
     }[];
 }
 /**
