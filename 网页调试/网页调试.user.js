@@ -2,7 +2,7 @@
 // @name            网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version         2024.3.19.14
+// @version         2024.3.20
 // @author          WhiteSevs
 // @description     内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @icon            data:image/png;base64,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
@@ -29,8 +29,8 @@
 // @resource        Resource_erudaTouches         https://fastly.jsdelivr.net/npm/eruda-touches
 // @resource        Resource_erudaOutlinePlugin   https://fastly.jsdelivr.net/npm/eruda-outline-plugin
 // @resource        Resource_erudaPixel           https://fastly.jsdelivr.net/npm/eruda-pixel
-// @require         https://update.greasyfork.org/scripts/456485/1345454/pops.js
-// @require         https://update.greasyfork.org/scripts/483694/1319661/Eruda-2.js
+// @require         https://update.greasyfork.org/scripts/456485/1345972/pops.js
+// @require         https://update.greasyfork.org/scripts/483694/1345961/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1319662/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1344469/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1345501/WhiteSevsUtils.js
@@ -38,7 +38,7 @@
 
 (function () {
   if (typeof unsafeWindow === "undefined") {
-    unsafeWindow = globalThis || window;
+    unsafeWindow = globalThis || window || self;
   }
   /**
    * @type {import("../库/pops")}
@@ -60,7 +60,7 @@
   /**
    * @type {Window & typeof globalThis}
    */
-  let currentWin = this || self;
+  let currentWin = unsafeWindow;
   let console = currentWin.console;
   /**
    * 配置面板
@@ -231,6 +231,7 @@
      * @param {string} [placeholder=""] 提示
      * @param {?(event:Event,value: string)=>boolean} _callback_ 输入回调
      * @param {string|undefined} description 描述
+     * @returns {PopsPanelInputDetails}
      */
     getInputDetail(
       text,
@@ -240,9 +241,6 @@
       _callback_,
       description
     ) {
-      /**
-       * @type {PopsPanelButtonDetails}
-       */
       return {
         text: text,
         type: "input",
@@ -267,6 +265,100 @@
       };
     },
     /**
+     * 获取数字输入框配置
+     * @param {string} text 文字
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @param {string} [placeholder=""] 提示
+     * @param {?(event:Event,value: string)=>boolean} _callback_ 输入回调
+     * @param {string|undefined} description 描述
+     * @returns {PopsPanelInputDetails}
+     */
+    getNumberInputDetail(
+      text,
+      key,
+      defaultValue,
+      placeholder = "",
+      _callback_,
+      description
+    ) {
+      let config = this.getInputDetail(
+        text,
+        key,
+        defaultValue,
+        (placeholder = ""),
+        _callback_,
+        description
+      );
+      config.isNumber = true;
+      config.getValue = function () {
+        let localValue = PopsPanel.getValue(key, defaultValue);
+        localValue = parseInt(localValue);
+        if (isNaN(localValue)) {
+          return defaultValue;
+        } else {
+          return localValue;
+        }
+      };
+      config.callback = function (event, value, valueAsNumber) {
+        if (typeof _callback_ === "function") {
+          if (_callback_(event, value)) {
+            return;
+          }
+        }
+        if (value === "") {
+          PopsPanel.deleteValue(key);
+          return;
+        }
+        if (isNaN(valueAsNumber)) {
+          return;
+        }
+        PopsPanel.setValue(key, valueAsNumber);
+      };
+      return config;
+    },
+    /**
+     * 获取下拉列表配置
+     * @param {string} text 文字
+     * @param {string} key 键
+     * @param {any} defaultValue 默认值
+     * @param {{
+     * value: any,
+     * text: string,
+     * }[]} data 数据
+     * @param {string} description （可选）描述
+     * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
+     * @returns {PopsPanelSelectDetails}
+     */
+    getSelectDetail(
+      text,
+      key,
+      defaultValue,
+      data,
+      description,
+      selectCallBack
+    ) {
+      return {
+        text: text,
+        type: "select",
+        description: description,
+        attributes: {
+          "data-key": key,
+          "data-default-value": defaultValue,
+        },
+        getValue() {
+          return PopsPanel.getValue(key, defaultValue);
+        },
+        callback(event, isSelectedValue, isSelectedText) {
+          PopsPanel.setValue(key, isSelectedValue);
+          if (typeof selectCallBack === "function") {
+            selectCallBack(event, isSelectedValue, isSelectedText);
+          }
+        },
+        data: data,
+      };
+    },
+    /**
      * 获取配置内容
      */
     getContent() {
@@ -283,27 +375,11 @@
               text: "功能",
               type: "forms",
               forms: [
-                {
-                  text: "调试工具",
-                  type: "select",
-                  attributes: {
-                    "data-key": "currentDebug",
-                    "data-default-value": "eruda",
-                  },
-                  description: "挑一个喜欢的调试工具吧:)",
-                  getValue() {
-                    return PopsPanel.getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                  },
-                  callback(event, isSelectedValue, isSelectedText) {
-                    PopsPanel.setValue(
-                      this.attributes["data-key"],
-                      isSelectedValue
-                    );
-                  },
-                  data: [
+                this.getSelectDetail(
+                  "调试工具",
+                  "currentDebug",
+                  "eruda",
+                  [
                     {
                       value: "eruda",
                       text: "Eruda",
@@ -321,7 +397,9 @@
                       text: "Chii",
                     },
                   ],
-                },
+                  void 0,
+                  void 0
+                ),
                 this.getSwtichDetail(
                   "允许在iframe内加载",
                   "allowRunInIframe",
@@ -388,6 +466,61 @@
                     );
                   },
                   "开启【自动打开面板】才会生效"
+                ),
+              ],
+            },
+            {
+              text: "面板",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "Console",
+                  "eruda-panel-console",
+                  true,
+                  void 0,
+                  "控制台"
+                ),
+                this.getSwtichDetail(
+                  "Elements",
+                  "eruda-panel-elements",
+                  true,
+                  void 0,
+                  "元素"
+                ),
+                this.getSwtichDetail(
+                  "Network",
+                  "eruda-panel-network",
+                  true,
+                  void 0,
+                  "网络"
+                ),
+                this.getSwtichDetail(
+                  "Resources",
+                  "eruda-panel-resources",
+                  true,
+                  void 0,
+                  "资源"
+                ),
+                this.getSwtichDetail(
+                  "Sources",
+                  "eruda-panel-sources",
+                  true,
+                  void 0,
+                  "源代码"
+                ),
+                this.getSwtichDetail(
+                  "Info",
+                  "eruda-panel-info",
+                  true,
+                  void 0,
+                  "信息"
+                ),
+                this.getSwtichDetail(
+                  "Snippets",
+                  "eruda-panel-snippets",
+                  true,
+                  void 0,
+                  "拓展"
                 ),
               ],
             },
@@ -504,10 +637,66 @@
                 ),
               ],
             },
+
+            {
+              text: "面板",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "System",
+                  "vConsole-panel-system",
+                  true,
+                  void 0,
+                  "控制台"
+                ),
+                this.getSwtichDetail(
+                  "Network",
+                  "vConsole-panel-network",
+                  true,
+                  void 0,
+                  "元素"
+                ),
+                this.getSwtichDetail(
+                  "Element",
+                  "vConsole-panel-element",
+                  true,
+                  void 0,
+                  "网络"
+                ),
+                this.getSwtichDetail(
+                  "Storage",
+                  "vConsole-panel-storage",
+                  true,
+                  void 0,
+                  "资源"
+                ),
+              ],
+            },
             {
               text: "配置",
               type: "forms",
               forms: [
+                this.getSelectDetail(
+                  "主题",
+                  "vConsole-theme",
+                  "light",
+                  [
+                    {
+                      value: "auto",
+                      text: "自动",
+                    },
+                    {
+                      value: "light",
+                      text: "浅色主题",
+                    },
+                    {
+                      value: "dark",
+                      text: "深色主题",
+                    },
+                  ],
+                  void 0,
+                  void 0
+                ),
                 this.getSwtichDetail(
                   "禁止Log自动滚动",
                   "vconsole-disableLogScrolling",
@@ -518,64 +707,45 @@
                   "vconsole-showTimestamps",
                   false
                 ),
-                {
-                  text: "日志的上限数量",
-                  type: "input",
-                  attributes: {
-                    "data-key": "vconsole-maxLogNumber",
-                    "data-default-value": 1000,
-                  },
-                  getValue() {
-                    let localValue = PopsPanel.getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                    localValue = parseInt(localValue);
-                    if (isNaN(localValue)) {
-                      return this.attributes["data-default-value"];
-                    } else {
-                      return localValue;
-                    }
-                  },
-                  callback(event, value) {
-                    let inputValue = parseInt(value);
-                    if (isNaN(inputValue)) {
-                      return;
-                    }
-                    PopsPanel.setValue(this.attributes["data-key"], inputValue);
-                  },
-                  placeholder: "请输入数字",
-                  isNumber: true,
-                },
-                {
-                  text: "请求记录的上限数量",
-                  type: "input",
-                  attributes: {
-                    "data-key": "vconsole-maxNetworkNumber",
-                    "data-default-value": 1000,
-                  },
-                  getValue() {
-                    let localValue = PopsPanel.getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    );
-                    localValue = parseInt(localValue);
-                    if (isNaN(localValue)) {
-                      return this.attributes["data-default-value"];
-                    } else {
-                      return localValue;
-                    }
-                  },
-                  callback(event, value) {
-                    let inputValue = parseInt(value);
-                    if (isNaN(inputValue)) {
-                      return;
-                    }
-                    PopsPanel.setValue(this.attributes["data-key"], inputValue);
-                  },
-                  placeholder: "请输入数字",
-                  isNumber: true,
-                },
+                this.getNumberInputDetail(
+                  "日志的上限数量",
+                  "vconsole-maxLogNumber",
+                  1000,
+                  "请输入数字"
+                ),
+                this.getNumberInputDetail(
+                  "请求记录的上限数量",
+                  "vconsole-maxNetworkNumber",
+                  1000,
+                  "请输入数字"
+                ),
+              ],
+            },
+            {
+              text: "Storage配置",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "Cookies",
+                  "vConsole-storage-defaultStorages-cookies",
+                  true,
+                  void 0,
+                  "显示Cookies"
+                ),
+                this.getSwtichDetail(
+                  "LocalStorage",
+                  "vConsole-storage-defaultStorages-localStorage",
+                  true,
+                  void 0,
+                  "显示LocalStorage"
+                ),
+                this.getSwtichDetail(
+                  "SessionStorage",
+                  "vConsole-storage-defaultStorages-sessionStorage",
+                  true,
+                  void 0,
+                  "显示SessionStorage"
+                ),
               ],
             },
           ],
@@ -1117,8 +1287,32 @@
         alert("调试工具【eruda】注册全局失败，请反馈开发者");
         return;
       }
+      let inintPanelList = [];
+      if (PopsPanel.getValue("eruda-panel-console")) {
+        inintPanelList.push("console");
+      }
+      if (PopsPanel.getValue("eruda-panel-elements")) {
+        inintPanelList.push("elements");
+      }
+      if (PopsPanel.getValue("eruda-panel-network")) {
+        inintPanelList.push("network");
+      }
+      if (PopsPanel.getValue("eruda-panel-resources")) {
+        inintPanelList.push("resources");
+      }
+      if (PopsPanel.getValue("eruda-panel-sources")) {
+        inintPanelList.push("sources");
+      }
+      if (PopsPanel.getValue("eruda-panel-info")) {
+        inintPanelList.push("info");
+      }
+      if (PopsPanel.getValue("eruda-panel-snippets")) {
+        inintPanelList.push("snippets");
+      }
       GlobalDebug.erudaVersion = eruda.version;
-      eruda.init();
+      eruda.init({
+        tool: inintPanelList,
+      });
       console.log(`eruda当前版本：${eruda.version}`);
       console.log(`eruda项目地址：https://github.com/liriliri/eruda`);
       unsafeWindow._eruda_ = eruda;
@@ -1174,8 +1368,8 @@
       }
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaOrientation")) {
         try {
-          currentWin.eval(GM_getResourceText("Resource_erudaOrientation"));
-          eruda.add(currentWin.erudaOrientation);
+          eval(GM_getResourceText("Resource_erudaOrientation"));
+          eruda.add(erudaOrientation);
         } catch (error) {
           console.error("插件【eruda-orientation】加载失败，原因：", error);
         }
@@ -1222,30 +1416,61 @@
         alert("调试工具【vConsole】注册全局失败，请反馈开发者");
         return;
       }
+      let initPanelList = [];
+      if (PopsPanel.getValue("vConsole-panel-system")) {
+        initPanelList.push("system");
+      }
+      if (PopsPanel.getValue("vConsole-panel-network")) {
+        initPanelList.push("network");
+      }
+      if (PopsPanel.getValue("vConsole-panel-element")) {
+        initPanelList.push("element");
+      }
+      if (PopsPanel.getValue("vConsole-panel-storage")) {
+        initPanelList.push("storage");
+      }
+      let theme = "light";
+      if (PopsPanel.getValue("vConsole-theme") === "auto") {
+        if (utils.isThemeDark()) {
+          theme = "dark";
+        }
+      } else {
+        theme = PopsPanel.getValue("vConsole-theme");
+      }
+      let defaultStorages = [];
+      if (PopsPanel.getValue("vConsole-storage-defaultStorages-cookies")) {
+        defaultStorages.push("cookies");
+      }
+      if (PopsPanel.getValue("vConsole-storage-defaultStorages-localStorage")) {
+        defaultStorages.push("localStorage");
+      }
+      if (
+        PopsPanel.getValue("vConsole-storage-defaultStorages-sessionStorage")
+      ) {
+        defaultStorages.push("sessionStorage");
+      }
       let vconsole = new vConsole({
-        defaultPlugins: ["system", "network", "element", "storage"],
+        defaultPlugins: initPanelList,
         theme: "light",
-        disableLogScrolling: PopsPanel.getValue("vconsole-disableLogScrolling"),
-        maxLogNumber: PopsPanel.getValue("vconsole-maxLogNumber"),
         onReady() {
           if (PopsPanel.getValue("vconsole-auto-open-panel")) {
             vconsole.show();
           }
         },
+        disableLogScrolling: PopsPanel.getValue("vconsole-disableLogScrolling"),
+        log: {
+          maxLogNumber: PopsPanel.getValue("vconsole-maxLogNumber", 1000),
+          showTimestamps: PopsPanel.getValue("vconsole-showTimestamps"),
+          maxNetworkNumber: PopsPanel.getValue(
+            "vconsole-maxNetworkNumber",
+            1000
+          ),
+        },
+        storage: {
+          defaultStorages: defaultStorages,
+        },
       });
       GlobalDebug.vConsoleVersion = vconsole.version;
-      vconsole.setOption(
-        "log.showTimestamps",
-        PopsPanel.getValue("vconsole-showTimestamps")
-      );
-      vconsole.setOption(
-        "log.maxLogNumber",
-        PopsPanel.getValue("vconsole-maxLogNumber", 1000)
-      );
-      vconsole.setOption(
-        "log.maxNetworkNumber",
-        PopsPanel.getValue("vconsole-maxNetworkNumber", 1000)
-      );
       console.log(`VConsole当前版本：${vconsole.version}`);
       console.log(`VConsole项目地址：https://github.com/Tencent/vConsole`);
       unsafeWindow._vConsole_ = vconsole;
