@@ -681,8 +681,11 @@ declare interface PopsPanelInputDetails extends PopsPanelCommonDetails {
     getValue(): string;
     /**
      * 输入框的值改变触发的回调函数
+     * @param event 输入事件
+     * @param value 输入框的值
+     * @param valueAsNumber 当isNumber为true时，有该值，它可能是NaN
      */
-    callback(event: InputEvent, value: string): void;
+    callback(event: InputEvent, value: string, valueAsNumber?: number): void;
     /**
      * （可选）输入框内的提示
      */
