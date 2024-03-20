@@ -10001,7 +10001,15 @@
                   }
                 }
                 if (typeof formConfig.callback === "function") {
-                  formConfig.callback(event, this.$ele.input.value);
+                  if (formConfig.isNumber) {
+                    formConfig.callback(
+                      event,
+                      this.$ele.input.value,
+                      this.$ele.input.valueAsNumber
+                    );
+                  } else {
+                    formConfig.callback(event, this.$ele.input.value);
+                  }
                 }
               }
             );
