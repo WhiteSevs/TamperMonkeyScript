@@ -454,7 +454,8 @@
      * extraDistance: number,
      * container: Element|Window,
      * moveCallBack?: (moveElement: HTMLElement,left: number,top: number) => void,
-     * endCallBack?: (moveElement: HTMLElement,left: number,top: number)=> void,
+     * endCallBack?: (moveElement: HTMLElement,left: number,top: number) => void,
+     * preventEvent?: (event: TouchEvent|PointerEvent) => boolean;
      * }} options
      */
     drag(moveElement, options = {}) {
@@ -473,8 +474,12 @@
       let clickElementTopOffset = 0;
       let AnyTouch = PopsUtils.AnyTouch();
       let anyTouchElement = new AnyTouch(options.dragElement, {
-        preventEvent() {
-          return false;
+        preventEvent(event) {
+          if (typeof options.preventEvent === "function") {
+            return options.preventEvent(event);
+          } else {
+            return false;
+          }
         },
       });
       PopsDOMUtils.css(options.dragElement, {
