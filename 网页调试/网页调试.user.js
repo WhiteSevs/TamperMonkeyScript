@@ -2,7 +2,7 @@
 // @name            网页调试
 // @namespace       https://greasyfork.org/zh-CN/scripts/475228
 // @supportURL      https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version         2024.3.20.16.39
+// @version         2024.3.20.18
 // @author          WhiteSevs
 // @description     内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @icon            data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAADbhJREFUeF7tnXmQHFUdx7+/noWkypiCgKVQIAuZ7R43UgGS6clRlkFEjAUIyiFHFYYjImIUEgiHAsoRiBAEjJyBSOQoghGilIligZaBnR4CVRGSfj0TKqUxeACW3Jrd/pnZzZLNZnfnve73Zrs3vX8mv/d7v9/395l39UXI/nZrBWh3yt5xpn+UaOt+6Az3B1n7gXj/7vyZtoDD19BibWHe4zUh1ry9u+gy4gEo5CfPCK3csQQ+DoAtU1gGXgGwnNlaVa12lGXapNVmRAJQKJQmhSGfBWAmAfk4xanDQExPUw7LfL+8No6vJLYdUQD0FD6cTaDZJsRm8D2WZd0zkkAYEQC054sTOi3MMVX4/jDVQSCyFgtRXmcCtGb6TD0AbW1TShaFD8rO7xrF/Rsxz/GrlRUafTbdVaoBsO3iUQR6uumq9emQwbODoHLvcMYQp+/UAuA47jlg3BcneW1tCZcJ4d2kzV8THaUSAKetOAdEtzVRp8ZdEZ8pROWhxobJskgdAIU291gm/CpZMvZEY4XWpA21jheTGNtgMaUKgHy+1J6zUAZ4TEJFfrMrpIm1WnlzQuPbJazUANDaOmP0qD3f+z2AaQkXd1Wu5Z0vr1+//n8Jj7M7vNQA4LS5N4IwPw2ignGTqHqXpSHWVACwfa+/BkAuDaIC6ArZmp6G6wipAMBpc5eDcFJKit8TJuNxUfVOTnrMiQeg0OaezoTUba+651fGGX7VezjJECQeAMdxnwNjapJFHCw2BjqCwEt07IkGIJ8vHZCz+K9pLH5vzGRZB/t+x6ak5pBoABzHPRmMx5IqnkxcxDzLr1aWytgOh02yAbCLiwG6YDiE0dUng5YGQXmWLn+6/SQdgBpA43Un3WR/m0TgHdzkPqW7kwagezgOMR+EQ7o3OaAaCI8IUf6xdG8Khu3t7WO6OseMjJszaY+xpm40jVsXKQBs272GgKsHqt82En4QBN41CrWVMs3nJ43PWbmalHHCjciC4/teoDtMHXVpCIDjlL4L5luHDJ7xPVH1rteZYKFQnMYh1U//Uv9HYXikX3vhWZ2JOI57HRhXDumTcIoQ3vKhbBoDYJfqV9/chsET5gvhLWxoJ2lg2+6JBKT6dqveVIlxul/1HpFMvaGZ0+beBMKlDQ0Za0XVmxwTAPcNAOMadtazMJgbBN4iGdtGNlIjTyMnCfl/As/zg8otOsIp2O4iBi6S9PVvEXhD1k5iBJAHoB4UMeb4Ve8OyQAzMwUFbNu9nYBvKzTRAYDkFNA3KuILhKjcqRBoZtpAAafNvROE85WE0jIFyCwCB4iKGOf7Ve9upYAz4wEVcBz3TrBi8buHYw2LwLqfobYbQ9WMQRcGQXlxVtfoChTs4k8Y9C1VD7Lb84ZrgN6Oo0IA5u+IauV21QQye8BxSreBeY6yFoyFoupJ3T0lDUC8kQAXB4E39FmCcpYju4Hiav9DMRi4Iwg8aWiUAIgDATFd4lfLN4/ssunJznGKPwLTvAje7hOBd55KO2UA4kCAFD9BoyJqHNvIN78SHhbCO0O170gAxIGAgCv9wLtBNdDdwd623esJuCJCrstF4J0SoV2828IjLwyJrhKifG2UgEdqG6et+EMQfT9CfpGL37NTjPkXGQJmrRdHYqYx/M2JZkQIIlbxtQDQMx0UbyDQ5RESyJpEVyB28bUB0ANB6WYCz42eT9ZSQQEtxdcKwPaFoerFCoWcM9PtCmgrvnYA6g4dx70LjG9k5TKigNbiGwGgB4LS/WBO7J2wRkpj3qn24hsDoBuCNvfnICgfTJjXMZU9GCm+UQB6ICg+g2jbm1RWyUjQzM+KauVII751nAMMFVgGgIayZQBoEDHNLjIA9FWvfpPEAN64/79tOx7V/pxD5CwyACJLt0tDEXhSR9+O7e4Chb4oFD1lACgKNoR5BsCu4kj9IqKWIGmLwAyADAAp4LMpIOpPvl+7bATQIGS2BtAg4nYX2RSQTQHZFNCPASlBov4GsykgqnJ92mVTgAYRsylgUBGzEWAAabJdgKYfXTYFaBAymwI0iJhNAdkUUFcg2wZm20CpNU+2BtA06mZrAA1CZmsADSJma4BsDZCtAQZmQGpOjPobzKaAqMplJ4EalNvVRbYLkNgFtLYettfolpbDdFSAia5O0m3haQWAmAe6l1G5RJ3IvVirld/q2/DDKaCQnzyDiS4C0fHKnlPSIJUA6NaWeSUx39r77uJuAAp2cS6DRvz7ezIAdtDU+0ZX6v7lW9YzukFLor8MgJ2rQhZPp4Lt3sLAxUksmO6YMgD6KUp0G9l26RcE/opusZPoLwOgX1Xq6wHHdutf5Ur8Fy51AJUBsIuKT1DBLi1gcCo+dBwXggyA/iMAFpJtT9qXkNsIYGxcgZPePgNgR4UY+AfRHm3d20DHmTwdbP0p6QWMG18GQB8FiSYKUV634yCo4O7DzHczk0vAgXHFTmL7DABsAvO6zhAXbtxY6f4kr+GLQe4qEI5JCgypBICxWlS9L5rS0CwAtvtLACeYCl7VbxoBINAKPyh/VTVXWXujANi2+zABp8kGY9oujQCA8ZCoemea0sYoAE6buwSEs00Fr+o3lQAAyt8AUNHFKAC27d5BwIUqAZm0TSMAql8AUdXPKACRP36gmoWkfRoBgML3fyRl2MnMLACOOx+MG6MEZqJNGgGQ/fpXVL0MA1A6CcxDfrw4auBR2qURAJlv/0XRoreNUQDa85MP77KsF+MEqLNtGgHoCmlCrVZer1OHvr6MApDPl8bmLP6PqeBV/aYRANmYVbVoyghQ78Sx3X8B2DdqgDrbyYqZlEfDGHglCLxP69Sgvy+jI0C9s4LtdjBQMpmErO+0AQDA2FvCmzYCJOl7QmkDwPQOoA6B8RHAtt3PEPBH2V+pSbv0AcBuEFQqJjUxDsD2dcDrAPYxmYiM71QBQPiLEN5BMnnFsWkSAKVlABu7oCErQKoAMHwNoGlrgO6FYFtpNhPfLVsoU3apAoBwihCe8UO0powAhcKUVg7DlwF8xFRxZfymCIDXR43+oHXdunXvyuQVx6YpANQDtO3SAwT+epxg47ZNEQBGLwH31bFpACThEbS0AEAhpvk17/m4wMu0bxoA23cDHoCiTGAmbNIAAINWBAZvAWv6SWDfDh2neCaYlpkorozPNAAQMh9drVaelslHh02TR4DiPwH6mI7Ao/hIAQDrROBNjJJb1DZNA8BximvBdETUQHW0SwEAz4jA+5yOXGV9NAUAp634ZBLePJICAEDg3/lB5QuyBYxrZxwAxy4uBuiCuIHqaJ8GALbnuUoE3kwdOTfyYRQA2y5eRqAFjYJo1v+nCAAw8Osg8I4zrY0xAIZ7xT+QcGkCYHv8T4jAO9EkBEYASMKhzwgBoH7B/nEhPGMv8NAOQD4/aXzOytXP/UebJDeK7xSOAN1pEvhRP6gYecROKwD5fH5UzhrnA2hVKVB9viPgfdOvqkkrAN1aGnpGUCsAjuM+B8ZUleIDtObd96yjN29+/n3HLi4DyNh9AwkBoPcSr/KwzsDPgsDTekFNGwAF213BgOKChXxQy1FCrNnSC43JncNwA0DAIj/w5tZzjfFyriUi8M5V+5ENbq0FAKfN/SkI31QM6gMrFxY3bHihvl7Y6c9xJh8PpkUAjVf0OaT58AFAa0DhdUJUVvUNMCoEDLo3CMqzdWgTGwDbLl1FUH+Zccj82Wq1MujNouPHFw9sabHmgXmOjkTrPoYBgLcYWDRx4kHXLV++vGugPKJCAEDLSBALgMi3ehGdIET5SZnCOk7pSDDPA/AlGfuhbJoMwJKukBbJPNYVFQIGLQ2C8qw4ukQGwHGmHA8OpYq4U4DMZ4tq5QHVoG27eB6B6iDYqm177ZsCAGM15XCr73urVeKMCgEBD/qBd5ZKX31tIwFg25NdC9ZKBj6u0jEDc4PAW6TSpq9t9zsNKXcOGF8DoPxNA6MAMFbDwnIhvCVR84sKQZwtojIA7YdM+mRXS24lAKXr1gS60Q/Kl0cVZ5eFYr50EohPAKF+0WScjF/tABD+gBBPdTE9JTPUy8QYFQIGPxpEOCxSAqC9vX3Prq1jVqq++s3kSdaECVPHdXZ2zkRIM0GYAmDQnYMGAOqHVS+BaJXVRU9tqHUYefQ9KgQAHhOBd6oMaL02SgAU7OICBim9V5iBjiDwFA+HVFLov4Wcvj/R1kPRRYeGhE8Q895E2HvbanysCLzPy3i27eJvAbxBwJsEvBWCNloWvdTZOe7lWu03/5XxEdcmKgQEXuAHlStk+5cG4FP5SUeElvUcQKNknQP4uwi8/RTsM9M+CkSFQOW+QmkAbLt4KoEeVanQ1s6uvV59dW1iXhChEntSbCNBQDhXdjEqDYDjuJeCcZOsMGRZB/t+xyZZ+8xucAVUIVB5rFwagELBPYZD7HSUOVjIVkhTN9TKHVlR9SmgAgExz/KrlaUyvUsDUH/fT4vFQaO9P4NOC4Ky0lQhE2hmI3sBid4hq3Oa76/9s4xm0gDUnTmOuxCMSwZzzODLg6CSmPcCygiQNptGIwGFdIxfK9d3MVJ/SgDUPQ7yjcHNILpaiPL9Ur1mRrEUsG33om3b0/qX3g7Y4Yi2gPhaIby7VJwrA1B3btvuRIv58JCo1QrDZzk3aq0Qa95W6TizjadA95TcwlPDEFPj1CASAPFCz1onSYH/A2cA4KVC+XrgAAAAAElFTkSuQmCC
@@ -30,9 +30,9 @@
 // @resource        Resource_erudaOutlinePlugin       https://fastly.jsdelivr.net/npm/eruda-outline-plugin
 // @resource        Resource_erudaPixel               https://fastly.jsdelivr.net/npm/eruda-pixel
 // @resource        Resource_vConsoleVueDevtools      https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9/dist/vue_plugin.min.js
-// @require         https://update.greasyfork.org/scripts/456485/1346051/pops.js
+// @require         https://update.greasyfork.org/scripts/456485/1346106/pops.js
 // @require         https://update.greasyfork.org/scripts/483694/1345961/Eruda-2.js
-// @require         https://update.greasyfork.org/scripts/483695/1319662/vConsole-2.js
+// @require         https://update.greasyfork.org/scripts/483695/1346076/vConsole-2.js
 // @require         https://update.greasyfork.org/scripts/483696/1344469/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1346030/WhiteSevsUtils.js
 // ==/UserScript==
@@ -326,6 +326,7 @@
      * @param {{
      * value: any,
      * text: string,
+     * disable?(value: any): boolean,
      * }[]} data 数据
      * @param {string} description （可选）描述
      * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
@@ -449,24 +450,158 @@
                   void 0,
                   "加载完毕后自动显示面板内容"
                 ),
-              ],
-            },
-            {
-              text: "配置",
-              type: "forms",
-              forms: [
-                this.getInputDetail(
+
+                this.getSelectDetail(
                   "默认展示的面板元素",
                   "eruda-default-show-panel-name",
-                  "Console",
-                  "请输入面板",
-                  function (event, value) {
-                    PopsPanel.setValue(
-                      "eruda-default-show-panel-name",
-                      value.trim()
-                    );
-                  },
-                  "开启【自动打开面板】才会生效"
+                  "console",
+                  [
+                    {
+                      text: "Console",
+                      value: "console",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-console");
+                      },
+                    },
+                    {
+                      text: "Elements",
+                      value: "elements",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-elements");
+                      },
+                    },
+                    {
+                      text: "Network",
+                      value: "network",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-network");
+                      },
+                    },
+                    {
+                      text: "Resources",
+                      value: "resources",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-resources");
+                      },
+                    },
+                    {
+                      text: "Sources",
+                      value: "sources",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-sources");
+                      },
+                    },
+                    {
+                      text: "Info",
+                      value: "info",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-info");
+                      },
+                    },
+                    {
+                      text: "Snippets",
+                      value: "snippets",
+                      disable() {
+                        return !PopsPanel.getValue("eruda-panel-snippets");
+                      },
+                    },
+                    {
+                      text: "Monitor",
+                      value: "monitor",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaMonitor"
+                        );
+                      },
+                    },
+                    {
+                      text: "Features",
+                      value: "features",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaFeatures"
+                        );
+                      },
+                    },
+                    {
+                      text: "Timing",
+                      value: "timing",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaTiming"
+                        );
+                      },
+                    },
+                    {
+                      text: "Code",
+                      value: "code",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaCode"
+                        );
+                      },
+                    },
+                    {
+                      text: "Benchmark",
+                      value: "benchmark",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaBenchmark"
+                        );
+                      },
+                    },
+                    {
+                      text: "Geolocation",
+                      value: "geolocation",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaGeolocation"
+                        );
+                      },
+                    },
+                    {
+                      text: "Orientation",
+                      value: "orientation",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaOrientation"
+                        );
+                      },
+                    },
+                    {
+                      text: "Touches",
+                      value: "touches",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaTouches"
+                        );
+                      },
+                    },
+                    {
+                      text: "Outline",
+                      value: "outline",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaOutlinePlugin"
+                        );
+                      },
+                    },
+                    {
+                      text: "Pixel",
+                      value: "ixel",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "eruda_plugin_Resource_erudaPixel"
+                        );
+                      },
+                    },
+                    {
+                      text: "Settings",
+                      value: "settings",
+                    },
+                  ],
+                  "开启【自动打开面板】才会生效",
+                  void 0
                 ),
               ],
             },
@@ -635,6 +770,74 @@
                   false,
                   void 0,
                   "加载完毕后自动显示面板内容"
+                ),
+                this.getSelectDetail(
+                  "默认展示的面板元素",
+                  "vconsole-default-show-panel-name",
+                  "default",
+                  [
+                    {
+                      text: "Log",
+                      value: "default",
+                    },
+                    {
+                      text: "System",
+                      value: "system",
+                      disable() {
+                        return !PopsPanel.getValue("vConsole-panel-system");
+                      },
+                    },
+                    {
+                      text: "Network",
+                      value: "network",
+                      disable() {
+                        return !PopsPanel.getValue("vConsole-panel-network");
+                      },
+                    },
+                    {
+                      text: "Element",
+                      value: "element",
+                      disable() {
+                        return !PopsPanel.getValue("vConsole-panel-element");
+                      },
+                    },
+                    {
+                      text: "Storage",
+                      value: "storage",
+                      disable() {
+                        return !PopsPanel.getValue("vConsole-panel-storage");
+                      },
+                    },
+                    {
+                      text: "Stats",
+                      value: "stats",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "vConsole_plugin_Resource_vConsole_Stats"
+                        );
+                      },
+                    },
+                    {
+                      text: "exportLog",
+                      value: "exportlog",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "vConsole_plugin_Resource_vConsole_ExportLog"
+                        );
+                      },
+                    },
+                    {
+                      text: "Vue",
+                      value: "vue",
+                      disable() {
+                        return !PopsPanel.getValue(
+                          "vConsole_plugin_Resource_vConsoleVueDevtools"
+                        );
+                      },
+                    },
+                  ],
+                  "开启【自动打开面板】才会生效",
+                  void 0
                 ),
               ],
             },
@@ -1342,27 +1545,45 @@
               .forEach((statusButton) => {
                 statusButton.addEventListener("click", (event) => {
                   const currentType = event.target.dataset.type;
+                  if (
+                    currentType.toString() === "2" &&
+                    !(self.performance && self.performance.memory)
+                  ) {
+                    console.error(
+                      "浏览器不支持window.performance或者window.performance.memory"
+                    );
+                    return;
+                  }
                   this.changePanel(currentType);
                 });
               });
           });
 
           vConsoleStats.on("renderTab", (callback) => {
-            const html = `<div class="vc-stats-buttons">
-        <p>
-          <button class="vc-stats-button" data-type="0">show FPS</button>
-          <span>: Frames rendered in the last second. The higher the number the better.</span>
-        </p>
-        <p>
-          <button class="vc-stats-button" data-type="1">show MS</button>
-          <span>: Milliseconds needed to render a frame. The lower the number the better..</span>
-        </p>
-        <p>
-          <button class="vc-stats-button" data-type="2">show MB</button>
-          <span>: MB MBytes of allocated memory. (Run Chrome with --enable-precise-memory-info).</span>
-        </p>
-      </div>`;
-            callback(html);
+            const statsHTML = `
+            <div class="vc-stats-buttons">
+              <div class="vc-button-container">
+                <button class="vc-stats-button" data-type="0">show FPS</button>
+                <div class="vc-description">
+                  <span>最后一秒渲染的帧。数字越高越好</span>
+                </div>
+              </div>
+              <div class="vc-button-container">
+                <button class="vc-stats-button" data-type="1">show MS</button>
+                <div class="vc-description">
+                  <span>渲染帧所需的毫秒数。数字越低越好</span>
+                </div>
+              </div>
+              <div class="vc-button-container">
+                <button class="vc-stats-button" data-type="2">show MB</button>
+                <div class="vc-description">
+                  <span>内存分配(MB)</span>
+                  <a class="vc-link" href="https://caniuse.com/mdn-api_performance_memory" target="_blank">performance.memory兼容性查看</a>
+                  <span>Chrome启用方式: --enable-precise-memory-info</span>
+                </div>
+              </div>
+            </div>`;
+            callback(statsHTML);
           });
 
           vConsoleStats.on("addTool", (callback) => {
@@ -1389,15 +1610,25 @@
           const cssNode = document.createElement("style");
           cssNode.setAttribute("type", "text/css");
           cssNode.innerHTML = `
-    .vc-stats-button{
-        margin: 10px 10px;
-        background-color: #fbf9fe;
-        padding: 2px 4px;
-        cursor: pointer;
-        border-radius: 4px;
-        border: 1px solid;
-    }
-    `;
+          .vc-stats-button{
+              margin: 10px 10px;
+              background-color: #fbf9fe;
+              padding: 2px 4px;
+              cursor: pointer;
+              border-radius: 4px;
+              border: 1px solid;
+          }
+          .vc-button-container{
+            display: flex;
+            align-items: center;
+          }
+          .vc-description{
+            display: flex;
+            flex-direction: column;
+          }
+          .vc-description a.vc-link{
+            color: blue;
+          }`;
           target.appendChild(cssNode);
         };
         show = () => {
@@ -1712,8 +1943,8 @@
     },
     eruda() {
       initEruda("Eruda", currentWin);
-      let eruda = currentWin.Eruda;
-      if (!eruda) {
+      let Eruda = currentWin.Eruda;
+      if (!Eruda) {
         alert("调试工具【eruda】注册全局失败，请反馈开发者");
         return;
       }
@@ -1739,18 +1970,17 @@
       if (PopsPanel.getValue("eruda-panel-snippets")) {
         inintPanelList.push("snippets");
       }
-      GlobalDebug.erudaVersion = eruda.version;
-      eruda.init({
+      GlobalDebug.erudaVersion = Eruda.version;
+      Eruda.init({
         tool: inintPanelList,
       });
-      console.log(`eruda当前版本：${eruda.version}`);
+      console.log(`eruda当前版本：${Eruda.version}`);
       console.log(`eruda项目地址：https://github.com/liriliri/eruda`);
-      unsafeWindow._eruda_ = eruda;
-      console.log("eruda的全局变量名：_eruda_");
+      console.log("eruda的全局变量名: Eruda");
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaMonitor")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaMonitor"));
-          eruda.add(erudaMonitor);
+          Eruda.add(erudaMonitor);
         } catch (error) {
           console.error("插件【eruda-monitor】加载失败，原因：", error);
         }
@@ -1758,7 +1988,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaFeatures")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaFeatures"));
-          eruda.add(erudaFeatures);
+          Eruda.add(erudaFeatures);
         } catch (error) {
           console.error("插件【eruda-features】加载失败，原因：", error);
         }
@@ -1766,7 +1996,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaTiming")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaTiming"));
-          eruda.add(erudaTiming);
+          Eruda.add(erudaTiming);
         } catch (error) {
           console.error("插件【eruda-timing】加载失败，原因：", error);
         }
@@ -1774,7 +2004,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaCode")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaCode"));
-          eruda.add(erudaCode);
+          Eruda.add(erudaCode);
         } catch (error) {
           console.error("插件【eruda-code】加载失败，原因：", error);
         }
@@ -1782,7 +2012,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaBenchmark")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaBenchmark"));
-          eruda.add(erudaBenchmark);
+          Eruda.add(erudaBenchmark);
         } catch (error) {
           console.error("插件【eruda-benchmark】加载失败，原因：", error);
         }
@@ -1791,7 +2021,7 @@
         try {
           currentWin.eval(GM_getResourceText("Resource_Leaflet"));
           currentWin.eval(GM_getResourceText("Resource_erudaGeolocation"));
-          eruda.add(erudaGeolocation);
+          Eruda.add(erudaGeolocation);
         } catch (error) {
           console.error("插件【eruda-geolocation】加载失败，原因：", error);
         }
@@ -1799,7 +2029,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaOrientation")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaOrientation"));
-          eruda.add(erudaOrientation);
+          Eruda.add(erudaOrientation);
         } catch (error) {
           console.error("插件【eruda-orientation】加载失败，原因：", error);
         }
@@ -1807,7 +2037,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaTouches")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaTouches"));
-          eruda.add(erudaTouches);
+          Eruda.add(erudaTouches);
         } catch (error) {
           console.error("插件【eruda-touches】加载失败，原因：", error);
         }
@@ -1815,7 +2045,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaOutlinePlugin")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaOutlinePlugin"));
-          eruda.add(erudaOutlinePlugin);
+          Eruda.add(erudaOutlinePlugin);
         } catch (error) {
           console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
         }
@@ -1823,7 +2053,7 @@
       if (PopsPanel.getValue("eruda_plugin_Resource_erudaPixel")) {
         try {
           currentWin.eval(GM_getResourceText("Resource_erudaPixel"));
-          eruda.add(erudaPixel);
+          Eruda.add(erudaPixel);
         } catch (error) {
           console.error("插件【eruda-pixel】加载失败，原因：", error);
         }
@@ -1833,16 +2063,16 @@
           "eruda-default-show-panel-name",
           ""
         );
-        eruda.show();
+        Eruda.show();
         setTimeout(() => {
-          eruda.show(defaultShowName);
+          Eruda.show(defaultShowName);
         }, 250);
       }
     },
     vConsole() {
       initVConsole("VConsole", currentWin);
-      let vConsole = currentWin.VConsole;
-      if (!vConsole) {
+      let VConsole = currentWin.VConsole;
+      if (!VConsole) {
         alert("调试工具【vConsole】注册全局失败，请反馈开发者");
         return;
       }
@@ -1879,12 +2109,12 @@
       ) {
         defaultStorages.push("sessionStorage");
       }
-      let vconsole = new vConsole({
+      let vConsole = new VConsole({
         defaultPlugins: initPanelList,
         theme: "light",
         onReady() {
           if (PopsPanel.getValue("vconsole-auto-open-panel")) {
-            vconsole.show();
+            vConsole.show();
           }
         },
         disableLogScrolling: PopsPanel.getValue("vconsole-disableLogScrolling"),
@@ -1900,21 +2130,21 @@
           defaultStorages: defaultStorages,
         },
       });
-      GlobalDebug.vConsoleVersion = vconsole.version;
-      console.log(`VConsole当前版本：${vconsole.version}`);
+      GlobalDebug.vConsoleVersion = vConsole.version;
+      unsafeWindow.vConsole = vConsole;
+      console.log(`VConsole当前版本：${vConsole.version}`);
       console.log(`VConsole项目地址：https://github.com/Tencent/vConsole`);
-      unsafeWindow._vConsole_ = vconsole;
-      console.log("VConsole的全局变量名：_vConsole_");
+      console.log("VConsole的实例化的全局变量名: vConsole");
       if (PopsPanel.getValue("vConsole_plugin_Resource_vConsole_Stats")) {
         try {
-          vConsolePlugin.State(vconsole, vConsole);
+          vConsolePlugin.State(vConsole, VConsole);
         } catch (error) {
           console.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
         }
       }
       if (PopsPanel.getValue("vConsole_plugin_Resource_vConsole_ExportLog")) {
         try {
-          vConsolePlugin.exportLog(vconsole, vConsole);
+          vConsolePlugin.exportLog(vConsole, VConsole);
         } catch (error) {
           console.error(
             "插件【vconsole-outputlog-plugin】加载失败，原因：",
@@ -1926,13 +2156,24 @@
         try {
           currentWin.eval(GM_getResourceText("Resource_vConsoleVueDevtools"));
           const Devtools = currentWin.vueVconsoleDevtools;
-          Devtools.initPlugin(vconsole);
+          Devtools.initPlugin(vConsole);
         } catch (error) {
           console.error(
             "插件【vconsole-vue-devtools-plugin】加载失败，原因：",
             error
           );
         }
+      }
+
+      if (PopsPanel.getValue("vconsole-auto-open-panel")) {
+        let defaultShowName = PopsPanel.getValue(
+          "vconsole-default-show-panel-name",
+          "default"
+        );
+        vConsole.show();
+        setTimeout(() => {
+          vConsole.showPlugin(defaultShowName);
+        }, 250);
       }
     },
     pageSpy() {
