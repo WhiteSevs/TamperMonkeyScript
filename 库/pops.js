@@ -10172,6 +10172,7 @@
           init() {
             this.initOption();
             this.setChangeEvent();
+            this.setClickEvent();
             if (formConfig.disabled) {
               this.disable();
             }
@@ -10196,6 +10197,7 @@
             formConfig.data.forEach((dataItem) => {
               let optionElement = document.createElement("option");
               optionElement.__value__ = dataItem.value;
+              optionElement.__disable__ = dataItem.disable;
               if (dataItem.value === this.$data.defaultValue) {
                 optionElement.setAttribute("selected", true);
               }
@@ -10203,11 +10205,31 @@
               this.$ele.select.appendChild(optionElement);
             });
           },
+          setSelectOptionsDisableStatus() {
+            if (this.$ele.select.options && this.$ele.select.options.length) {
+              Array.from(this.$ele.select.options).forEach((optionItem) => {
+                this.setOptionDisableStatus(optionItem);
+              });
+            }
+          },
+          setOptionDisableStatus(optionElement) {
+            if (typeof optionElement.__disable__ === "function") {
+              let disableStatus = optionElement.__disable__(
+                optionElement.__value__
+              );
+              if (disableStatus) {
+                optionElement.setAttribute("disabled", true);
+              } else {
+                optionElement.removeAttribute("disabled");
+              }
+            }
+          },
           /**
            * 监听选择内容改变
            */
           setChangeEvent() {
             PopsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
+              this.setSelectOptionsDisableStatus();
               if (typeof formConfig.callback === "function") {
                 /**
                  * @type {HTMLOptionElement}
@@ -10218,6 +10240,17 @@
                 let isSelectedText =
                   isSelectedElement.innerText || isSelectedElement.textContent;
                 formConfig.callback(event, isSelectedValue, isSelectedText);
+              }
+            });
+          },
+          /**
+           * 监听点击事件
+           */
+          setClickEvent() {
+            PopsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
+              this.setSelectOptionsDisableStatus();
+              if (typeof formConfig.clickCallBack === "function") {
+                formConfig.clickCallBack(event, this.$ele.select);
               }
             });
           },
