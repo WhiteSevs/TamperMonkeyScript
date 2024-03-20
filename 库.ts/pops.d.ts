@@ -792,7 +792,13 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
      * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
      * @param isSelectedText 当前选中的文本
      */
-    callback(event: PointerEvent, isSelectedValue: string, isSelectedText: string): void;
+    callback(event: PointerEvent | TouchEvent, isSelectedValue: string, isSelectedText: string): void;
+    /**
+     * 点击select元素触发该回调
+     * @param event 点击事件
+     * @param selectElement 当前的select元素
+     */
+    clickCallBack(event: PointerEvent | TouchEvent, selectElement: HTMLSelectElement): void;
     /**
      * 选择器内的数据组
      */
