@@ -174,13 +174,13 @@
     /**
      * 获取checkbox按钮配置
      * @param {string} text 文字
+     * @param {?string} description （可选）描述
      * @param {string} key 键
      * @param {boolean} defaultValue 默认值
-     * @param {?string} description （可选）描述
      * @param {?(event: InputEvent,value: boolean)=>boolean} clickCallBack （可选）点击回调
      * @returns {PopsPanelSwitchDetails}
      */
-    getSwtichDetail(text, key, defaultValue, description, clickCallBack) {
+    getSwtichDetail(text, description, key, defaultValue, clickCallBack) {
       /**
        * @type {PopsPanelSwitchDetails}
        */
@@ -208,24 +208,65 @@
       return result;
     },
     /**
+     * 获取输入框配置
+     * @param {string} text 文字
+     * @param {string|undefined} description 描述
+     * @param {string} [placeholder=""] 提示
+     * @param {string} key 键
+     * @param {boolean} defaultValue 默认值
+     * @param {?(event:Event,value: string)=>boolean} _callback_ 输入回调
+     * @returns {PopsPanelInputDetails}
+     */
+    getInputDetail(
+      text,
+      description,
+      placeholder = "",
+      key,
+      defaultValue,
+      _callback_
+    ) {
+      return {
+        text: text,
+        type: "input",
+        attributes: {
+          "data-key": key,
+          "data-default-value": defaultValue,
+        },
+        description: description,
+        getValue() {
+          let localValue = PopsPanel.getValue(key, defaultValue);
+          return localValue;
+        },
+        callback(event, value) {
+          if (typeof _callback_ === "function") {
+            if (_callback_(event, value)) {
+              return;
+            }
+          }
+          PopsPanel.setValue(key, value);
+        },
+        placeholder: placeholder,
+      };
+    },
+    /**
      * 获取下拉列表配置
      * @param {string} text 文字
+     * @param {string} description （可选）描述
      * @param {string} key 键
      * @param {any} defaultValue 默认值
      * @param {{
      * value: any,
      * text: string,
      * }[]} data 数据
-     * @param {string} description （可选）描述
      * @param {(event:PointerEvent, isSelectedValue: any, isSelectedText:string)=>void} selectCallBack（可选）选择的回调
      * @returns {PopsPanelSelectDetails}
      */
     getSelectDetail(
       text,
+      description,
       key,
       defaultValue,
       data,
-      description,
       selectCallBack
     ) {
       return {
@@ -237,10 +278,10 @@
           "data-default-value": defaultValue,
         },
         getValue() {
-          return GM_getValue(key, defaultValue);
+          return PopsPanel.getValue(key, defaultValue);
         },
         callback(event, isSelectedValue, isSelectedText) {
-          GM_setValue(key, isSelectedValue);
+          PopsPanel.setValue(key, isSelectedValue);
           if (typeof selectCallBack === "function") {
             selectCallBack(event, isSelectedValue, isSelectedText);
           }
