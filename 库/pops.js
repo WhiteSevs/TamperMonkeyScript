@@ -3029,7 +3029,7 @@
   /** 配置 */
   pops.config = {
     /** 版本号 */
-    version: "2024.3.19",
+    version: "2024.3.21",
     cssText: {
       /** 主CSS */
       index: `@charset "utf-8";
@@ -8879,22 +8879,44 @@
           contentSectionContainerElement.querySelectorAll("ul")[0];
         this.sectionContainerULElement =
           contentSectionContainerElement.querySelectorAll("ul")[1];
-        /* 默认点击的左侧容器 */
+        /**
+         * 默认点击的左侧容器
+         * @type {HTMLLIElement}
+         */
         let asideDefaultItemElement = null;
+        let isScrollToDefaultView = false;
         config.content.forEach((asideItem) => {
           let asideLiElement = this.getAsideItem(asideItem);
           this.setAsideItemClickEvent(asideLiElement, asideItem);
           this.asideULElement.appendChild(asideLiElement);
-          if (asideDefaultItemElement == null && Boolean(asideItem.isDefault)) {
-            asideDefaultItemElement = asideLiElement;
+          if (asideDefaultItemElement == null) {
+            let flag = false;
+            if (typeof asideItem.isDefault === "function") {
+              flag = Boolean(asideItem.isDefault());
+            } else {
+              flag = Boolean(asideItem.isDefault);
+            }
+            if (flag) {
+              asideDefaultItemElement = asideLiElement;
+              isScrollToDefaultView = Boolean(asideItem.scrollToDefaultView);
+            }
           }
         });
 
         /* 点击左侧列表 */
+        if (
+          asideDefaultItemElement == null &&
+          this.asideULElement.children.length
+        ) {
+          /* 默认第一个 */
+          asideDefaultItemElement = this.asideULElement.children[0];
+        }
         if (asideDefaultItemElement) {
+          /* 点击选择的那一项 */
           asideDefaultItemElement.click();
-        } else if (this.asideULElement.children.length) {
-          this.asideULElement.children[0].click();
+          if (isScrollToDefaultView) {
+            asideDefaultItemElement?.scrollIntoView();
+          }
         } else {
           console.error("左侧容器没有项");
         }
