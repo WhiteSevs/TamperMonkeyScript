@@ -447,7 +447,7 @@
       );
     },
     isTieBaNei() {
-      return this.isTieBa() && window.location.pathname.startsWith("/f?");
+      return this.isTieBa() && window.location.pathname === "/f";
     },
     isWenKu() {
       return window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g);
