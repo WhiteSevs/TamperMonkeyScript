@@ -1098,9 +1098,9 @@
     return result;
   };
 
-  Utils.getNodeListValue = function () {
+  Utils.getNodeListValue = function (...args) {
     let resultArray = [];
-    for (let arg of arguments) {
+    for (let arg of args) {
       let value = arg;
       if (typeof arg === "function") {
         /* 方法 */
@@ -1329,9 +1329,9 @@
     return targetObj[targetObj.length - 1];
   };
 
-  Utils.getArrayRealValue = function () {
+  Utils.getArrayRealValue = function (...args) {
     let result = null;
-    for (let arg of arguments) {
+    for (let arg of args) {
       if (typeof arg === "function") {
         /* 方法 */
         arg = arg();
@@ -1437,8 +1437,8 @@
     return selector;
   };
 
-  Utils.getMaxValue = function () {
-    let result = [...arguments];
+  Utils.getMaxValue = function (...args) {
+    let result = [...args];
     let newResult = [];
     if (result.length > 1) {
       if (
@@ -1487,8 +1487,8 @@
     return currentMaxZIndex + deviation;
   };
 
-  Utils.getMinValue = function () {
-    let result = [...arguments];
+  Utils.getMinValue = function (...args) {
+    let result = [...args];
     let newResult = [];
     if (result.length > 1) {
       if (
@@ -1545,8 +1545,8 @@
     return `Mozilla/5.0 (Linux; Android ${androidVersion}; ${randomMobile}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Mobile Safari/537.36`;
   };
 
-  Utils.getRandomValue = function () {
-    let result = [...arguments];
+  Utils.getRandomValue = function (...args) {
+    let result = [...args];
     if (result.length > 1) {
       if (
         result.length === 2 &&
@@ -3582,49 +3582,47 @@
     return scrollTop + windowHeight >= documentHeight - nearValue;
   };
 
-  Utils.isNotNull = function () {
-    return !Utils.isNull.apply(this, arguments);
+  Utils.isNotNull = function (...args) {
+    return !Utils.isNull.apply(this, args);
   };
 
-  Utils.isNull = function () {
+  Utils.isNull = function (...args) {
     let result = true;
-    let checkList = [...arguments];
+    let checkList = [...args];
     for (const objItem of checkList) {
       let itemResult = false;
-      switch (typeof objItem) {
-        case "undefined":
-        case "null":
-          itemResult = true;
-          break;
-        case "object":
-          /* object类型的也可能是null */
-          if (objItem == null) {
-            itemResult = true;
-          } else if (typeof objItem[Symbol.iterator] === "function") {
-            itemResult = objItem.length === 0;
-          } else {
-            itemResult = Object.keys(objItem).length === 0;
-          }
-          break;
-        case "number":
-          itemResult = objItem === 0;
-          break;
-        case "string":
-          itemResult =
-            objItem.trim() === "" ||
-            objItem === "null" ||
-            objItem === "undefined";
-          break;
-        case "boolean":
-          itemResult = !objItem;
-          break;
-        case "function":
-          let funcStr = objItem.toString().replace(/\s/g, "");
-          /* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){} */
-          itemResult = Boolean(
-            funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/)
-          );
-          break;
+      if (objItem === null || objItem === undefined) {
+        itemResult = true;
+      } else {
+        switch (typeof objItem) {
+          case "object":
+            if (typeof objItem[Symbol.iterator] === "function") {
+              /* 可迭代 */
+              itemResult = objItem.length === 0;
+            } else {
+              itemResult = Object.keys(objItem).length === 0;
+            }
+            break;
+          case "number":
+            itemResult = objItem === 0;
+            break;
+          case "string":
+            itemResult =
+              objItem.trim() === "" ||
+              objItem === "null" ||
+              objItem === "undefined";
+            break;
+          case "boolean":
+            itemResult = !objItem;
+            break;
+          case "function":
+            let funcStr = objItem.toString().replace(/\s/g, "");
+            /* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){} */
+            itemResult = Boolean(
+              funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/)
+            );
+            break;
+        }
       }
       result = result && itemResult;
     }
