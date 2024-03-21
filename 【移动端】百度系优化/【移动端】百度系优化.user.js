@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.20.18
+// @version      2024.3.21
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -28,8 +28,8 @@
 // @grant        unsafeWindow
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1346106/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1346030/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1346764/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1346755/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1344519/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1332779/showdown.js
 // ==/UserScript==
@@ -114,7 +114,7 @@
   /**
    * 菜单对象
    */
-  let GM_Menu = new utils.GM_Menu({
+  const GM_Menu = new utils.GM_Menu({
     GM_getValue,
     GM_setValue,
     GM_registerMenuCommand,
@@ -410,12 +410,118 @@
     }
   }
 
-  const Baidu = {
-    /**
-     * 当前url
-     * window.location.href
-     */
-    url: window.location.href,
+  const Router = {
+    isSearch() {
+      return window.location.href.match(
+        /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g
+      );
+    },
+    isSearchBh() {
+      return this.isSearch() && window.location.pathname.startsWith("/bh");
+    },
+    isSearchHome() {
+      return (
+        window.location.href.match(
+          /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g
+        ) ||
+        window.location.href.match(
+          /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=)/g
+        )
+      );
+    },
+    isBaiJiaHao() {
+      return window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g);
+    },
+    isTieBa() {
+      return window.location.href.match(
+        /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com/g
+      );
+    },
+    isTieBaPost() {
+      return this.isTieBa() && window.location.pathname.startsWith("/p/");
+    },
+    isTieBaNewTopic() {
+      return (
+        this.isTieBa() &&
+        window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate")
+      );
+    },
+    isTieBaNei() {
+      return this.isTieBa() && window.location.pathname.startsWith("/f?");
+    },
+    isWenKu() {
+      return window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g);
+    },
+    isJingYan() {
+      return window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g);
+    },
+    isBaiKe() {
+      return window.location.href.match(
+        /^http(s|):\/\/(baike|wapbaike).baidu.com/g
+      );
+    },
+    isBaiKeTaShuo() {
+      return this.isBaiKe() && window.location.pathname.startsWith("/tashuo");
+    },
+    isZhiDao() {
+      return window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g);
+    },
+    isFanYi() {
+      return window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g);
+    },
+    isFanYiApp() {
+      return window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g);
+    },
+    isImage() {
+      return window.location.href.match(/^http(s|):\/\/image.baidu.com/g);
+    },
+    isMap() {
+      return window.location.href.match(/^http(s|):\/\/map.baidu.com/g);
+    },
+    isMbd() {
+      return window.location.href.match(/^http(s|):\/\/mbd.baidu.com/g);
+    },
+    isXue() {
+      return window.location.href.match(/^http(s|):\/\/xue.baidu.com/g);
+    },
+    isAiQiCha() {
+      return window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g);
+    },
+    isPos() {
+      return window.location.href.match(/^http(s|):\/\/pos.baidu.com/g);
+    },
+    isHaoKan() {
+      return window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g);
+    },
+    isGraph() {
+      return window.location.href.match(/^http(s|):\/\/graph.baidu.com/g);
+    },
+    isPan() {
+      return window.location.href.match(/^http(s|):\/\/pan.baidu.com/g);
+    },
+    isYiYan() {
+      return window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g);
+    },
+    isChat() {
+      return window.location.href.match(/^http(s|):\/\/chat.baidu.com/g);
+    },
+    isMiniJiaoYu() {
+      return window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g);
+    },
+    isEasyLearn() {
+      return window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g);
+    },
+    isISite() {
+      return window.location.href.match(
+        /^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g
+      );
+    },
+    isAiStudy() {
+      return window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g);
+    },
+  };
+
+  const BaiDu = {
     $data: {
       search: {
         isHijack_onClick: false,
@@ -792,7 +898,9 @@
 			.ask-for-friend,
 			#knowledge-answer-list,
 			.go-to-ask,
-			div[class*='ads']{
+			div[class*='ads'],
+      /* 免费领票 */
+      .doodle-container{
 				display:none !important;
 			}
 			.w-detail-container{
@@ -998,15 +1106,10 @@
      * 百度搜索-主页
      */
     searchHome() {
-      if (
-        !this.url.match(/^http(s|):\/\/(m|www).baidu.com\/$/g) &&
-        !this.url.match(
-          /^http(s|):\/\/(m|www).baidu.com\/(\?ref=|\?tn=|\?from=)/g
-        )
-      ) {
+      if (!Router.isSearchHome()) {
         return;
       }
-
+      const that = this;
       const BaiDuSearchHome = {
         init() {
           if (PopsPanel.getValue("baidu_search_home_homepage_minification")) {
@@ -1014,7 +1117,7 @@
           }
         },
         homepageMinification() {
-          GM_addStyle(this.css.searchHome);
+          GM_addStyle(that.css.searchHome);
           log.info("插入精简主页CSS规则");
         },
       };
@@ -1025,11 +1128,11 @@
      * 百度搜索
      */
     search() {
-      if (!this.url.match(/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g)) {
+      if (!Router.isSearch()) {
         return;
       }
 
-      const handleItemURL = {
+      const HandleItemURL = {
         /**
          * @type {UtilsDictionaryConstructor}
          */
@@ -1083,17 +1186,17 @@
         setArticleOriginUrl(targetNode, articleURL) {
           /* 处理超链接 */
           targetNode.querySelectorAll("a").forEach(async (item) => {
-            if (handleItemURL.originURLMap.has(item.href)) {
-              articleURL = handleItemURL.originURLMap.get(item.href);
+            if (HandleItemURL.originURLMap.has(item.href)) {
+              articleURL = HandleItemURL.originURLMap.get(item.href);
             }
-            let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
+            let domOriginUrl = HandleItemURL.parseDOMAttrOriginUrl(item);
             if (!utils.isNull(domOriginUrl)) {
               articleURL = domOriginUrl;
             }
             if (utils.isNull(articleURL) || articleURL === item.href) {
               return;
             }
-            if (handleItemURL.isBlackList(articleURL)) {
+            if (HandleItemURL.isBlackList(articleURL)) {
               return;
             }
             item.href = articleURL;
@@ -1103,10 +1206,10 @@
           targetNode
             .querySelectorAll("div[data-aftclk][class*=img-container]")
             .forEach((item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
+              let domOriginUrl = HandleItemURL.parseDOMAttrOriginUrl(item);
               if (
                 !utils.isNull(domOriginUrl) &&
-                !handleItemURL.isBlackList(domOriginUrl)
+                !HandleItemURL.isBlackList(domOriginUrl)
               ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1117,10 +1220,10 @@
           targetNode
             .querySelectorAll("div.c-video-container div[data-aftclk]")
             .forEach((item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
+              let domOriginUrl = HandleItemURL.parseDOMAttrOriginUrl(item);
               if (
                 !utils.isNull(domOriginUrl) &&
-                !handleItemURL.isBlackList(domOriginUrl)
+                !HandleItemURL.isBlackList(domOriginUrl)
               ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1131,10 +1234,10 @@
           targetNode
             .querySelectorAll('div[data-module="sc_pc"] div[rl-link-href]')
             .forEach((item) => {
-              let domOriginUrl = handleItemURL.parseDOMAttrOriginUrl(item);
+              let domOriginUrl = HandleItemURL.parseDOMAttrOriginUrl(item);
               if (
                 !utils.isNull(domOriginUrl) &&
-                !handleItemURL.isBlackList(domOriginUrl)
+                !HandleItemURL.isBlackList(domOriginUrl)
               ) {
                 item.setAttribute("href", domOriginUrl);
                 item.setAttribute("rl-link-href", domOriginUrl);
@@ -1180,7 +1283,7 @@
                 resultAtomData["abstract"]["urlParams"] &&
                 resultAtomData["abstract"]["urlParams"]["tcUrl"]
               ) {
-                let url = handleItemURL.parseURLParamsOriginURL(
+                let url = HandleItemURL.parseURLParamsOriginURL(
                   resultAtomData["abstract"]["urlParams"]
                 );
                 if (url) {
@@ -1196,7 +1299,7 @@
                 resultAtomData["content"]["abstract"]["urlParams"] &&
                 resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
               ) {
-                let url = handleItemURL.parseURLParamsOriginURL(
+                let url = HandleItemURL.parseURLParamsOriginURL(
                   resultAtomData["content"]["abstract"]["urlParams"]
                 );
                 if (url) {
@@ -1214,7 +1317,7 @@
                 resultAtomData["content"]["links"]["list"].forEach((item) => {
                   item.forEach((item2) => {
                     if (item2["urlParams"]["tcUrl"]) {
-                      let url = handleItemURL.parseURLParamsOriginURL(
+                      let url = HandleItemURL.parseURLParamsOriginURL(
                         item2["urlParams"]
                       );
                       if (url) {
@@ -1230,7 +1333,7 @@
               ) {
                 resultAtomData["content"]["site"]["list"].forEach((item) => {
                   if (item["urlParams"]["tcUrl"]) {
-                    let url = handleItemURL.parseURLParamsOriginURL(
+                    let url = HandleItemURL.parseURLParamsOriginURL(
                       item["urlParams"]
                     );
                     if (url) {
@@ -1296,21 +1399,21 @@
                 dataIVK = utils.toJSON(dataIVK);
                 if (
                   dataIVK?.control?.default_url &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     dataIVK?.control?.default_url
                   )
                 ) {
                   url = dataIVK?.control?.default_url;
                 } else if (
                   dataIVK?.control?.dataUrl &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     dataIVK?.control?.dataUrl
                   )
                 ) {
                   url = dataIVK?.control?.dataUrl;
                 } else if (
                   dataIVK?.control?.ext?.url &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     dataIVK?.control?.ext?.url
                   )
                 ) {
@@ -1333,14 +1436,14 @@
                     let rlLinkDataLogExtra = utils.toJSON(rlLinkDataLog.extra);
                     if (
                       rlLinkDataLogExtra.loc &&
-                      !handleItemURL.isBaiDuTransferStation(
+                      !HandleItemURL.isBaiDuTransferStation(
                         rlLinkDataLogExtra.loc
                       )
                     ) {
                       url = decodeURIComponent(rlLinkDataLogExtra.loc);
                     } else if (
                       rlLinkDataLogExtra.log_loc &&
-                      !handleItemURL.isBaiDuTransferStation(
+                      !HandleItemURL.isBaiDuTransferStation(
                         rlLinkDataLogExtra.log_loc
                       )
                     ) {
@@ -1367,21 +1470,21 @@
                 rlLinkDataIvk = utils.toJSON(rlLinkDataIvk);
                 if (
                   rlLinkDataIvk?.control?.default_url &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     rlLinkDataIvk?.control?.default_url
                   )
                 ) {
                   url = rlLinkDataIvk?.control?.default_url;
                 } else if (
                   rlLinkDataIvk?.control?.invoke_url &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     rlLinkDataIvk?.control?.invoke_url
                   )
                 ) {
                   url = rlLinkDataIvk?.control?.invoke_url;
                 } else if (
                   rlLinkDataIvk?.control?.ext?.url &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     rlLinkDataIvk?.control?.ext?.url
                   )
                 ) {
@@ -1413,14 +1516,14 @@
                 articleLinkDataIVK = utils.toJSON(articleLinkDataIVK);
                 if (
                   articleLinkDataIVK?.control?.default_url &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     articleLinkDataIVK?.control?.default_url
                   )
                 ) {
                   url = articleLinkDataIVK?.control?.default_url;
                 } else if (
                   articleLinkDataIVK?.control?.dataUrl &&
-                  !handleItemURL.isBaiDuTransferStation(
+                  !HandleItemURL.isBaiDuTransferStation(
                     articleLinkDataIVK?.control?.dataUrl
                   )
                 ) {
@@ -1520,7 +1623,7 @@
             return;
           }
           let title_text_element =
-            handleItemURL.getItemTitleElement(targetNode);
+            HandleItemURL.getItemTitleElement(targetNode);
           if (title_text_element) {
             DOMUtils.append(
               title_text_element,
@@ -1564,11 +1667,11 @@
               DOMUtils.remove(relativewordsElement);
             }
           } else {
-            if (handleEveryOneSearch.refactorEveryoneIsStillSearching) {
-              handleEveryOneSearch.handleBottom(
+            if (HandleEveryOneSearch.refactorEveryoneIsStillSearching) {
+              HandleEveryOneSearch.handleBottom(
                 document.querySelectorAll("#page-relative")
               );
-              handleEveryOneSearch.handleCenter(
+              HandleEveryOneSearch.handleCenter(
                 document.querySelectorAll(
                   '.c-result.result[tpl^="recommend_list"]'
                 )
@@ -1639,7 +1742,7 @@
                 /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
               )
             ) {
-              handleItemURL.addCSDNFlag(item);
+              HandleItemURL.addCSDNFlag(item);
             }
           });
         },
@@ -1651,7 +1754,7 @@
             if (
               item.hasAttribute("data-sflink") &&
               !utils.isNull(item.getAttribute("data-sflink")) &&
-              handleItemURL.isBaiDuTransferStation(item.getAttribute("href")) &&
+              HandleItemURL.isBaiDuTransferStation(item.getAttribute("href")) &&
               item.getAttribute("href") !== item.getAttribute("data-sflink")
             ) {
               /* log.success(
@@ -1686,7 +1789,7 @@
           );
           for (const searchResultItem of searchResultList) {
             let resultItemOriginURL =
-              handleItemURL.parseDOMAttrOriginUrl(searchResultItem);
+              HandleItemURL.parseDOMAttrOriginUrl(searchResultItem);
             /* 根据已获取的真实链接取值 */
             if (utils.isNull(resultItemOriginURL)) {
               /* 未取到值 */
@@ -1702,7 +1805,7 @@
             /* ivk应该是invoke缩写，可能是调用跳转百度APP */
             articleElement.removeAttribute("rl-link-data-ivk");
             /* 不对黑名单链接进行处理 */
-            if (handleItemURL.isBlackList(resultItemOriginURL)) {
+            if (HandleItemURL.isBlackList(resultItemOriginURL)) {
               log.error("黑名单链接不进行替换👉" + resultItemOriginURL);
               continue;
             }
@@ -1753,7 +1856,7 @@
               }
             }
             /* 替换链接 */
-            handleItemURL.setArticleOriginUrl(
+            HandleItemURL.setArticleOriginUrl(
               searchResultItem,
               resultItemOriginURL
             );
@@ -1779,7 +1882,7 @@
         },
       };
 
-      const handleEveryOneSearch = {
+      const HandleEveryOneSearch = {
         /**
          * 是否重构大家都在搜
          */
@@ -1899,7 +2002,7 @@
       /**
        * 点击输入框，输入其它文字，有提示，禁止百度篡改，且极大地增加搜索速度
        */
-      const handleInputEvent = {
+      const HandleInputEvent = {
         init() {
           let suggestListSelector = "#se-box .suggest-content";
           let suggestListBtnSelectorList = "#se-box .suggest-content button";
@@ -1918,7 +2021,7 @@
           utils.waitNode(suggestListSelector).then((element) => {
             utils.mutationObserver(element, {
               callback: () => {
-                handleInputEvent.mutationObserverFunction(
+                HandleInputEvent.mutationObserverFunction(
                   suggestListBtnSelectorList
                 );
               },
@@ -1929,7 +2032,7 @@
           utils.waitNode(suggestList2Selector).then((element) => {
             utils.mutationObserver(element, {
               callback: () => {
-                handleInputEvent.mutationObserverFunction(
+                HandleInputEvent.mutationObserverFunction(
                   suggestListBtn2SelectorList
                 );
               },
@@ -1940,7 +2043,7 @@
           utils.waitNode(suggestList_HOME_Selector).then((element) => {
             utils.mutationObserver(element, {
               callback: () => {
-                handleInputEvent.mutationObserverFunction(
+                HandleInputEvent.mutationObserverFunction(
                   suggestListBtn_HOME_SelectorList
                 );
               },
@@ -1949,21 +2052,21 @@
           });
           /* 顶部搜索按钮 */
           DOMUtils.on(searchBtnSelector, "click", function (event) {
-            return handleInputEvent.searchBtnJump(
+            return HandleInputEvent.searchBtnJump(
               event,
               document.querySelector(searchInputSelector)
             );
           });
           /* 顶部搜索输入框 */
           DOMUtils.on(searchInputSelector, "keydown", function (event) {
-            return handleInputEvent.enterKeyDownEvent(
+            return HandleInputEvent.enterKeyDownEvent(
               event,
               document.querySelector(searchInputSelector)
             );
           });
           /* 底部搜索按钮 */
           DOMUtils.on(searchBtn2Selector, "click", function (event) {
-            return handleInputEvent.searchBtnJump(
+            return HandleInputEvent.searchBtnJump(
               event,
               document.querySelector(searchInput2Selector)
             );
@@ -1973,7 +2076,7 @@
             document.querySelector(searchInput2Selector),
             "keydown",
             function (event) {
-              return handleInputEvent.enterKeyDownEvent(
+              return HandleInputEvent.enterKeyDownEvent(
                 event,
                 document.querySelector(searchInput2Selector)
               );
@@ -1981,14 +2084,14 @@
           );
           /* 百度主页搜索按钮 */
           DOMUtils.on(searchBtn_HOME_Selector, "click", function (event) {
-            return handleInputEvent.searchBtnJump(
+            return HandleInputEvent.searchBtnJump(
               event,
               document.querySelector(searchInput_HOME_Selector)
             );
           });
           /* 百度主页搜索输入框 */
           DOMUtils.on(searchInput_HOME_Selector, "keydown", function (event) {
-            return handleInputEvent.enterKeyDownEvent(
+            return HandleInputEvent.enterKeyDownEvent(
               event,
               document.querySelector(searchInput_HOME_Selector)
             );
@@ -2054,7 +2157,7 @@
       /**
        * 自动加载下一页
        */
-      const handleNextPage = {
+      const HandleNextPage = {
         /**
          * 当前页
          */
@@ -2148,13 +2251,13 @@
          * @async
          */
         async scrollEvent() {
-          log.success(`正在加载第 ${handleNextPage.currentPage} 页`);
+          log.success(`正在加载第 ${HandleNextPage.currentPage} 页`);
           let nextPageUrl =
             document.querySelector(".new-nextpage")?.getAttribute("href") ||
             document.querySelector(".new-nextpage-only")?.getAttribute("href");
           if (!nextPageUrl) {
             log.warn("获取不到下一页，怀疑已加载所有的搜索结果");
-            handleNextPage.removeNextPageLoadingObserver();
+            HandleNextPage.removeNextPageLoadingObserver();
             return;
           }
           let params_pn = new URL(nextPageUrl).search.match(/[0-9]+/);
@@ -2165,7 +2268,7 @@
                 : "第 " + parseInt(params_pn[0]) + " 条"
             }数据: ${nextPageUrl}`
           );
-          handleNextPage.currentPage = parseInt(params_pn[0] / 10);
+          HandleNextPage.currentPage = parseInt(params_pn[0] / 10);
           loadingView.setText("Loading...", true);
           let getResp = await httpx.get({
             url: nextPageUrl,
@@ -2186,8 +2289,8 @@
                 scriptAtomData.appendChild(item);
               });
             let nextPageScriptOriginUrlMap =
-              handleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
-            handleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
+              HandleItemURL.parseScriptDOMOriginUrlMap(scriptAtomData);
+            HandleItemURL.originURLMap.concat(nextPageScriptOriginUrlMap);
 
             nextPageHTMLNode
               .querySelectorAll("style[data-vue-ssr-id]")
@@ -2215,7 +2318,7 @@
             if (nextPageControllerDOM) {
               /* 用于划分显示分页 */
               currentResultsDOM.appendChild(
-                handleNextPage.getPageLineElement(handleNextPage.currentPage)
+                HandleNextPage.getPageLineElement(HandleNextPage.currentPage)
               );
               /* 每一条搜索结果拼接在后面 */
               searchResultDOM.forEach((item) => {
@@ -2227,14 +2330,14 @@
               );
             } else {
               log.info("已加载所有的搜索结果");
-              handleNextPage.removeNextPageLoadingObserver();
+              HandleNextPage.removeNextPageLoadingObserver();
             }
             if (PopsPanel.getValue("baidu_search_sync_next_page_address")) {
               window.history.pushState("forward", null, nextPageUrl);
             }
             /* 处理下一页的【大家还在搜】 */
-            if (handleEveryOneSearch.refactorEveryoneIsStillSearching) {
-              handleEveryOneSearch.handleBottom(
+            if (HandleEveryOneSearch.refactorEveryoneIsStillSearching) {
+              HandleEveryOneSearch.handleBottom(
                 nextPageHTMLNode.querySelectorAll("#page-relative")
               );
             }
@@ -2288,7 +2391,7 @@
       /**
        * 简单UA-自动点击下一页
        */
-      const handleNextPage_SearchCraft = {
+      const HandleNextPage_SearchCraft = {
         /**
          * 观察器
          * @type {IntersectionObserver}
@@ -2394,14 +2497,14 @@
             await utils.sleep(500);
           } else if (elementText.includes("到底了 没有更多内容了")) {
             log.error("到底了 没有更多内容了，移除滚动监听");
-            handleNextPage_SearchCraft.removeNextPageInterSectionObserver();
+            HandleNextPage_SearchCraft.removeNextPageInterSectionObserver();
           }
         },
       };
       /**
        * 处理劫持
        */
-      const handleHijack = {
+      const HandleHijack = {
         init() {
           if (PopsPanel.getValue("baidu_search_hijack_define")) {
             OriginPrototype.Object.defineProperty(unsafeWindow, "define", {
@@ -2443,7 +2546,7 @@
       /**
        * 处理百度搜索自定义的样式添加
        */
-      const handleUserOwnStyle = {
+      const HandleUserOwnStyle = {
         getUserStyle() {
           return PopsPanel.getValue("baidu-search-user-style", "");
         },
@@ -2554,20 +2657,24 @@
           );
         },
       };
-      if (window.location.pathname.startsWith("/bh")) {
+
+      GM_addStyle(HandleUserOwnStyle.getUserStyle());
+      log.info("插入用户CSS规则");
+
+      if (Router.isSearchBh()) {
         /* 百度健康 */
-        log.info("插入CSS规则");
         GM_addStyle(this.css.searchBaiduHealth);
+        log.info("插入CSS规则");
         BaiduHeadlth.init();
       } else {
-        handleHijack.init();
+        HandleHijack.init();
         BaiDuSearch.init();
         /* 默认的百度搜索 */
-        log.info("插入CSS规则");
         GM_addStyle(this.css.search);
+        log.info("插入CSS规则");
         DOMUtils.ready(function () {
-          handleItemURL.originURLMap =
-            handleItemURL.parseScriptDOMOriginUrlMap(document);
+          HandleItemURL.originURLMap =
+            HandleItemURL.parseScriptDOMOriginUrlMap(document);
           let baidu_search_handle_search_result_enable = PopsPanel.getValue(
             "baidu_search_handle_search_result",
             true
@@ -2575,13 +2682,13 @@
           if (baidu_search_handle_search_result_enable) {
             let searchUpdateRealLink = new utils.LockFunction(async () => {
               try {
-                await handleItemURL.replaceLink();
+                await HandleItemURL.replaceLink();
               } catch (error) {
                 log.error(["替换为真实链接失败", error]);
               }
             }, 600);
             let removeAdsLockFunction = new utils.LockFunction(
-              handleItemURL.removeAds,
+              HandleItemURL.removeAds,
               600
             );
             utils.waitNode("div#page.search-page").then((element) => {
@@ -2614,22 +2721,22 @@
             });
 
           if (PopsPanel.getValue("baidu_search_redirect_top_link")) {
-            handleItemURL.redirectTopLink();
+            HandleItemURL.redirectTopLink();
           }
-          handleItemURL.replaceScriptBaiDuTip();
+          HandleItemURL.replaceScriptBaiDuTip();
           if (PopsPanel.getValue("baidu_search_refactoring_input_boxes")) {
-            handleInputEvent.init();
+            HandleInputEvent.init();
           }
           if (
             PopsPanel.getValue("baidu_search_automatically_expand_next_page")
           ) {
-            handleNextPage.init();
+            HandleNextPage.init();
           } else if (
             PopsPanel.getValue(
               "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
             )
           ) {
-            handleNextPage_SearchCraft.init();
+            HandleNextPage_SearchCraft.init();
           }
           if (
             utils.startsWith(
@@ -2641,7 +2748,7 @@
               .waitNode("#realtime-container .c-infinite-scroll")
               .then((element) => {
                 let replaceVSearchLinkLonkFunction = new utils.LockFunction(
-                  handleItemURL.replaceVSearchLink,
+                  HandleItemURL.replaceVSearchLink,
                   600
                 );
                 utils.mutationObserver(element, {
@@ -2655,14 +2762,12 @@
           }
         });
       }
-      log.info("插入用户CSS规则");
-      GM_addStyle(handleUserOwnStyle.getUserStyle());
     },
     /**
      * 百家号
      */
     baijiahao() {
-      if (!this.url.match(/^http(s|):\/\/baijiahao.baidu.com/g)) {
+      if (!Router.isBaiJiaHao()) {
         return;
       }
       GM_addStyle(this.css.baijiahao);
@@ -2778,9 +2883,7 @@
      * + isShowModal 是否显示需要登录的弹窗【继续操作需要登录贴吧账号】
      */
     tieba() {
-      if (
-        !this.url.match(/^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com/g)
-      ) {
+      if (!Router.isTieBa()) {
         return;
       }
 
@@ -6614,11 +6717,7 @@
       }
       GM_addStyle(this.css.tieba);
       log.info("插入CSS规则");
-      if (
-        this.url.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com\/p\//g
-        )
-      ) {
+      if (Router.isTieBaPost()) {
         if (PopsPanel.getValue("baidu_tieba_optimize_see_comments")) {
           log.success("优化查看评论");
           tiebaCommentConfig.init();
@@ -6632,20 +6731,12 @@
           tiebaPost.repairErrorThread();
         }
       }
-      if (
-        this.url.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com\/mo\/q\/newtopic\/topicTemplate/g
-        )
-      ) {
+      if (Router.isTieBaNewTopic()) {
         if (PopsPanel.getValue("baidu_tieba_topic_redirect_jump")) {
           tiebaHome.redirectJump();
         }
       }
-      if (
-        this.url.match(
-          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu).com\/f\?/g
-        )
-      ) {
+      if (Router.isTieBaNei()) {
         /* 吧内 */
         if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
           tiebaBaNei.rememberPostSort();
@@ -6696,7 +6787,7 @@
      * 百度文库
      */
     wenku() {
-      if (!this.url.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)) {
+      if (!Router.isWenKu()) {
         return;
       }
       GM_addStyle(this.css.wenku);
@@ -6764,7 +6855,7 @@
      * 百度经验
      */
     jingyan() {
-      if (!this.url.match(/^http(s|):\/\/jingyan.baidu.com/g)) {
+      if (!Router.isJingYan()) {
         return;
       }
       GM_addStyle(this.css.jingyan);
@@ -6774,7 +6865,7 @@
      * 百度百科
      */
     baike() {
-      if (!this.url.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)) {
+      if (!Router.isBaiKe()) {
         return;
       }
       GM_addStyle(this.css.baike);
@@ -6880,7 +6971,7 @@
      * 百度百科-他说
      */
     baiketashuo() {
-      if (!this.url.match(/^http(s|):\/\/baike.baidu.com\/tashuo/g)) {
+      if (!Router.isBaiKeTaShuo()) {
         return;
       }
       const BaiKeTaShuo = {
@@ -6919,7 +7010,7 @@
      * 百度知道
      */
     zhidao() {
-      if (!this.url.match(/^http(s|):\/\/zhidao.baidu.com/g)) {
+      if (!Router.isZhiDao()) {
         return;
       }
       GM_addStyle(this.css.zhidao);
@@ -6939,6 +7030,9 @@
           }
           if (PopsPanel.getValue("baidu_zhidao_block_related_issues")) {
             this.blockRelatedIssues();
+          }
+          if (PopsPanel.getValue("baidu_zhidao_shield_top_fixed_toolbar")) {
+            this.shieldTopFloatToolBar();
           }
         },
         removeAd() {
@@ -6969,6 +7063,11 @@
             display: none !important;
           }`);
         },
+        shieldTopFloatToolBar() {
+          GM_addStyle(
+            `.iknow-root-dom-element .question-answer-container .question-answer-layer.fixed{display: none !important;}`
+          );
+        },
       };
       ZhiDao.init();
     },
@@ -6976,7 +7075,7 @@
      * 百度翻译
      */
     fanyi() {
-      if (!this.url.match(/^http(s|):\/\/fanyi.baidu.com/g)) {
+      if (!Router.isFanYi()) {
         return;
       }
       GM_addStyle(this.css.fanyi);
@@ -7014,12 +7113,13 @@
           });
         },
       };
+      FanYi.init();
     },
     /**
      * 百度翻译-APP
      */
     fanyiApp() {
-      if (!this.url.match(/^http(s|):\/\/fanyi-app.baidu.com/g)) {
+      if (!Router.isFanYiApp()) {
         return;
       }
       log.info("插入CSS规则");
@@ -7075,7 +7175,7 @@
      * 百度图片
      */
     image() {
-      if (!this.url.match(/^http(s|):\/\/image.baidu.com/g)) {
+      if (!Router.isImage()) {
         return;
       }
       GM_addStyle(this.css.image);
@@ -7089,7 +7189,7 @@
      * 百度地图
      */
     map() {
-      if (!this.url.match(/^http(s|):\/\/map.baidu.com/g)) {
+      if (!Router.isMap()) {
         return;
       }
       GM_addStyle(this.css.map);
@@ -7119,7 +7219,7 @@
      * 百家号
      */
     mbd() {
-      if (!this.url.match(/^http(s|):\/\/mbd.baidu.com/g)) {
+      if (!Router.isMbd()) {
         return;
       }
       /* 
@@ -7212,7 +7312,7 @@
      * 百度知了好学
      */
     xue() {
-      if (!this.url.match(/^http(s|):\/\/xue.baidu.com/g)) {
+      if (!Router.isXue()) {
         return;
       }
       GM_addStyle(this.css.xue);
@@ -7222,7 +7322,7 @@
      * 百度-爱企查
      */
     aiqicha() {
-      if (!this.url.match(/^http(s|):\/\/aiqicha.baidu.com/g)) {
+      if (!Router.isAiQiCha()) {
         return;
       }
       GM_addStyle(this.css.aiqicha);
@@ -7270,7 +7370,7 @@
      * 百度网盟推广
      */
     pos() {
-      if (!this.url.match(/^http(s|):\/\/pos.baidu.com/g)) {
+      if (!Router.isPos()) {
         return;
       }
       GM_addStyle(this.css.pos);
@@ -7280,7 +7380,7 @@
      * 百度好看视频
      */
     haokan() {
-      if (!this.url.match(/^http(s|):\/\/haokan.baidu.com/g)) {
+      if (!Router.isHaoKan()) {
         return;
       }
       GM_addStyle(this.css.haokan);
@@ -7358,7 +7458,7 @@
      * 百度识图
      */
     graph() {
-      if (!this.url.match(/^http(s|):\/\/graph.baidu.com/g)) {
+      if (!Router.isGraph()) {
         return;
       }
       GM_addStyle(this.css.graph);
@@ -7415,10 +7515,24 @@
       const BaiDuGraph = {
         init() {
           this.addNewUploadImageButton();
-          this.repairHomeRecognitionPicture();
-          this.repairSearchButton();
-          this.repairSearchNoResult();
-          this.repairRetakeButton();
+          if (PopsPanel.getValue("baidu-graph-repairHomeRecognitionPicture")) {
+            this.repairHomeRecognitionPicture();
+          }
+          if (
+            PopsPanel.getValue("baidu-graph-baidu-graph-repairSearchButton")
+          ) {
+            this.repairSearchButton();
+          }
+          if (
+            PopsPanel.getValue("baidu-graph-baidu-graph-repairSearchNoResult")
+          ) {
+            this.repairSearchNoResult();
+          }
+          if (
+            PopsPanel.getValue("baidu-graph-baidu-graph-repairRetakeButton")
+          ) {
+            this.repairRetakeButton();
+          }
         },
         /**
          * 添加上传图片按钮（不可见的）
@@ -7573,7 +7687,7 @@
      * 百度网盘
      */
     pan() {
-      if (!this.url.match(/^http(s|):\/\/pan.baidu.com/g)) {
+      if (!Router.isPan()) {
         return;
       }
       GM_addStyle(this.css.pan);
@@ -7583,7 +7697,7 @@
      * 文心一言
      */
     yiyan() {
-      if (!this.url.match(/^http(s|):\/\/yiyan.baidu.com/g)) {
+      if (!Router.isYiYan()) {
         return;
       }
       GM_addStyle(this.css.yiyan);
@@ -7641,7 +7755,7 @@
      * AI对话
      */
     chat() {
-      if (!this.url.match(/^http(s|):\/\/chat.baidu.com/g)) {
+      if (!Router.isChat()) {
         return;
       }
       GM_addStyle(this.css.chat);
@@ -7680,7 +7794,7 @@
      * 百度小程序-百度教育
      */
     mini_jiaoyu() {
-      if (!this.url.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)) {
+      if (!Router.isMiniJiaoYu()) {
         return;
       }
       GM_addStyle(this.css.mini_jiaoyu);
@@ -7749,7 +7863,7 @@
      * 百度教育
      */
     easyLearn() {
-      if (!this.url.match(/^http(s|):\/\/easylearn.baidu.com/g)) {
+      if (!Router.isEasyLearn()) {
         return;
       }
       GM_addStyle(this.css.easyLearn);
@@ -8088,10 +8202,10 @@
           `);
         },
       };
-      if (this.url.match(/^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g)) {
+      if (Router.isISite()) {
         /* 知了爱学-百度基木鱼 */
         BaiDuISite.init();
-      } else if (this.url.match(/^http(s|):\/\/aistudy.baidu.com/g)) {
+      } else if (Router.isAiStudy()) {
         /* 知了爱学 */
         BaiDuAiStudy.init();
       }
@@ -8917,7 +9031,7 @@
     },
     /**
      * 获取配置内容
-     * @returns {PopsPanelFormsDetailsArray}
+     * @returns {PopsPanelContentConfig[]}
      */
     getContent() {
       return [
@@ -8925,6 +9039,11 @@
           id: "baidu-panel-config-search",
           title: "搜索",
           headerTitle: "百度搜索<br />m.baidu.com<br />www.baidu.com",
+          isDefault() {
+            return (
+              Router.isSearch() || Router.isSearchHome() || Router.isSearchBh()
+            );
+          },
           forms: [
             {
               text: "主页",
@@ -9224,6 +9343,10 @@
           id: "baidu-panel-config-baijiahao",
           title: "百家号",
           headerTitle: "百家号<br />baijiahao.baidu.com<br />mbd.baidu.com",
+          isDefault() {
+            return Router.isBaiJiaHao() || Router.isMbd();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "百家号（baijiahao）👇",
@@ -9348,6 +9471,10 @@
           id: "baidu-panel-config-tieba",
           title: "贴吧",
           headerTitle: "百度贴吧<br />tieba.baidu.com<br />www.tieba.com",
+          isDefault() {
+            return Router.isTieBa();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "通用",
@@ -9636,6 +9763,10 @@
           id: "baidu-panel-config-wenku",
           title: "文库",
           headerTitle: "百度文库<br />wk.baidu.com<br />tanbi.baidu.com",
+          isDefault() {
+            return Router.isWenKu();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9671,9 +9802,23 @@
           ],
         },
         {
+          id: "baidu-panel-config-jingyan",
+          title: "经验",
+          headerTitle: "百度经验<br />jingyan.baidu.com",
+          isDefault() {
+            return Router.isJingYan();
+          },
+          scrollToDefaultView: true,
+          forms: [],
+        },
+        {
           id: "baidu-panel-config-baike",
           title: "百科",
           headerTitle: "百度百科<br />baike.baidu.com<br />wapbaike.baidu.com",
+          isDefault() {
+            return Router.isBaiKe();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "劫持Box",
@@ -9754,6 +9899,10 @@
           id: "baidu-panel-config-zhidao",
           title: "知道",
           headerTitle: "百度知道<br />zhidao.baidu.com",
+          isDefault() {
+            return Router.isZhiDao();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9774,6 +9923,11 @@
                   "baidu_zhidao_block_other_answers",
                   false
                 ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】顶部浮动工具栏",
+                  "baidu_zhidao_shield_top_fixed_toolbar",
+                  false
+                ),
               ],
             },
           ],
@@ -9782,6 +9936,10 @@
           id: "baidu-panel-config-fanyi",
           title: "翻译",
           headerTitle: "百度翻译<br />fanyi.baidu.com<br />fanyi-app.baidu.com",
+          isDefault() {
+            return Router.isFanYi() || Router.isFanYiApp();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9834,9 +9992,23 @@
           ],
         },
         {
+          id: "baidu-panel-config-image",
+          title: "图片",
+          headerTitle: "百度经验<br />image.baidu.com",
+          isDefault() {
+            return Router.isJingYan();
+          },
+          scrollToDefaultView: true,
+          forms: [],
+        },
+        {
           id: "baidu-panel-config-map",
           title: "地图",
           headerTitle: "百度地图<br />map.baidu.com",
+          isDefault() {
+            return Router.isMap();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "劫持/拦截",
@@ -9854,9 +10026,23 @@
           ],
         },
         {
+          id: "baidu-panel-config-xue",
+          title: "知了好学",
+          headerTitle: "知了好学<br />xue.baidu.com",
+          isDefault() {
+            return Router.isJingYan();
+          },
+          scrollToDefaultView: true,
+          forms: [],
+        },
+        {
           id: "baidu-panel-config-aiqicha",
           title: "爱企查",
           headerTitle: "爱企查<br />aiqicha.baidu.com",
+          isDefault() {
+            return Router.isAiQiCha();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9877,9 +10063,23 @@
           ],
         },
         {
+          id: "baidu-panel-config-pos",
+          title: "网盟",
+          headerTitle: "百度网盟推广<br />pos.baidu.com",
+          isDefault() {
+            return Router.isPos();
+          },
+          scrollToDefaultView: true,
+          forms: [],
+        },
+        {
           id: "baidu-panel-config-haokan",
           title: "好看视频",
           headerTitle: "好看视频<br />haokan.baidu.com",
+          isDefault() {
+            return Router.isHaoKan();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9930,9 +10130,68 @@
           ],
         },
         {
+          id: "baidu-panel-config-graph",
+          title: "识图",
+          headerTitle: "百度识图<br />graph.baidu.com",
+          isDefault() {
+            return Router.isGraph();
+          },
+          scrollToDefaultView: true,
+          forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "【重构】识图一下",
+                  "baidu-graph-repairHomeRecognitionPicture",
+                  true,
+                  void 0,
+                  "重构主页的识图一下，就可以直接点击上传图片进行搜索"
+                ),
+                this.getSwtichDetail(
+                  "【重构】搜索按钮",
+                  "baidu-graph-repairSearchButton",
+                  true,
+                  void 0,
+                  "重构主页的往下滑动右下角出现的搜索图标按钮"
+                ),
+                this.getSwtichDetail(
+                  "【重构】重拍",
+                  "baidu-graph-repairRetakeButton",
+                  true,
+                  void 0,
+                  "在已搜索出相关结果的界面中的重构【重拍】按钮"
+                ),
+                this.getSwtichDetail(
+                  "修复搜索无结果",
+                  "baidu-graph-repairSearchNoResult",
+                  true,
+                  void 0,
+                  "如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题"
+                ),
+              ],
+            },
+          ],
+        },
+        {
+          id: "baidu-panel-config-pan",
+          title: "网盘",
+          headerTitle: "百度经验<br />pan.baidu.com",
+          isDefault() {
+            return Router.isPan();
+          },
+          scrollToDefaultView: true,
+          forms: [],
+        },
+        {
           id: "baidu-panel-config-yiyan",
           title: "文心一言",
           headerTitle: "文心一言<br />yiyan.baidu.com",
+          isDefault() {
+            return Router.isYiYan();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9951,6 +10210,10 @@
           id: "baidu-panel-config-chat",
           title: "AI伙伴",
           headerTitle: "搜索AI伙伴<br />chat.baidu.com",
+          isDefault() {
+            return Router.isChat();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "屏蔽",
@@ -9968,7 +10231,12 @@
         {
           id: "baidu-panel-config-easy-learn",
           title: "教育",
-          headerTitle: "百度教育<br />easylearn.baidu.com",
+          headerTitle:
+            "百度教育<br />easylearn.baidu.com<br />uf9kyh.smartapps.cn",
+          isDefault() {
+            return Router.isEasyLearn() || Router.isMiniJiaoYu();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "小程序",
@@ -10045,6 +10313,10 @@
           title: "知了爱学",
           headerTitle:
             "知了爱学<br />aistudy.baidu.com<br />isite.baidu.com/site/wjz2tdly",
+          isDefault() {
+            return Router.isAiStudy() || Router.isISite();
+          },
+          scrollToDefaultView: true,
           forms: [
             {
               text: "知了爱学（isite）👇",
@@ -10384,7 +10656,7 @@ match-attr##srcid##xcx_multi`,
         _attributes
       ) {
         if (propertyKey === "_onClick") {
-          Baidu.$data.search.isHijack_onClick = true;
+          BaiDu.$data.search.isHijack_onClick = true;
           log.info(["成功劫持_onClick", arguments]);
           let oldFn = _attributes["value"];
           _attributes["value"] = function (event) {
@@ -10844,6 +11116,6 @@ match-attr##srcid##xcx_multi`,
   const loadingView = new LoadingView(true);
   PopsPanel.initMenu();
   BaiduSearchRule.init();
-  Baidu.init();
+  BaiDu.init();
   /* --------------入口-------------- */
 })();
