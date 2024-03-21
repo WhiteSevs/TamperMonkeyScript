@@ -3050,6 +3050,7 @@
           }
           .post-item .content[data-v-74eb13e2] {
               padding-left: .44rem;
+              width: auto;
           }
           .user-line[data-v-188c0e84] {
               -webkit-box-align: center;
