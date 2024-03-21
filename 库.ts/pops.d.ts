@@ -498,7 +498,7 @@ declare interface PopsPanelContentConfig {
     /**
      * （可选）是否是默认的，指打开弹窗的先显示出来的内容
      */
-    isDefault?: boolean;
+    isDefault?: boolean | (() => boolean);
     /**
      * （可选）自定义元素属性
      */
