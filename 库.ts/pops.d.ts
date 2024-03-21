@@ -500,6 +500,10 @@ declare interface PopsPanelContentConfig {
      */
     isDefault?: boolean | (() => boolean);
     /**
+     * （可选）是否自动滚动到默认的项
+     */
+    scrollToDefaultView?: boolean;
+    /**
      * （可选）自定义元素属性
      */
     attributes?: object[] | object;
