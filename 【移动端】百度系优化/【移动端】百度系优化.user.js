@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.21
+// @version      2024.3.21.20
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3029,223 +3029,223 @@
             margin-bottom: 0 !important;
           }
           .post-item[data-v-74eb13e2] {
-              overflow: hidden;
-              margin: .16rem .13rem 0;
+            overflow: hidden;
+            margin: .16rem .13rem 0;
           }
           .post-item .user-line-post[data-v-74eb13e2] {
-              margin-bottom: .06rem;
+            margin-bottom: .06rem;
           }
           .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-              display: -webkit-flex;
-              display: -ms-flexbox;
-              display: flex;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
           }
           .user-line-wrapper[data-v-188c0e84] {
-              -webkit-box-pack: justify;
-              -moz-box-pack: justify;
-              -webkit-justify-content: space-between;
-              -moz-justify-content: space-between;
-              -ms-flex-pack: justify;
-              justify-content: space-between;
+            -webkit-box-pack: justify;
+            -moz-box-pack: justify;
+            -webkit-justify-content: space-between;
+            -moz-justify-content: space-between;
+            -ms-flex-pack: justify;
+            justify-content: space-between;
           }
           .post-item .content[data-v-74eb13e2] {
-              padding-left: .44rem;
-              width: auto;
+            padding-left: .44rem;
+            width: auto;
           }
           .user-line[data-v-188c0e84] {
-              -webkit-box-align: center;
-              -moz-box-align: center;
-              -webkit-align-items: center;
-              -moz-align-items: center;
-              -ms-flex-align: center;
-              align-items: center;
-              -webkit-box-pack: left;
-              -moz-box-pack: left;
-              -webkit-justify-content: left;
-              -moz-justify-content: left;
-              -ms-flex-pack: left;
-              justify-content: left;
+            -webkit-box-align: center;
+            -moz-box-align: center;
+            -webkit-align-items: center;
+            -moz-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            -webkit-box-pack: left;
+            -moz-box-pack: left;
+            -webkit-justify-content: left;
+            -moz-justify-content: left;
+            -ms-flex-pack: left;
+            justify-content: left;
           }
           .user-line-wrapper[data-v-188c0e84], .user-line[data-v-188c0e84] {
-              display: -webkit-flex;
-              display: -ms-flexbox;
-              display: flex;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
           }
           .user-line .avatar[data-v-188c0e84] {
-              position: relative;
-              -webkit-box-sizing: border-box;
-              box-sizing: border-box;
-              width: .36rem;
-              height: .36rem;
-              margin-right: .08rem;
-              border-radius: 50%;
-              background-repeat: no-repeat;
-              background-position: 50%;
-              background-size: cover;
-              -webkit-box-flex: 0;
-              -webkit-flex: none;
-              -ms-flex: none;
-              flex: none;
+            position: relative;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            width: .36rem;
+            height: .36rem;
+            margin-right: .08rem;
+            border-radius: 50%;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-size: cover;
+            -webkit-box-flex: 0;
+            -webkit-flex: none;
+            -ms-flex: none;
+            flex: none;
           }
           .tbfe-1px-border {
-              position: relative;
-              border-radius: .08rem;
-              font-size: 0;
+            position: relative;
+            border-radius: .08rem;
+            font-size: 0;
           }
           .user-line .user-info[data-v-188c0e84] {
-              position: relative;
-              overflow: hidden;
-              -webkit-box-flex: 0;
-              -webkit-flex: none;
-              -ms-flex: none;
-              flex: none;
+            position: relative;
+            overflow: hidden;
+            -webkit-box-flex: 0;
+            -webkit-flex: none;
+            -ms-flex: none;
+            flex: none;
           }
           .user-line .avatar[data-v-188c0e84]:after {
-              border-radius: 50%;
+            border-radius: 50%;
           }
           .tbfe-1px-border:after {
-              content: "";
-              position: absolute;
-              z-index: 100;
-              top: 0;
-              left: 0;
-              -webkit-box-sizing: border-box;
-              box-sizing: border-box;
-              border: 1px solid rgba(0,0,0,.12);
-              -webkit-transform-origin: 0 0;
-              -ms-transform-origin: 0 0;
-              transform-origin: 0 0;
-              pointer-events: none;
+            content: "";
+            position: absolute;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            border: 1px solid rgba(0,0,0,.12);
+            -webkit-transform-origin: 0 0;
+            -ms-transform-origin: 0 0;
+            transform-origin: 0 0;
+            pointer-events: none;
           }
           .user-line .user-info .username[data-v-188c0e84],
           #whitesev-reply-dialog .whitesev-reply-dialog-user-username {
-              display: -webkit-box;
-              display: -webkit-flex;
-              display: -ms-flexbox;
-              display: flex;
-              -webkit-box-align: center;
-              -webkit-align-items: center;
-              -ms-flex-align: center;
-              align-items: center;
-              overflow: hidden;
-              font-size: .15rem;
-              line-height: .28rem;
-              white-space: nowrap;
-              -o-text-overflow: ellipsis;
-              text-overflow: ellipsis;
-              font-weight: 400;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            overflow: hidden;
+            font-size: .15rem;
+            line-height: .28rem;
+            white-space: nowrap;
+            -o-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+            font-weight: 400;
           }
           .user-line .user-info .desc-info[data-v-188c0e84] {
-              display: -webkit-box;
-              display: -webkit-flex;
-              display: -ms-flexbox;
-              display: flex;
-              -webkit-box-align: center;
-              -webkit-align-items: center;
-              -ms-flex-align: center;
-              align-items: center;
-              font-size: .12rem;
-              line-height: .18rem;
-              overflow: hidden;
-              white-space: nowrap;
-              -o-text-overflow: ellipsis;
-              text-overflow: ellipsis;
-              color: #a3a2a8;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            font-size: .12rem;
+            line-height: .18rem;
+            overflow: hidden;
+            white-space: nowrap;
+            -o-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+            color: #a3a2a8;
           }
           .user-line .user-info .floor-info[data-v-188c0e84], .user-line .user-info .forum-info[data-v-188c0e84] {
-              margin-right: .08rem;
+            margin-right: .08rem;
           }
           .post-item .content .post-text[data-v-74eb13e2] {
-              display: unset;
-              font-size: .16rem;
-              line-height: .24rem;
+            display: unset;
+            font-size: .16rem;
+            line-height: .24rem;
           }
           .thread-text[data-v-ab14b3fe] {
-              font-size: .13rem;
-              line-height: .21rem;
-              text-align: justify;
-              word-break: break-all;
+            font-size: .13rem;
+            line-height: .21rem;
+            text-align: justify;
+            word-break: break-all;
           }
           .post-item .content .lzl-post[data-v-74eb13e2] {
-              margin-top: .06rem;
+            margin-top: .06rem;
           }
           .lzl-post[data-v-5b60f30b] {
-              padding: .08rem .12rem;
-              background: #f8f7fd;
-              border-radius: .08rem;
+            padding: .08rem .12rem;
+            background: #f8f7fd;
+            border-radius: .08rem;
           }
           .post-item .content .post-split-line[data-v-74eb13e2] {
-              margin-top: .12rem;
-              background-color: #ededf0;
-              height: 1px;
-              width: 200%;
-              -webkit-transform: scale(.5);
-              -ms-transform: scale(.5);
-              transform: scale(.5);
-              -webkit-transform-origin: top left;
-              -ms-transform-origin: top left;
-              transform-origin: top left;
+            margin-top: .12rem;
+            background-color: #ededf0;
+            height: 1px;
+            width: 200%;
+            -webkit-transform: scale(.5);
+            -ms-transform: scale(.5);
+            transform: scale(.5);
+            -webkit-transform-origin: top left;
+            -ms-transform-origin: top left;
+            transform-origin: top left;
           }
           .lzl-post .lzl-post-item[data-v-5b60f30b]:first-child {
-              margin-top: 0;
+            margin-top: 0;
           }
           .lzl-post .lzl-post-item[data-v-5b60f30b] {
-              margin-top: .04rem;
+            margin-top: .04rem;
           }
           .lzl-post .lzl-post-item .text-box[data-v-5b60f30b] {
-              font-size: .13rem;
-              line-height: .2rem;
+            font-size: .13rem;
+            line-height: .2rem;
           }
           .lzl-post .lzl-post-item .text-box .link[data-v-5b60f30b] {
-              display: -webkit-inline-box;
-              display: -webkit-inline-flex;
-              display: -ms-inline-flexbox;
-              display: inline-flex;
-              -webkit-box-align: center;
-              -webkit-align-items: center;
-              -ms-flex-align: center;
-              align-items: center;
-              font-weight: 600;
-              color: #a4a1a8;
+            display: -webkit-inline-box;
+            display: -webkit-inline-flex;
+            display: -ms-inline-flexbox;
+            display: inline-flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -ms-flex-align: center;
+            align-items: center;
+            font-weight: 600;
+            color: #a4a1a8;
           }
           .lzl-post .lzl-post-item .lzl-post-text[data-v-5b60f30b] {
-              display: inline;
+            display: inline;
           }
           .thread-text[data-v-ab14b3fe] {
-              font-size: .13rem;
-              line-height: .26rem;
-              text-align: justify;
-              word-break: break-all;
+            font-size: .13rem;
+            line-height: .26rem;
+            text-align: justify;
+            word-break: break-all;
           }
           .lzl-post .lzl-post-item .text-box .link .landlord[data-v-5b60f30b] {
-              width: .28rem;
-              height: .28rem;
-              margin-left: .04rem;
+            width: .28rem;
+            height: .28rem;
+            margin-left: .04rem;
           }
           .user-line .user-info .username .landlord[data-v-188c0e84],
           #whitesev-reply-dialog .landlord[data-v-188c0e84]{
-              width: .28rem;
-              height: .28rem;
-              margin-left: .04rem
+            width: .28rem;
+            height: .28rem;
+            margin-left: .04rem
           }
           `);
           GM_addStyle(`
           .thread-text .BDE_Smiley {
-              width: .2rem;
-              height: .2rem;
-              vertical-align: middle;
+            width: .2rem;
+            height: .2rem;
+            vertical-align: middle;
           }
           .thread-text .BDE_Image{
-              margin-top: 8px;
-              max-width: 350px;
-              cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
-              height: auto;
-              width: auto;
-              width: 100%;
+            margin-top: 8px;
+            max-width: 350px;
+            cursor: url(//tb2.bdstatic.com/tb/static-pb/img/cur_zin.cur),pointer;
+            height: auto;
+            width: auto;
+            width: 100%;
           }
           .text-content .at{
-              font-weight: 600;
-              color: #614FBC;
+            font-weight: 600;
+            color: #614FBC;
           }`);
           /* 隐藏百度贴吧精选帖子的底部空栏 */
           GM_addStyle(`
