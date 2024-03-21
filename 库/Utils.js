@@ -1422,7 +1422,7 @@
     /* 递归地获取父元素的选择器 */
     let selector = Utils.getElementSelector(element.parentElement);
     if (!selector) {
-      return element.tagName;
+      return element.tagName.toLowerCase();
     }
     /* 如果有多个相同类型的兄弟元素，则需要添加索引 */
     if (element.parentElement.querySelectorAll(element.tagName).length > 1) {
