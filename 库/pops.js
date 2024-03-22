@@ -4881,12 +4881,13 @@
       let result = {
         maskElement: PopsUtils.parseTextToDOM(details.maskHTML),
       };
+      let isMaskClick = false;
       /**
        * 点击其它区域的事件
        * @param {Event} event
        * @returns
        */
-      let clickEvent = function (event) {
+      function clickEvent(event) {
         event?.preventDefault();
         event?.stopPropagation();
         event?.stopImmediatePropagation();
@@ -4918,26 +4919,41 @@
         } else {
           originalRun();
         }
-
         return false;
-      };
+      }
+      function isAnimElement(element) {
+        return Boolean(
+          element?.localName?.toLowerCase() === "div" &&
+            element.className &&
+            element.className === "pops-anim" &&
+            element.hasAttribute("anim")
+        );
+      }
       if (
         details.config.mask.clickEvent.toClose ||
         details.config.mask.clickEvent.toHide
       ) {
+        /* 判断按下的元素是否是pops-anim */
+        PopsDOMUtils.on(
+          details.animElement,
+          ["touchstart", "mousedown"],
+          void 0,
+          function (event) {
+            isMaskClick = isAnimElement(event.composedPath()[0]);
+          }
+        );
         /* 如果有动画层，在动画层上监听点击事件 */
         PopsDOMUtils.on(details.animElement, "click", void 0, function (event) {
-          if (
-            event.target?.localName?.toLowerCase() === "div" &&
-            event.target.className &&
-            event.target.className === "pops-anim" &&
-            event.target.hasAttribute("anim")
-          ) {
+          if (isAnimElement(event.composedPath()[0]) && isMaskClick) {
             return clickEvent(event);
           }
         });
         /* 在遮罩层监听点击事件 */
-        PopsDOMUtils.on(result.maskElement, "click", void 0, clickEvent);
+        /* 如果有动画层，那么该点击事件触发不了 */
+        PopsDOMUtils.on(result.maskElement, "click", void 0, (event) => {
+          isMaskClick = true;
+          clickEvent(event);
+        });
       }
       return result;
     },
