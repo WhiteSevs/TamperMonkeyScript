@@ -139,29 +139,37 @@ declare interface NetDiskWorkerOptions {
     /**
      * 开始时间
      */
-    startTime: Date,
+    startTime: Date;
+    /**
+     * 来源
+     */
+    from: "DOMChange" | "PasteText";
 }
-
+declare interface NetDiskWorkerMatchOption {
+    /** 匹配的网盘规则的名 */
+    netDiskName?: string;
+    /** 匹配的网盘规则的下标 */
+    netDiskIndex?: string;
+    /** 匹配到的数据(字符串数组) */
+    data: RegExpMatchArray;
+}
 /** worker处理完毕的的传递的数据 */
 declare interface NetDiskWorkerCallBackOptions {
+    /**
+     * 传递的配置
+     */
+    options: NetDiskWorkerOptions;
     /** 消息 */
     msg: string;
     /** 匹配到的数据 */
-    data: {
-        /** 匹配的网盘规则的名 */
-        netDiskName?: string;
-        /** 匹配的网盘规则的下标 */
-        netDiskIndex?: string;
-        /** 匹配到的数据 */
-        data: RegExpMatchArray;
-    }[],
+    data: NetDiskWorkerMatchOption[],
     /** 匹配开始时间 */
-    startTime: number,
+    startTime: number;
     /**
      * + isMatchingEnd: true 当前循环的规则匹配结束的时间
      * + isMatchingEnd: false 所有规则匹配结束的时间
      */
-    endTime: number,
+    endTime: number;
 }
 declare interface NetDiskCheckLinkValidityOption {
     /**
