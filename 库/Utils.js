@@ -1810,15 +1810,10 @@
     const MenuHandle = {
       $data: {
         /**
-         * 才对数据
-         * @type {UtilsGMMenuOptions[]}
+         * 菜单数据
+         * @type {UtilsGMMenuOptionData[]}
          */
         data: details.data || [],
-        /**
-         * 注册的菜单的映射信息
-         * @type {UtilsDictionaryConstructor<string,UtilsGMMenuOptions>}
-         */
-        menuIdMap: new Utils.Dictionary(),
         /**
          * 本地存储的键名
          */
@@ -1847,16 +1842,25 @@
        * 初始化数据
        */
       init() {
-        MenuHandle.$data.menuIdMap.clear();
-        this.$data.data.forEach((item, index) => {
-          item = this.handleInitDetail(item);
-          this.$data.data[index].enable = item.enable;
-        });
+        for (let index = 0; index < this.$data.data.length; index++) {
+          let menuOption = this.$data.data[index]["data"];
+          menuOption.enable = Boolean(
+            this.getLocalMenuData(menuOption.key, menuOption.enable)
+          );
+          if (typeof menuOption.showText !== "function") {
+            menuOption.showText = (menuText, menuEnable) => {
+              if (menuEnable) {
+                return this.$emoji.success + " " + menuText;
+              } else {
+                return this.$emoji.error + " " + menuText;
+              }
+            };
+          }
+        }
       },
-
       /**
        * 注册油猴菜单
-       * @param { ?UtilsGMMenuOptions[] } menuOptions 如果存在，使用它
+       * @param { ?UtilsGMMenuOptionData[] } menuOptions 如果存在，使用它
        */
       register(menuOptions) {
         if (menuOptions == null) {
@@ -1865,12 +1869,18 @@
         if (!Array.isArray(menuOptions)) {
           menuOptions = [menuOptions];
         }
-        menuOptions.forEach((menuOption) => {
-          const { showText, clickCallBack } = this.handleMenuData(menuOption);
+        for (let index = 0; index < menuOptions.length; index++) {
+          let cloneMenuOptionData = Utils.deepClone(menuOptions[index].data);
+          const { showText, clickCallBack } =
+            this.handleMenuData(cloneMenuOptionData);
           let menuId = GM_Api.registerMenuCommand(showText, clickCallBack);
-          menuOption.id = menuId;
-          MenuHandle.$data.menuIdMap.set(menuId, menuOption);
-        });
+          menuOptions[index].id = menuId;
+          cloneMenuOptionData.deleteMenu = function () {
+            GM_Api.unregisterMenuCommand(menuId);
+          };
+          Reflect.deleteProperty(menuOptions[index], "handleData");
+          menuOptions[index].handleData = cloneMenuOptionData;
+        }
       },
       /**
        * 获取本地存储菜单键值
@@ -1897,27 +1907,26 @@
       },
       /**
        * 处理初始化配置
-       * @param { UtilsGMMenuOptions } menuOption
+       * @param { UtilsGMMenuOption } menuOption
        */
       handleInitDetail(menuOption) {
-        const that = this;
         menuOption.enable = Boolean(
           this.getLocalMenuData(menuOption.key, menuOption.enable)
         );
         if (typeof menuOption.showText !== "function") {
-          menuOption.showText = function (menuText, menuEnable) {
-            return (
-              (menuEnable ? that.$emoji.success : that.$emoji.error) +
-              " " +
-              menuText
-            );
+          menuOption.showText = (menuText, menuEnable) => {
+            if (menuEnable) {
+              return this.$emoji.success + " " + menuText;
+            } else {
+              return this.$emoji.error + " " + menuText;
+            }
           };
         }
         return menuOption;
       },
       /**
        * 对菜单数据进行处理
-       * @param { UtilsGMMenuOptions } menuOption
+       * @param { UtilsGMMenuOption } menuOption
        */
       handleMenuData(menuOption) {
         let menuLocalDataItemKey = menuOption.key;
@@ -1994,32 +2003,40 @@
       /**
        * 获取目标菜单配置
        * @param {string} menuKey 菜单-键key
-       * @returns {?UtilsGMMenuOptions}
+       * @returns {?UtilsGMMenuOption}
        */
       getMenuOption(menuKey) {
-        return this.$data.data.find((item) => item.key === menuKey);
+        return this.$data.data.find((item) => item.data.key === menuKey);
       },
     };
 
     /**
      * 新增菜单数据
-     * @param {UtilsGMMenuOptions[]|UtilsGMMenuOptions} paramData
+     * @param {UtilsGMMenuOption[]|UtilsGMMenuOption} paramData
      */
     this.add = function (paramData) {
       if (Array.isArray(paramData)) {
-        MenuHandle.$data.data = MenuHandle.$data.data.concat(paramData);
+        for (const _paramData of paramData) {
+          MenuHandle.$data.data.push({
+            data: _paramData,
+            id: void 0,
+          });
+        }
       } else {
-        MenuHandle.$data.data.push(paramData);
+        MenuHandle.$data.data.push({
+          data: paramData,
+          id: void 0,
+        });
       }
       this.update();
     };
     /**
      * 更新菜单数据
-     * @param { ?UtilsGMMenuOptions[]|UtilsGMMenuOptions } options 数据
+     * @param { ?UtilsGMMenuOption[]|UtilsGMMenuOption } options 数据
      */
     this.update = function (options) {
       /**
-       * @type {UtilsGMMenuOptions[]}
+       * @type {UtilsGMMenuOption[]}
        */
       let optionsList = [];
       if (Array.isArray(options)) {
@@ -2033,43 +2050,13 @@
           Object.assign(targetMenu, item);
         }
       });
-      MenuHandle.$data.menuIdMap.forEach((value, key) => {
-        context.delete(value.id);
+      MenuHandle.$data.data.forEach((value) => {
+        if (value.handleData) {
+          value.handleData.deleteMenu();
+        }
       });
       MenuHandle.init();
       MenuHandle.register(MenuHandle.$data.data);
-    };
-    /**
-     * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
-     * 暂时用不到该api，因为需要油猴版本>5.0，其它的类似油猴的扩展可能没实现这个
-     * @param { UtilsGMMenuOptions[]|UtilsGMMenuOptions } menuOptions 配置
-     */
-    this.updateOptionsWithId = function (menuOptions) {
-      /**
-       * @type {UtilsGMMenuOptions[]}
-       */
-      let optionsList = [];
-      if (Array.isArray(menuOptions)) {
-        /* 是数组 */
-        optionsList = [...optionsList, ...menuOptions];
-      } else if (menuOptions != null) {
-        /* 是单个配置 */
-        optionsList = [...optionsList, menuOptions];
-      }
-      for (const option of optionsList) {
-        MenuHandle.$data.menuIdMap.forEach((value, key) => {
-          if (value.id === option.id) {
-            option = MenuHandle.handleInitDetail(option);
-            let findDataIndex = MenuHandle.$data.data.findIndex(
-              (item) => item.key === value.key
-            );
-            if (findDataIndex !== -1) {
-              Object.assign(MenuHandle.$data.data[findDataIndex], option);
-            }
-            MenuHandle.register(option);
-          }
-        });
-      }
     };
     /**
      * 卸载菜单
@@ -2120,12 +2107,13 @@
      */
     this.getMenuId = function (menuKey) {
       let result = null;
-      MenuHandle.$data.menuIdMap.forEach((value, key) => {
-        if (value.key === menuKey) {
+      for (let index = 0; index < MenuHandle.$data.data.length; index++) {
+        const optionData = MenuHandle.$data.data[index];
+        if (optionData.handleData.key === menuKey) {
           result = key;
-          return;
+          break;
         }
-      });
+      }
       return result;
     };
     /**
