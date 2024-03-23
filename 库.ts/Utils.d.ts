@@ -1310,7 +1310,7 @@ declare interface UtilsGMMenuClickCallBackData {
     storeValue(enable: boolean): void;
 }
 
-declare interface UtilsGMMenuOptions {
+declare interface UtilsGMMenuOption {
     /** 菜单的本地键key，不可重复，会覆盖 */
     key: string;
     /** 菜单的文本 */
@@ -1334,10 +1334,21 @@ declare interface UtilsGMMenuOptions {
     /** 是否允许菜单进行存储值，默认true允许 */
     isStoreValue?: boolean;
 }
+declare interface UtilsGMMenuHandledOption extends UtilsGMMenuOption{
+    /**
+     * 删除该菜单
+     */
+    deleteMenu():void;
+}
+declare interface UtilsGMMenuOptionData {
+    id: number;
+    data: UtilsGMMenuOption;
+    handleData: UtilsGMMenuHandledOption;
+}
 
 declare interface UtilsGMMenuConstructorOptions {
     /** （可选）配置*/
-    data?: UtilsGMMenuOptions[];
+    data?: UtilsGMMenuOption[];
     /** （可选）全局菜单点击菜单后自动刷新网页，默认为true */
     autoReload?: boolean;
     /**  油猴函数 @grant GM_getValue */
@@ -1441,18 +1452,18 @@ declare interface UtilsGMMenuConstructor {
      * 新增菜单数据
      * @param paramData
      */
-    add(paramData: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
+    add(paramData: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
     /**
      * 更新菜单数据
      * 方式：先卸载全部的菜单，再重新注册菜单
      * @param options 数据
      */
-    update(options?: UtilsGMMenuOptions[] | UtilsGMMenuOptions): Promise<void>;
+    update(options?: UtilsGMMenuOption[] | UtilsGMMenuOption): Promise<void>;
     /**
      * 根据已注册菜单的id，来更新菜单配置，不会卸载菜单导致可能菜单选项可能会变化的情况
      * @param options 配置
      */
-    updateOptionsWithId(options?: UtilsGMMenuOptions[] | UtilsGMMenuOptions): void;
+    updateOptionsWithId(options?: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
     /**
      * 卸载菜单
      * @param menuId 已注册的菜单id
@@ -2131,7 +2142,7 @@ declare interface Utils {
      * 深拷贝
      * @param obj 对象
      */
-    deepClone<T extends object | undefined | null>(obj?: object): T;
+    deepClone<T extends object | undefined | null>(obj?: T): T;
     /**
      * 防抖函数
      * @param fn 需要触发的回调
