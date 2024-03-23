@@ -2851,7 +2851,7 @@
               if ("密码不正确".indexOf(json_data["inf"]) != -1) {
                 Qmsg.error("密码不正确!");
                 NetDiskUI.newAccessCodeView(
-                  undefined,
+                  void 0,
                   "lanzou",
                   that.netDiskIndex,
                   that.shareCode,
@@ -3026,7 +3026,7 @@
           if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
-              undefined,
+              void 0,
               "lanzou",
               that.netDiskIndex,
               that.shareCode,
@@ -3160,7 +3160,7 @@
           } else if ("密码不正确".indexOf(info) !== -1) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
-              undefined,
+              void 0,
               "lanzou",
               that.netDiskIndex,
               that.shareCode,
@@ -3286,14 +3286,14 @@
         this.accessCode = "";
         /**
          * 获取的uuid
-         * @type {string | undefined}
+         * @type {?string}
          */
-        this.uuid = undefined;
+        this.uuid = void 0;
         /**
          * 获取的userId
-         * @type {string | undefined}
+         * @type {?string}
          **/
-        this.userId = undefined;
+        this.userId = void 0;
         const LanZouUtils = {
           LanZouDiskApp: "lanZouY-disk-app",
           EncryptList: [
@@ -3741,7 +3741,7 @@
          * 获取下载文件的参数
          * @param {string} fileId 文件id
          * @param {string} userId 用户id
-         * @param {string|undefined} uuid 用户登录生成的uuid
+         * @param {?string} uuid 用户登录生成的uuid
          */
         this.getDownloadFileParams = function (fileId, userId = "", uuid) {
           let nowTime = Date.now();
@@ -3843,7 +3843,7 @@
           ) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
-              undefined,
+              void 0,
               "tianyiyun",
               that.netDiskIndex,
               that.shareCode,
@@ -4009,7 +4009,7 @@
         };
         /**
          * 获取shareId
-         * @returns {Promise<number|undefined>}
+         * @returns {Promise<?number>}
          */
         this.getShareId = async function (shareCode, accessCode) {
           let getResp = await httpx.get({
@@ -4224,12 +4224,12 @@
                   100,
                   folderInfo["id"],
                   folderInfo["id"],
-                  undefined,
+                  void 0,
                   shareId,
-                  undefined,
-                  undefined,
-                  undefined,
-                  undefined
+                  void 0,
+                  void 0,
+                  void 0,
+                  void 0
                 );
                 if (!_folderInfo_) {
                   return [];
@@ -4726,7 +4726,7 @@
             return infoList;
           } else if (json_data["code"] === 5103) {
             NetDiskUI.newAccessCodeView(
-              undefined,
+              void 0,
               "_123pan",
               that.netDiskIndex,
               that.shareCode,
@@ -5286,7 +5286,7 @@
           formData.append("pd", that.accessCode);
           let requestDetails = {
             url: `https://www.jianguoyun.com/p/${that.shareCode}`,
-            data: that.accessCode === "" ? undefined : `pd=${that.accessCode}`,
+            data: that.accessCode === "" ? void 0 : `pd=${that.accessCode}`,
             responseType: "html",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
@@ -5348,7 +5348,7 @@
             if (fileErrorCode === "AuthenticationFailed") {
               Qmsg.error("密码错误");
               NetDiskUI.newAccessCodeView(
-                undefined,
+                void 0,
                 "jianguoyun",
                 that.netDiskIndex,
                 that.shareCode,
@@ -5391,7 +5391,7 @@
           ) {
             log.error("可能该链接不需要访问码或者访问码有问题");
             NetDiskUI.newAccessCodeView(
-              undefined,
+              void 0,
               "jianguoyun",
               that.netDiskIndex,
               that.shareCode,
@@ -5853,7 +5853,7 @@
          * @param {number} folderId
          * @param {number} page
          * @param {number} size
-         * @returns {Promise<object|undefined[]>}
+         * @returns {Promise<?object[]>}
          */
         this.getShareFolder = async function (
           transferGuid,
@@ -5894,7 +5894,7 @@
          * @param {number} page
          * @param {number} size
          * @param {boolean} subContent
-         * @returns {Promise<object|undefined[]>}
+         * @returns {Promise<?object[]>}
          */
         this.getShareFiles = async function (
           transferGuid,
@@ -5932,7 +5932,7 @@
         /**
          * 获取分享信息
          * @param {string} shareCode
-         * @returns {undefined| {
+         * @returns {?{
          * code: string,
          * message: string,
          * data: {zipDownload: boolean,
@@ -5975,7 +5975,7 @@
          * @param {string} shareCode
          * @param {string} guid
          * @param {string} id
-         * @returns {string|undefined}
+         * @returns {?string}
          */
         this.getDownloadUrl = async function (shareCode, guid = "", id = "") {
           let url = `https://cowtransfer.com/core/api/transfer/share/download?transferGuid=${guid}&fileId=${id}`;
@@ -6005,7 +6005,7 @@
          * @param {string} shareCode
          * @param {string} guid
          * @param {string} title 标题
-         * @returns {string|undefined}
+         * @returns {?string}
          */
         this.getZipFileDownloadUrl = async function (
           shareCode,
@@ -6205,7 +6205,7 @@
         };
         /**
          * 判断是否已登录UC网盘
-         * @returns {Promise<undefined|string|boolean>}
+         * @returns {Promise<?(string|boolean)>}
          */
         this.isLogin = async function () {
           let getResp = await httpx.get("https://drive.uc.cn/", {
@@ -6314,7 +6314,7 @@
          * 获取stoken
          * @param {string} pwd_id 分享码
          * @param {string} passcode 访问码
-         * @returns {Promise<string|undefined>}
+         * @returns {Promise<?string>}
          */
         this.getStoken = async function (pwd_id, passcode) {
           let postResp = await httpx.post(
@@ -6367,7 +6367,7 @@
          * @param {number} [_fetch_banner=0]
          * @param {number} [_fetch_share=0]
          * @param {number} [_fetch_total=1]
-         * @returns {Promise<{
+         * @returns {Promise<?{
          * backup_sign: number,
          * backup_source: boolean,
          * ban: boolean,
@@ -6417,7 +6417,7 @@
          * tags: string,
          * updated_at:  number,
          * _extra: {},
-         * }[]|undefined>}
+         * }[]>}
          */
         this.getDetail = async function (
           pwd_id,
@@ -6465,7 +6465,7 @@
          * @param {string} stoken 获取的stoken
          * @param {string} fids 通过获取到的detail获取到的fid
          * @param {string} share_fid_token 通过获取到的detail获取到的share_fid_token
-         * @returns {Promise< {
+         * @returns {Promise< ?{
          * backup_sign: number,
          * backup_source: boolean,
          * ban: boolean,
@@ -6515,7 +6515,7 @@
          * video_max_resolution: string,
          * video_width: number,
          * _extra: {},
-         * } []|undefined>}
+         * } []>}
          */
         this.getDownload = async function (
           pwd_id,
@@ -7229,7 +7229,7 @@
         GM_getValue(`${netDiskName}-open-blank-with-copy-accesscode`)
       ) {
         /* 等待复制完毕再跳转 */
-        utils.setClip(accessCode).then(()=>{
+        utils.setClip(accessCode).then(() => {
           window.open(url, "_blank");
         });
       } else {
@@ -7286,8 +7286,8 @@
      * 获取用于跳转的url
      * @param {string} netDiskName
      * @param {number} netDiskIndex
-     * @param {string|undefined} shareCode
-     * @param {string|undefined} accessCode
+     * @param {?string} shareCode
+     * @param {?string} accessCode
      * @returns {string}
      */
     getBlankUrl(netDiskName, netDiskIndex, shareCode, accessCode) {
@@ -7325,8 +7325,8 @@
      * 获取用于复制到剪贴板的网盘信息
      * @param {string} netDiskName
      * @param {number} netDiskIndex
-     * @param {string|undefined} shareCode
-     * @param {string|undefined} accessCode
+     * @param {?string} shareCode
+     * @param {?string} accessCode
      * @returns {string}
      */
     getCopyUrlInfo(netDiskName, netDiskIndex, shareCode, accessCode) {
@@ -8604,7 +8604,7 @@
     },
     /**
      * 获取格式化后的规则
-     * @param {string|undefined} rule
+     * @param {?string} rule
      */
     getFormatRule(rule) {
       return JSON.stringify(rule || this.getRule(), void 0, 4);
@@ -8934,10 +8934,10 @@
         }
         this.backgroundSwitch();
       },
-      showSuspension(){
+      showSuspension() {
         this.suspensionNode.style.display = "";
       },
-      hideSuspension(){
+      hideSuspension() {
         this.suspensionNode.style.display = "none";
       },
       /**
@@ -9058,9 +9058,9 @@
          * @param {number} defaultValue
          * @param {number} min
          * @param {number} max
-         * @param {number|undefined} step
-         * @param {undefined|(event: PointerEvent,value: number)=> void} callback
-         * @param {undefined|(value: number)=> string|number} getToolTipContent
+         * @param {?number} step
+         * @param {?(event: PointerEvent,value: number)=> void} callback
+         * @param {?(value: number)=> string|number} getToolTipContent
          * @returns
          */
         function getSliderDetail(
@@ -10687,7 +10687,9 @@
           } else {
             netDiskLinkViewTimer = setTimeout(() => {
               isDouble = false;
-              if(NetDiskLocalData.netdiskBehaviorMode.includes("smallwindow")){
+              if (
+                NetDiskLocalData.netdiskBehaviorMode.includes("smallwindow")
+              ) {
                 NetDiskUI.suspension.hideSuspension();
               }
               NetDiskUI.view.show();
@@ -10695,7 +10697,7 @@
             isDouble = true;
           }
         });
-        NetDiskUI.view.registerContextMenu(needDragElement, undefined, [
+        NetDiskUI.view.registerContextMenu(needDragElement, void 0, [
           {
             text: "设置",
             callback() {
@@ -10737,7 +10739,7 @@
        * 设置window的resize事件监听，来重新设置悬浮按钮的位置
        */
       setResizeEventListener() {
-        DOMUtils.on(globalThis, "resize", undefined, () => {
+        DOMUtils.on(globalThis, "resize", void 0, () => {
           let activeElement = document.activeElement;
           if (utils.isPhone()) {
             if (["input", "textarea"].includes(activeElement.localName)) {
@@ -11052,7 +11054,11 @@
 						${viewAddHTML}
 					</div>`;
 
-        if (NetDiskLocalData.netdiskBehaviorMode.toLowerCase().includes("smallwindow")) {
+        if (
+          NetDiskLocalData.netdiskBehaviorMode
+            .toLowerCase()
+            .includes("smallwindow")
+        ) {
           NetDiskUI.Alias.uiLinkAlias = NetDiskPops.alert(
             {
               title: {
@@ -11069,14 +11075,17 @@
                 },
                 close: {
                   callback(event) {
-                    if(NetDiskLocalData.netdiskBehaviorMode.toLowerCase().includes("suspension")){
+                    if (
+                      NetDiskLocalData.netdiskBehaviorMode
+                        .toLowerCase()
+                        .includes("suspension")
+                    ) {
                       event.hide();
                       NetDiskUI.suspension.showSuspension();
-                    }else{
+                    } else {
                       NetDiskUI.Alias.uiLinkAlias = void 0;
                       event.close();
                     }
-                    
                   },
                 },
               },
@@ -11644,9 +11653,9 @@
                   /* 开启功能 */
                   let elementText =
                     iterator.value.innerText || iterator.value.textContent;
-                  let childTextNode = undefined;
-                  let startIndex = undefined;
-                  let endIndex = undefined;
+                  let childTextNode = void 0;
+                  let startIndex = void 0;
+                  let endIndex = void 0;
                   if (elementText.includes(dataSharecode)) {
                     /* 文字包含shareCode */
                     let textNodeList = Array.from(
