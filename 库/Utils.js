@@ -2110,7 +2110,7 @@
       for (let index = 0; index < MenuHandle.$data.data.length; index++) {
         const optionData = MenuHandle.$data.data[index];
         if (optionData.handleData.key === menuKey) {
-          result = key;
+          result = optionData.id;
           break;
         }
       }
