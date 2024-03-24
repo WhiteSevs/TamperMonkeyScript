@@ -3848,6 +3848,7 @@
         --el-disabled-text-color: #a8abb2;
         --el-disabled-bg-color: #f5f7fa;
         --el-disabled-border-color: #e4e7ed;
+        --aside-bg-color: #f2f2f2;
       }
       .pops[type-value] .pops-panel-title{display: flex;align-items: center;justify-content: space-between;}
 
@@ -3862,7 +3863,7 @@
       .pops[type-value=panel] .pops-panel-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid #e5e5e5;text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
       
       /* ↓panel的CSS↓ */
-      aside.pops-panel-aside{overflow:auto;box-sizing:border-box;flex-shrink:0;width:200px;height:100%;background:#fafafa;border-right:1px solid #fafafa}
+      aside.pops-panel-aside{overflow:auto;box-sizing:border-box;flex-shrink:0;width:200px;height:100%;background:var(--aside-bg-color);border-right:1px solid var(--aside-bg-color)}
       .pops-panel-content{display:flex;flex-direction:row;flex:1;flex-basis:auto;box-sizing:border-box;min-width:0;bottom:0!important}
       section.pops-panel-container{width:100%;padding:10px;overflow:hidden}
       section.pops-panel-container .pops-panel-container-header-ul{border-bottom: 1px solid #e5e5e5;}
@@ -3872,7 +3873,7 @@
       aside.pops-panel-aside .pops-is-visited,aside.pops-panel-aside ul li:hover{color:#409eff;background:rgba(64,158,255 ,.1)}
       section.pops-panel-container>ul li{display:flex;justify-content:space-between;align-items:center;margin:10px 20px}
       section.pops-panel-container li.pops-panel-forms-container-item{display:block;margin-top:20px}
-      section.pops-panel-container .pops-panel-forms-container-item ul{border-radius:6px;background:#fafafa;margin:10px}
+      section.pops-panel-container .pops-panel-forms-container-item ul{border-radius:6px;background:var(--aside-bg-color);margin:10px}
       section.pops-panel-container .pops-panel-forms-container-item ul li {
         display: flex;
         justify-content: space-between;
