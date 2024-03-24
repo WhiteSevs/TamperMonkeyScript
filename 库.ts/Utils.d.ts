@@ -1296,7 +1296,6 @@ declare interface UtilsGMCookie {
     new(): UtilsGMCookieContstructor;
 }
 
-
 declare interface UtilsGMMenuClickCallBackData {
     /** 菜单键名 */
     key: string;
@@ -1334,15 +1333,29 @@ declare interface UtilsGMMenuOption {
     /** 是否允许菜单进行存储值，默认true允许 */
     isStoreValue?: boolean;
 }
+
 declare interface UtilsGMMenuHandledOption extends UtilsGMMenuOption{
     /**
      * 删除该菜单
      */
     deleteMenu():void;
 }
+
 declare interface UtilsGMMenuOptionData {
+    /**
+     * 菜单id
+     */
     id: number;
+    /**
+     * 菜单配置
+     */
     data: UtilsGMMenuOption;
+    /**
+     * 处理后的菜单配置
+     * 对autoReload进行处理，如果未赋值，按默认的true赋值
+     * 对isStoreValue进行处理，如果未赋值，按默认的true赋值
+     * 新增一个deleteMenu
+     */
     handleData: UtilsGMMenuHandledOption;
 }
 

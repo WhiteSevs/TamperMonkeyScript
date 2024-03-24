@@ -2001,13 +2001,27 @@
         };
       },
       /**
+       * 获取目标菜单配置数据
+       * @param {string} menuKey 菜单-键key
+       */
+      getMenuData(menuKey){
+        return this.$data.data.find((item) => item.data.key === menuKey);
+      }
+      ,
+      /**
        * 获取目标菜单配置
        * @param {string} menuKey 菜单-键key
-       * @returns {?UtilsGMMenuOption}
        */
       getMenuOption(menuKey) {
-        return this.$data.data.find((item) => item.data.key === menuKey);
+        return this.$data.data.find((item) => item.data.key === menuKey)?.data;
       },
+      /**
+       * 获取目标菜单处理后的配置
+       * @param {string} menuKey 菜单-键key
+       */
+      getMenuHandledOption(){
+        return this.$data.data.find((item) => item.handleData.key === menuKey)?.handleData;
+      }
     };
 
     /**
@@ -2079,7 +2093,7 @@
      * @returns {boolean}
      */
     this.getEnable = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).enable;
+      return MenuHandle.getMenuHandledOption(menuKey).enable;
     };
     /**
      * 根据键值获取text值
@@ -2087,7 +2101,7 @@
      * @returns {string}
      */
     this.getText = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).text;
+      return MenuHandle.getMenuHandledOption(menuKey).text;
     };
     /**
      * 根据键值获取showText函数的值
@@ -2095,7 +2109,7 @@
      * @returns {string}
      */
     this.getShowTextValue = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).showText(
+      return MenuHandle.getMenuHandledOption(menuKey).showText(
         this.getText(menuKey),
         this.get(menuKey)
       );
@@ -2122,7 +2136,7 @@
      * @returns {?string}
      */
     this.getAccessKey = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).accessKey;
+      return MenuHandle.getMenuHandledOption(menuKey).accessKey;
     };
     /**
      * 根据键值获取autoClose值
@@ -2130,7 +2144,7 @@
      * @returns {?boolean}
      */
     this.getAutoClose = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).autoClose;
+      return MenuHandle.getMenuHandledOption(menuKey).autoClose;
     };
     /**
      * 根据键值获取autoReload值
@@ -2138,7 +2152,7 @@
      * @returns {boolean}
      */
     this.getAutoReload = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).autoReload;
+      return MenuHandle.getMenuHandledOption(menuKey).autoReload;
     };
     /**
      * 根据键值获取callback函数
@@ -2146,7 +2160,7 @@
      * @returns {?Function}
      */
     this.getCallBack = function (menuKey) {
-      return MenuHandle.getMenuOption(menuKey).callback;
+      return MenuHandle.getMenuHandledOption(menuKey).callback;
     };
     /**
      * 获取当enable为true时默认显示在菜单中前面的emoji图标
