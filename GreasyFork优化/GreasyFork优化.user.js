@@ -2,7 +2,7 @@
 // @name         GreasyFork优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/475722
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.23.14
+// @version      2024.3.24
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @author       WhiteSevs
 // @license      MIT
@@ -845,18 +845,6 @@
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "【代码】页面添加复制代码按钮",
-                  "更优雅的复制",
-                  "addCopyCodeButton",
-                  true
-                ),
-                PopsPanel.getSwtichDetail(
-                  "【代码】页面快捷键",
-                  "【F】键全屏、【Alt+Shift+F】键宽屏",
-                  "fullScreenOptimization",
-                  true
-                ),
-                PopsPanel.getSwtichDetail(
                   "优化图片浏览",
                   "使用Viewer浏览图片",
                   "optimizeImageBrowsing",
@@ -872,6 +860,24 @@
                   "美化Greasyfork Beautify脚本",
                   '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>',
                   "beautifyGreasyforkBeautify",
+                  true
+                ),
+              ],
+            },
+            {
+              text: "代码",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "添加复制代码按钮",
+                  "更优雅的复制",
+                  "addCopyCodeButton",
+                  true
+                ),
+                PopsPanel.getSwtichDetail(
+                  "快捷键",
+                  "【F】键全屏、【Alt+Shift+F】键宽屏",
+                  "fullScreenOptimization",
                   true
                 ),
               ],
@@ -906,7 +912,7 @@
                       "div",
                       {
                         className: "pops-panel-textarea",
-                        innerHTML: `<textarea placeholder="请输入脚本id，每行一个"></textarea>`,
+                        innerHTML: `<textarea placeholder="请输入脚本id，每行一个" style="height:150px;"></textarea>`,
                       },
                       {
                         style: "width: 100%;",
@@ -915,9 +921,14 @@
                     let textarea = textareaDiv.querySelector("textarea");
                     const KEY = "greasyfork-discussions-filter-script";
                     textarea.value = PopsPanel.getValue(KEY, "");
-                    DOMUtils.on(textarea, "input", undefined, function (event) {
-                      PopsPanel.setValue(KEY, event.target.value);
-                    });
+                    DOMUtils.on(
+                      textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function (event) {
+                        PopsPanel.setValue(KEY, textarea.value);
+                      }, 200)
+                    );
                     liElement.appendChild(textareaDiv);
                     return liElement;
                   },
@@ -935,7 +946,7 @@
                       "div",
                       {
                         className: "pops-panel-textarea",
-                        innerHTML: `<textarea placeholder="请输入用户id，每行一个"></textarea>`,
+                        innerHTML: `<textarea placeholder="请输入用户id，每行一个" style="height:150px;"></textarea>`,
                       },
                       {
                         style: "width: 100%;",
@@ -944,9 +955,14 @@
                     let textarea = textareaDiv.querySelector("textarea");
                     const KEY = "greasyfork-discussions-filter-post-user";
                     textarea.value = PopsPanel.getValue(KEY, "");
-                    DOMUtils.on(textarea, "input", undefined, function (event) {
-                      PopsPanel.setValue(KEY, event.target.value);
-                    });
+                    DOMUtils.on(
+                      textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function (event) {
+                        PopsPanel.setValue(KEY, textarea.value);
+                      }, 200)
+                    );
                     liElement.appendChild(textareaDiv);
                     return liElement;
                   },
@@ -964,7 +980,7 @@
                       "div",
                       {
                         className: "pops-panel-textarea",
-                        innerHTML: `<textarea placeholder="请输入用户id，每行一个"></textarea>`,
+                        innerHTML: `<textarea placeholder="请输入用户id，每行一个" style="height:150px;"></textarea>`,
                       },
                       {
                         style: "width: 100%;",
@@ -973,9 +989,53 @@
                     let textarea = textareaDiv.querySelector("textarea");
                     const KEY = "greasyfork-discussions-filter-reply-user";
                     textarea.value = PopsPanel.getValue(KEY, "");
-                    DOMUtils.on(textarea, "input", undefined, function (event) {
-                      PopsPanel.setValue(KEY, event.target.value);
-                    });
+                    DOMUtils.on(
+                      textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function (event) {
+                        PopsPanel.setValue(KEY, textarea.value);
+                      }, 200)
+                    );
+                    liElement.appendChild(textareaDiv);
+                    return liElement;
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: "greasy-fork-panel-config-shield",
+          title: "屏蔽",
+          forms: [
+            {
+              text: "规则(可正则)",
+              type: "forms",
+              forms: [
+                {
+                  type: "own",
+                  getLiElementCallBack(liElement) {
+                    let textareaDiv = DOMUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`,
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    let textarea = textareaDiv.querySelector("textarea");
+                    textarea.value = GreasyforkShield.getValue();
+                    DOMUtils.on(
+                      textarea,
+                      ["input", "propertychange"],
+                      void 0,
+                      utils.debounce(function () {
+                        GreasyforkShield.setValue(textarea.value);
+                      }, 200)
+                    );
                     liElement.appendChild(textareaDiv);
                     return liElement;
                   },
@@ -3044,6 +3104,86 @@
       });
     },
   };
+
+  /**
+   * Greasyfork的屏蔽功能
+   */
+  const GreasyforkShield = {
+    key: "gf-shield-rule",
+    runShield() {
+      document.querySelectorAll("#browse-script-list > li").forEach(
+        /**
+         *
+         * @param {HTMLLIElement} element
+         */
+        (element) => {
+          let data = element.dataset;
+          let scriptDescription = element.querySelector(".script-description");
+          data["scriptDescription"] =
+            scriptDescription?.innerText ||
+            scriptDescription?.textContent ||
+            "";
+          let scriptAuthors = utils.toJSON(data["scriptAuthors"]);
+          if (utils.isNotNull(scriptAuthors)) {
+            let scriptAuthorId = Object.keys(scriptAuthors)[0];
+            let scriptAuthorName = scriptAuthors[scriptAuthorId];
+            data["scriptAuthorId"] = scriptAuthorId;
+            data["scriptAuthorName"] = scriptAuthorName;
+          }
+          data["scriptRatingScore"] = parseFloat(data["scriptRatingScore"]);
+          let localValueSplit = this.getValue().split("\n");
+          for (const localRule of localValueSplit) {
+            let ruleSplit = localRule.split("##");
+            let ruleName = ruleSplit[0];
+            let ruleValue = ruleSplit[1];
+            if (ruleName === "scriptRatingScore") {
+              /* 评分 */
+              if (ruleValue.startsWith(">")) {
+                /* 大于 */
+                if (
+                  data["scriptRatingScore"] > parseFloat(ruleValue.slice(1))
+                ) {
+                  element.remove();
+                  break;
+                }
+              } else if (ruleValue.startsWith("<")) {
+                /* 小于 */
+                if (
+                  data["scriptRatingScore"] < parseFloat(ruleValue.slice(1))
+                ) {
+                  element.remove();
+                  break;
+                }
+              }
+            } else if (ruleName in data || ruleName === "scriptDescription") {
+              if (typeof ruleValue !== "string") {
+                continue;
+              }
+              let regexpRuleValue = new RegExp(ruleValue, "ig");
+              if (data[ruleName].match(regexpRuleValue)) {
+                element.remove();
+                break;
+              }
+            }
+          }
+        }
+      );
+    },
+    /**
+     *
+     * @param {string} value
+     */
+    setValue(value) {
+      PopsPanel.setValue(this.key, value);
+    },
+    /**
+     *
+     * @returns {string}
+     */
+    getValue() {
+      return PopsPanel.getValue(this.key, "");
+    },
+  };
   /* -----------------↑函数区域↑----------------- */
 
   /* -----------------↓执行入口↓----------------- */
@@ -3070,6 +3210,7 @@
     if (PopsPanel.getValue("autoLogin")) {
       Greasyfork.autoLogin();
     }
+    GreasyforkShield.runShield();
     GreasyforkMenu.handleLocalGotoCallBack();
     Greasyfork.setFindCodeSearchBtn();
     Greasyfork.setCollectScriptBtn();

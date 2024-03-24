@@ -12,6 +12,31 @@
 * 源代码同步【未上架的脚本】
 * 源代码同步【库】
 
+### 屏蔽规则
+
+| 规则名 | 含义 | 备注 |
+| :-- | :-- | :-- |
+| codeUrl |脚本代码链接 | 字符串，可正则匹配 |
+| scriptId |脚本id | 字符串，可正则匹配 |
+| scriptName |脚本名 | 字符串，可正则匹配 |
+| scriptDescription | 脚本描述 | 字符串，可正则匹配 |
+| scriptAuthorId | 脚本作者id | 字符串，可正则匹配 |
+| scriptAuthorName | 脚本作者名 | 字符串，可正则匹配 |
+| scriptRatingScore | 脚本评分 | 只支持`>`和`<` |
+
+* 屏蔽脚本名包含`网盘`、`网课`、`视频`、`网购`、`优惠券`
+
+```js
+scriptName##网盘|网课|视频|网购|优惠券
+```
+
+* 屏蔽脚本评分>`50`或者<`80`的脚本
+
+```js
+scriptRatingScore##>50
+scriptRatingScore##<80
+```
+
 ### 菜单截图
 
 ![PixPin_2024-03-17_14-09-00.png](https://vip.helloimg.com/i/2024/03/17/65f6893890cc4.png)
