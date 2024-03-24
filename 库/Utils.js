@@ -2004,10 +2004,9 @@
        * 获取目标菜单配置数据
        * @param {string} menuKey 菜单-键key
        */
-      getMenuData(menuKey){
+      getMenuData(menuKey) {
         return this.$data.data.find((item) => item.data.key === menuKey);
-      }
-      ,
+      },
       /**
        * 获取目标菜单配置
        * @param {string} menuKey 菜单-键key
@@ -2019,9 +2018,10 @@
        * 获取目标菜单处理后的配置
        * @param {string} menuKey 菜单-键key
        */
-      getMenuHandledOption(){
-        return this.$data.data.find((item) => item.handleData.key === menuKey)?.handleData;
-      }
+      getMenuHandledOption() {
+        return this.$data.data.find((item) => item.handleData.key === menuKey)
+          ?.handleData;
+      },
     };
 
     /**
