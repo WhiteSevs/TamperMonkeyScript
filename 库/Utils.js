@@ -2018,7 +2018,7 @@
        * 获取目标菜单处理后的配置
        * @param {string} menuKey 菜单-键key
        */
-      getMenuHandledOption() {
+      getMenuHandledOption(menuKey) {
         return this.$data.data.find((item) => item.handleData.key === menuKey)
           ?.handleData;
       },
