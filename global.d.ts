@@ -120,7 +120,7 @@ declare function GM_setValue(name: string, value: any): Promise<undefined> | und
 /**
  * 获取本地存储的值
  */
-declare function GM_getValue(name: string, defaultValue?: any): any;
+declare function GM_getValue<T extends any>(name: string, defaultValue?: T): T;
 
 /**
  * 输出信息到控制台
