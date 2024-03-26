@@ -222,74 +222,6 @@ declare interface NetDiskAutoFillAccessCodeOption {
     accessCode: string;
 }
 
-declare interface NetDiskUserCustomRuleRegexp {
-    /**
-     * 当设置中匹配类型为文本/全部，使用该规则
-     */
-    link_innerText: string;
-    /**
-     * 当设置中匹配类型为超文本/全部，使用该规则
-     */
-    link_innerHTML: string;
-    /**
-     * 用于提取出shareCode
-     */
-    shareCode: string;
-    /**
-     * 用于删除提取出的shareCode前面的域名、路径字符串
-     * 
-     * 会自动进行正则转换，正则模式ig
-     */
-    shareCodeNeedRemoveStr: string;
-    /**
-     * 用于判断提取码是否存在
-     * 
-     * 会自动进行正则转换，正则模式ig
-     */
-    checkAccessCode?: string;
-    /**
-     * 匹配提取码
-     * 
-     * 会自动进行正则转换，正则模式ig
-     */
-    accessCode?: string;
-    /**
-     * 用于排除肯定不是提取码的关键字
-     * 
-     * 会自动进行正则转换，正则模式ig
-     */
-    acceesCodeNotMatch?: string;
-    /**
-     * （可选）用于对matchText进行提取需要的关键内容
-     * 
-     * 会自动进行正则转换，正则模式i
-     * 
-     * 提取到的内容会被转换成以下格式，可在uiLinkShow、blank、copyUrl中使用
-     * + 类似：{#$1#}、{#$2#}...
-     */
-    paramMatch?: string,
-    /**
-     * 显示出的链接
-     */
-    uiLinkShow: string;
-    /**
-     * 用于超链接打开，提取码会自动复制到剪贴板
-     */
-    blank: string;
-    /**
-     * 用于复制到剪贴板
-     */
-    copyUrl: string;
-    /**
-     * （可选）用于验证链接有效性
-     */
-    checkLinkValidity?: boolean;
-}
-declare interface NetDiskUserCustomRuleSetting {
-    name?: string;
-    isBlank?: boolean;
-}
-
 declare interface NetDiskUserCustomRuleContext {
     /**
      * 当前的规则
@@ -355,6 +287,198 @@ declare interface NetDiskUserCustomRuleContext {
     deleteValue(key: string): void;
 }
 
+
+declare interface NetDiskSettingMenuDetails extends NetDiskUserCustomRuleSetting {
+    /**
+     * 名字
+     */
+    type: string;
+    /**
+     * 规则名
+     */
+    key: string;
+    /**
+     * 是否是用户规则
+     */
+    isUserRule?: boolean;
+    /**
+     * 多文件解析
+     */
+    parseMoreFile?: boolean;
+    /**
+     * 单文件解析
+     */
+    parseOneFile?: boolean;
+    /**
+     * 自定义的解析文件的描述
+     */
+    parseFileDescription?: string;
+    /**
+     * 自定义form
+     */
+    ownFormList?: any[];
+}
+
+declare interface NetDiskUserCustomRuleRegexp {
+    /**
+     * 当设置中匹配类型为文本/全部，使用该规则
+     */
+    link_innerText: string;
+    /**
+     * 当设置中匹配类型为超文本/全部，使用该规则
+     */
+    link_innerHTML: string;
+    /**
+     * 用于提取出shareCode
+     */
+    shareCode: string;
+    /**
+     * 用于删除提取出的shareCode前面的域名、路径字符串
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    shareCodeNeedRemoveStr: string;
+    /**
+     * 用于判断提取码是否存在
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    checkAccessCode?: string;
+    /**
+     * 匹配提取码
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    accessCode?: string;
+    /**
+     * 用于排除肯定不是提取码的关键字
+     * 
+     * 会自动进行正则转换，正则模式ig
+     */
+    acceesCodeNotMatch?: string;
+    /**
+     * （可选）用于对matchText进行提取需要的关键内容
+     * 
+     * 会自动进行正则转换，正则模式i
+     * 
+     * 提取到的内容会被转换成以下格式，可在uiLinkShow、blank、copyUrl中使用
+     * + 类似：{#$1#}、{#$2#}...
+     */
+    paramMatch?: string,
+    /**
+     * 显示出的链接
+     */
+    uiLinkShow: string;
+    /**
+     * 用于超链接打开，提取码会自动复制到剪贴板
+     */
+    blank: string;
+    /**
+     * 用于复制到剪贴板
+     */
+    copyUrl: string;
+}
+
+declare interface NetDiskUserCustomRuleSetting {
+    /**
+     * 规则名-不需要和key相同，主要用于显示的
+     * + 左侧栏显示
+     * + 顶部标题栏显示
+     */
+    name: string;
+    /**
+     * 提取码间隔前的字符长度
+     * 
+     * 作用于规则-link_innerText，占位字符串{#innerTextAccessCodeBeforeMaxRange#}
+     * 
+     * 【提取码文本匹配Text】-【间隔前】
+     * 
+     * 键: `${key}_innerText_accessCode_before_max_range`
+     */
+    innerTextAccessCodeBeforeMaxRange?: number;
+    /**
+     * 提取码间隔后的字符长度
+     * 
+     * 作用于规则-link_innerText，占位字符串{#innerTextAccessCodeAfterMaxRange#}
+     * 
+     * 【提取码文本匹配Text】-【间隔后】
+     * 
+     * 键: `${key}_innerText_accessCode_after_max_range`
+     */
+    innerTextAccessCodeAfterMaxRange?: number;
+    /**
+     * 提取码间隔前的字符长度
+     * 
+     * 作用于规则-link_innerHTML，占位字符串{#innerHTMLAccessCodeBeforeMaxRange#}
+     * 
+     * 
+     * 【提取码文本匹配HTML】-【间隔前】
+     * 
+     * 键: `${key}_innerHTML_accessCode_before_max_range`
+     */
+    innerHTMLAccessCodeBeforeMaxRange?: number;
+    /**
+     * 提取码间隔后的字符长度
+     * 
+     * 作用于规则-link_innerHTML，占位字符串{#innerHTMLAccessCodeAfterMaxRange#}
+     * 
+     * 【提取码文本匹配HTML】-【间隔后】
+     * 
+     * 键: `${key}_innerHTML_accessCode_after_max_range`
+     */
+    innerHTMLAccessCodeAfterMaxRange?: number;
+    /**
+     * 是否启用
+     * 
+     * 【功能】-【启用】
+     * 
+     * 键: `${key}-enable`
+     */
+    enable: boolean;
+    /**
+     * 是否新标签页打开
+     * 
+     * 【功能】-【新标签页打开】
+     * 
+     * 键: `${key}-open-enable`
+     */
+    isBlank?: boolean;
+    /**
+     * 通过新标签页打开时，复制访问码
+     * 
+     * 【功能】-【跳转时携带访问码】
+     * 
+     * 键: `${key}-open-blank-with-copy-accesscode`
+     */
+    openBlankWithCopyAccessCode?: boolean;
+    /**
+     * 是否开启scheme转发
+     * 
+     * 【功能】-【Scheme转发直链】
+     * 
+     * 键: `${key}-static-scheme-enable`
+     */
+    isForward?: boolean;
+    /**
+     * scheme的格式
+     * 
+     * 【功能】-【Scheme链接】
+     * 
+     * 键: `${key}-static-scheme-uri`
+     */
+    schemeUri?: boolean;
+    /**
+     * 验证链接有效性
+     * 
+     * 需要配置`setting.checkLinkValidityFunction`
+     * 
+     * 【功能】-【验证链接有效性】
+     * 
+     * 键: `${key}-check-link-valid`
+     */
+    checkLinkValidity?: boolean;
+}
+
 declare interface NetDiskUserCustomRule {
     /**
      * 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
@@ -367,7 +491,7 @@ declare interface NetDiskUserCustomRule {
     /**
      * 匹配规则
      */
-    regexp: NetDiskUserCustomRuleRegexp;
+    regexp: NetDiskUserCustomRuleRegexp | NetDiskUserCustomRuleRegexp[];
     /**
      * 设置
      */
