@@ -3075,8 +3075,8 @@
       .pops-header-controls button.pops-header-control[type=max],
       .pops-header-controls button.pops-header-control[type=mise],
       .pops-header-controls button.pops-header-control[type=min]{position:relative;float:right;margin:0 2px;outline:0!important;border:0;border-color:#888;background-color:transparent;color:#888;cursor:pointer;transition:all .3s ease-in-out;}
-      button.pops-header-control i{color:#909399;font-size:inherit;height:1em;width:1em;line-height:1em;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor}
-      button.pops-header-control svg{height:1em;width:1em}
+      button.pops-header-control i{color:#909399;font-size:inherit;display:inline-flex;justify-content:center;align-items:center;position:relative;fill:currentColor}
+      button.pops-header-control svg{height:1.25rem;width:1.25rem}
       button.pops-header-control{right:15px;padding:0;border:none;outline:0;background:0 0;cursor:pointer;position:unset;line-height:1.15;font-size:16px}
       button.pops-header-control i:hover{color:#409eff}
       .pops-header-controls[data-margin] button.pops-header-control{margin:0 6px}
