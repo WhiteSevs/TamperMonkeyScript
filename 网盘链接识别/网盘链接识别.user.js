@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAACsJJREFUeF7tXW+IHdUVP2c2u8kHIQYL0TRIaK1SgrFFaZsvVkpAo6YR1LJpa9jUd++83SUpSrUNBFRCrVgxNOv+mTOvJBBNmtpamoQG9UNBKLHFDzEtFttKBdOYQENE/Lb75vZd2cVNum/uvXNnZt/MnoGQD+/c8+d3fu+c+2f2PgR+ljQCuKSj5+CBCbDEScAEYAIscQSWePhcAZgASxyBJR4+VwAmQHEIjIyM3DAzM/M1pdSXEfEWALgVANbkaPE0ABwhomdz1GmtSgixHxF3Wg8wC55HxPeVUu8DgP7/jRUrVvxpbGzsY/PQbBK5VwCd9Ha7vVkptRkA9L8yHiKisAxDczaklL8GgAfLsImIryql3gSAqBPnh3nazI0AjUZjbRAEjwLAI3k6aKtLKbUjjuODtvI+cs1m894kSY776Mg49hwAxHkSIRcCSCl10nXy12YMLI9hrxDR/XkoMukQQrQQ8WGTXIGfn0PEZ6IoGvO14U0AKeUJALjH15Ecxr9ARHn2464uCSEOI+K2HHz2VXGUiAZ9lHgRQEp5BgBu9nEgr7FBEGyZmprSZCz8EUIMIuKRwg3ZGfiAiK63E/1/qcwEkFJ+BAArsxrOedzLRPSdnHWmqgvD8EBntj5Ups0UWxeI6NosvmQigBDibUTckMVgAWNKXwHMxSClfBwAtgPA+gLiclX5GhHd6TrImQBhGO5RSu11MHQREY8nSXICEf/R399/bnx8/KLD+CUl2plf3BgEwa1JktyOiN8HgKscAHCuhE4EaDabQ0mSHLBxSCml5weHlFKHWq3WBZsxLHM5AlLKLwLAQwCwCwBWWeLzKBHts5S1fx9ASnkdALxluZPXIiJh6wTLpSMwPDx8U7vd/iEADFtgdTZJko2tVuushawTAZ4EgCdMSpVSW+M4PmaS48/dEZBSWuWgMznfR0R6X8b4WLUA228/Ig5GUXTUaJUFMiMghNiEiK+bFCxbtuxLExMT/zLJ2RLAhnmTRDRiMsif+yMQhuFupdTTaZoQcZfNTqEVAYQQf0TEO1IMXurr69s4OTn5rn94rMEGAYul+Ekiutuky0iAoaGhqwcGBi4ZFD1FRLpK8FMSAkKIHyHiz9PM2bQBIwGklPcBwO9SDH0CAF8hovdKip3NAECj0VgdBMHf05aHSqntcRwfSm0VJjSllD8DgJ90k1NKTcVxbLM8MZnizx0RkFL+BgC6noAi4nNRFD3mSwB96NH1xKnMc3hHfGovbnEoZdweNraAMAxPKaW+0Q1NRFwfRdE7tUe7BwOUUuqTWL3j2u0xHhIZCSCl1K8gdT1pIiKjjh7ErhYujY6OXjM9Pf3ftGBM+TEmT0qpfAzUAukeDsI3P0yAHk6ujWtMABuUaizDBKhxcm1CYwLYoFRjGSZAjZNrExoTwAalGsswAWqcXJvQmAA2KNVYhglQ4+TahMYEsEGpxjK1IYCU8vcAcJvlW8dVTqn+C9+3iGhrHkHUggCmIPIAqhd1mA5qbHw2YWeysehnAWVetGADaMkyzn/Jc6V/dSDAeQBYXTLwvWLOeF5vcrQOBEg9bjYBUPXPTSXaFB8TwIRQj3/OBDC8cNLj+fN2r+oEOE1EX/VBwVTCfHRXYWzBBDDmx7gKMNyF92PfO/pMBPAFKO9Zsyupio7PNz9GAuiAuyzVcrmZo2iA6k4A3/xYEUAb0Xfjtdvt+xBxlVLqeF538jEB8nmrOmt+rAngWvps5ZkA+RDAFu8r5XqBAP9J2f8/R0SfzxrcQuMWgXClxueKVS8QQB8CfbuL48fyOjSZ078IBCg1vsoRYHYSs+BuYN4rgDRbc8CVabMIW5UkwLyZ7O2zAbxR1MWPZVeAeZVH3y5eeHyVJYCr41nlF4sAWf0tetyizwGKDnCx9wHKjs/VHhPgCsR6oS+7JtFHngnABPDhT/XG8hzg8pxxBeAKUL1vsY/HXAG4AvCNJ/M4wC2AW4BPQa3eWG4B3AK4BXAL6F65eCOoelXdyWNuAdwCuAVwC+AWMIcALwN5GejUQisvzHMAngPwHIDnADwH4DlAFw7wPkDlu3x6ADwHyDgHCMPwLqXUJgCYDoLgpampqb9VkSt1JUDW/FgtA6WUvwSAH1yR8Bc7vxSmf9i4Uk8dCeCTHyMBDL8a9j0iOlwlBtSNAL75sSGA/v1Z/TPmCz3/JqIvMAEWDwEppVd+bAhQq3VzDSuAV36YABXfCvYlNBOACbC01s2+35jF6/YLW/aNhysAVwCuAPMRqNpWMFcAx5rsC5ijucLFfePhFsAtgFsAt4AUDviWmMJroKMBjsfxNJABc2RYyeK++VmKc4CevrfPlT9MAEfEZn+cqrR7CR3dcxZnAjhD9unl16XdS5jBPachTAAnuD4Tnr0Bvefu7XMNhwngiljN5JkANUuoazhMAFfEaia/6ATo7+//3Pj4+MWa4VqZcAwEOE9E16UFY7MPkLZu1ro3ENFfK4NYjRwVQtyIiO92CwkR34yiaKMvAY4BwJZuSpRSD8Rx/Nsa4VqZUMIw3KaUSnsr+1dEtM2LAEKIvYi4J4VlB6Mo2lEZ1GrkqBBiEhGbKSE9Q0S7vQggpfwuALyUouRikiTrW63WhRph2/OhSCn1q/qnAeCqlOp8dxzHJ70IMDIycsPMzMw/05QopR6L4/i5nketRg5KKZ8EgCfSQlq+fPnKsbGxj70IoAdLKf8AAJtTmHYmjuNbaoRvT4cyPDx8U7vdPgUAq1Ja86tRFN1lCsS4CtAKwjDcqZTab1DWIiJhMsif+yMgpZwAgGGDpqeISFeJ1MeKADZtQFtRSm2N41ivGvgpCAGb0t8p2ucA4DYi+tDkhhUBZtvA8wDwiFEh4mAURUdNcvy5OwJCiE2I+LrFSKtvv9ZjTYBGo7E2CALdd9ZaODDZ19f3i8nJya6bFBY6WGQeAmEY7lZKPW0BivW334kAs1VAVwBdCWyeSwCg5w2HOvcIvGczgGUuR6DRaKxGRH0Hw0OIuMEGH0TcFUXRmI2sMwFmSXACAO6xNQAAnyilXuysIv4cBMFfoih6x2HskhIdHR29Znp6eo1Saj0iPgAA30qb6S8AzlEiGnQBzboFzFcqpTwDADe7GCpIVm+EHCGiZwvSn6pWCLEfEXcuhu0FbH5ARNe7+pKJALOV4CMAWOlqsCB56sx4w4J0L6h29o2iB8u0mWLrAhFdm8WXzATQxoQQb9v2pizOuYxRSu2I4/igy5isss1m894kSY5nHZ/zuNeI6M6sOr0IoI2GYbhHKbU3qwM5jnulcyx9f476uqoSQrQQ8eEybBlsvOz7G8veBNAONpvNoSRJfgoAaxYRlBeIqJR+3DmHP9w5h089Zi0Yh7N6NUZE+3zt5EKA2TmBfvNE92G9HVw6EYIg2DI1NaVXKIU/QohBRDxSuKGFDexLkuT5VqulSeD95EaAOU+klJ8SQSn1TUS8w9tDOwXepdDOzGdSYRgeUEoNuY7LKH8SEU/29fWdnJiY0LeC5fbkToD5ng0NDV09MDCgSfB1AFiHiOuUUusAINOMtUvUpa8A5pH9cQDYDgDrc8sIgH6vQk+uzyRJcqa/v/9U3kmf72uhBMgRFFZVEAJMgIKArYpaJkBVMlWQn0yAgoCtilomQFUyVZCfTICCgK2KWiZAVTJVkJ9MgIKArYra/wGYigzMiqJYZwAAAABJRU5ErkJggg==
-// @version      2024.3.25
+// @version      2024.3.26
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -80,7 +80,7 @@
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456470/1320377/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87%E5%BA%93.js
 // @require      https://update.greasyfork.org/scripts/465550/1345455/JS-%E5%88%86%E9%A1%B5%E6%8F%92%E4%BB%B6.js
-// @require      https://update.greasyfork.org/scripts/456485/1348320/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1349478/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1348396/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1344519/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/486152/1320483/Crypto-JS.js
@@ -161,7 +161,7 @@
     defaultNetdiskBehaviorMode: "suspension_smallwindow",
   };
 
-  const NetDiskLocalData = {
+  const NetDiskUIMenuData = {
     /**
      * @returns {string}
      */
@@ -170,6 +170,79 @@
         "netdisk-behavior-mode",
         NetDiskData.defaultNetdiskBehaviorMode
       ).toLowerCase();
+    },
+  };
+
+  const NetDiskLocalData = {
+    /**
+     * 是否启用该规则
+     * @param {string} name
+     * @param {boolean} defaultValue
+     * @returns
+     */
+    enable(name, defaultValue = true) {
+      return Boolean(GM_getValue(`${name}-enable`, defaultValue));
+    },
+    /**
+     * 提取码间隔前的字符长度
+     * @param {string} name
+     * @param {number} defaultValue 默认值: 20
+     */
+    innerTextAccessCodeBeforeMaxRange(name, defaultValue = 20) {
+      return parseInt(
+        GM_getValue(
+          `${name}_innerText_accessCode_before_max_range`,
+          defaultValue
+        )
+      );
+    },
+    /**
+     * 提取码间隔后的字符长度
+     * @param {string} name
+     * @param {number} defaultValue 默认值: 10
+     */
+    innerTextAccessCodeAfterMaxRange(name, defaultValue = 10) {
+      return parseInt(
+        GM_getValue(
+          `${name}_innerText_accessCode_after_max_range`,
+          defaultValue
+        )
+      );
+    },
+    /**
+     * 提取码间隔前的字符长度
+     * @param {string} name
+     * @param {number} defaultValue 默认值: 100
+     */
+    innerHTMLAccessCodeBeforeMaxRange(name, defaultValue = 100) {
+      return parseInt(
+        GM_getValue(
+          `${name}_innerHTML_accessCode_before_max_range`,
+          defaultValue
+        )
+      );
+    },
+    /**
+     * 提取码间隔后的字符长度
+     * @param {string} name
+     * @param {number} defaultValue 默认值: 15
+     */
+    innerHTMLAccessCodeAfterMaxRange(name, defaultValue = 15) {
+      return parseInt(
+        GM_getValue(
+          `${name}_innerHTML_accessCode_after_max_range`,
+          defaultValue
+        )
+      );
+    },
+    /**
+     * 是否进行校验链接有效性
+     * @param {string} name
+     * @param {boolean} [defaultValue=false]
+     * @returns
+     */
+    checkLinkValidity(name, defaultValue = false) {
+      return Boolean(GM_getValue(`${name}-check-link-valid`, defaultValue));
     },
   };
 
@@ -232,16 +305,16 @@
     regular: {
       baidu: [
         {
-          enable: GM_getValue("baidu-enable", true),
-          link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_baidu", 20)
-          )}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_baidu", 10)
+          enable: NetDiskLocalData.enable("baidu"),
+          link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "baidu"
+          )}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "baidu"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_baidu", 100)
-          )}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_baidu", 15)
+          link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "baidu"
+          )}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "baidu"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi,
           shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi,
@@ -250,19 +323,19 @@
           uiLinkShow: "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
           blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
           copyUrl: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
-          checkLinkValidity: GM_getValue("baidu-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("baidu"),
         },
         {
-          enable: GM_getValue("baidu-enable", true),
-          link_innerText: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_baidu", 20)
-          )}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_baidu", 10)
+          enable: NetDiskLocalData.enable("baidu"),
+          link_innerText: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "baidu"
+          )}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "baidu"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_baidu", 100)
-          )}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_baidu", 15)
+          link_innerHTML: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "baidu"
+          )}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "baidu"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /pan\.baidu\.com\/(share|wap)\/init\?surl=([0-9a-zA-Z-_]+)/gi,
@@ -275,21 +348,21 @@
             "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
           copyUrl:
             "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
-          checkLinkValidity: GM_getValue("baidu-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("baidu"),
         },
       ],
       lanzou: [
         {
-          enable: GM_getValue("lanzou-enable", true),
-          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_lanzou", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_lanzou", 10)
+          enable: NetDiskLocalData.enable("lanzou"),
+          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "lanzou"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "lanzou"
           )}}[a-zA-Z0-9]{3,6}|)`,
-          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_lanzou", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_lanzou", 15)
+          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "lanzou"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "lanzou"
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
@@ -310,19 +383,19 @@
             "lanzou-host-name",
             NetDiskData.lanzou_defaultHostName
           )}/{#shareCode#}\n密码：{#accessCode#}`,
-          checkLinkValidity: GM_getValue("lanzou-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("lanzou"),
         },
         {
-          enable: GM_getValue("lanzou-enable", true),
-          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_lanzou", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_lanzou", 10)
+          enable: NetDiskLocalData.enable("lanzou"),
+          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "lanzou"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "lanzou"
           )}}[a-zA-Z0-9]{3,6}|)`,
-          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_lanzou", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_lanzou", 15)
+          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "lanzou"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "lanzou"
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode:
             /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
@@ -342,21 +415,21 @@
             "lanzou-host-name",
             NetDiskData.lanzou_defaultHostName
           )}/s/{#shareCode#}\n密码：{#accessCode#}`,
-          checkLinkValidity: GM_getValue("lanzou-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("lanzou"),
         },
       ],
       lanzouyx: [
         {
-          enable: GM_getValue("lanzouyx-enable", true),
-          link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_lanzouyx", 20)
-          )}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_lanzouyx", 10)
+          enable: NetDiskLocalData.enable("lanzouyx"),
+          link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "lanzouyx"
+          )}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "lanzouyx"
           )}}[a-zA-Z0-9]{3,6}|)`,
-          link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_lanzouyx", 100)
-          )}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_lanzouyx", 15)
+          link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "lanzouyx"
+          )}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "lanzouyx"
           )}}[a-zA-Z0-9]{3,6}|)`,
           shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_\-]{5,22})/gi,
           shareCodeNeedRemoveStr: /ilanzou.com\/s\//gi,
@@ -365,21 +438,21 @@
           uiLinkShow: `www.ilanzou.com/s/{#shareCode#} 提取码: {#accessCode#}`,
           blank: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
           copyUrl: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
-          checkLinkValidity: GM_getValue("lanzouyx-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("lanzouyx"),
         },
       ],
       tianyiyun: [
         {
-          enable: GM_getValue("tianyiyun-enable", true),
-          link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_tianyiyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_tianyiyun", 10)
+          enable: NetDiskLocalData.enable("tianyiyun"),
+          link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "tianyiyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "tianyiyun"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_tianyiyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_tianyiyun", 15)
+          link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "tianyiyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "tianyiyun"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14})/gi,
@@ -390,21 +463,21 @@
           uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://cloud.189.cn/t/{#shareCode#}",
           copyUrl: "https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("tianyiyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("tianyiyun"),
         },
       ],
       hecaiyun: [
         {
-          enable: GM_getValue("hecaiyun-enable", true),
-          link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_hecaiyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_hecaiyun", 10)
+          enable: NetDiskLocalData.enable("hecaiyun"),
+          link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "hecaiyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "hecaiyun"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_hecaiyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_hecaiyun", 15)
+          link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "hecaiyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "hecaiyun"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /caiyun\.139\.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /caiyun\.139\.com\/m\/i\?/gi,
@@ -414,19 +487,19 @@
           blank: "https://caiyun.139.com/m/i?{#shareCode#}",
           copyUrl:
             "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("hecaiyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("hecaiyun"),
         },
         {
-          enable: GM_getValue("hecaiyun-enable", true),
-          link_innerText: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_hecaiyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_hecaiyun", 10)
+          enable: NetDiskLocalData.enable("hecaiyun"),
+          link_innerText: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "hecaiyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "hecaiyun"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_hecaiyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_hecaiyun", 15)
+          link_innerHTML: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "hecaiyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "hecaiyun"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /yun\.139\.com\/link\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /yun\.139\.com\/link\/w\/i\//gi,
@@ -437,21 +510,21 @@
           blank: "https://yun.139.com/link/w/i/{#shareCode#}",
           copyUrl:
             "https://yun.139.com/link/w/i/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("hecaiyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("hecaiyun"),
         },
       ],
       aliyun: [
         {
-          enable: GM_getValue("aliyun-enable", true),
-          link_innerText: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_aliyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_aliyun", 10)
+          enable: NetDiskLocalData.enable("aliyun"),
+          link_innerText: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "aliyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "aliyun"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_aliyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_aliyun", 15)
+          link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "aliyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "aliyun"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /aliyundrive\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
           shareCodeNeedRemoveStr: /aliyundrive\.com\/s\//gi,
@@ -461,19 +534,19 @@
           blank: "https://www.aliyundrive.com/s/{#shareCode#}",
           copyUrl:
             "https://www.aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("aliyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("aliyun"),
         },
         {
-          enable: GM_getValue("aliyun-enable", true),
-          link_innerText: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_aliyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_aliyun", 10)
+          enable: NetDiskLocalData.enable("aliyun"),
+          link_innerText: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "aliyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "aliyun"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_aliyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_aliyun", 15)
+          link_innerHTML: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "aliyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "aliyun"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /aliyundrive\.com\/t\/([a-zA-Z0-9_\-]{8,14})/g,
           shareCodeNeedRemoveStr: /aliyundrive\.com\/t\//gi,
@@ -483,19 +556,19 @@
           blank: "https://www.aliyundrive.com/t/{#shareCode#}",
           copyUrl:
             "https://www.aliyundrive.com/t/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("aliyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("aliyun"),
         },
         {
-          enable: GM_getValue("aliyun-enable", true),
-          link_innerText: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_aliyun", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_aliyun", 10)
+          enable: NetDiskLocalData.enable("aliyun"),
+          link_innerText: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "aliyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "aliyun"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_aliyun", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_aliyun", 15)
+          link_innerHTML: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "aliyun"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "aliyun"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /alipan\.com\/s\/([a-zA-Z0-9_\-]{8,14})/g,
           shareCodeNeedRemoveStr: /alipan\.com\/s\//gi,
@@ -505,21 +578,21 @@
           blank: "https://www.alipan.com/s/{#shareCode#}",
           copyUrl:
             "https://www.alipan.com/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("aliyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("aliyun"),
         },
       ],
       wenshushu: [
         {
-          enable: GM_getValue("wenshushu-enable", true),
-          link_innerText: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_wenshushu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_wenshushu", 10)
+          enable: NetDiskLocalData.enable("wenshushu"),
+          link_innerText: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "wenshushu"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "wenshushu"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_wenshushu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_wenshushu", 15)
+          link_innerHTML: `(wenshushu.cn/f/([a-zA-Z0-9_-]{8,14})|wenshushu.cn/k/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "wenshushu"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "wenshushu"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /wenshushu.cn\/f\/([a-zA-Z0-9_-]{8,14})|wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
@@ -530,19 +603,19 @@
           blank: "https://www.wenshushu.cn/f/{#shareCode#}",
           copyUrl:
             "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("wenshushu-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("wenshushu"),
         },
         {
-          enable: GM_getValue("wenshushu-enable", true),
-          link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_wenshushu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_wenshushu", 10)
+          enable: NetDiskLocalData.enable("wenshushu"),
+          link_innerText: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "wenshushu"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "wenshushu"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_wenshushu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_wenshushu", 15)
+          link_innerHTML: `(wss.ink/f/([a-zA-Z0-9_-]{8,14})|ws28.cn/f/([a-zA-Z0-9_-]{8,14})|wss1.cn/f/([a-zA-Z0-9_-]{8,14})|ws59.cn/f/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "wenshushu"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "wenshushu"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode:
             /wss.ink\/f\/([a-zA-Z0-9_-]{8,14})|ws28.cn\/f\/([a-zA-Z0-9_-]{8,14})|wss1.cn\/f\/([a-zA-Z0-9_-]{8,14})|ws59.cn\/f\/([a-zA-Z0-9_-]{8,14})/gi,
@@ -554,21 +627,21 @@
           blank: "https://www.wenshushu.cn/f/{#shareCode#}",
           copyUrl:
             "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("wenshushu-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("wenshushu"),
         },
       ],
       nainiu: [
         {
-          enable: GM_getValue("nainiu-enable", true),
-          link_innerText: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_nainiu", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_nainiu", 10)
+          enable: NetDiskLocalData.enable("nainiu"),
+          link_innerText: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "nainiu"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "nainiu"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_nainiu", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_nainiu", 15)
+          link_innerHTML: `cowtransfer.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "nainiu"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "nainiu"
           )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /cowtransfer.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /cowtransfer\.com\/s\//gi,
@@ -578,21 +651,21 @@
           blank: "https://cowtransfer.com/s/{#shareCode#}",
           copyUrl:
             "https://cowtransfer.com/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("nainiu-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("nainiu"),
         },
       ],
       _123pan: [
         {
-          enable: GM_getValue("_123pan-enable", true),
-          link_innerText: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__123pan", 20)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text__123pan", 10)
+          enable: NetDiskLocalData.enable("_123pan"),
+          link_innerText: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_123pan"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "_123pan"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML__123pan", 100)
-          )}}(密码|访问码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html__123pan", 15)
+          link_innerHTML: `123pan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_123pan"
+          )}}(密码|访问码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "_123pan"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /123pan.com\/s\/([a-zA-Z0-9_\-]{8,14})/gi,
           shareCodeNeedRemoveStr: /123pan.com\/s\//gi,
@@ -601,22 +674,22 @@
           uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://123pan.com/s/{#shareCode#}",
           copyUrl: "https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("_123pan-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("_123pan"),
         },
       ],
       weiyun: [
         {
-          enable: GM_getValue("weiyun-enable", true),
-          link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_weiyun", 20)
-          )}}(访问码|密码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_weiyun", 10)
-          )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_weiyun", 100)
-          )}}(访问码|密码|提取码)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_weiyun", 15)
-          )}}[0-9a-zA-Z]{4,6}|)`,
+          enable: NetDiskLocalData.enable("weiyun"),
+          link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "weiyun"
+          )}(访问码|密码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "weiyun"
+          )}[0-9a-zA-Z]{4,6}|)`,
+          link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "weiyun"
+          )}(访问码|密码|提取码)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "weiyun"
+          )}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
           shareCodeNeedRemoveStr: /weiyun.com\//gi,
           checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
@@ -625,21 +698,21 @@
           blank: "https://share.weiyun.com/{#shareCode#}",
           copyUrl:
             "https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("weiyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("weiyun"),
         },
       ],
       xunlei: [
         {
-          enable: GM_getValue("xunlei-enable", true),
-          link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_xunlei", 20)
-          )}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_xunlei", 10)
+          enable: NetDiskLocalData.enable("xunlei"),
+          link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "xunlei"
+          )}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "xunlei"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_xunlei", 100)
-          )}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_xunlei", 15)
+          link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "xunlei"
+          )}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "xunlei"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
           shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
@@ -649,21 +722,21 @@
             "pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
           blank: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
           copyUrl: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
-          checkLinkValidity: GM_getValue("xunlei-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("xunlei"),
         },
       ],
       _115pan: [
         {
-          enable: GM_getValue("_115pan-enable", true),
-          link_innerText: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__115pan", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text__115pan", 10)
+          enable: NetDiskLocalData.enable("_115pan"),
+          link_innerText: `115.com/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_115pan"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "_115pan"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `115.com\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML__115pan", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html__115pan", 15)
+          link_innerHTML: `115.com\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_115pan"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "_115pan"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /115.com\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
           shareCodeNeedRemoveStr: /115.com\/s\//gi,
@@ -672,23 +745,22 @@
           uiLinkShow: "115.com/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://115.com/s/{#shareCode#}",
           copyUrl: "https://115.com/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("_115pan-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("_115pan"),
         },
       ],
       chengtong: [
         /* d */
         {
-          enable: GM_getValue("chengtong-enable", true),
-          link_innerText: `(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_chengtong", 10)
+          enable: NetDiskLocalData.enable("chengtong"),
+          link_innerText: `(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
-            "innerHTML__chengtong",
-            100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_chengtong", 15)
+          link_innerHTML: `(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode:
             /(ct.ghpym.com|pan.jc-box.com|download.jamcz.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -700,21 +772,20 @@
           uiLinkShow: "{#$1#}/d/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://{#$1#}/d/{#shareCode#}",
           copyUrl: "https://{#$1#}/d/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("chengtong-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("chengtong"),
         },
         /* d */
         {
-          enable: GM_getValue("chengtong-enable", true),
-          link_innerText: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_chengtong", 10)
+          enable: NetDiskLocalData.enable("chengtong"),
+          link_innerText: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
-            "innerHTML__chengtong",
-            100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_chengtong", 15)
+          link_innerHTML: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /ctfile.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /ctfile.com\/d\//gi,
@@ -724,20 +795,20 @@
           blank: "https://url95.ctfile.com/d/{#shareCode#}",
           copyUrl:
             "https://url95.ctfile.com/d/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("chengtong-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("chengtong"),
         },
         /* file */
         {
-          enable: GM_getValue("chengtong-enable", true),
-          link_innerText: `(2k.us|u062.com|545c.com|t00y.com)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_chengtong", 10)
+          enable: NetDiskLocalData.enable("chengtong"),
+          link_innerText: `(2k.us|u062.com|545c.com|t00y.com)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `(2k.us|u062.com|545c.com|t00y.com)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML__chengtong", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_chengtong", 15)
+          link_innerHTML: `(2k.us|u062.com|545c.com|t00y.com)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode:
             /(2k.us|u062.com|545c.com|t00y.com)\/file\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -748,21 +819,20 @@
           uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://u062.com/file/{#shareCode#}",
           copyUrl: "https://u062.com/file/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("chengtong-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("chengtong"),
         },
         /* f */
         {
-          enable: GM_getValue("chengtong-enable", true),
-          link_innerText: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_chengtong", 10)
+          enable: NetDiskLocalData.enable("chengtong"),
+          link_innerText: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
-            "innerHTML__chengtong",
-            100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_chengtong", 15)
+          link_innerHTML: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode:
             /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
@@ -774,21 +844,20 @@
           uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
           blank: "http://{#$1#}/f/{#shareCode#}",
           copyUrl: "http://{#$1#}/f/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("chengtong-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("chengtong"),
         },
         /* f */
         {
-          enable: GM_getValue("chengtong-enable", true),
-          link_innerText: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_chengtong", 10)
+          enable: NetDiskLocalData.enable("chengtong"),
+          link_innerText: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
-            "innerHTML__chengtong",
-            100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_chengtong", 15)
+          link_innerHTML: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
           shareCode: /(ctfile.com|089u.com)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(ctfile.com|089u.com)\/f\//gi,
@@ -798,21 +867,20 @@
           blank: "https://url95.ctfile.com/f/{#shareCode#}",
           copyUrl:
             "https://url95.ctfile.com/f/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("chengtong-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("chengtong"),
         },
         /* dir */
         {
-          enable: GM_getValue("chengtong-enable", true),
-          link_innerText: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText__chengtong", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_chengtong", 10)
+          enable: NetDiskLocalData.enable("chengtong"),
+          link_innerText: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{4,6}|)`,
-          link_innerHTML: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${GM_getValue(
-            "innerHTML__chengtong",
-            100
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_chengtong", 15)
+          link_innerHTML: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "_chengtong"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "chengtong"
           )}}[0-9a-zA-Z]{6}|)`,
           shareCode: /(089u.com|474b.com)\/dir\/([0-9a-zA-Z\-_]{8,26})/gi,
           shareCodeNeedRemoveStr: /(089u.com|474b.com)\/dir\//gi,
@@ -821,21 +889,21 @@
           uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://089u.com/dir/{#shareCode#}",
           copyUrl: "https://089u.com/dir/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("chengtong-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("chengtong"),
         },
       ],
       kuake: [
         {
-          enable: GM_getValue("kuake-enable", true),
-          link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_kuake", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_kuake", 10)
+          enable: NetDiskLocalData.enable("kuake"),
+          link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "kuake"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "kuake"
           )}}[0-9a-zA-Z]{4}|)`,
-          link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_kuake", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_kuake", 15)
+          link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "kuake"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "kuake"
           )}}[0-9a-zA-Z]{4}|)`,
           shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
           shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
@@ -844,12 +912,12 @@
           uiLinkShow: "quark.cn/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://pan.quark.cn/s/{#shareCode#}",
           copyUrl: "https://pan.quark.cn/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("kuake-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("kuake"),
         },
       ],
       magnet: [
         {
-          enable: GM_getValue("magnet-enable", true),
+          enable: NetDiskLocalData.enable("magnet"),
           link_innerText: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
           link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
           shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi,
@@ -859,21 +927,21 @@
           uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
           blank: "magnet:?xt=urn:btih:{#shareCode#}",
           copyUrl: "magnet:?xt=urn:btih:{#shareCode#}",
-          checkLinkValidity: GM_getValue("magnet-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("magnet"),
         },
       ],
       jianguoyun: [
         {
-          enable: GM_getValue("jianguoyun-enable", true),
-          link_innerText: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_jianguoyun", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_jianguoyun", 10)
+          enable: NetDiskLocalData.enable("jianguoyun"),
+          link_innerText: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "jianguoyun"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "jianguoyun"
           )}}[0-9a-zA-Z]+|)`,
-          link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_jianguoyun", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_jianguoyun", 15)
+          link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "jianguoyun"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "jianguoyun"
           )}}[0-9a-zA-Z]+|)`,
           shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z\-_]{16,24})/gi,
           shareCodeNeedRemoveStr: /jianguoyun.com\/p\//gi,
@@ -883,21 +951,21 @@
           blank: "https://www.jianguoyun.com/p/{#shareCode#}",
           copyUrl:
             "https://www.jianguoyun.com/p/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("jianguoyun-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("jianguoyun"),
         },
       ],
       onedrive: [
         {
-          enable: GM_getValue("onedrive-enable", true),
-          link_innerText: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_onedrive", 20)
-          )}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_onedrive", 10)
+          enable: NetDiskLocalData.enable("onedrive"),
+          link_innerText: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "onedrive"
+          )}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "onedrive"
           )}}[0-9a-zA-Z]+|)`,
-          link_innerHTML: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_onedrive", 100)
-          )}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_onedrive", 15)
+          link_innerHTML: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "onedrive"
+          )}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "onedrive"
           )}}[0-9a-zA-Z]+|)`,
           shareCode:
             /[0-9a-zA-Z-_]+\/[0-9a-zA-Z-_:]+\/[0-9a-zA-Z-_:]+\/personal\/[0-9a-zA-Z-_]+\/([0-9a-zA-Z\-_]+)/gi,
@@ -913,21 +981,21 @@
             "https://{#$1#}.sharepoint.com/{#$2#}/{#$3#}/personal/{#$4#}/{#shareCode#}?e={#accessCode#}",
           copyUrl:
             "https://{#$1#}.sharepoint.com/{#$2#}/{#$3#}/personal/{#$4#}/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("onedrive-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("onedrive"),
         },
       ],
       uc: [
         {
-          enable: GM_getValue("uc-enable", true),
-          link_innerText: `drive.uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerText_uc", 20)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_text_uc", 10)
+          enable: NetDiskLocalData.enable("uc"),
+          link_innerText: `drive.uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+            "uc"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+            "uc"
           )}}[0-9a-zA-Z]+|)`,
-          link_innerHTML: `drive.uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,${parseInt(
-            GM_getValue("innerHTML_uc", 100)
-          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${parseInt(
-            GM_getValue("accessCode_after_html_uc", 15)
+          link_innerHTML: `drive.uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+            "uc"
+          )}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,${NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+            "uc"
           )}}[0-9a-zA-Z]+|)`,
           shareCode: /drive.uc.cn\/s\/([0-9a-zA-Z]{8,24})/gi,
           shareCodeNeedRemoveStr: /drive.uc.cn\/s\//gi,
@@ -936,7 +1004,7 @@
           uiLinkShow: "drive.uc.cn/s/{#shareCode#} 提取码: {#accessCode#}",
           blank: "https://drive.uc.cn/s/{#shareCode#}",
           copyUrl: "https://drive.uc.cn/s/{#shareCode#}\n密码：{#accessCode#}",
-          checkLinkValidity: GM_getValue("uc-check-link-valid", false),
+          checkLinkValidity: NetDiskLocalData.checkLinkValidity("uc"),
         },
       ],
     },
@@ -2775,10 +2843,12 @@
                 fileSize,
                 fileUploadTime,
               });
-              if (downloadUrl) {
-                downloadUrl = NetDiskFilterScheme.handleUrl(
-                  "lanzou-static-scheme-enable",
-                  "lanzou-static-scheme-forward",
+              if (
+                downloadUrl &&
+                NetDiskFilterScheme.isForwardDownloadLink("lanzou")
+              ) {
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                  "lanzou",
                   downloadUrl
                 );
                 NetDiskUI.staticView.oneFile({
@@ -2932,11 +3002,13 @@
                 );
                 log.info(downloadUrl);
 
-                downloadUrl = NetDiskFilterScheme.handleUrl(
-                  "lanzou-static-scheme-enable",
-                  "lanzou-static-scheme-forward",
-                  downloadUrl
-                );
+                if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
+                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                    "lanzou",
+                    downloadUrl
+                  );
+                }
+
                 NetDiskUI.staticView.oneFile({
                   title: "蓝奏云单文件直链",
                   fileName: fileName,
@@ -2982,12 +3054,13 @@
               utils.getRandomAndroidUA()
             );
             log.info(downloadUrl);
+            if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
+              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                "lanzou",
+                downloadUrl
+              );
+            }
 
-            downloadUrl = NetDiskFilterScheme.handleUrl(
-              "lanzou-static-scheme-enable",
-              "lanzou-static-scheme-forward",
-              downloadUrl
-            );
             NetDiskUI.staticView.oneFile({
               title: "蓝奏云单文件直链",
               fileName: fileName,
@@ -3304,10 +3377,12 @@
             fileSize,
             fileUploadTime,
           });
-          if (downloadUrl) {
-            downloadUrl = NetDiskFilterScheme.handleUrl(
-              "lanzou-static-scheme-enable",
-              "lanzou-static-scheme-forward",
+          if (
+            downloadUrl &&
+            NetDiskFilterScheme.isForwardDownloadLink("lanzou")
+          ) {
+            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+              "lanzou",
               downloadUrl
             );
             return {
@@ -3510,11 +3585,12 @@
             let downloadInfo = await folderInfoList[0]["clickEvent"]();
             if (downloadInfo) {
               let downloadUrl = downloadInfo["url"];
-              downloadUrl = NetDiskFilterScheme.handleUrl(
-                "lanzouyx-scheme-enable",
-                "lanzouyx-scheme-forward",
-                downloadUrl
-              );
+              if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                  "lanzouyx",
+                  downloadUrl
+                );
+              }
               NetDiskUI.staticView.oneFile({
                 title: "蓝奏云优享单文件直链",
                 fileName: fileInfo["fileName"],
@@ -3609,12 +3685,14 @@
                     ...that.getDownloadFileParams(fileId, userId, uuid)
                   );
                   if (downloadUrl) {
-                    return {
-                      url: NetDiskFilterScheme.handleUrl(
-                        "lanzouyx-static-scheme-enable",
-                        "lanzouyx-static-scheme-forward",
+                    if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
+                      downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                        "lanzouyx",
                         downloadUrl
-                      ),
+                      );
+                    }
+                    return {
+                      url: downloadUrl,
                       autoDownload: true,
                       mode: "aBlank",
                     };
@@ -3971,11 +4049,12 @@
               shareId
             );
             if (downloadUrl) {
-              downloadUrl = NetDiskFilterScheme.handleUrl(
-                "tianyiyun-scheme-enable",
-                "tianyiyun-scheme-forward",
-                downloadUrl
-              );
+              if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                  "tianyiyun",
+                  downloadUrl
+                );
+              }
               NetDiskUI.staticView.oneFile({
                 title: "天翼云单文件直链",
                 fileName: shareInfoData.fileName,
@@ -4322,11 +4401,13 @@
                   shareId
                 );
                 if (downloadUrl) {
-                  downloadUrl = NetDiskFilterScheme.handleUrl(
-                    "tianyiyun-scheme-enable",
-                    "tianyiyun-scheme-forward",
-                    downloadUrl
-                  );
+                  if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
+                    downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                      "tianyiyun",
+                      downloadUrl
+                    );
+                  }
+
                   return {
                     autoDownload: true,
                     mode: "aBlank",
@@ -4561,11 +4642,13 @@
             if (downloadUrl === "") {
               Qmsg.error("对方的分享流量不足");
             } else {
-              downloadUrl = NetDiskFilterScheme.handleUrl(
-                "wenshushu-static-scheme-enable",
-                "wenshushu-static-scheme-forward",
-                downloadUrl
-              );
+              if (NetDiskFilterScheme.isForwardDownloadLink("wenshushu")) {
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                  "wenshushu",
+                  downloadUrl
+                );
+              }
+
               /* 文叔叔没有上传时间信息(暂时是这样的) */
               NetDiskUI.staticView.oneFile({
                 title: "文叔叔单文件直链",
@@ -4642,11 +4725,13 @@
                 fileInfo["Size"]
               );
               if (downloadInfo && downloadInfo["code"] === 0) {
-                downloadUrl = NetDiskFilterScheme.handleUrl(
-                  "_123pan-static-scheme-enable",
-                  "_123pan-static-scheme-forward",
-                  downloadInfo["data"]["DownloadURL"]
-                );
+                if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
+                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                    "_123pan",
+                    downloadInfo["data"]["DownloadURL"]
+                  );
+                }
+
                 fileSize = utils.formatByteToSize(fileInfo["Size"]);
               } else if (downloadInfo && downloadInfo["code"] === 401) {
                 downloadUrl = "javascript:;";
@@ -4656,11 +4741,13 @@
                 fileSize = "获取下载链接失败";
               }
             } else {
-              downloadUrl = NetDiskFilterScheme.handleUrl(
-                "_123pan-static-scheme-enable",
-                "_123pan-static-scheme-forward",
-                downloadUrl
-              );
+              if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                  "_123pan",
+                  downloadUrl
+                );
+              }
+
               fileSize = utils.formatByteToSize(fileInfo["Size"]);
             }
             let fileUploadTime = new Date(fileInfo["CreateAt"]).getTime();
@@ -4939,12 +5026,15 @@
                       Qmsg.error("获取下载链接失败");
                     }
                   } else {
+                    let downloadUrl = item.DownloadUrl;
+                    if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
+                      downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                        "_123pan",
+                        downloadUrl
+                      );
+                    }
                     return {
-                      url: NetDiskFilterScheme.handleUrl(
-                        "_123pan-static-scheme-enable",
-                        "_123pan-static-scheme-forward",
-                        item.DownloadUrl
-                      ),
+                      url: downloadUrl,
                       autoDownload: true,
                       mode: "aBlank",
                     };
@@ -5253,11 +5343,13 @@
             if (!downloadUrl) {
               return;
             }
-            downloadUrl = NetDiskFilterScheme.handleUrl(
-              "jianguoyun-static-scheme-enable",
-              "jianguoyun-static-scheme-forward",
-              downloadUrl
-            );
+            if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
+              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                "jianguoyun",
+                downloadUrl
+              );
+            }
+
             log.info(downloadUrl);
             /* 坚果云盘没有上传时间信息(暂时是这样的) */
             NetDiskUI.staticView.oneFile({
@@ -5320,11 +5412,13 @@
                   return;
                 }
                 Qmsg.success("获取成功！");
-                downloadUrl = NetDiskFilterScheme.handleUrl(
-                  "jianguoyun-static-scheme-enable",
-                  "jianguoyun-static-scheme-forward",
-                  downloadUrl
-                );
+                if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
+                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                    "jianguoyun",
+                    downloadUrl
+                  );
+                }
+
                 log.info(downloadUrl);
                 return {
                   autoDownload: true,
@@ -5701,11 +5795,13 @@
             if (!downloadUrl) {
               return;
             }
-            downloadUrl = NetDiskFilterScheme.handleUrl(
-              "nainiu-static-scheme-enable",
-              "nainiu-static-scheme-forward",
-              downloadUrl
-            );
+            if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
+              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                "nainiu",
+                downloadUrl
+              );
+            }
+
             NetDiskUI.staticView.oneFile({
               title: "奶牛快传单文件直链",
               fileName: checkLinkValidityInfo["fileName"],
@@ -5882,11 +5978,13 @@
                 if (!downloadUrl) {
                   return;
                 }
-                downloadUrl = NetDiskFilterScheme.handleUrl(
-                  "nainiu-static-scheme-enable",
-                  "nainiu-static-scheme-forward",
-                  downloadUrl
-                );
+                if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
+                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+                    "nainiu",
+                    downloadUrl
+                  );
+                }
+
                 that.downloadFile(fileName, downloadUrl);
               },
             });
@@ -6721,11 +6819,14 @@
                   if (item.ban) {
                     Qmsg.error("文件已被禁止下载");
                   } else {
-                    let schemeDownloadUrl = NetDiskFilterScheme.handleUrl(
-                      "uc-static-scheme-enable",
-                      "uc-static-scheme-forward",
-                      fileDownloadUrl
-                    );
+                    let schemeDownloadUrl = fileDownloadUrl;
+                    if (NetDiskFilterScheme.isForwardDownloadLink("uc")) {
+                      schemeDownloadUrl =
+                        NetDiskFilterScheme.parseDataToSchemeUri(
+                          "uc",
+                          schemeDownloadUrl
+                        );
+                    }
                     /* 如果已被scheme过滤，那么不进行GM_download下载 */
                     if (schemeDownloadUrl === fileDownloadUrl) {
                       that.downloadFile(item.file_name, fileDownloadUrl);
@@ -6931,12 +7032,14 @@
                   if (!fileDownloadUrl) {
                     return;
                   }
-                  let schemeDownloadUrl = NetDiskFilterScheme.handleUrl(
-                    "aliyun-static-scheme-enable",
-                    "aliyun-static-scheme-forward",
-                    fileDownloadUrl
-                  );
-                  /* 如果已被scheme过滤，那么不进行GM_download下载 */
+                  let schemeDownloadUrl = fileDownloadUrl;
+                  if (NetDiskFilterScheme.isForwardDownloadLink("aliyun")) {
+                    schemeDownloadUrl =
+                      NetDiskFilterScheme.parseDataToSchemeUri(
+                        "aliyun",
+                        schemeDownloadUrl
+                      );
+                  }
                   return {
                     autoDownload: true,
                     mode: "aBlank",
@@ -7281,6 +7384,9 @@
           accessCode: accessCode,
         });
       }
+      if (NetDiskFilterScheme.isForwardBlankLink(netDiskName)) {
+        url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
+      }
       /* 百度网盘会拒绝referrer不安全访问 */
       document
         .querySelector("meta[name='referrer']")
@@ -7311,11 +7417,7 @@
         shareCode,
         accessCode
       );
-      url = NetDiskFilterScheme.handleUrl(
-        `${netDiskName}-scheme-enable`,
-        `${netDiskName}-scheme-forward`,
-        url
-      );
+      url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
       window.open(url, "_blank");
     },
     /**
@@ -7506,31 +7608,41 @@
     protocol: "jumpwsv",
     pathname: "go",
     /**
-     *
-     * @param {string} enable_key 是否启用key
-     * @param {string} forward_key 转发的scheme
-     * @param {string} url 需要转发的url
+     * 处理链接
+     * @param {string} name 规则名
+     * @param {string} intentData 需要处理的数据
      * @returns {string}
      */
-    handleUrl(enable_key, forward_key, url) {
-      if (!GM_getValue(enable_key, false)) {
-        return url;
+    parseDataToSchemeUri(name, intentData) {
+      /** 是否启用 */
+      let isEnable = GM_getValue(name + "-forward-scheme-enable", false);
+      if (!isEnable) {
+        return intentData;
       }
-      url = url.replace(/&/g, "{-and-}");
-      url = url.replace(/#/g, "{-number-}");
-      let currentScheme = GM_getValue(
-        forward_key,
-        this.getScheme(this.getIDMOption(url))
-      );
-      currentScheme = NetDisk.replaceParam(currentScheme, {
-        intentData: url,
+      /** 转发的scheme */
+      let schemeUri = GM_getValue(name + "-static-scheme-uri");
+      if (utils.isNull(schemeUri)) {
+        schemeUri = this.getSchemeUri(this.getIDMSchemeUriOption(intentData));
+      }
+      if (schemeUri.startsWith(this.protocol)) {
+        intentData = intentData.replace(/&/g, "{-and-}");
+        intentData = intentData.replace(/#/g, "{-number-}");
+      }
+      schemeUri = NetDisk.replaceParam(schemeUri, {
+        intentData: intentData,
       });
-      return currentScheme;
+      return schemeUri;
     },
-    getScheme(option) {
+    isForwardDownloadLink(key) {
+      return GM_getValue(`${key}-forward-download-link-enable`, false);
+    },
+    isForwardBlankLink(key) {
+      return GM_getValue(`${key}-forward-blank-link-enable`, false);
+    },
+    getSchemeUri(option) {
       return `${this.protocol}://${this.pathname}?package=${option["package"]}&activity=${option["activity"]}&intentAction=${option["intentAction"]}&intentData=${option["intentData"]}&intentExtra=${option["intentExtra"]}`;
     },
-    getIDMOption(intentData = "") {
+    getIDMSchemeUriOption(intentData = "") {
       return {
         package: "idm.internet.download.manager.plus",
         activity: "idm.internet.download.manager.UrlHandlerDownloader",
@@ -8438,7 +8550,7 @@
         NetDisk.tempLinkDict.get(keyName).clear();
       });
       if (NetDisk.hasMatchLink) {
-        switch (NetDiskLocalData.netdiskBehaviorMode) {
+        switch (NetDiskUIMenuData.netdiskBehaviorMode) {
           case "suspension_smallwindow".toLowerCase():
             if (
               GM_getValue(
@@ -8459,7 +8571,7 @@
             break;
           default:
             log.error([
-              "未知的行为模式：" + NetDiskLocalData.netdiskBehaviorMode,
+              "未知的行为模式：" + NetDiskUIMenuData.netdiskBehaviorMode,
             ]);
         }
       }
@@ -8526,10 +8638,259 @@
   const NetDiskCustomRules = {
     key: "userRule",
     dataKey: "userRuleData",
+    $data: {
+      /**
+       * @type {UtilsDictionaryConstructor<string,NetDiskSettingMenuDetails>}
+       */
+      settingViewDetails: new utils.Dictionary(),
+    },
     init() {
-      Object.assign(NetDisk.regular, this.parseRule());
       if (typeof GM_getValue(this.dataKey) !== "object") {
         GM_setValue(this.dataKey, {});
+      }
+      Object.assign(NetDisk.regular, this.parseRule());
+    },
+    getCSS() {
+      return `
+      .pops[type-value=confirm] .pops-confirm-content{
+        overflow: hidden;
+      }
+      /* textarea美化 */
+      .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea{
+        width: 100%;
+        height: 100%;
+        font-size: 16px;
+
+        
+        border: none;
+        outline: none;
+        padding: 0;
+        margin: 0;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: none;
+        background-color: transparent;
+
+        display: inline-block;
+        resize: vertical;
+        padding: 5px 15px;
+        line-height: 1.5;
+        box-sizing: border-box;
+        border: 1px solid #dcdfe6;
+        //border-radius: 4px;
+        transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+        appearance: none;
+        resize: none;
+      }
+      /* 获得焦点 */
+      .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus{
+        outline: none;
+        border-color: #3677f0;
+      }
+      /* 提示文字 */
+      .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {
+        color: #c0c4cc;
+      }
+      /* 鼠标hover */
+      .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {
+        border-color: #c0c4cc;
+      }
+      `;
+    },
+    /**
+     * 添加/编辑规则
+     * @param {boolean} isEdit
+     * @param {?string} ruleKey
+     */
+    showUI(isEdit, ruleKey) {
+      let titleText = "添加";
+      if (isEdit) {
+        titleText = "编辑";
+      }
+      titleText += "自定义规则";
+      /** @type {HTMLTextAreaElement} */
+      let $ruleInput = null;
+      let dialog = NetDiskPops.confirm(
+        {
+          title: {
+            text: titleText,
+            position: "center",
+          },
+          content: {
+            text: `<textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>`,
+            html: true,
+          },
+          btn: {
+            merge: true,
+            mergeReverse: false,
+            reverse: false,
+            position: "space-between",
+            ok: {
+              text: "保存",
+              callback(event) {
+                /**
+                 *
+                 * @param {NetDiskUserCustomRuleRegexp} ruleRegExp
+                 * @returns
+                 */
+                function checkRegExp(ruleRegExp) {
+                  if (typeof ruleRegExp["link_innerText"] !== "string") {
+                    Qmsg.error(
+                      "regexp缺失的键名: link_innerText，类型: string"
+                    );
+                    return;
+                  }
+                  if (typeof ruleRegExp["link_innerHTML"] !== "string") {
+                    Qmsg.error(
+                      "regexp缺失的键名: link_innerHTML，类型: string"
+                    );
+                    return;
+                  }
+                  if (typeof ruleRegExp["shareCode"] !== "string") {
+                    Qmsg.error("regexp缺失的键名: shareCode，类型: string");
+                    return;
+                  }
+                  if (
+                    typeof ruleRegExp["shareCodeNeedRemoveStr"] !== "string"
+                  ) {
+                    Qmsg.error(
+                      "regexp缺失的键名: shareCodeNeedRemoveStr，类型: string"
+                    );
+                    return;
+                  }
+                  if (typeof ruleRegExp["uiLinkShow"] !== "string") {
+                    Qmsg.error("regexp缺失的键名: uiLinkShow，类型: string");
+                    return;
+                  }
+                  if (typeof ruleRegExp["blank"] !== "string") {
+                    Qmsg.error("regexp缺失的键名: blank，类型: string");
+                    return;
+                  }
+                  if (typeof ruleRegExp["copyUrl"] !== "string") {
+                    Qmsg.error("regexp缺失的键名: copyUrl，类型: string");
+                    return;
+                  }
+                  if (
+                    typeof ruleRegExp["accessCode"] === "string" &&
+                    typeof ruleRegExp["checkAccessCode"] !== "string"
+                  ) {
+                    Qmsg.error(
+                      "regexp设置了accessCode但是没有设置checkAccessCode"
+                    );
+                    return;
+                  }
+                  if (
+                    typeof ruleRegExp["accessCode"] !== "string" &&
+                    typeof ruleRegExp["checkAccessCode"] === "string"
+                  ) {
+                    Qmsg.error(
+                      "regexp设置了checkAccessCode但是没有设置accessCode"
+                    );
+                    return;
+                  }
+                  return true;
+                }
+                /**
+                 *
+                 * @param {NetDiskUserCustomRuleSetting} ruleSetting
+                 */
+                function checkSetting(ruleSetting) {
+                  if (typeof ruleSetting["name"] !== "string") {
+                    Qmsg.error("setting缺失的键名: name，类型: string");
+                    return;
+                  }
+                  if (typeof ruleSetting["enable"] !== "boolean") {
+                    Qmsg.error("setting缺失的键名: enable，类型: boolean");
+                    return;
+                  }
+                  return true;
+                }
+                try {
+                  /**
+                   * @type {NetDiskUserCustomRule}
+                   */
+                  let ruleJSON = JSON.parse($ruleInput.value);
+                  if (typeof ruleJSON !== "object") {
+                    Qmsg.error("该规则不是object类型");
+                    return;
+                  }
+                  if (typeof ruleJSON["key"] !== "string") {
+                    Qmsg.error("缺失的键名: key，类型: string");
+                    return;
+                  }
+                  if (typeof ruleJSON["regexp"] !== "object") {
+                    Qmsg.error("缺失的键名: regexp，类型: object|Arrany");
+                    return;
+                  }
+                  if (typeof ruleJSON["setting"] !== "object") {
+                    Qmsg.error("缺失的键名: setting，类型: object");
+                    return;
+                  }
+                  if (Array.isArray(ruleJSON["regexp"])) {
+                    for (const regexpItem of ruleJSON["regexp"]) {
+                      if (!checkRegExp(regexpItem)) {
+                        return;
+                      }
+                    }
+                  } else {
+                    if (!checkRegExp(ruleJSON["regexp"])) {
+                      return;
+                    }
+                  }
+
+                  if (!checkSetting(ruleJSON["setting"])) {
+                    return;
+                  }
+
+                  if (isEdit) {
+                    NetDiskCustomRules.setRule(ruleJSON);
+                  } else {
+                    NetDiskCustomRules.addRule(ruleJSON);
+                  }
+                  Qmsg.success("保存成功");
+                  event.close();
+                } catch (error) {
+                  log.error(error);
+                  Qmsg.error(error.message, {
+                    html: true,
+                    timeout: 3500,
+                  });
+                }
+              },
+            },
+            other: {
+              enable: true,
+              text: "格式化",
+              type: "xiaomi-primary",
+              callback(event) {
+                try {
+                  let ruleJSON = JSON.parse($ruleInput.value);
+                  let ruleJSONString =
+                    NetDiskCustomRules.getFormatRule(ruleJSON);
+                  $ruleInput.value = ruleJSONString;
+                  Qmsg.success("格式化成功");
+                } catch (error) {
+                  log.error(error);
+                  Qmsg.error(error.message, {
+                    html: true,
+                    timeout: 3500,
+                  });
+                }
+              },
+            },
+          },
+          class: "whitesevPopNetDiskCustomRules",
+          style: this.getCSS(),
+        },
+        NetDiskUI.popsStyle.customRulesView
+      );
+      $ruleInput = dialog.$shadowRoot.querySelector("textarea");
+      if (isEdit) {
+        let rule = this.getRule(ruleKey);
+        $ruleInput.value = this.getFormatRule(rule);
+      } else {
+        $ruleInput.value = this.getTemplateRule();
       }
     },
     /**
@@ -8577,49 +8938,247 @@
      * @returns {object}
      */
     parseRule() {
+      /**
+       *
+       * @param {NetDiskUserCustomRuleRegexp} ruleRegExp
+       */
+      function parseRegExp(ruleRegExp) {
+        if (typeof ruleRegExp["shareCode"] === "string") {
+          ruleRegExp["shareCode"] = new RegExp(ruleRegExp["shareCode"], "ig");
+        }
+        if (typeof ruleRegExp["shareCodeNeedRemoveStr"] === "string") {
+          ruleRegExp["shareCodeNeedRemoveStr"] = new RegExp(
+            ruleRegExp["shareCodeNeedRemoveStr"],
+            "ig"
+          );
+        }
+        if (typeof ruleRegExp["checkAccessCode"] === "string") {
+          ruleRegExp["checkAccessCode"] = new RegExp(
+            ruleRegExp["checkAccessCode"],
+            "ig"
+          );
+        }
+        if (typeof ruleRegExp["accessCode"] === "string") {
+          ruleRegExp["accessCode"] = new RegExp(ruleRegExp["accessCode"], "ig");
+        }
+        if (typeof ruleRegExp["acceesCodeNotMatch"] === "string") {
+          ruleRegExp["acceesCodeNotMatch"] = new RegExp(
+            ruleRegExp["acceesCodeNotMatch"],
+            "ig"
+          );
+        }
+        if (typeof ruleRegExp["paramMatch"] === "string") {
+          ruleRegExp["paramMatch"] = new RegExp(ruleRegExp["paramMatch"], "i");
+        }
+        return ruleRegExp;
+      }
       let userRule = {};
+      /**
+       * @type {NetDiskUserCustomRule[]}
+       */
       let localRule = this.getRule();
       for (const userRuleItem of localRule) {
-        let userRegexp = userRuleItem.regexp;
-        if (typeof userRegexp["shareCode"] === "string") {
-          userRegexp["shareCode"] = new RegExp(userRegexp["shareCode"], "ig");
+        let userRegExp = userRuleItem.regexp;
+
+        if (userRuleItem.setting) {
+          /** 设置 @type {NetDiskSettingMenuDetails} */
+          let viewDetails = {
+            type: userRuleItem.setting.name,
+            key: userRuleItem.key,
+            isUserRule: true,
+          };
+          let userRegExpOther = {};
+          /* 是否启用，设置默认值 */
+          this.initDefaultValue(`${userRuleItem.key}-enable`, true);
+
+          viewDetails["enable"] = GM_getValue(`${userRuleItem.key}-enable`);
+
+          userRegExpOther["enable"] = GM_getValue(`${userRuleItem.key}-enable`);
+
+          if (typeof userRuleItem.setting["isBlank"] === "boolean") {
+            /* 新标签页打开 */
+            viewDetails["isBlank"] = true;
+            this.initDefaultValue(`${userRuleItem.key}-open-enable`, true);
+          }
+          if (
+            typeof userRuleItem.setting["openBlankWithCopyAccessCode"] ===
+            "boolean"
+          ) {
+            /* 跳转时复制访问码 */
+            viewDetails["openBlankWithCopyAccessCode"] = true;
+            this.initDefaultValue(
+              `${userRuleItem.key}-open-blank-with-copy-accesscode`,
+              true
+            );
+          }
+          if (typeof userRuleItem.setting["isForward"] === "boolean") {
+            /* 直接进行scheme转发链接 */
+            viewDetails["isForward"] = true;
+            this.initDefaultValue(
+              `${userRuleItem.key}-forward-scheme-enable`,
+              true
+            );
+          }
+          if (typeof userRuleItem.setting["schemeUri"] === "boolean") {
+            /* scheme转发的字符串格式 */
+            viewDetails["schemeUri"] = true;
+            this.initDefaultValue(`${userRuleItem.key}-static-scheme-uri`, "");
+          }
+          if (typeof userRuleItem.setting["checkLinkValidity"] === "boolean") {
+            /* 用于验证链接有效性 */
+            viewDetails["checkLinkValidity"] = true;
+            this.initDefaultValue(
+              `${userRuleItem.key}-check-link-valid`,
+              false
+            );
+            userRegExpOther["checkLinkValidity"] = GM_getValue(
+              `${userRuleItem.key}-check-link-valid`
+            );
+          }
+          if (
+            typeof userRuleItem.setting["innerTextAccessCodeBeforeMaxRange"] ===
+            "number"
+          ) {
+            /* text-提取码间隔前的字符长度 */
+            viewDetails["innerTextAccessCodeBeforeMaxRange"] =
+              userRuleItem.setting["innerTextAccessCodeBeforeMaxRange"];
+            this.initDefaultValue(
+              `${userRuleItem.key}_innerText_accessCode_before_max_range`,
+              viewDetails["innerTextAccessCodeBeforeMaxRange"]
+            );
+            userRegExpOther["innerTextAccessCodeBeforeMaxRange"] =
+              NetDiskLocalData.innerTextAccessCodeBeforeMaxRange(
+                userRuleItem.key
+              );
+          }
+          if (
+            typeof userRuleItem.setting["innerTextAccessCodeAfterMaxRange"] ===
+            "number"
+          ) {
+            /* text-提取码间隔后的字符长度 */
+            viewDetails["innerTextAccessCodeAfterMaxRange"] =
+              userRuleItem.setting["innerTextAccessCodeAfterMaxRange"];
+            this.initDefaultValue(
+              `${userRuleItem.key}_innerText_accessCode_after_max_range`,
+              viewDetails["innerTextAccessCodeAfterMaxRange"]
+            );
+            userRegExpOther["innerTextAccessCodeAfterMaxRange"] =
+              NetDiskLocalData.innerTextAccessCodeAfterMaxRange(
+                userRuleItem.key
+              );
+          }
+          if (
+            typeof userRuleItem.setting["innerHTMLAccessCodeBeforeMaxRange"] ===
+            "number"
+          ) {
+            /* html-提取码间隔前的字符长度 */
+            viewDetails["innerHTMLAccessCodeBeforeMaxRange"] =
+              userRuleItem.setting["innerHTMLAccessCodeBeforeMaxRange"];
+            this.initDefaultValue(
+              `${userRuleItem.key}_innerHTML_accessCode_before_max_range`,
+              viewDetails["innerHTMLAccessCodeBeforeMaxRange"]
+            );
+            userRegExpOther["innerHTMLAccessCodeBeforeMaxRange"] =
+              NetDiskLocalData.innerHTMLAccessCodeBeforeMaxRange(
+                userRuleItem.key
+              );
+          }
+          if (
+            typeof userRuleItem.setting["innerHTMLAccessCodeAfterMaxRange"] ===
+            "number"
+          ) {
+            /* html-提取码间隔后的字符长度 */
+            viewDetails["innerHTMLAccessCodeAfterMaxRange"] =
+              userRuleItem.setting["innerHTMLAccessCodeAfterMaxRange"];
+            this.initDefaultValue(
+              `${userRuleItem.key}_innerHTML_accessCode_after_max_range`,
+              viewDetails["innerHTMLAccessCodeAfterMaxRange"]
+            );
+            userRegExpOther["innerHTMLAccessCodeAfterMaxRange"] =
+              NetDiskLocalData.innerHTMLAccessCodeAfterMaxRange(
+                userRuleItem.key
+              );
+          }
+          /**
+           *
+           * @param {NetDiskRegularOption} userRegexp
+           */
+          function handleRegExp(userRegexp) {
+            if ("enable" in userRegExpOther) {
+              userRegexp["enable"] = userRegExpOther["enable"];
+            }
+            if ("checkLinkValidity" in userRegExpOther) {
+              userRegexp["checkLinkValidity"] =
+                userRegExpOther["checkLinkValidity"];
+            }
+            if ("innerTextAccessCodeBeforeMaxRange" in userRegExpOther) {
+              userRegexp["link_innerText"] = NetDisk.replaceParam(
+                userRuleItem.key,
+                {
+                  innerTextAccessCodeBeforeMaxRange:
+                    userRegExpOther["innerTextAccessCodeBeforeMaxRange"],
+                }
+              );
+            }
+            if ("innerTextAccessCodeAfterMaxRange" in userRegExpOther) {
+              userRegexp["link_innerText"] = NetDisk.replaceParam(
+                userRuleItem.key,
+                {
+                  innerTextAccessCodeAfterMaxRange:
+                    userRegExpOther["innerTextAccessCodeAfterMaxRange"],
+                }
+              );
+            }
+            if ("innerHTMLAccessCodeBeforeMaxRange" in userRegExpOther) {
+              userRegexp["link_innerHTML"] = NetDisk.replaceParam(
+                userRuleItem.key,
+                {
+                  innerHTMLAccessCodeBeforeMaxRange:
+                    userRegExpOther["innerHTMLAccessCodeBeforeMaxRange"],
+                }
+              );
+            }
+            if ("innerHTMLAccessCodeAfterMaxRange" in userRegExpOther) {
+              userRegexp["link_innerHTML"] = NetDisk.replaceParam(
+                userRuleItem.key,
+                {
+                  innerHTMLAccessCodeAfterMaxRange:
+                    userRegExpOther["innerHTMLAccessCodeAfterMaxRange"],
+                }
+              );
+            }
+            return userRegexp;
+          }
+          if (Array.isArray(userRegExp)) {
+            userRegExp = userRegExp.map((userRegexpItem) =>
+              handleRegExp(userRegexpItem)
+            );
+          } else {
+            handleRegExp(userRegExp);
+          }
+          if (this.$data.settingViewDetails.has(userRuleItem.key)) {
+            this.$data.settingViewDetails.delete(userRuleItem.key);
+          }
+          this.$data.settingViewDetails.set(userRuleItem.key, viewDetails);
         }
-        if (typeof userRegexp["shareCodeNeedRemoveStr"] === "string") {
-          userRegexp["shareCodeNeedRemoveStr"] = new RegExp(
-            userRegexp["shareCodeNeedRemoveStr"],
-            "ig"
-          );
+        if (typeof userRuleItem["icon"] === "string") {
+          NetDiskUI.src.icon[userRuleItem["key"]] = userRuleItem["icon"];
         }
-        if (typeof userRegexp["checkAccessCode"] === "string") {
-          userRegexp["checkAccessCode"] = new RegExp(
-            userRegexp["checkAccessCode"],
-            "ig"
-          );
-        }
-        if (typeof userRegexp["accessCode"] === "string") {
-          userRegexp["accessCode"] = new RegExp(userRegexp["accessCode"], "ig");
-        }
-        if (typeof userRegexp["acceesCodeNotMatch"] === "string") {
-          userRegexp["acceesCodeNotMatch"] = new RegExp(
-            userRegexp["acceesCodeNotMatch"],
-            "ig"
-          );
-        }
-        if (typeof userRegexp["paramMatch"] === "string") {
-          userRegexp.paramMatch = new RegExp(userRegexp["paramMatch"], "i");
+        if (Array.isArray(userRegExp)) {
+          userRegExp = userRegExp.map((userRegexpItem) => {
+            return parseRegExp(userRegexpItem);
+          });
+        } else {
+          parseRegExp(userRegExp);
         }
         if (userRule[userRuleItem.key]) {
           /* 已存在相同key规则，追加新的 */
-          userRule[userRuleItem.key].push(userRegexp);
+          userRule[userRuleItem.key].push(userRegExp);
         } else {
-          userRule[userRuleItem.key] = [userRegexp];
-        }
-        if (userRuleItem.setting) {
-          /* 进行了设置 */
-          if (userRuleItem.setting["isBlank"]) {
-            GM_setValue(userRuleItem.key + "-open-enable", true);
+          if (Array.isArray(userRegExp)) {
+            userRule[userRuleItem.key] = userRegExp;
           } else {
-            GM_deleteValue(userRuleItem.key + "-open-enable");
+            userRule[userRuleItem.key] = [userRegExp];
           }
         }
         const AsyncFunction = Object.getPrototypeOf(
@@ -8670,16 +9229,103 @@
             log.error(error);
           }
         }
-        NetDiskUI.src.icon[userRuleItem.key] = userRuleItem.icon;
       }
       return userRule;
     },
     /**
+     * 获取设置菜单配置
+     */
+    getSettingViewDetails() {
+      let viewDetailsList = [];
+      this.$data.settingViewDetails.forEach((value) => {
+        viewDetailsList.push(value);
+      });
+      return viewDetailsList;
+    },
+    /**
+     * 初始化默认值
+     */
+    initDefaultValue(key, value) {
+      if (GM_getValue(key) == null) {
+        GM_setValue(key, value);
+      }
+    },
+    /**
+     * 获取模板规则
+     * @returns
+     */
+    getTemplateRule() {
+      /**
+       * @type {NetDiskUserCustomRule}
+       */
+      let templateRule = {
+        key: "规则名",
+        icon: "图标链接或base64图片",
+        regexp: [
+          {
+            link_innerText: "",
+            link_innerHTML: "",
+            shareCode: "",
+            shareCodeNeedRemoveStr: "",
+            uiLinkShow: "",
+            blank: "",
+            copyUrl: "",
+          },
+        ],
+        setting: {
+          name: "名字",
+          enable: true,
+          isBlank: true,
+          openBlankWithCopyAccessCode: true,
+        },
+      };
+      return this.getFormatRule(templateRule);
+    },
+    /**
+     * 添加规则
+     * @param {NetDiskUserCustomRule} userRule
+     */
+    addRule(userRule) {
+      let localRule = this.getRule();
+      localRule.push(userRule);
+      GM_setValue(NetDiskCustomRules.key, localRule);
+    },
+    /**
      * 设置规则到本地
-     * @param {NetDiskUserCustomRule[]} userRule
+     * @param {NetDiskUserCustomRule[]|NetDiskUserCustomRule} userRule
      */
     setRule(userRule) {
-      GM_setValue(NetDiskCustomRules.key, userRule);
+      if (Array.isArray(userRule)) {
+        GM_setValue(NetDiskCustomRules.key, userRule);
+      } else {
+        let localRule = this.getRule();
+        let findRuleIndex = localRule.findIndex(
+          (item) => item.key === userRule.key
+        );
+        if (findRuleIndex !== -1) {
+          localRule[findRuleIndex] = null;
+          localRule[findRuleIndex] = userRule;
+        } else {
+          Qmsg.error(["覆盖规则失败", userRule]);
+          return false;
+        }
+        this.setRule(localRule);
+      }
+    },
+    /**
+     * 删除单条规则
+     * @param {string} ruleKey
+     */
+    deleteRule(ruleKey) {
+      let localRule = this.getRule();
+      let findIndex = localRule.findIndex((rule) => rule.key === ruleKey);
+      if (findIndex !== -1) {
+        localRule.splice(findIndex, 1);
+        this.setRule(localRule);
+        return true;
+      } else {
+        return false;
+      }
     },
     /**
      * 清空规则
@@ -8689,9 +9335,15 @@
     },
     /**
      * 获取规则
-     * @returns {NetDiskUserCustomRule[]}
+     * @param {?string} key
+     * @returns {NetDiskUserCustomRule|NetDiskUserCustomRule[]}
      */
-    getRule() {
+    getRule(key) {
+      if (typeof key === "string") {
+        return GM_getValue(NetDiskCustomRules.key, []).find(
+          (item) => item.key === key
+        );
+      }
       return GM_getValue(NetDiskCustomRules.key, []);
     },
     /**
@@ -8813,7 +9465,7 @@
         },
       },
       /**
-       * 设置界面
+       * 设置
        */
       settingView: {
         PC: {
@@ -9097,7 +9749,7 @@
         document.body.appendChild($shadowContainer);
       },
       /**
-       * 显示设置界面
+       * 显示设置
        */
       showSettingView() {
         if (NetDiskUI.Alias.settingAlias) {
@@ -9811,7 +10463,7 @@
         };
         let shortcurFormsDetailsList = [
           {
-            text: "【打开】⚙ 设置界面",
+            text: "【打开】⚙ 设置",
             key: "netdisk-keyboard-open-setting",
           },
           {
@@ -9862,22 +10514,24 @@
          * 追加网盘设置
          */
         function addNetDiskSetting() {
+          /**
+           * @type {NetDiskSettingMenuDetails[]}
+           */
           let netDiskDetailsList = [
             {
               type: "百度网盘",
               key: "baidu",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              checkLinkValidity: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
               ownFormList: [
                 {
                   text: "第三方解析站",
@@ -9977,21 +10631,19 @@
             {
               type: "蓝奏云",
               key: "lanzou",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              checkLinkValidity: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              isForwardDownloadLink: true,
+              schemeUri: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
               ownFormList: [
                 {
                   text: "其它配置",
@@ -10023,299 +10675,292 @@
             {
               type: "蓝奏云优享",
               key: "lanzouyx",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              checkLinkValidity: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "天翼云",
               key: "tianyiyun",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_static_description: "需要登录才可以下载",
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              parseFileDescription: "需要登录才可以下载",
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "中国移动云盘",
               key: "hecaiyun",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "阿里云",
               key: "aliyun",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "文叔叔",
               key: "wenshushu",
-              checkbox_enable: true,
-              checkbox_oneStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseOneFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "奶牛",
               key: "nainiu",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "123盘",
               key: "_123pan",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_static_description: "需要登录才可下载>100MB的文件",
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              parseFileDescription: "需要登录才可下载>100MB的文件",
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "微云",
               key: "weiyun",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "迅雷云盘",
               key: "xunlei",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "115网盘",
               key: "_115pan",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "城通网盘",
               key: "chengtong",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "夸克网盘",
               key: "kuake",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "BT磁力",
               key: "magnet",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
+              enable: true,
+              isBlank: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
             },
             {
               type: "坚果云",
               key: "jianguoyun",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "OneDrive",
               key: "onedrive",
-              checkbox_enable: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_checkLinkValidEnable: false,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
             {
               type: "UC网盘",
               key: "uc",
-              checkbox_enable: true,
-              checkbox_oneOrMoreStatic: true,
-              checkbox_openBlank: true,
-              checkbox_openBlankWithCopyAccessCode: true,
-              checkbox_static_scheme: true,
-              checkbox_checkLinkValidEnable: false,
-              text_static_scheme_forward: true,
-              range_innerText: true,
-              range_innerText_default_value: 20,
-              range_accessCode_after_text: true,
-              range_accessCode_after_text_default_value: 10,
-              range_innerHTML: true,
-              range_innerHTML_default_value: 100,
-              range_accessCode_after_html: true,
-              range_accessCode_after_html_default_value: 15,
+              enable: true,
+              parseMoreFile: true,
+              isBlank: true,
+              openBlankWithCopyAccessCode: true,
+              isForward: true,
+              isForwardDownloadLink: true,
+              isForwardBlankLink: true,
+              schemeUri: true,
+              checkLinkValidity: true,
+              innerTextAccessCodeBeforeMaxRange: 20,
+              innerTextAccessCodeAfterMaxRange: 10,
+              innerHTMLAccessCodeBeforeMaxRange: 100,
+              innerHTMLAccessCodeAfterMaxRange: 15,
             },
           ];
+          let userCustomDetailsList =
+            NetDiskCustomRules.getSettingViewDetails();
+          if (userCustomDetailsList.length) {
+            /* 添加自定义的设置 */
+            netDiskDetailsList = [
+              ...netDiskDetailsList,
+              ...userCustomDetailsList,
+            ];
+          }
+
           netDiskDetailsList.forEach((item) => {
             let formsList = [];
-            if (item.range_innerText || item.range_accessCode_after_text) {
+            if (
+              typeof item.innerTextAccessCodeBeforeMaxRange === "number" ||
+              typeof item.innerTextAccessCodeAfterMaxRange === "number"
+            ) {
               let matchTextList = [];
-              if (item.range_innerText) {
+              if (typeof item.innerTextAccessCodeBeforeMaxRange === "number") {
                 matchTextList.push(
                   getSliderDetail(
                     "间隔前",
                     "提取码间隔前的字符长度",
                     "innerText_" + item.key,
-                    item.range_innerText_default_value,
+                    item.innerTextAccessCodeBeforeMaxRange,
                     0,
                     100
                   )
                 );
               }
-              if (item.range_accessCode_after_text) {
+              if (typeof item.innerTextAccessCodeAfterMaxRange === "number") {
                 matchTextList.push(
                   getSliderDetail(
                     "间隔后",
                     "提取码间隔后的字符长度",
                     "accessCode_after_text_" + item.key,
-                    item.range_accessCode_after_text_default_value,
+                    item.innerTextAccessCodeAfterMaxRange,
                     0,
                     100
                   )
@@ -10329,28 +10974,31 @@
                 });
               }
             }
-            if (item.range_innerHTML || item.range_accessCode_after_html) {
+            if (
+              typeof item.innerHTMLAccessCodeBeforeMaxRange === "number" ||
+              typeof item.innerHTMLAccessCodeAfterMaxRange === "number"
+            ) {
               let matchTextList = [];
-              if (item.range_innerHTML) {
+              if (typeof item.innerHTMLAccessCodeBeforeMaxRange === "number") {
                 matchTextList.push(
                   getSliderDetail(
                     "间隔前",
                     "提取码间隔前的字符长度",
                     "innerHTML_" + item.key,
-                    item.range_innerHTML_default_value,
+                    item.innerHTMLAccessCodeBeforeMaxRange,
                     0,
                     500
                   )
                 );
               }
 
-              if (item.range_accessCode_after_html) {
+              if (typeof item.innerHTMLAccessCodeAfterMaxRange === "number") {
                 matchTextList.push(
                   getSliderDetail(
                     "间隔后",
                     "提取码间隔后的字符长度",
                     "accessCode_after_html_" + item.key,
-                    item.range_accessCode_after_html_default_value,
+                    item.innerHTMLAccessCodeAfterMaxRange,
                     0,
                     200
                   )
@@ -10365,17 +11013,17 @@
               }
             }
             if (
-              item.checkbox_enable != null ||
-              item.checkbox_openBlank != null ||
-              item.checkbox_oneStatic != null ||
-              item.checkbox_oneOrMoreStatic != null
+              item.enable != null ||
+              item.isBlank != null ||
+              item.parseOneFile != null ||
+              item.parseMoreFile != null
             ) {
               /**
                * @type {PopsPanelFormsDetailsArray}
                */
               let functionFormsList = [];
               /* 是否启用 */
-              if (item.checkbox_enable != null) {
+              if (item.enable != null) {
                 functionFormsList.push({
                   text: "启用",
                   type: "switch",
@@ -10403,7 +11051,7 @@
                 });
               }
               /* 新标签页打开 */
-              if (item.checkbox_openBlank != null) {
+              if (typeof item.isBlank === "boolean") {
                 functionFormsList.push({
                   text: "新标签页打开",
                   type: "switch",
@@ -10422,10 +11070,7 @@
                   },
                   callback(event, value) {
                     GM_setValue(this.attributes["data-key"], Boolean(value));
-                    if (
-                      item.checkbox_oneStatic ||
-                      item.checkbox_oneOrMoreStatic
-                    ) {
+                    if (item.parseOneFile || item.parseMoreFile) {
                       let $shadowRoot = event.target.getRootNode();
                       /* 新标签页打开和单/文件解析只能开启一个 */
                       /**
@@ -10445,11 +11090,12 @@
                 });
               }
               /* 新标签页打开时复制访问码 */
-              if (item.checkbox_openBlankWithCopyAccessCode != null) {
+              if (typeof item.openBlankWithCopyAccessCode === "boolean") {
                 functionFormsList.push({
-                  text: "跳转时携带访问码",
+                  text: "跳转时复制访问码",
                   type: "switch",
-                  description: "新标签页打开时，如果存在访问码就复制到剪贴板",
+                  description:
+                    "作用于【新标签页打开】且存在访问码就复制到剪贴板",
                   attributes: {
                     "data-key": `${item.key}-open-blank-with-copy-accesscode`,
                     "data-default-value": false,
@@ -10468,14 +11114,11 @@
                 });
               }
               /* 单文件解析|文件解析 */
-              if (item.checkbox_oneStatic || item.checkbox_oneOrMoreStatic) {
+              if (item.parseOneFile || item.parseMoreFile) {
                 functionFormsList.push({
-                  text: `${
-                    item.checkbox_oneStatic ? "单文件解析" : "文件解析"
-                  }`,
+                  text: `${item.parseOneFile ? "单文件解析" : "文件解析"}`,
                   type: "switch",
-                  description:
-                    item["checkbox_static_description"] || "解析网盘链接",
+                  description: item["parseFileDescription"] || "解析网盘链接",
                   attributes: {
                     "data-key": `${item.key}-static-enable`,
                     "data-default-value": false,
@@ -10490,7 +11133,7 @@
                   },
                   callback(event, value) {
                     GM_setValue(this.attributes["data-key"], Boolean(value));
-                    if (item.checkbox_openBlank) {
+                    if (item.isBlank) {
                       let $shadowRoot = event.target.getRootNode();
                       /* 新标签页打开和单/文件解析只能开启一个 */
                       /**
@@ -10508,84 +11151,31 @@
                     }
                   },
                 });
-
-                /* Scheme转发直链 */
-                if (item.checkbox_static_scheme) {
-                  functionFormsList.push({
-                    text: "Scheme转发直链",
-                    type: "switch",
-                    description: "对解析的直链进行scheme转换",
-                    attributes: {
-                      "data-key": `${item.key}-static-scheme-enable`,
-                      "data-default-value": false,
-                    },
-                    getValue() {
-                      return Boolean(
-                        GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        )
-                      );
-                    },
-                    callback(event, value) {
-                      GM_setValue(this.attributes["data-key"], Boolean(value));
-                    },
-                  });
-
-                  /* Scheme链接 */
-                  if (item.text_static_scheme_forward) {
-                    functionFormsList.push({
-                      text: "Scheme链接",
-                      type: "input",
-                      description: "自定义的Scheme链接",
-                      attributes: {
-                        "data-key": `${item.key}-static-scheme-forward`,
-                        "data-default-value": "",
-                      },
-                      getValue() {
-                        return GM_getValue(
-                          this.attributes["data-key"],
-                          this.attributes["data-default-value"]
-                        );
-                      },
-                      callback(event, value) {
-                        GM_setValue(this.attributes["data-key"], value);
-                      },
-                      placeholder:
-                        "如: jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx",
-                    });
-                  }
-                }
               }
 
               /* 验证链接有效性 */
-              functionFormsList.push({
-                text: `验证链接有效性`,
-                type: "switch",
-                disabled:
-                  "checkbox_checkLinkValidEnable" in item
-                    ? item.checkbox_checkLinkValidEnable
-                    : true,
-                description:
-                  "checkbox_checkLinkValidEnable" in item
-                    ? "自动请求链接，判断该链接是否有效"
-                    : "暂未实现",
-                attributes: {
-                  "data-key": `${item.key}-check-link-valid`,
-                  "data-default-value": false,
-                },
-                getValue() {
-                  return Boolean(
-                    GM_getValue(
-                      this.attributes["data-key"],
-                      this.attributes["data-default-value"]
-                    )
-                  );
-                },
-                callback(event, value) {
-                  GM_setValue(this.attributes["data-key"], Boolean(value));
-                },
-              });
+              if (typeof item.checkLinkValidity === "boolean") {
+                functionFormsList.push({
+                  text: `验证链接有效性`,
+                  type: "switch",
+                  description: "自动请求链接，判断该链接是否有效",
+                  attributes: {
+                    "data-key": `${item.key}-check-link-valid`,
+                    "data-default-value": false,
+                  },
+                  getValue() {
+                    return Boolean(
+                      GM_getValue(
+                        this.attributes["data-key"],
+                        this.attributes["data-default-value"]
+                      )
+                    );
+                  },
+                  callback(event, value) {
+                    GM_setValue(this.attributes["data-key"], Boolean(value));
+                  },
+                });
+              }
 
               formsList.push({
                 text: "功能",
@@ -10594,6 +11184,107 @@
               });
             }
 
+            /* Scheme转发直链 */
+            if (item.isForward) {
+              /**
+               * @type {PopsPanelFormsDetailsArray}
+               */
+              let functionFormsList = [
+                {
+                  text: "启用",
+                  type: "switch",
+                  description: "开启后可进行scheme uri转发",
+                  attributes: {
+                    "data-key": `${item.key}-forward-scheme-enable`,
+                    "data-default-value": false,
+                  },
+                  getValue() {
+                    return Boolean(
+                      GM_getValue(
+                        this.attributes["data-key"],
+                        this.attributes["data-default-value"]
+                      )
+                    );
+                  },
+                  callback(event, value) {
+                    GM_setValue(this.attributes["data-key"], Boolean(value));
+                  },
+                },
+              ];
+              if (typeof item.isForwardDownloadLink === "boolean") {
+                functionFormsList.push({
+                  text: "转发直链",
+                  type: "switch",
+                  description: "对解析的直链进行scheme转换",
+                  attributes: {
+                    "data-key": `${item.key}-forward-download-link-enable`,
+                    "data-default-value": false,
+                  },
+                  getValue() {
+                    return Boolean(
+                      GM_getValue(
+                        this.attributes["data-key"],
+                        this.attributes["data-default-value"]
+                      )
+                    );
+                  },
+                  callback(event, value) {
+                    GM_setValue(this.attributes["data-key"], Boolean(value));
+                  },
+                });
+              }
+              if (typeof item.isForwardBlankLink === "boolean") {
+                functionFormsList.push({
+                  text: "转发新标签页链接",
+                  type: "switch",
+                  description: "对新标签页打开的链接进行scheme转换",
+                  attributes: {
+                    "data-key": `${item.key}-forward-blank-link-enable`,
+                    "data-default-value": false,
+                  },
+                  getValue() {
+                    return Boolean(
+                      GM_getValue(
+                        this.attributes["data-key"],
+                        this.attributes["data-default-value"]
+                      )
+                    );
+                  },
+                  callback(event, value) {
+                    GM_setValue(this.attributes["data-key"], Boolean(value));
+                  },
+                });
+              }
+
+              /* Scheme的Uri链接 */
+              if ("schemeUri" in item) {
+                functionFormsList.push({
+                  text: "Uri链接",
+                  type: "input",
+                  description: "自定义的Scheme的Uri链接",
+                  attributes: {
+                    "data-key": `${item.key}-static-scheme-uri`,
+                    "data-default-value": "",
+                  },
+                  getValue() {
+                    return GM_getValue(
+                      this.attributes["data-key"],
+                      this.attributes["data-default-value"]
+                    );
+                  },
+                  callback(event, value) {
+                    GM_setValue(this.attributes["data-key"], value);
+                  },
+                  placeholder:
+                    "jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx",
+                });
+              }
+              formsList.push({
+                text: "Scheme Uri转发",
+                type: "forms",
+                forms: functionFormsList,
+              });
+            }
             if (item.ownFormList) {
               formsList = formsList.concat(item.ownFormList);
             }
@@ -10619,11 +11310,15 @@
                 <div style="margin-left: 4px;">${item.type}</div>`;
               }
             }
-
+            let headerTitleText = item.type;
+            if (item.isUserRule) {
+              headerTitleText += `<div class="netdisk-custom-rule-edit" data-key="${item.key}" data-type="${item.type}">${pops.config.iconSVG.edit}</div>`;
+              headerTitleText += `<div class="netdisk-custom-rule-delete" data-key="${item.key}" data-type="${item.type}">${pops.config.iconSVG.delete}</div>`;
+            }
             contentDetails.push({
               id: "netdisk-panel-config-" + item.key,
               title: asideTitle,
-              headerTitle: item.type,
+              headerTitle: headerTitleText,
               attributes: {
                 "data-key": item.key,
               },
@@ -10656,8 +11351,74 @@
               },
             },
             class: "whitesevPopSetting",
+            style: `
+            .netdisk-custom-rule-delete,
+            .netdisk-custom-rule-edit{
+              display: flex;
+              align-items: center;
+              margin-left: 10px;
+              cursor: pointer;
+            }
+            .netdisk-custom-rule-delete svg,
+            .netdisk-custom-rule-edit svg{
+              width: 1.2rem;
+              height: 1.2rem;
+            }
+            `,
           },
           NetDiskUI.popsStyle.settingView
+        );
+        DOMUtils.on(
+          NetDiskUI.Alias.settingAlias.$shadowRoot,
+          "click",
+          ".netdisk-custom-rule-edit",
+          function (event) {
+            let ruleKey = event.target.getAttribute("data-key");
+            let ruleName = event.target.getAttribute("data-type");
+            NetDiskCustomRules.showUI(true, ruleKey);
+          }
+        );
+
+        DOMUtils.on(
+          NetDiskUI.Alias.settingAlias.$shadowRoot,
+          "click",
+          ".netdisk-custom-rule-delete",
+          function (event) {
+            let ruleKey = event.target.getAttribute("data-key");
+            let ruleName = event.target.getAttribute("data-type");
+            NetDiskPops.alert({
+              title: {
+                text: "提示",
+                position: "center",
+              },
+              content: {
+                text: `确定删除自定义规则 ${ruleName}(${ruleKey}) 吗？`,
+              },
+              btn: {
+                ok: {
+                  callback(okEvent) {
+                    let deleteStatus = NetDiskCustomRules.deleteRule(ruleKey);
+                    if (deleteStatus) {
+                      let asideElement =
+                        NetDiskUI.Alias.settingAlias.$shadowRoot.querySelector(
+                          `.pops-panel-aside > ul > li[data-key="${ruleKey}"]`
+                        );
+                      if (asideElement.previousElementSibling) {
+                        asideElement.previousElementSibling.click();
+                      } else if (asideElement.nextElementSibling) {
+                        asideElement.nextElementSibling.click();
+                      }
+                      asideElement?.remove();
+                      Qmsg.success("删除成功");
+                      okEvent.close();
+                    } else {
+                      Qmsg.error("删除自定义规则失败");
+                    }
+                  },
+                },
+              },
+            });
+          }
         );
       },
       /**
@@ -10780,7 +11541,7 @@
             netDiskLinkViewTimer = setTimeout(() => {
               isDouble = false;
               if (
-                NetDiskLocalData.netdiskBehaviorMode.includes("smallwindow")
+                NetDiskUIMenuData.netdiskBehaviorMode.includes("smallwindow")
               ) {
                 GM_setValue(
                   "current_suspension_smallwindow_mode",
@@ -10793,43 +11554,7 @@
             isDouble = true;
           }
         });
-        NetDiskUI.view.registerContextMenu(needDragElement, void 0, [
-          {
-            text: "设置",
-            callback() {
-              log.info("打开-设置");
-              NetDiskUI.suspension.showSettingView();
-            },
-          },
-          {
-            text: "历史匹配记录",
-            callback() {
-              log.info("打开-历史匹配记录");
-              NetDiskUI.netDiskHistoryMatch.show();
-            },
-          },
-          {
-            text: "访问码规则",
-            callback() {
-              log.info("打开-访问码规则");
-              NetDiskUI.accessCodeRule.show();
-            },
-          },
-          {
-            text: "自定义规则",
-            callback() {
-              log.info("打开-自定义规则");
-              NetDiskUI.customRules.show();
-            },
-          },
-          {
-            text: "主动识别文本",
-            callback() {
-              log.info("打开-主动识别文本");
-              NetDiskUI.matchPasteText.show();
-            },
-          },
-        ]);
+        NetDiskUI.setGlobalRightClickMenu(needDragElement);
       },
       /**
        * 设置window的resize事件监听，来重新设置悬浮按钮的位置
@@ -11034,6 +11759,11 @@
             NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
             ".netdisk-url a"
           );
+          NetDiskUI.setGlobalRightClickMenu(
+            NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(
+              ".pops .pops-alert-title > p"
+            )
+          );
         } else {
           NetDiskUI.Alias.uiLinkAlias.show();
         }
@@ -11151,7 +11881,7 @@
 					</div>`;
 
         if (
-          NetDiskLocalData.netdiskBehaviorMode
+          NetDiskUIMenuData.netdiskBehaviorMode
             .toLowerCase()
             .includes("smallwindow")
         ) {
@@ -11172,7 +11902,7 @@
                 close: {
                   callback(event) {
                     if (
-                      NetDiskLocalData.netdiskBehaviorMode
+                      NetDiskUIMenuData.netdiskBehaviorMode
                         .toLowerCase()
                         .includes("suspension")
                     ) {
@@ -11474,7 +12204,7 @@
                   data-accesscode="${accessCode}"
                   data-open-enable-key="${netDiskName}-open-enable"
                   data-static-enable-key="${netDiskName}-static-enable"
-                  data-scheme-enable-key="${netDiskName}-scheme-enable">${uiLinkText}</a>
+                  data-forward-scheme-key="${netDiskName}-forward-scheme-enable">${uiLinkText}</a>
 						</div>
 					</div>
 				</div>`;
@@ -11488,7 +12218,7 @@
        * data-accesscode string
        * data-open-enable-key string
        * data-static-enable-key string
-       * data-scheme-enable-key string
+       * data-forward-scheme-key string
        * @param {*} target
        * @param {string} clickNodeSelector - 元素选择器
        */
@@ -11510,7 +12240,7 @@
             false
           );
           let schemeEnable = GM_getValue(
-            event.target.getAttribute("data-scheme-enable-key"),
+            event.target.getAttribute("data-forward-scheme-key"),
             false
           );
           if (openEnable) {
@@ -12368,9 +13098,9 @@
                 data-accesscode="${data.accessCode}"
                 data-open-enable-key="${data.netDiskName}-open-enable"
                 data-static-enable-key="${data.netDiskName}-static-enable"
-                data-scheme-enable-key="${
+                data-forward-scheme-key="${
                   data.netDiskName
-                }-scheme-enable">${netDiskURL}</a>
+                }-forward-scheme-enable">${netDiskURL}</a>
           </div>
           <div class="netdiskrecord-icon">
             <p>网盘</p>
@@ -13324,215 +14054,6 @@
       },
     },
     /**
-     * 用户自定义规则
-     */
-    customRules: {
-      show() {
-        let that = this;
-        let popsConfirm = NetDiskPops.confirm(
-          {
-            title: {
-              text: "自定义规则",
-              position: "center",
-            },
-            content: {
-              text: `
-            <textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>
-            `,
-              html: true,
-            },
-            btn: {
-              merge: true,
-              mergeReverse: false,
-              reverse: false,
-              position: "space-between",
-              ok: {
-                text: "保存",
-                callback(event) {
-                  let textAreaElement = event.popsElement.querySelector(
-                    "textarea.netdisk-custom-rules"
-                  );
-                  try {
-                    if (textAreaElement.value.trim() === "") {
-                      NetDiskCustomRules.clearRule();
-                      event.close();
-                      return;
-                    }
-                    let ruleJSON = JSON.parse(textAreaElement.value);
-                    if (!Array.isArray(ruleJSON)) {
-                      Qmsg.error("该规则不是一个数组");
-                      return;
-                    }
-                    let mustProperty = ["key", "icon", "regexp"];
-                    let regexpMustProperty = [
-                      "link_innerText",
-                      "link_innerHTML",
-                      "shareCode",
-                      "shareCodeNeedRemoveStr",
-                      "uiLinkShow",
-                      "blank",
-                      "copyUrl",
-                    ];
-                    for (let index = 0; index < ruleJSON.length; index++) {
-                      let item = ruleJSON[index];
-                      if (typeof item !== "object") {
-                        Qmsg.error(`第${index + 1}条规则不是一个对象`);
-                        return;
-                      }
-                      for (
-                        let index2 = 0;
-                        index2 < mustProperty.length;
-                        index2++
-                      ) {
-                        let propertyName = mustProperty[index2];
-                        if (!Object.hasOwnProperty.call(item, propertyName)) {
-                          Qmsg.error(
-                            `第${index + 1}条规则缺少属性 ${propertyName} `
-                          );
-                          return;
-                        }
-                      }
-                      if (typeof item["regexp"] !== "object") {
-                        Qmsg.error(`第${index + 1}条规则的regexp不是一个对象`);
-                        return;
-                      }
-                      for (
-                        let index2 = 0;
-                        index2 < regexpMustProperty.length;
-                        index2++
-                      ) {
-                        let propertyName = regexpMustProperty[index2];
-                        if (
-                          !Object.hasOwnProperty.call(
-                            item["regexp"],
-                            propertyName
-                          )
-                        ) {
-                          Qmsg.error(
-                            `第${
-                              index + 1
-                            }条规则中的regexp内缺少属性 ${propertyName}`
-                          );
-                          return;
-                        }
-                      }
-                      if (
-                        item["regexp"]["accessCode"] &&
-                        !item["regexp"]["checkAccessCode"]
-                      ) {
-                        Qmsg.error(
-                          `第${
-                            index + 1
-                          }条规则中的regexp内设置了accessCode但是没有设置checkAccessCode`
-                        );
-                        return;
-                      }
-                      if (
-                        item["regexp"]["checkAccessCode"] &&
-                        !item["regexp"]["accessCode"]
-                      ) {
-                        Qmsg.error(
-                          `第${
-                            index + 1
-                          }条规则中的regexp内设置了checkAccessCode但是没有设置accessCode`
-                        );
-                        return;
-                      }
-                    }
-                    NetDiskCustomRules.setRule(ruleJSON);
-                    Qmsg.success(`保存规则${ruleJSON.length}条`);
-                    event.close();
-                  } catch (error) {
-                    log.error(error);
-                    Qmsg.error(error.message, {
-                      html: true,
-                      timeout: 3500,
-                    });
-                  }
-                },
-              },
-              other: {
-                enable: true,
-                text: "格式化",
-                type: "xiaomi-primary",
-                callback(event) {
-                  let textAreaElement = event.popsElement.querySelector(
-                    "textarea.netdisk-custom-rules"
-                  );
-                  try {
-                    let ruleJSON = JSON.parse(textAreaElement.value);
-                    let ruleJSONString =
-                      NetDiskCustomRules.getFormatRule(ruleJSON);
-                    textAreaElement.value = ruleJSONString;
-                    Qmsg.success("格式化成功");
-                  } catch (error) {
-                    log.error(error);
-                    Qmsg.error(error.message, {
-                      html: true,
-                      timeout: 3500,
-                    });
-                  }
-                },
-              },
-            },
-            class: "whitesevPopNetDiskCustomRules",
-            style: this.getCSS(),
-          },
-          NetDiskUI.popsStyle.customRulesView
-        );
-        popsConfirm.popsElement.querySelector("textarea").value =
-          NetDiskCustomRules.getFormatRule();
-      },
-      getCSS() {
-        return `
-        .pops[type-value=confirm] .pops-confirm-content{
-          overflow: hidden;
-        }
-        /* textarea美化 */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea{
-          width: 100%;
-          height: 100%;
-          font-size: 16px;
-
-          
-          border: none;
-          outline: none;
-          padding: 0;
-          margin: 0;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          appearance: none;
-          background-image: none;
-          background-color: transparent;
-
-          display: inline-block;
-          resize: vertical;
-          padding: 5px 15px;
-          line-height: 1.5;
-          box-sizing: border-box;
-          border: 1px solid #dcdfe6;
-          //border-radius: 4px;
-          transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-          appearance: none;
-          resize: none;
-        }
-        /* 获得焦点 */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus{
-          outline: none;
-          border-color: #3677f0;
-        }
-        /* 提示文字 */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {
-          color: #c0c4cc;
-        }
-        /* 鼠标hover */
-        .pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {
-          border-color: #c0c4cc;
-        }
-        `;
-      },
-    },
-    /**
      * 主动识别文本
      */
     matchPasteText: {
@@ -13745,6 +14266,48 @@
       });
       /* 主动触发一次，因为有的页面上没触发mutationObserver */
       observeEvent();
+    },
+    /**
+     * 设置标题的右键菜单
+     */
+    setGlobalRightClickMenu(element) {
+      NetDiskUI.view.registerContextMenu(element, void 0, [
+        {
+          text: "设置",
+          callback() {
+            log.info("打开-设置");
+            NetDiskUI.suspension.showSettingView();
+          },
+        },
+        {
+          text: "历史匹配记录",
+          callback() {
+            log.info("打开-历史匹配记录");
+            NetDiskUI.netDiskHistoryMatch.show();
+          },
+        },
+        {
+          text: "访问码规则",
+          callback() {
+            log.info("打开-访问码规则");
+            NetDiskUI.accessCodeRule.show();
+          },
+        },
+        {
+          text: "自定义规则",
+          callback() {
+            log.info("打开-自定义规则");
+            NetDiskCustomRules.showUI(false);
+          },
+        },
+        {
+          text: "主动识别文本",
+          callback() {
+            log.info("打开-主动识别文本");
+            NetDiskUI.matchPasteText.show();
+          },
+        },
+      ]);
     },
     /**
      * 设置右键菜单
@@ -14081,7 +14644,7 @@
             let findShortcut = localValue[findShortcutIndex];
             log.info(["调用快捷键", findShortcut]);
             if (findShortcut["key"] === "netdisk-keyboard-open-setting") {
-              log.info("打开设置界面");
+              log.info("打开设置");
               NetDiskUI.suspension.showSettingView();
             } else if (
               findShortcut["key"] ===
@@ -14098,7 +14661,7 @@
               findShortcut["key"] === "netdisk-keyboard-open-user-rule"
             ) {
               log.info("打开用户自定义规则");
-              NetDiskUI.customRules.show();
+              NetDiskCustomRules.showUI(false);
             } else if (
               findShortcut["key"] ===
               "netdisk-keyboard-open-proactively-recognize-text"
@@ -14284,7 +14847,7 @@
       GM_Menu.add([
         {
           key: "showSetting",
-          text: "⚙ 设置界面",
+          text: "⚙ 设置",
           showText(text) {
             return text;
           },
@@ -14319,7 +14882,7 @@
             return text;
           },
           callback() {
-            NetDiskUI.customRules.show();
+            NetDiskCustomRules.showUI(false);
           },
         },
         {
