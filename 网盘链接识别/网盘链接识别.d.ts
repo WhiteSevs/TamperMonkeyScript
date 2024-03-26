@@ -454,15 +454,31 @@ declare interface NetDiskUserCustomRuleSetting {
     /**
      * 是否开启scheme转发
      * 
-     * 【功能】-【Scheme转发直链】
+     * 【Scheme转发】-【启用】
      * 
-     * 键: `${key}-static-scheme-enable`
+     * 键: `${key}-forward-scheme-enable`
      */
     isForward?: boolean;
     /**
+     * 是否转发下载链接
+     * 
+     * 【Scheme转发】-【转发直链】
+     * 
+     * 键: `${key}-forward-download-link-enable`
+     */
+    isForwardDownloadLink?: boolean;
+    /**
+     * 是否转发新标签页打开的链接
+     * 
+     * 【Scheme转发】-【转发新标签页链接】
+     * 
+     * 键: `${key}-forward-blank-link-enable`
+     */
+    isForwardBlankLink?: boolean;
+    /**
      * scheme的格式
      * 
-     * 【功能】-【Scheme链接】
+     * 【Scheme转发】-【Uri链接】
      * 
      * 键: `${key}-static-scheme-uri`
      */
