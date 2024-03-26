@@ -321,79 +321,108 @@ declare interface NetDiskUserCustomRuleRegexp {
      * 用于复制到剪贴板
      */
     copyUrl: string;
+}
+
+declare interface NetDiskUserCustomRuleSetting {
     /**
-     * （可选）用于验证链接有效性
+     * 规则名-不需要和key相同，主要用于显示的
+     * + 左侧栏显示
+     * + 顶部标题栏显示
+     */
+    name: string;
+    /**
+     * 提取码间隔前的字符长度
+     * 
+     * 作用于规则-link_innerText，占位字符串{#innerTextAccessCodeBeforeMaxRange#}
+     * 
+     * 【提取码文本匹配Text】-【间隔前】
+     * 
+     * 键: `${key}_innerText_accessCode_before_max_range`
+     */
+    innerTextAccessCodeBeforeMaxRange?: number;
+    /**
+     * 提取码间隔后的字符长度
+     * 
+     * 作用于规则-link_innerText，占位字符串{#innerTextAccessCodeAfterMaxRange#}
+     * 
+     * 【提取码文本匹配Text】-【间隔后】
+     * 
+     * 键: `${key}_innerText_accessCode_after_max_range`
+     */
+    innerTextAccessCodeAfterMaxRange?: number;
+    /**
+     * 提取码间隔前的字符长度
+     * 
+     * 作用于规则-link_innerHTML，占位字符串{#innerHTMLAccessCodeBeforeMaxRange#}
+     * 
+     * 
+     * 【提取码文本匹配HTML】-【间隔前】
+     * 
+     * 键: `${key}_innerHTML_accessCode_before_max_range`
+     */
+    innerHTMLAccessCodeBeforeMaxRange?: number;
+    /**
+     * 提取码间隔后的字符长度
+     * 
+     * 作用于规则-link_innerHTML，占位字符串{#innerHTMLAccessCodeAfterMaxRange#}
+     * 
+     * 【提取码文本匹配HTML】-【间隔后】
+     * 
+     * 键: `${key}_innerHTML_accessCode_after_max_range`
+     */
+    innerHTMLAccessCodeAfterMaxRange?: number;
+    /**
+     * 是否启用
+     * 
+     * 【功能】-【启用】
+     * 
+     * 键: `${key}-enable`
+     */
+    enable: boolean;
+    /**
+     * 是否新标签页打开
+     * 
+     * 【功能】-【新标签页打开】
+     * 
+     * 键: `${key}-open-enable`
+     */
+    isBlank?: boolean;
+    /**
+     * 通过新标签页打开时，复制访问码
+     * 
+     * 【功能】-【跳转时携带访问码】
+     * 
+     * 键: `${key}-open-blank-with-copy-accesscode`
+     */
+    openBlankWithCopyAccessCode?: boolean;
+    /**
+     * 是否开启scheme转发
+     * 
+     * 【功能】-【Scheme转发直链】
+     * 
+     * 键: `${key}-static-scheme-enable`
+     */
+    isForward?: boolean;
+    /**
+     * scheme的格式
+     * 
+     * 【功能】-【Scheme链接】
+     * 
+     * 键: `${key}-static-scheme-uri`
+     */
+    schemeUri?: boolean;
+    /**
+     * 验证链接有效性
+     * 
+     * 需要配置`setting.checkLinkValidityFunction`
+     * 
+     * 【功能】-【验证链接有效性】
+     * 
+     * 键: `${key}-check-link-valid`
      */
     checkLinkValidity?: boolean;
 }
-declare interface NetDiskUserCustomRuleSetting {
-    name?: string;
-    isBlank?: boolean;
-}
-declare interface NetDiskUserCustomRuleContext {
-    /**
-     * 当前的规则
-     */
-    rule: NetDiskUserCustomRule;
-    /**
-     * 网络请求js文件
-     */
-    NetDiskRequire: {
-        file(path: any, options: any): Promise<boolean>;
-    };
-    /**
-     * 加密使用
-     */
-    CryptoJS: object;
-    /**
-     * 网络请求
-     */
-    httpx: UtilsHttpxConstrustor;
-    /**
-     * 工具类
-     */
-    utils: Utils;
-    /**
-     * 元素工具类
-     */
-    DOMUtils: DOMUtils;
-    /**
-     * 上下文的window，在油猴中是被Proxy的window
-     */
-    window: Window & typeof globalThis;
-    /**
-     * 页面的window
-     */
-    unsafeWindow: Window & typeof globalThis;
-    /**
-     * 用于返回校验状态
-     */
-    NetDiskCheckLinkValidity: object;
-    /**
-     * 日志输出
-     */
-    log: UtilsLogConstructor;
-    /**
-     * Toast吐司
-     */
-    Qmsg: object;
-    /**
-     * 弹窗
-     */
-    pops: object;
-    /**
-     * 本规则的数据存储
-     */
-    setValue(key: string, value: any): void;
-    /**
-     * 本规则的数据获取
-     */
-    getValue(key: string): any;
-    /**
-     * 本规则的数据删除
-     */
-    deleteValue(key: string): void;
-}
+
 declare interface NetDiskUserCustomRule {
     /**
      * 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
@@ -406,7 +435,7 @@ declare interface NetDiskUserCustomRule {
     /**
      * 匹配规则
      */
-    regexp: NetDiskUserCustomRuleRegexp;
+    regexp: NetDiskUserCustomRuleRegexp | NetDiskUserCustomRuleRegexp[];
     /**
      * 设置
      */
@@ -466,49 +495,111 @@ declare interface NetDiskUserCustomRule {
 }
 ```
 
+- 只有分享码的
+
 ```js
-[
-    { // 只有分享码的
-        "key": "test1", // （必须）这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
-        "icon": "", // 用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
-        "regexp": { // （必须）匹配规则
-            "link_innerText": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）当设置中匹配类型为文本/全部，使用该规则
-            "link_innerHTML": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）当设置中匹配类型为超文本/全部，使用该规则
-            "shareCode": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）用于提取出shareCode
-            "shareCodeNeedRemoveStr": "^www.test.com/file/\\?surl=", // （必须）用于删除提取出的shareCode前面的域名、路径字符串
-            "acceesCodeNotMatch": "^(font|div|xxxx)", // 用于排除肯定不是提取码的关键字
-            "uiLinkShow": "https://www.test.com/file/?surl={#shareCode#}", // （必须）显示出的链接
-            "blank": "https://www.test.com/file/?surl={#shareCode#}", // （必须）用于超链接打开
-            "copyUrl": "https://www.test.com/file/?surl={#shareCode#}", // （必须）用于复制到剪贴板
-
-        },
-        "setting": { // 设置
-            "name": "wangpantest1", // 在设置中显示的网盘名
-            "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
-        }
+{ 
+    "key": "test1", // 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
+    "icon": "", // （可选）用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
+    "regexp": { // 匹配规则
+        "link_innerText": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // 当设置中匹配类型为文本/全部，使用该规则
+        "link_innerHTML": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // 当设置中匹配类型为超文本/全部，使用该规则
+        "shareCode": "www.test.com/file/\\?surl=([0-9a-zA-Z])+", // 用于提取出shareCode
+        "shareCodeNeedRemoveStr": "^www.test.com/file/\\?surl=", // 用于删除提取出的shareCode前面的域名、路径字符串
+        "uiLinkShow": "https://www.test.com/file/?surl={#shareCode#}", // 显示出的链接
+        "blank": "https://www.test.com/file/?surl={#shareCode#}", // 用于超链接打开
+        "copyUrl": "https://www.test.com/file/?surl={#shareCode#}", // 用于复制到剪贴板
     },
-    { // 存在提取码的
-        "key": "test2", // （必须）这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
-        "icon": "https://www.test2.com/favicon.ico", // 用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
-        "regexp": { // （必须）匹配规则
-            "link_innerText": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+[\\s\\S]{0,20}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)", // （必须）当设置中匹配类型为文本/全部，使用该规则
-            "link_innerHTML": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+[\\s\\S]{0,100}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)", // （必须）当设置中匹配类型为超文本/全部，使用该规则
-            "shareCode": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+", // （必须）用于提取出shareCode
-            "shareCodeNeedRemoveStr": "^www.test2.com/file/\\?surl=", // （必须）用于删除提取出的shareCode前面的域名、路径字符串
-            "checkAccessCode": "(密码|访问码|提取码)[\\s\\S]+", // 用于判断提取码是否存在
-            "accessCode": "([0-9a-zA-Z]{4})", // 匹配提取码
-            "acceesCodeNotMatch": "^(font|div|xxxx)", // 用于排除肯定不是提取码的关键字
-            "uiLinkShow": "https://www.test2.com/file/?surl={#shareCode#} 提取码：{#accessCode#}", // （必须）显示出的链接
-            "blank": "https://www.test2.com/file/?surl={#shareCode#}", // （必须）用于超链接打开，提取码会自动复制到剪贴板
-            "copyUrl": "链接：https://www.test2.com/file/?surl={#shareCode#}\n密码：{#accessCode#}", // （必须）用于复制到剪贴板
+    "setting": { // 设置
+        "name": "wangpantest1", // 在设置中显示的网盘名
+        "enable": true, // 是否启用
+        "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
+    }
+}
+```
 
-        },
-        "setting": { // 设置
-            "name": "wangpantest2", // 在设置中显示的网盘名
-            "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
-        }
+- 存在提取码的
+
+```js
+{ // 存在提取码的
+    "key": "test2", // 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
+    "icon": "https://www.test2.com/favicon.ico", // 用于显示的网盘图标，可以是data:image格式，或者是url图片，如果没有，会是空白图标
+    "regexp": { // 匹配规则
+        "link_innerText": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+[\\s\\S]{0,20}(密码|访问码|提取码)[\\s\\S]{0,10}[0-9a-zA-Z]{4}|)", // 当设置中匹配类型为文本/全部，使用该规则
+        "link_innerHTML": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+[\\s\\S]{0,100}(密码|访问码|提取码)[\\s\\S]{0,15}[0-9a-zA-Z]{4}|)", // 当设置中匹配类型为超文本/全部，使用该规则
+        "shareCode": "www.test2.com/file/\\?surl=([0-9a-zA-Z])+", // 用于提取出shareCode
+        "shareCodeNeedRemoveStr": "^www.test2.com/file/\\?surl=", // 用于删除提取出的shareCode前面的域名、路径字符串
+        "checkAccessCode": "(密码|访问码|提取码)[\\s\\S]+", // 用于判断提取码是否存在
+        "accessCode": "([0-9a-zA-Z]{4})", // 匹配提取码
+        "acceesCodeNotMatch": "^(font|div|xxxx)", // 用于排除肯定不是提取码的关键字
+        "uiLinkShow": "https://www.test2.com/file/?surl={#shareCode#} 提取码：{#accessCode#}", // 显示出的链接
+        "blank": "https://www.test2.com/file/?surl={#shareCode#}", // 用于超链接打开，提取码会自动复制到剪贴板
+        "copyUrl": "链接：https://www.test2.com/file/?surl={#shareCode#}\n密码：{#accessCode#}", // 用于复制到剪贴板
+
     },
-    ...
-]
+    "setting": { // 设置
+        "name": "wangpantest2", // 在设置中显示的网盘名
+        "enable": true, // 是否启用
+        "isBlank": true // 是否让识别到的网盘链接改为新标签页打开
+    }
+}
+```
 
+- 多条规则(这里拿飞猫云示例)
+
+```js
+{
+    "key": "feimaoyun",
+    "icon": "https://www.feimaoyun.com/favicon.ico",
+    "regexp": [
+        {
+            "link_innerText": "feimaoyun.com/s/([0-9a-zA-Z]+)",
+            "link_innerHTML": "feimaoyun.com/s/([0-9a-zA-Z]+)",
+            "shareCode": "feimaoyun.com/s/([0-9a-zA-Z]+)",
+            "shareCodeNeedRemoveStr": "^feimaoyun.com/s/",
+            "uiLinkShow": "https://www.feimaoyun.com/s/{#shareCode#}",
+            "blank": "https://www.feimaoyun.com/s/{#shareCode#}",
+            "copyUrl": "https://www.feimaoyun.com/s/{#shareCode#}"
+        },
+        {
+            "link_innerText": "feimaoyun.com/#/s/([0-9a-zA-Z]+)",
+            "link_innerHTML": "feimaoyun.com/#/s/([0-9a-zA-Z]+)",
+            "shareCode": "feimaoyun.com/#/s/([0-9a-zA-Z]+)",
+            "shareCodeNeedRemoveStr": "^feimaoyun.com/#/s/",
+            "uiLinkShow": "https://www.feimaoyun.com/s/{#shareCode#}",
+            "blank": "https://www.feimaoyun.com/s/{#shareCode#}",
+            "copyUrl": "https://www.feimaoyun.com/s/{#shareCode#}"
+        }
+    ],
+    "setting": {
+        "name": "飞猫盘",
+        "enable": true,
+        "isBlank": true,
+        "openBlankWithCopyAccessCode": true,
+    },
+}
+```
+
+或者单条规则
+
+```js
+{
+    "key": "feimaoyun",
+    "icon": "https://www.feimaoyun.com/favicon.ico",
+    "regexp": {
+            "link_innerText": "feimaoyun.com(/#|)/s/([0-9a-zA-Z]+)",
+            "link_innerHTML": "feimaoyun.com(/#|)/s/([0-9a-zA-Z]+)",
+            "shareCode": "feimaoyun.com(/#|)/s/([0-9a-zA-Z]+)",
+            "shareCodeNeedRemoveStr": "^feimaoyun.com(/#|)/s/",
+            "uiLinkShow": "https://www.feimaoyun.com/s/{#shareCode#}",
+            "blank": "https://www.feimaoyun.com/s/{#shareCode#}",
+            "copyUrl": "https://www.feimaoyun.com/s/{#shareCode#}"
+        },
+    "setting": {
+        "name": "飞猫盘",
+        "enable": true,
+        "isBlank": true,
+        "openBlankWithCopyAccessCode": true,
+    },
+}
 ```
