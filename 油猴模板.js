@@ -26,7 +26,7 @@
 
 (function () {
   if (typeof unsafeWindow === "undefined") {
-    unsafeWindow = globalThis;
+    unsafeWindow = globalThis || window;
   }
   /** @type {import("../库/pops")} */
   const pops = window.pops;
@@ -118,6 +118,19 @@
           }
         });
       });
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param {string} key
+     * @param {Function} callback 回调
+     */
+    execMenu(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if(PopsPanel.getValue(key)){
+        callback();
+      }
     },
     /**
      * 设置值
