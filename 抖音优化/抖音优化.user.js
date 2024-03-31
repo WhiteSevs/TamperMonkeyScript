@@ -1528,8 +1528,10 @@
   /* ---------------------入口--------------------- */
   PopsPanel.initMenu();
   if (DouYinRouter.isLive()) {
+    log.info("Router: 直播");
     DouYinLive.init();
   } else if (DouYinRouter.isVideo()) {
+    log.info("Router: 推荐视频");
     PopsPanel.execMenu("shieldVideo", () => {
       DouYinShieldVideo.init();
     });
