@@ -323,7 +323,7 @@
                   "清晰度",
                   "自行选择清晰度",
                   "chooseVideoDefinition",
-                  "智能",
+                  1,
                   [
                     {
                       text: "智能",
@@ -358,7 +358,7 @@
                   "伪装登录",
                   "使用随机UID进行伪装",
                   "disguiseLogin",
-                  true,
+                  false,
                   void 0
                 ),
                 this.getSwtichDetail(
@@ -595,28 +595,28 @@
                   "【屏蔽】底部的礼物栏",
                   "屏蔽元素",
                   "live-shieldGiftColumn",
-                  true,
+                  false,
                   void 0
                 ),
                 this.getSwtichDetail(
                   "【屏蔽】顶栏信息",
                   "屏蔽元素，包括直播作者、右侧的礼物展馆",
                   "live-shieldTopToolBarInfo",
-                  true,
+                  false,
                   void 0
                 ),
                 this.getSwtichDetail(
                   "【屏蔽】礼物特效",
                   "屏蔽元素",
                   "live-shieldGiftEffects",
-                  true,
+                  false,
                   void 0
                 ),
                 this.getSwtichDetail(
                   "【屏蔽】弹幕",
                   "屏蔽元素",
                   "live-shieldDanmuku",
-                  true,
+                  false,
                   void 0
                 ),
                 this.getSwtichDetail(
@@ -1535,7 +1535,7 @@
     });
     DouYin.init();
   } else {
-    log.error("未知router");
+    log.error("未知router: " + window.location.hostname);
   }
 
   /* ---------------------入口--------------------- */
