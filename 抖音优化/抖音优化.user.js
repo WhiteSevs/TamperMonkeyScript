@@ -3,7 +3,7 @@
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.3.31
+// @version      2024.3.31.16
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @author       WhiteSevs
 // @license      GPL-3.0-only
@@ -409,6 +409,67 @@
                   true,
                   void 0
                 ),
+              ],
+            },
+            {
+              text: "主框架-屏蔽",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "【屏蔽】客户端提示",
+                  "屏蔽元素",
+                  "shieldClientTip",
+                  true,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】充砖石",
+                  "屏蔽元素",
+                  "shieldFillingBricksAndStones",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】客户端",
+                  "屏蔽元素",
+                  "shieldClient",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】快捷访问",
+                  "屏蔽元素",
+                  "shieldQuickAccess",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】通知",
+                  "屏蔽元素",
+                  "shieldNotifitation",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】私信",
+                  "屏蔽元素",
+                  "shieldPrivateMessage",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】投稿",
+                  "屏蔽元素",
+                  "shieldSubmission",
+                  false,
+                  void 0
+                ),
+              ],
+            },
+            {
+              text: "视频区域内-屏蔽",
+              type: "forms",
+              forms: [
                 this.getSwtichDetail(
                   "【屏蔽】右侧的展开评论按钮",
                   "屏蔽元素",
@@ -490,6 +551,40 @@
                   "【屏蔽】底部视频工具栏",
                   "屏蔽元素",
                   "shieldBottomVideoToolBar",
+                  false,
+                  void 0
+                ),
+              ],
+            },
+            {
+              text: "搜索-屏蔽",
+              type: "forms",
+              forms: [
+                this.getSwtichDetail(
+                  "【屏蔽】搜索框",
+                  "屏蔽元素",
+                  "shieldSearch",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】搜索框的提示",
+                  "屏蔽元素",
+                  "shieldSearchPlaceholder",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】猜你想搜",
+                  "屏蔽元素",
+                  "shieldSearchGuessYouWantToSearch",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】抖音热点",
+                  "屏蔽元素",
+                  "shieldSearchTiktokHotspot",
                   false,
                   void 0
                 ),
@@ -588,20 +683,20 @@
               ],
             },
             {
-              text: "屏蔽",
+              text: "视频区域内-屏蔽",
               type: "forms",
               forms: [
-                this.getSwtichDetail(
-                  "【屏蔽】底部的礼物栏",
-                  "屏蔽元素",
-                  "live-shieldGiftColumn",
-                  false,
-                  void 0
-                ),
                 this.getSwtichDetail(
                   "【屏蔽】顶栏信息",
                   "屏蔽元素，包括直播作者、右侧的礼物展馆",
                   "live-shieldTopToolBarInfo",
+                  false,
+                  void 0
+                ),
+                this.getSwtichDetail(
+                  "【屏蔽】底部的礼物栏",
+                  "屏蔽元素",
+                  "live-shieldGiftColumn",
                   false,
                   void 0
                 ),
@@ -619,17 +714,23 @@
                   false,
                   void 0
                 ),
+              ],
+            },
+            {
+              text: "聊天室-屏蔽",
+              type: "forms",
+              forms: [
                 this.getSwtichDetail(
-                  "【屏蔽】评论区的贵宾席",
+                  "【屏蔽】聊天室",
                   "屏蔽元素",
-                  "live-shielChatRoomVipSeats",
+                  "live-shieldChatRoom",
                   false,
                   void 0
                 ),
                 this.getSwtichDetail(
-                  "【屏蔽】评论区",
+                  "【屏蔽】贵宾席",
                   "屏蔽元素",
-                  "live-shieldChatRoom",
+                  "live-shielChatRoomVipSeats",
                   false,
                   void 0
                 ),
@@ -867,42 +968,6 @@
       PopsPanel.execMenu("watchLoginDialogToClose", () => {
         this.watchLoginDialogToClose();
       });
-      PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
-        this.shieldRightExpandCommentButton();
-      });
-      PopsPanel.execMenu("shieldSearchFloatingBar", () => {
-        this.shieldSearchFloatingBar();
-      });
-      PopsPanel.execMenu("shieldCloseFullScreenButton", () => {
-        this.shieldCloseFullScreenButton();
-      });
-      PopsPanel.execMenu("shieldPlaySwitchButton", () => {
-        this.shieldPlaySwitchButton();
-      });
-      PopsPanel.execMenu("shieldAuthorAvatar", () => {
-        this.shieldAuthorAvatar();
-      });
-      PopsPanel.execMenu("shieldLikeButton", () => {
-        this.shieldLikeButton();
-      });
-      PopsPanel.execMenu("shieldCommentButton", () => {
-        this.shieldCommentButton();
-      });
-      PopsPanel.execMenu("shieldCollectionButton", () => {
-        this.shieldCollectionButton();
-      });
-      PopsPanel.execMenu("shieldSharenButton", () => {
-        this.shieldSharenButton();
-      });
-      PopsPanel.execMenu("shieldRelatedRecommendationsButton", () => {
-        this.shieldRelatedRecommendationsButton();
-      });
-      PopsPanel.execMenu("shieldMoreButton", () => {
-        this.shieldMoreButton();
-      });
-      PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
-        this.shieldBottomVideoToolBar();
-      });
       PopsPanel.execMenu("changeCommentToBottom", () => {
         this.changeCommentToBottom();
       });
@@ -925,6 +990,296 @@
       PopsPanel.execMenu("autoEnterElementFullScreen", () => {
         this.autoEnterElementFullScreen();
       });
+      this.shieldHeader.init();
+      this.shieldVideo.init();
+      this.shieldSearch.init();
+    },
+    shieldHeader: {
+      init() {
+        PopsPanel.execMenu("shieldClientTip", () => {
+          this.shieldClientTip();
+        });
+        PopsPanel.execMenu("shieldFillingBricksAndStones", () => {
+          this.shieldFillingBricksAndStones();
+        });
+        PopsPanel.execMenu("shieldClient", () => {
+          this.shieldClient();
+        });
+        PopsPanel.execMenu("shieldQuickAccess", () => {
+          this.shieldQuickAccess();
+        });
+        PopsPanel.execMenu("shieldNotifitation", () => {
+          this.shieldNotifitation();
+        });
+        PopsPanel.execMenu("shieldPrivateMessage", () => {
+          this.shieldPrivateMessage();
+        });
+        PopsPanel.execMenu("shieldSubmission", () => {
+          this.shieldSubmission();
+        });
+      },
+      /**
+       * 【屏蔽】充砖石
+       */
+      shieldFillingBricksAndStones() {
+        DouYinElement.addShieldStyle(
+          'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
+        );
+      },
+      /**
+       * 【屏蔽】客户端
+       */
+      shieldClient() {
+        DouYinElement.addShieldStyle(
+          'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container'
+        );
+      },
+      /**
+       * 【屏蔽】快捷访问
+       */
+      shieldQuickAccess() {
+        DouYinElement.addShieldStyle(
+          'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
+        );
+      },
+      /**
+       * 【屏蔽】通知
+       */
+      shieldNotifitation() {
+        DouYinElement.addShieldStyle(
+          'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M9.905 19.407h4.5v-1.5h-4.5v1.5z"])'
+        );
+      },
+      /**
+       * 【屏蔽】私信
+       */
+      shieldPrivateMessage() {
+        DouYinElement.addShieldStyle(
+          'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
+        );
+      },
+      /**
+       * 【屏蔽】投稿
+       */
+      shieldSubmission() {
+        DouYinElement.addShieldStyle(
+          'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
+        );
+      },
+      /**
+       * 【屏蔽】客户端提示
+       */
+      shieldClientTip() {
+        DouYinElement.addShieldStyle(
+          '#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
+          "#douyin-header ul div.userMenuPanelShadowAnimation:first-child"
+        );
+      },
+    },
+    shieldVideo: {
+      init() {
+        PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
+          this.shieldRightExpandCommentButton();
+        });
+        PopsPanel.execMenu("shieldSearchFloatingBar", () => {
+          this.shieldSearchFloatingBar();
+        });
+        PopsPanel.execMenu("shieldCloseFullScreenButton", () => {
+          this.shieldCloseFullScreenButton();
+        });
+        PopsPanel.execMenu("shieldPlaySwitchButton", () => {
+          this.shieldPlaySwitchButton();
+        });
+        PopsPanel.execMenu("shieldAuthorAvatar", () => {
+          this.shieldAuthorAvatar();
+        });
+        PopsPanel.execMenu("shieldLikeButton", () => {
+          this.shieldLikeButton();
+        });
+        PopsPanel.execMenu("shieldCommentButton", () => {
+          this.shieldCommentButton();
+        });
+        PopsPanel.execMenu("shieldCollectionButton", () => {
+          this.shieldCollectionButton();
+        });
+        PopsPanel.execMenu("shieldSharenButton", () => {
+          this.shieldSharenButton();
+        });
+        PopsPanel.execMenu("shieldRelatedRecommendationsButton", () => {
+          this.shieldRelatedRecommendationsButton();
+        });
+        PopsPanel.execMenu("shieldMoreButton", () => {
+          this.shieldMoreButton();
+        });
+        PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
+          this.shieldBottomVideoToolBar();
+        });
+      },
+      /**
+       * 【屏蔽】右侧的展开评论按钮
+       */
+      shieldRightExpandCommentButton() {
+        DouYinElement.addShieldStyle(
+          '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
+          '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
+        );
+        GM_addStyle(`
+        .basePlayerContainer .positionBox{
+            padding-right: 20px !important;
+        }
+        `);
+      },
+      /**
+       * 左上角的鼠标的快捷搜索热点的悬浮栏
+       */
+      shieldSearchFloatingBar() {
+        DouYinElement.addShieldStyle(
+          '.slider-video div:has([data-e2e="searchbar-button"])',
+          'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
+          'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])'
+        );
+      },
+      /**
+       * 【屏蔽】网页全屏关闭按钮
+       */
+      shieldCloseFullScreenButton() {
+        DouYinElement.addShieldStyle(
+          '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
+        );
+      },
+      /**
+       * 【屏蔽】切换播放
+       */
+      shieldPlaySwitchButton() {
+        DouYinElement.addShieldStyle(
+          '.positionBox  .xgplayer-playswitch[data-state="normal"]',
+          "div.xgplayer-playswitch"
+        );
+      },
+      /**
+       * 【屏蔽】作者头像
+       */
+      shieldAuthorAvatar() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has([data-e2e="video-avatar"])'
+        );
+      },
+      /**
+       * 【屏蔽】点赞
+       */
+      shieldLikeButton() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has([data-e2e="video-player-digg"])'
+        );
+      },
+      /**
+       * 【屏蔽】评论
+       */
+      shieldCommentButton() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
+        );
+      },
+      /**
+       * 【屏蔽】收藏
+       */
+      shieldCollectionButton() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has([data-e2e="video-player-collect"])'
+        );
+      },
+      /**
+       * 【屏蔽】分享
+       */
+      shieldSharenButton() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has([data-e2e="video-player-share"])'
+        );
+      },
+      /**
+       * 【屏蔽】看相关
+       */
+      shieldRelatedRecommendationsButton() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
+          'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
+        );
+      },
+      /**
+       * 【屏蔽】更多
+       */
+      shieldMoreButton() {
+        DouYinElement.addShieldStyle(
+          'div.dy-tip-container:has([data-e2e="video-play-more"])'
+        );
+      },
+      /**
+       * 【屏蔽】底部视频工具栏
+       */
+      shieldBottomVideoToolBar() {
+        DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
+        GM_addStyle(`
+      div:has( > div > pace-island > #video-info-wrap ),
+      xg-video-container.xg-video-container{
+        bottom: 0 !important;
+      }
+      `);
+      },
+    },
+    shieldSearch: {
+      init() {
+        PopsPanel.execMenu("shieldSearch", () => {
+          this.shieldSearch();
+        });
+        PopsPanel.execMenu("shieldSearchPlaceholder", () => {
+          this.shieldSearchPlaceholder();
+        });
+        PopsPanel.execMenu("shieldSearchGuessYouWantToSearch", () => {
+          this.shieldSearchGuessYouWantToSearch();
+        });
+        PopsPanel.execMenu("shieldSearchTiktokHotspot", () => {
+          this.shieldSearchTiktokHotspot();
+        });
+      },
+      /**
+       * 【屏蔽】搜索框
+       */
+      shieldSearch() {
+        DouYinElement.addShieldStyle(
+          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
+        );
+      },
+      /**
+       * 【屏蔽】搜索框的提示
+       */
+      shieldSearchPlaceholder() {
+        DouYinElement.addShieldStyle(
+          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
+        );
+        GM_addStyle(`
+    #douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+      color: transparent;
+    }
+    `);
+      },
+      /**
+       * 【屏蔽】搜索-猜你想搜
+       */
+      shieldSearchGuessYouWantToSearch() {
+        DouYinElement.addShieldStyle(
+          'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
+          'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
+        );
+      },
+      /**
+       * 【屏蔽】搜索-抖音热点
+       */
+      shieldSearchTiktokHotspot() {
+        DouYinElement.addShieldStyle(
+          'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
+          'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
+        );
+      },
     },
     /**
      * 调试模式
@@ -959,9 +1314,6 @@
         utils.getReactObj(
           osElement
         ).reactFiber.alternate.return.memoizedProps.userInfo.isLogin = true;
-        utils.getReactObj(
-          osElement
-        ).reactFiber.alternate.return.memoizedProps.isClient = true;
       }
       DouYinElement.watch_slidelist((osElement) => {
         setLogin(osElement);
@@ -990,115 +1342,6 @@
           },
         });
       });
-    },
-    /**
-     * 【屏蔽】右侧的展开评论按钮
-     */
-    shieldRightExpandCommentButton() {
-      DouYinElement.addShieldStyle(
-        '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
-        '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
-      );
-      GM_addStyle(`
-        .basePlayerContainer .positionBox{
-            padding-right: 20px !important;
-        }
-        `);
-    },
-    /**
-     * 左上角的鼠标的快捷搜索热点的悬浮栏
-     */
-    shieldSearchFloatingBar() {
-      DouYinElement.addShieldStyle(
-        '.slider-video div:has([data-e2e="searchbar-button"])',
-        'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
-        'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])'
-      );
-    },
-    /**
-     * 【屏蔽】网页全屏关闭按钮
-     */
-    shieldCloseFullScreenButton() {
-      DouYinElement.addShieldStyle(
-        '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
-      );
-    },
-    /**
-     * 【屏蔽】切换播放
-     */
-    shieldPlaySwitchButton() {
-      DouYinElement.addShieldStyle(
-        '.positionBox  .xgplayer-playswitch[data-state="normal"]'
-      );
-    },
-    /**
-     * 【屏蔽】作者头像
-     */
-    shieldAuthorAvatar() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-avatar"])'
-      );
-    },
-    /**
-     * 【屏蔽】点赞
-     */
-    shieldLikeButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-player-digg"])'
-      );
-    },
-    /**
-     * 【屏蔽】评论
-     */
-    shieldCommentButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
-      );
-    },
-    /**
-     * 【屏蔽】收藏
-     */
-    shieldCollectionButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-player-collect"])'
-      );
-    },
-    /**
-     * 【屏蔽】分享
-     */
-    shieldSharenButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-player-share"])'
-      );
-    },
-    /**
-     * 【屏蔽】看相关
-     */
-    shieldRelatedRecommendationsButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
-        'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
-      );
-    },
-    /**
-     * 【屏蔽】更多
-     */
-    shieldMoreButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-play-more"])'
-      );
-    },
-    /**
-     * 【屏蔽】底部视频工具栏
-     */
-    shieldBottomVideoToolBar() {
-      DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
-      GM_addStyle(`
-      div:has( > div > pace-island > #video-info-wrap ),
-      xg-video-container.xg-video-container{
-        bottom: 0 !important;
-      }
-      `);
     },
     /**
      * 评论区修改为底部
@@ -1418,12 +1661,36 @@
       PopsPanel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
       });
-      PopsPanel.execMenu("live-shielChatRoomVipSeats", () => {
-        this.shielChatRoomVipSeats();
-      });
-      PopsPanel.execMenu("live-shieldChatRoom", () => {
-        this.shieldChatRoom();
-      });
+      this.chatRoom.init();
+    },
+    chatRoom: {
+      init() {
+        PopsPanel.execMenu("live-shieldChatRoom", () => {
+          this.shieldChatRoom();
+        });
+        PopsPanel.execMenu("live-shielChatRoomVipSeats", () => {
+          this.shielChatRoomVipSeats();
+        });
+      },
+      /**
+       * 【屏蔽】评论区
+       */
+      shieldChatRoom() {
+        DouYinElement.addShieldStyle("#chatroom");
+        GM_addStyle(`
+        div[data-e2e="living-container"],
+        div[data-e2e="living-container"] > div{
+          margin-bottom: 0px !important;
+        }`);
+      },
+      /**
+       * 【屏蔽】评论区的贵宾席
+       */
+      shielChatRoomVipSeats() {
+        DouYinElement.addShieldStyle(
+          "#chatroom > div > div:has(#audiencePanelScrollId)"
+        );
+      },
     },
     /**
      * 自动进入网页全屏
@@ -1502,26 +1769,6 @@
           capture: true,
         }
       );
-    },
-    /**
-     * 【屏蔽】评论区的贵宾席
-     */
-    shielChatRoomVipSeats() {
-      DouYinElement.addShieldStyle(
-        "#chatroom > div > div:has(#audiencePanelScrollId)"
-      );
-    },
-    /**
-     * 【屏蔽】评论区
-     */
-    shieldChatRoom() {
-      DouYinElement.addShieldStyle("#chatroom");
-      GM_addStyle(`
-      div[data-e2e="living-container"],
-      div[data-e2e="living-container"] > div{
-        margin-bottom: 0px !important;
-      }
-      `);
     },
   };
 
