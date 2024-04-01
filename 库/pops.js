@@ -10543,14 +10543,11 @@
           }
 
           /**
-           * @type {PopsPanelFormsDetailsArray}
+           * @type {PopsPanelContentConfig[]}
            */
           let __forms__ = asideLiElement.__forms__;
           __forms__.forEach((formConfig) => {
             if (formConfig["type"] === "forms") {
-              /**
-               * @type {PopsPanelFormsDetailsArray}
-               */
               let childForms = formConfig["forms"];
               /* 父<li>元素 */
               let formContainerListElement = document.createElement("li");

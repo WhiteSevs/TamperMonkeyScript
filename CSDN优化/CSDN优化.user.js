@@ -1376,7 +1376,7 @@ div.article-show-more{
     },
     /**
      * 获取配置内容
-     * @returns {PopsPanelFormsDetailsArray}
+     * @returns {PopsPanelContentConfig[]}
      */
     getContent() {
       return [

@@ -114,6 +114,8 @@ type PopsTextAlign = "center" |
     "revert" |
     "revert-layer" |
     "unset"
+
+/** panel的各种类型的配置项 */
 type PopsPanelFormsTotalDetails =
     PopsPanelSwitchDetails |
     PopsPanelSliderDetails |
@@ -122,15 +124,6 @@ type PopsPanelFormsTotalDetails =
     PopsPanelSelectDetails |
     PopsPanelButtonDetails |
     PopsPanelOwnDetails
-type PopsPanelFormsDetailsArray =
-    PopsPanelSwitchDetails[] |
-    PopsPanelSliderDetails[] |
-    PopsPanelInputDetails[] |
-    PopsPanelTextAreaDetails[] |
-    PopsPanelSelectDetails[] |
-    PopsPanelButtonDetails[] |
-    PopsPanelOwnDetails[] |
-    PopsPanelFormsDetails[]
 
 /**
  * 现有的pops.xxx的类型
@@ -514,7 +507,7 @@ declare interface PopsPanelContentConfig {
     /**
      * 子配置
      */
-    forms: PopsPanelFormsDetailsArray;
+    forms: PopsPanelFormsDetails[];
     /**
      * 左侧容器的点击回调
      */
@@ -547,7 +540,7 @@ declare interface PopsPanelFormsDetails extends PopsPanelCommonDetails {
     /**
      * 子配置
      */
-    forms: PopsPanelFormsDetailsArray;
+    forms: PopsPanelFormsTotalDetails[];
 }
 /**
  * pops.panel的 switch

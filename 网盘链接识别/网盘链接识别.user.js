@@ -11023,7 +11023,7 @@
               item.parseMoreFile != null
             ) {
               /**
-               * @type {PopsPanelFormsDetailsArray}
+               * @type {PopsPanelFormsTotalDetails[]}
                */
               let functionFormsList = [];
               /* 是否启用 */
@@ -11191,7 +11191,7 @@
             /* Scheme转发直链 */
             if (item.isForward) {
               /**
-               * @type {PopsPanelFormsDetailsArray}
+               * @type {PopsPanelFormsTotalDetails[]}
                */
               let functionFormsList = [
                 {
