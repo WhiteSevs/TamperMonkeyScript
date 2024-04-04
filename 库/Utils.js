@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-3-17";
+  Utils.version = "2024-4-4";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -74,6 +74,42 @@
     }
 
     return target;
+  };
+
+  Utils.asyncReplaceAll = async function (string, pattern, asyncFn) {
+    if (typeof string !== "string") {
+      throw new TypeError("string必须是字符串");
+    }
+    if (typeof asyncFn !== "function") {
+      throw new TypeError("asyncFn必须是函数");
+    }
+    let reg;
+    if (typeof pattern === "string") {
+      reg = new RegExp(Utils.parseStringToRegExpString(pattern), "g");
+    } else if (pattern instanceof RegExp) {
+      if (!pattern.global) {
+        throw new TypeError("pattern必须是全局匹配");
+      }
+      reg = new RegExp(pattern);
+    } else {
+      throw new TypeError("pattern必须是正则对象");
+    }
+    let result = [];
+    let match;
+    let lastIndex = 0;
+    while ((match = reg.exec(string)) !== null) {
+      /* 异步获取匹配对应的字符串 */
+      const item = asyncFn(match[0]);
+      /* 获取该匹配项和上一个匹配项的中间的字符串 */
+      const prefix = string.slice(lastIndex, match.index);
+      lastIndex = match.index + match[0].length;
+      result.push(item);
+      result.push(prefix);
+    }
+    result.push(string.slice(lastIndex));
+    /* 等待所有异步完成 */
+    result = await Promise.all(result);
+    return result.join("");
   };
 
   Utils.ajaxHooker = function () {
@@ -1520,7 +1556,6 @@
   };
 
   Utils.getRandomAndroidUA = function () {
-    let androidVersion = Utils.getRandomValue(10, 14);
     let mobileNameList = [
       "LDN-LX3",
       "RNE-L03",
@@ -1537,8 +1572,9 @@
       "M2003J15SC Build/RP1A.200720.011; wv",
       "MI 13 Build/OPR1.170623.027; wv",
     ];
+    let androidVersion = Utils.getRandomValue(12, 14);
     let randomMobile = Utils.getRandomValue(mobileNameList);
-    let chromeVersion1 = Utils.getRandomValue(110, 121);
+    let chromeVersion1 = Utils.getRandomValue(115, 125);
     let chromeVersion2 = Utils.getRandomValue(0, 0);
     let chromeVersion3 = Utils.getRandomValue(2272, 6099);
     let chromeVersion4 = Utils.getRandomValue(1, 218);
@@ -1581,7 +1617,7 @@
   };
 
   Utils.getRandomPCUA = function () {
-    let chromeVersion1 = Utils.getRandomValue(110, 121);
+    let chromeVersion1 = Utils.getRandomValue(115, 125);
     let chromeVersion2 = Utils.getRandomValue(0, 0);
     let chromeVersion3 = Utils.getRandomValue(2272, 6099);
     let chromeVersion4 = Utils.getRandomValue(1, 218);
@@ -4427,7 +4463,15 @@
     return parser.parseFromString(text, mimeType);
   };
 
-  Utils.preventEvent = function (element, eventNameList = []) {
+  Utils.parseStringToRegExpString = function (string) {
+    if (typeof string !== "string") {
+      throw new TypeError("string必须是字符串");
+    }
+    let regString = string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+    return regString;
+  };
+
+  Utils.preventEvent = function (element, eventNameList = [], capture) {
     function stopEvent(event) {
       /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
       event?.preventDefault();
@@ -4438,14 +4482,16 @@
       return false;
     }
     if (arguments.length === 1) {
+      /* 直接阻止事件 */
       return stopEvent(arguments[0]);
-    } else if (arguments.length === 2) {
+    } else {
+      /* 添加对应的事件来阻止触发 */
       if (typeof eventNameList === "string") {
         eventNameList = [eventNameList];
       }
       eventNameList.forEach((eventName) => {
-        element.addEventListener(eventName, function (event) {
-          return stopEvent(event);
+        element.addEventListener(eventName, stopEvent, {
+          capture: Boolean(capture),
         });
       });
     }

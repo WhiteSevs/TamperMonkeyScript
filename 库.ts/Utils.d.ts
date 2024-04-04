@@ -1334,11 +1334,11 @@ declare interface UtilsGMMenuOption {
     isStoreValue?: boolean;
 }
 
-declare interface UtilsGMMenuHandledOption extends UtilsGMMenuOption{
+declare interface UtilsGMMenuHandledOption extends UtilsGMMenuOption {
     /**
      * 删除该菜单
      */
-    deleteMenu():void;
+    deleteMenu(): void;
 }
 
 declare interface UtilsGMMenuOptionData {
@@ -2085,6 +2085,13 @@ declare interface Utils {
         source: T2,
         isAdd?: T3
     ): T3 extends true ? T1 & T2 : T1;
+    /**
+     * 异步替换字符串
+     * @param string 需要被替换的目标字符串
+     * @param pattern 正则匹配模型
+     * @param asyncFn 异步获取的函数
+     */
+    asyncReplaceAll(string: string, pattern: RegExp | string, asyncFn: (item: string) => Promise<string>): Promise<string>;
     /**
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -3237,9 +3244,16 @@ declare interface Utils {
         mimeType?: "text/html" | "text/xml" | "application/xml" | "application/xhtml+xml" | "image/svg+xml"
     ): HTMLElement | XMLDocument | SVGElement;
     /**
+     * 将字符串进行正则转义
+     * 例如：^替换$
+     * 转换：\^替换\$
+     */
+    parseStringToRegExpString(): string;
+    /**
      * 阻止事件传递
      * @param element 要进行处理的元素
      * @param eventNameList （可选）要阻止的事件名|列表
+     * @param capture （可选）是否捕获，默认false
      * @example
      * Utils.preventEvent(document.querySelector("a"),"click")
      * @example
@@ -3247,7 +3261,8 @@ declare interface Utils {
      */
     preventEvent(
         element: HTMLElement,
-        eventNameList?: string | string[]
+        eventNameList?: string | string[],
+        capture?: boolean,
     ): boolean;
     /**
      * 在canvas元素节点上绘制进度圆圈
