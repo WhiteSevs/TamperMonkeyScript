@@ -3,7 +3,7 @@
 // @icon         https://www.jianshu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/485483
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.3.27
+// @version      2024.4.4
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -17,13 +17,13 @@
 // @grant        GM_info
 // @grant        unsafeWindow
 // @run-at       document-start
-// @require      https://update.greasyfork.org/scripts/456485/1349871/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1348396/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1352602/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1353961/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1344519/DOMUtils.js
 // ==/UserScript==
 
 (function () {
-  if(typeof unsafeWindow === "undefined"){
+  if (typeof unsafeWindow === "undefined") {
     unsafeWindow = globalThis;
   }
   /**
@@ -229,6 +229,41 @@
             `);
         },
         /**
+         * 【屏蔽】客户端弹窗
+         */
+        shieldClientDialog() {
+          GM_addStyle(`
+          div:has(>div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]){
+            display: none !important;
+          }
+          `);
+          utils
+            .waitNode(
+              `div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]`
+            )
+            .then((element) => {
+              log.info("弹窗出现");
+              utils
+                .waitPropertyByInterval(
+                  element,
+                  () => {
+                    let react = utils.getReactObj(element);
+                    return react?.reactInternalInstance?.return?.return
+                      ?.memoizedProps?.onClose;
+                  },
+                  250,
+                  10000
+                )
+                .then(() => {
+                  let react = utils.getReactObj(element);
+                  react.reactInternalInstance.return.return.memoizedProps.onClose(
+                    new Event("click")
+                  );
+                  log.success("调用函数关闭弹窗");
+                });
+            });
+        },
+        /**
          * 屏蔽评论区
          */
         shieldUserComments() {
@@ -266,6 +301,9 @@
           }
           if (PopsPanel.getValue("JianShuShieldRelatedArticles")) {
             this.shieldRelatedArticles();
+          }
+          if (PopsPanel.getValue("jianshu-shieldClientDialog")) {
+            this.shieldClientDialog();
           }
           if (PopsPanel.getValue("JianShuShieldUserComments")) {
             this.shieldUserComments();
@@ -527,6 +565,13 @@
                   "【屏蔽】相关文章",
                   "JianShuShieldRelatedArticles",
                   false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "【屏蔽】客户端弹窗",
+                  "jianshu-shieldClientDialog",
+                  false,
+                  void 0,
+                  "弹出的【扫码安装简书客户端 畅享全文阅读体验】"
                 ),
               ],
             },
