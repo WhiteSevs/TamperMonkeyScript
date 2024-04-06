@@ -22,7 +22,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-4-4";
+  Utils.version = "2024-4-6";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -375,7 +375,7 @@
             },
           };
         }
-        return ah.originalXhr.open(method, url, ...args);
+        return ah.originalXhr.open(method, url, async, ...args);
       },
       sendFactory(realSend) {
         return function (data) {
@@ -465,7 +465,7 @@
           const req = new AHRequest(request);
           req.waitForRequestKeys().then(() => {
             if (request.abort) return;
-            xhr.open(request.method, request.url, ...ah.openArgs);
+            xhr.open(request.method, request.url, ah.async, ...ah.openArgs);
             for (const header in request.headers) {
               xhr.setRequestHeader(header, request.headers[header]);
             }
@@ -3683,7 +3683,7 @@
     const targetCharMap = {};
     let targetStrLength = 0;
     for (const char of targetStr) {
-      if (Object.hasOwnProperty.call(targetCharMap, char)) {
+      if (Reflect.has(targetCharMap, char)) {
         targetCharMap[char]++;
       } else {
         targetCharMap[char] = 1;
@@ -3745,7 +3745,7 @@
     let result = true;
     if (typeof top.window.via === "object") {
       for (const key in Object.values(top.window.via)) {
-        if (Object.hasOwnProperty.call(top.window.via, key)) {
+        if (Reflect.has(top.window.via, key)) {
           let objValueFunc = top.window.via[key];
           if (
             typeof objValueFunc === "function" &&
@@ -3768,7 +3768,7 @@
     let result = true;
     if (typeof top.window.mbrowser === "object") {
       for (const key in Object.values(top.window.mbrowser)) {
-        if (Object.hasOwnProperty.call(top.window.mbrowser, key)) {
+        if (Reflect.has(top.window.mbrowser, key)) {
           let objValueFunc = top.window.mbrowser[key];
           if (
             typeof objValueFunc === "function" &&
@@ -5571,7 +5571,7 @@
       if (typeof checkObj === "function") {
         obj = checkObj();
       }
-      if (Object.hasOwnProperty.call(obj, checkPropertyName)) {
+      if (Reflect.has(obj, checkPropertyName)) {
         resolve(obj[checkPropertyName]);
       } else {
         Object.defineProperty(obj, checkPropertyName, {
@@ -5605,7 +5605,7 @@
         }
         if (
           (typeof checkPropertyName === "function" && checkPropertyName(obj)) ||
-          Object.hasOwnProperty.call(obj, checkPropertyName)
+          Reflect.has(obj, checkPropertyName)
         ) {
           isResolve = true;
           clearInterval(interval);
