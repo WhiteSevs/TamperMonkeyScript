@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.4
+// @version      2024.4.6
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -1695,12 +1695,24 @@
             /* 获取属性上的LOG */
             let dataLog = utils.toJSON(item.getAttribute("data-log"));
             /* 真实链接 */
-            let searchArticleOriginal_link = dataLog["mu"];
+            let searchArticleOriginal_link =
+              dataLog["mu"] ||
+              item.querySelector("article")?.getAttribute("rl-link-href");
             if (
               BaiduSearchRule.handleCustomRule(item, searchArticleOriginal_link)
             ) {
               item.remove();
               return;
+            }
+            if (utils.isNotNull(searchArticleOriginal_link)) {
+              /* 添加CSDN下载标识 */
+              if (
+                searchArticleOriginal_link.match(
+                  /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
+                )
+              ) {
+                HandleItemURL.addCSDNFlag(item);
+              }
             }
             if (
               PopsPanel.getValue(
@@ -1734,15 +1746,6 @@
                   log.success("删除广告 ==> 百度APP内打开|百度手机助手");
                 }
               });
-            }
-
-            /* 添加CSDN下载标识 */
-            if (
-              searchArticleOriginal_link.match(
-                /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
-              )
-            ) {
-              HandleItemURL.addCSDNFlag(item);
             }
           });
         },
@@ -8869,24 +8872,45 @@
    * 配置面板
    */
   const PopsPanel = {
-    /**
-     * 本地存储的总键名
-     */
-    key: "GM_Panel",
-    /**
-     * 属性attributes的data-key
-     */
-    attributeDataKey_Name: "data-key",
-    /**
-     * 属性attributes的data-default-value
-     */
-    attributeDataDefaultValue_Name: "data-default-value",
+    /** 数据 */
+    $data: {
+      /**
+       * 菜单项的默认值
+       * @type {UtilsDictionaryConstructor<string,any>}
+       */
+      data: new utils.Dictionary(),
+      /** 脚本名，一般用在设置的标题上 */
+      scriptName: GM_info?.script?.name || "",
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: "GM_Panel",
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: "data-key",
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: "data-default-value",
+    },
+    /** 监听器 */
+    $listener: {
+      /**
+       * 值改变的监听器
+       * @type {UtilsDictionaryConstructor<string,{
+       *  id: number,
+       *  key: string,
+       *  callback: Function
+       * }>}
+       */
+      listenData: new utils.Dictionary(),
+    },
+    /** 初始化 */
+    init() {
+      this.initPanelDefaultValue();
+      this.initExtensionsMenu();
+    },
     /**
      * 初始化菜单
      */
-    initMenu() {
-      this.initLocalDefaultValue();
+    initExtensionsMenu() {
       if (unsafeWindow.top !== unsafeWindow.self) {
+        /* 不允许在iframe内重复注册 */
         return;
       }
       GM_Menu.add([
@@ -8919,29 +8943,64 @@
     /**
      * 初始化本地设置默认的值
      */
-    initLocalDefaultValue() {
-      let content = this.getContent();
-      content.forEach((item) => {
-        if (!item["forms"]) {
-          return;
+    initPanelDefaultValue() {
+      let contentConfigList = this.getPanelContentConfig();
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let contentConfigItem = contentConfigList[index];
+        if (!contentConfigItem["forms"]) {
+          /* 不存在forms */
+          continue;
         }
-        item.forms.forEach((__item__) => {
-          if (__item__.forms) {
-            __item__.forms.forEach((containerItem) => {
-              if (!containerItem.attributes) {
+        let formItemList = contentConfigItem["forms"];
+        for (
+          let formItemIndex = 0;
+          formItemIndex < formItemList.length;
+          formItemIndex++
+        ) {
+          let formConfigItem = formItemList[formItemIndex];
+          let formChildConfigList = formConfigItem["forms"];
+          if (formChildConfigList) {
+            /* 必须存在子的forms */
+            for (
+              let formChildConfigIndex = 0;
+              formChildConfigIndex < formChildConfigList.length;
+              formChildConfigIndex++
+            ) {
+              let containerItem = formChildConfigList[formChildConfigIndex];
+              if (!containerItem["attributes"]) {
+                /* 必须配置attributes属性，用于存储菜单的键和默认值 */
                 return;
               }
-              let key = containerItem.attributes[this.attributeDataKey_Name];
+              /* 获取键名 */
+              let key =
+                containerItem["attributes"][this.$data.attributeKeyName];
+              /* 获取默认值 */
               let defaultValue =
-                containerItem.attributes[this.attributeDataDefaultValue_Name];
-              if (this.getValue(key) == null) {
-                this.setValue(key, defaultValue);
+                containerItem["attributes"][
+                  this.$data.attributeDefaultValueName
+                ];
+              /* 存储到内存中 */
+              if (this.$data.data.has(key)) {
+                console.warn("请检查该key(已存在): " + key);
               }
-            });
-          } else {
+              this.$data.data.set(key, defaultValue);
+            }
           }
-        });
-      });
+        }
+      }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param {string} key
+     * @param {Function} callback 回调
+     */
+    execMenu(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (PopsPanel.getValue(key)) {
+        callback();
+      }
     },
     /**
      * 设置值
@@ -8949,9 +9008,13 @@
      * @param {any} value 值
      */
     setValue(key, value) {
-      let localValue = GM_getValue(this.key, {});
-      localValue[key] = value;
-      GM_setValue(this.key, localValue);
+      let locaData = GM_getValue(this.$data.key, {});
+      let oldValue = locaData[key];
+      locaData[key] = value;
+      GM_setValue(this.$data.key, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, value);
+      }
     },
     /**
      * 获取值
@@ -8960,17 +9023,58 @@
      * @returns {any}
      */
     getValue(key, defaultValue) {
-      let localValue = GM_getValue(this.key, {});
-      return localValue[key] ?? defaultValue;
+      let locaData = GM_getValue(this.$data.key, {});
+      let localValue = locaData[key];
+      if (localValue == null) {
+        /* 值不存在或值为null/undefined或只有键但无值 */
+        if (this.$data.data.has(key)) {
+          /* 先判断是否是菜单配置的键 */
+          /* 是的话取出值并返回 */
+          return this.$data.data.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
     },
     /**
      * 删除值
      * @param {string} key 键
      */
     deleteValue(key) {
-      let localValue = GM_getValue(this.key, {});
-      Reflect.deleteProperty(localValue, key);
-      GM_setValue(this.key, localValue);
+      let locaData = GM_getValue(this.$data.key, {});
+      let oldValue = locaData[key];
+      Reflect.deleteProperty(locaData, key);
+      GM_setValue(this.$data.key, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+      }
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param {string} key 需要监听的键
+     * @param {(key: string,oldValue: any,newValue: any)=>void} callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      this.$listener.listenData.set(key, {
+        id: listenerId,
+        key,
+        callback,
+      });
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param {number} listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      let deleteKey = null;
+      for (const [key, value] of this.$listener.listenData.entries()) {
+        if (value.id === listenerId) {
+          break;
+        }
+      }
+      this.$listener.listenData.delete(deleteKey);
     },
     /**
      * 显示设置面板
@@ -8981,7 +9085,7 @@
           text: `${GM_info?.script?.name || "【移动端】百度系优化"}-设置`,
           position: "center",
         },
-        content: this.getContent(),
+        content: this.getPanelContentConfig(),
         mask: {
           enable: true,
           clickEvent: {
@@ -8989,8 +9093,8 @@
           },
         },
         isMobile: true,
-        width: "92vw",
-        height: "80vh",
+        width: "92dvw",
+        height: "80dvh",
         drag: true,
         only: true,
       });
@@ -9025,8 +9129,8 @@
           PopsPanel.setValue(key, Boolean(value));
         },
       };
-      result.attributes[this.attributeDataKey_Name] = key;
-      result.attributes[this.attributeDataDefaultValue_Name] =
+      result.attributes[this.$data.attributeKeyName] = key;
+      result.attributes[this.$data.attributeDefaultValueName] =
         Boolean(defaultValue);
       return result;
     },
@@ -9034,7 +9138,7 @@
      * 获取配置内容
      * @returns {PopsPanelContentConfig[]}
      */
-    getContent() {
+    getPanelContentConfig() {
       return [
         {
           id: "baidu-panel-config-search",
@@ -9089,7 +9193,7 @@
                       )
                     ) {
                       let checkboxCoreElement = document.querySelector(
-                        `li[${PopsPanel.attributeDataKey_Name}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
+                        `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
                       );
                       checkboxCoreElement.click();
                     }
@@ -9148,7 +9252,7 @@
                       )
                     ) {
                       let checkboxCoreElement = document.querySelector(
-                        `li[${PopsPanel.attributeDataKey_Name}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
+                        `li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
                       );
                       checkboxCoreElement.click();
                     }
@@ -10411,7 +10515,16 @@ match-attr##srcid##yx_entity_san
 // 大家还在看
 match-attr##srcid##yl_recommend_list
 // 百度-智能小程序
-match-attr##srcid##xcx_multi`,
+match-attr##srcid##xcx_multi
+// 百度 xx精选商品问答
+match-attr##srcid##b2b_wenda_wise
+// 百度爱采购
+match-attr##srcid##b2b_straight_wise_vertical
+match-attr##srcid##lego_tpl
+match-href##^http(s|)://b2b.baidu.com/slist
+// 搜索聚合
+// match-attr##srcid##note_lead
+`,
     /**
      * @type { {
      * mode: "match-href"|"match-attr"|"contains-child"|"remove-child",
@@ -10532,12 +10645,12 @@ match-attr##srcid##xcx_multi`,
     /**
      * 执行自定义规则，拦截返回true
      * @param {HTMLDivElement} element
-     * @param {string} url 真实链接
+     * @param {?string} url 真实链接
      */
     handleCustomRule(element, url) {
       function handleOneRule(ruleItem) {
         if (ruleItem.mode === "match-href") {
-          if (url.match(ruleItem.matchText)) {
+          if (typeof url === "string" && url.match(ruleItem.matchText)) {
             return true;
           }
         } else if (ruleItem.mode === "match-attr") {
@@ -10557,15 +10670,10 @@ match-attr##srcid##xcx_multi`,
       }
       for (const ruleItem of this.rule) {
         if (ruleItem.moreRule) {
-          let flag = true;
           for (const oneRule of ruleItem.moreRule) {
-            if (!handleOneRule(oneRule)) {
-              flag = false;
-              break;
+            if (handleOneRule(oneRule)) {
+              return true;
             }
-          }
-          if (flag) {
-            return true;
           }
         } else {
           if (handleOneRule(ruleItem)) {
@@ -11115,7 +11223,7 @@ match-attr##srcid##xcx_multi`,
     return;
   }
   const loadingView = new LoadingView(true);
-  PopsPanel.initMenu();
+  PopsPanel.init();
   BaiduSearchRule.init();
   BaiDu.init();
   /* --------------入口-------------- */
