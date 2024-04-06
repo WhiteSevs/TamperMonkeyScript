@@ -2096,7 +2096,7 @@ declare interface Utils {
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
      * + 作者：cxxjackie
-     * + 版本：1.3.3
+     * + 版本：1.3.4
      * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
      */
     ajaxHooker(): UtilsAjaxHookResult;
