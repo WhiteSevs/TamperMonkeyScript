@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.6
+// @version      2024.4.6.14
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -448,6 +448,9 @@
     },
     isTieBaNei() {
       return this.isTieBa() && window.location.pathname === "/f";
+    },
+    isTieBaIndex() {
+      return this.isTieBa() && window.location.pathname.startsWith("/index");
     },
     isWenKu() {
       return window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g);
@@ -5994,6 +5997,7 @@
             let appElement = document.querySelector("#app");
             if (appElement && appElement.innerHTML === "") {
               Qmsg.warning("检测到骨架屏，异常加载，刷新页面", {
+                timeout: 1200,
                 onClose() {
                   window.location.reload();
                 },
@@ -6160,6 +6164,26 @@
               );
             });
           });
+        },
+        /**
+         * 新标签页打开
+         */
+        openANewTab() {
+          DOMUtils.on(
+            document,
+            "click",
+            "div.tb-threadlist__item",
+            function (event) {
+              utils.preventEvent(event);
+              let pbUrl = event.target.__vue__.pbUrl;
+              let newUrl = window.location.origin + pbUrl;
+              log.info("帖子链接: " + pbUrl);
+              window.open(newUrl, "_blank");
+            },
+            {
+              capture: true,
+            }
+          );
         },
         /**
          * 记住当前用户的看帖排序
@@ -6733,6 +6757,14 @@
         if (PopsPanel.getValue("baidu_tieba_repairErrorThread")) {
           log.success("强制查看-贴子不存在或者已被删除");
           tiebaPost.repairErrorThread();
+        }
+      }
+      if (Router.isTieBaNei() || Router.isTieBaIndex()) {
+        if (
+          PopsPanel.getValue("baidu_tieba_openANewTab") ||
+          PopsPanel.getValue("baidu_tieba_index_openANewTab")
+        ) {
+          tiebaBaNei.openANewTab();
         }
       }
       if (Router.isTieBaNewTopic()) {
@@ -9735,6 +9767,26 @@
               ],
             },
             {
+              text: "首页",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "重定向xx吧跳转",
+                  "baidu_tieba_topic_redirect_jump",
+                  true,
+                  void 0,
+                  "点击帖子直接跳转"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "新标签页打开",
+                  "baidu_tieba_index_openANewTab",
+                  false,
+                  void 0,
+                  "新标签页打开帖子"
+                ),
+              ],
+            },
+            {
               text: "吧内功能",
               type: "forms",
               forms: [
@@ -9744,13 +9796,6 @@
                   true,
                   void 0,
                   "记住选择的发布/回复"
-                ),
-                PopsPanel.getSwtichDetail(
-                  "重定向xx吧跳转",
-                  "baidu_tieba_topic_redirect_jump",
-                  true,
-                  void 0,
-                  "点击帖子直接跳转"
                 ),
                 PopsPanel.getSwtichDetail(
                   "过滤重复帖子",
@@ -9765,6 +9810,13 @@
                   true,
                   void 0,
                   "在登录情况下可点击签到"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "新标签页打开",
+                  "baidu_tieba_openANewTab",
+                  false,
+                  void 0,
+                  "新标签页打开帖子"
                 ),
               ],
             },
