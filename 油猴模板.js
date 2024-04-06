@@ -180,7 +180,7 @@
      */
     getValue(key, defaultValue) {
       let localValue = GM_getValue(this.$data.key, {});
-      if (localValue == null) {
+      if (localValue[key] == null) {
         /* 值不存在或值为null/undefined或只有键但无值 */
         if (this.$data.data.has(key)) {
           /* 先判断是否是菜单配置的键 */
