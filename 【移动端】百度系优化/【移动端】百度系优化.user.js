@@ -10521,7 +10521,7 @@ match-attr##srcid##b2b_wenda_wise
 // 百度爱采购
 match-attr##srcid##b2b_straight_wise_vertical
 match-attr##srcid##lego_tpl
-match-href##^http(s|)://b2b.baidu.com/slist
+match-href##^http(s|)://b2b.baidu.com
 // 搜索聚合
 // match-attr##srcid##note_lead
 `,
