@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.6.14
+// @version      2024.4.6.15
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -29,7 +29,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1305484/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1352602/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1353961/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1355010/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1344519/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1332779/showdown.js
 // ==/UserScript==
@@ -4793,13 +4793,19 @@
             log.error("贴吧：未找到本页参数p");
             return;
           }
-          let dataBannerInfo = document
-            .querySelector(".recommend-item")
-            ?.getAttribute("data-banner-info");
-          tiebaCommentConfig.param_forum_id =
-            dataBannerInfo != null
-              ? utils.toJSON(dataBannerInfo)["forum_id"]
-              : document.querySelector(".app-view")?.__vue__?.forum?.id;
+          tiebaCommentConfig.param_forum_id = tiebaApi.getForumId();
+          if (!tiebaCommentConfig.param_forum_id) {
+            let recommendItemElement = await utils.waitNode(".recommend-item");
+            await utils.waitPropertyByInterval(
+              recommendItemElement,
+              () => {
+                return recommendItemElement?.getAttribute("data-banner-info");
+              },
+              250,
+              10000
+            );
+            tiebaCommentConfig.param_forum_id = tiebaApi.getForumId();
+          }
           if (!tiebaCommentConfig.param_forum_id) {
             return log.error("贴吧：获取参数data-banner-info失败");
           }
@@ -4866,13 +4872,19 @@
             log.error("贴吧：未找到本页参数p");
             return;
           }
-          let dataBannerInfo = document
-            .querySelector(".recommend-item")
-            ?.getAttribute("data-banner-info");
-          tiebaCommentConfig.param_forum_id =
-            dataBannerInfo != null
-              ? utils.toJSON(dataBannerInfo)["forum_id"]
-              : document.querySelector(".app-view")?.__vue__?.forum?.id;
+          tiebaCommentConfig.param_forum_id = tiebaApi.getForumId();
+          if (!tiebaCommentConfig.param_forum_id) {
+            let recommendItemElement = await utils.waitNode(".recommend-item");
+            await utils.waitPropertyByInterval(
+              recommendItemElement,
+              () => {
+                return recommendItemElement?.getAttribute("data-banner-info");
+              },
+              250,
+              10000
+            );
+            tiebaCommentConfig.param_forum_id = tiebaApi.getForumId();
+          }
           if (!tiebaCommentConfig.param_forum_id) {
             return log.error("贴吧：获取参数data-banner-info失败");
           }
@@ -6008,93 +6020,35 @@
       };
 
       /**
-       * 贴吧 首页功能
+       * 贴吧热议
        */
-      const tiebaHome = {
+      const tiebaTopic = {
         /**
          * 重定向跳转
          */
         redirectJump() {
           log.info("话题热榜-阻止默认跳转");
-          DOMUtils.on(document, "click", ".topic-share-item", function (event) {
-            utils.preventEvent(event);
-            window?.stop();
-            let clickNode = event.target;
-            let dataTrack = clickNode.getAttribute("data-track");
-            if (dataTrack == null) {
-              log.error("未找到data-track");
-              log.error(clickNode);
-              return false;
-            }
-            dataTrack = utils.toJSON(dataTrack);
-            let tid = dataTrack["tid"];
-            if (tid == null) {
-              log.error("未找到tid");
-              log.error(dataTrack);
-              return false;
-            }
-            log.success(`跳转至: https://tieba.baidu.com/p/${tid}`);
-            window.location.href = `https://tieba.baidu.com/p/${tid}`;
-            return false;
-          });
-          utils.waitNodeList(".thread-bottom .forum").then((nodeList) => {
-            log.success("设置贴吧种类正确跳转");
-            log.success(nodeList);
-            nodeList.forEach((item) => {
-              item.ontouchstart = function (event) {
-                utils.preventEvent(event);
-                window?.stop();
-                window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
-                  event.target
-                )
-                  .trim()
-                  .replace(/吧$/g, "")}`;
-                return false;
-              };
-            });
-          });
-          utils
-            .waitNode(".topic-share-thread .list-content")
-            .then((element) => {
-              utils.mutationObserver(element, {
-                callback: (mutations) => {
-                  mutations.forEach((item) => {
-                    item.addedNodes.forEach((item2) => {
-                      if (
-                        typeof item2.className === "string" &&
-                        item2.className.includes("topic-share-item")
-                      ) {
-                        log.success("设置新增的帖子的贴吧种类正确跳转");
-                        log.success(item2);
-                        item2.querySelector(
-                          ".thread-bottom .forum"
-                        ).ontouchstart = function (event) {
-                          utils.preventEvent(event);
-                          window?.stop();
-                          window.location.href = `https://tieba.baidu.com/f?kw=${DOMUtils.text(
-                            event.target
-                          )
-                            .trim()
-                            .replace(/吧$/g, "")}`;
-                          return false;
-                        };
-                      }
-                    });
-                  });
-                },
-                config: {
-                  childList: true,
-                  subtree: true,
-                },
-              });
-            });
-
           DOMUtils.on(
             document,
-            "touchstart",
-            ".topic-share-item .forum",
+            "click",
+            ".topic-share-item",
             function (event) {
-              return utils.preventEvent(event);
+              /* 设置正确跳转帖子 */
+              utils.preventEvent(event);
+              window?.stop();
+              let clickNode = event.target;
+              let pid = clickNode.__vue__.item.tid;
+              let url = `https://tieba.baidu.com/p/${pid}`;
+              log.success(`跳转至: ${url}`);
+              if (PopsPanel.getValue("baidu_tieba_topic_openANewTab")) {
+                window.open(url, "_blank");
+              } else {
+                window.open(url);
+              }
+              return false;
+            },
+            {
+              capture: true,
             }
           );
         },
@@ -6735,6 +6689,21 @@
           let authorImgId = "6LZ1dD3d1sgCo2Kml5_Y_D3";
           return `https://gss0.bdstatic.com/${authorImgId}/sys/portrait/item/${portrait}`;
         },
+        /**
+         * 从页面中获取forum的id
+         * @returns {?number}
+         */
+        getForumId() {
+          let dataBannerInfo = document
+            .querySelector(".recommend-item")
+            ?.getAttribute("data-banner-info");
+          dataBannerInfo = utils.toJSON(dataBannerInfo);
+          if (dataBannerInfo["forum_id"]) {
+            return dataBannerInfo["forum_id"];
+          } else {
+            return document.querySelector(".app-view")?.__vue__?.forum?.id;
+          }
+        },
       };
       if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
         tiebaBusiness.clientCallMasquerade();
@@ -6759,21 +6728,23 @@
           tiebaPost.repairErrorThread();
         }
       }
-      if (Router.isTieBaNei() || Router.isTieBaIndex()) {
-        if (
-          PopsPanel.getValue("baidu_tieba_openANewTab") ||
-          PopsPanel.getValue("baidu_tieba_index_openANewTab")
-        ) {
+      if (Router.isTieBaIndex()) {
+        /* 首页 */
+        if (PopsPanel.getValue("baidu_tieba_index_openANewTab")) {
           tiebaBaNei.openANewTab();
         }
       }
       if (Router.isTieBaNewTopic()) {
+        /* 话题热议 */
         if (PopsPanel.getValue("baidu_tieba_topic_redirect_jump")) {
-          tiebaHome.redirectJump();
+          tiebaTopic.redirectJump();
         }
       }
       if (Router.isTieBaNei()) {
         /* 吧内 */
+        if (PopsPanel.getValue("baidu_tieba_openANewTab")) {
+          tiebaBaNei.openANewTab();
+        }
         if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
           tiebaBaNei.rememberPostSort();
         }
@@ -9771,6 +9742,19 @@
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
+                  "新标签页打开",
+                  "baidu_tieba_index_openANewTab",
+                  false,
+                  void 0,
+                  "新标签页打开帖子"
+                ),
+              ],
+            },
+            {
+              text: "话题热议",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
                   "重定向xx吧跳转",
                   "baidu_tieba_topic_redirect_jump",
                   true,
@@ -9779,7 +9763,7 @@
                 ),
                 PopsPanel.getSwtichDetail(
                   "新标签页打开",
-                  "baidu_tieba_index_openANewTab",
+                  "baidu_tieba_topic_openANewTab",
                   false,
                   void 0,
                   "新标签页打开帖子"
