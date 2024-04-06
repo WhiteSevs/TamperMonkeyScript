@@ -68,8 +68,11 @@
   const PopsPanel = {
     /** 数据 */
     $data: {
-      /** 菜单项的默认值 */
-      data: new WeakMap(),
+      /**
+       * 菜单项的默认值
+       * @type {UtilsDictionaryConstructor<string,any>}
+       */
+      data: new utils.Dictionary(),
       /** 脚本名，一般用在设置的标题上 */
       scriptName: GM_info?.script?.name || "",
       /** 菜单项的总值在本地数据配置的键名 */
@@ -78,6 +81,18 @@
       attributeKeyName: "data-key",
       /** 菜单项在attributes上配置的菜单默认值 */
       attributeDefaultValueName: "data-default-value",
+    },
+    /** 监听器 */
+    $listener: {
+      /**
+       * 值改变的监听器
+       * @type {UtilsDictionaryConstructor<string,{
+       *  id: number,
+       *  key: string,
+       *  callback: Function
+       * }>}
+       */
+      listenData: new utils.Dictionary(),
     },
     /** 初始化 */
     init() {
@@ -143,6 +158,9 @@
                   this.$data.attributeDefaultValueName
                 ];
               /* 存储到内存中 */
+              if (this.$data.data.has(key)) {
+                console.warn("请检查该key(已存在): " + key);
+              }
               this.$data.data.set(key, defaultValue);
             }
           }
@@ -168,9 +186,13 @@
      * @param {any} value 值
      */
     setValue(key, value) {
-      let localValue = GM_getValue(this.$data.key, {});
-      localValue[key] = value;
-      GM_setValue(this.$data.key, localValue);
+      let locaData = GM_getValue(this.$data.key, {});
+      let oldValue = locaData[key];
+      locaData[key] = value;
+      GM_setValue(this.$data.key, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, value);
+      }
     },
     /**
      * 获取值
@@ -179,8 +201,9 @@
      * @returns {any}
      */
     getValue(key, defaultValue) {
-      let localValue = GM_getValue(this.$data.key, {});
-      if (localValue[key] == null) {
+      let locaData = GM_getValue(this.$data.key, {});
+      let localValue = locaData[key];
+      if (localValue == null) {
         /* 值不存在或值为null/undefined或只有键但无值 */
         if (this.$data.data.has(key)) {
           /* 先判断是否是菜单配置的键 */
@@ -189,16 +212,47 @@
         }
         return defaultValue;
       }
-      return localValue[key];
+      return localValue;
     },
     /**
      * 删除值
      * @param {string} key 键
      */
     deleteValue(key) {
-      let localValue = GM_getValue(this.$data.key, {});
-      Reflect.deleteProperty(localValue, key);
-      GM_setValue(this.$data.key, localValue);
+      let locaData = GM_getValue(this.$data.key, {});
+      let oldValue = locaData[key];
+      Reflect.deleteProperty(locaData, key);
+      GM_setValue(this.$data.key, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+      }
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param {string} key 需要监听的键
+     * @param {(key: string,oldValue: any,newValue: any)=>void} callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      this.$listener.listenData.set(key, {
+        id: listenerId,
+        key,
+        callback,
+      });
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param {number} listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      let deleteKey = null;
+      for (const [key, value] of this.$listener.listenData.entries()) {
+        if (value.id === listenerId) {
+          break;
+        }
+      }
+      this.$listener.listenData.delete(deleteKey);
     },
     /**
      * 显示设置面板
@@ -216,8 +270,8 @@
             toClose: true,
           },
         },
-        width: "92vw",
-        height: "80vh",
+        width: "92dvw",
+        height: "80dvh",
         drag: true,
         dragLimit: true,
       });
@@ -353,7 +407,7 @@
             {
               text: "功能",
               type: "forms",
-              forms: [this.getSwtichDetail()],
+              forms: [],
             },
           ],
         },
