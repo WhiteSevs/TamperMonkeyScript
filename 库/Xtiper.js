@@ -958,7 +958,7 @@
     //页面层
     else if (c.model == "open") {
       //是否已经触发过
-      ifxoff = that.findxoff();
+      let ifxoff = that.findxoff();
       if (ifxoff === true) {
         return false;
       }
@@ -2440,9 +2440,9 @@
   //单位处理
   Xclass.pt.getsize = function (size) {
     if (size) {
-      reg = /([0-9]+)(px|\%)/;
-      size_arr = size.match(reg);
-      arr = new Array();
+      let reg = /([0-9]+)(px|\%)/;
+      let size_arr = size.match(reg);
+      let arr = new Array();
       arr[0] = Number(size_arr[1]);
       arr[1] = size_arr[2];
       return arr;
