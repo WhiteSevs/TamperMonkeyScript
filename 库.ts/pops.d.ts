@@ -507,7 +507,7 @@ declare interface PopsPanelContentConfig {
     /**
      * 子配置
      */
-    forms: PopsPanelFormsDetails[];
+    forms: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
     /**
      * 左侧容器的点击回调
      */
