@@ -147,7 +147,7 @@
               let containerItem = formChildConfigList[formChildConfigIndex];
               if (!containerItem["attributes"]) {
                 /* 必须配置attributes属性，用于存储菜单的键和默认值 */
-                return;
+                continue;
               }
               /* 获取键名 */
               let key =
