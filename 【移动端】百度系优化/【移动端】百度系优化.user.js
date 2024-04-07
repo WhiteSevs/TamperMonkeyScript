@@ -5440,25 +5440,43 @@
             );
             let repetitiveImageList = [];
             content_BDE_Image.forEach((BDE_Image) => {
+              /* 高清图片下标 */
               let originalImageIndex = item["media"].findIndex((src) => {
                 return src.includes(BDE_Image.src);
               });
               if (originalImageIndex !== -1) {
+                /* 存在对应的高清图片链接 */
                 let originalImage = item["media"][originalImageIndex];
                 BDE_Image.src = originalImage;
                 repetitiveImageList.push(originalImage);
                 item["media"].splice(originalImageIndex, 1);
               }
             });
+            let imageContainerElement = DOMUtils.createElement("div", {
+              className: "BDE_Image_container",
+            });
             item["media"].forEach((mediaSrc) => {
               DOMUtils.append(
-                contentSpanElement,
+                imageContainerElement,
                 DOMUtils.createElement("img", {
                   className: "BDE_Image",
                   src: mediaSrc,
                 })
               );
             });
+            contentSpanElement.appendChild(imageContainerElement);
+            /* 对贴吧表情进行处理，搜索到的表情是http的，换成https */
+            resultElement
+              .querySelectorAll(".search-result-content img.BDE_Smiley")
+              .forEach((BDE_Smiley) => {
+                if (
+                  !BDE_Smiley?.src?.startsWith("http://static.tieba.baidu.com")
+                ) {
+                  return;
+                }
+                let imagePathName = new URL(BDE_Smiley.src).pathname;
+                BDE_Smiley.src = tiebaApi.getImageSmiley(imagePathName);
+              });
             return resultElement;
           }
           function setCSS() {
@@ -5481,6 +5499,15 @@
               margin: 0.08rem .08rem;
               border-radius: .12rem;
               padding: .11rem .11rem;
+            }
+
+            .BDE_Image_container {
+              display: flex;
+              overflow: auto;
+            }
+            .BDE_Image_container img.BDE_Image {
+              max-width: 100px;
+              max-height: 150px;
             }
             `);
             if (
@@ -6835,6 +6862,17 @@
          */
         getHybridSearch(searchText) {
           return `https://tieba.baidu.com/mo/q/hybrid/search?keyword=${searchText}`;
+        },
+        /**
+         * 获取贴吧表情图片
+         * @param {string} pathName 原static.baidu.com的pathname
+         * @returns
+         */
+        getImageSmiley(pathName) {
+          if (pathName.startsWith("/")) {
+            pathName = pathName.replace(/^\//, "");
+          }
+          return `https://gsp0.baidu.com/5aAHeD3nKhI2p27j8IqW0jdnxx1xbK/${pathName}`;
         },
       };
       if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
