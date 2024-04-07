@@ -9119,47 +9119,58 @@
      * 初始化本地设置默认的值
      */
     initPanelDefaultValue() {
+      let that = this;
+      /**
+       * 设置默认值
+       * @param {PopsPanelFormsTotalDetails|PopsPanelFormsDetails} config
+       */
+      function initDefaultValue(config) {
+        if (!config["attributes"]) {
+          /* 必须配置attributes属性，用于存储菜单的键和默认值 */
+          return;
+        }
+        /* 获取键名 */
+        let key = config["attributes"][that.$data.attributeKeyName];
+        /* 获取默认值 */
+        let defaultValue =
+          config["attributes"][that.$data.attributeDefaultValueName];
+        if (key == null) {
+          console.warn("请先配置键", config);
+          return;
+        }
+        /* 存储到内存中 */
+        if (that.$data.data.has(key)) {
+          console.warn("请检查该key(已存在): " + key);
+        }
+        that.$data.data.set(key, defaultValue);
+      }
       let contentConfigList = this.getPanelContentConfig();
       for (let index = 0; index < contentConfigList.length; index++) {
-        let contentConfigItem = contentConfigList[index];
-        if (!contentConfigItem["forms"]) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem["forms"]) {
           /* 不存在forms */
           continue;
         }
-        let formItemList = contentConfigItem["forms"];
+        let rightContentConfigList = leftContentConfigItem["forms"];
         for (
           let formItemIndex = 0;
-          formItemIndex < formItemList.length;
+          formItemIndex < rightContentConfigList.length;
           formItemIndex++
         ) {
-          let formConfigItem = formItemList[formItemIndex];
-          let formChildConfigList = formConfigItem["forms"];
-          if (formChildConfigList) {
-            /* 必须存在子的forms */
+          let rightContentConfigItem = rightContentConfigList[formItemIndex];
+          let childFormConfigList = rightContentConfigItem["forms"];
+          if (childFormConfigList) {
+            /* 该项是右侧区域-容器项的子项的配置 */
             for (
               let formChildConfigIndex = 0;
-              formChildConfigIndex < formChildConfigList.length;
+              formChildConfigIndex < childFormConfigList.length;
               formChildConfigIndex++
             ) {
-              let containerItem = formChildConfigList[formChildConfigIndex];
-              if (!containerItem["attributes"]) {
-                /* 必须配置attributes属性，用于存储菜单的键和默认值 */
-                continue;
-              }
-              /* 获取键名 */
-              let key =
-                containerItem["attributes"][this.$data.attributeKeyName];
-              /* 获取默认值 */
-              let defaultValue =
-                containerItem["attributes"][
-                  this.$data.attributeDefaultValueName
-                ];
-              /* 存储到内存中 */
-              if (this.$data.data.has(key)) {
-                console.warn("请检查该key(已存在): " + key);
-              }
-              this.$data.data.set(key, defaultValue);
+              initDefaultValue(childFormConfigList[formChildConfigIndex]);
             }
+          } else {
+            /* 该项是右侧区域-容器项的配置 */
+            initDefaultValue(rightContentConfigItem);
           }
         }
       }
