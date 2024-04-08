@@ -3,7 +3,7 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @icon         data:image/png;base64,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
-// @version      2024.4.6
+// @version      2024.4.8
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @author       WhiteSevs
 // @match        *://*/*
@@ -8645,7 +8645,18 @@
       if (typeof GM_getValue(this.dataKey) !== "object") {
         GM_setValue(this.dataKey, {});
       }
-      Object.assign(NetDisk.regular, this.parseRule());
+      let userRule = this.parseRule();
+      for (let ruleName in userRule) {
+        if (ruleName in NetDisk.regular) {
+          /* 如果规则已存在(已内置)，自定义规则先放在前面匹配 */
+          NetDisk.regular[ruleName] = [
+            ...userRule[ruleName],
+            ...NetDisk.regular[ruleName],
+          ];
+        } else {
+          NetDisk.regular[ruleName] = userRule[ruleName];
+        }
+      }
     },
     getCSS() {
       return `
@@ -8694,7 +8705,7 @@
     /**
      * 添加/编辑规则
      * @param {boolean} isEdit
-     * @param {?string} ruleKey
+     * @param {?string} ruleKey 当isEdit为true时，传入该值
      */
     showUI(isEdit, ruleKey) {
       let titleText = "添加";
@@ -8723,7 +8734,7 @@
               text: "保存",
               callback(event) {
                 /**
-                 *
+                 * 检测regexp项是否符合规定
                  * @param {NetDiskUserCustomRuleRegexp} ruleRegExp
                  * @returns
                  */
@@ -8785,7 +8796,7 @@
                   return true;
                 }
                 /**
-                 *
+                 * 检测设置项是否符合规定
                  * @param {NetDiskUserCustomRuleSetting} ruleSetting
                  */
                 function checkSetting(ruleSetting) {
@@ -8835,9 +8846,8 @@
                   if (!checkSetting(ruleJSON["setting"])) {
                     return;
                   }
-
                   if (isEdit) {
-                    NetDiskCustomRules.setRule(ruleJSON);
+                    NetDiskCustomRules.setRule(ruleKey, ruleJSON);
                   } else {
                     NetDiskCustomRules.addRule(ruleJSON);
                   }
@@ -8928,7 +8938,7 @@
     },
     /**
      * 把用户自定义规则进行转换成脚本规则
-     * @returns {object}
+     * @returns {NetDiskRegular}
      */
     parseRule() {
       /**
@@ -8972,7 +8982,6 @@
       let localRule = this.getRule();
       for (const userRuleItem of localRule) {
         let userRegExp = userRuleItem.regexp;
-
         if (userRuleItem.setting) {
           /** 设置 @type {NetDiskSettingMenuDetails} */
           let viewDetails = {
@@ -9155,7 +9164,13 @@
           this.$data.settingViewDetails.set(userRuleItem.key, viewDetails);
         }
         if (typeof userRuleItem["icon"] === "string") {
-          NetDiskUI.src.icon[userRuleItem["key"]] = userRuleItem["icon"];
+          if (userRuleItem["icon"] in NetDiskUI.src.icon) {
+            /* 判断icon的值是否是图标字典中的键，是的话让该规则配置它的图标 */
+            NetDiskUI.src.icon[userRuleItem["key"]] =
+              NetDiskUI.src.icon[userRuleItem["icon"]];
+          } else {
+            NetDiskUI.src.icon[userRuleItem["key"]] = userRuleItem["icon"];
+          }
         }
         if (Array.isArray(userRegExp)) {
           userRegExp = userRegExp.map((userRegexpItem) => {
@@ -9285,36 +9300,38 @@
     },
     /**
      * 设置规则到本地
+     * @param {string} oldRuleKey 旧规则的键名
      * @param {NetDiskUserCustomRule[]|NetDiskUserCustomRule} userRule
      */
-    setRule(userRule) {
+    setRule(oldRuleKey, userRule) {
       if (Array.isArray(userRule)) {
         GM_setValue(NetDiskCustomRules.key, userRule);
       } else {
         let localRule = this.getRule();
         let findRuleIndex = localRule.findIndex(
-          (item) => item.key === userRule.key
+          (item) => item.key === oldRuleKey
         );
         if (findRuleIndex !== -1) {
           localRule[findRuleIndex] = null;
           localRule[findRuleIndex] = userRule;
         } else {
-          Qmsg.error(["覆盖规则失败", userRule]);
+          log.error(["覆盖规则失败", userRule]);
+          Qmsg.error("覆盖规则失败");
           return false;
         }
-        this.setRule(localRule);
+        this.setRule(oldRuleKey, localRule);
       }
     },
     /**
      * 删除单条规则
-     * @param {string} ruleKey
+     * @param {string} ruleKey 规则的key名
      */
     deleteRule(ruleKey) {
       let localRule = this.getRule();
       let findIndex = localRule.findIndex((rule) => rule.key === ruleKey);
       if (findIndex !== -1) {
         localRule.splice(findIndex, 1);
-        this.setRule(localRule);
+        this.setRule(ruleKey, localRule);
         return true;
       } else {
         return false;
@@ -9329,7 +9346,7 @@
     /**
      * 获取规则
      * @param {?string} key
-     * @returns {NetDiskUserCustomRule|NetDiskUserCustomRule[]}
+     * @returns {(NetDiskUserCustomRule|NetDiskUserCustomRule)[]}
      */
     getRule(key) {
       if (typeof key === "string") {
