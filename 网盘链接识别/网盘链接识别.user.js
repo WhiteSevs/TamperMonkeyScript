@@ -8645,7 +8645,7 @@
       if (typeof GM_getValue(this.dataKey) !== "object") {
         GM_setValue(this.dataKey, {});
       }
-      let userRule = this.parseRule();
+      let userRule = this.parseRule(this.getRule());
       for (let ruleName in userRule) {
         if (ruleName in NetDisk.regular) {
           /* 如果规则已存在(已内置)，自定义规则先放在前面匹配 */
@@ -8938,9 +8938,10 @@
     },
     /**
      * 把用户自定义规则进行转换成脚本规则
+     * @param {NetDiskUserCustomRule[]} localRule
      * @returns {NetDiskRegular}
      */
-    parseRule() {
+    parseRule(localRule) {
       /**
        *
        * @param {NetDiskUserCustomRuleRegexp} ruleRegExp
@@ -8976,10 +8977,6 @@
         return ruleRegExp;
       }
       let userRule = {};
-      /**
-       * @type {NetDiskUserCustomRule[]}
-       */
-      let localRule = this.getRule();
       for (const userRuleItem of localRule) {
         let userRegExp = userRuleItem.regexp;
         if (userRuleItem.setting) {
