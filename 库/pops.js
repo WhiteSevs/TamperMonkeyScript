@@ -4398,8 +4398,9 @@
       }
       /* github的样式 */
       .pops-tip.github-tooltip{
+        --tooltip-bg-opacity: 1;
         --tooltip-color: rgb(255, 255, 255);
-        --tooltip-bg-color: rgb(36, 41, 47, var(--pops-bg-opacity));
+        --tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));
         --tooltip-bd-radius: 6px;
         --tooltip-padding-top: 6px;
         --tooltip-padding-right: 8px;
@@ -4407,7 +4408,7 @@
         --tooltip-padding-left: 8px;
     
         --tooltip-arrow--after-color: rgb(255, 255, 255);
-        --tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--pops-bg-opacity));
+        --tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));
         --tooltip-arrow--after-width: 8px;
         --tooltip-arrow--after-height: 8px;
       }
