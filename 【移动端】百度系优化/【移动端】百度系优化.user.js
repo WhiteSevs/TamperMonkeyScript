@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.11
+// @version      2024.4.12
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -7665,6 +7665,7 @@
           let postResp = await httpx.post({
             url: `https://graph.baidu.com/upload?uptime=${Date.now()}`,
             data: formData,
+            fetch: true,
             resposeType: "json",
             headers: {
               "user-agent": utils.getRandomPCUA(),
