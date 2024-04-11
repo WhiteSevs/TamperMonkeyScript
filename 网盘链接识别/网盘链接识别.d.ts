@@ -333,11 +333,19 @@ declare interface NetDiskUserCustomRuleRegexp {
      */
     shareCode: string;
     /**
+     * (可选)正则：用于判断提取到的shareCode是否是错误的shareCode
+     */
+    shareCodeNotMatch?: string;
+    /**
      * 用于删除提取出的shareCode前面的域名、路径字符串
      * 
      * 会自动进行正则转换，正则模式ig
      */
     shareCodeNeedRemoveStr: string;
+    /** 
+     * （可选）值为规则名，如果匹配到的shareCode在目标规则匹配到的shareCode中，那么取消匹配
+     */
+    shareCodeExcludeRegular?: string[];
     /**
      * 用于判断提取码是否存在
      * 
