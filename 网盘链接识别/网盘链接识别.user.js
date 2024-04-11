@@ -1090,7 +1090,6 @@
      * @param {string} netDiskName 网盘名称
      * @param {number} netDiskIndex 网盘名称索引下标
      * @param {string} matchText 正在进行匹配的文本
-     * @returns
      */
     handleShareCode(netDiskName, netDiskIndex, matchText) {
       /* 当前执行的规则 */
@@ -1100,7 +1099,7 @@
         ?.filter((item) => utils.isNotNull(item));
       if (utils.isNull(shareCodeMatch)) {
         log.error([
-          `根据链接获取shareCode失败`,
+          `匹配shareCode为空`,
           {
             匹配的文本: matchText,
             规则: netDiskMatchRegular,
@@ -1251,7 +1250,7 @@
      * @param {number} netDiskIndex 网盘名称索引下标
      * @param {string} shareCode 分享码
      * @param {string} accessCode 访问码
-     * @param {string} accessCode 匹配到的文本
+     * @param {?string} matchText 匹配到的文本
      * @returns {string}
      */
     handleLinkShow(
@@ -1288,17 +1287,14 @@
          * 当前字典
          */
         let currentDict = NetDisk.linkDict.get(netDiskName).get(shareCode);
-        if (currentDict) {
-          let paramMatchArray = (matchText ?? currentDict.matchText).match(
-            netDiskMatchRegular.paramMatch
-          );
+        matchText = matchText ?? currentDict?.matchText;
+        if (utils.isNotNull(matchText)) {
+          let paramMatchArray = matchText.match(netDiskMatchRegular.paramMatch);
           let replaceParamData = {};
           for (let index = 0; index < paramMatchArray.length; index++) {
             replaceParamData[`$${index}`] = paramMatchArray[index];
           }
           uiLink = this.replaceParam(uiLink, replaceParamData);
-        } else {
-          /* 在已获取到的字典中不存在，可能是由历史匹配记录调用的函数 */
         }
       }
       return uiLink;
@@ -1448,6 +1444,441 @@
         isForceAccessCode: isForceAccessCode,
         matchText: matchText,
       };
+    },
+  };
+
+  const NetDiskDebug = {
+    /**
+     * 对传入的url进行处理，返回shareCode
+     * @param {string} matchText 正在进行匹配的文本
+     * @param {NetDiskRegularOption} regular 当前执行的规则
+     * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+     */
+    handleShareCode(matchText, regular, logCallBack) {
+      let shareCodeMatch = matchText
+        .match(regular.shareCode)
+        ?.filter((item) => utils.isNotNull(item));
+      logCallBack({
+        status: true,
+        msg: [
+          `正则: shareCode`,
+          "作用: 获取shareCode",
+          "结果: ",
+          shareCodeMatch,
+        ],
+      });
+      if (utils.isNull(shareCodeMatch)) {
+        logCallBack({
+          status: false,
+          msg: `匹配shareCode为空`,
+        });
+        return;
+      }
+      /* 匹配到的网盘链接，取第一个值就行 */
+      let shareCode = shareCodeMatch[0];
+      logCallBack({
+        status: true,
+        msg: [`取第一个值: ` + shareCode],
+      });
+      if (regular.shareCodeNeedRemoveStr) {
+        /* 删除ShareCode前面不需要的字符串 */
+        shareCode = shareCode.replace(regular.shareCodeNeedRemoveStr, "");
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: shareCodeNeedRemoveStr`,
+            "作用: 删除ShareCode前面不需要的字符串",
+            `结果: ${shareCode}`,
+          ],
+        });
+      }
+      let shareCodeNotMatch = regular.shareCodeNotMatch;
+      if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
+        log.error(`不可能的shareCode => ${shareCode}`);
+        logCallBack({
+          status: false,
+          msg: [
+            `正则: shareCodeNotMatch`,
+            "作用: 用于判断提取到的shareCode是否是错误的shareCode",
+            `结果: true 该shareCode不是正确的`,
+          ],
+        });
+        return;
+      }
+      for (const shareCodeNotMatchRegexp of NetDisk.shareCodeNotMatchRegexpList) {
+        if (shareCode.match(shareCodeNotMatchRegexp)) {
+          log.error(`不可能的shareCode => ${shareCode}`);
+          logCallBack({
+            status: false,
+            msg: [
+              `正则: 内置的shareCodeNotMatchRegexpList`,
+              "作用: 使用该正则判断提取到的shareCode是否正确",
+              `结果: true 该shareCode不是正确的`,
+            ],
+          });
+          return;
+        }
+      }
+      /* %E7%BD%91%E7%9B%98 => 网盘 */
+      shareCode = decodeURI(shareCode);
+      logCallBack({
+        status: true,
+        msg: ["对shareCode进行解码: " + shareCode],
+      });
+      if (
+        GM_getValue("excludeIdenticalSharedCodes") &&
+        utils.isSameChars(
+          shareCode,
+          GM_getValue(
+            "excludeIdenticalSharedCodesCoefficient",
+            NetDiskData.defaultExcludeIdenticalSharedCodesCoefficient
+          )
+        )
+      ) {
+        /* 排除掉由相同字符组成的分享码 */
+        logCallBack({
+          status: false,
+          msg: ["已开启【排除分享码】且该分享码命中该规则"],
+        });
+        return;
+      }
+      /* 排除掉以http|https结尾的分享码 */
+      if (shareCode.endsWith("http") || shareCode.endsWith("https")) {
+        logCallBack({
+          status: false,
+          msg: ["该分享码以http|https结尾"],
+        });
+        return;
+      }
+      logCallBack({
+        status: true,
+        msg: "处理完毕的shareCode: " + shareCode,
+      });
+      return shareCode;
+    },
+    /**
+     * 对传入的url进行处理，返回accessCode
+     * @param {string} matchText 正在进行匹配的文本
+     * @param {NetDiskRegularOption} regular 当前执行的规则
+     * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+     */
+    handleAccessCode(matchText, regular, logCallBack) {
+      let accessCode = "";
+      if (!regular.checkAccessCode) {
+        /* 不存在匹配提取码的正则 */
+        logCallBack({
+          status: true,
+          msg: "因未配置规则checkAccessCode，默认accessCode的值为空",
+        });
+        return "";
+      }
+      let accessCodeMatch = matchText.match(regular.checkAccessCode);
+      logCallBack({
+        status: true,
+        msg: [
+          `正则: checkAccessCode`,
+          "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码",
+          `结果: `,
+          accessCodeMatch,
+        ],
+      });
+      if (accessCodeMatch) {
+        /* 匹配出带提取码的字符串 */
+        let accessCodeMatchValue = accessCodeMatch[accessCodeMatch.length - 1];
+        logCallBack({
+          status: true,
+          msg: "取最后一个值: " + accessCodeMatchValue,
+        });
+        /* 进去提取码匹配，且过滤掉null或undefined或空字符串 */
+        let accessCodeMatchArray = accessCodeMatchValue
+          .match(regular.accessCode)
+          ?.filter((item) => utils.isNotNull(item));
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: accessCode`,
+            "作用: 用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码",
+            `结果: `,
+            accessCodeMatchArray,
+          ],
+        });
+        if (utils.isNull(accessCodeMatchArray)) {
+          logCallBack({
+            status: true,
+            msg: "因↑匹配到的结果为空，默认accessCode的值为空",
+          });
+          return "";
+        }
+        if (accessCodeMatchArray.length) {
+          /* 取第一个值 */
+          /**
+           * 例如，匹配到的字符串是密码：oanm   大于150m
+           * 如果是最后一个，那么会匹配到150m
+           */
+          accessCode = accessCodeMatchArray[0];
+          logCallBack({
+            status: true,
+            msg: "取第一个值: " + accessCode,
+          });
+          if (accessCode.startsWith("http")) {
+            /* 排除不可能的accessCode */
+            logCallBack({
+              status: true,
+              msg: "排除不可能的accessCode，重置accessCode的值为空",
+            });
+            accessCode = "";
+          }
+        }
+      }
+      if (utils.isNotNull(accessCode)) {
+        for (const accessCodeNotMatchRegexp of NetDisk.accessCodeNotMatchRegexpList) {
+          if (accessCode.match(accessCodeNotMatchRegexp)) {
+            accessCode = "";
+            logCallBack({
+              status: true,
+              msg: [
+                `正则: 内置的accessCodeNotMatchRegexpList`,
+                "作用: 使用该正则判断提取到的accessCode是否正确",
+                `结果: true 重置accessCode为空`,
+              ],
+            });
+            break;
+          }
+        }
+        if (
+          regular.acceesCodeNotMatch &&
+          accessCode.match(regular.acceesCodeNotMatch)
+        ) {
+          accessCode = "";
+          logCallBack({
+            status: true,
+            msg: [
+              `正则: acceesCodeNotMatch`,
+              "作用: 用于判断提取到的accessCode是否是错误的accessCode",
+              `结果: true 重置accessCode为空`,
+            ],
+          });
+        }
+      }
+
+      logCallBack({
+        status: true,
+        msg: "处理完毕的accessCode: " + accessCode,
+      });
+      return accessCode;
+    },
+    /**
+     * 获取在弹窗中显示出的链接
+     * @param {string} matchText 匹配到的文本
+     * @param {NetDiskRegularOption} regular 当前执行的规则
+     * @param {string} shareCode 分享码
+     * @param {string} accessCode 访问码
+     * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+     */
+    handleLinkShow(matchText, regular, shareCode, accessCode, logCallBack) {
+      let uiLink = NetDisk.replaceParam(regular["uiLinkShow"], {
+        shareCode: shareCode,
+      });
+      logCallBack({
+        status: true,
+        msg: [
+          `正则: uiLinkShow`,
+          "作用: 用于显示在弹窗中的字符串",
+          "备注: 对shareCode进行参数替换",
+          `结果: ${uiLink}`,
+        ],
+      });
+      if (accessCode && accessCode != "") {
+        uiLink = NetDisk.replaceParam(uiLink, {
+          accessCode: accessCode,
+        });
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: uiLinkShow`,
+            "作用: 用于显示在弹窗中的字符串",
+            "备注: 对accessCode进行参数替换",
+            `结果: ${uiLink}`,
+          ],
+        });
+      } else {
+        uiLink = uiLink.replace(NetDisk.noAccessCodeRegExp, "");
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: 内置的noAccessCodeRegExp`,
+            "作用: 因accessCode为空，使用该正则去除不需要的字符串",
+            `结果: ${uiLink}`,
+          ],
+        });
+      }
+      if (regular.paramMatch) {
+        if (utils.isNotNull(matchText)) {
+          let paramMatchArray = matchText.match(regular.paramMatch);
+          let replaceParamData = {};
+          for (let index = 0; index < paramMatchArray.length; index++) {
+            replaceParamData[`$${index}`] = paramMatchArray[index];
+          }
+          uiLink = NetDisk.replaceParam(uiLink, replaceParamData);
+          logCallBack({
+            status: true,
+            msg: [
+              `正则: paramMatch`,
+              `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
+              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+              `结果: ${uiLink}`,
+            ],
+          });
+        }
+      }
+
+      logCallBack({
+        status: true,
+        msg: "处理完毕的uiLink: " + uiLink,
+      });
+      return uiLink;
+    },
+    /**
+     * 获取新标签页打开的URL
+     * @param {string} matchText 匹配到的文本
+     * @param {NetDiskRegularOption} regular 当前执行的规则
+     * @param {string} shareCode 分享码
+     * @param {string} accessCode 访问码
+     * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+     */
+    handleBlank(matchText, regular, shareCode, accessCode, logCallBack) {
+      let blankUrl = NetDisk.replaceParam(regular["blank"], {
+        shareCode: shareCode,
+      });
+      logCallBack({
+        status: true,
+        msg: [
+          `正则: blank`,
+          "作用: 用于点击跳转的链接",
+          "备注: 对shareCode进行参数替换",
+          `结果: ${blankUrl}`,
+        ],
+      });
+      if (accessCode && accessCode != "") {
+        blankUrl = NetDisk.replaceParam(blankUrl, {
+          accessCode: accessCode,
+        });
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: blank`,
+            "作用: 用于点击跳转的链接",
+            "备注: 对accessCode进行参数替换",
+            `结果: ${blankUrl}`,
+          ],
+        });
+      } else {
+        blankUrl = blankUrl.replace(NetDisk.noAccessCodeRegExp, "");
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: 内置的noAccessCodeRegExp`,
+            "作用: 因accessCode为空，使用该正则去除不需要的字符串",
+            `结果: ${blankUrl}`,
+          ],
+        });
+      }
+      if (regular.paramMatch) {
+        if (utils.isNotNull(matchText)) {
+          let paramMatchArray = matchText.match(regular.paramMatch);
+          let replaceParamData = {};
+          for (let index = 0; index < paramMatchArray.length; index++) {
+            replaceParamData[`$${index}`] = paramMatchArray[index];
+          }
+          blankUrl = NetDisk.replaceParam(blankUrl, replaceParamData);
+          logCallBack({
+            status: true,
+            msg: [
+              `正则: paramMatch`,
+              `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
+              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+              `结果: ${blankUrl}`,
+            ],
+          });
+        }
+      }
+
+      logCallBack({
+        status: true,
+        msg: "处理完毕的blank: " + blankUrl,
+      });
+      return blankUrl;
+    },
+    /**
+     * 获取复制到剪贴板的字符串
+     * @param {string} matchText 匹配到的文本
+     * @param {NetDiskRegularOption} regular 当前执行的规则
+     * @param {string} shareCode 分享码
+     * @param {string} accessCode 访问码
+     * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+     */
+    handleCopyUrl(matchText, regular, shareCode, accessCode, logCallBack) {
+      let copyUrl = NetDisk.replaceParam(regular["copyUrl"], {
+        shareCode: shareCode,
+      });
+      logCallBack({
+        status: true,
+        msg: [
+          `正则: copyUrl`,
+          "作用: 用于复制到剪贴板的链接",
+          "备注: 对shareCode进行参数替换",
+          `结果: ${copyUrl}`,
+        ],
+      });
+      if (accessCode && accessCode != "") {
+        copyUrl = NetDisk.replaceParam(copyUrl, {
+          accessCode: accessCode,
+        });
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: copyUrl`,
+            "作用: 用于复制到剪贴板的链接",
+            "备注: 对accessCode进行参数替换",
+            `结果: ${copyUrl}`,
+          ],
+        });
+      } else {
+        copyUrl = copyUrl.replace(NetDisk.noAccessCodeRegExp, "");
+        logCallBack({
+          status: true,
+          msg: [
+            `正则: 内置的noAccessCodeRegExp`,
+            "作用: 因accessCode为空，使用该正则去除不需要的字符串",
+            `结果: ${copyUrl}`,
+          ],
+        });
+      }
+      if (regular.paramMatch) {
+        if (utils.isNotNull(matchText)) {
+          let paramMatchArray = matchText.match(regular.paramMatch);
+          let replaceParamData = {};
+          for (let index = 0; index < paramMatchArray.length; index++) {
+            replaceParamData[`$${index}`] = paramMatchArray[index];
+          }
+          copyUrl = NetDisk.replaceParam(copyUrl, replaceParamData);
+          logCallBack({
+            status: true,
+            msg: [
+              `正则: paramMatch`,
+              `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
+              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+              `结果: ${copyUrl}`,
+            ],
+          });
+        }
+      }
+
+      logCallBack({
+        status: true,
+        msg: "处理完毕的copyUrl: " + copyUrl,
+      });
+      return copyUrl;
     },
   };
 
@@ -8187,59 +8618,19 @@
     initWorkerBlobLink() {
       const handleMatch = `
 			(() => {
+        function ${NetDiskWorker.handleRegularMatch.toString()}
+
+        function ${NetDiskWorker.uniqueArr}
+        
         this.addEventListener(
           "message",
           function (event) {
             const data = event.data;
-            const NetDiskRegularNameList = Object.keys(data.regular);
             let matchedList = [];
-            for (const netDiskName of NetDiskRegularNameList) {
-              const netDiskRegular = data.regular[netDiskName];
-              for (let index = 0; index < netDiskRegular.length; index++) {
-                const netDiskRegularItem = netDiskRegular[index];
-                if(netDiskRegularItem["enable"] != null && !netDiskRegularItem["enable"]){
-                  continue;
-                }
-                let regexpList = [];
-                if (data.matchTextRange === "all") {
-                  regexpList.push(
-                    new RegExp(netDiskRegularItem["link_innerText"], "gi")
-                  );
-                  regexpList.push(
-                    new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
-                  );
-                } else if (data.matchTextRange === "innertext") {
-                  regexpList.push(
-                    new RegExp(netDiskRegularItem["link_innerText"], "gi")
-                  );
-                } else if (data.matchTextRange === "innerhtml") {
-                  regexpList.push(
-                    new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
-                  );
-                } else {
-                  throw new TypeError(
-                    "未知的匹配范围：" + data.matchTextRange
-                  );
-                }
-                for (const regexp of regexpList) {
-                  for (const text of data.textList) {
-                    let matchData = text.match(regexp);
-                    if(matchData && matchData.length){
-                      matchedList.push({
-                        netDiskName: netDiskName,
-                        netDiskIndex: index,
-                        data: matchData,
-                      });
-                    }
-                  }
-                }
-              }
-            }
-            matchedList = matchedList.filter((obj,index,selfArray)=>{
-              return index === selfArray.findIndex((item)=>{
-                return JSON.stringify(item) === JSON.stringify(obj)
-              })
+            ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
+              matchedList.push(matchData);
             })
+            matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
             this.postMessage({
               options: data,
               msg: "Match End",
@@ -8257,6 +8648,70 @@
       let blob = new Blob([handleMatch]);
       NetDiskWorker.blobUrl = window.URL.createObjectURL(blob);
       log.info(`Worker Blob Link ===> ${NetDiskWorker.blobUrl}`);
+    },
+    /**
+     * 处理规则匹配
+     * @param {NetDiskWorkerOptions} data 数据
+     * @param {( matchData: NetDiskWorkerMatchOption )=>void} callback 成功匹配到的回调
+     */
+    handleRegularMatch(data, callback) {
+      const NetDiskRegularNameList = Object.keys(data.regular);
+      for (const netDiskName of NetDiskRegularNameList) {
+        const netDiskRegular = data.regular[netDiskName];
+        for (let index = 0; index < netDiskRegular.length; index++) {
+          const netDiskRegularItem = netDiskRegular[index];
+          if (
+            netDiskRegularItem["enable"] != null &&
+            !netDiskRegularItem["enable"]
+          ) {
+            continue;
+          }
+          let regexpList = [];
+          if (data.matchTextRange === "all") {
+            regexpList.push(
+              new RegExp(netDiskRegularItem["link_innerText"], "gi")
+            );
+            regexpList.push(
+              new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
+            );
+          } else if (data.matchTextRange === "innertext") {
+            regexpList.push(
+              new RegExp(netDiskRegularItem["link_innerText"], "gi")
+            );
+          } else if (data.matchTextRange === "innerhtml") {
+            regexpList.push(
+              new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
+            );
+          } else {
+            throw new TypeError("未知的匹配范围: " + data.matchTextRange);
+          }
+          for (const regexp of regexpList) {
+            for (const text of data.textList) {
+              let matchData = text.match(regexp);
+              if (matchData && matchData.length) {
+                callback({
+                  netDiskName: netDiskName,
+                  netDiskIndex: index,
+                  data: matchData,
+                });
+              }
+            }
+          }
+        }
+      }
+    },
+    /**
+     * 数组去重
+     */
+    uniqueArr(arr) {
+      return arr.filter((obj, index, selfArray) => {
+        return (
+          index ===
+          selfArray.findIndex((item) => {
+            return JSON.stringify(item) === JSON.stringify(obj);
+          })
+        );
+      });
     },
     /**
      * 初始化Worker对象
@@ -8278,68 +8733,16 @@
            */
           postMessage(data) {
             return new Promise((resolve, reject) => {
-              /**
-               * @type {NetDiskWorkerMatchOption[]}
-               */
+              /** @type {NetDiskWorkerMatchOption[]} */
               let matchedList = [];
               try {
-                const NetDiskRegularNameList = Object.keys(data.regular);
-                for (const netDiskName of NetDiskRegularNameList) {
-                  const netDiskRegular = data.regular[netDiskName];
-                  for (let index = 0; index < netDiskRegular.length; index++) {
-                    const netDiskRegularItem = netDiskRegular[index];
-                    if (
-                      netDiskRegularItem["enable"] != null &&
-                      !netDiskRegularItem["enable"]
-                    ) {
-                      continue;
-                    }
-                    let regexpList = [];
-                    if (data.matchTextRange === "all") {
-                      regexpList.push(
-                        new RegExp(netDiskRegularItem["link_innerText"], "gi")
-                      );
-                      regexpList.push(
-                        new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
-                      );
-                    } else if (data.matchTextRange === "innertext") {
-                      regexpList.push(
-                        new RegExp(netDiskRegularItem["link_innerText"], "gi")
-                      );
-                    } else if (data.matchTextRange === "innerhtml") {
-                      regexpList.push(
-                        new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
-                      );
-                    } else {
-                      throw new TypeError(
-                        "未知的匹配范围：" + data.matchTextRange
-                      );
-                    }
-                    for (const regexp of regexpList) {
-                      for (const text of data.textList) {
-                        let matchData = text.match(regexp);
-                        if (matchData && matchData.length) {
-                          matchedList.push({
-                            netDiskName: netDiskName,
-                            netDiskIndex: index,
-                            data: matchData,
-                          });
-                        }
-                      }
-                    }
-                  }
-                }
+                NetDiskWorker.handleRegularMatch(data, (matchData) => {
+                  matchedList.push(matchData);
+                });
               } catch (error) {
                 NetDiskWorker.onError(error);
               } finally {
-                matchedList = matchedList.filter((obj, index, selfArray) => {
-                  return (
-                    index ===
-                    selfArray.findIndex((item) => {
-                      return JSON.stringify(item) === JSON.stringify(obj);
-                    })
-                  );
-                });
+                matchedList = NetDiskWorker.uniqueArr(matchedList);
                 NetDiskWorker.onMessage(
                   new MessageEvent("message", {
                     data: {
@@ -8459,11 +8862,8 @@
         }
       });
       filterHandleNetDiskList.forEach((item) => {
-        const shareCode = item.shareCode;
-        const accessCode = item.accessCode;
-        const netDiskName = item.netDiskName;
-        const netDiskIndex = item.netDiskIndex;
-        const matchText = item.matchText;
+        const { shareCode, accessCode, netDiskName, netDiskIndex, matchText } =
+          item;
         const currentRegular = NetDisk.regular[netDiskName][netDiskIndex];
         if (
           currentRegular.shareCodeExcludeRegular &&
@@ -8715,6 +9115,160 @@
       titleText += "自定义规则";
       /** @type {HTMLTextAreaElement} */
       let $ruleInput = null;
+
+      /**
+       * 保存按钮的回调
+       * @param {PopsBtnCallBackEvent} event
+       */
+      function saveCallBack(event) {
+        /**
+         * 检测regexp项是否符合规定
+         * @param {NetDiskUserCustomRuleRegexp} ruleRegExp
+         * @returns
+         */
+        function checkRegExp(ruleRegExp) {
+          if (typeof ruleRegExp["link_innerText"] !== "string") {
+            Qmsg.error("regexp缺失的键名: link_innerText，类型: string");
+            return;
+          }
+          if (typeof ruleRegExp["link_innerHTML"] !== "string") {
+            Qmsg.error("regexp缺失的键名: link_innerHTML，类型: string");
+            return;
+          }
+          if (typeof ruleRegExp["shareCode"] !== "string") {
+            Qmsg.error("regexp缺失的键名: shareCode，类型: string");
+            return;
+          }
+          if (typeof ruleRegExp["shareCodeNeedRemoveStr"] !== "string") {
+            Qmsg.error(
+              "regexp缺失的键名: shareCodeNeedRemoveStr，类型: string"
+            );
+            return;
+          }
+          if (typeof ruleRegExp["uiLinkShow"] !== "string") {
+            Qmsg.error("regexp缺失的键名: uiLinkShow，类型: string");
+            return;
+          }
+          if (typeof ruleRegExp["blank"] !== "string") {
+            Qmsg.error("regexp缺失的键名: blank，类型: string");
+            return;
+          }
+          if (typeof ruleRegExp["copyUrl"] !== "string") {
+            Qmsg.error("regexp缺失的键名: copyUrl，类型: string");
+            return;
+          }
+          if (
+            typeof ruleRegExp["accessCode"] === "string" &&
+            typeof ruleRegExp["checkAccessCode"] !== "string"
+          ) {
+            Qmsg.error("regexp设置了accessCode但是没有设置checkAccessCode");
+            return;
+          }
+          if (
+            typeof ruleRegExp["accessCode"] !== "string" &&
+            typeof ruleRegExp["checkAccessCode"] === "string"
+          ) {
+            Qmsg.error("regexp设置了checkAccessCode但是没有设置accessCode");
+            return;
+          }
+          return true;
+        }
+        /**
+         * 检测设置项是否符合规定
+         * @param {NetDiskUserCustomRuleSetting} ruleSetting
+         */
+        function checkSetting(ruleSetting) {
+          if (typeof ruleSetting["name"] !== "string") {
+            Qmsg.error("setting缺失的键名: name，类型: string");
+            return;
+          }
+          if (typeof ruleSetting["enable"] !== "boolean") {
+            Qmsg.error("setting缺失的键名: enable，类型: boolean");
+            return;
+          }
+          return true;
+        }
+        try {
+          /**
+           * @type {NetDiskUserCustomRule}
+           */
+          let ruleJSON = JSON.parse($ruleInput.value);
+          if (typeof ruleJSON !== "object") {
+            Qmsg.error("该规则不是object类型");
+            return;
+          }
+          if (typeof ruleJSON["key"] !== "string") {
+            Qmsg.error("缺失的键名: key，类型: string");
+            return;
+          }
+          if (typeof ruleJSON["regexp"] !== "object") {
+            Qmsg.error("缺失的键名: regexp，类型: object|Arrany");
+            return;
+          }
+          if (typeof ruleJSON["setting"] !== "object") {
+            Qmsg.error("缺失的键名: setting，类型: object");
+            return;
+          }
+          if (Array.isArray(ruleJSON["regexp"])) {
+            for (const regexpItem of ruleJSON["regexp"]) {
+              if (!checkRegExp(regexpItem)) {
+                return;
+              }
+            }
+          } else {
+            if (!checkRegExp(ruleJSON["regexp"])) {
+              return;
+            }
+          }
+
+          if (!checkSetting(ruleJSON["setting"])) {
+            return;
+          }
+          if (isEdit) {
+            NetDiskCustomRules.setRule(ruleKey, ruleJSON);
+          } else {
+            NetDiskCustomRules.addRule(ruleJSON);
+          }
+          Qmsg.success("保存成功");
+          return ruleJSON;
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.message, {
+            html: true,
+            timeout: 3500,
+          });
+          return;
+        }
+      }
+      /**
+       * 调试按钮的回调
+       * @param {PopsBtnCallBackEvent} event
+       */
+      function debugCallBack(event) {
+        let ruleJSON = saveCallBack(event);
+        if (!ruleJSON) {
+          return;
+        }
+        NetDiskCustomRules.showDebugUI(ruleJSON);
+      }
+      /**
+       * 格式化按钮的回调
+       * @param {PopsBtnCallBackEvent} event
+       */
+      function formatCallBack(event) {
+        try {
+          let ruleJSON = JSON.parse($ruleInput.value);
+          let ruleJSONString = NetDiskCustomRules.getFormatRule(ruleJSON);
+          $ruleInput.value = ruleJSONString;
+          Qmsg.success("格式化成功");
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.message, {
+            html: true,
+            timeout: 3500,
+          });
+        }
+      }
       let dialog = NetDiskPops.confirm(
         {
           title: {
@@ -8732,155 +9286,17 @@
             position: "space-between",
             ok: {
               text: "保存",
-              callback(event) {
-                /**
-                 * 检测regexp项是否符合规定
-                 * @param {NetDiskUserCustomRuleRegexp} ruleRegExp
-                 * @returns
-                 */
-                function checkRegExp(ruleRegExp) {
-                  if (typeof ruleRegExp["link_innerText"] !== "string") {
-                    Qmsg.error(
-                      "regexp缺失的键名: link_innerText，类型: string"
-                    );
-                    return;
-                  }
-                  if (typeof ruleRegExp["link_innerHTML"] !== "string") {
-                    Qmsg.error(
-                      "regexp缺失的键名: link_innerHTML，类型: string"
-                    );
-                    return;
-                  }
-                  if (typeof ruleRegExp["shareCode"] !== "string") {
-                    Qmsg.error("regexp缺失的键名: shareCode，类型: string");
-                    return;
-                  }
-                  if (
-                    typeof ruleRegExp["shareCodeNeedRemoveStr"] !== "string"
-                  ) {
-                    Qmsg.error(
-                      "regexp缺失的键名: shareCodeNeedRemoveStr，类型: string"
-                    );
-                    return;
-                  }
-                  if (typeof ruleRegExp["uiLinkShow"] !== "string") {
-                    Qmsg.error("regexp缺失的键名: uiLinkShow，类型: string");
-                    return;
-                  }
-                  if (typeof ruleRegExp["blank"] !== "string") {
-                    Qmsg.error("regexp缺失的键名: blank，类型: string");
-                    return;
-                  }
-                  if (typeof ruleRegExp["copyUrl"] !== "string") {
-                    Qmsg.error("regexp缺失的键名: copyUrl，类型: string");
-                    return;
-                  }
-                  if (
-                    typeof ruleRegExp["accessCode"] === "string" &&
-                    typeof ruleRegExp["checkAccessCode"] !== "string"
-                  ) {
-                    Qmsg.error(
-                      "regexp设置了accessCode但是没有设置checkAccessCode"
-                    );
-                    return;
-                  }
-                  if (
-                    typeof ruleRegExp["accessCode"] !== "string" &&
-                    typeof ruleRegExp["checkAccessCode"] === "string"
-                  ) {
-                    Qmsg.error(
-                      "regexp设置了checkAccessCode但是没有设置accessCode"
-                    );
-                    return;
-                  }
-                  return true;
-                }
-                /**
-                 * 检测设置项是否符合规定
-                 * @param {NetDiskUserCustomRuleSetting} ruleSetting
-                 */
-                function checkSetting(ruleSetting) {
-                  if (typeof ruleSetting["name"] !== "string") {
-                    Qmsg.error("setting缺失的键名: name，类型: string");
-                    return;
-                  }
-                  if (typeof ruleSetting["enable"] !== "boolean") {
-                    Qmsg.error("setting缺失的键名: enable，类型: boolean");
-                    return;
-                  }
-                  return true;
-                }
-                try {
-                  /**
-                   * @type {NetDiskUserCustomRule}
-                   */
-                  let ruleJSON = JSON.parse($ruleInput.value);
-                  if (typeof ruleJSON !== "object") {
-                    Qmsg.error("该规则不是object类型");
-                    return;
-                  }
-                  if (typeof ruleJSON["key"] !== "string") {
-                    Qmsg.error("缺失的键名: key，类型: string");
-                    return;
-                  }
-                  if (typeof ruleJSON["regexp"] !== "object") {
-                    Qmsg.error("缺失的键名: regexp，类型: object|Arrany");
-                    return;
-                  }
-                  if (typeof ruleJSON["setting"] !== "object") {
-                    Qmsg.error("缺失的键名: setting，类型: object");
-                    return;
-                  }
-                  if (Array.isArray(ruleJSON["regexp"])) {
-                    for (const regexpItem of ruleJSON["regexp"]) {
-                      if (!checkRegExp(regexpItem)) {
-                        return;
-                      }
-                    }
-                  } else {
-                    if (!checkRegExp(ruleJSON["regexp"])) {
-                      return;
-                    }
-                  }
-
-                  if (!checkSetting(ruleJSON["setting"])) {
-                    return;
-                  }
-                  if (isEdit) {
-                    NetDiskCustomRules.setRule(ruleKey, ruleJSON);
-                  } else {
-                    NetDiskCustomRules.addRule(ruleJSON);
-                  }
-                  Qmsg.success("保存成功");
-                  event.close();
-                } catch (error) {
-                  log.error(error);
-                  Qmsg.error(error.message, {
-                    html: true,
-                    timeout: 3500,
-                  });
-                }
-              },
+              callback: saveCallBack,
+            },
+            cancel: {
+              text: "调试",
+              callback: debugCallBack,
             },
             other: {
               enable: true,
               text: "格式化",
               type: "xiaomi-primary",
-              callback(event) {
-                try {
-                  let ruleJSON = JSON.parse($ruleInput.value);
-                  let ruleJSONString =
-                    NetDiskCustomRules.getFormatRule(ruleJSON);
-                  $ruleInput.value = ruleJSONString;
-                  Qmsg.success("格式化成功");
-                } catch (error) {
-                  log.error(error);
-                  Qmsg.error(error.message, {
-                    html: true,
-                    timeout: 3500,
-                  });
-                }
-              },
+              callback: formatCallBack,
             },
           },
           class: "whitesevPopNetDiskCustomRules",
@@ -8895,6 +9311,287 @@
       } else {
         $ruleInput.value = this.getTemplateRule();
       }
+    },
+    /**
+     * 调试规则
+     * @param {NetDiskUserCustomRule} ruleJSON
+     */
+    showDebugUI(ruleJSON) {
+      if (utils.isNull(ruleJSON.regexp)) {
+        Qmsg.error("请先配置regexp");
+        return;
+      }
+      let that = this;
+      let customRule = this.parseRule([ruleJSON]);
+      let regexp = customRule[ruleJSON.key];
+      let dialog = NetDiskPops.confirm(
+        {
+          title: {
+            text: `调试规则 ${ruleJSON.key}`,
+            position: "center",
+          },
+          content: {
+            text: `
+          <div class="custom-rule-container">
+            <textarea class="custom-rule-match-text" placeholder="请输入需要测试匹配的字符串"></textarea>
+            <div class="custom-rule-input-container">
+              <select class="custom-rule-select-regexp"></select>
+              <button class="custom-rule-run-match-button" type="primary" data-icon="" data-righticon="false">
+                <span>执行</span>
+              </button>
+            </div>
+          </div>
+          <div class="custom-rule-match-log">
+            <div>匹配日志↓</div>
+            <div class="custom-rule-match-log-container"></div>
+          </div>
+          `,
+            html: true,
+          },
+          btn: {
+            ok: {
+              enable: false,
+            },
+          },
+          style: `
+        .custom-rule-container{
+          display: flex;
+          align-items: center;
+        }
+        .custom-rule-select-regexp{
+          width: 100%;
+          height: 32px;
+          line-height: 32px;
+          border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
+          border-radius: 5px;
+          text-align: center;
+          outline: 0;
+          background: rgb(255, 255, 255, var(--pops-bg-opacity));
+          box-shadow: none;
+        }
+        .custom-rule-input-container{
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin: 5px;
+          width: 30%;
+        }
+        .custom-rule-select-regexp-item{
+
+        }
+        button.custom-rule-run-match-button{
+          margin-top: 5px;
+        }
+        textarea.custom-rule-match-text{
+          width: 100%;
+          min-height: 70px;
+          outline: none;
+          margin: 0px;
+          background-image: none;
+          background-color: transparent;
+          display: inline-block;
+          resize: vertical;
+          padding: 5px;
+          line-height: 1.5;
+          box-sizing: border-box;
+          border: 1px solid rgb(220, 223, 230);
+          appearance: none;
+        }
+        .custom-rule-match-log{
+
+        }
+        .custom-rule-match-log-container{
+          padding: 5px;
+          background: rgb(229, 229, 229);
+        }
+        .custom-rule-match-log-container p{
+          margin: 2px 0px;
+          border-bottom: 1px solid #000000;
+        }
+        .custom-rule-match-log-container p:last-child{
+          border-bottom: 0px;
+          margin-bottom: 0px;
+        }
+        .custom-rule-match-log-container p[data-tag]{
+          
+        }
+        .custom-rule-match-log-container p[data-tag="info"]{
+
+        }
+        .custom-rule-match-log-container p[data-tag="success"]{
+          color: green;
+        }
+        .custom-rule-match-log-container p[data-tag="warn"]{
+          color: yellow;
+        }
+        .custom-rule-match-log-container p[data-tag="error"]{
+          color: red;
+        }
+        `,
+        },
+        NetDiskUI.popsStyle.customRuleDebugView
+      );
+      /** @type {HTMLSelectElement} */
+      let $select = dialog.$shadowRoot.querySelector(
+        ".custom-rule-select-regexp"
+      );
+      /** @type {HTMLTextAreaElement} */
+      let $matchText = dialog.$shadowRoot.querySelector(
+        ".custom-rule-match-text"
+      );
+      /** @type {HTMLDivElement} */
+      let $log = dialog.$shadowRoot.querySelector(
+        ".custom-rule-match-log-container"
+      );
+      /** @type {HTMLButtonElement} */
+      let $button = dialog.$shadowRoot.querySelector(
+        ".custom-rule-run-match-button"
+      );
+      regexp.forEach((regExpItem, index) => {
+        $select.appendChild(
+          DOMUtils.createElement("option", {
+            className: "custom-rule-select-regexp-item",
+            innerText: "regexp下标:" + index,
+            "data-value": regExpItem,
+          })
+        );
+      });
+      /**
+       * 设置日志输出
+       * @param {"info"|"error"|"success"|"warn"} tag 日志等级
+       * @param {...any[]} args
+       */
+      function setLog(tag, ...args) {
+        let text = "";
+        args.forEach((item) => {
+          if (text !== "") {
+            text += "\n";
+          }
+          if (typeof item !== "string") {
+            text += JSON.stringify(item, void 0, 4);
+          } else {
+            text += item;
+          }
+        });
+        let logElement = DOMUtils.createElement(
+          "p",
+          {
+            innerText: text,
+          },
+          {
+            "data-tag": tag,
+          }
+        );
+        DOMUtils.append($log, logElement);
+      }
+      /**
+       * 清空日志
+       */
+      function clearLog() {
+        $log.innerHTML = "";
+      }
+      /**
+       * 日志回调
+       * @param {NetDiskDebugLogData} logData
+       */
+      function logCallBack(logData) {
+        if (Array.isArray(logData.msg)) {
+          setLog(logData.status ? "info" : "error", ...logData.msg);
+        } else {
+          setLog(logData.status ? "info" : "error", logData.msg);
+        }
+        if (!logData.status) {
+          setLog("error", "执行完毕");
+        }
+      }
+      function debugRunClickEvent() {
+        if (utils.isNull($matchText.value)) {
+          Qmsg.error("请先输入待匹配的字符串");
+          return;
+        }
+        /* 清空日志 */
+        clearLog();
+        let netDiskName = ruleJSON.key;
+        let netDiskIndex = $select.selectedIndex;
+        let selectRegExp = $select.selectedOptions[netDiskIndex]["data-value"];
+        log.info(["当前选中的规则: ", selectRegExp]);
+        let testCustomRule = {};
+        testCustomRule[ruleJSON.key] = [selectRegExp];
+        /** @type {string[]} */
+        let matchTextList = [];
+        NetDiskWorker.handleRegularMatch(
+          {
+            regular: testCustomRule,
+            textList: [$matchText.value],
+            matchTextRange: "all",
+          },
+          (matchData) => {
+            matchTextList.push(...matchData.data);
+          }
+        );
+        if (!matchTextList.length) {
+          setLog("error", "未成功匹配到数据");
+          return;
+        }
+        matchTextList = NetDiskWorker.uniqueArr(matchTextList);
+        setLog("info", "成功匹配到的数据 ==> ", matchTextList);
+        matchTextList.forEach((matchText, index) => {
+          setLog("success", "当前处理的字符串: " + matchText);
+          setLog("success", "当前执行: 对shareCode进行处理获取");
+          let shareCode = NetDiskDebug.handleShareCode(
+            matchText,
+            selectRegExp,
+            logCallBack
+          );
+          if (utils.isNull(shareCode)) {
+            return;
+          }
+          setLog("info", " ");
+          setLog("info", `================分割线================`);
+          setLog("info", " ");
+          setLog("success", "当前执行: 对accessCode进行处理获取");
+          let accessCode = NetDiskDebug.handleAccessCode(
+            matchText,
+            selectRegExp,
+            logCallBack
+          );
+          setLog("info", " ");
+          setLog("info", `================分割线================`);
+          setLog("info", " ");
+          setLog("success", "当前执行: 对uiLinkShow进行处理获取");
+          let uiLinkShow = NetDiskDebug.handleLinkShow(
+            matchText,
+            selectRegExp,
+            shareCode,
+            accessCode,
+            logCallBack
+          );
+          setLog("info", " ");
+          setLog("info", `================分割线================`);
+          setLog("info", " ");
+          setLog("success", "当前执行: 对blank进行处理获取");
+          let blankUrl = NetDiskDebug.handleBlank(
+            matchText,
+            selectRegExp,
+            shareCode,
+            accessCode,
+            logCallBack
+          );
+          setLog("info", " ");
+          setLog("info", `================分割线================`);
+          setLog("info", " ");
+          setLog("success", "当前执行: 对copyUrl进行处理获取");
+          let copyUrl = NetDiskDebug.handleCopyUrl(
+            matchText,
+            selectRegExp,
+            shareCode,
+            accessCode,
+            logCallBack
+          );
+          setLog("success", "执行完毕");
+        });
+      }
+      DOMUtils.on($button, "click", void 0, debugRunClickEvent);
     },
     /**
      * 上下文环境
@@ -8953,6 +9650,12 @@
         if (typeof ruleRegExp["shareCodeNeedRemoveStr"] === "string") {
           ruleRegExp["shareCodeNeedRemoveStr"] = new RegExp(
             ruleRegExp["shareCodeNeedRemoveStr"],
+            "ig"
+          );
+        }
+        if (typeof ruleRegExp["shareCodeNotMatch"] === "string") {
+          ruleRegExp["shareCodeNotMatch"] = new RegExp(
+            ruleRegExp["shareCodeNotMatch"],
             "ig"
           );
         }
@@ -9604,6 +10307,19 @@
         Mobile: {
           width: "88vw",
           height: "60vh",
+        },
+      },
+      /**
+       * 自定义规则的调试视图
+       */
+      customRuleDebugView: {
+        PC: {
+          width: "55dvw",
+          height: "70dvh",
+        },
+        Mobile: {
+          width: "88vw",
+          height: "70vh",
         },
       },
       /**
@@ -11376,15 +12092,14 @@
             },
             class: "whitesevPopSetting",
             style: `
-            .netdisk-custom-rule-delete,
-            .netdisk-custom-rule-edit{
+            div[class^="netdisk-custom-rule-"]{
               display: flex;
               align-items: center;
               margin-left: 10px;
               cursor: pointer;
             }
-            .netdisk-custom-rule-delete svg,
-            .netdisk-custom-rule-edit svg{
+            div[class^="netdisk-custom-rule-"] svg,
+            div[class^="netdisk-custom-rule-"] svg{
               width: 1.2em;
               height: 1.2em;
             }
