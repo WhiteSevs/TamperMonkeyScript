@@ -48,6 +48,8 @@ body:
         - MT论坛
         - ImmortalWrt-passwall优化
         - 其它(请在下方填写脚本名称)
+    validations:
+      required: true
 
   - type: textarea
     attributes:
