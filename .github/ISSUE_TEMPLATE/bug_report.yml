@@ -35,13 +35,6 @@ body:
         请附上这个问题适用的环境，以帮助我们迅速定位问题并解决。若你提供的信息不足，我们将关闭
         这个 issue 并要求你提供更多信息。
 
-  - type: input
-    attributes:
-      label: 使用的脚本名称
-      description: "请输入脚本名"
-    validations:
-      required: true
-
   - type: dropdown
     id: scriptruncontainer
     attributes:
@@ -54,6 +47,7 @@ body:
         - 扩展-篡改猴（TamperMonkey）
         - 扩展-篡改猴测试版（TamperMonkey BETA）
         - 扩展-脚本猫（ScriptCat）
+        - 扩展-Stay
         - Via浏览器
         - X浏览器
         - 其它
@@ -62,21 +56,46 @@ body:
 
   - type: input
     attributes:
-      label:  扩展版本 
+      label: 扩展版本
       description: "如果使用扩展加载的脚本，请填写当前扩展的版本"
     validations:
       required: false
 
+  - type: dropdown
+    id: scriptname
+    attributes:
+      label: 脚本名称
+      description: "勾选使用的脚本"
+      multiple: false
+      options:
+        - 【移动端】百度系优化
+        - 【移动端】微博优化
+        - 【移动端】小红书优化
+        - 蛋仔乐消除
+        - 调试
+        - 抖音优化
+        - 简书优化
+        - 模拟竖屏
+        - 贴吧优化
+        - 网盘链接识别
+        - 网页调试
+        - CSDN优化
+        - GreasyFork优化
+        - ImageViewer
+        - MT论坛
+        - ImmortalWrt-passwall优化
+        - 其它(请在下方填写脚本名称)
 
   - type: markdown
     attributes:
       value: "## 脚本的相关信息"
-      
+
   - type: markdown
     attributes:
       value: |
         请附上与这个问题直接相关的相应信息，以帮助我们迅速定位问题并解决。  
         若你提供的信息不足，我们将关闭这个 issue 并要求你提供更多信息。
+        提示：可以上传问题截图或者录屏以便快速定位问题
 
   - type: textarea
     attributes:

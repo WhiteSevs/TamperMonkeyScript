@@ -24,6 +24,31 @@ body:
         - label: "我已经在[这里](https://github.com/WhiteSevs/TamperMonkeyScript/issues?q=is%3Aissue+label%3Aenhancement)找过我要提出的建议，**并且没有找到相关问题**"
           required: true
 
+  - type: dropdown
+    id: scriptname
+    attributes:
+      label: 脚本名称
+      description: "勾选使用的脚本"
+      multiple: false
+      options:
+        - 【移动端】百度系优化
+        - 【移动端】微博优化
+        - 【移动端】小红书优化
+        - 蛋仔乐消除
+        - 调试
+        - 抖音优化
+        - 简书优化
+        - 模拟竖屏
+        - 贴吧优化
+        - 网盘链接识别
+        - 网页调试
+        - CSDN优化
+        - GreasyFork优化
+        - ImageViewer
+        - MT论坛
+        - ImmortalWrt-passwall优化
+        - 其它(请在下方填写脚本名称)
+
   - type: textarea
     attributes:
       label: 描述
