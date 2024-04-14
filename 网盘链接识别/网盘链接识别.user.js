@@ -91,7 +91,7 @@
     unsafeWindow = globalThis || window;
   }
   /**
-   * @type {import("../库/crypto-js")}
+   * @type {import("../库/CryptoJS/index")}
    */
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
   /**

@@ -59,27 +59,28 @@
    */
   const DEBUG = false;
   /**
-   * @type {import("../库/pops")}
+   * @type {import("../库/pops/index")}
    */
   const pops = window.pops;
   /**
-   * @type {import("../库/Viewer")}
+   * @type {import("../库/Viewer/index")}
    */
   const Viewer = window.Viewer;
   /**
-   * @type {import("../库/Qmsg")}
+   * @type {import("../库/Qmsg/index.js")}
    */
   const Qmsg = window.Qmsg;
   /**
-   * @type {import("../库/Utils")}
+   * @type {import("../库/Utils/index.js")}
    */
   const utils = window.Utils.noConflict();
+  
   /**
-   * @type {import("../库/DOMUtils")}
+   * @type {import("../库/DOMUtils/index.js")}
    */
   const DOMUtils = window.DOMUtils.noConflict();
   /**
-   * @type {import("../库/showdown")}
+   * @type {import("../库/showdown/index")}
    */
   const showdown = window.showdown;
   const log = new utils.Log(GM_info, unsafeWindow.console || console);
@@ -434,7 +435,7 @@
     },
     isTieBa() {
       return window.location.href.match(
-        /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu).com/g
+        /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
       );
     },
     isTieBaPost() {
@@ -9762,7 +9763,8 @@
         {
           id: "baidu-panel-config-tieba",
           title: "贴吧",
-          headerTitle: "百度贴吧<br />tieba.baidu.com<br />www.tieba.com",
+          headerTitle:
+            "百度贴吧<br />tieba.baidu.com<br />www.tieba.com<br />...等",
           isDefault() {
             return Router.isTieBa();
           },

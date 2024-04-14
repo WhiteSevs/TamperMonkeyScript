@@ -1692,7 +1692,7 @@
           innerHTML: viewerULNodeHTML,
         });
         /**
-         * @type {import("../库/Viewer")}
+         * @type {import("../库/Viewer/index")}
          */
         let viewer = new Viewer(viewerULNode, {
           inline: false,

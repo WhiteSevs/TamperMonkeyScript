@@ -47,19 +47,19 @@
   const utils = (window.Utils || Utils).noConflict();
   let $jq = null;
   /**
-   * @type {import("../库/any-touch.umd")}
+   * @type {import("../库/any-touch/index.umd")}
    */
   let AnyTouch = window.AnyTouch;
   /**
-   * @type {import("../库/Viewer")}
+   * @type {import("../库/Viewer/index")}
    */
   let Viewer = window.Viewer;
   /**
-   * @type {import("../库/js-watermark")}
+   * @type {import("../库/js-watermark/index")}
    */
   let Watermark = window.Watermark;
   /**
-   * @type {import("../库/Xtiper")}
+   * @type {import("../库/Xtiper/index")}
    */
   let xtip = window.xtip;
 
