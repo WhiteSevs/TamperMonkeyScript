@@ -1,5 +1,4 @@
-/// <reference path="../库.ts/DOMUtils.d.ts" />
-
+/// <reference path="./core.d.ts" />
 /**
  * 自己常用的元素工具类
  * @copyright GPL-3.0-only

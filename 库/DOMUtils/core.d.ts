@@ -126,7 +126,7 @@ type DOMUtils_TouchEventType = "touchstart" | "touchmove" | "touchend" | "touchc
 /**
  * 事件类型
  */
-type DOMUtils_EventType = DOMUtils_MouseEventType |
+declare type DOMUtils_EventType = DOMUtils_MouseEventType |
     DOMUtils_KeyboardEventType |
     DOMUtils_Frame_Object_EventType |
     DOMUtils_FormEventType |

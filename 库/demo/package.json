@@ -1,0 +1,20 @@
+{
+  "name": "lib-demo",
+  "version": "1.0.0",
+  "description": "demo库",
+  "scripts": {
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "WhiteSev",
+  "license": "MIT",
+  "dependencies": {
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5"
+  }
+}

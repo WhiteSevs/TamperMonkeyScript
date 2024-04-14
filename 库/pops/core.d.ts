@@ -1,21 +1,22 @@
 /**
  * 动画
  */
-type PopsAnimation = "pops-anim-spread" |
-    "pops-anim-shake" |
-    "pops-anim-rolling-left" |
-    "pops-anim-rolling-right" |
-    "pops-anim-slide-top" |
-    "pops-anim-slide-bottom" |
-    "pops-anim-slide-left" |
-    "pops-anim-slide-right" |
-    "pops-anim-fadein" |
-    "pops-anim-fadein-zoom" |
-    "pops-anim-fadein-alert" |
-    "pops-anim-don" |
-    "pops-anim-roll" |
-    "pops-anim-sandra" |
-    "pops-anim-gather"
+type PopsAnimation =
+    | "pops-anim-spread"
+    | "pops-anim-shake"
+    | "pops-anim-rolling-left"
+    | "pops-anim-rolling-right"
+    | "pops-anim-slide-top"
+    | "pops-anim-slide-bottom"
+    | "pops-anim-slide-left"
+    | "pops-anim-slide-right"
+    | "pops-anim-fadein"
+    | "pops-anim-fadein-zoom"
+    | "pops-anim-fadein-alert"
+    | "pops-anim-don"
+    | "pops-anim-roll"
+    | "pops-anim-sandra"
+    | "pops-anim-gather"
 /**
  * 弹窗位置
  */
@@ -1743,4 +1744,43 @@ declare interface PopsLayerCommonConfig extends PopsLayerConfig {
     $shadowContainer: HTMLDivElement;
     /** shadow容器的shandowRoot */
     $shadowRoot: ShadowRoot;
+}
+
+interface PopsConfigCssText {
+    /** 主CSS */
+    index: string;
+    /** 九宫格位置CSS */
+    ninePalaceGridPosition: string;
+    /** 滚动条CSS */
+    scrollbar: string;
+    /** 按钮CSS */
+    button: string;
+    /** 通用的CSS */
+    common: string;
+    /** 动画 */
+    anim: string;
+    /** pops.alert 弹窗的CSS */
+    alertCSS: string;
+    /** pops.confirm 弹窗的CSS */
+    confirmCSS: string;
+    /** pops.prompt 弹窗的CSS */
+    promptCSS: string;
+    /** pops.loading 弹窗的CSS */
+    loadingCSS: string;
+    /** pops.iframe 弹窗的CSS */
+    iframeCSS: string;
+    /** pops.drawer 弹窗的CSS */
+    drawerCSS: string;
+    /** pops.folder 弹窗的CSS */
+    folderCSS: string;
+    /** pops.panel 弹窗的CSS */
+    panelCSS: string;
+    /** pops.tooltip 弹窗的CSS */
+    tooltipCSS: string;
+}
+
+interface PopsConfig {
+    /** 版本号 */
+    version: string;
+    cssText: PopsConfigCssText;
 }

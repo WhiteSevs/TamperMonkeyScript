@@ -1,6 +1,4 @@
-/// <reference path="../库.ts/pops.d.ts" />
-/// <reference path="../库.ts/DOMUtils.d.ts" />
-
+/// <reference path="../DOMUtils/core.d.ts" />
 (function (global, factory) {
   /**
    * 不使用define

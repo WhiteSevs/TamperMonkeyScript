@@ -1,3 +1,4 @@
+import { DOMUtils_EventType } from "../DOMUtils/index";
 /**
  * 状态码
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
@@ -2053,7 +2054,7 @@ declare interface UtilsTryCatch {
     error: UtilsTryCatch,
 }
 
-declare interface Utils {
+interface Utils {
     /** 版本 */
     version: string;
     /**
@@ -3622,9 +3623,7 @@ declare interface Utils {
 
 }
 
-declare var Utils: Utils;
-
-declare interface Vue2Context {
+interface Vue2Context {
     _isVue: true;
     $options: object;
     $parent: Vue2Context;
@@ -3637,4 +3636,9 @@ declare interface Vue2Context {
     $listeners: object;
     $store: object;
     $el: Element;
+}
+
+export {
+    Utils,
+    Vue2Context
 }

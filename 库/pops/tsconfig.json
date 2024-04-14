@@ -5,7 +5,7 @@
     /* 编译使用，用不到 */
     "module": "CommonJS",
     /* 输出路径，用不到 */
-    "outDir": "dist",
+    "outDir": "./dist",
     /* 是否启用严格模式，用不到 */
     "strict": false,
     /* 是否允许js */
@@ -13,7 +13,6 @@
     /* js文件进行代码检查 */
     "checkJs": false,
     /* 代码提示文件，不能模糊匹配，只能指定文件 */
-    "types": ["./global.d.ts"]
-  },
-  "exclude": ["./油猴api适配/*"]
+    "types": []
+  }
 }
