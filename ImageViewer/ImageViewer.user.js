@@ -31,7 +31,7 @@
   }
   /** @type {import("../库/pops")} */
   const pops = window.pops;
-  /** @type {import("../库/Viewer")} */
+  /** @type {import("../库/Viewer/index")} */
   const Viewer = window.Viewer;
   /** @type {import("../库/Qmsg")} */
   const Qmsg = window.Qmsg;

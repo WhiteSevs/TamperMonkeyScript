@@ -1,4 +1,4 @@
-import { DOMUtils_EventType } from "../DOMUtils/index";
+/// <reference path="../DOMUtils/index.js" />
 /**
  * 状态码
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
@@ -3623,7 +3623,7 @@ interface Utils {
 
 }
 
-interface Vue2Context {
+declare interface Vue2Context {
     _isVue: true;
     $options: object;
     $parent: Vue2Context;
@@ -3638,7 +3638,4 @@ interface Vue2Context {
     $el: Element;
 }
 
-export {
-    Utils,
-    Vue2Context
-}
+declare var Utils: Utils;
