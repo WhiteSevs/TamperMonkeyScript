@@ -21,7 +21,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-4-6";
+  Utils.version = "2024-4-15";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
