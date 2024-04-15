@@ -1,3 +1,4 @@
+/// <reference path="./core.d.ts" />
 /**
  * 方便好用的工具类
  * @copyright GPL-3.0-only
