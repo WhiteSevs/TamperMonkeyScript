@@ -41,9 +41,6 @@
   const OriginPrototype = {
     Object: {
       defineProperty: unsafeWindow.Object.defineProperty,
-      keys: unsafeWindow.Object.keys,
-      values: unsafeWindow.Object.values,
-      assign: unsafeWindow.Object.assign,
     },
     Function: {
       apply: unsafeWindow.Function.prototype.apply,
@@ -3462,7 +3459,7 @@
          */
         getNewCommentInnerElement: (element, pageCommentList) => {
           let data_field = utils.toJSON(element.getAttribute("data-field"));
-          if (OriginPrototype.Object.keys(data_field).length == 0) {
+          if (Object.keys(data_field).length == 0) {
             return;
           }
           let user_id = data_field["author"]["user_id"];
@@ -3531,9 +3528,10 @@
             /* 评论楼层 */
             user_floor = data_field["content"]["post_no"] + "楼";
             user_comment_time = data_field["content"]["date"];
-            if (!userComment) {
-              userComment = element.querySelector(".d_post_content").innerHTML;
-            }
+          }
+          if (!userComment) {
+            /* 如果评论获取为空的话，可能是因为【该楼层疑似违规已被系统折叠】，直接获取innerHTML */
+            userComment = element.querySelector(".d_post_content").innerHTML;
           }
           /* 结束时间 */
           let currentTime = new Date();
@@ -5009,8 +5007,31 @@
         init() {
           utils.waitNode("div.more-btn-desc").then((element) => {
             element.outerHTML = `
-              <input type="search" id="tieba-search" placeholder="请输入搜索内容..." style="display: none;padding: 0 10px;height: 32px;line-height: 32px;font-size: 14px;border-radius: 5px;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;-o-appearance: none;appearance: none;border: 1px solid #000000;outline: none;flex: 1;margin: 0px 40px;" autocomplete="off">
-              <div class="more-btn-desc" style="margin-right: 13px;font-size: .15rem;font-weight: 700;color: #614ec2;">搜索</div>
+              <input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
+              <div class="more-btn-desc">搜索</div>
+              <style>
+              #tieba-search{
+                display: none;
+                padding: 0px 10px;
+                height: 32px;
+                line-height: 32px;
+                font-size: 14px;
+                border-radius: 5px;
+                box-sizing: border-box;
+                appearance: none;
+                border: 1px solid rgb(0, 0, 0);
+                outline: none;
+                flex: 1 1 0%;
+                margin: 0px 1em;
+                min-width: 80px;
+              }
+              .more-btn-desc{
+                margin-right: 13px;
+                font-size: .15rem;
+                font-weight: 700;
+                color: #614ec2;
+              }
+              </style>
               `;
             DOMUtils.on(
               document.querySelector("div.more-btn-desc"),
@@ -6561,22 +6582,20 @@
                   return;
                 }
                 log.success(["请求本贴图片信息", result]);
-                OriginPrototype.Object.values(result["pic_list"]).forEach(
-                  (item) => {
-                    /* 图片id */
-                    let id =
-                      item?.["img"]?.["original"]?.["id"] ||
-                      item?.["img"]?.["medium"]?.["id"] ||
-                      item?.["img"]?.["screen"]?.["id"];
-                    let pictureUrl =
-                      item?.["img"]?.["original"]?.["waterurl"] ||
-                      item?.["img"]?.["screen"]?.["waterurl"];
+                Object.values(result["pic_list"]).forEach((item) => {
+                  /* 图片id */
+                  let id =
+                    item?.["img"]?.["original"]?.["id"] ||
+                    item?.["img"]?.["medium"]?.["id"] ||
+                    item?.["img"]?.["screen"]?.["id"];
+                  let pictureUrl =
+                    item?.["img"]?.["original"]?.["waterurl"] ||
+                    item?.["img"]?.["screen"]?.["waterurl"];
 
-                    if (id != null && pictureUrl != null) {
-                      tiebaData.imageMap.set(id, pictureUrl);
-                    }
+                  if (id != null && pictureUrl != null) {
+                    tiebaData.imageMap.set(id, pictureUrl);
                   }
-                );
+                });
               });
           }
         },
@@ -11231,7 +11250,7 @@ match-href##^http(s|)://b2b.baidu.com
                 Array.isArray(_mainCoreData) &&
                 JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
             ) {
-              OriginPrototype.Object.keys(args[0][1]).forEach((keyName) => {
+              Object.keys(args[0][1]).forEach((keyName) => {
                 let originSwitchFunc = args[0][1][keyName];
                 args[0][1][keyName] = function (..._args) {
                   let result = originSwitchFunc.call(this, ..._args);
