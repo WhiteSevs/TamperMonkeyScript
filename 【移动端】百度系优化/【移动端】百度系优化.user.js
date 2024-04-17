@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.17.12
+// @version      2024.4.17.20
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -5036,6 +5036,8 @@
             let isSetClickEvent_kw = false;
             let isSetClickEvent_p = false;
             let isSetClickEvent_home = false;
+
+            let isFirstClick = true;
             DOMUtils.on(
               document.querySelector("div.more-btn-desc"),
               "click",
@@ -5054,7 +5056,7 @@
                       document.querySelector("div.tb-page__main"),
                       loadingView.getLoadingViewElement()
                     );
-                    tiebaSearchConfig.postsSearch();
+                    tiebaSearchConfig.postsSearch(isFirstClick);
                   }
                 } else if (
                   window.location.href.startsWith("https://tieba.baidu.com/p/")
@@ -5062,7 +5064,7 @@
                   /* 当前是在帖子内，搜索按钮判定搜索帖子 */
                   if (!isSetClickEvent_p) {
                     isSetClickEvent_p = true;
-                    tiebaSearchConfig.postsSearch();
+                    tiebaSearchConfig.postsSearch(isFirstClick);
                   }
                 } else {
                   /* 当前是在主页中，搜索按钮判定为搜索吧 */
@@ -5079,6 +5081,9 @@
                       }
                     );
                   }
+                }
+                if (isFirstClick) {
+                  isFirstClick = false;
                 }
               }
             );
@@ -5201,8 +5206,9 @@
         },
         /**
          * 帖子内搜索(搜索帖子)
+         * @param {boolean} [isFirstClick=false] 判断是否是首次点击
          * */
-        postsSearch() {
+        postsSearch(isFirstClick = false) {
           let that = this;
           let gbkEncoder = new utils.GBKEncoder();
           let nextPageUrl = null;
@@ -5864,6 +5870,11 @@
           /* 搜索框显示出来 */
           searchInputElement.previousElementSibling.style.display = "none";
           searchInputElement.style.display = "block";
+          if (isFirstClick) {
+            setTimeout(() => {
+              searchInputElement.focus();
+            }, 20);
+          }
           document
             .querySelector(".more-btn-desc")
             .addEventListener("click", _click_event_);
@@ -6293,7 +6304,9 @@
             function (event) {
               utils.preventEvent(event);
               let pbUrl = event.target.__vue__.pbUrl;
-              let newUrl = window.location.origin + pbUrl;
+              let tid = event.target.__vue__.tid;
+              let id = event.target.__vue__.id;
+              let newUrl = window.location.origin + (pbUrl ?? tid ?? id);
               log.info("帖子链接: " + pbUrl);
               window.open(newUrl, "_blank");
             },
