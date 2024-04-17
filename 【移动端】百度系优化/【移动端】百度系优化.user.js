@@ -10797,6 +10797,8 @@ match-attr##srcid##lego_tpl
 match-href##^http(s|)://b2b.baidu.com
 // 搜索聚合
 // match-attr##srcid##note_lead
+// 百度优选
+match-attr##srcid##sp_purc_san
 `,
     /**
      * @type { {
