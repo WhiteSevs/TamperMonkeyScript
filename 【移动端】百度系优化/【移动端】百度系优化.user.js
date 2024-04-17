@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.17
+// @version      2024.4.17.12
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -4978,7 +4978,6 @@
        * 贴吧搜索
        */
       const tiebaSearchConfig = {
-        isSetClickEvent: false,
         /**
          * @type {PopsSearchSuggestionResult}
          */
@@ -5033,6 +5032,10 @@
               }
               </style>
               `;
+            /* 用于判断是否已设置点击事件 */
+            let isSetClickEvent_kw = false;
+            let isSetClickEvent_p = false;
+            let isSetClickEvent_home = false;
             DOMUtils.on(
               document.querySelector("div.more-btn-desc"),
               "click",
@@ -5043,34 +5046,39 @@
                   utils.isNotNull(searchParams.get("kw"))
                 ) {
                   /* 当前是在吧内，搜索按钮判定搜索帖子 */
-                  loadingView.removeAll();
-                  loadingView.initLoadingView();
-                  DOMUtils.after(
-                    document.querySelector("div.tb-page__main"),
-                    loadingView.getLoadingViewElement()
-                  );
-                  tiebaSearchConfig.isSetClickEvent = true;
-                  tiebaSearchConfig.postsSearch();
+                  if (!isSetClickEvent_kw) {
+                    isSetClickEvent_kw = true;
+                    loadingView.removeAll();
+                    loadingView.initLoadingView();
+                    DOMUtils.after(
+                      document.querySelector("div.tb-page__main"),
+                      loadingView.getLoadingViewElement()
+                    );
+                    tiebaSearchConfig.postsSearch();
+                  }
                 } else if (
                   window.location.href.startsWith("https://tieba.baidu.com/p/")
                 ) {
                   /* 当前是在帖子内，搜索按钮判定搜索帖子 */
-                  if (!tiebaSearchConfig.isSetClickEvent) {
-                    tiebaSearchConfig.isSetClickEvent = true;
+                  if (!isSetClickEvent_p) {
+                    isSetClickEvent_p = true;
                     tiebaSearchConfig.postsSearch();
                   }
                 } else {
                   /* 当前是在主页中，搜索按钮判定为搜索吧 */
                   tiebaSearchConfig.frontPageSeach();
-                  utils.listenKeyboard(
-                    document.querySelector("#tieba-search"),
-                    "keypress",
-                    (keyName) => {
-                      if (keyName === "Enter") {
-                        tiebaSearchConfig.frontPageSeach();
+                  if (isSetClickEvent_home) {
+                    isSetClickEvent_home = true;
+                    utils.listenKeyboard(
+                      document.querySelector("#tieba-search"),
+                      "keypress",
+                      (keyName) => {
+                        if (keyName === "Enter") {
+                          tiebaSearchConfig.frontPageSeach();
+                        }
                       }
-                    }
-                  );
+                    );
+                  }
                 }
               }
             );
