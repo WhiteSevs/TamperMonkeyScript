@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.18
+// @version      2024.4.18.13
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -5264,8 +5264,8 @@
                 "pn"
               )} 页`
             );
-            let getResp = await fetch(url, {
-              url: url,
+            let getResp = await httpx.get(url, {
+              fetch: true,
               headers: {
                 accept:
                   "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -5280,21 +5280,8 @@
                 "sec-fetch-site": "none",
               },
             });
-            let respArrayBuffer = await getResp.arrayBuffer();
-            if (!respArrayBuffer) {
-              log.error("获取ArrayBuffer失败");
-            }
-            let encoding = "gb18030";
-            if (
-              getResp.headers.has("Content-Type") &&
-              getResp.headers.get("Content-Type").includes("charset=utf-8")
-            ) {
-              encoding = "utf-8";
-            }
-            log.info("当前编码：" + encoding);
-            let decoder = new TextDecoder(encoding);
-            let respText = decoder.decode(respArrayBuffer);
-            if (!getResp.ok) {
+            let respText = getResp.data.responseText;
+            if (!getResp.status) {
               if (respText.trim() === "") {
                 log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
                 return "获取内容为空，可能触发了百度校验，请刷新网页再试";
@@ -6119,6 +6106,22 @@
             }
           }, 900);
         },
+        /**
+         * 自动重定向至主域名
+         */
+        autoJumpToMainHost() {
+          if (unsafeWindow.top !== unsafeWindow.window) {
+            return;
+          }
+          if (window.location.hostname === "tieba.baidu.com") {
+            return;
+          }
+          let replacePattern = new RegExp(`^${window.location.origin}`);
+          window.location.href = window.location.href.replace(
+            replacePattern,
+            "https://tieba.baidu.com"
+          );
+        },
       };
 
       /**
@@ -6918,6 +6921,9 @@
           return `https://gsp0.baidu.com/5aAHeD3nKhI2p27j8IqW0jdnxx1xbK/${pathName}`;
         },
       };
+      PopsPanel.execMenu("baidu_tieba_autoJumpToMainHost", () => {
+        tiebaBusiness.autoJumpToMainHost();
+      });
       if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
         tiebaBusiness.clientCallMasquerade();
       }
@@ -9939,6 +9945,13 @@
                   true,
                   void 0,
                   "当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "自动重定向至主域名",
+                  "baidu_tieba_autoJumpToMainHost",
+                  false,
+                  void 0,
+                  "域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
                 ),
               ],
             },
