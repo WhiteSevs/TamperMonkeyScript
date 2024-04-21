@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.15
+// @version      2024.4.21
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -678,25 +678,31 @@ div.csdn-side-toolbar .activity-swiper-box,
          */
         init() {
           this.addCSS();
-          if (PopsPanel.getValue("csdn_mobile_shieldTopToolbar")) {
+          PopsPanel.execMenu("csdn_mobile_shieldTopToolbar", () => {
             this.shieldTopToolbar();
-          }
-          if (PopsPanel.getValue("CSDNAutoJumpRedirect_Mobile")) {
+          });
+          PopsPanel.execMenu("CSDNAutoJumpRedirect_Mobile", () => {
             CSDN.blog.PC.jumpRedirect();
-          }
-          if (PopsPanel.getValue("csdn_mobile_cknow")) {
+          });
+          PopsPanel.execMenu("csdn_mobile_cknow", () => {
             this.cKnow();
-          }
+          });
+          PopsPanel.execMenu("csdn_mobile_blockBottomArticle", () => {
+            this.blockBottomArticle();
+          });
+          PopsPanel.execMenu("csdn_mobile_blockComment", () => {
+            this.blockComment();
+          });
           DOMUtils.ready(() => {
-            if (PopsPanel.getValue("csdn_mobile_removeAds")) {
+            PopsPanel.execMenu("csdn_mobile_removeAds", () => {
               this.removeAds();
-            }
-            if (PopsPanel.getValue("csdn_mobile_refactoringRecommendation")) {
+            });
+            PopsPanel.execMenu("csdn_mobile_refactoringRecommendation", () => {
               this.refactoringRecommendation();
-            }
-            if (PopsPanel.getValue("csdn_mobile_unBlockCopy")) {
+            });
+            PopsPanel.execMenu("csdn_mobile_unBlockCopy", () => {
               CSDN.blog.PC.unBlockCopy();
-            }
+            });
           });
         },
         getDefaultShieldCSS() {
@@ -942,6 +948,18 @@ div.ios-shadowbox{
           });
         },
         /**
+         * 屏蔽底部文章
+         */
+        blockBottomArticle() {
+          GM_addStyle("#recommend{display:none !important;}");
+        },
+        /**
+         * 屏蔽评论
+         */
+        blockComment() {
+          GM_addStyle("#comment{display:none !important;}");
+        },
+        /**
          * 去除广告
          */
         removeAds() {
@@ -1156,23 +1174,43 @@ div.article-show-more{
    * 配置面板
    */
   const PopsPanel = {
-    /**
-     * 本地存储的总键名
-     */
-    key: "GM_Panel",
-    /**
-     * 属性attributes的data-key
-     */
-    attributeDataKey_Name: "data-key",
-    /**
-     * 属性attributes的data-default-value
-     */
-    attributeDataDefaultValue_Name: "data-default-value",
+    /** 数据 */
+    $data: {
+      /**
+       * 菜单项的默认值
+       * @type {UtilsDictionaryConstructor<string,any>}
+       */
+      data: new utils.Dictionary(),
+      /** 脚本名，一般用在设置的标题上 */
+      scriptName: GM_info?.script?.name || "",
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: "GM_Panel",
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: "data-key",
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: "data-default-value",
+    },
+    /** 监听器 */
+    $listener: {
+      /**
+       * 值改变的监听器
+       * @type {UtilsDictionaryConstructor<string,{
+       *  id: number,
+       *  key: string,
+       *  callback: Function
+       * }>}
+       */
+      listenData: new utils.Dictionary(),
+    },
+    /** 初始化 */
+    init() {
+      this.initPanelDefaultValue();
+      this.initExtensionsMenu();
+    },
     /**
      * 初始化菜单
      */
-    initMenu() {
-      this.initLocalDefaultValue();
+    initExtensionsMenu() {
       if (unsafeWindow.top !== unsafeWindow.self) {
         return;
       }
@@ -1205,29 +1243,75 @@ div.article-show-more{
     /**
      * 初始化本地设置默认的值
      */
-    initLocalDefaultValue() {
-      let content = this.getContent();
-      content.forEach((item) => {
-        if (!item["forms"]) {
+    initPanelDefaultValue() {
+      let that = this;
+      /**
+       * 设置默认值
+       * @param {PopsPanelFormsTotalDetails|PopsPanelFormsDetails} config
+       */
+      function initDefaultValue(config) {
+        if (!config["attributes"]) {
+          /* 必须配置attributes属性，用于存储菜单的键和默认值 */
           return;
         }
-        item.forms.forEach((__item__) => {
-          if (__item__.forms) {
-            __item__.forms.forEach((containerItem) => {
-              if (!containerItem.attributes) {
-                return;
-              }
-              let key = containerItem.attributes[this.attributeDataKey_Name];
-              let defaultValue =
-                containerItem.attributes[this.attributeDataDefaultValue_Name];
-              if (this.getValue(key) == null) {
-                this.setValue(key, defaultValue);
-              }
-            });
+        /* 获取键名 */
+        let key = config["attributes"][that.$data.attributeKeyName];
+        /* 获取默认值 */
+        let defaultValue =
+          config["attributes"][that.$data.attributeDefaultValueName];
+        if (key == null) {
+          console.warn("请先配置键", config);
+          return;
+        }
+        /* 存储到内存中 */
+        if (that.$data.data.has(key)) {
+          console.warn("请检查该key(已存在): " + key);
+        }
+        that.$data.data.set(key, defaultValue);
+      }
+      let contentConfigList = this.getPanelContentConfig();
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem["forms"]) {
+          /* 不存在forms */
+          continue;
+        }
+        let rightContentConfigList = leftContentConfigItem["forms"];
+        for (
+          let formItemIndex = 0;
+          formItemIndex < rightContentConfigList.length;
+          formItemIndex++
+        ) {
+          let rightContentConfigItem = rightContentConfigList[formItemIndex];
+          let childFormConfigList = rightContentConfigItem["forms"];
+          if (childFormConfigList) {
+            /* 该项是右侧区域-容器项的子项的配置 */
+            for (
+              let formChildConfigIndex = 0;
+              formChildConfigIndex < childFormConfigList.length;
+              formChildConfigIndex++
+            ) {
+              initDefaultValue(childFormConfigList[formChildConfigIndex]);
+            }
           } else {
+            /* 该项是右侧区域-容器项的配置 */
+            initDefaultValue(rightContentConfigItem);
           }
-        });
-      });
+        }
+      }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param {string} key
+     * @param {Function} callback 回调
+     */
+    execMenu(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (PopsPanel.getValue(key)) {
+        callback();
+      }
     },
     /**
      * 设置值
@@ -1235,28 +1319,73 @@ div.article-show-more{
      * @param {any} value 值
      */
     setValue(key, value) {
-      let localValue = GM_getValue(this.key, {});
-      localValue[key] = value;
-      GM_setValue(this.key, localValue);
+      let locaData = GM_getValue(this.$data.key, {});
+      let oldValue = locaData[key];
+      locaData[key] = value;
+      GM_setValue(this.$data.key, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, value);
+      }
     },
     /**
      * 获取值
      * @param {string} key 键
-     * @param {any} defaultValue 默认值
+     * @param {boolean} defaultValue 默认值
      * @returns {any}
      */
     getValue(key, defaultValue) {
-      let localValue = GM_getValue(this.key, {});
-      return localValue[key] ?? defaultValue;
+      let locaData = GM_getValue(this.$data.key, {});
+      let localValue = locaData[key];
+      if (localValue == null) {
+        /* 值不存在或值为null/undefined或只有键但无值 */
+        if (this.$data.data.has(key)) {
+          /* 先判断是否是菜单配置的键 */
+          /* 是的话取出值并返回 */
+          return this.$data.data.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
     },
     /**
      * 删除值
      * @param {string} key 键
      */
     deleteValue(key) {
-      let localValue = GM_getValue(this.key, {});
-      delete localValue[key];
-      GM_setValue(this.key, localValue);
+      let locaData = GM_getValue(this.$data.key, {});
+      let oldValue = locaData[key];
+      Reflect.deleteProperty(locaData, key);
+      GM_setValue(this.$data.key, locaData);
+      if (this.$listener.listenData.has(key)) {
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+      }
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param {string} key 需要监听的键
+     * @param {(key: string,oldValue: any,newValue: any)=>void} callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      this.$listener.listenData.set(key, {
+        id: listenerId,
+        key,
+        callback,
+      });
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param {number} listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      let deleteKey = null;
+      for (const [key, value] of this.$listener.listenData.entries()) {
+        if (value.id === listenerId) {
+          break;
+        }
+      }
+      this.$listener.listenData.delete(deleteKey);
     },
     /**
      * 显示设置面板
@@ -1267,7 +1396,7 @@ div.article-show-more{
           text: `${GM_info?.script?.name || "CSDN优化"}-设置`,
           position: "center",
         },
-        content: this.getContent(),
+        content: this.getPanelContentConfig(),
         mask: {
           enable: true,
           clickEvent: {
@@ -1307,11 +1436,11 @@ div.article-show-more{
               return;
             }
           }
-          PopsPanel.setValue(key, value);
+          PopsPanel.setValue(key, Boolean(value));
         },
       };
-      result.attributes[this.attributeDataKey_Name] = key;
-      result.attributes[this.attributeDataDefaultValue_Name] =
+      result.attributes[this.$data.attributeKeyName] = key;
+      result.attributes[this.$data.attributeDefaultValueName] =
         Boolean(defaultValue);
       return result;
     },
@@ -1378,7 +1507,7 @@ div.article-show-more{
      * 获取配置内容
      * @returns {PopsPanelContentConfig[]}
      */
-    getContent() {
+    getPanelContentConfig() {
       return [
         {
           id: "csdn-panel-config-pc",
@@ -1603,25 +1732,43 @@ div.article-show-more{
               ],
             },
             {
-              text: "功能",
+              text: "底部文章",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "底部文章新标签页打开",
-                  "openNewTab",
+                  "屏蔽",
+                  "csdn_mobile_blockBottomArticle",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
+                  "重构",
+                  "csdn_mobile_refactoringRecommendation",
                   true
                 ),
+                PopsPanel.getSwtichDetail("新标签页打开", "openNewTab", true),
+              ],
+            },
+            {
+              text: "评论",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "屏蔽",
+                  "csdn_mobile_blockComment",
+                  false
+                ),
+              ],
+            },
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
                 PopsPanel.getSwtichDetail(
                   "重定向链接",
                   "CSDNAutoJumpRedirect_Mobile",
                   true,
                   undefined,
                   "自动跳转CSDN拦截的Url链接"
-                ),
-                PopsPanel.getSwtichDetail(
-                  "重构底部推荐",
-                  "csdn_mobile_refactoringRecommendation",
-                  true
                 ),
               ],
             },
@@ -1740,7 +1887,7 @@ div.article-show-more{
     },
   };
 
-  PopsPanel.initMenu();
+  PopsPanel.init();
 
   if (CSDN.blogHuaWei.isBlogRouter()) {
     CSDN.blogHuaWei.PC.init();
