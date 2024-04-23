@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.18.13
+// @version      2024.4.23
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -10821,10 +10821,20 @@ match-attr##srcid##b2b_wenda_wise
 match-attr##srcid##b2b_straight_wise_vertical
 match-attr##srcid##lego_tpl
 match-href##^http(s|)://b2b.baidu.com
-// 搜索聚合
-// match-attr##srcid##note_lead
 // 百度优选
 match-attr##srcid##sp_purc_san
+// 全网热卖
+match-attr##srcid##sp_purc_atom
+
+
+// 搜索聚合
+// match-attr##srcid##note_lead
+// 资讯
+// match-attr##srcid##realtime
+// 百度有驾
+// match-attr##srcid##(car_kg2_san|car_view_point_san)
+// 动态(微博、百度动态...等)
+// match-attr##srcid##rel_ugc_san
 `,
     /**
      * @type { {
