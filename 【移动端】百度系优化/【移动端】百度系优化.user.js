@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.24.18
+// @version      2024.4.24.19
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -4250,7 +4250,9 @@
                         : ""
                     }
                     ${
-                      lzlUserForumLevel && lzlUserForumLevel >= 0
+                      lzlUserForumLevel &&
+                      lzlUserForumLevel >= 0 &&
+                      PopsPanel.getValue("baidu_tieba_show_forum_level")
                         ? `
                         <div class="forum-level-container">
                           <span class="forum-level" data-level="${lzlUserForumLevel}">Lv.${lzlUserForumLevel}</span>
@@ -4297,7 +4299,9 @@
                         data["userName"]
                       }</div>
                       ${
-                        data["userForumLevel"] && data["userForumLevel"] >= 0
+                        data["userForumLevel"] &&
+                        data["userForumLevel"] >= 0 &&
+                        PopsPanel.getValue("baidu_tieba_show_forum_level")
                           ? `
                           <div class="forum-level-container">
                             <span class="forum-level" data-level="${data["userForumLevel"]}">Lv.${data["userForumLevel"]} ${data["userForumLevelName"]}</span>
@@ -4551,46 +4555,48 @@
               );
             }
             /* 懒加载用户本吧等级 */
-            document
-              .querySelectorAll(
-                ".whitesev-reply-dialog-sheet-other-content-item[data-lazy-load-level]"
-              )
-              .forEach(async (ele) => {
-                if (!ele.hasAttribute("data-username")) {
-                  return;
-                }
-                let userInfo = await tiebaApi.getUserHomeInfo({
-                  un: ele.getAttribute("data-username"),
-                });
-                if (!userInfo) {
-                  return;
-                }
-                let grade = userInfo?.["data"]?.["honor"]?.["grade"];
-                ele.removeAttribute("data-lazy-load-level");
-                if (!grade) {
-                  return;
-                }
-                Object.keys(grade).forEach((likeForumLevel) => {
-                  let likeForumInfo = grade[likeForumLevel];
-                  if (
-                    likeForumInfo["forum_list"] &&
-                    Array.isArray(likeForumInfo["forum_list"]) &&
-                    likeForumInfo["forum_list"].includes(tiebaData.forumName)
-                  ) {
-                    let $userInfo = ele.querySelector(
-                      ".whitesev-reply-dialog-user-info"
-                    );
-                    DOMUtils.append(
-                      $userInfo,
-                      `
+            if (PopsPanel.getValue("baidu_tieba_show_forum_level")) {
+              document
+                .querySelectorAll(
+                  ".whitesev-reply-dialog-sheet-other-content-item[data-lazy-load-level]"
+                )
+                .forEach(async (ele) => {
+                  if (!ele.hasAttribute("data-username")) {
+                    return;
+                  }
+                  let userInfo = await tiebaApi.getUserHomeInfo({
+                    un: ele.getAttribute("data-username"),
+                  });
+                  if (!userInfo) {
+                    return;
+                  }
+                  let grade = userInfo?.["data"]?.["honor"]?.["grade"];
+                  ele.removeAttribute("data-lazy-load-level");
+                  if (!grade) {
+                    return;
+                  }
+                  Object.keys(grade).forEach((likeForumLevel) => {
+                    let likeForumInfo = grade[likeForumLevel];
+                    if (
+                      likeForumInfo["forum_list"] &&
+                      Array.isArray(likeForumInfo["forum_list"]) &&
+                      likeForumInfo["forum_list"].includes(tiebaData.forumName)
+                    ) {
+                      let $userInfo = ele.querySelector(
+                        ".whitesev-reply-dialog-user-info"
+                      );
+                      DOMUtils.append(
+                        $userInfo,
+                        `
                   <div class="forum-level-container">
                     <span class="forum-level" data-level="${likeForumLevel}">Lv.${likeForumLevel}</span>
                   </div>
                   `
-                    );
-                  }
+                      );
+                    }
+                  });
                 });
-              });
+            }
             /* 去除楼中楼回复@的超链接错误跳转 */
             scrollElement
               .querySelectorAll(
