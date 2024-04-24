@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.24.15
+// @version      2024.4.24.18
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3149,6 +3149,10 @@
             text-overflow: ellipsis;
             font-weight: 400;
           }
+          .whitesev-reply-dialog-user-info{
+            display: flex;
+            align-items: center;
+          }
           .user-line .user-info .desc-info[data-v-188c0e84] {
             display: -webkit-box;
             display: -webkit-flex;
@@ -3276,10 +3280,13 @@
           div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
             display: none;
           }`);
+          GM_addStyle(this.getLevelCSS());
+        },
+        /** 用户贴吧等级CSS */
+        getLevelCSS() {
           let colorConversion = new utils.ColorConversion();
           let colorLightLevel = 0.7;
-          /* 用户贴吧等级CSS */
-          GM_addStyle(`
+          return `
           .forum-level-container{
             display: flex;
             align-items: center;
@@ -3337,7 +3344,7 @@
             )};
             color: #FBA71A;
           }
-          `);
+          `;
         },
         /**
          * scroll事件触发 自动加载下一页的评论
@@ -3782,6 +3789,7 @@
                       }
                       ${
                         userForumLevel &&
+                        userForumLevel >= 0 &&
                         PopsPanel.getValue("baidu_tieba_show_forum_level")
                           ? `
                           <div class="forum-level-container">
@@ -4186,7 +4194,7 @@
           log.success(["头像加密值路径是", userAvatarPath]);
           log.success(["本帖楼主的信息", landlordInfo]);
           currentCommentData.forEach((item) => {
-            /* 用户信息 */
+            /* 根据user_id获取用户映射的信息 */
             let itemUserInfo = userList[item["user_id"]];
             /* 用户id值 */
             let userPortrait = itemUserInfo["portrait"];
@@ -4214,18 +4222,42 @@
                 "/sys/portrait/item/"
               );
             }
+            /* 获取用户的关注的吧 */
+            let userLikeForum = itemUserInfo?.["card"]?.["like_forum"];
+            let lzlUserForumLevel = -1;
+            if (userLikeForum) {
+              Object.keys(userLikeForum).forEach((itemForumLevel) => {
+                let itemForumInfo = userLikeForum[itemForumLevel];
+                if (
+                  itemForumInfo["forum_list"] &&
+                  Array.isArray(itemForumInfo["forum_list"]) &&
+                  itemForumInfo["forum_list"].includes(tiebaData.forumName)
+                ) {
+                  lzlUserForumLevel = itemForumLevel;
+                }
+              });
+            }
             otherCommentsHTML += `
             <div class="whitesev-reply-dialog-sheet-other-content-item">
               <div class="whitesev-reply-dialog-user-line" data-portrait="${userPortrait}">
                 <div class="whitesev-reply-dialog-avatar" style="background-image: url(${itemUserAvatar});"></div>
                 <div class="whitesev-reply-dialog-user-info">
-                  <div class="whitesev-reply-dialog-user-username">${
-                    item["show_nickname"]
-                  }${
-              isLandlord
-                ? `<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`
-                : ""
-            }</div>
+                  <div class="whitesev-reply-dialog-user-username">
+                    ${item["show_nickname"]}
+                    ${
+                      isLandlord
+                        ? `<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`
+                        : ""
+                    }
+                    ${
+                      lzlUserForumLevel && lzlUserForumLevel >= 0
+                        ? `
+                        <div class="forum-level-container">
+                          <span class="forum-level" data-level="${lzlUserForumLevel}">Lv.${lzlUserForumLevel}</span>
+                        </div>`
+                        : ""
+                    }
+                  </div>
                 </div>
               </div>
               <div class="whitesev-reply-dialog-user-comment">${
@@ -4264,6 +4296,14 @@
                       <div class="whitesev-reply-dialog-user-username">${
                         data["userName"]
                       }</div>
+                      ${
+                        data["userForumLevel"] && data["userForumLevel"] >= 0
+                          ? `
+                          <div class="forum-level-container">
+                            <span class="forum-level" data-level="${data["userForumLevel"]}">Lv.${data["userForumLevel"]} ${data["userForumLevelName"]}</span>
+                          </div>`
+                          : ""
+                      }
                     </div>
                   </div>
                   <div class="whitesev-reply-dialog-user-comment">${
@@ -4417,7 +4457,7 @@
           /* 初始页数为2 */
           let lzlPage = 2;
           /* 处理楼中楼的滚动加载更多回复 */
-          let lzlReplyCommentScrollEvent = async function (event) {
+          async function lzlReplyCommentScrollEvent(event) {
             /**
              * @type {HTMLElement}
              */
@@ -4449,6 +4489,7 @@
               lzlLoadingView.setText(replyInfo);
               return;
             }
+            let commentHTML = "";
             replyInfo["data"].forEach((item) => {
               /* 判断是否是楼主 */
               let isLandlord = false;
@@ -4463,8 +4504,10 @@
                   isLandlord = true;
                 }
               }
-              let lastCommentHTML = `
-              <div class="whitesev-reply-dialog-sheet-other-content-item">
+              commentHTML += `
+              <div class="whitesev-reply-dialog-sheet-other-content-item" data-lazy-load-level="true" data-username="${
+                item["userName"]
+              }">
                 <div class="whitesev-reply-dialog-user-line" data-portrait="${
                   item["userPortrait"]
                 }">
@@ -4491,24 +4534,63 @@
                 </div>
               </div>
               `;
-              if (
-                scrollElement.querySelector("." + loadingView.config.className)
-              ) {
-                DOMUtils.before(
-                  scrollElement.querySelector(
-                    "." + loadingView.config.className
-                  ),
-                  lastCommentHTML
-                );
-              } else {
-                DOMUtils.append(
-                  scrollElement.querySelector(
-                    ".whitesev-reply-dialog-sheet-other-content"
-                  ),
-                  lastCommentHTML
-                );
-              }
             });
+            if (
+              scrollElement.querySelector("." + loadingView.config.className)
+            ) {
+              DOMUtils.before(
+                scrollElement.querySelector("." + loadingView.config.className),
+                commentHTML
+              );
+            } else {
+              DOMUtils.append(
+                scrollElement.querySelector(
+                  ".whitesev-reply-dialog-sheet-other-content"
+                ),
+                commentHTML
+              );
+            }
+            /* 懒加载用户本吧等级 */
+            document
+              .querySelectorAll(
+                ".whitesev-reply-dialog-sheet-other-content-item[data-lazy-load-level]"
+              )
+              .forEach(async (ele) => {
+                if (!ele.hasAttribute("data-username")) {
+                  return;
+                }
+                let userInfo = await tiebaApi.getUserHomeInfo({
+                  un: ele.getAttribute("data-username"),
+                });
+                if (!userInfo) {
+                  return;
+                }
+                let grade = userInfo?.["data"]?.["honor"]?.["grade"];
+                ele.removeAttribute("data-lazy-load-level");
+                if (!grade) {
+                  return;
+                }
+                Object.keys(grade).forEach((likeForumLevel) => {
+                  let likeForumInfo = grade[likeForumLevel];
+                  if (
+                    likeForumInfo["forum_list"] &&
+                    Array.isArray(likeForumInfo["forum_list"]) &&
+                    likeForumInfo["forum_list"].includes(tiebaData.forumName)
+                  ) {
+                    let $userInfo = ele.querySelector(
+                      ".whitesev-reply-dialog-user-info"
+                    );
+                    DOMUtils.append(
+                      $userInfo,
+                      `
+                  <div class="forum-level-container">
+                    <span class="forum-level" data-level="${likeForumLevel}">Lv.${likeForumLevel}</span>
+                  </div>
+                  `
+                    );
+                  }
+                });
+              });
             /* 去除楼中楼回复@的超链接错误跳转 */
             scrollElement
               .querySelectorAll(
@@ -4535,7 +4617,7 @@
               return;
             }
             lzlPage = replyInfo["nextPage"];
-          };
+          }
           let lzlScrollEventLock = new utils.LockFunction(
             lzlReplyCommentScrollEvent,
             this
@@ -4724,7 +4806,7 @@
           }
         },
         /**
-         * 获取第XX页的所有楼中楼评论
+         * 获取第XX页的所有评论
          * @param {string} url
          * @returns { {commentList: any[], userList: any[]} }
          */
@@ -10290,7 +10372,7 @@
                   "baidu_tieba_show_forum_level",
                   true,
                   void 0,
-                  "只有最外面可以显示，楼中楼评论的用户无法显示当前吧的等级头衔"
+                  "只对评论和楼中楼的用户进行显示处理"
                 ),
                 PopsPanel.getSwtichDetail(
                   "实验性-请求携带Cookie",
