@@ -2054,6 +2054,49 @@ declare interface UtilsTryCatch {
     error: UtilsTryCatch,
 }
 
+declare interface UtilsColorConversionConstructor {
+    /**
+     * 判断是否是16进制颜色
+     * @param str 
+     */
+    isHex(str: string): boolean;
+    /**
+     * 16进制颜色转rgba
+     * @param hex 
+     * @param opacity 
+     */
+    hexToRgba(hex: string, opacity: number): string;
+    /**
+     * hex转rgb
+     * @param str 
+     */
+    hexToRgb(str: string): string;
+    /**
+     * rgb转hex
+     * @param redValue 
+     * @param greenValue 
+     * @param blueValue 
+     */
+    rgbToHex(redValue: string | number, greenValue: string | number, blueValue: string | number): string;
+    /**
+     * 获取颜色变暗
+     * @param color 颜色
+     * @param level 0~1.0
+     */
+    getDarkColor(color: string, level: number): string;
+    /**
+     * 获取颜色变亮
+     * @param color 颜色
+     * @param level 0~1.0
+     */
+    getLightColor(color: string, level: number): string;
+}
+
+declare interface UtilsColorConversion {
+    new(): UtilsColorConversionConstructor;
+}
+
+
 interface Utils {
     /** 版本 */
     version: string;
@@ -2159,6 +2202,7 @@ interface Utils {
             (...args: ArgsType<T>) => any
         ]): void;
     };
+    ColorConversion: UtilsColorConversion;
     /**
      * 深拷贝
      * @param obj 对象

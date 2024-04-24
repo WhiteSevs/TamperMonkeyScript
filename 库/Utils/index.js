@@ -21,7 +21,7 @@
 })(typeof window !== "undefined" ? window : this, function (AnotherUtils) {
   /** @type {Utils} */
   const Utils = {};
-  Utils.version = "2024-4-15";
+  Utils.version = "2024-4-24";
 
   Utils.assign = function (target = {}, source = {}, isAdd = false) {
     if (Array.isArray(source)) {
@@ -751,6 +751,122 @@
       clonedFormData.append(key, value);
     }
     return clonedFormData;
+  };
+
+  Utils.ColorConversion = function () {
+    class ColorConversion {
+      constructor() {}
+      /**
+       * 判断是否是16进制颜色
+       * @param {string} str
+       */
+      isHex(str) {
+        if (typeof str !== "string") {
+          return false;
+        }
+        if (!str.match(/^(\#|)[0-9a-fA-F]{6}$/)) {
+          return false;
+        }
+        return true;
+      }
+      /**
+       * 16进制颜色转rgba
+       *
+       * #ff0000 转 rgba(123,123,123, 0.4)
+       * @param {string} hex
+       * @param {number} opacity
+       */
+      hexToRgba(hex, opacity) {
+        if (!this.isHex(hex)) {
+          throw new TypeError("输入错误的hex", hex);
+        }
+        return hex && hex.replace(/\s+/g, "").length === 7
+          ? "rgba(" +
+              parseInt("0x" + hex.slice(1, 3)) +
+              "," +
+              parseInt("0x" + hex.slice(3, 5)) +
+              "," +
+              parseInt("0x" + hex.slice(5, 7)) +
+              "," +
+              opacity +
+              ")"
+          : "";
+      }
+      /**
+       * hex转rgb
+       * @param {string} str
+       * @returns
+       */
+      hexToRgb(str) {
+        if (!this.isHex(str)) {
+          throw new TypeError("输入错误的hex", str);
+        }
+        /* replace替换查找的到的字符串 */
+        str = str.replace("#", "");
+        /* match得到查询数组 */
+        let hxs = str.match(/../g);
+        for (let index = 0; index < 3; index++)
+          hxs[index] = parseInt(hxs[index], 16);
+        return hxs;
+      }
+      /**
+       * rgb转hex
+       * @param {string|number} redValue
+       * @param {string|number} greenValue
+       * @param {string|number} blueValue
+       * @returns
+       */
+      rgbToHex(redValue, greenValue, blueValue) {
+        /* 验证输入的rgb值是否合法 */
+        let validPattern = /^\d{1,3}$/;
+        if (
+          !validPattern.test(redValue.toString()) ||
+          !validPattern.test(greenValue.toString()) ||
+          !validPattern.test(blueValue.toString())
+        )
+          throw new TypeError("输入错误的rgb颜色值");
+        let hexs = [
+          redValue.toString(16),
+          greenValue.toString(16),
+          blueValue.toString(16),
+        ];
+        for (let index = 0; index < 3; index++)
+          if (hexs[index].length == 1) hexs[index] = "0" + hexs[index];
+        return "#" + hexs.join("");
+      }
+      /**
+       * 获取颜色变暗或亮
+       * @param {string} color 颜色
+       * @param {number} level 0~1.0
+       * @returns
+       */
+      getDarkColor(color, level) {
+        if (!this.isHex(color)) {
+          throw new TypeError("输入错误的hex", color);
+        }
+        let rgbc = this.hexToRgb(color);
+        for (let index = 0; index < 3; index++)
+          rgbc[index] = Math.floor(rgbc[index] * (1 - level));
+        return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
+      }
+      /**
+       * 获取颜色变亮
+       * @param {string} color 颜色
+       * @param {number} level 0~1.0
+       * @returns
+       */
+      getLightColor(color, level) {
+        if (!this.isHex(color)) {
+          throw new TypeError("输入错误的hex", color);
+        }
+        let rgbc = this.hexToRgb(color);
+        for (let index = 0; index < 3; index++)
+          rgbc[index] = Math.floor((255 - rgbc[index]) * level + rgbc[index]);
+        return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
+      }
+    }
+
+    return new ColorConversion();
   };
 
   Utils.createOverload = function () {
