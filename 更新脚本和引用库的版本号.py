@@ -283,11 +283,11 @@ class ScriptFile:
             #        2023.3.1.14
             # hour   2023.3.1.14
             # 同一小时，但是在分钟之前
-            elif (
-                version_info["time"].hour == compare_time["hour"]["time"].hour
-                and version_info["time"] < compare_time["minute"]["time"]
-            ):
-                new_version = compare_time["minute"]["version"]
+            # elif (
+            #    version_info["time"].hour == compare_time["hour"]["time"].hour
+            #    and version_info["time"] < compare_time["minute"]["time"]
+            # ):
+            #    new_version = compare_time["minute"]["version"]
         return new_version
 
     def traverse_user_js(
