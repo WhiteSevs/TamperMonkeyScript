@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.24
+// @version      2024.4.24.15
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -29,7 +29,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1360565/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1360571/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1360586/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1365298/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1360581/showdown.js
 // ==/UserScript==
@@ -3276,6 +3276,8 @@
           div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
             display: none;
           }`);
+          let colorConversion = new utils.ColorConversion();
+          let colorLightLevel = 0.7;
           /* 用户贴吧等级CSS */
           GM_addStyle(`
           .forum-level-container{
@@ -3296,7 +3298,10 @@
           .forum-level[data-level="1"],
           .forum-level[data-level="2"],
           .forum-level[data-level="3"]{
-            background: #d3ffef;
+            background: ${colorConversion.getLightColor(
+              "#5dc7a0",
+              colorLightLevel
+            )};
             color: #5dc7a0;
           }
           .forum-level[data-level="4"],
@@ -3305,7 +3310,10 @@
           .forum-level[data-level="7"],
           .forum-level[data-level="8"],
           .forum-level[data-level="9"]{
-            background: #ddebff;
+            background: ${colorConversion.getLightColor(
+              "#6BA7FF",
+              colorLightLevel
+            )};
             color: #6BA7FF;
           }
           .forum-level[data-level="10"],
@@ -3314,13 +3322,19 @@
           .forum-level[data-level="13"],
           .forum-level[data-level="14"],
           .forum-level[data-level="15"]{
-            background: #ffeac8;
+            background: ${colorConversion.getLightColor(
+              "#F9B341",
+              colorLightLevel
+            )};
             color: #F9B341;
           }
           .forum-level[data-level="16"],
           .forum-level[data-level="17"],
           .forum-level[data-level="18"]{
-            background: #ffe8c2;
+            background: ${colorConversion.getLightColor(
+              "#FBA71A",
+              colorLightLevel
+            )};
             color: #FBA71A;
           }
           `);
