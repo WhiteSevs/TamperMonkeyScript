@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.23
+// @version      2024.4.24
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -3033,6 +3033,9 @@
                 );
               });
           });
+          this.addStyle();
+        },
+        addStyle() {
           /* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
           GM_addStyle(`
           /* 去除底部高度设定 */
@@ -3239,6 +3242,15 @@
             height: .28rem;
             margin-left: .04rem
           }
+
+          /* 修复帖子主内容底部的高度 */
+          .post-resource-list + .interaction-bar{
+            padding: 0.09rem !important;
+          }
+          /* 修复全部回复距离上面的空白区域 */
+          #replySwitch{
+            padding-top: 0.06rem;
+          }
           `);
           GM_addStyle(`
           .thread-text .BDE_Smiley {
@@ -3264,6 +3276,54 @@
           div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
             display: none;
           }`);
+          /* 用户贴吧等级CSS */
+          GM_addStyle(`
+          .forum-level-container{
+            display: flex;
+            align-items: center;
+            margin: 0 0.03rem;
+          }
+          .forum-level[data-level]{
+            padding: 0px 0.03rem;
+            border-radius: 3px;
+            font-size: 0.1rem;
+            line-height: 0.16rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: #000000;
+          }
+          .forum-level[data-level="0"],
+          .forum-level[data-level="1"],
+          .forum-level[data-level="2"],
+          .forum-level[data-level="3"]{
+            background: #d3ffef;
+            color: #5dc7a0;
+          }
+          .forum-level[data-level="4"],
+          .forum-level[data-level="5"],
+          .forum-level[data-level="6"],
+          .forum-level[data-level="7"],
+          .forum-level[data-level="8"],
+          .forum-level[data-level="9"]{
+            background: #ddebff;
+            color: #6BA7FF;
+          }
+          .forum-level[data-level="10"],
+          .forum-level[data-level="11"],
+          .forum-level[data-level="12"],
+          .forum-level[data-level="13"],
+          .forum-level[data-level="14"],
+          .forum-level[data-level="15"]{
+            background: #ffeac8;
+            color: #F9B341;
+          }
+          .forum-level[data-level="16"],
+          .forum-level[data-level="17"],
+          .forum-level[data-level="18"]{
+            background: #ffe8c2;
+            color: #FBA71A;
+          }
+          `);
         },
         /**
          * scroll事件触发 自动加载下一页的评论
@@ -3452,128 +3512,178 @@
           }
         },
         /**
-         * 根据dom获取需要插入的评论的html
-         * @param {HTMLElement} element
-         * @param { {commentList: any[], userList: any[]}[] } pageCommentList
-         * @returns {?HTMLElement}
+         * 获取时间差
+         * @param {string} timeStr
          */
-        getNewCommentInnerElement: (element, pageCommentList) => {
-          let data_field = utils.toJSON(element.getAttribute("data-field"));
-          if (Object.keys(data_field).length == 0) {
-            return;
-          }
-          let user_id = data_field["author"]["user_id"];
-          let builderId = data_field["content"]["builderId"];
-
-          let userComment = data_field["content"]["content"];
-          let userHomeUrl = element
-            .querySelector(".p_author_face")
-            .getAttribute("href");
-          let user_landlord_name = data_field["author"]["user_name"];
-          let userName = element.querySelector(".p_author_name");
-          if (userName) {
-            userName = userName.textContent;
-          } else {
-            userName = element
-              .querySelector(".p_author_face > img")
-              .getAttribute("username");
-          }
-
-          let userAvatar =
-            element
-              .querySelector(".p_author_face > img")
-              .getAttribute("data-tb-lazyload") ||
-            element.querySelector(".p_author_face > img").src;
-
-          let is_landlord = 0;
-          if (user_id == builderId) {
-            userName =
-              userName +
-              '<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
-            is_landlord = 1;
-          }
-          let ele_tail_wrap = element.querySelector(".post-tail-wrap");
-          let user_ip_position = "";
-          let user_floor = "";
-          let user_comment_time = "1970-1-1 00:00:00";
-          if (ele_tail_wrap) {
-            let childrenElement =
-              ele_tail_wrap.querySelectorAll("span.tail-info");
-            let childSpanElementList = Array.from(
-              ele_tail_wrap.querySelectorAll("span")
-            );
-            for (const childSpanElement of childSpanElementList) {
-              if (childSpanElement.hasAttribute("class")) {
-                continue;
-              }
-              if (!childSpanElement.textContent.match("来自|禁言")) {
-                user_ip_position = childSpanElement.textContent;
-                break;
-              }
-            }
-            if (childrenElement.length == 3 || childrenElement.length == 2) {
-              user_floor =
-                childrenElement[childrenElement.length - 2].textContent;
-              user_comment_time =
-                childrenElement[childrenElement.length - 1].textContent;
-            } else {
-              log.error("获取PC端的数据楼层和时间信息失败👇");
-              log.error(childrenElement);
-              user_floor = "";
-              user_comment_time = "";
-            }
-          } else {
-            ele_tail_wrap = element.querySelector(".acore_reply_tail");
-            user_ip_position = data_field["content"]["ip_address"];
-            /* 评论楼层 */
-            user_floor = data_field["content"]["post_no"] + "楼";
-            user_comment_time = data_field["content"]["date"];
-          }
-          if (!userComment) {
-            /* 如果评论获取为空的话，可能是因为【该楼层疑似违规已被系统折叠】，直接获取innerHTML */
-            userComment = element.querySelector(".d_post_content").innerHTML;
-          }
+        getDifferTime(timeStr) {
           /* 结束时间 */
           let currentTime = new Date();
           /* 时间差的毫秒数 */
           let timeDifference =
             currentTime.getTime() -
-            new Date(user_comment_time.replace(/-/g, "/")).getTime();
+            new Date(timeStr.replace(/-/g, "/")).getTime();
 
           /* ------------------------------ */
 
           /* 计算出相差天数 */
           let days = Math.floor(timeDifference / (24 * 3600 * 1000));
           if (days > 0) {
-            user_comment_time = days + "天前";
+            timeStr = days + "天前";
           } else {
             /* 计算天数后剩余的毫秒数 */
             let leave1 = timeDifference % (24 * 3600 * 1000);
             /* 计算出小时数 */
             let hours = Math.floor(leave1 / (3600 * 1000));
             if (hours > 0) {
-              user_comment_time = hours + "小时前";
+              timeStr = hours + "小时前";
             } else {
               /* 计算相差分钟数 */
               let leave2 = leave1 % (3600 * 1000);
               /* 计算小时数后剩余的毫秒数 */
               let minutes = Math.floor(leave2 / (60 * 1000));
               if (minutes > 0) {
-                user_comment_time = minutes + "分钟前";
+                timeStr = minutes + "分钟前";
               } else {
                 /* 计算相差秒数 */
                 let leave3 = leave2 % (60 * 1000);
                 /* 计算分钟数后剩余的毫秒数 */
                 let seconds = Math.round(leave3 / 1000);
-                user_comment_time = seconds + "秒前";
+                timeStr = seconds + "秒前";
               }
             }
           }
+          return timeStr;
+        },
+        /**
+         * 根据dom获取需要插入的评论的html
+         * @param {HTMLElement} element
+         * @param { {commentList: any[], userList: any[]}[] } pageCommentList
+         * @returns {?HTMLElement}
+         */
+        getNewCommentInnerElement: (element, pageCommentList) => {
+          /**
+           * 解析评论底部信息
+           * @param {HTMLElement} ele
+           * @returns
+           */
+          function parseCommentBottomInfo(ele) {
+            let $tailWrap = ele.querySelector(".post-tail-wrap");
+            /* 获取用户ip位置 */
+            let userIpPosition = "";
+            /* 获取用户楼层 */
+            let userFloor = "";
+            /* 获取用户评论时间 */
+            let userCommentTime = "1970-1-1 00:00:00";
+            if ($tailWrap) {
+              let childrenElement =
+                $tailWrap.querySelectorAll("span.tail-info");
+              let childSpanElementList = Array.from(
+                $tailWrap.querySelectorAll("span")
+              );
+              for (const childSpanElement of childSpanElementList) {
+                if (childSpanElement.hasAttribute("class")) {
+                  continue;
+                }
+                if (!childSpanElement.textContent.match("来自|禁言")) {
+                  userIpPosition = childSpanElement.textContent;
+                  break;
+                }
+              }
+              if (childrenElement.length == 3 || childrenElement.length == 2) {
+                userFloor =
+                  childrenElement[childrenElement.length - 2].textContent;
+                userCommentTime =
+                  childrenElement[childrenElement.length - 1].textContent;
+              } else {
+                log.error("获取PC端的数据楼层和时间信息失败👇");
+                log.error(childrenElement);
+                userFloor = "";
+                userCommentTime = "";
+              }
+            } else {
+              $tailWrap = element.querySelector(".acore_reply_tail");
+              userIpPosition = data_field["content"]["ip_address"];
+              /* 评论楼层 */
+              userFloor = data_field["content"]["post_no"];
+              userCommentTime = data_field["content"]["date"];
+            }
+            /* 对评论时间进行转换 */
+            userCommentTime = tiebaCommentConfig.getDifferTime(userCommentTime);
+
+            return {
+              userFloor: parseInt(userFloor),
+              userIpPosition,
+              userCommentTime,
+            };
+          }
+          let data_field = utils.toJSON(element.getAttribute("data-field"));
+          if (Object.keys(data_field).length == 0) {
+            return;
+          }
+          /* 获取用户id */
+          let user_id = data_field["author"]["user_id"];
+          /* 获取楼主id */
+          let builderId = data_field["content"]["builderId"];
+
+          /* 获取用户评论 */
+          let userComment = data_field["content"]["content"];
+          if (!userComment) {
+            /* 如果评论获取为空的话，可能是因为【该楼层疑似违规已被系统折叠】，直接获取innerHTML */
+            userComment = element.querySelector(".d_post_content").innerHTML;
+          }
+          /* 获取用户主页 */
+          let userHomeUrl = element
+            .querySelector(".p_author_face")
+            .getAttribute("href");
+          /* 获取楼主名字 */
+          let user_landlord_name = data_field["author"]["user_name"];
+          /* 用户显示出的名字 */
+          let userShowName = element.querySelector(".p_author_name");
+          if (userShowName) {
+            userShowName = userShowName.textContent;
+          } else {
+            userShowName = element
+              .querySelector(".p_author_face > img")
+              .getAttribute("username");
+          }
+          /* 用户真实的名字 */
+          let userName = data_field["author"]["user_name"];
+          /* 获取用户头像 */
+          let userAvatar =
+            element
+              .querySelector(".p_author_face > img")
+              .getAttribute("data-tb-lazyload") ||
+            element.querySelector(".p_author_face > img").src;
+
+          /* 判断是否楼主 */
+          let is_landlord = 0;
+          if (user_id == builderId) {
+            is_landlord = 1;
+          }
+          /* 用户本吧等级 */
+          let userForumLevel = -1;
+          /* 用户本吧等级的名字 */
+          let userForumLevelName = void 0;
+          if (element.querySelector(".user_badge .d_badge_lv")) {
+            userForumLevel = parseInt(
+              element.querySelector(".user_badge .d_badge_lv").textContent
+            );
+          }
+          if (element.querySelector(".user_badge .d_badge_title")) {
+            userForumLevelName = element.querySelector(
+              ".user_badge .d_badge_title"
+            ).textContent;
+          }
+          let { userFloor, userIpPosition, userCommentTime } =
+            parseCommentBottomInfo(element);
+
+          /* 如果头像地址以//开头，则加上https */
           if (userAvatar.startsWith("//")) {
             userAvatar = "https:" + userAvatar;
           }
           let userAvatarObj = new URL(userAvatar);
           let userPortrait = data_field["author"]["portrait"];
+          /* 如果不存在用户id，那么从头像地址中获取用户id */
           if (!userPortrait) {
             let userAvatarObjMatch =
               userAvatarObj.pathname.match(/\/item\/(.+)/i);
@@ -3610,7 +3720,8 @@
                 u_user_name +=
                   '<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
               }
-              let newInnerHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
+              /* 每一项楼中楼的回复html */
+              let lzlCommentItemHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
                   <div data-v-5b60f30b="" class="text-box">
                     <span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
                     <div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
@@ -3619,7 +3730,7 @@
                   </div>
                 </div>
                 `;
-              newUserCommentHTML += newInnerHTML;
+              newUserCommentHTML += lzlCommentItemHTML;
             });
           }
 
@@ -3649,17 +3760,31 @@
                     style="background-image: url(${userAvatar});"></div>
                   <div data-v-188c0e84="" class="user-info">
                     <div data-v-188c0e84="" class="username" data-home-url="${userHomeUrl}">
-                      ${userName}
+                      ${userShowName}
+                      ${
+                        is_landlord
+                          ? `<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`
+                          : ""
+                      }
+                      ${
+                        userForumLevel &&
+                        PopsPanel.getValue("baidu_tieba_show_forum_level")
+                          ? `
+                          <div class="forum-level-container">
+                            <span class="forum-level" data-level="${userForumLevel}">Lv.${userForumLevel} ${userForumLevelName}</span>
+                          </div>`
+                          : ""
+                      }
                     </div>
                     <p data-v-188c0e84="" class="desc-info">
                       <span data-v-188c0e84="" class="floor-info">
-                        ${user_floor}
+                        ${userFloor}楼
                       </span>
                       <span data-v-188c0e84="" class="time" style="margin-right: .08rem;">
-                        ${user_comment_time}
+                        ${userCommentTime}
                       </span>
                       <span data-v-188c0e84="" class="ip">
-                        ${user_ip_position}
+                        ${userIpPosition}
                       </span>
                     </p>
                   </div>
@@ -3679,13 +3804,16 @@
                 userId: user_id,
                 userPostId: post_id,
                 userPortrait: userPortrait,
-                userFloor: parseInt(user_floor),
+                userFloor: userFloor,
                 userComment: userComment,
                 userHomeUrl: userHomeUrl,
+                userForumLevel: userForumLevel,
+                userForumLevelName: userForumLevelName,
                 userAvatar: userAvatar,
                 userName: userName,
-                userCommentTime: user_comment_time,
-                userIpPosition: user_ip_position,
+                userShowName: userShowName,
+                userCommentTime: userCommentTime,
+                userIpPosition: userIpPosition,
                 pageCommentList: pageCommentList,
               },
             },
@@ -4331,7 +4459,7 @@
                   });"></div>
                   <div class="whitesev-reply-dialog-user-info">
                     <div class="whitesev-reply-dialog-user-username">
-                    ${item["userName"]}
+                    ${item["userShowName"]}
                     ${
                       isLandlord
                         ? `<svg data-v-188c0e84="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>`
@@ -4445,6 +4573,7 @@
          * userAvatar: string,
          * userHomeUrl: string,
          * userName:string,
+         * userShowName: string,
          * userPortrait: string,
          * userPostId: number,
          * userReplyContent: string,
@@ -4480,7 +4609,8 @@
           };
           lzlPostList.forEach((item) => {
             let dataFieldJSON = utils.toJSON(item.getAttribute("data-field"));
-            let userName = dataFieldJSON["showname"];
+            let userName = dataFieldJSON["user_name"];
+            let userShowName = dataFieldJSON["showname"];
             let userPostId = dataFieldJSON["spid"];
             let userPortrait = dataFieldJSON["portrait"];
             let userHomeUrl = item.querySelector("a[data-field]").href;
@@ -4498,6 +4628,7 @@
               ) + "前";
             result["data"].push({
               userName: userName,
+              userShowName: userShowName,
               userPostId: userPostId,
               userPortrait: userPortrait,
               userHomeUrl: userHomeUrl,
@@ -5424,7 +5555,9 @@
             /* 获取用户信息，替换用户头像 */
             if (PopsPanel.getValue("baidu_tieba_search_opt_user_info")) {
               tiebaApi
-                .getUserHomeInfoByUN(item["author"])
+                .getUserHomeInfo({
+                  un: item["author"],
+                })
                 .then((userHomeInfo) => {
                   if (!userHomeInfo) {
                     return;
@@ -6850,12 +6983,23 @@
        */
       const tiebaApi = {
         /**
-         * 根据un获取个人主页信息
-         * @param {string} un
+         * 根据un|portrait获取个人主页信息
+         * @param {{
+         * un?:string,
+         * portrait?:string,
+         * }} userInfo
          */
-        async getUserHomeInfoByUN(un) {
+        async getUserHomeInfo(userInfo) {
+          let searchParams = "";
+          if (userInfo["un"]) {
+            searchParams = `un=${userInfo["un"]}`;
+          } else if (userInfo["portrait"]) {
+            searchParams = `portrait=${userInfo["portrait"]}`;
+          } else {
+            throw new TypeError("userInfo.un|userInfo.portrait is undefined");
+          }
           let getResp = await httpx.get(
-            `https://tieba.baidu.com/home/get/panel?ie=utf-8&un=${un}`,
+            `https://tieba.baidu.com/home/get/panel?ie=utf-8&${searchParams}`,
             {
               headers: {
                 "User-Agent": utils.getRandomPCUA(),
@@ -10126,6 +10270,13 @@
                   true,
                   void 0,
                   "屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "显示用户当前吧的等级头衔",
+                  "baidu_tieba_show_forum_level",
+                  true,
+                  void 0,
+                  "只有最外面可以显示，楼中楼评论的用户无法显示当前吧的等级头衔"
                 ),
                 PopsPanel.getSwtichDetail(
                   "实验性-请求携带Cookie",
