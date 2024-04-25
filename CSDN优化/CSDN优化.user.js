@@ -3,7 +3,7 @@
 // @icon         https://www.csdn.net/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/406136
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.24
+// @version      2024.4.25
 // @license      MIT
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @author       WhiteSevs
@@ -111,6 +111,9 @@
           if (PopsPanel.getValue("autoExpandContent")) {
             this.autoExpandContent();
           }
+          PopsPanel.execMenu("csdnPC_blockComment", () => {
+            this.blockComment();
+          });
           if (PopsPanel.getValue("csdnShieldfloatingButton")) {
             this.shieldRightToolbar();
           }
@@ -569,6 +572,13 @@ div.csdn-side-toolbar .activity-swiper-box,
           GM_addStyle(`div.csdn-side-toolbar{display: none !important;}`);
         },
         /**
+         * 屏蔽评论区
+         */
+        blockComment() {
+          log.info("屏蔽评论区");
+          GM_addStyle(`#pcCommentBox{display: none !important;}`);
+        },
+        /**
          * 屏蔽底部推荐文章
          */
         csdnShieldBottomRecommendArticle() {
@@ -684,8 +694,20 @@ div.csdn-side-toolbar .activity-swiper-box,
           PopsPanel.execMenu("CSDNAutoJumpRedirect_Mobile", () => {
             CSDN.blog.PC.jumpRedirect();
           });
+          PopsPanel.execMenu("csdnMobile_notLimitCodePreMaxHeight", () => {
+            this.notLimitCodePreMaxHeight();
+          });
+          PopsPanel.execMenu("csdnMobile_notLimitCommentMaxHeight", () => {
+            this.notLimitCommentMaxHeight();
+          });
           PopsPanel.execMenu("csdn_mobile_cknow", () => {
             this.cKnow();
+          });
+          PopsPanel.execMenu("csdnMobile_allowSelectText", () => {
+            this.allowSelectText();
+          });
+          PopsPanel.execMenu("csdnMobile_autoExpandContent", () => {
+            this.autoExpandContent();
           });
           PopsPanel.execMenu("csdn_mobile_blockBottomArticle", () => {
             this.blockBottomArticle();
@@ -767,24 +789,6 @@ div.ios-shadowbox{
             padding: 0px 8px;
             height: auto;
             color: #fff !important;
-          }
-          #comment{
-            max-height: none !important;
-          }
-          #content_views,
-          #content_views pre,
-          #content_views pre code{
-            webkit-touch-callout: text !important;
-            -webkit-user-select: text !important;
-            -khtml-user-select: text !important;
-            -moz-user-select: text !important;
-            -ms-user-select: text !important;
-            user-select: text !important;
-          }
-          #content_views pre.set-code-hide,
-          .article_content{
-            height: 100% !important;
-            overflow: auto !important;
           }`);
           GM_addStyle(`
           .GM-csdn-dl{
@@ -843,6 +847,7 @@ div.ios-shadowbox{
          * 屏蔽顶部Toolbar
          */
         shieldTopToolbar() {
+          log.success("屏蔽顶部Toolbar");
           GM_addStyle(`
           #csdn-toolbar{
             display: none !important;
@@ -940,6 +945,7 @@ div.ios-shadowbox{
           }
           let lockFunction = new utils.LockFunction(refactoring, this, 50);
           utils.waitNode("#recommend").then((element) => {
+            log.success("重构底部推荐");
             lockFunction.run();
             utils.mutationObserver(element, {
               callback: lockFunction.run,
@@ -951,12 +957,14 @@ div.ios-shadowbox{
          * 屏蔽底部文章
          */
         blockBottomArticle() {
+          log.success("屏蔽底部文章");
           GM_addStyle("#recommend{display:none !important;}");
         },
         /**
          * 屏蔽评论
          */
         blockComment() {
+          log.success("屏蔽评论");
           GM_addStyle("#comment{display:none !important;}");
         },
         /**
@@ -984,10 +992,64 @@ div.ios-shadowbox{
           if (!window.location.href.startsWith("https://so.csdn.net/so/ai")) {
             return;
           }
+          log.success("C知道屏蔽水印");
           GM_addStyle(`
             div.username_mask_cover{
               background-image: none !important;
             }
+          `);
+        },
+        /**
+         * 不限制代码块最大高度
+         */
+        notLimitCodePreMaxHeight() {
+          log.success("不限制代码块最大高度");
+          GM_addStyle(`
+            pre{
+              max-height: unset !important;
+            }
+          `);
+        },
+        /**
+         * 不限制评论区最大高度
+         */
+        notLimitCommentMaxHeight() {
+          log.success("不限制评论区最大高度");
+          GM_addStyle(`
+          #comment{
+            max-height: none !important;
+          }
+        `);
+        },
+        /**
+         * 允许选择文字
+         */
+        allowSelectText() {
+          log.success("允许选择文字");
+          GM_addStyle(`
+            #content_views,
+            #content_views pre,
+            #content_views pre code{
+              webkit-touch-callout: text !important;
+              -webkit-user-select: text !important;
+              -khtml-user-select: text !important;
+              -moz-user-select: text !important;
+              -ms-user-select: text !important;
+              user-select: text !important;
+            }
+          `);
+        },
+        /**
+         * 自动展开内容
+         */
+        autoExpandContent() {
+          log.success("自动展开内容");
+          GM_addStyle(`
+          #content_views pre.set-code-hide,
+          .article_content{
+            height: 100% !important;
+            overflow: auto !important;
+          }
           `);
         },
       },
@@ -1512,6 +1574,9 @@ div.article-show-more{
         {
           id: "csdn-panel-config-pc",
           title: "博客",
+          isDefault() {
+            return CSDN.blog.isBlogRouter() && !utils.isPhone();
+          },
           forms: [
             {
               text: "屏蔽",
@@ -1523,18 +1588,8 @@ div.article-show-more{
                   true
                 ),
                 PopsPanel.getSwtichDetail(
-                  "【屏蔽】底部文章",
-                  "csdnShieldBottomRecommendArticle",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
                   "【屏蔽】底部xx技能树",
                   "csdnShieldBottomSkillTree",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
-                  "【屏蔽】底部文章中的CSDN下载文章",
-                  "removeCSDNDownloadPC",
                   false
                 ),
                 PopsPanel.getSwtichDetail(
@@ -1635,6 +1690,24 @@ div.article-show-more{
                   max: document.documentElement.clientHeight,
                 },
                 PopsPanel.getSwtichDetail(
+                  "重定向链接",
+                  "CSDNAutoJumpRedirect_PC",
+                  true,
+                  undefined,
+                  "自动跳转CSDN拦截的Url链接"
+                ),
+              ],
+            },
+            {
+              text: "内容",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "自动展开内容块",
+                  "autoExpandContent",
+                  false
+                ),
+                PopsPanel.getSwtichDetail(
                   "全文居中",
                   "articleCenter",
                   true,
@@ -1646,22 +1719,18 @@ div.article-show-more{
                     }
                   }
                 ),
+              ],
+            },
+            {
+              text: "评论",
+              type: "forms",
+              forms: [
                 PopsPanel.getSwtichDetail(
-                  "自动展开内容块",
-                  "autoExpandContent",
-                  false
-                ),
-                PopsPanel.getSwtichDetail(
-                  "重定向链接",
-                  "CSDNAutoJumpRedirect_PC",
-                  true,
-                  undefined,
-                  "自动跳转CSDN拦截的Url链接"
-                ),
-                PopsPanel.getSwtichDetail(
-                  "标识底部文章的CSDN下载",
-                  "csdn_pc_identityCSDNDownload",
-                  true
+                  "屏蔽",
+                  "csdnPC_blockComment",
+                  false,
+                  void 0,
+                  "屏蔽评论"
                 ),
                 PopsPanel.getSwtichDetail(
                   "优化评论的位置",
@@ -1672,6 +1741,33 @@ div.article-show-more{
                   "添加前往评论的按钮",
                   "csdn_pc_addGotoRecommandButton",
                   true
+                ),
+              ],
+            },
+            {
+              text: "底部文章",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "屏蔽",
+                  "csdnShieldBottomRecommendArticle",
+                  false,
+                  void 0,
+                  "屏蔽底部文章"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "标识CSDN下载",
+                  "csdn_pc_identityCSDNDownload",
+                  true,
+                  void 0,
+                  "使用红框标识"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "移除资源下载的文章",
+                  "removeCSDNDownloadPC",
+                  false,
+                  void 0,
+                  "移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"
                 ),
               ],
             },
@@ -1704,7 +1800,23 @@ div.article-show-more{
         {
           id: "csdn-panel-config-mobile",
           title: "博客(移动端)",
+          isDefault() {
+            return CSDN.blog.isBlogRouter() && utils.isPhone();
+          },
           forms: [
+            {
+              text: "功能",
+              type: "forms",
+              forms: [
+                PopsPanel.getSwtichDetail(
+                  "重定向链接",
+                  "CSDNAutoJumpRedirect_Mobile",
+                  true,
+                  void 0,
+                  "自动跳转CSDN拦截的Url链接"
+                ),
+              ],
+            },
             {
               text: "屏蔽",
               type: "forms",
@@ -1712,12 +1824,9 @@ div.article-show-more{
                 PopsPanel.getSwtichDetail(
                   "【屏蔽】广告",
                   "csdn_mobile_removeAds",
-                  true
-                ),
-                PopsPanel.getSwtichDetail(
-                  "【屏蔽】底部的CSDN下载文章",
-                  "removeCSDNDownloadMobile",
-                  false
+                  true,
+                  void 0,
+                  "包括：登录弹窗、打开APP、ios版本提示等"
                 ),
                 PopsPanel.getSwtichDetail(
                   "【屏蔽】C知道的背景水印",
@@ -1732,20 +1841,30 @@ div.article-show-more{
               ],
             },
             {
-              text: "底部文章",
+              text: "内容",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "屏蔽",
-                  "csdn_mobile_blockBottomArticle",
-                  false
+                  "允许选中文字",
+                  "csdnMobile_allowSelectText",
+                  true,
+                  void 0,
+                  "设置user-select: text;"
                 ),
                 PopsPanel.getSwtichDetail(
-                  "重构",
-                  "csdn_mobile_refactoringRecommendation",
-                  true
+                  "自动展开",
+                  "csdnMobile_autoExpandContent",
+                  true,
+                  void 0,
+                  "包括内容、代码块"
                 ),
-                PopsPanel.getSwtichDetail("新标签页打开", "openNewTab", true),
+                PopsPanel.getSwtichDetail(
+                  "不限制代码块的最大高度",
+                  "csdnMobile_notLimitCodePreMaxHeight",
+                  false,
+                  void 0,
+                  "让代码块的高度直接被撑开"
+                ),
               ],
             },
             {
@@ -1755,20 +1874,50 @@ div.article-show-more{
                 PopsPanel.getSwtichDetail(
                   "屏蔽",
                   "csdn_mobile_blockComment",
-                  false
+                  false,
+                  void 0,
+                  "屏蔽评论区"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "不限制评论区的最大高度",
+                  "csdnMobile_notLimitCommentMaxHeight",
+                  true,
+                  void 0,
+                  "让评论区高度直接被撑开"
                 ),
               ],
             },
             {
-              text: "功能",
+              text: "底部文章",
               type: "forms",
               forms: [
                 PopsPanel.getSwtichDetail(
-                  "重定向链接",
-                  "CSDNAutoJumpRedirect_Mobile",
+                  "屏蔽",
+                  "csdn_mobile_blockBottomArticle",
+                  false,
+                  void 0,
+                  "屏蔽底部文章"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "移除资源下载的文章",
+                  "removeCSDNDownloadMobile",
+                  false,
+                  void 0,
+                  "移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "重构",
+                  "csdn_mobile_refactoringRecommendation",
                   true,
-                  undefined,
-                  "自动跳转CSDN拦截的Url链接"
+                  void 0,
+                  "样式统一化"
+                ),
+                PopsPanel.getSwtichDetail(
+                  "新标签页打开",
+                  "openNewTab",
+                  true,
+                  void 0,
+                  "点击文章，新标签页打开"
                 ),
               ],
             },
@@ -1796,6 +1945,9 @@ div.article-show-more{
         {
           id: "csdn-panel-config-huawei",
           title: "博客(华为开发者联盟)",
+          isDefault() {
+            return CSDN.blogHuaWei.isBlogRouter();
+          },
           forms: [
             {
               text: "屏蔽",
@@ -1853,6 +2005,9 @@ div.article-show-more{
         {
           id: "csdn-panel-config-pc",
           title: "文库",
+          isDefault() {
+            return CSDN.wenku.PC.isWenkuRouter();
+          },
           forms: [
             {
               text: "屏蔽",
