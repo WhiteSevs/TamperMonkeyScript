@@ -20,125 +20,135 @@ type PopsAnimation =
 /**
  * 弹窗位置
  */
-type PopsPosition = "top_left" |
-    "top" |
-    "top_right" |
-    "center_left" |
-    "center" |
-    "center_right" |
-    "bottom_left" |
-    "bottom" |
-    "bottom_right"
+type PopsPosition =
+    | "top_left"
+    | "top"
+    | "top_right"
+    | "center_left"
+    | "center"
+    | "center_right"
+    | "bottom_left"
+    | "bottom"
+    | "bottom_right"
 /**
  * 按钮svg图标
  */
-type PopsIcon = "min" |
-    "mise" |
-    "max" |
-    "close" |
-    "edit" |
-    "share" |
-    "delete" |
-    "search" |
-    "upload" |
-    "loading" |
-    "next" |
-    "prev" |
-    "eleme" |
-    "elemePlus" |
-    "chromeFilled" |
-    "cpu" |
-    "videoPlay" |
-    "videoPause" |
-    "headset" |
-    "monitor" |
-    "documentCopy" |
-    "picture" |
-    "circleClose" |
-    "view" |
-    "hide" |
-    "keyboard"
+type PopsIcon =
+    | "min"
+    | "mise"
+    | "max"
+    | "close"
+    | "edit"
+    | "share"
+    | "delete"
+    | "search"
+    | "upload"
+    | "loading"
+    | "next"
+    | "prev"
+    | "eleme"
+    | "elemePlus"
+    | "chromeFilled"
+    | "cpu"
+    | "videoPlay"
+    | "videoPause"
+    | "headset"
+    | "monitor"
+    | "documentCopy"
+    | "picture"
+    | "circleClose"
+    | "view"
+    | "hide"
+    | "keyboard"
 /**
 * 按钮类型
 */
-type PopsButtonType = "close" | "ok" | "cancel" | "other"
+type PopsButtonType =
+    | "close"
+    | "ok"
+    | "cancel"
+    | "other"
 /**
  * 按钮样式类型
  */
-type PopsButtonStyleType = "default" |
-    "primary" |
-    "xiaomi-primary" |
-    "success" |
-    "info" |
-    "warning" |
-    "danger"
+type PopsButtonStyleType =
+    | "default"
+    | "primary"
+    | "xiaomi-primary"
+    | "success"
+    | "info"
+    | "warning"
+    | "danger"
 /**
  * 按钮位置
  */
-type PopsJustifyContent = "center" |
-    "end" |
-    "flex-end" |
-    "flex-start" |
-    "left" |
-    "normal" |
-    "right" |
-    "space-around" |
-    "space-between" |
-    "space-evenly" |
-    "start" |
-    "stretch" |
-    "inherit" |
-    "initial" |
-    "revert" |
-    "revert-layer" |
-    "unset"
+type PopsJustifyContent =
+    | "center"
+    | "end"
+    | "flex-end"
+    | "flex-start"
+    | "left"
+    | "normal"
+    | "right"
+    | "space-around"
+    | "space-between"
+    | "space-evenly"
+    | "start"
+    | "stretch"
+    | "inherit"
+    | "initial"
+    | "revert"
+    | "revert-layer"
+    | "unset"
 /**
  * text-align
  */
-type PopsTextAlign = "center" |
-    "end" |
-    "justify" |
-    "left" |
-    "right" |
-    "start" |
-    "-webkit-auto" |
-    "-moz-center-or-inherit" |
-    "-webkit-center" |
-    "-moz-center" |
-    "-webkit-left" |
-    "-moz-left" |
-    "-webkit-match-parent" |
-    "-webkit-right" |
-    "-moz-right" |
-    "inherit" |
-    "initial" |
-    "revert" |
-    "revert-layer" |
-    "unset"
+type PopsTextAlign =
+    | "center"
+    | "end"
+    | "justify"
+    | "left"
+    | "right"
+    | "start"
+    | "-webkit-auto"
+    | "-moz-center-or-inherit"
+    | "-webkit-center"
+    | "-moz-center"
+    | "-webkit-left"
+    | "-moz-left"
+    | "-webkit-match-parent"
+    | "-webkit-right"
+    | "-moz-right"
+    | "inherit"
+    | "initial"
+    | "revert"
+    | "revert-layer"
+    | "unset"
 
 /** panel的各种类型的配置项 */
 type PopsPanelFormsTotalDetails =
-    PopsPanelSwitchDetails |
-    PopsPanelSliderDetails |
-    PopsPanelInputDetails |
-    PopsPanelTextAreaDetails |
-    PopsPanelSelectDetails |
-    PopsPanelButtonDetails |
-    PopsPanelOwnDetails
+    | PopsPanelSwitchDetails
+    | PopsPanelSliderDetails
+    | PopsPanelInputDetails
+    | PopsPanelTextAreaDetails
+    | PopsPanelSelectDetails
+    | PopsPanelButtonDetails
+    | PopsPanelOwnDetails
 
 /**
  * 现有的pops.xxx的类型
  */
-type PopsMode = "alert" |
-    "confirm" |
-    "prompt" |
-    "loading" |
-    "iframe" |
-    "tooltip" |
-    "drawer" |
-    "folder" |
-    "panel" |
-    "rightClickMenu"
+type PopsMode =
+    | "alert"
+    | "confirm"
+    | "prompt"
+    | "loading"
+    | "iframe"
+    | "tooltip"
+    | "drawer"
+    | "folder"
+    | "panel"
+    | "rightClickMenu"
 
 /**
  * 按钮大小
@@ -153,23 +163,23 @@ declare interface PopsMaskDetails {
     /**
      * 是否启用遮罩层，默认false
      */
-    enable: boolean;
+    enable?: boolean;
     clickEvent: {
         /**
          * 点击遮罩层是否触发关闭事件
          */
-        toClose: boolean;
+        toClose?: boolean;
         /**
          * 点击遮罩层是否触发隐藏事件
          */
-        toHide: boolean;
+        toHide?: boolean;
     };
     /**
      * 遮罩层自定义的点击事件
      * @param originalRun 当toClose为true，它是关闭弹窗，当toHide为true，它是隐藏弹窗
      * @param config 配置信息
      */
-    clickCallBack: (originalRun: () => void, config: PopsAlertDetails | PopsDrawerDetails | PopsIframeDetails | PopsPromptDetails | PopsFolderDetails | PopsLoadingDetails | PopsPanelDetails) => void
+    clickCallBack?: (originalRun: () => void, config: PopsAlertDetails | PopsDrawerDetails | PopsIframeDetails | PopsPromptDetails | PopsFolderDetails | PopsLoadingDetails | PopsPanelDetails) => void
 }
 
 /**
@@ -320,10 +330,10 @@ declare interface PopsPanelCommonDetails {
      * // 例如在type为forms时
      * container内只有container.ulElement这个属性
      */
-    afterAddToUListCallBack(
+    afterAddToUListCallBack?: ((
         formConfig: PopsPanelFormsTotalDetails,
         container: PopsPanelRightAsideContainerOptions,
-    ): void;
+    ) => void);
 }
 declare interface PopsPanelCommonFormsDetails {
     /**
@@ -508,11 +518,11 @@ declare interface PopsPanelContentConfig {
     /**
      * 子配置
      */
-    forms: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
+    forms: (PopsPanelFormsDetails[] | PopsPanelFormsTotalDetails[]);
     /**
      * 左侧容器的点击回调
      */
-    callback: ((event: MouseEvent | PointerEvent, rightHeaderElement: HTMLUListElement, rightContainerElement: HTMLUListElement) => void) | undefined;
+    callback?: ((event: MouseEvent | PointerEvent, rightHeaderElement: HTMLUListElement, rightContainerElement: HTMLUListElement) => void) | undefined;
 }
 /**
  * pops.panel的 forms
@@ -541,7 +551,7 @@ declare interface PopsPanelFormsDetails extends PopsPanelCommonDetails {
     /**
      * 子配置
      */
-    forms: PopsPanelFormsTotalDetails[];
+    forms: (PopsPanelFormsTotalDetails)[];
 }
 /**
  * pops.panel的 switch
@@ -699,7 +709,7 @@ declare interface PopsPanelInputDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自己调用的处理回调函数
      */
-    handlerCallBack(liElement: HTMLLinkElement, inputElement: HTMLInputElement): void;
+    handlerCallBack?(liElement: HTMLLinkElement, inputElement: HTMLInputElement): void;
 }
 /**
  * pops.panel的 textarea
@@ -790,13 +800,13 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
      * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
      * @param isSelectedText 当前选中的文本
      */
-    callback(event: PointerEvent | TouchEvent, isSelectedValue: string, isSelectedText: string): void;
+    callback?(event: PointerEvent | TouchEvent, isSelectedValue: string, isSelectedText: string): void;
     /**
      * 点击select元素触发该回调
      * @param event 点击事件
      * @param selectElement 当前的select元素
      */
-    clickCallBack(event: PointerEvent | TouchEvent, selectElement: HTMLSelectElement): void;
+    clickCallBack?(event: PointerEvent | TouchEvent, selectElement: HTMLSelectElement): void;
     /**
      * 选择器内的数据组
      */
@@ -941,19 +951,19 @@ declare interface PopsTitleConfig {
         /**
          * 标题文字
          */
-        text: string;
+        text?: string;
         /**
          * 文字的位置
          */
-        position: PopsTextAlign;
+        position?: PopsTextAlign;
         /**
          * 文字是否是html
          */
-        html: boolean;
+        html?: boolean;
         /**
          * 文字的自定义CSS
          */
-        style: string;
+        style?: string;
     }
 }
 /**
@@ -964,58 +974,58 @@ declare interface PopsContentConfig {
         /**
          * 内容文字
          */
-        text: string;
+        text?: string;
         /**
          * 文字是否是html
          */
-        html: boolean;
+        html?: boolean;
         /**
          * 文字的自定义CSS
          */
-        style: string;
+        style?: string;
     }
 }
 /**
  * 按钮配置
  */
 declare interface PopsButtonConfig {
-    btn: {
+    btn?: {
         /**
         * 按钮的位置，默认left
         */
-        position: PopsJustifyContent;
+        position?: PopsJustifyContent;
         /**
          * 右上角的关闭按钮
          */
-        close: PopsHeaderCloseButtonDetails;
+        close?: PopsHeaderCloseButtonDetails;
     }
 }
 declare interface PopsMoreButtonConfig {
-    btn: Omit<PopsButtonConfig["btn"], ""> & {
+    btn?: Omit<PopsButtonConfig["btn"], ""> & {
         /**
          * 是否合并按钮
          */
-        merge: boolean;
+        merge?: boolean;
         /**
          * 是否对合并的按钮逆反
          */
-        mergeReverse: boolean;
+        mergeReverse?: boolean;
         /**
          * 是否逆反
          */
-        reverse: boolean;
+        reverse?: boolean;
         /**
          * 确定按钮
          */
-        ok: PopsButtonDetails;
+        ok?: PopsButtonDetails;
         /**
          * 取消按钮
          */
-        cancel: PopsButtonDetails;
+        cancel?: PopsButtonDetails;
         /**
          * 其他按钮
          */
-        other: PopsButtonDetails;
+        other?: PopsButtonDetails;
     }
 }
 /**
@@ -1025,15 +1035,15 @@ declare interface PopsDragConfig {
     /**
      *  是否可以按钮标题栏进行拖拽，默认false
      */
-    drag: boolean;
+    drag?: boolean;
     /**
      * 是否限制拖拽在浏览器窗口内移动，默认true
      */
-    dragLimit: boolean;
+    dragLimit?: boolean;
     /**
      * 当启用dragLimit时，该参数为弹窗在窗口中的距离边际的距离，默认为3(px)
      */
-    dragExtraDistance: number;
+    dragExtraDistance?: number;
     /**
      * （可选）拖动中的回调
      * @param moveElement 当前拖动的元素
@@ -1056,11 +1066,11 @@ declare interface PopsCommonConfig {
     /**
      * 自定义的className，默认为空
      */
-    class: string;
+    class?: string;
     /**
      * 是否是唯一的，默认false
      */
-    only: boolean;
+    only?: boolean;
     /**
      *  宽度，默认350px
      */
@@ -1072,25 +1082,25 @@ declare interface PopsCommonConfig {
     /**
      * 位置，默认center
      */
-    position: PopsPosition;
+    position?: PopsPosition;
     /**
      * 动画，默认pops-anim-fadein-zoom
      */
-    animation: PopsAnimation;
+    animation?: PopsAnimation;
     /**
      * z-index显示层级，默认10000
      */
-    zIndex: number;
+    zIndex?: number;
     /**
      * 遮罩层
      */
-    mask: PopsMaskDetails;
+    mask?: PopsMaskDetails;
     /**
      * 是否禁用页面滚动，默认false
      * 
      * 暂时不会生效
      */
-    forbiddenScroll: boolean;
+    forbiddenScroll?: boolean;
     /**
      * （可选）自定义style
      */
@@ -1100,7 +1110,7 @@ declare interface PopsCommonConfig {
      * @param $shadowRoot 根元素
      * @param $shadowContainer 容器
      */
-    beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot, $shadowContainer: HTMLDivElement) => void;
+    beforeAppendToPageCallBack?: ($shadowRoot: ShadowRoot, $shadowContainer: HTMLDivElement) => void;
 }
 /**
  * pops.alert
@@ -1109,11 +1119,11 @@ declare interface PopsAlertDetails extends PopsTitleConfig, PopsContentConfig, P
     /**
      * 按钮配置
      */
-    btn: Omit<PopsButtonConfig["btn"], ""> & {
+    btn?: Omit<PopsButtonConfig["btn"], ""> & {
         /**
          * 确定按钮
          */
-        ok: PopsButtonDetails;
+        ok?: PopsButtonDetails;
     };
 }
 
@@ -1425,22 +1435,22 @@ declare interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, Pops
     /**
      * 按钮配置
      */
-    btn: {
+    btn?: {
         /**
          * 右上角的关闭按钮
          */
-        close: PopsHeaderCloseButtonDetails;
+        close?: PopsHeaderCloseButtonDetails;
     };
     /**
      * 移动端适配的的className，默认为pops-panel-is-mobile
      */
-    mobileClassName: string;
+    mobileClassName?: string;
     /**
      * 是否强制是移动端，默认false
      * + true 强制为移动端
      * + false 自动根据UA判断是否是移动端
      */
-    isMobile: boolean;
+    isMobile?: boolean;
 }
 /**
  * pops.rightClickMenu
