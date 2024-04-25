@@ -172,7 +172,7 @@ declare interface DOMUtilsEventListenerOptionsAttribute {
 type ParseHTMLReturnType<T1, T2> = T1 extends true ? (T2 extends true ? Document : ChildNode)
     : ChildNode;
 
-declare interface DOMUtils {
+interface DOMUtils {
     /** 版本号 */
     version: string;
     /**
@@ -227,7 +227,7 @@ declare interface DOMUtils {
         tagName: K,
         /** 属性 */
         property?: {
-            [P in keyof HTMLElementTagNameMap[K]]: HTMLElementTagNameMap[K][P]
+            [P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P]
         },
         /** 自定义属性 */
         attributes?: DOMUtilsCreateElementAttributesMap
@@ -549,7 +549,7 @@ declare interface DOMUtils {
      * })
      */
     on(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         callback: (event: Event | PointerEvent | MouseEvent) => void,
         option?: boolean | AddEventListenerOptions,
@@ -579,7 +579,7 @@ declare interface DOMUtils {
      * })
      */
     on(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         selector: string,
         callback: (event: Event | MouseEvent | PointerEvent) => void,
@@ -595,7 +595,7 @@ declare interface DOMUtils {
      * DOMUtils.off("a.xx","click")
      */
     off(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
     ): void;
     /**
@@ -613,7 +613,7 @@ declare interface DOMUtils {
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
     off(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         selector?: string,
         callback?: (event: Event) => void,
@@ -997,5 +997,3 @@ declare interface DOMUtils {
      */
     toggle(element: HTMLElement | string): void;
 }
-
-declare var DOMUtils: DOMUtils;
