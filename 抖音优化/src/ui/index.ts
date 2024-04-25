@@ -1,5 +1,5 @@
 import { GM_getValue, GM_info, GM_setValue, unsafeWindow } from "$";
-import { GM_Menu, log, pops, scriptName, utils } from "@/api/env";
+import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/api/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
 import { PanelShieldConfig } from "./components/shield";
@@ -15,7 +15,7 @@ const PopsPanel = {
          */
         data: new utils.Dictionary(),
         /** 脚本名，一般用在设置的标题上 */
-        scriptName: scriptName,
+        scriptName: SCRIPT_NAME,
         /** 菜单项的总值在本地数据配置的键名 */
         key: KEY,
         /** 菜单项在attributes上配置的菜单键 */
@@ -215,7 +215,7 @@ const PopsPanel = {
     showPanel() {
         pops.panel({
             title: {
-                text: `${scriptName}-设置`,
+                text: `${SCRIPT_NAME}-设置`,
                 position: "center",
                 html: false,
                 style: ""

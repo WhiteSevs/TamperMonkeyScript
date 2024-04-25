@@ -42,7 +42,7 @@
   const Qmsg = _monkeyWindow.Qmsg || _unsafeWindow.Qmsg;
   const console$1 = _unsafeWindow.console || _monkeyWindow.console;
   const log = new utils.Log(_GM_info, console$1);
-  const scriptName = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || "抖音优化";
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || "抖音优化";
   log.config({
     debug: false,
     logMaxCount: 100,
@@ -875,7 +875,7 @@
        */
       data: new utils.Dictionary(),
       /** 脚本名，一般用在设置的标题上 */
-      scriptName,
+      scriptName: SCRIPT_NAME,
       /** 菜单项的总值在本地数据配置的键名 */
       key: KEY,
       /** 菜单项在attributes上配置的菜单键 */
@@ -1049,7 +1049,7 @@
     showPanel() {
       pops.panel({
         title: {
-          text: `${scriptName}-设置`,
+          text: `${SCRIPT_NAME}-设置`,
           position: "center",
           html: false,
           style: ""
@@ -1463,7 +1463,7 @@
       /* 右侧工具栏放大 */
       .basePlayerContainer .positionBox{
         scale: 1.25;
-        bottom: 110px;
+        bottom: 110px !important;
       }
       `);
     }

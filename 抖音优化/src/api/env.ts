@@ -6,7 +6,7 @@ const pops: typeof import("@库/pops") = ((monkeyWindow as any).pops || (unsafeW
 const Qmsg: typeof import("@库/Qmsg") = ((monkeyWindow as any).Qmsg || (unsafeWindow as any).Qmsg)
 const console = (unsafeWindow as any).console || (monkeyWindow as any).console;
 const log = new utils.Log(GM_info, console);
-const scriptName = GM_info?.script?.name || "抖音优化";
+const SCRIPT_NAME = GM_info?.script?.name || "抖音优化";
 
 /* 配置控制台日志 */
 log.config({
@@ -41,5 +41,5 @@ export {
     console,
     log,
     GM_Menu,
-    scriptName
+    SCRIPT_NAME
 }

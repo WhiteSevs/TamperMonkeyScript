@@ -27,7 +27,7 @@ const DouYinMobile = {
       /* 右侧工具栏放大 */
       .basePlayerContainer .positionBox{
         scale: 1.25;
-        bottom: 110px;
+        bottom: 110px !important;
       }
       `)
     }
