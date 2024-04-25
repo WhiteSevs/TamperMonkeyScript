@@ -1,0 +1,50 @@
+import { log } from "../../api/env";
+import { PopsPanel } from "..";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
+
+/**
+ * 获取checkbox按钮配置
+ * @param text 文字
+ * @param description （可选）描述
+ * @param key 键
+ * @param defaultValue 默认值
+ * @param clickCallBack （可选）点击回调
+ */
+const UISwitch = function (
+    text: string,
+    description: string | undefined,
+    key: string,
+    defaultValue: boolean | undefined,
+    clickCallBack: ((event: PointerEvent | MouseEvent, value: boolean) => boolean) | undefined
+): PopsPanelSwitchDetails {
+    let result = {
+        text: text,
+        type: "switch",
+        description: description,
+        attributes: {},
+        getValue() {
+            return Boolean(PopsPanel.getValue(key, defaultValue));
+        },
+        callback(event: PointerEvent | MouseEvent, value: boolean) {
+            log.success(`${value ? "开启" : "关闭"} ${text}`);
+            if (typeof clickCallBack === "function") {
+                if (clickCallBack(event, value)) {
+                    return;
+                }
+            }
+            PopsPanel.setValue(key, Boolean(value));
+        },
+        afterAddToUListCallBack: void 0,
+    };
+    // @ts-ignore
+    result.attributes[ATTRIBUTE_KEY] = key;
+    // @ts-ignore
+    result.attributes[ATTRIBUTE_DEFAULT_VALUE] =
+        Boolean(defaultValue);
+    // @ts-ignore
+    return result;
+};
+
+export {
+    UISwitch
+}

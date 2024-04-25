@@ -1,4 +1,8 @@
-# 介绍
+# Vue 3 + TypeScript + Vite
+
+[脚手架](https://github.com/lisonge/vite-plugin-monkey)
+
+## 介绍
 
 建议给抖音单独设置`电脑UA`，这样的`网页全屏`后且开启`手机模式`后的底部的工具栏某些按钮不会被隐藏
 
