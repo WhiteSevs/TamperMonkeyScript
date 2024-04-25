@@ -26,8 +26,17 @@ const DouYinMobile = {
         GM_addStyle(`
       /* 右侧工具栏放大 */
       .basePlayerContainer .positionBox{
-        scale: 1.25;
-        bottom: 110px !important;
+        scale: 1.12;
+        bottom: 80px !important;
+        padding-right: 5px !important;
+      }
+      /* 图标再放大 */
+      .basePlayerContainer .positionBox svg{
+        scale: 1.12;
+      }
+      /* 重置关注按钮的scale */
+      .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
+        scale: unset;
       }
       `)
     }
