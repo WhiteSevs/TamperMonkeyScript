@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-11-18 13:38:41
  * @LastEditors: 白柒 893177236@qq.com
- * @LastEditTime: 2024-04-14 12:03:26
+ * @LastEditTime: 2024-04-25 14:26:29
  * @原地址: https://www.jq22.com/jquery-info23550
  * @说明: 修改config配置{"position":"topleft|top|topright|centerleft|center|centerright|bottomleft|bottomright|bottom"} 九宫格，
  * 		  九个位置弹出，修改原center为显示中间，top代替原center
@@ -624,7 +624,7 @@
     /**
      * 信息
      * @param {string} txt 内容
-     * @param {Qmsg_Details} config 配置
+     * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
     info: function (txt, config) {
@@ -635,7 +635,7 @@
     /**
      * 警告
      * @param {string} txt 内容
-     * @param {Qmsg_Details} config 配置
+     * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
     warning: function (txt, config) {
@@ -646,7 +646,7 @@
     /**
      * 成功
      * @param {string} txt 内容
-     * @param {Qmsg_Details} config 配置
+     * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
     success: function (txt, config) {
@@ -657,7 +657,7 @@
     /**
      * 失败
      * @param {string} txt 内容
-     * @param {Qmsg_Details} config 配置
+     * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
     error: function (txt, config) {
@@ -668,7 +668,7 @@
     /**
      * 加载中
      * @param {string} txt 内容
-     * @param {Qmsg_Details} config 配置
+     * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
     loading: function (txt, config) {
