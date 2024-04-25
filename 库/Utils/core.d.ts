@@ -1918,7 +1918,7 @@ declare interface UtilsLogOptions {
     /** 当console输出超过logMaxCount数量自动清理控制台，默认false */
     autoClearConsole?: boolean;
     /** console输出的最高数量，autoClearConsole开启则生效，默认999 */
-    logMaxCount?: boolean;
+    logMaxCount?: number;
 }
 
 /** Utils.Log */
@@ -2213,7 +2213,7 @@ interface Utils {
      * @param fn 需要触发的回调
      * @param delay 防抖判定时间(毫秒)，默认是0ms
      */
-    debounce<T extends (...args: any) => any>(fn: Parameters<T>, delay?: number): ReturnType<T>;
+    debounce<A extends any[], R>(fn: (...args: A) => R, delay?: number): (...args: A) => void;
     /**
      * 删除某个父元素，父元素可能在上层或上上层或上上上层...
      * @param element 当前元素
@@ -2600,9 +2600,10 @@ interface Utils {
         reactFiber: object,
         reactProps: object,
         reactEvents: object,
-        reactEventHandlers: object;
-        reactInternalInstance: object;
-    } | void;
+        reactEventHandlers: object,
+        reactInternalInstance: object,
+        reactContainer: object,
+    } | undefined;
     /**
      * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
      * @param target 目标对象
@@ -3153,8 +3154,8 @@ interface Utils {
       "config":{childList:true,attributes:true}}
       );
      **/
-    mutationObserver(target: HTMLElement | Node | NodeList, observer_config: {
-        config: MutationObserverInit;
+    mutationObserver(target: HTMLElement | Node | NodeList | Document, observer_config: {
+        config?: MutationObserverInit;
         callback: MutationCallback;
     }): MutationObserver;
     /**
@@ -3294,6 +3295,19 @@ interface Utils {
      * 转换：\^替换\$
      */
     parseStringToRegExpString(): string;
+    /**
+     * 阻止事件传递
+     * @param element 要进行处理的元素
+     * @param eventNameList （可选）要阻止的事件名|列表
+     * @param capture （可选）是否捕获，默认false
+     * @example
+     * Utils.preventEvent(document.querySelector("a"),"click")
+     * @example
+     * Utils.preventEvent(event);
+     */
+    preventEvent(
+        event: Event
+    ): boolean;
     /**
      * 阻止事件传递
      * @param element 要进行处理的元素
@@ -3681,5 +3695,3 @@ declare interface Vue2Context {
     $store: object;
     $el: Element;
 }
-
-declare var Utils: Utils;
