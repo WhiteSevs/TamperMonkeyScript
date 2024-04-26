@@ -3,14 +3,13 @@ import { DOMUtils, Qmsg, log, pops, utils } from "@/api/env";
 import { DouYinElement } from "../Element/element";
 import { PopsPanel } from "@/ui";
 import { DouYinVideoShield } from "./shield";
-import { ShieldVideo } from "../UIFrameShield/ShieldVideo";
-import { DouYinMobile } from "../douyinMobile";
+import { DouYinVideoHideElement } from "./hideElement";
 
 const DouYinVideo = {
     init() {
-        ShieldVideo.init();
+        DouYinVideoHideElement.init();
 
-        
+
         PopsPanel.execMenu("shieldVideo", () => {
             DouYinVideoShield.init();
         });
@@ -20,11 +19,6 @@ const DouYinVideo = {
         PopsPanel.execMenu("fullScreen", () => {
             this.fullScreen();
         });
-        PopsPanel.execMenu("mobileMode", () => {
-            DOMUtils.ready(() => {
-                DouYinMobile.init();
-            });
-        });
         PopsPanel.execMenu("parseVideo", () => {
             DouYinVideo.parseVideo();
         });
@@ -33,6 +27,9 @@ const DouYinVideo = {
         });
         DOMUtils.ready(() => {
             DouYinVideo.chooseVideoDefinition(PopsPanel.getValue("chooseVideoDefinition"));
+            PopsPanel.execMenu("mobileMode", () => {
+                this.mobileMode();
+            });
         });
     },
     /**
@@ -47,7 +44,7 @@ const DouYinVideo = {
             /* 中间底部的视频控制工具栏 */
             "xg-controls.xgplayer-controls"
         );
-        ShieldVideo.shieldSearchFloatingBar();
+        DouYinVideoHideElement.shieldSearchFloatingBar();
         GM_addStyle(`
         /* 视频全屏 */
         xg-video-container.xg-video-container{
@@ -93,7 +90,6 @@ const DouYinVideo = {
         }
         `);
     },
-
     /**
      * 选择视频清晰度
      * @param [mode=0] 视频播放模式
@@ -212,7 +208,6 @@ const DouYinVideo = {
             log.error("该清晰度不存在: " + mode);
         }
     },
-
     /**
      * 让下载按钮变成解析视频
      */
@@ -302,6 +297,46 @@ const DouYinVideo = {
                 capture: true,
             }
         );
+    },
+    /**
+     * 手机模式
+     */
+    mobileMode() {
+        log.success("启用手机模式");
+        let meta = DOMUtils.createElement(
+            "meta",
+            {},
+            {
+                // @ts-ignore
+                name: "viewport",
+                content:
+                    "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+            }
+        );
+        document
+            .querySelectorAll("meta[name='viewport']")
+            .forEach((ele) => ele.remove());
+        document.head.appendChild(meta);
+        /* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
+        DouYinElement.addShieldStyle(
+            "img#douyin-temp-sidebar"
+        )
+        GM_addStyle(`
+      /* 右侧工具栏放大 */
+      .basePlayerContainer .positionBox{
+        scale: 1.12;
+        bottom: 80px !important;
+        padding-right: 5px !important;
+      }
+      /* 图标再放大 */
+      .basePlayerContainer .positionBox svg{
+        scale: 1.12;
+      }
+      /* 重置关注按钮的scale */
+      .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
+        scale: unset;
+      }
+      `)
     },
 }
 
