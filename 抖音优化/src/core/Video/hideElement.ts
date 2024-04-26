@@ -2,7 +2,7 @@ import { GM_addStyle } from "$";
 import { PopsPanel } from "@/ui";
 import { DouYinElement } from "../Element/element";
 
-const ShieldVideo = {
+const DouYinVideoHideElement = {
     init() {
         PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
             this.shieldRightExpandCommentButton();
@@ -154,5 +154,5 @@ const ShieldVideo = {
 }
 
 export {
-    ShieldVideo
+    DouYinVideoHideElement
 }

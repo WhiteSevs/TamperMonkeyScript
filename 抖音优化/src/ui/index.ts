@@ -2,9 +2,9 @@ import { GM_getValue, GM_info, GM_setValue, unsafeWindow } from "$";
 import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/api/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
-import { PanelShieldConfig } from "./components/shield";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
 import { DouYinRouter } from "@/router";
+import { PanelVideoConfig } from "./components/video";
 
 const PopsPanel = {
     /** 数据 */
@@ -229,11 +229,31 @@ const PopsPanel = {
                 },
             },
             isMobile: true,
-            width: utils.isPhone() ? "92dvw" : "550px",
-            height: utils.isPhone() ? "80dvh" : "450px",
+            width: this.getWidth(),
+            height: this.getHeight(),
             drag: true,
             only: true,
         });
+    },
+    /**
+     * 获取设置面板的宽度
+     */
+    getWidth() {
+        if (window.innerWidth < 550) {
+            return "92dvw"
+        } else {
+            return "550px"
+        }
+    },
+    /**
+     * 获取设置面板的高度
+     */
+    getHeight() {
+        if (window.innerHeight < 450) {
+            return "80dvh"
+        } else {
+            return "450px"
+        }
     },
     /**
      * 获取配置内容
@@ -246,9 +266,12 @@ const PopsPanel = {
                 forms: PanelCommonConfig,
             },
             {
-                id: "panel-config-shield",
-                title: "屏蔽",
-                forms: PanelShieldConfig,
+                id: "panel-config-video",
+                title: "视频",
+                isDefault() {
+                    return DouYinRouter.isVideo();
+                },
+                forms: PanelVideoConfig,
             },
             {
                 id: "panel-config-live",
