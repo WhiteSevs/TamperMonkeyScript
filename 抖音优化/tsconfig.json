@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
+    //"noImplicitAny": true,
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -19,7 +20,7 @@
       "@库/*": ["./../库/*"],
       "@/*": ["./src/*"]
     },
-    "types": ["./../库/pops/core.d.ts","./../库/Utils/core.d.ts"]
+    "types": ["./../库/pops/core.d.ts", "./../库/Utils/core.d.ts"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [

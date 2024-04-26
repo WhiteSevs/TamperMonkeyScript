@@ -155,6 +155,10 @@ type PopsMode =
  */
 type PopsButtonSize = "large" | "small"
 
+type NestedObjectWithToString = {
+    [key: string]: any | NestedObjectWithToString;
+    toString(): any;
+}
 
 /**
  * 遮罩层配置
@@ -440,7 +444,7 @@ declare interface PopsEventDetails {
     /**
      * 当前配置
      */
-    config: object;
+    config: NestedObjectWithToString;
 }
 /**
  * pops.folder的folder配置信息
@@ -510,7 +514,7 @@ declare interface PopsPanelContentConfig {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object[] | object;
+    attributes?: NestedObjectWithToString[] | NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -518,7 +522,7 @@ declare interface PopsPanelContentConfig {
     /**
      * 子配置
      */
-    forms: (PopsPanelFormsDetails[] | PopsPanelFormsTotalDetails[]);
+    forms: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
     /**
      * 左侧容器的点击回调
      */
@@ -535,7 +539,7 @@ declare interface PopsPanelFormsDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -551,7 +555,7 @@ declare interface PopsPanelFormsDetails extends PopsPanelCommonDetails {
     /**
      * 子配置
      */
-    forms: (PopsPanelFormsTotalDetails)[];
+    forms: PopsPanelFormsTotalDetails[];
 }
 /**
  * pops.panel的 switch
@@ -564,7 +568,7 @@ declare interface PopsPanelSwitchDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -605,7 +609,7 @@ declare interface PopsPanelSliderDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -662,7 +666,7 @@ declare interface PopsPanelInputDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -722,7 +726,7 @@ declare interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -769,7 +773,7 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -839,7 +843,7 @@ declare interface PopsPanelButtonDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */
@@ -897,7 +901,7 @@ declare interface PopsPanelOwnDetails extends PopsPanelCommonDetails {
     /**
      * （可选）自定义元素属性
      */
-    attributes?: object;
+    attributes?: NestedObjectWithToString;
     /**
      * （可选）自定义属性
      */

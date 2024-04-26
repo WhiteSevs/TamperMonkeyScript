@@ -145,6 +145,7 @@ type DOMUtilsCreateElementAttributesMap = {
     class?: string;
     "data-"?: string;
     type?: string;
+    [key: string]: any;
 }
 
 /**

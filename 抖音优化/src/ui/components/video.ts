@@ -59,7 +59,7 @@ const PanelVideoConfig: PopsPanelFormsDetails[] = [
                 void 0
             ),
             UISwitch(
-                "网页全屏净化",
+                "沉浸模式",
                 "移除右侧工具栏、底部信息栏等",
                 "fullScreen",
                 false,

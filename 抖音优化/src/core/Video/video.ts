@@ -61,7 +61,6 @@ const DouYinVideo = {
                 'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
             )
             .then((element) => {
-                // @ts-ignore
                 element.click();
             });
     },
@@ -260,7 +259,6 @@ const DouYinVideo = {
             "click",
             'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
             function (event) {
-                // @ts-ignore
                 let clickElement = event.target as HTMLDivElement;
                 let rectFiber = utils.getReactObj(
                     clickElement.parentElement as HTMLElement
@@ -271,12 +269,8 @@ const DouYinVideo = {
                 }
                 try {
                     let playTotalAddr: { src: string }[] = [];
-                    let playAddr =
-                        // @ts-ignore
-                        rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
-                    let playAddrH265 =
-                        // @ts-ignore
-                        rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
+                    let playAddr = rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
+                    let playAddrH265 = rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
                     if (playAddr != null && Array.isArray(playAddr)) {
                         playTotalAddr = playTotalAddr.concat(playAddr);
                     }
@@ -307,7 +301,6 @@ const DouYinVideo = {
             "meta",
             {},
             {
-                // @ts-ignore
                 name: "viewport",
                 content:
                     "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",

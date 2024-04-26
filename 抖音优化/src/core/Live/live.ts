@@ -61,7 +61,6 @@ const DouYinLive = {
                 'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
             )
             .then((element) => {
-                // @ts-ignore
                 element.click();
             });
     },
@@ -109,14 +108,10 @@ const DouYinLive = {
                 let clickNode = event.target as HTMLElement;
                 try {
                     let reactObj = utils.getReactObj(clickNode);
-                    // @ts-ignore
-                    let key = reactObj?.reactFiber["key"];
+                    let key = reactObj?.reactFiber?.["key"];
                     let parent = clickNode.closest("div[data-index]");
-                    // @ts-ignore
-                    let parentReactObj = utils.getReactObj(parent);
-                    let current =
-                        // @ts-ignore
-                        parentReactObj["reactProps"]["children"]["ref"]["current"];
+                    let parentReactObj = utils.getReactObj(parent as HTMLDivElement);
+                    let current = parentReactObj?.reactProps?.["children"]["ref"]["current"];
                     log.info("当前选择的画质: " + key);
                     log.info(["所有的画质: ", current.getCurrentQualityList()]);
                     /* getCurrentQuality */

@@ -2096,7 +2096,6 @@ declare interface UtilsColorConversion {
     new(): UtilsColorConversionConstructor;
 }
 
-
 interface Utils {
     /** 版本 */
     version: string;
@@ -2597,13 +2596,13 @@ interface Utils {
      * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
      */
     getReactObj(element: HTMLElement): {
-        reactFiber: object,
-        reactProps: object,
-        reactEvents: object,
-        reactEventHandlers: object,
-        reactInternalInstance: object,
-        reactContainer: object,
-    } | undefined;
+        reactFiber?: NestedObjectWithToString,
+        reactProps?: NestedObjectWithToString,
+        reactEvents?: NestedObjectWithToString,
+        reactEventHandlers?: NestedObjectWithToString,
+        reactInternalInstance?: NestedObjectWithToString,
+        reactContainer?: NestedObjectWithToString,
+    };
     /**
      * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
      * @param target 目标对象
@@ -3527,6 +3526,20 @@ interface Utils {
      * await Utils.waitArrayLoopToEnd([callback,callback,callback],xxxcallback);
      **/
     waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: Function): Promise<void[]>;
+    /**
+     * 等待指定元素出现，支持多个selector
+     * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+     * @example
+     * Utils.waitNode("div.xxx").then( element =>{
+     *  console.log(element); // div.xxx => HTMLElement
+     * })
+     * @example
+     * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
+     *  console.log(elementList[0]); // div.xxx => HTMLElement
+     *  console.log(elementList[1]); // a.xxx => HTMLElement
+     * })
+     */
+    waitNode(nodeSelector: string): Promise<HTMLElement>;
     /**
      * 等待指定元素出现，支持多个selector
      * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型

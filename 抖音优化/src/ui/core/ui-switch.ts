@@ -15,17 +15,17 @@ const UISwitch = function (
     description: string | undefined,
     key: string,
     defaultValue: boolean | undefined,
-    clickCallBack: ((event: PointerEvent | MouseEvent, value: boolean) => boolean) | undefined
+    clickCallBack: ((event: InputEvent, value: boolean) => boolean) | undefined
 ): PopsPanelSwitchDetails {
-    let result = {
+    let result: PopsPanelSwitchDetails = {
         text: text,
         type: "switch",
         description: description,
-        attributes: {},
+        attributes: {} as { [key: string]: any },
         getValue() {
             return Boolean(PopsPanel.getValue(key, defaultValue));
         },
-        callback(event: PointerEvent | MouseEvent, value: boolean) {
+        callback(event: InputEvent, value: boolean) {
             log.success(`${value ? "开启" : "关闭"} ${text}`);
             if (typeof clickCallBack === "function") {
                 if (clickCallBack(event, value)) {
@@ -41,7 +41,6 @@ const UISwitch = function (
     // @ts-ignore
     result.attributes[ATTRIBUTE_DEFAULT_VALUE] =
         Boolean(defaultValue);
-    // @ts-ignore
     return result;
 };
 
