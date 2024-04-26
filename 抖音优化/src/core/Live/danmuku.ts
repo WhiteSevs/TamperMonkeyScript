@@ -37,16 +37,13 @@ const DouYinDanmuFilter = {
             if ($danmuItem.hasAttribute(this.$data.isFilterAttrName)) {
                 continue;
             }
-            // @ts-ignore
             let $messageObj = utils.getReactObj($danmuItem)?.reactFiber?.return?.memoizedProps?.message;
-            // @ts-ignore
             let message = $messageObj?.payload?.content || $messageObj?.payload?.common?.describe;
             for (let index = 0; index < this.$data.rule.length; index++) {
                 const ruleRegExp = this.$data.rule[index];
                 if (typeof message === "string") {
                     if (ruleRegExp.test(message)) {
-                        log.info("过滤弹幕: " + message)
-                        // @ts-ignore
+                        log.info("过滤弹幕: " + message);
                         $danmuItem.setAttribute(this.$data.isFilterAttrName, "true");
                         DOMUtils.hide($danmuItem);
                         break;

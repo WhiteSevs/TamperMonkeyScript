@@ -7,12 +7,10 @@ const DouYinAccount = {
      */
     disguiseLogin() {
         function setLogin(osElement: HTMLDivElement) {
-            // @ts-ignore
-            utils.getReactObj(osElement).reactFiber.alternate.return.memoizedProps.userInfo.info = {
+            utils.getReactObj(osElement)!.reactFiber!.alternate.return.memoizedProps.userInfo.info = {
                 uid: parseInt((Math.random() * 1000000).toString()),
             };
-            // @ts-ignore
-            utils.getReactObj(osElement).reactFiber.alternate.return.memoizedProps.userInfo.isLogin = true;
+            utils.getReactObj(osElement)!.reactFiber!.alternate.return.memoizedProps.userInfo.isLogin = true;
         }
         DouYinElement.watch_slidelist((osElement) => {
             setLogin(osElement);
@@ -34,8 +32,7 @@ const DouYinAccount = {
                         'body > div[id^="login-full-panel-"] .dy-account-close'
                     ) as HTMLDivElement;
                     if (accountCloseBtn) {
-                        // @ts-ignore
-                        utils.getReactObj(accountCloseBtn).reactProps.onClick(new Event("click"));
+                        utils.getReactObj(accountCloseBtn)?.reactProps?.onClick(new Event("click"));
                     }
                 },
             });

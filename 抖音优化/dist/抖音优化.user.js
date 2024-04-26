@@ -63,28 +63,6 @@
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
-  const UISelect = function(text, description, key, defaultValue, data, selectCallBack) {
-    return {
-      text,
-      type: "select",
-      description,
-      attributes: {
-        "data-key": key,
-        "data-default-value": defaultValue
-      },
-      getValue() {
-        return PopsPanel.getValue(key, defaultValue);
-      },
-      callback(event, isSelectedValue, isSelectedText) {
-        PopsPanel.setValue(key, isSelectedValue);
-        log.success("下拉框选择: " + isSelectedText);
-        if (typeof selectCallBack === "function") {
-          selectCallBack(event, isSelectedValue, isSelectedText);
-        }
-      },
-      data
-    };
-  };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -117,35 +95,6 @@
       text: "功能",
       type: "forms",
       forms: [
-        UISelect(
-          "清晰度",
-          "自行选择清晰度",
-          "chooseVideoDefinition",
-          1,
-          [
-            {
-              text: "智能",
-              value: 0
-            },
-            {
-              text: "极速",
-              value: 4
-            },
-            {
-              text: "流畅",
-              value: 3
-            },
-            {
-              text: "清晰",
-              value: 2
-            },
-            {
-              text: "高清",
-              value: 1
-            }
-          ],
-          void 0
-        ),
         UISwitch(
           "debug模式",
           "移除抖音的开发者模式检测",
@@ -157,41 +106,6 @@
           "伪装登录",
           "使用随机UID进行伪装",
           "disguiseLogin",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "视频解析",
-          "分享->下载(灰色的也可点击)",
-          "parseVideo",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "自动进入网页全屏",
-          "网页加载完毕后自动点击网页全屏按钮进入全屏",
-          "autoEnterElementFullScreen",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "评论区移到中间",
-          "修改评论区为中间弹出而非右侧区域",
-          "changeCommentToBottom",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "网页全屏净化",
-          "移除右侧工具栏、底部信息栏等",
-          "fullScreen",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "手机模式",
-          "放大各种文字和图标",
-          "mobileMode",
           false,
           void 0
         )
@@ -260,96 +174,6 @@
           "【屏蔽】投稿",
           "屏蔽元素",
           "shieldSubmission",
-          false,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "视频区域内-屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】右侧的展开评论按钮",
-          "屏蔽元素",
-          "shieldRightExpandCommentButton",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】搜索悬浮栏",
-          "屏蔽元素，一般出现在左上角",
-          "shieldSearchFloatingBar",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】网页全屏关闭按钮",
-          "屏蔽元素，一般开启网页全屏后出现在左上角",
-          "shieldCloseFullScreenButton",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】切换播放",
-          "屏蔽元素，在右侧作者头像上方",
-          "shieldPlaySwitchButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】作者头像",
-          "屏蔽元素",
-          "shieldAuthorAvatar",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】点赞",
-          "屏蔽元素",
-          "shieldLikeButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】评论",
-          "屏蔽元素",
-          "shieldCommentButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】收藏",
-          "屏蔽元素",
-          "shieldCollectionButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】分享",
-          "屏蔽元素",
-          "shieldSharenButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】看相关",
-          "屏蔽元素",
-          "shieldRelatedRecommendationsButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】更多",
-          "屏蔽元素",
-          "shieldMoreButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】底部视频工具栏",
-          "屏蔽元素",
-          "shieldBottomVideoToolBar",
           false,
           void 0
         )
@@ -650,6 +474,38 @@
       ]
     }
   ];
+  const DouYinRouter = {
+    /** 直播 */
+    isLive() {
+      return window.location.hostname === "live.douyin.com";
+    },
+    /** 视频 */
+    isVideo() {
+      return window.location.hostname === "www.douyin.com";
+    }
+  };
+  const UISelect = function(text, description, key, defaultValue, data, selectCallBack) {
+    return {
+      text,
+      type: "select",
+      description,
+      attributes: {
+        "data-key": key,
+        "data-default-value": defaultValue
+      },
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+        log.success("下拉框选择: " + isSelectedText);
+        if (typeof selectCallBack === "function") {
+          selectCallBack(event, isSelectedValue, isSelectedText);
+        }
+      },
+      data
+    };
+  };
   const DouYinVideoShield = {
     key: "douyin-shield-rule",
     $data: {
@@ -670,33 +526,36 @@
     init() {
       this.parseRule();
       DouYinElement.watch_slidelist((osElement) => {
+        var _a2;
         let slideListChild = document.querySelector(
           '#slidelist div[data-e2e="slideList"]'
         );
-        let videoData = (
-          // @ts-ignore
-          utils.getReactObj(slideListChild).reactFiber.return.memoizedProps.data
-        );
+        let reactFiber = (_a2 = utils.getReactObj(slideListChild)) == null ? void 0 : _a2.reactFiber;
+        if (reactFiber == null) {
+          log.error(["元素上不存在reactFiber属性", slideListChild]);
+          return;
+        }
+        let videoData = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
         let shieldTagMap = [
           {
             key: "nickname",
             get(data) {
-              var _a2, _b;
-              return (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
+              var _a3, _b;
+              return (_b = (_a3 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a3["nickname"]) == null ? void 0 : _b.toString();
             }
           },
           {
             key: "uid",
             get(data) {
-              var _a2, _b;
-              return (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["uid"]) == null ? void 0 : _b.toString();
+              var _a3, _b;
+              return (_b = (_a3 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a3["uid"]) == null ? void 0 : _b.toString();
             }
           },
           {
             key: "desc",
             get(data) {
-              var _a2;
-              return (_a2 = data == null ? void 0 : data["desc"]) == null ? void 0 : _a2.toString();
+              var _a3;
+              return (_a3 = data == null ? void 0 : data["desc"]) == null ? void 0 : _a3.toString();
             }
           },
           {
@@ -794,9 +653,169 @@
       return _GM_getValue(this.key, "");
     }
   };
-  const PanelShieldConfig = [
+  const PanelVideoConfig = [
     {
       text: "功能",
+      type: "forms",
+      forms: [
+        UISelect(
+          "清晰度",
+          "自行选择清晰度",
+          "chooseVideoDefinition",
+          1,
+          [
+            {
+              text: "智能",
+              value: 0
+            },
+            {
+              text: "极速",
+              value: 4
+            },
+            {
+              text: "流畅",
+              value: 3
+            },
+            {
+              text: "清晰",
+              value: 2
+            },
+            {
+              text: "高清",
+              value: 1
+            }
+          ],
+          void 0
+        ),
+        UISwitch(
+          "视频解析",
+          "分享->下载(灰色的也可点击)",
+          "parseVideo",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "自动进入网页全屏",
+          "网页加载完毕后自动点击网页全屏按钮进入全屏",
+          "autoEnterElementFullScreen",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "评论区移到中间",
+          "修改评论区为中间弹出而非右侧区域",
+          "changeCommentToBottom",
+          true,
+          void 0
+        ),
+        UISwitch(
+          "沉浸模式",
+          "移除右侧工具栏、底部信息栏等",
+          "fullScreen",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "手机模式",
+          "放大各种文字和图标",
+          "mobileMode",
+          false,
+          void 0
+        )
+      ]
+    },
+    {
+      text: "视频区域内-屏蔽",
+      type: "forms",
+      forms: [
+        UISwitch(
+          "【屏蔽】右侧的展开评论按钮",
+          "屏蔽元素",
+          "shieldRightExpandCommentButton",
+          true,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】搜索悬浮栏",
+          "屏蔽元素，一般出现在左上角",
+          "shieldSearchFloatingBar",
+          true,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】网页全屏关闭按钮",
+          "屏蔽元素，一般开启网页全屏后出现在左上角",
+          "shieldCloseFullScreenButton",
+          true,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】切换播放",
+          "屏蔽元素，在右侧作者头像上方",
+          "shieldPlaySwitchButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】作者头像",
+          "屏蔽元素",
+          "shieldAuthorAvatar",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】点赞",
+          "屏蔽元素",
+          "shieldLikeButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】评论",
+          "屏蔽元素",
+          "shieldCommentButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】收藏",
+          "屏蔽元素",
+          "shieldCollectionButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】分享",
+          "屏蔽元素",
+          "shieldSharenButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】看相关",
+          "屏蔽元素",
+          "shieldRelatedRecommendationsButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】更多",
+          "屏蔽元素",
+          "shieldMoreButton",
+          false,
+          void 0
+        ),
+        UISwitch(
+          "【屏蔽】底部视频工具栏",
+          "屏蔽元素",
+          "shieldBottomVideoToolBar",
+          false,
+          void 0
+        )
+      ]
+    },
+    {
+      text: "视频过滤规则(可正则)",
       type: "forms",
       forms: [
         UISwitch(
@@ -819,13 +838,7 @@
           "shieldVideo-ads",
           true,
           void 0
-        )
-      ]
-    },
-    {
-      text: "规则(可正则)",
-      type: "forms",
-      forms: [
+        ),
         {
           type: "own",
           getLiElementCallBack(liElement) {
@@ -844,7 +857,6 @@
             DOMUtils.on(
               textarea,
               ["input", "propertychange"],
-              // @ts-ignore
               utils.debounce(function() {
                 DouYinVideoShield.set(textarea.value);
               }, 200)
@@ -856,16 +868,6 @@
       ]
     }
   ];
-  const DouYinRouter = {
-    /** 直播 */
-    isLive() {
-      return window.location.hostname === "live.douyin.com";
-    },
-    /** 视频 */
-    isVideo() {
-      return window.location.hostname === "www.douyin.com";
-    }
-  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -925,11 +927,8 @@
         if (!config["attributes"]) {
           return;
         }
-        let key = config["attributes"][ATTRIBUTE_KEY];
-        let defaultValue = (
-          // @ts-ignore
-          config["attributes"][ATTRIBUTE_DEFAULT_VALUE]
-        );
+        let key = config.attributes[ATTRIBUTE_KEY];
+        let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
         if (key == null) {
           console.warn("请先配置键", config);
           return;
@@ -1063,11 +1062,31 @@
           }
         },
         isMobile: true,
-        width: utils.isPhone() ? "92dvw" : "550px",
-        height: utils.isPhone() ? "80dvh" : "450px",
+        width: this.getWidth(),
+        height: this.getHeight(),
         drag: true,
         only: true
       });
+    },
+    /**
+     * 获取设置面板的宽度
+     */
+    getWidth() {
+      if (window.innerWidth < 550) {
+        return "92dvw";
+      } else {
+        return "550px";
+      }
+    },
+    /**
+     * 获取设置面板的高度
+     */
+    getHeight() {
+      if (window.innerHeight < 450) {
+        return "80dvh";
+      } else {
+        return "450px";
+      }
     },
     /**
      * 获取配置内容
@@ -1080,9 +1099,12 @@
           forms: PanelCommonConfig
         },
         {
-          id: "panel-config-shield",
-          title: "屏蔽",
-          forms: PanelShieldConfig
+          id: "panel-config-video",
+          title: "视频",
+          isDefault() {
+            return DouYinRouter.isVideo();
+          },
+          forms: PanelVideoConfig
         },
         {
           id: "panel-config-live",
@@ -1281,18 +1303,19 @@
             childList: true
           },
           callback() {
+            var _a2, _b;
             let accountCloseBtn = document.querySelector(
               'body > div[id^="login-full-panel-"] .dy-account-close'
             );
             if (accountCloseBtn) {
-              utils.getReactObj(accountCloseBtn).reactProps.onClick(new Event("click"));
+              (_b = (_a2 = utils.getReactObj(accountCloseBtn)) == null ? void 0 : _a2.reactProps) == null ? void 0 : _b.onClick(new Event("click"));
             }
           }
         });
       });
     }
   };
-  const ShieldVideo = {
+  const DouYinVideoHideElement = {
     init() {
       PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
         this.shieldRightExpandCommentButton();
@@ -1442,35 +1465,9 @@
   `);
     }
   };
-  const DouYinMobile = {
-    init() {
-      log.success("启用手机模式");
-      let meta = DOMUtils.createElement(
-        "meta",
-        {},
-        {
-          // @ts-ignore
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-        }
-      );
-      document.querySelectorAll("meta[name='viewport']").forEach((ele) => ele.remove());
-      document.head.appendChild(meta);
-      DouYinElement.addShieldStyle(
-        "img#douyin-temp-sidebar"
-      );
-      _GM_addStyle(`
-      /* 右侧工具栏放大 */
-      .basePlayerContainer .positionBox{
-        scale: 1.25;
-        bottom: 110px !important;
-      }
-      `);
-    }
-  };
   const DouYinVideo = {
     init() {
-      ShieldVideo.init();
+      DouYinVideoHideElement.init();
       PopsPanel.execMenu("shieldVideo", () => {
         DouYinVideoShield.init();
       });
@@ -1480,11 +1477,6 @@
       PopsPanel.execMenu("fullScreen", () => {
         this.fullScreen();
       });
-      PopsPanel.execMenu("mobileMode", () => {
-        DOMUtils.ready(() => {
-          DouYinMobile.init();
-        });
-      });
       PopsPanel.execMenu("parseVideo", () => {
         DouYinVideo.parseVideo();
       });
@@ -1493,6 +1485,9 @@
       });
       DOMUtils.ready(() => {
         DouYinVideo.chooseVideoDefinition(PopsPanel.getValue("chooseVideoDefinition"));
+        PopsPanel.execMenu("mobileMode", () => {
+          this.mobileMode();
+        });
       });
     },
     /**
@@ -1507,7 +1502,7 @@
         /* 中间底部的视频控制工具栏 */
         "xg-controls.xgplayer-controls"
       );
-      ShieldVideo.shieldSearchFloatingBar();
+      DouYinVideoHideElement.shieldSearchFloatingBar();
       _GM_addStyle(`
         /* 视频全屏 */
         xg-video-container.xg-video-container{
@@ -1731,14 +1726,8 @@
           }
           try {
             let playTotalAddr = [];
-            let playAddr = (
-              // @ts-ignore
-              rectFiber.return.memoizedProps.awemeInfo.video.playAddr
-            );
-            let playAddrH265 = (
-              // @ts-ignore
-              rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265
-            );
+            let playAddr = rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
+            let playAddrH265 = rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
             if (playAddr != null && Array.isArray(playAddr)) {
               playTotalAddr = playTotalAddr.concat(playAddr);
             }
@@ -1759,6 +1748,41 @@
           capture: true
         }
       );
+    },
+    /**
+     * 手机模式
+     */
+    mobileMode() {
+      log.success("启用手机模式");
+      let meta = DOMUtils.createElement(
+        "meta",
+        {},
+        {
+          name: "viewport",
+          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+        }
+      );
+      document.querySelectorAll("meta[name='viewport']").forEach((ele) => ele.remove());
+      document.head.appendChild(meta);
+      DouYinElement.addShieldStyle(
+        "img#douyin-temp-sidebar"
+      );
+      _GM_addStyle(`
+      /* 右侧工具栏放大 */
+      .basePlayerContainer .positionBox{
+        scale: 1.12;
+        bottom: 80px !important;
+        padding-right: 5px !important;
+      }
+      /* 图标再放大 */
+      .basePlayerContainer .positionBox svg{
+        scale: 1.12;
+      }
+      /* 重置关注按钮的scale */
+      .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
+        scale: unset;
+      }
+      `);
     }
   };
   const DouYinLiveChatRoom = {
@@ -1869,17 +1893,15 @@
         "click",
         'div[data-e2e="quality-selector"] > div',
         function(event) {
+          var _a2, _b;
           utils.preventEvent(event);
           let clickNode = event.target;
           try {
             let reactObj = utils.getReactObj(clickNode);
-            let key = reactObj == null ? void 0 : reactObj.reactFiber["key"];
+            let key = (_a2 = reactObj == null ? void 0 : reactObj.reactFiber) == null ? void 0 : _a2["key"];
             let parent = clickNode.closest("div[data-index]");
             let parentReactObj = utils.getReactObj(parent);
-            let current = (
-              // @ts-ignore
-              parentReactObj["reactProps"]["children"]["ref"]["current"]
-            );
+            let current = (_b = parentReactObj == null ? void 0 : parentReactObj.reactProps) == null ? void 0 : _b["children"]["ref"]["current"];
             log.info("当前选择的画质: " + key);
             log.info(["所有的画质: ", current.getCurrentQualityList()]);
             current.setCurrentQuality(key);

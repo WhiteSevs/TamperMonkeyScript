@@ -16,7 +16,6 @@ log.config({
     tag: true,
 });
 /* 配置吐司Qmsg */
-// @ts-ignore
 Qmsg.config({
     position: "bottom",
     html: true,

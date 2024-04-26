@@ -2,7 +2,6 @@ import { GM_getValue, GM_setValue } from "$";
 import { log, utils } from "@/api/env";
 import { PopsPanel } from "@/ui";
 import { DouYinElement } from "@/core/Element/element";
-
 const DouYinVideoShield = {
     key: "douyin-shield-rule",
     $data: {
@@ -26,10 +25,12 @@ const DouYinVideoShield = {
             let slideListChild = document.querySelector(
                 '#slidelist div[data-e2e="slideList"]'
             ) as HTMLDivElement;
-            let videoData =
-                // @ts-ignore
-                utils.getReactObj(slideListChild).reactFiber.return.memoizedProps
-                    .data;
+            let reactFiber = utils.getReactObj(slideListChild)?.reactFiber;
+            if (reactFiber == null) {
+                log.error(["元素上不存在reactFiber属性", slideListChild]);
+                return;
+            }
+            let videoData = reactFiber?.return.memoizedProps.data;
             let shieldTagMap = [
                 {
                     key: "nickname",

@@ -118,12 +118,12 @@
    * "bottomright"} position 位置，默认'center'
    * @property {boolean} [showClose=false] 是否显示关闭图标，默认为false不显示
    * @property {number} [maxNums=5] 最大显示的数量，默认为5
-   * @property {?Function} onClose 关闭的回调函数
+   * @property {?Function} [onClose] 关闭的回调函数
    * @property {boolean} [showIcon=true] 是否显示左边的icon图标,默认true
    * @property {boolean} [showMoreContent=false] 是否使内容进行换行显示，默认false
    * @property {boolean} [showReverse=false] 弹出顺序是否逆反，默认false
    * @property {number} [timeout=2500] 最大显示的时长(ms)，默认为2500ms
-   * @property {"info"|"warning"|"success"|"error"|"loading"} type 类型，支持'info','warning','success','error','loading'
+   * @property {"info"|"warning"|"success"|"error"|"loading"} [type] 类型，支持'info','warning','success','error','loading'
    * @property {number} [zIndex=50000] z-index值，默认为50000
    * @property {string} [style] 自定义的style，默认为空
    */

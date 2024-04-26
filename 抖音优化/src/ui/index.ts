@@ -72,12 +72,9 @@ const PopsPanel = {
                 return;
             }
             /* 获取键名 */
-            // @ts-ignore
-            let key = config["attributes"][ATTRIBUTE_KEY];
+            let key = config.attributes[ATTRIBUTE_KEY];
             /* 获取默认值 */
-            let defaultValue =
-                // @ts-ignore
-                config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
+            let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
             if (key == null) {
                 console.warn("请先配置键", config);
                 return;
@@ -101,10 +98,8 @@ const PopsPanel = {
                 formItemIndex < rightContentConfigList.length;
                 formItemIndex++
             ) {
-                let rightContentConfigItem = rightContentConfigList[formItemIndex];
-                // @ts-ignore
+                let rightContentConfigItem = rightContentConfigList[formItemIndex] as any;
                 if (rightContentConfigItem.forms) {
-                    // @ts-ignore
                     let childFormConfigList = rightContentConfigItem.forms;
                     /* 该项是右侧区域-容器项的子项的配置 */
                     for (
@@ -150,8 +145,7 @@ const PopsPanel = {
                 /* 是的话取出值并返回 */
                 return this.$data.data.get(key);
             }
-            // @ts-ignore
-            return defaultValue;
+            return defaultValue as T;
         }
         return localValue;
     },

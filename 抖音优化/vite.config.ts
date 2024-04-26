@@ -52,7 +52,7 @@ function formatTime(
   Object.keys(timeRegexp).forEach(function (key) {
     let replaecRegexp = new RegExp(key, "g");
     formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
-  });\
+  });
   return formatType;
 };
 
