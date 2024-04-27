@@ -3,7 +3,7 @@
 // @icon         https://www.baidu.com/favicon.ico
 // @namespace    https://greasyfork.org/zh-CN/scripts/418349
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
-// @version      2024.4.24.19
+// @version      2024.4.27
 // @author       WhiteSevs
 // @run-at       document-start
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
@@ -6542,10 +6542,20 @@
             function (event) {
               utils.preventEvent(event);
               let pbUrl = event.target.__vue__.pbUrl;
-              let tid = event.target.__vue__.tid;
-              let id = event.target.__vue__.id;
-              let newUrl = window.location.origin + (pbUrl ?? tid ?? id);
-              log.info("帖子链接: " + pbUrl);
+              let tid =
+                event.target.__vue__.tid ?? event.target.__vue__?.thread?.tid;
+              let id =
+                event.target.__vue__.id ?? event.target.__vue__?.thread?.id;
+              let newUrl = "";
+              if (pbUrl) {
+                newUrl = window.location.origin + pbUrl;
+              } else if (tid || id) {
+                newUrl = tiebaApi.getPost(tid ?? id);
+              } else {
+                Qmsg.error("获取帖子链接失败");
+                return;
+              }
+              log.info("帖子链接: " + newUrl);
               window.open(newUrl, "_blank");
             },
             {
