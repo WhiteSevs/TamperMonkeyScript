@@ -5,60 +5,102 @@ import path from "path";
 const getAbsolutePath = (pathName: string) => {
   return path.resolve(__dirname, pathName);
 }
-function formatTime(
-  text = new Date(),
-  formatType = "yyyy-MM-dd HH:mm:ss",
-  withZero = true,
-) {
-  let time = text == null ? new Date() : new Date(text);
+
+const Utils = {
   /**
-   * 校验时间补0
-   * @param timeNum
-   * @returns
+   * 获取绝对路径
+   * @param pathName 
+   * @returns 
    */
-  function checkTime(timeNum: number) {
-    if (!withZero) {
-      return timeNum
+  getAbsolutePath: (pathName: string) => {
+    return path.resolve(__dirname, pathName);
+  },
+  /**
+   * 时间格式化
+   * @param text 
+   * @param formatType 
+   * @param withZero 
+   * @returns 
+   */
+  formatTime: (
+    text = new Date(),
+    formatType = "yyyy-MM-dd HH:mm:ss",
+    withZero = true,
+  ) => {
+    let time = text == null ? new Date() : new Date(text);
+    /**
+     * 校验时间补0
+     * @param timeNum
+     * @returns
+     */
+    function checkTime(timeNum: number) {
+      if (!withZero) {
+        return timeNum
+      }
+      if (timeNum < 10) return "0" + timeNum;
+      return timeNum;
     }
-    if (timeNum < 10) return "0" + timeNum;
-    return timeNum;
-  }
+    /**
+     * 时间制修改 24小时制转12小时制
+     * @param hourNum 小时
+     * @returns
+     */
+    function timeSystemChange(hourNum: number) {
+      return hourNum > 12 ? hourNum - 12 : hourNum;
+    }
 
+    let timeRegexp = {
+      yyyy: time.getFullYear(),
+      /* 年 */
+      MM: checkTime(time.getMonth() + 1),
+      /* 月 */
+      dd: checkTime(time.getDate()),
+      /* 日 */
+      HH: checkTime(time.getHours()),
+      /* 时 (24小时制) */
+      hh: checkTime(timeSystemChange(time.getHours())),
+      /* 时 (12小时制) */
+      mm: checkTime(time.getMinutes()),
+      /* 分 */
+      ss: checkTime(time.getSeconds()),
+      /* 秒 */
+    };
+    Object.keys(timeRegexp).forEach(function (key) {
+      let replaecRegexp = new RegExp(key, "g");
+      formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
+    });
+    return formatType;
+  },
   /**
-   * 时间制修改 24小时制转12小时制
-   * @param hourNum 小时
-   * @returns
+   * 获取GreasyFork库的最新版本
+   * @param libId 
    */
-  function timeSystemChange(hourNum: number) {
-    return hourNum > 12 ? hourNum - 12 : hourNum;
-  }
-
-  let timeRegexp = {
-    yyyy: time.getFullYear(),
-    /* 年 */
-    MM: checkTime(time.getMonth() + 1),
-    /* 月 */
-    dd: checkTime(time.getDate()),
-    /* 日 */
-    HH: checkTime(time.getHours()),
-    /* 时 (24小时制) */
-    hh: checkTime(timeSystemChange(time.getHours())),
-    /* 时 (12小时制) */
-    mm: checkTime(time.getMinutes()),
-    /* 分 */
-    ss: checkTime(time.getSeconds()),
-    /* 秒 */
-  };
-  Object.keys(timeRegexp).forEach(function (key) {
-    let replaecRegexp = new RegExp(key, "g");
-    formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
-  });
-  return formatType;
-};
+  async getGreasyForkLibLatestVersion(libId: string | number) {
+    let scriptInfo = await fetch(`https://update.greasyfork.org/scripts/${libId}.json`).then((res) => res.json())
+    console.log(`获取库: ${scriptInfo?.name}`)
+    return scriptInfo?.code_url
+  },
+}
 
 const fileName = "抖音优化";
 const currentTime = new Date();
-const version = `${formatTime(currentTime, "yyyy.MM.dd", false)}`;
+const version = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
+const requireLib = [];
+if (process.env.NODE_ENV === "development") {
+  requireLib.push("file://" + Utils.getAbsolutePath("./../库/Qmsg/index.js"));
+  requireLib.push("file://" + Utils.getAbsolutePath("./../库/pops/index.js"));
+  requireLib.push("file://" + Utils.getAbsolutePath("./../库/Utils/index.js"));
+  requireLib.push("file://" + Utils.getAbsolutePath("./../库/DOMUtils/index.js"));
+} else {
+  /* Message */
+  requireLib.push(await Utils.getGreasyForkLibLatestVersion(462234))
+  /* pops */
+  requireLib.push(await Utils.getGreasyForkLibLatestVersion(456485))
+  /* WhiteSevsUtils */
+  requireLib.push(await Utils.getGreasyForkLibLatestVersion(455186))
+  /* DOMUtils */
+  requireLib.push(await Utils.getGreasyForkLibLatestVersion(465772))
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -90,12 +132,7 @@ export default defineConfig({
           "unsafeWindow"
         ],
         "run-at": "document-start",
-        require: [
-          "https://update.greasyfork.org/scripts/462234/1322684/Message.js",
-          "https://update.greasyfork.org/scripts/456485/1360571/pops.js",
-          "https://update.greasyfork.org/scripts/455186/1365298/WhiteSevsUtils.js",
-          "https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js",
-        ]
+        require: requireLib
       },
       server: {
         mountGmApi: false,

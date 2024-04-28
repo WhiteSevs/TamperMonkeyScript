@@ -9,10 +9,7 @@ const DouYinElement = {
     watch_slidelist(callback: (osElement: HTMLDivElement) => void) {
         DOMUtils.ready(() => {
             utils.waitAnyNode("#slidelist").then((slidelist) => {
-                let osElement =
-                    (document.querySelector(".windows-os") ||
-                        document.querySelector(".linux-os") ||
-                        document.querySelector("#douyin-right-container")) as HTMLDivElement;
+                let osElement = this.getOSElement();
                 utils.mutationObserver(slidelist, {
                     config: {
                         childList: true,
@@ -26,7 +23,10 @@ const DouYinElement = {
             });
         });
     },
-
+    getOSElement() {
+        return (document.querySelector("#root div[class*='-os']") ||
+            document.querySelector("#douyin-right-container")) as HTMLDivElement;
+    },
     /**
      * 添加屏蔽CSS
      * @param selector

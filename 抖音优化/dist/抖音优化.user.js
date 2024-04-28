@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.4.26
+// @version      2024.4.28
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -222,7 +222,7 @@
     watch_slidelist(callback) {
       DOMUtils.ready(() => {
         utils.waitAnyNode("#slidelist").then((slidelist) => {
-          let osElement = document.querySelector(".windows-os") || document.querySelector(".linux-os") || document.querySelector("#douyin-right-container");
+          let osElement = this.getOSElement();
           utils.mutationObserver(slidelist, {
             config: {
               childList: true,
@@ -235,6 +235,9 @@
           });
         });
       });
+    },
+    getOSElement() {
+      return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
     },
     /**
      * 添加屏蔽CSS
@@ -1281,15 +1284,72 @@
      * 伪装登录
      */
     disguiseLogin() {
-      function setLogin(osElement) {
-        utils.getReactObj(osElement).reactFiber.alternate.return.memoizedProps.userInfo.info = {
-          uid: parseInt((Math.random() * 1e6).toString())
-        };
-        utils.getReactObj(osElement).reactFiber.alternate.return.memoizedProps.userInfo.isLogin = true;
-      }
-      DouYinElement.watch_slidelist((osElement) => {
-        setLogin(osElement);
+      const WAIT_TIME = 2e4;
+      let uid = parseInt((Math.random() * 1e6).toString());
+      let notChangeInfoUid = Object.defineProperty({}, "uid", {
+        value: uid,
+        writable: false
       });
+      function getUserInfo(element) {
+        var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
+        let userInfoList = [];
+        let $react = utils.getReactObj(element);
+        let reactFiber = $react == null ? void 0 : $react.reactFiber;
+        if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
+          userInfoList.push((_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo);
+        }
+        if ((_j = (_i = (_h = (_g = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _g.return) == null ? void 0 : _h.memoizedProps) == null ? void 0 : _i.userInfo) == null ? void 0 : _j.userInfo) {
+          userInfoList.push((_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo);
+        }
+        if ((_q = (_p = (_o = (_n = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _n.return) == null ? void 0 : _o.return) == null ? void 0 : _p.memoizedProps) == null ? void 0 : _q.userInfo) {
+          userInfoList.push((_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo);
+        }
+        if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _v.return) == null ? void 0 : _w.return) == null ? void 0 : _x.memoizedProps) == null ? void 0 : _y.userInfo) == null ? void 0 : _z.userInfo) {
+          userInfoList.push((_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo);
+        }
+        return userInfoList;
+      }
+      function setLogin(element) {
+        getUserInfo(element).forEach((userInfo) => {
+          Object.defineProperties(userInfo, {
+            info: {
+              value: notChangeInfoUid,
+              writable: false
+            },
+            isLogin: {
+              value: true,
+              writable: false
+            }
+          });
+        });
+      }
+      DouYinElement.watch_slidelist(() => {
+        setLogin(DouYinElement.getOSElement());
+      });
+      utils.waitNodeWithInterval("#root div[class*='-os']", WAIT_TIME).then(() => {
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          callback: utils.debounce(() => {
+            setLogin(DouYinElement.getOSElement());
+          }, 70)
+        });
+      });
+      if (DouYinRouter.isLive()) {
+        utils.waitNodeWithInterval(`#douyin-header div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
+          utils.mutationObserver(document.body, {
+            config: {
+              subtree: true,
+              childList: true
+            },
+            callback: utils.debounce(() => {
+              setLogin(document.querySelector(`#douyin-header`));
+            }, 70)
+          });
+        });
+      }
     },
     /**
      * 关闭登录弹窗
@@ -1465,44 +1525,6 @@
   `);
     }
   };
-<<<<<<< HEAD
-  const DouYinMobile = {
-    init() {
-      log.success("启用手机模式");
-      let meta = DOMUtils.createElement(
-        "meta",
-        {},
-        {
-          // @ts-ignore
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-        }
-      );
-      document.querySelectorAll("meta[name='viewport']").forEach((ele) => ele.remove());
-      document.head.appendChild(meta);
-      DouYinElement.addShieldStyle(
-        "img#douyin-temp-sidebar"
-      );
-      _GM_addStyle(`
-      /* 右侧工具栏放大 */
-      .basePlayerContainer .positionBox{
-        scale: 1.12;
-        bottom: 80px !important;
-        padding-right: 5px !important;
-      }
-      /* 图标再放大 */
-      .basePlayerContainer .positionBox svg{
-        scale: 1.12;
-      }
-      /* 重置关注按钮的scale */
-      .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
-        scale: unset;
-      }
-      `);
-    }
-  };
-=======
->>>>>>> dev
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
