@@ -115,7 +115,7 @@
    * @property {string} [content=""] 显示的内容
    * @property {boolean} [html=false] 内容是否是html，默认false
    * @property {"topleft"|"top"|"topright"|"left"|"center"|"right"|"bottomleft"|"bottom"|
-   * "bottomright"} position 位置，默认'center'
+   * "bottomright"} [position] 位置，默认'center'
    * @property {boolean} [showClose=false] 是否显示关闭图标，默认为false不显示
    * @property {number} [maxNums=5] 最大显示的数量，默认为5
    * @property {?Function} [onClose] 关闭的回调函数
@@ -623,7 +623,7 @@
     },
     /**
      * 信息
-     * @param {string} txt 内容
+     * @param {any} txt 内容
      * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
@@ -634,7 +634,7 @@
     },
     /**
      * 警告
-     * @param {string} txt 内容
+     * @param {any} txt 内容
      * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
@@ -645,7 +645,7 @@
     },
     /**
      * 成功
-     * @param {string} txt 内容
+     * @param {any} txt 内容
      * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
@@ -656,7 +656,7 @@
     },
     /**
      * 失败
-     * @param {string} txt 内容
+     * @param {any} txt 内容
      * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */
@@ -667,7 +667,7 @@
     },
     /**
      * 加载中
-     * @param {string} txt 内容
+     * @param {any} txt 内容
      * @param {Qmsg_Details} [config] 配置
      * @returns {Msg}
      */

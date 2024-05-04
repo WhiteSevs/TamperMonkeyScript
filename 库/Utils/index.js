@@ -4816,7 +4816,7 @@
       textType = "text/plain";
     }
     class UtilsClipboard {
-      /** @type {Function(value: boolean | PromiseLike<boolean>)} */
+      /** @type {(value: boolean | PromiseLike<boolean>)=> void} */
       #resolve;
       /** @type {any|string} */
       #copyData;
@@ -4828,21 +4828,22 @@
         this.#copyDataType = copyDataType;
       }
       async init() {
+        let copyStatus = false;
         let requestPermissionStatus = await this.requestClipboardPermission();
         if (
           this.hasClipboard() &&
           (this.hasClipboardWrite() || this.hasClipboardWriteText())
         ) {
           try {
-            await this.copyDataByClipboard();
+            copyStatus = await this.copyDataByClipboard();
           } catch (error) {
             console.error("复制失败，使用第二种方式，error👉", error);
-            this.copyTextByTextArea();
+            copyStatus = this.copyTextByTextArea();
           }
         } else {
-          this.copyTextByTextArea();
+          copyStatus = this.copyTextByTextArea();
         }
-        this.#resolve();
+        this.#resolve(copyStatus);
         this.destroy();
       }
       destroy() {
@@ -4866,15 +4867,21 @@
        * 使用textarea和document.execCommand("copy")来复制文字
        */
       copyTextByTextArea() {
-        let copyElement = document.createElement("textarea");
-        copyElement.value = this.#copyData;
-        copyElement.setAttribute("type", "text");
-        copyElement.setAttribute("style", "opacity:0;position:absolute;");
-        copyElement.setAttribute("readonly", "readonly");
-        document.body.appendChild(copyElement);
-        copyElement.select();
-        document.execCommand("copy");
-        document.body.removeChild(copyElement);
+        try {
+          let copyElement = document.createElement("textarea");
+          copyElement.value = this.#copyData;
+          copyElement.setAttribute("type", "text");
+          copyElement.setAttribute("style", "opacity:0;position:absolute;");
+          copyElement.setAttribute("readonly", "readonly");
+          document.body.appendChild(copyElement);
+          copyElement.select();
+          document.execCommand("copy");
+          document.body.removeChild(copyElement);
+          return true;
+        } catch (error) {
+          console.error("复制失败，error👉", error);
+          return false;
+        }
       }
       /**
        * 申请剪贴板权限

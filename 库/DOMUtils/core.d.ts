@@ -3,100 +3,115 @@
  * + https://blog.csdn.net/weixin_68658847/article/details/126939879
  */
 type DOMUtils_MouseEventType =
-    "click" |
-    "contextmenu" |
-    "dblclick" |
-    "mousedown" |
-    "mouseenter" |
-    "mouseleave" |
-    "mousemove" |
-    "mouseover" |
-    "mouseout" |
-    "mouseup";
+    | "click"
+    | "contextmenu"
+    | "dblclick"
+    | "mousedown"
+    | "mouseenter"
+    | "mouseleave"
+    | "mousemove"
+    | "mouseover"
+    | "mouseout"
+    | "mouseup";
 
 /**
  * 鼠标事件
  */
-type DOMUtils_KeyboardEventType = "keydown" | "keypress" | "keyup";
+type DOMUtils_KeyboardEventType =
+    | "keydown"
+    | "keypress"
+    | "keyup";
 
 /**
  * 框架/对象事件
  */
-type DOMUtils_Frame_Object_EventType = "abort" |
-    "beforeunload" |
-    "error" |
-    "hashchange" |
-    "load" |
-    "pageshow" |
-    "pagehide" |
-    "resize" |
-    "scroll" |
-    "unload";
+type DOMUtils_Frame_Object_EventType =
+    | "abort"
+    | "beforeunload"
+    | "error"
+    | "hashchange"
+    | "load"
+    | "pageshow"
+    | "pagehide"
+    | "resize"
+    | "scroll"
+    | "unload";
 
 /**
  * 表单事件
  */
-type DOMUtils_FormEventType = "blur" |
-    "change" |
-    "focus" |
-    "focusin" |
-    "focusout" |
-    "input" |
-    "reset" |
-    "search";
+type DOMUtils_FormEventType =
+    | "blur"
+    | "change"
+    | "focus"
+    | "focusin"
+    | "focusout"
+    | "input"
+    | "reset"
+    | "search";
 
 /**
  * 剪贴板事件
  */
-type DOMUtils_ClipboardEventType = "copy" | "cut" | "paste";
+type DOMUtils_ClipboardEventType =
+    | "copy"
+    | "cut"
+    | "paste";
 
 /**
  * 打印事件
  */
-type DOMUtils_PrintEventType = "afterprint" | "beforeprint";
+type DOMUtils_PrintEventType =
+    | "afterprint"
+    | "beforeprint";
 
 /**
  * 拖动事件
  */
-type DOMUtils_DragEventType = "drag" |
-    "dragend" |
-    "dragenter" |
-    "dragleave" |
-    "dragover" |
-    "dragstart" |
-    "drop";
+type DOMUtils_DragEventType =
+    | "drag"
+    | "dragend"
+    | "dragenter"
+    | "dragleave"
+    | "dragover"
+    | "dragstart"
+    | "drop";
 
 /**
  * 多媒体（Media）事件
  */
-type DOMUtils_MediaEventType = "abort" |
-    "canplay" |
-    "canplaythrough" |
-    "durationchange" |
-    "emptied" |
-    "ended" |
-    "error" |
-    "loadeddata" |
-    "loadedmetadata" |
-    "loadstart" |
-    "pause" |
-    "play" |
-    "playing" |
-    "progress" |
-    "ratechange" |
-    "seeked" |
-    "seeking" |
-    "stalled" |
-    "suspend" |
-    "suspend" |
-    "timeupdate" |
-    "volumechange" |
-    "waiting";
+type DOMUtils_MediaEventType =
+    | "abort"
+    | "canplay"
+    | "canplaythrough"
+    | "durationchange"
+    | "emptied"
+    | "ended"
+    | "error"
+    | "loadeddata"
+    | "loadedmetadata"
+    | "loadstart"
+    | "pause"
+    | "play"
+    | "playing"
+    | "progress"
+    | "ratechange"
+    | "seeked"
+    | "seeking"
+    | "stalled"
+    | "suspend"
+    | "suspend"
+    | "timeupdate"
+    | "volumechange"
+    | "waiting";
 
 /**
  * 动画事件
  */
-type DOMUtils_AnimationEventType = "animationend" | "animationiteration" | "animationstart";
+type DOMUtils_AnimationEventType =
+    | "animationend"
+    | "animationiteration"
+    | "animationstart";
 
 
 /**
@@ -107,37 +122,45 @@ type DOMUtils_TransitionEventType = "transitionend";
 /**
  * 其它事件
  */
-type DOMUtils_OtherEventType = "message" |
-    "online" |
-    "offline" |
-    "popstate" |
-    "show" |
-    "storage" |
-    "toggle" |
-    "wheel" |
-    "propertychange" |
-    "fullscreenchange";
+type DOMUtils_OtherEventType =
+    | "message"
+    | "online"
+    | "offline"
+    | "popstate"
+    | "show"
+    | "storage"
+    | "toggle"
+    | "wheel"
+    | "propertychange"
+    | "fullscreenchange";
 
 /**
  * 触摸事件
  */
-type DOMUtils_TouchEventType = "touchstart" | "touchmove" | "touchend" | "touchcancel" | "touchenter" | "touchleave";
+type DOMUtils_TouchEventType =
+    | "touchstart"
+    | "touchmove"
+    | "touchend"
+    | "touchcancel"
+    | "touchenter"
+    | "touchleave";
 
 /**
  * 事件类型
  */
-declare type DOMUtils_EventType = DOMUtils_MouseEventType |
-    DOMUtils_KeyboardEventType |
-    DOMUtils_Frame_Object_EventType |
-    DOMUtils_FormEventType |
-    DOMUtils_ClipboardEventType |
-    DOMUtils_PrintEventType |
-    DOMUtils_DragEventType |
-    DOMUtils_MediaEventType |
-    DOMUtils_AnimationEventType |
-    DOMUtils_TransitionEventType |
-    DOMUtils_OtherEventType |
-    DOMUtils_TouchEventType;
+declare type DOMUtils_EventType =
+    | DOMUtils_MouseEventType
+    | DOMUtils_KeyboardEventType
+    | DOMUtils_Frame_Object_EventType
+    | DOMUtils_FormEventType
+    | DOMUtils_ClipboardEventType
+    | DOMUtils_PrintEventType
+    | DOMUtils_DragEventType
+    | DOMUtils_MediaEventType
+    | DOMUtils_AnimationEventType
+    | DOMUtils_TransitionEventType
+    | DOMUtils_OtherEventType
+    | DOMUtils_TouchEventType;
 
 type DOMUtilsCreateElementAttributesMap = {
     style?: string;
@@ -170,8 +193,8 @@ declare interface DOMUtilsEventListenerOptionsAttribute {
     selector?: string;
 }
 
-type ParseHTMLReturnType<T1, T2> = T1 extends true ? (T2 extends true ? Document : ChildNode)
-    : ChildNode;
+type ParseHTMLReturnType<T1, T2> = T1 extends true ? (T2 extends true ? Document : HTMLElement)
+    : HTMLElement;
 
 interface DOMUtils {
     /** 版本号 */
@@ -229,7 +252,9 @@ interface DOMUtils {
         /** 属性 */
         property?: {
             [P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P]
-        },
+        } & {
+            [key: string]: any,
+        } | string,
         /** 自定义属性 */
         attributes?: DOMUtilsCreateElementAttributesMap
     ): HTMLElementTagNameMap[K];
@@ -263,11 +288,13 @@ interface DOMUtils {
         element: HTMLElement | string,
         property: {
             [P in keyof CSSStyleDeclaration]
+        } | {
+            [key: string]: string
         } | string,
         value?: T
     ): T extends string ? string : undefined;
     /**
-     * 获取或设置元素的文本内容
+     * 获取元素的文本内容
      * @param element 目标元素
      * @param text （可选）文本内容
      * @returns 如果传入了text，则返回undefined；否则返回文本内容
@@ -275,14 +302,28 @@ interface DOMUtils {
      * // 设置元素a.xx的文本内容为abcd
      * DOMUtils.text(document.querySelector("a.xx"),"abcd")
      * DOMUtils.text("a.xx","abcd")
-     * DOMUtils.html("a.xx",document.querySelector("b"))
+     * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text<T extends unknown | string>(
+    text(
         element: HTMLElement,
-        text?: T
-    ): T extends string ? string : undefined;
+    ): string;
     /**
-     * 获取或设置元素的HTML内容
+     * 设置元素的文本内容
+     * @param element 目标元素
+     * @param text （可选）文本内容
+     * @returns 如果传入了text，则返回undefined；否则返回文本内容
+     * @example
+     * // 设置元素a.xx的文本内容为abcd
+     * DOMUtils.text(document.querySelector("a.xx"),"abcd")
+     * DOMUtils.text("a.xx","abcd")
+     * DOMUtils.text("a.xx",document.querySelector("b"))
+     * */
+    text(
+        element: HTMLElement,
+        text: string | HTMLElement | Element
+    ): void;
+    /**
+     * 设置元素的HTML内容
      * @param element 目标元素
      * @param html （可选）HTML内容|元素
      * @returns 如果传入了html，则返回undefined；否则返回HTML内容
@@ -292,10 +333,24 @@ interface DOMUtils {
      * DOMUtils.html("a.xx","<b>abcd</b>")
      * DOMUtils.html("a.xx",document.querySelector("b"))
      * */
-    html<T extends unknown | string | Element>(
+    html(
         element: HTMLElement | string,
-        html?: T
-    ): T extends string | Element ? string : undefined;
+        html: string | HTMLElement | Element
+    ): void;
+    /**
+     * 获取元素的HTML内容
+     * @param element 目标元素
+     * @param html （可选）HTML内容|元素
+     * @returns 如果传入了html，则返回undefined；否则返回HTML内容
+     * @example
+     * // 设置元素a.xx的文本内容为<b>abcd</b>
+     * DOMUtils.html(document.querySelector("a.xx"),"<b>abcd</b>")
+     * DOMUtils.html("a.xx","<b>abcd</b>")
+     * DOMUtils.html("a.xx",document.querySelector("b"))
+     * */
+    html(
+        element: HTMLElement | string,
+    ): string;
     /**
      * 绑定或触发元素的click事件
      * @param element 目标元素
@@ -375,7 +430,7 @@ interface DOMUtils {
      * DOMUtils.val("input.xx",true)
      * */
     val(
-        element: HTMLElement | string,
+        element: HTMLElement | string | Element,
         value: string | boolean,
     ): void;
     /**
@@ -550,7 +605,7 @@ interface DOMUtils {
      * })
      */
     on(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         callback: (event: Event | PointerEvent | MouseEvent) => void,
         option?: boolean | AddEventListenerOptions,
@@ -580,9 +635,9 @@ interface DOMUtils {
      * })
      */
     on(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        selector: string,
+        selector: string | undefined,
         callback: (event: Event | MouseEvent | PointerEvent) => void,
         option?: boolean | AddEventListenerOptions,
     ): void;
@@ -596,8 +651,22 @@ interface DOMUtils {
      * DOMUtils.off("a.xx","click")
      */
     off(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
+    ): void;
+    /**
+     * 取消绑定事件
+     * @param element 需要取消绑定的元素|元素数组
+     * @param eventType 需要取消监听的事件
+     * @example
+     * // 取消监听元素a.xx的click事件
+     * DOMUtils.off(document.querySelector("a.xx"),"click")
+     * DOMUtils.off("a.xx","click")
+     */
+    off(
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
+        eventType: DOMUtils_EventType | DOMUtils_EventType[],
+        callback: (event: Event) => void,
     ): void;
     /**
      * 取消绑定事件
@@ -614,9 +683,9 @@ interface DOMUtils {
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
     off(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        selector?: string,
+        selector?: string | undefined,
         callback?: (event: Event) => void,
         option?: boolean | AddEventListenerOptions,
         filter?: (
@@ -630,7 +699,7 @@ interface DOMUtils {
      * @param eventType （可选）需要取消监听的事件
      */
     offAll(
-        element: HTMLElement | string | NodeList | HTMLElement[] | Window,
+        element: HTMLElement | string | NodeList | HTMLElement[] | Window | Element | null,
         eventType?: DOMUtils_EventType | DOMUtils_EventType[],
     ): void;
     /**
@@ -648,7 +717,7 @@ interface DOMUtils {
      * DOMUtils.trigger("a.xx",["click","tap","hover"])
      */
     trigger(
-        element: HTMLElement | string | NodeList | any[] | Window,
+        element: HTMLElement | string | NodeList | any[] | Window | Document,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         details?: object,
         useDispatchToTriggerEvent?: boolean
@@ -850,7 +919,7 @@ interface DOMUtils {
      * DOMUtils.parseHTML("<a href='xxxx'></a><a href='xxxx'></a>",true, true)
      * > #document
      */
-    parseHTML<T1, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): ParseHTMLReturnType<T1, T2>;
+    parseHTML<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): ParseHTMLReturnType<T1, T2>;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素

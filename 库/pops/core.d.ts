@@ -399,23 +399,23 @@ declare interface PopsHeaderCloseButtonDetails {
     /**
      * 是否启用按钮
      */
-    enable: boolean;
+    enable?: boolean;
     /**
      * 按钮尺寸大小，默认为空
      */
-    size: PopsButtonSize;
+    size?: PopsButtonSize;
     /**
      * 按钮样式类型，默认为default
      */
-    type: PopsButtonStyleType;
+    type?: PopsButtonStyleType;
     /**
      * 按钮文字，默认为空
      */
-    text: string;
+    text?: string;
     /**
      * 按钮点击的回调
      */
-    callback: (event: PopsPromptBtnCallBackEvent) => void;
+    callback?: (event: PopsPromptBtnCallBackEvent) => void;
 }
 /**
  * 事件配置
@@ -875,15 +875,15 @@ declare interface PopsPanelButtonDetails extends PopsPanelCommonDetails {
     /**
      * 按钮的图标，已配置的svg请看pops.config.iconSVG，或者自定义的图标svg代码
      */
-    buttonIcon: PopsIcon;
+    buttonIcon?: PopsIcon;
     /**
      * 按钮的图标在右边
      */
-    buttonIsRightIcon: boolean;
+    buttonIsRightIcon?: boolean;
     /**
      * 按钮的图标旋转
      */
-    buttonIconIsLoading: boolean;
+    buttonIconIsLoading?: boolean;
     /**
      * 点击button触发的事件
      */
@@ -1005,7 +1005,7 @@ declare interface PopsButtonConfig {
     }
 }
 declare interface PopsMoreButtonConfig {
-    btn?: Omit<PopsButtonConfig["btn"], ""> & {
+    btn?: PopsButtonConfig["btn"] & {
         /**
          * 是否合并按钮
          */
@@ -1123,7 +1123,7 @@ declare interface PopsAlertDetails extends PopsTitleConfig, PopsContentConfig, P
     /**
      * 按钮配置
      */
-    btn?: Omit<PopsButtonConfig["btn"], ""> & {
+    btn?: PopsButtonConfig["btn"] & {
         /**
          * 确定按钮
          */
@@ -1507,7 +1507,7 @@ declare interface PopsRightClickMenuDetails {
 /**
  * config.data
  */
-declare interface PopsSearchSuggestionData {
+declare interface PopsSearchSuggestionData extends NestedObjectWithToString {
     /**
      * 存储的值
      */
@@ -1525,7 +1525,7 @@ declare interface PopsSearchSuggestionDetails {
     /**
      * 当前的环境，可以是document，可以是shadowroot，默认是document
      */
-    selfDocument: Document,
+    selfDocument?: Document,
     /**
      * 目标元素，一般是跟随它的位置变化，监听它的focus/click
      */
@@ -1533,7 +1533,7 @@ declare interface PopsSearchSuggestionDetails {
     /**
      * 目标input元素，监听它的focus/click/input事件
      */
-    inputTarget: HTMLInputElement;
+    inputTarget?: HTMLInputElement;
     /**
      * 数据
      */
@@ -1541,56 +1541,56 @@ declare interface PopsSearchSuggestionDetails {
     /**
      * 右边的删除按钮图标
      */
-    deleteIcon: {
+    deleteIcon?: {
         /**
          * 是否启用，默认true
          */
-        enable: boolean;
+        enable?: boolean;
         /**
          * 点击回调
          */
-        callback: (event: PointerEvent, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
+        callback?: (event: PointerEvent, liElement: HTMLLIElement, data: PopsSearchSuggestionData) => void;
     };
     /**
      * 自定义的className
      */
-    className: string;
+    className?: string;
     /**
      * position是否使用absolut，默认true
      */
-    isAbsolute: boolean;
+    isAbsolute?: boolean;
     /**
      * 是否启用动画，默认true
      */
-    isAnimation: true;
+    isAnimation?: true;
     /**
      * 建议框的宽度，默认250px
      */
-    width: string;
+    width?: string;
     /**
      * 是否和config.target的宽度同步，默认true
      */
-    followTargetWidth: true;
+    followTargetWidth?: true;
     /**
      * 建议框的最大高度，默认300px
      */
-    maxHeight: string;
+    maxHeight?: string;
     /**
      * 建议框距离元素的距离，默认0
      */
-    topDistance: number;
+    topDistance?: number;
     /**
      * 层级，默认10000
      */
-    zIndex: 10000;
+    zIndex?: 10000;
     /**
      * 搜索中的提示
      */
-    searchingTip: string;
+    searchingTip?: string;
     /**
      * 没有搜索结果的提示的html
      */
-    toSearhNotResultHTML: string;
+    toSearhNotResultHTML?: string;
     /**
      * 获取每一项的html
      */
