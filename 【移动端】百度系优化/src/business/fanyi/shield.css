@@ -1,0 +1,12 @@
+.app-bar,
+.jifeng-container,
+.intro-title,
+.sideQrContainer,
+.inner.clearfix,
+section.bottom-intro,
+#desktop-guide-wrapper {
+  display: none !important;
+}
+.new-header-dl {
+  visibility: hidden;
+}

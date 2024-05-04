@@ -1,0 +1,26 @@
+div.headDeflectorContainer,
+#bdrainrwDragButton,
+#page_wrapper .other div[class*='undefined'],
+#page_wrapper .other > div[class=""],
+/* 底部按钮-百度APP内播放 */
+div.common-wrap.single-pd,
+/* 顶部横幅-APP内播放 */
+div#app div.guid-new,
+/* 顶部横幅-APP内阅读 */
+#headDeflectorContainer,
+/* 底部 打开百度APP，阅读体验更佳 */
+#page_wrapper div[class^="foldMaskWrapper-"],
+/* 打开百度APP，阅读完整内容 */
+#content_wrapper .foldMaskWrapper,
+/* 影响定位元素的遮罩层 */
+#page_wrapper .bdboxshare>div:first-child,
+/* 来百度APP畅享高清图片 */
+.contentMedia .openImg {
+  display: none !important;
+}
+/* 展开阅读 */
+#page_wrapper #dynamicItem,
+/* 手机版-展开阅读 */
+#mainContentContainer {
+  height: auto !important;
+}

@@ -1,0 +1,10 @@
+/* 失败页底部广告推荐 */
+div.share-error-ad,
+/* 左侧导航栏底部下载百度网盘APP横栏 */
+#app div.download-app,
+/* 失败页-小飞机送惊喜 */
+div.errorWrap div.share-plane,
+/* 保存到网盘右上角的领红包图标 */
+img.sharelist-savebutton-hb-tip {
+  display: none !important;
+}

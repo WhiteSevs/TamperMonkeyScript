@@ -1,0 +1,47 @@
+/* 首页顶部的开通VIP横幅 */
+.new-home-wrap .van-swipe.swipe-home,
+/* 优质文档VIP随便下 */
+.vip-card-wrap,
+.reader-pop-manager-view-containter,
+.core-download,
+.card-wrap.card-vip,
+.pop-manager-view-containter,
+#carousel,
+.card-wrap,
+.n-card-wrap-exp,
+.pageNo .pager~div[class*="__wm"],
+.fold-pager,
+.vip-choice,
+.wk-bottom-btn,
+.continue-read-wrap.invite-clipboard,
+.wk-student,
+.search-pay-container,
+.wk-student-defense,
+.vip-rec-card-main,
+.back-dialog,
+div.middle-box-root {
+  display: none !important;
+}
+.bartop {
+  display: unset;
+}
+.reader-wrap {
+  height: auto !important;
+}
+#view-rr-app {
+  overflow-y: auto !important;
+}
+#view-app,
+#view-rr-app {
+  max-height: 100% !important;
+}
+.top-card {
+  margin-top: 10px !important;
+}
+* {
+  -webkit-touch-callout: inherit !important;
+  -khtml-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+}

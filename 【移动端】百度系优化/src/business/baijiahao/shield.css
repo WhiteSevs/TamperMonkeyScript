@@ -1,0 +1,22 @@
+.layer-wrap,
+.openImg,
+.oPadding,
+.bottomTTSStruct,
+.undefined,
+.headDeflectorContainer,
+.followSuper,
+#searchwordSdk,
+div#commentModule > div > div > span:nth-child(2),
+/* 顶部打开APP横幅 */
+#headDeflectorContainer,
+/* 展开全文 */
+.foldMaskWrapper {
+  display: none !important;
+}
+body.scrollHide {
+  overflow: auto !important;
+}
+.mainContent,
+#mainContentContainer {
+  height: auto !important;
+}

@@ -1,0 +1,6 @@
+const MiniJiaoYuShieldCSS = `
+`
+
+export {
+    MiniJiaoYuShieldCSS
+}

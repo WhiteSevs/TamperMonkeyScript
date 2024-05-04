@@ -1,0 +1,34 @@
+/* 中间弹窗-限时专享福利 */
+#app .pre-unpaid-wrap,
+/* 底部工具栏上面-月考全胜 您有xx元体验卡 */
+.question-bottom-bar .vip-bar,
+/* 解析-免费查看答案及解析 */
+.question-analysis-new .see-more,
+/* 最底部-百度教育商务合作、产品代理销售或内容合作等*/
+.business-el-line,
+.business-el-line-background,
+/* 展开按钮 */
+.question-analysis-new .expand,
+/* 7日VIP限免 大学生免费领 */
+#app .bgk-question-detail .float-fixed {
+  display: none !important;
+}
+/* 显示答案及解析 */
+.ques-title.analysis-title + div {
+  display: unset !important;
+}
+.question-analysis-new .analysis-wrap,
+#analysis {
+  overflow: unset !important;
+  height: unset !important;
+  max-height: unset !important;
+}
+/* 电脑端 */
+/* 中间弹窗-限时专享福利 */
+.kaixue-dialog-mask,
+/* 解析-免费查看答案及解析 */
+.question-cont .mask,
+/* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */
+.vip-banner-cont {
+  display: none !important;
+}

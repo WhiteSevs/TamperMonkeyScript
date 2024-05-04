@@ -1,0 +1,27 @@
+html,
+body,
+div#header {
+  height: calc(100vh - 120px);
+}
+form#index-form {
+  position: static;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto !important;
+  width: 90%;
+}
+div#navs ~ div,
+#login-wraps,
+a.square-enterance,
+div#ts-image-uploader-icon,
+div.baiduappcall-wrap div.voice.call,
+div.tab_news,
+div#navs {
+  display: none !important;
+}
+/* 图片logo往下移40px */
+#logo {
+  padding-top: 40px;
+}

@@ -1,0 +1,13 @@
+div.header-down-app,
+div.active-enter,
+div.app-enter,
+div.coupon-active,
+div.cpc-adv-container,
+div.detail-footer.detail-footer-test,
+div.index-more[data-show-id="indexMoreExposure"] {
+  display: none !important;
+}
+.bread-crumbs.has-down,
+.border-bottom-line {
+  top: 0 !important;
+}

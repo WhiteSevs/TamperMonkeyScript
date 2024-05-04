@@ -1,0 +1,13 @@
+.index-widget-guidebanner,
+.common-widget-bottom-banner-changeId,
+#index-areaEntry-widget,
+div.common-widget-bottom-banner-changeId,
+#downloadnativepopup,
+.xiaoduVoiceCard,
+.index-widget-guidebanner,
+#message-center-panel,
+.xiaoduVoice-banner.-border-round,
+/* 底部中间横幅-打开百度地图APP */
+#main div[id^="fis_elm"] .btn-banner-float {
+  display: none !important;
+}

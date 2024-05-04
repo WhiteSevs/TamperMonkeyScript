@@ -1,0 +1,21 @@
+/* .dec + div, */
+#feed-recommend,
+.dec,
+.wgt-topic-hot,
+#respect-footer,
+#wap-youx-change-asp,
+div.question-line + div:not(.replies-container),
+.wgt-asp-youx,
+.w-detail-display-btn,
+.ask-for-friend,
+#knowledge-answer-list,
+.go-to-ask,
+div[class*='ads'],
+/* 免费领票 */
+.doodle-container {
+  display: none !important;
+}
+.w-detail-container {
+  max-height: 100% !important;
+  overflow: auto !important;
+}

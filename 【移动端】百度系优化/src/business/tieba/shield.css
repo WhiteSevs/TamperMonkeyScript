@@ -1,0 +1,28 @@
+.tb-backflow-defensive,
+.fixed-nav-bar-defensive,
+.post-cut-guide,
+.ertiao-wrap-defensive,
+.feed-warp.gray-background,
+.pb-page-wrapper.app-view.transition-fade nav:first-child,
+.comment-box,
+.only-lz,
+.nav-bar-v2 .nav-bar-bottom,
+.more-image-desc,
+.fengchao-banner-defensive,
+.wake-app,
+.banner-wrapper-defensive,
+.open-app,
+.topic-share-page-v2 .bav-bar-top,
+/* 打开APP查看更多评论 */
+.cmt-large-cut-guide,
+/* 底部评论滚动栏 */
+div.diy-guide-wrapper,
+/* 底部评论滚动栏上面的空白 */
+.individuality,
+/* 吧内的广告 */
+.tb-threadlist__wrapper .tb-banner-wrapper-defensive {
+  display: none !important;
+}
+body.tb-modal-open {
+  overflow: auto !important;
+}

@@ -1,0 +1,4 @@
+/* 右下角悬浮的健康直播间图标按钮 */
+div[class^="index_brandEntry"] {
+  display: none !important;
+}

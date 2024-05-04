@@ -1,0 +1,13 @@
+div.share-origin.wx-share-launch,
+div.open-app-top,
+div.open-app-bottom.wx-share-launch,
+/* 打开APP  好看更清晰(1080P) */
+.NewOpenApp,
+/* 顶部空白区域 */
+.placeholder,
+/* 底部好看视频图片 */
+.page-buttom,
+/* 暂停视频弹出来的打开百度好看视频 */
+.video-player-download-tips {
+  display: none !important;
+}
