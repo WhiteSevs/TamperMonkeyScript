@@ -4,11 +4,13 @@ import TemplateFollowUser from './Template/TemplateFollowUser.vue';
 import { TiebaHomeData, UserInfo } from './data/TiebaHomeData';
 import { TiebaHomeApi, UserFollowInfo } from './api/TiebaHomeApi';
 import { router } from './router';
+import { DOMUtils, utils } from '@/env';
 
 const props = defineProps<{
     UserData: UserInfo;
 }>();
-let isInitLoading = ref(true);
+let showIsLoading = ref(true);
+let isEmpty = ref(false);
 let isAsyncLoadEnd = ref(false);
 let isLoadingEnd = ref(false);
 let $loading = ref<VNodeRef | null>(null);
@@ -16,6 +18,7 @@ const pageSize = 12;
 let pageOffset = ref(12);
 let fansInfoList = ref<UserFollowInfo[]>([]);
 let navTitle = ref("粉丝");
+
 if (props.UserData.sex != null) {
     if (props.UserData.sex == 1) {
         navTitle.value = "他的粉丝";
@@ -36,39 +39,50 @@ let observe = new IntersectionObserver((entries) => {
     threshold: 0.2,
 })
 const stopWatchLoading = watch($loading, () => {
-    if ($loading.value) {
+    if ($loading.value && Array.isArray($loading.value) && $loading.value.length) {
         observe.observe($loading.value[0].$el);
     }
+}, {
+    deep: true,
+    immediate: true
 })
-const cancleLoadMoreObserve = () => {
-    isInitLoading.value = false;
-    isLoadingEnd.value = true;
+const cancleScrollListener = () => {
     stopWatchLoading();
     observe.disconnect();
+    showIsLoading.value = false;
+    isLoadingEnd.value = true;
+    console.log("移除滚动监听");
 }
 
 const loadMore = async () => {
+    showIsLoading.value = false;
     let isFirstLoad = pageOffset.value === pageSize;
     if (isFirstLoad) {
         isAsyncLoadEnd.value = false;
         fansInfoList.value = [];
     }
     let getFansInfoList = await TiebaHomeApi.getFans(props.UserData.name as string, pageOffset.value, pageSize);
+    let isCanceled = false;
     if (getFansInfoList) {
         if (getFansInfoList.data) {
             fansInfoList.value = fansInfoList.value.concat(getFansInfoList.data);
             pageOffset.value += pageSize;
         }
         if (!getFansInfoList.has_next) {
-            cancleLoadMoreObserve()
+            isCanceled = true;
+            cancleScrollListener()
         }
     } else {
         console.log("获取粉丝数据失败");
         if (isFirstLoad) {
             isAsyncLoadEnd.value = true;
-            cancleLoadMoreObserve()
+            isCanceled = true;
+            isEmpty.value = true;
+            cancleScrollListener()
+            isLoadingEnd.value = false;
         }
     }
+    showIsLoading.value = !isCanceled;
     console.log("获取到的粉丝", getFansInfoList);
 }
 /**
@@ -95,7 +109,7 @@ const jumpToUserHome = (url: string) => {
             </el-row>
         </el-header>
         <el-main class="user-main">
-            <el-scrollbar style="height: calc(100% - 40px);" class="user-container">
+            <el-scrollbar class="user-container">
                 <div class="user-item" v-for="fansInfo in fansInfoList" @click="jumpToUserHome(fansInfo.url)">
                     <div class="user-item-row">
                         <div class="user-item-row-left">
@@ -112,7 +126,8 @@ const jumpToUserHome = (url: string) => {
                         </div>
                     </div>
                 </div>
-                <TemplateFollowUser v-for="i in 3" :key="i" v-if="isInitLoading" ref="$loading" />
+                <TemplateFollowUser v-for="i in 3" :key="i" v-if="showIsLoading" ref="$loading" />
+                <el-empty description="未获取到数据" v-if="isEmpty" />
                 <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
             </el-scrollbar>
         </el-main>
@@ -138,17 +153,16 @@ const jumpToUserHome = (url: string) => {
 .user-main {
     padding: 0;
     position: absolute;
-    top: 40px;
     right: 0;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 40px);
+    top: 40px;
 }
 
 .user-container {
     padding: 0px 10px 0px 10px;
-    height: calc(100% - 40px);
 }
 
 .user-container .el-scrollbar__view {

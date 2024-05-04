@@ -8,7 +8,8 @@ import { router } from './router';
 const props = defineProps<{
     UserData: UserInfo;
 }>();
-let isInitLoading = ref(true);
+let showIsLoading = ref(true);
+let isEmpty = ref(false);
 let isAsyncLoadEnd = ref(false);
 let isLoadingEnd = ref(false);
 let $loading = ref<VNodeRef | null>(null);
@@ -28,39 +29,51 @@ let observe = new IntersectionObserver((entries) => {
     threshold: 0.2,
 })
 const stopWatchLoading = watch($loading, () => {
-    if ($loading.value) {
+    if ($loading.value && Array.isArray($loading.value) && $loading.value.length) {
         observe.observe($loading.value[0].$el);
     }
+}, {
+    deep: true,
+    immediate: true
 })
 const cancleLoadMoreObserve = () => {
-    isInitLoading.value = false;
-    isLoadingEnd.value = true;
     stopWatchLoading();
     observe.disconnect();
+    showIsLoading.value = false;
+    isLoadingEnd.value = true;
+    console.log("移除滚动监听");
 }
 
 const loadMore = async () => {
+    showIsLoading.value = false;
     let isFirstLoad = pageOffset.value === pageSize;
     if (isFirstLoad) {
         isAsyncLoadEnd.value = false;
         followInfoList.value = [];
     }
+    let isCanceled = false;
     let getFollowInfoList = await TiebaHomeApi.getFollow(props.UserData.name as string, pageOffset.value, pageSize);
+    showIsLoading.value = true;
     if (getFollowInfoList) {
         if (getFollowInfoList.data) {
             followInfoList.value = followInfoList.value.concat(getFollowInfoList.data);
             pageOffset.value += pageSize;
         }
         if (!getFollowInfoList.has_next) {
+            isCanceled = true;
             cancleLoadMoreObserve()
         }
     } else {
         console.log("获取关注的吧数据失败");
         if (isFirstLoad) {
             isAsyncLoadEnd.value = true;
+            isCanceled = true;
+            isEmpty.value = true;
             cancleLoadMoreObserve()
+            isLoadingEnd.value = false;
         }
     }
+    showIsLoading.value = !isCanceled;
     console.log("获取到的Ta关注的人", getFollowInfoList);
 }
 /**
@@ -87,7 +100,7 @@ const jumpToUserHome = (url: string) => {
             </el-row>
         </el-header>
         <el-main class="user-main">
-            <el-scrollbar style="height: calc(100% - 40px);" class="user-container">
+            <el-scrollbar class="user-container">
                 <div class="user-item" v-for="followInfo in followInfoList" @click="jumpToUserHome(followInfo.url)">
                     <div class="user-item-row">
                         <div class="user-item-row-left">
@@ -107,7 +120,8 @@ const jumpToUserHome = (url: string) => {
                         </div>
                     </div>
                 </div>
-                <TemplateFollowUser v-for="i in 3" :key="i" v-if="isInitLoading" ref="$loading" />
+                <TemplateFollowUser v-for="i in 3" :key="i" v-if="showIsLoading" ref="$loading" />
+                <el-empty description="未获取到数据" v-if="isEmpty" />
                 <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
             </el-scrollbar>
         </el-main>
@@ -138,12 +152,11 @@ const jumpToUserHome = (url: string) => {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 40px);
 }
 
 .user-container {
     padding: 0px 10px 0px 10px;
-    height: calc(100% - 40px);
 }
 
 .user-container .el-scrollbar__view {

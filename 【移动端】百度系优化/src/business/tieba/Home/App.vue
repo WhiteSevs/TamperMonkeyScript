@@ -28,8 +28,4 @@ body {
     width: 100%;
     height: 100%;
 }
-html:has(#vite-app .disable-html-body-scroll),
-body:has(#vite-app .disable-html-body-scroll){
-    overflow: hidden;
-}
 </style>
