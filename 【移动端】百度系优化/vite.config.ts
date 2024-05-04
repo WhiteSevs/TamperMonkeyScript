@@ -119,6 +119,17 @@ const ResourceMap: {
     url: await Utils.getGreasyForkLibLatestVersionUrl(488179),
   },
 }
+let FILE_NAME = SCRIPT_NAME + ".user.js";
+/* 是否压缩代码 */
+let isMinify = false;
+if (process.argv.includes("--minify")) {
+  isMinify = true;
+  FILE_NAME = SCRIPT_NAME + ".min.user.js";
+}
+let isEmptyOutDir = true;
+if (process.argv.includes("--no-empty-outDir")) {
+  isEmptyOutDir = false;
+}
 if (process.env.NODE_ENV === "development") {
   Object.keys(ResourceMap).forEach(libName => {
     ResourceList.push(ResourceMap[libName].localPath)
@@ -208,7 +219,7 @@ export default defineConfig({
         externalResource: {
           'element-plus/dist/index.css': cdn.jsdelivr(),
         },
-        fileName: SCRIPT_NAME + ".user.js",
+        fileName: FILE_NAME,
         externalGlobals: {
           "vue": cdn.jsdelivr('Vue', 'dist/vue.global.prod.js').concat(util.dataUrl("window.Vue=Vue;")),
           "vue-router": cdn.jsdelivr('VueRouter', 'dist/vue-router.global.js').concat(util.dataUrl("window.VueRouter=VueRouter;")),
@@ -226,7 +237,8 @@ export default defineConfig({
   },
   build: {
     /* 构建的.user.js是否压缩 */
-    minify: false,
+    minify: isMinify,
+    emptyOutDir: isEmptyOutDir,
   },
 });
 
