@@ -9,10 +9,10 @@ const props = defineProps<{
     UserData: UserInfo;
 }>();
 let postsInfoList = ref<HomePostsInfo[]>([]);
-let isInitLoading = ref(true);
+let showIsLoading = ref(true);
 let isAsyncLoadEnd = ref(false);
 //let isLoadingNext = ref(false);
-let isLoadingEnd = ref(false);
+let showLoadingEnd = ref(false);
 let $loading = ref<VNodeRef | null>(null);
 let pageNumber = ref(1);
 
@@ -33,10 +33,11 @@ const stopWatchLoading = watch($loading, () => {
     }
 })
 const cancleLoadMoreObserve = () => {
-    isInitLoading.value = false;
-    isLoadingEnd.value = true;
     stopWatchLoading();
     observe.disconnect();
+    showIsLoading.value = false;
+    showLoadingEnd.value = true;
+    console.log("移除滚动监听");
 }
 
 const handlePostItemClick = (postsItem: HomePostsInfo) => {
@@ -47,6 +48,7 @@ const handlePostForumButtonClick = function (postsItem: HomePostsInfo) {
     window.open(url, "_blank")
 }
 const loadMore = async () => {
+    showIsLoading.value = false;
     let isFirstLoad = pageNumber.value === 1;
     if (isFirstLoad) {
         isAsyncLoadEnd.value = false;
@@ -66,6 +68,7 @@ const loadMore = async () => {
             postsInfoList.value = postsInfoList.value.concat(userPostsList.data);
             pageNumber.value++;
         }
+        showIsLoading.value = false;
         if (!userPostsList.has_more) {
             cancleLoadMoreObserve()
         }
@@ -152,8 +155,8 @@ const loadMore = async () => {
                 </el-row>
             </div>
         </div>
-        <TemplatePostsItem v-if="isInitLoading" ref="$loading" />
-        <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
+        <TemplatePostsItem v-if="showIsLoading" ref="$loading" />
+        <div v-if="showLoadingEnd" style="text-align: center">已经到底了~</div>
     </div>
     <el-backtop :right="10" :bottom="50" />
 </template>

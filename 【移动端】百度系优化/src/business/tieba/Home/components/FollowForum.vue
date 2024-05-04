@@ -4,16 +4,18 @@ import { UserInfo } from '../data/TiebaHomeData';
 import TemplateFollowForum from "../Template/TemplateFollowForum.vue"
 import { TiebaHomeApi, UserConcernInfo } from '../api/TiebaHomeApi';
 import { utils } from '@/env';
-import { TieBaApi, TiebaUrlApi } from '../../api/TieBaApi';
+
+
 const props = defineProps<{
     UserData: UserInfo;
 }>();
-let isInitLoading = ref(true);
+let showIsLoading = ref(true);
 let isAsyncLoadEnd = ref(false);
 let isLoadingEnd = ref(false);
 let $loading = ref<VNodeRef | null>(null);
 let pageNumber = ref(1);
 let followForum = ref<UserConcernInfo[]>([]);
+let isEmpty = ref(false)
 
 let colorConversion = new utils.ColorConversion();
 let colorLightLevel = 0.7;
@@ -50,21 +52,24 @@ const stopWatchLoading = watch($loading, () => {
     }
 })
 const cancleLoadMoreObserve = () => {
-    isInitLoading.value = false;
-    isLoadingEnd.value = true;
     stopWatchLoading();
     observe.disconnect();
+    showIsLoading.value = false;
+    isLoadingEnd.value = true;
+    console.log("移除滚动监听");
 }
 const handleForumItemClick = (forumItem: UserConcernInfo) => {
     window.open(forumItem.url, "_blank")
 }
 const loadMore = async () => {
+    showIsLoading.value = false;
     let isFirstLoad = pageNumber.value === 1;
     if (isFirstLoad) {
         isAsyncLoadEnd.value = false;
         followForum.value = [];
     }
     let concernData = await TiebaHomeApi.getConcern(props.UserData.name as string, pageNumber.value);
+    showIsLoading.value = true;
     if (concernData) {
         if (concernData.data) {
             followForum.value = followForum.value.concat(concernData.data);
@@ -78,6 +83,8 @@ const loadMore = async () => {
         if (isFirstLoad) {
             isAsyncLoadEnd.value = true;
             cancleLoadMoreObserve()
+            isEmpty.value = true;
+            isLoadingEnd.value = false;
         }
     }
     console.log("获取到的关注的吧", concernData);
@@ -87,7 +94,7 @@ const loadMore = async () => {
 <template>
     <div class="follow-forum-container">
         <el-empty description="这位老铁已将关注的吧设为隐藏" v-if="isAsyncLoadEnd && followForum.length === 0" />
-        <el-row class="follow-forum-list-container">
+        <el-row class="follow-forum-list-container" v-if="!isEmpty">
             <div class="follow-forum-item" :span="24" v-for="(item, index) in followForum" :key="index"
                 @click="handleForumItemClick(item)">
                 <el-avatar class="follow-forum-avatar" :size="35"
@@ -99,7 +106,7 @@ const loadMore = async () => {
                 </div>
                 <span class="follow-forum-item-level" :data-level="item.level">{{ item.level }}</span>
             </div>
-            <TemplateFollowForum v-if="isInitLoading" ref="$loading" />
+            <TemplateFollowForum v-if="showIsLoading" ref="$loading" />
         </el-row>
         <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
         <el-backtop :right="10" :bottom="50" />
