@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.4.28
+// @version      2024.5.5
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1360571/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1365298/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1370737/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -36,13 +36,14 @@
   var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const SCRIPT_NAME$1 = "抖音优化";
   const utils = (_monkeyWindow.Utils || _unsafeWindow.Utils).noConflict();
   const DOMUtils = (_monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils).noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
   const Qmsg = _monkeyWindow.Qmsg || _unsafeWindow.Qmsg;
   const console$1 = _unsafeWindow.console || _monkeyWindow.console;
   const log = new utils.Log(_GM_info, console$1);
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || "抖音优化";
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || SCRIPT_NAME$1;
   log.config({
     debug: false,
     logMaxCount: 100,
@@ -77,11 +78,6 @@
       },
       callback(event, value) {
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          if (clickCallBack(event, value)) {
-            return;
-          }
-        }
         PopsPanel.setValue(key, Boolean(value));
       },
       afterAddToUListCallBack: void 0
@@ -90,130 +86,120 @@
     result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
     return result;
   };
-  const PanelCommonConfig = [
-    {
-      text: "功能",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "debug模式",
-          "移除抖音的开发者模式检测",
-          "debug",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "伪装登录",
-          "使用随机UID进行伪装",
-          "disguiseLogin",
-          false,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】登录弹窗",
-          "屏蔽元素且自动等待元素出现并关闭登录弹窗",
-          "watchLoginDialogToClose",
-          true,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "主框架-屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】客户端提示",
-          "屏蔽元素",
-          "shieldClientTip",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】充砖石",
-          "屏蔽元素",
-          "shieldFillingBricksAndStones",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】客户端",
-          "屏蔽元素",
-          "shieldClient",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】快捷访问",
-          "屏蔽元素",
-          "shieldQuickAccess",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】通知",
-          "屏蔽元素",
-          "shieldNotifitation",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】私信",
-          "屏蔽元素",
-          "shieldPrivateMessage",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】投稿",
-          "屏蔽元素",
-          "shieldSubmission",
-          false,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "搜索-屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】搜索框",
-          "屏蔽元素",
-          "shieldSearch",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】搜索框的提示",
-          "屏蔽元素",
-          "shieldSearchPlaceholder",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】猜你想搜",
-          "屏蔽元素",
-          "shieldSearchGuessYouWantToSearch",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】抖音热点",
-          "屏蔽元素",
-          "shieldSearchTiktokHotspot",
-          false,
-          void 0
-        )
-      ]
-    }
-  ];
+  const PanelCommonConfig = {
+    id: "panel-config-common",
+    title: "通用",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "debug模式",
+            "移除抖音的开发者模式检测",
+            "debug",
+            false
+          ),
+          UISwitch(
+            "伪装登录",
+            "使用随机UID进行伪装",
+            "disguiseLogin",
+            false
+          )
+        ]
+      },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】登录弹窗",
+            "屏蔽元素且自动等待元素出现并关闭登录弹窗",
+            "watchLoginDialogToClose",
+            true
+          )
+        ]
+      },
+      {
+        text: "主框架-屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】客户端提示",
+            "屏蔽元素",
+            "shieldClientTip",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】充砖石",
+            "屏蔽元素",
+            "shieldFillingBricksAndStones",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】客户端",
+            "屏蔽元素",
+            "shieldClient",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】快捷访问",
+            "屏蔽元素",
+            "shieldQuickAccess",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】通知",
+            "屏蔽元素",
+            "shieldNotifitation",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】私信",
+            "屏蔽元素",
+            "shieldPrivateMessage",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】投稿",
+            "屏蔽元素",
+            "shieldSubmission",
+            false
+          )
+        ]
+      },
+      {
+        text: "搜索-屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】搜索框",
+            "屏蔽元素",
+            "shieldSearch",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】搜索框的提示",
+            "屏蔽元素",
+            "shieldSearchPlaceholder",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】猜你想搜",
+            "屏蔽元素",
+            "shieldSearchGuessYouWantToSearch",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】抖音热点",
+            "屏蔽元素",
+            "shieldSearchTiktokHotspot",
+            false
+          )
+        ]
+      }
+    ]
+  };
   const DouYinElement = {
     /**
      * 观察 #slidelist的加载每条视频
@@ -355,128 +341,6 @@
       });
     }
   };
-  const PanelLiveConfig = [
-    {
-      text: "功能",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "自动进入网页全屏",
-          "网页加载完毕后自动点击网页全屏按钮进入全屏",
-          "live-autoEnterElementFullScreen",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "解锁画质选择",
-          "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质",
-          "live-unlockImageQuality",
-          true,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "视频区域内-屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】顶栏信息",
-          "屏蔽元素，包括直播作者、右侧的礼物展馆",
-          "live-shieldTopToolBarInfo",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】底部？按钮",
-          "屏蔽元素",
-          "live-shieldBottomQuestionButton",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】底部的礼物栏",
-          "屏蔽元素",
-          "live-shieldGiftColumn",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】礼物特效",
-          "屏蔽元素",
-          "live-shieldGiftEffects",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】弹幕",
-          "屏蔽元素",
-          "live-shieldDanmuku",
-          false,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "聊天室-屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】聊天室",
-          "屏蔽元素",
-          "live-shieldChatRoom",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】贵宾席",
-          "屏蔽元素",
-          "live-shielChatRoomVipSeats",
-          false,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "弹幕屏蔽规则(可正则)",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "启用",
-          "启用弹幕屏蔽规则",
-          "live-danmu-shield-rule-enable",
-          false,
-          void 0
-        ),
-        {
-          type: "own",
-          getLiElementCallBack(liElement) {
-            let textareaDiv = DOMUtils.createElement(
-              "div",
-              {
-                className: "pops-panel-textarea",
-                innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
-              },
-              {
-                style: "width: 100%;"
-              }
-            );
-            let textarea = textareaDiv.querySelector("textarea");
-            textarea.value = DouYinDanmuFilter.get();
-            DOMUtils.on(
-              textarea,
-              ["input", "propertychange"],
-              utils.debounce(function() {
-                DouYinDanmuFilter.set(textarea.value);
-              }, 200)
-            );
-            liElement.appendChild(textareaDiv);
-            return liElement;
-          }
-        }
-      ]
-    }
-  ];
   const DouYinRouter = {
     /** 直播 */
     isLive() {
@@ -486,6 +350,125 @@
     isVideo() {
       return window.location.hostname === "www.douyin.com";
     }
+  };
+  const PanelLiveConfig = {
+    id: "panel-config-live",
+    title: "直播",
+    isDefault() {
+      return DouYinRouter.isLive();
+    },
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "自动进入网页全屏",
+            "网页加载完毕后自动点击网页全屏按钮进入全屏",
+            "live-autoEnterElementFullScreen",
+            false
+          ),
+          UISwitch(
+            "解锁画质选择",
+            "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质",
+            "live-unlockImageQuality",
+            true
+          )
+        ]
+      },
+      {
+        text: "视频区域内-屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】顶栏信息",
+            "屏蔽元素，包括直播作者、右侧的礼物展馆",
+            "live-shieldTopToolBarInfo",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】底部？按钮",
+            "屏蔽元素",
+            "live-shieldBottomQuestionButton",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】底部的礼物栏",
+            "屏蔽元素",
+            "live-shieldGiftColumn",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】礼物特效",
+            "屏蔽元素",
+            "live-shieldGiftEffects",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】弹幕",
+            "屏蔽元素",
+            "live-shieldDanmuku",
+            false
+          )
+        ]
+      },
+      {
+        text: "聊天室-屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】聊天室",
+            "屏蔽元素",
+            "live-shieldChatRoom",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】贵宾席",
+            "屏蔽元素",
+            "live-shielChatRoomVipSeats",
+            false
+          )
+        ]
+      },
+      {
+        text: "弹幕屏蔽规则(可正则)",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "启用弹幕屏蔽规则",
+            "live-danmu-shield-rule-enable",
+            false
+          ),
+          {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let textareaDiv = DOMUtils.createElement(
+                "div",
+                {
+                  className: "pops-panel-textarea",
+                  innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                },
+                {
+                  style: "width: 100%;"
+                }
+              );
+              let textarea = textareaDiv.querySelector("textarea");
+              textarea.value = DouYinDanmuFilter.get();
+              DOMUtils.on(
+                textarea,
+                ["input", "propertychange"],
+                utils.debounce(function() {
+                  DouYinDanmuFilter.set(textarea.value);
+                }, 200)
+              );
+              liElement.appendChild(textareaDiv);
+              return liElement;
+            }
+          }
+        ]
+      }
+    ]
   };
   const UISelect = function(text, description, key, defaultValue, data, selectCallBack) {
     return {
@@ -502,9 +485,6 @@
       callback(event, isSelectedValue, isSelectedText) {
         PopsPanel.setValue(key, isSelectedValue);
         log.success("下拉框选择: " + isSelectedText);
-        if (typeof selectCallBack === "function") {
-          selectCallBack(event, isSelectedValue, isSelectedText);
-        }
       },
       data
     };
@@ -656,221 +636,207 @@
       return _GM_getValue(this.key, "");
     }
   };
-  const PanelVideoConfig = [
-    {
-      text: "功能",
-      type: "forms",
-      forms: [
-        UISelect(
-          "清晰度",
-          "自行选择清晰度",
-          "chooseVideoDefinition",
-          1,
-          [
-            {
-              text: "智能",
-              value: 0
-            },
-            {
-              text: "极速",
-              value: 4
-            },
-            {
-              text: "流畅",
-              value: 3
-            },
-            {
-              text: "清晰",
-              value: 2
-            },
-            {
-              text: "高清",
-              value: 1
-            }
-          ],
-          void 0
-        ),
-        UISwitch(
-          "视频解析",
-          "分享->下载(灰色的也可点击)",
-          "parseVideo",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "自动进入网页全屏",
-          "网页加载完毕后自动点击网页全屏按钮进入全屏",
-          "autoEnterElementFullScreen",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "评论区移到中间",
-          "修改评论区为中间弹出而非右侧区域",
-          "changeCommentToBottom",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "沉浸模式",
-          "移除右侧工具栏、底部信息栏等",
-          "fullScreen",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "手机模式",
-          "放大各种文字和图标",
-          "mobileMode",
-          false,
-          void 0
-        )
-      ]
+  const PanelVideoConfig = {
+    id: "panel-config-video",
+    title: "视频",
+    isDefault() {
+      return DouYinRouter.isVideo();
     },
-    {
-      text: "视频区域内-屏蔽",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "【屏蔽】右侧的展开评论按钮",
-          "屏蔽元素",
-          "shieldRightExpandCommentButton",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】搜索悬浮栏",
-          "屏蔽元素，一般出现在左上角",
-          "shieldSearchFloatingBar",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】网页全屏关闭按钮",
-          "屏蔽元素，一般开启网页全屏后出现在左上角",
-          "shieldCloseFullScreenButton",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】切换播放",
-          "屏蔽元素，在右侧作者头像上方",
-          "shieldPlaySwitchButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】作者头像",
-          "屏蔽元素",
-          "shieldAuthorAvatar",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】点赞",
-          "屏蔽元素",
-          "shieldLikeButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】评论",
-          "屏蔽元素",
-          "shieldCommentButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】收藏",
-          "屏蔽元素",
-          "shieldCollectionButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】分享",
-          "屏蔽元素",
-          "shieldSharenButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】看相关",
-          "屏蔽元素",
-          "shieldRelatedRecommendationsButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】更多",
-          "屏蔽元素",
-          "shieldMoreButton",
-          false,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】底部视频工具栏",
-          "屏蔽元素",
-          "shieldBottomVideoToolBar",
-          false,
-          void 0
-        )
-      ]
-    },
-    {
-      text: "视频过滤规则(可正则)",
-      type: "forms",
-      forms: [
-        UISwitch(
-          "启用",
-          "开启后可启用下面的屏蔽功能",
-          "shieldVideo",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】直播",
-          "过滤掉直播",
-          "shieldVideo-live",
-          true,
-          void 0
-        ),
-        UISwitch(
-          "【屏蔽】广告",
-          "过滤掉广告",
-          "shieldVideo-ads",
-          true,
-          void 0
-        ),
-        {
-          type: "own",
-          getLiElementCallBack(liElement) {
-            let textareaDiv = DOMUtils.createElement(
-              "div",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISelect(
+            "清晰度",
+            "自行选择清晰度",
+            "chooseVideoDefinition",
+            1,
+            [
               {
-                className: "pops-panel-textarea",
-                innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                text: "智能",
+                value: 0
               },
               {
-                style: "width: 100%;"
+                text: "极速",
+                value: 4
+              },
+              {
+                text: "流畅",
+                value: 3
+              },
+              {
+                text: "清晰",
+                value: 2
+              },
+              {
+                text: "高清",
+                value: 1
               }
-            );
-            let textarea = textareaDiv.querySelector("textarea");
-            textarea.value = DouYinVideoShield.get();
-            DOMUtils.on(
-              textarea,
-              ["input", "propertychange"],
-              utils.debounce(function() {
-                DouYinVideoShield.set(textarea.value);
-              }, 200)
-            );
-            liElement.appendChild(textareaDiv);
-            return liElement;
+            ]
+          ),
+          UISwitch(
+            "视频解析",
+            "分享->下载(灰色的也可点击)",
+            "parseVideo",
+            false
+          ),
+          UISwitch(
+            "自动进入网页全屏",
+            "网页加载完毕后自动点击网页全屏按钮进入全屏",
+            "autoEnterElementFullScreen",
+            false
+          ),
+          UISwitch(
+            "评论区移到中间",
+            "修改评论区为中间弹出而非右侧区域",
+            "changeCommentToBottom",
+            true
+          ),
+          UISwitch(
+            "沉浸模式",
+            "移除右侧工具栏、底部信息栏等",
+            "fullScreen",
+            false
+          ),
+          UISwitch(
+            "手机模式",
+            "放大各种文字和图标",
+            "mobileMode",
+            false
+          )
+        ]
+      },
+      {
+        text: "视频区域内-屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】右侧的展开评论按钮",
+            "屏蔽元素",
+            "shieldRightExpandCommentButton",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】搜索悬浮栏",
+            "屏蔽元素，一般出现在左上角",
+            "shieldSearchFloatingBar",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】网页全屏关闭按钮",
+            "屏蔽元素，一般开启网页全屏后出现在左上角",
+            "shieldCloseFullScreenButton",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】切换播放",
+            "屏蔽元素，在右侧作者头像上方",
+            "shieldPlaySwitchButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】作者头像",
+            "屏蔽元素",
+            "shieldAuthorAvatar",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】点赞",
+            "屏蔽元素",
+            "shieldLikeButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】评论",
+            "屏蔽元素",
+            "shieldCommentButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】收藏",
+            "屏蔽元素",
+            "shieldCollectionButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】分享",
+            "屏蔽元素",
+            "shieldSharenButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】看相关",
+            "屏蔽元素",
+            "shieldRelatedRecommendationsButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】更多",
+            "屏蔽元素",
+            "shieldMoreButton",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】底部视频工具栏",
+            "屏蔽元素",
+            "shieldBottomVideoToolBar",
+            false
+          )
+        ]
+      },
+      {
+        text: "视频过滤规则(可正则)",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "开启后可启用下面的屏蔽功能",
+            "shieldVideo",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】直播",
+            "过滤掉直播",
+            "shieldVideo-live",
+            true
+          ),
+          UISwitch(
+            "【屏蔽】广告",
+            "过滤掉广告",
+            "shieldVideo-ads",
+            true
+          ),
+          {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let textareaDiv = DOMUtils.createElement(
+                "div",
+                {
+                  className: "pops-panel-textarea",
+                  innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                },
+                {
+                  style: "width: 100%;"
+                }
+              );
+              let textarea = textareaDiv.querySelector("textarea");
+              textarea.value = DouYinVideoShield.get();
+              DOMUtils.on(
+                textarea,
+                ["input", "propertychange"],
+                utils.debounce(function() {
+                  DouYinVideoShield.set(textarea.value);
+                }, 200)
+              );
+              liElement.appendChild(textareaDiv);
+              return liElement;
+            }
           }
-        }
-      ]
-    }
-  ];
+        ]
+      }
+    ]
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -1075,7 +1041,7 @@
      * 获取设置面板的宽度
      */
     getWidth() {
-      if (window.innerWidth < 550) {
+      if (window.outerWidth < 550) {
         return "92dvw";
       } else {
         return "550px";
@@ -1085,7 +1051,7 @@
      * 获取设置面板的高度
      */
     getHeight() {
-      if (window.innerHeight < 450) {
+      if (window.outerHeight < 450) {
         return "80dvh";
       } else {
         return "450px";
@@ -1096,27 +1062,9 @@
      */
     getPanelContentConfig() {
       let configList = [
-        {
-          id: "panel-config-common",
-          title: "通用",
-          forms: PanelCommonConfig
-        },
-        {
-          id: "panel-config-video",
-          title: "视频",
-          isDefault() {
-            return DouYinRouter.isVideo();
-          },
-          forms: PanelVideoConfig
-        },
-        {
-          id: "panel-config-live",
-          title: "直播",
-          isDefault() {
-            return DouYinRouter.isLive();
-          },
-          forms: PanelLiveConfig
-        }
+        PanelCommonConfig,
+        PanelVideoConfig,
+        PanelLiveConfig
       ];
       return configList;
     }
@@ -1828,21 +1776,34 @@
         "img#douyin-temp-sidebar"
       );
       _GM_addStyle(`
-      /* 右侧工具栏放大 */
-      .basePlayerContainer .positionBox{
-        scale: 1.12;
-        bottom: 80px !important;
-        padding-right: 5px !important;
-      }
-      /* 图标再放大 */
-      .basePlayerContainer .positionBox svg{
-        scale: 1.12;
-      }
-      /* 重置关注按钮的scale */
-      .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
-        scale: unset;
-      }
-      `);
+        /* 右侧工具栏放大 */
+        .basePlayerContainer .positionBox{
+            scale: unset !important;
+            bottom: 80px !important;
+            padding-right: 5px !important;
+            transform: scale(1.12) !important;
+        }
+        /* 图标再放大 */
+        .basePlayerContainer .positionBox svg{
+            transform: scale(1.12);
+        }
+        /* 重置关注按钮的scale */
+        .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
+            scale: unset;
+        }
+        /* 设备处于横向方向，即宽度大于高度。 */
+        @media screen and (orientation: landscape) {
+            /* 右侧工具栏放大 */
+            .basePlayerContainer .positionBox{
+                transform: scale(0.95) !important;
+                bottom: 42px !important;
+            }
+        }
+        /* 该设备是纵向的，即高度大于或等于宽度 */
+        @media screen and (orientation: portrait) {
+            
+        }
+        `);
     }
   };
   const DouYinLiveChatRoom = {

@@ -233,7 +233,7 @@ const PopsPanel = {
      * 获取设置面板的宽度
      */
     getWidth() {
-        if (window.innerWidth < 550) {
+        if (window.outerWidth < 550) {
             return "92dvw"
         } else {
             return "550px"
@@ -243,7 +243,7 @@ const PopsPanel = {
      * 获取设置面板的高度
      */
     getHeight() {
-        if (window.innerHeight < 450) {
+        if (window.outerHeight < 450) {
             return "80dvh"
         } else {
             return "450px"
@@ -254,27 +254,9 @@ const PopsPanel = {
      */
     getPanelContentConfig() {
         let configList: PopsPanelContentConfig[] = [
-            {
-                id: "panel-config-common",
-                title: "通用",
-                forms: PanelCommonConfig,
-            },
-            {
-                id: "panel-config-video",
-                title: "视频",
-                isDefault() {
-                    return DouYinRouter.isVideo();
-                },
-                forms: PanelVideoConfig,
-            },
-            {
-                id: "panel-config-live",
-                title: "直播",
-                isDefault() {
-                    return DouYinRouter.isLive();
-                },
-                forms: PanelLiveConfig,
-            },
+            PanelCommonConfig,
+            PanelVideoConfig,
+            PanelLiveConfig,
         ];
         return configList;
     },

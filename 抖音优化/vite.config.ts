@@ -165,7 +165,7 @@ export default defineConfig({
       },
       build: {
         autoGrant: true,
-        fileName: SCRIPT_NAME + ".user.js",
+        fileName: FILE_NAME,
         externalGlobals: {
           vue: cdn.jsdelivr('Vue', 'dist/vue.global.prod.js'),
         },
