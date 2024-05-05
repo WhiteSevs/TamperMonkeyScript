@@ -1,6 +1,6 @@
-import { log, utils } from "@/api/env";
+import { log, utils } from "@/env";
 import { DouYinElement } from "../Element/element";
-import { DouYinRouter } from "@/router";
+import { DouYinRouter } from "@/router/router";
 
 const DouYinAccount = {
     /**

@@ -1,5 +1,5 @@
 import { unsafeWindow } from "$";
-import { log } from "@/api/env";
+import { log } from "@/env";
 
 const DouYinHook = {
     /**

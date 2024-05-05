@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/api/env";
+import { DOMUtils, log, utils } from "@/env";
 import { DouYinElement } from "../Element/element";
 import { GM_getValue, GM_setValue } from "$";
 

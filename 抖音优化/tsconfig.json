@@ -16,13 +16,14 @@
     "skipLibCheck": true,
     "checkJs": true,
     "noEmit": true,
+    "sourceMap": true,
     "paths": {
       "@库/*": ["./../库/*"],
       "@/*": ["./src/*"]
     },
     "types": ["./../库/pops/core.d.ts", "./../库/Utils/core.d.ts"]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src"],
   "references": [
     {
       "path": "./tsconfig.node.json"

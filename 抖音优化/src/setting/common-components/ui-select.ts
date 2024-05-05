@@ -1,5 +1,5 @@
-import { log } from "../../api/env";
-import { PopsPanel } from "..";
+import { log } from "../../env";
+import { PopsPanel } from "../setting";
 
 /**
  * 获取下拉列表配置

@@ -1,6 +1,6 @@
-import { DOMUtils, utils } from "@/api/env";
-import { UISwitch } from "../core/ui-switch";
-import { DouYinDanmuFilter } from "@/core/Live/danmuku";
+import { DOMUtils, utils } from "@/env";
+import { UISwitch } from "../common-components/ui-switch";
+import { DouYinDanmuFilter } from "@/main/Live/danmuku";
 
 const PanelLiveConfig: PopsPanelFormsDetails[] = [
     {

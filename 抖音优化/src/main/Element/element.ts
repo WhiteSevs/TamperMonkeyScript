@@ -1,5 +1,5 @@
 import { GM_addStyle } from "$";
-import { DOMUtils, utils } from "@/api/env";
+import { DOMUtils, utils } from "@/env";
 
 const DouYinElement = {
     /**

@@ -1,4 +1,4 @@
-import { PopsPanel } from "..";
+import { PopsPanel } from "../setting";
 
 /**
  * 获取输入框配置

@@ -1,5 +1,5 @@
-import { log } from "../../api/env";
-import { PopsPanel } from "..";
+import { log } from "../../env";
+import { PopsPanel } from "../setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 
 /**

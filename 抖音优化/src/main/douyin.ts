@@ -1,11 +1,11 @@
-import { log } from "@/api/env";
-import { PopsPanel } from "@/ui";
+import { log } from "@/env";
+import { PopsPanel } from "@/setting/setting";
 import { ShieldHeader } from "./UIFrameShield/ShieldHeader";
 import { ShieldSearch } from "./UIFrameShield/ShieldSearch";
 import { DouYinHook } from "./Hook/hook";
 import { DouYinAccount } from "./Account/account";
 import { DouYinVideo } from "./Video/video";
-import { DouYinRouter } from "@/router";
+import { DouYinRouter } from "@/router/router";
 import { DouYinLive } from "./Live/live";
 
 const DouYin = {

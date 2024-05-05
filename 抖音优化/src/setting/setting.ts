@@ -1,9 +1,9 @@
 import { GM_getValue, GM_info, GM_setValue, unsafeWindow } from "$";
-import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/api/env";
+import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
-import { DouYinRouter } from "@/router";
+import { DouYinRouter } from "@/router/router";
 import { PanelVideoConfig } from "./components/video";
 
 const PopsPanel = {

@@ -1,7 +1,7 @@
 import { GM_getValue, GM_setValue } from "$";
-import { log, utils } from "@/api/env";
-import { PopsPanel } from "@/ui";
-import { DouYinElement } from "@/core/Element/element";
+import { log, utils } from "@/env";
+import { PopsPanel } from "@/setting/setting";
+import { DouYinElement } from "@/main/Element/element";
 const DouYinVideoShield = {
     key: "douyin-shield-rule",
     $data: {

@@ -1,7 +1,7 @@
-import { DOMUtils, utils } from "@/api/env";
-import { UISelect } from "../core/ui-select"
-import { UISwitch } from "../core/ui-switch"
-import { DouYinVideoShield } from "@/core/Video/shield";
+import { DOMUtils, utils } from "@/env";
+import { UISelect } from "../common-components/ui-select"
+import { UISwitch } from "../common-components/ui-switch"
+import { DouYinVideoShield } from "@/main/Video/shield";
 
 const PanelVideoConfig: PopsPanelFormsDetails[] = [
     {

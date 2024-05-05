@@ -1,7 +1,7 @@
 import { GM_addStyle, unsafeWindow } from "$";
-import { DOMUtils, Qmsg, log, pops, utils } from "@/api/env";
+import { DOMUtils, Qmsg, log, pops, utils } from "@/env";
 import { DouYinElement } from "../Element/element";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/setting/setting";
 import { DouYinVideoShield } from "./shield";
 import { DouYinVideoHideElement } from "./hideElement";
 

@@ -1,7 +1,7 @@
 import { GM_addStyle } from "$";
-import { DOMUtils, Qmsg, log, utils } from "@/api/env";
-import { PopsPanel } from "@/ui";
-import { DouYinElement } from "@/core/Element/element";
+import { DOMUtils, Qmsg, log, utils } from "@/env";
+import { PopsPanel } from "@/setting/setting";
+import { DouYinElement } from "@/main/Element/element";
 import { DouYinLiveChatRoom } from "./chatRoom";
 import { DouYinLiveDanmuku } from "./danmuku";
 

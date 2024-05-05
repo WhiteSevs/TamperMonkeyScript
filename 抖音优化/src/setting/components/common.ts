@@ -1,5 +1,5 @@
-import { UISelect } from "../core/ui-select"
-import { UISwitch } from "../core/ui-switch"
+import { UISelect } from "../common-components/ui-select"
+import { UISwitch } from "../common-components/ui-switch"
 
 
 const PanelCommonConfig: PopsPanelFormsDetails[] = [
