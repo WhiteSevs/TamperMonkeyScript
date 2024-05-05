@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
 import path from "path";
-import { SCRIPT_NAME } from "./vite-build"
+import { SCRIPT_NAME } from "./vite.build"
 import Icons from 'unplugin-icons/dist/vite'
 import IconsResolver from 'unplugin-icons/dist/resolver'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -94,6 +94,10 @@ const ResourceMap: {
     localPath: string,
   },
 } = {
+  "CoverUMD": {
+    localPath: "file://" + Utils.getAbsolutePath("./../库/CoverUMD/index.js"),
+    url: await Utils.getGreasyForkLibLatestVersionUrl(494167),
+  },
   "Viewer": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/Viewer/index.js"),
     url: await Utils.getGreasyForkLibLatestVersionUrl(449471),

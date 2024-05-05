@@ -1,6 +1,6 @@
 import { monkeyWindow, unsafeWindow, GM_info, GM_getValue, GM_setValue, GM_registerMenuCommand, GM_unregisterMenuCommand, GM_xmlhttpRequest, GM_addStyle, GM_getResourceText } from "ViteGM";
 import { LoadingView } from "./util/LoadingView";
-import { SCRIPT_NAME as _SCRIPT_NAME_ } from "./../vite-build"
+import { SCRIPT_NAME as _SCRIPT_NAME_ } from "../vite.build"
 import ElementPlus from 'element-plus'
 import { createApp } from "vue";
 
