@@ -1,8 +1,7 @@
-import { GM_Menu, SCRIPT_NAME, pops, utils } from "@/env";
+import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { PanelSearchSettingUI } from "./components/search/PanelSearchSettingUI";
-import { BaiduRouter } from "@/router";
 import { PanelBaiJiaHaoSettingUI } from "./components/baijiahao/PanelBaiJiaHaoSettingUI";
 import { PanelTieBaSettingUI } from "./components/tieba/PanelTieBaSettingUI";
 import { PanelWenKuSettingUI } from "./components/wenku/PanelWenKuSettingUI";
@@ -106,12 +105,12 @@ const PopsPanel = {
             /* 获取默认值 */
             let defaultValue = config["attributes"][ATTRIBUTE_DEFAULT_VALUE];
             if (key == null) {
-                console.warn("请先配置键", config);
+                log.warn(["请先配置键", config]);
                 return;
             }
             /* 存储到内存中 */
             if (that.$data.data.has(key)) {
-                console.warn("请检查该key(已存在): " + key);
+                log.warn("请检查该key(已存在): " + key);
             }
             that.$data.data.set(key, defaultValue);
         }
@@ -260,13 +259,13 @@ const PopsPanel = {
         });
     },
     isMobile() {
-        return window.innerWidth < 550;
+        return window.outerWidth < 550;
     },
     /**
      * 获取设置面板的宽度
      */
     getWidth() {
-        if (window.innerWidth < 550) {
+        if (window.outerWidth < 550) {
             return "92dvw"
         } else {
             return "550px"
@@ -276,7 +275,7 @@ const PopsPanel = {
      * 获取设置面板的高度
      */
     getHeight() {
-        if (window.innerHeight < 450) {
+        if (window.outerHeight > 450) {
             return "80dvh"
         } else {
             return "450px"

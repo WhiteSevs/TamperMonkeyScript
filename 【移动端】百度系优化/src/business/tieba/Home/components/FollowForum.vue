@@ -3,7 +3,7 @@ import { VNodeRef, reactive, ref, watch } from 'vue';
 import { UserInfo } from '../data/TiebaHomeData';
 import TemplateFollowForum from "../Template/TemplateFollowForum.vue"
 import { TiebaHomeApi, UserConcernInfo } from '../api/TiebaHomeApi';
-import { utils } from '@/env';
+import { log, utils } from '@/env';
 
 
 const props = defineProps<{
@@ -56,7 +56,7 @@ const cancleLoadMoreObserve = () => {
     observe.disconnect();
     showIsLoading.value = false;
     isLoadingEnd.value = true;
-    console.log("移除滚动监听");
+    log.info(["移除滚动监听"]);
 }
 const handleForumItemClick = (forumItem: UserConcernInfo) => {
     window.open(forumItem.url, "_blank")
@@ -79,7 +79,7 @@ const loadMore = async () => {
             cancleLoadMoreObserve()
         }
     } else {
-        console.log("获取关注的吧数据失败");
+        log.info(["获取关注的吧数据失败"]);
         if (isFirstLoad) {
             isAsyncLoadEnd.value = true;
             cancleLoadMoreObserve()
@@ -87,7 +87,7 @@ const loadMore = async () => {
             isLoadingEnd.value = false;
         }
     }
-    console.log("获取到的关注的吧", concernData);
+    log.info(["获取到的关注的吧", concernData]);
 }
 </script>
 

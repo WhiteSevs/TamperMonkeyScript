@@ -4,7 +4,7 @@ import TemplateFollowUser from './Template/TemplateFollowUser.vue';
 import { TiebaHomeData, UserInfo } from './data/TiebaHomeData';
 import { TiebaHomeApi, UserFollowInfo } from './api/TiebaHomeApi';
 import { router } from './router';
-import { DOMUtils, utils } from '@/env';
+import { DOMUtils, log, utils } from '@/env';
 
 const props = defineProps<{
     UserData: UserInfo;
@@ -51,7 +51,7 @@ const cancleScrollListener = () => {
     observe.disconnect();
     showIsLoading.value = false;
     isLoadingEnd.value = true;
-    console.log("移除滚动监听");
+    log.info(["移除滚动监听"]);
 }
 
 const loadMore = async () => {
@@ -73,7 +73,7 @@ const loadMore = async () => {
             cancleScrollListener()
         }
     } else {
-        console.log("获取粉丝数据失败");
+        log.info(["获取粉丝数据失败"]);
         if (isFirstLoad) {
             isAsyncLoadEnd.value = true;
             isCanceled = true;
@@ -83,7 +83,7 @@ const loadMore = async () => {
         }
     }
     showIsLoading.value = !isCanceled;
-    console.log("获取到的粉丝", getFansInfoList);
+    log.info(["获取到的粉丝", getFansInfoList]);
 }
 /**
  * 箭头点击事件

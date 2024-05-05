@@ -4,6 +4,7 @@ import TemplatePostsItem from '../Template/TemplatePostsItem.vue';
 import { TieBaApi, HomePostsInfo, TiebaUrlApi } from '../../api/TieBaApi';
 import { TiebaHomeData, UserInfo } from '../data/TiebaHomeData';
 import { ChromeFilled } from '@element-plus/icons-vue'
+import { log } from '@/env';
 
 const props = defineProps<{
     UserData: UserInfo;
@@ -37,7 +38,7 @@ const cancleLoadMoreObserve = () => {
     observe.disconnect();
     showIsLoading.value = false;
     showLoadingEnd.value = true;
-    console.log("移除滚动监听");
+    log.success("移除滚动监听");
 }
 
 const handlePostItemClick = (postsItem: HomePostsInfo) => {
@@ -55,12 +56,12 @@ const loadMore = async () => {
         postsInfoList.value = [];
     }
     let userPostsList = await TieBaApi.getUserPosts(props.UserData.name as string, pageNumber.value);
-    console.log("获取到的帖子", userPostsList);
+    log.info(["获取到的帖子", userPostsList]);
     if (userPostsList) {
         if (isFirstLoad && userPostsList.data.length === 0) {
             /* 获取到数据为空，尝试从PC端获取数据 */
             let userPCPostsList = await TiebaHomeData.getUserDataWithPCDoc();
-            console.log("获取PC个人主页的帖子", userPCPostsList);
+            log.info(["获取PC个人主页的帖子", userPCPostsList]);
             if (userPCPostsList?.postInfo?.data) {
                 postsInfoList.value = postsInfoList.value.concat(userPCPostsList.postInfo.data);
             }
@@ -75,7 +76,7 @@ const loadMore = async () => {
     } else {
         /* api获取不到数据，从PC页面抓取数据，且取消加载下一页的监听 */
         let userPCPostsList = await TiebaHomeData.getUserDataWithPCDoc();
-        console.log("获取PC个人主页的帖子", userPCPostsList);
+        log.info(["获取PC个人主页的帖子", userPCPostsList]);
         if (userPCPostsList?.postInfo?.data) {
             postsInfoList.value = postsInfoList.value.concat(userPCPostsList.postInfo.data);
         }
