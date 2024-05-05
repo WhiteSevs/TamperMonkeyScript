@@ -914,7 +914,7 @@ declare interface HttpxHeaders {
      * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/X-XSS-Protection
      */
     "X-XSS-Protection"?: string;
-    [key: string]: string;
+    [key: string]: any;
 }
 declare interface HttpxRequestInit extends RequestInit {
     /**
