@@ -13,3 +13,4 @@ node_modules
 package.json
 pnpm-lock.yaml
 test-hook-network/*
+test-hook-baidu/*
