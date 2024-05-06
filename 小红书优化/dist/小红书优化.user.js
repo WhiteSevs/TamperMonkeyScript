@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         【移动端】小红书优化
+// @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
 // @version      2024.5.6
 // @author       WhiteSevs
@@ -44,7 +44,7 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const SCRIPT_NAME$1 = "【移动端】小红书优化";
+  const SCRIPT_NAME$1 = "小红书优化";
   const utils = (_a = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a.noConflict();
   const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
