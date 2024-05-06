@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.5
+// @version      2024.5.6.14
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -9,8 +9,8 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1360571/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1370737/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1371570/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -1795,8 +1795,9 @@
         @media screen and (orientation: landscape) {
             /* 右侧工具栏放大 */
             .basePlayerContainer .positionBox{
-                transform: scale(0.95) !important;
-                bottom: 42px !important;
+                // transform: scale(0.95) !important;
+                // bottom: 42px !important;
+                padding-right: 10px !important;
             }
         }
         /* 该设备是纵向的，即高度大于或等于宽度 */

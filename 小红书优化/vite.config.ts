@@ -1,131 +1,13 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
-import path from "path";
-import { SCRIPT_NAME } from "./vite.build"
-import Icons from 'unplugin-icons/dist/vite'
-import IconsResolver from 'unplugin-icons/dist/resolver'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-
-
-const Utils = {
-  /**
-   * 获取绝对路径
-   * @param pathName 
-   * @returns 
-   */
-  getAbsolutePath: (pathName: string) => {
-    return path.resolve(__dirname, pathName);
-  },
-  /**
-   * 时间格式化
-   * @param text 
-   * @param formatType 
-   * @param withZero 
-   * @returns 
-   */
-  formatTime: (
-    text = new Date(),
-    formatType = "yyyy-MM-dd HH:mm:ss",
-    withZero = true,
-  ) => {
-    let time = text == null ? new Date() : new Date(text);
-    /**
-     * 校验时间补0
-     * @param timeNum
-     * @returns
-     */
-    function checkTime(timeNum: number) {
-      if (!withZero) {
-        return timeNum
-      }
-      if (timeNum < 10) return "0" + timeNum;
-      return timeNum;
-    }
-    /**
-     * 时间制修改 24小时制转12小时制
-     * @param hourNum 小时
-     * @returns
-     */
-    function timeSystemChange(hourNum: number) {
-      return hourNum > 12 ? hourNum - 12 : hourNum;
-    }
-
-    let timeRegexp = {
-      yyyy: time.getFullYear(),
-      /* 年 */
-      MM: checkTime(time.getMonth() + 1),
-      /* 月 */
-      dd: checkTime(time.getDate()),
-      /* 日 */
-      HH: checkTime(time.getHours()),
-      /* 时 (24小时制) */
-      hh: checkTime(timeSystemChange(time.getHours())),
-      /* 时 (12小时制) */
-      mm: checkTime(time.getMinutes()),
-      /* 分 */
-      ss: checkTime(time.getSeconds()),
-      /* 秒 */
-    };
-    Object.keys(timeRegexp).forEach(function (key) {
-      let replaecRegexp = new RegExp(key, "g");
-      formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
-    });
-    return formatType;
-  },
-  /**
-   * 获取GreasyFork库的最新版本的链接
-   * @param libId 
-   */
-  async getGreasyForkLibLatestVersionUrl(libId: string | number) {
-    let scriptInfo = await fetch(`https://update.greasyfork.org/scripts/${libId}.json`).then((res) => res.json())
-    console.log(`获取库: ${scriptInfo?.name}`)
-    return scriptInfo?.code_url as string;
-  },
-}
-
-const currentTime = new Date();
-const VERSION = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
-const ResourceList: string[] = [];
-const ResourceMap: {
-  [key: string]: {
-    url: string | (() => Promise<string> | string),
-    localPath: string,
-  },
-} = {
-  "Viewer": {
-    localPath: "file://" + Utils.getAbsolutePath("./../库/Viewer/index.js"),
-    url: async () => {
-      return await Utils.getGreasyForkLibLatestVersionUrl(449471)
-    },
-  },
-  "Qmsg": {
-    localPath: "file://" + Utils.getAbsolutePath("./../库/Qmsg/index.js"),
-    url: async () => {
-      return await Utils.getGreasyForkLibLatestVersionUrl(462234)
-    },
-  },
-  "pops": {
-    localPath: "file://" + Utils.getAbsolutePath("./../库/pops/index.js"),
-    url: async () => {
-      return await Utils.getGreasyForkLibLatestVersionUrl(456485)
-    },
-  },
-  "Utils": {
-    localPath: "file://" + Utils.getAbsolutePath("./../库/Utils/index.js"),
-    url: async () => {
-      return await Utils.getGreasyForkLibLatestVersionUrl(455186)
-    },
-  },
-  "DOMUtils": {
-    localPath: "file://" + Utils.getAbsolutePath("./../库/DOMUtils/index.js"),
-    url: async () => {
-      return await Utils.getGreasyForkLibLatestVersionUrl(465772)
-    }
-  },
-}
+import { SCRIPT_NAME } from "./vite.build";
+import Icons from 'unplugin-icons/dist/vite';
+import IconsResolver from 'unplugin-icons/dist/resolver';
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import { Utils, GetLib } from "./vite.utils";
 
 
 let FILE_NAME = SCRIPT_NAME + ".user.js";
@@ -139,22 +21,14 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
-if (process.env.NODE_ENV === "development") {
-  Object.keys(ResourceMap).forEach(libName => {
-    ResourceList.push(ResourceMap[libName].localPath)
-  })
-} else {
-  for (const libName in ResourceMap) {
-    let item = ResourceMap[libName];
-    let url = item.url
-    if (typeof item.url === "function") {
-      url = await item.url();
-      ResourceList.push(url)
-    } else {
-      ResourceList.push(item.url)
-    }
-  }
-}
+const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+const RequireLib = await GetLib([
+  "Viewer",
+  "Qmsg",
+  "pops",
+  "Utils",
+  "DOMUtils",
+]);
 
 
 // https://vitejs.dev/config/
@@ -195,7 +69,7 @@ export default defineConfig({
         version: VERSION,
         author: "WhiteSevs",
         "run-at": "document-start",
-        require: ResourceList,
+        require: RequireLib,
         resource: {
           "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
         },
@@ -238,6 +112,42 @@ export default defineConfig({
           'element-plus': cdn.jsdelivr('ElementPlus', 'dist/index.full.min.js').concat(util.dataUrl("window.ElementPlus=ElementPlus;")),
           "@element-plus/icons-vue": cdn.jsdelivr("ElementPlusIconsVue", 'dist/index.iife.min.js').concat(util.dataUrl("window.ElementPlusIconsVue=ElementPlusIconsVue;"))
         },
+        cssSideEffects: () => {
+          return (cssText: string) => {
+            function addStyle(cssText: string) {
+              if (typeof cssText !== "string") {
+                throw new TypeError("cssText must be a string");
+              }
+              let cssNode = document.createElement("style");
+              cssNode.setAttribute("type", "text/css");
+              cssNode.innerHTML = cssText;
+              if (document.head) {
+                /* 插入head最后 */
+                document.head.appendChild(cssNode);
+              } else if (document.body) {
+                /* 插入body后 */
+                document.body.appendChild(cssNode);
+              } else if (document.documentElement.childNodes.length === 0) {
+                /* 插入#html第一个元素后 */
+                document.documentElement.appendChild(cssNode);
+              } else {
+                /* 插入head前面 */
+                document.documentElement.insertBefore(
+                  cssNode,
+                  document.documentElement.childNodes[0]
+                );
+              }
+              return cssNode;
+            }
+            // @ts-ignore
+            if (typeof GM_addStyle == 'function') {
+              // @ts-ignore
+              GM_addStyle(cssText);
+              return;
+            }
+            addStyle(cssText);
+          };
+        }
       },
     }),
   ],
