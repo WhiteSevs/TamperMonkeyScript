@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.6.14
+// @version      2024.5.6.19
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
@@ -12,11 +12,6 @@
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
 // @require      https://update.greasyfork.org/scripts/455186/1371570/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
-// @require      https://cdn.jsdelivr.net/npm/vue@3.4.26/dist/vue.global.prod.js
-// @require      data:application/javascript,window.Vue%3DVue%3B
-// @require      https://cdn.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @require      data:application/javascript,window.ElementPlusIconsVue%3DElementPlusIconsVue%3B
-// @resource     ElementPlusResourceCSS  https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue

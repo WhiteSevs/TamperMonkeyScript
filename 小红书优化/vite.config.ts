@@ -2,11 +2,6 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
 import { SCRIPT_NAME } from "./vite.build";
-import Icons from 'unplugin-icons/dist/vite';
-import IconsResolver from 'unplugin-icons/dist/resolver';
-import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import { Utils, GetLib } from "./vite.utils";
 
 
@@ -34,32 +29,6 @@ const RequireLib = await GetLib([
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
-    AutoImport({
-      // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
-      imports: ['vue'],
-      resolvers: [
-        // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
-        ElementPlusResolver(),
-        // 自动导入图标组件
-        IconsResolver({
-          prefix: 'Icon',
-        }),
-      ],
-    }),
-    Components({
-      resolvers: [
-        // 自动注册图标组件
-        IconsResolver({
-          enabledCollections: ['ep'],
-        }),
-        // 自动导入 Element Plus 组件
-        ElementPlusResolver()
-      ],
-    }),
-    Icons({
-      autoInstall: true,
-    }),
     monkey({
       entry: 'src/main.ts',
       userscript: {
@@ -70,9 +39,6 @@ export default defineConfig({
         author: "WhiteSevs",
         "run-at": "document-start",
         require: RequireLib,
-        resource: {
-          "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
-        },
 
 
         icon: 'https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico',
@@ -105,12 +71,6 @@ export default defineConfig({
         fileName: FILE_NAME,
         externalResource: {
           'element-plus/dist/index.css': cdn.jsdelivr(),
-        },
-        externalGlobals: {
-          "vue": cdn.jsdelivr('Vue', 'dist/vue.global.prod.js').concat(util.dataUrl("window.Vue=Vue;")),
-          "vue-router": cdn.jsdelivr('VueRouter', 'dist/vue-router.global.js').concat(util.dataUrl("window.VueRouter=VueRouter;")),
-          'element-plus': cdn.jsdelivr('ElementPlus', 'dist/index.full.min.js').concat(util.dataUrl("window.ElementPlus=ElementPlus;")),
-          "@element-plus/icons-vue": cdn.jsdelivr("ElementPlusIconsVue", 'dist/index.iife.min.js').concat(util.dataUrl("window.ElementPlusIconsVue=ElementPlusIconsVue;"))
         },
         cssSideEffects: () => {
           return (cssText: string) => {
