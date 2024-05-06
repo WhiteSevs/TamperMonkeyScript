@@ -433,16 +433,7 @@
       100%{-ms-transform:rotate(360deg)}
       }
       `;
-      let loadingViewCSSElement = document.createElement("style");
-      loadingViewCSSElement.setAttribute("type", "text/css");
-      loadingViewCSSElement.setAttribute("data-from", "loadingView");
-      loadingViewCSSElement.setAttribute("data-author", "whitesev");
-      loadingViewCSSElement.innerHTML = loadingViewCSSText;
-      if (document.documentElement.childNodes.length === 0) {
-        document.documentElement.appendChild(loadingViewCSSElement);
-      } else {
-        document.head.appendChild(loadingViewCSSElement);
-      }
+      _GM_addStyle(loadingViewCSSText);
     }
     /**
      * 初始化loadingView元素
