@@ -75,10 +75,6 @@ const Utils = {
         console.log(`获取库: ${scriptInfo?.name}`)
         return scriptInfo?.code_url as string;
     },
-    getVersion() {
-        const currentTime = new Date();
-        return `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
-    }
 }
 
 const LIB_MAP = {

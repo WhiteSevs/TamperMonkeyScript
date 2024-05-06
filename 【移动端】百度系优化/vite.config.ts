@@ -9,7 +9,8 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 
-const VERSION = Utils.getVersion();
+const currentTime = new Date();
+const VERSION = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
 
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
