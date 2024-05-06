@@ -731,17 +731,17 @@ match-attr##srcid##sp_purc_atom
     rule: [],
     init() {
       let localRule = this.getLocalRule();
+      if (PopsPanel.getValue("baidu-search-enable-default-interception-rules")) {
+        localRule = this.defaultRule + "\n\n" + localRule;
+      }
       this.rule = this.parseRule(localRule);
     },
     /** 获取本地存储的自定义拦截规则 */
     getLocalRule() {
       let localRule = PopsPanel.getValue(
         "baidu-search-interception-rules",
-        this.defaultRule
+        ""
       );
-      if (localRule === "") {
-        return this.defaultRule;
-      }
       localRule = localRule.trim();
       return localRule;
     },
@@ -1090,6 +1090,13 @@ match-attr##srcid##sp_purc_atom
         text: "自定义拦截规则<br><a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
         type: "forms",
         forms: [
+          UISwitch(
+            "启用默认拦截规则",
+            "baidu-search-enable-default-interception-rules",
+            true,
+            void 0,
+            "默认拦截规则"
+          ),
           {
             type: "own",
             afterAddToUListCallBack(formConfig, rightContainerOptions) {
@@ -1106,7 +1113,7 @@ match-attr##srcid##sp_purc_atom
                   let $textArea = rightContainerOptions.ulElement.querySelector(
                     "textarea"
                   );
-                  $textArea.value = BaiduSearchRule.defaultRule;
+                  $textArea.value = "";
                   Qmsg.success("已重置");
                 }
               );

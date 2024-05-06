@@ -63,17 +63,17 @@ match-attr##srcid##sp_purc_atom
     rule: [] as BaiduSearchRuleConfig[],
     init() {
         let localRule = this.getLocalRule();
+        if (PopsPanel.getValue("baidu-search-enable-default-interception-rules")) {
+            localRule = this.defaultRule + "\n\n" + localRule;
+        }
         this.rule = this.parseRule(localRule);
     },
     /** 获取本地存储的自定义拦截规则 */
     getLocalRule() {
         let localRule = PopsPanel.getValue(
             "baidu-search-interception-rules",
-            this.defaultRule
+            "",
         );
-        if (localRule === "") {
-            return this.defaultRule;
-        }
         localRule = localRule.trim();
         return localRule;
     },

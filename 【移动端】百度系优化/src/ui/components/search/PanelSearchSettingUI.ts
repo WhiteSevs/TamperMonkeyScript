@@ -210,6 +210,13 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
             text: "自定义拦截规则<br><a href='https://greasyfork.org/zh-CN/scripts/418349' target='_blank'>查看规则文档(在最下面)</><br><a href='javascript:;' class='baidu-search-shield-css-reset'>点击重置</a>",
             type: "forms",
             forms: [
+                UISwitch(
+                    "启用默认拦截规则",
+                    "baidu-search-enable-default-interception-rules",
+                    true,
+                    void 0,
+                    "默认拦截规则",
+                ),
                 {
                     type: "own",
                     afterAddToUListCallBack(formConfig, rightContainerOptions) {
@@ -225,7 +232,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
                                 let $textArea = rightContainerOptions.ulElement.querySelector(
                                     "textarea"
                                 );
-                                $textArea!.value = BaiduSearchRule.defaultRule;
+                                $textArea!.value = "";
                                 Qmsg.success("已重置");
                             }
                         );
