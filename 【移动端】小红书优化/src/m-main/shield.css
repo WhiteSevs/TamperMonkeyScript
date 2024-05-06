@@ -1,0 +1,8 @@
+/* 底部的App内打开 */
+.bottom-button-box,
+/* 顶部的打开看看 */
+.nav-bar-box,
+/* 首页-顶部的打开看看 */
+.launch-app-container {
+  display: none !important;
+}

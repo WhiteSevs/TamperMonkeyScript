@@ -1,0 +1,9 @@
+/* 用户主页 */
+/* 底部的-App内打开 */
+.launch-app-container.bottom-bar,
+/* 顶部的-打开看看 */
+.main-container > .scroll-view-container > .launch-app-container:first-child,
+/* 底部的-打开小红书看更多精彩内容 */
+.bottom-launch-app-tip.show-bottom-bar {
+  display: none !important;
+}
