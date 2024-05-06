@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
-import { SCRIPT_NAME, GetLib, Utils } from "./vite.build"
+import { SCRIPT_NAME } from "./vite.build"
 import Icons from 'unplugin-icons/dist/vite'
 import IconsResolver from 'unplugin-icons/dist/resolver'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { Utils, GetLib } from "./vite.utils"
 
 
 const currentTime = new Date();
@@ -23,6 +24,15 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
+const RequireLib = await GetLib([
+  "CoverUMD",
+  "Viewer",
+  "Qmsg",
+  "pops",
+  "Utils",
+  "DOMUtils",
+  "showdown"
+]);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -89,15 +99,7 @@ export default defineConfig({
           "GM_info",
           "unsafeWindow"
         ],
-        require: await GetLib([
-          "CoverUMD",
-          "Viewer",
-          "Qmsg",
-          "pops",
-          "Utils",
-          "DOMUtils",
-          "showdown"
-        ]),
+        require: RequireLib,
         resource: {
           "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
         },

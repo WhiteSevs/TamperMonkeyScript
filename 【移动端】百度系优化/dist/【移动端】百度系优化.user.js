@@ -588,172 +588,6 @@
       );
     }
   }
-  const path = {};
-  const Utils = {
-    /**
-     * 获取绝对路径
-     * @param pathName 
-     * @returns 
-     */
-    getAbsolutePath: (pathName) => {
-      return path.resolve(__dirname, pathName);
-    },
-    /**
-     * 时间格式化
-     * @param text 
-     * @param formatType 
-     * @param withZero 
-     * @returns 
-     */
-    formatTime: (text = /* @__PURE__ */ new Date(), formatType = "yyyy-MM-dd HH:mm:ss", withZero = true) => {
-      let time = text == null ? /* @__PURE__ */ new Date() : new Date(text);
-      function checkTime(timeNum) {
-        if (!withZero) {
-          return timeNum;
-        }
-        if (timeNum < 10)
-          return "0" + timeNum;
-        return timeNum;
-      }
-      function timeSystemChange(hourNum) {
-        return hourNum > 12 ? hourNum - 12 : hourNum;
-      }
-      let timeRegexp = {
-        yyyy: time.getFullYear(),
-        /* 年 */
-        MM: checkTime(time.getMonth() + 1),
-        /* 月 */
-        dd: checkTime(time.getDate()),
-        /* 日 */
-        HH: checkTime(time.getHours()),
-        /* 时 (24小时制) */
-        hh: checkTime(timeSystemChange(time.getHours())),
-        /* 时 (12小时制) */
-        mm: checkTime(time.getMinutes()),
-        /* 分 */
-        ss: checkTime(time.getSeconds())
-        /* 秒 */
-      };
-      Object.keys(timeRegexp).forEach(function(key) {
-        let replaecRegexp = new RegExp(key, "g");
-        formatType = formatType.replace(replaecRegexp, timeRegexp[key]);
-      });
-      return formatType;
-    },
-    /**
-     * 获取GreasyFork库的最新版本的链接
-     * @param libId 
-     */
-    async getGreasyForkLibLatestVersionUrl(libId) {
-      let scriptInfo = await fetch(`https://update.greasyfork.org/scripts/${libId}.json`).then((res) => res.json());
-      console.log(`获取库: ${scriptInfo == null ? void 0 : scriptInfo.name}`);
-      return scriptInfo == null ? void 0 : scriptInfo.code_url;
-    }
-  };
-  ({
-    "CoverUMD": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/CoverUMD/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(494167);
-      }
-    },
-    "Viewer": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/Viewer/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(449471);
-      }
-    },
-    "Qmsg": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/Qmsg/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(462234);
-      }
-    },
-    "pops": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/pops/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(456485);
-      }
-    },
-    "Utils": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/Utils/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(455186);
-      }
-    },
-    "DOMUtils": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/DOMUtils/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(465772);
-      }
-    },
-    "showdown": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/showdown/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(488179);
-      }
-    },
-    "Xtiper": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/Xtiper/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(449512);
-      }
-    },
-    "NZMsgBox": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/NZMsgBox/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(449562);
-      }
-    },
-    "js-watermark": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/js-watermark/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(452322);
-      }
-    },
-    "GM_html2canvas": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/html2canvas/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(456607);
-      }
-    },
-    "JS-分页插件": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/DataPaging/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(465550);
-      }
-    },
-    "Eruda": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/Eruda/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(483694);
-      }
-    },
-    "vConsole": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/VConsole/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(483695);
-      }
-    },
-    "PageSpy": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/PageSpy/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(483696);
-      }
-    },
-    "Leaflet": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/leaflet/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(483765);
-      }
-    },
-    "Crypto-JS": {
-      localPath: "file://" + Utils.getAbsolutePath("./../库/CryptoJS/index.js"),
-      url: async () => {
-        return await Utils.getGreasyForkLibLatestVersionUrl(486152);
-      }
-    }
-  });
   const SCRIPT_NAME$1 = "【移动端】百度系优化";
   const utils = (_a2 = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a2.noConflict();
   const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
@@ -9438,27 +9272,27 @@ div[class^="new-summary-container_"] {\r
     return "" + text;
   }
   const TRAILING_SLASH_RE = /\/$/;
-  const removeTrailingSlash = (path2) => path2.replace(TRAILING_SLASH_RE, "");
+  const removeTrailingSlash = (path) => path.replace(TRAILING_SLASH_RE, "");
   function parseURL(parseQuery2, location2, currentLocation = "/") {
-    let path2, query = {}, searchString = "", hash = "";
+    let path, query = {}, searchString = "", hash = "";
     const hashPos = location2.indexOf("#");
     let searchPos = location2.indexOf("?");
     if (hashPos < searchPos && hashPos >= 0) {
       searchPos = -1;
     }
     if (searchPos > -1) {
-      path2 = location2.slice(0, searchPos);
+      path = location2.slice(0, searchPos);
       searchString = location2.slice(searchPos + 1, hashPos > -1 ? hashPos : location2.length);
       query = parseQuery2(searchString);
     }
     if (hashPos > -1) {
-      path2 = path2 || location2.slice(0, hashPos);
+      path = path || location2.slice(0, hashPos);
       hash = location2.slice(hashPos, location2.length);
     }
-    path2 = resolveRelativePath(path2 != null ? path2 : location2, currentLocation);
+    path = resolveRelativePath(path != null ? path : location2, currentLocation);
     return {
-      fullPath: path2 + (searchString && "?") + searchString + hash,
-      path: path2,
+      fullPath: path + (searchString && "?") + searchString + hash,
+      path,
       query,
       hash: decode(hash)
     };
@@ -9582,9 +9416,9 @@ div[class^="new-summary-container_"] {\r
       window.scrollTo(scrollToOptions.left != null ? scrollToOptions.left : window.scrollX, scrollToOptions.top != null ? scrollToOptions.top : window.scrollY);
     }
   }
-  function getScrollKey(path2, delta) {
+  function getScrollKey(path, delta) {
     const position = history.state ? history.state.position - delta : -1;
-    return position + path2;
+    return position + path;
   }
   const scrollPositions = /* @__PURE__ */ new Map();
   function saveScrollPosition(key, scrollPosition) {
@@ -9606,8 +9440,8 @@ div[class^="new-summary-container_"] {\r
         pathFromHash = "/" + pathFromHash;
       return stripBase(pathFromHash, "");
     }
-    const path2 = stripBase(pathname, base);
-    return path2 + search + hash;
+    const path = stripBase(pathname, base);
+    return path + search + hash;
   }
   function useHistoryListeners(base, historyState, currentLocation, replace) {
     let listeners = [];
@@ -9893,8 +9727,8 @@ div[class^="new-summary-container_"] {\r
     else if (options.strict)
       pattern += "(?:/|$)";
     const re = new RegExp(pattern, options.sensitive ? "" : "i");
-    function parse(path2) {
-      const match = path2.match(re);
+    function parse(path) {
+      const match = path.match(re);
       const params = {};
       if (!match)
         return null;
@@ -9906,15 +9740,15 @@ div[class^="new-summary-container_"] {\r
       return params;
     }
     function stringify(params) {
-      let path2 = "";
+      let path = "";
       let avoidDuplicatedSlash = false;
       for (const segment of segments) {
-        if (!avoidDuplicatedSlash || !path2.endsWith("/"))
-          path2 += "/";
+        if (!avoidDuplicatedSlash || !path.endsWith("/"))
+          path += "/";
         avoidDuplicatedSlash = false;
         for (const token of segment) {
           if (token.type === 0) {
-            path2 += token.value;
+            path += token.value;
           } else if (token.type === 1) {
             const { value, repeatable, optional } = token;
             const param = value in params ? params[value] : "";
@@ -9925,19 +9759,19 @@ div[class^="new-summary-container_"] {\r
             if (!text) {
               if (optional) {
                 if (segment.length < 2) {
-                  if (path2.endsWith("/"))
-                    path2 = path2.slice(0, -1);
+                  if (path.endsWith("/"))
+                    path = path.slice(0, -1);
                   else
                     avoidDuplicatedSlash = true;
                 }
               } else
                 throw new Error(`Missing required param "${value}"`);
             }
-            path2 += text;
+            path += text;
           }
         }
       }
-      return path2 || "/";
+      return path || "/";
     }
     return {
       re,
@@ -9989,13 +9823,13 @@ div[class^="new-summary-container_"] {\r
     value: ""
   };
   const VALID_PARAM_RE = /[a-zA-Z0-9_]/;
-  function tokenizePath(path2) {
-    if (!path2)
+  function tokenizePath(path) {
+    if (!path)
       return [[]];
-    if (path2 === "/")
+    if (path === "/")
       return [[ROOT_TOKEN]];
-    if (!path2.startsWith("/")) {
-      throw new Error(`Invalid path "${path2}"`);
+    if (!path.startsWith("/")) {
+      throw new Error(`Invalid path "${path}"`);
     }
     function crash(message) {
       throw new Error(`ERR (${state})/"${buffer}": ${message}`);
@@ -10039,8 +9873,8 @@ div[class^="new-summary-container_"] {\r
     function addCharToBuffer() {
       buffer += char;
     }
-    while (i < path2.length) {
-      char = path2[i++];
+    while (i < path.length) {
+      char = path[i++];
       if (char === "\\" && state !== 2) {
         previousState = state;
         state = 4;
@@ -10152,11 +9986,11 @@ div[class^="new-summary-container_"] {\r
       let matcher;
       let originalMatcher;
       for (const normalizedRecord of normalizedRecords) {
-        const { path: path2 } = normalizedRecord;
-        if (parent && path2[0] !== "/") {
+        const { path } = normalizedRecord;
+        if (parent && path[0] !== "/") {
           const parentPath = parent.record.path;
           const connectingSlash = parentPath[parentPath.length - 1] === "/" ? "" : "/";
-          normalizedRecord.path = parent.record.path + (path2 && connectingSlash + path2);
+          normalizedRecord.path = parent.record.path + (path && connectingSlash + path);
         }
         matcher = createRouteRecordMatcher(normalizedRecord, parent, options);
         if (originalRecord) {
@@ -10219,7 +10053,7 @@ div[class^="new-summary-container_"] {\r
     function resolve(location2, currentLocation) {
       let matcher;
       let params = {};
-      let path2;
+      let path;
       let name;
       if ("name" in location2 && location2.name) {
         matcher = matcherMap.get(location2.name);
@@ -10240,12 +10074,12 @@ div[class^="new-summary-container_"] {\r
           // #1497 this ensures better active/exact matching
           location2.params && paramsFromLocation(location2.params, matcher.keys.map((k) => k.name))
         );
-        path2 = matcher.stringify(params);
+        path = matcher.stringify(params);
       } else if (location2.path != null) {
-        path2 = location2.path;
-        matcher = matchers2.find((m) => m.re.test(path2));
+        path = location2.path;
+        matcher = matchers2.find((m) => m.re.test(path));
         if (matcher) {
-          params = matcher.parse(path2);
+          params = matcher.parse(path);
           name = matcher.record.name;
         }
       } else {
@@ -10257,7 +10091,7 @@ div[class^="new-summary-container_"] {\r
           });
         name = matcher.record.name;
         params = assign({}, currentLocation.params, location2.params);
-        path2 = matcher.stringify(params);
+        path = matcher.stringify(params);
       }
       const matched = [];
       let parentMatcher = matcher;
@@ -10267,7 +10101,7 @@ div[class^="new-summary-container_"] {\r
       }
       return {
         name,
-        path: path2,
+        path,
         params,
         matched,
         meta: mergeMetaFields(matched)
@@ -12013,16 +11847,16 @@ div[class^="new-summary-container_"] {\r
     var result = value + "";
     return result == "0" && 1 / value == -INFINITY ? "-0" : result;
   }
-  function baseGet(object, path2) {
-    path2 = castPath(path2, object);
-    var index = 0, length = path2.length;
+  function baseGet(object, path) {
+    path = castPath(path, object);
+    var index = 0, length = path.length;
     while (object != null && index < length) {
-      object = object[toKey(path2[index++])];
+      object = object[toKey(path[index++])];
     }
     return index && index == length ? object : void 0;
   }
-  function get(object, path2, defaultValue) {
-    var result = object == null ? void 0 : baseGet(object, path2);
+  function get(object, path, defaultValue) {
+    var result = object == null ? void 0 : baseGet(object, path);
     return result === void 0 ? defaultValue : result;
   }
   function arrayPush(array, values) {
@@ -12062,11 +11896,11 @@ div[class^="new-summary-container_"] {\r
   function baseHasIn(object, key) {
     return object != null && key in Object(object);
   }
-  function hasPath(object, path2, hasFunc) {
-    path2 = castPath(path2, object);
-    var index = -1, length = path2.length, result = false;
+  function hasPath(object, path, hasFunc) {
+    path = castPath(path, object);
+    var index = -1, length = path.length, result = false;
     while (++index < length) {
-      var key = toKey(path2[index]);
+      var key = toKey(path[index]);
       if (!(result = object != null && hasFunc(object, key))) {
         break;
       }
@@ -12078,8 +11912,8 @@ div[class^="new-summary-container_"] {\r
     length = object == null ? 0 : object.length;
     return !!length && isLength(length) && isIndex(key, length) && (isArray(object) || isArguments(object));
   }
-  function hasIn(object, path2) {
-    return object != null && hasPath(object, path2, baseHasIn);
+  function hasIn(object, path) {
+    return object != null && hasPath(object, path, baseHasIn);
   }
   var now = function() {
     return root.Date.now();
@@ -12175,14 +12009,14 @@ div[class^="new-summary-container_"] {\r
     }
     return result;
   }
-  function baseSet(object, path2, value, customizer) {
+  function baseSet(object, path, value, customizer) {
     if (!isObject(object)) {
       return object;
     }
-    path2 = castPath(path2, object);
-    var index = -1, length = path2.length, lastIndex = length - 1, nested = object;
+    path = castPath(path, object);
+    var index = -1, length = path.length, lastIndex = length - 1, nested = object;
     while (nested != null && ++index < length) {
-      var key = toKey(path2[index]), newValue = value;
+      var key = toKey(path[index]), newValue = value;
       if (key === "__proto__" || key === "constructor" || key === "prototype") {
         return object;
       }
@@ -12190,7 +12024,7 @@ div[class^="new-summary-container_"] {\r
         var objValue = nested[key];
         newValue = void 0;
         if (newValue === void 0) {
-          newValue = isObject(objValue) ? objValue : isIndex(path2[index + 1]) ? [] : {};
+          newValue = isObject(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
         }
       }
       assignValue(nested, key, newValue);
@@ -12201,16 +12035,16 @@ div[class^="new-summary-container_"] {\r
   function basePickBy(object, paths, predicate) {
     var index = -1, length = paths.length, result = {};
     while (++index < length) {
-      var path2 = paths[index], value = baseGet(object, path2);
-      if (predicate(value, path2)) {
-        baseSet(result, castPath(path2, object), value);
+      var path = paths[index], value = baseGet(object, path);
+      if (predicate(value, path)) {
+        baseSet(result, castPath(path, object), value);
       }
     }
     return result;
   }
   function basePick(object, paths) {
-    return basePickBy(object, paths, function(value, path2) {
-      return hasIn(object, path2);
+    return basePickBy(object, paths, function(value, path) {
+      return hasIn(object, path);
     });
   }
   var pick = flatRest(function(object, paths) {
@@ -12627,8 +12461,8 @@ div[class^="new-summary-container_"] {\r
       }
     }
   };
-  const buildTranslator = (locale) => (path2, option) => translate(path2, option, vue.unref(locale));
-  const translate = (path2, option, locale) => get(locale, path2, path2).replace(/\{(\w+)\}/g, (_, key) => {
+  const buildTranslator = (locale) => (path, option) => translate(path, option, vue.unref(locale));
+  const translate = (path, option, locale) => get(locale, path, path).replace(/\{(\w+)\}/g, (_, key) => {
     var _a3;
     return `${(_a3 = option == null ? void 0 : option[key]) != null ? _a3 : `{${key}}`}`;
   });
