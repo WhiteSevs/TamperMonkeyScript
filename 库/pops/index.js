@@ -4331,7 +4331,7 @@
         display: block;
         resize: none;
         padding: 5px 11px;
-        line-height: 1.5;
+        line-height: 1;
         box-sizing: border-box;
         font-size: inherit;
         font-family: inherit;
