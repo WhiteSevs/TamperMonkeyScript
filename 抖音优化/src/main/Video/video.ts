@@ -334,8 +334,9 @@ const DouYinVideo = {
         @media screen and (orientation: landscape) {
             /* 右侧工具栏放大 */
             .basePlayerContainer .positionBox{
-                transform: scale(0.95) !important;
-                bottom: 42px !important;
+                // transform: scale(0.95) !important;
+                // bottom: 42px !important;
+                padding-right: 10px !important;
             }
         }
         /* 该设备是纵向的，即高度大于或等于宽度 */
