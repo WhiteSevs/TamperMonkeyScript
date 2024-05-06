@@ -12,8 +12,8 @@
 // @require      https://update.greasyfork.org/scripts/494167/1371335/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/449471/1360565/Viewer.js
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/456485/1360571/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1370737/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
+// @require      https://update.greasyfork.org/scripts/455186/1371570/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @require      https://update.greasyfork.org/scripts/488179/1360581/showdown.js
 // @require      https://cdn.jsdelivr.net/npm/vue@3.4.26/dist/vue.global.prod.js
