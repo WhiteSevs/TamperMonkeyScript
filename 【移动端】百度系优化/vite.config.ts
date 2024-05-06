@@ -120,32 +120,32 @@ export default defineConfig({
           "@element-plus/icons-vue": cdn.jsdelivr("ElementPlusIconsVue", 'dist/index.iife.min.js').concat(util.dataUrl("window.ElementPlusIconsVue=ElementPlusIconsVue;"))
         },
         cssSideEffects: () => {
-          function addStyle(cssText: string) {
-            if (typeof cssText !== "string") {
-              throw new TypeError("cssText must be a string");
-            }
-            let cssNode = document.createElement("style");
-            cssNode.setAttribute("type", "text/css");
-            cssNode.innerHTML = cssText;
-            if (document.head) {
-              /* 插入head最后 */
-              document.head.appendChild(cssNode);
-            } else if (document.body) {
-              /* 插入body后 */
-              document.body.appendChild(cssNode);
-            } else if (document.documentElement.childNodes.length === 0) {
-              /* 插入#html第一个元素后 */
-              document.documentElement.appendChild(cssNode);
-            } else {
-              /* 插入head前面 */
-              document.documentElement.insertBefore(
-                cssNode,
-                document.documentElement.childNodes[0]
-              );
-            }
-            return cssNode;
-          }
           return (cssText: string) => {
+            function addStyle(cssText: string) {
+              if (typeof cssText !== "string") {
+                throw new TypeError("cssText must be a string");
+              }
+              let cssNode = document.createElement("style");
+              cssNode.setAttribute("type", "text/css");
+              cssNode.innerHTML = cssText;
+              if (document.head) {
+                /* 插入head最后 */
+                document.head.appendChild(cssNode);
+              } else if (document.body) {
+                /* 插入body后 */
+                document.body.appendChild(cssNode);
+              } else if (document.documentElement.childNodes.length === 0) {
+                /* 插入#html第一个元素后 */
+                document.documentElement.appendChild(cssNode);
+              } else {
+                /* 插入head前面 */
+                document.documentElement.insertBefore(
+                  cssNode,
+                  document.documentElement.childNodes[0]
+                );
+              }
+              return cssNode;
+            }
             // @ts-ignore
             if (typeof GM_addStyle == 'function') {
               // @ts-ignore
