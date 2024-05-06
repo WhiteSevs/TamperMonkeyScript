@@ -90,37 +90,51 @@ const VERSION = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
 const ResourceList: string[] = [];
 const ResourceMap: {
   [key: string]: {
-    url: string,
+    url: string | (() => Promise<string> | string),
     localPath: string,
   },
 } = {
   "CoverUMD": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/CoverUMD/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(494167),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(494167)
+    },
   },
   "Viewer": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/Viewer/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(449471),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(449471)
+    },
   },
   "Qmsg": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/Qmsg/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(462234),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(462234)
+    },
   },
   "pops": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/pops/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(456485),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(456485)
+    },
   },
   "Utils": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/Utils/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(455186),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(455186)
+    },
   },
   "DOMUtils": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/DOMUtils/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(465772),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(465772)
+    }
   },
   "showdown": {
     localPath: "file://" + Utils.getAbsolutePath("./../库/showdown/index.js"),
-    url: await Utils.getGreasyForkLibLatestVersionUrl(488179),
+    url: async () => {
+      return await Utils.getGreasyForkLibLatestVersionUrl(488179)
+    },
   },
 }
 let FILE_NAME = SCRIPT_NAME + ".user.js";
@@ -139,9 +153,16 @@ if (process.env.NODE_ENV === "development") {
     ResourceList.push(ResourceMap[libName].localPath)
   })
 } else {
-  Object.keys(ResourceMap).forEach(libName => {
-    ResourceList.push(ResourceMap[libName].url)
-  })
+  for (const libName in ResourceMap) {
+    let item = ResourceMap[libName];
+    let url = item.url
+    if (typeof item.url === "function") {
+      url = await item.url();
+      ResourceList.push(url)
+    } else {
+      ResourceList.push(item.url)
+    }
+  }
 }
 // https://vitejs.dev/config/
 export default defineConfig({
