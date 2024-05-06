@@ -1,17 +1,13 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
-import path from "path";
-import { SCRIPT_NAME, GetLib, Utils } from "./vite.build"
+import { SCRIPT_NAME } from "./vite.build"
+import { GetLib, Utils } from "./vite.utils"
 import Icons from 'unplugin-icons/dist/vite'
 import IconsResolver from 'unplugin-icons/dist/resolver'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-
-
-const currentTime = new Date();
-const VERSION = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
 
 
 let FILE_NAME = SCRIPT_NAME + ".user.js";
@@ -25,6 +21,7 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
+const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
 
 // https://vitejs.dev/config/
 export default defineConfig({

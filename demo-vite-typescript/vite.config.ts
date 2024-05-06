@@ -1,11 +1,7 @@
 import { defineConfig } from 'vite';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
-import { SCRIPT_NAME, GetLib, Utils } from "./vite.build"
-
-
-
-const currentTime = new Date();
-const VERSION = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
+import { SCRIPT_NAME } from "./vite.build"
+import { Utils, GetLib } from "./vite.utils"
 
 
 let FILE_NAME = SCRIPT_NAME + ".user.js";
@@ -19,7 +15,7 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
-
+const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
 
 // https://vitejs.dev/config/
 export default defineConfig({
