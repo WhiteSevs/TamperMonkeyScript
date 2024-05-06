@@ -10,8 +10,6 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { Utils, GetLib } from "./vite.utils"
 
 
-const currentTime = new Date();
-const VERSION = `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`;
 
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
@@ -24,6 +22,7 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
+const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
 const RequireLib = await GetLib([
   "CoverUMD",
   "Viewer",

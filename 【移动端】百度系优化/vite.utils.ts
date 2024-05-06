@@ -1,5 +1,5 @@
 import path from "path";
-
+import fs from "fs"
 const Utils = {
     /**
      * 获取绝对路径
@@ -11,6 +11,14 @@ const Utils = {
     },
     /**
      * 时间格式化
+     * 
+     * + `yyyy` 年
+     * + `MM` 月
+     * + `dd` 日
+     * + `HH` 时(24小时制)
+     * + `hh` 时(12小时制)
+     * + `mm` 分
+     * + `ss` 秒
      * @param text 
      * @param formatType 
      * @param withZero 
@@ -74,6 +82,51 @@ const Utils = {
         console.log(`获取库: ${scriptInfo?.name}`)
         return scriptInfo?.code_url as string;
     },
+    /**
+     * 获取脚本版本号
+     * @param useFileVersion 直接使用Version文件的版本号
+     */
+    getScriptVersion(useFileVersion: boolean = false) {
+        let SCRIPT_VERSION_PATH = Utils.getAbsolutePath("./SCRIPT_VERSION.json");
+        let currentTime = new Date();
+        let versionInfo = {
+            "time": currentTime.getTime(),
+            "version": `${Utils.formatTime(currentTime, "yyyy.MM.dd", false)}`
+        }
+        try {
+            /* 版本号文件存在 */
+            let fileInfo = fs.readFileSync(SCRIPT_VERSION_PATH, { encoding: "utf-8" });
+            let fileVersionInfo = JSON.parse(fileInfo);
+            let fileVersionTime = new Date(fileVersionInfo["time"]);
+            let fileVersionTimeNumber = fileVersionTime.getTime();
+            if (useFileVersion) {
+                console.log("直接使用文件的版本号: " + fileVersionInfo["version"]);
+                return fileVersionInfo["version"];
+            }
+            if (fileVersionTimeNumber <= versionInfo.time) {
+                /* 过去 */
+                if (fileVersionTime.getFullYear() === currentTime.getFullYear() &&
+                    fileVersionTime.getMonth() === currentTime.getMonth() &&
+                    fileVersionTime.getDate() === currentTime.getDate()
+                ) {
+                    /* 今天 */
+                    versionInfo.version = `${Utils.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`
+                } else {
+                    /* 昨天、前天... */
+
+                }
+            } else {
+                /* 未来？啊？怎么可能 */
+            }
+        } catch (error) {
+            /* 版本号文件不存在 */
+        }
+        fs.writeFileSync(SCRIPT_VERSION_PATH, JSON.stringify(versionInfo), {
+            encoding: "utf-8"
+        })
+        console.log("版本号: " + versionInfo.version);
+        return versionInfo.version;
+    }
 }
 
 
