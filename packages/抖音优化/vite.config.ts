@@ -2,9 +2,9 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import monkey, { cdn } from 'vite-plugin-monkey';
 import { SCRIPT_NAME } from "./vite.build";
-import { Utils, GetLib } from "./vite.utils";
+import { ViteUtils, GetLib } from "./vite.utils";
 
-
+const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
 let isMinify = false;
@@ -106,8 +106,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@库": Utils.getAbsolutePath("./库"),
-      '@': Utils.getAbsolutePath('./src', __dirname)
+      "@库": Utils.getAbsolutePath("./../../库"),
+      '@': Utils.getAbsolutePath('./src')
     }
   },
   build: {

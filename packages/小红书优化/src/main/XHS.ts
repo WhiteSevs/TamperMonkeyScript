@@ -3,20 +3,22 @@ import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { XHS_Shield } from "./XHS_Shield";
 import { XHS_Hook } from "@/hook/hook";
+import { XHS_Article } from "./article/XHS_Article";
 
 
 const XHS = {
     init() {
-        XHS_Shield.init();
-        PopsPanel.execMenu("pc-xhs-allowCopy", () => {
-            XHS.allowPCCopy();
-        })
         PopsPanel.execMenu("pc-xhs-hook-vue", () => {
             XHS_Hook.webPackVue();
+        })
+        PopsPanel.execMenu("pc-xhs-allowCopy", () => {
+            XHS.allowPCCopy();
         })
         PopsPanel.execMenu("pc-xhs-open-blank-article", () => {
             XHS.openBlankArticle();
         })
+        XHS_Shield.init();
+        XHS_Article.init();
     },
     /**
      * 允许复制

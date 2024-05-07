@@ -10,7 +10,7 @@ interface PageInfo {
 interface LzlPageInfo extends PageInfo {
 
 }
-const XiaoHongShuApi = {
+const XHSApi = {
     /**
      * 获取页信息
      */
@@ -79,8 +79,39 @@ const XiaoHongShuApi = {
             Qmsg.error(data["msg"]);
         }
     },
+    /**
+     * 获取搜索推荐内容
+     * @param searchText 
+     */
+    async getSearchRecommend(searchText: string) {
+        let getResp = await httpx.get(`https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`, {
+            fetch: true
+        })
+        if (!getResp.status) {
+            return;
+        }
+        let data = utils.toJSON<{
+            code: number,
+            data: {
+                search_cpl_id: string,
+                sug_items: {
+                    highlight_flags: boolean[],
+                    search_type: "notes" | string,
+                    text: string,
+                    type: "top_note" | string,
+                }[],
+                word_request_id: string,
+            },
+            msg: string,
+            success: boolean,
+        }>(getResp.data.responseText);
+        if (!(data.success || data.code === 1000)) {
+            return;
+        }
+        return data.data.sug_items;
+    }
 };
 
 export {
-    XiaoHongShuApi
+    XHSApi
 }

@@ -294,6 +294,33 @@
         ]
       },
       {
+        text: "搜索",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "允许搜索",
+            "pc-xhs-search-enable",
+            false,
+            void 0,
+            "可以在不登录的情况下进行搜索"
+          ),
+          UISwitch(
+            "新标签页打开-搜索按钮",
+            "pc-xhs-search-open-blank-btn",
+            false,
+            void 0,
+            "点击右边的搜索按钮直接新标签页打开搜索内容"
+          ),
+          UISwitch(
+            "新标签页打开-回车键",
+            "pc-xhs-search-open-blank-keyboard-enter",
+            false,
+            void 0,
+            "按下回车键直接新标签页打开搜索内容"
+          )
+        ]
+      },
+      {
         text: "劫持/拦截",
         type: "forms",
         forms: [
@@ -740,7 +767,7 @@
       return globalThis.location.pathname.startsWith("/search_result/");
     }
   };
-  const XiaoHongShuApi = {
+  const XHSApi = {
     /**
      * 获取页信息
      */
@@ -796,6 +823,23 @@
       } else {
         Qmsg.error(data["msg"]);
       }
+    },
+    /**
+     * 获取搜索推荐内容
+     * @param searchText 
+     */
+    async getSearchRecommend(searchText) {
+      let getResp = await httpx.get(`https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`, {
+        fetch: true
+      });
+      if (!getResp.status) {
+        return;
+      }
+      let data = utils.toJSON(getResp.data.responseText);
+      if (!(data.success || data.code === 1e3)) {
+        return;
+      }
+      return data.data.sug_items;
     }
   };
   const MXHS_ArticleShield = {
@@ -1020,7 +1064,7 @@
               });
               async function showMoreEvent() {
                 let QmsgLoading = Qmsg.loading("加载中，请稍后...");
-                let pageInfo = await XiaoHongShuApi.getLzlPageInfo(
+                let pageInfo = await XHSApi.getLzlPageInfo(
                   Comments.noteData["id"],
                   id,
                   10,
@@ -1095,7 +1139,7 @@
           if (this.QmsgLoading == null) {
             this.QmsgLoading = Qmsg.loading("加载中，请稍后...");
           }
-          let pageInfo = await XiaoHongShuApi.getPageInfo(
+          let pageInfo = await XHSApi.getPageInfo(
             Comments.noteData["id"],
             Comments.currentCursor
           );
@@ -1258,7 +1302,7 @@
           innerHTML: `共 ${Comments.noteData["comments"]} 条评论`
         });
         commentContainer.appendChild(totalElement);
-        let pageInfo = await XiaoHongShuApi.getPageInfo(
+        let pageInfo = await XHSApi.getPageInfo(
           Comments.noteData["id"]
         );
         await utils.sleep(800);
@@ -1468,18 +1512,79 @@
         `);
     }
   };
+  const XHSUrlApi = {
+    /**
+     * 获取搜索链接
+     * @param searchText 
+     * @returns 
+     */
+    getSearchUrl(searchText) {
+      return `https://www.xiaohongshu.com/search_result?keyword=${searchText}&source=web_explore_feed`;
+    }
+  };
+  const XHS_Article = {
+    init() {
+      PopsPanel.execMenu("pc-xhs-search-enable", () => {
+        this.allowSearch();
+      });
+    },
+    /**
+     * 允许未登录的情况下进行搜索
+     */
+    allowSearch() {
+      log.info("允许未登录的情况下进行搜索");
+      function blankSearchText(searchText, isBlank = true) {
+        {
+          let $searchText = document.querySelector("#search-input");
+          if ($searchText) {
+            let searchText2 = $searchText.value;
+            let searchUrl = XHSUrlApi.getSearchUrl(searchText2);
+            log.info("搜索内容: " + searchText2);
+            window.open(searchUrl, isBlank ? "_blank" : "_self");
+          } else {
+            Qmsg.error("未找到搜索的输入框");
+          }
+        }
+      }
+      utils.waitNode("#search-input").then(($searchInput) => {
+        $searchInput.placeholder = "搜索小红书";
+        PopsPanel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
+          utils.listenKeyboard($searchInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
+            if (keyName === "Enter" && !otherCodeList.length) {
+              log.info("按下回车键");
+              utils.preventEvent(event);
+              $searchInput.blur();
+              blankSearchText();
+            }
+          });
+        });
+      });
+      utils.waitNode("#search-input + .input-button .search-icon").then(($btn) => {
+        PopsPanel.execMenu("pc-xhs-search-open-blank-btn", () => {
+          DOMUtils.on($btn, "click", (event) => {
+            utils.preventEvent(event);
+            log.info("点击搜索按钮");
+            blankSearchText();
+          }, {
+            capture: true
+          });
+        });
+      });
+    }
+  };
   const XHS = {
     init() {
-      XHS_Shield.init();
-      PopsPanel.execMenu("pc-xhs-allowCopy", () => {
-        XHS.allowPCCopy();
-      });
       PopsPanel.execMenu("pc-xhs-hook-vue", () => {
         XHS_Hook.webPackVue();
+      });
+      PopsPanel.execMenu("pc-xhs-allowCopy", () => {
+        XHS.allowPCCopy();
       });
       PopsPanel.execMenu("pc-xhs-open-blank-article", () => {
         XHS.openBlankArticle();
       });
+      XHS_Shield.init();
+      XHS_Article.init();
     },
     /**
      * 允许复制

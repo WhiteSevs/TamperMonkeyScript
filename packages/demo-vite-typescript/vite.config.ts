@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import monkey, { cdn, util } from 'vite-plugin-monkey';
 import { SCRIPT_NAME } from "./vite.build"
-import { Utils, GetLib } from "./vite.utils"
+import { ViteUtils, GetLib } from "./vite.utils"
 
-
+const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
 let isMinify = false;
@@ -39,6 +39,36 @@ export default defineConfig({
         resource: {
           "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
         },
+
+
+        icon: '',
+        description: 'demo desc',
+        match: [
+          '*://*/*'
+        ],
+        connect: [
+          "*"
+        ],
+        grant: [
+          "GM_addStyle",
+          "GM_registerMenuCommand",
+          "GM_unregisterMenuCommand",
+          "GM_getValue",
+          "GM_setValue",
+          "GM_deleteValue",
+          "GM_xmlhttpRequest",
+          "GM_info",
+          "unsafeWindow"
+        ],
+      },
+      clientAlias: "ViteGM",
+      server: {
+        mountGmApi: false,
+        open: true,
+      },
+      build: {
+        autoGrant: true,
+        fileName: FILE_NAME,
         cssSideEffects: () => {
           return (cssText: string) => {
             function addStyle(cssText: string) {
@@ -75,43 +105,13 @@ export default defineConfig({
             addStyle(cssText);
           };
         },
-
-
-        icon: '',
-        description: 'demo desc',
-        match: [
-          '*://*/*'
-        ],
-        connect: [
-          "*"
-        ],
-        grant: [
-          "GM_addStyle",
-          "GM_registerMenuCommand",
-          "GM_unregisterMenuCommand",
-          "GM_getValue",
-          "GM_setValue",
-          "GM_deleteValue",
-          "GM_xmlhttpRequest",
-          "GM_info",
-          "unsafeWindow"
-        ],
-      },
-      clientAlias: "ViteGM",
-      server: {
-        mountGmApi: false,
-        open: true,
-      },
-      build: {
-        autoGrant: true,
-        fileName: FILE_NAME,
       },
     }),
   ],
   resolve: {
     alias: {
-      "@库": Utils.getAbsolutePath("./库"),
-      '@': Utils.getAbsolutePath('./src', __dirname),
+      "@库": Utils.getAbsolutePath("./../../库"),
+      '@': Utils.getAbsolutePath('./src'),
     },
   },
   build: {

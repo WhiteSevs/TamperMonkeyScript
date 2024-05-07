@@ -1,4 +1,4 @@
-import { XiaoHongShuApi } from "@/api/XiaoHongShuApi";
+import { XHSApi } from "@/api/XHSApi";
 import { DOMUtils, Qmsg, Viewer, log, utils } from "@/env";
 import { XHS_Hook } from "@/hook/hook";
 import { PopsPanel } from "@/setting/setting";
@@ -190,7 +190,7 @@ const MXHS_Article = {
                         });
                         async function showMoreEvent() {
                             let QmsgLoading = Qmsg.loading("加载中，请稍后...");
-                            let pageInfo = await XiaoHongShuApi.getLzlPageInfo(
+                            let pageInfo = await XHSApi.getLzlPageInfo(
                                 Comments.noteData["id"] as string,
                                 id,
                                 10,
@@ -270,7 +270,7 @@ const MXHS_Article = {
                 if (this.QmsgLoading == null) {
                     this.QmsgLoading = Qmsg.loading("加载中，请稍后...");
                 }
-                let pageInfo = await XiaoHongShuApi.getPageInfo(
+                let pageInfo = await XHSApi.getPageInfo(
                     Comments.noteData["id"],
                     Comments.currentCursor
                 );
@@ -436,7 +436,7 @@ const MXHS_Article = {
                 innerHTML: `共 ${Comments.noteData["comments"]} 条评论`,
             });
             commentContainer.appendChild(totalElement);
-            let pageInfo = await XiaoHongShuApi.getPageInfo(
+            let pageInfo = await XHSApi.getPageInfo(
                 Comments.noteData["id"]
             );
             /* 延迟一会儿 */
