@@ -5,20 +5,30 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
-    //"noImplicitAny": true,
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "noEmit": true,
+    /* 上面是初始化默认的 */
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "checkJs": false,
-    "noEmit": true,
-    "sourceMap": true
+    "checkJs": true,
+    "sourceMap": true,
+    "paths": {
+      "@库/*": ["./../../库/*"],
+      "@/*": ["./src/*"]
+    },
+    "types": [
+      "./src/env.d.ts",
+      "./../../库/pops/core.d.ts",
+      "./../../库/Utils/core.d.ts",
+      "./../../库/DOMUtils/core.d.ts"
+    ]
   },
-  "exclude": ["./油猴api适配/*"],
+  "include": ["src"],
   "references": [
     {
       "path": "./tsconfig.node.json"
