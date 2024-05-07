@@ -3574,7 +3574,7 @@ interface Utils {
      *  console.log(elementList[1]); // a.xxx => HTMLElement
      * })
      */
-    waitNode(nodeSelector: string): Promise<HTMLElement>;
+    waitNode<T extends HTMLElement>(nodeSelector: string): Promise<T>;
     /**
      * 等待指定元素出现，支持多个selector
      * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
@@ -3588,7 +3588,7 @@ interface Utils {
      *  console.log(elementList[1]); // a.xxx => HTMLElement
      * })
      */
-    waitNode(...nodeSelectors: string[]): Promise<HTMLElement | HTMLElement[]>;
+    waitNode<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T | T[]>;
     /**
      * 在规定时间内，等待任意元素出现，支持多个selector，如果未出现，则关闭监听
      * @param nodeSelectorsList 一个或多个节点选择器，必须为字符串类型
@@ -3603,7 +3603,7 @@ interface Utils {
      *   console.log(elementList[1]); // a.xxx => HTMLElement
      * })
      */
-    waitNodeWithInterval(nodeSelectorsList?: string[] | string, maxTime?: number): Promise<HTMLElement | HTMLElement[]>;
+    waitNodeWithInterval<T extends HTMLElement>(nodeSelectorsList?: string[] | string, maxTime?: number): Promise<T | T[]>;
     /**
      * 等待任意元素出现，支持多个selector
      * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
@@ -3612,7 +3612,7 @@ interface Utils {
      *   console.log(element); // a.xxx => HTMLElement
      * })
      */
-    waitAnyNode(...nodeSelectors: any[]): Promise<HTMLElement>;
+    waitAnyNode<T extends HTMLElement>(...nodeSelectors: any[]): Promise<T>;
     /**
      * 等待指定元素出现，支持多个selector
      * @param nodeSelectors
@@ -3631,7 +3631,7 @@ interface Utils {
      *  console.log(nodeListArray[1]) // a.xxx => NodeList
      * })
      */
-    waitNodeList(...nodeSelectors: string[]): Promise<NodeList | NodeList[]>;
+    waitNodeList<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T | NodeListOf<T>[]>;
     /**
      * 等待任意元素出现，支持多个selector
      * @param nodeSelectors
@@ -3646,7 +3646,7 @@ interface Utils {
      *  console.log(nodeList) // a.xxx => NodeList
      * })
      */
-    waitAnyNodeList(...nodeSelectors: string[]): Promise<NodeList>;
+    waitAnyNodeList<T extends HTMLElement>(...nodeSelectors: string[]): Promise<NodeListOf<T>[]>;
     /**
      * 等待对象上的属性出现
      * @param checkObj 检查的对象

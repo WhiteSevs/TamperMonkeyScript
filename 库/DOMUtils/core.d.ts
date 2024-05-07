@@ -604,10 +604,10 @@ interface DOMUtils {
      *    console.log("事件触发",event)
      * })
      */
-    on(
+    on<T extends Event>(
         element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        callback: (event: Event | PointerEvent | MouseEvent) => void,
+        callback: (event: T) => void,
         option?: boolean | AddEventListenerOptions,
     ): void;
     /**
@@ -634,11 +634,11 @@ interface DOMUtils {
      *    console.log("事件触发",event)
      * })
      */
-    on(
+    on<T extends Event>(
         element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         selector: string | undefined,
-        callback: (event: Event | MouseEvent | PointerEvent) => void,
+        callback: (event: T) => void,
         option?: boolean | AddEventListenerOptions,
     ): void;
     /**
@@ -663,10 +663,10 @@ interface DOMUtils {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off(
+    off<T extends Event>(
         element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
-        callback: (event: Event) => void,
+        callback: (event: T) => void,
     ): void;
     /**
      * 取消绑定事件
@@ -682,11 +682,11 @@ interface DOMUtils {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off(
+    off<T extends Event>(
         element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null,
         eventType: DOMUtils_EventType | DOMUtils_EventType[],
         selector?: string | undefined,
-        callback?: (event: Event) => void,
+        callback?: (event: T) => void,
         option?: boolean | AddEventListenerOptions,
         filter?: (
             value: DOMUtilsEventListenerOptionsAttribute,
