@@ -11,5 +11,5 @@ y.pub
 油猴模板-本地调试.js
 node_modules
 pnpm-lock.yaml
-test-hook-network/*
-test-hook-baidu/*
+packages/test-hook-network/*
+packages/test-hook-baidu/*
