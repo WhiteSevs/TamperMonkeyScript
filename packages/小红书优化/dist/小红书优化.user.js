@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.7
+// @version      2024.5.7.21
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
@@ -297,13 +297,6 @@
         text: "搜索",
         type: "forms",
         forms: [
-          UISwitch(
-            "允许搜索",
-            "pc-xhs-search-enable",
-            false,
-            void 0,
-            "可以在不登录的情况下进行搜索"
-          ),
           UISwitch(
             "新标签页打开-搜索按钮",
             "pc-xhs-search-open-blank-btn",
@@ -1524,15 +1517,14 @@
   };
   const XHS_Article = {
     init() {
-      PopsPanel.execMenu("pc-xhs-search-enable", () => {
-        this.allowSearch();
-      });
+      if (PopsPanel.getValue("pc-xhs-search-open-blank-btn") || PopsPanel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
+        this.optimizationSearch();
+      }
     },
     /**
-     * 允许未登录的情况下进行搜索
+     * 优化搜索
      */
-    allowSearch() {
-      log.info("允许未登录的情况下进行搜索");
+    optimizationSearch() {
       function blankSearchText(searchText, isBlank = true) {
         {
           let $searchText = document.querySelector("#search-input");

@@ -4,15 +4,17 @@ import { PopsPanel } from "@/setting/setting"
 
 const XHS_Article = {
     init() {
-        PopsPanel.execMenu("pc-xhs-search-enable", () => {
-            this.allowSearch();
-        })
+        if (
+            PopsPanel.getValue("pc-xhs-search-open-blank-btn") ||
+            PopsPanel.getValue("pc-xhs-search-open-blank-keyboard-enter")
+        ) {
+            this.optimizationSearch();
+        }
     },
     /**
-     * 允许未登录的情况下进行搜索
+     * 优化搜索
      */
-    allowSearch() {
-        log.info("允许未登录的情况下进行搜索");
+    optimizationSearch() {
         function blankSearchText(searchText?: string, isBlank: boolean = true) {
             if (searchText == null) {
                 let $searchText = document.querySelector<HTMLInputElement>("#search-input");

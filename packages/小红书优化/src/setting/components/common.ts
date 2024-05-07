@@ -29,13 +29,6 @@ const SettingUI_Common: PopsPanelContentConfig = {
             type: "forms",
             forms: [
                 UISwitch(
-                    "允许搜索",
-                    "pc-xhs-search-enable",
-                    false,
-                    void 0,
-                    "可以在不登录的情况下进行搜索",
-                ),
-                UISwitch(
                     "新标签页打开-搜索按钮",
                     "pc-xhs-search-open-blank-btn",
                     false,
