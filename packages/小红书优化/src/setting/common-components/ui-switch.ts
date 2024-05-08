@@ -36,11 +36,10 @@ const UISwitch = function (
         },
         afterAddToUListCallBack: void 0,
     };
-    // @ts-ignore
-    result.attributes[ATTRIBUTE_KEY] = key;
-    // @ts-ignore
-    result.attributes[ATTRIBUTE_DEFAULT_VALUE] =
-        Boolean(defaultValue);
+    if (result.attributes) {
+        result.attributes[ATTRIBUTE_KEY] = key;
+        result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
     return result;
 };
 

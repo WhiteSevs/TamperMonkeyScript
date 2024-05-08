@@ -1,3 +1,4 @@
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 import { PopsPanel } from "../setting";
 
 /**
@@ -18,13 +19,10 @@ const UIInput = function (
     defaultValue: string,
     callback?: ((event: InputEvent, value: string) => boolean) | undefined,
 ): PopsPanelInputDetails {
-    return {
+    let result: PopsPanelInputDetails = {
         text: text,
         type: "input",
-        attributes: {
-            "data-key": key,
-            "data-default-value": defaultValue,
-        },
+        attributes: {} as { [key: string]: any },
         description: description,
         getValue() {
             let localValue = PopsPanel.getValue(key, defaultValue);
@@ -40,6 +38,11 @@ const UIInput = function (
         },
         placeholder: placeholder,
     };
+    if (result.attributes) {
+        result.attributes[ATTRIBUTE_KEY] = key;
+        result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
+    return result;
 }
 export {
     UIInput

@@ -1,4 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 
 
 /**
@@ -26,10 +27,7 @@ const UIInput = function (
         type: "input",
         isNumber: Boolean(isNumber),
         isPassword: Boolean(isPassword),
-        attributes: {
-            "data-key": key,
-            "data-default-value": defaultValue,
-        },
+        attributes: {} as { [key: string]: any },
         description: description,
         getValue() {
             let localValue = PopsPanel.getValue(key, defaultValue);
@@ -45,6 +43,10 @@ const UIInput = function (
         },
         placeholder: placeholder,
     };
+    if (result.attributes) {
+        result.attributes[ATTRIBUTE_KEY] = key;
+        result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
     return result;
 };
 

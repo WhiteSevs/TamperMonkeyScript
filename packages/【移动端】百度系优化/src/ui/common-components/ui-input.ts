@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "..";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 
 
@@ -45,7 +45,8 @@ const UIInput = function (
     };
     if (result.attributes) {
         result.attributes[ATTRIBUTE_KEY] = key;
-        result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+        result.attributes[ATTRIBUTE_DEFAULT_VALUE] =
+            Boolean(defaultValue);
     }
     return result;
 };

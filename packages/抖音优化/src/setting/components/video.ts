@@ -16,9 +16,8 @@ const PanelVideoConfig: PopsPanelContentConfig =
             text: "功能",
             type: "forms",
             forms: [
-                UISelect(
+                UISelect<number>(
                     "清晰度",
-                    "自行选择清晰度",
                     "chooseVideoDefinition",
                     1,
                     [
@@ -44,6 +43,7 @@ const PanelVideoConfig: PopsPanelContentConfig =
                         },
                     ],
                     void 0,
+                    "自行选择清晰度",
                 ),
                 UISwitch(
                     "视频解析",
