@@ -131,7 +131,7 @@ type PopsPanelFormsTotalDetails =
     | PopsPanelSliderDetails
     | PopsPanelInputDetails
     | PopsPanelTextAreaDetails
-    | PopsPanelSelectDetails
+    | PopsPanelSelectDetails<any>
     | PopsPanelButtonDetails
     | PopsPanelOwnDetails
 
@@ -765,7 +765,7 @@ declare interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails {
 /**
  * pops.panel的 select
  */
-declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
+declare interface PopsPanelSelectDetails<T extends any> extends PopsPanelCommonDetails {
     /**
      * （可选）className属性
      */
@@ -797,14 +797,14 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
     /**
      * 获取该项的值的回调函数
      */
-    getValue(): string;
+    getValue(): T;
     /**
      * 选择器的值改变触发的回调函数
      * @param event 事件
      * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
      * @param isSelectedText 当前选中的文本
      */
-    callback?(event: PointerEvent | TouchEvent, isSelectedValue: string, isSelectedText: string): void;
+    callback?(event: PointerEvent | TouchEvent, isSelectedValue: T, isSelectedText: string): void;
     /**
      * 点击select元素触发该回调
      * @param event 点击事件
@@ -818,7 +818,7 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
         /**
          * 真正的值
          */
-        value: any;
+        value: T;
         /**
          * 显示的文字
          */
@@ -829,7 +829,7 @@ declare interface PopsPanelSelectDetails extends PopsPanelCommonDetails {
          * + 点击select元素
          * + select元素触发change事件
          */
-        disable?(value: any): boolean;
+        disable?(value: T): boolean;
     }[];
 }
 /**
