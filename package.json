@@ -16,13 +16,13 @@
     "preview": "vue-tsc --noEmit && vite preview"
   },
   "dependencies": {
-    "vue": "^3.4.26",
-    "vue-router": "^4.3.2",
     "@element-plus/icons-vue": "^2.3.1",
-    "viewerjs": "^1.11.6"
+    "viewerjs": "^1.11.6",
+    "vue": "^3.4.27",
+    "vue-router": "^4.3.2"
   },
   "devDependencies": {
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.10",
     "@vitejs/plugin-vue": "^5.0.4",
     "element-plus": "^2.7.2",
     "typescript": "^5.4.5",
