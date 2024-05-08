@@ -194,6 +194,7 @@ const TiebaCore = {
         utils
             .waitNode("div.main-page-wrap .main-thread-content .user-line")
             .then((element) => {
+                log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页")
                 DOMUtils.on(element, "click", function () {
                     let vueInfo =
                         CommonUtil.getVue(element.parentElement) ||

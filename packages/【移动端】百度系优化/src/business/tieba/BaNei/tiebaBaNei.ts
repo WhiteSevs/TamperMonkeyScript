@@ -13,18 +13,18 @@ const TiebaBaNei = {
      */
     vueRootView: null as unknown as Vue2Context,
     init() {
-        if (PopsPanel.getValue("baidu_tieba_openANewTab")) {
+        PopsPanel.execMenu("baidu_tieba_openANewTab", () => {
             TiebaBaNei.openANewTab();
-        }
-        if (PopsPanel.getValue("baidu_tieba_remember_user_post_sort")) {
+        })
+        PopsPanel.execMenu("baidu_tieba_remember_user_post_sort", () => {
             TiebaBaNei.rememberPostSort();
-        }
-        if (PopsPanel.getValue("baidu_tieba_filterDuplicatePosts")) {
+        })
+        PopsPanel.execMenu("baidu_tieba_filterDuplicatePosts", () => {
             TiebaBaNei.filterDuplicatePosts();
-        }
-        if (PopsPanel.getValue("baidu_tieba_removeForumSignInLimit")) {
+        })
+        PopsPanel.execMenu("baidu_tieba_removeForumSignInLimit", () => {
             TiebaBaNei.removeForumSignInLimit();
-        }
+        })
     },
     /**
      * 解除签到限制

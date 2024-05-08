@@ -296,25 +296,3 @@ watch(props.UserData, () => {
   transform: translateY(100%);
 }
 </style>
-
-<style>
-.user-info-tabs>.el-tabs__header {
-  margin: 0 0 5px;
-}
-
-.pops-ip-location-help {
-  width: 100%;
-  max-width: 100%;
-  min-width: 100%;
-  text-align: center;
-  color: #7558FE;
-}
-
-span[data-sex="1"] {
-  color: #37B8D5;
-}
-
-span[data-sex="2"] {
-  color: #FF8787;
-}
-</style>

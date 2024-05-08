@@ -1,4 +1,4 @@
-import { GM_addStyle } from "ViteGM";
+import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/ui";
@@ -50,13 +50,13 @@ const BaiduTieBa = {
         PopsPanel.execMenu("baidu_tieba_autoJumpToMainHost", () => {
             TiebaCore.autoJumpToMainHost();
         });
-        if (PopsPanel.getValue("baidu_tieba_clientCallMasquerade")) {
+        PopsPanel.execMenu("baidu_tieba_clientCallMasquerade", () => {
             TiebaCore.clientCallMasquerade();
-        }
+        });
         BaiduHijack.hijackElementAppendChild();
-        if (PopsPanel.getValue("baidu_tieba_hijack_wake_up")) {
+        PopsPanel.execMenu("baidu_tieba_hijack_wake_up", () => {
             BaiduHijack.hijackFunctionCall_WebPack_TieBa();
-        }
+        });
         if (BaiduRouter.isTieBaIndex()) {
             /* 首页 */
             log.success("Router: 首页");

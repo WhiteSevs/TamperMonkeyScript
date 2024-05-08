@@ -2,6 +2,7 @@ import { GM_addStyle } from 'ViteGM';
 import { MountVue, VUE_ELE_NAME_ID } from '@/env';
 import App from './App.vue';
 import { router } from './router';
+import AppCSS from "./app.css?raw"
 
 const TiebaHome = {
     $data: {
@@ -22,6 +23,7 @@ const TiebaHome = {
             display: unset;
         }
         `)
+        GM_addStyle(AppCSS);
     },
 }
 
