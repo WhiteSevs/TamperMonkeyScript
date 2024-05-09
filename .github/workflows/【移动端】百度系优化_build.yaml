@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: set git
         run: |
-          git config --system core.symlinks false
+          git config --global core.symlinks false
       - name: 校验
         uses: actions/checkout@v4
       - name: 设置Node和pnpm
