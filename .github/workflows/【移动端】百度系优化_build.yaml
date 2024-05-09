@@ -32,10 +32,10 @@ jobs:
           cd ./packages/【移动端】百度系优化
           echo "当前目录："$(pwd)
           pnpm install
-          pnpm run build:all
+          pnpm run build
 
       - name: 上传附件
         uses: actions/upload-artifact@main
         with:
-          name: 【移动端】百度系优化
-          path: ./packages/【移动端】百度系优化/dist
+          name: 【移动端】百度系优化.user.js
+          path: ./packages/【移动端】百度系优化/dist/【移动端】百度系优化.user.js
