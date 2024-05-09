@@ -7,6 +7,7 @@ on:
       - "packages/【移动端】百度系优化/**"
       - "!packages/【移动端】百度系优化/README.md"
       - "!packages/【移动端】百度系优化/dist/*"
+      - ".github/workflows/【移动端】百度系优化_build.yml"
 
 jobs:
   build:
@@ -26,9 +27,10 @@ jobs:
         with:
           version: 9
 
-      - name: 切换到项目目录下
-        run: cd ./packages/【移动端】百度系优化
-      - name: 安装依赖
-        run: pnpm install
-      - name: 开始构建
-        run: pnpm run build:all
+          
+      - name: 构建
+        run: |
+          cd ./packages/【移动端】百度系优化
+          echo "当前目录："$(pwd)
+          pnpm install
+          pnpm run build:all

@@ -6,15 +6,6 @@
   "author": "WhiteSev",
   "license": "MIT",
   "keywords": [],
-  "scripts": {
-    "dev": "vue-tsc --noEmit && vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "build:min": "vue-tsc --noEmit && vite build --minify",
-    "build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
-    "build:watch": "vue-tsc --noEmit && vite build --watch",
-    "build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-    "preview": "vue-tsc --noEmit && vite preview"
-  },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "viewerjs": "^1.11.6",
