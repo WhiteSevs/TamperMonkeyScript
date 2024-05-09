@@ -18,6 +18,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: set git
+        run: |
+          git config --local core.symlinks false
       - name: 校验
         uses: actions/checkout@v4
       - name: 设置Node和pnpm
