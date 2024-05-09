@@ -9,7 +9,6 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { ViteUtils, GetLib } from "./vite.utils"
 
-
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
