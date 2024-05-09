@@ -1,0 +1,20 @@
+name: monorepo build
+
+on:
+  push:
+    branches: [master, dev]
+    paths:
+      - "packages/【移动端】百度系优化/**"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: setup node and pnpm
+        uses: dafnik/setup-node-pnpm@v1
+        with:
+          pnpm: 9
+          node: 20
+      - name: 切换到packages目录
+        run: cd ./packages/
