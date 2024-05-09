@@ -5,16 +5,22 @@ on:
     branches: [master, dev]
     paths:
       - "packages/【移动端】百度系优化/**"
+      - "!packages/【移动端】百度系优化/README.md"
+      - "!packages/【移动端】百度系优化/dist/*"
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 校验
         uses: actions/checkout@v4
-      - name: setup node and pnpm
+      - name: 设置Node和pnpm
         uses: dafnik/setup-node-pnpm@v1
         with:
           pnpm: 9
           node: 20
-      - name: 切换到packages目录
-        run: cd ./packages/
+      - name: 切换到项目目录下
+        run: cd ./packages/【移动端】百度系优化
+      - name: 安装依赖
+        run: pnpm install
+      - name: 开始构建
+        run: pnpm run build:all
