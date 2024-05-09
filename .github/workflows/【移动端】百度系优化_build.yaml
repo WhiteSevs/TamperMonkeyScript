@@ -18,12 +18,12 @@ jobs:
           git config --global core.symlinks false
 
       - name: 校验
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: volta-cli/action@v4
 
       - name: 设置Node和pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
