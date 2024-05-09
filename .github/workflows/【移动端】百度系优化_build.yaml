@@ -2,11 +2,18 @@ name: 【移动端】百度系优化
 
 on:
   push:
-    branches: [master, dev]
+    branches: ["master", "dev"]
     paths:
       - "packages/【移动端】百度系优化/**"
       - "!packages/【移动端】百度系优化/README.md"
       - "!packages/【移动端】百度系优化/dist/*"
+  pull_request:
+    branches: ["master", "dev"]
+    paths:
+      - "packages/【移动端】百度系优化/**"
+      - "!packages/【移动端】百度系优化/README.md"
+      - "!packages/【移动端】百度系优化/dist/*"
+
 jobs:
   publish:
     runs-on: ubuntu-latest
