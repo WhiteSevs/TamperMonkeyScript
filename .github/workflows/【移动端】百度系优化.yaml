@@ -2,12 +2,12 @@ name: 【移动端】百度系优化
 
 on:
   push:
-    branches: ["dev"]
+    branches: ["master", "dev"]
     paths:
       - "packages/【移动端】百度系优化/**"
+      - ".github/workflows/【移动端】百度系优化.yaml"
       - "!packages/【移动端】百度系优化/README.md"
       - "!packages/【移动端】百度系优化/dist/*"
-      - ".github/workflows/【移动端】百度系优化_build.yml"
 
 jobs:
   build:
@@ -18,19 +18,24 @@ jobs:
           git config --global core.symlinks false
 
       - name: 校验
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: volta-cli/action@v4
 
       - name: 设置Node和pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
-          
       - name: 构建
         run: |
           cd ./packages/【移动端】百度系优化
           echo "当前目录："$(pwd)
           pnpm install
-          pnpm run build:all
+          pnpm run build
+
+      - name: 上传附件
+        uses: actions/upload-artifact@main
+        with:
+          name: 【移动端】百度系优化
+          path: ./packages/【移动端】百度系优化/dist

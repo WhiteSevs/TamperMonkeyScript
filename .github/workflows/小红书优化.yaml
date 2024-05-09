@@ -1,0 +1,41 @@
+name: 小红书优化
+
+on:
+  push:
+    branches: ["master", "dev"]
+    paths:
+      - "packages/小红书优化/**"
+      - ".github/workflows/小红书优化.yaml"
+      - "!packages/小红书优化/README.md"
+      - "!packages/小红书优化/dist/*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set git
+        run: |
+          git config --global core.symlinks false
+
+      - name: 校验
+        uses: actions/checkout@v4
+
+      - uses: volta-cli/action@v4
+
+      - name: 设置Node和pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 构建
+        run: |
+          cd ./packages/小红书优化
+          echo "当前目录："$(pwd)
+          pnpm install
+          pnpm run build
+
+      - name: 上传附件
+        uses: actions/upload-artifact@main
+        with:
+          name: 小红书优化
+          path: ./packages/小红书优化/dist
