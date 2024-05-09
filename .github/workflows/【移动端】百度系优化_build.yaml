@@ -26,10 +26,28 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 9
-          
+
       - name: 构建
         run: |
           cd ./packages/【移动端】百度系优化
           echo "当前目录："$(pwd)
           pnpm install
           pnpm run build:all
+
+      - name: 上传到GitHub
+        uses: actions/upload-artifact@main
+        with:
+          name: 【移动端】百度系优化.user.js
+          path: ./packages/【移动端】百度系优化/dist/【移动端】百度系优化.user.js
+
+      - name: 上传min到GitHub
+        uses: actions/upload-artifact@main
+        with:
+          name: 【移动端】百度系优化.user.min.js
+          path: ./packages/【移动端】百度系优化/dist/【移动端】百度系优化.user.min.js
+
+      - name: 下载到GitHub
+        uses: actions/download-artifact@main
+        with:
+          name: 【移动端】百度系优化
+          path: ./packages/【移动端】百度系优化/dist/
