@@ -1,4 +1,4 @@
-name: monorepo build
+name: 【移动端】百度系优化
 
 on:
   push:
