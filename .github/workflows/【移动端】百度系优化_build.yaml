@@ -7,12 +7,6 @@ on:
       - "packages/【移动端】百度系优化/**"
       - "!packages/【移动端】百度系优化/README.md"
       - "!packages/【移动端】百度系优化/dist/*"
-  pull_request:
-    branches: ["dev"]
-    paths:
-      - "packages/【移动端】百度系优化/**"
-      - "!packages/【移动端】百度系优化/README.md"
-      - "!packages/【移动端】百度系优化/dist/*"
 
 jobs:
   build:
@@ -21,13 +15,17 @@ jobs:
       - name: set git
         run: |
           git config --global core.symlinks false
+
       - name: 校验
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
+      - uses: volta-cli/action@v4
+
       - name: 设置Node和pnpm
-        uses: dafnik/setup-node-pnpm@v3.0.0
+        uses: pnpm/action-setup@v2
         with:
-          pnpm: 9
-          node: 20
+          version: 9
+
       - name: 切换到项目目录下
         run: cd ./packages/【移动端】百度系优化
       - name: 安装依赖
