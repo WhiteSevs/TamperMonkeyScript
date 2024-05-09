@@ -15,7 +15,7 @@ on:
       - "!packages/【移动端】百度系优化/dist/*"
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: 校验
