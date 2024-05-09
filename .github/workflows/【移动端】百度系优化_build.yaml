@@ -21,7 +21,7 @@ jobs:
       - name: 校验
         uses: actions/checkout@v4
       - name: 设置Node和pnpm
-        uses: dafnik/setup-node-pnpm@v1
+        uses: dafnik/setup-node-pnpm@v3
         with:
           pnpm: 9
           node: 20
