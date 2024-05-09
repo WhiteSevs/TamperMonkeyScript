@@ -37,5 +37,5 @@ jobs:
       - name: 上传附件
         uses: actions/upload-artifact@main
         with:
-          name: 【移动端】百度系优化.user.js
+          name: 【移动端】百度系优化
           path: ./packages/【移动端】百度系优化/dist/【移动端】百度系优化.user.js
