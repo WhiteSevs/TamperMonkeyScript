@@ -7,7 +7,7 @@ on:
       - "packages/【移动端】百度系优化/**"
       - "!packages/【移动端】百度系优化/README.md"
       - "!packages/【移动端】百度系优化/dist/*"
-      - ".github/workflows/【移动端】百度系优化_build.yml"
+      - ".github/workflows/【移动端】百度系优化_build.yaml"
 
 jobs:
   build:
@@ -26,7 +26,6 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 9
-
           
       - name: 构建
         run: |
