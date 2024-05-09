@@ -2,13 +2,13 @@ name: 【移动端】百度系优化
 
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
     paths:
       - "packages/【移动端】百度系优化/**"
       - "!packages/【移动端】百度系优化/README.md"
       - "!packages/【移动端】百度系优化/dist/*"
   pull_request:
-    branches: ["master", "dev"]
+    branches: ["master"]
     paths:
       - "packages/【移动端】百度系优化/**"
       - "!packages/【移动端】百度系优化/README.md"
@@ -21,7 +21,7 @@ jobs:
       - name: 校验
         uses: actions/checkout@v4
       - name: 设置Node和pnpm
-        uses: dafnik/setup-node-pnpm@v3
+        uses: dafnik/setup-node-pnpm@v3.0.0
         with:
           pnpm: 9
           node: 20
