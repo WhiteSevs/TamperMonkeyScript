@@ -2,7 +2,7 @@ name: 小红书优化
 
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
     paths:
       - "packages/小红书优化/**"
       - ".github/workflows/小红书优化.yaml"

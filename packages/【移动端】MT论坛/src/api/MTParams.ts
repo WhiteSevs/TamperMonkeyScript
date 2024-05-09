@@ -1,7 +1,7 @@
 /**
  * 判断是否存在formhash
  */
-export function hasFormHash(text: string) {
+export function checkHasFormHash(text: string) {
     return Boolean(text.match(/formhash=(.+)&/))
 }
 /**
@@ -14,7 +14,7 @@ export function getFormHash(text: string) {
 /**
  * 判断是否存在hash
  */
-export function hasHash(text: string) {
+export function checkHasHash(text: string) {
     return Boolean(text.match(/hash=(.+)&/))
 }
 /**

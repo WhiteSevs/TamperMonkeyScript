@@ -2,7 +2,7 @@ name: 抖音优化
 
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
     paths:
       - "packages/抖音优化/**"
       - ".github/workflows/抖音优化.yaml"
