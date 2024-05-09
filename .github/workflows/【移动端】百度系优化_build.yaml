@@ -27,11 +27,9 @@ jobs:
         with:
           version: 9
 
-      - name: 切换到项目目录下
+      - name: 构建
         run: |
           cd ./packages/【移动端】百度系优化
           echo "当前目录："$(pwd)
-      - name: 安装依赖
-        run: pnpm install
-      - name: 开始构建
-        run: pnpm run build:all
+          pnpm install
+          pnpm run build:all
