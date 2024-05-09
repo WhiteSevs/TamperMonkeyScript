@@ -39,3 +39,8 @@ jobs:
         with:
           name: 【移动端】百度系优化
           path: ./packages/【移动端】百度系优化/dist
+
+      - name: 下载附件
+        uses: actions/download-artifact@main
+        with:
+          name: 【移动端】百度系优化
