@@ -1,5 +1,5 @@
 import { HomePostsInfo, PanelUserInfo, TieBaApi, UserJSON } from "../../api/TieBaApi";
-import { DOMUtils, httpx, utils } from "@/env";
+import { DOMUtils, Qmsg, httpx, utils } from "@/env";
 
 type UserSex = {
     0: "保密",
@@ -121,6 +121,11 @@ const TiebaHomeData = {
     async getUserData(): Promise<UserInfo | undefined> {
         let $name = document.querySelector(".home_card_uname_link") as HTMLAnchorElement;
         let name = new URL($name.href).searchParams.get("un") as string;
+        /* un可能为空 */
+        if (utils.isNull(name)) {
+            Qmsg.error("获取用户un失败")
+            return
+        }
         let $showName = document.querySelector(".home_card_uname_link") as HTMLAnchorElement
         let showName = $showName.innerText;
         let $avatar = document.querySelector("a.home_card_portrait_link img") as HTMLImageElement;

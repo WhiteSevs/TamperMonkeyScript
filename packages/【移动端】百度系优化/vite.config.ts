@@ -21,7 +21,9 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
-const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+
+const VERSION = process.env.NODE_ENV === "development" ? "2024.5.1" : Utils.getScriptVersion(!isEmptyOutDir);
+
 const RequireLib = await GetLib([
   "CoverUMD",
   "Viewer",

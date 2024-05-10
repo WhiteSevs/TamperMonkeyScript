@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { UserInfo } from './data/TiebaHomeData';
-import { useRouter } from 'vue-router/dist/vue-router';
+import { router } from './router';
 
 const props = defineProps<{
     UserData: UserInfo;
 }>();
-const router = useRouter()
 let sexStr = ref("保密")
 if (props.UserData.sex != null) {
     if (props.UserData.sex === 1) {
