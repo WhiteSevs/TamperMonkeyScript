@@ -1,0 +1,46 @@
+/* 视频标题上面的 打开App，流畅又高清 */
+.m-video2-awaken-btn {
+  display: none !important;
+}
+
+/* 主页 */
+.m-home {
+  /* 打开App，看你感兴趣的视频 */
+  .launch-app-btn.home-float-openapp {
+    display: none !important;
+  }
+}
+/* 空间 */
+.m-space {
+  /* 底部 打开App */
+  .launch-app-btn.m-space-float-openapp,
+  /* 右上角 下载App */
+  .launch-app-btn.m-nav-openapp {
+    display: none !important;
+  }
+}
+
+/* 视频 */
+#app .video {
+  /* 让选择打开App还是继续浏览 */
+  .openapp-dialog,
+  /* 打开App，流畅又高清 */
+  .launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
+  /* 右上角 下载App */
+  .launch-app-btn.m-nav-openapp,
+  /* 当tinyApp为false时，视频全屏出现的 打开App，看高清全屏 */
+  .mplayer-widescreen-callapp,
+  /* 右下角 bilibili内打开 */
+  .launch-app-btn.m-float-openapp {
+    display: none !important;
+  }
+
+}
+
+/* 直播 */
+
+#app.LIVE {
+  .open-app-btn.bili-btn-warp {
+    display: none !important;
+  }
+}
