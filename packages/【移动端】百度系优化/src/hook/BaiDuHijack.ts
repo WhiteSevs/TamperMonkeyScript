@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { BaiDuData } from "@/business/data";
 import { DOMUtils, OriginPrototype, log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 /**
  * 百度劫持

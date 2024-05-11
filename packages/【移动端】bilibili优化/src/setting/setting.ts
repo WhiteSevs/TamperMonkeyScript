@@ -1,36 +1,27 @@
 import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { PanelSearchSettingUI } from "./components/search/PanelSearchSettingUI";
-import { PanelBaiJiaHaoSettingUI } from "./components/baijiahao/PanelBaiJiaHaoSettingUI";
-import { PanelTieBaSettingUI } from "./components/tieba/PanelTieBaSettingUI";
-import { PanelWenKuSettingUI } from "./components/wenku/PanelWenKuSettingUI";
-import { PanelJingYanSettingUI } from "./components/jingyan/PanelJingYanSettingUI";
-import { PanelBaiKeSettingUI } from "./components/baike/PanelBaiKeSettingUI";
-import { PanelZhiDaoSettingUI } from "./components/zhidao/PanelZhiDaoSettingUI";
-import { PanelFanYiSettingUI } from "./components/fanyi/PanelFanYiSettingUI";
-import { PanelImageSettingUI } from "./components/image/PanelImageSettingUI";
-import { PanelMapSettingUI } from "./components/map/PanelMapSettingUI";
-import { PanelXueSettingUI } from "./components/xue/PanelXueSettingUI";
-import { PanelAiQiChaSettingUI } from "./components/aiqicha/PanelAiQiChaSettingUI";
-import { PanelPosSettingUI } from "./components/pos/PanelPosSettingUI";
-import { PanelHaoKanSettingUI } from "./components/haokan/PanelHaoKanSettingUI";
-import { PanelGraphSettingUI } from "./components/graph/PanelGraphSettingUI";
-import { PanelPanSettingUI } from "./components/pan/PanelPanSettingUI";
-import { PanelYiYanSettingUI } from "./components/yiyan/PanelYiYanSettingUI";
-import { PanelChatSettingUI } from "./components/chat/PanelChatSettingUI";
-import { PanelEasyLearnSettingUI } from "./components/easylearn/PanelEasyLearnSettingUI";
-import { PanelAiStudySettingUI } from "./components/aistudy/PanelAiStudySettingUI";
-import { YiYanChat } from "@/business/yiyan/yiyanChat";
+import { SettingUICommon } from "./components/Common";
+import { SettingUIVideo } from "./components/Video";
+import { SettingUIBangumi } from "./components/Bangumi";
+import { SettingUISearch } from "./components/Search";
+import { SettingUILive } from "./components/Live";
 
 const PopsPanel = {
     /** 数据 */
     $data: {
         /**
          * 菜单项的默认值
-         * @type {UtilsDictionaryConstructor<string,any>}
          */
-        data: new utils.Dictionary(),
+        data: new utils.Dictionary<string, any>(),
+        /**
+         * 成功只执行了一次的项
+         */
+        oneSuccessExecMenu: new utils.Dictionary<string, number>(),
+        /**
+         * 成功只执行了一次的项
+         */
+        onceExec: new utils.Dictionary<string, number>(),
         /** 脚本名，一般用在设置的标题上 */
         scriptName: SCRIPT_NAME,
         /** 菜单项的总值在本地数据配置的键名 */
@@ -44,13 +35,12 @@ const PopsPanel = {
     $listener: {
         /**
          * 值改变的监听器
-         * @type {UtilsDictionaryConstructor<string,{
-         *  id: number,
-         *  key: string,
-         *  callback: Function
-         * }>}
          */
-        listenData: new utils.Dictionary(),
+        listenData: new utils.Dictionary<string, {
+            id: number,
+            key: string,
+            callback: Function
+        }>(),
     },
     init() {
         this.initPanelDefaultValue();
@@ -72,18 +62,6 @@ const PopsPanel = {
                 },
                 callback: () => {
                     this.showPanel();
-                },
-            },
-            {
-                key: "show_yiyan_chatgpt",
-                text: "⚙ 文心一言",
-                autoReload: false,
-                isStoreValue: false,
-                showText(text) {
-                    return text;
-                },
-                callback: () => {
-                    YiYanChat.init();
                 },
             },
         ]);
@@ -210,9 +188,10 @@ const PopsPanel = {
      * @param listenerId 监听的id
      */
     removeValueChangeListener(listenerId: number) {
-        let deleteKey = null;
+        let deleteKey = null as unknown as string;
         for (const [key, value] of this.$listener.listenData.entries()) {
             if (value.id === listenerId) {
+                deleteKey = key;
                 break;
             }
         }
@@ -231,6 +210,38 @@ const PopsPanel = {
         if (value) {
             callback(value);
         }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key
+     * @param callback 回调
+     */
+    execMenuOnce(key: string, callback: (value: any) => void) {
+        if (typeof key !== "string") {
+            throw new TypeError("key 必须是字符串");
+        }
+        let value = PopsPanel.getValue(key);
+        if (value) {
+            if (this.$data.oneSuccessExecMenu.has(key)) {
+                return;
+            }
+            callback(value);
+            this.$data.oneSuccessExecMenu.set(key, 1);
+        }
+    },
+    /**
+     * 根据key执行一次
+     * @param key 
+     */
+    onceExec(key: string, callback: () => void) {
+        if (typeof key !== "string") {
+            throw new TypeError("key 必须是字符串");
+        }
+        if (this.$data.onceExec.has(key)) {
+            return;
+        }
+        callback();
+        this.$data.onceExec.set(key, 1);
     },
     /**
      * 显示设置面板
@@ -286,26 +297,11 @@ const PopsPanel = {
      */
     getPanelContentConfig() {
         let configList: PopsPanelContentConfig[] = [
-            PanelSearchSettingUI,
-            PanelBaiJiaHaoSettingUI,
-            PanelTieBaSettingUI,
-            PanelWenKuSettingUI,
-            PanelJingYanSettingUI,
-            PanelBaiKeSettingUI,
-            PanelZhiDaoSettingUI,
-            PanelFanYiSettingUI,
-            PanelImageSettingUI,
-            PanelMapSettingUI,
-            PanelXueSettingUI,
-            PanelAiQiChaSettingUI,
-            PanelPosSettingUI,
-            PanelHaoKanSettingUI,
-            PanelGraphSettingUI,
-            PanelPanSettingUI,
-            PanelYiYanSettingUI,
-            PanelChatSettingUI,
-            PanelEasyLearnSettingUI,
-            PanelAiStudySettingUI
+            SettingUICommon,
+            SettingUIVideo,
+            SettingUIBangumi,
+            SettingUISearch,
+            SettingUILive,
         ];
         return configList;
     },

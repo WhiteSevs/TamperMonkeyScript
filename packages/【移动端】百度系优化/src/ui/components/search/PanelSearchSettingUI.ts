@@ -1,7 +1,7 @@
 import { BaiduSearchRule } from "@/business/search/searchRule";
 import { DOMUtils, Qmsg, utils } from "@/env";
 import { BaiduRouter } from "@/router";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { UISwitch } from "@/ui/common-components/ui-switch";
 
 const PanelSearchSettingUI: PopsPanelContentConfig = {

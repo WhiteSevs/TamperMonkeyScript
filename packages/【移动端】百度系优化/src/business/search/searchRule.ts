@@ -1,5 +1,5 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 type BaiDuSearchRuleMode = "match-href" | "match-attr" | "contains-child" | "remove-child"
 interface BaiDuSearchRuleDetail {

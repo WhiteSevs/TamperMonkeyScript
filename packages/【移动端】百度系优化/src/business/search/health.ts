@@ -1,5 +1,5 @@
 import { GM_addStyle } from "ViteGM";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 /**
  * 百度健康

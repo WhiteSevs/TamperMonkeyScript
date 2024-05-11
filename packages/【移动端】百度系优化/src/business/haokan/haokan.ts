@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { BaiduHaoKanHook } from "./hook";
 import { DOMUtils, log, utils } from "@/env";
 import HaoKanShieldCSS from "./shield.css?raw";

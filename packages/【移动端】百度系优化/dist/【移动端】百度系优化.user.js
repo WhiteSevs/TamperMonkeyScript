@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.10
+// @version      2024.5.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @icon         https://www.baidu.com/favicon.ico
@@ -3243,9 +3243,16 @@ match-attr##srcid##sp_purc_atom
     $data: {
       /**
        * 菜单项的默认值
-       * @type {UtilsDictionaryConstructor<string,any>}
        */
       data: new utils.Dictionary(),
+      /**
+       * 成功只执行了一次的项
+       */
+      oneSuccessExecMenu: new utils.Dictionary(),
+      /**
+       * 成功只执行了一次的项
+       */
+      onceExec: new utils.Dictionary(),
       /** 脚本名，一般用在设置的标题上 */
       scriptName: SCRIPT_NAME,
       /** 菜单项的总值在本地数据配置的键名 */
@@ -3259,11 +3266,6 @@ match-attr##srcid##sp_purc_atom
     $listener: {
       /**
        * 值改变的监听器
-       * @type {UtilsDictionaryConstructor<string,{
-       *  id: number,
-       *  key: string,
-       *  callback: Function
-       * }>}
        */
       listenData: new utils.Dictionary()
     },
@@ -3405,10 +3407,15 @@ match-attr##srcid##sp_purc_atom
       let deleteKey = null;
       for (const [key, value] of this.$listener.listenData.entries()) {
         if (value.id === listenerId) {
+          deleteKey = key;
           break;
         }
       }
-      this.$listener.listenData.delete(deleteKey);
+      if (typeof deleteKey === "string") {
+        this.$listener.listenData.delete(deleteKey);
+      } else {
+        console.warn("没有找到对应的监听器");
+      }
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
@@ -3423,6 +3430,38 @@ match-attr##srcid##sp_purc_atom
       if (value) {
         callback(value);
       }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key
+     * @param callback 回调
+     */
+    execMenuOnce(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      let value = PopsPanel.getValue(key);
+      if (value) {
+        if (this.$data.oneSuccessExecMenu.has(key)) {
+          return;
+        }
+        callback(value);
+        this.$data.oneSuccessExecMenu.set(key, 1);
+      }
+    },
+    /**
+     * 根据key执行一次
+     * @param key 
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExec.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExec.set(key, 1);
     },
     /**
      * 显示设置面板
@@ -5726,23 +5765,35 @@ div[class^="new-summary-container_"] {\r
           "list",
           function(newVal, oldVal) {
             log.success("帖子数量触发改变");
-            let postsId = {};
+            let postsMap = {};
+            let samePostList = [];
             for (let index = 0; index < this.$props.list.length; index++) {
               let postsInfo = this.$props.list[index];
               if (!postsInfo.id) {
                 continue;
               }
-              if (postsId[postsInfo.id]) {
-                log.error("移除重复帖子：" + postsInfo.title);
-                this.$props.list.splice(index, 1);
-                index--;
-                continue;
+              if (postsInfo.id in postsMap) {
+                samePostList.push({
+                  title: postsInfo.title ?? "",
+                  id: postsInfo.id,
+                  index
+                });
+              } else {
+                postsMap[postsInfo.id] = index;
               }
-              postsId[postsInfo.id] = postsInfo.title ?? "";
+            }
+            if (samePostList.length) {
+              console.log(postsMap);
+              console.log(samePostList);
+            }
+            for (let index = samePostList.length - 1; index >= 0; index--) {
+              let removePostInfo = samePostList[index];
+              log.error("移除重复帖子：" + removePostInfo.title);
+              this.$props.list.splice(removePostInfo.index, 1);
             }
           },
           {
-            deep: false,
+            deep: true,
             immediate: true
           }
         );

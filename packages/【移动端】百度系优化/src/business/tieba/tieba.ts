@@ -1,7 +1,7 @@
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { BaiduRouter } from "@/router";
 import { BaiduHijack } from "@/hook/BaiDuHijack";
 import { TiebaTopic } from "./Topic/tiebaTopic";

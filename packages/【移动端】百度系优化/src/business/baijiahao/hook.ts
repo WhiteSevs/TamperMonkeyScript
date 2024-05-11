@@ -1,6 +1,6 @@
 import { log } from "@/env";
 import { BaiduHijack } from "@/hook/BaiDuHijack";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiJiaHaoHook = {
     init() {

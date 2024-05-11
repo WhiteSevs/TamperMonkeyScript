@@ -1206,7 +1206,7 @@ declare interface HttpxAsyncResult<T extends HttpxDetails> {
 
 
 
-declare interface UtilsDictionaryConstructor<K extends string | number | symbol, V> {
+declare interface UtilsDictionaryConstructor<K extends any, V extends any> {
     /** 检查是否有某一个键 */
     has(key: K): boolean;
     /** 检查已有的键中是否以xx开头 */
@@ -1251,11 +1251,6 @@ declare interface UtilsDictionaryConstructor<K extends string | number | symbol,
      * 同this.size()
      */
     get length(): number;
-}
-
-/** 字典 */
-declare interface UtilsDictionary {
-    new(): UtilsDictionaryConstructor<any, any>;
 }
 
 /** gbk编码 */
@@ -2272,7 +2267,9 @@ interface Utils {
      * > true
      * dictionary.concat(dictionary2);
      **/
-    Dictionary: UtilsDictionary;
+    Dictionary: {
+        new <K, V>(): UtilsDictionaryConstructor<K, V>;
+    };
     /**
      * 主动触发事件
      * @param element 元素

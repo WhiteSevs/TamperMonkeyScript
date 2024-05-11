@@ -1,7 +1,7 @@
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, log } from "@/env";
 import YiYanShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiduYiYan = {
     init() {

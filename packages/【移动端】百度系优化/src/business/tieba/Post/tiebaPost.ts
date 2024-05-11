@@ -1,5 +1,5 @@
 import { DOMUtils, Qmsg, Viewer, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { TiebaComment } from "./comment";
 import { TiebaData } from "../Home/data";
 import { CommonUtil } from "@/util/CommonUtil";

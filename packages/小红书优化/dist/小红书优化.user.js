@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.7.21
+// @version      2024.5.11
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
@@ -114,8 +114,10 @@
       },
       afterAddToUListCallBack: void 0
     };
-    result.attributes[ATTRIBUTE_KEY] = key;
-    result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
     return result;
   };
   const MSettingUI_Shield = {
@@ -366,9 +368,16 @@
     $data: {
       /**
        * 菜单项的默认值
-       * @type {UtilsDictionaryConstructor<string,any>}
        */
       data: new utils.Dictionary(),
+      /**
+       * 成功只执行了一次的项
+       */
+      oneSuccessExecMenu: new utils.Dictionary(),
+      /**
+       * 成功只执行了一次的项
+       */
+      onceExec: new utils.Dictionary(),
       /** 脚本名，一般用在设置的标题上 */
       scriptName: SCRIPT_NAME,
       /** 菜单项的总值在本地数据配置的键名 */
@@ -382,11 +391,6 @@
     $listener: {
       /**
        * 值改变的监听器
-       * @type {UtilsDictionaryConstructor<string,{
-       *  id: number,
-       *  key: string,
-       *  callback: Function
-       * }>}
        */
       listenData: new utils.Dictionary()
     },
@@ -528,10 +532,15 @@
       let deleteKey = null;
       for (const [key, value] of this.$listener.listenData.entries()) {
         if (value.id === listenerId) {
+          deleteKey = key;
           break;
         }
       }
-      this.$listener.listenData.delete(deleteKey);
+      if (typeof deleteKey === "string") {
+        this.$listener.listenData.delete(deleteKey);
+      } else {
+        console.warn("没有找到对应的监听器");
+      }
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
@@ -546,6 +555,38 @@
       if (value) {
         callback(value);
       }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key
+     * @param callback 回调
+     */
+    execMenuOnce(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      let value = PopsPanel.getValue(key);
+      if (value) {
+        if (this.$data.oneSuccessExecMenu.has(key)) {
+          return;
+        }
+        callback(value);
+        this.$data.oneSuccessExecMenu.set(key, 1);
+      }
+    },
+    /**
+     * 根据key执行一次
+     * @param key 
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExec.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExec.set(key, 1);
     },
     /**
      * 显示设置面板

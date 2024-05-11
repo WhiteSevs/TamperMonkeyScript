@@ -1,8 +1,43 @@
 import { DOMUtils, Qmsg, log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { TiebaCore } from "../core";
 import { TieBaApi, TiebaUrlApi } from "../api/TieBaApi";
 import { CommonUtil } from "@/util/CommonUtil";
+
+interface BaNeiPostInfo {
+    "abstract": [
+        {
+            "text": string,
+            "type": number
+        }
+    ],
+    "agree": {
+        "agreeNum": number;
+        "disagreeNum": number
+    },
+    "author": {
+        "id": number,
+        "name": string,
+        "nameShow": string,
+        "src": string,
+        "portrait": string
+    },
+    "createTime": string,
+    "nameShow": string,
+    "media": string[],
+    "id": number,
+    "tid": number,
+    "replyNum": string,
+    "interactionCollect": boolean,
+    "interactionGood": boolean,
+    "title": string,
+    "voiceList": string[],
+    "video": {
+        "isVideo": boolean
+    },
+    "threadForum": {},
+    "isMixRecommendThread": boolean
+}
 
 /**
  * 贴吧 吧内功能
@@ -157,30 +192,47 @@ const TiebaBaNei = {
             log.success("监听帖子数量改变");
             tbThreadListVue.$watch(
                 "list",
-                function (newVal: any, oldVal: any) {
+                function (this: {
+                    $props: {
+                        list: BaNeiPostInfo[]
+                    } & NestedObjectWithToString
+                } & NestedObjectWithToString, newVal: any, oldVal: any) {
                     log.success("帖子数量触发改变");
-                    let postsId = {} as NestedObjectWithToString;
-                    // @ts-ignore
+                    let postsMap: {
+                        [key: number]: number
+                    } = {}
+                    let samePostList: {
+                        title: string,
+                        id: number,
+                        index: number
+                    }[] = [];
                     for (let index = 0; index < this.$props.list.length; index++) {
-                        // @ts-ignore
                         let postsInfo = this.$props.list[index];
                         if (!postsInfo.id) {
-                            /* 不存在id属性，可能是中间的广告？ */
                             continue;
                         }
-                        if (postsId[postsInfo.id]) {
-                            /* 重复帖子 */
-                            log.error("移除重复帖子：" + postsInfo.title);
-                            // @ts-ignore
-                            this.$props.list.splice(index, 1);
-                            index--;
-                            continue;
+                        if (postsInfo.id in postsMap) {
+                            samePostList.push({
+                                title: postsInfo.title ?? "",
+                                id: postsInfo.id,
+                                index: index,
+                            })
+                        } else {
+                            postsMap[postsInfo.id] = index;
                         }
-                        postsId[postsInfo.id] = postsInfo.title ?? "";
+                    }
+                    if (samePostList.length) {
+                        console.log(postsMap);
+                        console.log(samePostList);
+                    }
+                    for (let index = samePostList.length - 1; index >= 0; index--) {
+                        let removePostInfo = samePostList[index];
+                        log.error("移除重复帖子：" + removePostInfo.title);
+                        this.$props.list.splice(removePostInfo.index, 1);
                     }
                 },
                 {
-                    deep: false,
+                    deep: true,
                     immediate: true,
                 }
             );
