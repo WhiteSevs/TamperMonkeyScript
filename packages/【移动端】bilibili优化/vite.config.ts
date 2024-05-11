@@ -61,6 +61,7 @@ export default defineConfig({
         version: VERSION,
         author: "WhiteSevs",
         "run-at": "document-start",
+        license: "GPL-3.0-only",
         require: await GetLib([
           "CoverUMD",
           "DOMUtils",

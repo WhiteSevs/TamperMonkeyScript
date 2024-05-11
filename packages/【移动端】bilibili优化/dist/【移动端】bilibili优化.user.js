@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         【移动端】bilibili
+// @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
 // @version      2024.5.11
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
+// @license      GPL-3.0-only
 // @icon         https://i0.hdslb.com/bfs/static/jinkela/long/images/512.png
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://m.bilibili.com/*
@@ -44,7 +45,7 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const SCRIPT_NAME$1 = "【移动端】bilibili";
+  const SCRIPT_NAME$1 = "【移动端】bilibili优化";
   const utils = (_a = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a.noConflict();
   const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
