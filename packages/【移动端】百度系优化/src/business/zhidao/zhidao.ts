@@ -1,7 +1,7 @@
 import { GM_addStyle } from "ViteGM";
 import { DOMUtils, log } from "@/env";
 import ZhiDaoShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiduZhiDao = {
     init() {

@@ -1,7 +1,7 @@
 import { GM_addStyle } from "ViteGM";
 import { log, utils } from "@/env";
 import FanYiAppShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiduFanYiApp = {
     init() {

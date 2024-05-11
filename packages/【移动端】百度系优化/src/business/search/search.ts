@@ -1,7 +1,7 @@
 import { GM_addStyle } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
 import { BaiduRouter } from "@/router";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import SearchShieldCSS from "./shield.css?raw";
 import SearchHealthShieldCSS from "./shieldHealth.css?raw";
 import { BaiduHeadlth } from "./health";

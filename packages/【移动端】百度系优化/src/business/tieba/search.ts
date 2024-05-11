@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, loadingView, log, pops, utils } from "@/env";
 import { TiebaComment } from "./Post/comment";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { TieBaApi, TiebaUrlApi } from "./api/TieBaApi";
 import { TiebaData } from "./Home/data";
 import { GM_addStyle } from "ViteGM";

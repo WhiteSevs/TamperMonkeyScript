@@ -1,6 +1,6 @@
 import { GM_addStyle } from "ViteGM";
 import { DOMUtils, GM_Menu, httpx, loadingView, log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { HandleItemURL } from "./resultItem";
 import { HandleEveryOneSearch } from "./everyOneSearch";
 

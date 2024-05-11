@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { OriginPrototype } from "@/env";
 import { BaiduHijack } from "@/hook/BaiDuHijack";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 /**
  * 处理劫持

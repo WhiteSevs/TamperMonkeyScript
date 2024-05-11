@@ -1,7 +1,7 @@
 import { log } from "@/env";
 import AiQiChaShieldCSS from "./shield.css?raw";
 import { GM_addStyle, unsafeWindow } from "ViteGM";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiduAiQiCha = {
     init() {

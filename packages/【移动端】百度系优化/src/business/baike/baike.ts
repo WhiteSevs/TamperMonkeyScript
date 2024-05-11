@@ -1,6 +1,6 @@
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { OriginPrototype, log } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import BaiKeShieldCSS from "./shield.css?raw";
 
 const BaiduBaiKe = {

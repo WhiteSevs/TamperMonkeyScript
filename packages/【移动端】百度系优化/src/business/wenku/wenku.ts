@@ -1,6 +1,6 @@
 import { GM_addStyle } from "ViteGM";
 import { log } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import WenKuShieldCSS from "./shield.css?raw";
 
 const BaiduWenKu = {

@@ -1,5 +1,5 @@
 import { DOMUtils, Qmsg, log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { TiebaCore } from "../core";
 import { TieBaApi, TiebaUrlApi } from "../api/TieBaApi";
 import { CommonUtil } from "@/util/CommonUtil";

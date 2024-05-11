@@ -1,5 +1,5 @@
 import { BaiduHijack } from "@/hook/BaiDuHijack";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiduHaoKanHook = {
     init() {

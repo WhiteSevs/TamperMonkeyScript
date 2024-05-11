@@ -1,6 +1,6 @@
 import { GM_addStyle } from "ViteGM";
 import { log } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import SearchHomeShieldCSS from "./shield.css?raw";
 import SearchHomeMinificationShieldCSS from "./minificationShield.css?raw";
 

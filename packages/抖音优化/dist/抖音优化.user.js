@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.7
+// @version      2024.5.11
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -82,8 +82,10 @@
       },
       afterAddToUListCallBack: void 0
     };
-    result.attributes[ATTRIBUTE_KEY] = key;
-    result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
     return result;
   };
   const PanelCommonConfig = {
@@ -470,24 +472,31 @@
       }
     ]
   };
-  const UISelect = function(text, description, key, defaultValue, data, selectCallBack) {
-    return {
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
       text,
       type: "select",
       description,
-      attributes: {
-        "data-key": key,
-        "data-default-value": defaultValue
-      },
+      attributes: {},
       getValue() {
         return PopsPanel.getValue(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         PopsPanel.setValue(key, isSelectedValue);
-        log.success("下拉框选择: " + isSelectedText);
       },
-      data
+      data: selectData
     };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
+    return result;
   };
   const DouYinVideoShield = {
     key: "douyin-shield-rule",
@@ -649,7 +658,6 @@
         forms: [
           UISelect(
             "清晰度",
-            "自行选择清晰度",
             "chooseVideoDefinition",
             1,
             [
@@ -673,7 +681,9 @@
                 text: "高清",
                 value: 1
               }
-            ]
+            ],
+            void 0,
+            "自行选择清晰度"
           ),
           UISwitch(
             "视频解析",
@@ -842,9 +852,16 @@
     $data: {
       /**
        * 菜单项的默认值
-       * @type {UtilsDictionaryConstructor<string,any>}
        */
       data: new utils.Dictionary(),
+      /**
+       * 成功只执行了一次的项
+       */
+      oneSuccessExecMenu: new utils.Dictionary(),
+      /**
+       * 成功只执行了一次的项
+       */
+      onceExec: new utils.Dictionary(),
       /** 脚本名，一般用在设置的标题上 */
       scriptName: SCRIPT_NAME,
       /** 菜单项的总值在本地数据配置的键名 */
@@ -858,11 +875,6 @@
     $listener: {
       /**
        * 值改变的监听器
-       * @type {UtilsDictionaryConstructor<string,{
-       *  id: number,
-       *  key: string,
-       *  callback: Function
-       * }>}
        */
       listenData: new utils.Dictionary()
     },
@@ -992,10 +1004,15 @@
       let deleteKey = null;
       for (const [key, value] of this.$listener.listenData.entries()) {
         if (value.id === listenerId) {
+          deleteKey = key;
           break;
         }
       }
-      this.$listener.listenData.delete(deleteKey);
+      if (typeof deleteKey === "string") {
+        this.$listener.listenData.delete(deleteKey);
+      } else {
+        console.warn("没有找到对应的监听器");
+      }
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
@@ -1010,6 +1027,38 @@
       if (value) {
         callback(value);
       }
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * @param key
+     * @param callback 回调
+     */
+    execMenuOnce(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      let value = PopsPanel.getValue(key);
+      if (value) {
+        if (this.$data.oneSuccessExecMenu.has(key)) {
+          return;
+        }
+        callback(value);
+        this.$data.oneSuccessExecMenu.set(key, 1);
+      }
+    },
+    /**
+     * 根据key执行一次
+     * @param key 
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExec.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExec.set(key, 1);
     },
     /**
      * 显示设置面板

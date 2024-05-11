@@ -1,6 +1,6 @@
 import { GM_addStyle } from "ViteGM";
 import { log } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import ISiteShieldCSS from "./shield.css?raw";
 
 const BaiduISite = {

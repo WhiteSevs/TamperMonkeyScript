@@ -1,4 +1,4 @@
-import { PopsPanel } from "..";
+import { PopsPanel } from "../setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 
 const UISelect = function <T extends any>(

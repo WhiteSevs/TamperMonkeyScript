@@ -1,5 +1,5 @@
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import { HandleEveryOneSearch } from "./everyOneSearch";
 import { GM_addStyle } from "ViteGM";
 import { BaiduSearchRule } from "./searchRule";

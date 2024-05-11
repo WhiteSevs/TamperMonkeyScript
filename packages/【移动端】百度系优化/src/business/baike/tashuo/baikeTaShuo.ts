@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 import BaiKeTaShuoShieldCSS from "./shield.css?raw";
 import { GM_addStyle } from "ViteGM";
 

@@ -1,7 +1,7 @@
 import { GM_addStyle } from "ViteGM";
 import { log } from "@/env";
 import AiStudyShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/ui";
+import { PopsPanel } from "@/ui/setting";
 
 const BaiduAiStudy = {
     init() {
