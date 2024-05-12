@@ -12,38 +12,36 @@ import { PopsPanel } from "../setting";
  * @returns {PopsPanelInputDetails}
  */
 const UIInput = function (
-    text: string,
-    description: string | undefined,
-    placeholder: string | undefined = "",
-    key: string,
-    defaultValue: string,
-    callback?: ((event: InputEvent, value: string) => boolean) | undefined,
+	text: string,
+	description: string | undefined,
+	placeholder: string | undefined = "",
+	key: string,
+	defaultValue: string,
+	callback?: ((event: InputEvent, value: string) => boolean) | undefined,
 ): PopsPanelInputDetails {
-    let result: PopsPanelInputDetails = {
-        text: text,
-        type: "input",
-        attributes: {} as { [key: string]: any },
-        description: description,
-        getValue() {
-            let localValue = PopsPanel.getValue(key, defaultValue);
-            return localValue;
-        },
-        callback(event: InputEvent, value: string) {
-            if (typeof callback === "function") {
-                if (callback(event, value)) {
-                    return;
-                }
-            }
-            PopsPanel.setValue(key, value);
-        },
-        placeholder: placeholder,
-    };
-    if (result.attributes) {
-        result.attributes[ATTRIBUTE_KEY] = key;
-        result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
-    }
-    return result;
-}
-export {
-    UIInput
-}
+	let result: PopsPanelInputDetails = {
+		text: text,
+		type: "input",
+		attributes: {} as { [key: string]: any },
+		description: description,
+		getValue() {
+			let localValue = PopsPanel.getValue(key, defaultValue);
+			return localValue;
+		},
+		callback(event: InputEvent, value: string) {
+			if (typeof callback === "function") {
+				if (callback(event, value)) {
+					return;
+				}
+			}
+			PopsPanel.setValue(key, value);
+		},
+		placeholder: placeholder,
+	};
+	if (result.attributes) {
+		result.attributes[ATTRIBUTE_KEY] = key;
+		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+	}
+	return result;
+};
+export { UIInput };
