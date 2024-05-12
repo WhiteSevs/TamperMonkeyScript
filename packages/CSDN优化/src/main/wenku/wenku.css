@@ -1,0 +1,13 @@
+#chatgpt-article-detail
+  > div.layout-center
+  > div.main
+  > div.article-box
+  > div.cont.first-show.forbid {
+  max-height: unset !important;
+  height: auto !important;
+  overflow: auto !important;
+}
+
+.forbid {
+  user-select: text !important;
+}

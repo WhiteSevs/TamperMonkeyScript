@@ -1,0 +1,29 @@
+.ecommend-item-box.recommend-recommend-box,
+.login-mark,
+.opt-box.text-center,
+.leftPop,
+#csdn-shop-window,
+.toolbar-advert,
+.hide-article-box,
+.user-desc.user-desc-fix,
+.recommend-card-box,
+.more-article,
+.article-show-more,
+#csdn-toolbar-profile-nologin,
+.guide-rr-first,
+#recommend-item-box-tow,
+/* 发文章得原力分图片提示 */
+div.csdn-toolbar-creative-mp,
+/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */
+#toolBarBox div.write-guide-buttom-box,
+/* 觉得还不错? 一键收藏 */
+ul.toolbox-list div.tool-active-list,
+/* 右边按钮组的最上面的创作话题 */
+div.csdn-side-toolbar .activity-swiper-box,
+.sidetool-writeguide-box .tip-box,
+/* 右下角的登录提示 */
+.passport-login-tip-container {
+  display: none !important;
+}
+
+

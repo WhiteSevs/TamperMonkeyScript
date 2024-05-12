@@ -5486,7 +5486,7 @@
       nodeSelectors.push(nodeSelectorsList);
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       /* 防止触发第二次回调 */
       let isReturn = false;
 
@@ -5530,6 +5530,7 @@
       });
       setTimeout(() => {
         mutationObserver.disconnect();
+        reject();
       }, maxTime);
     });
   };
@@ -5709,7 +5710,7 @@
       throw new TypeError("checkObj 不能为空对象 ");
     }
     let isResolve = false;
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       let interval = setInterval(() => {
         let obj = checkObj;
         if (typeof checkObj === "function") {
@@ -5728,7 +5729,7 @@
         setTimeout(() => {
           if (!isResolve) {
             clearInterval(interval);
-            resolve();
+            reject();
           }
         }, maxTime);
       }
@@ -5746,36 +5747,40 @@
       throw new Error("Utils.waitVueByInterval 参数element 不能为空");
     }
     let flag = false;
-    await Utils.waitPropertyByInterval(
-      element,
-      function (targetElement) {
-        if (targetElement == null) {
-          return false;
-        }
-        if (!(vueName in targetElement)) {
-          return false;
-        }
-        if (propertyName == null) {
-          return true;
-        }
-        let vueObject = targetElement[vueName];
-        if (typeof propertyName === "string") {
-          if (propertyName in vueObject) {
-            flag = true;
+    try {
+      await Utils.waitPropertyByInterval(
+        element,
+        function (targetElement) {
+          if (targetElement == null) {
+            return false;
+          }
+          if (!(vueName in targetElement)) {
+            return false;
+          }
+          if (propertyName == null) {
             return true;
           }
-        } else {
-          /* Function */
-          if (propertyName(vueObject)) {
-            flag = true;
-            return true;
+          let vueObject = targetElement[vueName];
+          if (typeof propertyName === "string") {
+            if (propertyName in vueObject) {
+              flag = true;
+              return true;
+            }
+          } else {
+            /* Function */
+            if (propertyName(vueObject)) {
+              flag = true;
+              return true;
+            }
           }
-        }
-        return false;
-      },
-      timer,
-      maxTime
-    );
+          return false;
+        },
+        timer,
+        maxTime
+      );
+    } catch (error) {
+      return flag;
+    }
     return flag;
   };
 

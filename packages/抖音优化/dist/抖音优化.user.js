@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.11
+// @version      2024.5.12
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -27,7 +27,25 @@
 (function () {
   'use strict';
 
-  var _a;
+  var __accessCheck = (obj, member, msg) => {
+    if (!member.has(obj))
+      throw TypeError("Cannot " + msg);
+  };
+  var __privateGet = (obj, member, getter) => {
+    __accessCheck(obj, member, "read from private field");
+    return getter ? getter.call(obj) : member.get(obj);
+  };
+  var __privateAdd = (obj, member, value) => {
+    if (member.has(obj))
+      throw TypeError("Cannot add the same private member more than once");
+    member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+  };
+  var __privateSet = (obj, member, value, setter) => {
+    __accessCheck(obj, member, "write to private field");
+    member.set(obj, value);
+    return value;
+  };
+  var _a, _key, _isWaitPress;
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -138,12 +156,7 @@
             "shieldFillingBricksAndStones",
             false
           ),
-          UISwitch(
-            "【屏蔽】客户端",
-            "屏蔽元素",
-            "shieldClient",
-            false
-          ),
+          UISwitch("【屏蔽】客户端", "屏蔽元素", "shieldClient", false),
           UISwitch(
             "【屏蔽】快捷访问",
             "屏蔽元素",
@@ -162,24 +175,14 @@
             "shieldPrivateMessage",
             false
           ),
-          UISwitch(
-            "【屏蔽】投稿",
-            "屏蔽元素",
-            "shieldSubmission",
-            false
-          )
+          UISwitch("【屏蔽】投稿", "屏蔽元素", "shieldSubmission", false)
         ]
       },
       {
         text: "搜索-屏蔽",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】搜索框",
-            "屏蔽元素",
-            "shieldSearch",
-            false
-          ),
+          UISwitch("【屏蔽】搜索框", "屏蔽元素", "shieldSearch", false),
           UISwitch(
             "【屏蔽】搜索框的提示",
             "屏蔽元素",
@@ -501,9 +504,6 @@
   const DouYinVideoShield = {
     key: "douyin-shield-rule",
     $data: {
-      /**
-       * @type {UtilsDictionaryConstructor<string,string>}
-       */
       rule: new utils.Dictionary()
     },
     /**
@@ -645,6 +645,736 @@
       return _GM_getValue(this.key, "");
     }
   };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack) {
+    let result = {
+      text,
+      type: "button",
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack: void 0
+    };
+    return result;
+  };
+  class ShortCut {
+    constructor(key) {
+      __privateAdd(this, _key, "short-cut");
+      __privateAdd(this, _isWaitPress, false);
+      if (typeof key === "string") {
+        __privateSet(this, _key, key);
+      }
+    }
+    getValue(key, defaultValue) {
+      let localValue = _GM_getValue(__privateGet(this, _key), []);
+      if (key) {
+        let findValue = localValue.find((item) => item.key === key);
+        return findValue ?? defaultValue;
+      } else {
+        return localValue;
+      }
+    }
+    /**
+     * 设置值
+     * @param key 键
+     */
+    setValue(key, keyName, keyValue, ohterCodeList) {
+      let localValue = _GM_getValue(__privateGet(this, _key), []);
+      localValue.push({
+        key,
+        value: {
+          keyName,
+          keyValue,
+          ohterCodeList
+        }
+      });
+      _GM_setValue(__privateGet(this, _key), localValue);
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      let result = false;
+      let localValue = _GM_getValue(__privateGet(this, _key), []);
+      let findValueIndex = localValue.findIndex((item) => item["key"] === key);
+      if (findValueIndex !== -1) {
+        localValue.splice(findValueIndex, 1);
+        result = true;
+      }
+      _GM_setValue(__privateGet(this, _key), localValue);
+      return result;
+    }
+    /**
+     * 获取快捷键显示的文字
+     * @param key
+     * @param defaultValue
+     */
+    getShowText(key, defaultValue) {
+      let localValue = this.getValue(key);
+      if (localValue) {
+        let result = "";
+        localValue.value.ohterCodeList.forEach((ohterCodeKey) => {
+          if (localValue.key === key) {
+            result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+          }
+        });
+        result += localValue.value.keyName;
+        return result;
+      } else {
+        return defaultValue;
+      }
+    }
+    /**
+     * 录入快捷键
+     */
+    inputShortCut(key, defaultValue, callback) {
+      let localValue = this.getValue(key) ?? defaultValue;
+      if (localValue === defaultValue) {
+        let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+          showClose: true,
+          onClose() {
+            keyboardListener.removeListen();
+          }
+        });
+        __privateSet(this, _isWaitPress, true);
+        let keyboardListener = utils.listenKeyboard(
+          window,
+          "keyup",
+          (keyName, keyValue, ohterCodeList) => {
+            let shortcutJSONString = JSON.stringify({
+              keyName,
+              keyValue,
+              ohterCodeList
+            });
+            let allDetails = this.getValue();
+            for (let index = 0; index < allDetails.length; index++) {
+              if (shortcutJSONString === JSON.stringify(allDetails[index]["value"])) {
+                Qmsg.error(
+                  `快捷键 ${this.getShowText(
+                  allDetails[index]["key"],
+                  keyName
+                )} 已被占用`
+                );
+                __privateSet(this, _isWaitPress, false);
+                loadingQmsg.close();
+                return;
+              }
+            }
+            this.setValue(key, keyName, keyValue, ohterCodeList);
+            if (typeof callback === "function") {
+              callback(this.getShowText(key, defaultValue));
+            }
+            __privateSet(this, _isWaitPress, false);
+            loadingQmsg.close();
+          }
+        );
+      } else {
+        this.deleteValue(key);
+      }
+      if (typeof callback === "function") {
+        callback(this.getShowText(key, defaultValue));
+      }
+    }
+    /**
+     * 初始化全局键盘监听
+     */
+    initGlobalKeyboardListener(shortCutMap) {
+      let localValue = this.getValue();
+      if (!localValue.length) {
+        return;
+      }
+      utils.listenKeyboard(
+        window,
+        "keydown",
+        (keyName, keyValue, ohterCodeList) => {
+          if (__privateGet(this, _isWaitPress)) {
+            return;
+          }
+          localValue = this.getValue();
+          let findShortcutIndex = localValue.findIndex((item) => {
+            let itemValue = item["value"];
+            let tempValue = {
+              keyName,
+              keyValue,
+              ohterCodeList
+            };
+            if (JSON.stringify(itemValue) === JSON.stringify(tempValue)) {
+              return item;
+            }
+          });
+          if (findShortcutIndex != -1) {
+            let findShortcut = localValue[findShortcutIndex];
+            log.info(["调用快捷键", findShortcut]);
+            if (findShortcut.key in shortCutMap) {
+              shortCutMap[findShortcut.key].callback();
+            }
+          }
+        }
+      );
+    }
+  }
+  _key = new WeakMap();
+  _isWaitPress = new WeakMap();
+  const DouYinVideoHideElement = {
+    init() {
+      PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
+        this.shieldRightExpandCommentButton();
+      });
+      PopsPanel.execMenu("shieldSearchFloatingBar", () => {
+        this.shieldSearchFloatingBar();
+      });
+      PopsPanel.execMenu("shieldCloseFullScreenButton", () => {
+        this.shieldCloseFullScreenButton();
+      });
+      PopsPanel.execMenu("shieldPlaySwitchButton", () => {
+        this.shieldPlaySwitchButton();
+      });
+      PopsPanel.execMenu("shieldAuthorAvatar", () => {
+        this.shieldAuthorAvatar();
+      });
+      PopsPanel.execMenu("shieldLikeButton", () => {
+        this.shieldLikeButton();
+      });
+      PopsPanel.execMenu("shieldCommentButton", () => {
+        this.shieldCommentButton();
+      });
+      PopsPanel.execMenu("shieldCollectionButton", () => {
+        this.shieldCollectionButton();
+      });
+      PopsPanel.execMenu("shieldSharenButton", () => {
+        this.shieldSharenButton();
+      });
+      PopsPanel.execMenu("shieldRelatedRecommendationsButton", () => {
+        this.shieldRelatedRecommendationsButton();
+      });
+      PopsPanel.execMenu("shieldMoreButton", () => {
+        this.shieldMoreButton();
+      });
+      PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
+        this.shieldBottomVideoToolBar();
+      });
+    },
+    /**
+     * 【屏蔽】右侧的展开评论按钮
+     */
+    shieldRightExpandCommentButton() {
+      DouYinElement.addShieldStyle(
+        '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
+        '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
+      );
+      _GM_addStyle(`
+    .basePlayerContainer .positionBox{
+        padding-right: 20px !important;
+    }
+    `);
+    },
+    /**
+     * 左上角的鼠标的快捷搜索热点的悬浮栏
+     */
+    shieldSearchFloatingBar() {
+      DouYinElement.addShieldStyle(
+        '.slider-video div:has([data-e2e="searchbar-button"])',
+        'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
+        'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])'
+      );
+    },
+    /**
+     * 【屏蔽】网页全屏关闭按钮
+     */
+    shieldCloseFullScreenButton() {
+      DouYinElement.addShieldStyle(
+        '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
+      );
+    },
+    /**
+     * 【屏蔽】切换播放
+     */
+    shieldPlaySwitchButton() {
+      DouYinElement.addShieldStyle(
+        '.positionBox  .xgplayer-playswitch[data-state="normal"]',
+        "div.xgplayer-playswitch"
+      );
+    },
+    /**
+     * 【屏蔽】作者头像
+     */
+    shieldAuthorAvatar() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has([data-e2e="video-avatar"])'
+      );
+    },
+    /**
+     * 【屏蔽】点赞
+     */
+    shieldLikeButton() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has([data-e2e="video-player-digg"])'
+      );
+    },
+    /**
+     * 【屏蔽】评论
+     */
+    shieldCommentButton() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
+      );
+    },
+    /**
+     * 【屏蔽】收藏
+     */
+    shieldCollectionButton() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has([data-e2e="video-player-collect"])'
+      );
+    },
+    /**
+     * 【屏蔽】分享
+     */
+    shieldSharenButton() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has([data-e2e="video-player-share"])'
+      );
+    },
+    /**
+     * 【屏蔽】看相关
+     */
+    shieldRelatedRecommendationsButton() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
+        'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
+      );
+    },
+    /**
+     * 【屏蔽】更多
+     */
+    shieldMoreButton() {
+      DouYinElement.addShieldStyle(
+        'div.dy-tip-container:has([data-e2e="video-play-more"])'
+      );
+    },
+    /**
+     * 【屏蔽】底部视频工具栏
+     */
+    shieldBottomVideoToolBar() {
+      DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
+      _GM_addStyle(`
+  div:has( > div > pace-island > #video-info-wrap ),
+  xg-video-container.xg-video-container{
+    bottom: 0 !important;
+  }
+  `);
+    }
+  };
+  const DouYinVideo = {
+    init() {
+      DouYinVideoHideElement.init();
+      DouYinVideoShortcut.init();
+      PopsPanel.execMenu("shieldVideo", () => {
+        DouYinVideoShield.init();
+      });
+      PopsPanel.execMenu("changeCommentToBottom", () => {
+        DouYinVideo.changeCommentToBottom();
+      });
+      PopsPanel.execMenu("fullScreen", () => {
+        this.fullScreen();
+      });
+      PopsPanel.execMenu("parseVideo", () => {
+        DouYinVideo.parseVideo();
+      });
+      PopsPanel.execMenu("autoEnterElementFullScreen", () => {
+        this.autoEnterElementFullScreen();
+      });
+      DOMUtils.ready(() => {
+        DouYinVideo.chooseVideoDefinition(
+          PopsPanel.getValue("chooseVideoDefinition")
+        );
+        PopsPanel.execMenu("mobileMode", () => {
+          this.mobileMode();
+        });
+      });
+    },
+    /**
+     * 全屏
+     */
+    fullScreen() {
+      DouYinElement.addShieldStyle(
+        /* 右侧工具栏 */
+        ".slider-video .positionBox",
+        /* 中间底部的视频信息（描述、作者、话题等） */
+        "#video-info-wrap",
+        /* 中间底部的视频控制工具栏 */
+        "xg-controls.xgplayer-controls"
+      );
+      DouYinVideoHideElement.shieldSearchFloatingBar();
+      _GM_addStyle(`
+        /* 视频全屏 */
+        xg-video-container.xg-video-container{
+            bottom: 0px !important;
+        }
+        `);
+    },
+    /**
+     * 自动进入网页全屏
+     */
+    autoEnterElementFullScreen() {
+      utils.waitNode(
+        'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
+      ).then((element) => {
+        element.click();
+      });
+    },
+    /**
+     * 评论区修改为底部
+     */
+    changeCommentToBottom() {
+      DouYinElement.addShieldStyle(
+        '#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard'
+      );
+      _GM_addStyle(`
+        #sliderVideo[data-e2e] .playerContainer,
+        #slideMode[data-e2e] .playerContainer{
+            width: 100% !important;
+        }
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
+            width: 100%;
+            height: 75%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            transition: height .15s linear !important;
+            position: absolute;
+        }
+        `);
+    },
+    /**
+     * 选择视频清晰度
+     * @param [mode=0] 视频播放模式
+     */
+    chooseVideoDefinition(mode = 0) {
+      let Definition_Key = "MANUAL_SWITCH";
+      let definition = [
+        {
+          clarityReal: [
+            "normal_1080_0",
+            "normal_720_0",
+            "low_720_0",
+            "normal_540_0",
+            "low_540_0",
+            "adapt_low_540_0",
+            "lower_540_0"
+          ],
+          done: 1,
+          gearClarity: "5",
+          gearName: "高清",
+          gearType: 1,
+          qualityType: 1
+        },
+        {
+          clarityReal: [
+            "normal_1080_0",
+            "low_540_0",
+            "low_720_0",
+            "normal_720_0",
+            "normal_540_0",
+            "adapt_low_540_0",
+            "lower_540_0",
+            "adapt_lowest_720_1",
+            "adapt_540_1",
+            "adapt_lower_540_1"
+          ],
+          done: 1,
+          gearClarity: "4",
+          gearName: "清晰",
+          gearType: 2,
+          qualityType: 15
+        },
+        {
+          clarityReal: [
+            "normal_1080_0",
+            "low_540_0",
+            "low_720_0",
+            "normal_720_0",
+            "normal_540_0",
+            "adapt_low_540_0",
+            "lower_540_0",
+            "adapt_lowest_720_1",
+            "adapt_540_1",
+            "adapt_lower_540_1"
+          ],
+          done: 1,
+          gearClarity: "3",
+          gearName: "流畅",
+          gearType: 3,
+          qualityType: 28
+        },
+        {
+          clarityReal: [
+            "normal_1080_0",
+            "low_540_0",
+            "low_720_0",
+            "normal_720_0",
+            "normal_540_0",
+            "adapt_low_540_0",
+            "lower_540_0",
+            "adapt_lowest_720_1",
+            "adapt_540_1",
+            "adapt_lower_540_1"
+          ],
+          done: 1,
+          gearClarity: "2",
+          gearName: "极速",
+          gearType: 4,
+          qualityType: 21
+        },
+        {
+          clarityReal: [
+            "normal_1080_0",
+            "low_540_0",
+            "low_720_0",
+            "normal_720_0",
+            "normal_540_0",
+            "adapt_low_540_0",
+            "lower_540_0",
+            "adapt_lowest_720_1",
+            "adapt_540_1",
+            "adapt_lower_540_1"
+          ],
+          done: 1,
+          gearClarity: "0",
+          gearName: "智能",
+          gearType: 0
+        }
+      ];
+      let choose = definition.find((item) => item.gearType === mode);
+      function setStorage(value) {
+        _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
+      }
+      if (choose) {
+        let count = 0;
+        let chooseStr = JSON.stringify(choose);
+        let interval = setInterval(() => {
+          setStorage(chooseStr);
+          count++;
+          if (count >= 20) {
+            clearInterval(interval);
+          }
+        }, 500);
+        log.success("设置当前视频的清晰度: " + mode);
+      } else {
+        log.error("该清晰度不存在: " + mode);
+      }
+    },
+    /**
+     * 选择视频倍速
+     * @param [rate="1"] 倍速
+     */
+    chooseVideoRate(rate = "1") {
+      let Definition_Key = "player_playbackratio";
+      function setRate(value = "1") {
+        _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
+        document.querySelectorAll(
+          "xg-icon.xgplayer-playback-setting"
+        ).forEach(($playbackSetting) => {
+          var _a2, _b, _c, _d;
+          let $container = utils.getReactObj($playbackSetting).reactContainer;
+          (_d = (_c = (_b = (_a2 = $container == null ? void 0 : $container.memoizedState) == null ? void 0 : _a2.element) == null ? void 0 : _b.props) == null ? void 0 : _c.xgCase) == null ? void 0 : _d.updatePlayBackRatio();
+        });
+      }
+      setRate(rate);
+    },
+    /**
+     * 让下载按钮变成解析视频
+     */
+    parseVideo() {
+      function showParseInfoDialog(srcList) {
+        let contentHTML = "";
+        srcList.forEach((url) => {
+          contentHTML += `
+          <div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
+            `;
+        });
+        contentHTML = `<div class="douyin-video-link-container">${contentHTML}</div>`;
+        pops.alert({
+          title: {
+            text: "视频解析",
+            position: "center"
+          },
+          content: {
+            text: contentHTML,
+            html: true
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: "50dvw",
+          height: "50dvh",
+          drag: true,
+          dragLimit: true,
+          style: `
+                .douyin-video-link-container{
+
+                }
+                .douyin-video-link-item{
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin: 10px;
+                }
+                .douyin-video-link-item a{
+
+                }
+                `
+        });
+      }
+      DOMUtils.on(
+        document,
+        "click",
+        'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
+        function(event) {
+          var _a2;
+          let clickElement = event.target;
+          let rectFiber = (_a2 = utils.getReactObj(
+            clickElement.parentElement
+          )) == null ? void 0 : _a2.reactFiber;
+          if (!rectFiber) {
+            Qmsg.error("获取rectFiber属性失败");
+            return;
+          }
+          try {
+            let playTotalAddr = [];
+            let playAddr = rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
+            let playAddrH265 = rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
+            if (playAddr != null && Array.isArray(playAddr)) {
+              playTotalAddr = playTotalAddr.concat(playAddr);
+            }
+            if (playAddrH265 != null && Array.isArray(playAddrH265)) {
+              playTotalAddr = playTotalAddr.concat(playAddrH265);
+            }
+            if (!playTotalAddr.length) {
+              Qmsg.error("未获取到视频的有效链接信息");
+              return;
+            }
+            let videoInfo = playTotalAddr.map((item) => item.src);
+            showParseInfoDialog(videoInfo);
+          } catch (error) {
+            Qmsg.error("解析视频失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 手机模式
+     */
+    mobileMode() {
+      log.success("启用手机模式");
+      let meta = DOMUtils.createElement(
+        "meta",
+        {},
+        {
+          name: "viewport",
+          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+        }
+      );
+      document.querySelectorAll("meta[name='viewport']").forEach((ele) => ele.remove());
+      document.head.appendChild(meta);
+      DouYinElement.addShieldStyle("img#douyin-temp-sidebar");
+      _GM_addStyle(`
+        /* 右侧工具栏放大 */
+        .basePlayerContainer .positionBox{
+            scale: unset !important;
+            bottom: 80px !important;
+            padding-right: 5px !important;
+            transform: scale(1.12) !important;
+        }
+        /* 图标再放大 */
+        .basePlayerContainer .positionBox svg{
+            transform: scale(1.12);
+        }
+        /* 重置关注按钮的scale */
+        .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
+            scale: unset;
+        }
+        /* 设备处于横向方向，即宽度大于高度。 */
+        @media screen and (orientation: landscape) {
+            /* 右侧工具栏放大 */
+            .basePlayerContainer .positionBox{
+                // transform: scale(0.95) !important;
+                // bottom: 42px !important;
+                padding-right: 10px !important;
+            }
+        }
+        /* 该设备是纵向的，即高度大于或等于宽度 */
+        @media screen and (orientation: portrait) {
+            
+        }
+        `);
+    }
+  };
+  const DouYinVideoShortcut = {
+    shortCut: new ShortCut("video-short-cut"),
+    $data: {
+      rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"]
+    },
+    init() {
+      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
+    },
+    getShortCutMap() {
+      return {
+        "dy-video-rate-low": {
+          callback() {
+            log.info("调用倍速 => 小");
+            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
+              (rate) => {
+                return rate === currentRate;
+              }
+            );
+            if (findIndex === 0) {
+              log.warn("已是最小倍速: " + currentRate);
+              return;
+            }
+            let prevRate = DouYinVideoShortcut.$data.rateMap[findIndex - 1];
+            log.info("设置倍速: " + prevRate);
+            DouYinVideo.chooseVideoRate(prevRate);
+          }
+        },
+        "dy-video-rate-up": {
+          callback() {
+            log.info("调用倍速 => 大");
+            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
+              (rate) => {
+                return rate === currentRate;
+              }
+            );
+            if (findIndex === DouYinVideoShortcut.$data.rateMap.length - 1) {
+              log.warn("已是最大倍速: " + currentRate);
+              return;
+            }
+            let nextRate = DouYinVideoShortcut.$data.rateMap[findIndex + 1];
+            log.info("设置倍速: " + nextRate);
+            DouYinVideo.chooseVideoRate(nextRate);
+          }
+        }
+      };
+    }
+  };
   const PanelVideoConfig = {
     id: "panel-config-video",
     title: "视频",
@@ -709,11 +1439,64 @@
             "fullScreen",
             false
           ),
-          UISwitch(
-            "手机模式",
-            "放大各种文字和图标",
-            "mobileMode",
-            false
+          UISwitch("手机模式", "放大各种文字和图标", "mobileMode", false)
+        ]
+      },
+      {
+        text: "快捷键",
+        type: "forms",
+        forms: [
+          UIButton(
+            "倍速 -> 小",
+            "视频倍速变小",
+            () => {
+              return DouYinVideoShortcut.shortCut.getShowText(
+                "dy-video-rate-low",
+                "暂无快捷键"
+              );
+            },
+            "keyboard",
+            false,
+            false,
+            "default",
+            (event) => {
+              var _a2;
+              let $click = event.target;
+              let spanElement = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+              DouYinVideoShortcut.shortCut.inputShortCut(
+                "dy-video-rate-low",
+                "暂无快捷键",
+                (showText) => {
+                  spanElement.innerHTML = showText;
+                }
+              );
+            }
+          ),
+          UIButton(
+            "倍速 -> 大",
+            "视频倍速变大",
+            () => {
+              return DouYinVideoShortcut.shortCut.getShowText(
+                "dy-video-rate-up",
+                "暂无快捷键"
+              );
+            },
+            "keyboard",
+            false,
+            false,
+            "default",
+            (event) => {
+              var _a2;
+              let $click = event.target;
+              let spanElement = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+              DouYinVideoShortcut.shortCut.inputShortCut(
+                "dy-video-rate-up",
+                "暂无快捷键",
+                (showText) => {
+                  spanElement.innerHTML = showText;
+                }
+              );
+            }
           )
         ]
       },
@@ -751,12 +1534,7 @@
             "shieldAuthorAvatar",
             false
           ),
-          UISwitch(
-            "【屏蔽】点赞",
-            "屏蔽元素",
-            "shieldLikeButton",
-            false
-          ),
+          UISwitch("【屏蔽】点赞", "屏蔽元素", "shieldLikeButton", false),
           UISwitch(
             "【屏蔽】评论",
             "屏蔽元素",
@@ -781,12 +1559,7 @@
             "shieldRelatedRecommendationsButton",
             false
           ),
-          UISwitch(
-            "【屏蔽】更多",
-            "屏蔽元素",
-            "shieldMoreButton",
-            false
-          ),
+          UISwitch("【屏蔽】更多", "屏蔽元素", "shieldMoreButton", false),
           UISwitch(
             "【屏蔽】底部视频工具栏",
             "屏蔽元素",
@@ -811,12 +1584,7 @@
             "shieldVideo-live",
             true
           ),
-          UISwitch(
-            "【屏蔽】广告",
-            "过滤掉广告",
-            "shieldVideo-ads",
-            true
-          ),
+          UISwitch("【屏蔽】广告", "过滤掉广告", "shieldVideo-ads", true),
           {
             type: "own",
             getLiElementCallBack(liElement) {
@@ -830,7 +1598,9 @@
                   style: "width: 100%;"
                 }
               );
-              let textarea = textareaDiv.querySelector("textarea");
+              let textarea = textareaDiv.querySelector(
+                "textarea"
+              );
               textarea.value = DouYinVideoShield.get();
               DOMUtils.on(
                 textarea,
@@ -1370,490 +2140,6 @@
           }
         });
       });
-    }
-  };
-  const DouYinVideoHideElement = {
-    init() {
-      PopsPanel.execMenu("shieldRightExpandCommentButton", () => {
-        this.shieldRightExpandCommentButton();
-      });
-      PopsPanel.execMenu("shieldSearchFloatingBar", () => {
-        this.shieldSearchFloatingBar();
-      });
-      PopsPanel.execMenu("shieldCloseFullScreenButton", () => {
-        this.shieldCloseFullScreenButton();
-      });
-      PopsPanel.execMenu("shieldPlaySwitchButton", () => {
-        this.shieldPlaySwitchButton();
-      });
-      PopsPanel.execMenu("shieldAuthorAvatar", () => {
-        this.shieldAuthorAvatar();
-      });
-      PopsPanel.execMenu("shieldLikeButton", () => {
-        this.shieldLikeButton();
-      });
-      PopsPanel.execMenu("shieldCommentButton", () => {
-        this.shieldCommentButton();
-      });
-      PopsPanel.execMenu("shieldCollectionButton", () => {
-        this.shieldCollectionButton();
-      });
-      PopsPanel.execMenu("shieldSharenButton", () => {
-        this.shieldSharenButton();
-      });
-      PopsPanel.execMenu("shieldRelatedRecommendationsButton", () => {
-        this.shieldRelatedRecommendationsButton();
-      });
-      PopsPanel.execMenu("shieldMoreButton", () => {
-        this.shieldMoreButton();
-      });
-      PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
-        this.shieldBottomVideoToolBar();
-      });
-    },
-    /**
-     * 【屏蔽】右侧的展开评论按钮
-     */
-    shieldRightExpandCommentButton() {
-      DouYinElement.addShieldStyle(
-        '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
-        '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
-      );
-      _GM_addStyle(`
-    .basePlayerContainer .positionBox{
-        padding-right: 20px !important;
-    }
-    `);
-    },
-    /**
-     * 左上角的鼠标的快捷搜索热点的悬浮栏
-     */
-    shieldSearchFloatingBar() {
-      DouYinElement.addShieldStyle(
-        '.slider-video div:has([data-e2e="searchbar-button"])',
-        'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
-        'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])'
-      );
-    },
-    /**
-     * 【屏蔽】网页全屏关闭按钮
-     */
-    shieldCloseFullScreenButton() {
-      DouYinElement.addShieldStyle(
-        '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
-      );
-    },
-    /**
-     * 【屏蔽】切换播放
-     */
-    shieldPlaySwitchButton() {
-      DouYinElement.addShieldStyle(
-        '.positionBox  .xgplayer-playswitch[data-state="normal"]',
-        "div.xgplayer-playswitch"
-      );
-    },
-    /**
-     * 【屏蔽】作者头像
-     */
-    shieldAuthorAvatar() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-avatar"])'
-      );
-    },
-    /**
-     * 【屏蔽】点赞
-     */
-    shieldLikeButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-player-digg"])'
-      );
-    },
-    /**
-     * 【屏蔽】评论
-     */
-    shieldCommentButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
-      );
-    },
-    /**
-     * 【屏蔽】收藏
-     */
-    shieldCollectionButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-player-collect"])'
-      );
-    },
-    /**
-     * 【屏蔽】分享
-     */
-    shieldSharenButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-player-share"])'
-      );
-    },
-    /**
-     * 【屏蔽】看相关
-     */
-    shieldRelatedRecommendationsButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
-        'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
-      );
-    },
-    /**
-     * 【屏蔽】更多
-     */
-    shieldMoreButton() {
-      DouYinElement.addShieldStyle(
-        'div.dy-tip-container:has([data-e2e="video-play-more"])'
-      );
-    },
-    /**
-     * 【屏蔽】底部视频工具栏
-     */
-    shieldBottomVideoToolBar() {
-      DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
-      _GM_addStyle(`
-  div:has( > div > pace-island > #video-info-wrap ),
-  xg-video-container.xg-video-container{
-    bottom: 0 !important;
-  }
-  `);
-    }
-  };
-  const DouYinVideo = {
-    init() {
-      DouYinVideoHideElement.init();
-      PopsPanel.execMenu("shieldVideo", () => {
-        DouYinVideoShield.init();
-      });
-      PopsPanel.execMenu("changeCommentToBottom", () => {
-        DouYinVideo.changeCommentToBottom();
-      });
-      PopsPanel.execMenu("fullScreen", () => {
-        this.fullScreen();
-      });
-      PopsPanel.execMenu("parseVideo", () => {
-        DouYinVideo.parseVideo();
-      });
-      PopsPanel.execMenu("autoEnterElementFullScreen", () => {
-        this.autoEnterElementFullScreen();
-      });
-      DOMUtils.ready(() => {
-        DouYinVideo.chooseVideoDefinition(PopsPanel.getValue("chooseVideoDefinition"));
-        PopsPanel.execMenu("mobileMode", () => {
-          this.mobileMode();
-        });
-      });
-    },
-    /**
-     * 全屏
-     */
-    fullScreen() {
-      DouYinElement.addShieldStyle(
-        /* 右侧工具栏 */
-        ".slider-video .positionBox",
-        /* 中间底部的视频信息（描述、作者、话题等） */
-        "#video-info-wrap",
-        /* 中间底部的视频控制工具栏 */
-        "xg-controls.xgplayer-controls"
-      );
-      DouYinVideoHideElement.shieldSearchFloatingBar();
-      _GM_addStyle(`
-        /* 视频全屏 */
-        xg-video-container.xg-video-container{
-            bottom: 0px !important;
-        }
-        `);
-    },
-    /**
-     * 自动进入网页全屏
-     */
-    autoEnterElementFullScreen() {
-      utils.waitNode(
-        'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
-      ).then((element) => {
-        element.click();
-      });
-    },
-    /**
-     * 评论区修改为底部
-     */
-    changeCommentToBottom() {
-      DouYinElement.addShieldStyle(
-        '#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard'
-      );
-      _GM_addStyle(`
-        #sliderVideo[data-e2e] .playerContainer,
-        #slideMode[data-e2e] .playerContainer{
-            width: 100% !important;
-        }
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
-            width: 100%;
-            height: 75%;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
-            transition: height .15s linear !important;
-            position: absolute;
-        }
-        `);
-    },
-    /**
-     * 选择视频清晰度
-     * @param [mode=0] 视频播放模式
-     */
-    chooseVideoDefinition(mode = 0) {
-      let Definition_Key = "MANUAL_SWITCH";
-      let definition = [
-        {
-          clarityReal: [
-            "normal_1080_0",
-            "normal_720_0",
-            "low_720_0",
-            "normal_540_0",
-            "low_540_0",
-            "adapt_low_540_0",
-            "lower_540_0"
-          ],
-          done: 1,
-          gearClarity: "5",
-          gearName: "高清",
-          gearType: 1,
-          qualityType: 1
-        },
-        {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
-          done: 1,
-          gearClarity: "4",
-          gearName: "清晰",
-          gearType: 2,
-          qualityType: 15
-        },
-        {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
-          done: 1,
-          gearClarity: "3",
-          gearName: "流畅",
-          gearType: 3,
-          qualityType: 28
-        },
-        {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
-          done: 1,
-          gearClarity: "2",
-          gearName: "极速",
-          gearType: 4,
-          qualityType: 21
-        },
-        {
-          clarityReal: [
-            "normal_1080_0",
-            "low_540_0",
-            "low_720_0",
-            "normal_720_0",
-            "normal_540_0",
-            "adapt_low_540_0",
-            "lower_540_0",
-            "adapt_lowest_720_1",
-            "adapt_540_1",
-            "adapt_lower_540_1"
-          ],
-          done: 1,
-          gearClarity: "0",
-          gearName: "智能",
-          gearType: 0
-        }
-      ];
-      let choose = definition.find((item) => item.gearType === mode);
-      function setStorage(value) {
-        _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-      }
-      if (choose) {
-        let count = 0;
-        let chooseStr = JSON.stringify(choose);
-        let interval = setInterval(() => {
-          setStorage(chooseStr);
-          count++;
-          if (count >= 20) {
-            clearInterval(interval);
-          }
-        }, 500);
-        log.success("设置当前视频的清晰度: " + mode);
-      } else {
-        log.error("该清晰度不存在: " + mode);
-      }
-    },
-    /**
-     * 让下载按钮变成解析视频
-     */
-    parseVideo() {
-      function showParseInfoDialog(srcList) {
-        let contentHTML = "";
-        srcList.forEach((url) => {
-          contentHTML += `
-          <div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
-            `;
-        });
-        contentHTML = `<div class="douyin-video-link-container">${contentHTML}</div>`;
-        pops.alert({
-          title: {
-            text: "视频解析",
-            position: "center"
-          },
-          content: {
-            text: contentHTML,
-            html: true
-          },
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: true
-            }
-          },
-          width: "50dvw",
-          height: "50dvh",
-          drag: true,
-          dragLimit: true,
-          style: `
-                .douyin-video-link-container{
-
-                }
-                .douyin-video-link-item{
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    margin: 10px;
-                }
-                .douyin-video-link-item a{
-
-                }
-                `
-        });
-      }
-      DOMUtils.on(
-        document,
-        "click",
-        'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
-        function(event) {
-          var _a2;
-          let clickElement = event.target;
-          let rectFiber = (_a2 = utils.getReactObj(
-            clickElement.parentElement
-          )) == null ? void 0 : _a2.reactFiber;
-          if (!rectFiber) {
-            Qmsg.error("获取rectFiber属性失败");
-            return;
-          }
-          try {
-            let playTotalAddr = [];
-            let playAddr = rectFiber.return.memoizedProps.awemeInfo.video.playAddr;
-            let playAddrH265 = rectFiber.return.memoizedProps.awemeInfo.video.playAddrH265;
-            if (playAddr != null && Array.isArray(playAddr)) {
-              playTotalAddr = playTotalAddr.concat(playAddr);
-            }
-            if (playAddrH265 != null && Array.isArray(playAddrH265)) {
-              playTotalAddr = playTotalAddr.concat(playAddrH265);
-            }
-            if (!playTotalAddr.length) {
-              Qmsg.error("未获取到视频的有效链接信息");
-              return;
-            }
-            let videoInfo = playTotalAddr.map((item) => item.src);
-            showParseInfoDialog(videoInfo);
-          } catch (error) {
-            Qmsg.error("解析视频失败");
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 手机模式
-     */
-    mobileMode() {
-      log.success("启用手机模式");
-      let meta = DOMUtils.createElement(
-        "meta",
-        {},
-        {
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-        }
-      );
-      document.querySelectorAll("meta[name='viewport']").forEach((ele) => ele.remove());
-      document.head.appendChild(meta);
-      DouYinElement.addShieldStyle(
-        "img#douyin-temp-sidebar"
-      );
-      _GM_addStyle(`
-        /* 右侧工具栏放大 */
-        .basePlayerContainer .positionBox{
-            scale: unset !important;
-            bottom: 80px !important;
-            padding-right: 5px !important;
-            transform: scale(1.12) !important;
-        }
-        /* 图标再放大 */
-        .basePlayerContainer .positionBox svg{
-            transform: scale(1.12);
-        }
-        /* 重置关注按钮的scale */
-        .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
-            scale: unset;
-        }
-        /* 设备处于横向方向，即宽度大于高度。 */
-        @media screen and (orientation: landscape) {
-            /* 右侧工具栏放大 */
-            .basePlayerContainer .positionBox{
-                // transform: scale(0.95) !important;
-                // bottom: 42px !important;
-                padding-right: 10px !important;
-            }
-        }
-        /* 该设备是纵向的，即高度大于或等于宽度 */
-        @media screen and (orientation: portrait) {
-            
-        }
-        `);
     }
   };
   const DouYinLiveChatRoom = {

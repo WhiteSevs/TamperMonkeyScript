@@ -1,6 +1,6 @@
 import { GM_addStyle } from "$";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "../Element/element";
+import { DouYinElement } from "../Element/DouYinElement";
 
 const ShieldSearch = {
     init() {

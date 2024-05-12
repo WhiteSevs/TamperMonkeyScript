@@ -1,4 +1,4 @@
-import { DouYin } from "./main/douyin";
+import { DouYin } from "./main/DouYin";
 import { PopsPanel } from "./setting/setting";
 
 PopsPanel.init();

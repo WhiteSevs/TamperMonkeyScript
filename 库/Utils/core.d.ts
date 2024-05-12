@@ -1886,21 +1886,21 @@ declare interface UtilsGMCookieListResult {
 
 declare interface UtilsGMCookieSetOptions {
     /** 默认为当前的url */
-    url: string;
+    url?: string;
     /** 默认为当前的域名(window.location.hostname) */
-    domain: string;
+    domain?: string;
     /** 需要检索的Cookie的名字 */
-    name: string;
+    name?: string;
     /** 需要检索的Cookie的路径，默认为"/" */
-    path: string;
+    path?: string;
     /** 值 */
-    value: string;
+    value?: string | number;
     /**  */
-    secure: boolean;
+    secure?: boolean;
     /**  */
-    httpOnly: boolean;
+    httpOnly?: boolean;
     /**  Cookie过期时间，默认为30天 */
-    expirationDate: number;
+    expirationDate?: number;
 }
 
 declare interface UtilsGMCookieDeleteOptions {
@@ -3610,6 +3610,7 @@ interface Utils {
      * })
      */
     waitAnyNode<T extends HTMLElement>(...nodeSelectors: any[]): Promise<T>;
+    waitNodeList<T extends HTMLElement>(nodeSelector: string): Promise<T>;
     /**
      * 等待指定元素出现，支持多个selector
      * @param nodeSelectors
@@ -3628,7 +3629,7 @@ interface Utils {
      *  console.log(nodeListArray[1]) // a.xxx => NodeList
      * })
      */
-    waitNodeList<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T | NodeListOf<T>[]>;
+    waitNodeList<T extends HTMLElement>(...nodeSelectors: string[]): Promise<NodeListOf<T>[]>;
     /**
      * 等待任意元素出现，支持多个selector
      * @param nodeSelectors

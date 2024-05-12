@@ -1,0 +1,19 @@
+#operate,.feed-Sign-span,
+.view_comment_box,
+.weixin-shadowbox.wap-shadowbox,
+.feed-Sign-span,
+.user-desc.user-desc-fix,
+.comment_read_more_box,
+#content_views pre.set-code-hide .hide-preCode-box,
+/* 登录弹窗 */
+.passport-login-container,
+.hljs-button[data-title='登录后复制'],
+.article-show-more,
+#treeSkill,
+div.btn_open_app_prompt_div,
+div.readall_box,
+div.aside-header-fixed,
+div.feed-Sign-weixin,
+div.ios-shadowbox {
+  display: none !important;
+}
