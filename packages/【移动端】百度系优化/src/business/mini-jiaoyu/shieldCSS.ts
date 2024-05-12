@@ -1,6 +1,0 @@
-const MiniJiaoYuShieldCSS = `
-`
-
-export {
-    MiniJiaoYuShieldCSS
-}

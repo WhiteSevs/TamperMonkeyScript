@@ -1,12 +1,12 @@
 import { unsafeWindow } from "ViteGM";
-import { BaiDu } from "./business";
+import { Baidu } from "./main/Baidu";
 import { log } from "./env";
-import { PopsPanel } from "./ui/setting";
+import { PopsPanel } from "./setting/setting";
 
 if (typeof (unsafeWindow as any).BaiduOptimizationScriptRunCount !== "number") {
   (unsafeWindow as any).BaiduOptimizationScriptRunCount = 0;
   PopsPanel.init();
-  BaiDu.init();
+  Baidu.init();
 } else {
   (unsafeWindow as any).BaiduOptimizationScriptRunCount++;
   log.warn(
