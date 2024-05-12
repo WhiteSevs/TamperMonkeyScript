@@ -33,7 +33,7 @@
 // @require         https://update.greasyfork.org/scripts/456485/1360571/pops.js
 // @require         https://update.greasyfork.org/scripts/483694/1360576/Eruda-2.js
 // @require         https://update.greasyfork.org/scripts/483695/1360577/vConsole-2.js
-// @require         https://update.greasyfork.org/scripts/483696/1365784/PageSpy-2.js
+// @require         https://update.greasyfork.org/scripts/483696/1375155/PageSpy-2.js
 // @require         https://update.greasyfork.org/scripts/455186/1365298/WhiteSevsUtils.js
 // ==/UserScript==
 
@@ -1765,7 +1765,7 @@
     },
     erudaVersion: "3.0.1",
     vConsoleVersion: "3.15.1",
-    pageSpyVersion: "1.8.3",
+    pageSpyVersion: "1.8.6",
     pageSpyDefaultApi: "test.jikejishu.com",
     pageSpyDefaultCliennOrigin: "https://test.jikejishu.com",
     chiiUrl: "https://chii.liriliri.io/",
