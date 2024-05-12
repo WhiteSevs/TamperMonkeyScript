@@ -1,0 +1,87 @@
+#mainBox {
+  width: auto;
+}
+.user-desc.user-desc-fix {
+  height: auto !important;
+  overflow: auto !important;
+}
+.component-box .praise {
+  background: #ff5722;
+  border-radius: 5px;
+  padding: 0px 8px;
+  height: auto;
+}
+.component-box .praise,
+.component-box .share {
+  color: #fff;
+}
+.component-box a {
+  display: inline-block;
+  font-size: xx-small;
+}
+.component-box {
+  display: inline;
+  margin: 0;
+  position: relative;
+  white-space: nowrap;
+}
+.csdn-edu-title {
+  background: #4d6de1;
+  border-radius: 5px;
+  padding: 0px 8px;
+  height: auto;
+  color: #fff !important;
+}
+
+.GM-csdn-dl {
+  padding: 0.24rem 0.32rem;
+  width: 100%;
+  justify-content: space-between;
+  -webkit-box-pack: justify;
+  border-bottom: 1px solid #f5f6f7 !important;
+}
+.GM-csdn-title {
+  font-size: 0.3rem;
+  color: #222226;
+  letter-spacing: 0;
+  line-height: 0.44rem;
+  font-weight: 600;
+  /*max-height: .88rem;*/
+  word-break: break-all;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.GM-csdn-title a {
+  word-break: break-all;
+  color: #222226;
+  font-weight: 600;
+}
+.GM-csdn-title em,
+.GM-csdn-content em {
+  font-style: normal;
+  color: #fc5531;
+}
+.GM-csdn-content {
+  /*max-width: 5.58rem;*/
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  color: #555666;
+  font-size: 0.24rem;
+  line-height: 0.34rem;
+  max-height: 0.34rem;
+  word-break: break-all;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin-top: 0.16rem;
+}
+.GM-csdn-img img {
+  width: 2.18rem;
+  height: 1.58rem;
+  /*margin-left: .16rem*/
+}

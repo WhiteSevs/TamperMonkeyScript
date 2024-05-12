@@ -1,0 +1,29 @@
+/* 自动展开代码块 */
+.comment-list-box,
+main div.blog-content-box pre {
+  max-height: none !important;
+}
+/* 自动展开全文 */
+#article_content,
+.user-article.user-article-hide {
+  height: auto !important;
+  overflow: auto !important;
+}
+.blog_container_aside,
+#nav {
+  margin-left: -45px;
+}
+.recommend-right.align-items-stretch.clearfix,
+.dl_right_fixed {
+  margin-left: 45px;
+}
+#content_views,
+#content_views pre,
+#content_views pre code {
+  user-select: text !important;
+}
+
+/* 屏蔽向下滚动时左边的容器 */
+aside.blog_container_aside {
+  display: none !important;
+}

@@ -1,0 +1,418 @@
+// ==UserScript==
+// @name         CSDN优化
+// @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
+// @version      2024.5.12
+// @author       WhiteSevs
+// @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
+// @license      GPL-3.0-only
+// @icon         https://www.csdn.net/favicon.ico
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
+// @match        *://*.csdn.net/*
+// @require      https://update.greasyfork.org/scripts/494167/1371335/CoverUMD.js
+// @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
+// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
+// @require      https://update.greasyfork.org/scripts/455186/1371570/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
+// @grant        GM_addStyle
+// @grant        GM_deleteValue
+// @grant        GM_getValue
+// @grant        GM_info
+// @grant        GM_registerMenuCommand
+// @grant        GM_setValue
+// @grant        GM_unregisterMenuCommand
+// @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
+// @run-at       document-start
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  var a=typeof GM_addStyle<"u"?GM_addStyle:void 0,H=typeof GM_deleteValue<"u"?GM_deleteValue:void 0,y=typeof GM_getValue<"u"?GM_getValue:void 0,T=typeof GM_info<"u"?GM_info:void 0,O=typeof GM_registerMenuCommand<"u"?GM_registerMenuCommand:void 0,_=typeof GM_setValue<"u"?GM_setValue:void 0,z=typeof GM_unregisterMenuCommand<"u"?GM_unregisterMenuCommand:void 0,Y=typeof GM_xmlhttpRequest<"u"?GM_xmlhttpRequest:void 0,d=typeof unsafeWindow<"u"?unsafeWindow:void 0,k=window;const Q="CSDN优化";var V;const c=(V=k.Utils||d.Utils)==null?void 0:V.noConflict();var P;const S=(P=k.DOMUtils||d.DOMUtils)==null?void 0:P.noConflict(),L=k.pops||d.pops,x=k.Qmsg||d.Qmsg,o=new c.Log(T,d.console||k.console);var $;const D=(($=T==null?void 0:T.script)==null?void 0:$.name)||Q,I=!1;o.config({debug:I,logMaxCount:2e4,autoClearConsole:!0,tag:!0});x.config({position:"bottom",html:!0,maxNums:5,autoClose:!0,showClose:!1,showReverse:!0});const U=new c.GM_Menu({GM_getValue:y,GM_setValue:_,GM_registerMenuCommand:O,GM_unregisterMenuCommand:z}),J=new c.Httpx(Y);J.config({logDetails:I,onabort(){x.warning("请求取消");},ontimeout(){x.error("请求超时");},onerror(e){x.error("请求异常"),o.error(["httpx-onerror 请求异常",e]);}});d.Object.defineProperty,d.Function.prototype.apply,d.Function.prototype.call,d.Element.prototype.appendChild,d.setTimeout;const w="GM_Panel",B="data-key",R="data-default-value",m={isHuaWeiCloudBlog(){return !!/huaweicloud.csdn.net/i.test(window.location.origin)},isBlog(){return !!/blog.csdn.net/i.test(window.location.origin)},isWenKu(){return !!/wenku.csdn.net/i.test(window.location.origin)},isLink(){return window.location.hostname==="link.csdn.net"},isSo(){return window.location.hostname==="so.csdn.net"},isSoCKnow(){return this.isSo()&&(window.location.pathname.startsWith("/chat")||window.location.pathname.startsWith("/so/ai"))}},A=function(e,t,n,l,s,u,f,p){let g={text:e,type:"slider",description:p,attributes:{},getValue(){return i.getValue(t,n)},getToolTipContent(h){return typeof f=="function"?f(h):`${h}`},callback(h,C){typeof u=="function"&&u(h,C)||i.setValue(t,C);},min:l,max:s};return g.attributes&&(g.attributes[B]=t,g.attributes[R]=n),g},r=function(e,t,n,l,s){let u={text:e,type:"switch",description:s,attributes:{},getValue(){return !!i.getValue(t,n)},callback(f,p){o.success(`${p?"开启":"关闭"} ${e}`),!(typeof l=="function"&&l(f,p))&&i.setValue(t,!!p);},afterAddToUListCallBack:void 0};return u.attributes&&(u.attributes[B]=t,u.attributes[R]=!!n),u},X={id:"panel-blog",title:"博客",isDefault(){return m.isBlog()},forms:[{text:"屏蔽",type:"forms",forms:[r("【屏蔽】登录弹窗","csdn-blog-shieldLoginDialog",!0),r("【屏蔽】底部xx技能树","csdn-blog-shieldBottomSkillTree",!1),r("【屏蔽】左侧博客信息","csdn-blog-shieldLeftBlogContainerAside",!1),r("【屏蔽】右侧目录信息","csdn-blog-shieldRightDirectoryInformation",!1),r("【屏蔽】右侧工具栏","csdn-blog-shieldfloatingButton",!1),r("【屏蔽】顶部工具栏","csdn-blog-shieldTopToolbar",!1),r("【屏蔽】搜索悬浮工具栏","csdn-blog-shieldArticleSearchTip",!1,void 0,"选中文字弹出的，例如：搜索、评论、笔记"),r("【屏蔽】底部的悬浮工具栏","csdn-blog-shieldBottomFloatingToolbar",!1)]},{text:"功能",type:"forms",forms:[A("右侧工具栏的right偏移","csdn-blog-rightToolbarRightOffset",90,0,document.documentElement.clientWidth,(e,t)=>{let n=document.querySelector(".csdn-side-toolbar");S.css(n,{right:t+"px"});},e=>`当前：${e}px，默认：90px`),A("右侧工具栏的top偏移","csdn-blog-rightToolbarTopOffset",140,0,document.documentElement.clientHeight,(e,t)=>{let n=document.querySelector(".csdn-side-toolbar");S.css(n,{top:t+"px"});},e=>`当前：${e}px，默认：90px`)]},{text:"内容",type:"forms",forms:[r("自动展开内容块","csdn-blog-autoExpandContent",!1),r("全文居中","csdn-blog-articleCenter",!0,function(e,t){t&&alert("为了更好的呈现效果，请开启功能：【屏蔽】左侧博客信息、【屏蔽】右侧目录信息");})]},{text:"评论",type:"forms",forms:[r("屏蔽","csdn-blog-blockComment",!1,void 0,"屏蔽评论"),r("优化评论的位置","csdn-blog-restoreComments",!0),r("添加前往评论的按钮","csdn-blog-addGotoRecommandButton",!0)]},{text:"底部文章",type:"forms",forms:[r("屏蔽","csdn-blog-shieldBottomRecommendArticle",!1,void 0,"屏蔽底部文章"),r("标识CSDN下载","csdn-blog-identityCSDNDownload",!0,void 0,"使用红框标识"),r("移除资源下载的文章","csdn-blog-removeResourceDownloadArticle",!1,void 0,"移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接")]},{text:"劫持/拦截",type:"forms",forms:[r("拦截-复制的小尾巴","csdn-blog-removeClipboardHijacking",!0),r("劫持-禁止复制","csdn-blog-unBlockCopy",!0,void 0,"允许点击复制按钮进行复制")]}]},Z={id:"panel-link",title:"链接",isDefault(){return m.isLink()},forms:[{text:"功能",type:"forms",forms:[r("重定向链接","csdn-link-jumpRedirect",!0,void 0,"自动跳转至被拦截的Url链接")]}]},ee={id:"panel-hua-wei-cloud",title:"华为云开发者联盟",isDefault(){return m.isHuaWeiCloudBlog()},forms:[{text:"功能",type:"forms",forms:[r("自动展开全文","csdn-hua-wei-cloud-autoExpandContent",!0)]},{text:"屏蔽",type:"forms",forms:[r("【屏蔽】云开发者任务挑战活动","csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent",!0),r("【屏蔽】左侧悬浮按钮","csdn-hua-wei-cloud-shieldLeftFloatingButton",!1,function(e,t){t&&alert("开启后将屏蔽【当前阅读量】、【点赞按钮】、【评论按钮】、【分享按钮】");}),r("【屏蔽】右侧栏","csdn-hua-wei-cloud-blockRightColumn",!1,function(e,t){t&&alert("开启后将屏蔽【相关产品】-【活动日历】-【运营活动】-【热门标签】");}),r("【屏蔽】底部推荐内容","csdn-hua-wei-cloud-blockRecommendedContentAtTheBottom",!1),r("【屏蔽】底部更多推荐","csdn-hua-wei-cloud-shieldTheBottomForMoreRecommendations",!1)]}]},te={id:"panel-wenku",title:"资源",isDefault(){return m.isLink()},forms:[{text:"屏蔽",type:"forms",forms:[r("【屏蔽】资源推荐","csdn-wenku-shieldResourceRecommend",!1),r("【屏蔽】右侧用户信息","csdn-wenku-shieldRightUserInfo",!1),r("【屏蔽】右侧悬浮工具栏","csdn-wenku-shieldRightToolBar",!1)]}]},ne={id:"panel-so",title:"搜索",isDefault(){return m.isSo()},forms:[{text:"C知道-功能",type:"forms",forms:[r("去除水印","csdn-so-cknow-removeMaskCover",!0)]}]},oe={id:"m-panel-blog",title:"博客",isDefault(){return m.isBlog()},forms:[{text:"屏蔽",type:"forms",forms:[r("【屏蔽】广告","m-csdn-blog-removeAds",!0,void 0,"包括：登录弹窗、打开APP、ios版本提示等"),r("【屏蔽】顶部Toolbar","m-csdn-blog-shieldTopToolbar",!1)]},{text:"内容",type:"forms",forms:[r("允许选中文字","m-csdn-blog-allowSelectText",!0,void 0,"设置user-select: text;"),r("自动展开","m-csdn-blog-autoExpandContent",!0,void 0,"包括内容、代码块"),r("不限制代码块的最大高度","m-csdn-blog-notLimitCodePreMaxHeight",!1,void 0,"让代码块的高度直接被撑开")]},{text:"评论",type:"forms",forms:[r("屏蔽","m-csdn-blog-blockComment",!1,void 0,"屏蔽评论区"),r("不限制评论区的最大高度","m-csdn-blog-notLimitCommentMaxHeight",!0,void 0,"让评论区高度直接被撑开")]},{text:"底部文章",type:"forms",forms:[r("屏蔽","m-csdn-blog-blockBottomArticle",!1,void 0,"屏蔽底部文章"),r("移除资源下载的文章","m-csdn-blog-removeResourceArticle",!1,void 0,"移除download.csdn.net、www.iteye.com、edu.csdn.net的文章链接"),r("重构","m-csdn-blog-refactoringRecommendation",!0,void 0,"样式统一化"),r("新标签页打开","m-csdn-blog-openNewTab",!0,void 0,"点击文章，新标签页打开")]},{text:"劫持/拦截",type:"forms",forms:[r("劫持-禁止复制","m-csdn-blog-unBlockCopy",!0,void 0,"允许点击复制按钮进行复制")]}]},ie={id:"m-panel-link",title:"链接",isDefault(){return m.isLink()},forms:[{text:"功能",type:"forms",forms:[r("重定向链接","m-csdn-link-jumpRedirect",!0,void 0,"自动跳转至被拦截的Url链接")]}]},re={id:"panel-so",title:"搜索",isDefault(){return m.isSo()},forms:[{text:"C知道-功能",type:"forms",forms:[r("去除水印","m-csdn-so-cknow-removeMaskCover",!0)]}]},le={id:"m-panel-wenku",title:"资源",isDefault(){return m.isWenKu()},forms:[{text:"屏蔽",type:"forms",forms:[r("【屏蔽】底部工具栏","m-csdn-wenku-shieldBottomToolbar",!1)]}]},ae={id:"m-panel-hua-wei-cloud",title:"华为云开发者联盟",isDefault(){return m.isHuaWeiCloudBlog()},forms:[{text:"功能",type:"forms",forms:[r("自动展开全文","m-csdn-hua-wei-cloud-autoExpandContent",!0)]}]},i={$data:{data:new c.Dictionary,oneSuccessExecMenu:new c.Dictionary,onceExec:new c.Dictionary,scriptName:D,key:w,attributeKeyName:B,attributeDefaultValueName:R},$listener:{listenData:new c.Dictionary},init(){this.initPanelDefaultValue(),this.initExtensionsMenu();},initExtensionsMenu(){d.top===d.self&&U.add([{key:"show_pops_panel_setting",text:"⚙ PC端设置",autoReload:!1,isStoreValue:!1,showText(e){return e},callback:()=>{this.showPanel();}},{key:"m_show_pops_panel_setting",text:"⚙ 移动端端设置",autoReload:!1,isStoreValue:!1,showText(e){return e},callback:()=>{this.showMPanel();}},{key:"gotoCSDNCKnow",text:"⚙ 前往C知道",isStoreValue:!1,autoReload:!1,showText(e){return e},callback(){window.open("https://so.csdn.net/chat","_blank");}}]);},initPanelDefaultValue(){let e=this;function t(l){if(!l.attributes)return;let s=l.attributes[B],u=l.attributes[R];if(s==null){o.warn(["请先配置键",l]);return}e.$data.data.has(s)&&o.warn("请检查该key(已存在): "+s),e.$data.data.set(s,u);}let n=this.getPanelContentConfig().concat(this.getMPanelContentConfig());for(let l=0;l<n.length;l++){let s=n[l];if(!s.forms)continue;let u=s.forms;for(let f=0;f<u.length;f++){let p=u[f];if(p.forms){let g=p.forms;for(let h=0;h<g.length;h++)t(g[h]);}else t(p);}}},setValue(e,t){let n=y(w,{}),l=n[e];n[e]=t,_(w,n),this.$listener.listenData.has(e)&&this.$listener.listenData.get(e).callback(e,l,t);},getValue(e,t){let l=y(w,{})[e];return l??(this.$data.data.has(e)?this.$data.data.get(e):t)},deleteValue(e){let t=y(w,{}),n=t[e];Reflect.deleteProperty(t,e),_(w,t),this.$listener.listenData.has(e)&&this.$listener.listenData.get(e).callback(e,n,void 0);},addValueChangeListener(e,t){let n=Math.random();return this.$listener.listenData.set(e,{id:n,key:e,callback:t}),n},removeValueChangeListener(e){let t=null;for(const[n,l]of this.$listener.listenData.entries())if(l.id===e){t=n;break}typeof t=="string"?this.$listener.listenData.delete(t):console.warn("没有找到对应的监听器");},execMenu(e,t){if(typeof e!="string")throw new TypeError("key 必须是字符串");let n=i.getValue(e);n&&t(n);},execMenuOnce(e,t){if(typeof e!="string")throw new TypeError("key 必须是字符串");let n=i.getValue(e);if(n){if(this.$data.oneSuccessExecMenu.has(e))return;t(n),this.$data.oneSuccessExecMenu.set(e,1);}},onceExec(e,t){if(typeof e!="string")throw new TypeError("key 必须是字符串");this.$data.onceExec.has(e)||(t(),this.$data.onceExec.set(e,1));},showPanel(){L.panel({title:{text:`${D}-PC端设置`,position:"center",html:!1,style:""},content:this.getPanelContentConfig(),mask:{enable:!0,clickEvent:{toClose:!0,toHide:!1}},isMobile:this.isMobile(),width:this.getWidth(),height:this.getHeight(),drag:!0,only:!0});},showMPanel(){L.panel({title:{text:`${D}-移动端设置`,position:"center",html:!1,style:""},content:this.getMPanelContentConfig(),mask:{enable:!0,clickEvent:{toClose:!0,toHide:!1}},isMobile:this.isMobile(),width:this.getWidth(),height:this.getHeight(),drag:!0,only:!0});},isMobile(){return window.outerWidth<550},getWidth(){return window.outerWidth<800?"92dvw":"800px"},getHeight(){return window.outerHeight>450?"80dvh":"450px"},getPanelContentConfig(){return [X,Z,ee,te,ne]},getMPanelContentConfig(){return [oe,ie,ae,le,re]}},se=`/* 底部免费抽xxx奖品广告 */\r
+div.siderbar-box,\r
+/* 华为开发者联盟加入社区 */\r
+div.user-desc.user-desc-fix {\r
+  display: none !important;\r
+}\r
+`,W={init(){a(se),i.execMenu("csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent",()=>{this.shieldCloudDeveloperTaskChallengeEvent();}),i.execMenu("csdn-hua-wei-cloud-autoExpandContent",()=>{this.autoExpandContent();}),i.execMenu("csdn-hua-wei-cloud-shieldLeftFloatingButton",()=>{this.shieldLeftFloatingButton();}),i.execMenu("csdn-hua-wei-cloud-blockRightColumn",()=>{this.blockRightColumn();}),i.execMenu("csdn-hua-wei-cloud-blockRecommendedContentAtTheBottom",()=>{this.blockRecommendedContentAtTheBottom();}),i.execMenu("csdn-hua-wei-cloud-shieldTheBottomForMoreRecommendations",()=>{this.shieldTheBottomForMoreRecommendations();});},autoExpandContent(){o.success("自动展开全文"),a(`
+        /* 自动展开全文 */
+        .main-content .user-article{
+            height: auto !important;
+            overflow: auto !important;
+        }
+        /* 点击阅读全文 */
+        div.article-show-more {
+            display: none !important;
+        }
+        `);},shieldCloudDeveloperTaskChallengeEvent(){new c.GM_Cookie().set({name:"show_join_group_index",value:1}),o.success("屏蔽云开发者任务挑战活动");},shieldLeftFloatingButton(){o.success("屏蔽左侧悬浮按钮，包括当前阅读量、点赞按钮、评论按钮、分享按钮"),a(`
+        div.toolbar-wrapper.article-interact-bar{
+          display: none !important;
+        }`);},blockRightColumn(){o.success("屏蔽右侧栏，包括相关产品-活动日历-运营活动-热门标签"),a(`
+        div.page-home-right.dp-aside-right{
+          display: none !important;
+        }
+        `);},blockRecommendedContentAtTheBottom(){o.success("屏蔽底部推荐内容"),a(`
+        div.recommend-card-box{
+          display: none !important;
+        }`);},shieldTheBottomForMoreRecommendations(){o.success("屏蔽底部更多推荐"),a(`
+        div.more-article{
+          display: none !important;
+        }`);}},de=`.ecommend-item-box.recommend-recommend-box,\r
+.login-mark,\r
+.opt-box.text-center,\r
+.leftPop,\r
+#csdn-shop-window,\r
+.toolbar-advert,\r
+.hide-article-box,\r
+.user-desc.user-desc-fix,\r
+.recommend-card-box,\r
+.more-article,\r
+.article-show-more,\r
+#csdn-toolbar-profile-nologin,\r
+.guide-rr-first,\r
+#recommend-item-box-tow,\r
+/* 发文章得原力分图片提示 */\r
+div.csdn-toolbar-creative-mp,\r
+/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r
+#toolBarBox div.write-guide-buttom-box,\r
+/* 觉得还不错? 一键收藏 */\r
+ul.toolbox-list div.tool-active-list,\r
+/* 右边按钮组的最上面的创作话题 */\r
+div.csdn-side-toolbar .activity-swiper-box,\r
+.sidetool-writeguide-box .tip-box,\r
+/* 右下角的登录提示 */\r
+.passport-login-tip-container {\r
+  display: none !important;\r
+}\r
+\r
+\r
+`,ce=`/* 自动展开代码块 */\r
+.comment-list-box,\r
+main div.blog-content-box pre {\r
+  max-height: none !important;\r
+}\r
+/* 自动展开全文 */\r
+#article_content,\r
+.user-article.user-article-hide {\r
+  height: auto !important;\r
+  overflow: auto !important;\r
+}\r
+.blog_container_aside,\r
+#nav {\r
+  margin-left: -45px;\r
+}\r
+.recommend-right.align-items-stretch.clearfix,\r
+.dl_right_fixed {\r
+  margin-left: 45px;\r
+}\r
+#content_views,\r
+#content_views pre,\r
+#content_views pre code {\r
+  user-select: text !important;\r
+}\r
+\r
+/* 屏蔽向下滚动时左边的容器 */\r
+aside.blog_container_aside {\r
+  display: none !important;\r
+}\r
+`,ue=`#mainBox main {\r
+  width: inherit !important;\r
+}\r
+\r
+\r
+@media (min-width: 1320px) and (max-width: 1380px) {\r
+  .nodata .container {\r
+    width: 900px !important;\r
+  }\r
+\r
+  .nodata .container main {\r
+    width: 900px;\r
+  }\r
+\r
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r
+    width: 490px !important;\r
+  }\r
+\r
+  .nodata .container main .articleConDownSource {\r
+    width: 500px;\r
+  }\r
+}\r
+\r
+@media screen and (max-width: 1320px) {\r
+  .nodata .container {\r
+    width: 760px !important;\r
+  }\r
+\r
+  .nodata .container main {\r
+    width: 760px;\r
+  }\r
+\r
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r
+    width: 490px !important;\r
+  }\r
+\r
+  .nodata .container main .toolbox-list .tool-reward {\r
+    display: none;\r
+  }\r
+\r
+  .nodata\r
+    .container\r
+    main\r
+    .more-toolbox-new\r
+    .toolbox-left\r
+    .profile-box\r
+    .profile-name {\r
+    max-width: 128px;\r
+  }\r
+\r
+  .nodata .container main .articleConDownSource {\r
+    width: 420px;\r
+  }\r
+}\r
+\r
+@media screen and (min-width: 1380px) {\r
+  .nodata .container {\r
+    width: 1010px !important;\r
+  }\r
+\r
+  .nodata .container main {\r
+    width: 1010px;\r
+  }\r
+\r
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r
+    width: 490px !important;\r
+  }\r
+\r
+  .nodata .container main .articleConDownSource {\r
+    width: 560px;\r
+  }\r
+}\r
+\r
+@media (min-width: 1550px) and (max-width: 1700px) {\r
+  .nodata .container {\r
+    width: 820px !important;\r
+  }\r
+\r
+  .nodata .container main {\r
+    width: 820px;\r
+  }\r
+\r
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r
+    width: 690px !important;\r
+  }\r
+\r
+  .nodata .container main .articleConDownSource {\r
+    width: 500px;\r
+  }\r
+}\r
+\r
+@media screen and (min-width: 1700px) {\r
+  .nodata .container {\r
+    width: 1010px !important;\r
+  }\r
+\r
+  .nodata .container main {\r
+    width: 1010px;\r
+  }\r
+\r
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r
+    width: 690px !important;\r
+  }\r
+\r
+  .nodata .container main .articleConDownSource {\r
+    width: 560px;\r
+  }\r
+}\r
+`,j={init(){this.addCSS(),i.execMenu("csdn-blog-articleCenter",()=>{this.articleCenter();}),i.execMenu("csdn-blog-shieldLoginDialog",()=>{this.shieldLoginDialog();}),i.execMenu("m-csdn-blog-autoExpandContent",()=>{this.autoExpandContent(),this.clickPreCodeAutomatically();}),i.execMenu("csdn-blog-blockComment",()=>{this.blockComment();}),i.execMenu("csdn-blog-shieldfloatingButton",()=>{this.shieldRightToolbar();}),i.execMenu("csdn-blog-shieldBottomRecommendArticle",()=>{this.shieldBottomRecommendArticle();}),i.execMenu("csdn-blog-shieldBottomSkillTree",()=>{this.shieldBottomSkillTree();}),i.execMenu("csdn-blog-shieldBottomFloatingToolbar",()=>{this.shieldBottomFloatingToolbar();}),i.execMenu("csdn-blog-shieldLeftBlogContainerAside",()=>{this.shieldLeftBlogContainerAside();}),i.execMenu("csdn-blog-shieldRightDirectoryInformation",()=>{this.shieldRightDirectoryInformation();}),i.execMenu("csdn-blog-shieldTopToolbar",()=>{this.shieldTopToolbar();}),i.execMenu("csdn-blog-shieldArticleSearchTip",()=>{this.shieldArticleSearchTip();}),this.initRightToolbarOffset(),S.ready(()=>{i.execMenu("ccsdn-blog-removeClipboardHijacking",()=>{this.removeClipboardHijacking();}),i.execMenu("csdn-blog-unBlockCopy",()=>{this.unBlockCopy();}),i.execMenu("csdn-blog-identityCSDNDownload",()=>{this.identityCSDNDownload();}),i.execMenu("csdn_pc_clickPreCodeAutomatically",()=>{this.clickPreCodeAutomatically();}),i.execMenu("csdn-blog-restoreComments",()=>{this.restoreComments();}),i.execMenu("csdn-blog-addGotoRecommandButton",()=>{this.addGotoRecommandButton();});});},addCSS(){a(de),a(ce);},removeClipboardHijacking(){var e;o.info("去除剪贴板劫持"),(e=document.querySelector(".article-copyright"))==null||e.remove(),d.articleType&&(d.articleType=0),d.csdn&&d.csdn.copyright&&d.csdn.copyright.textData&&(d.csdn.copyright.textData=""),d.csdn&&d.csdn.copyright&&d.csdn.copyright.htmlData&&(d.csdn.copyright.htmlData="");},unBlockCopy(){o.info("取消禁止复制"),document.addEventListener("click",function(t){let n=t.target,l=n.parentElement;if(!n.classList.contains("hljs-button"))return;c.preventEvent(t);let s=l.innerText||l.textContent;c.setClip(s),n.setAttribute("data-title","复制成功");},{capture:!0});let e=new c.LockFunction(function(t){var l;let n=t.target;n.localName==="pre"&&((l=n.querySelector(".hljs-button"))==null||l.setAttribute("data-title","复制"));});document.addEventListener("mouseenter",e.run,{capture:!0}),document.addEventListener("mouseleave",e.run,{capture:!0}),c.waitNode("#content_views").then(t=>{var n;(n=d.$("#content_views"))==null||n.unbind("copy"),t.addEventListener("copy",function(l){var u;c.preventEvent(l);let s=(u=d.getSelection())==null?void 0:u.toString();return c.setClip(s),!1});}),c.waitNode(".hljs-button").then(()=>{setTimeout(()=>{document.querySelectorAll(".hljs-button").forEach(t=>{t.removeAttribute("onclick"),t.removeAttribute("data-report-click"),t.setAttribute("data-title","复制");});},250);});},clickPreCodeAutomatically(){o.info("点击代码块自动展开"),document.addEventListener("click",function(e){var n;let t=e.target;t.localName==="pre"&&(t.style.setProperty("height","auto"),(n=t.querySelector(".hide-preCode-box"))==null||n.remove());});},restoreComments(){o.info("恢复评论到正确位置-第一条评论"),c.waitNode(".first-recommend-box").then(e=>{let t=document.querySelector(".recommend-box.insert-baidu-box.recommend-box-style");t.insertBefore(e,t.firstChild);}),o.info("恢复评论到正确位置-第二条评论"),c.waitNode(".second-recommend-box").then(e=>{let t=document.querySelector(".recommend-box.insert-baidu-box.recommend-box-style");t.insertBefore(e,t.firstChild);});},identityCSDNDownload(){o.info("标识CSDN下载的链接"),document.querySelectorAll(".recommend-item-box[data-url*='https://download.csdn.net/']").forEach(e=>{i.getValue("csdn-blog-removeResourceDownloadArticle")?e.remove():e.querySelector(".content-box").style.setProperty("border","2px solid red");});},articleCenter(){o.info("全文居中"),a(ue);},addGotoRecommandButton(){o.info("添加前往评论的按钮，在返回顶部的上面");let e=document.createElement("a");e.className="option-box",e.setAttribute("data-type","gorecommand"),e.innerHTML='<span class="show-txt" style="display:flex;opacity:100;">前往<br>评论</span>',e.addEventListener("click",function(){let t=document.querySelector("#toolBarBox");if(!t.getClientRects().length){o.error("评论区处于隐藏状态");return}o.info("滚动到评论");let n=t.getBoundingClientRect().top+window.scrollY,l=document.querySelector("#csdn-toolbar"),s=window.getComputedStyle(l),u=l.clientHeight-parseFloat(s.paddingTop)-parseFloat(s.paddingBottom);window.scrollTo({top:n-u-8,left:0,behavior:"smooth"});}),c.waitNode(".csdn-side-toolbar").then(()=>{let t=document.querySelector(".csdn-side-toolbar a:nth-last-child(2)");t.parentElement.insertBefore(e,t.nextSibling);});},shieldLoginDialog(){o.info("屏蔽登录弹窗"),a(".passport-login-container{display: none !important;}");},autoExpandContent(){o.info("自动展开内容块"),a(`
+          pre.set-code-hide{height: auto !important;}
+          pre.set-code-hide .hide-preCode-box{display: none !important;}
+        `);},shieldRightToolbar(){o.info("屏蔽右侧工具栏"),a("div.csdn-side-toolbar{display: none !important;}");},blockComment(){o.info("屏蔽评论区"),a("#pcCommentBox{display: none !important;}");},shieldBottomRecommendArticle(){o.info("屏蔽底部推荐文章"),a("main > div.recommend-box {display: none !important;}");},shieldBottomSkillTree(){a("#treeSkill{display: none !important;}");},shieldBottomFloatingToolbar(){o.info("屏蔽底部悬浮工具栏"),a("#toolBarBox{display: none !important;}");},shieldLeftBlogContainerAside(){o.success("【屏蔽】左侧博客信息"),a("aside.blog_container_aside{display: none !important;}");},shieldRightDirectoryInformation(){o.success("【屏蔽】右侧目录信息"),a(`
+        #rightAsideConcision,
+        #rightAside{
+          display: none !important;
+        }
+        `);},shieldTopToolbar(){a("#toolbarBox{display: none !important;}");},shieldArticleSearchTip(){a("#articleSearchTip{display: none !important;}");},initRightToolbarOffset(){a(`
+        .csdn-side-toolbar{
+          left: unset !important;
+        }
+        `),c.waitNode(".csdn-side-toolbar").then(e=>{S.css(e,{top:parseInt(i.getValue("csdn-blog-rightToolbarTopOffset"))+"px",right:parseInt(i.getValue("csdn-blog-rightToolbarRightOffset"))+"px"});});}},me=`#chatgpt-article-detail\r
+  > div.layout-center\r
+  > div.main\r
+  > div.article-box\r
+  > div.cont.first-show.forbid {\r
+  max-height: unset !important;\r
+  height: auto !important;\r
+  overflow: auto !important;\r
+}\r
+\r
+.forbid {\r
+  user-select: text !important;\r
+}\r
+`,he=`/* wenku顶部横幅 */\r
+#app > div > div.main.pb-32 > div > div.top-bar,\r
+/* 底部展开全文 */\r
+#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open {\r
+  display: none !important;\r
+}`,pe={init(){a(me),a(he),i.execMenu("csdn-wenku-shieldResourceRecommend",()=>{this.shieldResourceRecommend();}),i.execMenu("csdn-wenku-shieldRightUserInfo",()=>{this.shieldRightUserInfo();}),i.execMenu("csdn-wenku-shieldRightToolBar",()=>{this.shieldRightToolBar();});},shieldResourceRecommend(){a("#recommend{display:none !important;}");},shieldRightUserInfo(){a(".layout-right{display:none !important;}");},shieldRightToolBar(){a(".csdn-side-toolbar {display:none !important;}");}},q={init(){i.execMenu("csdn-link-jumpRedirect",()=>{this.jumpRedirect();});},jumpRedirect(){if(window.location.hostname==="link.csdn.net"&&window.location.search.startsWith("?target")){window.stop();let e=window.location.search.replace(/^\?target=/gi,"");e=decodeURIComponent(e);let t=e;o.success(`跳转链接 ${t}`),window.location.href=t;}}},G={init(){m.isLink()?(o.info("Router: 中转链接"),q.init()):m.isHuaWeiCloudBlog()?(o.info("Router: 华为云联盟"),W.init()):m.isBlog()?(o.info("Router: 博客"),j.init()):m.isWenKu()?(o.info("Router: 文库"),pe.init()):o.error("暂未适配，请反馈开发者："+globalThis.location.href);}},fe={init(){i.execMenu("m-csdn-link-jumpRedirect",()=>{q.jumpRedirect();});}},ge=`/* 右下角的 免费赢华为平板xxxx */\r
+.org-main-content .siderbar-box {\r
+  display: none !important;\r
+}\r
+`,be={init(){a(ge),i.execMenu("m-csdn-hua-wei-cloud-autoExpandContent",()=>{W.autoExpandContent();});}},xe=`#operate,.feed-Sign-span,\r
+.view_comment_box,\r
+.weixin-shadowbox.wap-shadowbox,\r
+.feed-Sign-span,\r
+.user-desc.user-desc-fix,\r
+.comment_read_more_box,\r
+#content_views pre.set-code-hide .hide-preCode-box,\r
+/* 登录弹窗 */\r
+.passport-login-container,\r
+.hljs-button[data-title='登录后复制'],\r
+.article-show-more,\r
+#treeSkill,\r
+div.btn_open_app_prompt_div,\r
+div.readall_box,\r
+div.aside-header-fixed,\r
+div.feed-Sign-weixin,\r
+div.ios-shadowbox {\r
+  display: none !important;\r
+}\r
+`,we=`#mainBox {\r
+  width: auto;\r
+}\r
+.user-desc.user-desc-fix {\r
+  height: auto !important;\r
+  overflow: auto !important;\r
+}\r
+.component-box .praise {\r
+  background: #ff5722;\r
+  border-radius: 5px;\r
+  padding: 0px 8px;\r
+  height: auto;\r
+}\r
+.component-box .praise,\r
+.component-box .share {\r
+  color: #fff;\r
+}\r
+.component-box a {\r
+  display: inline-block;\r
+  font-size: xx-small;\r
+}\r
+.component-box {\r
+  display: inline;\r
+  margin: 0;\r
+  position: relative;\r
+  white-space: nowrap;\r
+}\r
+.csdn-edu-title {\r
+  background: #4d6de1;\r
+  border-radius: 5px;\r
+  padding: 0px 8px;\r
+  height: auto;\r
+  color: #fff !important;\r
+}\r
+\r
+.GM-csdn-dl {\r
+  padding: 0.24rem 0.32rem;\r
+  width: 100%;\r
+  justify-content: space-between;\r
+  -webkit-box-pack: justify;\r
+  border-bottom: 1px solid #f5f6f7 !important;\r
+}\r
+.GM-csdn-title {\r
+  font-size: 0.3rem;\r
+  color: #222226;\r
+  letter-spacing: 0;\r
+  line-height: 0.44rem;\r
+  font-weight: 600;\r
+  /*max-height: .88rem;*/\r
+  word-break: break-all;\r
+  overflow: hidden;\r
+  display: -webkit-box;\r
+  -webkit-box-orient: vertical;\r
+  -webkit-line-clamp: 2;\r
+}\r
+.GM-csdn-title a {\r
+  word-break: break-all;\r
+  color: #222226;\r
+  font-weight: 600;\r
+}\r
+.GM-csdn-title em,\r
+.GM-csdn-content em {\r
+  font-style: normal;\r
+  color: #fc5531;\r
+}\r
+.GM-csdn-content {\r
+  /*max-width: 5.58rem;*/\r
+  overflow: hidden;\r
+  text-overflow: ellipsis;\r
+  display: -webkit-box;\r
+  -webkit-line-clamp: 1;\r
+  -webkit-box-orient: vertical;\r
+  color: #555666;\r
+  font-size: 0.24rem;\r
+  line-height: 0.34rem;\r
+  max-height: 0.34rem;\r
+  word-break: break-all;\r
+  -webkit-box-flex: 1;\r
+  -ms-flex: 1;\r
+  flex: 1;\r
+  margin-top: 0.16rem;\r
+}\r
+.GM-csdn-img img {\r
+  width: 2.18rem;\r
+  height: 1.58rem;\r
+  /*margin-left: .16rem*/\r
+}\r
+`;function v(e=""){c.waitNodeList(e).then(()=>{document.querySelectorAll(e).forEach(t=>{t.remove();});});}const Ce={init(){this.addCSS(),i.execMenu("m-csdn-blog-shieldTopToolbar",()=>{this.shieldTopToolbar();}),i.execMenu("m-csdn-blog-notLimitCodePreMaxHeight",()=>{this.notLimitCodePreMaxHeight();}),i.execMenu("m-csdn-blog-notLimitCommentMaxHeight",()=>{this.notLimitCommentMaxHeight();}),i.execMenu("m-csdn-blog-allowSelectText",()=>{this.allowSelectText();}),i.execMenu("m-csdn-blog-autoExpandContent",()=>{this.autoExpandContent();}),i.execMenu("m-csdn-blog-blockBottomArticle",()=>{this.blockBottomArticle();}),i.execMenu("m-csdn-blog-blockComment",()=>{this.blockComment();}),S.ready(()=>{i.execMenu("m-csdn-blog-removeAds",()=>{this.removeAds();}),i.execMenu("m-csdn-blog-refactoringRecommendation",()=>{this.refactoringRecommendation();}),i.execMenu("m-csdn-blog-unBlockCopy",()=>{j.unBlockCopy();});});},addCSS(){a(xe),a(we);},shieldTopToolbar(){o.success("屏蔽顶部Toolbar"),a(`
+        #csdn-toolbar{
+          display: none !important;
+        }
+        /* 内容顶部要归位 */
+        body #main,
+        .margin_sides{
+          margin-top: unset !important;
+          padding-top: unset !important;
+        }
+        #article .article_title{
+          margin-top: .32rem !important;
+          padding-top: unset !important;
+        }
+        `);},refactoringRecommendation(){function e(){o.success("重构底部推荐"),document.querySelectorAll(".container-fluid").forEach(n=>{var C,E;let l="",s="",u="",f="",p=!1,g=!1;if(n.hasAttribute("data-url")){if(l=n.getAttribute("data-url"),s=(C=n.querySelector(".recommend_title div.left"))==null?void 0:C.innerHTML,!n.querySelector(".text"))return;u=(E=n.querySelector(".text"))==null?void 0:E.innerHTML,n.querySelectorAll(".recommend-img").length&&n.querySelectorAll(".recommend-img").forEach(K=>{f+=K.innerHTML;});}else o.info("节点上无data-url"),l=n.querySelector("a[data-type]").getAttribute("href"),s=n.querySelector(".recommend_title div.left").innerHTML,u=n.querySelector(".text").innerHTML;var h=new URL(l);h.host==="download.csdn.net"||h.host==="www.iteye.com"&&h.pathname.match(/^\/resource/gi)?(o.info("该链接为csdn资源下载"),p=!0,s='<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>'+s):h.origin.match(/edu.csdn.net/gi)&&(g=!0,o.info("该链接为csdn学院下载"),s='<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>'+s),n.setAttribute("class","GM-csdn-dl"),n.setAttribute("data-url",l),n.innerHTML=`<div class="GM-csdn-title"><div class="left">${s}</div></div><div class="GM-csdn-content">${u}</div><div class="GM-csdn-img">${f}</div>`,n.addEventListener("click",function(){i.getValue("m-csdn-blog-openNewTab")?window.open(l,"_blank"):window.location.href=l;}),(p||g)&&i.getValue("m-csdn-blog-removeResourceArticle")&&n.remove();});}let t=new c.LockFunction(e,this,50);c.waitNode("#recommend").then(n=>{o.success("重构底部推荐"),t.run(),c.mutationObserver(n,{callback:t.run,config:{childList:!0,subtree:!0,attributes:!0}});});},blockBottomArticle(){o.success("屏蔽底部文章"),a("#recommend{display:none !important;}");},blockComment(){o.success("屏蔽评论"),a("#comment{display:none !important;}");},removeAds(){o.info("去除广告"),v(".passport-login-container"),v(".btn_open_app_prompt_box.detail-open-removed"),v(".add-firstAd"),v("div.feed-Sign-weixin"),v("div.ios-shadowbox");},notLimitCodePreMaxHeight(){o.success("不限制代码块最大高度"),a(`
+        pre{
+            max-height: unset !important;
+        }
+        `);},notLimitCommentMaxHeight(){o.success("不限制评论区最大高度"),a(`
+        #comment{
+          max-height: none !important;
+        }
+      `);},allowSelectText(){o.success("允许选择文字"),a(`
+        #content_views,
+        #content_views pre,
+        #content_views pre code{
+            webkit-touch-callout: text !important;
+            -webkit-user-select: text !important;
+            -khtml-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        `);},autoExpandContent(){o.success("自动展开内容"),a(`
+        #content_views pre.set-code-hide,
+        .article_content{
+          height: 100% !important;
+          overflow: auto !important;
+        }
+        `);}},ve=`/* 右下角的买一年送3个月的广告图标 */\r
+.blind_box {\r
+  display: none !important;\r
+}\r
+`,ye={init(){a(ve),i.execMenu("m-csdn-wenku-shieldBottomToolbar",()=>{this.shieldBottomToolbar();});},shieldBottomToolbar(){a(`
+        .page-container > div.btn{
+            display: none !important;
+        }
+        `);}},N={init(){m.isLink()?(o.info("Router: 中转链接"),fe.init()):m.isHuaWeiCloudBlog()?(o.info("Router: 华为云联盟"),be.init()):m.isBlog()?(o.info("Router: 博客"),Ce.init()):m.isWenKu()?(o.info("Router: 文库"),ye.init()):o.error("暂未适配，请反馈开发者："+globalThis.location.href);}};i.init();let F=c.isPhone(),M="change_env_set",b=y(M);U.add({key:M,text:`⚙ 自动: ${F?"移动端":"PC端"}`,autoReload:!1,isStoreValue:!1,showText(e){return b==null?e:e+` 手动: ${b==1?"移动端":b==2?"PC端":"未知"}`},callback:()=>{let e=[0,1,2],t=window.prompt(`请输入当前脚本环境判定
+1. 自动判断: 0
+2. 移动端: 1
+3. PC端: 2`,"0");if(!t)return;let n=parseInt(t);if(isNaN(n)){x.error("输入的不是规范的数字");return}if(!e.includes(n)){x.error("输入的值必须是0或1或2");return}n==0?H(M):_(M,n);}});b!=null?(o.info(`手动判定为${b===1?"移动端":"PC端"}`),b==1?N.init():b==2?G.init():(x.error("意外，手动判定的值不在范围内"),H(M))):F?(o.info("自动判定为移动端"),N.init()):(o.info("自动判定为PC端"),G.init());
+
+})();

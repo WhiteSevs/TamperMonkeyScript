@@ -1,0 +1,108 @@
+#mainBox main {
+  width: inherit !important;
+}
+
+
+@media (min-width: 1320px) and (max-width: 1380px) {
+  .nodata .container {
+    width: 900px !important;
+  }
+
+  .nodata .container main {
+    width: 900px;
+  }
+
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {
+    width: 490px !important;
+  }
+
+  .nodata .container main .articleConDownSource {
+    width: 500px;
+  }
+}
+
+@media screen and (max-width: 1320px) {
+  .nodata .container {
+    width: 760px !important;
+  }
+
+  .nodata .container main {
+    width: 760px;
+  }
+
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {
+    width: 490px !important;
+  }
+
+  .nodata .container main .toolbox-list .tool-reward {
+    display: none;
+  }
+
+  .nodata
+    .container
+    main
+    .more-toolbox-new
+    .toolbox-left
+    .profile-box
+    .profile-name {
+    max-width: 128px;
+  }
+
+  .nodata .container main .articleConDownSource {
+    width: 420px;
+  }
+}
+
+@media screen and (min-width: 1380px) {
+  .nodata .container {
+    width: 1010px !important;
+  }
+
+  .nodata .container main {
+    width: 1010px;
+  }
+
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {
+    width: 490px !important;
+  }
+
+  .nodata .container main .articleConDownSource {
+    width: 560px;
+  }
+}
+
+@media (min-width: 1550px) and (max-width: 1700px) {
+  .nodata .container {
+    width: 820px !important;
+  }
+
+  .nodata .container main {
+    width: 820px;
+  }
+
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {
+    width: 690px !important;
+  }
+
+  .nodata .container main .articleConDownSource {
+    width: 500px;
+  }
+}
+
+@media screen and (min-width: 1700px) {
+  .nodata .container {
+    width: 1010px !important;
+  }
+
+  .nodata .container main {
+    width: 1010px;
+  }
+
+  .nodata .container main #pcCommentBox pre > ol.hljs-ln {
+    width: 690px !important;
+  }
+
+  .nodata .container main .articleConDownSource {
+    width: 560px;
+  }
+}
