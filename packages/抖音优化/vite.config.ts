@@ -49,6 +49,7 @@ export default defineConfig({
 				"run-at": "document-start",
 				require: RequireLib,
 			},
+			clientAlias: "ViteGM",
 			server: {
 				mountGmApi: false,
 				open: true,

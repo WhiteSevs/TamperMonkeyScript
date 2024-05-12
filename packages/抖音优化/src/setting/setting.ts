@@ -76,7 +76,7 @@ const PopsPanel = {
 		 * @param config
 		 */
 		function initDefaultValue(
-			config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails,
+			config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
 		) {
 			if (!config["attributes"]) {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
@@ -182,7 +182,7 @@ const PopsPanel = {
 	 */
 	addValueChangeListener(
 		key: string,
-		callback: (key: string, oldValue: any, newValue: any) => void,
+		callback: (key: string, oldValue: any, newValue: any) => void
 	) {
 		let listenerId = Math.random();
 		this.$listener.listenData.set(key, {

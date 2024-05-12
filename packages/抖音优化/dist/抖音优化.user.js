@@ -288,7 +288,9 @@
      */
     change() {
       var _a2, _b, _c, _d, _e, _f, _g;
-      let danmakuQueue = Array.from(document.querySelectorAll("xg-danmu.xgplayer-danmu > div > div"));
+      let danmakuQueue = Array.from(
+        document.querySelectorAll("xg-danmu.xgplayer-danmu > div > div")
+      );
       if (!danmakuQueue.length) {
         return;
       }
@@ -458,7 +460,9 @@
                   style: "width: 100%;"
                 }
               );
-              let textarea = textareaDiv.querySelector("textarea");
+              let textarea = textareaDiv.querySelector(
+                "textarea"
+              );
               textarea.value = DouYinDanmuFilter.get();
               DOMUtils.on(
                 textarea,
@@ -1818,7 +1822,7 @@
     },
     /**
      * 根据key执行一次
-     * @param key 
+     * @param key
      */
     onceExec(key, callback) {
       if (typeof key !== "string") {
@@ -2063,16 +2067,24 @@
         let $react = utils.getReactObj(element);
         let reactFiber = $react == null ? void 0 : $react.reactFiber;
         if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
-          userInfoList.push((_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo);
+          userInfoList.push(
+            (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
+          );
         }
         if ((_j = (_i = (_h = (_g = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _g.return) == null ? void 0 : _h.memoizedProps) == null ? void 0 : _i.userInfo) == null ? void 0 : _j.userInfo) {
-          userInfoList.push((_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo);
+          userInfoList.push(
+            (_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo
+          );
         }
         if ((_q = (_p = (_o = (_n = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _n.return) == null ? void 0 : _o.return) == null ? void 0 : _p.memoizedProps) == null ? void 0 : _q.userInfo) {
-          userInfoList.push((_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo);
+          userInfoList.push(
+            (_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo
+          );
         }
         if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _v.return) == null ? void 0 : _w.return) == null ? void 0 : _x.memoizedProps) == null ? void 0 : _y.userInfo) == null ? void 0 : _z.userInfo) {
-          userInfoList.push((_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo);
+          userInfoList.push(
+            (_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo
+          );
         }
         return userInfoList;
       }
@@ -2105,14 +2117,19 @@
         });
       });
       if (DouYinRouter.isLive()) {
-        utils.waitNodeWithInterval(`#douyin-header div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
+        utils.waitNodeWithInterval(
+          `#douyin-header div:has(.dy-tip-container)`,
+          WAIT_TIME
+        ).then(() => {
           utils.mutationObserver(document.body, {
             config: {
               subtree: true,
               childList: true
             },
             callback: utils.debounce(() => {
-              setLogin(document.querySelector(`#douyin-header`));
+              setLogin(
+                document.querySelector(`#douyin-header`)
+              );
             }, 70)
           });
         });
