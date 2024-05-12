@@ -2009,7 +2009,7 @@ div.article-show-more{
           id: "csdn-panel-config-pc",
           title: "文库",
           isDefault() {
-            return CSDN.wenku.PC.isWenkuRouter();
+            return CSDN.wenku.isWenkuRouter();
           },
           forms: [
             {
