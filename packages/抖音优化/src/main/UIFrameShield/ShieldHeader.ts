@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "@/main/Element/element";
+import { DouYinElement } from "@/main/Element/DouYinElement";
 
 /** 顶部屏蔽 */
 const ShieldHeader = {

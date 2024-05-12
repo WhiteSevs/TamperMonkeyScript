@@ -1,6 +1,6 @@
 import { DOMUtils, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
-import { DouYinDanmuFilter } from "@/main/Live/danmuku";
+import { DouYinDanmuFilter } from "@/main/Live/DouYinLiveDanmuku";
 import { DouYinRouter } from "@/router/router";
 
 const PanelLiveConfig: PopsPanelContentConfig =

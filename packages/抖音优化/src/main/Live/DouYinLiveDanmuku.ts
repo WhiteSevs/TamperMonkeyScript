@@ -1,5 +1,5 @@
 import { DOMUtils, log, utils } from "@/env";
-import { DouYinElement } from "../Element/element";
+import { DouYinElement } from "../Element/DouYinElement";
 import { GM_getValue, GM_setValue } from "$";
 
 const DouYinDanmuFilter = {

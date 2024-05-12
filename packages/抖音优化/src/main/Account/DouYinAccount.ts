@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { DouYinElement } from "../Element/element";
+import { DouYinElement } from "../Element/DouYinElement";
 import { DouYinRouter } from "@/router/router";
 
 const DouYinAccount = {

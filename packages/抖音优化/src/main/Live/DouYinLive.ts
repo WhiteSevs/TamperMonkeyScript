@@ -1,9 +1,9 @@
 import { GM_addStyle } from "$";
 import { DOMUtils, Qmsg, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "@/main/Element/element";
-import { DouYinLiveChatRoom } from "./chatRoom";
-import { DouYinLiveDanmuku } from "./danmuku";
+import { DouYinElement } from "@/main/Element/DouYinElement";
+import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
+import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 
 /**
    * 直播画质
