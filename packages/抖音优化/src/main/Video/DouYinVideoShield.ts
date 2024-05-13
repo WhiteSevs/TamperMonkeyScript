@@ -14,7 +14,7 @@ interface DouYinShieldTagMap {
 const DouYinVideoShield = {
 	key: "douyin-shield-rule",
 	$data: {
-		rule: new utils.Dictionary<keyof DouYinShieldTagMap, string>(),
+		rule: new utils.Dictionary<keyof DouYinShieldTagMap, RegExp>(),
 	},
 	/**
 	 * authorInfo.nickname:string    作者
@@ -33,7 +33,11 @@ const DouYinVideoShield = {
 			/* 视频列表元素 */
 			let $videoList = document.querySelector(
 				'#slidelist div[data-e2e="slideList"]'
-			) as HTMLDivElement;
+			);
+			if (!$videoList) {
+				log.error("未获取到视频列表元素");
+				return;
+			}
 			let reactFiber = utils.getReactObj($videoList)?.reactFiber;
 			if (reactFiber == null) {
 				log.error(["元素上不存在reactFiber属性", $videoList]);
@@ -59,14 +63,6 @@ const DouYinVideoShield = {
 				}
 				/* 遍历自定义规则 */
 				for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-					let ruleRegExpValue = null;
-					try {
-						ruleRegExpValue = new RegExp(ruleValue, "g");
-					} catch (error) {
-						log.error(error);
-						continue;
-					}
-
 					if (!(ruleKey in videoInfoTag)) {
 						continue;
 					}
@@ -75,7 +71,7 @@ const DouYinVideoShield = {
 					if (tagValue != null) {
 						if (typeof tagValue === "string") {
 							/* tag的值是字符串 */
-							flag = Boolean(tagValue.match(ruleRegExpValue));
+							flag = Boolean(tagValue.match(ruleValue));
 							if (flag) {
 								log.success([
 									"自定义屏蔽: " + ruleKey + "  " + ruleValue,
@@ -89,7 +85,7 @@ const DouYinVideoShield = {
 						) {
 							/* tag的值是字符串数组 */
 							let findValue = tagValue.find((tagValueItem) =>
-								Boolean(tagValueItem.match(ruleRegExpValue))
+								Boolean(tagValueItem.match(ruleValue))
 							);
 							if (findValue) {
 								flag = true;
@@ -148,14 +144,29 @@ const DouYinVideoShield = {
 	parseRule() {
 		let localRule = this.get().trim();
 		let localRuleSplit = localRule.split("\n");
-		localRuleSplit.forEach((item: string) => {
-			let itemSplit = item.split("##");
+		localRuleSplit.forEach((item) => {
+			if (utils.isNull(item)) {
+				return;
+			}
+			/* 去除左右空格 */
+			let trimItem = item.trim();
+			/* 按##分割 */
+			let itemSplit = trimItem.split("##");
 			if (itemSplit.length < 2) {
+				/* 分割出的应该是["tagName",..."tagValue"] */
 				return;
 			}
 			let keyName = itemSplit[0];
-			let keyValue = itemSplit[1];
-			this.$data.rule.set(keyName as any, keyValue);
+			/* 去除第一个tagName，后面的都是value */
+			itemSplit.shift();
+			let keyValue = itemSplit.join("");
+			try {
+				let regExpKeyValue = new RegExp(keyValue, "g");
+				this.$data.rule.set(keyName as any, regExpKeyValue);
+			} catch (error) {
+				log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+				log.error("错误的规则：" + item);
+			}
 		});
 	},
 	set(value: string) {

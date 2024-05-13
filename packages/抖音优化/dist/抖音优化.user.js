@@ -527,6 +527,10 @@
         let $videoList = document.querySelector(
           '#slidelist div[data-e2e="slideList"]'
         );
+        if (!$videoList) {
+          log.error("未获取到视频列表元素");
+          return;
+        }
         let reactFiber = (_a2 = utils.getReactObj($videoList)) == null ? void 0 : _a2.reactFiber;
         if (reactFiber == null) {
           log.error(["元素上不存在reactFiber属性", $videoList]);
@@ -548,20 +552,13 @@
             continue;
           }
           for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-            let ruleRegExpValue = null;
-            try {
-              ruleRegExpValue = new RegExp(ruleValue, "g");
-            } catch (error) {
-              log.error(error);
-              continue;
-            }
             if (!(ruleKey in videoInfoTag)) {
               continue;
             }
             let tagValue = videoInfoTag[ruleKey];
             if (tagValue != null) {
               if (typeof tagValue === "string") {
-                flag = Boolean(tagValue.match(ruleRegExpValue));
+                flag = Boolean(tagValue.match(ruleValue));
                 if (flag) {
                   log.success([
                     "自定义屏蔽: " + ruleKey + "  " + ruleValue,
@@ -571,7 +568,7 @@
                 }
               } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
                 let findValue = tagValue.find(
-                  (tagValueItem) => Boolean(tagValueItem.match(ruleRegExpValue))
+                  (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
                 );
                 if (findValue) {
                   flag = true;
@@ -626,13 +623,24 @@
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
       localRuleSplit.forEach((item) => {
-        let itemSplit = item.split("##");
+        if (utils.isNull(item)) {
+          return;
+        }
+        let trimItem = item.trim();
+        let itemSplit = trimItem.split("##");
         if (itemSplit.length < 2) {
           return;
         }
         let keyName = itemSplit[0];
-        let keyValue = itemSplit[1];
-        this.$data.rule.set(keyName, keyValue);
+        itemSplit.shift();
+        let keyValue = itemSplit.join("");
+        try {
+          let regExpKeyValue = new RegExp(keyValue, "g");
+          this.$data.rule.set(keyName, regExpKeyValue);
+        } catch (error) {
+          log.error(["自定义视频过滤规则-正则解析错误：" + error]);
+          log.error("错误的规则：" + item);
+        }
       });
     },
     set(value) {
