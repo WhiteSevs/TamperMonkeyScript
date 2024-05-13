@@ -541,42 +541,46 @@
           let videoData = videoDataList[index];
           let videoInfoTag = this.getVideoInfoTagMap(videoData);
           let flag = false;
-          if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
-            log.success(["屏蔽直播", videoData["cellRoom"]]);
-            flag = true;
-            continue;
-          }
-          if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
-            log.success(["屏蔽广告", videoData["isAds"]]);
-            flag = true;
-            continue;
-          }
-          for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-            if (!(ruleKey in videoInfoTag)) {
-              continue;
+          if (!flag) {
+            if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
+              log.success(["屏蔽直播", videoData["cellRoom"]]);
+              flag = true;
             }
-            let tagValue = videoInfoTag[ruleKey];
-            if (tagValue != null) {
-              if (typeof tagValue === "string") {
-                flag = Boolean(tagValue.match(ruleValue));
-                if (flag) {
-                  log.success([
-                    "自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                    videoInfoTag
-                  ]);
-                  break;
-                }
-              } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
-                let findValue = tagValue.find(
-                  (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
-                );
-                if (findValue) {
-                  flag = true;
-                  log.success([
-                    "自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                    videoInfoTag
-                  ]);
-                  break;
+          }
+          if (!flag) {
+            if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
+              log.success(["屏蔽广告", videoData["isAds"]]);
+              flag = true;
+            }
+          }
+          if (!flag) {
+            for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+              if (!(ruleKey in videoInfoTag)) {
+                continue;
+              }
+              let tagValue = videoInfoTag[ruleKey];
+              if (tagValue != null) {
+                if (typeof tagValue === "string") {
+                  flag = Boolean(tagValue.match(ruleValue));
+                  if (flag) {
+                    log.success([
+                      "自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                      videoInfoTag
+                    ]);
+                    break;
+                  }
+                } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
+                  let findValue = tagValue.find(
+                    (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
+                  );
+                  if (findValue) {
+                    flag = true;
+                    log.success([
+                      "自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                      videoInfoTag
+                    ]);
+                    break;
+                  }
                 }
               }
             }

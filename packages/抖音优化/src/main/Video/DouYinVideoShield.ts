@@ -48,52 +48,56 @@ const DouYinVideoShield = {
 				let videoData = videoDataList[index];
 				let videoInfoTag = this.getVideoInfoTagMap(videoData);
 				let flag = false;
-				if (
-					typeof videoData["cellRoom"] === "object" &&
-					PopsPanel.getValue("shieldVideo-live")
-				) {
-					log.success(["屏蔽直播", videoData["cellRoom"]]);
-					flag = true;
-					continue;
+				if (!flag) {
+					if (
+						typeof videoData["cellRoom"] === "object" &&
+						PopsPanel.getValue("shieldVideo-live")
+					) {
+						log.success(["屏蔽直播", videoData["cellRoom"]]);
+						flag = true;
+					}
 				}
-				if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
-					log.success(["屏蔽广告", videoData["isAds"]]);
-					flag = true;
-					continue;
+				if (!flag) {
+					if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
+						log.success(["屏蔽广告", videoData["isAds"]]);
+						flag = true;
+					}
 				}
 				/* 遍历自定义规则 */
-				for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-					if (!(ruleKey in videoInfoTag)) {
-						continue;
-					}
-					/* 自定义键能对应上 */
-					let tagValue = videoInfoTag[ruleKey];
-					if (tagValue != null) {
-						if (typeof tagValue === "string") {
-							/* tag的值是字符串 */
-							flag = Boolean(tagValue.match(ruleValue));
-							if (flag) {
-								log.success([
-									"自定义屏蔽: " + ruleKey + "  " + ruleValue,
-									videoInfoTag,
-								]);
-								break;
-							}
-						} else if (
-							typeof tagValue === "object" &&
-							Array.isArray(tagValue)
-						) {
-							/* tag的值是字符串数组 */
-							let findValue = tagValue.find((tagValueItem) =>
-								Boolean(tagValueItem.match(ruleValue))
-							);
-							if (findValue) {
-								flag = true;
-								log.success([
-									"自定义屏蔽: " + ruleKey + "  " + ruleValue,
-									videoInfoTag,
-								]);
-								break;
+				if (!flag) {
+					for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+						if (!(ruleKey in videoInfoTag)) {
+							continue;
+						}
+						/* 自定义键能对应上 */
+						let tagValue = videoInfoTag[ruleKey];
+						if (tagValue != null) {
+							if (typeof tagValue === "string") {
+								/* tag的值是字符串 */
+								flag = Boolean(tagValue.match(ruleValue));
+								if (flag) {
+									log.success([
+										"自定义屏蔽: " + ruleKey + "  " + ruleValue,
+										videoInfoTag,
+									]);
+									break;
+								}
+							} else if (
+								typeof tagValue === "object" &&
+								Array.isArray(tagValue)
+							) {
+								/* tag的值是字符串数组 */
+								let findValue = tagValue.find((tagValueItem) =>
+									Boolean(tagValueItem.match(ruleValue))
+								);
+								if (findValue) {
+									flag = true;
+									log.success([
+										"自定义屏蔽: " + ruleKey + "  " + ruleValue,
+										videoInfoTag,
+									]);
+									break;
+								}
 							}
 						}
 					}
