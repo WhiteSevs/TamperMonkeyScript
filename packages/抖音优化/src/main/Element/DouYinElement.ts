@@ -6,7 +6,7 @@ const DouYinElement = {
 	 * 观察 #slidelist的加载每条视频
 	 * @param callback
 	 */
-	watch_slidelist(callback: (osElement: HTMLDivElement) => void) {
+	watchVideDataListChange(callback: (osElement: HTMLDivElement) => void) {
 		DOMUtils.ready(() => {
 			utils.waitAnyNode("#slidelist").then((slidelist) => {
 				let osElement = this.getOSElement();

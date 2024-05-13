@@ -60,7 +60,7 @@ const DouYinAccount = {
 				});
 			});
 		}
-		DouYinElement.watch_slidelist(() => {
+		DouYinElement.watchVideDataListChange(() => {
 			setLogin(DouYinElement.getOSElement());
 		});
 		utils

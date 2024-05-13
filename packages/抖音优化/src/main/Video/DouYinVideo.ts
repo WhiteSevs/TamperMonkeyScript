@@ -2,7 +2,7 @@ import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, Qmsg, log, pops, utils } from "@/env";
 import { DouYinElement } from "../Element/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinVideoShield } from "./shield";
+import { DouYinVideoShield } from "./DouYinVideoShield";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 

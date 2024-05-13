@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.12
+// @version      2024.5.13
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -210,7 +210,7 @@
      * 观察 #slidelist的加载每条视频
      * @param callback
      */
-    watch_slidelist(callback) {
+    watchVideDataListChange(callback) {
       DOMUtils.ready(() => {
         utils.waitAnyNode("#slidelist").then((slidelist) => {
           let osElement = this.getOSElement();
@@ -521,110 +521,103 @@
      */
     init() {
       this.parseRule();
-      DouYinElement.watch_slidelist((osElement) => {
+      log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
+      DouYinElement.watchVideDataListChange((osElement) => {
         var _a2;
-        let slideListChild = document.querySelector(
+        let $videoList = document.querySelector(
           '#slidelist div[data-e2e="slideList"]'
         );
-        let reactFiber = (_a2 = utils.getReactObj(slideListChild)) == null ? void 0 : _a2.reactFiber;
+        let reactFiber = (_a2 = utils.getReactObj($videoList)) == null ? void 0 : _a2.reactFiber;
         if (reactFiber == null) {
-          log.error(["元素上不存在reactFiber属性", slideListChild]);
+          log.error(["元素上不存在reactFiber属性", $videoList]);
           return;
         }
-        let videoData = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
-        let shieldTagMap = [
-          {
-            key: "nickname",
-            get(data) {
-              var _a3, _b;
-              return (_b = (_a3 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a3["nickname"]) == null ? void 0 : _b.toString();
-            }
-          },
-          {
-            key: "uid",
-            get(data) {
-              var _a3, _b;
-              return (_b = (_a3 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a3["uid"]) == null ? void 0 : _b.toString();
-            }
-          },
-          {
-            key: "desc",
-            get(data) {
-              var _a3;
-              return (_a3 = data == null ? void 0 : data["desc"]) == null ? void 0 : _a3.toString();
-            }
-          },
-          {
-            key: "textExtra",
-            get(data) {
-              if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
-                let result = [];
-                data == null ? void 0 : data["textExtra"].forEach((item) => {
-                  result.push(item["hashtagName"]);
-                });
-                return result;
-              }
-            }
-          },
-          {
-            key: "videoTag",
-            get(data) {
-              if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
-                let result = [];
-                data == null ? void 0 : data["videoTag"].forEach((item) => {
-                  result.push(item["tagName"]);
-                });
-                return result;
-              }
-            }
-          }
-        ];
-        for (let index = 0; index < videoData.length; index++) {
-          let videoItem = videoData[index];
+        let videoDataList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
+        for (let index = 0; index < videoDataList.length; index++) {
+          let videoData = videoDataList[index];
+          let videoInfoTag = this.getVideoInfoTagMap(videoData);
           let flag = false;
-          if (typeof videoItem["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
-            log.success(["屏蔽直播", videoItem["cellRoom"]]);
+          if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
+            log.success(["屏蔽直播", videoData["cellRoom"]]);
             flag = true;
+            continue;
           }
-          if (videoItem["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
-            log.success(["屏蔽广告", videoItem["isAds"]]);
+          if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
+            log.success(["屏蔽广告", videoData["isAds"]]);
             flag = true;
+            continue;
           }
-          this.$data.rule.forEach((ruleValue, ruleKey) => {
-            let ruleRegExpValue = new RegExp(ruleValue, "g");
-            for (const shieldTag of shieldTagMap) {
-              if (ruleKey === shieldTag["key"]) {
-                let value = shieldTag.get(videoItem);
-                if (typeof value === "string") {
-                  flag = Boolean(value.match(ruleRegExpValue));
-                  if (flag) {
-                    log.success([
-                      "自定义屏蔽: " + ruleKey + " " + videoItem["desc"]
-                    ]);
-                  }
-                } else if (typeof value === "object" && Array.isArray(value)) {
-                  for (const valueIterator of value) {
-                    if (valueIterator.match(ruleRegExpValue)) {
-                      flag = true;
-                      log.success([
-                        "自定义屏蔽: " + ruleKey + " " + videoItem["desc"]
-                      ]);
-                      break;
-                    }
-                  }
+          for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+            let ruleRegExpValue = null;
+            try {
+              ruleRegExpValue = new RegExp(ruleValue, "g");
+            } catch (error) {
+              log.error(error);
+              continue;
+            }
+            if (!(ruleKey in videoInfoTag)) {
+              continue;
+            }
+            let tagValue = videoInfoTag[ruleKey];
+            if (tagValue != null) {
+              if (typeof tagValue === "string") {
+                flag = Boolean(tagValue.match(ruleRegExpValue));
+                if (flag) {
+                  log.success([
+                    "自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                    videoInfoTag
+                  ]);
+                  break;
+                }
+              } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
+                let findValue = tagValue.find(
+                  (tagValueItem) => Boolean(tagValueItem.match(ruleRegExpValue))
+                );
+                if (findValue) {
+                  flag = true;
+                  log.success([
+                    "自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                    videoInfoTag
+                  ]);
+                  break;
                 }
               }
-              if (flag) {
-                break;
-              }
             }
-          });
+          }
           if (flag) {
-            videoData.splice(index, 1);
+            videoDataList.splice(index, 1);
             index--;
           }
         }
       });
+    },
+    /**
+     * 获取视频各个信息的字典
+     */
+    getVideoInfoTagMap(data) {
+      var _a2, _b, _c, _d, _e, _f;
+      let nickname = (_b = (_a2 = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _a2["nickname"]) == null ? void 0 : _b.toString();
+      let uid = (_d = (_c = data == null ? void 0 : data["authorInfo"]) == null ? void 0 : _c["uid"]) == null ? void 0 : _d.toString();
+      let desc = (_e = data == null ? void 0 : data["desc"]) == null ? void 0 : _e.toString();
+      let textExtra = [];
+      if (typeof (data == null ? void 0 : data["textExtra"]) === "object" && Array.isArray(data == null ? void 0 : data["textExtra"])) {
+        (_f = data == null ? void 0 : data["textExtra"]) == null ? void 0 : _f.forEach((item) => {
+          textExtra.push(item["hashtagName"]);
+        });
+      }
+      let videoTag = [];
+      if (typeof (data == null ? void 0 : data["videoTag"]) === "object" && Array.isArray(data == null ? void 0 : data["videoTag"])) {
+        data == null ? void 0 : data["videoTag"].forEach((item) => {
+          videoTag.push(item["tagName"]);
+        });
+      }
+      return {
+        nickname,
+        uid,
+        desc,
+        textExtra,
+        videoTag
+      };
     },
     /**
      * 解析规则
@@ -2102,7 +2095,7 @@
           });
         });
       }
-      DouYinElement.watch_slidelist(() => {
+      DouYinElement.watchVideDataListChange(() => {
         setLogin(DouYinElement.getOSElement());
       });
       utils.waitNodeWithInterval("#root div[class*='-os']", WAIT_TIME).then(() => {

@@ -1,7 +1,7 @@
 import { DOMUtils, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
-import { DouYinVideoShield } from "@/main/Video/shield";
+import { DouYinVideoShield } from "@/main/Video/DouYinVideoShield";
 import { DouYinRouter } from "@/router/router";
 import { UIButton } from "../common-components/ui-button";
 import { DouYinVideoShortcut } from "@/main/Video/DouYinVideoShortCut";
