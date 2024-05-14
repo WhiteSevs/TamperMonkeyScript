@@ -13,14 +13,27 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					"移除抖音的开发者模式检测",
 					"debug",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch(
 					"伪装登录",
 					"使用随机UID进行伪装",
 					"disguiseLogin",
 					false,
-					void 0,
+					void 0
+				),
+			],
+		},
+		{
+			text: "Url重定向",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"重定向/home",
+					"/home => /",
+					"douyin-redirect-url-home-to-root",
+					false,
+					void 0
 				),
 			],
 		},
@@ -33,7 +46,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					"屏蔽元素且自动等待元素出现并关闭登录弹窗",
 					"watchLoginDialogToClose",
 					true,
-					void 0,
+					void 0
 				),
 			],
 		},
@@ -46,14 +59,14 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					"屏蔽元素",
 					"shieldClientTip",
 					true,
-					void 0,
+					void 0
 				),
 				UISwitch(
 					"【屏蔽】充砖石",
 					"屏蔽元素",
 					"shieldFillingBricksAndStones",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch("【屏蔽】客户端", "屏蔽元素", "shieldClient", false, void 0),
 				UISwitch(
@@ -61,23 +74,37 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					"屏蔽元素",
 					"shieldQuickAccess",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch(
 					"【屏蔽】通知",
 					"屏蔽元素",
 					"shieldNotifitation",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch(
 					"【屏蔽】私信",
 					"屏蔽元素",
 					"shieldPrivateMessage",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch("【屏蔽】投稿", "屏蔽元素", "shieldSubmission", false, void 0),
+				UISwitch(
+					"【屏蔽】左侧导航栏",
+					"屏蔽元素",
+					"douyin-shieldLeftNavigator",
+					false,
+					void 0
+				),
+				UISwitch(
+					"【屏蔽】顶部导航栏",
+					"屏蔽元素",
+					"douyin-shieldTopNavigator",
+					false,
+					void 0
+				),
 			],
 		},
 		{
@@ -90,21 +117,21 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					"屏蔽元素",
 					"shieldSearchPlaceholder",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch(
 					"【屏蔽】猜你想搜",
 					"屏蔽元素",
 					"shieldSearchGuessYouWantToSearch",
 					false,
-					void 0,
+					void 0
 				),
 				UISwitch(
 					"【屏蔽】抖音热点",
 					"屏蔽元素",
 					"shieldSearchTiktokHotspot",
 					false,
-					void 0,
+					void 0
 				),
 			],
 		},

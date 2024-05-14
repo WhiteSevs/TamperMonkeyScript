@@ -29,7 +29,7 @@ const DouYinVideo = {
 		});
 		DOMUtils.ready(() => {
 			DouYinVideo.chooseVideoDefinition(
-				PopsPanel.getValue("chooseVideoDefinition"),
+				PopsPanel.getValue("chooseVideoDefinition")
 			);
 			PopsPanel.execMenu("mobileMode", () => {
 				this.mobileMode();
@@ -46,7 +46,7 @@ const DouYinVideo = {
 			/* 中间底部的视频信息（描述、作者、话题等） */
 			"#video-info-wrap",
 			/* 中间底部的视频控制工具栏 */
-			"xg-controls.xgplayer-controls",
+			"xg-controls.xgplayer-controls"
 		);
 		DouYinVideoHideElement.shieldSearchFloatingBar();
 		GM_addStyle(`
@@ -62,7 +62,7 @@ const DouYinVideo = {
 	autoEnterElementFullScreen() {
 		utils
 			.waitNode(
-				'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])',
+				'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
 			)
 			.then((element) => {
 				element.click();
@@ -72,8 +72,14 @@ const DouYinVideo = {
 	 * 评论区修改为底部
 	 */
 	changeCommentToBottom() {
+		if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
+			if (window.outerWidth > window.outerHeight) {
+				log.info("由于网页宽度大于高度，取消【评论区修改为底部】");
+				return;
+			}
+		}
 		DouYinElement.addShieldStyle(
-			'#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard',
+			'#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard'
 		);
 		GM_addStyle(`
         #sliderVideo[data-e2e] .playerContainer,
@@ -221,7 +227,7 @@ const DouYinVideo = {
 			unsafeWindow.sessionStorage.setItem(Definition_Key, value);
 			(
 				document.querySelectorAll(
-					"xg-icon.xgplayer-playback-setting",
+					"xg-icon.xgplayer-playback-setting"
 				) as NodeListOf<HTMLLIElement>
 			).forEach(($playbackSetting) => {
 				let $container = utils.getReactObj($playbackSetting).reactContainer;
@@ -284,7 +290,7 @@ const DouYinVideo = {
 			function (event) {
 				let clickElement = event.target as HTMLDivElement;
 				let rectFiber = utils.getReactObj(
-					clickElement.parentElement as HTMLElement,
+					clickElement.parentElement as HTMLElement
 				)?.reactFiber;
 				if (!rectFiber) {
 					Qmsg.error("获取rectFiber属性失败");
@@ -314,7 +320,7 @@ const DouYinVideo = {
 			},
 			{
 				capture: true,
-			},
+			}
 		);
 	},
 	/**
@@ -329,7 +335,7 @@ const DouYinVideo = {
 				name: "viewport",
 				content:
 					"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
-			},
+			}
 		);
 		document
 			.querySelectorAll("meta[name='viewport']")

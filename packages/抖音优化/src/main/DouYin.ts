@@ -7,9 +7,11 @@ import { DouYinAccount } from "./Account/DouYinAccount";
 import { DouYinVideo } from "./Video/DouYinVideo";
 import { DouYinRouter } from "@/router/router";
 import { DouYinLive } from "./Live/DouYinLive";
+import { DouYinRedirect } from "./DouYinRedirect";
 
 const DouYin = {
 	init() {
+		DouYinRedirect.init();
 		PopsPanel.execMenu("debug", () => {
 			DouYinHook.removeEnvCheck();
 		});

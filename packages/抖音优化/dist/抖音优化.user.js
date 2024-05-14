@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.13
+// @version      2024.5.14.11
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -129,6 +129,18 @@
         ]
       },
       {
+        text: "Url重定向",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "重定向/home",
+            "/home => /",
+            "douyin-redirect-url-home-to-root",
+            false
+          )
+        ]
+      },
+      {
         text: "屏蔽",
         type: "forms",
         forms: [
@@ -175,7 +187,19 @@
             "shieldPrivateMessage",
             false
           ),
-          UISwitch("【屏蔽】投稿", "屏蔽元素", "shieldSubmission", false)
+          UISwitch("【屏蔽】投稿", "屏蔽元素", "shieldSubmission", false),
+          UISwitch(
+            "【屏蔽】左侧导航栏",
+            "屏蔽元素",
+            "douyin-shieldLeftNavigator",
+            false
+          ),
+          UISwitch(
+            "【屏蔽】顶部导航栏",
+            "屏蔽元素",
+            "douyin-shieldTopNavigator",
+            false
+          )
         ]
       },
       {
@@ -870,6 +894,12 @@
       PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
         this.shieldBottomVideoToolBar();
       });
+      PopsPanel.execMenu("douyin-shieldLeftNavigator", () => {
+        this.shieldLeftNavigator();
+      });
+      PopsPanel.execMenu("douyin-shieldTopNavigator", () => {
+        this.shieldTopNavigator();
+      });
     },
     /**
      * 【屏蔽】右侧的展开评论按钮
@@ -880,19 +910,22 @@
         '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
       );
       _GM_addStyle(`
-    .basePlayerContainer .positionBox{
-        padding-right: 20px !important;
-    }
-    `);
+		.basePlayerContainer .positionBox{
+			padding-right: 20px !important;
+		}
+    	`);
     },
     /**
      * 左上角的鼠标的快捷搜索热点的悬浮栏
+     * 【屏蔽】搜索悬浮栏
      */
     shieldSearchFloatingBar() {
       DouYinElement.addShieldStyle(
         '.slider-video div:has([data-e2e="searchbar-button"])',
         'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
-        'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])'
+        'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])',
+        /* 看相关页面的 */
+        "#slideMode + div"
       );
     },
     /**
@@ -975,11 +1008,23 @@
     shieldBottomVideoToolBar() {
       DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
       _GM_addStyle(`
-  div:has( > div > pace-island > #video-info-wrap ),
-  xg-video-container.xg-video-container{
-    bottom: 0 !important;
-  }
-  `);
+		div:has( > div > pace-island > #video-info-wrap ),
+		xg-video-container.xg-video-container{
+			bottom: 0 !important;
+		}
+  		`);
+    },
+    /**
+     * 【屏蔽】左侧导航栏
+     */
+    shieldLeftNavigator() {
+      DouYinElement.addShieldStyle("#douyin-navigation");
+    },
+    /**
+     * 【屏蔽】顶部导航栏
+     */
+    shieldTopNavigator() {
+      DouYinElement.addShieldStyle("#douyin-header");
     }
   };
   const DouYinVideo = {
@@ -1044,6 +1089,12 @@
      * 评论区修改为底部
      */
     changeCommentToBottom() {
+      if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
+        if (window.outerWidth > window.outerHeight) {
+          log.info("由于网页宽度大于高度，取消【评论区修改为底部】");
+          return;
+        }
+      }
       DouYinElement.addShieldStyle(
         '#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard'
       );
@@ -1437,18 +1488,30 @@
             false
           ),
           UISwitch(
+            "沉浸模式",
+            "移除右侧工具栏、底部信息栏等",
+            "fullScreen",
+            false
+          )
+        ]
+      },
+      {
+        text: "手机模式",
+        type: "forms",
+        forms: [
+          UISwitch("启用", "放大各种文字和图标", "mobileMode", false),
+          UISwitch(
             "评论区移到中间",
             "修改评论区为中间弹出而非右侧区域",
             "changeCommentToBottom",
             true
           ),
           UISwitch(
-            "沉浸模式",
-            "移除右侧工具栏、底部信息栏等",
-            "fullScreen",
+            "↑自适应评论区位置",
+            "根据屏幕宽度自动判断是否开启【评论区移到中间】",
+            "douyin-video-autoCheckChangeCommentToBottom",
             false
-          ),
-          UISwitch("手机模式", "放大各种文字和图标", "mobileMode", false)
+          )
         ]
       },
       {
@@ -2302,8 +2365,24 @@
       DouYinElement.addShieldStyle("#douyin-sidebar");
     }
   };
+  const DouYinRedirect = {
+    init() {
+      PopsPanel.execMenu("douyin-redirect-url-home-to-root", () => {
+        this.redirectUrlHomeToRoot();
+      });
+    },
+    /**
+     * 跳转首页到根目录
+     */
+    redirectUrlHomeToRoot() {
+      if (window.location.pathname === "/home") {
+        window.location.href = window.location.origin;
+      }
+    }
+  };
   const DouYin = {
     init() {
+      DouYinRedirect.init();
       PopsPanel.execMenu("debug", () => {
         DouYinHook.removeEnvCheck();
       });
