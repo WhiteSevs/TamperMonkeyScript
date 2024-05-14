@@ -25,91 +25,115 @@ import { BaiduMiniJiaoYu } from "./mini-jiaoyu/MiniJiaoYu";
 import { BaiduEasyLearn } from "./easylearn/EasyLearn";
 import { BaiduAiStudy } from "./aistudy/AiStudy";
 import { BaiduISite } from "./isite/ISite";
+import { log } from "@/env";
 
 const Baidu = {
-    init() {
-        if (BaiduRouter.isSearch()) {
-            BaiduSearch.init();
-        }
-        if (BaiduRouter.isSearchHome()) {
-            BaiduSearchHome.init();
-        }
-        if (BaiduRouter.isBaiJiaHao()) {
-            BaiduBaiJiaHao.init();
-        }
-        if (BaiduRouter.isTieBa()) {
-            BaiduTieBa.init();
-        }
-        if (BaiduRouter.isWenKu()) {
-            BaiduWenKu.init();
-        }
-        if (BaiduRouter.isJingYan()) {
-            BaiduJingYan.init();
-        }
-        if (BaiduRouter.isBaiKe()) {
-            BaiduBaiKe.init();
-            if (BaiduRouter.isBaiKeTaShuo()) {
-                BaiduBaiKeTaShuo.init();
-            }
-        }
-        if (BaiduRouter.isZhiDao()) {
-            BaiduZhiDao.init();
-        }
-        if (BaiduRouter.isFanYi()) {
-            BaiduFanYi.init();
-        }
-        if (BaiduRouter.isFanYiApp()) {
-            BaiduFanYiApp.init();
-        }
-        if (BaiduRouter.isImage()) {
-            BaiduImage.init();
-        }
-        if (BaiduRouter.isMap()) {
-            BaiduMap.init();
-        }
-        if (BaiduRouter.isMbd()) {
-            BaiduMbd.init();
-        }
-        if (BaiduRouter.isXue()) {
-            BaiduXue.init();
-        }
-        if (BaiduRouter.isAiQiCha()) {
-            BaiduAiQiCha.init();
-        }
-        if (BaiduRouter.isPos()) {
-            BaiduPos.init();
-        }
-        if (BaiduRouter.isHaoKan()) {
-            BaiduHaoKan.init();
-        }
-        if (BaiduRouter.isGraph()) {
-            BaiduGraph.init();
-        }
-        if (BaiduRouter.isPan()) {
-            BaiduPan.init();
-        }
-        if (BaiduRouter.isYiYan()) {
-            BaiduYiYan.init();
-        }
-        if (BaiduRouter.isChat()) {
-            BaiduChat.init();
-        }
-        if (BaiduRouter.isMiniJiaoYu()) {
-            BaiduMiniJiaoYu.init();
-        }
-        if (BaiduRouter.isEasyLearn()) {
-            BaiduEasyLearn.init();
-        }
-        if (BaiduRouter.isAiStudy()) {
-            BaiduAiStudy.init();
-        }
-        if (BaiduRouter.isISite()) {
-            BaiduISite.init();
-        }
-    }
-}
+	init() {
+		if (BaiduRouter.isSearch()) {
+			log.success("Router: 百度搜索");
+			BaiduSearch.init();
+		}
+		if (BaiduRouter.isSearchHome()) {
+			log.success("Router: 百度搜索-主页");
+			BaiduSearchHome.init();
+		}
+		if (BaiduRouter.isBaiJiaHao()) {
+			log.success("Router: 百家号");
+			BaiduBaiJiaHao.init();
+		}
+		if (BaiduRouter.isTieBa()) {
+			log.success("Router: 贴吧");
+			BaiduTieBa.init();
+		}
+		if (BaiduRouter.isWenKu()) {
+			log.success("Router: 百度文库");
+			BaiduWenKu.init();
+		}
+		if (BaiduRouter.isJingYan()) {
+			log.success("Router: 百度经验");
+			BaiduJingYan.init();
+		}
+		if (BaiduRouter.isBaiKe()) {
+			log.success("Router: 百度百科");
+			BaiduBaiKe.init();
+			if (BaiduRouter.isBaiKeTaShuo()) {
+				log.success("Router: 百度百科-他说");
+				BaiduBaiKeTaShuo.init();
+			}
+		}
+		if (BaiduRouter.isZhiDao()) {
+			log.success("Router: 百度知道");
+			BaiduZhiDao.init();
+		}
+		if (BaiduRouter.isFanYi()) {
+			log.success("Router: 百度翻译");
+			BaiduFanYi.init();
+		}
+		if (BaiduRouter.isFanYiApp()) {
+			log.success("Router: 百度翻译-App");
+			BaiduFanYiApp.init();
+		}
+		if (BaiduRouter.isImage()) {
+			log.success("Router: 百度图片");
+			BaiduImage.init();
+		}
+		if (BaiduRouter.isMap()) {
+			log.success("Router: 百度地图");
+			BaiduMap.init();
+		}
+		if (BaiduRouter.isMbd()) {
+			log.success("Router: mbd");
+			BaiduMbd.init();
+		}
+		if (BaiduRouter.isXue()) {
+			log.success("Router: 百度好学");
+			BaiduXue.init();
+		}
+		if (BaiduRouter.isAiQiCha()) {
+			log.success("Router: 百度爱企查");
+			BaiduAiQiCha.init();
+		}
+		if (BaiduRouter.isPos()) {
+			log.success("Router: 网盟");
+			BaiduPos.init();
+		}
+		if (BaiduRouter.isHaoKan()) {
+			log.success("Router: 好看视频");
+			BaiduHaoKan.init();
+		}
+		if (BaiduRouter.isGraph()) {
+			log.success("Router: 百度识图");
+			BaiduGraph.init();
+		}
+		if (BaiduRouter.isPan()) {
+			log.success("Router: 百度网盘");
+			BaiduPan.init();
+		}
+		if (BaiduRouter.isYiYan()) {
+			log.success("Router: 文心一言");
+			BaiduYiYan.init();
+		}
+		if (BaiduRouter.isChat()) {
+			log.success("Router: chat");
+			BaiduChat.init();
+		}
+		if (BaiduRouter.isMiniJiaoYu()) {
+			log.success("Router: 小程序-百度教育");
+			BaiduMiniJiaoYu.init();
+		}
+		if (BaiduRouter.isEasyLearn()) {
+			log.success("Router: 百度教育");
+			BaiduEasyLearn.init();
+		}
+		if (BaiduRouter.isAiStudy()) {
+			log.success("Router: 百度爱学");
+			BaiduAiStudy.init();
+		}
+		if (BaiduRouter.isISite()) {
+			log.success("Router: 百度基木鱼");
+			BaiduISite.init();
+		}
+	},
+};
 
-
-export {
-    Baidu
-}
+export { Baidu };

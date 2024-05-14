@@ -25,7 +25,7 @@ const BaiduRouter = {
                 /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/$/g
             ) ||
             window.location.href.match(
-                /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=)/g
+                /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/(\?ref=|\?tn=|\?from=|#\/)/g
             )
         );
     },
