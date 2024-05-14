@@ -1,15 +1,15 @@
 try {
-  const exports = void 0;
+	var exports = void 0;
 } catch (error) {
-  console.warn(error);
+	console.warn(error);
 }
 try {
-  const module = void 0;
+	var module = void 0;
 } catch (error) {
-  console.warn(error);
+	console.warn(error);
 }
 try {
-  const define = void 0;
+	var define = void 0;
 } catch (error) {
-  console.warn(error);
+	console.warn(error);
 }
