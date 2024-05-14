@@ -11,7 +11,8 @@ export const DouYinRedirect = {
 	 */
 	redirectUrlHomeToRoot() {
 		if (window.location.pathname === "/home") {
-			window.location.href = window.location.origin;
+			window.location.href =
+				window.location.origin + "/?is_from_mobile_home=1&recommend=1";
 		}
 	},
 };

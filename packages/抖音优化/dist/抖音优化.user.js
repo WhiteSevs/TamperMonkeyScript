@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.14.11
+// @version      2024.5.14.12
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -2376,7 +2376,7 @@
      */
     redirectUrlHomeToRoot() {
       if (window.location.pathname === "/home") {
-        window.location.href = window.location.origin;
+        window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
       }
     }
   };
