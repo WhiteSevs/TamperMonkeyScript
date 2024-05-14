@@ -5,6 +5,7 @@ import { PopsPanel } from "@/setting/setting";
 import { DouYinVideoShield } from "./DouYinVideoShield";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -72,32 +73,42 @@ const DouYinVideo = {
 	 * 评论区修改为底部
 	 */
 	changeCommentToBottom() {
-		if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
-			if (window.outerWidth > window.outerHeight) {
-				log.info("由于网页宽度大于高度，取消【评论区修改为底部】");
-				return;
+		let ATTRIBUTE_KEY = "data-vertical-screen";
+		function autoChangeCommentPosition() {
+			if (DouYinUtils.isVerticalScreen()) {
+				/* 竖屏 */
+				log.success("自动判断: 竖屏");
+				document.documentElement.setAttribute(ATTRIBUTE_KEY, "true");
+			} else {
+				/* 横屏 */
+				log.success("自动判断: 横屏");
+				document.documentElement.removeAttribute(ATTRIBUTE_KEY);
 			}
 		}
-		DouYinElement.addShieldStyle(
-			'#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard'
-		);
+		autoChangeCommentPosition();
 		GM_addStyle(`
-        #sliderVideo[data-e2e] .playerContainer,
-        #slideMode[data-e2e] .playerContainer{
-            width: 100% !important;
-        }
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
-            width: 100%;
-            height: 75%;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
-            transition: height .15s linear !important;
-            position: absolute;
-        }
-        `);
+		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard{
+			display: none !important;
+		}
+		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e] .playerContainer,
+		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e] .playerContainer{
+			width: 100% !important;
+		}
+		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
+			width: 100%;
+			height: 75%;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0, 0, 0, 0.9);
+			transition: height .15s linear !important;
+			position: absolute;
+		}
+		`);
+		if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
+			DOMUtils.on(window, "resize", autoChangeCommentPosition);
+		}
 	},
 	/**
 	 * 选择视频清晰度

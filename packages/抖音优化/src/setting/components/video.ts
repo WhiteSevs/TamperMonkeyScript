@@ -83,7 +83,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					"↑自适应评论区位置",
-					"根据屏幕宽度自动判断是否开启【评论区移到中间】",
+					"根据window.screen.orientation.type自动判断是否开启【评论区移到中间】",
 					"douyin-video-autoCheckChangeCommentToBottom",
 					false,
 					void 0

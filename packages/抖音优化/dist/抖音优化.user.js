@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.14.12
+// @version      2024.5.14.14
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -1027,6 +1027,18 @@
       DouYinElement.addShieldStyle("#douyin-header");
     }
   };
+  const DouYinUtils = {
+    /**
+     * 判断是否是竖屏
+     *
+     * window.screen.orientation.type
+     * + landscape-primary 横屏
+     * + portrait-primary 竖屏
+     */
+    isVerticalScreen() {
+      return !window.screen.orientation.type.includes("landscape");
+    }
+  };
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
@@ -1089,32 +1101,40 @@
      * 评论区修改为底部
      */
     changeCommentToBottom() {
-      if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
-        if (window.outerWidth > window.outerHeight) {
-          log.info("由于网页宽度大于高度，取消【评论区修改为底部】");
-          return;
+      let ATTRIBUTE_KEY2 = "data-vertical-screen";
+      function autoChangeCommentPosition() {
+        if (DouYinUtils.isVerticalScreen()) {
+          log.success("自动判断: 竖屏");
+          document.documentElement.setAttribute(ATTRIBUTE_KEY2, "true");
+        } else {
+          log.success("自动判断: 横屏");
+          document.documentElement.removeAttribute(ATTRIBUTE_KEY2);
         }
       }
-      DouYinElement.addShieldStyle(
-        '#sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard'
-      );
+      autoChangeCommentPosition();
       _GM_addStyle(`
-        #sliderVideo[data-e2e] .playerContainer,
-        #slideMode[data-e2e] .playerContainer{
-            width: 100% !important;
-        }
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
-            width: 100%;
-            height: 75%;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
-            transition: height .15s linear !important;
-            position: absolute;
-        }
-        `);
+		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard{
+			display: none !important;
+		}
+		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e] .playerContainer,
+		html[${ATTRIBUTE_KEY2}] #slideMode[data-e2e] .playerContainer{
+			width: 100% !important;
+		}
+		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+		html[${ATTRIBUTE_KEY2}] #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
+			width: 100%;
+			height: 75%;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0, 0, 0, 0.9);
+			transition: height .15s linear !important;
+			position: absolute;
+		}
+		`);
+      if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
+        DOMUtils.on(window, "resize", autoChangeCommentPosition);
+      }
     },
     /**
      * 选择视频清晰度
@@ -1508,7 +1528,7 @@
           ),
           UISwitch(
             "↑自适应评论区位置",
-            "根据屏幕宽度自动判断是否开启【评论区移到中间】",
+            "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】",
             "douyin-video-autoCheckChangeCommentToBottom",
             false
           )
