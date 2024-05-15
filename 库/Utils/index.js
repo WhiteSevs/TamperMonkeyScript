@@ -113,7 +113,7 @@
 
 	Utils.ajaxHooker = function () {
 		"use strict";
-		const version = "1.4.0";
+		const version = "1.4.1";
 		const hookInst = {
 			hookFns: [],
 			filters: [],
@@ -506,7 +506,7 @@
 				const ah = this;
 				const xhr = ah.originalXhr;
 				const request = ah.request;
-				if (xhr.readyState !== 1) return xhr.send(data);
+				if (!request) return xhr.send(data);
 				request.data = data;
 				new AHRequest(request).waitForRequestKeys().then(() => {
 					if (request.abort) {
@@ -648,6 +648,8 @@
 			realFetchClone: resProto.clone,
 			hookInsts: new Set(),
 		};
+		if (winAh.version !== version)
+			console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
 		win.XMLHttpRequest = winAh.fakeXHR;
 		win.fetch = winAh.fakeFetch;
 		resProto.clone = winAh.fakeFetchClone;
