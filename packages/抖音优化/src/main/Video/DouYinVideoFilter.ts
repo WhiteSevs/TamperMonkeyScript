@@ -15,8 +15,8 @@ const DouYinVideoFilter = {
 	key: "douyin-shield-rule",
 	$data: {
 		rule: new utils.Dictionary<keyof DouYinShieldTagMap, RegExp>(),
-		/** 首次加载视频的末尾的视频id */
-		firstLoadEndVideoId: null as any,
+		/** 是否是首次加载视频 */
+		isFirstLoad: true,
 	},
 	/**
 	 * authorInfo.nickname:string    作者
@@ -30,7 +30,7 @@ const DouYinVideoFilter = {
 	init() {
 		this.parseRule();
 		log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
-
+		let firstLoadEndVideoId: any = null;
 		DouYinElement.watchVideDataListChange(
 			utils.debounce((osElement) => {
 				/* 视频列表元素 */
@@ -51,18 +51,18 @@ const DouYinVideoFilter = {
 					/* Empty video data list */
 					return;
 				}
-				if (this.$data.firstLoadEndVideoId == null) {
-					this.$data.firstLoadEndVideoId = videoDataList[
-						videoDataList.length - 1
-					].awemeId as string;
-					return;
-				}
-				if (
-					this.$data.firstLoadEndVideoId ===
-					videoDataList[videoDataList.length - 1].awemeId
-				) {
-					/* 仍是首次加载的视频列表 */
-					return;
+				if (this.$data.isFirstLoad) {
+					let endVideo = videoDataList[videoDataList.length - 1];
+					if (firstLoadEndVideoId == null) {
+						/* 首次加载，先赋值 */
+						firstLoadEndVideoId = endVideo.awemeId as string;
+					}
+					if (firstLoadEndVideoId === endVideo.awemeId) {
+						/* 仍是首次加载的视频列表 */
+						return;
+					}
+					/* 不是首次加载了 */
+					this.$data.isFirstLoad = false;
 				}
 				for (let index = 0; index < videoDataList.length; index++) {
 					let videoData = videoDataList[index];

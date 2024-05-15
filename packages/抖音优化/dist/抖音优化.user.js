@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1376839/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1377084/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -532,8 +532,8 @@
     key: "douyin-shield-rule",
     $data: {
       rule: new utils.Dictionary(),
-      /** 首次加载视频的末尾的视频id */
-      firstLoadEndVideoId: null
+      /** 是否是首次加载视频 */
+      isFirstLoad: true
     },
     /**
      * authorInfo.nickname:string    作者
@@ -547,6 +547,7 @@
     init() {
       this.parseRule();
       log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
+      let firstLoadEndVideoId = null;
       DouYinElement.watchVideDataListChange(
         utils.debounce((osElement) => {
           var _a2;
@@ -566,12 +567,15 @@
           if (!videoDataList.length) {
             return;
           }
-          if (this.$data.firstLoadEndVideoId == null) {
-            this.$data.firstLoadEndVideoId = videoDataList[videoDataList.length - 1].awemeId;
-            return;
-          }
-          if (this.$data.firstLoadEndVideoId === videoDataList[videoDataList.length - 1].awemeId) {
-            return;
+          if (this.$data.isFirstLoad) {
+            let endVideo = videoDataList[videoDataList.length - 1];
+            if (firstLoadEndVideoId == null) {
+              firstLoadEndVideoId = endVideo.awemeId;
+            }
+            if (firstLoadEndVideoId === endVideo.awemeId) {
+              return;
+            }
+            this.$data.isFirstLoad = false;
           }
           for (let index = 0; index < videoDataList.length; index++) {
             let videoData = videoDataList[index];
