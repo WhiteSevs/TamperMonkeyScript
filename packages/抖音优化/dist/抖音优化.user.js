@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.14.14
+// @version      2024.5.15
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1375312/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1376839/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -241,8 +241,7 @@
           utils.mutationObserver(slidelist, {
             config: {
               childList: true,
-              subtree: true,
-              attributes: true
+              subtree: true
             },
             callback: () => {
               callback(osElement);
@@ -529,10 +528,12 @@
     }
     return result;
   };
-  const DouYinVideoShield = {
+  const DouYinVideoFilter = {
     key: "douyin-shield-rule",
     $data: {
-      rule: new utils.Dictionary()
+      rule: new utils.Dictionary(),
+      /** 首次加载视频的末尾的视频id */
+      firstLoadEndVideoId: null
     },
     /**
      * authorInfo.nickname:string    作者
@@ -546,75 +547,87 @@
     init() {
       this.parseRule();
       log.info(["当前自定义视频拦截规则: ", this.$data.rule.getItems()]);
-      DouYinElement.watchVideDataListChange((osElement) => {
-        var _a2;
-        let $videoList = document.querySelector(
-          '#slidelist div[data-e2e="slideList"]'
-        );
-        if (!$videoList) {
-          log.error("未获取到视频列表元素");
-          return;
-        }
-        let reactFiber = (_a2 = utils.getReactObj($videoList)) == null ? void 0 : _a2.reactFiber;
-        if (reactFiber == null) {
-          log.error(["元素上不存在reactFiber属性", $videoList]);
-          return;
-        }
-        let videoDataList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
-        for (let index = 0; index < videoDataList.length; index++) {
-          let videoData = videoDataList[index];
-          let videoInfoTag = this.getVideoInfoTagMap(videoData);
-          let flag = false;
-          if (!flag) {
-            if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
-              log.success(["屏蔽直播", videoData["cellRoom"]]);
-              flag = true;
-            }
+      DouYinElement.watchVideDataListChange(
+        utils.debounce((osElement) => {
+          var _a2;
+          let $videoList = document.querySelector(
+            '#slidelist div[data-e2e="slideList"]'
+          );
+          if (!$videoList) {
+            log.error("未获取到视频列表元素");
+            return;
           }
-          if (!flag) {
-            if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
-              log.success(["屏蔽广告", videoData["isAds"]]);
-              flag = true;
-            }
+          let reactFiber = (_a2 = utils.getReactObj($videoList)) == null ? void 0 : _a2.reactFiber;
+          if (reactFiber == null) {
+            log.error(["元素上不存在reactFiber属性", $videoList]);
+            return;
           }
-          if (!flag) {
-            for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-              if (!(ruleKey in videoInfoTag)) {
-                continue;
+          let videoDataList = reactFiber == null ? void 0 : reactFiber.return.memoizedProps.data;
+          if (!videoDataList.length) {
+            return;
+          }
+          if (this.$data.firstLoadEndVideoId == null) {
+            this.$data.firstLoadEndVideoId = videoDataList[videoDataList.length - 1].awemeId;
+            return;
+          }
+          if (this.$data.firstLoadEndVideoId === videoDataList[videoDataList.length - 1].awemeId) {
+            return;
+          }
+          for (let index = 0; index < videoDataList.length; index++) {
+            let videoData = videoDataList[index];
+            let videoInfoTag = this.getVideoInfoTagMap(videoData);
+            let flag = false;
+            if (!flag) {
+              if (typeof videoData["cellRoom"] === "object" && PopsPanel.getValue("shieldVideo-live")) {
+                log.success("屏蔽直播: cellRoom is not null");
+                flag = true;
               }
-              let tagValue = videoInfoTag[ruleKey];
-              if (tagValue != null) {
-                if (typeof tagValue === "string") {
-                  flag = Boolean(tagValue.match(ruleValue));
-                  if (flag) {
-                    log.success([
-                      "自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                      videoInfoTag
-                    ]);
-                    break;
-                  }
-                } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
-                  let findValue = tagValue.find(
-                    (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
-                  );
-                  if (findValue) {
-                    flag = true;
-                    log.success([
-                      "自定义屏蔽: " + ruleKey + "  " + ruleValue,
-                      videoInfoTag
-                    ]);
-                    break;
+            }
+            if (!flag) {
+              if (videoData["isAds"] && PopsPanel.getValue("shieldVideo-ads")) {
+                log.success("屏蔽广告: isAds is true");
+                flag = true;
+              }
+            }
+            if (!flag) {
+              for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
+                if (!(ruleKey in videoInfoTag)) {
+                  continue;
+                }
+                let tagValue = videoInfoTag[ruleKey];
+                if (tagValue != null) {
+                  if (typeof tagValue === "string") {
+                    flag = Boolean(tagValue.match(ruleValue));
+                    if (flag) {
+                      log.success([
+                        "自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                        videoInfoTag
+                      ]);
+                      break;
+                    }
+                  } else if (typeof tagValue === "object" && Array.isArray(tagValue)) {
+                    let findValue = tagValue.find(
+                      (tagValueItem) => Boolean(tagValueItem.match(ruleValue))
+                    );
+                    if (findValue) {
+                      flag = true;
+                      log.success([
+                        "自定义屏蔽: " + ruleKey + "  " + ruleValue,
+                        videoInfoTag
+                      ]);
+                      break;
+                    }
                   }
                 }
               }
             }
+            if (flag) {
+              videoDataList.splice(index, 1);
+              index--;
+            }
           }
-          if (flag) {
-            videoDataList.splice(index, 1);
-            index--;
-          }
-        }
-      });
+        }, 150)
+      );
     },
     /**
      * 获取视频各个信息的字典
@@ -1044,7 +1057,7 @@
       DouYinVideoHideElement.init();
       DouYinVideoShortcut.init();
       PopsPanel.execMenu("shieldVideo", () => {
-        DouYinVideoShield.init();
+        DouYinVideoFilter.init();
       });
       PopsPanel.execMenu("changeCommentToBottom", () => {
         DouYinVideo.changeCommentToBottom();
@@ -1693,12 +1706,12 @@
               let textarea = textareaDiv.querySelector(
                 "textarea"
               );
-              textarea.value = DouYinVideoShield.get();
+              textarea.value = DouYinVideoFilter.get();
               DOMUtils.on(
                 textarea,
                 ["input", "propertychange"],
                 utils.debounce(function() {
-                  DouYinVideoShield.set(textarea.value);
+                  DouYinVideoFilter.set(textarea.value);
                 }, 200)
               );
               liElement.appendChild(textareaDiv);

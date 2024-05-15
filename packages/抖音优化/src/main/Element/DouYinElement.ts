@@ -14,7 +14,6 @@ const DouYinElement = {
 					config: {
 						childList: true,
 						subtree: true,
-						attributes: true,
 					},
 					callback: () => {
 						callback(osElement);

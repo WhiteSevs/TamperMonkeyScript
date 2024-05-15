@@ -2,7 +2,7 @@ import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, Qmsg, log, pops, utils } from "@/env";
 import { DouYinElement } from "../Element/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinVideoShield } from "./DouYinVideoShield";
+import { DouYinVideoFilter } from "./DouYinVideoFilter";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinUtils } from "@/utils/DouYinUtils";
@@ -14,7 +14,7 @@ const DouYinVideo = {
 		DouYinVideoHideElement.init();
 		DouYinVideoShortcut.init();
 		PopsPanel.execMenu("shieldVideo", () => {
-			DouYinVideoShield.init();
+			DouYinVideoFilter.init();
 		});
 		PopsPanel.execMenu("changeCommentToBottom", () => {
 			DouYinVideo.changeCommentToBottom();

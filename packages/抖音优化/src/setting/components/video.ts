@@ -1,7 +1,7 @@
 import { DOMUtils, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
-import { DouYinVideoShield } from "@/main/Video/DouYinVideoShield";
+import { DouYinVideoFilter } from "@/main/Video/DouYinVideoFilter";
 import { DouYinRouter } from "@/router/router";
 import { UIButton } from "../common-components/ui-button";
 import { DouYinVideoShortcut } from "@/main/Video/DouYinVideoShortCut";
@@ -264,12 +264,12 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 						let textarea = textareaDiv.querySelector(
 							"textarea"
 						) as HTMLTextAreaElement;
-						textarea.value = DouYinVideoShield.get();
+						textarea.value = DouYinVideoFilter.get();
 						DOMUtils.on(
 							textarea,
 							["input", "propertychange"],
 							utils.debounce(function () {
-								DouYinVideoShield.set(textarea.value);
+								DouYinVideoFilter.set(textarea.value);
 							}, 200)
 						);
 						liElement.appendChild(textareaDiv);
