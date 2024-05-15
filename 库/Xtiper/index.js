@@ -669,7 +669,7 @@
     let input = document.getElementsByTagName("input");
     if (input.length > 0) {
       for (let i = 0; i < input.length; i++) {
-        input_type = input[i].getAttribute("type");
+        let input_type = input[i].getAttribute("type");
         if (input_type && (input_type == "button" || input_type == "submit")) {
           input[i].blur();
         }
