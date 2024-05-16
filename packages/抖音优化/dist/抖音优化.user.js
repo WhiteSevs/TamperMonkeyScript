@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.16
+// @version      2024.5.16.20
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -261,32 +261,24 @@
     },
     /**
      * 添加屏蔽CSS
-     * @param selector
+     * @param args
      */
-    addShieldStyle(...selector) {
+    addShieldStyle(...args) {
       let selectorList = [];
-      if (arguments.length === 0) {
-        console.log(arguments);
+      if (args.length === 0) {
         return;
       }
-      if (arguments.length > 1) {
-        this.addShieldStyle(Array.from(arguments));
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
         return;
       }
-      if (typeof selector === "string") {
-        this.addShieldStyle([selector]);
-        return;
-      }
-      selector.forEach((item) => {
-        if (Array.isArray(item)) {
-          selectorList = [...selectorList, ...item];
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList.push(...selector);
         } else {
-          selectorList.push(item);
+          selectorList.push(selector);
         }
       });
-      _GM_addStyle(`${selectorList.join(",")}{
-          display: none !important;
-          }`);
+      _GM_addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   };
   const DouYinDanmuFilter = {
@@ -920,6 +912,7 @@
      * 【屏蔽】右侧的展开评论按钮
      */
     shieldRightExpandCommentButton() {
+      log.info("【屏蔽】右侧的展开评论按钮");
       DouYinElement.addShieldStyle(
         '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
         '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
@@ -935,18 +928,22 @@
      * 【屏蔽】搜索悬浮栏
      */
     shieldSearchFloatingBar() {
+      log.info("【屏蔽】搜索悬浮栏");
       DouYinElement.addShieldStyle(
         '.slider-video div:has([data-e2e="searchbar-button"])',
         'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
         'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])',
         /* 看相关页面的 */
-        "#slideMode + div"
+        "#slideMode + div",
+        /* 搜索页面的 */
+        'div:has(>div>div+input[data-e2e="searchbar-input"])'
       );
     },
     /**
      * 【屏蔽】网页全屏关闭按钮
      */
     shieldCloseFullScreenButton() {
+      log.info("【屏蔽】网页全屏关闭按钮");
       DouYinElement.addShieldStyle(
         '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
       );
@@ -955,17 +952,25 @@
      * 【屏蔽】切换播放
      */
     shieldPlaySwitchButton() {
+      log.info("【屏蔽】切换播放");
       DouYinElement.addShieldStyle(
         '.positionBox  .xgplayer-playswitch[data-state="normal"]',
         "div.xgplayer-playswitch",
         /* 全屏下的右侧的切换播放 */
-        ""
+        ".xgplayer-playswitch"
       );
+      _GM_addStyle(`
+		div[data-e2e="slideList"]{
+			/* 修复屏蔽后的视频宽度占据 */
+			padding: 0px !important;
+		}
+		`);
     },
     /**
      * 【屏蔽】作者头像
      */
     shieldAuthorAvatar() {
+      log.info("【屏蔽】作者头像");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has([data-e2e="video-avatar"])'
       );
@@ -974,6 +979,7 @@
      * 【屏蔽】点赞
      */
     shieldLikeButton() {
+      log.info("【屏蔽】点赞");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has([data-e2e="video-player-digg"])'
       );
@@ -982,6 +988,7 @@
      * 【屏蔽】评论
      */
     shieldCommentButton() {
+      log.info("【屏蔽】评论");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
       );
@@ -990,6 +997,7 @@
      * 【屏蔽】收藏
      */
     shieldCollectionButton() {
+      log.info("【屏蔽】收藏");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has([data-e2e="video-player-collect"])'
       );
@@ -998,6 +1006,7 @@
      * 【屏蔽】分享
      */
     shieldSharenButton() {
+      log.info("【屏蔽】分享");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has([data-e2e="video-player-share"])'
       );
@@ -1006,6 +1015,7 @@
      * 【屏蔽】看相关
      */
     shieldRelatedRecommendationsButton() {
+      log.info("【屏蔽】看相关");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
         'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
@@ -1015,6 +1025,7 @@
      * 【屏蔽】更多
      */
     shieldMoreButton() {
+      log.info("【屏蔽】更多");
       DouYinElement.addShieldStyle(
         'div.dy-tip-container:has([data-e2e="video-play-more"])'
       );
@@ -1023,6 +1034,7 @@
      * 【屏蔽】底部视频工具栏
      */
     shieldBottomVideoToolBar() {
+      log.info("【屏蔽】底部视频工具栏");
       DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
       _GM_addStyle(`
 		div:has( > div > pace-island > #video-info-wrap ),
@@ -1089,8 +1101,19 @@
 		}
 		/* 视频宽度 */
 		ul[data-e2e="scroll-list"]{
-			width: 100dvw;
 			padding: 0px 10px;
+		}
+		#sliderVideo{
+			width: -webkit-fill-available;
+		}
+		/* 距离是顶部导航栏的高度 */
+		#search-content-area{
+			margin-top: 65px;
+		}
+		/* 调整搜索框的宽度 */
+		#component-header div[data-click="doubleClick"] > div[data-click="doubleClick"]>div:has(input[data-e2e="searchbar-input"]){
+			width: -webkit-fill-available;
+    		padding-right: 0;
 		}
         `);
     }
@@ -2097,6 +2120,7 @@
      * 【屏蔽】充砖石
      */
     shieldFillingBricksAndStones() {
+      log.info("【屏蔽】充砖石");
       DouYinElement.addShieldStyle(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
       );
@@ -2105,6 +2129,7 @@
      * 【屏蔽】客户端
      */
     shieldClient() {
+      log.info("【屏蔽】客户端");
       DouYinElement.addShieldStyle(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container'
       );
@@ -2113,6 +2138,7 @@
      * 【屏蔽】快捷访问
      */
     shieldQuickAccess() {
+      log.info("【屏蔽】快捷访问");
       DouYinElement.addShieldStyle(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
       );
@@ -2121,6 +2147,7 @@
      * 【屏蔽】通知
      */
     shieldNotifitation() {
+      log.info("【屏蔽】通知");
       DouYinElement.addShieldStyle(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M9.905 19.407h4.5v-1.5h-4.5v1.5z"])'
       );
@@ -2129,6 +2156,7 @@
      * 【屏蔽】私信
      */
     shieldPrivateMessage() {
+      log.info("【屏蔽】私信");
       DouYinElement.addShieldStyle(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
       );
@@ -2137,6 +2165,7 @@
      * 【屏蔽】投稿
      */
     shieldSubmission() {
+      log.info("【屏蔽】投稿");
       DouYinElement.addShieldStyle(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
       );
@@ -2145,6 +2174,7 @@
      * 【屏蔽】客户端提示
      */
     shieldClientTip() {
+      log.info("【屏蔽】客户端提示");
       DouYinElement.addShieldStyle(
         '#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
         "#douyin-header ul div.userMenuPanelShadowAnimation:first-child"
@@ -2154,12 +2184,20 @@
      * 【屏蔽】左侧导航栏
      */
     shieldLeftNavigator() {
+      log.info("【屏蔽】左侧导航栏");
       DouYinElement.addShieldStyle("#douyin-navigation");
+      _GM_addStyle(`
+		/* 修复顶部导航栏的宽度 */
+		#douyin-header{
+			width: 100%;
+		}
+		`);
     },
     /**
      * 【屏蔽】顶部导航栏
      */
     shieldTopNavigator() {
+      log.info("【屏蔽】顶部导航栏");
       DouYinElement.addShieldStyle("#douyin-header");
       if (DouYinRouter.isSearch()) {
         _GM_addStyle(`
@@ -2190,6 +2228,7 @@
      * 【屏蔽】搜索框
      */
     shieldSearch() {
+      log.info("【屏蔽】搜索框");
       DouYinElement.addShieldStyle(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
       );
@@ -2198,6 +2237,7 @@
      * 【屏蔽】搜索框的提示
      */
     shieldSearchPlaceholder() {
+      log.info("【屏蔽】搜索框的提示");
       DouYinElement.addShieldStyle(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
       );
@@ -2211,6 +2251,7 @@
      * 【屏蔽】搜索-猜你想搜
      */
     shieldSearchGuessYouWantToSearch() {
+      log.info("【屏蔽】搜索-猜你想搜");
       DouYinElement.addShieldStyle(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
@@ -2220,6 +2261,7 @@
      * 【屏蔽】搜索-抖音热点
      */
     shieldSearchTiktokHotspot() {
+      log.info("【屏蔽】搜索-抖音热点");
       DouYinElement.addShieldStyle(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
@@ -2535,7 +2577,11 @@
      */
     shieldBottomQuestionButton() {
       log.success("屏蔽底部问题按钮");
-      DouYinElement.addShieldStyle("#douyin-sidebar");
+      DouYinElement.addShieldStyle([
+        "#douyin-sidebar",
+        /* 推荐视频右下角的？按钮 */
+        "#douyin-temp-sidebar"
+      ]);
     }
   };
   PopsPanel.init();

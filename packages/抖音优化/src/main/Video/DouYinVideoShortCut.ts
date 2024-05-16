@@ -21,7 +21,7 @@ const DouYinVideoShortcut = {
 					let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
 						(rate) => {
 							return rate === currentRate;
-						},
+						}
 					);
 					if (findIndex === 0) {
 						log.warn("已是最小倍速: " + currentRate);
@@ -40,7 +40,7 @@ const DouYinVideoShortcut = {
 					let findIndex = DouYinVideoShortcut.$data.rateMap.findIndex(
 						(rate) => {
 							return rate === currentRate;
-						},
+						}
 					);
 					if (findIndex === DouYinVideoShortcut.$data.rateMap.length - 1) {
 						log.warn("已是最大倍速: " + currentRate);

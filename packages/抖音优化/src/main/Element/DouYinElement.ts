@@ -28,32 +28,28 @@ const DouYinElement = {
 	},
 	/**
 	 * 添加屏蔽CSS
-	 * @param selector
+	 * @param args
 	 */
-	addShieldStyle(...selector: (string | string[])[]) {
+	addShieldStyle(...args: (string | string[])[]) {
 		let selectorList: string[] = [];
-		if (arguments.length === 0) {
-			console.log(arguments);
+		if (args.length === 0) {
 			return;
 		}
-		if (arguments.length > 1) {
-			this.addShieldStyle(Array.from(arguments));
+		if (
+			args.length === 1 &&
+			typeof args[0] === "string" &&
+			args[0].trim() === ""
+		) {
 			return;
 		}
-		if (typeof selector === "string") {
-			this.addShieldStyle([selector]);
-			return;
-		}
-		selector.forEach((item) => {
-			if (Array.isArray(item)) {
-				selectorList = [...selectorList, ...item];
+		args.forEach((selector) => {
+			if (Array.isArray(selector)) {
+				selectorList.push(...selector);
 			} else {
-				selectorList.push(item);
+				selectorList.push(selector);
 			}
 		});
-		GM_addStyle(`${selectorList.join(",")}{
-          display: none !important;
-          }`);
+		GM_addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 };
 

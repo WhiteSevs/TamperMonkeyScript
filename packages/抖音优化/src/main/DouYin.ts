@@ -48,7 +48,11 @@ const DouYin = {
 	 */
 	shieldBottomQuestionButton() {
 		log.success("屏蔽底部问题按钮");
-		DouYinElement.addShieldStyle("#douyin-sidebar");
+		DouYinElement.addShieldStyle([
+			"#douyin-sidebar",
+			/* 推荐视频右下角的？按钮 */
+			"#douyin-temp-sidebar",
+		]);
 	},
 };
 

@@ -26,8 +26,19 @@ const DouYinSearch = {
 		}
 		/* 视频宽度 */
 		ul[data-e2e="scroll-list"]{
-			width: 100dvw;
 			padding: 0px 10px;
+		}
+		#sliderVideo{
+			width: -webkit-fill-available;
+		}
+		/* 距离是顶部导航栏的高度 */
+		#search-content-area{
+			margin-top: 65px;
+		}
+		/* 调整搜索框的宽度 */
+		#component-header div[data-click="doubleClick"] > div[data-click="doubleClick"]>div:has(input[data-e2e="searchbar-input"]){
+			width: -webkit-fill-available;
+    		padding-right: 0;
 		}
         `);
 	},
