@@ -2770,56 +2770,62 @@
 			 */
 			onLoad(details, resolve, argumentsList) {
 				/* X浏览器会因为设置了responseType导致不返回responseText */
-				let response = argumentsList[0];
+				let Response = argumentsList[0];
 				/* responseText为空，response不为空的情况 */
 				if (
-					Utils.isNull(response["responseText"]) &&
-					Utils.isNotNull(response["response"])
+					Utils.isNull(Response["responseText"]) &&
+					Utils.isNotNull(Response["response"])
 				) {
-					if (typeof response["response"] === "object") {
+					if (typeof Response["response"] === "object") {
 						Utils.tryCatch().run(() => {
-							response["responseText"] = JSON.stringify(response["response"]);
+							Response["responseText"] = JSON.stringify(Response["response"]);
 						});
 					} else {
-						response["responseText"] = response["response"];
+						Response["responseText"] = Response["response"];
 					}
 				}
 
 				/* response为空，responseText不为空的情况 */
 				if (
-					response["response"] == null &&
-					typeof response["responseText"] === "string" &&
-					response["responseText"].trim() !== ""
+					Response["response"] == null &&
+					typeof Response["responseText"] === "string" &&
+					Response["responseText"].trim() !== ""
 				) {
+					let newResponse = Response["responseText"];
 					if (details.responseType === "json") {
-						response["response"] = Utils.toJSON(response["responseText"]);
+						newResponse = Utils.toJSON(Response["responseText"]);
 					} else if (details.responseType === "document") {
 						let parser = new DOMParser();
-						response["response"] = parser.parseFromString(
-							response["responseText"],
+						newResponse = parser.parseFromString(
+							Response["responseText"],
 							"text/html"
 						);
 					} else if (details.responseType === "arraybuffer") {
 						let encoder = new TextEncoder();
-						let arrayBuffer = encoder.encode(response["responseText"]);
-						response["response"] = arrayBuffer;
+						let arrayBuffer = encoder.encode(Response["responseText"]);
+						newResponse = arrayBuffer;
 					} else if (details.responseType === "blob") {
 						let encoder = new TextEncoder();
-						let arrayBuffer = encoder.encode(response["responseText"]);
-						response["response"] = new Blob([arrayBuffer]);
+						let arrayBuffer = encoder.encode(Response["responseText"]);
+						newResponse = new Blob([arrayBuffer]);
 					} else {
-						response["response"] = response["responseText"];
+						newResponse = Response["responseText"];
+					}
+					try {
+						Response["response"] = newResponse;
+					} catch (error) {
+						console.warn("response 无法被覆盖");
 					}
 				}
 				/* Stay扩展中没有finalUrl，对应的是responseURL */
-				if (response["finalUrl"] == null && response["responseURL"] != null) {
-					response["finalUrl"] = response["responseURL"];
+				if (Response["finalUrl"] == null && Response["responseURL"] != null) {
+					Response["finalUrl"] = Response["responseURL"];
 				}
 				/* 状态码2xx都是成功的 */
-				if (Math.floor(response.status / 100) === 2) {
+				if (Math.floor(Response.status / 100) === 2) {
 					resolve({
 						status: true,
-						data: response,
+						data: Response,
 						details: details,
 						msg: "请求完毕",
 						type: "onload",
