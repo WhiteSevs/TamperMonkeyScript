@@ -33,10 +33,10 @@ const ShieldSearch = {
 			'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])',
 		);
 		GM_addStyle(`
-#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
-  color: transparent;
-}
-`);
+		#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+			color: transparent;
+		}
+		`);
 	},
 	/**
 	 * 【屏蔽】搜索-猜你想搜

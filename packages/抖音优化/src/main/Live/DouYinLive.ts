@@ -45,9 +45,6 @@ const DouYinLive = {
 		PopsPanel.execMenu("live-unlockImageQuality", () => {
 			this.unlockImageQuality();
 		});
-		PopsPanel.execMenu("live-shieldBottomQuestionButton", () => {
-			this.shieldBottomQuestionButton();
-		});
 		DouYinLiveChatRoom.init();
 	},
 	/**
@@ -127,13 +124,6 @@ const DouYinLive = {
 				capture: true,
 			},
 		);
-	},
-	/**
-	 * 屏蔽底部问题按钮
-	 */
-	shieldBottomQuestionButton() {
-		log.success("屏蔽底部问题按钮");
-		DouYinElement.addShieldStyle("#douyin-sidebar");
 	},
 };
 

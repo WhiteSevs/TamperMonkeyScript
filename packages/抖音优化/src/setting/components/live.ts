@@ -42,13 +42,6 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					void 0,
 				),
 				UISwitch(
-					"【屏蔽】底部？按钮",
-					"屏蔽元素",
-					"live-shieldBottomQuestionButton",
-					true,
-					void 0,
-				),
-				UISwitch(
 					"【屏蔽】底部的礼物栏",
 					"屏蔽元素",
 					"live-shieldGiftColumn",

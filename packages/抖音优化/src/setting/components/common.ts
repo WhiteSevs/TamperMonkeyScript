@@ -48,6 +48,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					true,
 					void 0
 				),
+				UISwitch(
+					"【屏蔽】底部？按钮",
+					"屏蔽元素",
+					"shieldBottomQuestionButton",
+					true,
+					void 0
+				),
 			],
 		},
 		{
@@ -94,14 +101,14 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 				UISwitch(
 					"【屏蔽】左侧导航栏",
 					"屏蔽元素",
-					"douyin-shieldLeftNavigator",
+					"shieldLeftNavigator",
 					false,
 					void 0
 				),
 				UISwitch(
 					"【屏蔽】顶部导航栏",
 					"屏蔽元素",
-					"douyin-shieldTopNavigator",
+					"shieldTopNavigator",
 					false,
 					void 0
 				),

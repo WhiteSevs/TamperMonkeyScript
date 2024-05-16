@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.15
+// @version      2024.5.16
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -149,6 +149,12 @@
             "屏蔽元素且自动等待元素出现并关闭登录弹窗",
             "watchLoginDialogToClose",
             true
+          ),
+          UISwitch(
+            "【屏蔽】底部？按钮",
+            "屏蔽元素",
+            "shieldBottomQuestionButton",
+            true
           )
         ]
       },
@@ -191,13 +197,13 @@
           UISwitch(
             "【屏蔽】左侧导航栏",
             "屏蔽元素",
-            "douyin-shieldLeftNavigator",
+            "shieldLeftNavigator",
             false
           ),
           UISwitch(
             "【屏蔽】顶部导航栏",
             "屏蔽元素",
-            "douyin-shieldTopNavigator",
+            "shieldTopNavigator",
             false
           )
         ]
@@ -379,6 +385,10 @@
     /** 视频 */
     isVideo() {
       return window.location.hostname === "www.douyin.com";
+    },
+    /** 搜索 */
+    isSearch() {
+      return window.location.hostname === "www.douyin.com" && window.location.pathname.startsWith("/search");
     }
   };
   const PanelLiveConfig = {
@@ -415,12 +425,6 @@
             "屏蔽元素，包括直播作者、右侧的礼物展馆",
             "live-shieldTopToolBarInfo",
             false
-          ),
-          UISwitch(
-            "【屏蔽】底部？按钮",
-            "屏蔽元素",
-            "live-shieldBottomQuestionButton",
-            true
           ),
           UISwitch(
             "【屏蔽】底部的礼物栏",
@@ -911,12 +915,6 @@
       PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
         this.shieldBottomVideoToolBar();
       });
-      PopsPanel.execMenu("douyin-shieldLeftNavigator", () => {
-        this.shieldLeftNavigator();
-      });
-      PopsPanel.execMenu("douyin-shieldTopNavigator", () => {
-        this.shieldTopNavigator();
-      });
     },
     /**
      * 【屏蔽】右侧的展开评论按钮
@@ -959,7 +957,9 @@
     shieldPlaySwitchButton() {
       DouYinElement.addShieldStyle(
         '.positionBox  .xgplayer-playswitch[data-state="normal"]',
-        "div.xgplayer-playswitch"
+        "div.xgplayer-playswitch",
+        /* 全屏下的右侧的切换播放 */
+        ""
       );
     },
     /**
@@ -1030,18 +1030,6 @@
 			bottom: 0 !important;
 		}
   		`);
-    },
-    /**
-     * 【屏蔽】左侧导航栏
-     */
-    shieldLeftNavigator() {
-      DouYinElement.addShieldStyle("#douyin-navigation");
-    },
-    /**
-     * 【屏蔽】顶部导航栏
-     */
-    shieldTopNavigator() {
-      DouYinElement.addShieldStyle("#douyin-header");
     }
   };
   const DouYinUtils = {
@@ -1054,6 +1042,57 @@
      */
     isVerticalScreen() {
       return !window.screen.orientation.type.includes("landscape");
+    }
+  };
+  const DouYinSearchHideElement = {
+    init() {
+      PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
+        this.shieldReleatedSearches();
+      });
+    },
+    /**
+     * 【屏蔽】相关搜索
+     */
+    shieldReleatedSearches() {
+      log.info("【屏蔽】相关搜索");
+      DouYinElement.addShieldStyle(
+        "#search-content-area > div > div:nth-child(2)"
+      );
+      _GM_addStyle(`
+        #search-content-area > div > div:nth-child(1) > div:nth-child(1){
+            width: 100dvw;
+        }
+        `);
+    }
+  };
+  const DouYinSearch = {
+    init() {
+      DouYinSearchHideElement.init();
+    },
+    /**
+     * 手机模式
+     */
+    mobileMode() {
+      log.info("搜索-手机模式");
+      _GM_addStyle(`
+        /* 去除顶部的padding距离 */
+        #douyin-right-container{
+            padding-top: 0;
+        }
+		/* 放大放大顶部的综合、视频、用户等header的宽度 */
+        #search-content-area > div > div:nth-child(1) > div:nth-child(1){
+			width: 100dvw;
+        }
+		/* 放大顶部的综合、视频、用户等header */
+		#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div{
+			transform: scale(0.8);
+		}
+		/* 视频宽度 */
+		ul[data-e2e="scroll-list"]{
+			width: 100dvw;
+			padding: 0px 10px;
+		}
+        `);
     }
   };
   const DouYinVideo = {
@@ -1421,6 +1460,11 @@
             
         }
         `);
+      if (DouYinRouter.isSearch()) {
+        PopsPanel.onceExec("douyin-search-mobileMode", () => {
+          DouYinSearch.mobileMode();
+        });
+      }
     }
   };
   const DouYinVideoShortcut = {
@@ -1726,6 +1770,27 @@
       }
     ]
   };
+  const PanelSearchConfig = {
+    id: "panel-config-search",
+    title: "搜索",
+    isDefault() {
+      return DouYinRouter.isSearch();
+    },
+    forms: [
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "【屏蔽】相关搜索",
+            "屏蔽右边的相关搜索",
+            "douyin-search-shieldReleatedSearches",
+            false
+          )
+        ]
+      }
+    ]
+  };
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -1992,7 +2057,8 @@
       let configList = [
         PanelCommonConfig,
         PanelVideoConfig,
-        PanelLiveConfig
+        PanelLiveConfig,
+        PanelSearchConfig
       ];
       return configList;
     }
@@ -2019,6 +2085,12 @@
       });
       PopsPanel.execMenu("shieldSubmission", () => {
         this.shieldSubmission();
+      });
+      PopsPanel.execMenu("shieldLeftNavigator", () => {
+        this.shieldLeftNavigator();
+      });
+      PopsPanel.execMenu("shieldTopNavigator", () => {
+        this.shieldTopNavigator();
       });
     },
     /**
@@ -2077,6 +2149,26 @@
         '#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
         "#douyin-header ul div.userMenuPanelShadowAnimation:first-child"
       );
+    },
+    /**
+     * 【屏蔽】左侧导航栏
+     */
+    shieldLeftNavigator() {
+      DouYinElement.addShieldStyle("#douyin-navigation");
+    },
+    /**
+     * 【屏蔽】顶部导航栏
+     */
+    shieldTopNavigator() {
+      DouYinElement.addShieldStyle("#douyin-header");
+      if (DouYinRouter.isSearch()) {
+        _GM_addStyle(`
+			/* 把搜索顶部的工具栏置顶 */
+			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+				top: 0;
+			}
+			`);
+      }
     }
   };
   const ShieldSearch = {
@@ -2110,10 +2202,10 @@
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
       );
       _GM_addStyle(`
-#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
-  color: transparent;
-}
-`);
+		#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+			color: transparent;
+		}
+		`);
     },
     /**
      * 【屏蔽】搜索-猜你想搜
@@ -2316,9 +2408,6 @@
       PopsPanel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
       });
-      PopsPanel.execMenu("live-shieldBottomQuestionButton", () => {
-        this.shieldBottomQuestionButton();
-      });
       DouYinLiveChatRoom.init();
     },
     /**
@@ -2393,13 +2482,6 @@
           capture: true
         }
       );
-    },
-    /**
-     * 屏蔽底部问题按钮
-     */
-    shieldBottomQuestionButton() {
-      log.success("屏蔽底部问题按钮");
-      DouYinElement.addShieldStyle("#douyin-sidebar");
     }
   };
   const DouYinRedirect = {
@@ -2420,14 +2502,17 @@
   const DouYin = {
     init() {
       DouYinRedirect.init();
-      PopsPanel.execMenu("debug", () => {
+      PopsPanel.execMenuOnce("debug", () => {
         DouYinHook.removeEnvCheck();
       });
-      PopsPanel.execMenu("disguiseLogin", () => {
+      PopsPanel.execMenuOnce("disguiseLogin", () => {
         DouYinAccount.disguiseLogin();
       });
-      PopsPanel.execMenu("watchLoginDialogToClose", () => {
+      PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
         DouYinAccount.watchLoginDialogToClose();
+      });
+      PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
+        this.shieldBottomQuestionButton();
       });
       ShieldHeader.init();
       ShieldSearch.init();
@@ -2437,9 +2522,20 @@
       } else if (DouYinRouter.isVideo()) {
         log.info("Router: 推荐视频");
         DouYinVideo.init();
+        if (DouYinRouter.isSearch()) {
+          log.info("Router: 搜索");
+          DouYinSearch.init();
+        }
       } else {
         log.error("未知router: " + window.location.hostname);
       }
+    },
+    /**
+     * 屏蔽底部问题按钮
+     */
+    shieldBottomQuestionButton() {
+      log.success("屏蔽底部问题按钮");
+      DouYinElement.addShieldStyle("#douyin-sidebar");
     }
   };
   PopsPanel.init();

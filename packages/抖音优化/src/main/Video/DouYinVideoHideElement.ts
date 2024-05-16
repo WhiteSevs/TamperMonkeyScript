@@ -40,12 +40,6 @@ const DouYinVideoHideElement = {
 		PopsPanel.execMenu("shieldBottomVideoToolBar", () => {
 			this.shieldBottomVideoToolBar();
 		});
-		PopsPanel.execMenu("douyin-shieldLeftNavigator", () => {
-			this.shieldLeftNavigator();
-		});
-		PopsPanel.execMenu("douyin-shieldTopNavigator", () => {
-			this.shieldTopNavigator();
-		});
 	},
 	/**
 	 * 【屏蔽】右侧的展开评论按钮
@@ -88,7 +82,9 @@ const DouYinVideoHideElement = {
 	shieldPlaySwitchButton() {
 		DouYinElement.addShieldStyle(
 			'.positionBox  .xgplayer-playswitch[data-state="normal"]',
-			"div.xgplayer-playswitch"
+			"div.xgplayer-playswitch",
+			/* 全屏下的右侧的切换播放 */
+			"",
 		);
 	},
 	/**
@@ -159,18 +155,6 @@ const DouYinVideoHideElement = {
 			bottom: 0 !important;
 		}
   		`);
-	},
-	/**
-	 * 【屏蔽】左侧导航栏
-	 */
-	shieldLeftNavigator() {
-		DouYinElement.addShieldStyle("#douyin-navigation");
-	},
-	/**
-	 * 【屏蔽】顶部导航栏
-	 */
-	shieldTopNavigator() {
-		DouYinElement.addShieldStyle("#douyin-header");
 	},
 };
 

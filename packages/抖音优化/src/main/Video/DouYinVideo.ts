@@ -6,6 +6,8 @@ import { DouYinVideoFilter } from "./DouYinVideoFilter";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
 import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinUtils } from "@/utils/DouYinUtils";
+import { DouYinSearch } from "../Search/DouYinSearch";
+import { DouYinRouter } from "@/router/router";
 
 type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -384,6 +386,11 @@ const DouYinVideo = {
             
         }
         `);
+		if (DouYinRouter.isSearch()) {
+			PopsPanel.onceExec("douyin-search-mobileMode", () => {
+				DouYinSearch.mobileMode();
+			});
+		}
 	},
 };
 

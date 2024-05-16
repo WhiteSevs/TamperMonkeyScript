@@ -7,6 +7,13 @@ const DouYinRouter = {
 	isVideo() {
 		return window.location.hostname === "www.douyin.com";
 	},
+	/** 搜索 */
+	isSearch() {
+		return (
+			window.location.hostname === "www.douyin.com" &&
+			window.location.pathname.startsWith("/search")
+		);
+	},
 };
 
 export { DouYinRouter };

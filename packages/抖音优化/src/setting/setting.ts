@@ -5,6 +5,7 @@ import { PanelLiveConfig } from "./components/live";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
 import { DouYinRouter } from "@/router/router";
 import { PanelVideoConfig } from "./components/video";
+import { PanelSearchConfig } from "./components/search";
 
 const PopsPanel = {
 	/** 数据 */
@@ -310,6 +311,7 @@ const PopsPanel = {
 			PanelCommonConfig,
 			PanelVideoConfig,
 			PanelLiveConfig,
+			PanelSearchConfig,
 		];
 		return configList;
 	},
