@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1377084/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1377415/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
