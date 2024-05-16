@@ -8,6 +8,7 @@ import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinSearch } from "../Search/DouYinSearch";
 import { DouYinRouter } from "@/router/router";
+import MobileCSS from "./mobile.css?raw";
 
 type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -356,36 +357,7 @@ const DouYinVideo = {
 		document.head.appendChild(meta);
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		DouYinElement.addShieldStyle("img#douyin-temp-sidebar");
-		GM_addStyle(`
-        /* 右侧工具栏放大 */
-        .basePlayerContainer .positionBox{
-            scale: unset !important;
-            bottom: 80px !important;
-            padding-right: 5px !important;
-            transform: scale(1.12) !important;
-        }
-        /* 图标再放大 */
-        .basePlayerContainer .positionBox svg{
-            transform: scale(1.12);
-        }
-        /* 重置关注按钮的scale */
-        .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
-            scale: unset;
-        }
-        /* 设备处于横向方向，即宽度大于高度。 */
-        @media screen and (orientation: landscape) {
-            /* 右侧工具栏放大 */
-            .basePlayerContainer .positionBox{
-                // transform: scale(0.95) !important;
-                // bottom: 42px !important;
-                padding-right: 10px !important;
-            }
-        }
-        /* 该设备是纵向的，即高度大于或等于宽度 */
-        @media screen and (orientation: portrait) {
-            
-        }
-        `);
+		GM_addStyle(MobileCSS);
 		if (DouYinRouter.isSearch()) {
 			PopsPanel.onceExec("douyin-search-mobileMode", () => {
 				DouYinSearch.mobileMode();
