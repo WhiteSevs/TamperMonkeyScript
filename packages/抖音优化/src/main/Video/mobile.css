@@ -45,6 +45,13 @@
 		padding-right: 0;
 		max-width: unset;
 	}
+	/* 搜索框获取焦点时自动放大宽度 */
+	#douyin-header
+		div[data-click="doubleClick"]
+		> div[data-click="doubleClick"]
+		> div:has(input[data-e2e="searchbar-input"]:focus) {
+		width: 100dvw;
+	}
 	/* 去除设置min-width超出浏览器宽度的问题 */
 	body {
 		min-width: 100% !important;
