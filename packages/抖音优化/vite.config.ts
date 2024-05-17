@@ -18,7 +18,7 @@ if (process.argv.includes("--no-empty-outDir")) {
 }
 let VERSION =
 	process.env.NODE_ENV === "development"
-		? "2024.5.1"
+		? "0.0.1"
 		: Utils.getScriptVersion(!isEmptyOutDir);
 const RequireLib = await GetLib(["Qmsg", "pops", "Utils", "DOMUtils"]);
 // https://vitejs.dev/config/

@@ -11,17 +11,23 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
+
 /* 是否压缩代码 */
 let isMinify = false;
 if (process.argv.includes("--minify")) {
   isMinify = true;
   FILE_NAME = SCRIPT_NAME + ".min.user.js";
 }
+
 let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
   isEmptyOutDir = false;
 }
-const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+
+let VERSION =
+	process.env.NODE_ENV === "development"
+		? "0.0.1"
+		: Utils.getScriptVersion(!isEmptyOutDir);
 
 // https://vitejs.dev/config/
 export default defineConfig({
