@@ -31,9 +31,10 @@
 }
 
 /* 调整视频列表的宽度 */
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 550px) {
 	#slidelist {
 		width: 100dvw;
+		height: 100dvh;
 	}
 	/* 调整顶部搜索框的宽度 */
 	#douyin-header

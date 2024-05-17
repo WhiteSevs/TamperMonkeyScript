@@ -18,6 +18,7 @@ const DouYinAccount = {
 			let userInfoList = [];
 			let $react = utils.getReactObj(element);
 			let reactFiber = $react?.reactFiber;
+			let reactProps = $react?.reactProps;
 			if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
 				userInfoList.push(
 					reactFiber?.alternate?.return?.memoizedProps?.userInfo
@@ -76,7 +77,8 @@ const DouYinAccount = {
 						setLogin(DouYinElement.getOSElement());
 					}, 70),
 				});
-			});
+			})
+			.catch((err) => {});
 		/* 直播的顶部live */
 		if (DouYinRouter.isLive()) {
 			utils
@@ -97,6 +99,36 @@ const DouYinAccount = {
 						}, 70),
 					});
 				});
+		} else if (DouYinRouter.isSearch()) {
+			/* 搜索 */
+			function setUserInfoBySearch($ele: HTMLElement) {
+				/* 搜索页面的用户信息 */
+				let $react = utils.getReactObj($ele);
+				let reactFiber = $react?.reactFiber;
+				let reactProps = $react?.reactProps;
+				if (
+					typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin ===
+					"boolean"
+				) {
+					reactProps.children[1].props.userInfo.isLogin = true;
+				}
+				if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean") {
+					reactProps.children[1].props.isClient = true;
+				}
+			}
+			utils.waitNodeWithInterval("#root > div", WAIT_TIME).then(() => {
+				utils.mutationObserver(document.body, {
+					config: {
+						subtree: true,
+						childList: true,
+					},
+					callback: utils.debounce((mutation, observer) => {
+						setUserInfoBySearch(
+							document.querySelector("#root > div") as HTMLDivElement
+						);
+					}, 70),
+				});
+			});
 		}
 	},
 	/**

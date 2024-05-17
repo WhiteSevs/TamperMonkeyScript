@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.17
+// @version      2024.5.17.13
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -1077,7 +1077,7 @@
         `);
     }
   };
-  const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100dvw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 500px) {\r\n	#sliderVideo {\r\n		width: 100dvw;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
+  const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100dvw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100dvw;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n\r\n';
   const DouYinSearch = {
     init() {
       DouYinSearchHideElement.init();
@@ -1088,9 +1088,19 @@
     mobileMode() {
       log.info("搜索-手机模式");
       _GM_addStyle(MobileCSS$1);
+      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
+        log.info("评论区展开的className：" + $relatedVideoCard.className);
+        _GM_addStyle(`
+			html[data-vertical-screen]
+				#sliderVideo[data-e2e="feed-active-video"]
+				#videoSideBar:has(#relatedVideoCard[class*="${$relatedVideoCard.className}"]) {
+					width: 100dvw !important;
+			}
+			`);
+      });
     }
   };
-  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 500px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
+  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
@@ -2287,6 +2297,7 @@
         let userInfoList = [];
         let $react = utils.getReactObj(element);
         let reactFiber = $react == null ? void 0 : $react.reactFiber;
+        $react == null ? void 0 : $react.reactProps;
         if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
           userInfoList.push(
             (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
@@ -2336,6 +2347,7 @@
             setLogin(DouYinElement.getOSElement());
           }, 70)
         });
+      }).catch((err) => {
       });
       if (DouYinRouter.isLive()) {
         utils.waitNodeWithInterval(
@@ -2350,6 +2362,32 @@
             callback: utils.debounce(() => {
               setLogin(
                 document.querySelector(`#douyin-header`)
+              );
+            }, 70)
+          });
+        });
+      } else if (DouYinRouter.isSearch()) {
+        let setUserInfoBySearch = function($ele) {
+          var _a2, _b, _c, _d, _e, _f, _g;
+          let $react = utils.getReactObj($ele);
+          $react == null ? void 0 : $react.reactFiber;
+          let reactProps = $react == null ? void 0 : $react.reactProps;
+          if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _a2[1]) == null ? void 0 : _b.props) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean") {
+            reactProps.children[1].props.userInfo.isLogin = true;
+          }
+          if (typeof ((_g = (_f = (_e = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _e[1]) == null ? void 0 : _f.props) == null ? void 0 : _g.isClient) === "boolean") {
+            reactProps.children[1].props.isClient = true;
+          }
+        };
+        utils.waitNodeWithInterval("#root > div", WAIT_TIME).then(() => {
+          utils.mutationObserver(document.body, {
+            config: {
+              subtree: true,
+              childList: true
+            },
+            callback: utils.debounce((mutation, observer) => {
+              setUserInfoBySearch(
+                document.querySelector("#root > div")
               );
             }, 70)
           });

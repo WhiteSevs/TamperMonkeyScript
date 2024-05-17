@@ -113,4 +113,7 @@ export default defineConfig({
 		minify: isMinify,
 		emptyOutDir: isEmptyOutDir,
 	},
+	server: {
+		host: "0.0.0.0",
+	},
 });

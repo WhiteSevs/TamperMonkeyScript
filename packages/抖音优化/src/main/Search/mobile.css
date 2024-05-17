@@ -22,7 +22,7 @@ ul[data-e2e="scroll-list"] {
 	margin-top: 65px;
 }
 /* 调整视频列表的宽度 */
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 550px) {
 	#sliderVideo {
 		width: 100dvw;
 	}
@@ -35,3 +35,4 @@ ul[data-e2e="scroll-list"] {
 		padding-right: 0;
 	}
 }
+
