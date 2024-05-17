@@ -7,6 +7,7 @@ const DouYinAccount = {
 	 * 伪装登录
 	 */
 	disguiseLogin() {
+		log.info("伪装登录");
 		const WAIT_TIME = 20000;
 		let uid = parseInt((Math.random() * 1000000).toString());
 		let notChangeInfoUid = Object.defineProperty({}, "uid", {
@@ -19,17 +20,17 @@ const DouYinAccount = {
 			let reactFiber = $react?.reactFiber;
 			if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
 				userInfoList.push(
-					reactFiber?.alternate?.return?.memoizedProps?.userInfo,
+					reactFiber?.alternate?.return?.memoizedProps?.userInfo
 				);
 			}
 			if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo) {
 				userInfoList.push(
-					reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo,
+					reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo
 				);
 			}
 			if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo) {
 				userInfoList.push(
-					reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo,
+					reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo
 				);
 			}
 			if (
@@ -37,7 +38,7 @@ const DouYinAccount = {
 			) {
 				userInfoList.push(
 					reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo
-						.userInfo,
+						.userInfo
 				);
 			}
 			return userInfoList;
@@ -81,7 +82,7 @@ const DouYinAccount = {
 			utils
 				.waitNodeWithInterval(
 					`#douyin-header div:has(.dy-tip-container)`,
-					WAIT_TIME,
+					WAIT_TIME
 				)
 				.then(() => {
 					utils.mutationObserver(document.body, {
@@ -91,7 +92,7 @@ const DouYinAccount = {
 						},
 						callback: utils.debounce(() => {
 							setLogin(
-								document.querySelector(`#douyin-header`) as HTMLDivElement,
+								document.querySelector(`#douyin-header`) as HTMLDivElement
 							);
 						}, 70),
 					});
@@ -102,6 +103,7 @@ const DouYinAccount = {
 	 * 关闭登录弹窗
 	 */
 	watchLoginDialogToClose() {
+		log.info("监听登录弹窗并关闭");
 		DouYinElement.addShieldStyle('div[id^="login-full-panel-"]');
 		utils.waitNode("body").then(() => {
 			utils.mutationObserver(document.body, {
@@ -111,7 +113,7 @@ const DouYinAccount = {
 				},
 				callback() {
 					let accountCloseBtn = document.querySelector(
-						'body > div[id^="login-full-panel-"] .dy-account-close',
+						'body > div[id^="login-full-panel-"] .dy-account-close'
 					) as HTMLDivElement;
 					if (accountCloseBtn) {
 						utils

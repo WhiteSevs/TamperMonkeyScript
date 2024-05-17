@@ -29,3 +29,9 @@ ul[data-e2e="scroll-list"] {
 	width: -webkit-fill-available;
 	padding-right: 0;
 }
+
+@media screen and (max-width: 500px) {
+	#sliderVideo {
+		width: 100dvw;
+	}
+}

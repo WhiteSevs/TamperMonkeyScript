@@ -31,6 +31,9 @@ const DouYinVideo = {
 		PopsPanel.execMenu("autoEnterElementFullScreen", () => {
 			this.autoEnterElementFullScreen();
 		});
+		PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
+			this.doubleClickEnterElementFullScreen();
+		});
 		DOMUtils.ready(() => {
 			DouYinVideo.chooseVideoDefinition(
 				PopsPanel.getValue("chooseVideoDefinition")
@@ -44,6 +47,7 @@ const DouYinVideo = {
 	 * 全屏
 	 */
 	fullScreen() {
+		log.info("全屏");
 		DouYinElement.addShieldStyle(
 			/* 右侧工具栏 */
 			".slider-video .positionBox",
@@ -69,13 +73,38 @@ const DouYinVideo = {
 				'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
 			)
 			.then((element) => {
+				log.success("自动进入网页全屏");
 				element.click();
 			});
+	},
+	/**
+	 * 双击进入网页全屏
+	 */
+	doubleClickEnterElementFullScreen() {
+		let isDouble = false;
+		log.info("注册双击进入网页全屏事件");
+		DOMUtils.on<MouseEvent | PointerEvent>(
+			document,
+			"click",
+			"#sliderVideo",
+			() => {
+				if (isDouble) {
+					isDouble = false;
+					DouYinVideo.autoEnterElementFullScreen();
+				} else {
+					isDouble = true;
+					setTimeout(() => {
+						isDouble = false;
+					}, 250);
+				}
+			}
+		);
 	},
 	/**
 	 * 评论区修改为底部
 	 */
 	changeCommentToBottom() {
+		log.info("评论区修改为底部");
 		let ATTRIBUTE_KEY = "data-vertical-screen";
 		function autoChangeCommentPosition() {
 			if (DouYinUtils.isVerticalScreen()) {
@@ -118,6 +147,7 @@ const DouYinVideo = {
 	 * @param [mode=0] 视频播放模式
 	 */
 	chooseVideoDefinition(mode = 0) {
+		log.info("选择视频清晰度: " + mode);
 		let Definition_Key = "MANUAL_SWITCH";
 		let definition = [
 			{
@@ -254,6 +284,7 @@ const DouYinVideo = {
 	 * 让下载按钮变成解析视频
 	 */
 	parseVideo() {
+		log.info("让下载按钮变成解析视频");
 		function showParseInfoDialog(srcList: string[]) {
 			let contentHTML = "";
 			srcList.forEach((url) => {

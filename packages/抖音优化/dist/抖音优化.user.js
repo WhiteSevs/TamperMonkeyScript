@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.16.20
+// @version      2024.5.17
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -1077,6 +1077,7 @@
         `);
     }
   };
+  const MobileCSS$1 = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100dvw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 调整搜索框的宽度 */\r\n#component-header\r\n	div[data-click="doubleClick"]\r\n	> div[data-click="doubleClick"]\r\n	> div:has(input[data-e2e="searchbar-input"]) {\r\n	width: -webkit-fill-available;\r\n	padding-right: 0;\r\n}\r\n\r\n@media screen and (max-width: 500px) {\r\n	#sliderVideo {\r\n		width: 100dvw;\r\n	}\r\n}\r\n';
   const DouYinSearch = {
     init() {
       DouYinSearchHideElement.init();
@@ -1086,38 +1087,10 @@
      */
     mobileMode() {
       log.info("搜索-手机模式");
-      _GM_addStyle(`
-        /* 去除顶部的padding距离 */
-        #douyin-right-container{
-            padding-top: 0;
-        }
-		/* 放大放大顶部的综合、视频、用户等header的宽度 */
-        #search-content-area > div > div:nth-child(1) > div:nth-child(1){
-			width: 100dvw;
-        }
-		/* 放大顶部的综合、视频、用户等header */
-		#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div{
-			transform: scale(0.8);
-		}
-		/* 视频宽度 */
-		ul[data-e2e="scroll-list"]{
-			padding: 0px 10px;
-		}
-		#sliderVideo{
-			width: -webkit-fill-available;
-		}
-		/* 距离是顶部导航栏的高度 */
-		#search-content-area{
-			margin-top: 65px;
-		}
-		/* 调整搜索框的宽度 */
-		#component-header div[data-click="doubleClick"] > div[data-click="doubleClick"]>div:has(input[data-e2e="searchbar-input"]){
-			width: -webkit-fill-available;
-    		padding-right: 0;
-		}
-        `);
+      _GM_addStyle(MobileCSS$1);
     }
   };
+  const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n';
   const DouYinVideo = {
     init() {
       DouYinVideoHideElement.init();
@@ -1137,6 +1110,9 @@
       PopsPanel.execMenu("autoEnterElementFullScreen", () => {
         this.autoEnterElementFullScreen();
       });
+      PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
+        this.doubleClickEnterElementFullScreen();
+      });
       DOMUtils.ready(() => {
         DouYinVideo.chooseVideoDefinition(
           PopsPanel.getValue("chooseVideoDefinition")
@@ -1150,6 +1126,7 @@
      * 全屏
      */
     fullScreen() {
+      log.info("全屏");
       DouYinElement.addShieldStyle(
         /* 右侧工具栏 */
         ".slider-video .positionBox",
@@ -1173,13 +1150,38 @@
       utils.waitNode(
         'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon:has([d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
       ).then((element) => {
+        log.success("自动进入网页全屏");
         element.click();
       });
+    },
+    /**
+     * 双击进入网页全屏
+     */
+    doubleClickEnterElementFullScreen() {
+      let isDouble = false;
+      log.info("注册双击进入网页全屏事件");
+      DOMUtils.on(
+        document,
+        "click",
+        "#sliderVideo",
+        () => {
+          if (isDouble) {
+            isDouble = false;
+            DouYinVideo.autoEnterElementFullScreen();
+          } else {
+            isDouble = true;
+            setTimeout(() => {
+              isDouble = false;
+            }, 250);
+          }
+        }
+      );
     },
     /**
      * 评论区修改为底部
      */
     changeCommentToBottom() {
+      log.info("评论区修改为底部");
       let ATTRIBUTE_KEY2 = "data-vertical-screen";
       function autoChangeCommentPosition() {
         if (DouYinUtils.isVerticalScreen()) {
@@ -1220,6 +1222,7 @@
      * @param [mode=0] 视频播放模式
      */
     chooseVideoDefinition(mode = 0) {
+      log.info("选择视频清晰度: " + mode);
       let Definition_Key = "MANUAL_SWITCH";
       let definition = [
         {
@@ -1355,6 +1358,7 @@
      * 让下载按钮变成解析视频
      */
     parseVideo() {
+      log.info("让下载按钮变成解析视频");
       function showParseInfoDialog(srcList) {
         let contentHTML = "";
         srcList.forEach((url) => {
@@ -1453,36 +1457,7 @@
       document.querySelectorAll("meta[name='viewport']").forEach((ele) => ele.remove());
       document.head.appendChild(meta);
       DouYinElement.addShieldStyle("img#douyin-temp-sidebar");
-      _GM_addStyle(`
-        /* 右侧工具栏放大 */
-        .basePlayerContainer .positionBox{
-            scale: unset !important;
-            bottom: 80px !important;
-            padding-right: 5px !important;
-            transform: scale(1.12) !important;
-        }
-        /* 图标再放大 */
-        .basePlayerContainer .positionBox svg{
-            transform: scale(1.12);
-        }
-        /* 重置关注按钮的scale */
-        .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg{
-            scale: unset;
-        }
-        /* 设备处于横向方向，即宽度大于高度。 */
-        @media screen and (orientation: landscape) {
-            /* 右侧工具栏放大 */
-            .basePlayerContainer .positionBox{
-                // transform: scale(0.95) !important;
-                // bottom: 42px !important;
-                padding-right: 10px !important;
-            }
-        }
-        /* 该设备是纵向的，即高度大于或等于宽度 */
-        @media screen and (orientation: portrait) {
-            
-        }
-        `);
+      _GM_addStyle(MobileCSS);
       if (DouYinRouter.isSearch()) {
         PopsPanel.onceExec("douyin-search-mobileMode", () => {
           DouYinSearch.mobileMode();
@@ -1550,6 +1525,19 @@
         text: "功能",
         type: "forms",
         forms: [
+          UISwitch(
+            "沉浸模式",
+            "移除右侧工具栏、底部信息栏等",
+            "fullScreen",
+            false
+          ),
+          UISwitch("手机模式", "放大各种文字和图标", "mobileMode", false)
+        ]
+      },
+      {
+        text: "视频",
+        type: "forms",
+        forms: [
           UISelect(
             "清晰度",
             "chooseVideoDefinition",
@@ -1586,25 +1574,6 @@
             false
           ),
           UISwitch(
-            "自动进入网页全屏",
-            "网页加载完毕后自动点击网页全屏按钮进入全屏",
-            "autoEnterElementFullScreen",
-            false
-          ),
-          UISwitch(
-            "沉浸模式",
-            "移除右侧工具栏、底部信息栏等",
-            "fullScreen",
-            false
-          )
-        ]
-      },
-      {
-        text: "手机模式",
-        type: "forms",
-        forms: [
-          UISwitch("启用", "放大各种文字和图标", "mobileMode", false),
-          UISwitch(
             "评论区移到中间",
             "修改评论区为中间弹出而非右侧区域",
             "changeCommentToBottom",
@@ -1614,6 +1583,18 @@
             "↑自适应评论区位置",
             "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】",
             "douyin-video-autoCheckChangeCommentToBottom",
+            false
+          ),
+          UISwitch(
+            "自动进入网页全屏",
+            "网页加载完毕后自动点击网页全屏按钮进入全屏",
+            "autoEnterElementFullScreen",
+            false
+          ),
+          UISwitch(
+            "双击进入网页全屏",
+            "双击视频自动进入网页全屏，检测间隔250ms",
+            "dy-video-doubleClickEnterElementFullScreen",
             false
           )
         ]
@@ -2294,6 +2275,7 @@
      * 伪装登录
      */
     disguiseLogin() {
+      log.info("伪装登录");
       const WAIT_TIME = 2e4;
       let uid = parseInt((Math.random() * 1e6).toString());
       let notChangeInfoUid = Object.defineProperty({}, "uid", {
@@ -2378,6 +2360,7 @@
      * 关闭登录弹窗
      */
     watchLoginDialogToClose() {
+      log.info("监听登录弹窗并关闭");
       DouYinElement.addShieldStyle('div[id^="login-full-panel-"]');
       utils.waitNode("body").then(() => {
         utils.mutationObserver(document.body, {
@@ -2411,17 +2394,19 @@
      * 【屏蔽】评论区
      */
     shieldChatRoom() {
+      log.info("【屏蔽】评论区");
       DouYinElement.addShieldStyle("#chatroom");
       _GM_addStyle(`
-    div[data-e2e="living-container"],
-    div[data-e2e="living-container"] > div{
-      margin-bottom: 0px !important;
-    }`);
+		div[data-e2e="living-container"],
+		div[data-e2e="living-container"] > div{
+			margin-bottom: 0px !important;
+		}`);
     },
     /**
      * 【屏蔽】评论区的贵宾席
      */
     shielChatRoomVipSeats() {
+      log.info("【屏蔽】评论区的贵宾席");
       DouYinElement.addShieldStyle(
         "#chatroom > div > div:has(#audiencePanelScrollId)"
       );
@@ -2533,10 +2518,11 @@
       });
     },
     /**
-     * 跳转首页到根目录
+     * 从首页到根目录
      */
     redirectUrlHomeToRoot() {
       if (window.location.pathname === "/home") {
+        log.info("从首页跳转到根目录");
         window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
       }
     }

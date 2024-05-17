@@ -17,6 +17,20 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 			text: "功能",
 			type: "forms",
 			forms: [
+				UISwitch(
+					"沉浸模式",
+					"移除右侧工具栏、底部信息栏等",
+					"fullScreen",
+					false,
+					void 0
+				),
+				UISwitch("手机模式", "放大各种文字和图标", "mobileMode", false, void 0),
+			],
+		},
+		{
+			text: "视频",
+			type: "forms",
+			forms: [
 				UISelect<number>(
 					"清晰度",
 					"chooseVideoDefinition",
@@ -54,27 +68,6 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					void 0
 				),
 				UISwitch(
-					"自动进入网页全屏",
-					"网页加载完毕后自动点击网页全屏按钮进入全屏",
-					"autoEnterElementFullScreen",
-					false,
-					void 0
-				),
-				UISwitch(
-					"沉浸模式",
-					"移除右侧工具栏、底部信息栏等",
-					"fullScreen",
-					false,
-					void 0
-				),
-			],
-		},
-		{
-			text: "手机模式",
-			type: "forms",
-			forms: [
-				UISwitch("启用", "放大各种文字和图标", "mobileMode", false, void 0),
-				UISwitch(
 					"评论区移到中间",
 					"修改评论区为中间弹出而非右侧区域",
 					"changeCommentToBottom",
@@ -85,6 +78,20 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					"↑自适应评论区位置",
 					"根据window.screen.orientation.type自动判断是否开启【评论区移到中间】",
 					"douyin-video-autoCheckChangeCommentToBottom",
+					false,
+					void 0
+				),
+				UISwitch(
+					"自动进入网页全屏",
+					"网页加载完毕后自动点击网页全屏按钮进入全屏",
+					"autoEnterElementFullScreen",
+					false,
+					void 0
+				),
+				UISwitch(
+					"双击进入网页全屏",
+					"双击视频自动进入网页全屏，检测间隔250ms",
+					"dy-video-doubleClickEnterElementFullScreen",
 					false,
 					void 0
 				),
