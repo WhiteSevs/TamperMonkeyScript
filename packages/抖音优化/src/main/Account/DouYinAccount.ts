@@ -81,6 +81,7 @@ const DouYinAccount = {
 			.catch((err) => {});
 		/* 直播的顶部live */
 		if (DouYinRouter.isLive()) {
+			log.info("伪装登录：live");
 			utils
 				.waitNodeWithInterval(
 					`#douyin-header div:has(.dy-tip-container)`,
@@ -100,6 +101,7 @@ const DouYinAccount = {
 					});
 				});
 		} else if (DouYinRouter.isSearch()) {
+			log.info("伪装登录：search");
 			/* 搜索 */
 			function setUserInfoBySearch($ele: HTMLElement) {
 				/* 搜索页面的用户信息 */

@@ -41,7 +41,20 @@
 		div[data-click="doubleClick"]
 		> div[data-click="doubleClick"]
 		> div:has(input[data-e2e="searchbar-input"]) {
-		width: -webkit-fill-available;
+		width: 150px;
 		padding-right: 0;
+		max-width: unset;
+	}
+	/* 去除设置min-width超出浏览器宽度的问题 */
+	body {
+		min-width: 100% !important;
+	}
+	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */
+	#douyin-right-container #douyin-header {
+		width: 100%;
+	}
+	/* 去除设置 */
+	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {
+		min-width: 100%;
 	}
 }

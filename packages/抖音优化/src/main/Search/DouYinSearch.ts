@@ -19,7 +19,7 @@ const DouYinSearch = {
 			GM_addStyle(`
 			html[data-vertical-screen]
 				#sliderVideo[data-e2e="feed-active-video"]
-				#videoSideBar:has(#relatedVideoCard[class*="${$relatedVideoCard.className}"]) {
+				#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
 					width: 100dvw !important;
 			}
 			`);

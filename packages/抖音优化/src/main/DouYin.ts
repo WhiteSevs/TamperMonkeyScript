@@ -1,4 +1,4 @@
-import { log } from "@/env";
+import { DOMUtils, log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { ShieldHeader } from "./UIFrameShield/FrameNavigator";
 import { ShieldSearch } from "./UIFrameShield/FrameSearch";
@@ -17,18 +17,17 @@ const DouYin = {
 		PopsPanel.execMenuOnce("debug", () => {
 			DouYinHook.removeEnvCheck();
 		});
-		PopsPanel.execMenuOnce("disguiseLogin", () => {
-			DouYinAccount.disguiseLogin();
-		});
 		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
 			DouYinAccount.watchLoginDialogToClose();
 		});
 		PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
 			this.shieldBottomQuestionButton();
 		});
+		PopsPanel.execMenuOnce("disguiseLogin", () => {
+			DouYinAccount.disguiseLogin();
+		});
 		ShieldHeader.init();
 		ShieldSearch.init();
-
 		if (DouYinRouter.isLive()) {
 			log.info("Router: 直播");
 			DouYinLive.init();
