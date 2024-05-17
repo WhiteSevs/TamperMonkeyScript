@@ -278,11 +278,20 @@ const LIB_MAP = {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(486152);
 		},
 	},
+	"Element-Plus": {
+		localPath:
+			"file://" + viteUtils.getAbsolutePath("./../../库/Element-Plus/index.js"),
+		url: async () => {
+			return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
+		},
+	},
 };
 
-const GetLib = async (
+async function GetLib(libName: keyof typeof LIB_MAP): Promise<string>;
+async function GetLib(libName: (keyof typeof LIB_MAP)[]): Promise<string[]>;
+async function GetLib(
 	libName: (keyof typeof LIB_MAP)[] | keyof typeof LIB_MAP
-) => {
+): Promise<string | string[]> {
 	let needLib: (keyof typeof LIB_MAP)[] = [];
 	if (typeof libName == "string") {
 		needLib = [libName];
@@ -316,7 +325,11 @@ const GetLib = async (
 			}
 		}
 	}
-	return ResourceList;
-};
+	if (typeof libName == "string") {
+		return ResourceList[0];
+	} else {
+		return ResourceList;
+	}
+}
 
 export { ViteUtils, GetLib };
