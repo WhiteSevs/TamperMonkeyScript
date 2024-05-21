@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { UserInfo } from './data/TiebaHomeData';
-import { router } from './router';
+import { TiebaRouter } from './router';
 
 const props = defineProps<{
     UserData: UserInfo;
@@ -18,7 +18,7 @@ if (props.UserData.sex != null) {
  * 箭头点击事件
  */
 const arrowLeftClickEvent = () => {
-    router.back();
+    TiebaRouter.router.back();
 }
 </script>
 <template>

@@ -7,7 +7,7 @@ import { DOMUtils, Qmsg, utils } from "@/env";
 import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
 import { ElMessage, ElMessageBox, ElRow, TabsPaneContext } from "element-plus";
-import { router } from "./router"
+import { TiebaRouter } from "./router"
 
 const props = defineProps<{
   UserData: UserInfo
@@ -91,18 +91,18 @@ const clickReceivedLikesEvent = () => {
 }
 
 const aboutUserEvent = function () {
-  router.push({
+  TiebaRouter.router.push({
     path: "/about",
   })
 }
 
 const clickFollowEvent = () => {
-  router.push({
+  TiebaRouter.router.push({
     path: "/follow",
   })
 }
 const clickFansEvent = () => {
-  router.push({
+  TiebaRouter.router.push({
     path: "/fans",
   })
 }

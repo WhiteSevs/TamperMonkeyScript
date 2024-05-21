@@ -3,7 +3,7 @@ import { VNodeRef, ref, watch } from 'vue';
 import TemplateFollowUser from './Template/TemplateFollowUser.vue';
 import { TiebaHomeData, UserInfo } from './data/TiebaHomeData';
 import { TiebaHomeApi, UserFollowInfo } from './api/TiebaHomeApi';
-import { router } from './router';
+import { TiebaRouter } from './router';
 import { DOMUtils, log, utils } from '@/env';
 
 const props = defineProps<{
@@ -89,7 +89,7 @@ const loadMore = async () => {
  * 箭头点击事件
  */
 const arrowLeftClickEvent = () => {
-    router.back();
+    TiebaRouter.router.back();
 }
 const jumpToUserHome = (url: string) => {
     window.open(url, "_blank")
