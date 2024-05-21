@@ -2,16 +2,12 @@ import { DOMUtils, utils } from "@/env";
 import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
 import { DouYinVideoFilter } from "@/main/Video/DouYinVideoFilter";
-import { DouYinRouter } from "@/router/router";
 import { UIButton } from "../common-components/ui-button";
 import { DouYinVideoShortcut } from "@/main/Video/DouYinVideoShortCut";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
 	title: "视频",
-	isDefault() {
-		return DouYinRouter.isVideo();
-	},
 	forms: [
 		{
 			text: "功能",
@@ -225,11 +221,31 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 					false,
 					void 0
 				),
-				UISwitch("【屏蔽】更多", "屏蔽元素", "shieldMoreButton", false, void 0),
+				UISwitch("【屏蔽】更多", "...按钮，屏蔽元素", "shieldMoreButton", false, void 0),
 				UISwitch(
 					"【屏蔽】底部视频工具栏",
 					"屏蔽元素",
 					"shieldBottomVideoToolBar",
+					false,
+					void 0
+				),
+			],
+		},
+		{
+			text: "评论区域内-屏蔽",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"【屏蔽】评论工具栏",
+					"屏蔽元素",
+					"dy-video-shieldUserCommentToolBar",
+					false,
+					void 0
+				),
+				UISwitch(
+					"【屏蔽】大家都在搜",
+					"在评论区的顶部出现",
+					"dy-video-shieldUserCommentEveryOneAllSearch",
 					false,
 					void 0
 				),

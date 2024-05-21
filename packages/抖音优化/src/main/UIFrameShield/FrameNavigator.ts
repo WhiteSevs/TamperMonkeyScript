@@ -71,7 +71,7 @@ const ShieldHeader = {
 	shieldQuickAccess() {
 		log.info("【屏蔽】快捷访问");
 		DouYinElement.addShieldStyle(
-			'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
+			'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
 		);
 		if (DouYinRouter.isSearch()) {
 			log.info("搜索-【屏蔽】快捷访问");
@@ -128,7 +128,9 @@ const ShieldHeader = {
 		log.info("【屏蔽】客户端提示");
 		DouYinElement.addShieldStyle(
 			'#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
-			"#douyin-header ul div.userMenuPanelShadowAnimation:first-child"
+			"#douyin-header ul div.userMenuPanelShadowAnimation:first-child",
+			/* 鼠标悬浮在通知，出现在上面的，下载客户端，实时接收消息通知 */
+			'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])'
 		);
 	},
 	/**

@@ -8,6 +8,7 @@ import { DouYinVideoShortcut } from "./DouYinVideoShortCut";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinSearch } from "../Search/DouYinSearch";
 import { DouYinRouter } from "@/router/router";
+import { DouYinVideoComment } from "./DouYinVideoComment";
 import MobileCSS from "./mobile.css?raw";
 
 type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
@@ -16,6 +17,7 @@ const DouYinVideo = {
 	init() {
 		DouYinVideoHideElement.init();
 		DouYinVideoShortcut.init();
+		DouYinVideoComment.init();
 		PopsPanel.execMenu("shieldVideo", () => {
 			DouYinVideoFilter.init();
 		});

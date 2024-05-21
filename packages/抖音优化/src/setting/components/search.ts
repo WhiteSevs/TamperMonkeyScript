@@ -1,12 +1,8 @@
-import { DouYinRouter } from "@/router/router";
 import { UISwitch } from "../common-components/ui-switch";
 
 const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",
 	title: "搜索",
-	isDefault() {
-		return DouYinRouter.isSearch();
-	},
 	forms: [
 		{
 			text: "屏蔽",
