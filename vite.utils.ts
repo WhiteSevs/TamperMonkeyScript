@@ -160,7 +160,7 @@ const LIB_MAP = {
         },
     },
     "Qmsg": {
-        localPath: "file://" + viteUtils.getAbsolutePath("./../../库/Qmsg/index.js"),
+        localPath: "file://" + viteUtils.getAbsolutePath("./../../库/Qmsg/dist/index.js"),
         url: async () => {
             return await viteUtils.getGreasyForkLibLatestVersionUrl(462234)
         },
