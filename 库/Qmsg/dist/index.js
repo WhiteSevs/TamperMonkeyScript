@@ -1,0 +1,918 @@
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define("Qmsg", [], factory);
+	else if(typeof exports === 'object')
+		exports["Qmsg"] = factory();
+	else
+		root["Qmsg"] = factory();
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 579:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CompatibleProcessing = void 0;
+/**
+ * 兼容处理
+ */
+function CompatibleProcessing() {
+    /* 处理Object.assign不存在的问题 */
+    try {
+        if (typeof Object.assign !== "function") {
+            Object.assign = function (target) {
+                target = Object(target);
+                if (arguments.length > 1) {
+                    let sourceList = [...arguments].splice(1, arguments.length - 1);
+                    sourceList.forEach((sourceItem) => {
+                        for (var sourceKey in sourceItem) {
+                            if (Object.prototype.hasOwnProperty.call(sourceItem, sourceKey)) {
+                                target[sourceKey] = sourceItem[sourceKey];
+                            }
+                        }
+                    });
+                }
+                return target;
+            };
+        }
+    }
+    catch (error) {
+        console.warn(error);
+    }
+    /* 'classList' 兼容处理，add，remove不支持传入多个cls参数 */
+    try {
+        if (!("classList" in document.documentElement)) {
+            Object.defineProperty(HTMLElement.prototype, "classList", {
+                get: function () {
+                    var self = this;
+                    function update(fn) {
+                        return function (value) {
+                            var classes = self.className.split(/\s+/g), index = classes.indexOf(value);
+                            fn(classes, index, value);
+                            self.className = classes.join(" ");
+                        };
+                    }
+                    return {
+                        add: update(function (classes, index, value) {
+                            if (!~index)
+                                classes.push(value);
+                        }),
+                        remove: update(function (classes, index) {
+                            if (~index)
+                                classes.splice(index, 1);
+                        }),
+                        toggle: update(function (classes, index, value) {
+                            if (~index)
+                                classes.splice(index, 1);
+                            else
+                                classes.push(value);
+                        }),
+                        contains: function (value) {
+                            return !!~self.className.split(/\s+/g).indexOf(value);
+                        },
+                        item: function (index) {
+                            return self.className.split(/\s+/g)[index] || null;
+                        },
+                    };
+                },
+            });
+        }
+    }
+    catch (error) {
+        console.warn(error);
+    }
+}
+exports.CompatibleProcessing = CompatibleProcessing;
+
+
+/***/ }),
+
+/***/ 646:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgAnimation = void 0;
+exports.QmsgAnimation = {
+    /** 状态 & 动画 */
+    $state: {
+        opening: "MessageMoveIn",
+        done: "",
+        closing: "MessageMoveOut",
+    },
+    $name: {
+        startNameList: [
+            "animationName",
+            "WebkitAnimationName",
+            "MozAnimationName",
+            "msAnimationName",
+            "OAnimationName",
+        ],
+        endNameList: [
+            "animationend",
+            "webkitAnimationEnd",
+            "mozAnimationEnd",
+            "MSAnimationEnd",
+            "oanimationend",
+        ],
+    },
+    /**
+     * 获取元素上的animationName属性
+     * @param element
+     */
+    getStyleAnimationName(element) {
+        for (let index = 0; index < this.$name.startNameList.length; index++) {
+            let animationName = this.$name.startNameList[index];
+            if (typeof element.style[animationName] !== "undefined") {
+                return element.style[animationName];
+            }
+        }
+    },
+    /**
+     * 设置元素上的animationName属性
+     * @param element
+     * @param animationNameValue
+     */
+    setStyleAnimationName(element, animationNameValue = "") {
+        this.$name.startNameList.forEach((animationName) => {
+            if (animationName in element.style) {
+                element.style[animationName] = animationNameValue;
+            }
+        });
+    },
+};
+
+
+/***/ }),
+
+/***/ 659:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgCSS = void 0;
+const QmsgStore_1 = __webpack_require__(737);
+exports.QmsgCSS = {
+    css: `@charset "utf-8";
+      .qmsg.qmsg-wrapper{position:fixed;top:16px;left:0;z-index:50000;display:flex;box-sizing:border-box;margin:0;padding:0;width:100%;color:rgba(0,0,0,.55);list-style:none;font-variant:tabular-nums;font-size:13px;line-height:1;font-feature-settings:"tnum";pointer-events:none;flex-direction:column;}
+      .qmsg.qmsg-data-position-center,.qmsg.qmsg-data-position-left,.qmsg.qmsg-data-position-right{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
+      .qmsg.qmsg-data-position-bottom,.qmsg.qmsg-data-position-bottomleft,.qmsg.qmsg-data-position-bottomright{position:fixed;top:unset;bottom:0;bottom:8px;left:50%;transform:translate(-50%,0);}
+      .qmsg.qmsg-data-position-bottomleft .qmsg-item,.qmsg.qmsg-data-position-left .qmsg-item,.qmsg.qmsg-data-position-topleft .qmsg-item{text-align:left;}
+      .qmsg.qmsg-data-position-bottom .qmsg-item,.qmsg.qmsg-data-position-center .qmsg-item,.qmsg.qmsg-data-position-top .qmsg-item{text-align:center;}
+      .qmsg.qmsg-data-position-bottomright .qmsg-item,.qmsg.qmsg-data-position-right .qmsg-item,.qmsg.qmsg-data-position-topright .qmsg-item{text-align:right;}
+      .qmsg .qmsg-item{position:relative;padding:8px;text-align:center;-webkit-animation-duration:.3s;animation-duration:.3s;}
+      .qmsg .qmsg-item .qmsg-count{position:absolute;top:-4px;left:-4px;display:inline-block;height:16px;min-width:16px;border-radius:2px;background-color:red;color:#fff;text-align:center;font-size:12px;line-height:16px;-webkit-animation-duration:.3s;animation-duration:.3s;}
+      .qmsg .qmsg-item:first-child{margin-top:-8px;}
+      .qmsg .qmsg-content{position:relative;display:inline-block;padding:10px 12px;max-width:80%;min-width:40px;border-radius:4px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;pointer-events:all;}
+      .qmsg .qmsg-content [class^=qmsg-content-]{display:flex;align-items:center;}
+      .qmsg .qmsg-icon{position:relative;top:1px;display:inline-block;margin-right:8px;color:inherit;vertical-align:-.125em;text-align:center;text-transform:none;font-style:normal;font-size:16px;line-height:0;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+      .qmsg .qmsg-icon svg{display:inline-block;}
+      .qmsg .qmsg-content-info .qmsg-icon{color:#1890ff;}
+      .qmsg .qmsg-icon-close{margin:0;margin-left:8px;padding:0;outline:0;border:none;background-color:transparent;color:rgba(0,0,0,.45);font-size:12px;cursor:pointer;transition:color .3s;}
+      .qmsg .qmsg-icon-close:hover>svg path{stroke:#555;}
+      .qmsg .animate-turn{animation:MessageTurn 1s linear infinite;-webkit-animation:MessageTurn 1s linear infinite;}
+      @keyframes MessageTurn{0%{-webkit-transform:rotate(0);}
+      25%{-webkit-transform:rotate(90deg);}
+      50%{-webkit-transform:rotate(180deg);}
+      75%{-webkit-transform:rotate(270deg);}
+      100%{-webkit-transform:rotate(360deg);}
+      }
+      @-webkit-keyframes MessageTurn{0%{-webkit-transform:rotate(0);}
+      25%{-webkit-transform:rotate(90deg);}
+      50%{-webkit-transform:rotate(180deg);}
+      75%{-webkit-transform:rotate(270deg);}
+      100%{-webkit-transform:rotate(360deg);}
+      }
+      @-webkit-keyframes MessageMoveOut{0%{max-height:150px;opacity:1;}
+      to{max-height:0;opacity:0;}
+      }
+      @keyframes MessageMoveOut{0%{max-height:150px;opacity:1;}
+      to{max-height:0;opacity:0;}
+      }
+      @-webkit-keyframes MessageMoveIn{0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
+      to{opacity:1;transform:translateY(0);transform-origin:0 0;}
+      }
+      @keyframes MessageMoveIn{0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
+      to{opacity:1;transform:translateY(0);transform-origin:0 0;}
+      }
+      @-webkit-keyframes MessageShake{0%,100%{opacity:1;transform:translateX(0);}
+      25%,75%{opacity:.75;transform:translateX(-4px);}
+      50%{opacity:.25;transform:translateX(4px);}
+      }
+      @keyframes MessageShake{0%,100%{opacity:1;transform:translateX(0);}
+      25%,75%{opacity:.75;transform:translateX(-4px);}
+      50%{opacity:.25;transform:translateX(4px);}
+      }`,
+    /**
+     * 获取CSS元素
+     * @returns
+     */
+    getStyleElement() {
+        let cssResourceNode = document.createElement("style");
+        cssResourceNode.setAttribute("type", "text/css");
+        cssResourceNode.setAttribute("data-type", QmsgStore_1.QmsgStore.PLUGIN_NAME);
+        cssResourceNode.innerHTML = this.css;
+        return cssResourceNode;
+    },
+};
+
+
+/***/ }),
+
+/***/ 759:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgIcon = void 0;
+exports.QmsgIcon = {
+    info: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/></svg>',
+    warning: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/></svg>',
+    error: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/></svg>',
+    success: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/></svg>',
+    loading: '<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/><path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    close: '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
+
+/***/ }),
+
+/***/ 189:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgObj = void 0;
+exports.QmsgObj = {
+    QmsgList: [],
+    /**
+     * 移除实例
+     * @param uuid
+     * @returns
+     */
+    remove(uuid) {
+        for (let index = 0; index < exports.QmsgObj.QmsgList.length; index++) {
+            if (exports.QmsgObj.QmsgList[index].uuid === uuid) {
+                exports.QmsgObj.QmsgList.splice(index, 1);
+                return;
+            }
+        }
+    },
+};
+
+
+/***/ }),
+
+/***/ 369:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgMsg = void 0;
+const QmsgAnimation_1 = __webpack_require__(646);
+const QmsgCSS_1 = __webpack_require__(659);
+const QmsgStore_1 = __webpack_require__(737);
+const QmsgIcon_1 = __webpack_require__(759);
+const QmsgInstance_1 = __webpack_require__(189);
+const QmsgUtils_1 = __webpack_require__(105);
+/**
+ * 每条消息的构造函数
+ */
+class QmsgMsg {
+    option;
+    uuid;
+    /**
+     * setTimeout的id
+     */
+    #timerId;
+    /**
+     * 启动时间
+     */
+    #startTime;
+    /**
+     * 关闭时间
+     */
+    #endTime;
+    /**
+     * Qmsg的配置
+     */
+    #setting;
+    /**
+     * uuid
+     */
+    #uuid;
+    /**
+     * 当前动画状态
+     */
+    #state;
+    /**
+     * 当前相同消息的数量
+     */
+    #count;
+    /**
+     * 主元素
+     */
+    $Qmsg;
+    constructor(option, uuid) {
+        this.option = option;
+        this.uuid = uuid;
+        this.#timerId = void 0;
+        this.#startTime = null;
+        this.#endTime = null;
+        this.#setting = Object.assign({}, QmsgStore_1.QmsgStore.DEFAULT, this.option);
+        this.#uuid = uuid;
+        this.#state = "opening";
+        this.$Qmsg = document.createElement("div");
+        this.#count = 1;
+        this.detectionType();
+        this.init();
+    }
+    /**
+     * 获取当前配置
+     * @returns
+     */
+    getSetting() {
+        return this.#setting;
+    }
+    /**
+     * 获取当前相同的数量
+     * @returns
+     */
+    getCount() {
+        return this.#count;
+    }
+    /**
+     * 设置count值
+     */
+    setCount(num) {
+        this.#count = num;
+    }
+    /**
+     * 设置count自增
+     */
+    setCountIncreasing() {
+        this.#count++;
+    }
+    /**
+     * 初始化元素
+     */
+    init() {
+        let QmsgContext = this;
+        let $svg = QmsgIcon_1.QmsgIcon[this.#setting.type || "info"];
+        let contentClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("content-" + this.#setting.type || 0);
+        if (this.#setting.showClose) {
+            contentClassName += " " + QmsgUtils_1.QmsgUtils.getNameSpacify("content-with-close");
+        }
+        let content = this.#setting.content || "";
+        let contentStyle = "";
+        let $closeIconStyle = "";
+        let $closeSvg = QmsgIcon_1.QmsgIcon.close;
+        if (this.#setting.showMoreContent) {
+            contentStyle = `
+			  display: flex;
+			  align-items: center;
+			  white-space: unset;
+			  overflow: unset;
+			  text-overflow: unset;
+			  padding-right: unset;
+		    `;
+            $closeIconStyle = `
+			  position:unset;
+			  overflow:unset;
+			  padding-left: 6px;
+			  margin-right: 0px;
+		    `;
+        }
+        let $closeIcon = "";
+        if (this.#setting.showClose) {
+            $closeIcon = `<i class="qmsg-icon qmsg-icon-close" style="${$closeIconStyle}">${$closeSvg}</i>`;
+        }
+        let $span = document.createElement("span");
+        let $positionClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase());
+        if (this.#setting.html || this.#setting.isHTML) {
+            $span.innerHTML = content;
+        }
+        else {
+            $span.innerText = content;
+        }
+        this.$Qmsg.innerHTML = `
+        <div class="qmsg-content">
+            <div class="${contentClassName}" style="${contentStyle}">
+            ${this.#setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
+                ${$span.outerHTML}
+                ${$closeIcon}
+            </div>
+        </div>
+        `;
+        this.$Qmsg.classList.add(QmsgUtils_1.QmsgUtils.getNameSpacify("item"));
+        this.$Qmsg.setAttribute(QmsgUtils_1.QmsgUtils.getNameSpacify("uuid"), this.#uuid);
+        let $shadowContainer = document.querySelector(".qmsg-shadow-container");
+        let $shadowRoot = $shadowContainer?.shadowRoot;
+        if (!$shadowContainer) {
+            $shadowContainer = document.createElement("div");
+            $shadowContainer.className = "qmsg-shadow-container";
+            $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+            let __$wrapper__ = document.createElement("div");
+            __$wrapper__.classList.add(QmsgStore_1.QmsgStore.NAMESPACE, QmsgUtils_1.QmsgUtils.getNameSpacify("wrapper"), QmsgUtils_1.QmsgUtils.getNameSpacify("is-initialized"));
+            __$wrapper__.classList.add($positionClassName);
+            $shadowRoot.appendChild(QmsgCSS_1.QmsgCSS.getStyleElement());
+            $shadowRoot.appendChild(__$wrapper__);
+            if (this.#setting.style != null) {
+                let __$ownStyle__ = document.createElement("style");
+                __$ownStyle__.setAttribute("type", "text/css");
+                __$ownStyle__.innerHTML = this.#setting.style;
+                $shadowRoot.appendChild(__$ownStyle__);
+            }
+            document.body.appendChild($shadowContainer);
+        }
+        if ($shadowRoot == null) {
+            throw new TypeError(QmsgStore_1.QmsgStore.PLUGIN_NAME + " $shadowRoot is null");
+        }
+        let $wrapper = $shadowRoot.querySelector(`.${QmsgStore_1.QmsgStore.NAMESPACE}.${$positionClassName}`);
+        if (!$wrapper) {
+            $wrapper = document.createElement("div");
+            $wrapper.classList.add(QmsgStore_1.QmsgStore.NAMESPACE, QmsgUtils_1.QmsgUtils.getNameSpacify("wrapper"), QmsgUtils_1.QmsgUtils.getNameSpacify("is-initialized"));
+            $wrapper.classList.add($positionClassName);
+            $shadowRoot.appendChild($wrapper);
+        }
+        if (this.#setting.showReverse) {
+            $wrapper.style.flexDirection = "column-reverse";
+        }
+        else {
+            $wrapper.style.flexDirection = "column";
+        }
+        let zIndex = this.#setting.zIndex;
+        if (!isNaN(zIndex)) {
+            $wrapper.style.zIndex = zIndex.toString();
+        }
+        $wrapper.appendChild(this.$Qmsg);
+        this.setState(this.$Qmsg, "opening");
+        if (this.#setting.showClose) {
+            /* 关闭按钮绑定点击事件 */
+            let $closeIcon = this.$Qmsg.querySelector(".qmsg-icon-close");
+            if ($closeIcon) {
+                $closeIcon.addEventListener("click", function () {
+                    QmsgContext.close();
+                });
+            }
+        }
+        let animationendEvent = function (event) {
+            /* 监听动画完成 */
+            let target = event.target, animationName = event.animationName;
+            if (animationName === QmsgAnimation_1.QmsgAnimation.$state.closing) {
+                QmsgContext.#endTime = new Date().getTime();
+                clearTimeout(QmsgContext.#timerId);
+                QmsgContext.destroy();
+            }
+            QmsgAnimation_1.QmsgAnimation.setStyleAnimationName(target);
+        };
+        QmsgAnimation_1.QmsgAnimation.$name.endNameList.forEach(function (animationendName) {
+            // @ts-ignore
+            QmsgContext.$Qmsg.addEventListener(animationendName, animationendEvent);
+        });
+        if (this.#setting.autoClose) {
+            /* 自动关闭 */
+            this.#startTime = new Date().getTime();
+            this.#timerId = setTimeout(function () {
+                QmsgContext.close();
+            }, this.#setting.timeout);
+            this.$Qmsg.addEventListener("mouseover", function () {
+                /* 鼠标滑入，清除定时器 */
+                QmsgContext.#startTime = null;
+                QmsgContext.#endTime = null;
+                clearTimeout(QmsgContext.#timerId);
+            });
+            this.$Qmsg.addEventListener("mouseout", function () {
+                /* 鼠标滑出，重启定时器 */
+                if (QmsgContext.#state !== "closing") {
+                    /* 状态为关闭则不重启定时器 */
+                    QmsgContext.#startTime = new Date().getTime();
+                    QmsgContext.#timerId = setTimeout(function () {
+                        QmsgContext.close();
+                    }, QmsgContext.#setting.timeout);
+                }
+            });
+        }
+    }
+    /**
+     * 对timeout进行检测并转换
+     * 当timeout为string时，转换为number
+     * timeout必须在规定范围内
+     */
+    detectionType() {
+        if (this.#setting.timeout != null &&
+            typeof this.#setting.timeout === "string") {
+            this.#setting.timeout = parseInt(this.#setting.timeout);
+        }
+        if (isNaN(this.#setting.timeout)) {
+            this.#setting.timeout = QmsgStore_1.QmsgStore.DEFAULT.timeout;
+        }
+        if (!(this.#setting.timeout != null &&
+            parseInt(this.#setting.timeout.toString()) >= 0 &&
+            parseInt(this.#setting.timeout.toString()) <= Number.MAX_VALUE)) {
+            this.#setting.timeout = QmsgStore_1.QmsgStore.DEFAULT.timeout;
+        }
+        if (this.#setting.zIndex != null &&
+            typeof this.#setting.zIndex === "string") {
+            this.#setting.zIndex = parseInt(this.#setting.zIndex);
+        }
+        if (isNaN(this.#setting.zIndex)) {
+            this.#setting.zIndex = QmsgStore_1.QmsgStore.DEFAULT.zIndex;
+        }
+    }
+    /**
+     * 设置元素动画状态 开启/关闭
+     * @param QmsgMsg
+     * @param state
+     * @returns
+     */
+    setState(element, state) {
+        if (!state || !QmsgAnimation_1.QmsgAnimation.$state[state])
+            return;
+        this.#state = state;
+        QmsgAnimation_1.QmsgAnimation.setStyleAnimationName(element, QmsgAnimation_1.QmsgAnimation.$state[state]);
+    }
+    /**
+     * 设置消息数量统计
+     */
+    setMsgCount() {
+        let QmsgContext = this;
+        let countClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("count");
+        let wrapperClassName = `div.${QmsgUtils_1.QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase())} [class^="qmsg-content-"]`;
+        let $content = this.$Qmsg.querySelector(wrapperClassName);
+        if (!$content) {
+            throw new TypeError("$content is null");
+        }
+        let $count = $content.querySelector("." + countClassName);
+        if (!$count) {
+            $count = document.createElement("span");
+            $count.classList.add(countClassName);
+            $content.appendChild($count);
+        }
+        $count.innerHTML = this.getCount().toString();
+        QmsgAnimation_1.QmsgAnimation.setStyleAnimationName($count);
+        QmsgAnimation_1.QmsgAnimation.setStyleAnimationName($count, "MessageShake");
+        /* 重置定时器 */
+        clearTimeout(this.#timerId);
+        if (this.#setting.autoClose) {
+            this.#timerId = setTimeout(function () {
+                QmsgContext.close();
+            }, this.#setting.timeout);
+        }
+    }
+    /**
+     * 关闭Qmsg（会触发动画）
+     */
+    close() {
+        this.setState(this.$Qmsg, "closing");
+        if (QmsgStore_1.QmsgStore.CAN_ANIMATION) {
+            /* 支持动画 */
+            QmsgInstance_1.QmsgObj.remove(this.#uuid);
+        }
+        else {
+            /* 不支持动画 */
+            this.destroy();
+        }
+        let onCloseCallBack = this.#setting.onClose;
+        if (onCloseCallBack && typeof onCloseCallBack === "function") {
+            onCloseCallBack.call(this);
+        }
+    }
+    /**
+     * 销毁Qmsg
+     */
+    destroy() {
+        this.#endTime = new Date().getTime();
+        this.$Qmsg.remove();
+        clearTimeout(this.#timerId);
+        QmsgInstance_1.QmsgObj.remove(this.uuid);
+    }
+    /**
+     * 设置内容文本
+     */
+    setText(text) {
+        let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
+        if ($content) {
+            $content.innerText = text;
+            this.#setting.content = text;
+        }
+        else {
+            throw new TypeError("$content is null");
+        }
+    }
+    /**
+     * 设置内容超文本
+     */
+    setHTML(text) {
+        let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
+        if ($content) {
+            $content.innerHTML = text;
+            this.#setting.content = text;
+        }
+        else {
+            throw new TypeError("$content is null");
+        }
+    }
+}
+exports.QmsgMsg = QmsgMsg;
+
+
+/***/ }),
+
+/***/ 737:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgStore = void 0;
+const QmsgAnimation_1 = __webpack_require__(646);
+exports.QmsgStore = {
+    /** 声明插件名称 */
+    PLUGIN_NAME: "qmsg",
+    /** 命名空间，用于css和事件 */
+    NAMESPACE: "qmsg",
+    DEFAULT: {
+        animation: true,
+        autoClose: true,
+        content: "",
+        html: false,
+        isHTML: false,
+        position: "top",
+        showClose: false,
+        maxNums: 5,
+        onClose: null,
+        showIcon: true,
+        showMoreContent: false,
+        showReverse: false,
+        timeout: 2500,
+        type: "info",
+        zIndex: 50000,
+        style: "",
+    },
+    /**
+     * 是否支持动画属性
+     */
+    CAN_ANIMATION: Boolean(QmsgAnimation_1.QmsgAnimation.getStyleAnimationName(document.createElement("div")) != null),
+};
+
+
+/***/ }),
+
+/***/ 105:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.QmsgUtils = void 0;
+const QmsgStore_1 = __webpack_require__(737);
+const QmsgInstance_1 = __webpack_require__(189);
+const QmsgMsg_1 = __webpack_require__(369);
+exports.QmsgUtils = {
+    /**
+     * 生成带插件名的名称
+     * @param args
+     * @returns
+     */
+    getNameSpacify(...args) {
+        let result = QmsgStore_1.QmsgStore.NAMESPACE;
+        for (let index = 0; index < args.length; ++index) {
+            result += "-" + args[index];
+        }
+        return result;
+    },
+    /**
+     * 获取唯一性的UUID
+     * @returns
+     */
+    getUUID() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (value) {
+            let randValue = (Math.random() * 16) | 0, newValue = value == "x" ? randValue : (randValue & 0x3) | 0x8;
+            return newValue.toString(16);
+        });
+    },
+    /**
+     * 合并参数为配置信息，用于创建Msg实例
+     * @param txt 文本内容
+     * @param config 配置
+     * @private
+     */
+    mergeArgs(txt = "", config) {
+        let opts = Object.assign({}, QmsgStore_1.QmsgStore.DEFAULT);
+        if (arguments.length === 0) {
+            return opts;
+        }
+        if (typeof txt === "object") {
+            return Object.assign(opts, txt);
+        }
+        else {
+            opts.content = txt.toString();
+        }
+        if (typeof config === "object") {
+            return Object.assign(opts, config);
+        }
+        return opts;
+    },
+    /**
+     * 通过配置信息 来判断是否为同一条消息,并返回消息实例
+     * @param option 配置项
+     * @private
+     */
+    judgeReMsg(option) {
+        option = option || {};
+        let optionString = JSON.stringify(option);
+        /* 寻找已生成的实例是否存在配置相同的 */
+        let findQmsgItemInfo = QmsgInstance_1.QmsgObj.QmsgList.find((item) => {
+            return item.config === optionString;
+        });
+        let QmsgInstance = findQmsgItemInfo?.instance;
+        if (QmsgInstance == null) {
+            /* 不存在，创建个新的 */
+            let uuid = exports.QmsgUtils.getUUID();
+            let QmsgItemInfo = {
+                uuid: uuid,
+                config: optionString,
+                instance: new QmsgMsg_1.QmsgMsg(option, uuid),
+            };
+            QmsgInstance_1.QmsgObj.QmsgList.push(QmsgItemInfo);
+            let QmsgListLength = QmsgInstance_1.QmsgObj.QmsgList.length;
+            let maxNums = QmsgItemInfo.instance.getSetting().maxNums;
+            /**
+             * 关闭多余的消息
+             */
+            if (QmsgListLength > maxNums) {
+                for (let index = 0; index < QmsgListLength - maxNums; index++) {
+                    let item = QmsgInstance_1.QmsgObj.QmsgList[index];
+                    item && item.instance.getSetting().autoClose && item.instance.close();
+                }
+            }
+            findQmsgItemInfo = QmsgItemInfo;
+            QmsgInstance = QmsgItemInfo.instance;
+        }
+        else {
+            if (!QmsgInstance.getCount()) {
+                QmsgInstance.setCount(2);
+            }
+            else {
+                if (QmsgInstance.getCount() >= 99) {
+                    /* pass */
+                }
+                else {
+                    QmsgInstance.setCountIncreasing();
+                }
+            }
+            QmsgInstance.setMsgCount();
+        }
+        if (QmsgInstance) {
+            QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance?.getCount().toString());
+        }
+        else {
+            throw new TypeError("QmsgInstance is null");
+        }
+        return QmsgInstance;
+    },
+};
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+var exports = __webpack_exports__;
+var __webpack_unused_export__;
+
+__webpack_unused_export__ = ({ value: true });
+exports.Qmsg = void 0;
+const CompatibleProcessing_1 = __webpack_require__(579);
+const QmsgStore_1 = __webpack_require__(737);
+const QmsgIcon_1 = __webpack_require__(759);
+const QmsgInstance_1 = __webpack_require__(189);
+const QmsgUtils_1 = __webpack_require__(105);
+/* 执行兼容 */
+(0, CompatibleProcessing_1.CompatibleProcessing)();
+const Qmsg = {
+    /** 版本号 */
+    version: "2024.5.22",
+    $data: QmsgStore_1.QmsgStore,
+    /** 图标svg */
+    $icons: QmsgIcon_1.QmsgIcon,
+    $obj: QmsgInstance_1.QmsgObj,
+    /**
+     * 修改默认配置
+     * @param option
+     */
+    config(option) {
+        QmsgStore_1.QmsgStore.DEFAULT =
+            option && typeof option === "object"
+                ? Object.assign(QmsgStore_1.QmsgStore.DEFAULT, option)
+                : QmsgStore_1.QmsgStore.DEFAULT;
+    },
+    /**
+     * 信息
+     * @param content 内容
+     * @param config 配置
+     */
+    info(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "info";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    /**
+     * 警告
+     * @param content 内容
+     * @param config 配置
+     */
+    warning(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "warning";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    /**
+     * 成功
+     * @param content 内容
+     * @param config 配置
+     */
+    success(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "success";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    /**
+     * 失败
+     * @param content 内容
+     * @param config 配置
+     */
+    error(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "error";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    /**
+     * 加载中
+     * @param content 内容
+     * @param config 配置
+     */
+    loading(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "loading";
+        params.autoClose = false;
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    /**
+     * 根据uuid删除Qmsg实例和元素
+     * @param uuid
+     */
+    remove(uuid) {
+        QmsgInstance_1.QmsgObj.remove(uuid);
+    },
+    /**
+     * 关闭当前页面中所有的Qmsg
+     */
+    closeAll() {
+        for (let index = QmsgInstance_1.QmsgObj.QmsgList.length - 1; index >= 0; index--) {
+            let item = QmsgInstance_1.QmsgObj.QmsgList[index];
+            item && item.instance && item.instance.close();
+        }
+    },
+};
+exports.Qmsg = Qmsg;
+
+})();
+
+__webpack_exports__ = __webpack_exports__.Qmsg;
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
