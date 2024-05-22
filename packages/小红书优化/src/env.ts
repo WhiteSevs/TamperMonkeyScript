@@ -6,7 +6,7 @@ import { createApp } from "vue";
 const utils: typeof import("@库/Utils") = ((monkeyWindow as any).Utils || (unsafeWindow as any).Utils)?.noConflict();
 const DOMUtils: typeof import("@库/DOMUtils") = ((monkeyWindow as any).DOMUtils || (unsafeWindow as any).DOMUtils)?.noConflict();
 const pops: typeof import("@库/pops") = ((monkeyWindow as any).pops || (unsafeWindow as any).pops)
-const Qmsg: typeof import("@库/Qmsg") = ((monkeyWindow as any).Qmsg || (unsafeWindow as any).Qmsg)
+const Qmsg: typeof import("@库/Qmsg/dist/index").Qmsg = ((monkeyWindow as any).Qmsg || (unsafeWindow as any).Qmsg)
 const Viewer: typeof import('viewerjs').default = ((monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer);
 
 const showdown: typeof import("@库/showdown") = ((monkeyWindow as any).showdown || (unsafeWindow as any).showdown);
