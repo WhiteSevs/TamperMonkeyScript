@@ -22,7 +22,7 @@
 		// 输出目录
 		"outDir": "./dist",
 		// 输出.d.ts声明文件
-		"declaration": false,
+		"declaration": true,
 		"sourceMap": true
 	},
 	// 包含src下的所有文件

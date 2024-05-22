@@ -4,6 +4,7 @@ import { QmsgIcon } from "./QmsgIcon";
 import { QmsgObj } from "./QmsgInstance";
 import { QmsgMsg } from "./QmsgMsg";
 import { QmsgUtils } from "./QmsgUtils";
+import { info } from "console";
 
 export type QmsgPosition =
 	| "topleft"
@@ -119,87 +120,152 @@ export interface QmsgOption {
 
 export interface QmsgDetails extends Partial<QmsgOption> {}
 
-/* 执行兼容 */
-CompatibleProcessing();
-
-const Qmsg = {
+interface Qmsg {
 	/** 版本号 */
-	version: "2024.5.22",
-	$data: QmsgStore,
+	version: string;
+	$data: typeof QmsgStore;
 	/** 图标svg */
-	$icons: QmsgIcon,
-	$obj: QmsgObj,
+	$icons: typeof QmsgIcon;
+	$obj: typeof QmsgObj;
 	/**
 	 * 修改默认配置
 	 * @param option
 	 */
-	config(option: QmsgDetails) {
-		QmsgStore.DEFAULT =
-			option && typeof option === "object"
-				? Object.assign(QmsgStore.DEFAULT, option)
-				: QmsgStore.DEFAULT;
-	},
+	config(option?: QmsgDetails): void;
+	/**
+	 * 信息
+	 * @param content 内容
+	 */
+	info(content: string): QmsgMsg;
+	/**
+	 * 信息
+	 * @param config 配置
+	 */
+	info(config: QmsgDetails): QmsgMsg;
 	/**
 	 * 信息
 	 * @param content 内容
 	 * @param config 配置
 	 */
-	info(content: string, config: QmsgDetails) {
-		let params = QmsgUtils.mergeArgs(content, config);
-		params.type = "info";
-		return QmsgUtils.judgeReMsg.call(this, params);
-	},
+	info(content: string, config: QmsgDetails): QmsgMsg;
+	/**
+	 * 警告
+	 * @param content 内容
+	 */
+	warning(content: string): QmsgMsg;
+	/**
+	 * 警告
+	 * @param config 配置
+	 */
+	warning(config: QmsgDetails): QmsgMsg;
 	/**
 	 * 警告
 	 * @param content 内容
 	 * @param config 配置
 	 */
-	warning(content: string, config: QmsgDetails) {
-		let params = QmsgUtils.mergeArgs(content, config);
-		params.type = "warning";
-		return QmsgUtils.judgeReMsg.call(this, params);
-	},
+	warning(content: string, config: QmsgDetails): QmsgMsg;
+	/**
+	 * 成功
+	 * @param content 内容
+	 */
+	success(content: string): QmsgMsg;
+	/**
+	 * 成功
+	 * @param config 配置
+	 */
+	success(config: QmsgDetails): QmsgMsg;
 	/**
 	 * 成功
 	 * @param content 内容
 	 * @param config 配置
 	 */
-	success(content: string, config: QmsgDetails) {
-		let params = QmsgUtils.mergeArgs(content, config);
-		params.type = "success";
-		return QmsgUtils.judgeReMsg.call(this, params);
-	},
+	success(content: string, config: QmsgDetails): QmsgMsg;
+	/**
+	 * 失败
+	 * @param content 内容
+	 */
+	error(content: string): QmsgMsg;
+	/**
+	 * 失败
+	 * @param config 配置
+	 */
+	error(config: QmsgDetails): QmsgMsg;
 	/**
 	 * 失败
 	 * @param content 内容
 	 * @param config 配置
 	 */
-	error(content: string, config: QmsgDetails) {
-		let params = QmsgUtils.mergeArgs(content, config);
-		params.type = "error";
-		return QmsgUtils.judgeReMsg.call(this, params);
-	},
+	error(content: string, config: QmsgDetails): QmsgMsg;
+	/**
+	 * 加载中
+	 * @param content 内容
+	 */
+	loading(content: string): QmsgMsg;
+	/**
+	 * 加载中
+	 * @param config 配置
+	 */
+	loading(config: QmsgDetails): QmsgMsg;
 	/**
 	 * 加载中
 	 * @param content 内容
 	 * @param config 配置
 	 */
-	loading(content: string, config: QmsgDetails) {
+	loading(content: string, config: QmsgDetails): QmsgMsg;
+	/**
+	 * 根据uuid删除Qmsg实例和元素
+	 * @param uuid
+	 */
+	remove(uuid: string): void;
+	/**
+	 * 关闭当前页面中所有的Qmsg
+	 */
+	closeAll(): void;
+}
+
+/* 执行兼容 */
+CompatibleProcessing();
+
+const Qmsg = <Qmsg>{
+	version: "2024.5.22",
+	$data: QmsgStore,
+	$icons: QmsgIcon,
+	$obj: QmsgObj,
+	config(option?: QmsgDetails) {
+		QmsgStore.DEFAULT =
+			option && typeof option === "object"
+				? Object.assign(QmsgStore.DEFAULT, option)
+				: QmsgStore.DEFAULT;
+	},
+	info(content: string, config?: QmsgDetails) {
+		let params = QmsgUtils.mergeArgs(content, config);
+		params.type = "info";
+		return QmsgUtils.judgeReMsg.call(this, params);
+	},
+	warning(content: string, config?: QmsgDetails) {
+		let params = QmsgUtils.mergeArgs(content, config);
+		params.type = "warning";
+		return QmsgUtils.judgeReMsg.call(this, params);
+	},
+	success(content: string, config?: QmsgDetails) {
+		let params = QmsgUtils.mergeArgs(content, config);
+		params.type = "success";
+		return QmsgUtils.judgeReMsg.call(this, params);
+	},
+	error(content: string, config?: QmsgDetails) {
+		let params = QmsgUtils.mergeArgs(content, config);
+		params.type = "error";
+		return QmsgUtils.judgeReMsg.call(this, params);
+	},
+	loading(content: string, config?: QmsgDetails) {
 		let params = QmsgUtils.mergeArgs(content, config);
 		params.type = "loading";
 		params.autoClose = false;
 		return QmsgUtils.judgeReMsg.call(this, params);
 	},
-	/**
-	 * 根据uuid删除Qmsg实例和元素
-	 * @param uuid
-	 */
 	remove(uuid: string) {
 		QmsgObj.remove(uuid);
 	},
-	/**
-	 * 关闭当前页面中所有的Qmsg
-	 */
 	closeAll() {
 		for (let index = QmsgObj.QmsgList.length - 1; index >= 0; index--) {
 			let item = QmsgObj.QmsgList[index];

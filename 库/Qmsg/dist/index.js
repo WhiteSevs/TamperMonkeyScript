@@ -737,20 +737,20 @@ exports.QmsgUtils = {
     },
     /**
      * 合并参数为配置信息，用于创建Msg实例
-     * @param txt 文本内容
+     * @param content 文本内容
      * @param config 配置
      * @private
      */
-    mergeArgs(txt = "", config) {
+    mergeArgs(content = "", config) {
         let opts = Object.assign({}, QmsgStore_1.QmsgStore.DEFAULT);
         if (arguments.length === 0) {
             return opts;
         }
-        if (typeof txt === "object") {
-            return Object.assign(opts, txt);
+        if (typeof content === "object") {
+            return Object.assign(opts, content);
         }
         else {
-            opts.content = txt.toString();
+            opts.content = content.toString();
         }
         if (typeof config === "object") {
             return Object.assign(opts, config);
@@ -863,83 +863,45 @@ const QmsgUtils_1 = __webpack_require__(105);
 /* 执行兼容 */
 (0, CompatibleProcessing_1.CompatibleProcessing)();
 const Qmsg = {
-    /** 版本号 */
     version: "2024.5.22",
     $data: QmsgStore_1.QmsgStore,
-    /** 图标svg */
     $icons: QmsgIcon_1.QmsgIcon,
     $obj: QmsgInstance_1.QmsgObj,
-    /**
-     * 修改默认配置
-     * @param option
-     */
     config(option) {
         QmsgStore_1.QmsgStore.DEFAULT =
             option && typeof option === "object"
                 ? Object.assign(QmsgStore_1.QmsgStore.DEFAULT, option)
                 : QmsgStore_1.QmsgStore.DEFAULT;
     },
-    /**
-     * 信息
-     * @param content 内容
-     * @param config 配置
-     */
     info(content, config) {
         let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
         params.type = "info";
         return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
     },
-    /**
-     * 警告
-     * @param content 内容
-     * @param config 配置
-     */
     warning(content, config) {
         let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
         params.type = "warning";
         return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
     },
-    /**
-     * 成功
-     * @param content 内容
-     * @param config 配置
-     */
     success(content, config) {
         let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
         params.type = "success";
         return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
     },
-    /**
-     * 失败
-     * @param content 内容
-     * @param config 配置
-     */
     error(content, config) {
         let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
         params.type = "error";
         return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
     },
-    /**
-     * 加载中
-     * @param content 内容
-     * @param config 配置
-     */
     loading(content, config) {
         let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
         params.type = "loading";
         params.autoClose = false;
         return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
     },
-    /**
-     * 根据uuid删除Qmsg实例和元素
-     * @param uuid
-     */
     remove(uuid) {
         QmsgInstance_1.QmsgObj.remove(uuid);
     },
-    /**
-     * 关闭当前页面中所有的Qmsg
-     */
     closeAll() {
         for (let index = QmsgInstance_1.QmsgObj.QmsgList.length - 1; index >= 0; index--) {
             let item = QmsgInstance_1.QmsgObj.QmsgList[index];

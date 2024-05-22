@@ -38,19 +38,19 @@ export const QmsgUtils = {
 	},
 	/**
 	 * 合并参数为配置信息，用于创建Msg实例
-	 * @param txt 文本内容
+	 * @param content 文本内容
 	 * @param config 配置
 	 * @private
 	 */
-	mergeArgs(txt = "", config: object) {
+	mergeArgs(content = "", config?: object) {
 		let opts = Object.assign({}, QmsgStore.DEFAULT);
 		if (arguments.length === 0) {
 			return opts;
 		}
-		if (typeof txt === "object") {
-			return Object.assign(opts, txt);
+		if (typeof content === "object") {
+			return Object.assign(opts, content);
 		} else {
-			opts.content = txt.toString();
+			opts.content = content.toString();
 		}
 		if (typeof config === "object") {
 			return Object.assign(opts, config);
