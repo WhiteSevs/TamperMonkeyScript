@@ -1,11 +1,3 @@
-const demo = {
-    version: "",
-    test() {
+import { Demo } from "./demo";
 
-    }
-}
-
-
-export {
-    demo
-};
+export default Demo;
