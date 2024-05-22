@@ -15,41 +15,51 @@ export const QmsgCSS = {
       .qmsg .qmsg-content [class^=qmsg-content-]{display:flex;align-items:center;}
       .qmsg .qmsg-icon{position:relative;top:1px;display:inline-block;margin-right:8px;color:inherit;vertical-align:-.125em;text-align:center;text-transform:none;font-style:normal;font-size:16px;line-height:0;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
       .qmsg .qmsg-icon svg{display:inline-block;}
+      .qmsg .qmsg-content .qmsg-show-more-content{display:flex;align-items:center;white-space:unset;overflow:unset;text-overflow:unset;padding-right:unset}
       .qmsg .qmsg-content-info .qmsg-icon{color:#1890ff;}
       .qmsg .qmsg-icon-close{margin:0;margin-left:8px;padding:0;outline:0;border:none;background-color:transparent;color:rgba(0,0,0,.45);font-size:12px;cursor:pointer;transition:color .3s;}
       .qmsg .qmsg-icon-close:hover>svg path{stroke:#555;}
+      .qmsg .qmsg-icon-close.qmsg-show-more-content{position:unset;overflow:unset;padding-left:6px;margin-right:0}
       .qmsg .animate-turn{animation:MessageTurn 1s linear infinite;-webkit-animation:MessageTurn 1s linear infinite;}
-      @keyframes MessageTurn{0%{-webkit-transform:rotate(0);}
-      25%{-webkit-transform:rotate(90deg);}
-      50%{-webkit-transform:rotate(180deg);}
-      75%{-webkit-transform:rotate(270deg);}
-      100%{-webkit-transform:rotate(360deg);}
+      @keyframes MessageTurn{
+            0%{-webkit-transform:rotate(0);}
+            25%{-webkit-transform:rotate(90deg);}
+            50%{-webkit-transform:rotate(180deg);}
+            75%{-webkit-transform:rotate(270deg);}
+            100%{-webkit-transform:rotate(360deg);}
       }
-      @-webkit-keyframes MessageTurn{0%{-webkit-transform:rotate(0);}
-      25%{-webkit-transform:rotate(90deg);}
-      50%{-webkit-transform:rotate(180deg);}
-      75%{-webkit-transform:rotate(270deg);}
-      100%{-webkit-transform:rotate(360deg);}
+      @-webkit-keyframes MessageTurn{
+            0%{-webkit-transform:rotate(0);}
+            25%{-webkit-transform:rotate(90deg);}
+            50%{-webkit-transform:rotate(180deg);}
+            75%{-webkit-transform:rotate(270deg);}
+            100%{-webkit-transform:rotate(360deg);}
       }
-      @-webkit-keyframes MessageMoveOut{0%{max-height:150px;opacity:1;}
-      to{max-height:0;opacity:0;}
+      @-webkit-keyframes MessageMoveOut{
+            0%{max-height:150px;opacity:1;}
+            to{max-height:0;opacity:0;}
       }
-      @keyframes MessageMoveOut{0%{max-height:150px;opacity:1;}
-      to{max-height:0;opacity:0;}
+      @keyframes MessageMoveOut{
+            0%{max-height:150px;opacity:1;}
+            to{max-height:0;opacity:0;}
       }
-      @-webkit-keyframes MessageMoveIn{0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
-      to{opacity:1;transform:translateY(0);transform-origin:0 0;}
+      @-webkit-keyframes MessageMoveIn{
+            0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
+            to{opacity:1;transform:translateY(0);transform-origin:0 0;}
       }
-      @keyframes MessageMoveIn{0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
-      to{opacity:1;transform:translateY(0);transform-origin:0 0;}
+      @keyframes MessageMoveIn{
+            0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
+            to{opacity:1;transform:translateY(0);transform-origin:0 0;}
       }
-      @-webkit-keyframes MessageShake{0%,100%{opacity:1;transform:translateX(0);}
-      25%,75%{opacity:.75;transform:translateX(-4px);}
-      50%{opacity:.25;transform:translateX(4px);}
+      @-webkit-keyframes MessageShake{
+            0%,100%{opacity:1;transform:translateX(0);}
+            25%,75%{opacity:.75;transform:translateX(-4px);}
+            50%{opacity:.25;transform:translateX(4px);}
       }
-      @keyframes MessageShake{0%,100%{opacity:1;transform:translateX(0);}
-      25%,75%{opacity:.75;transform:translateX(-4px);}
-      50%{opacity:.25;transform:translateX(4px);}
+      @keyframes MessageShake{
+            0%,100%{opacity:1;transform:translateX(0);}
+            25%,75%{opacity:.75;transform:translateX(-4px);}
+            50%{opacity:.25;transform:translateX(4px);}
       }`,
 	/**
 	 * 获取CSS元素

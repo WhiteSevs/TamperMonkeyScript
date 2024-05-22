@@ -23,6 +23,10 @@ export const QmsgStore = {
 		type: "info",
 		zIndex: 50000,
 		style: "",
+		customClass: "",
+		isLimitWidth: false,
+		limitWidthNum: 200,
+		limitWidthWrap: "no-wrap",
 	},
 	/**
 	 * 是否支持动画属性

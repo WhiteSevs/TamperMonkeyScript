@@ -16,13 +16,7 @@ export type QmsgPosition =
 	| "bottom"
 	| "bottomright";
 
-export type QmsgType =
-	| "info"
-	| "warning"
-	| "success"
-	| "error"
-	| "loading"
-	| "close";
+export type QmsgType = "info" | "warning" | "success" | "error" | "loading";
 
 export interface QmsgOption {
 	/**
@@ -102,6 +96,25 @@ export interface QmsgOption {
 	 * 自定义的style
 	 */
 	style?: string;
+	/**
+	 * 自定义类名
+	 */
+	customClass?: string;
+	/**
+	 * 是否限制宽度
+	 * + 默认：false
+	 */
+	isLimitWidth?: boolean;
+	/**
+	 * 限制宽度的数值
+	 * + 默认：200
+	 */
+	limitWidthNum?: number | string;
+	/**
+	 * 当超出限制宽度时，是否换行还是显示为省略号
+	 * + 默认："wrap"
+	 */
+	limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
 }
 
 export interface QmsgDetails extends Partial<QmsgOption> {}

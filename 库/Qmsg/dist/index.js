@@ -172,41 +172,51 @@ exports.QmsgCSS = {
       .qmsg .qmsg-content [class^=qmsg-content-]{display:flex;align-items:center;}
       .qmsg .qmsg-icon{position:relative;top:1px;display:inline-block;margin-right:8px;color:inherit;vertical-align:-.125em;text-align:center;text-transform:none;font-style:normal;font-size:16px;line-height:0;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
       .qmsg .qmsg-icon svg{display:inline-block;}
+      .qmsg .qmsg-content .qmsg-show-more-content{display:flex;align-items:center;white-space:unset;overflow:unset;text-overflow:unset;padding-right:unset}
       .qmsg .qmsg-content-info .qmsg-icon{color:#1890ff;}
       .qmsg .qmsg-icon-close{margin:0;margin-left:8px;padding:0;outline:0;border:none;background-color:transparent;color:rgba(0,0,0,.45);font-size:12px;cursor:pointer;transition:color .3s;}
       .qmsg .qmsg-icon-close:hover>svg path{stroke:#555;}
+      .qmsg .qmsg-icon-close.qmsg-show-more-content{position:unset;overflow:unset;padding-left:6px;margin-right:0}
       .qmsg .animate-turn{animation:MessageTurn 1s linear infinite;-webkit-animation:MessageTurn 1s linear infinite;}
-      @keyframes MessageTurn{0%{-webkit-transform:rotate(0);}
-      25%{-webkit-transform:rotate(90deg);}
-      50%{-webkit-transform:rotate(180deg);}
-      75%{-webkit-transform:rotate(270deg);}
-      100%{-webkit-transform:rotate(360deg);}
+      @keyframes MessageTurn{
+            0%{-webkit-transform:rotate(0);}
+            25%{-webkit-transform:rotate(90deg);}
+            50%{-webkit-transform:rotate(180deg);}
+            75%{-webkit-transform:rotate(270deg);}
+            100%{-webkit-transform:rotate(360deg);}
       }
-      @-webkit-keyframes MessageTurn{0%{-webkit-transform:rotate(0);}
-      25%{-webkit-transform:rotate(90deg);}
-      50%{-webkit-transform:rotate(180deg);}
-      75%{-webkit-transform:rotate(270deg);}
-      100%{-webkit-transform:rotate(360deg);}
+      @-webkit-keyframes MessageTurn{
+            0%{-webkit-transform:rotate(0);}
+            25%{-webkit-transform:rotate(90deg);}
+            50%{-webkit-transform:rotate(180deg);}
+            75%{-webkit-transform:rotate(270deg);}
+            100%{-webkit-transform:rotate(360deg);}
       }
-      @-webkit-keyframes MessageMoveOut{0%{max-height:150px;opacity:1;}
-      to{max-height:0;opacity:0;}
+      @-webkit-keyframes MessageMoveOut{
+            0%{max-height:150px;opacity:1;}
+            to{max-height:0;opacity:0;}
       }
-      @keyframes MessageMoveOut{0%{max-height:150px;opacity:1;}
-      to{max-height:0;opacity:0;}
+      @keyframes MessageMoveOut{
+            0%{max-height:150px;opacity:1;}
+            to{max-height:0;opacity:0;}
       }
-      @-webkit-keyframes MessageMoveIn{0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
-      to{opacity:1;transform:translateY(0);transform-origin:0 0;}
+      @-webkit-keyframes MessageMoveIn{
+            0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
+            to{opacity:1;transform:translateY(0);transform-origin:0 0;}
       }
-      @keyframes MessageMoveIn{0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
-      to{opacity:1;transform:translateY(0);transform-origin:0 0;}
+      @keyframes MessageMoveIn{
+            0%{opacity:0;transform:translateY(-100%);transform-origin:0 0;}
+            to{opacity:1;transform:translateY(0);transform-origin:0 0;}
       }
-      @-webkit-keyframes MessageShake{0%,100%{opacity:1;transform:translateX(0);}
-      25%,75%{opacity:.75;transform:translateX(-4px);}
-      50%{opacity:.25;transform:translateX(4px);}
+      @-webkit-keyframes MessageShake{
+            0%,100%{opacity:1;transform:translateX(0);}
+            25%,75%{opacity:.75;transform:translateX(-4px);}
+            50%{opacity:.25;transform:translateX(4px);}
       }
-      @keyframes MessageShake{0%,100%{opacity:1;transform:translateX(0);}
-      25%,75%{opacity:.75;transform:translateX(-4px);}
-      50%{opacity:.25;transform:translateX(4px);}
+      @keyframes MessageShake{
+            0%,100%{opacity:1;transform:translateX(0);}
+            25%,75%{opacity:.75;transform:translateX(-4px);}
+            50%{opacity:.25;transform:translateX(4px);}
       }`,
     /**
      * 获取CSS元素
@@ -229,14 +239,14 @@ exports.QmsgCSS = {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgIcon = void 0;
+exports.QmsgIcon = exports.QmsgHeaderCloseIcon = void 0;
+exports.QmsgHeaderCloseIcon = '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 exports.QmsgIcon = {
     info: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/></svg>',
     warning: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/></svg>',
     error: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/></svg>',
     success: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/></svg>',
     loading: '<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/><path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    close: '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 
 
@@ -313,7 +323,7 @@ class QmsgMsg {
     /**
      * 当前相同消息的数量
      */
-    #count;
+    #repeatNum;
     /**
      * 主元素
      */
@@ -328,7 +338,7 @@ class QmsgMsg {
         this.#uuid = uuid;
         this.#state = "opening";
         this.$Qmsg = document.createElement("div");
-        this.#count = 1;
+        this.#repeatNum = 1;
         this.detectionType();
         this.init();
     }
@@ -343,68 +353,94 @@ class QmsgMsg {
      * 获取当前相同的数量
      * @returns
      */
-    getCount() {
-        return this.#count;
+    getRepeatNum() {
+        return this.#repeatNum;
     }
     /**
-     * 设置count值
+     * 设置repeatNum值
      */
-    setCount(num) {
-        this.#count = num;
+    setRepeatNum(num) {
+        this.#repeatNum = num;
     }
     /**
-     * 设置count自增
+     * 设置repeatNum自增
      */
-    setCountIncreasing() {
-        this.#count++;
+    setRepeatNumIncreasing() {
+        this.#repeatNum++;
     }
     /**
      * 初始化元素
      */
     init() {
         let QmsgContext = this;
+        if (this.#setting.customClass &&
+            typeof this.#setting.customClass === "string") {
+            /* 设置自定义类名 */
+            this.$Qmsg.classList.add(this.#setting.customClass);
+        }
         let $svg = QmsgIcon_1.QmsgIcon[this.#setting.type || "info"];
         let contentClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("content-" + this.#setting.type || 0);
         if (this.#setting.showClose) {
             contentClassName += " " + QmsgUtils_1.QmsgUtils.getNameSpacify("content-with-close");
         }
         let content = this.#setting.content || "";
-        let contentStyle = "";
-        let $closeIconStyle = "";
-        let $closeSvg = QmsgIcon_1.QmsgIcon.close;
+        let extraCloseIconClassName = "";
+        let $closeSvg = QmsgIcon_1.QmsgHeaderCloseIcon;
         if (this.#setting.showMoreContent) {
-            contentStyle = `
-			  display: flex;
-			  align-items: center;
-			  white-space: unset;
-			  overflow: unset;
-			  text-overflow: unset;
-			  padding-right: unset;
-		    `;
-            $closeIconStyle = `
-			  position:unset;
-			  overflow:unset;
-			  padding-left: 6px;
-			  margin-right: 0px;
-		    `;
+            contentClassName += "qmsg-show-more-content";
+            extraCloseIconClassName += "qmsg-show-more-content";
         }
         let $closeIcon = "";
         if (this.#setting.showClose) {
-            $closeIcon = `<i class="qmsg-icon qmsg-icon-close" style="${$closeIconStyle}">${$closeSvg}</i>`;
+            /* 显示右上角的关闭图标按钮 */
+            $closeIcon = `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
         }
-        let $span = document.createElement("span");
+        /* 内容 */
+        let $content = document.createElement("span");
         let $positionClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase());
         if (this.#setting.html || this.#setting.isHTML) {
-            $span.innerHTML = content;
+            /* 内容是html */
+            $content.innerHTML = content;
         }
         else {
-            $span.innerText = content;
+            $content.innerText = content;
+        }
+        if (this.#setting.isLimitWidth) {
+            /* 限制宽度 */
+            let limitWidthNum = this.#setting.limitWidthNum;
+            if (typeof limitWidthNum === "string") {
+                let isNumberPattern = /^\d+$/;
+                if (isNumberPattern.test(limitWidthNum)) {
+                    limitWidthNum = limitWidthNum + "px";
+                }
+            }
+            else {
+                limitWidthNum = limitWidthNum.toString() + "px";
+            }
+            $content.style.maxWidth = limitWidthNum;
+            $content.style.width = limitWidthNum;
+            /* 设置换行 */
+            if (this.#setting.limitWidthWrap === "no-wrap") {
+                /* 禁止换行 */
+                $content.style.whiteSpace = "nowrap";
+            }
+            else if (this.#setting.limitWidthWrap === "ellipsis") {
+                /* 禁止换行且显示省略号 */
+                $content.style.whiteSpace = "nowrap";
+                $content.style.overflow = "hidden";
+                $content.style.textOverflow = "ellipsis";
+            }
+            else if (this.#setting.limitWidthWrap === "wrap") {
+                /* 允许换行 */
+                /* 默认的 */
+                $content.style.whiteSpace = "";
+            }
         }
         this.$Qmsg.innerHTML = `
         <div class="qmsg-content">
-            <div class="${contentClassName}" style="${contentStyle}">
+            <div class="${contentClassName}">
             ${this.#setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
-                ${$span.outerHTML}
+                ${$content.outerHTML}
                 ${$closeIcon}
             </div>
         </div>
@@ -554,7 +590,7 @@ class QmsgMsg {
             $count.classList.add(countClassName);
             $content.appendChild($count);
         }
-        $count.innerHTML = this.getCount().toString();
+        $count.innerHTML = this.getRepeatNum().toString();
         QmsgAnimation_1.QmsgAnimation.setStyleAnimationName($count);
         QmsgAnimation_1.QmsgAnimation.setStyleAnimationName($count, "MessageShake");
         /* 重置定时器 */
@@ -653,6 +689,10 @@ exports.QmsgStore = {
         type: "info",
         zIndex: 50000,
         style: "",
+        customClass: "",
+        isLimitWidth: false,
+        limitWidthNum: 200,
+        limitWidthWrap: "no-wrap",
     },
     /**
      * 是否支持动画属性
@@ -754,21 +794,21 @@ exports.QmsgUtils = {
             QmsgInstance = QmsgItemInfo.instance;
         }
         else {
-            if (!QmsgInstance.getCount()) {
-                QmsgInstance.setCount(2);
+            if (!QmsgInstance.getRepeatNum()) {
+                QmsgInstance.setRepeatNum(2);
             }
             else {
-                if (QmsgInstance.getCount() >= 99) {
+                if (QmsgInstance.getRepeatNum() >= 99) {
                     /* pass */
                 }
                 else {
-                    QmsgInstance.setCountIncreasing();
+                    QmsgInstance.setRepeatNumIncreasing();
                 }
             }
             QmsgInstance.setMsgCount();
         }
         if (QmsgInstance) {
-            QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance?.getCount().toString());
+            QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance?.getRepeatNum().toString());
         }
         else {
             throw new TypeError("QmsgInstance is null");

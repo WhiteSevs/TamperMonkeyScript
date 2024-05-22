@@ -2,7 +2,7 @@ import { QmsgOption } from ".";
 import { QmsgAnimation, QmsgAnimationState } from "./QmsgAnimation";
 import { QmsgCSS } from "./QmsgCSS";
 import { QmsgStore } from "./QmsgStore";
-import { QmsgIcon } from "./QmsgIcon";
+import { QmsgIcon, QmsgHeaderCloseIcon } from "./QmsgIcon";
 import { QmsgObj } from "./QmsgInstance";
 import { QmsgUtils } from "./QmsgUtils";
 
@@ -37,7 +37,7 @@ export class QmsgMsg {
 	/**
 	 * 当前相同消息的数量
 	 */
-	#count: number;
+	#repeatNum: number;
 	/**
 	 * 主元素
 	 */
@@ -50,7 +50,7 @@ export class QmsgMsg {
 		this.#uuid = uuid;
 		this.#state = "opening";
 		this.$Qmsg = document.createElement("div");
-		this.#count = 1;
+		this.#repeatNum = 1;
 
 		this.detectionType();
 		this.init();
@@ -66,26 +66,33 @@ export class QmsgMsg {
 	 * 获取当前相同的数量
 	 * @returns
 	 */
-	getCount() {
-		return this.#count;
+	getRepeatNum() {
+		return this.#repeatNum;
 	}
 	/**
-	 * 设置count值
+	 * 设置repeatNum值
 	 */
-	setCount(num: number) {
-		this.#count = num;
+	setRepeatNum(num: number) {
+		this.#repeatNum = num;
 	}
 	/**
-	 * 设置count自增
+	 * 设置repeatNum自增
 	 */
-	setCountIncreasing() {
-		this.#count++;
+	setRepeatNumIncreasing() {
+		this.#repeatNum++;
 	}
 	/**
 	 * 初始化元素
 	 */
 	private init() {
 		let QmsgContext = this;
+		if (
+			this.#setting.customClass &&
+			typeof this.#setting.customClass === "string"
+		) {
+			/* 设置自定义类名 */
+			this.$Qmsg.classList.add(this.#setting.customClass);
+		}
 		let $svg = QmsgIcon[this.#setting.type || "info"];
 		let contentClassName = QmsgUtils.getNameSpacify(
 			"content-" + this.#setting.type || "info"
@@ -94,44 +101,63 @@ export class QmsgMsg {
 			contentClassName += " " + QmsgUtils.getNameSpacify("content-with-close");
 		}
 		let content = this.#setting.content || "";
-		let contentStyle = "";
-		let $closeIconStyle = "";
-		let $closeSvg = QmsgIcon.close;
+		let extraCloseIconClassName = "";
+		let $closeSvg = QmsgHeaderCloseIcon;
 		if (this.#setting.showMoreContent) {
-			contentStyle = `
-			  display: flex;
-			  align-items: center;
-			  white-space: unset;
-			  overflow: unset;
-			  text-overflow: unset;
-			  padding-right: unset;
-		    `;
-			$closeIconStyle = `
-			  position:unset;
-			  overflow:unset;
-			  padding-left: 6px;
-			  margin-right: 0px;
-		    `;
+			contentClassName += "qmsg-show-more-content";
+			extraCloseIconClassName += "qmsg-show-more-content";
 		}
 		let $closeIcon = "";
 		if (this.#setting.showClose) {
-			$closeIcon = `<i class="qmsg-icon qmsg-icon-close" style="${$closeIconStyle}">${$closeSvg}</i>`;
+			/* 显示右上角的关闭图标按钮 */
+			$closeIcon = `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
 		}
-		let $span = document.createElement("span");
+		/* 内容 */
+		let $content = document.createElement("span");
 		let $positionClassName = QmsgUtils.getNameSpacify(
 			"data-position",
 			this.#setting.position.toLowerCase()
 		);
 		if (this.#setting.html || this.#setting.isHTML) {
-			$span.innerHTML = content;
+			/* 内容是html */
+			$content.innerHTML = content;
 		} else {
-			$span.innerText = content;
+			$content.innerText = content;
+		}
+		if (this.#setting.isLimitWidth) {
+			/* 限制宽度 */
+			let limitWidthNum = this.#setting.limitWidthNum;
+			if (typeof limitWidthNum === "string") {
+				let isNumberPattern = /^\d+$/;
+				if (isNumberPattern.test(limitWidthNum)) {
+					limitWidthNum = limitWidthNum + "px";
+				}
+			} else {
+				limitWidthNum = limitWidthNum.toString() + "px";
+			}
+			$content.style.maxWidth = limitWidthNum;
+			$content.style.width = limitWidthNum;
+
+			/* 设置换行 */
+			if (this.#setting.limitWidthWrap === "no-wrap") {
+				/* 禁止换行 */
+				$content.style.whiteSpace = "nowrap";
+			} else if (this.#setting.limitWidthWrap === "ellipsis") {
+				/* 禁止换行且显示省略号 */
+				$content.style.whiteSpace = "nowrap";
+				$content.style.overflow = "hidden";
+				$content.style.textOverflow = "ellipsis";
+			} else if (this.#setting.limitWidthWrap === "wrap") {
+				/* 允许换行 */
+				/* 默认的 */
+				$content.style.whiteSpace = "";
+			}
 		}
 		this.$Qmsg.innerHTML = `
         <div class="qmsg-content">
-            <div class="${contentClassName}" style="${contentStyle}">
+            <div class="${contentClassName}">
             ${this.#setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
-                ${$span.outerHTML}
+                ${$content.outerHTML}
                 ${$closeIcon}
             </div>
         </div>
@@ -305,7 +331,7 @@ export class QmsgMsg {
 			$count.classList.add(countClassName);
 			$content.appendChild($count);
 		}
-		$count.innerHTML = this.getCount().toString();
+		$count.innerHTML = this.getRepeatNum().toString();
 		QmsgAnimation.setStyleAnimationName($count);
 		QmsgAnimation.setStyleAnimationName($count, "MessageShake");
 		/* 重置定时器 */

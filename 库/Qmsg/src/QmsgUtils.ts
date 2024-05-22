@@ -94,13 +94,13 @@ export const QmsgUtils = {
 			findQmsgItemInfo = QmsgItemInfo;
 			QmsgInstance = QmsgItemInfo.instance;
 		} else {
-			if (!QmsgInstance.getCount()) {
-				QmsgInstance.setCount(2);
+			if (!QmsgInstance.getRepeatNum()) {
+				QmsgInstance.setRepeatNum(2);
 			} else {
-				if (QmsgInstance.getCount() >= 99) {
+				if (QmsgInstance.getRepeatNum() >= 99) {
 					/* pass */
 				} else {
-					QmsgInstance.setCountIncreasing();
+					QmsgInstance.setRepeatNumIncreasing();
 				}
 			}
 			QmsgInstance.setMsgCount();
@@ -108,7 +108,7 @@ export const QmsgUtils = {
 		if (QmsgInstance) {
 			QmsgInstance.$Qmsg.setAttribute(
 				"data-count",
-				QmsgInstance?.getCount().toString()
+				QmsgInstance?.getRepeatNum().toString()
 			);
 		} else {
 			throw new TypeError("QmsgInstance is null");

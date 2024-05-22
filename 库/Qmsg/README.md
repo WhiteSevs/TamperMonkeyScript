@@ -49,22 +49,28 @@ Qmsg.config({
 
 所有支持的配置信息如下:
 
-| 参数名          | 类型     | 描述                                                                                                | 默认  |
-| --------------- | -------- | --------------------------------------------------------------------------------------------------- | ----- |
-| animation       | Boolean  | 是否使用弹出动画                                                                                    | true  |
-| autoClose       | Boolean  | 是否自动关闭                                                                                        | true  |
-| content         | Number   | 提示的消息内容                                                                                      | 空    |
-| html            | String   | 是否将内容作为 html 渲染                                                                            | false |
-| position        | Function | 弹出位置 topleft、top、topright、left、center、right、bottomleft、bottom、bottomright，不区分大小写 | top   |
-| maxNums         | Number   | 页面中最多显示消息(autoClose: true)的数量                                                           | 5     |
-| onClose         | Function | 关闭时的回调函数                                                                                    | null  |
-| showClose       | Boolean  | 是否显示关闭图标                                                                                    | false |
-| showIcon        | Boolean  | 是否显示左边的图标                                                                                  | true  |
-| showMoreContent | Boolean  | 是否显示更多内容(换行)                                                                              | false |
-| showReverse     | Boolean  | 是否使弹出方式逆反                                                                                  | false |
-| timeout         | Number   | 自动关闭时，消息的持续显示时间，单位 ms                                                             | 2500  |
-| type            | String   | 弹出类型                                                                                            | info  |
-| zIndex          | Number   | z-index的层级                                                                                       | 50000 |
+| 参数名          | 类型                             | 描述                                                                                                | 默认      |
+| --------------- | -------------------------------- | --------------------------------------------------------------------------------------------------- | --------- |
+| animation       | Boolean                          | 是否使用弹出动画                                                                                    | true      |
+| autoClose       | Boolean                          | 是否自动关闭                                                                                        | true      |
+| content         | Number                           | 提示的消息内容                                                                                      | 空        |
+| html            | String                           | 是否将内容作为 html 渲染                                                                            | false     |
+| isHTML          | String                           | （同上）是否将内容作为 html 渲染                                                                    | false     |
+| position        | String                           | 弹出位置 topleft、top、topright、left、center、right、bottomleft、bottom、bottomright，不区分大小写 | top       |
+| maxNums         | Number                           | 页面中最多显示消息(autoClose: true)的数量                                                           | 5         |
+| onClose         | Function                         | 关闭时的回调函数                                                                                    | null      |
+| showClose       | Boolean                          | 是否显示关闭图标                                                                                    | false     |
+| showIcon        | Boolean                          | 是否显示左边的图标                                                                                  | true      |
+| showMoreContent | Boolean                          | 是否显示更多内容(换行)                                                                              | false     |
+| showReverse     | Boolean                          | 是否使弹出方式逆反                                                                                  | false     |
+| timeout         | Number                           | 自动关闭时，消息的持续显示时间，单位 ms                                                             | 2500      |
+| type            | String                           | 弹出类型                                                                                            | info      |
+| zIndex          | Number                           | z-index的层级                                                                                       | 50000     |
+| style           | String                           | 由于Qmsg在ShadowRoot内，需要更改CSS时，在这里设置即可级                                             |           |
+| customClass     | String                           | 自定义的className                                                                                   |           |
+| isLimitWidth    | Boolean                          | 是否限制宽度                                                                                        | false     |
+| limitWidthNum   | Number                           | 限制宽度的数值                                                                                      | 200       |
+| limitWidthWrap  | "no-wrap" \| "wrap"\| "ellipsis" | 当超出限制宽度时，是否换行还是显示为省略号                                                          | "no-wrap" |
 
 
 **Qmsg支持的方法**
