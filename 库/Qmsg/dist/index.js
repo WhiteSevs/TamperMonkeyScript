@@ -92,6 +92,70 @@ exports.CompatibleProcessing = CompatibleProcessing;
 
 /***/ }),
 
+/***/ 454:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const CompatibleProcessing_1 = __webpack_require__(579);
+const QmsgStore_1 = __webpack_require__(737);
+const QmsgIcon_1 = __webpack_require__(759);
+const QmsgInstance_1 = __webpack_require__(189);
+const QmsgUtils_1 = __webpack_require__(105);
+/* 执行兼容 */
+(0, CompatibleProcessing_1.CompatibleProcessing)();
+const Qmsg = {
+    version: "2024.5.22",
+    $data: QmsgStore_1.QmsgStore,
+    $icons: QmsgIcon_1.QmsgIcon,
+    $obj: QmsgInstance_1.QmsgObj,
+    config(option) {
+        QmsgStore_1.QmsgStore.DEFAULT =
+            option && typeof option === "object"
+                ? Object.assign(QmsgStore_1.QmsgStore.DEFAULT, option)
+                : QmsgStore_1.QmsgStore.DEFAULT;
+    },
+    info(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "info";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    warning(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "warning";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    success(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "success";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    error(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "error";
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    loading(content, config) {
+        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
+        params.type = "loading";
+        params.autoClose = false;
+        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
+    },
+    remove(uuid) {
+        QmsgInstance_1.QmsgObj.remove(uuid);
+    },
+    closeAll() {
+        for (let index = QmsgInstance_1.QmsgObj.QmsgList.length - 1; index >= 0; index--) {
+            let item = QmsgInstance_1.QmsgObj.QmsgList[index];
+            item && item.instance && item.instance.close();
+        }
+    },
+};
+exports["default"] = Qmsg;
+
+
+/***/ }),
+
 /***/ 646:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -818,6 +882,20 @@ exports.QmsgUtils = {
 };
 
 
+/***/ }),
+
+/***/ 156:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Qmsg_1 = __importDefault(__webpack_require__(454));
+exports["default"] = Qmsg_1.default;
+
+
 /***/ })
 
 /******/ 	});
@@ -840,80 +918,20 @@ exports.QmsgUtils = {
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-var exports = __webpack_exports__;
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-exports.Qmsg = void 0;
-const CompatibleProcessing_1 = __webpack_require__(579);
-const QmsgStore_1 = __webpack_require__(737);
-const QmsgIcon_1 = __webpack_require__(759);
-const QmsgInstance_1 = __webpack_require__(189);
-const QmsgUtils_1 = __webpack_require__(105);
-/* 执行兼容 */
-(0, CompatibleProcessing_1.CompatibleProcessing)();
-const Qmsg = {
-    version: "2024.5.22",
-    $data: QmsgStore_1.QmsgStore,
-    $icons: QmsgIcon_1.QmsgIcon,
-    $obj: QmsgInstance_1.QmsgObj,
-    config(option) {
-        QmsgStore_1.QmsgStore.DEFAULT =
-            option && typeof option === "object"
-                ? Object.assign(QmsgStore_1.QmsgStore.DEFAULT, option)
-                : QmsgStore_1.QmsgStore.DEFAULT;
-    },
-    info(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "info";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    warning(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "warning";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    success(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "success";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    error(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "error";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    loading(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "loading";
-        params.autoClose = false;
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    remove(uuid) {
-        QmsgInstance_1.QmsgObj.remove(uuid);
-    },
-    closeAll() {
-        for (let index = QmsgInstance_1.QmsgObj.QmsgList.length - 1; index >= 0; index--) {
-            let item = QmsgInstance_1.QmsgObj.QmsgList[index];
-            item && item.instance && item.instance.close();
-        }
-    },
-};
-exports.Qmsg = Qmsg;
-
-})();
-
-__webpack_exports__ = __webpack_exports__.Qmsg;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(156);
+/******/ 	__webpack_exports__ = __webpack_exports__["default"];
+/******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;

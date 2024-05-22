@@ -12,12 +12,14 @@ module.exports = {
 		path: path.resolve(__dirname, "dist"),
 		// 输出的文件名
 		filename: "index.js",
-		// 注册的全局变量名
-		library: "Qmsg",
-		// 指定导出的对象
-		libraryExport: "Qmsg",
-		// 尝试把库暴露给前使用的模块定义系统，这使其和CommonJS、AMD兼容或者暴露为全局变量
-		libraryTarget: "umd",
+		library: {
+			// 尝试把库暴露给前使用的模块定义系统，这使其和CommonJS、AMD兼容或者暴露为全局变量
+			type: "umd",
+			// 注册的全局变量名
+			name: "Qmsg",
+			// 指定导出的对象
+			export: "default",
+		},
 		// 每次build前自动清理输出的目录
 		clean: true,
 		umdNamedDefine: true,

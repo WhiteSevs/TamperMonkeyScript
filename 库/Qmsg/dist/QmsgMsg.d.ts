@@ -1,4 +1,4 @@
-import { QmsgOption } from ".";
+import { QmsgOption } from "./Qmsg";
 /**
  * 每条消息的构造函数
  */

@@ -1,4 +1,4 @@
-import { QmsgOption } from ".";
+import { QmsgOption } from "./Qmsg";
 export declare const QmsgStore: {
     /** 声明插件名称 */
     PLUGIN_NAME: string;

@@ -1,4 +1,4 @@
-import { QmsgOption } from ".";
+import { QmsgOption } from "./Qmsg";
 import { QmsgAnimation, QmsgAnimationState } from "./QmsgAnimation";
 import { QmsgCSS } from "./QmsgCSS";
 import { QmsgStore } from "./QmsgStore";

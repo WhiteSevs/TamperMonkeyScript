@@ -1,0 +1,210 @@
+import { QmsgStore } from "./QmsgStore";
+import { QmsgIcon } from "./QmsgIcon";
+import { QmsgObj } from "./QmsgInstance";
+import { QmsgMsg } from "./QmsgMsg";
+export type QmsgPosition = "topleft" | "top" | "topright" | "left" | "center" | "right" | "bottomleft" | "bottom" | "bottomright";
+export type QmsgType = "info" | "warning" | "success" | "error" | "loading";
+export interface QmsgOption {
+    /**
+     * 是否使用动画
+     * + 默认：true
+     */
+    animation?: boolean;
+    /**
+     * 是否自动关闭，注意在type为loading的时候自动关闭为false
+     * + 默认：true
+     */
+    autoClose?: boolean;
+    /**
+     * 显示的内容
+     */
+    content?: string;
+    /**
+     * 内容是否是html
+     * + 默认：false
+     * @deprecated 建议使用isHTML
+     */
+    html?: boolean;
+    /**
+     * 内容是否是html
+     * + 默认：false
+     */
+    isHTML?: boolean;
+    /**
+     * 弹出的位置
+     * + 默认：center
+     */
+    position?: QmsgPosition;
+    /**
+     * 是否显示关闭图标
+     * + 默认：false
+     */
+    showClose?: boolean;
+    /**
+     * 最大显示的数量
+     * + 默认：5
+     */
+    maxNums?: number;
+    /**
+     * 关闭时的回调函数
+     */
+    onClose?: (<T extends QmsgMsg>(this: T) => void) | null;
+    /**
+     * 是否显示左边的icon图标
+     * + 默认：true
+     */
+    showIcon?: boolean;
+    /**
+     * 是否使内容进行换行显示
+     * + 默认：false
+     */
+    showMoreContent?: boolean;
+    /**
+     * 弹出顺序是否逆反
+     * + 默认：false
+     */
+    showReverse?: boolean;
+    /**
+     * 最大显示的时长(ms)
+     * + 默认：2500
+     */
+    timeout?: number;
+    /**
+     * 弹出类型
+     */
+    type: QmsgType;
+    /**
+     * 元素层级
+     * + 默认：50000
+     */
+    zIndex?: number;
+    /**
+     * 自定义的style
+     */
+    style?: string;
+    /**
+     * 自定义类名
+     */
+    customClass?: string;
+    /**
+     * 是否限制宽度
+     * + 默认：false
+     */
+    isLimitWidth?: boolean;
+    /**
+     * 限制宽度的数值
+     * + 默认：200
+     */
+    limitWidthNum?: number | string;
+    /**
+     * 当超出限制宽度时，是否换行还是显示为省略号
+     * + 默认："wrap"
+     */
+    limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
+}
+export interface QmsgDetails extends Partial<QmsgOption> {
+}
+interface Qmsg {
+    /** 版本号 */
+    version: string;
+    $data: typeof QmsgStore;
+    /** 图标svg */
+    $icons: typeof QmsgIcon;
+    $obj: typeof QmsgObj;
+    /**
+     * 修改默认配置
+     * @param option
+     */
+    config(option?: QmsgDetails): void;
+    /**
+     * 信息
+     * @param content 内容
+     */
+    info(content: string): QmsgMsg;
+    /**
+     * 信息
+     * @param config 配置
+     */
+    info(config: QmsgDetails): QmsgMsg;
+    /**
+     * 信息
+     * @param content 内容
+     * @param config 配置
+     */
+    info(content: string, config: QmsgDetails): QmsgMsg;
+    /**
+     * 警告
+     * @param content 内容
+     */
+    warning(content: string): QmsgMsg;
+    /**
+     * 警告
+     * @param config 配置
+     */
+    warning(config: QmsgDetails): QmsgMsg;
+    /**
+     * 警告
+     * @param content 内容
+     * @param config 配置
+     */
+    warning(content: string, config: QmsgDetails): QmsgMsg;
+    /**
+     * 成功
+     * @param content 内容
+     */
+    success(content: string): QmsgMsg;
+    /**
+     * 成功
+     * @param config 配置
+     */
+    success(config: QmsgDetails): QmsgMsg;
+    /**
+     * 成功
+     * @param content 内容
+     * @param config 配置
+     */
+    success(content: string, config: QmsgDetails): QmsgMsg;
+    /**
+     * 失败
+     * @param content 内容
+     */
+    error(content: string): QmsgMsg;
+    /**
+     * 失败
+     * @param config 配置
+     */
+    error(config: QmsgDetails): QmsgMsg;
+    /**
+     * 失败
+     * @param content 内容
+     * @param config 配置
+     */
+    error(content: string, config: QmsgDetails): QmsgMsg;
+    /**
+     * 加载中
+     * @param content 内容
+     */
+    loading(content: string): QmsgMsg;
+    /**
+     * 加载中
+     * @param config 配置
+     */
+    loading(config: QmsgDetails): QmsgMsg;
+    /**
+     * 加载中
+     * @param content 内容
+     * @param config 配置
+     */
+    loading(content: string, config: QmsgDetails): QmsgMsg;
+    /**
+     * 根据uuid删除Qmsg实例和元素
+     * @param uuid
+     */
+    remove(uuid: string): void;
+    /**
+     * 关闭当前页面中所有的Qmsg
+     */
+    closeAll(): void;
+}
+declare const Qmsg: Qmsg;
+export default Qmsg;

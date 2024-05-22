@@ -1,4 +1,4 @@
-import { QmsgOption } from ".";
+import { QmsgOption } from "./Qmsg";
 import { QmsgStore } from "./QmsgStore";
 import { QmsgObj } from "./QmsgInstance";
 import { QmsgMsg } from "./QmsgMsg";

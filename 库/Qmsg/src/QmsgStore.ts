@@ -1,4 +1,4 @@
-import { QmsgOption } from ".";
+import { QmsgOption } from "./Qmsg";
 import { QmsgAnimation } from "./QmsgAnimation";
 
 export const QmsgStore = {

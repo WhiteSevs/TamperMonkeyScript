@@ -1,4 +1,4 @@
-import { QmsgOption } from ".";
+import { QmsgOption } from "./Qmsg";
 import { QmsgMsg } from "./QmsgMsg";
 export interface QmsgItemInfo {
     config: string;
