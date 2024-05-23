@@ -1,5 +1,6 @@
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { Qmsg, log, utils } from "@/env";
+import { log, utils } from "@/env";
+import Qmsg from "qmsg";
 
 interface ShortCutValue {
 	key: string;
@@ -48,7 +49,7 @@ class ShortCut {
 		key: string,
 		keyName: string,
 		keyValue: string,
-		ohterCodeList: string[],
+		ohterCodeList: string[]
 	) {
 		let localValue = GM_getValue<ShortCutValue[]>(this.#key, []);
 		localValue.push({
@@ -104,7 +105,7 @@ class ShortCut {
 	inputShortCut(
 		key: string,
 		defaultValue: string,
-		callback?: (showText: string) => void,
+		callback?: (showText: string) => void
 	) {
 		let localValue = this.getValue(key) ?? defaultValue;
 		if (localValue === defaultValue) {
@@ -133,8 +134,8 @@ class ShortCut {
 							Qmsg.error(
 								`快捷键 ${this.getShowText(
 									allDetails[index]["key"],
-									keyName,
-								)} 已被占用`,
+									keyName
+								)} 已被占用`
 							);
 							this.#isWaitPress = false;
 							loadingQmsg.close();
@@ -147,7 +148,7 @@ class ShortCut {
 					}
 					this.#isWaitPress = false;
 					loadingQmsg.close();
-				},
+				}
 			);
 		} else {
 			/* 清空快捷键 */
@@ -192,7 +193,7 @@ class ShortCut {
 						shortCutMap[findShortcut.key].callback();
 					}
 				}
-			},
+			}
 		);
 	}
 }

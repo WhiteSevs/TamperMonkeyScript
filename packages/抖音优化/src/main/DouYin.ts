@@ -1,4 +1,4 @@
-import { DOMUtils, log } from "@/env";
+import { log } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { ShieldHeader } from "./UIFrameShield/FrameNavigator";
 import { ShieldSearch } from "./UIFrameShield/FrameSearch";

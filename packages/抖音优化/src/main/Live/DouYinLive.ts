@@ -1,8 +1,9 @@
-import { DOMUtils, Qmsg, log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "@/main/Element/DouYinElement";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
+import Qmsg from "qmsg";
 
 /**
  * 直播画质
@@ -54,7 +55,7 @@ const DouYinLive = {
 		log.success("自动进入网页全屏");
 		utils
 			.waitNode(
-				'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])',
+				'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
 			)
 			.then((element) => {
 				element.click();
@@ -66,7 +67,7 @@ const DouYinLive = {
 	shieldGiftColumn() {
 		log.success("屏蔽底部的礼物栏");
 		DouYinElement.addShieldStyle(
-			'div[data-e2e="living-container"] >div> :last-child',
+			'div[data-e2e="living-container"] >div> :last-child'
 		);
 	},
 	/**
@@ -76,7 +77,7 @@ const DouYinLive = {
 	shieldTopToolBarInfo() {
 		log.success("【屏蔽】顶栏信息");
 		DouYinElement.addShieldStyle(
-			'div[data-e2e="living-container"] > div > pace-island[id^="island_"]',
+			'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
 		);
 	},
 	/**
@@ -85,7 +86,7 @@ const DouYinLive = {
 	shieldGiftEffects() {
 		log.success("【屏蔽】礼物特效");
 		DouYinElement.addShieldStyle(
-			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)',
+			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
 		);
 	},
 	/**
@@ -122,7 +123,7 @@ const DouYinLive = {
 			},
 			{
 				capture: true,
-			},
+			}
 		);
 	},
 };

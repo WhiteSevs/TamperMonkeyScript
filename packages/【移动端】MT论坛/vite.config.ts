@@ -22,13 +22,7 @@ if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
 const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
-const RequireLib = await GetLib([
-	"CoverUMD",
-	"Qmsg",
-	"pops",
-	"Utils",
-	"DOMUtils",
-]);
+const RequireLib = await GetLib(["CoverUMD", "pops", "Utils", "DOMUtils"]);
 const ElementPlusUrl = await GetLib("Element-Plus");
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -120,6 +114,7 @@ export default defineConfig({
 						"ElementPlusIconsVue",
 						"dist/index.iife.min.js"
 					),
+					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

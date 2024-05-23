@@ -1,5 +1,5 @@
 import { GM_addStyle, unsafeWindow } from "ViteGM";
-import { DOMUtils, Qmsg, log, pops, utils } from "@/env";
+import { DOMUtils, log, pops, utils } from "@/env";
 import { DouYinElement } from "../Element/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinVideoFilter } from "./DouYinVideoFilter";
@@ -10,6 +10,7 @@ import { DouYinSearch } from "../Search/DouYinSearch";
 import { DouYinRouter } from "@/router/router";
 import { DouYinVideoComment } from "./DouYinVideoComment";
 import MobileCSS from "./mobile.css?raw";
+import Qmsg from "qmsg";
 
 type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 

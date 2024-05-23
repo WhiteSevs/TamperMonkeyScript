@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.11
+// @version      2024.5.23
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://update.greasyfork.org/scripts/449471/1360565/Viewer.js
-// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1371570/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1377415/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.5/dist/index.umd.js
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -26,7 +26,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function () {
+(function (Qmsg) {
   'use strict';
 
   var _a, _b, _c;
@@ -44,10 +44,12 @@
   const utils = (_a = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a.noConflict();
   const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
-  const Qmsg = _monkeyWindow.Qmsg || _unsafeWindow.Qmsg;
   const Viewer = _monkeyWindow.Viewer || _unsafeWindow.Viewer;
   _monkeyWindow.showdown || _unsafeWindow.showdown;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  const log = new utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
   const SCRIPT_NAME = ((_c = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _c.name) || SCRIPT_NAME$1;
   const DEBUG = false;
   log.config({
@@ -1728,4 +1730,4 @@
     }
   }
 
-})();
+})(Qmsg);

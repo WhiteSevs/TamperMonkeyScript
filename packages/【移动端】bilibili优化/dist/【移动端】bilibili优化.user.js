@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.11
+// @version      2024.5.23
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -9,11 +9,11 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://m.bilibili.com/*
 // @match        *://live.bilibili.com/*
-// @require      https://update.greasyfork.org/scripts/494167/1371335/CoverUMD.js
+// @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
-// @require      https://update.greasyfork.org/scripts/462234/1322684/Message.js
-// @require      https://update.greasyfork.org/scripts/455186/1371570/WhiteSevsUtils.js
+// @require      https://update.greasyfork.org/scripts/455186/1377415/WhiteSevsUtils.js
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.5/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -32,7 +32,7 @@
 
 (n=>{function a(p){if(typeof p!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=p,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(n);return}a(n)})(" .m-video2-awaken-btn,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .openapp-dialog,#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important} ");
 
-(function () {
+(function (Qmsg) {
   'use strict';
 
   var _a, _b, _c;
@@ -49,10 +49,12 @@
   const utils = (_a = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a.noConflict();
   const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
-  const Qmsg = _monkeyWindow.Qmsg || _unsafeWindow.Qmsg;
   _monkeyWindow.Viewer || _unsafeWindow.Viewer;
   _monkeyWindow.showdown || _unsafeWindow.showdown;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  const log = new utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
   const SCRIPT_NAME = ((_c = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _c.name) || SCRIPT_NAME$1;
   const DEBUG = false;
   log.config({
@@ -1106,4 +1108,4 @@
   PopsPanel.init();
   Bilibili.init();
 
-})();
+})(Qmsg);

@@ -12,7 +12,9 @@
     "build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
     "preview": "vue-tsc --noEmit && vite preview"
   },
-  "dependencies": {},
+  "dependencies": {
+    "qmsg": "^1.0.5"
+  },
   "devDependencies": {
     "@types/node": "^20.12.8",
     "typescript": "^5.4.5",

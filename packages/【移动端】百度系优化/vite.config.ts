@@ -30,7 +30,6 @@ const VERSION =
 const RequireLib = await GetLib([
 	"CoverUMD",
 	"Viewer",
-	"Qmsg",
 	"pops",
 	"Utils",
 	"DOMUtils",
@@ -134,6 +133,7 @@ export default defineConfig({
 						"ElementPlusIconsVue",
 						"dist/index.iife.min.js"
 					),
+					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

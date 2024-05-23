@@ -20,7 +20,7 @@ let VERSION =
 	process.env.NODE_ENV === "development"
 		? "0.0.1"
 		: Utils.getScriptVersion(!isEmptyOutDir);
-const RequireLib = await GetLib(["Qmsg", "pops", "Utils", "DOMUtils"]);
+const RequireLib = await GetLib(["pops", "Utils", "DOMUtils"]);
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
@@ -61,7 +61,8 @@ export default defineConfig({
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalGlobals: {
-					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
+					// vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
+					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
