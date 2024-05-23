@@ -101,103 +101,73 @@ export interface QmsgOption {
 }
 export interface QmsgDetails extends Partial<QmsgOption> {
 }
-interface Qmsg {
-    /** 版本号 */
-    /** 图标svg */
+declare class Qmsg {
+    #private;
+    constructor();
     /**
      * 修改默认配置
      * @param option
      */
     config(option?: QmsgDetails): void;
     /**
-     * 信息
+     * 信息Toast
      * @param content 内容
      */
-    info(content: string): QmsgMsg;
+    info(content: any): QmsgMsg;
     /**
-     * 信息
-     * @param config 配置
+     * 信息Toast
+     * @param option 配置
      */
-    info(config: QmsgDetails): QmsgMsg;
+    info(option: QmsgDetails): QmsgMsg;
     /**
-     * 信息
-     * @param content 内容
-     * @param config 配置
-     */
-    info(content: string, config: QmsgDetails): QmsgMsg;
-    /**
-     * 警告
+     * 警告Toast
      * @param content 内容
      */
-    warning(content: string): QmsgMsg;
+    warning(content: any): QmsgMsg;
     /**
-     * 警告
-     * @param config 配置
+     * 警告Toast
+     * @param option 配置
      */
-    warning(config: QmsgDetails): QmsgMsg;
+    warning(option: QmsgDetails): QmsgMsg;
     /**
-     * 警告
-     * @param content 内容
-     * @param config 配置
-     */
-    warning(content: string, config: QmsgDetails): QmsgMsg;
-    /**
-     * 成功
+     * 成功Toast
      * @param content 内容
      */
-    success(content: string): QmsgMsg;
+    success(content: any): QmsgMsg;
     /**
-     * 成功
-     * @param config 配置
+     * 成功Toast
+     * @param option 配置
      */
-    success(config: QmsgDetails): QmsgMsg;
+    success(option: QmsgDetails): QmsgMsg;
     /**
-     * 成功
-     * @param content 内容
-     * @param config 配置
-     */
-    success(content: string, config: QmsgDetails): QmsgMsg;
-    /**
-     * 失败
+     * 失败Toast
      * @param content 内容
      */
-    error(content: string): QmsgMsg;
+    error(content: any): QmsgMsg;
     /**
-     * 失败
-     * @param config 配置
+     * 失败Toast
+     * @param option 配置
      */
-    error(config: QmsgDetails): QmsgMsg;
+    error(option: QmsgDetails): QmsgMsg;
     /**
-     * 失败
-     * @param content 内容
-     * @param config 配置
-     */
-    error(content: string, config: QmsgDetails): QmsgMsg;
-    /**
-     * 加载中
+     * 加载中Toast
      * @param content 内容
      */
-    loading(content: string): QmsgMsg;
+    loading(content: any): QmsgMsg;
     /**
-     * 加载中
+     * 加载中Toast
      * @param config 配置
      */
     loading(config: QmsgDetails): QmsgMsg;
-    /**
-     * 加载中
-     * @param content 内容
-     * @param config 配置
-     */
-    loading(content: string, config: QmsgDetails): QmsgMsg;
     /**
      * 根据uuid删除Qmsg实例和元素
      * @param uuid
      */
     remove(uuid: string): void;
     /**
-     * 关闭当前页面中所有的Qmsg
+     * 关闭当前Qmsg创建的所有的实例
      */
     closeAll(): void;
 }
-declare const Qmsg: Qmsg;
-export { Qmsg };
+declare let qmsg: Qmsg;
+export { qmsg as Qmsg };

@@ -723,53 +723,103 @@ const QmsgUtils = {
 
 /* 执行兼容 */
 CompatibleProcessing();
-const Qmsg = {
-    version: "2024.5.22",
-    $data: QmsgStore,
-    $icons: QmsgIcon,
-    $obj: QmsgObj,
+class Qmsg {
+    /** 版本号 */
+    #version;
+    /** 数据 */
+    #data;
+    /** 图标svg */
+    #icons;
+    /** 每个Qmsg实例 */
+    #obj;
+    constructor() {
+        this.#version = "2024.5.23";
+        this.#data = QmsgStore;
+        this.#icons = QmsgIcon;
+        this.#obj = QmsgObj;
+    }
+    /**
+     * 修改默认配置
+     * @param option
+     */
     config(option) {
+        if (option == null)
+            return;
         QmsgStore.DEFAULT =
             option && typeof option === "object"
                 ? Object.assign(QmsgStore.DEFAULT, option)
                 : QmsgStore.DEFAULT;
-    },
-    info(content, config) {
-        let params = QmsgUtils.mergeArgs(content, config);
+    }
+    /**
+     * 信息Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    info(content, option) {
+        let params = QmsgUtils.mergeArgs(content, option);
         params.type = "info";
         return QmsgUtils.judgeReMsg.call(this, params);
-    },
-    warning(content, config) {
-        let params = QmsgUtils.mergeArgs(content, config);
+    }
+    /**
+     * 警告Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    warning(content, option) {
+        let params = QmsgUtils.mergeArgs(content, option);
         params.type = "warning";
         return QmsgUtils.judgeReMsg.call(this, params);
-    },
-    success(content, config) {
-        let params = QmsgUtils.mergeArgs(content, config);
+    }
+    /**
+     * 成功Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    success(content, option) {
+        let params = QmsgUtils.mergeArgs(content, option);
         params.type = "success";
         return QmsgUtils.judgeReMsg.call(this, params);
-    },
-    error(content, config) {
-        let params = QmsgUtils.mergeArgs(content, config);
+    }
+    /**
+     * 失败Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    error(content, option) {
+        let params = QmsgUtils.mergeArgs(content, option);
         params.type = "error";
         return QmsgUtils.judgeReMsg.call(this, params);
-    },
+    }
+    /**
+     * 加载中Toast
+     * @param content 内容
+     * @param config 配置
+     * @returns
+     */
     loading(content, config) {
         let params = QmsgUtils.mergeArgs(content, config);
         params.type = "loading";
         params.autoClose = false;
         return QmsgUtils.judgeReMsg.call(this, params);
-    },
+    }
+    /**
+     * 根据uuid删除Qmsg实例和元素
+     * @param uuid
+     */
     remove(uuid) {
         QmsgObj.remove(uuid);
-    },
+    }
+    /**
+     * 关闭当前Qmsg创建的所有的实例
+     */
     closeAll() {
         for (let index = QmsgObj.QmsgList.length - 1; index >= 0; index--) {
             let item = QmsgObj.QmsgList[index];
             item && item.instance && item.instance.close();
         }
-    },
-};
+    }
+}
+let qmsg = new Qmsg();
 
-module.exports = Qmsg;
+module.exports = qmsg;
 //# sourceMappingURL=index.cjs.js.map
