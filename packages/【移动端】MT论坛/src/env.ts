@@ -47,4 +47,4 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-export { utils, DOMUtils, pops, Qmsg, console, log, GM_Menu, SCRIPT_NAME };
+export { utils, DOMUtils, pops, console, log, GM_Menu, SCRIPT_NAME };

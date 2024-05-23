@@ -13,6 +13,7 @@
     "preview": "vue-tsc --noEmit && vite preview"
   },
   "dependencies": {
+    "qmsg": "^1.0.5"
   },
   "devDependencies": {
     "@types/node": "^20.12.8",

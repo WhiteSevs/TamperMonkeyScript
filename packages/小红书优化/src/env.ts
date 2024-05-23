@@ -138,7 +138,6 @@ export {
 	utils,
 	DOMUtils,
 	pops,
-	Qmsg,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,

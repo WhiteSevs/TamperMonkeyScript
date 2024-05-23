@@ -36,13 +36,7 @@ export default defineConfig({
 				author: "WhiteSevs",
 				"run-at": "document-start",
 				license: "GPL-3.0-only",
-				require: await GetLib([
-					"CoverUMD",
-					"DOMUtils",
-					"Qmsg",
-					"Utils",
-					"pops",
-				]),
+				require: await GetLib(["CoverUMD", "DOMUtils", "Utils", "pops"]),
 				resource: {
 					ElementPlusResourceCSS:
 						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
@@ -72,6 +66,9 @@ export default defineConfig({
 			build: {
 				autoGrant: true,
 				fileName: FILE_NAME,
+				externalGlobals: {
+					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
+				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
 						function addStyle(cssText: string) {
