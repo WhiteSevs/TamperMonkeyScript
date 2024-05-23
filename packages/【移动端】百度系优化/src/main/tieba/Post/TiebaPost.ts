@@ -1,10 +1,11 @@
-import { DOMUtils, Qmsg, Viewer, httpx, log, utils } from "@/env";
+import { DOMUtils, Viewer, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaData } from "../Home/data";
 import { CommonUtil } from "@/util/CommonUtil";
 import { TieBaApi } from "../api/TiebaApi";
 import { TiebaCore } from "../TiebaCore";
+import Qmsg from "qmsg";
 
 interface PostImg {
     bsize: string;

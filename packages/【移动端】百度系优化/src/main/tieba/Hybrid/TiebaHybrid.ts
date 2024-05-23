@@ -1,22 +1,23 @@
 import { GM_addStyle } from "ViteGM";
-import { DOMUtils, Qmsg, utils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaCore } from "../TiebaCore";
 import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtil } from "@/util/CommonUtil";
+import Qmsg from "qmsg";
 
 const TiebaHybrid = {
-    init() {
-        this.blockAds();
-        PopsPanel.execMenu("baidu_tieba_hybrid_search_openANewTab", () => {
-            this.openANewTab();
-        });
-    },
-    /**
-     * 屏蔽广告
-     */
-    blockAds() {
-        GM_addStyle(`
+	init() {
+		this.blockAds();
+		PopsPanel.execMenu("baidu_tieba_hybrid_search_openANewTab", () => {
+			this.openANewTab();
+		});
+	},
+	/**
+	 * 屏蔽广告
+	 */
+	blockAds() {
+		GM_addStyle(`
           /* 顶部横幅 */
           .tb-index-navbar .fix-nav-guide-bar,
           /* 底部的百度贴吧app内打开 */
@@ -32,32 +33,30 @@ const TiebaHybrid = {
             padding-top: 0px !important;
           }
           `);
-    },
-    /**
-     * 新标签页打开
-     */
-    openANewTab() {
-        DOMUtils.on(
-            document,
-            "click",
-            ".scroll-list-wrapper .threadcardclass",
-            function (event) {
-                utils.preventEvent(event);
-                let clickNode = event.target;
-                let tid = CommonUtil.getVue(clickNode)?.tid;
-                if (utils.isNull(tid)) {
-                    Qmsg.error("获取帖子的tid失败");
-                    return;
-                }
-                window.open(TiebaUrlApi.getPost(tid), "_blank");
-            },
-            {
-                capture: true,
-            }
-        );
-    },
+	},
+	/**
+	 * 新标签页打开
+	 */
+	openANewTab() {
+		DOMUtils.on(
+			document,
+			"click",
+			".scroll-list-wrapper .threadcardclass",
+			function (event) {
+				utils.preventEvent(event);
+				let clickNode = event.target;
+				let tid = CommonUtil.getVue(clickNode)?.tid;
+				if (utils.isNull(tid)) {
+					Qmsg.error("获取帖子的tid失败");
+					return;
+				}
+				window.open(TiebaUrlApi.getPost(tid), "_blank");
+			},
+			{
+				capture: true,
+			}
+		);
+	},
 };
 
-export {
-    TiebaHybrid
-}
+export { TiebaHybrid };
