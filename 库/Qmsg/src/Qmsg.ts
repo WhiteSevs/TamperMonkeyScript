@@ -121,11 +121,11 @@ export interface QmsgDetails extends Partial<QmsgOption> {}
 
 interface Qmsg {
 	/** 版本号 */
-	version: string;
-	$data: typeof QmsgStore;
+	// version: string;
+	// $data: typeof QmsgStore;
 	/** 图标svg */
-	$icons: typeof QmsgIcon;
-	$obj: typeof QmsgObj;
+	// $icons: typeof QmsgIcon;
+	// $obj: typeof QmsgObj;
 	/**
 	 * 修改默认配置
 	 * @param option
@@ -273,4 +273,4 @@ const Qmsg = <Qmsg>{
 	},
 };
 
-export default Qmsg;
+export { Qmsg };

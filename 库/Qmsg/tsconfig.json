@@ -6,7 +6,7 @@
 		"lib": ["ESNext", "DOM"],
 		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
-		"module": "CommonJS",
+		"module": "ESNext",
 		"moduleResolution": "Node",
 		//"module": "AMD",
 		//"moduleResolution": "Bundler",
@@ -26,5 +26,5 @@
 		"sourceMap": true
 	},
 	// 包含src下的所有文件
-	"include": ["src/**/*"]
+	"include": ["src/**/*", "index.ts"]
 }

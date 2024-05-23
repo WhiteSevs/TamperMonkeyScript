@@ -1,20 +1,36 @@
 {
 	"name": "qmsg",
-	"version": "1.0.0",
+	"version": "1.0.5",
 	"description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
-	"scripts": {
-		"build": "webpack"
+	"main": "dist/index.cjs.js",
+	"module": "dist/node/index.esm.js",
+	"types": "dist/index.d.ts",
+	"jsdelivr": "dist/index.umd.js",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": "./dist/index.esm.js",
+			"require": "./dist/index.cjs.js",
+			"types": "./dist/index.d.ts"
+		}
 	},
-	"keywords": [],
+	"scripts": {
+		"build": "rollup --config"
+	},
+	"keywords": [
+		"javascript",
+		"typescript",
+		"toast"
+	],
 	"author": "WhiteSev",
 	"license": "MIT",
 	"dependencies": {
-		"webpack": "^5.91.0",
-		"webpack-cli": "^5.1.4"
+		"@rollup/plugin-commonjs": "^25.0.8",
+		"@rollup/plugin-node-resolve": "^15.2.3",
+		"@rollup/plugin-typescript": "^11.1.6",
+		"tslib": "^2.6.2"
 	},
 	"devDependencies": {
-		"@types/lodash": "^4.17.0",
-		"ts-loader": "^9.5.1",
 		"typescript": "^5.4.5"
 	}
 }

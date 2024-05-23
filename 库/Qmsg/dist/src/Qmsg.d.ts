@@ -1,6 +1,3 @@
-import { QmsgStore } from "./QmsgStore";
-import { QmsgIcon } from "./QmsgIcon";
-import { QmsgObj } from "./QmsgInstance";
 import { QmsgMsg } from "./QmsgMsg";
 export type QmsgPosition = "topleft" | "top" | "topright" | "left" | "center" | "right" | "bottomleft" | "bottom" | "bottomright";
 export type QmsgType = "info" | "warning" | "success" | "error" | "loading";
@@ -106,11 +103,7 @@ export interface QmsgDetails extends Partial<QmsgOption> {
 }
 interface Qmsg {
     /** 版本号 */
-    version: string;
-    $data: typeof QmsgStore;
     /** 图标svg */
-    $icons: typeof QmsgIcon;
-    $obj: typeof QmsgObj;
     /**
      * 修改默认配置
      * @param option
@@ -207,4 +200,4 @@ interface Qmsg {
     closeAll(): void;
 }
 declare const Qmsg: Qmsg;
-export default Qmsg;
+export { Qmsg };

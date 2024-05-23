@@ -1,7 +1,7 @@
 /**
  * 兼容处理
  */
-export function CompatibleProcessing() {
+function CompatibleProcessing() {
 	/* 处理Object.assign不存在的问题 */
 	try {
 		if (typeof Object.assign !== "function") {
@@ -75,3 +75,5 @@ export function CompatibleProcessing() {
 		console.warn(error);
 	}
 }
+
+export { CompatibleProcessing };

@@ -1,23 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define("Qmsg", [], factory);
-	else if(typeof exports === 'object')
-		exports["Qmsg"] = factory();
-	else
-		root["Qmsg"] = factory();
-})(self, () => {
-return /******/ (() => { // webpackBootstrap
-/******/ 	"use strict";
-/******/ 	var __webpack_modules__ = ({
+'use strict';
 
-/***/ 579:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CompatibleProcessing = void 0;
 /**
  * 兼容处理
  */
@@ -87,82 +69,8 @@ function CompatibleProcessing() {
         console.warn(error);
     }
 }
-exports.CompatibleProcessing = CompatibleProcessing;
 
-
-/***/ }),
-
-/***/ 454:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const CompatibleProcessing_1 = __webpack_require__(579);
-const QmsgStore_1 = __webpack_require__(737);
-const QmsgIcon_1 = __webpack_require__(759);
-const QmsgInstance_1 = __webpack_require__(189);
-const QmsgUtils_1 = __webpack_require__(105);
-/* 执行兼容 */
-(0, CompatibleProcessing_1.CompatibleProcessing)();
-const Qmsg = {
-    version: "2024.5.22",
-    $data: QmsgStore_1.QmsgStore,
-    $icons: QmsgIcon_1.QmsgIcon,
-    $obj: QmsgInstance_1.QmsgObj,
-    config(option) {
-        QmsgStore_1.QmsgStore.DEFAULT =
-            option && typeof option === "object"
-                ? Object.assign(QmsgStore_1.QmsgStore.DEFAULT, option)
-                : QmsgStore_1.QmsgStore.DEFAULT;
-    },
-    info(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "info";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    warning(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "warning";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    success(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "success";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    error(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "error";
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    loading(content, config) {
-        let params = QmsgUtils_1.QmsgUtils.mergeArgs(content, config);
-        params.type = "loading";
-        params.autoClose = false;
-        return QmsgUtils_1.QmsgUtils.judgeReMsg.call(this, params);
-    },
-    remove(uuid) {
-        QmsgInstance_1.QmsgObj.remove(uuid);
-    },
-    closeAll() {
-        for (let index = QmsgInstance_1.QmsgObj.QmsgList.length - 1; index >= 0; index--) {
-            let item = QmsgInstance_1.QmsgObj.QmsgList[index];
-            item && item.instance && item.instance.close();
-        }
-    },
-};
-exports["default"] = Qmsg;
-
-
-/***/ }),
-
-/***/ 646:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgAnimation = void 0;
-exports.QmsgAnimation = {
+const QmsgAnimation = {
     /** 状态 & 动画 */
     $state: {
         opening: "MessageMoveIn",
@@ -211,17 +119,66 @@ exports.QmsgAnimation = {
     },
 };
 
+const QmsgStore = {
+    /** 声明插件名称 */
+    PLUGIN_NAME: "qmsg",
+    /** 命名空间，用于css和事件 */
+    NAMESPACE: "qmsg",
+    DEFAULT: {
+        animation: true,
+        autoClose: true,
+        content: "",
+        html: false,
+        isHTML: false,
+        position: "top",
+        showClose: false,
+        maxNums: 5,
+        onClose: null,
+        showIcon: true,
+        showMoreContent: false,
+        showReverse: false,
+        timeout: 2500,
+        type: "info",
+        zIndex: 50000,
+        style: "",
+        customClass: "",
+        isLimitWidth: false,
+        limitWidthNum: 200,
+        limitWidthWrap: "no-wrap",
+    },
+    /**
+     * 是否支持动画属性
+     */
+    CAN_ANIMATION: Boolean(QmsgAnimation.getStyleAnimationName(document.createElement("div")) != null),
+};
 
-/***/ }),
+const QmsgHeaderCloseIcon = '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const QmsgIcon = {
+    info: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/></svg>',
+    warning: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/></svg>',
+    error: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/></svg>',
+    success: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/></svg>',
+    loading: '<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/><path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
 
-/***/ 659:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+const QmsgObj = {
+    QmsgList: [],
+    /**
+     * 移除实例
+     * @param uuid
+     * @returns
+     */
+    remove(uuid) {
+        for (let index = 0; index < QmsgObj.QmsgList.length; index++) {
+            if (QmsgObj.QmsgList[index].uuid === uuid) {
+                QmsgObj.QmsgList.splice(index, 1);
+                return;
+            }
+        }
+    },
+};
 
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgCSS = void 0;
-const QmsgStore_1 = __webpack_require__(737);
-exports.QmsgCSS = {
+const QmsgCSS = {
     css: `@charset "utf-8";
       .qmsg.qmsg-wrapper{position:fixed;top:16px;left:0;z-index:50000;display:flex;box-sizing:border-box;margin:0;padding:0;width:100%;color:rgba(0,0,0,.55);list-style:none;font-variant:tabular-nums;font-size:13px;line-height:1;font-feature-settings:"tnum";pointer-events:none;flex-direction:column;}
       .qmsg.qmsg-data-position-center,.qmsg.qmsg-data-position-left,.qmsg.qmsg-data-position-right{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
@@ -289,71 +246,12 @@ exports.QmsgCSS = {
     getStyleElement() {
         let cssResourceNode = document.createElement("style");
         cssResourceNode.setAttribute("type", "text/css");
-        cssResourceNode.setAttribute("data-type", QmsgStore_1.QmsgStore.PLUGIN_NAME);
+        cssResourceNode.setAttribute("data-type", QmsgStore.PLUGIN_NAME);
         cssResourceNode.innerHTML = this.css;
         return cssResourceNode;
     },
 };
 
-
-/***/ }),
-
-/***/ 759:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgIcon = exports.QmsgHeaderCloseIcon = void 0;
-exports.QmsgHeaderCloseIcon = '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-exports.QmsgIcon = {
-    info: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/></svg>',
-    warning: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/></svg>',
-    error: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/></svg>',
-    success: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/></svg>',
-    loading: '<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/><path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-};
-
-
-/***/ }),
-
-/***/ 189:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgObj = void 0;
-exports.QmsgObj = {
-    QmsgList: [],
-    /**
-     * 移除实例
-     * @param uuid
-     * @returns
-     */
-    remove(uuid) {
-        for (let index = 0; index < exports.QmsgObj.QmsgList.length; index++) {
-            if (exports.QmsgObj.QmsgList[index].uuid === uuid) {
-                exports.QmsgObj.QmsgList.splice(index, 1);
-                return;
-            }
-        }
-    },
-};
-
-
-/***/ }),
-
-/***/ 369:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgMsg = void 0;
-const QmsgAnimation_1 = __webpack_require__(646);
-const QmsgCSS_1 = __webpack_require__(659);
-const QmsgStore_1 = __webpack_require__(737);
-const QmsgIcon_1 = __webpack_require__(759);
-const QmsgInstance_1 = __webpack_require__(189);
-const QmsgUtils_1 = __webpack_require__(105);
 /**
  * 每条消息的构造函数
  */
@@ -398,7 +296,7 @@ class QmsgMsg {
         this.#timerId = void 0;
         this.#startTime = null;
         this.#endTime = null;
-        this.#setting = Object.assign({}, QmsgStore_1.QmsgStore.DEFAULT, this.option);
+        this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
         this.#uuid = uuid;
         this.#state = "opening";
         this.$Qmsg = document.createElement("div");
@@ -442,14 +340,14 @@ class QmsgMsg {
             /* 设置自定义类名 */
             this.$Qmsg.classList.add(this.#setting.customClass);
         }
-        let $svg = QmsgIcon_1.QmsgIcon[this.#setting.type || "info"];
-        let contentClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("content-" + this.#setting.type || 0);
+        let $svg = QmsgIcon[this.#setting.type || "info"];
+        let contentClassName = QmsgUtils.getNameSpacify("content-" + this.#setting.type || "info");
         if (this.#setting.showClose) {
-            contentClassName += " " + QmsgUtils_1.QmsgUtils.getNameSpacify("content-with-close");
+            contentClassName += " " + QmsgUtils.getNameSpacify("content-with-close");
         }
         let content = this.#setting.content || "";
         let extraCloseIconClassName = "";
-        let $closeSvg = QmsgIcon_1.QmsgHeaderCloseIcon;
+        let $closeSvg = QmsgHeaderCloseIcon;
         if (this.#setting.showMoreContent) {
             contentClassName += "qmsg-show-more-content";
             extraCloseIconClassName += "qmsg-show-more-content";
@@ -461,7 +359,7 @@ class QmsgMsg {
         }
         /* 内容 */
         let $content = document.createElement("span");
-        let $positionClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase());
+        let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase());
         if (this.#setting.html || this.#setting.isHTML) {
             /* 内容是html */
             $content.innerHTML = content;
@@ -509,8 +407,8 @@ class QmsgMsg {
             </div>
         </div>
         `;
-        this.$Qmsg.classList.add(QmsgUtils_1.QmsgUtils.getNameSpacify("item"));
-        this.$Qmsg.setAttribute(QmsgUtils_1.QmsgUtils.getNameSpacify("uuid"), this.#uuid);
+        this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
+        this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.#uuid);
         let $shadowContainer = document.querySelector(".qmsg-shadow-container");
         let $shadowRoot = $shadowContainer?.shadowRoot;
         if (!$shadowContainer) {
@@ -518,9 +416,9 @@ class QmsgMsg {
             $shadowContainer.className = "qmsg-shadow-container";
             $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
             let __$wrapper__ = document.createElement("div");
-            __$wrapper__.classList.add(QmsgStore_1.QmsgStore.NAMESPACE, QmsgUtils_1.QmsgUtils.getNameSpacify("wrapper"), QmsgUtils_1.QmsgUtils.getNameSpacify("is-initialized"));
+            __$wrapper__.classList.add(QmsgStore.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
             __$wrapper__.classList.add($positionClassName);
-            $shadowRoot.appendChild(QmsgCSS_1.QmsgCSS.getStyleElement());
+            $shadowRoot.appendChild(QmsgCSS.getStyleElement());
             $shadowRoot.appendChild(__$wrapper__);
             if (this.#setting.style != null) {
                 let __$ownStyle__ = document.createElement("style");
@@ -531,12 +429,12 @@ class QmsgMsg {
             document.body.appendChild($shadowContainer);
         }
         if ($shadowRoot == null) {
-            throw new TypeError(QmsgStore_1.QmsgStore.PLUGIN_NAME + " $shadowRoot is null");
+            throw new TypeError(QmsgStore.PLUGIN_NAME + " $shadowRoot is null");
         }
-        let $wrapper = $shadowRoot.querySelector(`.${QmsgStore_1.QmsgStore.NAMESPACE}.${$positionClassName}`);
+        let $wrapper = $shadowRoot.querySelector(`.${QmsgStore.NAMESPACE}.${$positionClassName}`);
         if (!$wrapper) {
             $wrapper = document.createElement("div");
-            $wrapper.classList.add(QmsgStore_1.QmsgStore.NAMESPACE, QmsgUtils_1.QmsgUtils.getNameSpacify("wrapper"), QmsgUtils_1.QmsgUtils.getNameSpacify("is-initialized"));
+            $wrapper.classList.add(QmsgStore.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
             $wrapper.classList.add($positionClassName);
             $shadowRoot.appendChild($wrapper);
         }
@@ -564,14 +462,14 @@ class QmsgMsg {
         let animationendEvent = function (event) {
             /* 监听动画完成 */
             let target = event.target, animationName = event.animationName;
-            if (animationName === QmsgAnimation_1.QmsgAnimation.$state.closing) {
+            if (animationName === QmsgAnimation.$state.closing) {
                 QmsgContext.#endTime = new Date().getTime();
                 clearTimeout(QmsgContext.#timerId);
                 QmsgContext.destroy();
             }
-            QmsgAnimation_1.QmsgAnimation.setStyleAnimationName(target);
+            QmsgAnimation.setStyleAnimationName(target);
         };
-        QmsgAnimation_1.QmsgAnimation.$name.endNameList.forEach(function (animationendName) {
+        QmsgAnimation.$name.endNameList.forEach(function (animationendName) {
             // @ts-ignore
             QmsgContext.$Qmsg.addEventListener(animationendName, animationendEvent);
         });
@@ -610,19 +508,19 @@ class QmsgMsg {
             this.#setting.timeout = parseInt(this.#setting.timeout);
         }
         if (isNaN(this.#setting.timeout)) {
-            this.#setting.timeout = QmsgStore_1.QmsgStore.DEFAULT.timeout;
+            this.#setting.timeout = QmsgStore.DEFAULT.timeout;
         }
         if (!(this.#setting.timeout != null &&
             parseInt(this.#setting.timeout.toString()) >= 0 &&
             parseInt(this.#setting.timeout.toString()) <= Number.MAX_VALUE)) {
-            this.#setting.timeout = QmsgStore_1.QmsgStore.DEFAULT.timeout;
+            this.#setting.timeout = QmsgStore.DEFAULT.timeout;
         }
         if (this.#setting.zIndex != null &&
             typeof this.#setting.zIndex === "string") {
             this.#setting.zIndex = parseInt(this.#setting.zIndex);
         }
         if (isNaN(this.#setting.zIndex)) {
-            this.#setting.zIndex = QmsgStore_1.QmsgStore.DEFAULT.zIndex;
+            this.#setting.zIndex = QmsgStore.DEFAULT.zIndex;
         }
     }
     /**
@@ -632,18 +530,18 @@ class QmsgMsg {
      * @returns
      */
     setState(element, state) {
-        if (!state || !QmsgAnimation_1.QmsgAnimation.$state[state])
+        if (!state || !QmsgAnimation.$state[state])
             return;
         this.#state = state;
-        QmsgAnimation_1.QmsgAnimation.setStyleAnimationName(element, QmsgAnimation_1.QmsgAnimation.$state[state]);
+        QmsgAnimation.setStyleAnimationName(element, QmsgAnimation.$state[state]);
     }
     /**
      * 设置消息数量统计
      */
     setMsgCount() {
         let QmsgContext = this;
-        let countClassName = QmsgUtils_1.QmsgUtils.getNameSpacify("count");
-        let wrapperClassName = `div.${QmsgUtils_1.QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase())} [class^="qmsg-content-"]`;
+        let countClassName = QmsgUtils.getNameSpacify("count");
+        let wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.#setting.position.toLowerCase())} [class^="qmsg-content-"]`;
         let $content = this.$Qmsg.querySelector(wrapperClassName);
         if (!$content) {
             throw new TypeError("$content is null");
@@ -655,8 +553,8 @@ class QmsgMsg {
             $content.appendChild($count);
         }
         $count.innerHTML = this.getRepeatNum().toString();
-        QmsgAnimation_1.QmsgAnimation.setStyleAnimationName($count);
-        QmsgAnimation_1.QmsgAnimation.setStyleAnimationName($count, "MessageShake");
+        QmsgAnimation.setStyleAnimationName($count);
+        QmsgAnimation.setStyleAnimationName($count, "MessageShake");
         /* 重置定时器 */
         clearTimeout(this.#timerId);
         if (this.#setting.autoClose) {
@@ -670,9 +568,9 @@ class QmsgMsg {
      */
     close() {
         this.setState(this.$Qmsg, "closing");
-        if (QmsgStore_1.QmsgStore.CAN_ANIMATION) {
+        if (QmsgStore.CAN_ANIMATION) {
             /* 支持动画 */
-            QmsgInstance_1.QmsgObj.remove(this.#uuid);
+            QmsgObj.remove(this.#uuid);
         }
         else {
             /* 不支持动画 */
@@ -690,7 +588,7 @@ class QmsgMsg {
         this.#endTime = new Date().getTime();
         this.$Qmsg.remove();
         clearTimeout(this.#timerId);
-        QmsgInstance_1.QmsgObj.remove(this.uuid);
+        QmsgObj.remove(this.uuid);
     }
     /**
      * 设置内容文本
@@ -719,71 +617,15 @@ class QmsgMsg {
         }
     }
 }
-exports.QmsgMsg = QmsgMsg;
 
-
-/***/ }),
-
-/***/ 737:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgStore = void 0;
-const QmsgAnimation_1 = __webpack_require__(646);
-exports.QmsgStore = {
-    /** 声明插件名称 */
-    PLUGIN_NAME: "qmsg",
-    /** 命名空间，用于css和事件 */
-    NAMESPACE: "qmsg",
-    DEFAULT: {
-        animation: true,
-        autoClose: true,
-        content: "",
-        html: false,
-        isHTML: false,
-        position: "top",
-        showClose: false,
-        maxNums: 5,
-        onClose: null,
-        showIcon: true,
-        showMoreContent: false,
-        showReverse: false,
-        timeout: 2500,
-        type: "info",
-        zIndex: 50000,
-        style: "",
-        customClass: "",
-        isLimitWidth: false,
-        limitWidthNum: 200,
-        limitWidthWrap: "no-wrap",
-    },
-    /**
-     * 是否支持动画属性
-     */
-    CAN_ANIMATION: Boolean(QmsgAnimation_1.QmsgAnimation.getStyleAnimationName(document.createElement("div")) != null),
-};
-
-
-/***/ }),
-
-/***/ 105:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.QmsgUtils = void 0;
-const QmsgStore_1 = __webpack_require__(737);
-const QmsgInstance_1 = __webpack_require__(189);
-const QmsgMsg_1 = __webpack_require__(369);
-exports.QmsgUtils = {
+const QmsgUtils = {
     /**
      * 生成带插件名的名称
      * @param args
      * @returns
      */
     getNameSpacify(...args) {
-        let result = QmsgStore_1.QmsgStore.NAMESPACE;
+        let result = QmsgStore.NAMESPACE;
         for (let index = 0; index < args.length; ++index) {
             result += "-" + args[index];
         }
@@ -806,7 +648,7 @@ exports.QmsgUtils = {
      * @private
      */
     mergeArgs(content = "", config) {
-        let opts = Object.assign({}, QmsgStore_1.QmsgStore.DEFAULT);
+        let opts = Object.assign({}, QmsgStore.DEFAULT);
         if (arguments.length === 0) {
             return opts;
         }
@@ -830,27 +672,27 @@ exports.QmsgUtils = {
         option = option || {};
         let optionString = JSON.stringify(option);
         /* 寻找已生成的实例是否存在配置相同的 */
-        let findQmsgItemInfo = QmsgInstance_1.QmsgObj.QmsgList.find((item) => {
+        let findQmsgItemInfo = QmsgObj.QmsgList.find((item) => {
             return item.config === optionString;
         });
         let QmsgInstance = findQmsgItemInfo?.instance;
         if (QmsgInstance == null) {
             /* 不存在，创建个新的 */
-            let uuid = exports.QmsgUtils.getUUID();
+            let uuid = QmsgUtils.getUUID();
             let QmsgItemInfo = {
                 uuid: uuid,
                 config: optionString,
-                instance: new QmsgMsg_1.QmsgMsg(option, uuid),
+                instance: new QmsgMsg(option, uuid),
             };
-            QmsgInstance_1.QmsgObj.QmsgList.push(QmsgItemInfo);
-            let QmsgListLength = QmsgInstance_1.QmsgObj.QmsgList.length;
+            QmsgObj.QmsgList.push(QmsgItemInfo);
+            let QmsgListLength = QmsgObj.QmsgList.length;
             let maxNums = QmsgItemInfo.instance.getSetting().maxNums;
             /**
              * 关闭多余的消息
              */
             if (QmsgListLength > maxNums) {
                 for (let index = 0; index < QmsgListLength - maxNums; index++) {
-                    let item = QmsgInstance_1.QmsgObj.QmsgList[index];
+                    let item = QmsgObj.QmsgList[index];
                     item && item.instance.getSetting().autoClose && item.instance.close();
                 }
             }
@@ -862,9 +704,7 @@ exports.QmsgUtils = {
                 QmsgInstance.setRepeatNum(2);
             }
             else {
-                if (QmsgInstance.getRepeatNum() >= 99) {
-                    /* pass */
-                }
+                if (QmsgInstance.getRepeatNum() >= 99) ;
                 else {
                     QmsgInstance.setRepeatNumIncreasing();
                 }
@@ -881,58 +721,55 @@ exports.QmsgUtils = {
     },
 };
 
-
-/***/ }),
-
-/***/ 156:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+/* 执行兼容 */
+CompatibleProcessing();
+const Qmsg = {
+    version: "2024.5.22",
+    $data: QmsgStore,
+    $icons: QmsgIcon,
+    $obj: QmsgObj,
+    config(option) {
+        QmsgStore.DEFAULT =
+            option && typeof option === "object"
+                ? Object.assign(QmsgStore.DEFAULT, option)
+                : QmsgStore.DEFAULT;
+    },
+    info(content, config) {
+        let params = QmsgUtils.mergeArgs(content, config);
+        params.type = "info";
+        return QmsgUtils.judgeReMsg.call(this, params);
+    },
+    warning(content, config) {
+        let params = QmsgUtils.mergeArgs(content, config);
+        params.type = "warning";
+        return QmsgUtils.judgeReMsg.call(this, params);
+    },
+    success(content, config) {
+        let params = QmsgUtils.mergeArgs(content, config);
+        params.type = "success";
+        return QmsgUtils.judgeReMsg.call(this, params);
+    },
+    error(content, config) {
+        let params = QmsgUtils.mergeArgs(content, config);
+        params.type = "error";
+        return QmsgUtils.judgeReMsg.call(this, params);
+    },
+    loading(content, config) {
+        let params = QmsgUtils.mergeArgs(content, config);
+        params.type = "loading";
+        params.autoClose = false;
+        return QmsgUtils.judgeReMsg.call(this, params);
+    },
+    remove(uuid) {
+        QmsgObj.remove(uuid);
+    },
+    closeAll() {
+        for (let index = QmsgObj.QmsgList.length - 1; index >= 0; index--) {
+            let item = QmsgObj.QmsgList[index];
+            item && item.instance && item.instance.close();
+        }
+    },
 };
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Qmsg_1 = __importDefault(__webpack_require__(454));
-exports["default"] = Qmsg_1.default;
 
-
-/***/ })
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __webpack_require__(156);
-/******/ 	__webpack_exports__ = __webpack_exports__["default"];
-/******/ 	
-/******/ 	return __webpack_exports__;
-/******/ })()
-;
-});
+module.exports = Qmsg;
+//# sourceMappingURL=index.cjs.js.map
