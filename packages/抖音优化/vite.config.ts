@@ -20,7 +20,7 @@ let VERSION =
 	process.env.NODE_ENV === "development"
 		? "0.0.1"
 		: Utils.getScriptVersion(!isEmptyOutDir);
-const RequireLib = await GetLib(["pops"]);
+
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
@@ -50,7 +50,7 @@ export default defineConfig({
 					"unsafeWindow",
 				],
 				"run-at": "document-start",
-				require: RequireLib,
+				require: await GetLib(["CoverUMD", "pops"]),
 			},
 			clientAlias: "ViteGM",
 			server: {
