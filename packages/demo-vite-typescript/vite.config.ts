@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { SCRIPT_NAME } from "./vite.build";
 import { ViteUtils, GetLib } from "./vite.utils";
 
+const SCRIPT_NAME = "Demo Script Name";
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 
@@ -36,7 +36,7 @@ export default defineConfig({
 				author: "WhiteSevs",
 				"run-at": "document-start",
 				license: "GPL-3.0-only",
-				require: await GetLib(["CoverUMD", "DOMUtils", "Utils", "pops"]),
+				require: await GetLib(["CoverUMD", "pops"]),
 				resource: {
 					ElementPlusResourceCSS:
 						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
@@ -68,6 +68,8 @@ export default defineConfig({
 				fileName: FILE_NAME,
 				externalGlobals: {
 					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

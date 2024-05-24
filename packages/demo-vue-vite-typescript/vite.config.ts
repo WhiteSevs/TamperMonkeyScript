@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { SCRIPT_NAME } from "./vite.build";
 import { GetLib, ViteUtils } from "./vite.utils";
 import Icons from "unplugin-icons/dist/vite";
 import IconsResolver from "unplugin-icons/dist/resolver";
@@ -9,6 +8,8 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
+/* 脚本名 */
+const SCRIPT_NAME = "Demo Script Name";
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 
@@ -70,7 +71,7 @@ export default defineConfig({
 				author: "WhiteSevs",
 				"run-at": "document-start",
 				license: "GPL-3.0-only",
-				require: await GetLib(["CoverUMD", "DOMUtils", "Utils", "pops"]),
+				require: await GetLib(["CoverUMD", "pops"]),
 				resource: {
 					ElementPlusResourceCSS:
 						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
@@ -117,6 +118,8 @@ export default defineConfig({
 						"dist/index.iife.min.js"
 					),
 					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
