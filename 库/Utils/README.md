@@ -1,7 +1,9 @@
-# 部分注释文件
+# 安装
 
-```javascript
-https://raw.githubusercontent.com/WhiteSevs/TamperMonkeyScript/master/%E5%BA%93.ts/Utils.d.ts
+```node
+npm install @whitesev/utils
+// 或者
+pnpm add @whitesev/utils
 ```
 
 ## 使用文档

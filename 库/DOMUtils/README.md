@@ -1,3 +1,11 @@
+## 使用
+
+```npm
+npm install @whitesev/domutils
+// 或者
+nnpm add @whitesev/domutils
+```
+
 ## 使用js重新对jQuery的部分函数进行了仿写
 
 * addClass  `给元素添加class`
