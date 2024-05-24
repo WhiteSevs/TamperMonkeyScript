@@ -1,11 +1,3 @@
-declare type DOMUtilsCreateElementAttributesMap = {
-	style?: string;
-	id?: string;
-	class?: string;
-	"data-"?: string;
-	type?: string;
-	[key: string]: any;
-};
 /**
  * 鼠标事件
  * + https://blog.csdn.net/weixin_68658847/article/details/126939879
@@ -194,31 +186,3 @@ declare type DOMUtils_Event = DOMUtils_MouseEvent &
  * 事件类型
  */
 declare type DOMUtils_EventType = keyof DOMUtils_Event;
-
-/**
- * 元素上的events属性
- */
-declare interface DOMUtilsEventListenerOptionsAttribute {
-	/**
-	 * 自定义的ownCallBack
-	 */
-	callback: () => void;
-	/**
-	 * 属性配置
-	 */
-	option: AddEventListenerOptions;
-	/**
-	 * 用户添加的事件
-	 */
-	originCallBack: () => void;
-	/**
-	 * 子元素选择器
-	 */
-	selector?: string;
-}
-
-type ParseHTMLReturnType<T1, T2> = T1 extends true
-	? T2 extends true
-		? Document
-		: HTMLElement
-	: HTMLElement;

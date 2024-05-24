@@ -1,5 +1,38 @@
 'use strict';
 
+const DOMUtilsCoreDefaultEnv = {
+    document: document,
+    window: window,
+    globalThis: globalThis,
+    self: self,
+};
+const DOMUtilsCoreEnv = {
+    document: document,
+    window: window,
+    globalThis: globalThis,
+    self: self,
+};
+const DOMUtilsCore = {
+    init(option) {
+        if (!option) {
+            option = Object.assign({}, DOMUtilsCoreDefaultEnv);
+        }
+        Object.assign(DOMUtilsCoreEnv, option);
+    },
+    get document() {
+        return DOMUtilsCoreEnv.document;
+    },
+    get window() {
+        return DOMUtilsCoreEnv.window;
+    },
+    get globalThis() {
+        return DOMUtilsCoreEnv.globalThis;
+    },
+    get self() {
+        return DOMUtilsCoreEnv.self;
+    },
+};
+
 /** 通用工具类 */
 const CommonDOMUtils = {
     /**
@@ -16,7 +49,7 @@ const CommonDOMUtils = {
     showElement(element) {
         let dupNode = element.cloneNode(true);
         dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
-        document.documentElement.appendChild(dupNode);
+        DOMUtilsCore.document.documentElement.appendChild(dupNode);
         return {
             /**
              * 恢复修改的style
@@ -109,11 +142,14 @@ const OriginPrototype = {
 };
 
 class DOMUtils {
+    constructor(option) {
+        DOMUtilsCore.init(option);
+    }
     /** 版本号 */
     version = "2024.5.24";
     attr(element, attrName, attrValue) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -150,7 +186,7 @@ class DOMUtils {
     property, 
     /** 自定义属性 */
     attributes) {
-        let tempElement = document.createElement(tagName);
+        let tempElement = DOMUtilsCore.document.createElement(tagName);
         if (typeof property === "string") {
             tempElement.innerHTML = property;
             return tempElement;
@@ -204,7 +240,7 @@ class DOMUtils {
             return propertyValue;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -238,7 +274,7 @@ class DOMUtils {
     }
     text(element, text) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -260,7 +296,7 @@ class DOMUtils {
     }
     html(element, html) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -294,7 +330,7 @@ class DOMUtils {
     click(element, handler, details, useDispatchToTriggerEvent) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -323,7 +359,7 @@ class DOMUtils {
     blur(element, handler, details, useDispatchToTriggerEvent) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -352,7 +388,7 @@ class DOMUtils {
     focus(element, handler, details, useDispatchToTriggerEvent) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -401,7 +437,7 @@ class DOMUtils {
     }
     val(element, value) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -430,7 +466,7 @@ class DOMUtils {
             return;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (propValue == null) {
             return element[propName];
@@ -450,7 +486,7 @@ class DOMUtils {
      * */
     removeAttr(element, attrName) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -468,7 +504,7 @@ class DOMUtils {
      */
     removeClass(element, className) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -489,7 +525,7 @@ class DOMUtils {
      * */
     removeProp(element, propName) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -508,7 +544,7 @@ class DOMUtils {
     replaceWith(element, newElement) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -536,7 +572,7 @@ class DOMUtils {
      * */
     addClass(element, className) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -554,7 +590,7 @@ class DOMUtils {
      * */
     append(element, content) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -577,7 +613,7 @@ class DOMUtils {
      * */
     prepend(element, content) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -600,7 +636,7 @@ class DOMUtils {
      * */
     after(element, content) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -623,7 +659,7 @@ class DOMUtils {
      * */
     before(element, content) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -647,7 +683,7 @@ class DOMUtils {
     remove(target) {
         let DOMUtilsContext = this;
         if (typeof target === "string") {
-            target = document.querySelectorAll(target);
+            target = DOMUtilsCore.document.querySelectorAll(target);
         }
         if (target == null) {
             return;
@@ -672,7 +708,7 @@ class DOMUtils {
      * */
     empty(element) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -709,7 +745,7 @@ class DOMUtils {
         let DOMUtilsContext = this;
         let args = arguments;
         if (typeof element === "string") {
-            element = document.querySelectorAll(element);
+            element = DOMUtilsCore.document.querySelectorAll(element);
         }
         if (element == null) {
             return;
@@ -760,7 +796,7 @@ class DOMUtils {
                 if (_selector_) {
                     /* 存在自定义子元素选择器 */
                     let totalParent = CommonDOMUtils.isWin(elementItem)
-                        ? document.documentElement
+                        ? DOMUtilsCore.document.documentElement
                         : elementItem;
                     if (target.matches(_selector_)) {
                         /* 当前目标可以被selector所匹配到 */
@@ -826,7 +862,7 @@ class DOMUtils {
         }
         let args = arguments;
         if (typeof element === "string") {
-            element = document.querySelectorAll(element);
+            element = DOMUtilsCore.document.querySelectorAll(element);
         }
         if (element == null) {
             return;
@@ -910,7 +946,7 @@ class DOMUtils {
      */
     offAll(element, eventType) {
         if (typeof element === "string") {
-            element = document.querySelectorAll(element);
+            element = DOMUtilsCore.document.querySelectorAll(element);
         }
         if (element == null) {
             return;
@@ -970,7 +1006,7 @@ class DOMUtils {
      */
     trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1028,7 +1064,7 @@ class DOMUtils {
      */
     offset(element) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1036,21 +1072,21 @@ class DOMUtils {
         let rect = element.getBoundingClientRect();
         return {
             /** y轴偏移 */
-            top: rect.top + globalThis.scrollY,
+            top: rect.top + DOMUtilsCore.globalThis.scrollY,
             /** x轴偏移 */
-            left: rect.left + globalThis.scrollX,
+            left: rect.left + DOMUtilsCore.globalThis.scrollX,
         };
     }
     width(element, isShow = false) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
         }
         if (CommonDOMUtils.isWin(element)) {
-            return window.document.documentElement.clientWidth;
+            return DOMUtilsCore.window.document.documentElement.clientWidth;
         }
         if (element.nodeType === 9) {
             /* Document文档节点 */
@@ -1093,10 +1129,10 @@ class DOMUtils {
     height(element, isShow = false) {
         let DOMUtilsContext = this;
         if (CommonDOMUtils.isWin(element)) {
-            return window.document.documentElement.clientHeight;
+            return DOMUtilsCore.window.document.documentElement.clientHeight;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             // @ts-ignore
@@ -1143,10 +1179,10 @@ class DOMUtils {
     outerWidth(element, isShow = false) {
         let DOMUtilsContext = this;
         if (CommonDOMUtils.isWin(element)) {
-            return window.innerWidth;
+            return DOMUtilsCore.window.innerWidth;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             // @ts-ignore
@@ -1169,10 +1205,10 @@ class DOMUtils {
     outerHeight(element, isShow = false) {
         let DOMUtilsContext = this;
         if (CommonDOMUtils.isWin(element)) {
-            return window.innerHeight;
+            return DOMUtilsCore.window.innerHeight;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             // @ts-ignore
@@ -1233,7 +1269,7 @@ class DOMUtils {
      */
     animate(element, styles, duration = 1000, callback = null) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1285,14 +1321,14 @@ class DOMUtils {
      */
     wrap(element, wrapperHTML) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
         }
         element = element;
         // 创建一个新的div元素，并将wrapperHTML作为其innerHTML
-        let wrapper = document.createElement("div");
+        let wrapper = DOMUtilsCore.document.createElement("div");
         wrapper.innerHTML = wrapperHTML;
         let wrapperFirstChild = wrapper.firstChild;
         // 将要包裹的元素插入目标元素前面
@@ -1302,7 +1338,7 @@ class DOMUtils {
     }
     prev(element) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1311,7 +1347,7 @@ class DOMUtils {
     }
     next(element) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1324,15 +1360,15 @@ class DOMUtils {
      * let DOMUtils = window.DOMUtils.noConflict()
      */
     noConflict() {
-        if (window.DOMUtils) {
+        if (DOMUtilsCore.window.DOMUtils) {
             CommonDOMUtils.delete(window, "DOMUtils");
         }
-        window.DOMUtils = this;
+        DOMUtilsCore.window.DOMUtils = this;
         return this;
     }
     siblings(element) {
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1353,7 +1389,7 @@ class DOMUtils {
     parent(element) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1381,7 +1417,7 @@ class DOMUtils {
             }
         }
         function parseHTMLByCreateDom() {
-            let tempDIV = document.createElement("div");
+            let tempDIV = DOMUtilsCore.document.createElement("div");
             tempDIV.innerHTML = html;
             if (isComplete) {
                 return tempDIV;
@@ -1414,7 +1450,7 @@ class DOMUtils {
     hover(element, handler, option) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1437,7 +1473,7 @@ class DOMUtils {
             return;
         }
         if (typeof target === "string") {
-            target = document.querySelectorAll(target);
+            target = DOMUtilsCore.document.querySelectorAll(target);
         }
         if (target instanceof NodeList || target instanceof Array) {
             target = target;
@@ -1446,6 +1482,7 @@ class DOMUtils {
             }
         }
         else {
+            target = target;
             target.style.display = "";
             if (!CommonDOMUtils.isShow(target)) {
                 /* 仍然是不显示，尝试使用强覆盖 */
@@ -1468,7 +1505,7 @@ class DOMUtils {
             return;
         }
         if (typeof target === "string") {
-            target = document.querySelectorAll(target);
+            target = DOMUtilsCore.document.querySelectorAll(target);
         }
         if (target instanceof NodeList || target instanceof Array) {
             target = target;
@@ -1477,6 +1514,7 @@ class DOMUtils {
             }
         }
         else {
+            target = target;
             target.style.display = "none";
             if (CommonDOMUtils.isShow(target)) {
                 /* 仍然是显示，尝试使用强覆盖 */
@@ -1505,7 +1543,7 @@ class DOMUtils {
             return;
         }
         if (typeof target === "string") {
-            target = document.querySelector(target);
+            target = DOMUtilsCore.document.querySelector(target);
         }
         DOMUtilsContext.on(target, "keyup", null, handler, option);
     }
@@ -1530,7 +1568,7 @@ class DOMUtils {
             return;
         }
         if (typeof target === "string") {
-            target = document.querySelector(target);
+            target = DOMUtilsCore.document.querySelector(target);
         }
         DOMUtilsContext.on(target, "keydown", null, handler, option);
     }
@@ -1555,7 +1593,7 @@ class DOMUtils {
             return;
         }
         if (typeof target === "string") {
-            target = document.querySelector(target);
+            target = DOMUtilsCore.document.querySelector(target);
         }
         DOMUtilsContext.on(target, "keypress", null, handler, option);
     }
@@ -1578,7 +1616,7 @@ class DOMUtils {
             return;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         element = element;
         element.style.opacity = "0";
@@ -1592,16 +1630,16 @@ class DOMUtils {
             element = element;
             element.style.opacity = Math.min(progress / duration, 1).toString();
             if (progress < duration) {
-                window.requestAnimationFrame(step);
+                DOMUtilsCore.window.requestAnimationFrame(step);
             }
             else {
                 if (callback && typeof callback === "function") {
                     callback();
                 }
-                window.cancelAnimationFrame(timer);
+                DOMUtilsCore.window.cancelAnimationFrame(timer);
             }
         }
-        timer = window.requestAnimationFrame(step);
+        timer = DOMUtilsCore.window.requestAnimationFrame(step);
     }
     /**
      * 淡出元素
@@ -1622,7 +1660,7 @@ class DOMUtils {
             return;
         }
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         element = element;
         element.style.opacity = "1";
@@ -1635,17 +1673,17 @@ class DOMUtils {
             element = element;
             element.style.opacity = Math.max(1 - progress / duration, 0).toString();
             if (progress < duration) {
-                window.requestAnimationFrame(step);
+                DOMUtilsCore.window.requestAnimationFrame(step);
             }
             else {
                 element.style.display = "none";
                 if (typeof callback === "function") {
                     callback();
                 }
-                window.cancelAnimationFrame(timer);
+                DOMUtilsCore.window.cancelAnimationFrame(timer);
             }
         }
-        timer = window.requestAnimationFrame(step);
+        timer = DOMUtilsCore.window.requestAnimationFrame(step);
     }
     /**
      * 切换元素的显示和隐藏状态
@@ -1658,7 +1696,7 @@ class DOMUtils {
     toggle(element) {
         let DOMUtilsContext = this;
         if (typeof element === "string") {
-            element = document.querySelector(element);
+            element = DOMUtilsCore.document.querySelector(element);
         }
         if (element == null) {
             return;
@@ -1669,6 +1707,14 @@ class DOMUtils {
         else {
             DOMUtilsContext.hide(element);
         }
+    }
+    /**
+     * 创建一个新的DOMUtils实例
+     * @param option
+     * @returns
+     */
+    createDOMUtils(option) {
+        return new DOMUtils(option);
     }
 }
 let domUtils = new DOMUtils();

@@ -163,7 +163,8 @@ class Qmsg {
 	 * @param content 内容
 	 * @param option 配置
 	 */
-	info(content: any, option?: QmsgDetails) {
+	info(content: any, option: QmsgDetails): QmsgMsg;
+	info(content: any, option?: QmsgDetails): QmsgMsg {
 		let params = QmsgUtils.mergeArgs(content, option);
 		params.type = "info";
 		return QmsgUtils.judgeReMsg.call(this, params);
@@ -183,7 +184,8 @@ class Qmsg {
 	 * @param content 内容
 	 * @param option 配置
 	 */
-	warning(content: any, option?: QmsgDetails) {
+	warning(content: any, option: QmsgDetails): QmsgMsg;
+	warning(content: any, option?: QmsgDetails): QmsgMsg {
 		let params = QmsgUtils.mergeArgs(content, option);
 		params.type = "warning";
 		return QmsgUtils.judgeReMsg.call(this, params);
@@ -203,6 +205,7 @@ class Qmsg {
 	 * @param content 内容
 	 * @param option 配置
 	 */
+	success(content: any, option: QmsgDetails): QmsgMsg;
 	success(content: any, option?: QmsgDetails) {
 		let params = QmsgUtils.mergeArgs(content, option);
 		params.type = "success";
@@ -223,6 +226,7 @@ class Qmsg {
 	 * @param content 内容
 	 * @param option 配置
 	 */
+	error(content: any, option: QmsgDetails): QmsgMsg;
 	error(content: any, option?: QmsgDetails) {
 		let params = QmsgUtils.mergeArgs(content, option);
 		params.type = "error";
@@ -244,7 +248,8 @@ class Qmsg {
 	 * @param config 配置
 	 * @returns
 	 */
-	loading(content: any, config?: QmsgDetails) {
+	loading(content: any, config: QmsgDetails): QmsgMsg;
+	loading(content: any, config?: QmsgDetails): QmsgMsg {
 		let params = QmsgUtils.mergeArgs(content, config);
 		params.type = "loading";
 		params.autoClose = false;

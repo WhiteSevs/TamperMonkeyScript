@@ -3,15 +3,15 @@
     /* js版本 */
     "target": "ESNext",
     /* 编译使用，用不到 */
-    "module": "CommonJS",
+    "module": "UMD",
     /* 输出路径，用不到 */
     "outDir": "./dist",
     /* 是否启用严格模式，用不到 */
-    "strict": false,
+    "strict": true,
     /* 是否允许js */
     "allowJs": true,
     /* js文件进行代码检查 */
-    "checkJs": false,
+    "checkJs": true,
     /* 代码提示文件，不能模糊匹配，只能指定文件 */
     "types": []
   }

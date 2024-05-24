@@ -1,4 +1,5 @@
 declare class DOMUtils {
+    constructor(option?: DOMUtilsCoreOption);
     /** 版本号 */
     version: string;
     /**
@@ -872,6 +873,12 @@ declare class DOMUtils {
      * DOMUtils.toggle("a.xx")
      */
     toggle(element: HTMLElement | string): void;
+    /**
+     * 创建一个新的DOMUtils实例
+     * @param option
+     * @returns
+     */
+    createDOMUtils(option?: DOMUtilsCoreOption): DOMUtils;
 }
 declare let domUtils: DOMUtils;
 export { domUtils as DOMUtils };

@@ -120,6 +120,12 @@ declare class Qmsg {
      */
     info(option: QmsgDetails): QmsgMsg;
     /**
+     * 信息Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    info(content: any, option: QmsgDetails): QmsgMsg;
+    /**
      * 警告Toast
      * @param content 内容
      */
@@ -129,6 +135,12 @@ declare class Qmsg {
      * @param option 配置
      */
     warning(option: QmsgDetails): QmsgMsg;
+    /**
+     * 警告Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    warning(content: any, option: QmsgDetails): QmsgMsg;
     /**
      * 成功Toast
      * @param content 内容
@@ -140,6 +152,12 @@ declare class Qmsg {
      */
     success(option: QmsgDetails): QmsgMsg;
     /**
+     * 成功Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    success(content: any, option: QmsgDetails): QmsgMsg;
+    /**
      * 失败Toast
      * @param content 内容
      */
@@ -150,6 +168,12 @@ declare class Qmsg {
      */
     error(option: QmsgDetails): QmsgMsg;
     /**
+     * 失败Toast
+     * @param content 内容
+     * @param option 配置
+     */
+    error(content: any, option: QmsgDetails): QmsgMsg;
+    /**
      * 加载中Toast
      * @param content 内容
      */
@@ -159,6 +183,13 @@ declare class Qmsg {
      * @param config 配置
      */
     loading(config: QmsgDetails): QmsgMsg;
+    /**
+     * 加载中Toast
+     * @param content 内容
+     * @param config 配置
+     * @returns
+     */
+    loading(content: any, config: QmsgDetails): QmsgMsg;
     /**
      * 根据uuid删除Qmsg实例和元素
      * @param uuid

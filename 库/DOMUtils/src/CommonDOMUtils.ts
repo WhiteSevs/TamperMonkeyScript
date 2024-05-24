@@ -1,3 +1,5 @@
+import { DOMUtilsCore } from "./DOMUtilsCore";
+
 /** 通用工具类 */
 const CommonDOMUtils = {
 	/**
@@ -17,7 +19,7 @@ const CommonDOMUtils = {
 			"style",
 			"visibility: hidden !important;display:block !important;"
 		);
-		document.documentElement.appendChild(dupNode);
+		DOMUtilsCore.document.documentElement.appendChild(dupNode);
 		return {
 			/**
 			 * 恢复修改的style

@@ -754,52 +754,26 @@
                     ? Object.assign(QmsgStore.DEFAULT, option)
                     : QmsgStore.DEFAULT;
         }
-        /**
-         * 信息Toast
-         * @param content 内容
-         * @param option 配置
-         */
         info(content, option) {
             let params = QmsgUtils.mergeArgs(content, option);
             params.type = "info";
             return QmsgUtils.judgeReMsg.call(this, params);
         }
-        /**
-         * 警告Toast
-         * @param content 内容
-         * @param option 配置
-         */
         warning(content, option) {
             let params = QmsgUtils.mergeArgs(content, option);
             params.type = "warning";
             return QmsgUtils.judgeReMsg.call(this, params);
         }
-        /**
-         * 成功Toast
-         * @param content 内容
-         * @param option 配置
-         */
         success(content, option) {
             let params = QmsgUtils.mergeArgs(content, option);
             params.type = "success";
             return QmsgUtils.judgeReMsg.call(this, params);
         }
-        /**
-         * 失败Toast
-         * @param content 内容
-         * @param option 配置
-         */
         error(content, option) {
             let params = QmsgUtils.mergeArgs(content, option);
             params.type = "error";
             return QmsgUtils.judgeReMsg.call(this, params);
         }
-        /**
-         * 加载中Toast
-         * @param content 内容
-         * @param config 配置
-         * @returns
-         */
         loading(content, config) {
             let params = QmsgUtils.mergeArgs(content, config);
             params.type = "loading";

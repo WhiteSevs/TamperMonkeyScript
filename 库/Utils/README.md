@@ -4,12 +4,6 @@
 https://raw.githubusercontent.com/WhiteSevs/TamperMonkeyScript/master/%E5%BA%93.ts/Utils.d.ts
 ```
 
-使用方式
-
-```javascript
-/// <reference path="本地路径/Utils.d.ts" />
-```
-
 ## 使用文档
 
 - `Utils.isNull` 判断对象是否为空

@@ -1,8 +1,12 @@
 import { CommonDOMUtils } from "./CommonDOMUtils";
+import { DOMUtilsCore } from "./DOMUtilsCore";
 import { DOMUtilsData } from "./Data";
 import { OriginPrototype } from "./OriginPrototype";
 
 class DOMUtils {
+	constructor(option?: DOMUtilsCoreOption) {
+		DOMUtilsCore.init(option);
+	}
 	/** 版本号 */
 	version = "2024.5.24";
 	/**
@@ -33,7 +37,7 @@ class DOMUtils {
 	): void;
 	attr(element: HTMLElement | string, attrName: string, attrValue?: string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -76,7 +80,7 @@ class DOMUtils {
 		/** 自定义属性 */
 		attributes?: DOMUtilsCreateElementAttributesMap
 	): HTMLElementTagNameMap[K] {
-		let tempElement = document.createElement(tagName);
+		let tempElement = DOMUtilsCore.document.createElement(tagName);
 		if (typeof property === "string") {
 			tempElement.innerHTML = property;
 			return tempElement;
@@ -199,7 +203,7 @@ class DOMUtils {
 			return propertyValue;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -262,7 +266,7 @@ class DOMUtils {
 	): void;
 	text(element: HTMLElement | string, text?: string | HTMLElement | Element) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -310,7 +314,7 @@ class DOMUtils {
 	html(element: HTMLElement | string): string;
 	html(element: HTMLElement | string, html?: string | HTMLElement | Element) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -349,7 +353,7 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -387,7 +391,7 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -430,7 +434,7 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -520,7 +524,9 @@ class DOMUtils {
 	val(element: HTMLInputElement): boolean | string;
 	val(element: HTMLInputElement | string, value?: string | boolean) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLInputElement;
+			element = DOMUtilsCore.document.querySelector(
+				element
+			) as HTMLInputElement;
 		}
 		if (element == null) {
 			return;
@@ -578,7 +584,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (propValue == null) {
 			return (element as any)[propName];
@@ -597,7 +603,7 @@ class DOMUtils {
 	 * */
 	removeAttr(element: HTMLElement | string, attrName: string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -615,7 +621,7 @@ class DOMUtils {
 	 */
 	removeClass(element: HTMLElement | string, className: string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -636,7 +642,7 @@ class DOMUtils {
 	 * */
 	removeProp(element: HTMLElement | string, propName: string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -658,7 +664,7 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -685,7 +691,7 @@ class DOMUtils {
 	 * */
 	addClass(element: HTMLElement | string, className: string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -703,7 +709,7 @@ class DOMUtils {
 	 * */
 	append(element: HTMLElement | string, content: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -725,7 +731,7 @@ class DOMUtils {
 	 * */
 	prepend(element: HTMLElement | string, content: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -747,7 +753,7 @@ class DOMUtils {
 	 * */
 	after(element: HTMLElement | string, content: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -769,7 +775,7 @@ class DOMUtils {
 	 * */
 	before(element: HTMLElement | string, content: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -792,7 +798,9 @@ class DOMUtils {
 	remove(target: HTMLElement | string | NodeList | HTMLElement[]) {
 		let DOMUtilsContext = this;
 		if (typeof target === "string") {
-			target = document.querySelectorAll(target) as NodeListOf<HTMLElement>;
+			target = DOMUtilsCore.document.querySelectorAll(
+				target
+			) as NodeListOf<HTMLElement>;
 		}
 		if (target == null) {
 			return;
@@ -816,7 +824,7 @@ class DOMUtils {
 	 * */
 	empty(element: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1020,7 +1028,7 @@ class DOMUtils {
 		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = document.querySelectorAll(element);
+			element = DOMUtilsCore.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1075,7 +1083,7 @@ class DOMUtils {
 				if (_selector_) {
 					/* 存在自定义子元素选择器 */
 					let totalParent = CommonDOMUtils.isWin(elementItem)
-						? document.documentElement
+						? DOMUtilsCore.document.documentElement
 						: elementItem;
 					if (target.matches(_selector_)) {
 						/* 当前目标可以被selector所匹配到 */
@@ -1314,7 +1322,7 @@ class DOMUtils {
 
 		let args = arguments;
 		if (typeof element === "string") {
-			element = document.querySelectorAll(element);
+			element = DOMUtilsCore.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1447,7 +1455,7 @@ class DOMUtils {
 		eventType?: DOMUtils_EventType | DOMUtils_EventType[] | string
 	) {
 		if (typeof element === "string") {
-			element = document.querySelectorAll(element);
+			element = DOMUtilsCore.document.querySelectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -1551,7 +1559,7 @@ class DOMUtils {
 		useDispatchToTriggerEvent: boolean = true
 	) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1607,7 +1615,7 @@ class DOMUtils {
 	 */
 	offset(element: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -1615,9 +1623,9 @@ class DOMUtils {
 		let rect = element.getBoundingClientRect();
 		return {
 			/** y轴偏移 */
-			top: rect.top + globalThis.scrollY,
+			top: rect.top + DOMUtilsCore.globalThis.scrollY,
 			/** x轴偏移 */
-			left: rect.left + globalThis.scrollX,
+			left: rect.left + DOMUtilsCore.globalThis.scrollX,
 		};
 	}
 	/**
@@ -1648,13 +1656,13 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
 		}
 		if (CommonDOMUtils.isWin(element)) {
-			return window.document.documentElement.clientWidth;
+			return DOMUtilsCore.window.document.documentElement.clientWidth;
 		}
 		if ((element as HTMLElement).nodeType === 9) {
 			/* Document文档节点 */
@@ -1743,10 +1751,10 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (CommonDOMUtils.isWin(element)) {
-			return window.document.documentElement.clientHeight;
+			return DOMUtilsCore.window.document.documentElement.clientHeight;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1834,10 +1842,10 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (CommonDOMUtils.isWin(element)) {
-			return window.innerWidth;
+			return DOMUtilsCore.window.innerWidth;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1877,10 +1885,10 @@ class DOMUtils {
 	): number {
 		let DOMUtilsContext = this;
 		if (CommonDOMUtils.isWin(element)) {
-			return window.innerHeight;
+			return DOMUtilsCore.window.innerHeight;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			// @ts-ignore
@@ -1947,7 +1955,7 @@ class DOMUtils {
 		callback: (() => void) | undefined | null = null
 	) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2003,14 +2011,14 @@ class DOMUtils {
 	 */
 	wrap(element: HTMLElement | string | Node, wrapperHTML: string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
 		}
 		element = element as HTMLElement;
 		// 创建一个新的div元素，并将wrapperHTML作为其innerHTML
-		let wrapper = document.createElement("div");
+		let wrapper = DOMUtilsCore.document.createElement("div");
 		wrapper.innerHTML = wrapperHTML;
 
 		let wrapperFirstChild = wrapper.firstChild as HTMLElement;
@@ -2036,7 +2044,7 @@ class DOMUtils {
 	prev(element: HTMLElement | string): HTMLElement;
 	prev(element: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2057,7 +2065,7 @@ class DOMUtils {
 	next(element: HTMLElement | string): HTMLElement;
 	next(element: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2070,10 +2078,10 @@ class DOMUtils {
 	 * let DOMUtils = window.DOMUtils.noConflict()
 	 */
 	noConflict() {
-		if ((window as any).DOMUtils) {
+		if ((DOMUtilsCore.window as any).DOMUtils) {
 			CommonDOMUtils.delete(window, "DOMUtils");
 		}
-		(window as any).DOMUtils = this;
+		(DOMUtilsCore.window as any).DOMUtils = this;
 		return this;
 	}
 	/**
@@ -2089,7 +2097,7 @@ class DOMUtils {
 	siblings(element: HTMLElement | string): HTMLElement[];
 	siblings(element: HTMLElement | string) {
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2134,7 +2142,7 @@ class DOMUtils {
 	parent(element: HTMLElement | NodeList | string | HTMLElement[]) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2193,7 +2201,7 @@ class DOMUtils {
 			}
 		}
 		function parseHTMLByCreateDom() {
-			let tempDIV = document.createElement("div");
+			let tempDIV = DOMUtilsCore.document.createElement("div");
 			tempDIV.innerHTML = html;
 			if (isComplete) {
 				return tempDIV;
@@ -2228,7 +2236,7 @@ class DOMUtils {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2251,7 +2259,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof target === "string") {
-			target = document.querySelectorAll(target);
+			target = DOMUtilsCore.document.querySelectorAll(target);
 		}
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
@@ -2259,6 +2267,7 @@ class DOMUtils {
 				DOMUtilsContext.show(element);
 			}
 		} else {
+			target = target as HTMLElement;
 			target.style.display = "";
 			if (!CommonDOMUtils.isShow(target)) {
 				/* 仍然是不显示，尝试使用强覆盖 */
@@ -2281,7 +2290,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof target === "string") {
-			target = document.querySelectorAll(target);
+			target = DOMUtilsCore.document.querySelectorAll(target);
 		}
 		if (target instanceof NodeList || target instanceof Array) {
 			target = target as HTMLElement[];
@@ -2289,6 +2298,7 @@ class DOMUtils {
 				DOMUtilsContext.hide(element);
 			}
 		} else {
+			target = target as HTMLElement;
 			target.style.display = "none";
 			if (CommonDOMUtils.isShow(target)) {
 				/* 仍然是显示，尝试使用强覆盖 */
@@ -2321,7 +2331,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof target === "string") {
-			target = document.querySelector(target) as HTMLElement;
+			target = DOMUtilsCore.document.querySelector(target) as HTMLElement;
 		}
 		DOMUtilsContext.on(target, "keyup", null, handler, option);
 	}
@@ -2350,7 +2360,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof target === "string") {
-			target = document.querySelector(target) as HTMLElement;
+			target = DOMUtilsCore.document.querySelector(target) as HTMLElement;
 		}
 		DOMUtilsContext.on(target, "keydown", null, handler, option);
 	}
@@ -2379,7 +2389,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof target === "string") {
-			target = document.querySelector(target) as HTMLElement;
+			target = DOMUtilsCore.document.querySelector(target) as HTMLElement;
 		}
 		DOMUtilsContext.on(target, "keypress", null, handler, option);
 	}
@@ -2406,7 +2416,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		element = element as HTMLElement;
 		element.style.opacity = "0";
@@ -2419,15 +2429,15 @@ class DOMUtils {
 			element = element as HTMLElement;
 			element.style.opacity = Math.min(progress / duration, 1).toString();
 			if (progress < duration) {
-				window.requestAnimationFrame(step);
+				DOMUtilsCore.window.requestAnimationFrame(step);
 			} else {
 				if (callback && typeof callback === "function") {
 					callback();
 				}
-				window.cancelAnimationFrame(timer);
+				DOMUtilsCore.window.cancelAnimationFrame(timer);
 			}
 		}
-		timer = window.requestAnimationFrame(step);
+		timer = DOMUtilsCore.window.requestAnimationFrame(step);
 	}
 	/**
 	 * 淡出元素
@@ -2452,7 +2462,7 @@ class DOMUtils {
 			return;
 		}
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		element = element as HTMLElement;
 		element.style.opacity = "1";
@@ -2464,16 +2474,16 @@ class DOMUtils {
 			element = element as HTMLElement;
 			element.style.opacity = Math.max(1 - progress / duration, 0).toString();
 			if (progress < duration) {
-				window.requestAnimationFrame(step);
+				DOMUtilsCore.window.requestAnimationFrame(step);
 			} else {
 				element.style.display = "none";
 				if (typeof callback === "function") {
 					callback();
 				}
-				window.cancelAnimationFrame(timer);
+				DOMUtilsCore.window.cancelAnimationFrame(timer);
 			}
 		}
-		timer = window.requestAnimationFrame(step);
+		timer = DOMUtilsCore.window.requestAnimationFrame(step);
 	}
 	/**
 	 * 切换元素的显示和隐藏状态
@@ -2486,7 +2496,7 @@ class DOMUtils {
 	toggle(element: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = document.querySelector(element) as HTMLElement;
+			element = DOMUtilsCore.document.querySelector(element) as HTMLElement;
 		}
 		if (element == null) {
 			return;
@@ -2496,6 +2506,14 @@ class DOMUtils {
 		} else {
 			DOMUtilsContext.hide(element);
 		}
+	}
+	/**
+	 * 创建一个新的DOMUtils实例
+	 * @param option
+	 * @returns
+	 */
+	createDOMUtils(option?: DOMUtilsCoreOption) {
+		return new DOMUtils(option);
 	}
 }
 
