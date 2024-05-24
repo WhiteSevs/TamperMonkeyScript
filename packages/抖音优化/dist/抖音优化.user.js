@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.23
+// @version      2024.5.24
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1377415/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.5/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.8/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.0.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.3/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -24,7 +24,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg) {
+(function (Qmsg, Utils, DOMUtils) {
   'use strict';
 
   var __accessCheck = (obj, member, msg) => {
@@ -54,13 +54,13 @@
   var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const SCRIPT_NAME$1 = "抖音优化";
-  const utils = (_monkeyWindow.Utils || _unsafeWindow.Utils).noConflict();
-  const DOMUtils = (_monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils).noConflict();
+  const _SCRIPT_NAME_ = "抖音优化";
+  const utils = Utils.noConflict();
+  let domUtils = DOMUtils.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
   const console$1 = _unsafeWindow.console || _monkeyWindow.console;
   const log = new utils.Log(_GM_info, console$1);
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || SCRIPT_NAME$1;
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   log.config({
     debug: false,
     logMaxCount: 100,
@@ -240,7 +240,7 @@
      * @param callback
      */
     watchVideDataListChange(callback) {
-      DOMUtils.ready(() => {
+      domUtils.ready(() => {
         utils.waitAnyNode("#slidelist").then((slidelist) => {
           let osElement = this.getOSElement();
           utils.mutationObserver(slidelist, {
@@ -327,7 +327,7 @@
             if (ruleRegExp.test(message)) {
               log.info("过滤弹幕: " + message);
               $danmuItem.setAttribute(this.$data.isFilterAttrName, "true");
-              DOMUtils.hide($danmuItem);
+              domUtils.hide($danmuItem);
               break;
             }
           }
@@ -475,7 +475,7 @@
           {
             type: "own",
             getLiElementCallBack(liElement) {
-              let textareaDiv = DOMUtils.createElement(
+              let textareaDiv = domUtils.createElement(
                 "div",
                 {
                   className: "pops-panel-textarea",
@@ -489,7 +489,7 @@
                 "textarea"
               );
               textarea.value = DouYinDanmuFilter.get();
-              DOMUtils.on(
+              domUtils.on(
                 textarea,
                 ["input", "propertychange"],
                 utils.debounce(function() {
@@ -1171,7 +1171,7 @@
       PopsPanel.execMenu("dy-video-doubleClickEnterElementFullScreen", () => {
         this.doubleClickEnterElementFullScreen();
       });
-      DOMUtils.ready(() => {
+      domUtils.ready(() => {
         DouYinVideo.chooseVideoDefinition(
           PopsPanel.getValue("chooseVideoDefinition")
         );
@@ -1218,7 +1218,7 @@
     doubleClickEnterElementFullScreen() {
       let isDouble = false;
       log.info("注册双击进入网页全屏事件");
-      DOMUtils.on(
+      domUtils.on(
         document,
         "click",
         "#sliderVideo",
@@ -1272,7 +1272,7 @@
 		}
 		`);
       if (PopsPanel.getValue("douyin-video-autoCheckChangeCommentToBottom")) {
-        DOMUtils.on(window, "resize", autoChangeCommentPosition);
+        domUtils.on(window, "resize", autoChangeCommentPosition);
       }
     },
     /**
@@ -1460,7 +1460,7 @@
                 `
         });
       }
-      DOMUtils.on(
+      domUtils.on(
         document,
         "click",
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
@@ -1504,7 +1504,7 @@
      */
     mobileMode() {
       log.success("启用手机模式");
-      let meta = DOMUtils.createElement(
+      let meta = domUtils.createElement(
         "meta",
         {},
         {
@@ -1818,7 +1818,7 @@
           {
             type: "own",
             getLiElementCallBack(liElement) {
-              let textareaDiv = DOMUtils.createElement(
+              let textareaDiv = domUtils.createElement(
                 "div",
                 {
                   className: "pops-panel-textarea",
@@ -1832,7 +1832,7 @@
                 "textarea"
               );
               textarea.value = DouYinVideoFilter.get();
-              DOMUtils.on(
+              domUtils.on(
                 textarea,
                 ["input", "propertychange"],
                 utils.debounce(function() {
@@ -2259,8 +2259,8 @@
     shieldClientTip() {
       log.info("【屏蔽】客户端提示");
       DouYinElement.addShieldStyle(
-        '#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
-        "#douyin-header ul div.userMenuPanelShadowAnimation:first-child",
+        // '#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
+        // "#douyin-header ul div.userMenuPanelShadowAnimation:first-child",
         /* 鼠标悬浮在通知，出现在上面的，下载客户端，实时接收消息通知 */
         'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])'
       );
@@ -2663,7 +2663,7 @@
      */
     unlockImageQuality() {
       log.success("解锁画质选择");
-      DOMUtils.on(
+      domUtils.on(
         document,
         "click",
         'div[data-e2e="quality-selector"] > div',
@@ -2753,4 +2753,4 @@
   PopsPanel.init();
   DouYin.init();
 
-})(Qmsg);
+})(Qmsg, Utils, DOMUtils);

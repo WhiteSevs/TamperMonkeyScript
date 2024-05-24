@@ -7,20 +7,18 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 } from "ViteGM";
-import { SCRIPT_NAME as _SCRIPT_NAME_ } from "@/../vite.build";
 import Qmsg from "qmsg";
+import Utils from "@whitesev/utils";
+import DOMUtils from "@whitesev/domutils";
 
-const utils: typeof import("@库/Utils") = (
-	(monkeyWindow as any).Utils || (unsafeWindow as any).Utils
-).noConflict();
-const DOMUtils: typeof import("@库/DOMUtils") = (
-	(monkeyWindow as any).DOMUtils || (unsafeWindow as any).DOMUtils
-).noConflict();
+const _SCRIPT_NAME_ = "抖音优化";
+const utils = Utils.noConflict();
+let domUtils = DOMUtils.noConflict();
 const pops: typeof import("@库/pops") =
 	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
 const console = (unsafeWindow as any).console || (monkeyWindow as any).console;
 const log = new utils.Log(GM_info, console);
-const SCRIPT_NAME = GM_info?.script?.name || _SCRIPT_NAME_;
+let SCRIPT_NAME = GM_info?.script?.name || _SCRIPT_NAME_;
 
 /* 配置控制台日志 */
 log.config({
@@ -47,4 +45,12 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-export { utils, DOMUtils, pops, console, log, GM_Menu, SCRIPT_NAME };
+export {
+	utils,
+	domUtils as DOMUtils,
+	pops,
+	console,
+	log,
+	GM_Menu,
+	SCRIPT_NAME,
+};

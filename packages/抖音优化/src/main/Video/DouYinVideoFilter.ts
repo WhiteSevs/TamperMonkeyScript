@@ -86,11 +86,11 @@ const DouYinVideoFilter = {
 					/* 遍历自定义规则 */
 					if (!flag) {
 						for (const [ruleKey, ruleValue] of this.$data.rule.entries()) {
-							if (!(ruleKey in videoInfoTag)) {
+							if (!((ruleKey as keyof DouYinShieldTagMap) in videoInfoTag)) {
 								continue;
 							}
 							/* 自定义键能对应上 */
-							let tagValue = videoInfoTag[ruleKey];
+							let tagValue = videoInfoTag[ruleKey as keyof DouYinShieldTagMap];
 							if (tagValue != null) {
 								if (typeof tagValue === "string") {
 									/* tag的值是字符串 */

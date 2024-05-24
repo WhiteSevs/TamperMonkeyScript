@@ -60,7 +60,7 @@ const PopsPanel = {
 				text: "⚙ 设置",
 				autoReload: false,
 				isStoreValue: false,
-				showText(text) {
+				showText(text: string) {
 					return text;
 				},
 				callback: () => {

@@ -1,32 +1,32 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "strict": true,
-    //"noImplicitAny": true,
-    "jsx": "preserve",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "checkJs": true,
-    "noEmit": true,
-    "sourceMap": true,
-    "paths": {
-      "@库/*": ["./../../库/*"],
-      "@/*": ["./src/*"]
-    },
-    "types": ["./../../库/pops/core.d.ts", "./../../库/Utils/core.d.ts"]
-  },
-  "include": ["src"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"strict": true,
+		//"noImplicitAny": true,
+		"jsx": "preserve",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"lib": ["ESNext", "DOM"],
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
+		"checkJs": true,
+		"noEmit": true,
+		"sourceMap": true,
+		"paths": {
+			"@库/*": ["./../../库/*"],
+			"@/*": ["./src/*"]
+		},
+		"types": ["./../../库/pops/core.d.ts"]
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "./tsconfig.node.json"
+		}
+	]
 }

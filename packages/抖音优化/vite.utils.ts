@@ -190,14 +190,14 @@ const LIB_MAP = {
 	},
 	Utils: {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Utils/index.js"),
+			"file://" + viteUtils.getAbsolutePath("./../../库/Utils/dist/index.umd.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(455186);
 		},
 	},
 	DOMUtils: {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/DOMUtils/index.js"),
+			"file://" + viteUtils.getAbsolutePath("./../../库/DOMUtils/dist/index.umd.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(465772);
 		},
