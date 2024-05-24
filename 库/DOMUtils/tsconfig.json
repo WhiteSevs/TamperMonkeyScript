@@ -1,0 +1,31 @@
+{
+	"compilerOptions": {
+		// es最新版
+		"target": "ESNext",
+		// 运行环境: es6、浏览器
+		"lib": ["ESNext", "DOM"],
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		//"module": "AMD",
+		//"moduleResolution": "Bundler",
+		//"resolveJsonModule": true,
+		// 启用严格模式
+		"strict": true,
+		"strictNullChecks": true,
+		"esModuleInterop": true,
+		// 跳过默认库检查
+		"skipDefaultLibCheck": true,
+		// 跳过库检查
+		"skipLibCheck": true,
+		// 输出目录
+		"outDir": "./dist",
+		// 输出.d.ts声明文件
+		"declaration": true,
+		"sourceMap": true,
+		"types": ["./global.d.ts"]
+	},
+	// 包含src下的所有文件
+	"include": ["src/**/*", "index.ts"]
+}
