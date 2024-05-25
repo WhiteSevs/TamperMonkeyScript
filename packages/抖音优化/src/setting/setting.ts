@@ -1,11 +1,16 @@
-import { GM_getValue, GM_info, GM_setValue, unsafeWindow } from "ViteGM";
-import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
+import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
+import { GM_Menu, pops, SCRIPT_NAME, utils } from "@/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
-import { DouYinRouter } from "@/router/router";
 import { PanelVideoConfig } from "./components/video";
 import { PanelSearchConfig } from "./components/search";
+
+interface PosPanelListenerData {
+	id: number;
+	key: string;
+	callback: Function;
+}
 
 const PopsPanel = {
 	/** 数据 */
@@ -36,14 +41,7 @@ const PopsPanel = {
 		/**
 		 * 值改变的监听器
 		 */
-		listenData: new utils.Dictionary<
-			string,
-			{
-				id: number;
-				key: string;
-				callback: Function;
-			}
-		>(),
+		listenData: new utils.Dictionary<string, PosPanelListenerData>(),
 	},
 	init() {
 		this.initPanelDefaultValue();
