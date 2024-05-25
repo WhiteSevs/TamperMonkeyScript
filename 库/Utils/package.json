@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/utils",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "一个常用的工具库",
 	"main": "dist/index.cjs.js",
 	"module": "dist/node/index.esm.js",
@@ -23,6 +23,7 @@
 	"author": "WhiteSev",
 	"license": "MIT",
 	"dependencies": {
+		"@rollup/plugin-babel": "^6.0.4",
 		"@rollup/plugin-commonjs": "^25.0.8",
 		"@rollup/plugin-node-resolve": "^15.2.3",
 		"@rollup/plugin-typescript": "^11.1.6",

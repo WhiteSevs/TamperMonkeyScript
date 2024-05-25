@@ -1,3 +1,3 @@
 import { Demo } from "./src/demo";
 
-export { Demo };
+export default Demo;

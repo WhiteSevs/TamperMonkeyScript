@@ -1,8 +1,4 @@
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Utils = factory());
-})(this, (function () { 'use strict';
+define((function () { 'use strict';
 
     class ColorConversion {
         constructor() { }
@@ -6023,4 +6019,4 @@
     return utils;
 
 }));
-//# sourceMappingURL=index.umd.js.map
+//# sourceMappingURL=index.amd.js.map

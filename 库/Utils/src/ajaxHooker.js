@@ -1,9 +1,7 @@
-// ==UserScript==
 // @name         ajaxHooker
 // @author       cxxjackie
 // @version      1.4.1
 // @supportURL   https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
-// ==/UserScript==
 
 var ajaxHooker = (function () {
 	"use strict";

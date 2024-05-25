@@ -1,3 +1,3 @@
-export const Demo = {
-    
-}
+const Demo = {};
+
+export { Demo };
