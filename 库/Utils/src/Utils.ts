@@ -2,7 +2,7 @@ import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsCore } from "./UtilsCore";
 import { UtilsGMCookie } from "./UtilsGMCookie";
-import { ajaxHooker } from "./ajaxHooker";
+import { AjaxHooker } from "./ajaxHooker";
 import { GMMenu } from "./UtilsGMMenu";
 import { Hooks } from "./Hooks";
 import { Httpx } from "./Httpx";
@@ -15,7 +15,7 @@ import { UtilsDictionary } from "./Dictionary";
 
 class Utils {
 	/** 版本号 */
-	version = "2024.5.24";
+	version = "2024.5.25";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -186,7 +186,7 @@ class Utils {
 	 * + 版本：1.4.1
 	 * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
 	 */
-	ajaxHooker: UtilsAjaxHookResult = ajaxHooker;
+	ajaxHooker: UtilsAjaxHookResult = AjaxHooker as any;
 	/**
 	 * 根据坐标点击canvas元素的内部位置
 	 * @param canvasElement 画布元素
