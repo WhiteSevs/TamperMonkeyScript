@@ -8,7 +8,7 @@
 		"checkJs": false,
 		"allowSyntheticDefaultImports": true,
 		"module": "ESNext",
-		"moduleResolution": "Node",
+		"moduleResolution": "Bundler",
 		//"module": "AMD",
 		//"moduleResolution": "Bundler",
 		//"resolveJsonModule": true,
@@ -25,7 +25,6 @@
 		// 输出.d.ts声明文件
 		"declaration": true,
 		"sourceMap": true,
-		"typeRoots": ["./src/types"]
 	},
 	// 包含src下的所有文件
 	"include": ["src/**/*", "index.ts"]

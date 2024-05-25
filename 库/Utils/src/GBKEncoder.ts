@@ -1,3 +1,5 @@
+import { type AnyObject } from ".";
+
 class GBKEncoder {
 	#data: RegExpMatchArray = [] as any;
 	#U2Ghash: AnyObject = {};

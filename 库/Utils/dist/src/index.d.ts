@@ -1,6 +1,211 @@
+/// <reference path="../../src/ajaxHooker/index.d.ts" />
+/// <reference path="../../src/Dictionary/index.d.ts" />
+/// <reference path="../../src/Hooks/index.d.ts" />
+/// <reference path="../../src/Httpx/index.d.ts" />
+/// <reference path="../../src/indexedDB/index.d.ts" />
+/// <reference path="../../src/LockFunction/index.d.ts" />
+/// <reference path="../../src/Log/index.d.ts" />
+/// <reference path="../../src/Progress/index.d.ts" />
+/// <reference path="../../src/tryCatch/index.d.ts" />
+/// <reference path="../../src/UtilsGMMenu/index.d.ts" />
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsGMCookie } from "./UtilsGMCookie";
+export declare var unsafeWindow: Window & typeof globalThis;
+export type JSTypeMap = {
+    string: string;
+    number: number;
+    boolean: boolean;
+    object: object;
+    symbol: symbol;
+    bigint: bigint;
+    undefined: undefined;
+    null: null;
+};
+export type JSTypeNames = keyof JSTypeMap;
+export type ArgsType<T extends JSTypeNames[]> = {
+    [I in keyof T]: JSTypeMap[T[I]];
+};
+export declare interface UtilsNestedObjectWithToString<V extends any> {
+    [key: string]: V | UtilsNestedObjectWithToString<V>;
+}
+export declare interface AnyObject {
+    [key: string]: any | AnyObject;
+    toString(): string;
+}
+export declare interface Vue2Context extends AnyObject {
+    _isVue: true;
+    $options: AnyObject;
+    $parent: Vue2Context;
+    $root: Vue2Context;
+    $children: Vue2Context[];
+    $vnode: AnyObject;
+    $slots: AnyObject;
+    $scopedSlots: AnyObject;
+    $attrs: AnyObject;
+    $listeners: AnyObject;
+    $store: AnyObject;
+    $watch: (key: string | string[], handler: (this: any, newVal: any, oldVal: any) => void, options?: {
+        immediate?: boolean;
+        deep?: boolean;
+    }) => void;
+    $el: Element;
+}
+/**
+ * 鼠标事件
+ * + https://blog.csdn.net/weixin_68658847/article/details/126939879
+ */
+declare interface DOMUtils_MouseEvent {
+    click: MouseEvent | PointerEvent;
+    contextmenu: MouseEvent | PointerEvent;
+    dblclick: MouseEvent | PointerEvent;
+    mousedown: MouseEvent | PointerEvent;
+    mouseenter: MouseEvent | PointerEvent;
+    mouseleave: MouseEvent | PointerEvent;
+    mousemove: MouseEvent | PointerEvent;
+    mouseover: MouseEvent | PointerEvent;
+    mouseout: MouseEvent | PointerEvent;
+    mouseup: MouseEvent | PointerEvent;
+}
+/**
+ * 鼠标事件
+ */
+declare interface DOMUtils_KeyboardEvent {
+    keydown: KeyboardEvent;
+    keypress: KeyboardEvent;
+    keyup: KeyboardEvent;
+}
+/**
+ * 框架/对象事件
+ */
+declare interface DOMUtils_Frame_Object_Event {
+    abort: Event;
+    beforeunload: Event;
+    error: Event;
+    hashchange: Event;
+    load: Event;
+    pageshow: Event;
+    pagehide: Event;
+    resize: Event;
+    scroll: Event;
+    unload: Event;
+}
+/**
+ * 表单事件
+ */
+declare interface DOMUtils_FormEvent {
+    blur: Event;
+    change: Event;
+    focus: Event;
+    focusin: Event;
+    focusout: Event;
+    input: Event;
+    reset: Event;
+    search: Event;
+}
+/**
+ * 剪贴板事件
+ */
+declare interface DOMUtils_ClipboardEvent {
+    copy: ClipboardEvent;
+    cut: ClipboardEvent;
+    paste: ClipboardEvent;
+}
+/**
+ * 打印事件
+ */
+declare interface DOMUtils_PrintEvent {
+    afterprint: Event;
+    beforeprint: Event;
+}
+/**
+ * 拖动事件
+ */
+declare interface DOMUtils_DragEvent {
+    drag: DragEvent;
+    dragend: DragEvent;
+    dragenter: DragEvent;
+    dragleave: DragEvent;
+    dragover: DragEvent;
+    dragstart: DragEvent;
+    drop: DragEvent;
+}
+/**
+ * 多媒体（Media）事件
+ */
+declare interface DOMUtils_MediaEvent {
+    abort: Event;
+    canplay: Event;
+    canplaythrough: Event;
+    durationchange: Event;
+    emptied: Event;
+    ended: Event;
+    error: Event;
+    loadeddata: Event;
+    loadedmetadata: Event;
+    loadstart: Event;
+    pause: Event;
+    play: Event;
+    playing: Event;
+    progress: Event;
+    ratechange: Event;
+    seeked: Event;
+    seeking: Event;
+    stalled: Event;
+    suspend: Event;
+    timeupdate: Event;
+    volumechange: Event;
+    waiting: Event;
+}
+/**
+ * 动画事件
+ */
+declare interface DOMUtils_AnimationEvent {
+    animationend: AnimationEvent;
+    animationiteration: AnimationEvent;
+    animationstart: AnimationEvent;
+}
+/**
+ * 过渡事件
+ */
+declare interface DOMUtils_TransitionEvent {
+    transitionend: TransitionEvent;
+}
+/**
+ * 触摸事件
+ */
+declare interface DOMUtils_TouchEvent {
+    touchstart: TouchEvent;
+    touchmove: TouchEvent;
+    touchend: TouchEvent;
+    touchcancel: TouchEvent;
+    touchenter: TouchEvent;
+    touchleave: TouchEvent;
+}
+/**
+ * 其它事件
+ */
+declare interface DOMUtils_OtherEvent {
+    message: Event;
+    online: Event;
+    offline: Event;
+    popstate: Event;
+    show: Event;
+    storage: Event;
+    toggle: Event;
+    wheel: Event;
+    propertychange: Event;
+    fullscreenchange: Event;
+    DOMContentLoaded: Event;
+}
+/**
+ * 全部事件
+ */
+declare type DOMUtils_Event = DOMUtils_MouseEvent & DOMUtils_KeyboardEvent & DOMUtils_Frame_Object_Event & DOMUtils_FormEvent & DOMUtils_ClipboardEvent & DOMUtils_PrintEvent & DOMUtils_DragEvent & DOMUtils_MediaEvent & DOMUtils_AnimationEvent & DOMUtils_TransitionEvent & DOMUtils_TouchEvent & DOMUtils_OtherEvent;
+/**
+ * 事件类型
+ */
+declare type DOMUtils_EventType = keyof DOMUtils_Event;
 declare class Utils {
     /** 版本号 */
     version: string;
@@ -43,7 +248,7 @@ declare class Utils {
      * + 版本：1.4.1
      * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
      */
-    ajaxHooker: UtilsAjaxHookResult;
+    ajaxHooker: () => UtilsAjaxHookResult;
     /**
      * 根据坐标点击canvas元素的内部位置
      * @param canvasElement 画布元素

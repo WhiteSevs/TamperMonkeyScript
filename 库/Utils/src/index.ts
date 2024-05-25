@@ -1,17 +1,267 @@
+/// <reference path="./ajaxHooker/index.d.ts" />
+/// <reference path="./Dictionary/index.d.ts" />
+/// <reference path="./Hooks/index.d.ts" />
+/// <reference path="./Httpx/index.d.ts" />
+/// <reference path="./indexedDB/index.d.ts" />
+/// <reference path="./LockFunction/index.d.ts" />
+/// <reference path="./Log/index.d.ts" />
+/// <reference path="./Progress/index.d.ts" />
+/// <reference path="./tryCatch/index.d.ts" />
+/// <reference path="./UtilsGMMenu/index.d.ts" />
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsCore } from "./UtilsCore";
 import { UtilsGMCookie } from "./UtilsGMCookie";
-import { AjaxHooker } from "./ajaxHooker";
-import { GMMenu } from "./UtilsGMMenu";
-import { Hooks } from "./Hooks";
-import { Httpx } from "./Httpx";
-import { indexedDB } from "./indexedDB";
-import { LockFunction } from "./LockFunction";
-import { Log } from "./Log";
-import { Progress } from "./Progress";
-import { TryCatch } from "./tryCatch";
-import { UtilsDictionary } from "./Dictionary";
+import { AjaxHooker } from "./ajaxHooker/ajaxHooker.js";
+import { GMMenu } from "./UtilsGMMenu/UtilsGMMenu";
+import { Hooks } from "./Hooks/Hooks";
+import { Httpx } from "./Httpx/Httpx";
+import { indexedDB } from "./indexedDB/indexedDB";
+import { LockFunction } from "./LockFunction/LockFunction";
+import { Log } from "./Log/Log";
+import { Progress } from "./Progress/Progress";
+import { TryCatch } from "./tryCatch/tryCatch";
+import { UtilsDictionary } from "./Dictionary/Dictionary";
+
+export declare var unsafeWindow: Window & typeof globalThis;
+
+export type JSTypeMap = {
+	string: string;
+	number: number;
+	boolean: boolean;
+	object: object;
+	symbol: symbol;
+	bigint: bigint;
+	undefined: undefined;
+	null: null;
+};
+
+export type JSTypeNames = keyof JSTypeMap;
+
+export type ArgsType<T extends JSTypeNames[]> = {
+	[I in keyof T]: JSTypeMap[T[I]];
+};
+
+export declare interface UtilsNestedObjectWithToString<V extends any> {
+	[key: string]: V | UtilsNestedObjectWithToString<V>;
+}
+export declare interface AnyObject {
+	[key: string]: any | AnyObject;
+	toString(): string;
+}
+
+export declare interface Vue2Context extends AnyObject {
+	_isVue: true;
+	$options: AnyObject;
+	$parent: Vue2Context;
+	$root: Vue2Context;
+	$children: Vue2Context[];
+	$vnode: AnyObject;
+	$slots: AnyObject;
+	$scopedSlots: AnyObject;
+	$attrs: AnyObject;
+	$listeners: AnyObject;
+	$store: AnyObject;
+	$watch: (
+		key: string | string[],
+		handler: (this: any, newVal: any, oldVal: any) => void,
+		options?: {
+			immediate?: boolean;
+			deep?: boolean;
+		}
+	) => void;
+	$el: Element;
+}
+
+/**
+ * 鼠标事件
+ * + https://blog.csdn.net/weixin_68658847/article/details/126939879
+ */
+
+declare interface DOMUtils_MouseEvent {
+	click: MouseEvent | PointerEvent;
+	contextmenu: MouseEvent | PointerEvent;
+	dblclick: MouseEvent | PointerEvent;
+	mousedown: MouseEvent | PointerEvent;
+	mouseenter: MouseEvent | PointerEvent;
+	mouseleave: MouseEvent | PointerEvent;
+	mousemove: MouseEvent | PointerEvent;
+	mouseover: MouseEvent | PointerEvent;
+	mouseout: MouseEvent | PointerEvent;
+	mouseup: MouseEvent | PointerEvent;
+}
+declare type DOMUtils_MouseEventType = keyof DOMUtils_MouseEvent;
+/**
+ * 鼠标事件
+ */
+declare interface DOMUtils_KeyboardEvent {
+	keydown: KeyboardEvent;
+	keypress: KeyboardEvent;
+	keyup: KeyboardEvent;
+}
+declare type DOMUtils_KeyboardEventType = keyof DOMUtils_KeyboardEvent;
+/**
+ * 框架/对象事件
+ */
+declare interface DOMUtils_Frame_Object_Event {
+	abort: Event;
+	beforeunload: Event;
+	error: Event;
+	hashchange: Event;
+	load: Event;
+	pageshow: Event;
+	pagehide: Event;
+	resize: Event;
+	scroll: Event;
+	unload: Event;
+}
+declare type DOMUtils_Frame_Object_EventType =
+	keyof DOMUtils_Frame_Object_Event;
+/**
+ * 表单事件
+ */
+declare interface DOMUtils_FormEvent {
+	blur: Event;
+	change: Event;
+	focus: Event;
+	focusin: Event;
+	focusout: Event;
+	input: Event;
+	reset: Event;
+	search: Event;
+}
+declare type DOMUtils_FormEventType = keyof DOMUtils_FormEvent;
+
+/**
+ * 剪贴板事件
+ */
+declare interface DOMUtils_ClipboardEvent {
+	copy: ClipboardEvent;
+	cut: ClipboardEvent;
+	paste: ClipboardEvent;
+}
+declare type DOMUtils_ClipboardEventType = keyof DOMUtils_ClipboardEvent;
+
+/**
+ * 打印事件
+ */
+declare interface DOMUtils_PrintEvent {
+	afterprint: Event;
+	beforeprint: Event;
+}
+declare type DOMUtils_PrintEventType = keyof DOMUtils_PrintEvent;
+
+/**
+ * 拖动事件
+ */
+declare interface DOMUtils_DragEvent {
+	drag: DragEvent;
+	dragend: DragEvent;
+	dragenter: DragEvent;
+	dragleave: DragEvent;
+	dragover: DragEvent;
+	dragstart: DragEvent;
+	drop: DragEvent;
+}
+declare type DOMUtils_DragEventType = keyof DOMUtils_DragEvent;
+
+/**
+ * 多媒体（Media）事件
+ */
+declare interface DOMUtils_MediaEvent {
+	abort: Event;
+	canplay: Event;
+	canplaythrough: Event;
+	durationchange: Event;
+	emptied: Event;
+	ended: Event;
+	error: Event;
+	loadeddata: Event;
+	loadedmetadata: Event;
+	loadstart: Event;
+	pause: Event;
+	play: Event;
+	playing: Event;
+	progress: Event;
+	ratechange: Event;
+	seeked: Event;
+	seeking: Event;
+	stalled: Event;
+	suspend: Event;
+	timeupdate: Event;
+	volumechange: Event;
+	waiting: Event;
+}
+declare type DOMUtils_MediaEventType = keyof DOMUtils_MediaEvent;
+
+/**
+ * 动画事件
+ */
+declare interface DOMUtils_AnimationEvent {
+	animationend: AnimationEvent;
+	animationiteration: AnimationEvent;
+	animationstart: AnimationEvent;
+}
+declare type DOMUtils_AnimationEventType = keyof DOMUtils_AnimationEvent;
+
+/**
+ * 过渡事件
+ */
+declare interface DOMUtils_TransitionEvent {
+	transitionend: TransitionEvent;
+}
+declare type DOMUtils_TransitionEventType = keyof DOMUtils_TransitionEvent;
+
+/**
+ * 触摸事件
+ */
+declare interface DOMUtils_TouchEvent {
+	touchstart: TouchEvent;
+	touchmove: TouchEvent;
+	touchend: TouchEvent;
+	touchcancel: TouchEvent;
+	touchenter: TouchEvent;
+	touchleave: TouchEvent;
+}
+declare type DOMUtils_TouchEventType = keyof DOMUtils_TouchEvent;
+/**
+ * 其它事件
+ */
+declare interface DOMUtils_OtherEvent {
+	message: Event;
+	online: Event;
+	offline: Event;
+	popstate: Event;
+	show: Event;
+	storage: Event;
+	toggle: Event;
+	wheel: Event;
+	propertychange: Event;
+	fullscreenchange: Event;
+	DOMContentLoaded: Event;
+}
+declare type DOMUtils_OtherEventType = keyof DOMUtils_OtherEvent;
+
+/**
+ * 全部事件
+ */
+declare type DOMUtils_Event = DOMUtils_MouseEvent &
+	DOMUtils_KeyboardEvent &
+	DOMUtils_Frame_Object_Event &
+	DOMUtils_FormEvent &
+	DOMUtils_ClipboardEvent &
+	DOMUtils_PrintEvent &
+	DOMUtils_DragEvent &
+	DOMUtils_MediaEvent &
+	DOMUtils_AnimationEvent &
+	DOMUtils_TransitionEvent &
+	DOMUtils_TouchEvent &
+	DOMUtils_OtherEvent;
+
+/**
+ * 事件类型
+ */
+declare type DOMUtils_EventType = keyof DOMUtils_Event;
 
 class Utils {
 	/** 版本号 */
@@ -186,7 +436,7 @@ class Utils {
 	 * + 版本：1.4.1
 	 * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
 	 */
-	ajaxHooker: UtilsAjaxHookResult = AjaxHooker as any;
+	ajaxHooker: () => UtilsAjaxHookResult = AjaxHooker;
 	/**
 	 * 根据坐标点击canvas元素的内部位置
 	 * @param canvasElement 画布元素
@@ -379,7 +629,7 @@ class Utils {
 		delay?: number
 	): (...args: A) => void;
 	debounce<A extends any[], R>(fn: (...args: A) => R, delay = 0) {
-		let timer: number = null as any;
+		let timer: any = null as any;
 		const context = this;
 		return function (...args: A) {
 			clearTimeout(timer);
@@ -701,7 +951,7 @@ class Utils {
 		sizeData.NB = sizeData.BB * sizeData.KB;
 		sizeData.DB = sizeData.NB * sizeData.KB;
 		for (let key in sizeData) {
-			result = byteSize / sizeData[key];
+			result = byteSize / (sizeData as any)[key];
 			resultType = key;
 			if (sizeData.KB >= result) {
 				break;
@@ -1939,15 +2189,15 @@ class Utils {
 		let targetStrLength = 0;
 		for (const char of targetStr) {
 			if (Reflect.has(targetCharMap, char)) {
-				targetCharMap[char]++;
+				(targetCharMap as any)[char]++;
 			} else {
-				targetCharMap[char] = 1;
+				(targetCharMap as any)[char] = 1;
 			}
 			targetStrLength++;
 		}
 		let result = false;
 		for (const char in targetCharMap) {
-			if (targetCharMap[char] / targetStrLength >= coefficient) {
+			if ((targetCharMap as any)[char] / targetStrLength >= coefficient) {
 				result = true;
 				break;
 			}
