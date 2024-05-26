@@ -6,7 +6,6 @@ const { nodeResolve } = require("@rollup/plugin-node-resolve");
 const typescript = require("@rollup/plugin-typescript");
 // 清空 dist
 const cleaner = require("rollup-plugin-clear");
-const { dts } = require("rollup-plugin-dts");
 
 // 模块名
 const moduleName = "demo";
@@ -15,7 +14,6 @@ module.exports = {
 		cleaner({
 			targets: ["./dist"],
 		}),
-		dts(),
 		nodeResolve(),
 		commonjs(),
 		typescript({}),
