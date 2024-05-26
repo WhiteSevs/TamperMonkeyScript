@@ -1,4 +1,3 @@
-/// <reference path="../DOMUtils/dist/src/Core.d.ts" />
 (function (global, factory) {
 	/**
 	 * 不使用define
@@ -2618,7 +2617,7 @@
 		/**
 		 * 绑定事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要绑定的元素|元素数组|window
-		 * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要监听的事件
+		 * @param {import("../DOMUtils/dist/src/Event").DOMUtils_EventType|import("../DOMUtils/dist/src/Event").DOMUtils_EventType[]} eventType 需要监听的事件
 		 * @param {string|undefined} selector 子元素选择器
 		 * @param {((event: Event)=>void)|undefined} callback 绑定事件触发的回调函数
 		 * @param {boolean|AddEventListenerOptions|undefined} option
@@ -2786,7 +2785,7 @@
 		/**
 		 * 取消绑定事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要取消绑定的元素|元素数组
-		 * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要取消监听的事件
+		 * @param {import("../DOMUtils/dist/src/Event").DOMUtils_EventType|import("../DOMUtils/dist/src/Event").DOMUtils_EventType[]} eventType 需要取消监听的事件
 		 * @param {string|undefined} selector 子元素选择器
 		 * @param {((event: Event)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
 		 * @param {EventListenerOptions|boolean|undefined} option
@@ -2875,7 +2874,7 @@
 				let elementEvents = elementItem[PopsUtils.SymbolEvents] || {};
 				eventTypeList.forEach((eventName) => {
 					/**
-					 * @type {DOMUtilsEventListenerOptionsAttribute[]}
+					 * @type {import("../DOMUtils/dist/src/Event").DOMUtilsEventListenerOptionsAttribute[]}
 					 */
 					let handlers = elementEvents[eventName] || [];
 					// @ts-ignore
@@ -2923,7 +2922,7 @@
 		/**
 		 * 主动触发事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要触发的元素|元素数组|window
-		 * @param {DOMUtils_EventType|DOMUtils_EventType[]} eventType 需要触发的事件
+		 * @param {import("../DOMUtils/dist/src/Event").DOMUtils_EventType|import("../DOMUtils/dist/src/Event").DOMUtils_EventType[]} eventType 需要触发的事件
 		 * @param {object|undefined} details 赋予触发的Event的额外属性
 		 * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
 		 */
