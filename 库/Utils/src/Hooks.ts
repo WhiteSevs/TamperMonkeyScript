@@ -1,21 +1,28 @@
-const Hooks = function () {
-	this.initEnv = function () {
-		Function.prototype.hook = function (realFunc, hookFunc, context) {
+class Hooks {
+	/**
+	 * 在Function原型上添加自定义方法.hook和.unhook
+	 */
+	initEnv() {
+		(Function.prototype as any).hook = function (
+			realFunc: any,
+			hookFunc: any,
+			context: Window & typeof globalThis
+		) {
 			let _context = null; //函数上下文
 			let _funcName = null; //函数名
 
 			_context = context || window;
 			_funcName = getFuncName(this);
-			_context["realFunc_" + _funcName] = this;
+			(_context as any)["realFunc_" + _funcName] = this;
 
 			if (
-				_context[_funcName].prototype &&
-				_context[_funcName].prototype.isHooked
+				(_context[_funcName] as any).prototype &&
+				(_context[_funcName] as any).prototype.isHooked
 			) {
 				console.log("Already has been hooked,unhook first");
 				return false;
 			}
-			function getFuncName(fn) {
+			function getFuncName(fn: any) {
 				// 获取函数名
 				let strFunc = fn.toString();
 				let _regex = /function\s+(\w+)\s*\(/;
@@ -38,36 +45,43 @@ const Hooks = function () {
 						"'].apply(obj,args);\n" +
 						"};"
 				);
-				_context[_funcName].prototype.isHooked = true;
+				(_context as any)[_funcName].prototype.isHooked = true;
 				return true;
 			} catch (e) {
 				console.log("Hook failed,check the params.");
 				return false;
 			}
 		};
-		Function.prototype.unhook = function (realFunc, funcName, context) {
+		(Function.prototype as any).unhook = function (
+			realFunc: any,
+			funcName: any,
+			context: Window & typeof globalThis
+		) {
 			let _context = null;
 			let _funcName = null;
 			_context = context || window;
 			_funcName = funcName;
-			if (!_context[_funcName].prototype.isHooked) {
+			if (!(_context[_funcName] as any).prototype.isHooked) {
 				console.log("No function is hooked on");
 				return false;
 			}
-			_context[_funcName] = _context["realFunc" + _funcName];
+			(_context[_funcName] as any) = (_context as any)["realFunc" + _funcName];
 			Reflect.deleteProperty(_context, "realFunc_" + _funcName);
 			return true;
 		};
-	};
-	this.cleanEnv = function () {
+	}
+	/**
+	 * 删除在Function原型上添加的自定义方法.hook和.unhook
+	 */
+	cleanEnv() {
 		if (Function.prototype.hasOwnProperty("hook")) {
-			Reflect.deleteProperty(unction.prototype, "hook");
+			Reflect.deleteProperty(Function.prototype, "hook");
 		}
 		if (Function.prototype.hasOwnProperty("unhook")) {
-			Reflect.deleteProperty(unction.prototype, "unhook");
+			Reflect.deleteProperty(Function.prototype, "unhook");
 		}
 		return true;
-	};
-};
+	}
+}
 
 export { Hooks };

@@ -1,8 +1,10 @@
+import { AnyObject, Utils } from ".";
+
 /**
  * 状态码
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
  */
-type HttpxStatus =
+export type HttpxStatus =
 	| 100
 	| 101
 	| 102
@@ -66,7 +68,7 @@ type HttpxStatus =
  * HTTP 请求方法
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
  */
-type HttpxMethod =
+export type HttpxMethod =
 	| "GET"
 	| "HEAD"
 	| "POST"
@@ -77,21 +79,25 @@ type HttpxMethod =
 	| "TRACE"
 	| "PATCH";
 
-type HttpxRedirect = "follow" | "error" | "manual";
+export type HttpxRedirect = "follow" | "error" | "manual";
 
-type HttpxBinary =
+export type HttpxBinary =
 	| Uint8ArrayConstructor
 	| ArrayBufferConstructor
 	| DataViewConstructor
 	| Blob
 	| File;
 
-type HttpxResponseCallBackType = "onload" | "onerror" | "ontimeout" | "onabort";
+export type HttpxResponseCallBackType =
+	| "onload"
+	| "onerror"
+	| "ontimeout"
+	| "onabort";
 
-type HttpxResponseMap = {
+export type HttpxResponseMap = {
 	arraybuffer: ArrayBuffer;
 	blob: Blob;
-	json: UtilsNestedObjectWithToString;
+	json: AnyObject;
 	stream: ReadableStream<string>;
 	document: Document;
 	undefined: string;
@@ -101,7 +107,7 @@ type HttpxResponseMap = {
  * headers的配置
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers
  */
-declare interface HttpxHeaders {
+export declare interface HttpxHeaders {
 	/**
 	 * Accept 请求头用来告知（服务器）客户端可以处理的内容类型，这种内容类型用MIME 类型来表示。
 	 * 借助内容协商机制, 服务器可以从诸多备选项中选择一项进行应用，并使用 Content-Type 应答头通知客户端它的选择。
@@ -915,7 +921,7 @@ declare interface HttpxHeaders {
 	"X-XSS-Protection"?: string;
 	[key: string]: any;
 }
-declare interface HttpxRequestInit extends RequestInit {
+export declare interface HttpxRequestInit extends RequestInit {
 	/**
 	 * 请求的 body 信息：可能是一个 Blob、BufferSource、FormData、URLSearchParams 或者 USVString 对象。
 	 *
@@ -995,7 +1001,7 @@ declare interface HttpxRequestInit extends RequestInit {
 /**
  * 请求的配置
  */
-declare interface HttpxDetails {
+export declare interface HttpxDetails {
 	/**
 	 * 网址
 	 */
@@ -1045,7 +1051,7 @@ declare interface HttpxDetails {
 	/**
 	 * 将该对象添加到响应的属性中，可为空
 	 */
-	context?: UtilsNestedObjectWithToString;
+	context?: AnyObject;
 	/**
 	 * 重写mimeType，可为空
 	 */
@@ -1073,7 +1079,7 @@ declare interface HttpxDetails {
 	/**
 	 * （可选）当请求被取消或中断，触发该回调
 	 */
-	onabort?: () => void;
+	onabort?: (response?: any) => void;
 	/**
 	 * （可选）当请求异常，触发该回调，如404
 	 */
@@ -1081,29 +1087,29 @@ declare interface HttpxDetails {
 	/**
 	 * （可选）当请求超时，触发该回调
 	 */
-	ontimeout?: () => void;
+	ontimeout?: (...args: any[]) => void;
 	/**
 	 * （可选）当请求开始，触发该回调
 	 */
-	onloadstart?: () => void;
+	onloadstart?: (...args: any[]) => void;
 	/**
 	 * （可选）当请求成功时，触发该回调
 	 */
-	onload?: () => void;
+	onload?: (...args: any[]) => void;
 	/**
 	 * （可选）当请求状态改变，触发该回调
 	 *
 	 * fetch为true时该回调不触发
 	 */
-	onreadystatechange?: () => void;
+	onreadystatechange?: (...args: any[]) => void;
 	/**
 	 * （可选）当请求上传文件进度改变，触发该回调
 	 *
 	 * fetch为true时该回调不触发
 	 */
-	onprogress?: () => void;
+	onprogress?: (...args: any[]) => void;
 }
-declare interface HttpxDetailsConfig extends HttpxDetails {
+export declare interface HttpxDetailsConfig extends HttpxDetails {
 	/**
 	 * （可选）是否输出请求配置
 	 */
@@ -1118,7 +1124,7 @@ declare interface HttpxDetailsConfig extends HttpxDetails {
 /**
  * 响应的数据的data
  */
-declare interface HttpxAsyncResultData<T extends HttpxDetails> {
+export declare interface HttpxAsyncResultData<T extends HttpxDetails> {
 	/**
 	 * 如果fetch为true，且返回的headers中的Content-Type存在text/event-stream或者是主动设置的responseType为stream
 	 * 则存在该属性为true
@@ -1179,7 +1185,7 @@ declare interface HttpxAsyncResultData<T extends HttpxDetails> {
 /**
  * 响应的数据
  */
-declare interface HttpxAsyncResult<T extends HttpxDetails> {
+export declare interface HttpxAsyncResult<T extends HttpxDetails> {
 	/**
 	 * 请求状态，状态码为200为成功true，否则false
 	 */
@@ -1202,50 +1208,787 @@ declare interface HttpxAsyncResult<T extends HttpxDetails> {
 	type: HttpxResponseCallBackType;
 }
 
-/** Httpx */
-declare interface UtilsHttpxConstrustor {
+class Httpx {
+	private GM_Api = {
+		xmlHttpRequest: null as any,
+	};
+	private HttpxRequestHook = {
+		/**
+		 * 发送请求前的回调
+		 * 如果返回false则阻止本次返回
+		 * @param details 当前的请求配置
+		 */
+		beforeRequestCallBack(details: HttpxDetails) {},
+	};
+	private HttpxRequestDetails = {
+		context: this,
+		/**
+		 * 根据传入的参数处理获取details配置
+		 */
+		handleBeforeRequestDetails(...args: (HttpxDetails | string)[]) {
+			let result: HttpxDetails = {};
+			if (typeof args[0] === "string") {
+				/* 传入的是url,details? */
+				let url = args[0];
+				result.url = url;
+				if (typeof args[1] === "object") {
+					/* 处理第二个参数details */
+					let details = args[1];
+					result = details;
+					result.url = url;
+				}
+			} else {
+				/* 传入的是details */
+				result = args[0];
+			}
+			return result;
+		},
+		/**
+		 * 获取请求配置
+		 * @param method 当前请求方法，默认get
+		 * @param resolve promise回调
+		 * @param details 请求配置
+		 */
+		getDetails(
+			method: HttpxMethod,
+			resolve: (...rags: any[]) => void,
+			details: HttpxDetails
+		) {
+			let that = this;
+			let result = <Required<HttpxDetails>>{
+				url: details.url || this.context.#defaultDetails.url,
+				method: (method || "GET").toString().toUpperCase(),
+				timeout: details.timeout || this.context.#defaultDetails.timeout,
+				responseType:
+					details.responseType || this.context.#defaultDetails.responseType,
+				/* 对象使用深拷贝 */
+				headers: Utils.deepClone(this.context.#defaultDetails.headers),
+				data: details.data || this.context.#defaultDetails.data,
+				redirect: details.redirect || this.context.#defaultDetails.redirect,
+				cookie: details.cookie || this.context.#defaultDetails.cookie,
+				binary: details.binary || this.context.#defaultDetails.binary,
+				nocache: details.nocache || this.context.#defaultDetails.nocache,
+				revalidate:
+					details.revalidate || this.context.#defaultDetails.revalidate,
+				/* 对象使用深拷贝 */
+				context: Utils.deepClone(
+					details.context || this.context.#defaultDetails.context
+				),
+				overrideMimeType:
+					details.overrideMimeType ||
+					this.context.#defaultDetails.overrideMimeType,
+				anonymous: details.anonymous || this.context.#defaultDetails.anonymous,
+				fetch: details.fetch || this.context.#defaultDetails.fetch,
+				/* 对象使用深拷贝 */
+				fetchInit: Utils.deepClone(this.context.#defaultDetails.fetchInit),
+				user: details.user || this.context.#defaultDetails.user,
+				password: details.password || this.context.#defaultDetails.password,
+				onabort(...args) {
+					that.context.HttpxCallBack.onAbort(
+						details as Required<HttpxDetails>,
+						resolve,
+						args
+					);
+				},
+				onerror(...args) {
+					that.context.HttpxCallBack.onError(
+						details as Required<HttpxDetails>,
+						resolve,
+						args
+					);
+				},
+				onloadstart(...args) {
+					that.context.HttpxCallBack.onLoadStart(
+						details as Required<HttpxDetails>,
+						args
+					);
+				},
+				onprogress(...args) {
+					that.context.HttpxCallBack.onProgress(
+						details as Required<HttpxDetails>,
+						args
+					);
+				},
+				onreadystatechange(...args) {
+					that.context.HttpxCallBack.onReadyStateChange(
+						details as Required<HttpxDetails>,
+						args
+					);
+				},
+				ontimeout(...args) {
+					that.context.HttpxCallBack.onTimeout(
+						details as Required<HttpxDetails>,
+						resolve,
+						args
+					);
+				},
+				onload(...args) {
+					that.context.HttpxCallBack.onLoad(
+						details as Required<HttpxDetails>,
+						resolve,
+						args
+					);
+				},
+			};
+			if (typeof this.context.GM_Api.xmlHttpRequest !== "function") {
+				result.fetch = true;
+			}
+			if (typeof result.headers === "object") {
+				if (typeof details.headers === "object") {
+					Object.keys(details.headers).forEach((keyName, index) => {
+						if (
+							keyName in result.headers &&
+							details!.headers?.[keyName] == null
+						) {
+							/* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
+							Reflect.deleteProperty(result.headers, keyName);
+						} else {
+							result.headers[keyName] = details?.headers?.[keyName];
+						}
+					});
+				} else {
+					/* details.headers为空 */
+					/* 不做处理 */
+				}
+			} else {
+				(result as HttpxDetails).headers = details.headers;
+			}
+			if (typeof result.fetchInit === "object") {
+				/* 使用assign替换且添加 */
+				if (typeof details.fetchInit === "object") {
+					Object.keys(details.fetchInit).forEach((keyName, index) => {
+						if (
+							keyName in result.fetchInit &&
+							(details as any).fetchInit[keyName] == null
+						) {
+							/* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
+							Reflect.deleteProperty(result.fetchInit, keyName);
+						} else {
+							(result as any).fetchInit[keyName] = (details as any).fetchInit[
+								keyName
+							];
+						}
+					});
+				}
+			} else {
+				(result as any).fetchInit = details.fetchInit;
+			}
+			return result;
+		},
+		/**
+		 * 处理发送请求的details，去除值为undefined、空function的值
+		 * @param details
+		 */
+		handle(details: Required<HttpxDetails>): HttpxDetails {
+			Object.keys(details).forEach((keyName) => {
+				if (
+					details[keyName as keyof HttpxDetails] == null ||
+					(details[keyName as keyof HttpxDetails] instanceof Function &&
+						Utils.isNull(details[keyName as keyof HttpxDetails]))
+				) {
+					Reflect.deleteProperty(details, keyName);
+					return;
+				}
+			});
+			if (Utils.isNull(details.url)) {
+				throw new TypeError(`Utils.Httpx 参数 url不符合要求: ${details.url}`);
+			}
+			/* method值统一大写，兼容Via */
+			(details as any).method = details.method.toUpperCase();
+			/* 判断是否是以http开头，否则主动加上origin */
+			try {
+				new URL(details.url);
+			} catch (error) {
+				if (details.url.startsWith("//")) {
+					details.url = globalThis.location.protocol + details.url;
+				} else if (details.url.startsWith("/")) {
+					details.url = globalThis.location.origin + details.url;
+				} else {
+					details.url = globalThis.location.origin + "/" + details.url;
+				}
+			}
+			return details;
+		},
+		/**
+		 * 处理fetch的配置
+		 * @param details
+		 */
+		handleFetchDetail(details: Required<HttpxDetails>) {
+			/**
+			 * fetch的请求配置
+			 **/
+			let fetchRequestInit = <RequestInit>{};
+			if (
+				(details.method === "GET" || details.method === "HEAD") &&
+				details.data != null
+			) {
+				/* GET 或 HEAD 方法的请求不能包含 body 信息 */
+				Reflect.deleteProperty(details, "data");
+			}
+			/* 中止信号控制器 */
+			let abortController = new AbortController();
+			let signal = abortController.signal;
+			signal.onabort = () => {
+				details.onabort({
+					isFetch: true,
+					responseText: "",
+					response: null,
+					readyState: 4,
+					responseHeaders: "",
+					status: 0,
+					statusText: "",
+					error: "aborted",
+				});
+			};
+			fetchRequestInit.method = details.method ?? "GET";
+			fetchRequestInit.headers = details.headers;
+			fetchRequestInit.body = details.data;
+			fetchRequestInit.mode = "cors";
+			fetchRequestInit.credentials = "include";
+			fetchRequestInit.cache = "no-cache";
+			fetchRequestInit.redirect = "follow";
+			fetchRequestInit.referrerPolicy = "origin-when-cross-origin";
+			fetchRequestInit.signal = signal;
+			Object.assign(fetchRequestInit, details.fetchInit || {});
+			return {
+				fetchDetails: details,
+				fetchRequestInit: fetchRequestInit,
+				abortController: abortController,
+			};
+		},
+	};
+	private HttpxCallBack = {
+		context: this,
+		/**
+		 * onabort请求被取消-触发
+		 * @param details 配置
+		 * @param resolve 回调
+		 * @param argumentsList 参数列表
+		 */
+		onAbort(
+			details: Required<HttpxDetails>,
+			resolve: (...rags: any[]) => void,
+			argumentsList: any
+		) {
+			if ("onabort" in details) {
+				details.onabort.apply(this, argumentsList);
+			} else if ("onabort" in this.context.#defaultDetails) {
+				this.context.#defaultDetails!.onabort!.apply(this, argumentsList);
+			}
+			resolve({
+				status: false,
+				data: [...argumentsList],
+				msg: "请求被取消",
+				type: "onabort",
+			});
+		},
+
+		/**
+		 * onerror请求异常-触发
+		 * @param details 配置
+		 * @param resolve 回调
+		 * @param argumentsList 响应的参数列表
+		 */
+		onError(
+			details: Required<HttpxDetails>,
+			resolve: (...rags: any[]) => void,
+			argumentsList: any
+		) {
+			if ("onerror" in details) {
+				details.onerror.apply(this, argumentsList);
+			} else if ("onerror" in this.context.#defaultDetails) {
+				this.context.#defaultDetails!.onerror!.apply(this, argumentsList);
+			}
+			let response = argumentsList;
+			if (response.length) {
+				response = response[0];
+			}
+			resolve({
+				status: false,
+				data: response,
+				details: details,
+				msg: "请求异常",
+				type: "onerror",
+			});
+		},
+		/**
+		 * ontimeout请求超时-触发
+		 * @param details 配置
+		 * @param resolve 回调
+		 * @param argumentsList 参数列表
+		 */
+		onTimeout(
+			details: Required<HttpxDetails>,
+			resolve: (...rags: any[]) => void,
+			argumentsList: any
+		) {
+			if ("ontimeout" in details) {
+				details.ontimeout.apply(this, argumentsList);
+			} else if ("ontimeout" in this.context.#defaultDetails) {
+				this.context.#defaultDetails!.ontimeout!.apply(this, argumentsList);
+			}
+			resolve({
+				status: false,
+				data: [...argumentsList],
+				msg: "请求超时",
+				type: "ontimeout",
+			});
+		},
+
+		/**
+		 * onloadstart请求开始-触发
+		 * @param details 配置
+		 * @param argumentsList 参数列表
+		 */
+		onLoadStart(details: Required<HttpxDetails>, argumentsList: any) {
+			if ("onloadstart" in details) {
+				details.onloadstart.apply(this, argumentsList);
+			} else if ("onloadstart" in this.context.#defaultDetails) {
+				this.context.#defaultDetails!.onloadstart!.apply(this, argumentsList);
+			}
+		},
+		/**
+		 * onload加载完毕-触发
+		 * @param details 请求的配置
+		 * @param resolve 回调
+		 * @param argumentsList 参数列表
+		 */
+		onLoad(
+			details: Required<HttpxDetails>,
+			resolve: (...rags: any[]) => void,
+			argumentsList: any
+		) {
+			/* X浏览器会因为设置了responseType导致不返回responseText */
+			let Response: HttpxAsyncResultData<HttpxDetails> = argumentsList[0];
+			/* responseText为空，response不为空的情况 */
+			if (
+				Utils.isNull(Response["responseText"]) &&
+				Utils.isNotNull(Response["response"])
+			) {
+				if (typeof Response["response"] === "object") {
+					Utils.tryCatch().run(() => {
+						Response["responseText"] = JSON.stringify(Response["response"]);
+					});
+				} else {
+					Response["responseText"] = Response["response"];
+				}
+			}
+
+			/* response为空，responseText不为空的情况 */
+			if (
+				Response["response"] == null &&
+				typeof Response["responseText"] === "string" &&
+				Response["responseText"].trim() !== ""
+			) {
+				let newResponse = Response["responseText"];
+				if (details.responseType === "json") {
+					(newResponse as any) = Utils.toJSON(Response["responseText"]);
+				} else if (details.responseType === "document") {
+					let parser = new DOMParser();
+					(newResponse as any) = parser.parseFromString(
+						Response["responseText"],
+						"text/html"
+					);
+				} else if (details.responseType === "arraybuffer") {
+					let encoder = new TextEncoder();
+					let arrayBuffer = encoder.encode(Response["responseText"]);
+					(newResponse as any) = arrayBuffer;
+				} else if (details.responseType === "blob") {
+					let encoder = new TextEncoder();
+					let arrayBuffer = encoder.encode(Response["responseText"]);
+					(newResponse as any) = new Blob([arrayBuffer]);
+				} else {
+					newResponse = Response["responseText"];
+				}
+				try {
+					Response["response"] = newResponse;
+				} catch (error) {
+					console.warn("response 无法被覆盖");
+				}
+			}
+			/* Stay扩展中没有finalUrl，对应的是responseURL */
+			if (
+				Response["finalUrl"] == null &&
+				(Response as any)["responseURL"] != null
+			) {
+				Response["finalUrl"] = (Response as any)["responseURL"];
+			}
+			/* 状态码2xx都是成功的 */
+			if (Math.floor(Response.status / 100) === 2) {
+				resolve({
+					status: true,
+					data: Response,
+					details: details,
+					msg: "请求完毕",
+					type: "onload",
+				});
+			} else {
+				this.context.HttpxCallBack.onError(details, resolve, argumentsList);
+			}
+		},
+		/**
+		 * onprogress上传进度-触发
+		 * @param details 配置
+		 * @param argumentsList 参数列表
+		 */
+		onProgress(details: Required<HttpxDetails>, argumentsList: any) {
+			if ("onprogress" in details) {
+				details.onprogress.apply(this, argumentsList);
+			} else if ("onprogress" in this.context.#defaultDetails) {
+				this.context.#defaultDetails!.onprogress!.apply(this, argumentsList);
+			}
+		},
+		/**
+		 * onreadystatechange准备状态改变-触发
+		 * @param details 配置
+		 * @param argumentsList 参数列表
+		 */
+		onReadyStateChange(details: Required<HttpxDetails>, argumentsList: any) {
+			if ("onreadystatechange" in details) {
+				details.onreadystatechange.apply(this, argumentsList);
+			} else if ("onreadystatechange" in this.context.#defaultDetails) {
+				this.context.#defaultDetails!.onreadystatechange!.apply(
+					this,
+					argumentsList
+				);
+			}
+		},
+	};
+	private HttpxRequest = {
+		context: this,
+		/**
+		 * 发送请求
+		 * @param details
+		 */
+		request(details: Required<HttpxDetails>) {
+			if (this.context.#LOG_DETAILS) {
+				console.log("Httpx请求配置👇", details);
+			}
+			if (
+				typeof this.context.HttpxRequestHook.beforeRequestCallBack ===
+				"function"
+			) {
+				let hookResult =
+					this.context.HttpxRequestHook.beforeRequestCallBack(details);
+				if (typeof hookResult === "boolean" && !hookResult) {
+					return;
+				}
+			}
+			if (details.fetch) {
+				const { fetchDetails, fetchRequestInit, abortController } =
+					this.context.HttpxRequestDetails.handleFetchDetail(details);
+				this.fetch(fetchDetails, fetchRequestInit, abortController);
+			} else {
+				Reflect.deleteProperty(details, "fetchInit");
+				this.xmlHttpRequest(details);
+			}
+		},
+		/**
+		 * 使用油猴函数GM_xmlhttpRequest发送请求
+		 * @param details
+		 */
+		xmlHttpRequest(details: Required<HttpxDetails>) {
+			this.context.GM_Api.xmlHttpRequest(details);
+		},
+		/**
+		 * 使用fetch发送请求
+		 * @param details
+		 * @param fetchRequestInit
+		 * @param abortController
+		 */
+		fetch(
+			details: Required<HttpxDetails>,
+			fetchRequestInit: RequestInit,
+			abortController: AbortController
+		) {
+			fetch(details.url, fetchRequestInit)
+				.then(async (resp) => {
+					/**
+					 * @type {HttpxAsyncResultData}
+					 */
+					let httpxResponse = {
+						isFetch: true,
+						finalUrl: resp.url,
+						readyState: 4,
+						status: resp.status,
+						statusText: resp.statusText,
+						response: void 0,
+						responseFetchHeaders: resp.headers,
+						responseHeaders: "",
+						responseText: void 0,
+						responseType: details.responseType,
+						responseXML: void 0,
+					};
+					Object.assign(httpxResponse, details.context || {});
+
+					for (const [key, value] of (resp.headers as any).entries()) {
+						httpxResponse.responseHeaders += `${key}: ${value}\n`;
+					}
+
+					/* 如果是流式传输，直接返回 */
+					if (
+						details.responseType === "stream" ||
+						(resp.headers.has("Content-Type") &&
+							resp.headers.get("Content-Type")!.includes("text/event-stream"))
+					) {
+						(httpxResponse as any)["isStream"] = true;
+						(httpxResponse as any).response = resp.body;
+						Reflect.deleteProperty(httpxResponse, "responseText");
+						Reflect.deleteProperty(httpxResponse, "responseXML");
+						details.onload(httpxResponse);
+						return;
+					}
+
+					/** 响应 */
+					let response = "";
+					/** 响应字符串 */
+					let responseText = "";
+					/** 响应xml文档 */
+					let responseXML = "";
+
+					let arrayBuffer = await resp.arrayBuffer;
+
+					let encoding = "utf-8";
+					if (resp.headers.has("Content-Type")) {
+						let charsetMatched = resp.headers
+							.get("Content-Type")
+							?.match(/charset=(.+)/);
+						if (charsetMatched) {
+							encoding = charsetMatched[1];
+						}
+					}
+					let textDecoder = new TextDecoder(encoding);
+					responseText = textDecoder.decode(await resp.arrayBuffer());
+					response = responseText;
+
+					if (details.responseType === "arraybuffer") {
+						(response as any) = arrayBuffer;
+					} else if (details.responseType === "blob") {
+						(response as any) = new Blob([arrayBuffer as any]);
+					} else if (
+						details.responseType === "document" ||
+						details.responseType == null
+					) {
+						let parser = new DOMParser();
+						(response as any) = parser.parseFromString(
+							responseText,
+							"text/html"
+						);
+					} else if (details.responseType === "json") {
+						(response as any) = Utils.toJSON(responseText);
+					}
+					let parser = new DOMParser();
+					(responseXML as any) = parser.parseFromString(
+						responseText,
+						"text/xml"
+					);
+
+					(httpxResponse as any).response = response;
+					(httpxResponse as any).responseText = responseText;
+					(httpxResponse as any).responseXML = responseXML;
+
+					details.onload(httpxResponse);
+				})
+				.catch((err) => {
+					if (err.name === "AbortError") {
+						return;
+					}
+					details.onerror({
+						isFetch: true,
+						finalUrl: details.url,
+						readyState: 4,
+						status: 0,
+						statusText: "",
+						responseHeaders: "",
+						responseText: "",
+						error: err,
+					});
+				});
+			details.onloadstart({
+				isFetch: true,
+				finalUrl: details.url,
+				readyState: 1,
+				responseHeaders: "",
+				responseText: "",
+				status: 0,
+				statusText: "",
+			});
+			return {
+				abort() {
+					abortController.abort();
+				},
+			};
+		},
+	};
+	/**
+	 * 默认配置
+	 */
+	#defaultDetails = <HttpxDetails>{
+		url: void 0,
+		timeout: 5000,
+		async: false,
+		responseType: void 0,
+		headers: void 0,
+		data: void 0,
+		redirect: void 0,
+		cookie: void 0,
+		binary: void 0,
+		nocache: void 0,
+		revalidate: void 0,
+		context: void 0,
+		overrideMimeType: void 0,
+		anonymous: void 0,
+		fetch: void 0,
+		fetchInit: void 0,
+		user: void 0,
+		password: void 0,
+		onabort() {},
+		onerror() {},
+		ontimeout() {},
+		onloadstart() {},
+		onreadystatechange() {},
+		onprogress() {},
+	};
+	/**
+	 * 当前使用请求时，输出请求的配置
+	 */
+	#LOG_DETAILS = false;
+	constructor(__xmlHttpRequest__?: any) {
+		let that = this;
+		if (typeof __xmlHttpRequest__ !== "function") {
+			console.warn(
+				"Httpx未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，强制使用window.fetch"
+			);
+		}
+		this.GM_Api.xmlHttpRequest = __xmlHttpRequest__;
+	}
+
+	/**
+	 * 覆盖全局配置
+	 * @param details 配置
+	 */
+	config(details?: {
+		[K in keyof HttpxDetailsConfig]?: HttpxDetailsConfig[K];
+	}): void;
+	/**
+	 * 覆盖当前配置
+	 * @param details
+	 */
+	config(details = <HttpxDetailsConfig>{}) {
+		if ("logDetails" in details && typeof details["logDetails"] === "boolean") {
+			this.#LOG_DETAILS = details["logDetails"];
+		}
+		this.#defaultDetails = Utils.assign(this.#defaultDetails, details);
+	}
+	/**
+	 * 修改xmlHttpRequest
+	 * @param httpRequest 网络请求函数
+	 */
+	setXMLHttpRequest(httpRequest: any) {
+		this.GM_Api.xmlHttpRequest = httpRequest;
+	}
 	/**
 	 * GET 请求
 	 * @param details 配置
 	 */
-	get<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async get<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
 	/**
 	 * GET 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	get<T extends HttpxDetails>(
+	async get<T extends HttpxDetails>(
+		url: string,
+		details: T
+	): Promise<HttpxAsyncResult<T>>;
+	/**
+	 * GET 请求
+	 */
+	async get(
+		...args: (HttpxDetails | string)[]
+	): Promise<HttpxAsyncResult<HttpxDetails>> {
+		let that = this;
+		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+
+		return new Promise((resolve) => {
+			let requestDetails = that.HttpxRequestDetails.getDetails(
+				"get" as any,
+				resolve,
+				details
+			);
+			Reflect.deleteProperty(requestDetails, "onprogress");
+			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
+			that.HttpxRequest.request(requestDetails);
+		});
+	}
+	/**
+	 * POST 请求
+	 * @param details 配置
+	 */
+	async post<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	/**
+	 * POST 请求
+	 * @param url 网址
+	 * @param details 配置
+	 */
+	async post<T extends HttpxDetails>(
 		url: string,
 		details: T
 	): Promise<HttpxAsyncResult<T>>;
 	/**
 	 * POST 请求
+	 */
+	async post(
+		...args: (HttpxDetails | string)[]
+	): Promise<HttpxAsyncResult<HttpxDetails>> {
+		let that = this;
+		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+
+		return new Promise((resolve) => {
+			let requestDetails = that.HttpxRequestDetails.getDetails(
+				"post" as any,
+				resolve,
+				details
+			);
+			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
+			that.HttpxRequest.request(requestDetails);
+		});
+	}
+	/**
+	 * HEAD 请求
 	 * @param details 配置
 	 */
-	post<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async head<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
 	/**
-	 * POST 请求
+	 * HEAD 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	post<T extends HttpxDetails>(
+	async head<T extends HttpxDetails>(
 		url: string,
 		details: T
 	): Promise<HttpxAsyncResult<T>>;
 	/**
 	 * HEAD 请求
-	 * @param details 配置
 	 */
-	head<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
-	/**
-	 * HEAD 请求
-	 * @param url 网址
-	 * @param details 配置
-	 */
-	head<T extends HttpxDetails>(
-		url: string,
-		details: T
-	): Promise<HttpxAsyncResult<T>>;
+	async head(
+		...args: (HttpxDetails | string)[]
+	): Promise<HttpxAsyncResult<HttpxDetails>> {
+		let that = this;
+		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+
+		return new Promise((resolve) => {
+			let requestDetails = that.HttpxRequestDetails.getDetails(
+				"head" as any,
+				resolve,
+				details
+			);
+			Reflect.deleteProperty(requestDetails, "onprogress");
+			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
+			that.HttpxRequest.request(requestDetails);
+		});
+	}
+
 	/**
 	 * OPTIONS 请求
 	 * @param details 配置
@@ -1261,48 +2004,96 @@ declare interface UtilsHttpxConstrustor {
 		details: T
 	): Promise<HttpxAsyncResult<T>>;
 	/**
+	 * OPTIONS 请求
+	 */
+	async options(
+		...args: (HttpxDetails | string)[]
+	): Promise<HttpxAsyncResult<HttpxDetails>> {
+		let that = this;
+		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+
+		return new Promise((resolve) => {
+			let requestDetails = that.HttpxRequestDetails.getDetails(
+				"options" as any,
+				resolve,
+				details
+			);
+			Reflect.deleteProperty(requestDetails, "onprogress");
+			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
+			that.HttpxRequest.request(requestDetails);
+		});
+	}
+
+	/**
 	 * DELETE 请求
 	 * @param details 配置
 	 */
-	delete<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async delete<T extends HttpxDetails>(
+		details: T
+	): Promise<HttpxAsyncResult<T>>;
 	/**
 	 * DELETE 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	delete<T extends HttpxDetails>(
+	async delete<T extends HttpxDetails>(
 		url: string,
 		details: T
 	): Promise<HttpxAsyncResult<T>>;
 	/**
+	 * DELETE 请求
+	 */
+	async delete(
+		...args: (HttpxDetails | string)[]
+	): Promise<HttpxAsyncResult<HttpxDetails>> {
+		let that = this;
+		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+
+		return new Promise((resolve) => {
+			let requestDetails = that.HttpxRequestDetails.getDetails(
+				"delete" as any,
+				resolve,
+				details
+			);
+			Reflect.deleteProperty(requestDetails, "onprogress");
+			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
+			that.HttpxRequest.request(requestDetails);
+		});
+	}
+
+	/**
 	 * PUT 请求
 	 * @param details 配置
 	 */
-	put<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
+	async put<T extends HttpxDetails>(details: T): Promise<HttpxAsyncResult<T>>;
 	/**
 	 * PUT 请求
 	 * @param url 网址
 	 * @param details 配置
 	 */
-	put<T extends HttpxDetails>(
+	async put<T extends HttpxDetails>(
 		url: string,
 		details: T
 	): Promise<HttpxAsyncResult<T>>;
 	/**
-	 * 覆盖全局配置
-	 * @param details 配置
+	 * PUT 请求
 	 */
-	config(details?: {
-		[K in keyof HttpxDetailsConfig]?: HttpxDetailsConfig[K];
-	}): void;
-	/**
-	 * 修改xmlHttpRequest
-	 * @param httpRequest 网络请求函数
-	 */
-	setXMLHttpRequest(httpRequest: Function): void;
+	async put(
+		...args: (HttpxDetails | string)[]
+	): Promise<HttpxAsyncResult<HttpxDetails>> {
+		let that = this;
+		let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+
+		return new Promise((resolve) => {
+			let requestDetails = that.HttpxRequestDetails.getDetails(
+				"put" as any,
+				resolve,
+				details
+			);
+			(requestDetails as any) = that.HttpxRequestDetails.handle(requestDetails);
+			that.HttpxRequest.request(requestDetails);
+		});
+	}
 }
 
-/** Httpx */
-declare interface UtilsHttpx {
-	new (xmlHttpRequest: Function): UtilsHttpxConstrustor;
-}
+export { Httpx };

@@ -942,2284 +942,2139 @@ define((function () { 'use strict';
     	})();
     };
 
-    /**
-     * 
-     * @param {UtilsGMMenuConstructorOptions} details 
-     */
-    const GMMenu = function (details) {
-    	const GM_Api = {
-    		/**
-    		 * 获取存储的数据
-    		 * @type {GM_getValue}
-    		 */
-    		getValue: details.GM_getValue,
-    		/**
-    		 * 设置数据到存储
-    		 * @type {GM_setValue}
-    		 */
-    		setValue: details.GM_setValue,
-    		/**
-    		 * 注册菜单
-    		 * @type {GM_registerMenuCommand}
-    		 */
-    		registerMenuCommand: details.GM_registerMenuCommand,
-    		/**
-    		 * 卸载菜单
-    		 * @type {GM_unregisterMenuCommand}
-    		 */
-    		unregisterMenuCommand: details.GM_unregisterMenuCommand,
-    	};
-    	for (const keyName of Object.keys(GM_Api)) {
-    		if (typeof GM_Api[keyName] !== "function") {
-    			throw new Error(
-    				`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`
-    			);
-    		}
-    	}
-    	/** 上下文 */
-    	const context = this;
+    class GMMenu {
+        GM_Api = {
+            /**
+             * 获取存储的数据
+             */
+            getValue: GM_getValue,
+            /**
+             * 设置数据到存储
+             */
+            setValue: GM_setValue,
+            /**
+             * 注册菜单
+             */
+            registerMenuCommand: GM_registerMenuCommand,
+            /**
+             * 卸载菜单
+             */
+            unregisterMenuCommand: GM_unregisterMenuCommand,
+        };
+        MenuHandle = {
+            context: this,
+            $data: {
+                /**
+                 * 菜单数据
+                 */
+                data: [],
+                /**
+                 * 本地存储的键名
+                 */
+                key: "GM_Menu_Local_Map",
+            },
+            $default: {
+                /** 自动刷新网页，默认为true */
+                autoReload: true,
+                /**
+                 * 菜单isStoreValue的默认值
+                 */
+                isStoreValue: true,
+            },
+            $emoji: {
+                /**
+                 * 菜单enable为true的emoji
+                 */
+                success: "✅",
+                /**
+                 * 菜单enable为false的emoji
+                 */
+                error: "❌",
+            },
+            /**
+             * 初始化数据
+             */
+            init() {
+                for (let index = 0; index < this.$data.data.length; index++) {
+                    let menuOption = this.$data.data[index]["data"];
+                    menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
+                    if (typeof menuOption.showText !== "function") {
+                        menuOption.showText = (menuText, menuEnable) => {
+                            if (menuEnable) {
+                                return this.$emoji.success + " " + menuText;
+                            }
+                            else {
+                                return this.$emoji.error + " " + menuText;
+                            }
+                        };
+                    }
+                }
+            },
+            /**
+             * 注册油猴菜单
+             * @param menuOptions 如果存在，使用它
+             */
+            register(menuOptions) {
+                let that = this;
+                if (menuOptions == null) {
+                    throw new TypeError("register菜单数据不能为空");
+                }
+                if (!Array.isArray(menuOptions)) {
+                    menuOptions = [menuOptions];
+                }
+                for (let index = 0; index < menuOptions.length; index++) {
+                    let cloneMenuOptionData = utils.deepClone(menuOptions[index].data);
+                    const { showText, clickCallBack } = this.handleMenuData(cloneMenuOptionData);
+                    let menuId = that.context.GM_Api.registerMenuCommand(showText, clickCallBack);
+                    menuOptions[index].id = menuId;
+                    cloneMenuOptionData.deleteMenu = function () {
+                        that.context.GM_Api.unregisterMenuCommand(menuId);
+                    };
+                    Reflect.deleteProperty(menuOptions[index], "handleData");
+                    menuOptions[index].handleData = cloneMenuOptionData;
+                }
+            },
+            /**
+             * 获取本地存储菜单键值
+             * @param {string} key 键
+             */
+            getLocalMenuData(key, defaultValue) {
+                let localData = this.context.GM_Api.getValue(this.$data.key, {});
+                if (key in localData) {
+                    return localData[key];
+                }
+                else {
+                    return defaultValue;
+                }
+            },
+            /**
+             * 设置本地存储菜单键值
+             * @param key 键
+             * @param value 值
+             */
+            setLocalMenuData(key, value) {
+                let localData = this.context.GM_Api.getValue(this.$data.key, {});
+                localData[key] = value;
+                this.context.GM_Api.setValue(this.$data.key, localData);
+            },
+            /**
+             * 处理初始化配置
+             * @param menuOption
+             */
+            handleInitDetail(menuOption) {
+                menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
+                if (typeof menuOption.showText !== "function") {
+                    menuOption.showText = (menuText, menuEnable) => {
+                        if (menuEnable) {
+                            return this.$emoji.success + " " + menuText;
+                        }
+                        else {
+                            return this.$emoji.error + " " + menuText;
+                        }
+                    };
+                }
+                return menuOption;
+            },
+            /**
+             * 对菜单数据进行处理
+             * @param menuOption
+             */
+            handleMenuData(menuOption) {
+                let that = this;
+                let menuLocalDataItemKey = menuOption.key;
+                /* 菜单默认开启的状态 */
+                let defaultEnable = Boolean(this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable));
+                /** 油猴菜单上显示的文本 */
+                let showText = menuOption.showText(menuOption.text, defaultEnable);
+                ({
+                    /**
+                     * 菜单的id
+                     */
+                    id: menuOption.id,
+                    /**
+                     * 点击菜单项后是否应关闭弹出菜单
+                     */
+                    autoClose: menuOption.autoClose,
+                    /**
+                     * 菜单项的可选访问键
+                     */
+                    accessKey: menuOption.accessKey,
+                    /**
+                     * 菜单项的鼠标悬浮上的工具提示
+                     */
+                    title: menuOption.title,
+                });
+                /* 点击菜单后触发callback后的网页是否刷新 */
+                menuOption.autoReload =
+                    typeof menuOption.autoReload !== "boolean"
+                        ? this.$default.autoReload
+                        : menuOption.autoReload;
+                /* 点击菜单后触发callback后的网页是否存储值 */
+                menuOption.isStoreValue =
+                    typeof menuOption.isStoreValue !== "boolean"
+                        ? this.$default.isStoreValue
+                        : menuOption.isStoreValue;
+                /**
+                 * 用户点击菜单后的回调函数
+                 * @param event
+                 */
+                function clickCallBack(event) {
+                    let localEnable = Boolean(that.getLocalMenuData(menuLocalDataItemKey, defaultEnable));
+                    if (menuOption.isStoreValue) {
+                        that.setLocalMenuData(menuLocalDataItemKey, !localEnable);
+                    }
+                    if (typeof menuOption.callback === "function") {
+                        menuOption.callback({
+                            key: menuLocalDataItemKey,
+                            enable: !localEnable,
+                            oldEnable: localEnable,
+                            event: event,
+                            storeValue(value) {
+                                that.setLocalMenuData(menuLocalDataItemKey, value);
+                            },
+                        });
+                    }
+                    /* 不刷新网页就刷新菜单 */
+                    if (menuOption.autoReload) {
+                        window.location.reload();
+                    }
+                    else {
+                        that.context.update();
+                    }
+                }
+                return {
+                    showText,
+                    clickCallBack,
+                };
+            },
+            /**
+             * 获取目标菜单配置数据
+             * @param menuKey 菜单-键key
+             */
+            getMenuData(menuKey) {
+                return this.$data.data.find((item) => item.data.key === menuKey);
+            },
+            /**
+             * 获取目标菜单配置
+             * @param menuKey 菜单-键key
+             */
+            getMenuOption(menuKey) {
+                return this.$data.data.find((item) => item.data.key === menuKey)?.data;
+            },
+            /**
+             * 获取目标菜单处理后的配置
+             * @param menuKey 菜单-键key
+             */
+            getMenuHandledOption(menuKey) {
+                return this.$data.data.find((item) => item.handleData.key === menuKey)
+                    ?.handleData;
+            },
+        };
+        constructor(details) {
+            this.GM_Api.getValue = details.GM_getValue;
+            this.GM_Api.setValue = details.GM_setValue;
+            this.GM_Api.registerMenuCommand = details.GM_registerMenuCommand;
+            this.GM_Api.unregisterMenuCommand = details.GM_unregisterMenuCommand;
+            this.MenuHandle.$default.autoReload =
+                typeof details.autoReload === "boolean" ? details.autoReload : true;
+            for (const keyName of Object.keys(this.GM_Api)) {
+                if (typeof this.GM_Api[keyName] !== "function") {
+                    throw new Error(`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`);
+                }
+            }
+            this.add(details?.data || []);
+        }
+        /**
+         * 新增菜单数据
+         * @param paramData
+         */
+        add(paramData) {
+            if (Array.isArray(paramData)) {
+                for (const _paramData of paramData) {
+                    // @ts-ignore
+                    this.MenuHandle.$data.data.push({
+                        data: _paramData,
+                        id: void 0,
+                    });
+                }
+            }
+            else {
+                // @ts-ignore
+                this.MenuHandle.$data.data.push({
+                    data: paramData,
+                    id: void 0,
+                });
+            }
+            this.update();
+        }
+        /**
+         * 更新菜单数据
+         * @param options 数据
+         */
+        update(options) {
+            let optionsList = [];
+            if (Array.isArray(options)) {
+                optionsList = [...optionsList, ...options];
+            }
+            else if (options != null) {
+                optionsList = [...optionsList, options];
+            }
+            optionsList.forEach((item) => {
+                let targetMenu = this.MenuHandle.getMenuOption(item.key);
+                if (targetMenu) {
+                    Object.assign(targetMenu, item);
+                }
+            });
+            this.MenuHandle.$data.data.forEach((value) => {
+                if (value.handleData) {
+                    value.handleData.deleteMenu();
+                }
+            });
+            this.MenuHandle.init();
+            this.MenuHandle.register(this.MenuHandle.$data.data);
+        }
+        /**
+         * 卸载菜单
+         * @param menuId 已注册的菜单id
+         */
+        delete(menuId) {
+            this.GM_Api.unregisterMenuCommand(menuId);
+        }
+        /**
+         * 根据键值获取enable值
+         * @param menuKey 菜单-键key
+         */
+        get(menuKey) {
+            return this.getEnable(menuKey);
+        }
+        /**
+         * 根据键值获取enable值
+         * @param menuKey 菜单-键key
+         */
+        getEnable(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey).enable;
+        }
+        /**
+         * 根据键值获取text值
+         * @param menuKey 菜单-键key
+         */
+        getText(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey).text;
+        }
+        /**
+         * 根据键值获取showText函数的值
+         * @param menuKey 菜单-键key
+         */
+        getShowTextValue(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey).showText(this.getText(menuKey), this.get(menuKey));
+        }
+        /**
+         * 获取当前已注册菜单的id
+         * @param menuKey
+         */
+        getMenuId(menuKey) {
+            let result = null;
+            for (let index = 0; index < this.MenuHandle.$data.data.length; index++) {
+                const optionData = this.MenuHandle.$data.data[index];
+                if (optionData.handleData.key === menuKey) {
+                    result = optionData.id;
+                    break;
+                }
+            }
+            return result;
+        }
+        /**
+         * 根据键值获取accessKey值
+         * @param menuKey 菜单-键key
+         */
+        getAccessKey(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey)?.accessKey;
+        }
+        /**
+         * 根据键值获取autoClose值
+         * @param menuKey 菜单-键key
+         */
+        getAutoClose(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey)?.autoClose;
+        }
+        /**
+         * 根据键值获取autoReload值
+         * @param menuKey 菜单-键key
+         */
+        getAutoReload(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey)?.autoReload;
+        }
+        /**
+         * 根据键值获取callback函数
+         * @param menuKey 菜单-键key
+         */
+        getCallBack(menuKey) {
+            return this.MenuHandle.getMenuHandledOption(menuKey)?.callback;
+        }
+        /**
+         * 获取当enable为true时默认显示在菜单中前面的emoji图标
+         */
+        getEnableTrueEmoji() {
+            return this.MenuHandle.$emoji.success;
+        }
+        /**
+         * 获取当enable为false时默认显示在菜单中前面的emoji图标
+         */
+        getEnableFalseEmoji() {
+            return this.MenuHandle.$emoji.error;
+        }
+        /**
+         * 获取本地存储的菜单外部的键名
+         * @param keyName
+         */
+        getLocalStorageKeyName() {
+            return this.MenuHandle.$data.key;
+        }
+        /**
+         * 设置菜单的值
+         * @param menuKey 菜单-键key
+         * @param value 需要设置的值
+         */
+        setValue(menuKey, value) {
+            this.MenuHandle.setLocalMenuData(menuKey, value);
+        }
+        /**
+         * 设置菜单的值
+         * @param menuKey 菜单-键key
+         * @param value 需要设置的值
+         */
+        setEnable(menuKey, value) {
+            this.setValue(menuKey, Boolean(value));
+        }
+        /**
+         * 设置当enable为true时默认显示在菜单中前面的emoji图标
+         * @param emojiString
+         */
+        setEnableTrueEmoji(emojiString) {
+            if (typeof emojiString !== "string") {
+                throw new Error("参数emojiString必须是string类型");
+            }
+            this.MenuHandle.$emoji.success = emojiString;
+        }
+        /**
+         * 设置当enable为false时默认显示在菜单中前面的emoji图标
+         * @param emojiString
+         */
+        setEnableFalseEmoji(emojiString) {
+            if (typeof emojiString !== "string") {
+                throw new Error("参数emojiString必须是string类型");
+            }
+            this.MenuHandle.$emoji.error = emojiString;
+        }
+        /**
+         * 设置本地存储的菜单外部的键名
+         * @param keyName
+         */
+        setLocalStorageKeyName(keyName) {
+            if (typeof keyName !== "string") {
+                throw new Error("参数keyName必须是string类型");
+            }
+            this.MenuHandle.$data.key = keyName;
+        }
+    }
 
-    	const MenuHandle = {
-    		$data: {
-    			/**
-    			 * 菜单数据
-    			 * @type {UtilsGMMenuOptionData[]}
-    			 */
-    			data: [],
-    			/**
-    			 * 本地存储的键名
-    			 */
-    			key: "GM_Menu_Local_Map",
-    		},
-    		$default: {
-    			/** 自动刷新网页，默认为true */
-    			autoReload:
-    				typeof details.autoReload === "boolean" ? details.autoReload : true,
-    			/**
-    			 * 菜单isStoreValue的默认值
-    			 */
-    			isStoreValue: true,
-    		},
-    		$emoji: {
-    			/**
-    			 * 菜单enable为true的emoji
-    			 */
-    			success: "✅",
-    			/**
-    			 * 菜单enable为false的emoji
-    			 */
-    			error: "❌",
-    		},
-    		/**
-    		 * 初始化数据
-    		 */
-    		init() {
-    			for (let index = 0; index < this.$data.data.length; index++) {
-    				let menuOption = this.$data.data[index]["data"];
-    				menuOption.enable = Boolean(
-    					this.getLocalMenuData(menuOption.key, menuOption.enable)
-    				);
-    				if (typeof menuOption.showText !== "function") {
-    					menuOption.showText = (menuText, menuEnable) => {
-    						if (menuEnable) {
-    							return this.$emoji.success + " " + menuText;
-    						} else {
-    							return this.$emoji.error + " " + menuText;
-    						}
-    					};
-    				}
-    			}
-    		},
-    		/**
-    		 * 注册油猴菜单
-    		 * @param { ?UtilsGMMenuOptionData[] } menuOptions 如果存在，使用它
-    		 */
-    		register(menuOptions) {
-    			if (menuOptions == null) {
-    				throw new TypeError("register菜单数据不能为空");
-    			}
-    			if (!Array.isArray(menuOptions)) {
-    				menuOptions = [menuOptions];
-    			}
-    			for (let index = 0; index < menuOptions.length; index++) {
-    				let cloneMenuOptionData = Utils.deepClone(menuOptions[index].data);
-    				const { showText, clickCallBack } =
-    					this.handleMenuData(cloneMenuOptionData);
-    				let menuId = GM_Api.registerMenuCommand(showText, clickCallBack);
-    				menuOptions[index].id = menuId;
-    				cloneMenuOptionData.deleteMenu = function () {
-    					GM_Api.unregisterMenuCommand(menuId);
-    				};
-    				Reflect.deleteProperty(menuOptions[index], "handleData");
-    				menuOptions[index].handleData = cloneMenuOptionData;
-    			}
-    		},
-    		/**
-    		 * 获取本地存储菜单键值
-    		 * @param {string} key 键
-    		 * @returns {boolean}
-    		 */
-    		getLocalMenuData(key, defaultValue) {
-    			let localData = GM_Api.getValue(this.$data.key, {});
-    			if (key in localData) {
-    				return localData[key];
-    			} else {
-    				return defaultValue;
-    			}
-    		},
-    		/**
-    		 * 设置本地存储菜单键值
-    		 * @param {string} key 键
-    		 * @param {boolean} value 值
-    		 */
-    		setLocalMenuData(key, value) {
-    			let localData = GM_Api.getValue(this.$data.key, {});
-    			localData[key] = value;
-    			GM_Api.setValue(this.$data.key, localData);
-    		},
-    		/**
-    		 * 处理初始化配置
-    		 * @param { UtilsGMMenuOption } menuOption
-    		 */
-    		handleInitDetail(menuOption) {
-    			menuOption.enable = Boolean(
-    				this.getLocalMenuData(menuOption.key, menuOption.enable)
-    			);
-    			if (typeof menuOption.showText !== "function") {
-    				menuOption.showText = (menuText, menuEnable) => {
-    					if (menuEnable) {
-    						return this.$emoji.success + " " + menuText;
-    					} else {
-    						return this.$emoji.error + " " + menuText;
-    					}
-    				};
-    			}
-    			return menuOption;
-    		},
-    		/**
-    		 * 对菜单数据进行处理
-    		 * @param { UtilsGMMenuOption } menuOption
-    		 */
-    		handleMenuData(menuOption) {
-    			let menuLocalDataItemKey = menuOption.key;
-    			/* 菜单默认开启的状态 */
-    			let defaultEnable = Boolean(
-    				this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable)
-    			);
-    			/** 油猴菜单上显示的文本 */
-    			let showText = menuOption.showText(menuOption.text, defaultEnable);
-    			const that = this;
-    			({
-    				/**
-    				 * 菜单的id
-    				 */
-    				id: menuOption.id,
-    				/**
-    				 * 点击菜单项后是否应关闭弹出菜单
-    				 */
-    				autoClose: menuOption.autoClose,
-    				/**
-    				 * 菜单项的可选访问键
-    				 */
-    				accessKey: menuOption.accessKey,
-    				/**
-    				 * 菜单项的鼠标悬浮上的工具提示
-    				 */
-    				title: menuOption.title,
-    			});
-    			/* 点击菜单后触发callback后的网页是否刷新 */
-    			menuOption.autoReload =
-    				typeof menuOption.autoReload !== "boolean"
-    					? this.$default.autoReload
-    					: menuOption.autoReload;
-    			/* 点击菜单后触发callback后的网页是否存储值 */
-    			menuOption.isStoreValue =
-    				typeof menuOption.isStoreValue !== "boolean"
-    					? this.$default.isStoreValue
-    					: menuOption.isStoreValue;
-    			/**
-    			 * 用户点击菜单后的回调函数
-    			 * @param {MouseEvent|PointerEvent} event
-    			 */
-    			function clickCallBack(event) {
-    				let localEnable = Boolean(
-    					that.getLocalMenuData(menuLocalDataItemKey, defaultEnable)
-    				);
-    				if (menuOption.isStoreValue) {
-    					that.setLocalMenuData(menuLocalDataItemKey, !localEnable);
-    				}
-    				if (typeof menuOption.callback === "function") {
-    					menuOption.callback({
-    						key: menuLocalDataItemKey,
-    						enable: !localEnable,
-    						oldEnable: localEnable,
-    						event: event,
-    						storeValue(value) {
-    							that.setLocalMenuData(menuLocalDataItemKey, value);
-    						},
-    					});
-    				}
-    				/* 不刷新网页就刷新菜单 */
-    				if (menuOption.autoReload) {
-    					window.location.reload();
-    				} else {
-    					context.update();
-    				}
-    			}
+    class Hooks {
+        /**
+         * 在Function原型上添加自定义方法.hook和.unhook
+         */
+        initEnv() {
+            Function.prototype.hook = function (realFunc, hookFunc, context) {
+                let _context = null; //函数上下文
+                let _funcName = null; //函数名
+                _context = context || window;
+                _funcName = getFuncName(this);
+                _context["realFunc_" + _funcName] = this;
+                if (_context[_funcName].prototype &&
+                    _context[_funcName].prototype.isHooked) {
+                    console.log("Already has been hooked,unhook first");
+                    return false;
+                }
+                function getFuncName(fn) {
+                    // 获取函数名
+                    let strFunc = fn.toString();
+                    let _regex = /function\s+(\w+)\s*\(/;
+                    let patten = strFunc.match(_regex);
+                    if (patten) {
+                        return patten[1];
+                    }
+                    return "";
+                }
+                try {
+                    eval("_context[_funcName] = function " +
+                        _funcName +
+                        "(){\n" +
+                        "let args = Array.prototype.slice.call(arguments,0);\n" +
+                        "let obj = this;\n" +
+                        "hookFunc.apply(obj,args);\n" +
+                        "return _context['realFunc_" +
+                        _funcName +
+                        "'].apply(obj,args);\n" +
+                        "};");
+                    _context[_funcName].prototype.isHooked = true;
+                    return true;
+                }
+                catch (e) {
+                    console.log("Hook failed,check the params.");
+                    return false;
+                }
+            };
+            Function.prototype.unhook = function (realFunc, funcName, context) {
+                let _context = null;
+                let _funcName = null;
+                _context = context || window;
+                _funcName = funcName;
+                if (!_context[_funcName].prototype.isHooked) {
+                    console.log("No function is hooked on");
+                    return false;
+                }
+                _context[_funcName] = _context["realFunc" + _funcName];
+                Reflect.deleteProperty(_context, "realFunc_" + _funcName);
+                return true;
+            };
+        }
+        /**
+         * 删除在Function原型上添加的自定义方法.hook和.unhook
+         */
+        cleanEnv() {
+            if (Function.prototype.hasOwnProperty("hook")) {
+                Reflect.deleteProperty(Function.prototype, "hook");
+            }
+            if (Function.prototype.hasOwnProperty("unhook")) {
+                Reflect.deleteProperty(Function.prototype, "unhook");
+            }
+            return true;
+        }
+    }
 
-    			return {
-    				showText,
-    				clickCallBack,
-    			};
-    		},
-    		/**
-    		 * 获取目标菜单配置数据
-    		 * @param {string} menuKey 菜单-键key
-    		 */
-    		getMenuData(menuKey) {
-    			return this.$data.data.find((item) => item.data.key === menuKey);
-    		},
-    		/**
-    		 * 获取目标菜单配置
-    		 * @param {string} menuKey 菜单-键key
-    		 */
-    		getMenuOption(menuKey) {
-    			return this.$data.data.find((item) => item.data.key === menuKey)?.data;
-    		},
-    		/**
-    		 * 获取目标菜单处理后的配置
-    		 * @param {string} menuKey 菜单-键key
-    		 */
-    		getMenuHandledOption(menuKey) {
-    			return this.$data.data.find((item) => item.handleData.key === menuKey)
-    				?.handleData;
-    		},
-    	};
+    class Httpx {
+        GM_Api = {
+            xmlHttpRequest: null,
+        };
+        HttpxRequestHook = {
+            /**
+             * 发送请求前的回调
+             * 如果返回false则阻止本次返回
+             * @param details 当前的请求配置
+             */
+            beforeRequestCallBack(details) { },
+        };
+        HttpxRequestDetails = {
+            context: this,
+            /**
+             * 根据传入的参数处理获取details配置
+             */
+            handleBeforeRequestDetails(...args) {
+                let result = {};
+                if (typeof args[0] === "string") {
+                    /* 传入的是url,details? */
+                    let url = args[0];
+                    result.url = url;
+                    if (typeof args[1] === "object") {
+                        /* 处理第二个参数details */
+                        let details = args[1];
+                        result = details;
+                        result.url = url;
+                    }
+                }
+                else {
+                    /* 传入的是details */
+                    result = args[0];
+                }
+                return result;
+            },
+            /**
+             * 获取请求配置
+             * @param method 当前请求方法，默认get
+             * @param resolve promise回调
+             * @param details 请求配置
+             */
+            getDetails(method, resolve, details) {
+                let that = this;
+                let result = {
+                    url: details.url || this.context.#defaultDetails.url,
+                    method: (method || "GET").toString().toUpperCase(),
+                    timeout: details.timeout || this.context.#defaultDetails.timeout,
+                    responseType: details.responseType || this.context.#defaultDetails.responseType,
+                    /* 对象使用深拷贝 */
+                    headers: utils.deepClone(this.context.#defaultDetails.headers),
+                    data: details.data || this.context.#defaultDetails.data,
+                    redirect: details.redirect || this.context.#defaultDetails.redirect,
+                    cookie: details.cookie || this.context.#defaultDetails.cookie,
+                    binary: details.binary || this.context.#defaultDetails.binary,
+                    nocache: details.nocache || this.context.#defaultDetails.nocache,
+                    revalidate: details.revalidate || this.context.#defaultDetails.revalidate,
+                    /* 对象使用深拷贝 */
+                    context: utils.deepClone(details.context || this.context.#defaultDetails.context),
+                    overrideMimeType: details.overrideMimeType ||
+                        this.context.#defaultDetails.overrideMimeType,
+                    anonymous: details.anonymous || this.context.#defaultDetails.anonymous,
+                    fetch: details.fetch || this.context.#defaultDetails.fetch,
+                    /* 对象使用深拷贝 */
+                    fetchInit: utils.deepClone(this.context.#defaultDetails.fetchInit),
+                    user: details.user || this.context.#defaultDetails.user,
+                    password: details.password || this.context.#defaultDetails.password,
+                    onabort(...args) {
+                        that.context.HttpxCallBack.onAbort(details, resolve, args);
+                    },
+                    onerror(...args) {
+                        that.context.HttpxCallBack.onError(details, resolve, args);
+                    },
+                    onloadstart(...args) {
+                        that.context.HttpxCallBack.onLoadStart(details, args);
+                    },
+                    onprogress(...args) {
+                        that.context.HttpxCallBack.onProgress(details, args);
+                    },
+                    onreadystatechange(...args) {
+                        that.context.HttpxCallBack.onReadyStateChange(details, args);
+                    },
+                    ontimeout(...args) {
+                        that.context.HttpxCallBack.onTimeout(details, resolve, args);
+                    },
+                    onload(...args) {
+                        that.context.HttpxCallBack.onLoad(details, resolve, args);
+                    },
+                };
+                if (typeof this.context.GM_Api.xmlHttpRequest !== "function") {
+                    result.fetch = true;
+                }
+                if (typeof result.headers === "object") {
+                    if (typeof details.headers === "object") {
+                        Object.keys(details.headers).forEach((keyName, index) => {
+                            if (keyName in result.headers &&
+                                details.headers?.[keyName] == null) {
+                                /* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
+                                Reflect.deleteProperty(result.headers, keyName);
+                            }
+                            else {
+                                result.headers[keyName] = details?.headers?.[keyName];
+                            }
+                        });
+                    }
+                }
+                else {
+                    result.headers = details.headers;
+                }
+                if (typeof result.fetchInit === "object") {
+                    /* 使用assign替换且添加 */
+                    if (typeof details.fetchInit === "object") {
+                        Object.keys(details.fetchInit).forEach((keyName, index) => {
+                            if (keyName in result.fetchInit &&
+                                details.fetchInit[keyName] == null) {
+                                /* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
+                                Reflect.deleteProperty(result.fetchInit, keyName);
+                            }
+                            else {
+                                result.fetchInit[keyName] = details.fetchInit[keyName];
+                            }
+                        });
+                    }
+                }
+                else {
+                    result.fetchInit = details.fetchInit;
+                }
+                return result;
+            },
+            /**
+             * 处理发送请求的details，去除值为undefined、空function的值
+             * @param details
+             */
+            handle(details) {
+                Object.keys(details).forEach((keyName) => {
+                    if (details[keyName] == null ||
+                        (details[keyName] instanceof Function &&
+                            utils.isNull(details[keyName]))) {
+                        Reflect.deleteProperty(details, keyName);
+                        return;
+                    }
+                });
+                if (utils.isNull(details.url)) {
+                    throw new TypeError(`Utils.Httpx 参数 url不符合要求: ${details.url}`);
+                }
+                /* method值统一大写，兼容Via */
+                details.method = details.method.toUpperCase();
+                /* 判断是否是以http开头，否则主动加上origin */
+                try {
+                    new URL(details.url);
+                }
+                catch (error) {
+                    if (details.url.startsWith("//")) {
+                        details.url = globalThis.location.protocol + details.url;
+                    }
+                    else if (details.url.startsWith("/")) {
+                        details.url = globalThis.location.origin + details.url;
+                    }
+                    else {
+                        details.url = globalThis.location.origin + "/" + details.url;
+                    }
+                }
+                return details;
+            },
+            /**
+             * 处理fetch的配置
+             * @param details
+             */
+            handleFetchDetail(details) {
+                /**
+                 * fetch的请求配置
+                 **/
+                let fetchRequestInit = {};
+                if ((details.method === "GET" || details.method === "HEAD") &&
+                    details.data != null) {
+                    /* GET 或 HEAD 方法的请求不能包含 body 信息 */
+                    Reflect.deleteProperty(details, "data");
+                }
+                /* 中止信号控制器 */
+                let abortController = new AbortController();
+                let signal = abortController.signal;
+                signal.onabort = () => {
+                    details.onabort({
+                        isFetch: true,
+                        responseText: "",
+                        response: null,
+                        readyState: 4,
+                        responseHeaders: "",
+                        status: 0,
+                        statusText: "",
+                        error: "aborted",
+                    });
+                };
+                fetchRequestInit.method = details.method ?? "GET";
+                fetchRequestInit.headers = details.headers;
+                fetchRequestInit.body = details.data;
+                fetchRequestInit.mode = "cors";
+                fetchRequestInit.credentials = "include";
+                fetchRequestInit.cache = "no-cache";
+                fetchRequestInit.redirect = "follow";
+                fetchRequestInit.referrerPolicy = "origin-when-cross-origin";
+                fetchRequestInit.signal = signal;
+                Object.assign(fetchRequestInit, details.fetchInit || {});
+                return {
+                    fetchDetails: details,
+                    fetchRequestInit: fetchRequestInit,
+                    abortController: abortController,
+                };
+            },
+        };
+        HttpxCallBack = {
+            context: this,
+            /**
+             * onabort请求被取消-触发
+             * @param details 配置
+             * @param resolve 回调
+             * @param argumentsList 参数列表
+             */
+            onAbort(details, resolve, argumentsList) {
+                if ("onabort" in details) {
+                    details.onabort.apply(this, argumentsList);
+                }
+                else if ("onabort" in this.context.#defaultDetails) {
+                    this.context.#defaultDetails.onabort.apply(this, argumentsList);
+                }
+                resolve({
+                    status: false,
+                    data: [...argumentsList],
+                    msg: "请求被取消",
+                    type: "onabort",
+                });
+            },
+            /**
+             * onerror请求异常-触发
+             * @param details 配置
+             * @param resolve 回调
+             * @param argumentsList 响应的参数列表
+             */
+            onError(details, resolve, argumentsList) {
+                if ("onerror" in details) {
+                    details.onerror.apply(this, argumentsList);
+                }
+                else if ("onerror" in this.context.#defaultDetails) {
+                    this.context.#defaultDetails.onerror.apply(this, argumentsList);
+                }
+                let response = argumentsList;
+                if (response.length) {
+                    response = response[0];
+                }
+                resolve({
+                    status: false,
+                    data: response,
+                    details: details,
+                    msg: "请求异常",
+                    type: "onerror",
+                });
+            },
+            /**
+             * ontimeout请求超时-触发
+             * @param details 配置
+             * @param resolve 回调
+             * @param argumentsList 参数列表
+             */
+            onTimeout(details, resolve, argumentsList) {
+                if ("ontimeout" in details) {
+                    details.ontimeout.apply(this, argumentsList);
+                }
+                else if ("ontimeout" in this.context.#defaultDetails) {
+                    this.context.#defaultDetails.ontimeout.apply(this, argumentsList);
+                }
+                resolve({
+                    status: false,
+                    data: [...argumentsList],
+                    msg: "请求超时",
+                    type: "ontimeout",
+                });
+            },
+            /**
+             * onloadstart请求开始-触发
+             * @param details 配置
+             * @param argumentsList 参数列表
+             */
+            onLoadStart(details, argumentsList) {
+                if ("onloadstart" in details) {
+                    details.onloadstart.apply(this, argumentsList);
+                }
+                else if ("onloadstart" in this.context.#defaultDetails) {
+                    this.context.#defaultDetails.onloadstart.apply(this, argumentsList);
+                }
+            },
+            /**
+             * onload加载完毕-触发
+             * @param details 请求的配置
+             * @param resolve 回调
+             * @param argumentsList 参数列表
+             */
+            onLoad(details, resolve, argumentsList) {
+                /* X浏览器会因为设置了responseType导致不返回responseText */
+                let Response = argumentsList[0];
+                /* responseText为空，response不为空的情况 */
+                if (utils.isNull(Response["responseText"]) &&
+                    utils.isNotNull(Response["response"])) {
+                    if (typeof Response["response"] === "object") {
+                        utils.tryCatch().run(() => {
+                            Response["responseText"] = JSON.stringify(Response["response"]);
+                        });
+                    }
+                    else {
+                        Response["responseText"] = Response["response"];
+                    }
+                }
+                /* response为空，responseText不为空的情况 */
+                if (Response["response"] == null &&
+                    typeof Response["responseText"] === "string" &&
+                    Response["responseText"].trim() !== "") {
+                    let newResponse = Response["responseText"];
+                    if (details.responseType === "json") {
+                        newResponse = utils.toJSON(Response["responseText"]);
+                    }
+                    else if (details.responseType === "document") {
+                        let parser = new DOMParser();
+                        newResponse = parser.parseFromString(Response["responseText"], "text/html");
+                    }
+                    else if (details.responseType === "arraybuffer") {
+                        let encoder = new TextEncoder();
+                        let arrayBuffer = encoder.encode(Response["responseText"]);
+                        newResponse = arrayBuffer;
+                    }
+                    else if (details.responseType === "blob") {
+                        let encoder = new TextEncoder();
+                        let arrayBuffer = encoder.encode(Response["responseText"]);
+                        newResponse = new Blob([arrayBuffer]);
+                    }
+                    else {
+                        newResponse = Response["responseText"];
+                    }
+                    try {
+                        Response["response"] = newResponse;
+                    }
+                    catch (error) {
+                        console.warn("response 无法被覆盖");
+                    }
+                }
+                /* Stay扩展中没有finalUrl，对应的是responseURL */
+                if (Response["finalUrl"] == null &&
+                    Response["responseURL"] != null) {
+                    Response["finalUrl"] = Response["responseURL"];
+                }
+                /* 状态码2xx都是成功的 */
+                if (Math.floor(Response.status / 100) === 2) {
+                    resolve({
+                        status: true,
+                        data: Response,
+                        details: details,
+                        msg: "请求完毕",
+                        type: "onload",
+                    });
+                }
+                else {
+                    this.context.HttpxCallBack.onError(details, resolve, argumentsList);
+                }
+            },
+            /**
+             * onprogress上传进度-触发
+             * @param details 配置
+             * @param argumentsList 参数列表
+             */
+            onProgress(details, argumentsList) {
+                if ("onprogress" in details) {
+                    details.onprogress.apply(this, argumentsList);
+                }
+                else if ("onprogress" in this.context.#defaultDetails) {
+                    this.context.#defaultDetails.onprogress.apply(this, argumentsList);
+                }
+            },
+            /**
+             * onreadystatechange准备状态改变-触发
+             * @param details 配置
+             * @param argumentsList 参数列表
+             */
+            onReadyStateChange(details, argumentsList) {
+                if ("onreadystatechange" in details) {
+                    details.onreadystatechange.apply(this, argumentsList);
+                }
+                else if ("onreadystatechange" in this.context.#defaultDetails) {
+                    this.context.#defaultDetails.onreadystatechange.apply(this, argumentsList);
+                }
+            },
+        };
+        HttpxRequest = {
+            context: this,
+            /**
+             * 发送请求
+             * @param details
+             */
+            request(details) {
+                if (this.context.#LOG_DETAILS) {
+                    console.log("Httpx请求配置👇", details);
+                }
+                if (typeof this.context.HttpxRequestHook.beforeRequestCallBack ===
+                    "function") {
+                    let hookResult = this.context.HttpxRequestHook.beforeRequestCallBack(details);
+                    if (typeof hookResult === "boolean" && !hookResult) {
+                        return;
+                    }
+                }
+                if (details.fetch) {
+                    const { fetchDetails, fetchRequestInit, abortController } = this.context.HttpxRequestDetails.handleFetchDetail(details);
+                    this.fetch(fetchDetails, fetchRequestInit, abortController);
+                }
+                else {
+                    Reflect.deleteProperty(details, "fetchInit");
+                    this.xmlHttpRequest(details);
+                }
+            },
+            /**
+             * 使用油猴函数GM_xmlhttpRequest发送请求
+             * @param details
+             */
+            xmlHttpRequest(details) {
+                this.context.GM_Api.xmlHttpRequest(details);
+            },
+            /**
+             * 使用fetch发送请求
+             * @param details
+             * @param fetchRequestInit
+             * @param abortController
+             */
+            fetch(details, fetchRequestInit, abortController) {
+                fetch(details.url, fetchRequestInit)
+                    .then(async (resp) => {
+                    /**
+                     * @type {HttpxAsyncResultData}
+                     */
+                    let httpxResponse = {
+                        isFetch: true,
+                        finalUrl: resp.url,
+                        readyState: 4,
+                        status: resp.status,
+                        statusText: resp.statusText,
+                        response: void 0,
+                        responseFetchHeaders: resp.headers,
+                        responseHeaders: "",
+                        responseText: void 0,
+                        responseType: details.responseType,
+                        responseXML: void 0,
+                    };
+                    Object.assign(httpxResponse, details.context || {});
+                    for (const [key, value] of resp.headers.entries()) {
+                        httpxResponse.responseHeaders += `${key}: ${value}\n`;
+                    }
+                    /* 如果是流式传输，直接返回 */
+                    if (details.responseType === "stream" ||
+                        (resp.headers.has("Content-Type") &&
+                            resp.headers.get("Content-Type").includes("text/event-stream"))) {
+                        httpxResponse["isStream"] = true;
+                        httpxResponse.response = resp.body;
+                        Reflect.deleteProperty(httpxResponse, "responseText");
+                        Reflect.deleteProperty(httpxResponse, "responseXML");
+                        details.onload(httpxResponse);
+                        return;
+                    }
+                    /** 响应 */
+                    let response = "";
+                    /** 响应字符串 */
+                    let responseText = "";
+                    /** 响应xml文档 */
+                    let responseXML = "";
+                    let arrayBuffer = await resp.arrayBuffer;
+                    let encoding = "utf-8";
+                    if (resp.headers.has("Content-Type")) {
+                        let charsetMatched = resp.headers
+                            .get("Content-Type")
+                            ?.match(/charset=(.+)/);
+                        if (charsetMatched) {
+                            encoding = charsetMatched[1];
+                        }
+                    }
+                    let textDecoder = new TextDecoder(encoding);
+                    responseText = textDecoder.decode(await resp.arrayBuffer());
+                    response = responseText;
+                    if (details.responseType === "arraybuffer") {
+                        response = arrayBuffer;
+                    }
+                    else if (details.responseType === "blob") {
+                        response = new Blob([arrayBuffer]);
+                    }
+                    else if (details.responseType === "document" ||
+                        details.responseType == null) {
+                        let parser = new DOMParser();
+                        response = parser.parseFromString(responseText, "text/html");
+                    }
+                    else if (details.responseType === "json") {
+                        response = utils.toJSON(responseText);
+                    }
+                    let parser = new DOMParser();
+                    responseXML = parser.parseFromString(responseText, "text/xml");
+                    httpxResponse.response = response;
+                    httpxResponse.responseText = responseText;
+                    httpxResponse.responseXML = responseXML;
+                    details.onload(httpxResponse);
+                })
+                    .catch((err) => {
+                    if (err.name === "AbortError") {
+                        return;
+                    }
+                    details.onerror({
+                        isFetch: true,
+                        finalUrl: details.url,
+                        readyState: 4,
+                        status: 0,
+                        statusText: "",
+                        responseHeaders: "",
+                        responseText: "",
+                        error: err,
+                    });
+                });
+                details.onloadstart({
+                    isFetch: true,
+                    finalUrl: details.url,
+                    readyState: 1,
+                    responseHeaders: "",
+                    responseText: "",
+                    status: 0,
+                    statusText: "",
+                });
+                return {
+                    abort() {
+                        abortController.abort();
+                    },
+                };
+            },
+        };
+        /**
+         * 默认配置
+         */
+        #defaultDetails = {
+            url: void 0,
+            timeout: 5000,
+            async: false,
+            responseType: void 0,
+            headers: void 0,
+            data: void 0,
+            redirect: void 0,
+            cookie: void 0,
+            binary: void 0,
+            nocache: void 0,
+            revalidate: void 0,
+            context: void 0,
+            overrideMimeType: void 0,
+            anonymous: void 0,
+            fetch: void 0,
+            fetchInit: void 0,
+            user: void 0,
+            password: void 0,
+            onabort() { },
+            onerror() { },
+            ontimeout() { },
+            onloadstart() { },
+            onreadystatechange() { },
+            onprogress() { },
+        };
+        /**
+         * 当前使用请求时，输出请求的配置
+         */
+        #LOG_DETAILS = false;
+        constructor(__xmlHttpRequest__) {
+            if (typeof __xmlHttpRequest__ !== "function") {
+                console.warn("Httpx未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，强制使用window.fetch");
+            }
+            this.GM_Api.xmlHttpRequest = __xmlHttpRequest__;
+        }
+        /**
+         * 覆盖当前配置
+         * @param details
+         */
+        config(details = {}) {
+            if ("logDetails" in details && typeof details["logDetails"] === "boolean") {
+                this.#LOG_DETAILS = details["logDetails"];
+            }
+            this.#defaultDetails = utils.assign(this.#defaultDetails, details);
+        }
+        /**
+         * 修改xmlHttpRequest
+         * @param httpRequest 网络请求函数
+         */
+        setXMLHttpRequest(httpRequest) {
+            this.GM_Api.xmlHttpRequest = httpRequest;
+        }
+        /**
+         * GET 请求
+         */
+        async get(...args) {
+            let that = this;
+            let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+            return new Promise((resolve) => {
+                let requestDetails = that.HttpxRequestDetails.getDetails("get", resolve, details);
+                Reflect.deleteProperty(requestDetails, "onprogress");
+                requestDetails = that.HttpxRequestDetails.handle(requestDetails);
+                that.HttpxRequest.request(requestDetails);
+            });
+        }
+        /**
+         * POST 请求
+         */
+        async post(...args) {
+            let that = this;
+            let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+            return new Promise((resolve) => {
+                let requestDetails = that.HttpxRequestDetails.getDetails("post", resolve, details);
+                requestDetails = that.HttpxRequestDetails.handle(requestDetails);
+                that.HttpxRequest.request(requestDetails);
+            });
+        }
+        /**
+         * HEAD 请求
+         */
+        async head(...args) {
+            let that = this;
+            let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+            return new Promise((resolve) => {
+                let requestDetails = that.HttpxRequestDetails.getDetails("head", resolve, details);
+                Reflect.deleteProperty(requestDetails, "onprogress");
+                requestDetails = that.HttpxRequestDetails.handle(requestDetails);
+                that.HttpxRequest.request(requestDetails);
+            });
+        }
+        /**
+         * OPTIONS 请求
+         */
+        async options(...args) {
+            let that = this;
+            let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+            return new Promise((resolve) => {
+                let requestDetails = that.HttpxRequestDetails.getDetails("options", resolve, details);
+                Reflect.deleteProperty(requestDetails, "onprogress");
+                requestDetails = that.HttpxRequestDetails.handle(requestDetails);
+                that.HttpxRequest.request(requestDetails);
+            });
+        }
+        /**
+         * DELETE 请求
+         */
+        async delete(...args) {
+            let that = this;
+            let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+            return new Promise((resolve) => {
+                let requestDetails = that.HttpxRequestDetails.getDetails("delete", resolve, details);
+                Reflect.deleteProperty(requestDetails, "onprogress");
+                requestDetails = that.HttpxRequestDetails.handle(requestDetails);
+                that.HttpxRequest.request(requestDetails);
+            });
+        }
+        /**
+         * PUT 请求
+         */
+        async put(...args) {
+            let that = this;
+            let details = this.HttpxRequestDetails.handleBeforeRequestDetails(...args);
+            return new Promise((resolve) => {
+                let requestDetails = that.HttpxRequestDetails.getDetails("put", resolve, details);
+                requestDetails = that.HttpxRequestDetails.handle(requestDetails);
+                that.HttpxRequest.request(requestDetails);
+            });
+        }
+    }
 
-    	/**
-    	 * 新增菜单数据
-    	 * @param {UtilsGMMenuOption[]|UtilsGMMenuOption} paramData
-    	 */
-    	this.add = function (paramData) {
-    		if (Array.isArray(paramData)) {
-    			for (const _paramData of paramData) {
-    				MenuHandle.$data.data.push({
-    					data: _paramData,
-    					id: void 0,
-    				});
-    			}
-    		} else {
-    			MenuHandle.$data.data.push({
-    				data: paramData,
-    				id: void 0,
-    			});
-    		}
-    		this.update();
-    	};
-    	/**
-    	 * 更新菜单数据
-    	 * @param { ?UtilsGMMenuOption[]|UtilsGMMenuOption } options 数据
-    	 */
-    	this.update = function (options) {
-    		/**
-    		 * @type {UtilsGMMenuOption[]}
-    		 */
-    		let optionsList = [];
-    		if (Array.isArray(options)) {
-    			optionsList = [...optionsList, ...options];
-    		} else if (options != null) {
-    			optionsList = [...optionsList, options];
-    		}
-    		optionsList.forEach((item) => {
-    			let targetMenu = MenuHandle.getMenuOption(item.key);
-    			if (targetMenu) {
-    				Object.assign(targetMenu, item);
-    			}
-    		});
-    		MenuHandle.$data.data.forEach((value) => {
-    			if (value.handleData) {
-    				value.handleData.deleteMenu();
-    			}
-    		});
-    		MenuHandle.init();
-    		MenuHandle.register(MenuHandle.$data.data);
-    	};
-    	/**
-    	 * 卸载菜单
-    	 * @param {number} menuId 已注册的菜单id
-    	 */
-    	this.delete = function (menuId) {
-    		GM_Api.unregisterMenuCommand(menuId);
-    	};
-    	/**
-    	 * 根据键值获取enable值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {boolean}
-    	 */
-    	this.get = function (menuKey) {
-    		return this.getEnable(menuKey);
-    	};
-    	/**
-    	 * 根据键值获取enable值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {boolean}
-    	 */
-    	this.getEnable = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).enable;
-    	};
-    	/**
-    	 * 根据键值获取text值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {string}
-    	 */
-    	this.getText = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).text;
-    	};
-    	/**
-    	 * 根据键值获取showText函数的值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {string}
-    	 */
-    	this.getShowTextValue = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).showText(
-    			this.getText(menuKey),
-    			this.get(menuKey)
-    		);
-    	};
-    	/**
-    	 * 获取当前已注册菜单的id
-    	 * @param {string} menuKey
-    	 * @returns {?number}
-    	 */
-    	this.getMenuId = function (menuKey) {
-    		let result = null;
-    		for (let index = 0; index < MenuHandle.$data.data.length; index++) {
-    			const optionData = MenuHandle.$data.data[index];
-    			if (optionData.handleData.key === menuKey) {
-    				result = optionData.id;
-    				break;
-    			}
-    		}
-    		return result;
-    	};
-    	/**
-    	 * 根据键值获取accessKey值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {?string}
-    	 */
-    	this.getAccessKey = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).accessKey;
-    	};
-    	/**
-    	 * 根据键值获取autoClose值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {?boolean}
-    	 */
-    	this.getAutoClose = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).autoClose;
-    	};
-    	/**
-    	 * 根据键值获取autoReload值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {boolean}
-    	 */
-    	this.getAutoReload = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).autoReload;
-    	};
-    	/**
-    	 * 根据键值获取callback函数
-    	 * @param {string} menuKey 菜单-键key
-    	 * @returns {?Function}
-    	 */
-    	this.getCallBack = function (menuKey) {
-    		return MenuHandle.getMenuHandledOption(menuKey).callback;
-    	};
-    	/**
-    	 * 获取当enable为true时默认显示在菜单中前面的emoji图标
-    	 * @returns {string}
-    	 */
-    	this.getEnableTrueEmoji = function () {
-    		return MenuHandle.$emoji.success;
-    	};
-    	/**
-    	 * 获取当enable为false时默认显示在菜单中前面的emoji图标
-    	 * @returns {string}
-    	 */
-    	this.getEnableFalseEmoji = function () {
-    		return MenuHandle.$emoji.error;
-    	};
-    	/**
-    	 * 获取本地存储的菜单外部的键名
-    	 * @param {string} keyName
-    	 */
-    	this.getLocalStorageKeyName = function () {
-    		return MenuHandle.$data.key;
-    	};
-    	/**
-    	 * 设置菜单的值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @param {any} value 需要设置的值
-    	 */
-    	this.setValue = function (menuKey, value) {
-    		MenuHandle.setLocalMenuData(menuKey, value);
-    	};
-    	/**
-    	 * 设置菜单的值
-    	 * @param {string} menuKey 菜单-键key
-    	 * @param {boolean} value 需要设置的值
-    	 */
-    	this.setEnable = function (menuKey, value) {
-    		this.setValue(menuKey, Boolean(value));
-    	};
-    	/**
-    	 * 设置当enable为true时默认显示在菜单中前面的emoji图标
-    	 * @param {string} emojiString
-    	 */
-    	this.setEnableTrueEmoji = function (emojiString) {
-    		if (typeof emojiString !== "string") {
-    			throw new Error("参数emojiString必须是string类型");
-    		}
-    		MenuHandle.$emoji.success = emojiString;
-    	};
-    	/**
-    	 * 设置当enable为false时默认显示在菜单中前面的emoji图标
-    	 * @param {string} emojiString
-    	 */
-    	this.setEnableFalseEmoji = function (emojiString) {
-    		if (typeof emojiString !== "string") {
-    			throw new Error("参数emojiString必须是string类型");
-    		}
-    		MenuHandle.$emoji.error = emojiString;
-    	};
-    	/**
-    	 * 设置本地存储的菜单外部的键名
-    	 * @param {string} keyName
-    	 */
-    	this.setLocalStorageKeyName = function (keyName) {
-    		if (typeof keyName !== "string") {
-    			throw new Error("参数keyName必须是string类型");
-    		}
-    		MenuHandle.$data.key = keyName;
-    	};
+    class indexedDB {
+        #dbName;
+        #storeName;
+        #dbVersion;
+        /* websql的版本号，由于ios的问题，版本号的写法不一样 */
+        #slqVersion = "1";
+        /* 监听IndexDB */
+        #indexedDB = window.indexedDB ||
+            window.mozIndexedDB ||
+            window.webkitIndexedDB ||
+            window.msIndexedDB;
+        /* 缓存数据库，避免同一个页面重复创建和销毁 */
+        #db = {};
+        #store = null;
+        #errorCode = {
+            /* 错误码 */
+            success: {
+                code: 200,
+                msg: "操作成功",
+            },
+            error: {
+                code: 401,
+                msg: "操作失败",
+            },
+            open: { code: 91001, msg: "打开数据库失败" },
+            save: { code: 91002, msg: "保存数据失败" },
+            get: { code: 91003, msg: "获取数据失败" },
+            delete: { code: 91004, msg: "删除数据失败" },
+            deleteAll: { code: 91005, msg: "清空数据库失败" },
+            regexpGet: { code: 91006, msg: "正则获取数据失败" },
+        };
+        /**
+         * @param dbName 数据存储名，默认为：default_db
+         * @param storeName 表名，默认为：default_form
+         * @param dbVersion indexDB的版本号，默认为：1
+         */
+        constructor(dbName = "default_db", storeName = "default_form", dbVersion = 1) {
+            this.#dbName = dbName;
+            this.#storeName = storeName;
+            this.#dbVersion = dbVersion;
+            if (!this.#indexedDB) {
+                alert("很抱歉，您的浏览器不支持indexedDB");
+                throw new TypeError("很抱歉，您的浏览器不支持indexedDB");
+            }
+        }
+        /**
+         * 创建 “表”
+         * @param dbName 表名
+         */
+        createStore(dbName) {
+            let txn, store;
+            txn = this.#db[dbName].transaction(this.#storeName, "readwrite");
+            /* IndexDB的读写权限 */
+            store = txn.objectStore(this.#storeName);
+            this.#store = store;
+            return store;
+        }
+        /**
+         * 打开数据库
+         * @param callback  回调
+         * @param dbName 数据库名
+         */
+        open(callback, dbName) {
+            let that = this;
+            /* 打开数据库 */
+            /* 如果支持IndexDB */
+            if (!that.#db[dbName]) {
+                /* 如果缓存中没有，则进行数据库的创建或打开，提高效率 */
+                let request = that.#indexedDB.open(dbName, that.#dbVersion);
+                request.onerror = function (event) {
+                    callback({
+                        code: that.#errorCode.open.code,
+                        msg: that.#errorCode.open.msg,
+                        event: event,
+                    }, false);
+                };
+                request.onsuccess = function (event) {
+                    if (!that.#db[dbName]) {
+                        let target = event.target;
+                        that.#db[dbName] = target.result;
+                    }
+                    let store = that.createStore(dbName);
+                    callback(store, true);
+                };
+                request.onupgradeneeded = function (event) {
+                    let target = event.target;
+                    that.#db[dbName] = target.result;
+                    let store = that.#db[dbName].createObjectStore(that.#storeName, {
+                        keyPath: "key",
+                    });
+                    store.transaction.oncomplete = function (event) {
+                        callback(store, true);
+                    };
+                };
+            }
+            else {
+                /* 如果缓存中已经打开了数据库，就直接使用 */
+                let store = that.createStore(dbName);
+                callback(store, true);
+            }
+        }
+        /**
+         * 保存数据到数据库
+         * @param key 数据key
+         * @param value 数据值
+         */
+        async save(key, value) {
+            let that = this;
+            return new Promise((resolve) => {
+                let dbName = that.#dbName;
+                let inData = {
+                    key: key,
+                    value: value,
+                };
+                that.open(function (idbStore, success) {
+                    if (!success) {
+                        resolve({
+                            success: false,
+                            code: that.#errorCode.save.code,
+                            msg: that.#errorCode.save.msg,
+                        });
+                    }
+                    else {
+                        idbStore = idbStore;
+                        let request = idbStore.put(inData);
+                        request.onsuccess = function (event) {
+                            /* 保存成功有success 字段 */
+                            event.target;
+                            resolve({
+                                success: true,
+                                code: that.#errorCode.success.code,
+                                msg: that.#errorCode.success.msg,
+                                event: event,
+                            });
+                        };
+                        request.onerror = function (event) {
+                            event.target;
+                            resolve({
+                                success: false,
+                                code: that.#errorCode.save.code,
+                                msg: that.#errorCode.save.msg,
+                                event: event,
+                            });
+                        };
+                    }
+                }, dbName);
+            });
+        }
+        /**
+         * 根据key获取值
+         * @param key 数据key
+         */
+        async get(key) {
+            let that = this;
+            return new Promise((resolve) => {
+                let dbName = that.#dbName;
+                that.open(function (idbStore, success) {
+                    /* 判断返回的数据中是否有error字段 */
+                    if (!success) {
+                        resolve({
+                            success: false,
+                            code: that.#errorCode.get.code,
+                            msg: that.#errorCode.get.msg,
+                            data: void 0,
+                        });
+                    }
+                    else {
+                        idbStore = idbStore;
+                        let request = idbStore.get(key);
+                        request.onsuccess = function (event) {
+                            let target = event.target;
+                            let result = target.result;
+                            /* result 返回的是 {key: string, value: any} */
+                            /* 键值对存储 */
+                            let data = result ? result.value : void 0;
+                            if (data) {
+                                resolve({
+                                    success: true,
+                                    code: that.#errorCode.success.code,
+                                    msg: that.#errorCode.success.msg,
+                                    data: data,
+                                    event: event,
+                                    result: result,
+                                });
+                            }
+                            else {
+                                resolve({
+                                    success: false,
+                                    code: that.#errorCode.error.code,
+                                    msg: that.#errorCode.error.msg,
+                                    data: void 0,
+                                    event: event,
+                                    result: result,
+                                });
+                            }
+                        };
+                        request.onerror = function (event) {
+                            event.target;
+                            resolve({
+                                success: false,
+                                code: that.#errorCode.get.code,
+                                msg: that.#errorCode.get.msg,
+                                data: void 0,
+                                event: event,
+                            });
+                        };
+                    }
+                }, dbName);
+            });
+        }
+        /**
+         * 正则获取数据
+         * @param key 数据键
+         */
+        async regexpGet(key) {
+            let list = [];
+            let that = this;
+            return new Promise((resolve) => {
+                /* 正则查询 */
+                let dbName = that.#dbName;
+                that.open(function (idbStore, success) {
+                    /* 判断返回的数据中是否有error字段 */
+                    if (!success) {
+                        resolve({
+                            success: false,
+                            code: that.#errorCode.regexpGet.code,
+                            msg: that.#errorCode.regexpGet.msg,
+                            data: [],
+                        });
+                    }
+                    else {
+                        idbStore = idbStore;
+                        let request = idbStore.getAll();
+                        request.onsuccess = function (event) {
+                            let target = event.target;
+                            let result = target.result;
+                            if (result.length !== 0) {
+                                result.forEach((item, index) => {
+                                    if (item["key"].match(key)) {
+                                        let concatList = item["value"];
+                                        concatList["key"] = item["key"];
+                                        list = [...list, concatList];
+                                    }
+                                });
+                            }
+                            resolve({
+                                success: true,
+                                code: that.#errorCode.success.code,
+                                msg: that.#errorCode.success.msg,
+                                data: list,
+                                event: event,
+                            });
+                        };
+                        request.onerror = function (event) {
+                            event.target;
+                            resolve({
+                                success: false,
+                                code: that.#errorCode.get.code,
+                                msg: that.#errorCode.get.msg,
+                                data: [],
+                                event: event,
+                            });
+                        };
+                    }
+                }, dbName);
+            });
+        }
+        /**
+         * 删除数据
+         * @param {string} key 数据键
+         */
+        async delete(key) {
+            let that = this;
+            return new Promise((resolve) => {
+                /* 根据key删除某条数据 */
+                let dbName = that.#dbName;
+                that.open(function (idbStore, success) {
+                    if (!success) {
+                        resolve({
+                            success: false,
+                            code: that.#errorCode.delete.code,
+                            msg: that.#errorCode.delete.msg,
+                        });
+                    }
+                    else {
+                        idbStore = idbStore;
+                        let request = idbStore.get(key);
+                        request.onsuccess = function (event) {
+                            let target = event.target;
+                            let recode = target.result;
+                            if (recode) {
+                                /* 成功 */
+                                request = idbStore.delete(key);
+                                resolve({
+                                    success: true,
+                                    code: that.#errorCode.success.code,
+                                    msg: that.#errorCode.success.msg,
+                                });
+                            }
+                            else {
+                                resolve({
+                                    success: false,
+                                    code: that.#errorCode.error.code,
+                                    msg: that.#errorCode.error.msg,
+                                });
+                            }
+                        };
+                        request.onerror = function (event) {
+                            event.target;
+                            resolve({
+                                success: false,
+                                code: that.#errorCode.delete.code,
+                                msg: that.#errorCode.delete.msg,
+                                event: event,
+                            });
+                        };
+                    }
+                }, dbName);
+            });
+        }
+        /**
+         * 删除所有数据
+         */
+        async deleteAll() {
+            let that = this;
+            return new Promise((resolve) => {
+                /* 清空数据库 */
+                let dbName = that.#dbName;
+                that.open(function (idbStore, success) {
+                    if (!success) {
+                        resolve({
+                            success: false,
+                            code: that.#errorCode.deleteAll.code,
+                            msg: that.#errorCode.deleteAll.msg,
+                        });
+                    }
+                    else {
+                        idbStore = idbStore;
+                        idbStore.clear();
+                        resolve({
+                            success: true,
+                            code: that.#errorCode.success.code,
+                            msg: that.#errorCode.success.msg,
+                        });
+                    }
+                }, dbName);
+            });
+        }
+    }
 
-    	this.add(details?.data || []);
-    };
+    class LockFunction {
+        #flag = false;
+        #delayTime = 0;
+        #callback;
+        #context;
+        constructor(callback, context, delayTime) {
+            this.#callback = callback;
+            if (typeof context === "number") {
+                this.#delayTime = context;
+                this.#context = utils;
+            }
+            else {
+                this.#delayTime = delayTime;
+                this.#context = context;
+            }
+        }
+        /**
+         * 判断是否被锁
+         */
+        isLock() {
+            return this.#flag;
+        }
+        /**
+         * 锁
+         */
+        lock() {
+            this.#flag = true;
+        }
+        /**
+         * 解锁
+         */
+        unlock() {
+            setTimeout(() => {
+                this.#flag = false;
+            }, this.#delayTime);
+        }
+        /**
+         * 执行
+         */
+        async run(...args) {
+            if (this.isLock()) {
+                return;
+            }
+            this.lock();
+            await this.#callback.apply(this.#context, args);
+            this.unlock();
+        }
+    }
 
-    const Hooks = function () {
-    	this.initEnv = function () {
-    		Function.prototype.hook = function (realFunc, hookFunc, context) {
-    			let _context = null; //函数上下文
-    			let _funcName = null; //函数名
+    class Log {
+        /** 前面的TAG标志 */
+        #disable = false;
+        tag = "";
+        #console = null;
+        #logCount = 0;
+        #details = {
+            tag: true,
+            successColor: "#0000FF",
+            errorColor: "#FF0000",
+            infoColor: "0",
+            warnColor: "0",
+            debug: false,
+            autoClearConsole: false,
+            logMaxCount: 999,
+        };
+        /**
+         * 待恢复的函数或对象
+         */
+        #recoveryList = [];
+        #msgColorDetails = [
+            "font-weight: bold; color: cornflowerblue",
+            "font-weight: bold; color: cornflowerblue",
+            "font-weight: bold; color: darkorange",
+            "font-weight: bold; color: cornflowerblue",
+        ];
+        /**
+         * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+         * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
+         */
+        constructor(_GM_info_ = {
+            script: {
+                name: "Utils.Log",
+            },
+        }, console = global.console) {
+            this.tag = _GM_info_.script.name;
+            this.#console = console;
+        }
+        /**
+         * 解析Error的堆栈获取实际调用者的函数名及函数所在的位置
+         * @param stack
+         */
+        parseErrorStack(stack) {
+            let result = {
+                name: "",
+                position: "",
+            };
+            for (let stackString of stack) {
+                stackString = stackString.trim();
+                let stackFunctionNameMatch = stackString.match(/^at[\s]+(.+?)[\s]+/i);
+                let stackFunctionNamePositionMatch = stackString.match(/^at[\s]+.+[\s]+\((.+?)\)/i);
+                if (stackFunctionNameMatch == null) {
+                    continue;
+                }
+                if (stackFunctionNamePositionMatch == null) {
+                    continue;
+                }
+                let stackFunctionName = stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
+                let stackFunctionNamePosition = stackFunctionNamePositionMatch[stackFunctionNamePositionMatch.length - 1];
+                if (stackFunctionName === "" ||
+                    stackFunctionName.match(new RegExp("(^Utils.Log.|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each)", "g"))) {
+                    continue;
+                }
+                else {
+                    result.name = stackFunctionName;
+                    result.position = stackFunctionNamePosition;
+                    break;
+                }
+            }
+            if (result.position === "") {
+                let lastStackString = stack[stack.length - 1].trim();
+                if (lastStackString.startsWith("at chrome-extension://")) {
+                    let lastStackMatch = lastStackString.match(/^at[\s]+(.+)/);
+                    if (lastStackMatch) {
+                        result.position = lastStackMatch[lastStackMatch.length - 1];
+                    }
+                }
+            }
+            if (result.position === "") {
+                result.position = stack[stack.length - 1].trim().replace(/^at[\s]*/g, "");
+            }
+            return result;
+        }
+        /**
+         * 检测清理控制台
+         */
+        checkClearConsole() {
+            this.#logCount++;
+            if (this.#details.autoClearConsole &&
+                this.#logCount > this.#details.logMaxCount) {
+                this.#console.clear();
+                this.#logCount = 0;
+            }
+        }
+        /**
+         * 输出内容
+         * @param msg 需要输出的内容
+         * @param color 颜色
+         * @param otherStyle 其它CSS
+         */
+        printContent(msg, color, otherStyle) {
+            this.checkClearConsole.apply(this);
+            otherStyle = otherStyle || "";
+            let stackSplit = new Error().stack.split("\n");
+            stackSplit.splice(0, 2);
+            let { name: callerName, position: callerPosition } = this.parseErrorStack(stackSplit);
+            let tagName = this.tag;
+            let that = this;
+            function consoleMsg(_msg_) {
+                if (typeof _msg_ === "string") {
+                    that.#console.log(`%c[${tagName}%c-%c${callerName}%c]%c %s`, ...that.#msgColorDetails, `color: ${color};${otherStyle}`, _msg_);
+                }
+                else if (typeof _msg_ === "number") {
+                    that.#console.log(`%c[${tagName}%c-%c${callerName}%c]%c %d`, ...that.#msgColorDetails, `color: ${color};${otherStyle}`, _msg_);
+                }
+                else if (typeof _msg_ === "object") {
+                    that.#console.log(`%c[${tagName}%c-%c${callerName}%c]%c %o`, ...that.#msgColorDetails, `color: ${color};${otherStyle}`, _msg_);
+                }
+                else {
+                    that.#console.log(_msg_);
+                }
+            }
+            if (Array.isArray(msg)) {
+                msg.forEach((item) => {
+                    consoleMsg(item);
+                });
+            }
+            else {
+                consoleMsg(msg);
+            }
+            if (this.#details.debug) {
+                /* 如果开启调试模式，输出堆栈位置 */
+                this.#console.log(callerPosition);
+            }
+        }
+        /**
+         * 控制台-普通输出
+         * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+         * @param color 输出的颜色
+         * @param otherStyle 其它CSS
+         */
+        info(msg, color = this.#details.infoColor, otherStyle) {
+            if (this.#disable)
+                return;
+            this.printContent.call(this, msg, color, otherStyle);
+        }
+        /**
+         * 控制台-警告输出
+         * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+         * @param color 输出的颜色
+         * @param otherStyle 其它CSS
+         */
+        warn(msg, color = this.#details.warnColor, otherStyle = "background: #FEF6D5;padding: 4px 6px 4px 0px;") {
+            if (this.#disable)
+                return;
+            this.printContent.call(this, msg, color, otherStyle);
+        }
+        /**
+         * 控制台-错误输出
+         * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+         * @param color 输出的颜色
+         * @param otherStyle 其它CSS
+         */
+        error(msg, color = this.#details.errorColor, otherStyle) {
+            if (this.#disable)
+                return;
+            this.printContent.call(this, msg, color, otherStyle);
+        }
+        /**
+         * 控制台-成功输出
+         * @param msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
+         * @param color 输出的颜色
+         * @param otherStyle 其它CSS
+         */
+        success(msg, color = this.#details.successColor, otherStyle) {
+            if (this.#disable)
+                return;
+            this.printContent.call(this, msg, color, otherStyle);
+        }
+        /**
+         * 控制台-输出表格
+         * @param msg
+         * @param color 输出的颜色
+         * @param otherStyle 其它CSS
+         * @example
+         * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
+         */
+        table(msg, color = this.#details.infoColor, otherStyle = "") {
+            if (this.#disable)
+                return;
+            this.checkClearConsole.apply(this);
+            let stack = new Error().stack.split("\n");
+            stack.splice(0, 1);
+            let errorStackParse = this.parseErrorStack(stack);
+            let stackFunctionName = errorStackParse.name;
+            let stackFunctionNamePosition = errorStackParse.position;
+            let callerName = stackFunctionName;
+            this.#console.log(`%c[${this.tag}%c-%c${callerName}%c]%c`, ...this.#msgColorDetails, `color: ${color};${otherStyle}`);
+            this.#console.table(msg);
+            if (this.#details.debug) {
+                this.#console.log(stackFunctionNamePosition);
+            }
+        }
+        /**
+         * 配置Log对象的颜色
+         * @param paramDetails 配置信息
+         */
+        config(paramDetails) {
+            this.#details = Object.assign(this.#details, paramDetails);
+        }
+        /** 禁用输出 */
+        disable() {
+            this.#disable = true;
+        }
+        /** 恢复输出 */
+        recovery() {
+            this.#disable = false;
+        }
+    }
 
-    			_context = context || window;
-    			_funcName = getFuncName(this);
-    			_context["realFunc_" + _funcName] = this;
+    class Progress {
+        #config = {
+            /**
+             * canvas元素节点
+             */
+            canvasNode: null,
+            /**
+             * 绘制角度
+             */
+            deg: 95,
+            /**
+             * 进度
+             */
+            progress: 0,
+            /**
+             * 绘制的线宽度
+             */
+            lineWidth: 10,
+            /**
+             * 绘制的背景颜色
+             */
+            lineBgColor: "#1e637c",
+            /**
+             * 绘制的线的颜色
+             */
+            lineColor: "#25deff",
+            /**
+             * 绘制的字体颜色
+             */
+            textColor: "#000000",
+            /**
+             * 绘制的字体大小(px)
+             */
+            fontSize: 22,
+            /**
+             * 绘制的圆的半径
+             */
+            circleRadius: 50,
+        };
+        #ctx = null;
+        #width = null;
+        #height = null;
+        /**
+         *
+         * @param paramConfig 配置信息
+         */
+        constructor(paramConfig) {
+            this.#config = utils.assign(this.#config, paramConfig);
+            if (!(this.#config.canvasNode instanceof HTMLCanvasElement)) {
+                throw new Error("Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement");
+            }
+            this.init();
+        }
+        /**
+         * 初始化
+         */
+        init() {
+            /* 获取画笔 */
+            let ctx = this.#config.canvasNode.getContext("2d");
+            if (ctx == null) {
+                throw new Error("Utils.Progress 获取画笔失败");
+            }
+            this.#ctx = ctx;
+            /* 元素宽度 */
+            this.#width = this.#config.canvasNode.width;
+            /* 元素高度 */
+            this.#height = this.#config.canvasNode.height;
+            /* 清除锯齿 */
+            if (window.devicePixelRatio) {
+                this.#config.canvasNode.style.width = this.#width + "px";
+                this.#config.canvasNode.style.height = this.#height + "px";
+                this.#config.canvasNode.height = this.#height * window.devicePixelRatio;
+                this.#config.canvasNode.width = this.#width * window.devicePixelRatio;
+                this.#ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            }
+            /* 设置线宽 */
+            this.#ctx.lineWidth = this.#config.lineWidth;
+        }
+        /**
+         * 绘制
+         */
+        draw() {
+            let degActive = (this.#config.progress * 360) / 100;
+            /* 清除画布 */
+            this.#ctx.clearRect(0, 0, this.#width, this.#height);
+            /* 开始绘制底圆 */
+            this.#ctx.beginPath();
+            this.#ctx.arc(this.#width / 2, this.#height / 2, this.#config.circleRadius, 1, 8);
+            this.#ctx.strokeStyle = this.#config.lineBgColor;
+            this.#ctx.stroke();
+            /* 开始绘制动态圆 */
+            this.#ctx.beginPath();
+            this.#ctx.arc(this.#width / 2, this.#height / 2, this.#config.circleRadius, -Math.PI / 2, (degActive * Math.PI) / 180 - Math.PI / 2);
+            this.#ctx.strokeStyle = this.#config.lineColor;
+            this.#ctx.stroke();
+            /* 获取百分比 */
+            let txt = parseInt(this.#config.progress.toString()) + "%";
+            this.#ctx.font = this.#config.fontSize + "px SimHei";
+            /* 获取文本宽度 */
+            let w = this.#ctx.measureText(txt).width;
+            let h = this.#config.fontSize / 2;
+            this.#ctx.fillStyle = this.#config.textColor;
+            this.#ctx.fillText(txt, this.#width / 2 - w / 2, this.#height / 2 + h / 2);
+        }
+    }
 
-    			if (
-    				_context[_funcName].prototype &&
-    				_context[_funcName].prototype.isHooked
-    			) {
-    				console.log("Already has been hooked,unhook first");
-    				return false;
-    			}
-    			function getFuncName(fn) {
-    				// 获取函数名
-    				let strFunc = fn.toString();
-    				let _regex = /function\s+(\w+)\s*\(/;
-    				let patten = strFunc.match(_regex);
-    				if (patten) {
-    					return patten[1];
-    				}
-    				return "";
-    			}
-    			try {
-    				eval(
-    					"_context[_funcName] = function " +
-    						_funcName +
-    						"(){\n" +
-    						"let args = Array.prototype.slice.call(arguments,0);\n" +
-    						"let obj = this;\n" +
-    						"hookFunc.apply(obj,args);\n" +
-    						"return _context['realFunc_" +
-    						_funcName +
-    						"'].apply(obj,args);\n" +
-    						"};"
-    				);
-    				_context[_funcName].prototype.isHooked = true;
-    				return true;
-    			} catch (e) {
-    				console.log("Hook failed,check the params.");
-    				return false;
-    			}
-    		};
-    		Function.prototype.unhook = function (realFunc, funcName, context) {
-    			let _context = null;
-    			let _funcName = null;
-    			_context = context || window;
-    			_funcName = funcName;
-    			if (!_context[_funcName].prototype.isHooked) {
-    				console.log("No function is hooked on");
-    				return false;
-    			}
-    			_context[_funcName] = _context["realFunc" + _funcName];
-    			Reflect.deleteProperty(_context, "realFunc_" + _funcName);
-    			return true;
-    		};
-    	};
-    	this.cleanEnv = function () {
-    		if (Function.prototype.hasOwnProperty("hook")) {
-    			Reflect.deleteProperty(unction.prototype, "hook");
-    		}
-    		if (Function.prototype.hasOwnProperty("unhook")) {
-    			Reflect.deleteProperty(unction.prototype, "unhook");
-    		}
-    		return true;
-    	};
-    };
-
-    const Httpx = function (__xmlHttpRequest__) {
-    	if (typeof __xmlHttpRequest__ !== "function") {
-    		console.warn("Httpx未传入GM_xmlhttpRequest函数，强制默认使用fetch");
-    	}
-    	const GM_Api = {
-    		/**
-    		 * @type {GM_xmlhttpRequest}
-    		 */
-    		xmlHttpRequest: __xmlHttpRequest__,
-    	};
-    	/**
-    	 * @type {HttpxDetails}
-    	 */
-    	let defaultDetails = {
-    		url: void 0,
-    		timeout: 5000,
-    		async: false,
-    		responseType: void 0,
-    		headers: void 0,
-    		data: void 0,
-    		redirect: void 0,
-    		cookie: void 0,
-    		binary: void 0,
-    		nocache: void 0,
-    		revalidate: void 0,
-    		context: void 0,
-    		overrideMimeType: void 0,
-    		anonymous: void 0,
-    		fetch: void 0,
-    		fetchInit: void 0,
-    		user: void 0,
-    		password: void 0,
-    		onabort() {},
-    		onerror() {},
-    		ontimeout() {},
-    		onloadstart() {},
-    		onreadystatechange() {},
-    		onprogress() {},
-    	};
-    	/**
-    	 * 输出请求配置
-    	 */
-    	let LOG_DETAILS = false;
-
-    	const HttpxRequestHook = {
-    		/**
-    		 * 发送请求前的回调
-    		 * 如果返回false则阻止本次返回
-    		 * @param {HttpxDetails} details 当前的请求配置
-    		 */
-    		beforeRequestCallBack(details) {},
-    	};
-
-    	const HttpxRequestDetails = {
-    		/**
-    		 * 获取请求配置
-    		 * @param {HttpxMethod} method 当前请求方法，默认get
-    		 * @param {(...args: any[])=>void} resolve promise回调
-    		 * @param {HttpxDetails} details 请求配置
-    		 * @returns
-    		 */
-    		getDetails(method, resolve, details) {
-    			/**
-    			 * @type {HttpxDetails}
-    			 */
-    			let result = {
-    				url: details.url || defaultDetails.url,
-    				method: (method || "GET").toString().toUpperCase(),
-    				timeout: details.timeout || defaultDetails.timeout,
-    				responseType: details.responseType || defaultDetails.responseType,
-    				/* 对象使用深拷贝 */
-    				headers: Utils.deepClone(defaultDetails.headers),
-    				data: details.data || defaultDetails.data,
-    				redirect: details.redirect || defaultDetails.redirect,
-    				cookie: details.cookie || defaultDetails.cookie,
-    				binary: details.binary || defaultDetails.binary,
-    				nocache: details.nocache || defaultDetails.nocache,
-    				revalidate: details.revalidate || defaultDetails.revalidate,
-    				/* 对象使用深拷贝 */
-    				context: Utils.deepClone(details.context || defaultDetails.context),
-    				overrideMimeType:
-    					details.overrideMimeType || defaultDetails.overrideMimeType,
-    				anonymous: details.anonymous || defaultDetails.anonymous,
-    				fetch: details.fetch || defaultDetails.fetch,
-    				/* 对象使用深拷贝 */
-    				fetchInit: Utils.deepClone(defaultDetails.fetchInit),
-    				user: details.user || defaultDetails.user,
-    				password: details.password || defaultDetails.password,
-    				onabort(...args) {
-    					HttpxCallBack.onAbort(details, resolve, args);
-    				},
-    				onerror(...args) {
-    					HttpxCallBack.onError(details, resolve, args);
-    				},
-    				onloadstart(...args) {
-    					HttpxCallBack.onLoadStart(details, args);
-    				},
-    				onprogress(...args) {
-    					HttpxCallBack.onProgress(details, args);
-    				},
-    				onreadystatechange(...args) {
-    					HttpxCallBack.onReadyStateChange(details, args);
-    				},
-    				ontimeout(...args) {
-    					HttpxCallBack.onTimeout(details, resolve, args);
-    				},
-    				onload(...args) {
-    					HttpxCallBack.onLoad(details, resolve, args);
-    				},
-    			};
-    			if (typeof GM_Api.xmlHttpRequest !== "function") {
-    				result.fetch = true;
-    			}
-    			if (typeof result.headers === "object") {
-    				if (typeof details.headers === "object") {
-    					Object.keys(details.headers).forEach((keyName, index) => {
-    						if (keyName in result.headers && details.headers[keyName] == null) {
-    							/* 在默认的header中存在，且设置它新的值为空，那么就是默认的值 */
-    							Reflect.deleteProperty(result.headers, keyName);
-    						} else {
-    							result.headers[keyName] = details.headers[keyName];
-    						}
-    					});
-    				}
-    			} else {
-    				result.headers = details.headers;
-    			}
-    			if (typeof result.fetchInit === "object") {
-    				/* 使用assign替换且添加 */
-    				if (typeof details.fetchInit === "object") {
-    					Object.keys(details.fetchInit).forEach((keyName, index) => {
-    						if (
-    							keyName in result.fetchInit &&
-    							details.fetchInit[keyName] == null
-    						) {
-    							/* 在默认的fetchInit中存在，且设置它新的值为空，那么就是默认的值 */
-    							Reflect.deleteProperty(result.fetchInit, keyName);
-    						} else {
-    							result.fetchInit[keyName] = details.fetchInit[keyName];
-    						}
-    					});
-    				}
-    			} else {
-    				result.fetchInit = details.fetchInit;
-    			}
-    			return result;
-    		},
-    		/**
-    		 * 处理发送请求的details，去除值为undefined、空function的值
-    		 * @param {HttpxDetails} details
-    		 * @returns {HttpxDetails}
-    		 */
-    		handle(details) {
-    			Object.keys(details).forEach((keyName) => {
-    				if (
-    					details[keyName] == null ||
-    					(details[keyName] instanceof Function &&
-    						Utils.isNull(details[keyName]))
-    				) {
-    					Reflect.deleteProperty(details, keyName);
-    					return;
-    				}
-    			});
-    			if (Utils.isNull(details.url)) {
-    				throw new TypeError(`Utils.Httpx 参数 url不符合要求: ${details.url}`);
-    			}
-    			/* method值统一大写，兼容Via */
-    			details.method = details.method.toUpperCase();
-    			/* 判断是否是以http开头，否则主动加上origin */
-    			try {
-    				new URL(details.url);
-    			} catch (error) {
-    				if (details.url.startsWith("//")) {
-    					details.url = globalThis.location.protocol + details.url;
-    				} else if (details.url.startsWith("/")) {
-    					details.url = globalThis.location.origin + details.url;
-    				} else {
-    					details.url = globalThis.location.origin + "/" + details.url;
-    				}
-    			}
-    			return details;
-    		},
-    		/**
-    		 * 处理fetch的配置
-    		 * @param {HttpxDetails} details
-    		 */
-    		handleFetchDetail(details) {
-    			/**
-    			 * fetch的请求配置
-    			 * @type {RequestInit}
-    			 **/
-    			let fetchRequestInit = {};
-    			if (
-    				(details.method === "GET" || details.method === "HEAD") &&
-    				details.data != null
-    			) {
-    				/* GET 或 HEAD 方法的请求不能包含 body 信息 */
-    				Reflect.deleteProperty(details, "data");
-    			}
-    			/* 中止信号控制器 */
-    			let abortController = new AbortController();
-    			let signal = abortController.signal;
-    			signal.onabort = () => {
-    				details.onabort({
-    					isFetch: true,
-    					responseText: "",
-    					response: null,
-    					readyState: 4,
-    					responseHeaders: "",
-    					status: 0,
-    					statusText: "",
-    					error: "aborted",
-    				});
-    			};
-    			fetchRequestInit.method = details.method ?? "GET";
-    			fetchRequestInit.headers = details.headers;
-    			fetchRequestInit.body = details.data;
-    			fetchRequestInit.mode = "cors";
-    			fetchRequestInit.credentials = "include";
-    			fetchRequestInit.cache = "no-cache";
-    			fetchRequestInit.redirect = "follow";
-    			fetchRequestInit.referrerPolicy = "origin-when-cross-origin";
-    			fetchRequestInit.signal = signal;
-    			Object.assign(fetchRequestInit, details.fetchInit || {});
-    			return {
-    				fetchDetails: details,
-    				fetchRequestInit: fetchRequestInit,
-    				abortController: abortController,
-    			};
-    		},
-    	};
-    	const HttpxCallBack = {
-    		/**
-    		 * onabort请求被取消-触发
-    		 * @param {HttpxDetails} details 配置
-    		 * @param {()=>void} resolve 回调
-    		 * @param {any[]} argumentsList 参数列表
-    		 */
-    		onAbort(details, resolve, argumentsList) {
-    			if ("onabort" in details) {
-    				details.onabort.apply(this, argumentsList);
-    			} else if ("onabort" in defaultDetails) {
-    				defaultDetails.onabort.apply(this, argumentsList);
-    			}
-    			resolve({
-    				status: false,
-    				data: [...argumentsList],
-    				msg: "请求被取消",
-    				type: "onabort",
-    			});
-    		},
-
-    		/**
-    		 * onerror请求异常-触发
-    		 * @param {HttpxDetails} details 配置
-    		 * @param {()=>void} resolve 回调
-    		 * @param {any[]} argumentsList 响应的参数列表
-    		 */
-    		onError(details, resolve, argumentsList) {
-    			if ("onerror" in details) {
-    				details.onerror.apply(this, argumentsList);
-    			} else if ("onerror" in defaultDetails) {
-    				defaultDetails.onerror.apply(this, argumentsList);
-    			}
-    			let response = argumentsList;
-    			if (response.length) {
-    				response = response[0];
-    			}
-    			resolve({
-    				status: false,
-    				data: response,
-    				details: details,
-    				msg: "请求异常",
-    				type: "onerror",
-    			});
-    		},
-    		/**
-    		 * ontimeout请求超时-触发
-    		 * @param {HttpxDetails} details 配置
-    		 * @param {()=>void} resolve 回调
-    		 * @param {any[]} argumentsList 参数列表
-    		 */
-    		onTimeout(details, resolve, argumentsList) {
-    			if ("ontimeout" in details) {
-    				details.ontimeout.apply(this, argumentsList);
-    			} else if ("ontimeout" in defaultDetails) {
-    				defaultDetails.ontimeout.apply(this, argumentsList);
-    			}
-    			resolve({
-    				status: false,
-    				data: [...argumentsList],
-    				msg: "请求超时",
-    				type: "ontimeout",
-    			});
-    		},
-
-    		/**
-    		 * onloadstart请求开始-触发
-    		 * @param {HttpxDetails} details 配置
-    		 * @param {any[]} argumentsList 参数列表
-    		 */
-    		onLoadStart(details, argumentsList) {
-    			if ("onloadstart" in details) {
-    				details.onloadstart.apply(this, argumentsList);
-    			} else if ("onloadstart" in defaultDetails) {
-    				defaultDetails.onloadstart.apply(this, argumentsList);
-    			}
-    		},
-    		/**
-    		 * onload加载完毕-触发
-    		 * @param {HttpxDetails} details 请求的配置
-    		 * @param {()=>void} resolve 回调
-    		 * @param {...HttpxAsyncResultData[]} argumentsList 参数列表
-    		 */
-    		onLoad(details, resolve, argumentsList) {
-    			/* X浏览器会因为设置了responseType导致不返回responseText */
-    			let Response = argumentsList[0];
-    			/* responseText为空，response不为空的情况 */
-    			if (
-    				Utils.isNull(Response["responseText"]) &&
-    				Utils.isNotNull(Response["response"])
-    			) {
-    				if (typeof Response["response"] === "object") {
-    					Utils.tryCatch().run(() => {
-    						Response["responseText"] = JSON.stringify(Response["response"]);
-    					});
-    				} else {
-    					Response["responseText"] = Response["response"];
-    				}
-    			}
-
-    			/* response为空，responseText不为空的情况 */
-    			if (
-    				Response["response"] == null &&
-    				typeof Response["responseText"] === "string" &&
-    				Response["responseText"].trim() !== ""
-    			) {
-    				let newResponse = Response["responseText"];
-    				if (details.responseType === "json") {
-    					newResponse = Utils.toJSON(Response["responseText"]);
-    				} else if (details.responseType === "document") {
-    					let parser = new DOMParser();
-    					newResponse = parser.parseFromString(
-    						Response["responseText"],
-    						"text/html"
-    					);
-    				} else if (details.responseType === "arraybuffer") {
-    					let encoder = new TextEncoder();
-    					let arrayBuffer = encoder.encode(Response["responseText"]);
-    					newResponse = arrayBuffer;
-    				} else if (details.responseType === "blob") {
-    					let encoder = new TextEncoder();
-    					let arrayBuffer = encoder.encode(Response["responseText"]);
-    					newResponse = new Blob([arrayBuffer]);
-    				} else {
-    					newResponse = Response["responseText"];
-    				}
-    				try {
-    					Response["response"] = newResponse;
-    				} catch (error) {
-    					console.warn("response 无法被覆盖");
-    				}
-    			}
-    			/* Stay扩展中没有finalUrl，对应的是responseURL */
-    			if (Response["finalUrl"] == null && Response["responseURL"] != null) {
-    				Response["finalUrl"] = Response["responseURL"];
-    			}
-    			/* 状态码2xx都是成功的 */
-    			if (Math.floor(Response.status / 100) === 2) {
-    				resolve({
-    					status: true,
-    					data: Response,
-    					details: details,
-    					msg: "请求完毕",
-    					type: "onload",
-    				});
-    			} else {
-    				HttpxCallBack.onError(details, resolve, argumentsList);
-    			}
-    		},
-    		/**
-    		 * onprogress上传进度-触发
-    		 * @param {HttpxDetails} details 配置
-    		 * @param {any[]} argumentsList 参数列表
-    		 */
-    		onProgress(details, argumentsList) {
-    			if ("onprogress" in details) {
-    				details.onprogress.apply(this, argumentsList);
-    			} else if ("onprogress" in defaultDetails) {
-    				defaultDetails.onprogress.apply(this, argumentsList);
-    			}
-    		},
-    		/**
-    		 * onreadystatechange准备状态改变-触发
-    		 * @param {HttpxDetails} details 配置
-    		 * @param {any[]} argumentsList 参数列表
-    		 */
-    		onReadyStateChange(details, argumentsList) {
-    			if ("onreadystatechange" in details) {
-    				details.onreadystatechange.apply(this, argumentsList);
-    			} else if ("onreadystatechange" in defaultDetails) {
-    				defaultDetails.onreadystatechange.apply(this, argumentsList);
-    			}
-    		},
-    	};
-
-    	const HttpxRequest = {
-    		/**
-    		 * 发送请求
-    		 * @param {HttpxDetails} details
-    		 */
-    		request(details) {
-    			if (LOG_DETAILS) {
-    				console.log("Httpx请求配置👇", details);
-    			}
-    			if (typeof HttpxRequestHook.beforeRequestCallBack === "function") {
-    				let hookResult = HttpxRequestHook.beforeRequestCallBack(details);
-    				if (typeof hookResult === "boolean" && !hookResult) {
-    					return;
-    				}
-    			}
-    			if (details.fetch) {
-    				const { fetchDetails, fetchRequestInit, abortController } =
-    					HttpxRequestDetails.handleFetchDetail(details);
-    				this.fetch(fetchDetails, fetchRequestInit, abortController);
-    			} else {
-    				Reflect.deleteProperty(details, "fetchInit");
-    				this.xmlHttpRequest(details);
-    			}
-    		},
-    		/**
-    		 * 使用油猴函数GM_xmlhttpRequest发送请求
-    		 * @param {HttpxDetails} details
-    		 */
-    		xmlHttpRequest(details) {
-    			GM_Api.xmlHttpRequest(details);
-    		},
-    		/**
-    		 * 使用fetch发送请求
-    		 * @param {HttpxDetails} details
-    		 * @param {RequestInit} fetchRequestInit
-    		 * @param {AbortController} abortController
-    		 */
-    		fetch(details, fetchRequestInit, abortController) {
-    			fetch(details.url, fetchRequestInit)
-    				.then(async (resp) => {
-    					/**
-    					 * @type {HttpxAsyncResultData}
-    					 */
-    					let httpxResponse = {
-    						isFetch: true,
-    						finalUrl: resp.url,
-    						readyState: 4,
-    						status: resp.status,
-    						statusText: resp.statusText,
-    						response: void 0,
-    						responseFetchHeaders: resp.headers,
-    						responseHeaders: "",
-    						responseText: void 0,
-    						responseType: details.responseType,
-    						responseXML: void 0,
-    					};
-    					Object.assign(httpxResponse, details.context || {});
-
-    					for (const [key, value] of resp.headers.entries()) {
-    						httpxResponse.responseHeaders += `${key}: ${value}\n`;
-    					}
-
-    					/* 如果是流式传输，直接返回 */
-    					if (
-    						details.responseType === "stream" ||
-    						(resp.headers.has("Content-Type") &&
-    							resp.headers.get("Content-Type").includes("text/event-stream"))
-    					) {
-    						httpxResponse["isStream"] = true;
-    						httpxResponse.response = resp.body;
-    						Reflect.deleteProperty(httpxResponse, "responseText");
-    						Reflect.deleteProperty(httpxResponse, "responseXML");
-    						details.onload(httpxResponse);
-    						return;
-    					}
-
-    					/** 响应 */
-    					let response = "";
-    					/** 响应字符串 */
-    					let responseText = "";
-    					/** 响应xml文档 */
-    					let responseXML = "";
-
-    					let arrayBuffer = await resp.arrayBuffer;
-
-    					let encoding = "utf-8";
-    					if (resp.headers.has("Content-Type")) {
-    						let charsetMatched = resp.headers
-    							.get("Content-Type")
-    							.match(/charset=(.+)/);
-    						if (charsetMatched) {
-    							encoding = charsetMatched[1];
-    						}
-    					}
-    					let textDecoder = new TextDecoder(encoding);
-    					responseText = textDecoder.decode(await resp.arrayBuffer());
-    					response = responseText;
-
-    					if (details.responseType === "arraybuffer") {
-    						response = arrayBuffer;
-    					} else if (details.responseType === "blob") {
-    						response = new Blob([arrayBuffer]);
-    					} else if (
-    						details.responseType === "document" ||
-    						details.responseType == null
-    					) {
-    						let parser = new DOMParser();
-    						response = parser.parseFromString(responseText, "text/html");
-    					} else if (details.responseType === "json") {
-    						response = Utils.toJSON(responseText);
-    					}
-    					let parser = new DOMParser();
-    					responseXML = parser.parseFromString(responseText, "text/xml");
-
-    					httpxResponse.response = response;
-    					httpxResponse.responseText = responseText;
-    					httpxResponse.responseXML = responseXML;
-
-    					details.onload(httpxResponse);
-    				})
-    				.catch((err) => {
-    					if (err.name === "AbortError") {
-    						return;
-    					}
-    					details.onerror({
-    						isFetch: true,
-    						finalUrl: details.url,
-    						readyState: 4,
-    						status: 0,
-    						statusText: "",
-    						responseHeaders: "",
-    						responseText: "",
-    						error: err,
-    					});
-    				});
-    			details.onloadstart({
-    				isFetch: true,
-    				finalUrl: details.url,
-    				readyState: 1,
-    				responseHeaders: "",
-    				responseText: "",
-    				status: 0,
-    				statusText: "",
-    			});
-    			return {
-    				abort() {
-    					abortController.abort();
-    				},
-    			};
-    		},
-    	};
-
-    	/**
-    	 * 覆盖当前配置
-    	 * @param {HttpxDetailsConfig} details
-    	 */
-    	this.config = function (details = {}) {
-    		if ("logDetails" in details && typeof details["logDetails"] === "boolean") {
-    			LOG_DETAILS = details["logDetails"];
-    		}
-
-    		defaultDetails = Utils.assign(defaultDetails, details);
-    	};
-
-    	/**
-    	 * 修改xmlHttpRequest
-    	 * @param {Function} httpRequest 网络请求函数
-    	 */
-    	this.setXMLHttpRequest = function (httpRequest) {
-    		GM_Api.xmlHttpRequest = httpRequest;
-    	};
-
-    	/**
-    	 * GET 请求
-    	 * @param {...HttpxDetails|string} args
-    	 * @returns {Promise< HttpxAsyncResult >}
-    	 */
-    	this.get = async function (...args) {
-    		let details = {};
-    		if (typeof args[0] === "string") {
-    			details.url = args[0];
-    			if (typeof args[1] === "object") {
-    				details = args[1];
-    				details.url = args[0];
-    			}
-    		} else {
-    			details = args[0];
-    		}
-    		return new Promise((resolve) => {
-    			let requestDetails = HttpxRequestDetails.getDetails(
-    				"get",
-    				resolve,
-    				details
-    			);
-    			Reflect.deleteProperty(requestDetails, "onprogress");
-    			requestDetails = HttpxRequestDetails.handle(requestDetails);
-    			HttpxRequest.request(requestDetails);
-    		});
-    	};
-    	/**
-    	 * POST 请求
-    	 * @param {...HttpxDetails|string} args
-    	 * @returns {Promise< HttpxAsyncResult >}
-    	 */
-    	this.post = async function (...args) {
-    		let details = {};
-    		if (typeof args[0] === "string") {
-    			details.url = args[0];
-    			if (typeof args[1] === "object") {
-    				details = args[1];
-    				details.url = args[0];
-    			}
-    		} else {
-    			details = args[0];
-    		}
-    		return new Promise((resolve) => {
-    			let requestDetails = HttpxRequestDetails.getDetails(
-    				"post",
-    				resolve,
-    				details
-    			);
-    			requestDetails = HttpxRequestDetails.handle(requestDetails);
-    			HttpxRequest.request(requestDetails);
-    		});
-    	};
-    	/**
-    	 * HEAD 请求
-    	 * @param {...HttpxDetails|string} args
-    	 * @returns {Promise< HttpxAsyncResult >}
-    	 */
-    	this.head = async function (...args) {
-    		let details = {};
-    		if (typeof args[0] === "string") {
-    			details.url = args[0];
-    			if (typeof args[1] === "object") {
-    				details = args[1];
-    				details.url = args[0];
-    			}
-    		} else {
-    			details = args[0];
-    		}
-    		return new Promise((resolve) => {
-    			let requestDetails = HttpxRequestDetails.getDetails(
-    				"head",
-    				resolve,
-    				details
-    			);
-    			Reflect.deleteProperty(requestDetails, "onprogress");
-    			requestDetails = HttpxRequestDetails.handle(requestDetails);
-    			HttpxRequest.request(requestDetails);
-    		});
-    	};
-
-    	/**
-    	 * OPTIONS 请求
-    	 * @param {...HttpxDetails|string} args
-    	 * @returns {Promise< HttpxAsyncResult >}
-    	 */
-    	this.options = async function (...args) {
-    		let details = {};
-    		if (typeof args[0] === "string") {
-    			details.url = args[0];
-    			if (typeof args[1] === "object") {
-    				details = args[1];
-    				details.url = args[0];
-    			}
-    		} else {
-    			details = args[0];
-    		}
-    		return new Promise((resolve) => {
-    			let requestDetails = HttpxRequestDetails.getDetails(
-    				"options",
-    				resolve,
-    				details
-    			);
-    			Reflect.deleteProperty(requestDetails, "onprogress");
-    			requestDetails = HttpxRequestDetails.handle(requestDetails);
-    			HttpxRequest.request(requestDetails);
-    		});
-    	};
-
-    	/**
-    	 * DELETE 请求
-    	 * @param {...HttpxDetails|string} args
-    	 * @returns {Promise< HttpxAsyncResult >}
-    	 */
-    	this.delete = async function (...args) {
-    		let details = {};
-    		if (typeof args[0] === "string") {
-    			details.url = args[0];
-    			if (typeof args[1] === "object") {
-    				details = args[1];
-    				details.url = args[0];
-    			}
-    		} else {
-    			details = args[0];
-    		}
-    		return new Promise((resolve) => {
-    			let requestDetails = HttpxRequestDetails.getDetails(
-    				"delete",
-    				resolve,
-    				details
-    			);
-    			Reflect.deleteProperty(requestDetails, "onprogress");
-    			requestDetails = HttpxRequestDetails.handle(requestDetails);
-    			HttpxRequest.request(requestDetails);
-    		});
-    	};
-
-    	/**
-    	 * PUT 请求
-    	 * @param {...HttpxDetails|string} args
-    	 * @returns {Promise< HttpxAsyncResult >}
-    	 */
-    	this.put = async function (...args) {
-    		let details = {};
-    		if (typeof args[0] === "string") {
-    			details.url = args[0];
-    			if (typeof args[1] === "object") {
-    				details = args[1];
-    				details.url = args[0];
-    			}
-    		} else {
-    			details = args[0];
-    		}
-    		return new Promise((resolve) => {
-    			let requestDetails = HttpxRequestDetails.getDetails(
-    				"put",
-    				resolve,
-    				details
-    			);
-    			requestDetails = HttpxRequestDetails.handle(requestDetails);
-    			HttpxRequest.request(requestDetails);
-    		});
-    	};
-    };
-
-    const indexedDB = function (
-    	dbName = "default_db",
-    	storeName = "default_form",
-    	dbVersion = 1
-    ) {
-    	this.dbName = dbName;
-    	/* websql的版本号，由于ios的问题，版本号的写法不一样 */
-    	this.slqVersion = "1";
-    	this.dbVersion = dbVersion;
-    	this.storeName = storeName;
-    	/* 监听IndexDB */
-    	this.indexedDB =
-    		window.indexedDB ||
-    		window.mozIndexedDB ||
-    		window.webkitIndexedDB ||
-    		window.msIndexedDB;
-    	if (!this.indexedDB) {
-    		alert("很抱歉，您的浏览器不支持indexedDB");
-    	}
-    	/* 缓存数据库，避免同一个页面重复创建和销毁 */
-    	this.db = {};
-    	this.store = null;
-    	this.errorCode = {
-    		/* 错误码 */
-    		success: {
-    			code: 200,
-    			msg: "操作成功",
-    		},
-    		error: {
-    			code: 401,
-    			msg: "操作失败",
-    		},
-    		open: { code: 91001, msg: "打开数据库失败" },
-    		save: { code: 91002, msg: "保存数据失败" },
-    		get: { code: 91003, msg: "获取数据失败" },
-    		delete: { code: 91004, msg: "删除数据失败" },
-    		deleteAll: { code: 91005, msg: "清空数据库失败" },
-    	};
-    	let that = this;
-    	/**
-    	 * 创建 “表”
-    	 * @param {string} dbName 表名
-    	 * @returns
-    	 */
-    	this.createStore = function (dbName) {
-    		let txn, store;
-    		if (that.indexedDB) {
-    			/* 如果是支持IndexDB的 */
-    			txn = that.db[dbName].transaction(that.storeName, "readwrite");
-    			/* IndexDB的读写权限 */
-    			store = txn.objectStore(that.storeName);
-    		}
-    		return store;
-    	};
-    	/**
-    	 * 打开数据库
-    	 * @param {function} callback  回调
-    	 * @param {string} dbName 数据库名
-    	 */
-    	this.open = function (callback, dbName) {
-    		/* 打开数据库 */
-    		if (that.indexedDB) {
-    			/* 如果支持IndexDB */
-    			if (!that.db[dbName]) {
-    				/* 如果缓存中没有，则进行数据库的创建或打开，提高效率 */
-    				let request = that.indexedDB.open(dbName, that.dbVersion);
-    				request.onerror = function (e) {
-    					callback({
-    						code: that.errorCode.open.code,
-    						msg: that.errorCode.open.msg,
-    						error: e,
-    					});
-    				};
-    				request.onsuccess = function (e) {
-    					if (!that.db[dbName]) {
-    						that.db[dbName] = e.target.result;
-    					}
-    					let store = that.createStore(dbName);
-    					callback(store);
-    				};
-    				request.onupgradeneeded = function (e) {
-    					that.db[dbName] = e.target.result;
-    					let store = that.db[dbName].createObjectStore(that.storeName, {
-    						keyPath: "key",
-    					});
-    					store.transaction.oncomplete = function (event) {
-    						callback(store);
-    					};
-    				};
-    			} else {
-    				/* 如果缓存中已经打开了数据库，就直接使用 */
-    				let store = that.createStore(dbName);
-    				callback(store);
-    			}
-    		}
-    	};
-    	/**
-    	 * 保存数据到数据库
-    	 * @param {string} key 数据key
-    	 * @param {any} value 数据值
-    	 * @returns {Promise< {
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    success: boolean
-    	 * }>}
-    	 */
-    	this.save = async function (key, value) {
-    		if (that.indexedDB) {
-    			return new Promise((resolve, reject) => {
-    				let dbName = that.dbName;
-    				let inData = {
-    					key: key,
-    					value: value,
-    				};
-    				that.open(function (result) {
-    					let error = result.hasOwnProperty("error");
-    					if (error) {
-    						resolve(result);
-    					} else {
-    						let request = result.put(inData);
-    						request.onsuccess = function (e) {
-    							/* 保存成功有success 字段 */
-    							resolve({
-    								code: that.errorCode.success.code,
-    								msg: that.errorCode.success.msg,
-    								success: true,
-    							});
-    						};
-    						request.onerror = function (e) {
-    							resolve({
-    								code: that.errorCode.save.code,
-    								msg: that.errorCode.save.msg,
-    								error: e,
-    							});
-    						};
-    					}
-    				}, dbName);
-    			});
-    		}
-    	};
-    	/**
-    	 * 根据key获取值
-    	 * @param {string} key 数据key
-    	 * @returns {Promise< {
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    data: [...any],
-    	 *    success: true
-    	 * }| {
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    error: Error,
-    	 *    result: any,
-    	 * } >}
-    	 */
-    	this.get = async function (key) {
-    		return new Promise((resolve, reject) => {
-    			let dbName = that.dbName;
-    			if (that.indexedDB) {
-    				that.open(function (result) {
-    					/* 判断返回的数据中是否有error字段 */
-    					let error = result.hasOwnProperty("error");
-    					if (error) {
-    						reject({
-    							code: that.errorCode.open.get,
-    							msg: that.errorCode.get.msg,
-    							error: error,
-    							result: result,
-    						});
-    					} else {
-    						let request = result.get(key);
-    						request.onsuccess = function (e) {
-    							let result = e.target.result;
-    							let data = result ? result.value : void 0;
-    							resolve({
-    								code: data
-    									? that.errorCode.success.code
-    									: that.errorCode.error.code,
-    								msg: data
-    									? that.errorCode.success.msg
-    									: that.errorCode.error.msg,
-    								data: data || [],
-    								success: true,
-    							});
-    						};
-    						request.onerror = function (e) {
-    							reject({
-    								code: that.errorCode.get.code,
-    								msg: that.errorCode.get.msg,
-    								result: result,
-    								error: e,
-    							});
-    						};
-    					}
-    				}, dbName);
-    			}
-    		});
-    	};
-    	/**
-    	 * 正则获取数据
-    	 * @param {string} key 数据键
-    	 * @returns { Promise<{
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    data: [...any],
-    	 *    success: true
-    	 * }|{
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    error: Error,
-    	 *    result: any,
-    	 * }> }
-    	 */
-    	this.regexpGet = async function (key) {
-    		let list = [];
-    		return new Promise((resolve, reject) => {
-    			/* 正则查询 */
-    			let dbName = that.dbName;
-    			if (that.indexedDB) {
-    				that.open(function (result) {
-    					/* 判断返回的数据中是否有error字段 */
-    					let error = result.hasOwnProperty("error");
-    					if (error) {
-    						reject({
-    							code: that.errorCode.open.get,
-    							msg: that.errorCode.get.msg,
-    							error: error,
-    							result: result,
-    						});
-    					} else {
-    						let request = result.getAll();
-    						request.onsuccess = function (e) {
-    							let result = e.target.result;
-    							if (result.length !== 0) {
-    								result.forEach((item, index) => {
-    									if (item["key"].match(key)) {
-    										let concatList = item["value"];
-    										concatList["key"] = item["key"];
-    										list = [...list, concatList];
-    									}
-    								});
-    							}
-    							resolve({
-    								code: that.errorCode.success.code,
-    								msg: that.errorCode.success.msg,
-    								data: list,
-    								success: true,
-    							});
-    						};
-    						request.onerror = function (e) {
-    							reject({
-    								code: that.errorCode.get.code,
-    								msg: that.errorCode.get.msg,
-    								result: result,
-    								error: e,
-    							});
-    						};
-    					}
-    				}, dbName);
-    			}
-    		});
-    	};
-    	/**
-    	 * 删除数据
-    	 * @param {string} key 数据键
-    	 * @returns {Promise<{
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    success: true,
-    	 * }|{
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    error: Error,
-    	 * }>}
-    	 */
-    	this.delete = async function (key) {
-    		return new Promise((resolve, reject) => {
-    			/* 根据key删除某条数据 */
-    			let dbName = that.dbName;
-    			if (that.indexedDB) {
-    				that.open(function (result) {
-    					let error = result.hasOwnProperty("error");
-    					if (error) {
-    						resolve(result);
-    					} else {
-    						let request = result.get(key);
-    						request.onsuccess = function (e) {
-    							let recode = e.target.result;
-    							if (recode) {
-    								request = result.delete(key);
-    							}
-    							resolve({
-    								code: recode
-    									? that.errorCode.success.code
-    									: that.errorCode.error.code,
-    								msg: recode
-    									? that.errorCode.success.msg
-    									: that.errorCode.error.msg,
-    								success: true,
-    							});
-    						};
-    						request.onerror = function (e) {
-    							resolve({
-    								code: that.errorCode.delete.code,
-    								msg: that.errorCode.delete.msg,
-    								error: e,
-    							});
-    						};
-    					}
-    				}, dbName);
-    			}
-    		});
-    	};
-    	/**
-    	 * 删除所有数据
-    	 * @returns {Promise<{
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    error: Error,
-    	 *    result: any,
-    	 * }|{
-    	 *    code: number,
-    	 *    msg: string,
-    	 *    success: true,
-    	 * }>}
-    	 */
-    	this.deleteAll = async function () {
-    		return new Promise((resolve, reject) => {
-    			/* 清空数据库 */
-    			let dbName = that.dbName;
-    			if (that.indexedDB) {
-    				that.open(function (result) {
-    					let error = result.hasOwnProperty("error");
-    					if (error) {
-    						resolve({
-    							code: that.errorCode.deleteAll.code,
-    							msg: that.errorCode.deleteAll.msg,
-    							error: error,
-    							result: result,
-    						});
-    					} else {
-    						result.clear();
-    						resolve({
-    							code: that.errorCode.success.code,
-    							msg: that.errorCode.success.msg,
-    							success: true,
-    						});
-    					}
-    				}, dbName);
-    			}
-    		});
-    	};
-    };
-
-    const LockFunction = function (callback, context, delayTime = 0) {
-    	let flag = false;
-    	let that = this;
-    	context = context || this;
-    	/**
-    	 * 锁
-    	 */
-    	this.lock = function () {
-    		flag = true;
-    	};
-    	/**
-    	 * 解锁
-    	 */
-    	this.unlock = function () {
-    		setTimeout(() => {
-    			flag = false;
-    		}, delayTime);
-    	};
-    	/**
-    	 * 执行
-    	 */
-    	this.run = async function (...args) {
-    		if (flag) {
-    			return;
-    		}
-    		that.lock();
-    		await callback.apply(context, args);
-    		that.unlock();
-    	};
-    };
-
-    const Log = function (
-    	_GM_info_ = {
-    		script: {
-    			name: "Utils.Log",
-    		},
-    	},
-    	console = globalThis.console
-    ) {
-    	let msgColorDetails = [
-    		"font-weight: bold; color: cornflowerblue",
-    		"font-weight: bold; color: cornflowerblue",
-    		"font-weight: bold; color: darkorange",
-    		"font-weight: bold; color: cornflowerblue",
-    	];
-    	/**
-    	 * @type {UtilsLogOptions}
-    	 */
-    	let details = {
-    		tag: true,
-    		successColor: "#0000FF",
-    		errorColor: "#FF0000",
-    		infoColor: "0",
-    		warnColor: "0",
-    		debug: false,
-    		autoClearConsole: false,
-    		logMaxCount: 999,
-    	};
-    	let logCount = 0;
-    	/**
-    	 * 解析Error的堆栈获取实际调用者的函数名及函数所在的位置
-    	 * @param {string[]} stack
-    	 * @returns {{
-    	 *   name: string,
-    	 *   position: string,
-    	 * }}
-    	 */
-    	let parseErrorStack = function (stack) {
-    		let result = {
-    			name: "",
-    			position: "",
-    		};
-    		for (let stackString of stack) {
-    			stackString = stackString.trim();
-    			let stackFunctionName = stackString.match(/^at[\s]+(.+?)[\s]+/i);
-    			let stackFunctionNamePosition = stackString.match(
-    				/^at[\s]+.+[\s]+\((.+?)\)/i
-    			);
-    			if (stackFunctionName == null) {
-    				continue;
-    			}
-    			stackFunctionName = stackFunctionName[stackFunctionName.length - 1];
-    			stackFunctionNamePosition =
-    				stackFunctionNamePosition[stackFunctionNamePosition.length - 1];
-    			if (
-    				stackFunctionName === "" ||
-    				stackFunctionName.match(
-    					new RegExp(
-    						"(^Utils.Log.|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each)",
-    						"g"
-    					)
-    				)
-    			) {
-    				continue;
-    			} else {
-    				result.name = stackFunctionName;
-    				result.position = stackFunctionNamePosition;
-    				break;
-    			}
-    		}
-    		if (result.position === "") {
-    			let lastStackString = stack[stack.length - 1].trim();
-    			if (lastStackString.startsWith("at chrome-extension://")) {
-    				let lastStackMatch = lastStackString.match(/^at[\s]+(.+)/);
-    				if (lastStackMatch) {
-    					result.position = lastStackMatch[lastStackMatch.length - 1];
-    				}
-    			}
-    		}
-    		if (result.position === "") {
-    			result.position = stack[stack.length - 1].trim().replace(/^at[\s]*/g, "");
-    		}
-    		return result;
-    	};
-    	/**
-    	 * 待恢复的函数或对象
-    	 */
-    	let recoveryList = [];
-    	/**
-    	 * 检测清理控制台
-    	 * @this {Utils.Log}
-    	 */
-    	let checkClearConsole = function () {
-    		logCount++;
-    		if (details.autoClearConsole && logCount > details.logMaxCount) {
-    			console.clear();
-    			logCount = 0;
-    		}
-    	};
-    	/**
-    	 * 输出内容
-    	 * @param {any} msg 需要输出的内容
-    	 * @param {string} color 颜色
-    	 * @param {string|undefined} otherStyle 其它CSS
-    	 * @this {Utils.Log}
-    	 */
-    	let printContent = function (msg, color, otherStyle) {
-    		checkClearConsole.apply(this);
-    		otherStyle = otherStyle || "";
-    		let stackSplit = new Error().stack.split("\n");
-    		stackSplit.splice(0, 2);
-    		let { name: callerName, position: callerPosition } =
-    			parseErrorStack(stackSplit);
-    		let tagName = this.tag;
-    		function consoleMsg(_msg_) {
-    			if (typeof _msg_ === "string") {
-    				console.log(
-    					`%c[${tagName}%c-%c${callerName}%c]%c %s`,
-    					...msgColorDetails,
-    					`color: ${color};${otherStyle}`,
-    					_msg_
-    				);
-    			} else if (typeof _msg_ === "number") {
-    				console.log(
-    					`%c[${tagName}%c-%c${callerName}%c]%c %d`,
-    					...msgColorDetails,
-    					`color: ${color};${otherStyle}`,
-    					_msg_
-    				);
-    			} else if (typeof _msg_ === "object") {
-    				console.log(
-    					`%c[${tagName}%c-%c${callerName}%c]%c %o`,
-    					...msgColorDetails,
-    					`color: ${color};${otherStyle}`,
-    					_msg_
-    				);
-    			} else {
-    				console.log(_msg_);
-    			}
-    		}
-    		if (Array.isArray(msg)) {
-    			msg.forEach((item) => {
-    				consoleMsg(item);
-    			});
-    		} else {
-    			consoleMsg(msg);
-    		}
-    		if (details.debug) {
-    			/* 如果开启调试模式，输出堆栈位置 */
-    			console.log(callerPosition);
-    		}
-    	};
-    	/**
-    	 * 前面的TAG标志
-    	 */
-    	this.tag = _GM_info_?.script?.name || "Utils.Log";
-    	/**
-    	 * 控制台-普通输出
-    	 * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-    	 * @param {string|undefined} color 输出的颜色
-    	 * @param {string|undefined} otherStyle 其它CSS
-    	 */
-    	this.info = function (msg, color = details.infoColor, otherStyle) {
-    		printContent.call(this, msg, color, otherStyle);
-    	};
-    	/**
-    	 * 控制台-警告输出
-    	 * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-    	 * @param {string|undefined} color 输出的颜色
-    	 * @param {string|undefined} otherStyle 其它CSS
-    	 */
-    	this.warn = function (
-    		msg,
-    		color = details.warnColor,
-    		otherStyle = "background: #FEF6D5;padding: 4px 6px 4px 0px;"
-    	) {
-    		printContent.call(this, msg, color, otherStyle);
-    	};
-    	/**
-    	 * 控制台-错误输出
-    	 * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-    	 * @param {string|undefined} color 输出的颜色
-    	 * @param {string|undefined} otherStyle 其它CSS
-    	 */
-    	this.error = function (msg, color = details.errorColor, otherStyle) {
-    		printContent.call(this, msg, color, otherStyle);
-    	};
-    	/**
-    	 * 控制台-成功输出
-    	 * @param {any} msg 需要输出的内容，如果想输出多个，修改成数组，且数组内的长度最大值为4个
-    	 * @param {string|undefined} color 输出的颜色
-    	 * @param {string|undefined} otherStyle 其它CSS
-    	 */
-    	this.success = function (msg, color = details.successColor, otherStyle) {
-    		printContent.call(this, msg, color, otherStyle);
-    	};
-    	/**
-    	 * 控制台-输出表格
-    	 * @param {object[]} msg
-    	 * @param {string|undefined} color 输出的颜色
-    	 * @param {string|undefined} otherStyle 其它CSS
-    	 * @example
-    	 * log.table([{"名字":"example","值":"123"},{"名字":"example2","值":"345"}])
-    	 */
-    	this.table = function (msg, color = details.infoColor, otherStyle = "") {
-    		checkClearConsole.apply(this);
-    		let stack = new Error().stack.split("\n");
-    		stack.splice(0, 1);
-    		let errorStackParse = parseErrorStack(stack);
-    		let stackFunctionName = errorStackParse.name;
-    		let stackFunctionNamePosition = errorStackParse.position;
-    		let callerName = stackFunctionName;
-    		console.log(
-    			`%c[${this.tag}%c-%c${callerName}%c]%c`,
-    			...msgColorDetails,
-    			`color: ${color};${otherStyle}`
-    		);
-    		console.table(msg);
-    		if (details.debug) {
-    			console.log(stackFunctionNamePosition);
-    		}
-    	};
-    	/**
-    	 * 配置Log对象的颜色
-    	 * @param {UtilsLogOptions} paramDetails 配置信息
-    	 */
-    	this.config = function (paramDetails) {
-    		details = Object.assign(details, paramDetails);
-    	};
-    	/**
-    	 * 禁用输出
-    	 */
-    	this.disable = function () {
-    		let that = this;
-    		Object.keys(this)
-    			.filter((keyName) => Boolean(keyName.match(/info|error|success|table/)))
-    			.forEach((keyName) => {
-    				let value = {};
-    				value[keyName] = that[keyName];
-    				recoveryList = [...recoveryList, value];
-    				that[keyName] = () => {};
-    			});
-    	};
-    	/**
-    	 * 恢复输出
-    	 */
-    	this.recovery = function () {
-    		let that = this;
-    		recoveryList.forEach((item) => {
-    			let keyName = Object.keys(item);
-    			that[keyName] = item[keyName];
-    		});
-    		recoveryList = [];
-    	};
-    };
-
-    const Progress = function (paramConfig) {
-    	this.config = {
-    		/**
-    		 * canvas元素节点
-    		 * @type {HTMLCanvasElement}
-    		 */
-    		canvasNode: null,
-    		/**
-    		 * 绘制角度
-    		 */
-    		deg: 95,
-    		/**
-    		 * 进度
-    		 */
-    		progress: 0,
-    		/**
-    		 * 绘制的线宽度
-    		 */
-    		lineWidth: 10,
-    		/**
-    		 * 绘制的背景颜色
-    		 */
-    		lineBgColor: "#1e637c",
-    		/**
-    		 * 绘制的线的颜色
-    		 */
-    		lineColor: "#25deff",
-    		/**
-    		 * 绘制的字体颜色
-    		 */
-    		textColor: "#000000",
-    		/**
-    		 * 绘制的字体大小(px)
-    		 */
-    		fontSize: 22,
-    		/**
-    		 * 绘制的圆的半径
-    		 */
-    		circleRadius: 50,
-    		/**
-    		 * 控制绘制的函数
-    		 */
-    		draw: () => {},
-    	};
-    	this.config = Utils.assign(this.config, paramConfig);
-    	if (!(this.config.canvasNode instanceof HTMLCanvasElement)) {
-    		throw new Error("Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement");
-    	}
-    	/* 获取画笔 */
-    	let ctx = this.config.canvasNode.getContext("2d");
-    	/* 元素宽度 */
-    	let width = this.config.canvasNode.width;
-    	/* 元素高度 */
-    	let height = this.config.canvasNode.height;
-
-    	/* 清除锯齿 */
-    	if (window.devicePixelRatio) {
-    		this.config.canvasNode.style.width = width + "px";
-    		this.config.canvasNode.style.height = height + "px";
-    		this.config.canvasNode.height = height * window.devicePixelRatio;
-    		this.config.canvasNode.width = width * window.devicePixelRatio;
-    		ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    	}
-    	/* 设置线宽 */
-    	ctx.lineWidth = this.config.lineWidth;
-    	/* 绘制 */
-    	this.draw = function () {
-    		let degActive = (this.config.progress * 360) / 100;
-    		/* 清除画布 */
-    		ctx.clearRect(0, 0, width, height);
-    		/* 开始绘制底圆 */
-    		ctx.beginPath();
-    		ctx.arc(width / 2, height / 2, this.config.circleRadius, 1, 8);
-    		ctx.strokeStyle = this.config.lineBgColor;
-    		ctx.stroke();
-    		/* 开始绘制动态圆 */
-    		ctx.beginPath();
-    		ctx.arc(
-    			width / 2,
-    			height / 2,
-    			this.config.circleRadius,
-    			-Math.PI / 2,
-    			(degActive * Math.PI) / 180 - Math.PI / 2
-    		);
-    		ctx.strokeStyle = this.config.lineColor;
-    		ctx.stroke();
-    		/* 获取百分比 */
-    		let txt = parseInt(this.config.progress) + "%";
-    		ctx.font = this.config.fontSize + "px SimHei";
-    		/* 获取文本宽度 */
-    		let w = ctx.measureText(txt).width;
-    		let h = this.config.fontSize / 2;
-    		ctx.fillStyle = this.config.textColor;
-    		ctx.fillText(txt, width / 2 - w / 2, height / 2 + h / 2);
-    	}.bind(this);
-    };
-
-    /**
-     * 
-     * @param  {...any} args 
-     * @returns 
-     */
     const TryCatch = function (...args) {
-    	/* 定义变量和函数 */
-    	let callbackFunction = null;
-    	let context = null;
-    	let handleError = null;
-    	let defaultDetails = {
-    		log: true,
-    	};
-    	/**
-    	 * @function tryCatchObj
-    	 * @description 空函数，用于链式调用。
-    	 */
-    	function tryCatchObj() {}
-
-    	/**
-    	 * 配置
-    	 * @param {{
-    	 * log: boolean
-    	 * }} paramDetails
-    	 */
-    	tryCatchObj.config = function (paramDetails) {
-    		defaultDetails = Utils.assign(defaultDetails, paramDetails);
-    		return tryCatchObj;
-    	};
-    	/**
-    	 * 设置错误处理函数。
-    	 * @param {function|string} handler 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-    	 * @returns 返回 tryCatchObj 函数。
-    	 */
-    	tryCatchObj.error = function (handler) {
-    		handleError = handler;
-    		return tryCatchObj;
-    	};
-
-    	/**
-    	 * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-    	 * @param {function|string} callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-    	 * @param {object|null} [__context__] 待执行函数的作用域，用于apply指定
-    	 * @returns 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
-    	 * @throws {Error} 如果传入参数不符合要求，则会抛出相应类型的错误。
-    	 */
-    	tryCatchObj.run = function (callback, __context__) {
-    		callbackFunction = callback;
-    		context = __context__;
-    		let result = executeTryCatch(callbackFunction, handleError, context);
-    		return result !== void 0 ? result : tryCatchObj;
-    	};
-
-    	/**
-    	 * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-    	 * @param {function|string} callback - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-    	 * @param {function|string|null} handleErrorFunc - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-    	 * @param {object|null} funcThis - 待执行函数的作用域，用于apply指定
-    	 * @returns {any|undefined} - 如果函数有返回值，则返回该返回值；否则返回 undefined。
-    	 */
-    	function executeTryCatch(callback, handleErrorFunc, funcThis) {
-    		let result = void 0;
-    		try {
-    			if (typeof callback === "string") {
-    				(function () {
-    					eval(callback);
-    				}).apply(funcThis, args);
-    			} else {
-    				result = callback.apply(funcThis, args);
-    			}
-    		} catch (error) {
-    			if (defaultDetails.log) {
-    				console.log(
-    					`%c ${callback?.name ? callback?.name : callback + "出现错误"} `,
-    					"color: #f20000"
-    				);
-    				console.log(`%c 错误原因：${error}`, "color: #f20000");
-    				console.trace(callback);
-    			}
-    			if (handleErrorFunc) {
-    				if (typeof handleErrorFunc === "string") {
-    					result = function () {
-    						return eval(handleErrorFunc);
-    					}.apply(funcThis, [...args, error]);
-    				} else {
-    					result = handleErrorFunc.apply(funcThis, [...args, error]);
-    				}
-    			}
-    		}
-    		return result;
-    	}
-
-    	// 返回 tryCatchObj 函数
-    	return tryCatchObj;
+        /* 定义变量和函数 */
+        let callbackFunction = null;
+        let context = null;
+        let handleError = (error) => { };
+        let defaultDetails = {
+            log: true,
+        };
+        const TryCatchCore = {
+            /**
+             *
+             * @param paramDetails 配置
+             * @returns
+             */
+            config(paramDetails) {
+                defaultDetails = utils.assign(defaultDetails, paramDetails);
+                return TryCatchCore;
+            },
+            /**
+             * 处理错误
+             * @param handler
+             */
+            error(handler) {
+                // @ts-ignore
+                handleError = handler;
+                return TryCatchCore;
+            },
+            /**
+             * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+             * @param callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+             * @param __context__ 待执行函数的作用域，用于apply指定
+             * @returns 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
+             * @throws {Error} 如果传入参数不符合要求，则会抛出相应类型的错误。
+             */
+            run(callback, __context__) {
+                callbackFunction = callback;
+                context = __context__ || this;
+                let result = executeTryCatch(callbackFunction, handleError, context);
+                // @ts-ignore
+                return result !== void 0 ? result : TryCatchCore;
+            },
+        };
+        /**
+         * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+         * @param callback - 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+         * @param handleErrorFunc - 错误处理函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+         * @param funcThis - 待执行函数的作用域，用于apply指定
+         * @returns 如果函数有返回值，则返回该返回值；否则返回 undefined。
+         */
+        function executeTryCatch(callback, handleErrorFunc, funcThis) {
+            let result = void 0;
+            try {
+                if (typeof callback === "string") {
+                    (function () {
+                        eval(callback);
+                    }).apply(funcThis, args);
+                }
+                else {
+                    result = callback.apply(funcThis, args);
+                }
+            }
+            catch (error) {
+                if (defaultDetails.log) {
+                    callback = callback;
+                    console.log(`%c ${callback?.name ? callback?.name : callback + "出现错误"} `, "color: #f20000");
+                    console.log(`%c 错误原因：${error}`, "color: #f20000");
+                    console.trace(callback);
+                }
+                if (handleErrorFunc) {
+                    if (typeof handleErrorFunc === "string") {
+                        result = function () {
+                            return eval(handleErrorFunc);
+                            // @ts-ignore
+                        }.apply(funcThis, [...args, error]);
+                    }
+                    else {
+                        result = handleErrorFunc.apply(funcThis, [...args, error]);
+                    }
+                }
+            }
+            return result;
+        }
+        return TryCatchCore;
     };
 
     class UtilsDictionary {
-    	items = {};
-    	/**
-    	 * 检查是否有某一个键
-    	 * @param {string} key 键
-    	 * @returns {boolean}
-    	 */
-    	has(key) {
-    		return this.items.hasOwnProperty(key);
-    	}
-    	/**
-    	 * 检查已有的键中是否以xx开头
-    	 * @param {string} key 需要匹配的键
-    	 * @returns {boolean}
-    	 */
-    	startsWith(key) {
-    		let allKeys = this.keys();
-    		for (const keyName of allKeys) {
-    			if (keyName.startsWith(key)) {
-    				return true;
-    			}
-    		}
-    		return false;
-    	}
-    	/**
-    	 * 获取以xx开头的键的值
-    	 * @param {string} key 需要匹配的键
-    	 * @returns {any}
-    	 */
-    	getStartsWith(key) {
-    		let allKeys = this.keys();
-    		for (const keyName of allKeys) {
-    			if (keyName.startsWith(key)) {
-    				return this.items[keyName];
-    			}
-    		}
-    	}
-    	/**
-    	 * 为字典添加某一个值
-    	 * @param {string} key 键
-    	 * @param {any} val 值，默认为""
-    	 */
-    	set(key, val = "") {
-    		if (key === void 0) {
-    			throw new Error("Utils.Dictionary().set 参数 key 不能为空");
-    		}
-    		this.items[key] = val;
-    	}
-    	/**
-    	 * 删除某一个键
-    	 * @param {string} key 键
-    	 * @returns {boolean}
-    	 */
-    	delete(key) {
-    		if (this.has(key)) {
-    			Reflect.deleteProperty(this.items, key);
-    			return true;
-    		}
-    		return false;
-    	}
-    	/**
-    	 * 获取某个键的值
-    	 * @param {string} key 键
-    	 * @returns {any}
-    	 */
-    	get(key) {
-    		return this.has(key) ? this.items[key] : void 0;
-    	}
-    	/**
-    	 * 返回字典中的所有值
-    	 * @returns {any[]}
-    	 */
-    	values() {
-    		let resultList = [];
-    		for (let prop in this.items) {
-    			if (this.has(prop)) {
-    				resultList.push(this.items[prop]);
-    			}
-    		}
-    		return resultList;
-    	}
-    	/**
-    	 * 清空字典
-    	 */
-    	clear() {
-    		this.items = null;
-    		this.items = {};
-    	}
-    	/**
-    	 * 获取字典的长度
-    	 * @returns {number}
-    	 */
-    	size() {
-    		return Object.keys(this.items).length;
-    	}
-    	/**
-    	 * 获取字典所有的键
-    	 */
-    	keys() {
-    		return Object.keys(this.items);
-    	}
-    	/**
-    	 * 返回字典本身
-    	 * @returns {object}
-    	 */
-    	getItems() {
-    		return this.items;
-    	}
-    	/**
-    	 * 合并另一个字典
-    	 * @param {object} data 需要合并的字典
-    	 */
-    	concat(data) {
-    		this.items = Utils.assign(this.items, data.getItems());
-    	}
-    	forEach(callbackfn) {
-    		for (const key in this.items) {
-    			callbackfn(this.get(key), key, this.items);
-    		}
-    	}
-    	/**
-    	 * 获取字典的长度，同this.size
-    	 * @returns {number}
-    	 */
-    	get length() {
-    		return this.size();
-    	}
-    	/**
-    	 * 迭代器
-    	 */
-    	get entries() {
-    		let that = this;
-    		return function* () {
-    			let itemKeys = Object.keys(that.getItems());
-    			for (const keyName of itemKeys) {
-    				yield [keyName, that.get(keyName)];
-    			}
-    		};
-    	}
-    	/**
-    	 * 是否可遍历
-    	 */
-    	get [Symbol.iterator]() {
-    		let that = this;
-    		return function () {
-    			return that.entries();
-    		};
-    	}
-    	/**
-    	 * .toString()和.toLocaleString()输出的字符串
-    	 */
-    	get [Symbol.toStringTag]() {
-    		return "UtilsDictionary";
-    	}
+        #items = {};
+        constructor() { }
+        /**
+         * 检查是否有某一个键
+         * @param key 键
+         */
+        has(key) {
+            return this.#items.hasOwnProperty(key);
+        }
+        /**
+         * 检查已有的键中是否以xx开头
+         * @param key 需要匹配的键
+         */
+        startsWith(key) {
+            let allKeys = this.keys();
+            for (const keyName of allKeys) {
+                if (keyName.startsWith(key)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /**
+         * 获取以xx开头的键的值
+         * @param key 需要匹配的键
+         */
+        getStartsWith(key) {
+            let allKeys = this.keys();
+            let result = null;
+            for (const keyName of allKeys) {
+                if (keyName.startsWith(key)) {
+                    result = this.#items[keyName];
+                    break;
+                }
+            }
+            return result;
+        }
+        /**
+         * 为字典添加某一个值
+         * @param key 键
+         * @param val 值，默认为""
+         */
+        set(key, val) {
+            if (key === void 0) {
+                throw new Error("Utils.Dictionary().set 参数 key 不能为空");
+            }
+            this.#items[key] = val;
+        }
+        /**
+         * 删除某一个键
+         * @param key 键
+         */
+        delete(key) {
+            if (this.has(key)) {
+                Reflect.deleteProperty(this.#items, key);
+                return true;
+            }
+            return false;
+        }
+        /**
+         * 获取某个键的值
+         * @param key 键
+         */
+        get(key) {
+            return this.has(key) ? this.getItems()[key] : void 0;
+        }
+        /**
+         * 返回字典中的所有值
+         */
+        values() {
+            let resultList = [];
+            for (let prop in this.getItems()) {
+                if (this.has(prop)) {
+                    resultList.push(this.getItems()[prop]);
+                }
+            }
+            return resultList;
+        }
+        /**
+         * 清空字典
+         */
+        clear() {
+            this.#items = void 0;
+            this.#items = {};
+        }
+        /**
+         * 获取字典的长度
+         */
+        size() {
+            return Object.keys(this.getItems()).length;
+        }
+        /**
+         * 获取字典所有的键
+         */
+        keys() {
+            return Object.keys(this.getItems());
+        }
+        /**
+         * 返回字典本身
+         */
+        getItems() {
+            return this.#items;
+        }
+        /**
+         * 合并另一个字典
+         * @param data 需要合并的字典
+         */
+        concat(data) {
+            this.#items = utils.assign(this.#items, data.getItems());
+        }
+        forEach(callbackfn) {
+            for (const key in this.getItems()) {
+                callbackfn(this.get(key), key, this.getItems());
+            }
+        }
+        /**
+         * 获取字典的长度，同this.size
+         */
+        get length() {
+            return this.size();
+        }
+        /**
+         * 迭代器
+         */
+        get entries() {
+            let that = this;
+            return function* () {
+                let itemKeys = Object.keys(that.getItems());
+                for (const keyName of itemKeys) {
+                    yield [keyName, that.get(keyName)];
+                }
+            };
+        }
+        /**
+         * 是否可遍历
+         */
+        get [Symbol.iterator]() {
+            let that = this;
+            return function () {
+                return that.entries();
+            };
+        }
     }
 
     /// <reference path="./ajaxHooker/index.d.ts" />
-    /// <reference path="./Dictionary/index.d.ts" />
-    /// <reference path="./Hooks/index.d.ts" />
-    /// <reference path="./Httpx/index.d.ts" />
-    /// <reference path="./indexedDB/index.d.ts" />
-    /// <reference path="./LockFunction/index.d.ts" />
-    /// <reference path="./Log/index.d.ts" />
-    /// <reference path="./Progress/index.d.ts" />
-    /// <reference path="./tryCatch/index.d.ts" />
-    /// <reference path="./UtilsGMMenu/index.d.ts" />
-    let Utils$1 = class Utils {
+    class Utils {
         /** 版本号 */
         version = "2024.5.25";
         addStyle(cssText) {
@@ -5633,7 +5488,6 @@ define((function () { 'use strict';
         }
         /**
          * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-         * @returns 返回一个对象，其中包含 error 和 run 两个方法。
          * @example
          * Utils.tryCatch().error().run(()=>{console.log(1)});
          * > 1
@@ -6039,8 +5893,8 @@ define((function () { 'use strict';
                 });
             }
         }
-    };
-    let utils = new Utils$1();
+    }
+    let utils = new Utils();
 
     return utils;
 

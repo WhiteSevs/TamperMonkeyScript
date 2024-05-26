@@ -1,27 +1,18 @@
 /// <reference path="./ajaxHooker/index.d.ts" />
-/// <reference path="./Dictionary/index.d.ts" />
-/// <reference path="./Hooks/index.d.ts" />
-/// <reference path="./Httpx/index.d.ts" />
-/// <reference path="./indexedDB/index.d.ts" />
-/// <reference path="./LockFunction/index.d.ts" />
-/// <reference path="./Log/index.d.ts" />
-/// <reference path="./Progress/index.d.ts" />
-/// <reference path="./tryCatch/index.d.ts" />
-/// <reference path="./UtilsGMMenu/index.d.ts" />
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsCore } from "./UtilsCore";
 import { UtilsGMCookie } from "./UtilsGMCookie";
 import { AjaxHooker } from "./ajaxHooker/ajaxHooker.js";
-import { GMMenu } from "./UtilsGMMenu/UtilsGMMenu";
-import { Hooks } from "./Hooks/Hooks";
-import { Httpx } from "./Httpx/Httpx";
-import { indexedDB } from "./indexedDB/indexedDB";
-import { LockFunction } from "./LockFunction/LockFunction";
-import { Log } from "./Log/Log";
-import { Progress } from "./Progress/Progress";
-import { TryCatch } from "./tryCatch/tryCatch";
-import { UtilsDictionary } from "./Dictionary/Dictionary";
+import { GMMenu } from "./UtilsGMMenu";
+import { Hooks } from "./Hooks";
+import { Httpx } from "./Httpx";
+import { indexedDB } from "./indexedDB";
+import { LockFunction } from "./LockFunction";
+import { Log } from "./Log";
+import { Progress } from "./Progress";
+import { TryCatch } from "./tryCatch";
+import { UtilsDictionary } from "./Dictionary";
 
 export declare var unsafeWindow: Window & typeof globalThis;
 
@@ -692,9 +683,7 @@ class Utils {
 	 * > true
 	 * dictionary.concat(dictionary2);
 	 **/
-	Dictionary: {
-		new <K, V>(): UtilsDictionaryConstructor<K, V>;
-	} = UtilsDictionary as any;
+	Dictionary = UtilsDictionary;
 	/**
 	 * 主动触发事件
 	 * @param element 元素
@@ -1845,7 +1834,7 @@ class Utils {
       // 删除键为menu_key的菜单
       GM_Menu.delete("menu_key");
      **/
-	GM_Menu: UtilsGMMenu = GMMenu as any;
+	GM_Menu = GMMenu;
 	/**
      * 基于Function prototype，能够勾住和释放任何函数
      * 
@@ -1870,7 +1859,7 @@ class Utils {
       }
       testFunction.hook(testFunction,myFunction,window);
      **/
-	Hooks: UtilsHooks = Hooks;
+	Hooks = Hooks;
 
 	/**
      * 为减少代码量和回调，把GM_xmlhttpRequest封装
@@ -1910,7 +1899,7 @@ class Utils {
       })
       // 优先级为 默认details < 全局details < 单独的details
      */
-	Httpx: UtilsHttpx = Httpx;
+	Httpx = Httpx;
 	/**
      * 浏览器端的indexedDB操作封装
      * @example
@@ -1936,7 +1925,7 @@ class Utils {
           console.log(resolve,'清除数据库---->>>>>>name')
       })
      **/
-	indexedDB: UtilsIndexedDB = indexedDB;
+	indexedDB = indexedDB;
 	/**
 	 * 判断目标函数是否是Native Code
 	 * @param target
@@ -2590,7 +2579,7 @@ class Utils {
       await lock.run();
       > 1
      **/
-	LockFunction: UtilsLockFunction = LockFunction;
+	LockFunction = LockFunction;
 	/**
      * 日志对象
      * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
@@ -2620,7 +2609,7 @@ class Utils {
       log.success("颜色为#31dc02");
       > 颜色为#31dc02
      */
-	Log: UtilsLog = Log;
+	Log = Log;
 	/**
 	 * 合并数组内的JSON的值字符串
 	 * @param data 需要合并的数组
@@ -3214,7 +3203,7 @@ class Utils {
       let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
       progress.draw();
      * **/
-	Progress: UtilsProgress = Progress;
+	Progress = Progress;
 	/**
 	 * 劫持Event的isTrust为true，注入时刻，ducument-start
 	 * @param isTrustValue （可选）让isTrusted为true
@@ -4030,7 +4019,6 @@ class Utils {
 	}
 	/**
 	 * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-	 * @returns 返回一个对象，其中包含 error 和 run 两个方法。
 	 * @example
 	 * Utils.tryCatch().error().run(()=>{console.log(1)});
 	 * > 1

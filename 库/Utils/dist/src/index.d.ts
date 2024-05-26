@@ -1,16 +1,15 @@
 /// <reference path="../../src/ajaxHooker/index.d.ts" />
-/// <reference path="../../src/Dictionary/index.d.ts" />
-/// <reference path="../../src/Hooks/index.d.ts" />
-/// <reference path="../../src/Httpx/index.d.ts" />
-/// <reference path="../../src/indexedDB/index.d.ts" />
-/// <reference path="../../src/LockFunction/index.d.ts" />
-/// <reference path="../../src/Log/index.d.ts" />
-/// <reference path="../../src/Progress/index.d.ts" />
-/// <reference path="../../src/tryCatch/index.d.ts" />
-/// <reference path="../../src/UtilsGMMenu/index.d.ts" />
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsGMCookie } from "./UtilsGMCookie";
+import { GMMenu } from "./UtilsGMMenu";
+import { Hooks } from "./Hooks";
+import { Httpx } from "./Httpx";
+import { indexedDB } from "./indexedDB";
+import { LockFunction } from "./LockFunction";
+import { Log } from "./Log";
+import { Progress } from "./Progress";
+import { UtilsDictionary } from "./Dictionary";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -339,9 +338,7 @@ declare class Utils {
      * > true
      * dictionary.concat(dictionary2);
      **/
-    Dictionary: {
-        new <K, V>(): UtilsDictionaryConstructor<K, V>;
-    };
+    Dictionary: typeof UtilsDictionary;
     /**
      * 主动触发事件
      * @param element 元素
@@ -832,7 +829,7 @@ declare class Utils {
       // 删除键为menu_key的菜单
       GM_Menu.delete("menu_key");
      **/
-    GM_Menu: UtilsGMMenu;
+    GM_Menu: typeof GMMenu;
     /**
      * 基于Function prototype，能够勾住和释放任何函数
      *
@@ -857,7 +854,7 @@ declare class Utils {
       }
       testFunction.hook(testFunction,myFunction,window);
      **/
-    Hooks: UtilsHooks;
+    Hooks: typeof Hooks;
     /**
      * 为减少代码量和回调，把GM_xmlhttpRequest封装
      * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
@@ -896,7 +893,7 @@ declare class Utils {
       })
       // 优先级为 默认details < 全局details < 单独的details
      */
-    Httpx: UtilsHttpx;
+    Httpx: typeof Httpx;
     /**
      * 浏览器端的indexedDB操作封装
      * @example
@@ -922,7 +919,7 @@ declare class Utils {
           console.log(resolve,'清除数据库---->>>>>>name')
       })
      **/
-    indexedDB: UtilsIndexedDB;
+    indexedDB: typeof indexedDB;
     /**
      * 判断目标函数是否是Native Code
      * @param target
@@ -1164,7 +1161,7 @@ declare class Utils {
       await lock.run();
       > 1
      **/
-    LockFunction: UtilsLockFunction;
+    LockFunction: typeof LockFunction;
     /**
      * 日志对象
      * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
@@ -1194,7 +1191,7 @@ declare class Utils {
       log.success("颜色为#31dc02");
       > 颜色为#31dc02
      */
-    Log: UtilsLog;
+    Log: typeof Log;
     /**
      * 合并数组内的JSON的值字符串
      * @param data 需要合并的数组
@@ -1386,7 +1383,7 @@ declare class Utils {
       let progress = new Utils.Process({canvasNode:document.querySelector("canvas")});
       progress.draw();
      * **/
-    Progress: UtilsProgress;
+    Progress: typeof Progress;
     /**
      * 劫持Event的isTrust为true，注入时刻，ducument-start
      * @param isTrustValue （可选）让isTrusted为true
@@ -1539,7 +1536,6 @@ declare class Utils {
     toSearchParamsStr(obj: object | object[]): string;
     /**
      * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-     * @returns 返回一个对象，其中包含 error 和 run 两个方法。
      * @example
      * Utils.tryCatch().error().run(()=>{console.log(1)});
      * > 1
@@ -1547,13 +1543,10 @@ declare class Utils {
      * Utils.tryCatch().config({log:true}).error((error)=>{console.log(error)}).run(()=>{throw new Error('测试错误')});
      * > ()=>{throw new Error('测试错误')}出现错误
      */
-    tryCatch: (...args: any[]) => {
-        (): void;
-        config(paramDetails: {
-            log: boolean;
-        }): any;
-        error(handler: string | Function): any;
-        run(callback: string | Function, __context__?: object | null | undefined): any;
+    tryCatch: (...args: any) => {
+        config(paramDetails: import("./tryCatch").UtilsTryCatchConfig): any;
+        error(handler: string | Function | ((...args: any[]) => any)): any;
+        run<A extends any[], R>(callback: string | Function | ((...args: A) => R), __context__?: any): import("./tryCatch").UtilsTryCatchType;
     };
     /**
      * 数组去重，去除重复的值
