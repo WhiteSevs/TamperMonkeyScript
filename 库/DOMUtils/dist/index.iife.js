@@ -107,7 +107,8 @@ var DOMUtils = (function () {
             if (target === self) {
                 return true;
             }
-            if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
+            if (typeof unsafeWindow !== "undefined" &&
+                target === unsafeWindow) {
                 return true;
             }
             if (target?.Math?.toString() !== "[object Math]") {

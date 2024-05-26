@@ -1,3 +1,4 @@
+import type { DOMUtilsCoreOption } from "./global";
 declare const DOMUtilsCore: {
     init(option?: DOMUtilsCoreOption): void;
     readonly document: Document;

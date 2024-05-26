@@ -1,3 +1,5 @@
+import type { DOMUtilsCoreOption, ParseHTMLReturnType } from "./global";
+import type { DOMUtilsCreateElementAttributesMap, DOMUtils_EventType, DOMUtilsEventListenerOptionsAttribute } from "./Event";
 declare class DOMUtils {
     constructor(option?: DOMUtilsCoreOption);
     /** 版本号 */

@@ -23,8 +23,7 @@
 		"outDir": "./dist",
 		// 输出.d.ts声明文件
 		"declaration": true,
-		"sourceMap": true,
-		"typeRoots": ["./src/types"]
+		"sourceMap": true
 	},
 	// 包含src下的所有文件
 	"include": ["src/**/*", "index.ts"]

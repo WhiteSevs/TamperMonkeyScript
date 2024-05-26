@@ -1,3 +1,5 @@
+import type { DOMUtilsCoreOption } from "./global";
+
 const DOMUtilsCoreDefaultEnv: DOMUtilsCoreOption = {
 	document: document,
 	window: window,

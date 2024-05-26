@@ -74,7 +74,10 @@ const CommonDOMUtils = {
 		if (target === self) {
 			return true;
 		}
-		if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
+		if (
+			typeof (unsafeWindow as any) !== "undefined" &&
+			target === (unsafeWindow as any)
+		) {
 			return true;
 		}
 		if (target?.Math?.toString() !== "[object Math]") {

@@ -2,6 +2,12 @@ import { CommonDOMUtils } from "./CommonDOMUtils";
 import { DOMUtilsCore } from "./DOMUtilsCore";
 import { DOMUtilsData } from "./Data";
 import { OriginPrototype } from "./OriginPrototype";
+import type { DOMUtilsCoreOption, ParseHTMLReturnType } from "./global";
+import type {
+	DOMUtilsCreateElementAttributesMap,
+	DOMUtils_EventType,
+	DOMUtilsEventListenerOptionsAttribute,
+} from "./Event";
 
 class DOMUtils {
 	constructor(option?: DOMUtilsCoreOption) {

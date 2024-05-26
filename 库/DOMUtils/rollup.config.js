@@ -4,11 +4,20 @@ const commonjs = require("@rollup/plugin-commonjs");
 const { nodeResolve } = require("@rollup/plugin-node-resolve");
 // 编译 TS 代码
 const typescript = require("@rollup/plugin-typescript");
+// 清空 dist
+const cleaner = require("rollup-plugin-clear");
 
 // 模块名
 const moduleName = "DOMUtils";
 module.exports = {
-	plugins: [nodeResolve(), commonjs(), typescript()],
+	plugins: [
+		cleaner({
+			targets: ["./dist"],
+		}),
+		nodeResolve(),
+		commonjs(),
+		typescript(),
+	],
 	input: "./index.ts", // 源文件入口
 	output: [
 		{

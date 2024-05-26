@@ -1,4 +1,5 @@
-declare type DOMUtilsCreateElementAttributesMap = {
+
+export declare type DOMUtilsCreateElementAttributesMap = {
 	style?: string;
 	id?: string;
 	class?: string;
@@ -11,7 +12,7 @@ declare type DOMUtilsCreateElementAttributesMap = {
  * + https://blog.csdn.net/weixin_68658847/article/details/126939879
  */
 
-interface DOMUtils_MouseEvent {
+export interface DOMUtils_MouseEvent {
 	click: MouseEvent | PointerEvent;
 	contextmenu: MouseEvent | PointerEvent;
 	dblclick: MouseEvent | PointerEvent;
@@ -23,20 +24,20 @@ interface DOMUtils_MouseEvent {
 	mouseout: MouseEvent | PointerEvent;
 	mouseup: MouseEvent | PointerEvent;
 }
-type DOMUtils_MouseEventType = keyof DOMUtils_MouseEvent;
+export type DOMUtils_MouseEventType = keyof DOMUtils_MouseEvent;
 /**
  * 鼠标事件
  */
-interface DOMUtils_KeyboardEvent {
+export interface DOMUtils_KeyboardEvent {
 	keydown: KeyboardEvent;
 	keypress: KeyboardEvent;
 	keyup: KeyboardEvent;
 }
-type DOMUtils_KeyboardEventType = keyof DOMUtils_KeyboardEvent;
+export type DOMUtils_KeyboardEventType = keyof DOMUtils_KeyboardEvent;
 /**
  * 框架/对象事件
  */
-interface DOMUtils_Frame_Object_Event {
+export interface DOMUtils_Frame_Object_Event {
 	abort: Event;
 	beforeunload: Event;
 	error: Event;
@@ -48,11 +49,11 @@ interface DOMUtils_Frame_Object_Event {
 	scroll: Event;
 	unload: Event;
 }
-type DOMUtils_Frame_Object_EventType = keyof DOMUtils_Frame_Object_Event;
+export type DOMUtils_Frame_Object_EventType = keyof DOMUtils_Frame_Object_Event;
 /**
  * 表单事件
  */
-interface DOMUtils_FormEvent {
+export interface DOMUtils_FormEvent {
 	blur: Event;
 	change: Event;
 	focus: Event;
@@ -62,31 +63,31 @@ interface DOMUtils_FormEvent {
 	reset: Event;
 	search: Event;
 }
-type DOMUtils_FormEventType = keyof DOMUtils_FormEvent;
+export type DOMUtils_FormEventType = keyof DOMUtils_FormEvent;
 
 /**
  * 剪贴板事件
  */
-interface DOMUtils_ClipboardEvent {
+export interface DOMUtils_ClipboardEvent {
 	copy: ClipboardEvent;
 	cut: ClipboardEvent;
 	paste: ClipboardEvent;
 }
-type DOMUtils_ClipboardEventType = keyof DOMUtils_ClipboardEvent;
+export type DOMUtils_ClipboardEventType = keyof DOMUtils_ClipboardEvent;
 
 /**
  * 打印事件
  */
-interface DOMUtils_PrintEvent {
+export interface DOMUtils_PrintEvent {
 	afterprint: Event;
 	beforeprint: Event;
 }
-type DOMUtils_PrintEventType = keyof DOMUtils_PrintEvent;
+export type DOMUtils_PrintEventType = keyof DOMUtils_PrintEvent;
 
 /**
  * 拖动事件
  */
-interface DOMUtils_DragEvent {
+export interface DOMUtils_DragEvent {
 	drag: DragEvent;
 	dragend: DragEvent;
 	dragenter: DragEvent;
@@ -95,12 +96,12 @@ interface DOMUtils_DragEvent {
 	dragstart: DragEvent;
 	drop: DragEvent;
 }
-type DOMUtils_DragEventType = keyof DOMUtils_DragEvent;
+export type DOMUtils_DragEventType = keyof DOMUtils_DragEvent;
 
 /**
  * 多媒体（Media）事件
  */
-interface DOMUtils_MediaEvent {
+export interface DOMUtils_MediaEvent {
 	abort: Event;
 	canplay: Event;
 	canplaythrough: Event;
@@ -124,30 +125,30 @@ interface DOMUtils_MediaEvent {
 	volumechange: Event;
 	waiting: Event;
 }
-type DOMUtils_MediaEventType = keyof DOMUtils_MediaEvent;
+export type DOMUtils_MediaEventType = keyof DOMUtils_MediaEvent;
 
 /**
  * 动画事件
  */
-interface DOMUtils_AnimationEvent {
+export interface DOMUtils_AnimationEvent {
 	animationend: AnimationEvent;
 	animationiteration: AnimationEvent;
 	animationstart: AnimationEvent;
 }
-type DOMUtils_AnimationEventType = keyof DOMUtils_AnimationEvent;
+export type DOMUtils_AnimationEventType = keyof DOMUtils_AnimationEvent;
 
 /**
  * 过渡事件
  */
-interface DOMUtils_TransitionEvent {
+export interface DOMUtils_TransitionEvent {
 	transitionend: TransitionEvent;
 }
-type DOMUtils_TransitionEventType = keyof DOMUtils_TransitionEvent;
+export type DOMUtils_TransitionEventType = keyof DOMUtils_TransitionEvent;
 
 /**
  * 触摸事件
  */
-interface DOMUtils_TouchEvent {
+export interface DOMUtils_TouchEvent {
 	touchstart: TouchEvent;
 	touchmove: TouchEvent;
 	touchend: TouchEvent;
@@ -155,11 +156,11 @@ interface DOMUtils_TouchEvent {
 	touchenter: TouchEvent;
 	touchleave: TouchEvent;
 }
-type DOMUtils_TouchEventType = keyof DOMUtils_TouchEvent;
+export type DOMUtils_TouchEventType = keyof DOMUtils_TouchEvent;
 /**
  * 其它事件
  */
-interface DOMUtils_OtherEvent {
+export interface DOMUtils_OtherEvent {
 	message: Event;
 	online: Event;
 	offline: Event;
@@ -172,12 +173,12 @@ interface DOMUtils_OtherEvent {
 	fullscreenchange: Event;
 	DOMContentLoaded: Event;
 }
-type DOMUtils_OtherEventType = keyof DOMUtils_OtherEvent;
+export type DOMUtils_OtherEventType = keyof DOMUtils_OtherEvent;
 
 /**
  * 全部事件
  */
-declare type DOMUtils_Event = DOMUtils_MouseEvent &
+export declare type DOMUtils_Event = DOMUtils_MouseEvent &
 	DOMUtils_KeyboardEvent &
 	DOMUtils_Frame_Object_Event &
 	DOMUtils_FormEvent &
@@ -193,12 +194,12 @@ declare type DOMUtils_Event = DOMUtils_MouseEvent &
 /**
  * 事件类型
  */
-declare type DOMUtils_EventType = keyof DOMUtils_Event;
+export declare type DOMUtils_EventType = keyof DOMUtils_Event;
 
 /**
  * 元素上的events属性
  */
-declare interface DOMUtilsEventListenerOptionsAttribute {
+export declare interface DOMUtilsEventListenerOptionsAttribute {
 	/**
 	 * 自定义的ownCallBack
 	 */
