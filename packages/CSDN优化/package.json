@@ -13,12 +13,14 @@
     "preview": "vue-tsc --noEmit && vite preview"
   },
   "dependencies": {
-    "qmsg": "^1.0.5"
+    "@whitesev/domutils": "^1.0.5",
+    "@whitesev/utils": "^1.0.5",
+    "qmsg": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.12",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",
-    "vite-plugin-monkey": "^3.5.2"
+    "vite-plugin-monkey": "4.0.0-alpha.1"
   }
 }

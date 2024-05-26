@@ -7,18 +7,14 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 	GM_xmlhttpRequest,
-	GM_addStyle,
-	GM_getResourceText,
 } from "ViteGM";
-import { SCRIPT_NAME as _SCRIPT_NAME_ } from "@/../vite.build";
 import Qmsg from "qmsg";
+import DOMUtils from "@whitesev/domutils";
+import Utils from "@whitesev/utils";
 
-const utils: typeof import("@库/Utils") = (
-	(monkeyWindow as any).Utils || (unsafeWindow as any).Utils
-)?.noConflict();
-const DOMUtils: typeof import("@库/DOMUtils") = (
-	(monkeyWindow as any).DOMUtils || (unsafeWindow as any).DOMUtils
-)?.noConflict();
+const _SCRIPT_NAME_ = "CSDN优化";
+const utils = Utils.noConflict();
+const domutils = DOMUtils.noConflict();
 const pops: typeof import("@库/pops") =
 	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
 // const Viewer: typeof import("@库/Viewer") = ((monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer)
@@ -89,7 +85,7 @@ const OriginPrototype = {
 
 export {
 	utils,
-	DOMUtils,
+	domutils as DOMUtils,
 	pops,
 	Qmsg,
 	log,
