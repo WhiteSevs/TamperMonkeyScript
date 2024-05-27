@@ -1,4 +1,4 @@
-# Vue 3 + TypeScript + Vite
+# TypeScript + Vite
 
 [脚手架](https://github.com/lisonge/vite-plugin-monkey)
 
