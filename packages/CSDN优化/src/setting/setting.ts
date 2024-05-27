@@ -12,6 +12,18 @@ import { MSettingUISo } from "./m-components/so/MPanelSo";
 import { MSettingUIWenKu } from "./m-components/wenku/MPanelWenKu";
 import { MSettingUIHuaWeiCloud } from "./m-components/huaWeiCloud/MPanelHuaWeiCloud";
 
+type PopsPanelValueChangeCallBack = (
+	key: string,
+	oldValue: any,
+	newValue: any
+) => void;
+
+interface PopsPanelListenDataOption {
+	id: number;
+	key: string;
+	callback: PopsPanelValueChangeCallBack;
+}
+
 const PopsPanel = {
 	/** 数据 */
 	$data: {
@@ -41,14 +53,7 @@ const PopsPanel = {
 		/**
 		 * 值改变的监听器
 		 */
-		listenData: new utils.Dictionary<
-			string,
-			{
-				id: number;
-				key: string;
-				callback: Function;
-			}
-		>(),
+		listenData: new utils.Dictionary<string, PopsPanelListenDataOption>(),
 	},
 	init() {
 		this.initPanelDefaultValue();
@@ -171,8 +176,8 @@ const PopsPanel = {
 		let oldValue = locaData[key];
 		locaData[key] = value;
 		GM_setValue(KEY, locaData);
-		if (this.$listener.listenData.has(key)) {
-			this.$listener.listenData.get(key).callback(key, oldValue, value);
+		if (this.$listener.listenData!.has(key)) {
+			this.$listener.listenData!.get(key)!.callback(key, oldValue, value);
 		}
 	},
 	/**
@@ -203,8 +208,8 @@ const PopsPanel = {
 		let oldValue = locaData[key];
 		Reflect.deleteProperty(locaData, key);
 		GM_setValue(KEY, locaData);
-		if (this.$listener.listenData.has(key)) {
-			this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+		if (this.$listener.listenData!.has(key)) {
+			this.$listener.listenData!.get(key)!.callback(key, oldValue, void 0);
 		}
 	},
 	/**
@@ -212,10 +217,7 @@ const PopsPanel = {
 	 * @param key 需要监听的键
 	 * @param callback
 	 */
-	addValueChangeListener(
-		key: string,
-		callback: (key: string, oldValue: any, newValue: any) => void
-	) {
+	addValueChangeListener(key: string, callback: PopsPanelValueChangeCallBack) {
 		let listenerId = Math.random();
 		this.$listener.listenData.set(key, {
 			id: listenerId,

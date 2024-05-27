@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.26
+// @version      2024.5.27
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1382424/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1383311/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.0.5/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.5/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.0.9/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.6/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue

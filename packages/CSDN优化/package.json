@@ -13,8 +13,8 @@
     "preview": "vue-tsc --noEmit && vite preview"
   },
   "dependencies": {
-    "@whitesev/domutils": "^1.0.5",
-    "@whitesev/utils": "^1.0.5",
+    "@whitesev/domutils": "^1.0.6",
+    "@whitesev/utils": "^1.0.9",
     "qmsg": "^1.1.0"
   },
   "devDependencies": {
