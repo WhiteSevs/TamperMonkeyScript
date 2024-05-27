@@ -14,9 +14,9 @@
 		"preview": "vue-tsc --noEmit && vite preview"
 	},
 	"dependencies": {
-		"@whitesev/domutils": "^1.0.4",
-		"@whitesev/utils": "^1.0.3",
-		"qmsg": "^1.0.9",
+		"@whitesev/domutils": "^1.0.6",
+		"@whitesev/utils": "^1.0.9",
+		"qmsg": "^1.1.0",
 		"vue": "^3.4.27"
 	},
 	"devDependencies": {
@@ -24,7 +24,7 @@
 		"@vitejs/plugin-vue": "^5.0.4",
 		"typescript": "^5.4.5",
 		"vite": "^5.2.11",
-		"vite-plugin-monkey": "^3.5.2",
+		"vite-plugin-monkey": "4.0.0-alpha.1",
 		"vue-tsc": "^2.0.19"
 	}
 }

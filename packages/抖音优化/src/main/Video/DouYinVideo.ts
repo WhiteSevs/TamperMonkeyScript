@@ -121,16 +121,22 @@ const DouYinVideo = {
 			}
 		}
 		autoChangeCommentPosition();
+		/* 2024.5.27 dy更名videoSideBar=>videoSideCard */
 		GM_addStyle(`
-		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard{
+		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
+		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
 			display: none !important;
 		}
+		/* 左侧的视频宽度撑满 */
 		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e] .playerContainer,
 		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e] .playerContainer{
 			width: 100% !important;
 		}
+		/* 右侧的评论区宽度撑满，position使用absolute */
 		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard){
+		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
+		html[${ATTRIBUTE_KEY}] #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
 			width: 100%;
 			height: 75%;
 			left: 0;
@@ -385,9 +391,7 @@ const DouYinVideo = {
 					"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
 			}
 		);
-		document
-			.querySelectorAll("meta[name='viewport']")
-			.forEach((ele) => ele.remove());
+		DOMUtils.remove("meta[name='viewport']");
 		document.head.appendChild(meta);
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		DouYinElement.addShieldStyle("img#douyin-temp-sidebar");
