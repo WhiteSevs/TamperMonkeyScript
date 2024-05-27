@@ -40,13 +40,13 @@ declare interface UtilsGMMenuConstructorOptions {
     /** （可选）全局菜单点击菜单后自动刷新网页，默认为true */
     autoReload?: boolean;
     /**  油猴函数 @grant GM_getValue */
-    GM_getValue<T extends any>(name: string, defaultValue?: T): T;
+    GM_getValue: any;
     /**  油猴函数 @grant GM_setValue */
-    GM_setValue(name: string, value: any): Promise<undefined> | undefined;
+    GM_setValue: any;
     /**  油猴函数 @grant GM_registerMenuCommand */
-    GM_registerMenuCommand(name: string, listener: (event: PointerEvent | MouseEvent) => void, accessKey?: string): number;
+    GM_registerMenuCommand: any;
     /**  油猴函数 @grant GM_unregisterMenuCommand */
-    GM_unregisterMenuCommand(id: number): void;
+    GM_unregisterMenuCommand: any;
 }
 declare class GMMenu {
     private GM_Api;

@@ -948,19 +948,19 @@ var Utils = (function () {
             /**
              * 获取存储的数据
              */
-            getValue: GM_getValue,
+            getValue: null,
             /**
              * 设置数据到存储
              */
-            setValue: GM_setValue,
+            setValue: null,
             /**
              * 注册菜单
              */
-            registerMenuCommand: GM_registerMenuCommand,
+            registerMenuCommand: null,
             /**
              * 卸载菜单
              */
-            unregisterMenuCommand: GM_unregisterMenuCommand,
+            unregisterMenuCommand: null,
         };
         MenuHandle = {
             context: this,
@@ -2534,10 +2534,6 @@ var Utils = (function () {
             autoClearConsole: false,
             logMaxCount: 999,
         };
-        /**
-         * 待恢复的函数或对象
-         */
-        #recoveryList = [];
         #msgColorDetails = [
             "font-weight: bold; color: cornflowerblue",
             "font-weight: bold; color: cornflowerblue",
@@ -2552,7 +2548,7 @@ var Utils = (function () {
             script: {
                 name: "Utils.Log",
             },
-        }, console = global.console) {
+        }, console = globalThis.console) {
             this.tag = _GM_info_.script.name;
             this.#console = console;
         }
@@ -2575,10 +2571,13 @@ var Utils = (function () {
                 if (stackFunctionNamePositionMatch == null) {
                     continue;
                 }
+                /* 获取最后一个，因为第一个是包含了at  */
                 let stackFunctionName = stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
                 let stackFunctionNamePosition = stackFunctionNamePositionMatch[stackFunctionNamePositionMatch.length - 1];
+                console.log(stackFunctionName);
                 if (stackFunctionName === "" ||
-                    stackFunctionName.match(new RegExp("(^Utils.Log.|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each)", "g"))) {
+                    stackFunctionName.match(/^(Utils\.|)Log(\.|)|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each/g)) {
+                    console.log(stackFunctionName, "排除");
                     continue;
                 }
                 else {
