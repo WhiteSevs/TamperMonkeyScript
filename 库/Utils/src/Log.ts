@@ -36,10 +36,6 @@ class Log {
 		autoClearConsole: false,
 		logMaxCount: 999,
 	};
-	/**
-	 * 待恢复的函数或对象
-	 */
-	#recoveryList = [];
 	#msgColorDetails = [
 		"font-weight: bold; color: cornflowerblue",
 		"font-weight: bold; color: cornflowerblue",
@@ -60,7 +56,7 @@ class Log {
 				name: "Utils.Log",
 			},
 		},
-		console: Console = global.console
+		console: Console = globalThis.console
 	) {
 		this.tag = _GM_info_.script.name;
 		this.#console = console;
@@ -87,6 +83,7 @@ class Log {
 			if (stackFunctionNamePositionMatch == null) {
 				continue;
 			}
+			/* 获取最后一个，因为第一个是包含了at  */
 			let stackFunctionName =
 				stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
 			let stackFunctionNamePosition =
@@ -96,10 +93,7 @@ class Log {
 			if (
 				stackFunctionName === "" ||
 				stackFunctionName.match(
-					new RegExp(
-						"(^Utils.Log.|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each)",
-						"g"
-					)
+					/^(Utils\.|)Log(\.|)|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each/g
 				)
 			) {
 				continue;
