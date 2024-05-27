@@ -1,4 +1,4 @@
-import type { AnyObject } from ".";
+import type { AnyObject } from "./Utils";
 /** Utils.Log的初始化配置 */
 declare interface UtilsLogOptions {
     /** 是否输出Tag，false的话其它的颜色也不输出，默认为true */
@@ -20,16 +20,17 @@ declare interface UtilsLogOptions {
 }
 declare class Log {
     #private;
+    /** 前面的TAG标志 */
     tag: string;
     /**
-     * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+     * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串
      * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
      */
     constructor(_GM_info_?: {
         script: {
             name: string;
         };
-    }, console?: Console);
+    } | string, console?: Console);
     /**
      * 解析Error的堆栈获取实际调用者的函数名及函数所在的位置
      * @param stack

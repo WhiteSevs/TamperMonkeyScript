@@ -1,3 +1,3 @@
-import { Utils } from "./src";
+import { Utils } from "./src/Utils";
 
 export default Utils;

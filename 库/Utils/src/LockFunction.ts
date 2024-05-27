@@ -1,4 +1,4 @@
-import { Utils } from ".";
+import { Utils } from "./Utils";
 
 class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 	#flag: boolean = false;

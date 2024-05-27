@@ -1,4 +1,4 @@
-import { AnyObject } from ".";
+import { AnyObject } from "./Utils";
 /**
  * 状态码
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status

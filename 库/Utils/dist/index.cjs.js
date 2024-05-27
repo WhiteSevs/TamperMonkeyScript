@@ -2518,11 +2518,15 @@ class LockFunction {
 }
 
 class Log {
-    /** 前面的TAG标志 */
+    /** 是否禁用输出的flag */
     #disable = false;
-    tag = "";
+    /** 前面的TAG标志 */
+    tag = "Utils.Log";
+    /* 使用的console函数 */
     #console = null;
+    /* 当前输出的数量 */
     #logCount = 0;
+    /* 配置 */
     #details = {
         tag: true,
         successColor: "#0000FF",
@@ -2540,15 +2544,17 @@ class Log {
         "font-weight: bold; color: cornflowerblue",
     ];
     /**
-     * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+     * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串
      * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
      */
-    constructor(_GM_info_ = {
-        script: {
-            name: "Utils.Log",
-        },
-    }, console = globalThis.console) {
-        this.tag = _GM_info_.script.name;
+    constructor(_GM_info_, console = globalThis.console) {
+        if (typeof _GM_info_ === "string") {
+            this.tag = _GM_info_;
+        }
+        else if (typeof _GM_info_ === "object" &&
+            typeof _GM_info_?.script?.name === "string") {
+            this.tag = _GM_info_.script.name;
+        }
         this.#console = console;
     }
     /**
@@ -2573,10 +2579,8 @@ class Log {
             /* 获取最后一个，因为第一个是包含了at  */
             let stackFunctionName = stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
             let stackFunctionNamePosition = stackFunctionNamePositionMatch[stackFunctionNamePositionMatch.length - 1];
-            console.log(stackFunctionName);
             if (stackFunctionName === "" ||
                 stackFunctionName.match(/^(Utils\.|)Log(\.|)|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each/g)) {
-                console.log(stackFunctionName, "排除");
                 continue;
             }
             else {
@@ -2617,7 +2621,7 @@ class Log {
      * @param otherStyle 其它CSS
      */
     printContent(msg, color, otherStyle) {
-        this.checkClearConsole.apply(this);
+        this.checkClearConsole();
         otherStyle = otherStyle || "";
         let stackSplit = new Error().stack.split("\n");
         stackSplit.splice(0, 2);
@@ -2706,7 +2710,7 @@ class Log {
     table(msg, color = this.#details.infoColor, otherStyle = "") {
         if (this.#disable)
             return;
-        this.checkClearConsole.apply(this);
+        this.checkClearConsole();
         let stack = new Error().stack.split("\n");
         stack.splice(0, 1);
         let errorStackParse = this.parseErrorStack(stack);
@@ -3075,7 +3079,7 @@ class UtilsDictionary {
 /// <reference path="./ajaxHooker/index.d.ts" />
 class Utils {
     /** 版本号 */
-    version = "2024.5.25";
+    version = "2024.5.28";
     addStyle(cssText) {
         if (typeof cssText !== "string") {
             throw new Error("Utils.addStyle 参数cssText 必须为String类型");

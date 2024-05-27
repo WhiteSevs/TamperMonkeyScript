@@ -1,4 +1,4 @@
-import { Utils } from ".";
+import { Utils } from "./Utils";
 
 declare interface ProgressParamConfig {
 	/** canvas元素节点 */

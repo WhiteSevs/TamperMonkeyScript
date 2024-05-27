@@ -1,4 +1,4 @@
-import { Utils } from ".";
+import { Utils } from "./Utils";
 
 declare interface UtilsGMMenuClickCallBackData {
 	/** 菜单键名 */

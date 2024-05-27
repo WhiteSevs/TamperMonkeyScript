@@ -1,4 +1,4 @@
-import { Utils } from ".";
+import { Utils } from "./Utils";
 
 class UtilsDictionary<K extends PropertyKey, V extends any> {
 	#items: {

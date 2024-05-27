@@ -10,6 +10,7 @@ import { LockFunction } from "./LockFunction";
 import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { UtilsDictionary } from "./Dictionary";
+import type { DOMUtils_EventType } from "./Event";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -25,8 +26,8 @@ export type JSTypeNames = keyof JSTypeMap;
 export type ArgsType<T extends JSTypeNames[]> = {
     [I in keyof T]: JSTypeMap[T[I]];
 };
-export declare interface UtilsNestedObjectWithToString<V extends any> {
-    [key: string]: V | UtilsNestedObjectWithToString<V>;
+export declare interface UtilsOwnObject<V extends any> {
+    [key: string]: V | UtilsOwnObject<V>;
 }
 export declare interface AnyObject {
     [key: string]: any | AnyObject;
@@ -50,161 +51,6 @@ export declare interface Vue2Context extends AnyObject {
     }) => void;
     $el: Element;
 }
-/**
- * 鼠标事件
- * + https://blog.csdn.net/weixin_68658847/article/details/126939879
- */
-declare interface DOMUtils_MouseEvent {
-    click: MouseEvent | PointerEvent;
-    contextmenu: MouseEvent | PointerEvent;
-    dblclick: MouseEvent | PointerEvent;
-    mousedown: MouseEvent | PointerEvent;
-    mouseenter: MouseEvent | PointerEvent;
-    mouseleave: MouseEvent | PointerEvent;
-    mousemove: MouseEvent | PointerEvent;
-    mouseover: MouseEvent | PointerEvent;
-    mouseout: MouseEvent | PointerEvent;
-    mouseup: MouseEvent | PointerEvent;
-}
-/**
- * 鼠标事件
- */
-declare interface DOMUtils_KeyboardEvent {
-    keydown: KeyboardEvent;
-    keypress: KeyboardEvent;
-    keyup: KeyboardEvent;
-}
-/**
- * 框架/对象事件
- */
-declare interface DOMUtils_Frame_Object_Event {
-    abort: Event;
-    beforeunload: Event;
-    error: Event;
-    hashchange: Event;
-    load: Event;
-    pageshow: Event;
-    pagehide: Event;
-    resize: Event;
-    scroll: Event;
-    unload: Event;
-}
-/**
- * 表单事件
- */
-declare interface DOMUtils_FormEvent {
-    blur: Event;
-    change: Event;
-    focus: Event;
-    focusin: Event;
-    focusout: Event;
-    input: Event;
-    reset: Event;
-    search: Event;
-}
-/**
- * 剪贴板事件
- */
-declare interface DOMUtils_ClipboardEvent {
-    copy: ClipboardEvent;
-    cut: ClipboardEvent;
-    paste: ClipboardEvent;
-}
-/**
- * 打印事件
- */
-declare interface DOMUtils_PrintEvent {
-    afterprint: Event;
-    beforeprint: Event;
-}
-/**
- * 拖动事件
- */
-declare interface DOMUtils_DragEvent {
-    drag: DragEvent;
-    dragend: DragEvent;
-    dragenter: DragEvent;
-    dragleave: DragEvent;
-    dragover: DragEvent;
-    dragstart: DragEvent;
-    drop: DragEvent;
-}
-/**
- * 多媒体（Media）事件
- */
-declare interface DOMUtils_MediaEvent {
-    abort: Event;
-    canplay: Event;
-    canplaythrough: Event;
-    durationchange: Event;
-    emptied: Event;
-    ended: Event;
-    error: Event;
-    loadeddata: Event;
-    loadedmetadata: Event;
-    loadstart: Event;
-    pause: Event;
-    play: Event;
-    playing: Event;
-    progress: Event;
-    ratechange: Event;
-    seeked: Event;
-    seeking: Event;
-    stalled: Event;
-    suspend: Event;
-    timeupdate: Event;
-    volumechange: Event;
-    waiting: Event;
-}
-/**
- * 动画事件
- */
-declare interface DOMUtils_AnimationEvent {
-    animationend: AnimationEvent;
-    animationiteration: AnimationEvent;
-    animationstart: AnimationEvent;
-}
-/**
- * 过渡事件
- */
-declare interface DOMUtils_TransitionEvent {
-    transitionend: TransitionEvent;
-}
-/**
- * 触摸事件
- */
-declare interface DOMUtils_TouchEvent {
-    touchstart: TouchEvent;
-    touchmove: TouchEvent;
-    touchend: TouchEvent;
-    touchcancel: TouchEvent;
-    touchenter: TouchEvent;
-    touchleave: TouchEvent;
-}
-/**
- * 其它事件
- */
-declare interface DOMUtils_OtherEvent {
-    message: Event;
-    online: Event;
-    offline: Event;
-    popstate: Event;
-    show: Event;
-    storage: Event;
-    toggle: Event;
-    wheel: Event;
-    propertychange: Event;
-    fullscreenchange: Event;
-    DOMContentLoaded: Event;
-}
-/**
- * 全部事件
- */
-declare type DOMUtils_Event = DOMUtils_MouseEvent & DOMUtils_KeyboardEvent & DOMUtils_Frame_Object_Event & DOMUtils_FormEvent & DOMUtils_ClipboardEvent & DOMUtils_PrintEvent & DOMUtils_DragEvent & DOMUtils_MediaEvent & DOMUtils_AnimationEvent & DOMUtils_TransitionEvent & DOMUtils_TouchEvent & DOMUtils_OtherEvent;
-/**
- * 事件类型
- */
-declare type DOMUtils_EventType = keyof DOMUtils_Event;
 declare class Utils {
     /** 版本号 */
     version: string;
@@ -349,7 +195,7 @@ declare class Utils {
      * @example
      * Utils.dispatchEvent(document.querySelector("input","input"))
      */
-    dispatchEvent(element: HTMLElement | Document, eventName: DOMUtils_EventType | DOMUtils_EventType[], details?: UtilsNestedObjectWithToString<any>): void;
+    dispatchEvent(element: HTMLElement | Document, eventName: DOMUtils_EventType | DOMUtils_EventType[], details?: UtilsOwnObject<any>): void;
     /**
      * 主动触发事件
      * @param element 元素
@@ -360,7 +206,7 @@ declare class Utils {
      * @example
      * Utils.dispatchEvent(document.querySelector("input","input"))
      */
-    dispatchEvent(element: HTMLElement | Document, eventName: string, details?: UtilsNestedObjectWithToString<any>): void;
+    dispatchEvent(element: HTMLElement | Document, eventName: string, details?: UtilsOwnObject<any>): void;
     /**
      * 下载base64格式的数据
      * @param base64Data	需要转换的base64数据
@@ -572,7 +418,7 @@ declare class Utils {
      * Utils.getMaxValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
      * > 456
      */
-    getMaxValue(val: UtilsNestedObjectWithToString<number>, handler: (key: any, value: any) => number): number;
+    getMaxValue(val: UtilsOwnObject<number>, handler: (key: any, value: any) => number): number;
     /**
      * 获取页面中最大的z-index
      * @param deviation 获取最大的z-index值的偏移，默认是+1
@@ -601,14 +447,14 @@ declare class Utils {
      * Utils.getMinValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
      * > 123
      */
-    getMinValue(val: UtilsNestedObjectWithToString<number>, handler: (key: any, value: any) => number): number;
+    getMinValue(val: UtilsOwnObject<number>, handler: (key: any, value: any) => number): number;
     /**
      * 获取最小值
      * @example
      * Utils.getMinValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
      * > 0
      */
-    getMinValue(val: UtilsNestedObjectWithToString<number>[], handler: (index: number, value: any) => number): number;
+    getMinValue(val: UtilsOwnObject<number>[], handler: (index: number, value: any) => number): number;
     /**
      * 获取随机的安卓手机User-Agent
      * @example
@@ -632,7 +478,7 @@ declare class Utils {
      * Utils.getRandomValue({1:"结果1",2:"结果2",3:"结果3"}})
      * > 结果2
      */
-    getRandomValue<T extends any>(val: T[] | UtilsNestedObjectWithToString<T>): T;
+    getRandomValue<T extends any>(val: T[] | UtilsOwnObject<T>): T;
     /**
      * 获取两个数之间随机值
      * @example
@@ -646,7 +492,7 @@ declare class Utils {
      * Utils.getRandomValue({1:1},{2:2})
      * > {1: 1}
      */
-    getRandomValue<T extends any>(val_1: UtilsNestedObjectWithToString<T>, val_2: UtilsNestedObjectWithToString<T>): T;
+    getRandomValue<T extends any>(val_1: UtilsOwnObject<T>, val_2: UtilsOwnObject<T>): T;
     /**
      * 获取随机的电脑端User-Agent
      * + Mozilla/5.0：以前用于Netscape浏览器，目前大多数浏览器UA都会带有
@@ -1544,9 +1390,9 @@ declare class Utils {
      * > ()=>{throw new Error('测试错误')}出现错误
      */
     tryCatch: (...args: any) => {
-        config(paramDetails: import("./tryCatch").UtilsTryCatchConfig): any;
+        config(paramDetails: import("./TryCatch").UtilsTryCatchConfig): any;
         error(handler: string | Function | ((...args: any[]) => any)): any;
-        run<A extends any[], R>(callback: string | Function | ((...args: A) => R), __context__?: any): import("./tryCatch").UtilsTryCatchType;
+        run<A extends any[], R>(callback: string | Function | ((...args: A) => R), __context__?: any): import("./TryCatch").UtilsTryCatchType;
     };
     /**
      * 数组去重，去除重复的值

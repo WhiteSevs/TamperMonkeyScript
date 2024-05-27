@@ -1,4 +1,4 @@
-import type { AnyObject } from ".";
+import type { AnyObject } from "./Utils";
 
 /** Utils.Log的初始化配置 */
 declare interface UtilsLogOptions {
@@ -21,11 +21,15 @@ declare interface UtilsLogOptions {
 }
 
 class Log {
-	/** 前面的TAG标志 */
+	/** 是否禁用输出的flag */
 	#disable: boolean = false;
-	tag: string = "";
+	/** 前面的TAG标志 */
+	tag: string = "Utils.Log";
+	/* 使用的console函数 */
 	#console: Console = null as any;
+	/* 当前输出的数量 */
 	#logCount = 0;
+	/* 配置 */
 	#details: UtilsLogOptions = {
 		tag: true,
 		successColor: "#0000FF",
@@ -43,22 +47,27 @@ class Log {
 		"font-weight: bold; color: cornflowerblue",
 	];
 	/**
-	 * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}
+	 * @param _GM_info_ 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串
 	 * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
 	 */
 	constructor(
-		_GM_info_: {
-			script: {
-				name: string;
-			};
-		} = {
-			script: {
-				name: "Utils.Log",
-			},
-		},
+		_GM_info_?:
+			| {
+					script: {
+						name: string;
+					};
+			  }
+			| string,
 		console: Console = globalThis.console
 	) {
-		this.tag = _GM_info_.script.name;
+		if (typeof _GM_info_ === "string") {
+			this.tag = _GM_info_;
+		} else if (
+			typeof _GM_info_ === "object" &&
+			typeof _GM_info_?.script?.name === "string"
+		) {
+			this.tag = _GM_info_.script.name;
+		}
 		this.#console = console;
 	}
 
@@ -138,7 +147,7 @@ class Log {
 	 * @param otherStyle 其它CSS
 	 */
 	private printContent(msg: any, color: string, otherStyle?: string) {
-		this.checkClearConsole.apply(this);
+		this.checkClearConsole();
 		otherStyle = otherStyle || "";
 		let stackSplit = new Error()!.stack!.split("\n");
 		stackSplit.splice(0, 2);
@@ -238,7 +247,7 @@ class Log {
 	 */
 	table(msg: AnyObject[], color = this.#details.infoColor, otherStyle = "") {
 		if (this.#disable) return;
-		this.checkClearConsole.apply(this);
+		this.checkClearConsole();
 		let stack = new Error()!.stack!.split("\n");
 		stack.splice(0, 1);
 		let errorStackParse = this.parseErrorStack(stack);

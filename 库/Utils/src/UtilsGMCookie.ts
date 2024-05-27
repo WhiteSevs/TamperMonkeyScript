@@ -1,4 +1,4 @@
-import { Utils } from ".";
+import { Utils } from "./Utils";
 
 declare interface UtilsGMCookieListResult {
 	/** 为 window.location.hostname */

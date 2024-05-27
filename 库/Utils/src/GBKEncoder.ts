@@ -1,4 +1,4 @@
-import { type AnyObject } from ".";
+import { type AnyObject } from "./Utils";
 
 class GBKEncoder {
 	#data: RegExpMatchArray = [] as any;

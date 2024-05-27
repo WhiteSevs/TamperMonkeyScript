@@ -1,4 +1,4 @@
-import { AnyObject, Utils } from ".";
+import { AnyObject, Utils } from "./Utils";
 
 /**
  * 状态码

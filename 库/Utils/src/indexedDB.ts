@@ -1,5 +1,3 @@
-import type { AnyObject } from ".";
-
 declare interface UtilsIDBOpenErrorResult {
 	code: number;
 	msg: string;
@@ -104,14 +102,14 @@ class indexedDB {
 			};
 			request.onsuccess = function (event: Event) {
 				if (!that.#db[dbName]) {
-                    let target = event.target as IDBRequest;
+					let target = event.target as IDBRequest;
 					that.#db[dbName] = target.result;
 				}
 				let store = that.createStore(dbName);
 				callback(store, true);
 			};
 			request.onupgradeneeded = function (event: Event) {
-                let target = event.target as IDBRequest;
+				let target = event.target as IDBRequest;
 				that.#db[dbName] = target.result;
 				let store = that.#db[dbName].createObjectStore(that.#storeName, {
 					keyPath: "key",
