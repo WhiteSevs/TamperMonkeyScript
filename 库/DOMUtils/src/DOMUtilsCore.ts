@@ -1,5 +1,3 @@
-import type { DOMUtilsCoreOption } from "./global";
-
 const DOMUtilsCoreDefaultEnv: DOMUtilsCoreOption = {
 	document: document,
 	window: window,
@@ -12,6 +10,14 @@ const DOMUtilsCoreEnv: DOMUtilsCoreOption = {
 	globalThis: globalThis,
 	self: self,
 };
+
+export interface DOMUtilsCoreOption {
+	document: Document;
+	window: Window;
+	globalThis: typeof globalThis;
+	self: typeof globalThis;
+}
+
 const DOMUtilsCore = {
 	init(option?: DOMUtilsCoreOption) {
 		if (!option) {

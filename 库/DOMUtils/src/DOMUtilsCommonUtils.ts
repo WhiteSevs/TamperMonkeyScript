@@ -1,7 +1,7 @@
 import { DOMUtilsCore } from "./DOMUtilsCore";
 
 /** 通用工具类 */
-const CommonDOMUtils = {
+const DOMUtilsCommonUtils = {
 	/**
 	 * 判断元素是否已显示或已连接
 	 * @param element
@@ -74,6 +74,15 @@ const CommonDOMUtils = {
 		if (target === self) {
 			return true;
 		}
+		if (target === DOMUtilsCore.globalThis) {
+			return true;
+		}
+		if (target === DOMUtilsCore.window) {
+			return true;
+		}
+		if (target === DOMUtilsCore.self) {
+			return true;
+		}
 		if (
 			typeof (unsafeWindow as any) !== "undefined" &&
 			target === (unsafeWindow as any)
@@ -98,4 +107,4 @@ const CommonDOMUtils = {
 		}
 	},
 };
-export { CommonDOMUtils };
+export { DOMUtilsCommonUtils };

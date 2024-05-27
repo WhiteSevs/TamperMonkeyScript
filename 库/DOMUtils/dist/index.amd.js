@@ -34,7 +34,7 @@ define((function () { 'use strict';
     };
 
     /** 通用工具类 */
-    const CommonDOMUtils = {
+    const DOMUtilsCommonUtils = {
         /**
          * 判断元素是否已显示或已连接
          * @param element
@@ -106,6 +106,15 @@ define((function () { 'use strict';
             if (target === self) {
                 return true;
             }
+            if (target === DOMUtilsCore.globalThis) {
+                return true;
+            }
+            if (target === DOMUtilsCore.window) {
+                return true;
+            }
+            if (target === DOMUtilsCore.self) {
+                return true;
+            }
             if (typeof unsafeWindow !== "undefined" &&
                 target === unsafeWindow) {
                 return true;
@@ -142,12 +151,570 @@ define((function () { 'use strict';
         },
     };
 
-    class DOMUtils {
+    class DOMUtilsEvent {
+        on(element, eventType, selector, callback, option) {
+            /**
+             * 获取option配置
+             * @param args
+             * @param startIndex
+             * @param option
+             */
+            function getOption(args, startIndex, option) {
+                if (typeof args[startIndex] === "boolean") {
+                    option.capture = args[startIndex];
+                    if (typeof args[startIndex + 1] === "boolean") {
+                        option.once = args[startIndex + 1];
+                    }
+                    if (typeof args[startIndex + 2] === "boolean") {
+                        option.passive = args[startIndex + 2];
+                    }
+                }
+                else if (typeof args[startIndex] === "object" &&
+                    ("capture" in args[startIndex] ||
+                        "once" in args[startIndex] ||
+                        "passive" in args[startIndex])) {
+                    option.capture = args[startIndex].capture;
+                    option.once = args[startIndex].once;
+                    option.passive = args[startIndex].passive;
+                }
+                return option;
+            }
+            let DOMUtilsContext = this;
+            let args = arguments;
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelectorAll(element);
+            }
+            if (element == null) {
+                return;
+            }
+            let elementList = [];
+            if (element instanceof NodeList || Array.isArray(element)) {
+                element = element;
+                elementList = [...element];
+            }
+            else {
+                elementList.push(element);
+            }
+            let eventTypeList = [];
+            if (Array.isArray(eventType)) {
+                eventTypeList = eventTypeList.concat(eventType);
+            }
+            else if (typeof eventType === "string") {
+                eventTypeList = eventTypeList.concat(eventType.split(" "));
+            }
+            let _selector_ = selector;
+            let _callback_ = callback;
+            let _option_ = {
+                capture: false,
+                once: false,
+                passive: false,
+            };
+            if (typeof selector === "function") {
+                /* 这是为没有selector的情况 */
+                _selector_ = void 0;
+                _callback_ = selector;
+                _option_ = getOption(args, 3, _option_);
+            }
+            else {
+                /* 这是存在selector的情况 */
+                _option_ = getOption(args, 4, _option_);
+            }
+            /**
+             * 如果是once，那么删除该监听和元素上的事件和监听
+             */
+            function checkOptionOnceToRemoveEventListener() {
+                if (_option_.once) {
+                    DOMUtilsContext.off(element, eventType, selector, callback, option);
+                }
+            }
+            elementList.forEach((elementItem) => {
+                function ownCallBack(event) {
+                    let target = event.target;
+                    if (_selector_) {
+                        /* 存在自定义子元素选择器 */
+                        let totalParent = DOMUtilsCommonUtils.isWin(elementItem)
+                            ? DOMUtilsCore.document.documentElement
+                            : elementItem;
+                        if (target.matches(_selector_)) {
+                            /* 当前目标可以被selector所匹配到 */
+                            _callback_.call(target, event);
+                            checkOptionOnceToRemoveEventListener();
+                        }
+                        else if (target.closest(_selector_) &&
+                            totalParent.contains(target.closest(_selector_))) {
+                            /* 在上层与主元素之间寻找可以被selector所匹配到的 */
+                            let closestElement = target.closest(_selector_);
+                            /* event的target值不能直接修改 */
+                            OriginPrototype.Object.defineProperty(event, "target", {
+                                get() {
+                                    return closestElement;
+                                },
+                            });
+                            _callback_.call(closestElement, event);
+                            checkOptionOnceToRemoveEventListener();
+                        }
+                    }
+                    else {
+                        _callback_.call(elementItem, event);
+                        checkOptionOnceToRemoveEventListener();
+                    }
+                }
+                /* 遍历事件名设置元素事件 */
+                eventTypeList.forEach((eventName) => {
+                    elementItem.addEventListener(eventName, ownCallBack, _option_);
+                    if (_callback_ && _callback_.delegate) {
+                        elementItem.setAttribute("data-delegate", _selector_);
+                    }
+                    /* 获取对象上的事件 */
+                    let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
+                    /* 初始化对象上的xx事件 */
+                    elementEvents[eventName] = elementEvents[eventName] || [];
+                    elementEvents[eventName].push({
+                        selector: _selector_,
+                        option: _option_,
+                        callback: ownCallBack,
+                        originCallBack: _callback_,
+                    });
+                    /* 覆盖事件 */
+                    elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+                });
+            });
+        }
+        off(element, eventType, selector, callback, option, filter) {
+            /**
+             * 获取option配置
+             * @param args1
+             * @param startIndex
+             * @param option
+             */
+            function getOption(args1, startIndex, option) {
+                if (typeof args1[startIndex] === "boolean") {
+                    option.capture = args1[startIndex];
+                }
+                else if (typeof args1[startIndex] === "object" &&
+                    "capture" in args1[startIndex]) {
+                    option.capture = args1[startIndex].capture;
+                }
+                return option;
+            }
+            let args = arguments;
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelectorAll(element);
+            }
+            if (element == null) {
+                return;
+            }
+            let elementList = [];
+            if (element instanceof NodeList || Array.isArray(element)) {
+                element = element;
+                elementList = [...element];
+            }
+            else {
+                elementList.push(element);
+            }
+            let eventTypeList = [];
+            if (Array.isArray(eventType)) {
+                eventTypeList = eventTypeList.concat(eventType);
+            }
+            else if (typeof eventType === "string") {
+                eventTypeList = eventTypeList.concat(eventType.split(" "));
+            }
+            /**
+             * 子元素选择器
+             */
+            let _selector_ = selector;
+            /**
+             * 事件的回调函数
+             */
+            let _callback_ = callback;
+            /**
+             * 事件的配置
+             */
+            let _option_ = {
+                capture: false,
+            };
+            if (typeof selector === "function") {
+                /* 这是为没有selector的情况 */
+                _selector_ = void 0;
+                _callback_ = selector;
+                _option_ = getOption(args, 3, _option_);
+            }
+            else {
+                _option_ = getOption(args, 4, _option_);
+            }
+            elementList.forEach((elementItem) => {
+                /* 获取对象上的事件 */
+                let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
+                eventTypeList.forEach((eventName) => {
+                    let handlers = elementEvents[eventName] || [];
+                    if (typeof filter === "function") {
+                        handlers = handlers.filter(filter);
+                    }
+                    for (let index = 0; index < handlers.length; index++) {
+                        let handler = handlers[index];
+                        let flag = false;
+                        if (!_selector_ || handler.selector === _selector_) {
+                            /* selector不为空，进行selector判断 */
+                            flag = true;
+                        }
+                        if (!_callback_ ||
+                            handler.callback === _callback_ ||
+                            handler.originCallBack === _callback_) {
+                            /* callback不为空，进行callback判断 */
+                            flag = true;
+                        }
+                        if (flag) {
+                            elementItem.removeEventListener(eventName, handler.callback, _option_);
+                            handlers.splice(index--, 1);
+                        }
+                    }
+                    if (handlers.length === 0) {
+                        /* 如果没有任意的handler，那么删除该属性 */
+                        DOMUtilsCommonUtils.delete(elementEvents, eventType);
+                    }
+                });
+                elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+            });
+        }
+        /**
+         * 取消绑定所有的事件
+         * @param element 需要取消绑定的元素|元素数组
+         * @param eventType （可选）需要取消监听的事件
+         */
+        offAll(element, eventType) {
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelectorAll(element);
+            }
+            if (element == null) {
+                return;
+            }
+            let elementList = [];
+            if (element instanceof NodeList || Array.isArray(element)) {
+                element = element;
+                elementList = [...element];
+            }
+            else {
+                elementList.push(element);
+            }
+            let eventTypeList = [];
+            if (Array.isArray(eventType)) {
+                eventTypeList = eventTypeList.concat(eventType);
+            }
+            else if (typeof eventType === "string") {
+                eventTypeList = eventTypeList.concat(eventType.split(" "));
+            }
+            elementList.forEach((elementItem) => {
+                Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
+                    if (!symbolEvents.toString().startsWith("Symbol(events_")) {
+                        return;
+                    }
+                    let elementEvents = elementItem[symbolEvents] || {};
+                    let iterEventNameList = eventTypeList.length
+                        ? eventTypeList
+                        : Object.keys(elementEvents);
+                    iterEventNameList.forEach((eventName) => {
+                        let handlers = elementEvents[eventName];
+                        if (!handlers) {
+                            return;
+                        }
+                        for (const handler of handlers) {
+                            elementItem.removeEventListener(eventName, handler.callback, {
+                                capture: handler["option"]["capture"],
+                            });
+                        }
+                        DOMUtilsCommonUtils.delete(elementItem[symbolEvents], eventName);
+                    });
+                });
+            });
+        }
+        /**
+         * 等待文档加载完成后执行指定的函数
+         * @param callback 需要执行的函数
+         * @example
+         * DOMUtils.ready(function(){
+         *   console.log("文档加载完毕")
+         * })
+         */
+        ready(callback) {
+            if (typeof callback !== "function") {
+                return;
+            }
+            function completed() {
+                DOMUtilsCore.document.removeEventListener("DOMContentLoaded", completed);
+                DOMUtilsCore.window.removeEventListener("load", completed);
+                callback();
+            }
+            if (document.readyState === "complete" ||
+                (document.readyState !== "loading" &&
+                    !document.documentElement.doScroll)) {
+                setTimeout(callback);
+            }
+            else {
+                /* 监听DOMContentLoaded事件 */
+                DOMUtilsCore.document.addEventListener("DOMContentLoaded", completed);
+                /* 监听load事件 */
+                DOMUtilsCore.window.addEventListener("load", completed);
+            }
+        }
+        /**
+         * 主动触发事件
+         * @param element 需要触发的元素|元素数组|window
+         * @param eventType 需要触发的事件
+         * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+         * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+         * @example
+         * // 触发元素a.xx的click事件
+         * DOMUtils.trigger(document.querySelector("a.xx"),"click")
+         * DOMUtils.trigger("a.xx","click")
+         * // 触发元素a.xx的click、tap、hover事件
+         * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
+         * DOMUtils.trigger("a.xx",["click","tap","hover"])
+         */
+        trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelector(element);
+            }
+            if (element == null) {
+                return;
+            }
+            let elementList = [];
+            if (element instanceof NodeList || Array.isArray(element)) {
+                element = element;
+                elementList = [...element];
+            }
+            else {
+                elementList = [element];
+            }
+            let eventTypeList = [];
+            if (Array.isArray(eventType)) {
+                eventTypeList = eventType;
+            }
+            else if (typeof eventType === "string") {
+                eventTypeList = eventType.split(" ");
+            }
+            elementList.forEach((elementItem) => {
+                /* 获取对象上的事件 */
+                let events = elementItem[DOMUtilsData.SymbolEvents] || {};
+                eventTypeList.forEach((_eventType_) => {
+                    let event = null;
+                    if (details && details instanceof Event) {
+                        event = details;
+                    }
+                    else {
+                        event = new Event(_eventType_);
+                        if (details) {
+                            Object.keys(details).forEach((keyName) => {
+                                event[keyName] = details[keyName];
+                            });
+                        }
+                    }
+                    if (useDispatchToTriggerEvent == false && _eventType_ in events) {
+                        events[_eventType_].forEach((eventsItem) => {
+                            eventsItem.callback(event);
+                        });
+                    }
+                    else {
+                        elementItem.dispatchEvent(event);
+                    }
+                });
+            });
+        }
+        /**
+         * 绑定或触发元素的click事件
+         * @param element 目标元素
+         * @param handler （可选）事件处理函数
+         * @param details （可选）赋予触发的Event的额外属性
+         * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+         * @example
+         * // 触发元素a.xx的click事件
+         * DOMUtils.click(document.querySelector("a.xx"))
+         * DOMUtils.click("a.xx")
+         * DOMUtils.click("a.xx"，function(){
+         *  console.log("触发click事件成功")
+         * })
+         * */
+        click(element, handler, details, useDispatchToTriggerEvent) {
+            let DOMUtilsContext = this;
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelector(element);
+            }
+            if (element == null) {
+                return;
+            }
+            if (handler == null) {
+                DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
+            }
+            else {
+                DOMUtilsContext.on(element, "click", null, handler);
+            }
+        }
+        /**
+         * 绑定或触发元素的blur事件
+         * @param element 目标元素
+         * @param handler （可选）事件处理函数
+         * @param details （可选）赋予触发的Event的额外属性
+         * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+         * @example
+         * // 触发元素a.xx的blur事件
+         * DOMUtils.blur(document.querySelector("a.xx"))
+         * DOMUtils.blur("a.xx")
+         * DOMUtils.blur("a.xx"，function(){
+         *  console.log("触发blur事件成功")
+         * })
+         * */
+        blur(element, handler, details, useDispatchToTriggerEvent) {
+            let DOMUtilsContext = this;
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelector(element);
+            }
+            if (element == null) {
+                return;
+            }
+            if (handler === null) {
+                DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
+            }
+            else {
+                DOMUtilsContext.on(element, "blur", null, handler);
+            }
+        }
+        /**
+         * 绑定或触发元素的focus事件
+         * @param element 目标元素
+         * @param handler （可选）事件处理函数
+         * @param details （可选）赋予触发的Event的额外属性
+         * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+         * @example
+         * // 触发元素a.xx的focus事件
+         * DOMUtils.focus(document.querySelector("a.xx"))
+         * DOMUtils.focus("a.xx")
+         * DOMUtils.focus("a.xx"，function(){
+         *  console.log("触发focus事件成功")
+         * })
+         * */
+        focus(element, handler, details, useDispatchToTriggerEvent) {
+            let DOMUtilsContext = this;
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelector(element);
+            }
+            if (element == null) {
+                return;
+            }
+            if (handler == null) {
+                DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
+            }
+            else {
+                DOMUtilsContext.on(element, "focus", null, handler);
+            }
+        }
+        /**
+         * 当鼠标移入或移出元素时触发事件
+         * @param element 当前元素
+         * @param handler 事件处理函数
+         * @param option 配置
+         * @example
+         * // 监听a.xx元素的移入或移出
+         * DOMUtils.hover(document.querySelector("a.xx"),()=>{
+         *   console.log("移入/移除");
+         * })
+         * DOMUtils.hover("a.xx",()=>{
+         *   console.log("移入/移除");
+         * })
+         */
+        hover(element, handler, option) {
+            let DOMUtilsContext = this;
+            if (typeof element === "string") {
+                element = DOMUtilsCore.document.querySelector(element);
+            }
+            if (element == null) {
+                return;
+            }
+            DOMUtilsContext.on(element, "mouseenter", null, handler, option);
+            DOMUtilsContext.on(element, "mouseleave", null, handler, option);
+        }
+        /**
+         * 当按键松开时触发事件
+         * keydown - > keypress - > keyup
+         * @param target 当前元素
+         * @param handler 事件处理函数
+         * @param option 配置
+         * @example
+         * // 监听a.xx元素的按键松开
+         * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
+         *   console.log("按键松开");
+         * })
+         * DOMUtils.keyup("a.xx",()=>{
+         *   console.log("按键松开");
+         * })
+         */
+        keyup(target, handler, option) {
+            let DOMUtilsContext = this;
+            if (target == null) {
+                return;
+            }
+            if (typeof target === "string") {
+                target = DOMUtilsCore.document.querySelector(target);
+            }
+            DOMUtilsContext.on(target, "keyup", null, handler, option);
+        }
+        /**
+         * 当按键按下时触发事件
+         * keydown - > keypress - > keyup
+         * @param target 目标
+         * @param handler 事件处理函数
+         * @param option 配置
+         * @example
+         * // 监听a.xx元素的按键按下
+         * DOMUtils.keydown(document.querySelector("a.xx"),()=>{
+         *   console.log("按键按下");
+         * })
+         * DOMUtils.keydown("a.xx",()=>{
+         *   console.log("按键按下");
+         * })
+         */
+        keydown(target, handler, option) {
+            let DOMUtilsContext = this;
+            if (target == null) {
+                return;
+            }
+            if (typeof target === "string") {
+                target = DOMUtilsCore.document.querySelector(target);
+            }
+            DOMUtilsContext.on(target, "keydown", null, handler, option);
+        }
+        /**
+         * 当按键按下时触发事件
+         * keydown - > keypress - > keyup
+         * @param target 目标
+         * @param handler 事件处理函数
+         * @param option 配置
+         * @example
+         * // 监听a.xx元素的按键按下
+         * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
+         *   console.log("按键按下");
+         * })
+         * DOMUtils.keypress("a.xx",()=>{
+         *   console.log("按键按下");
+         * })
+         */
+        keypress(target, handler, option) {
+            let DOMUtilsContext = this;
+            if (target == null) {
+                return;
+            }
+            if (typeof target === "string") {
+                target = DOMUtilsCore.document.querySelector(target);
+            }
+            DOMUtilsContext.on(target, "keypress", null, handler, option);
+        }
+    }
+
+    class DOMUtils extends DOMUtilsEvent {
         constructor(option) {
             DOMUtilsCore.init(option);
+            super();
         }
         /** 版本号 */
-        version = "2024.5.24";
+        version = "2024.5.27";
         attr(element, attrName, attrValue) {
             if (typeof element === "string") {
                 element = DOMUtilsCore.document.querySelector(element);
@@ -315,102 +882,15 @@ define((function () { 'use strict';
             }
         }
         /**
-         * 绑定或触发元素的click事件
-         * @param element 目标元素
-         * @param handler （可选）事件处理函数
-         * @param details （可选）赋予触发的Event的额外属性
-         * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-         * @example
-         * // 触发元素a.xx的click事件
-         * DOMUtils.click(document.querySelector("a.xx"))
-         * DOMUtils.click("a.xx")
-         * DOMUtils.click("a.xx"，function(){
-         *  console.log("触发click事件成功")
-         * })
-         * */
-        click(element, handler, details, useDispatchToTriggerEvent) {
-            let DOMUtilsContext = this;
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelector(element);
-            }
-            if (element == null) {
-                return;
-            }
-            if (handler == null) {
-                DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
-            }
-            else {
-                DOMUtilsContext.on(element, "click", null, handler);
-            }
-        }
-        /**
-         * 绑定或触发元素的blur事件
-         * @param element 目标元素
-         * @param handler （可选）事件处理函数
-         * @param details （可选）赋予触发的Event的额外属性
-         * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-         * @example
-         * // 触发元素a.xx的blur事件
-         * DOMUtils.blur(document.querySelector("a.xx"))
-         * DOMUtils.blur("a.xx")
-         * DOMUtils.blur("a.xx"，function(){
-         *  console.log("触发blur事件成功")
-         * })
-         * */
-        blur(element, handler, details, useDispatchToTriggerEvent) {
-            let DOMUtilsContext = this;
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelector(element);
-            }
-            if (element == null) {
-                return;
-            }
-            if (handler === null) {
-                DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
-            }
-            else {
-                DOMUtilsContext.on(element, "blur", null, handler);
-            }
-        }
-        /**
-         * 绑定或触发元素的focus事件
-         * @param element 目标元素
-         * @param handler （可选）事件处理函数
-         * @param details （可选）赋予触发的Event的额外属性
-         * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
-         * @example
-         * // 触发元素a.xx的focus事件
-         * DOMUtils.focus(document.querySelector("a.xx"))
-         * DOMUtils.focus("a.xx")
-         * DOMUtils.focus("a.xx"，function(){
-         *  console.log("触发focus事件成功")
-         * })
-         * */
-        focus(element, handler, details, useDispatchToTriggerEvent) {
-            let DOMUtilsContext = this;
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelector(element);
-            }
-            if (element == null) {
-                return;
-            }
-            if (handler == null) {
-                DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
-            }
-            else {
-                DOMUtilsContext.on(element, "focus", null, handler);
-            }
-        }
-        /**
          * 获取移动元素的transform偏移
          */
         getTransform(element, isShow = false) {
             let DOMUtilsContext = this;
             let transform_left = 0;
             let transform_top = 0;
-            if (!(isShow || (!isShow && CommonDOMUtils.isShow(element)))) {
+            if (!(isShow || (!isShow && DOMUtilsCommonUtils.isShow(element)))) {
                 /* 未显示 */
-                let { recovery } = CommonDOMUtils.showElement(element);
+                let { recovery } = DOMUtilsCommonUtils.showElement(element);
                 let transformInfo = DOMUtilsContext.getTransform(element, true);
                 recovery();
                 return transformInfo;
@@ -531,7 +1011,7 @@ define((function () { 'use strict';
             if (element == null) {
                 return;
             }
-            CommonDOMUtils.delete(element, propName);
+            DOMUtilsCommonUtils.delete(element, propName);
         }
         /**
          * 将一个元素替换为另一个元素
@@ -596,11 +1076,27 @@ define((function () { 'use strict';
             if (element == null) {
                 return;
             }
-            if (typeof content === "string") {
-                element.insertAdjacentHTML("beforeend", content);
+            function elementAppendChild(ele, text) {
+                if (typeof content === "string") {
+                    ele.insertAdjacentHTML("beforeend", text);
+                }
+                else {
+                    ele.appendChild(text);
+                }
+            }
+            if (Array.isArray(content) || content instanceof NodeList) {
+                /* 数组 */
+                let fragment = DOMUtilsCore.document.createDocumentFragment();
+                content.forEach((ele) => {
+                    if (typeof ele === "string") {
+                        ele = this.parseHTML(ele, true, false);
+                    }
+                    fragment.appendChild(ele);
+                });
+                element.appendChild(fragment);
             }
             else {
-                element.appendChild(content);
+                elementAppendChild(element, content);
             }
         }
         /**
@@ -716,344 +1212,6 @@ define((function () { 'use strict';
             }
             element.innerHTML = "";
         }
-        on(element, eventType, selector, callback, option) {
-            /**
-             * 获取option配置
-             * @param args
-             * @param startIndex
-             * @param option
-             */
-            function getOption(args, startIndex, option) {
-                if (typeof args[startIndex] === "boolean") {
-                    option.capture = args[startIndex];
-                    if (typeof args[startIndex + 1] === "boolean") {
-                        option.once = args[startIndex + 1];
-                    }
-                    if (typeof args[startIndex + 2] === "boolean") {
-                        option.passive = args[startIndex + 2];
-                    }
-                }
-                else if (typeof args[startIndex] === "object" &&
-                    ("capture" in args[startIndex] ||
-                        "once" in args[startIndex] ||
-                        "passive" in args[startIndex])) {
-                    option.capture = args[startIndex].capture;
-                    option.once = args[startIndex].once;
-                    option.passive = args[startIndex].passive;
-                }
-                return option;
-            }
-            let DOMUtilsContext = this;
-            let args = arguments;
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelectorAll(element);
-            }
-            if (element == null) {
-                return;
-            }
-            let elementList = [];
-            if (element instanceof NodeList || Array.isArray(element)) {
-                element = element;
-                elementList = [...element];
-            }
-            else {
-                elementList.push(element);
-            }
-            let eventTypeList = [];
-            if (Array.isArray(eventType)) {
-                eventTypeList = eventTypeList.concat(eventType);
-            }
-            else if (typeof eventType === "string") {
-                eventTypeList = eventTypeList.concat(eventType.split(" "));
-            }
-            let _selector_ = selector;
-            let _callback_ = callback;
-            let _option_ = {
-                capture: false,
-                once: false,
-                passive: false,
-            };
-            if (typeof selector === "function") {
-                /* 这是为没有selector的情况 */
-                _selector_ = void 0;
-                _callback_ = selector;
-                _option_ = getOption(args, 3, _option_);
-            }
-            else {
-                /* 这是存在selector的情况 */
-                _option_ = getOption(args, 4, _option_);
-            }
-            /**
-             * 如果是once，那么删除该监听和元素上的事件和监听
-             */
-            function checkOptionOnceToRemoveEventListener() {
-                if (_option_.once) {
-                    DOMUtilsContext.off(element, eventType, selector, callback, option);
-                }
-            }
-            elementList.forEach((elementItem) => {
-                function ownCallBack(event) {
-                    let target = event.target;
-                    if (_selector_) {
-                        /* 存在自定义子元素选择器 */
-                        let totalParent = CommonDOMUtils.isWin(elementItem)
-                            ? DOMUtilsCore.document.documentElement
-                            : elementItem;
-                        if (target.matches(_selector_)) {
-                            /* 当前目标可以被selector所匹配到 */
-                            _callback_.call(target, event);
-                            checkOptionOnceToRemoveEventListener();
-                        }
-                        else if (target.closest(_selector_) &&
-                            totalParent.contains(target.closest(_selector_))) {
-                            /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-                            let closestElement = target.closest(_selector_);
-                            /* event的target值不能直接修改 */
-                            OriginPrototype.Object.defineProperty(event, "target", {
-                                get() {
-                                    return closestElement;
-                                },
-                            });
-                            _callback_.call(closestElement, event);
-                            checkOptionOnceToRemoveEventListener();
-                        }
-                    }
-                    else {
-                        _callback_.call(elementItem, event);
-                        checkOptionOnceToRemoveEventListener();
-                    }
-                }
-                /* 遍历事件名设置元素事件 */
-                eventTypeList.forEach((eventName) => {
-                    elementItem.addEventListener(eventName, ownCallBack, _option_);
-                    if (_callback_ && _callback_.delegate) {
-                        elementItem.setAttribute("data-delegate", _selector_);
-                    }
-                    /* 获取对象上的事件 */
-                    let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
-                    /* 初始化对象上的xx事件 */
-                    elementEvents[eventName] = elementEvents[eventName] || [];
-                    elementEvents[eventName].push({
-                        selector: _selector_,
-                        option: _option_,
-                        callback: ownCallBack,
-                        originCallBack: _callback_,
-                    });
-                    /* 覆盖事件 */
-                    elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
-                });
-            });
-        }
-        off(element, eventType, selector, callback, option, filter) {
-            /**
-             * 获取option配置
-             * @param args1
-             * @param startIndex
-             * @param option
-             */
-            function getOption(args1, startIndex, option) {
-                if (typeof args1[startIndex] === "boolean") {
-                    option.capture = args1[startIndex];
-                }
-                else if (typeof args1[startIndex] === "object" &&
-                    "capture" in args1[startIndex]) {
-                    option.capture = args1[startIndex].capture;
-                }
-                return option;
-            }
-            let args = arguments;
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelectorAll(element);
-            }
-            if (element == null) {
-                return;
-            }
-            let elementList = [];
-            if (element instanceof NodeList || Array.isArray(element)) {
-                element = element;
-                elementList = [...element];
-            }
-            else {
-                elementList.push(element);
-            }
-            let eventTypeList = [];
-            if (Array.isArray(eventType)) {
-                eventTypeList = eventTypeList.concat(eventType);
-            }
-            else if (typeof eventType === "string") {
-                eventTypeList = eventTypeList.concat(eventType.split(" "));
-            }
-            /**
-             * 子元素选择器
-             */
-            let _selector_ = selector;
-            /**
-             * 事件的回调函数
-             */
-            let _callback_ = callback;
-            /**
-             * 事件的配置
-             */
-            let _option_ = {
-                capture: false,
-            };
-            if (typeof selector === "function") {
-                /* 这是为没有selector的情况 */
-                _selector_ = void 0;
-                _callback_ = selector;
-                _option_ = getOption(args, 3, _option_);
-            }
-            else {
-                _option_ = getOption(args, 4, _option_);
-            }
-            elementList.forEach((elementItem) => {
-                /* 获取对象上的事件 */
-                let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
-                eventTypeList.forEach((eventName) => {
-                    let handlers = elementEvents[eventName] || [];
-                    if (typeof filter === "function") {
-                        handlers = handlers.filter(filter);
-                    }
-                    for (let index = 0; index < handlers.length; index++) {
-                        let handler = handlers[index];
-                        let flag = false;
-                        if (!_selector_ || handler.selector === _selector_) {
-                            /* selector不为空，进行selector判断 */
-                            flag = true;
-                        }
-                        if (!_callback_ ||
-                            handler.callback === _callback_ ||
-                            handler.originCallBack === _callback_) {
-                            /* callback不为空，进行callback判断 */
-                            flag = true;
-                        }
-                        if (flag) {
-                            elementItem.removeEventListener(eventName, handler.callback, _option_);
-                            handlers.splice(index--, 1);
-                        }
-                    }
-                    if (handlers.length === 0) {
-                        /* 如果没有任意的handler，那么删除该属性 */
-                        CommonDOMUtils.delete(elementEvents, eventType);
-                    }
-                });
-                elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
-            });
-        }
-        /**
-         * 取消绑定所有的事件
-         * @param element 需要取消绑定的元素|元素数组
-         * @param eventType （可选）需要取消监听的事件
-         */
-        offAll(element, eventType) {
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelectorAll(element);
-            }
-            if (element == null) {
-                return;
-            }
-            let elementList = [];
-            if (element instanceof NodeList || Array.isArray(element)) {
-                element = element;
-                elementList = [...element];
-            }
-            else {
-                elementList.push(element);
-            }
-            let eventTypeList = [];
-            if (Array.isArray(eventType)) {
-                eventTypeList = eventTypeList.concat(eventType);
-            }
-            else if (typeof eventType === "string") {
-                eventTypeList = eventTypeList.concat(eventType.split(" "));
-            }
-            elementList.forEach((elementItem) => {
-                Object.getOwnPropertySymbols(elementItem).forEach((symbolEvents) => {
-                    if (!symbolEvents.toString().startsWith("Symbol(events_")) {
-                        return;
-                    }
-                    let elementEvents = elementItem[symbolEvents] || {};
-                    let iterEventNameList = eventTypeList.length
-                        ? eventTypeList
-                        : Object.keys(elementEvents);
-                    iterEventNameList.forEach((eventName) => {
-                        let handlers = elementEvents[eventName];
-                        if (!handlers) {
-                            return;
-                        }
-                        for (const handler of handlers) {
-                            elementItem.removeEventListener(eventName, handler.callback, {
-                                capture: handler["option"]["capture"],
-                            });
-                        }
-                        CommonDOMUtils.delete(elementItem[symbolEvents], eventName);
-                    });
-                });
-            });
-        }
-        /**
-         * 主动触发事件
-         * @param element 需要触发的元素|元素数组|window
-         * @param eventType 需要触发的事件
-         * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-         * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
-         * @example
-         * // 触发元素a.xx的click事件
-         * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-         * DOMUtils.trigger("a.xx","click")
-         * // 触发元素a.xx的click、tap、hover事件
-         * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-         * DOMUtils.trigger("a.xx",["click","tap","hover"])
-         */
-        trigger(element, eventType, details, useDispatchToTriggerEvent = true) {
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelector(element);
-            }
-            if (element == null) {
-                return;
-            }
-            let elementList = [];
-            if (element instanceof NodeList || Array.isArray(element)) {
-                element = element;
-                elementList = [...element];
-            }
-            else {
-                elementList = [element];
-            }
-            let eventTypeList = [];
-            if (Array.isArray(eventType)) {
-                eventTypeList = eventType;
-            }
-            else if (typeof eventType === "string") {
-                eventTypeList = eventType.split(" ");
-            }
-            elementList.forEach((elementItem) => {
-                /* 获取对象上的事件 */
-                let events = elementItem[DOMUtilsData.SymbolEvents] || {};
-                eventTypeList.forEach((_eventType_) => {
-                    let event = null;
-                    if (details && details instanceof Event) {
-                        event = details;
-                    }
-                    else {
-                        event = new Event(_eventType_);
-                        if (details) {
-                            Object.keys(details).forEach((keyName) => {
-                                event[keyName] = details[keyName];
-                            });
-                        }
-                    }
-                    if (useDispatchToTriggerEvent == false && _eventType_ in events) {
-                        events[_eventType_].forEach((eventsItem) => {
-                            eventsItem.callback(event);
-                        });
-                    }
-                    else {
-                        elementItem.dispatchEvent(event);
-                    }
-                });
-            });
-        }
         /**
          * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
          * @param element 目标元素
@@ -1086,7 +1244,7 @@ define((function () { 'use strict';
             if (element == null) {
                 return;
             }
-            if (CommonDOMUtils.isWin(element)) {
+            if (DOMUtilsCommonUtils.isWin(element)) {
                 return DOMUtilsCore.window.document.documentElement.clientWidth;
             }
             if (element.nodeType === 9) {
@@ -1094,21 +1252,21 @@ define((function () { 'use strict';
                 element = element;
                 return Math.max(element.body.scrollWidth, element.documentElement.scrollWidth, element.body.offsetWidth, element.documentElement.offsetWidth, element.documentElement.clientWidth);
             }
-            if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
+            if (isShow ||
+                (!isShow && DOMUtilsCommonUtils.isShow(element))) {
                 /* 已显示 */
                 /* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
                 element = element;
                 /* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
-                if (parseFloat(CommonDOMUtils.getStyleValue(element, "width").toString()) >
-                    0) {
-                    return parseFloat(CommonDOMUtils.getStyleValue(element, "width").toString());
+                if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString()) > 0) {
+                    return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString());
                 }
                 /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
                 if (element.offsetWidth > 0) {
-                    let borderLeftWidth = CommonDOMUtils.getStyleValue(element, "borderLeftWidth");
-                    let borderRightWidth = CommonDOMUtils.getStyleValue(element, "borderRightWidth");
-                    let paddingLeft = CommonDOMUtils.getStyleValue(element, "paddingLeft");
-                    let paddingRight = CommonDOMUtils.getStyleValue(element, "paddingRight");
+                    let borderLeftWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderLeftWidth");
+                    let borderRightWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderRightWidth");
+                    let paddingLeft = DOMUtilsCommonUtils.getStyleValue(element, "paddingLeft");
+                    let paddingRight = DOMUtilsCommonUtils.getStyleValue(element, "paddingRight");
                     let backHeight = parseFloat(element.offsetWidth.toString()) -
                         parseFloat(borderLeftWidth.toString()) -
                         parseFloat(borderRightWidth.toString()) -
@@ -1121,7 +1279,7 @@ define((function () { 'use strict';
             else {
                 /* 未显示 */
                 element = element;
-                let { recovery } = CommonDOMUtils.showElement(element);
+                let { recovery } = DOMUtilsCommonUtils.showElement(element);
                 let width = DOMUtilsContext.width(element, true);
                 recovery();
                 return width;
@@ -1129,7 +1287,7 @@ define((function () { 'use strict';
         }
         height(element, isShow = false) {
             let DOMUtilsContext = this;
-            if (CommonDOMUtils.isWin(element)) {
+            if (DOMUtilsCommonUtils.isWin(element)) {
                 return DOMUtilsCore.window.document.documentElement.clientHeight;
             }
             if (typeof element === "string") {
@@ -1144,21 +1302,21 @@ define((function () { 'use strict';
                 /* Document文档节点 */
                 return Math.max(element.body.scrollHeight, element.documentElement.scrollHeight, element.body.offsetHeight, element.documentElement.offsetHeight, element.documentElement.clientHeight);
             }
-            if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
+            if (isShow ||
+                (!isShow && DOMUtilsCommonUtils.isShow(element))) {
                 element = element;
                 /* 已显示 */
                 /* 从style中获取对应的高度，因为可能使用了class定义了width !important */
                 /* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
-                if (parseFloat(CommonDOMUtils.getStyleValue(element, "height").toString()) >
-                    0) {
-                    return parseFloat(CommonDOMUtils.getStyleValue(element, "height").toString());
+                if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString()) > 0) {
+                    return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString());
                 }
                 /* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
                 if (element.offsetHeight > 0) {
-                    let borderTopWidth = CommonDOMUtils.getStyleValue(element, "borderTopWidth");
-                    let borderBottomWidth = CommonDOMUtils.getStyleValue(element, "borderBottomWidth");
-                    let paddingTop = CommonDOMUtils.getStyleValue(element, "paddingTop");
-                    let paddingBottom = CommonDOMUtils.getStyleValue(element, "paddingBottom");
+                    let borderTopWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderTopWidth");
+                    let borderBottomWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderBottomWidth");
+                    let paddingTop = DOMUtilsCommonUtils.getStyleValue(element, "paddingTop");
+                    let paddingBottom = DOMUtilsCommonUtils.getStyleValue(element, "paddingBottom");
                     let backHeight = parseFloat(element.offsetHeight.toString()) -
                         parseFloat(borderTopWidth.toString()) -
                         parseFloat(borderBottomWidth.toString()) -
@@ -1171,7 +1329,7 @@ define((function () { 'use strict';
             else {
                 /* 未显示 */
                 element = element;
-                let { recovery } = CommonDOMUtils.showElement(element);
+                let { recovery } = DOMUtilsCommonUtils.showElement(element);
                 let height = DOMUtilsContext.height(element, true);
                 recovery();
                 return height;
@@ -1179,7 +1337,7 @@ define((function () { 'use strict';
         }
         outerWidth(element, isShow = false) {
             let DOMUtilsContext = this;
-            if (CommonDOMUtils.isWin(element)) {
+            if (DOMUtilsCommonUtils.isWin(element)) {
                 return DOMUtilsCore.window.innerWidth;
             }
             if (typeof element === "string") {
@@ -1190,14 +1348,14 @@ define((function () { 'use strict';
                 return;
             }
             element = element;
-            if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
+            if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
                 let style = getComputedStyle(element, null);
-                let marginLeft = CommonDOMUtils.getStyleValue(style, "marginLeft");
-                let marginRight = CommonDOMUtils.getStyleValue(style, "marginRight");
+                let marginLeft = DOMUtilsCommonUtils.getStyleValue(style, "marginLeft");
+                let marginRight = DOMUtilsCommonUtils.getStyleValue(style, "marginRight");
                 return element.offsetWidth + marginLeft + marginRight;
             }
             else {
-                let { recovery } = CommonDOMUtils.showElement(element);
+                let { recovery } = DOMUtilsCommonUtils.showElement(element);
                 let outerWidth = DOMUtilsContext.outerWidth(element, true);
                 recovery();
                 return outerWidth;
@@ -1205,7 +1363,7 @@ define((function () { 'use strict';
         }
         outerHeight(element, isShow = false) {
             let DOMUtilsContext = this;
-            if (CommonDOMUtils.isWin(element)) {
+            if (DOMUtilsCommonUtils.isWin(element)) {
                 return DOMUtilsCore.window.innerHeight;
             }
             if (typeof element === "string") {
@@ -1216,46 +1374,17 @@ define((function () { 'use strict';
                 return;
             }
             element = element;
-            if (isShow || (!isShow && CommonDOMUtils.isShow(element))) {
+            if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
                 let style = getComputedStyle(element, null);
-                let marginTop = CommonDOMUtils.getStyleValue(style, "marginTop");
-                let marginBottom = CommonDOMUtils.getStyleValue(style, "marginBottom");
+                let marginTop = DOMUtilsCommonUtils.getStyleValue(style, "marginTop");
+                let marginBottom = DOMUtilsCommonUtils.getStyleValue(style, "marginBottom");
                 return element.offsetHeight + marginTop + marginBottom;
             }
             else {
-                let { recovery } = CommonDOMUtils.showElement(element);
+                let { recovery } = DOMUtilsCommonUtils.showElement(element);
                 let outerHeight = DOMUtilsContext.outerHeight(element, true);
                 recovery();
                 return outerHeight;
-            }
-        }
-        /**
-         * 等待文档加载完成后执行指定的函数
-         * @param callback 需要执行的函数
-         * @example
-         * DOMUtils.ready(function(){
-         *   console.log("文档加载完毕")
-         * })
-         */
-        ready(callback) {
-            if (typeof callback !== "function") {
-                return;
-            }
-            function completed() {
-                document.removeEventListener("DOMContentLoaded", completed);
-                globalThis.removeEventListener("load", completed);
-                callback();
-            }
-            if (document.readyState === "complete" ||
-                (document.readyState !== "loading" &&
-                    !document.documentElement.doScroll)) {
-                setTimeout(callback);
-            }
-            else {
-                /* 监听DOMContentLoaded事件 */
-                document.addEventListener("DOMContentLoaded", completed);
-                /* 监听load事件 */
-                globalThis.addEventListener("load", completed);
             }
         }
         /**
@@ -1364,7 +1493,7 @@ define((function () { 'use strict';
          */
         noConflict() {
             if (DOMUtilsCore.window.DOMUtils) {
-                CommonDOMUtils.delete(window, "DOMUtils");
+                DOMUtilsCommonUtils.delete(window, "DOMUtils");
             }
             DOMUtilsCore.window.DOMUtils = this;
             return this;
@@ -1437,31 +1566,6 @@ define((function () { 'use strict';
             }
         }
         /**
-         * 当鼠标移入或移出元素时触发事件
-         * @param element 当前元素
-         * @param handler 事件处理函数
-         * @param option 配置
-         * @example
-         * // 监听a.xx元素的移入或移出
-         * DOMUtils.hover(document.querySelector("a.xx"),()=>{
-         *   console.log("移入/移除");
-         * })
-         * DOMUtils.hover("a.xx",()=>{
-         *   console.log("移入/移除");
-         * })
-         */
-        hover(element, handler, option) {
-            let DOMUtilsContext = this;
-            if (typeof element === "string") {
-                element = DOMUtilsCore.document.querySelector(element);
-            }
-            if (element == null) {
-                return;
-            }
-            DOMUtilsContext.on(element, "mouseenter", null, handler, option);
-            DOMUtilsContext.on(element, "mouseleave", null, handler, option);
-        }
-        /**
          * 显示元素
          * @param target 当前元素
          * @example
@@ -1487,7 +1591,7 @@ define((function () { 'use strict';
             else {
                 target = target;
                 target.style.display = "";
-                if (!CommonDOMUtils.isShow(target)) {
+                if (!DOMUtilsCommonUtils.isShow(target)) {
                     /* 仍然是不显示，尝试使用强覆盖 */
                     target.style.setProperty("display", "unset", "important");
                 }
@@ -1519,86 +1623,11 @@ define((function () { 'use strict';
             else {
                 target = target;
                 target.style.display = "none";
-                if (CommonDOMUtils.isShow(target)) {
+                if (DOMUtilsCommonUtils.isShow(target)) {
                     /* 仍然是显示，尝试使用强覆盖 */
                     target.style.setProperty("display", "none", "important");
                 }
             }
-        }
-        /**
-         * 当按键松开时触发事件
-         * keydown - > keypress - > keyup
-         * @param target 当前元素
-         * @param handler 事件处理函数
-         * @param option 配置
-         * @example
-         * // 监听a.xx元素的按键松开
-         * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
-         *   console.log("按键松开");
-         * })
-         * DOMUtils.keyup("a.xx",()=>{
-         *   console.log("按键松开");
-         * })
-         */
-        keyup(target, handler, option) {
-            let DOMUtilsContext = this;
-            if (target == null) {
-                return;
-            }
-            if (typeof target === "string") {
-                target = DOMUtilsCore.document.querySelector(target);
-            }
-            DOMUtilsContext.on(target, "keyup", null, handler, option);
-        }
-        /**
-         * 当按键按下时触发事件
-         * keydown - > keypress - > keyup
-         * @param target 目标
-         * @param handler 事件处理函数
-         * @param option 配置
-         * @example
-         * // 监听a.xx元素的按键按下
-         * DOMUtils.keydown(document.querySelector("a.xx"),()=>{
-         *   console.log("按键按下");
-         * })
-         * DOMUtils.keydown("a.xx",()=>{
-         *   console.log("按键按下");
-         * })
-         */
-        keydown(target, handler, option) {
-            let DOMUtilsContext = this;
-            if (target == null) {
-                return;
-            }
-            if (typeof target === "string") {
-                target = DOMUtilsCore.document.querySelector(target);
-            }
-            DOMUtilsContext.on(target, "keydown", null, handler, option);
-        }
-        /**
-         * 当按键按下时触发事件
-         * keydown - > keypress - > keyup
-         * @param target 目标
-         * @param handler 事件处理函数
-         * @param option 配置
-         * @example
-         * // 监听a.xx元素的按键按下
-         * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
-         *   console.log("按键按下");
-         * })
-         * DOMUtils.keypress("a.xx",()=>{
-         *   console.log("按键按下");
-         * })
-         */
-        keypress(target, handler, option) {
-            let DOMUtilsContext = this;
-            if (target == null) {
-                return;
-            }
-            if (typeof target === "string") {
-                target = DOMUtilsCore.document.querySelector(target);
-            }
-            DOMUtilsContext.on(target, "keypress", null, handler, option);
         }
         /**
          * 淡入元素

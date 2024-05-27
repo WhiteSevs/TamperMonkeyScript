@@ -1,4 +1,9 @@
-import type { DOMUtilsCoreOption } from "./global";
+export interface DOMUtilsCoreOption {
+    document: Document;
+    window: Window;
+    globalThis: typeof globalThis;
+    self: typeof globalThis;
+}
 declare const DOMUtilsCore: {
     init(option?: DOMUtilsCoreOption): void;
     readonly document: Document;

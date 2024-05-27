@@ -1,5 +1,5 @@
 /** 通用工具类 */
-declare const CommonDOMUtils: {
+declare const DOMUtilsCommonUtils: {
     /**
      * 判断元素是否已显示或已连接
      * @param element
@@ -33,4 +33,4 @@ declare const CommonDOMUtils: {
      */
     delete(target: any, propName: any): void;
 };
-export { CommonDOMUtils };
+export { DOMUtilsCommonUtils };
