@@ -1922,11 +1922,13 @@ class DOMUtils {
 	 *   console.log("文档加载完毕")
 	 * })
 	 */
-	ready(callback: () => void) {
-		let DOMUtilsContext = this;
+	ready(callback?: any) {
+		if (typeof callback !== "function") {
+			return;
+		}
 		function completed() {
-			DOMUtilsContext.off(document, "DOMContentLoaded", completed);
-			DOMUtilsContext.off(globalThis, "load", completed);
+			document.removeEventListener("DOMContentLoaded", completed);
+			globalThis.removeEventListener("load", completed);
 			callback();
 		}
 		if (
@@ -1937,9 +1939,9 @@ class DOMUtils {
 			setTimeout(callback);
 		} else {
 			/* 监听DOMContentLoaded事件 */
-			DOMUtilsContext.on(document, "DOMContentLoaded", completed);
+			document.addEventListener("DOMContentLoaded", completed);
 			/* 监听load事件 */
-			DOMUtilsContext.on(globalThis, "load", completed);
+			globalThis.addEventListener("load", completed);
 		}
 	}
 	/**

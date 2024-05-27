@@ -1236,10 +1236,12 @@ class DOMUtils {
      * })
      */
     ready(callback) {
-        let DOMUtilsContext = this;
+        if (typeof callback !== "function") {
+            return;
+        }
         function completed() {
-            DOMUtilsContext.off(document, "DOMContentLoaded", completed);
-            DOMUtilsContext.off(globalThis, "load", completed);
+            document.removeEventListener("DOMContentLoaded", completed);
+            globalThis.removeEventListener("load", completed);
             callback();
         }
         if (document.readyState === "complete" ||
@@ -1249,9 +1251,9 @@ class DOMUtils {
         }
         else {
             /* 监听DOMContentLoaded事件 */
-            DOMUtilsContext.on(document, "DOMContentLoaded", completed);
+            document.addEventListener("DOMContentLoaded", completed);
             /* 监听load事件 */
-            DOMUtilsContext.on(globalThis, "load", completed);
+            globalThis.addEventListener("load", completed);
         }
     }
     /**

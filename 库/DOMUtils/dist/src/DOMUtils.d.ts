@@ -640,7 +640,7 @@ declare class DOMUtils {
      *   console.log("文档加载完毕")
      * })
      */
-    ready(callback: () => void): void;
+    ready(callback?: any): void;
     /**
      * 在一定时间内改变元素的样式属性，实现动画效果
      * @param element 需要进行动画的元素
