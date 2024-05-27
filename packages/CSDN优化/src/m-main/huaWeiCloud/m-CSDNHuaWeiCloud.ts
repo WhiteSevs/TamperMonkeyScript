@@ -1,5 +1,5 @@
 import { GM_addStyle } from "ViteGM";
-import ShieldCSS from "./shield.css?raw";
+import ShieldCSS from "./css/shield.css?raw";
 import { CSDNHuaWeiCloud } from "@/main/huaWeiCloud/CSDNHuaWeiCloud";
 import { PopsPanel } from "@/setting/setting";
 

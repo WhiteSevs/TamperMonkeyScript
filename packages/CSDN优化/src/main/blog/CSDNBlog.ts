@@ -1,11 +1,11 @@
+import BlogShieldCSS from "./css/shield.css?raw";
+import BlogExpandContentCSS from "./css/expandContent.css?raw";
+import BlogArticleCenterCSS from "./css/articleCenter.css?raw";
 import { DOMUtils, log, utils } from "@/env";
-import { M_CSDNBlog } from "@/m-main/blog/m-CSDNBlog";
 import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle, unsafeWindow } from "ViteGM";
-import BlogShieldCSS from "./shield.css?raw";
-import BlogExpandContentCSS from "./expandContent.css?raw";
-import BlogArticleCenterCSS from "./articleCenter.css?raw";
 import { CSDNBlogRightToolBar } from "./CSDNBlogRightToolBar";
+
 const CSDNBlog = {
 	init() {
 		this.addCSS();

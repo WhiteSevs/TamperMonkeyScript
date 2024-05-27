@@ -1,5 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
-import ShieldCSS from "./shield.css?raw";
+import ShieldCSS from "./css/shield.css?raw";
 import { GM_addStyle } from "ViteGM";
 
 const M_CSDNWenKu = {
