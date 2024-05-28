@@ -1584,7 +1584,7 @@ declare class Utils {
      * "__vue__"
      * )
      */
-    waitVueByInterval(element: HTMLElement | (() => HTMLElement), propertyName: string | ((__vue__: any) => boolean), timer?: number, maxTime?: number, vueName?: "__vue__" | string): Promise<boolean>;
+    waitVueByInterval(element: HTMLElement | (() => any), propertyName: string | ((__vue__: any) => boolean), timer?: number, maxTime?: number, vueName?: "__vue__" | string): Promise<boolean>;
     /**
      * 观察对象的set、get
      * @param target 观察的对象

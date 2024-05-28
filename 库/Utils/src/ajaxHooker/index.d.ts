@@ -57,7 +57,7 @@ declare interface UtilsAjaxHookRequestOptions {
 	 *
 	 * 在控制台输出时，xhr响应将包含所有属性，但只有被读取过的属性具有明确的值。修改对应属性即可影响读取结果，进而实现响应数据的修改。
 	 */
-	response?: (res: UtilsAjaxHookResponseOptions) => void;
+	response?: (res: Required<UtilsAjaxHookResponseOptions>) => void;
 	/**
 	 * 只读属性。异步请求为true，同步请求为false，异步特性无法作用于同步请求
 	 */

@@ -4407,14 +4407,18 @@ class Utils {
 	 * )
 	 */
 	waitVueByInterval(
-		element: HTMLElement | (() => HTMLElement),
+		element:
+			| HTMLElement
+			| (() => any),
 		propertyName: string | ((__vue__: any) => boolean),
 		timer?: number,
 		maxTime?: number,
 		vueName?: "__vue__" | string
 	): Promise<boolean>;
 	async waitVueByInterval(
-		element: HTMLElement | (() => HTMLElement),
+		element:
+			| HTMLElement
+			| (() => any),
 		propertyName: string | ((__vue__: any) => boolean),
 		timer = 250,
 		maxTime = -1,
