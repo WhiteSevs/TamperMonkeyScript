@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 相关库的更新;
-// @version      2024.2.15
+// @description  更新日志: 修复环境内缺失unsafeWindow;
+// @version      2024.5.28
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -40,6 +40,9 @@
 
 (async function () {
   "use strict";
+  if (typeof unsafeWindow === "undefined") {
+    var unsafeWindow = window;
+  }
   const console = unsafeWindow.console;
   /**
    * @type {import("../库/Utils")}
