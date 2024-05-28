@@ -112,8 +112,8 @@ export default defineConfig({
 	],
 	resolve: {
 		alias: {
-			"@库": Utils.getAbsolutePath("./../../库"),
 			"@": Utils.getAbsolutePath("./src"),
+			"@pops": Utils.getAbsolutePath("./../../库/pops/*"),
 		},
 	},
 	build: {
