@@ -1,6 +1,6 @@
 import { Utils } from "./Utils";
 
-declare interface UtilsGMCookieListResult {
+declare interface UtilsGMCookieResult {
 	/** 为 window.location.hostname */
 	domain: string;
 	expirationDate: null;
@@ -20,7 +20,7 @@ declare interface UtilsGMCookieListOptions {
 	/** 默认为当前的域名(window.location.hostname) */
 	domain: string;
 	/** 需要检索的Cookie的名字 */
-	name: string;
+	name: string | RegExp;
 	/** 需要检索的Cookie的路径，默认为"/" */
 	path: string;
 }
@@ -53,20 +53,57 @@ declare interface UtilsGMCookieDeleteOptions {
 
 class UtilsGMCookie {
 	/**
-	 *  获取Cookie
+	 * 获取单个cookie
+	 * @param cookieName cookie名
+	 */
+	get(cookieName: string) {
+		if (typeof cookieName !== "string") {
+			throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
+		}
+
+		let cookies = document.cookie.split(";");
+		let findValue: UtilsGMCookieResult | undefined = void 0;
+		for (const cookieItem of cookies) {
+			let item = cookieItem.trim();
+			let itemSplit = item.split("=");
+			let itemName = itemSplit[0];
+			itemSplit.splice(0, 1);
+			let itemValue = decodeURIComponent(itemSplit.join(""));
+			if (itemName === cookieName) {
+				findValue = {
+					domain: globalThis.location.hostname,
+					expirationDate: null,
+					hostOnly: true,
+					httpOnly: false,
+					name: cookieName,
+					path: "/",
+					sameSite: "unspecified",
+					secure: true,
+					session: false,
+					value: itemValue,
+				};
+				break;
+			}
+		}
+		return findValue;
+	}
+	/**
+	 *  获取多组Cookie
 	 * @param paramDetails
 	 * @param callback
 	 * + cookies object[]
 	 * + error string|undefined
 	 **/
 	list(
-		paramDetails: Partial<UtilsGMCookieListResult> = {},
-		callback = (resultData: UtilsGMCookieListResult[], error?: Error) => {}
+		paramDetails: Partial<UtilsGMCookieListOptions>,
+		callback?: (data: UtilsGMCookieResult[], error?: Error) => void
 	) {
-		let resultData: UtilsGMCookieListResult[] = [];
+		if (paramDetails == null) {
+			throw new Error("Utils.GMCookie.list 参数不能为空");
+		}
+		let resultData: UtilsGMCookieResult[] = [];
 		try {
-			let details: Partial<UtilsGMCookieListResult> = {
-				// @ts-ignore
+			let details: Partial<UtilsGMCookieListOptions> = {
 				url: globalThis.location.href,
 				domain: globalThis.location.hostname,
 				name: "",
@@ -75,11 +112,13 @@ class UtilsGMCookie {
 			details = Utils.assign(details, paramDetails);
 			let cookies = document.cookie.split(";");
 			cookies.forEach((item) => {
-				item = item.trimStart();
-				let itemName = item.split("=")[0];
-				let itemValue = item.replace(new RegExp("^" + itemName + "="), "");
+				item = item.trim();
+				let itemSplit = item.split("=");
+				let itemName = itemSplit[0];
+				itemSplit.splice(0, 1);
+				let itemValue = decodeURIComponent(itemSplit.join(""));
 				let nameRegexp =
-					(details.name as any) instanceof RegExp
+					(details.name as RegExp) instanceof RegExp
 						? details.name
 						: new RegExp("^" + details.name, "g");
 				if (itemName.match(nameRegexp as RegExp)) {
@@ -95,13 +134,62 @@ class UtilsGMCookie {
 						session: false,
 						value: itemValue,
 					});
-					return;
 				}
 			});
-			callback(resultData);
+			if (typeof callback === "function") {
+				callback(resultData);
+			}
 		} catch (error) {
-			callback(resultData, error as Error);
+			if (typeof callback === "function") {
+				callback(resultData, error as Error);
+			}
 		}
+	}
+	/**
+	 *  获取多组Cookie
+	 * @param paramDetails
+	 **/
+	getList(
+		paramDetails: Partial<UtilsGMCookieListOptions>
+	): UtilsGMCookieResult[] {
+		if (paramDetails == null) {
+			throw new Error("Utils.GMCookie.list 参数不能为空");
+		}
+		let resultData: UtilsGMCookieResult[] = [];
+		let details: Partial<UtilsGMCookieListOptions> = {
+			url: globalThis.location.href,
+			domain: globalThis.location.hostname,
+			name: "",
+			path: "/",
+		};
+		details = Utils.assign(details, paramDetails);
+		let cookies = document.cookie.split(";");
+		cookies.forEach((item) => {
+			item = item.trim();
+			let itemSplit = item.split("=");
+			let itemName = itemSplit[0];
+			itemSplit.splice(0, 1);
+			let itemValue = decodeURIComponent(itemSplit.join(""));
+			let nameRegexp =
+				(details.name as RegExp) instanceof RegExp
+					? details.name
+					: new RegExp("^" + details.name, "g");
+			if (itemName.match(nameRegexp as RegExp)) {
+				resultData.push({
+					domain: globalThis.location.hostname,
+					expirationDate: null,
+					hostOnly: true,
+					httpOnly: false,
+					name: itemName,
+					path: "/",
+					sameSite: "unspecified",
+					secure: true,
+					session: false,
+					value: itemValue,
+				});
+			}
+		});
+		return resultData;
 	}
 	/**
 	 * 设置Cookie
@@ -150,7 +238,7 @@ class UtilsGMCookie {
 			let details: Partial<UtilsGMCookieDeleteOptions> = {
 				url: window.location.href,
 				name: "",
-                // @ts-ignore
+				// @ts-ignore
 				firstPartyDomain: "",
 			};
 			details = Utils.assign(details, paramDetails);

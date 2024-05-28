@@ -262,17 +262,53 @@ System.register('Utils', [], (function (exports) {
 
             class UtilsGMCookie {
                 /**
-                 *  获取Cookie
+                 * 获取单个cookie
+                 * @param cookieName cookie名
+                 */
+                get(cookieName) {
+                    if (typeof cookieName !== "string") {
+                        throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
+                    }
+                    let cookies = document.cookie.split(";");
+                    let findValue = void 0;
+                    for (const cookieItem of cookies) {
+                        let item = cookieItem.trim();
+                        let itemSplit = item.split("=");
+                        let itemName = itemSplit[0];
+                        itemSplit.splice(0, 1);
+                        let itemValue = decodeURIComponent(itemSplit.join(""));
+                        if (itemName === cookieName) {
+                            findValue = {
+                                domain: globalThis.location.hostname,
+                                expirationDate: null,
+                                hostOnly: true,
+                                httpOnly: false,
+                                name: cookieName,
+                                path: "/",
+                                sameSite: "unspecified",
+                                secure: true,
+                                session: false,
+                                value: itemValue,
+                            };
+                            break;
+                        }
+                    }
+                    return findValue;
+                }
+                /**
+                 *  获取多组Cookie
                  * @param paramDetails
                  * @param callback
                  * + cookies object[]
                  * + error string|undefined
                  **/
-                list(paramDetails = {}, callback = (resultData, error) => { }) {
+                list(paramDetails, callback) {
+                    if (paramDetails == null) {
+                        throw new Error("Utils.GMCookie.list 参数不能为空");
+                    }
                     let resultData = [];
                     try {
                         let details = {
-                            // @ts-ignore
                             url: globalThis.location.href,
                             domain: globalThis.location.hostname,
                             name: "",
@@ -281,9 +317,11 @@ System.register('Utils', [], (function (exports) {
                         details = utils.assign(details, paramDetails);
                         let cookies = document.cookie.split(";");
                         cookies.forEach((item) => {
-                            item = item.trimStart();
-                            let itemName = item.split("=")[0];
-                            let itemValue = item.replace(new RegExp("^" + itemName + "="), "");
+                            item = item.trim();
+                            let itemSplit = item.split("=");
+                            let itemName = itemSplit[0];
+                            itemSplit.splice(0, 1);
+                            let itemValue = decodeURIComponent(itemSplit.join(""));
                             let nameRegexp = details.name instanceof RegExp
                                 ? details.name
                                 : new RegExp("^" + details.name, "g");
@@ -300,14 +338,60 @@ System.register('Utils', [], (function (exports) {
                                     session: false,
                                     value: itemValue,
                                 });
-                                return;
                             }
                         });
-                        callback(resultData);
+                        if (typeof callback === "function") {
+                            callback(resultData);
+                        }
                     }
                     catch (error) {
-                        callback(resultData, error);
+                        if (typeof callback === "function") {
+                            callback(resultData, error);
+                        }
                     }
+                }
+                /**
+                 *  获取多组Cookie
+                 * @param paramDetails
+                 **/
+                getList(paramDetails) {
+                    if (paramDetails == null) {
+                        throw new Error("Utils.GMCookie.list 参数不能为空");
+                    }
+                    let resultData = [];
+                    let details = {
+                        url: globalThis.location.href,
+                        domain: globalThis.location.hostname,
+                        name: "",
+                        path: "/",
+                    };
+                    details = utils.assign(details, paramDetails);
+                    let cookies = document.cookie.split(";");
+                    cookies.forEach((item) => {
+                        item = item.trim();
+                        let itemSplit = item.split("=");
+                        let itemName = itemSplit[0];
+                        itemSplit.splice(0, 1);
+                        let itemValue = decodeURIComponent(itemSplit.join(""));
+                        let nameRegexp = details.name instanceof RegExp
+                            ? details.name
+                            : new RegExp("^" + details.name, "g");
+                        if (itemName.match(nameRegexp)) {
+                            resultData.push({
+                                domain: globalThis.location.hostname,
+                                expirationDate: null,
+                                hostOnly: true,
+                                httpOnly: false,
+                                name: itemName,
+                                path: "/",
+                                sameSite: "unspecified",
+                                secure: true,
+                                session: false,
+                                value: itemValue,
+                            });
+                        }
+                    });
+                    return resultData;
                 }
                 /**
                  * 设置Cookie
