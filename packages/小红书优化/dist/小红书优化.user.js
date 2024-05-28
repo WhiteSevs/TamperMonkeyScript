@@ -1,18 +1,19 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.23
+// @version      2024.5.28.14
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
 // @icon         https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
+// @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/449471/1360565/Viewer.js
-// @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
-// @require      https://update.greasyfork.org/scripts/455186/1377415/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.5/dist/index.umd.js
+// @require      https://update.greasyfork.org/scripts/456485/1383311/pops.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.6/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.7/dist/index.umd.js
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -26,10 +27,10 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg) {
+(function (Qmsg, Utils, DOMUtils) {
   'use strict';
 
-  var _a, _b, _c;
+  var _a;
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -40,17 +41,16 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const SCRIPT_NAME$1 = "小红书优化";
-  const utils = (_a = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a.noConflict();
-  const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
+  const _SCRIPT_NAME_ = "小红书优化";
+  const utils = Utils.noConflict();
+  const domutils = DOMUtils.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
   const Viewer = _monkeyWindow.Viewer || _unsafeWindow.Viewer;
-  _monkeyWindow.showdown || _unsafeWindow.showdown;
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_c = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _c.name) || SCRIPT_NAME$1;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -188,7 +188,7 @@
             "little-red-book-optimizeCommentBrowsing",
             true,
             void 0,
-            "加载评论，未登录最多查看1页评论(包括楼中楼的)"
+            "加载评论，未登录最多查看1页评论(注：楼中楼评论已失效，api无法获取楼中楼评论，需要请求头X-T、X-S、X-B3-Traceid)"
           ),
           UISwitch(
             "优化图片浏览",
@@ -408,7 +408,7 @@
       GM_Menu.add([
         {
           key: "show_pops_panel_setting",
-          text: "⚙ 设置",
+          text: "⚙ 移动端-设置",
           autoReload: false,
           isStoreValue: false,
           showText(text) {
@@ -450,7 +450,9 @@
         }
         that.$data.data.set(key, defaultValue);
       }
-      let contentConfigList = this.getPanelContentConfig().concat(this.getPCPanelContentConfig());
+      let contentConfigList = this.getPanelContentConfig().concat(
+        this.getPCPanelContentConfig()
+      );
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.forms) {
@@ -579,7 +581,7 @@
     },
     /**
      * 根据key执行一次
-     * @param key 
+     * @param key
      */
     onceExec(key, callback) {
       if (typeof key !== "string") {
@@ -761,9 +763,9 @@
       let originApply = _unsafeWindow.Function.prototype.apply;
       let isHijack = false;
       _unsafeWindow.Function.prototype.apply = function(...args) {
-        var _a2, _b2, _c2, _d, _e, _f;
+        var _a2, _b, _c, _d, _e, _f;
         const result = originApply.call(this, ...args);
-        if (!isHijack && args.length === 2 && ((_a2 = args[0]) == null ? void 0 : _a2.addRoute) && ((_b2 = args[0]) == null ? void 0 : _b2.currentRoute) && ((_c2 = args[0]) == null ? void 0 : _c2.getRoutes) && ((_d = args[0]) == null ? void 0 : _d.hasRoute) && ((_e = args[0]) == null ? void 0 : _e.install) && ((_f = args[0]) == null ? void 0 : _f.removeRoute)) {
+        if (!isHijack && args.length === 2 && ((_a2 = args[0]) == null ? void 0 : _a2.addRoute) && ((_b = args[0]) == null ? void 0 : _b.currentRoute) && ((_c = args[0]) == null ? void 0 : _c.getRoutes) && ((_d = args[0]) == null ? void 0 : _d.hasRoute) && ((_e = args[0]) == null ? void 0 : _e.install) && ((_f = args[0]) == null ? void 0 : _f.removeRoute)) {
           isHijack = true;
           let __vue__ = args[1][0];
           log.success(["成功劫持vue，version版本：", __vue__.version]);
@@ -804,23 +806,21 @@
       return globalThis.location.pathname.startsWith("/search_result/");
     }
   };
+  new utils.GM_Cookie();
   const XHSApi = {
     /**
      * 获取页信息
      */
     async getPageInfo(note_id, cursor = "", top_comment_id = "", image_formats = "jpg,webp") {
-      let getResp = await httpx.get(
-        `https://edith.xiaohongshu.com/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=${top_comment_id}&image_formats=${image_formats}`,
-        {
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "User-Agent": utils.getRandomPCUA(),
-            Origin: "https://www.xiaohongshu.com",
-            Referer: "https://www.xiaohongshu.com/",
-            "X-T": Date.now()
-          }
+      const Api = `/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=${top_comment_id}&image_formats=${image_formats}`;
+      let getResp = await httpx.get(`https://edith.xiaohongshu.com${Api}`, {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "User-Agent": utils.getRandomPCUA(),
+          Origin: "https://www.xiaohongshu.com",
+          Referer: "https://www.xiaohongshu.com/"
         }
-      );
+      });
       if (!getResp.status) {
         return;
       }
@@ -837,19 +837,17 @@
     /**
      * 获取楼中楼页信息
      */
-    async getLzlPageInfo(note_id = "", root_comment_id = "", num = 10, cursor = "", image_formats = "jpg,webp") {
-      let getResp = await httpx.get(
-        `https://edith.xiaohongshu.com/api/sns/web/v2/comment/sub/page?note_id=${note_id}&root_comment_id=${root_comment_id}&num=${num}&cursor=${cursor}&image_formats=${image_formats}`,
-        {
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "User-Agent": utils.getRandomPCUA(),
-            Origin: "https://www.xiaohongshu.com",
-            Referer: "https://www.xiaohongshu.com/",
-            "X-T": Date.now()
-          }
+    async getLzlPageInfo(note_id = "", root_comment_id = "", num = 10, cursor = "", image_formats = "jpg,webp,avif", top_comment_id = "") {
+      const Api = `/api/sns/web/v2/comment/sub/page?note_id=${note_id}&root_comment_id=${root_comment_id}&num=${num}&cursor=${cursor}&image_formats=${image_formats}&top_comment_id=${top_comment_id}`;
+      let getResp = await httpx.get(`https://edith.xiaohongshu.com${Api}`, {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "edith.xiaohongshu.com",
+          Origin: "https://www.xiaohongshu.com",
+          Referer: "https://www.xiaohongshu.com/"
         }
-      );
+      });
       if (!getResp.status) {
         return;
       }
@@ -863,12 +861,15 @@
     },
     /**
      * 获取搜索推荐内容
-     * @param searchText 
+     * @param searchText
      */
     async getSearchRecommend(searchText) {
-      let getResp = await httpx.get(`https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`, {
-        fetch: true
-      });
+      let getResp = await httpx.get(
+        `https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`,
+        {
+          fetch: true
+        }
+      );
       if (!getResp.status) {
         return;
       }
@@ -979,7 +980,7 @@
       PopsPanel.execMenu("little-red-book-shieldHotRecommendNote", () => {
         MXHS_ArticleShield.shieldHotRecommendNote();
       });
-      DOMUtils.ready(function() {
+      domutils.ready(function() {
         PopsPanel.execMenu("little-red-book-optimizeCommentBrowsing", () => {
           MXHS_Article.optimizeCommentBrowsing();
         });
@@ -1049,7 +1050,7 @@
          * @returns
          */
         getCommentElement(data) {
-          var _a2, _b2;
+          var _a2, _b;
           let content = data["content"];
           let create_time = data["create_time"] || parseInt(data["time"]);
           let id = data["id"];
@@ -1060,9 +1061,9 @@
           let sub_comments = data["sub_comments"] || data["subComments"];
           let user_avatar = (data["user_info"] || data["user"])["image"];
           let user_nickname = (data["user_info"] || data["user"])["nickname"];
-          let user_id = ((_a2 = data == null ? void 0 : data["user_info"]) == null ? void 0 : _a2["user_id"]) || ((_b2 = data == null ? void 0 : data["user"]) == null ? void 0 : _b2["userId"]);
+          let user_id = ((_a2 = data == null ? void 0 : data["user_info"]) == null ? void 0 : _a2["user_id"]) || ((_b = data == null ? void 0 : data["user"]) == null ? void 0 : _b["userId"]);
           content = Comments.converContent(content);
-          let commentItemElement = DOMUtils.createElement("div", {
+          let commentItemElement = domutils.createElement("div", {
             className: "little-red-book-comments-item",
             innerHTML: `
             <div class="little-red-book-comments-parent">
@@ -1079,7 +1080,7 @@
           });
           if (sub_comment_has_more && Array.isArray(sub_comments)) {
             sub_comments.forEach((subCommentInfo) => {
-              let subCommentElement = DOMUtils.createElement("div", {
+              let subCommentElement = domutils.createElement("div", {
                 className: "little-red-book-comments-reply-container",
                 innerHTML: Comments.getCommentHTML({
                   user_id: subCommentInfo["user_info"]["user_id"],
@@ -1095,7 +1096,7 @@
             if (sub_comment_count !== sub_comments.length) {
               let endReplyCount = sub_comment_count - sub_comments.length;
               let lzlCursor = sub_comment_cursor;
-              let showMoreElement = DOMUtils.createElement("div", {
+              let showMoreElement = domutils.createElement("div", {
                 className: "little-red-book-comments-reply-show-more",
                 innerText: `展开 ${endReplyCount} 条回复`
               });
@@ -1116,23 +1117,21 @@
                 endReplyCount = endReplyCount - pageInfo.comments.length;
                 showMoreElement.innerText = `展开 ${endReplyCount} 条回复`;
                 pageInfo.comments.forEach((subCommentInfo) => {
-                  let subCommentElement = DOMUtils.createElement("div", {
+                  let subCommentElement = domutils.createElement("div", {
                     className: "little-red-book-comments-reply-container",
                     innerHTML: Comments.getCommentHTML({
                       user_id: subCommentInfo["user_info"]["user_id"],
                       user_avatar: subCommentInfo["user_info"]["image"],
                       user_nickname: subCommentInfo["user_info"]["nickname"],
-                      content: Comments.converContent(
-                        subCommentInfo["content"]
-                      ),
+                      content: Comments.converContent(subCommentInfo["content"]),
                       create_time: subCommentInfo["create_time"],
                       ip_location: subCommentInfo["ip_location"]
                     })
                   });
-                  DOMUtils.before(showMoreElement, subCommentElement);
+                  domutils.before(showMoreElement, subCommentElement);
                 });
                 if (!pageInfo.has_more) {
-                  DOMUtils.off(
+                  domutils.off(
                     showMoreElement,
                     "click",
                     void 0,
@@ -1144,7 +1143,7 @@
                   showMoreElement.remove();
                 }
               }
-              DOMUtils.on(showMoreElement, "click", void 0, showMoreEvent, {
+              domutils.on(showMoreElement, "click", void 0, showMoreEvent, {
                 capture: true
               });
               commentItemElement.appendChild(showMoreElement);
@@ -1203,7 +1202,7 @@
          */
         addSrollEventListener() {
           log.success("添加滚动监听事件");
-          DOMUtils.on(document, "scroll", void 0, Comments.scrollFunc.run, {
+          domutils.on(document, "scroll", void 0, Comments.scrollFunc.run, {
             capture: true,
             once: false,
             passive: true
@@ -1214,16 +1213,18 @@
          */
         removeScrollEventListener() {
           log.success("移除滚动监听事件");
-          DOMUtils.off(document, "scroll", void 0, Comments.scrollFunc.run, {
+          domutils.off(document, "scroll", void 0, Comments.scrollFunc.run, {
             capture: true
           });
         }
       };
       utils.waitNode(".narmal-note-container").then(async () => {
         log.info("优化评论浏览-笔记元素出现");
-        let noteViewContainer = document.querySelector(".note-view-container");
+        let noteViewContainer = document.querySelector(
+          ".note-view-container"
+        );
         let loading = Qmsg.loading("获取评论中，请稍后...");
-        let commentContainer = DOMUtils.createElement("div", {
+        let commentContainer = domutils.createElement("div", {
           className: "little-red-book-comments-container",
           innerHTML: `
                 <style>
@@ -1334,14 +1335,12 @@
         });
         Comments.commentContainer = commentContainer;
         Comments.init();
-        let totalElement = DOMUtils.createElement("div", {
+        let totalElement = domutils.createElement("div", {
           className: "little-red-book-comments-total",
           innerHTML: `共 ${Comments.noteData["comments"]} 条评论`
         });
         commentContainer.appendChild(totalElement);
-        let pageInfo = await XHSApi.getPageInfo(
-          Comments.noteData["id"]
-        );
+        let pageInfo = await XHSApi.getPageInfo(Comments.noteData["id"]);
         await utils.sleep(800);
         if (pageInfo) {
           Comments.currentCursor = pageInfo.cursor;
@@ -1360,7 +1359,7 @@
           });
         }
         loading.close();
-        DOMUtils.append(noteViewContainer, commentContainer);
+        domutils.append(noteViewContainer, commentContainer);
       });
     },
     /**
@@ -1373,7 +1372,7 @@
         imgSrcList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
         });
-        let viewerULNode = DOMUtils.createElement("ul", {
+        let viewerULNode = domutils.createElement("ul", {
           innerHTML: viewerULNodeHTML
         });
         let viewer = new Viewer(viewerULNode, {
@@ -1389,13 +1388,15 @@
         viewer.zoomTo(1);
         viewer.show();
       }
-      DOMUtils.on(document, "click", ".note-image-box", function(event) {
+      domutils.on(document, "click", ".note-image-box", function(event) {
         let clickElement = event.target;
         let imgElement = clickElement.querySelector("img");
         let imgList = [];
         let imgBoxList = [];
         if (clickElement.closest(".onix-carousel-item")) {
-          imgBoxList = Array.from(clickElement.closest(".onix-carousel-item").parentElement.querySelectorAll("img"));
+          imgBoxList = Array.from(
+            clickElement.closest(".onix-carousel-item").parentElement.querySelectorAll("img")
+          );
         } else {
           imgBoxList = [imgElement];
         }
@@ -1415,7 +1416,7 @@
   };
   const MXHS_Home = {
     init() {
-      DOMUtils.ready(() => {
+      domutils.ready(() => {
         PopsPanel.execMenu("little-red-book-repariClick", () => {
           MXHS_Home.repariClick();
         });
@@ -1427,12 +1428,12 @@
      */
     repariClick() {
       log.info("修复正确的点击跳转");
-      DOMUtils.on(
+      domutils.on(
         document,
         "click",
         void 0,
         function(event) {
-          var _a2, _b2, _c2, _d, _e;
+          var _a2, _b, _c, _d, _e;
           let clickElement = event.target;
           log.info(["点击的按钮元素", clickElement]);
           if ((_a2 = clickElement == null ? void 0 : clickElement.className) == null ? void 0 : _a2.includes("follow-btn")) {
@@ -1446,7 +1447,7 @@
             let sectionElement = clickElement == null ? void 0 : clickElement.closest(
               "section.reds-note-card"
             );
-            let note_id = sectionElement.getAttribute("id") || ((_d = (_c2 = (_b2 = utils.toJSON(sectionElement.getAttribute("impression"))) == null ? void 0 : _b2["noteTarget"]) == null ? void 0 : _c2["value"]) == null ? void 0 : _d["noteId"]);
+            let note_id = sectionElement.getAttribute("id") || ((_d = (_c = (_b = utils.toJSON(sectionElement.getAttribute("impression"))) == null ? void 0 : _b["noteTarget"]) == null ? void 0 : _c["value"]) == null ? void 0 : _d["noteId"]);
             if (note_id) {
               window.open(
                 `https://www.xiaohongshu.com/discovery/item/${(_e = clickElement == null ? void 0 : clickElement.closest("section.reds-note-card")) == null ? void 0 : _e.getAttribute("id")}`,
@@ -1506,7 +1507,7 @@
       PopsPanel.execMenu("pc-xhs-shield-select-text-search-position", () => {
         XHS_Shield.shieldSelectTextVisibleSearchPosition();
       });
-      DOMUtils.ready(() => {
+      domutils.ready(() => {
         PopsPanel.execMenu("pc-xhs-shield-login-dialog", () => {
           XHS_Shield.shieldLoginContainer();
         });
@@ -1597,7 +1598,7 @@
       });
       utils.waitNode("#search-input + .input-button .search-icon").then(($btn) => {
         PopsPanel.execMenu("pc-xhs-search-open-blank-btn", () => {
-          DOMUtils.on($btn, "click", (event) => {
+          domutils.on($btn, "click", (event) => {
             utils.preventEvent(event);
             log.info("点击搜索按钮");
             blankSearchText();
@@ -1627,7 +1628,7 @@
      */
     allowPCCopy() {
       log.success("允许复制文字");
-      DOMUtils.on(
+      domutils.on(
         _unsafeWindow,
         "copy",
         void 0,
@@ -1651,19 +1652,25 @@
      */
     openBlankArticle() {
       log.success("新标签页打开文章");
-      DOMUtils.on(document, "click", ".feeds-container .note-item", function(event) {
-        utils.preventEvent(event);
-        let $click = event.target;
-        let $url = $click.querySelector("a[href]");
-        if ($url && $url.href) {
-          log.info("跳转文章: " + $url.href);
-          window.open($url.href, "_blank");
-        } else {
-          Qmsg.error("未找到文章链接");
+      domutils.on(
+        document,
+        "click",
+        ".feeds-container .note-item",
+        function(event) {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $url = $click.querySelector("a[href]");
+          if ($url && $url.href) {
+            log.info("跳转文章: " + $url.href);
+            window.open($url.href, "_blank");
+          } else {
+            Qmsg.error("未找到文章链接");
+          }
+        },
+        {
+          capture: true
         }
-      }, {
-        capture: true
-      });
+      );
     }
   };
   _GM_addStyle(`
@@ -1730,4 +1737,4 @@
     }
   }
 
-})(Qmsg);
+})(Qmsg, Utils, DOMUtils);

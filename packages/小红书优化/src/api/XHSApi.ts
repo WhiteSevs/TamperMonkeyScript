@@ -1,117 +1,115 @@
-import { Qmsg, httpx, log, utils } from "@/env";
+import { httpx, log, utils } from "@/env";
+import Qmsg from "qmsg";
 
 interface PageInfo {
-    comments: any[],
-    cursor: string,
-    has_more: boolean,
-    time: number,
-    user_id: string,
+	comments: any[];
+	cursor: string;
+	has_more: boolean;
+	time: number;
+	user_id: string;
 }
-interface LzlPageInfo extends PageInfo {
+interface LzlPageInfo extends PageInfo {}
 
-}
+let cookieStore = new utils.GM_Cookie();
 const XHSApi = {
-    /**
-     * 获取页信息
-     */
-    async getPageInfo(
-        note_id: string | number,
-        cursor = "",
-        top_comment_id = "",
-        image_formats = "jpg,webp"
-    ) {
-        let getResp = await httpx.get(
-            `https://edith.xiaohongshu.com/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=${top_comment_id}&image_formats=${image_formats}`,
-            {
-                headers: {
-                    Accept: "application/json, text/plain, */*",
-                    "User-Agent": utils.getRandomPCUA(),
-                    Origin: "https://www.xiaohongshu.com",
-                    Referer: "https://www.xiaohongshu.com/",
-                    "X-T": Date.now(),
-                },
-            }
-        );
-        if (!getResp.status) {
-            return;
-        }
-        let data = utils.toJSON(getResp.data.responseText);
-        log.info(["获取页信息", data]);
-        if (data["code"] === 0 || data["success"]) {
-            return data["data"] as PageInfo;
-        } else if (data["code"] === -101) {
-            /* 未登录 */
-            return;
-        } else {
-            Qmsg.error(data["msg"]);
-        }
-    },
-    /**
-     * 获取楼中楼页信息
-     */
-    async getLzlPageInfo(
-        note_id = "",
-        root_comment_id = "",
-        num = 10,
-        cursor = "",
-        image_formats = "jpg,webp"
-    ) {
-        let getResp = await httpx.get(
-            `https://edith.xiaohongshu.com/api/sns/web/v2/comment/sub/page?note_id=${note_id}&root_comment_id=${root_comment_id}&num=${num}&cursor=${cursor}&image_formats=${image_formats}`,
-            {
-                headers: {
-                    Accept: "application/json, text/plain, */*",
-                    "User-Agent": utils.getRandomPCUA(),
-                    Origin: "https://www.xiaohongshu.com",
-                    Referer: "https://www.xiaohongshu.com/",
-                    "X-T": Date.now(),
-                },
-            }
-        );
-        if (!getResp.status) {
-            return;
-        }
-        let data = utils.toJSON(getResp.data.responseText);
-        log.info(["获取楼中楼页信息", data]);
-        if (data["code"] === 0 || data["success"]) {
-            return data["data"] as LzlPageInfo;
-        } else {
-            Qmsg.error(data["msg"]);
-        }
-    },
-    /**
-     * 获取搜索推荐内容
-     * @param searchText 
-     */
-    async getSearchRecommend(searchText: string) {
-        let getResp = await httpx.get(`https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`, {
-            fetch: true
-        })
-        if (!getResp.status) {
-            return;
-        }
-        let data = utils.toJSON<{
-            code: number,
-            data: {
-                search_cpl_id: string,
-                sug_items: {
-                    highlight_flags: boolean[],
-                    search_type: "notes" | string,
-                    text: string,
-                    type: "top_note" | string,
-                }[],
-                word_request_id: string,
-            },
-            msg: string,
-            success: boolean,
-        }>(getResp.data.responseText);
-        if (!(data.success || data.code === 1000)) {
-            return;
-        }
-        return data.data.sug_items;
-    }
+	/**
+	 * 获取页信息
+	 */
+	async getPageInfo(
+		note_id: string | number,
+		cursor = "",
+		top_comment_id = "",
+		image_formats = "jpg,webp"
+	) {
+		const Api = `/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=${top_comment_id}&image_formats=${image_formats}`;
+		let getResp = await httpx.get(`https://edith.xiaohongshu.com${Api}`, {
+			headers: {
+				Accept: "application/json, text/plain, */*",
+				"User-Agent": utils.getRandomPCUA(),
+				Origin: "https://www.xiaohongshu.com",
+				Referer: "https://www.xiaohongshu.com/",
+			},
+		});
+		if (!getResp.status) {
+			return;
+		}
+		let data = utils.toJSON(getResp.data.responseText);
+		log.info(["获取页信息", data]);
+		if (data["code"] === 0 || data["success"]) {
+			return data["data"] as PageInfo;
+		} else if (data["code"] === -101) {
+			/* 未登录 */
+			return;
+		} else {
+			Qmsg.error(data["msg"]);
+		}
+	},
+	/**
+	 * 获取楼中楼页信息
+	 */
+	async getLzlPageInfo(
+		note_id = "",
+		root_comment_id = "",
+		num = 10,
+		cursor = "",
+		image_formats = "jpg,webp,avif",
+		top_comment_id = ""
+	) {
+		const Api = `/api/sns/web/v2/comment/sub/page?note_id=${note_id}&root_comment_id=${root_comment_id}&num=${num}&cursor=${cursor}&image_formats=${image_formats}&top_comment_id=${top_comment_id}`;
+		let getResp = await httpx.get(`https://edith.xiaohongshu.com${Api}`, {
+			headers: {
+				Accept: "application/json, text/plain, */*",
+				"User-Agent": utils.getRandomPCUA(),
+				Host: "edith.xiaohongshu.com",
+				Origin: "https://www.xiaohongshu.com",
+				Referer: "https://www.xiaohongshu.com/",
+			},
+		});
+		if (!getResp.status) {
+			return;
+		}
+		let data = utils.toJSON(getResp.data.responseText);
+		log.info(["获取楼中楼页信息", data]);
+		if (data["code"] === 0 || data["success"]) {
+			return data["data"] as LzlPageInfo;
+		} else {
+			Qmsg.error(data["msg"]);
+		}
+	},
+	/**
+	 * 获取搜索推荐内容
+	 * @param searchText
+	 */
+	async getSearchRecommend(searchText: string) {
+		let getResp = await httpx.get(
+			`https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`,
+			{
+				fetch: true,
+			}
+		);
+		if (!getResp.status) {
+			return;
+		}
+		let data = utils.toJSON<{
+			code: number;
+			data: {
+				search_cpl_id: string;
+				sug_items: {
+					highlight_flags: boolean[];
+					search_type: "notes" | string;
+					text: string;
+					type: "top_note" | string;
+				}[];
+				word_request_id: string;
+			};
+			msg: string;
+			success: boolean;
+		}>(getResp.data.responseText);
+		if (!(data.success || data.code === 1000)) {
+			return;
+		}
+		return data.data.sug_items;
+	},
 };
 
-export {
-    XHSApi
-}
+export { XHSApi };

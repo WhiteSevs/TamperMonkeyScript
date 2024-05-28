@@ -1,6 +1,7 @@
 import { XHSUrlApi } from "@/api/XHSUrlApi";
-import { DOMUtils, Qmsg, log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting"
+import Qmsg from "qmsg";
 
 const XHS_Article = {
     init() {

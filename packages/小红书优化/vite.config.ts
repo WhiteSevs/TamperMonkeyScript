@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { SCRIPT_NAME } from "./vite.build";
 import { ViteUtils, GetLib } from "./vite.utils";
 
+const SCRIPT_NAME = "小红书优化";
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
@@ -17,7 +17,6 @@ if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
 const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
-const RequireLib = await GetLib(["Viewer", "pops", "Utils", "DOMUtils"]);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -31,7 +30,7 @@ export default defineConfig({
 				version: VERSION,
 				author: "WhiteSevs",
 				"run-at": "document-start",
-				require: RequireLib,
+				require: await GetLib(["CoverUMD", "Viewer", "pops"]),
 				license: "GPL-3.0-only",
 
 				icon: "https://fe-video-qc.xhscdn.com/fe-platform/ed8fe781ce9e16c1bfac2cd962f0721edabe2e49.ico",
@@ -64,6 +63,8 @@ export default defineConfig({
 				},
 				externalGlobals: {
 					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

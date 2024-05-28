@@ -10,24 +10,19 @@ import {
 	GM_addStyle,
 	GM_getResourceText,
 } from "ViteGM";
-import { SCRIPT_NAME as _SCRIPT_NAME_ } from "@/../vite.build";
 import ElementPlus from "element-plus/es/index";
 import { createApp } from "vue";
 import Qmsg from "qmsg";
+import Utils from "@whitesev/utils";
+import DOMUtils from "@whitesev/domutils";
 
-const utils: typeof import("@库/Utils") = (
-	(monkeyWindow as any).Utils || (unsafeWindow as any).Utils
-)?.noConflict();
-const DOMUtils: typeof import("@库/DOMUtils") = (
-	(monkeyWindow as any).DOMUtils || (unsafeWindow as any).DOMUtils
-)?.noConflict();
+const _SCRIPT_NAME_ = "小红书优化";
+const utils = Utils.noConflict();
+const domutils = DOMUtils.noConflict();
 const pops: typeof import("@库/pops") =
 	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
 const Viewer: typeof import("viewerjs").default =
 	(monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer;
-
-const showdown: typeof import("@库/showdown") =
-	(monkeyWindow as any).showdown || (unsafeWindow as any).showdown;
 const log = new utils.Log(
 	GM_info,
 	(unsafeWindow as any).console || (monkeyWindow as any).console
@@ -136,14 +131,13 @@ const MountVue = async function (targetApp: any, router?: any) {
 
 export {
 	utils,
-	DOMUtils,
+	domutils as DOMUtils,
 	pops,
 	log,
 	GM_Menu,
 	SCRIPT_NAME,
 	OriginPrototype,
 	Viewer,
-	showdown,
 	httpx,
 	MountVue,
 	VUE_ELE_NAME_ID,
