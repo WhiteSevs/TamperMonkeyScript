@@ -1,4 +1,5 @@
 /*! showdown v 2.1.0 - 21-04-2022 */
+// @ts-nocheck
 (function (global, factory) {
   if (typeof exports === "object" && typeof module !== "undefined") {
     module.exports = factory();
