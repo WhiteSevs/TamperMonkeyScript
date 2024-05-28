@@ -1124,7 +1124,7 @@ export declare interface HttpxDetailsConfig extends HttpxDetails {
 /**
  * 响应的数据的data
  */
-export declare interface HttpxAsyncResultData<T extends HttpxDetails> {
+export declare interface HttpxAsyncResultData<T = HttpxDetails> {
 	/**
 	 * 如果fetch为true，且返回的headers中的Content-Type存在text/event-stream或者是主动设置的responseType为stream
 	 * 则存在该属性为true
@@ -1185,7 +1185,7 @@ export declare interface HttpxAsyncResultData<T extends HttpxDetails> {
 /**
  * 响应的数据
  */
-export declare interface HttpxAsyncResult<T extends HttpxDetails> {
+export declare interface HttpxAsyncResult<T = HttpxDetails> {
 	/**
 	 * 请求状态，状态码为200为成功true，否则false
 	 */

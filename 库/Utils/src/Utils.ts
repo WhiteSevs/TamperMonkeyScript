@@ -829,16 +829,40 @@ class Utils {
 	 * Utils.formatTime()
 	 * > '2023-1-1 00:00:00'
 	 **/
+	formatTime(text?: string | number | Date, formatType?: string): string;
+	/**
+	 * 获取格式化后的时间
+	 * @param text （可选）需要格式化的字符串或者时间戳，默认：new Date()
+	 * @param formatType （可选）格式化成的显示类型，默认：yyyy-MM-dd HH:mm:ss
+	 * + yyyy 年
+	 * + MM 月
+	 * + dd 天
+	 * + HH 时 (24小时制)
+	 * + hh 时 (12小时制)
+	 * + mm 分
+	 * + ss 秒
+	 * @returns {string}	返回格式化后的时间
+	 * @example
+	 * Utils.formatTime("2022-08-21 23:59:00","HH:mm:ss");
+	 * > '23:59:00'
+	 * @example
+	 * Utils.formatTime(1899187424988,"HH:mm:ss");
+	 * > '15:10:13'
+	 * @example
+	 * Utils.formatTime()
+	 * > '2023-1-1 00:00:00'
+	 **/
 	formatTime(
 		text?: string | number | Date,
 		formatType?:
 			| "yyyy-MM-dd HH:mm:ss"
 			| "yyyy/MM/dd HH:mm:ss"
-			| "yyyy年MM月dd日 HH时mm分ss秒"
-			| "yyyyMMdd"
 			| "yyyy_MM_dd_HH_mm_ss"
+			| "yyyy年MM月dd日 HH时mm分ss秒"
 			| "yyyy年MM月dd日 hh:mm:ss"
+			| "yyyy年MM月dd日 HH:mm:ss"
 			| "yyyy-MM-dd"
+			| "yyyyMMdd"
 			| "HH:mm:ss"
 	): string;
 	formatTime(text = new Date(), formatType = "yyyy-MM-dd HH:mm:ss") {
@@ -4407,18 +4431,14 @@ class Utils {
 	 * )
 	 */
 	waitVueByInterval(
-		element:
-			| HTMLElement
-			| (() => any),
+		element: HTMLElement | (() => any),
 		propertyName: string | ((__vue__: any) => boolean),
 		timer?: number,
 		maxTime?: number,
 		vueName?: "__vue__" | string
 	): Promise<boolean>;
 	async waitVueByInterval(
-		element:
-			| HTMLElement
-			| (() => any),
+		element: HTMLElement | (() => any),
 		propertyName: string | ((__vue__: any) => boolean),
 		timer = 250,
 		maxTime = -1,
