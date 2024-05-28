@@ -129,7 +129,7 @@ const PopsPanel = {
         locaData[key] = value;
         GM_setValue(KEY, locaData);
         if (this.$listener.listenData.has(key)) {
-            this.$listener.listenData.get(key).callback(key, oldValue, value);
+            this.$listener.listenData.get(key)!.callback(key, oldValue, value);
         }
     },
     /**
@@ -161,7 +161,7 @@ const PopsPanel = {
         Reflect.deleteProperty(locaData, key);
         GM_setValue(KEY, locaData);
         if (this.$listener.listenData.has(key)) {
-            this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+            this.$listener.listenData.get(key)!.callback(key, oldValue, void 0);
         }
     },
     /**

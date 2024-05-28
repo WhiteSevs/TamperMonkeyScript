@@ -20,7 +20,7 @@ import DOMUtils from "@whitesev/domutils";
 const _SCRIPT_NAME_ = "Demo Script Name";
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
-const pops: typeof import("@库/pops") =
+const pops: typeof import("@pops/index") =
 	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
 // const Viewer: typeof import("@库/Viewer") = ((monkeyWindow as any).Viewer || (unsafeWindow as any).Viewer)
 // const showdown: typeof import("@库/showdown") = ((monkeyWindow as any).showdown || (unsafeWindow as any).showdown);

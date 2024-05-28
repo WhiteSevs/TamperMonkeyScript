@@ -14,21 +14,15 @@
 		"noEmit": true,
 		/* 上面是初始化默认的 */
 		"allowJs": true,
-		"allowSyntheticDefaultImports": true,
 		"checkJs": true,
+		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"paths": {
-			"@库/*": ["./../../库/*"],
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@pops/*": ["./../../库/pops/*"]
 		},
-		"types": [
-			"./src/env.d.ts",
-			"./../../库/pops/core.d.ts",
-			"./../../库/Utils/core.d.ts",
-			"./../../库/DOMUtils/core.d.ts"
-		]
+		"types": ["./src/env.d.ts", "./../../库/pops/core.d.ts"]
 	},
-	"exclude": ["@库/Qmsg/*"],
 	"include": ["src"],
 	"references": [
 		{
