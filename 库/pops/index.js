@@ -2617,8 +2617,8 @@
 		/**
 		 * 绑定事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要绑定的元素|元素数组|window
-		 * @param {import("../DOMUtils/dist/src/Event").DOMUtils_EventType|import("../DOMUtils/dist/src/Event").DOMUtils_EventType[]} eventType 需要监听的事件
-		 * @param {string|undefined} selector 子元素选择器
+		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]} eventType 需要监听的事件
+		 * @param {string|undefined|null} selector 子元素选择器
 		 * @param {((event: Event)=>void)|undefined} callback 绑定事件触发的回调函数
 		 * @param {boolean|AddEventListenerOptions|undefined} option
 		 * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
@@ -2785,13 +2785,12 @@
 		/**
 		 * 取消绑定事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要取消绑定的元素|元素数组
-		 * @param {import("../DOMUtils/dist/src/Event").DOMUtils_EventType|import("../DOMUtils/dist/src/Event").DOMUtils_EventType[]} eventType 需要取消监听的事件
-		 * @param {string|undefined} selector 子元素选择器
+		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]|string} eventType 需要取消监听的事件
+		 * @param {string|undefined|null} selector 子元素选择器
 		 * @param {((event: Event)=>void)|undefined} callback 通过DOMUtils.on绑定的事件函数
 		 * @param {EventListenerOptions|boolean|undefined} option
 		 * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
 		 */
-		// @ts-ignore
 		// @ts-ignore
 		off(element, eventType, selector, callback, option) {
 			/**
@@ -2874,7 +2873,7 @@
 				let elementEvents = elementItem[PopsUtils.SymbolEvents] || {};
 				eventTypeList.forEach((eventName) => {
 					/**
-					 * @type {import("../DOMUtils/dist/src/Event").DOMUtilsEventListenerOptionsAttribute[]}
+					 * @type {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtilsEventListenerOptionsAttribute[]}
 					 */
 					let handlers = elementEvents[eventName] || [];
 					// @ts-ignore
@@ -2922,7 +2921,7 @@
 		/**
 		 * 主动触发事件
 		 * @param {HTMLElement|string|NodeList|HTMLElement[]|Window} element 需要触发的元素|元素数组|window
-		 * @param {import("../DOMUtils/dist/src/Event").DOMUtils_EventType|import("../DOMUtils/dist/src/Event").DOMUtils_EventType[]} eventType 需要触发的事件
+		 * @param {import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType|import("./../DOMUtils/dist/src/DOMUtilsEvent").DOMUtils_EventType[]} eventType 需要触发的事件
 		 * @param {object|undefined} details 赋予触发的Event的额外属性
 		 * @param {boolean} [useDispatchToTriggerEvent=true] 是否使用dispatchEvent来触发事件,默认true
 		 */
