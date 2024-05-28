@@ -5862,7 +5862,7 @@
 		/**
 		 * 获取底部按钮层HTML
 		 * @param {"alert"|"confirm"|"prompt"|"drawer"|"folder"} type
-		 * @param {PopsConfirmDetails|PopsAlertDetails|PopsPromptDetails|PopsDrawerDetails} config
+		 * @param {Required<PopsConfirmDetails>|Required<PopsAlertDetails>|Required<PopsPromptDetails>|Required<PopsDrawerDetails>} config
 		 * @returns {string}
 		 */
 		getBottomBtnHTML(type, config) {
@@ -5909,8 +5909,10 @@
 						config.btn.ok.iconIsLoading
 					}">
             ${
+							// @ts-ignore
 							config.btn.ok.icon in pops.config.iconSVG
-								? pops.config.iconSVG[config.btn.ok.icon]
+								? // @ts-ignore
+								  pops.config.iconSVG[config.btn.ok.icon]
 								: config.btn.ok.icon
 						}
           </i>`;
@@ -6124,7 +6126,7 @@
 			pops.config.cssText.alertCSS,
 		]);
 		/**
-		 * @type {PopsAlertDetails}
+		 * @type {Required<PopsAlertDetails>}
 		 */
 		let config = {
 			title: {
@@ -6183,6 +6185,7 @@
 			dragMoveCallBack() {},
 			dragEndCallBack() {},
 			forbiddenScroll: false,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -6355,7 +6358,7 @@
 			pops.config.cssText.confirmCSS,
 		]);
 		/**
-		 * @type {PopsConfirmDetails}
+		 * @type {Required<PopsConfirmDetails>}
 		 */
 		let config = {
 			title: {
@@ -6445,6 +6448,7 @@
 			dragMoveCallBack() {},
 			dragEndCallBack() {},
 			forbiddenScroll: false,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -6628,7 +6632,7 @@
 			pops.config.cssText.promptCSS,
 		]);
 		/**
-		 * @type {PopsPromptDetails}
+		 * @type {Required<PopsPromptDetails>}
 		 */
 		let config = {
 			title: {
@@ -6725,6 +6729,7 @@
 			dragMoveCallBack() {},
 			dragEndCallBack() {},
 			forbiddenScroll: false,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -6920,7 +6925,7 @@
 		// @ts-ignore
 		PopsHandler.handleInit();
 		/**
-		 * @type {PopsLoadingDetails}
+		 * @type {Required<PopsLoadingDetails>}
 		 */
 		let config = {
 			parent: document.body,
@@ -6943,6 +6948,7 @@
 			},
 			animation: "pops-anim-fadein-zoom",
 			forbiddenScroll: false,
+			// @ts-ignore
 			style: void 0,
 			addIndexCSS: true,
 		};
@@ -7058,7 +7064,7 @@
 			pops.config.cssText.iframeCSS,
 		]);
 		/**
-		 * @type {PopsIframeDetails}
+		 * @type {Required<PopsIframeDetails>}
 		 */
 		let config = {
 			title: {
@@ -7114,6 +7120,7 @@
 					callback() {},
 				},
 			},
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -7501,7 +7508,7 @@
 			pops.config.cssText.tooltipCSS,
 		]);
 		/**
-		 * @type {PopsToolTipDetails}
+		 * @type {Required<PopsToolTipDetails>}
 		 */
 		let config = {
 			// @ts-ignore
@@ -7526,6 +7533,7 @@
 			closeAfterCallBack() {},
 			arrowDistance: 12.5,
 			otherDistance: 0,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -7884,7 +7892,7 @@
 			pops.config.cssText.drawerCSS,
 		]);
 		/**
-		 * @type {PopsDrawerDetails}
+		 * @type {Required<PopsDrawerDetails>}
 		 */
 		let config = {
 			title: {
@@ -7970,6 +7978,7 @@
 			openDelay: 0,
 			closeDelay: 0,
 			borderRadius: 0,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -8231,7 +8240,7 @@
 			pops.config.cssText.folderCSS,
 		]);
 		/**
-		 * @type {PopsFolderDetails}
+		 * @type {Required<PopsFolderDetails>}
 		 */
 		let config = {
 			title: {
@@ -8365,6 +8374,7 @@
 			dragMoveCallBack() {},
 			dragEndCallBack() {},
 			forbiddenScroll: false,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -9397,7 +9407,7 @@
 			pops.config.cssText.panelCSS,
 		]);
 		/**
-		 * @type {PopsPanelDetails}
+		 * @type {Required<PopsPanelDetails>}
 		 */
 		let config = {
 			title: {
@@ -9626,6 +9636,7 @@
 			dragMoveCallBack() {},
 			dragEndCallBack() {},
 			forbiddenScroll: false,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -11724,7 +11735,7 @@
 			pops.config.cssText.common,
 		]);
 		/**
-		 * @type {PopsRightClickMenuDetails}
+		 * @type {Required<PopsRightClickMenuDetails>}
 		 */
 		let config = {
 			target: document.documentElement,
@@ -11853,6 +11864,7 @@
 			only: false,
 			zIndex: 10000,
 			preventDefault: true,
+			// @ts-ignore
 			style: void 0,
 			beforeAppendToPageCallBack() {},
 		};
@@ -12502,7 +12514,7 @@
 			pops.config.cssText.anim,
 			pops.config.cssText.common,
 		]);
-		/** @type {PopsSearchSuggestionDetails} */
+		/** @type {Required<PopsSearchSuggestionDetails>} */
 		let config = {
 			// @ts-ignore
 			target: null,
@@ -12548,6 +12560,7 @@
 				// @ts-ignore
 				this.inputTarget.value = data.value;
 			},
+			// @ts-ignore
 			style: void 0,
 		};
 		config = PopsUtils.assignJSON(config, details);
