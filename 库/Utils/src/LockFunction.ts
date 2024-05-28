@@ -5,6 +5,10 @@ class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 	#delayTime: number = 0;
 	#callback: K;
 	#context: typeof Utils;
+	lock: () => void;
+	unlock: () => void;
+	run: (...args: any[]) => Promise<void>;
+	isLock: () => boolean;
 	/**
 	 * @param callback 需要执行的函数
 	 * @param delayTime （可选）延迟xx毫秒后解锁，默认：0
@@ -17,6 +21,7 @@ class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 	 */
 	constructor(callback: K, context?: any, delayTime?: number);
 	constructor(callback: K, context?: any, delayTime?: number) {
+		let that = this;
 		this.#callback = callback;
 		if (typeof context === "number") {
 			this.#delayTime = context;
@@ -25,37 +30,37 @@ class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 			this.#delayTime = delayTime as number;
 			this.#context = context;
 		}
-	}
-	/**
-	 * 判断是否被锁
-	 */
-	isLock() {
-		return this.#flag;
-	}
-	/**
-	 * 锁
-	 */
-	lock() {
-		this.#flag = true;
-	}
-	/**
-	 * 解锁
-	 */
-	unlock() {
-		setTimeout(() => {
-			this.#flag = false;
-		}, this.#delayTime);
-	}
-	/**
-	 * 执行
-	 */
-	async run(...args: any[]) {
-		if (this.isLock()) {
-			return;
-		}
-		this.lock();
-		await this.#callback.apply(this.#context, args);
-		this.unlock();
+		/**
+		 * 锁
+		 */
+		this.lock = function () {
+			that.#flag = true;
+		};
+		/**
+		 * 解锁
+		 */
+		this.unlock = function () {
+			setTimeout(() => {
+				that.#flag = false;
+			}, that.#delayTime);
+		};
+		/**
+		 * 判断是否被锁
+		 */
+		this.isLock = function () {
+			return that.#flag;
+		};
+		/**
+		 * 执行
+		 */
+		this.run = async function (...args: any[]) {
+			if (that.isLock()) {
+				return;
+			}
+			that.lock();
+			await that.#callback.apply(that.#context, args);
+			that.unlock();
+		};
 	}
 }
 

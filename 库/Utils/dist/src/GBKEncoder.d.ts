@@ -10,7 +10,7 @@ declare class GBKEncoder {
     encode(str: string): string;
     /**
      * 解码
-     * @param {string} str
+     * @param str
      */
     decode(str: string): string;
 }

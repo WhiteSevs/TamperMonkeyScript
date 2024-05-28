@@ -2502,60 +2502,52 @@ class Utils {
 		let default_obverser_config = {
 			/* 监听到元素有反馈，需执行的函数 */
 			callback: () => {},
-			config: {
+			config: <MutationObserverInit>{
 				/**
-				 * @type {boolean|undefined}
 				 * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
 				 * + false (默认) 不生效
 				 */
-				subtree: void 0,
+				subtree: void 0 as any as boolean,
 				/**
-				 * @type {boolean|undefined}
 				 * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
 				 * + false (默认) 不生效
 				 */
-				childList: void 0,
+				childList: void 0 as any as boolean,
 				/**
-				 * @type {boolean|undefined}
 				 * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
 				 * + false (默认) 不生效
 				 */
-				attributes: void 0,
+				attributes: void 0 as any as boolean,
 				/**
 				 * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
-				 * @type {[...string]|undefined}
 				 */
-				attributeFilter: void 0,
+				attributeFilter: void 0 as any as string[],
 				/**
-				 * @type {boolean|undefined}
 				 * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
 				 * + false (默认) 不生效
 				 */
-				attributeOldValue: void 0,
+				attributeOldValue: void 0 as any as boolean,
 				/**
-				 * @type {boolean|undefined}
 				 * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
 				 * + false (默认) 不生效
 				 */
-				characterData: void 0,
+				characterData: void 0 as any as boolean,
 				/**
-				 * @type {boolean|undefined}
 				 * + true 记录前一个被监听的节点中发生的文本变化
 				 * + false (默认) 不生效
 				 */
-				characterDataOldValue: void 0,
+				characterDataOldValue: void 0 as any as boolean,
 			},
 		};
 		observer_config = UtilsContext.assign(
 			default_obverser_config,
 			observer_config
 		);
-		let MutationObserver =
-			(UtilsCore.window as any).MutationObserver ||
+		let windowMutationObserver =
+			window.MutationObserver ||
 			(UtilsCore.window as any).webkitMutationObserver ||
 			(UtilsCore.window as any).MozMutationObserver;
-		/** @type {MutationObserver} */
-		let mutationObserver = new MutationObserver(function (
+		let mutationObserver = new windowMutationObserver(function (
 			mutations: MutationRecord[],
 			observer: MutationObserver
 		) {

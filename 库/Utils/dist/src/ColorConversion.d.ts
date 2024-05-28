@@ -1,5 +1,4 @@
 declare class ColorConversion {
-    constructor();
     /**
      * 判断是否是16进制颜色
      * @param str

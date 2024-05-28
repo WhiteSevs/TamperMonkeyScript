@@ -5,7 +5,6 @@
 })(this, (function () { 'use strict';
 
     class ColorConversion {
-        constructor() { }
         /**
          * 判断是否是16进制颜色
          * @param str
@@ -201,25 +200,23 @@
         }
         /**
          * 解码
-         * @param {string} str
+         * @param str
          */
         decode(str) {
             var GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
             var UTFMatcher = /%[0-9A-F]{2}/;
-            var gbk = true, utf = true;
+            var utf = true;
+            let that = this;
             while (utf) {
-                // @ts-ignore
-                gbk = str.match(GBKMatcher);
-                // @ts-ignore
-                utf = str.match(UTFMatcher);
-                // @ts-ignore
-                if (gbk && gbk in G2Uhash) {
-                    // @ts-ignore
-                    str = str.replace(gbk, String.fromCharCode("0x" + G2Uhash[gbk]));
+                let gbkMatch = str.match(GBKMatcher);
+                let utfMatch = str.match(UTFMatcher);
+                utf = Boolean(utfMatch);
+                if (gbkMatch && gbkMatch in that.#G2Uhash) {
+                    str = str.replace(gbkMatch, String.fromCharCode(("0x" + that.#G2Uhash[gbkMatch])));
                 }
                 else {
                     // @ts-ignore
-                    str = str.replace(utf, decodeURIComponent(utf));
+                    str = str.replace(utfMatch, decodeURIComponent(utfMatch));
                 }
             }
             return str;
@@ -2477,7 +2474,12 @@
         #delayTime = 0;
         #callback;
         #context;
+        lock;
+        unlock;
+        run;
+        isLock;
         constructor(callback, context, delayTime) {
+            let that = this;
             this.#callback = callback;
             if (typeof context === "number") {
                 this.#delayTime = context;
@@ -2487,37 +2489,37 @@
                 this.#delayTime = delayTime;
                 this.#context = context;
             }
-        }
-        /**
-         * 判断是否被锁
-         */
-        isLock() {
-            return this.#flag;
-        }
-        /**
-         * 锁
-         */
-        lock() {
-            this.#flag = true;
-        }
-        /**
-         * 解锁
-         */
-        unlock() {
-            setTimeout(() => {
-                this.#flag = false;
-            }, this.#delayTime);
-        }
-        /**
-         * 执行
-         */
-        async run(...args) {
-            if (this.isLock()) {
-                return;
-            }
-            this.lock();
-            await this.#callback.apply(this.#context, args);
-            this.unlock();
+            /**
+             * 锁
+             */
+            this.lock = function () {
+                that.#flag = true;
+            };
+            /**
+             * 解锁
+             */
+            this.unlock = function () {
+                setTimeout(() => {
+                    that.#flag = false;
+                }, that.#delayTime);
+            };
+            /**
+             * 判断是否被锁
+             */
+            this.isLock = function () {
+                return that.#flag;
+            };
+            /**
+             * 执行
+             */
+            this.run = async function (...args) {
+                if (that.isLock()) {
+                    return;
+                }
+                that.lock();
+                await that.#callback.apply(that.#context, args);
+                that.unlock();
+            };
         }
     }
 
@@ -4650,42 +4652,35 @@
                 callback: () => { },
                 config: {
                     /**
-                     * @type {boolean|undefined}
                      * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
                      * + false (默认) 不生效
                      */
                     subtree: void 0,
                     /**
-                     * @type {boolean|undefined}
                      * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
                      * + false (默认) 不生效
                      */
                     childList: void 0,
                     /**
-                     * @type {boolean|undefined}
                      * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
                      * + false (默认) 不生效
                      */
                     attributes: void 0,
                     /**
                      * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
-                     * @type {[...string]|undefined}
                      */
                     attributeFilter: void 0,
                     /**
-                     * @type {boolean|undefined}
                      * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
                      * + false (默认) 不生效
                      */
                     attributeOldValue: void 0,
                     /**
-                     * @type {boolean|undefined}
                      * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
                      * + false (默认) 不生效
                      */
                     characterData: void 0,
                     /**
-                     * @type {boolean|undefined}
                      * + true 记录前一个被监听的节点中发生的文本变化
                      * + false (默认) 不生效
                      */
@@ -4693,11 +4688,10 @@
                 },
             };
             observer_config = UtilsContext.assign(default_obverser_config, observer_config);
-            let MutationObserver = UtilsCore.window.MutationObserver ||
+            let windowMutationObserver = window.MutationObserver ||
                 UtilsCore.window.webkitMutationObserver ||
                 UtilsCore.window.MozMutationObserver;
-            /** @type {MutationObserver} */
-            let mutationObserver = new MutationObserver(function (mutations, observer) {
+            let mutationObserver = new windowMutationObserver(function (mutations, observer) {
                 observer_config?.callback(mutations, observer);
             });
             if (target instanceof Node) {
