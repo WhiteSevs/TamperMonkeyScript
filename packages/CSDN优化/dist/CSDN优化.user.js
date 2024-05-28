@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.28.8
+// @version      2024.5.28.14
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1383311/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.3/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.6/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.7/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_cookie
@@ -1433,12 +1433,24 @@
         }
         (_a2 = $mouse.querySelector(".hljs-button")) == null ? void 0 : _a2.setAttribute("data-title", "复制");
       });
-      document.addEventListener("mouseenter", changeDataTitle.run, {
-        capture: true
-      });
-      document.addEventListener("mouseleave", changeDataTitle.run, {
-        capture: true
-      });
+      document.addEventListener(
+        "mouseenter",
+        function(event) {
+          changeDataTitle.run(event);
+        },
+        {
+          capture: true
+        }
+      );
+      document.addEventListener(
+        "mouseleave",
+        function(event) {
+          changeDataTitle.run(event);
+        },
+        {
+          capture: true
+        }
+      );
       utils.waitNode("#content_views").then((element) => {
         var _a2;
         (_a2 = _unsafeWindow.$("#content_views")) == null ? void 0 : _a2.unbind("copy");

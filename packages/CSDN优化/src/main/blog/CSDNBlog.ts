@@ -124,12 +124,24 @@ const CSDNBlog = {
 			}
 			$mouse.querySelector(".hljs-button")?.setAttribute("data-title", "复制");
 		});
-		document.addEventListener("mouseenter", changeDataTitle.run, {
-			capture: true,
-		});
-		document.addEventListener("mouseleave", changeDataTitle.run, {
-			capture: true,
-		});
+		document.addEventListener(
+			"mouseenter",
+			function (event: MouseEvent) {
+				changeDataTitle.run(event);
+			},
+			{
+				capture: true,
+			}
+		);
+		document.addEventListener(
+			"mouseleave",
+			function (event: MouseEvent) {
+				changeDataTitle.run(event);
+			},
+			{
+				capture: true,
+			}
+		);
 		/* 取消Ctrl+C的禁止 */
 		utils.waitNode("#content_views").then((element) => {
 			(unsafeWindow as any).$("#content_views")?.unbind("copy");

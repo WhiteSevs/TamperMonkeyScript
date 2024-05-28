@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@whitesev/domutils": "^1.0.7",
-    "@whitesev/utils": "^1.1.3",
+    "@whitesev/utils": "^1.1.6",
     "qmsg": "^1.1.0"
   },
   "devDependencies": {
