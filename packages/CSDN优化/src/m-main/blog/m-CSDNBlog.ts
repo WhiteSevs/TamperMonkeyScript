@@ -154,12 +154,14 @@ const M_CSDNBlog = {
 				}
 			});
 		}
-		let lockFunction = new utils.LockFunction(refactoring, this, 50);
-		utils.waitNode("#recommend").then((element) => {
+		let lockFunction = new utils.LockFunction(refactoring, 50);
+		utils.waitNode("#recommend").then(($recommend) => {
 			log.success("重构底部推荐");
 			lockFunction.run();
-			utils.mutationObserver(element, {
-				callback: lockFunction.run,
+			utils.mutationObserver($recommend, {
+				callback: () => {
+					lockFunction.run;
+				},
 				config: { childList: true, subtree: true, attributes: true },
 			});
 		});

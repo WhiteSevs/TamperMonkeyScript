@@ -124,7 +124,6 @@ const CSDNBlog = {
 			}
 			$mouse.querySelector(".hljs-button")?.setAttribute("data-title", "复制");
 		});
-
 		document.addEventListener("mouseenter", changeDataTitle.run, {
 			capture: true,
 		});
