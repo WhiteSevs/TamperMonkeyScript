@@ -3,6 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtil } from "@/util/CommonUtil";
 import Qmsg from "qmsg";
+import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 
 interface BaNeiPostInfo {
 	abstract: [

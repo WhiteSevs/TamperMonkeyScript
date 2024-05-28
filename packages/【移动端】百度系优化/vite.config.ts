@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monkey, { cdn, util } from "vite-plugin-monkey";
-import { SCRIPT_NAME } from "./vite.build";
 import Icons from "unplugin-icons/dist/vite";
 import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
@@ -9,6 +8,7 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { ViteUtils, GetLib } from "./vite.utils";
 
+const SCRIPT_NAME = "【移动端】百度系优化";
 const Utils = new ViteUtils(__dirname);
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 /* 是否压缩代码 */
@@ -27,14 +27,6 @@ const VERSION =
 		? "2024.5.1"
 		: Utils.getScriptVersion(!isEmptyOutDir);
 
-const RequireLib = await GetLib([
-	"CoverUMD",
-	"Viewer",
-	"pops",
-	"Utils",
-	"DOMUtils",
-	"showdown",
-]);
 let ElementPlusUrl = await GetLib("Element-Plus");
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -103,10 +95,12 @@ export default defineConfig({
 					"GM_info",
 					"unsafeWindow",
 				],
-				require: RequireLib,
+				require: await GetLib(["CoverUMD", "pops", "showdown"]),
 				resource: {
 					ElementPlusResourceCSS:
 						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+					ViewerCSS:
+						"https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
 				},
 			},
 			clientAlias: "ViteGM",
@@ -118,6 +112,10 @@ export default defineConfig({
 				autoGrant: true,
 				externalResource: {
 					"element-plus/dist/index.css": cdn.jsdelivr(),
+					"viewerjs/dist/viewer.css": cdn.jsdelivr(
+						"Viewer",
+						"dist/viewer.min.css"
+					),
 				},
 				fileName: FILE_NAME,
 				externalGlobals: {
@@ -134,6 +132,9 @@ export default defineConfig({
 						"dist/index.iife.min.js"
 					),
 					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					viewerjs: cdn.jsdelivr("Viewer", "dist/viewer.min.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
