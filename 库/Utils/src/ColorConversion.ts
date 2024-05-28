@@ -3,7 +3,7 @@ class ColorConversion {
 	 * 判断是否是16进制颜色
 	 * @param str
 	 */
-	isHex(str: string) {
+	isHex(str: string): boolean {
 		if (typeof str !== "string") {
 			return false;
 		}
@@ -19,9 +19,10 @@ class ColorConversion {
 	 * @param hex
 	 * @param opacity
 	 */
-	hexToRgba(hex: string, opacity: number) {
+	hexToRgba(hex: string, opacity: number): string {
 		if (!this.isHex(hex)) {
-			throw new TypeError("输入错误的hex" + hex);
+			// @ts-ignore
+			throw new TypeError("输入错误的hex", hex);
 		}
 		return hex && hex.replace(/\s+/g, "").length === 7
 			? "rgba(" +
@@ -42,17 +43,18 @@ class ColorConversion {
 	 */
 	hexToRgb(str: string) {
 		if (!this.isHex(str)) {
-			throw new TypeError("输入错误的hex" + str);
+			// @ts-ignore
+			throw new TypeError("输入错误的hex", str);
 		}
 		/* replace替换查找的到的字符串 */
 		str = str.replace("#", "");
 		/* match得到查询数组 */
 		let hxs = str.match(/../g);
-		if (hxs == null) {
-			throw new TypeError("输入错误的hex" + str);
+		for (let index = 0; index < 3; index++) {
+			// @ts-ignore
+			hxs[index] = parseInt(hxs[index], 16);
 		}
-		for (let index = 0; index < 3; index++)
-			hxs[index] = parseInt(hxs[index], 16).toString();
+
 		return hxs;
 	}
 	/**
@@ -66,7 +68,7 @@ class ColorConversion {
 		redValue: string | number,
 		greenValue: string | number,
 		blueValue: string | number
-	) {
+	): string {
 		/* 验证输入的rgb值是否合法 */
 		let validPattern = /^\d{1,3}$/;
 		if (
@@ -90,14 +92,18 @@ class ColorConversion {
 	 * @param level 0~1.0
 	 * @returns
 	 */
-	getDarkColor(color: string, level: number) {
+	getDarkColor(color: string, level: string): string {
 		if (!this.isHex(color)) {
-			throw new TypeError("输入错误的hex" + color);
+			// @ts-ignore
+			throw new TypeError("输入错误的hex", color);
 		}
 		let rgbc = this.hexToRgb(color);
-		for (let index = 0; index < 3; index++)
+		for (let index = 0; index < 3; index++) {
 			// @ts-ignore
-			rgbc[index] = Math.floor(rgbc[index] * (1 - level)).toString();
+			rgbc[index] = Math.floor(rgbc[index] * (1 - level));
+		}
+
+		// @ts-ignore
 		return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
 	}
 	/**
@@ -106,16 +112,17 @@ class ColorConversion {
 	 * @param level 0~1.0
 	 * @returns
 	 */
-	getLightColor(color: string, level: number) {
+	getLightColor(color: string, level: number): string {
 		if (!this.isHex(color)) {
-			throw new TypeError("输入错误的hex" + color);
+			// @ts-ignore
+			throw new TypeError("输入错误的hex", color);
 		}
 		let rgbc = this.hexToRgb(color);
-		for (let index = 0; index < 3; index++)
-			rgbc[index] = Math.floor(
-				// @ts-ignore
-				(255 - rgbc[index]) * level + rgbc[index]
-			).toString();
+		for (let index = 0; index < 3; index++) {
+			// @ts-ignore
+			rgbc[index] = Math.floor((255 - rgbc[index]) * level + rgbc[index]);
+		}
+		// @ts-ignore
 		return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
 	}
 }

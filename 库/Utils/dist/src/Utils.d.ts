@@ -148,7 +148,7 @@ declare class Utils {
      * 颜色转换
      * @returns
      */
-    ColorConversion(): ColorConversion;
+    ColorConversion: typeof ColorConversion;
     /**
      * 深拷贝
      * @param obj 对象

@@ -402,9 +402,7 @@ class Utils {
 	 * 颜色转换
 	 * @returns
 	 */
-	ColorConversion() {
-		return new ColorConversion();
-	}
+	ColorConversion = ColorConversion;
 	/**
 	 * 深拷贝
 	 * @param obj 对象

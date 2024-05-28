@@ -17,7 +17,7 @@ declare class ColorConversion {
      * @param str
      * @returns
      */
-    hexToRgb(str: string): RegExpMatchArray;
+    hexToRgb(str: string): RegExpMatchArray | null;
     /**
      * rgb转hex
      * @param redValue
@@ -32,7 +32,7 @@ declare class ColorConversion {
      * @param level 0~1.0
      * @returns
      */
-    getDarkColor(color: string, level: number): string;
+    getDarkColor(color: string, level: string): string;
     /**
      * 获取颜色变亮
      * @param color 颜色
