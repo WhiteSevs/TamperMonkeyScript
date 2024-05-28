@@ -56,6 +56,7 @@ export default defineConfig({
 					"GM_xmlhttpRequest",
 					"GM_info",
 					"unsafeWindow",
+					"GM_getResourceText",
 				],
 			},
 			clientAlias: "ViteGM",
