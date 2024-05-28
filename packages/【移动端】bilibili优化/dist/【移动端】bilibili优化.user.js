@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.28
+// @version      2024.5.28.16
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://live.bilibili.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384463/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.5/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.6/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.7/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.9/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.8/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
