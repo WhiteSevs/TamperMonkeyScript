@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.23
+// @version      2024.5.28
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://m.bilibili.com/*
 // @match        *://live.bilibili.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/465772/1360574/DOMUtils.js
-// @require      https://update.greasyfork.org/scripts/455186/1377415/WhiteSevsUtils.js
-// @require      https://update.greasyfork.org/scripts/456485/1371568/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1384463/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.0.5/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.6/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.7/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -32,10 +32,10 @@
 
 (n=>{function a(p){if(typeof p!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=p,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(n);return}a(n)})(" .m-video2-awaken-btn,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .openapp-dialog,#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important} ");
 
-(function (Qmsg) {
+(function (Qmsg, Utils, DOMUtils) {
   'use strict';
 
-  var _a, _b, _c;
+  var _a;
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -45,17 +45,15 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const SCRIPT_NAME$1 = "【移动端】bilibili优化";
-  const utils = (_a = _monkeyWindow.Utils || _unsafeWindow.Utils) == null ? void 0 : _a.noConflict();
-  const DOMUtils = (_b = _monkeyWindow.DOMUtils || _unsafeWindow.DOMUtils) == null ? void 0 : _b.noConflict();
+  const _SCRIPT_NAME_ = "【移动端】bilibili优化";
+  const utils = Utils.noConflict();
+  const domutils = DOMUtils.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
-  _monkeyWindow.Viewer || _unsafeWindow.Viewer;
-  _monkeyWindow.showdown || _unsafeWindow.showdown;
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_c = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _c.name) || SCRIPT_NAME$1;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -717,7 +715,7 @@
     },
     /**
      * 直接跳转Url
-     * @param event 
+     * @param event
      */
     jumpToUrl(event) {
       let $click = event.target;
@@ -770,14 +768,14 @@
     },
     /**
      * 设置已购买番剧(会员？)
-     * 
+     *
      * + __vue__.$store.state.userStat.pay `1`
      */
     setPay() {
       utils.waitNode("#app").then(($app) => {
         let check = function(__vue__) {
-          var _a2, _b2, _c2;
-          return __vue__ != null && typeof ((_c2 = (_b2 = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.userStat) == null ? void 0 : _c2.pay) === "number";
+          var _a2, _b, _c;
+          return __vue__ != null && typeof ((_c = (_b = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
         };
         utils.waitVueByInterval($app, check, 250, 1e4).then(() => {
           if (check($app.__vue__)) {
@@ -793,7 +791,7 @@
     setChooseEpClickEvent() {
       utils.waitNode(".ep-list-pre-wrapper ul.ep-list-pre-container").then(() => {
         log.info("覆盖【选集】的点击事件");
-        DOMUtils.on(
+        domutils.on(
           ".ep-list-pre-wrapper ul.ep-list-pre-container",
           "click",
           "li.episode-item",
@@ -808,7 +806,7 @@
       });
       utils.waitNode(".ep-list-pre-wrapper ul.season-list-wrapper").then(() => {
         log.info("覆盖【xx季】的点击事件");
-        DOMUtils.on(
+        domutils.on(
           ".ep-list-pre-wrapper ul.season-list-wrapper",
           "click",
           "li",
@@ -823,11 +821,16 @@
       });
       utils.waitNode(".ep-list-pre-header").then(() => {
         log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
-        DOMUtils.on(".ep-list-pre-header", "click", function(event) {
-          utils.preventEvent(event);
-        }, {
-          capture: true
-        });
+        domutils.on(
+          ".ep-list-pre-header",
+          "click",
+          function(event) {
+            utils.preventEvent(event);
+          },
+          {
+            capture: true
+          }
+        );
       });
     },
     /**
@@ -836,7 +839,7 @@
     setClickOtherVideo() {
       utils.waitNode(".section-preview-wrapper ul.ep-list-pre-container").then(() => {
         log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
-        DOMUtils.on(
+        domutils.on(
           ".section-preview-wrapper .ep-list-pre-container",
           "click",
           "li.section-preview-item",
@@ -851,11 +854,16 @@
       });
       utils.waitNode(".section-preview-header").then(() => {
         log.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
-        DOMUtils.on(".section-preview-header", "click", function(event) {
-          utils.preventEvent(event);
-        }, {
-          capture: true
-        });
+        domutils.on(
+          ".section-preview-header",
+          "click",
+          function(event) {
+            utils.preventEvent(event);
+          },
+          {
+            capture: true
+          }
+        );
       });
     },
     /**
@@ -864,7 +872,7 @@
     setRecommendClickEvent() {
       utils.waitNode(".recom-wrapper ul.recom-list").then(() => {
         log.info("覆盖【更多推荐】番剧的点击事件");
-        DOMUtils.on(
+        domutils.on(
           ".recom-wrapper ul.recom-list",
           "click",
           "li.recom-item-v2",
@@ -891,7 +899,7 @@
     repairEnterUserHome() {
       utils.waitNode(".result-panel").then(($cardBox) => {
         log.info("修复点击UP主正确进入空间");
-        DOMUtils.on($cardBox, "click", "a.m-search-user-item[href]", function(event) {
+        domutils.on($cardBox, "click", "a.m-search-user-item[href]", function(event) {
           utils.preventEvent(event);
           let $click = event.target;
           let url = $click.href;
@@ -924,12 +932,12 @@
     preventOpenAppBtn() {
       utils.waitNode("body").then(($body) => {
         log.info("阻止.open-app-btn元素触发点击事件");
-        DOMUtils.on($body, "click", ".open-app-btn", function(event) {
+        domutils.on($body, "click", ".open-app-btn", function(event) {
           utils.preventEvent(event);
         }, {
           capture: true
         });
-        DOMUtils.on($body, "click", "#web-player-controller-wrap-el", function(event) {
+        domutils.on($body, "click", "#web-player-controller-wrap-el", function(event) {
           utils.preventEvent(event);
         }, {
           capture: true
@@ -1006,8 +1014,8 @@
     setLogin() {
       utils.waitNode("#app").then(($app) => {
         let check = function(__vue__) {
-          var _a2, _b2, _c2, _d, _e, _f, _g;
-          return __vue__ != null && typeof ((_c2 = (_b2 = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.common) == null ? void 0 : _c2.noCallApp) === "boolean" && typeof ((_g = (_f = (_e = (_d = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _d.state) == null ? void 0 : _e.common) == null ? void 0 : _f.userInfo) == null ? void 0 : _g.isLogin) === "boolean";
+          var _a2, _b, _c, _d, _e, _f, _g;
+          return __vue__ != null && typeof ((_c = (_b = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean" && typeof ((_g = (_f = (_e = (_d = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _d.state) == null ? void 0 : _e.common) == null ? void 0 : _f.userInfo) == null ? void 0 : _g.isLogin) === "boolean";
         };
         utils.waitVueByInterval($app, check, 250, 1e4).then(() => {
           if (check($app.__vue__)) {
@@ -1028,8 +1036,8 @@
     setIsClient() {
       utils.waitNode("#app").then(($app) => {
         let check = function(__vue__) {
-          var _a2, _b2, _c2, _d, _e, _f, _g, _h, _i;
-          return __vue__ != null && typeof ((_c2 = (_b2 = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.video) == null ? void 0 : _c2.isClient) === "boolean" && typeof ((_f = (_e = (_d = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _d.state) == null ? void 0 : _e.opus) == null ? void 0 : _f.isClient) === "boolean" && typeof ((_i = (_h = (_g = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _g.state) == null ? void 0 : _h.playlist) == null ? void 0 : _i.isClient) === "boolean";
+          var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+          return __vue__ != null && typeof ((_c = (_b = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.video) == null ? void 0 : _c.isClient) === "boolean" && typeof ((_f = (_e = (_d = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _d.state) == null ? void 0 : _e.opus) == null ? void 0 : _f.isClient) === "boolean" && typeof ((_i = (_h = (_g = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _g.state) == null ? void 0 : _h.playlist) == null ? void 0 : _i.isClient) === "boolean";
         };
         utils.waitVueByInterval($app, check, 250, 1e4).then(() => {
           if (check($app.__vue__)) {
@@ -1048,8 +1056,8 @@
     setTinyApp() {
       utils.waitNode("#app").then(($app) => {
         let check = function(__vue__) {
-          var _a2, _b2, _c2;
-          return typeof ((_c2 = (_b2 = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b2.common) == null ? void 0 : _c2.tinyApp) === "boolean";
+          var _a2, _b, _c;
+          return typeof ((_c = (_b = (_a2 = __vue__ == null ? void 0 : __vue__.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
         };
         utils.waitVueByInterval($app, check, 250, 1e4).then(() => {
           if (check($app.__vue__)) {
@@ -1108,4 +1116,4 @@
   PopsPanel.init();
   Bilibili.init();
 
-})(Qmsg);
+})(Qmsg, Utils, DOMUtils);

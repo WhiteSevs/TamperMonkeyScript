@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@whitesev/domutils": "^1.0.7",
+    "@whitesev/utils": "^1.1.6",
     "qmsg": "^1.0.5",
     "vue": "^3.4.26",
     "vue-router": "^4.3.2"
