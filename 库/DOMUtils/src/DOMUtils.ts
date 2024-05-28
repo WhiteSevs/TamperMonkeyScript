@@ -128,8 +128,19 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	css(
 		element: HTMLElement | string,
-		property: keyof CSSStyleDeclaration & string
+		property: keyof CSSStyleDeclaration
 	): string;
+	/**
+	 * 获取元素的样式属性值
+	 * @param element 目标元素
+	 * @param property 样式属性名或包含多个属性名和属性值的对象
+	 * @example
+	 * // 获取元素a.xx的CSS属性display
+	 * DOMUtils.css(document.querySelector("a.xx"),"display");
+	 * DOMUtils.css("a.xx","display");
+	 * > "none"
+	 * */
+	css(element: HTMLElement | string, property: string): string;
 	/**
 	 * 设置元素的样式属性
 	 * @param element 目标元素
@@ -167,9 +178,13 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	css(
 		element: HTMLElement | string,
-		property: {
-			[P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
-		}
+		property:
+			| {
+					[P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
+			  }
+			| {
+					[key: string]: string | number;
+			  }
 	): string;
 	css(
 		element: HTMLElement | string,
