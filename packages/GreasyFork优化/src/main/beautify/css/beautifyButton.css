@@ -1,0 +1,79 @@
+/* 美化按钮 */
+input[type="submit"],
+button {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 1;
+	height: 32px;
+	white-space: nowrap;
+	cursor: pointer;
+	/* color: #606266; */
+	text-align: center;
+	box-sizing: border-box;
+	outline: none;
+	transition: 0.1s;
+	font-weight: 500;
+	user-select: none;
+	vertical-align: middle;
+	-webkit-appearance: none;
+	background-color: #ffffff;
+	border: 1px solid #dcdfe6;
+	border-color: #dcdfe6;
+	padding: 8px 15px;
+	font-size: 14px;
+	border-radius: 4px;
+}
+
+input[type="submit"]:hover,
+input[type="submit"]:focus,
+button:hover,
+button:focus {
+	color: #409eff;
+	border-color: #c6e2ff;
+	background-color: #ecf5ff;
+	outline: none;
+}
+
+input[type="url"] {
+	position: relative;
+	font-size: 14px;
+	display: inline-flex;
+	line-height: 32px;
+	box-sizing: border-box;
+	vertical-align: middle;
+	-webkit-appearance: none;
+	/* color: #606266; */
+	padding: 0;
+	outline: none;
+	border: none;
+	background: none;
+	flex-grow: 1;
+	align-items: center;
+	justify-content: center;
+	padding: 1px 11px;
+	background-color: #ffffff;
+	background-image: none;
+	border-radius: 4px;
+	cursor: text;
+	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+	transform: translateZ(0);
+	box-shadow: 0 0 0 1px #dcdfe6 inset;
+
+	width: 100%;
+	width: -moz-available;
+	width: -webkit-fill-available;
+	width: fill-available;
+}
+
+input[type="url"]::placeholder {
+	color: #a8abb2;
+}
+
+input[type="url"]:hover {
+	box-shadow: 0 0 0 1px #c0c4cc inset;
+}
+
+input[type="url"]:focus {
+	box-shadow: 0 0 0 1px #409eff inset;
+}

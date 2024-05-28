@@ -1,0 +1,39 @@
+label.radio-label {
+	font-weight: 500;
+	position: relative;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	white-space: normal;
+	outline: none;
+	font-size: 14px;
+	user-select: none;
+	margin-right: 32px;
+	height: 32px;
+	padding: 4px;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+label:has(input[type="radio"]:checked),
+label:has(input[type="radio"]:checked) a {
+	color: #409eff;
+}
+label.radio-label input[type="radio"] {
+	margin-right: 4px;
+	width: 14px;
+	height: 14px;
+}
+label.radio-label input[type="radio"]:checked {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border-radius: 50%;
+	width: 14px;
+	height: 14px;
+	outline: none;
+	border: 4px solid #409eff;
+	cursor: pointer;
+}
+label.radio-label input[type="radio"]:checked + span {
+	color: #409eff;
+}

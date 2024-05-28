@@ -1,0 +1,26 @@
+{
+  "name": "demo-vite-typescript",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vue-tsc --noEmit && vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:min": "vue-tsc --noEmit && vite build --minify",
+    "build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
+    "build:watch": "vue-tsc --noEmit && vite build --watch",
+    "build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
+    "preview": "vue-tsc --noEmit && vite preview"
+  },
+  "dependencies": {
+    "@whitesev/domutils": "^1.0.9",
+    "@whitesev/utils": "^1.2.1",
+    "qmsg": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.12",
+    "vite-plugin-monkey": "4.0.0-alpha.1"
+  }
+}

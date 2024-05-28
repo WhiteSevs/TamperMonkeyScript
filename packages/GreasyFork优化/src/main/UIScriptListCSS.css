@@ -1,0 +1,28 @@
+.w-script-list-item {
+	padding: 10px 0;
+	border-bottom: 1px solid #e5e5e5;
+	font-size: 16px;
+	text-align: left;
+}
+.w-script-version,
+.w-script-fan-score,
+.w-script-create-time,
+.w-script-update-time,
+.w-script-locale,
+.w-script-sync-type {
+	font-size: 14px;
+	color: #7c7c7c;
+}
+.w-script-fan-score {
+	margin-left: unset !important;
+	text-align: unset !important;
+	max-width: unset !important;
+}
+.w-script-deleted {
+	text-decoration: line-through;
+	font-style: italic;
+	color: red;
+}
+.w-script-deleted .w-script-name::before {
+	content: "【删除】";
+}
