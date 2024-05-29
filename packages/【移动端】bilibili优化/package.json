@@ -15,7 +15,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@whitesev/domutils": "^1.1.0",
-    "@whitesev/utils": "^1.2.1",
+    "@whitesev/utils": "^1.2.2",
     "qmsg": "^1.1.0",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2"
