@@ -437,21 +437,68 @@ class DOMUtilsEvent {
         if (typeof callback !== "function") {
             return;
         }
+        /**
+         * 检测文档是否加载完毕
+         */
+        function checkDOMReadyState() {
+            try {
+                if (document.readyState === "complete" ||
+                    (document.readyState !== "loading" &&
+                        !document.documentElement.doScroll)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            catch (error) {
+                return false;
+            }
+        }
+        /**
+         * 成功加载完毕后触发的回调函数
+         */
         function completed() {
-            DOMUtilsCore.document.removeEventListener("DOMContentLoaded", completed);
-            DOMUtilsCore.window.removeEventListener("load", completed);
+            removeDomReadyListener();
             callback();
         }
-        if (document.readyState === "complete" ||
-            (document.readyState !== "loading" &&
-                !document.documentElement.doScroll)) {
+        let targetList = [
+            {
+                target: DOMUtilsCore.document,
+                eventType: "DOMContentLoaded",
+                callback: completed,
+            },
+            {
+                target: DOMUtilsCore.window,
+                eventType: "load",
+                callback: completed,
+            },
+        ];
+        /**
+         * 添加监听
+         */
+        function addDomReadyListener() {
+            for (let index = 0; index < targetList.length; index++) {
+                let item = targetList[index];
+                item.target.addEventListener(item.eventType, item.callback);
+            }
+        }
+        /**
+         * 移除监听
+         */
+        function removeDomReadyListener() {
+            for (let index = 0; index < targetList.length; index++) {
+                let item = targetList[index];
+                item.target.removeEventListener(item.eventType, item.callback);
+            }
+        }
+        if (checkDOMReadyState()) {
+            /* 检查document状态 */
             setTimeout(callback);
         }
         else {
-            /* 监听DOMContentLoaded事件 */
-            DOMUtilsCore.document.addEventListener("DOMContentLoaded", completed);
-            /* 监听load事件 */
-            DOMUtilsCore.window.addEventListener("load", completed);
+            /* 添加监听 */
+            addDomReadyListener();
         }
     }
     /**
