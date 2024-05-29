@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.29.15
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.2/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -411,8 +411,9 @@ div.ios-shadowbox {\r
             display: none !important;
         }
         `);}},G={init(){m.isLink()?(o.info("Router: 中转链接"),ge.init()):m.isHuaWeiCloudBlog()?(o.info("Router: 华为云联盟"),xe.init()):m.isBlog()?(o.info("Router: 博客"),ve.init()):m.isWenKu()?(o.info("Router: 文库"),Se.init()):o.error("暂未适配，请反馈开发者："+globalThis.location.href);}};i.init();let j=d.isPhone(),M="change_env_set",x=C(M);H.add({key:M,text:`⚙ 自动: ${j?"移动端":"PC端"}`,autoReload:!1,isStoreValue:!1,showText(e){return x==null?e:e+` 手动: ${x==1?"移动端":x==2?"PC端":"未知"}`},callback:()=>{let e=[0,1,2],t=window.prompt(`请输入当前脚本环境判定
-1. 自动判断: 0
-2. 移动端: 1
-3. PC端: 2`,"0");if(!t)return;let n=parseInt(t);if(isNaN(n)){w.error("输入的不是规范的数字");return}if(!e.includes(n)){w.error("输入的值必须是0或1或2");return}n==0?$(M):k(M,n);}});x!=null?(o.info(`手动判定为${x===1?"移动端":"PC端"}`),x==1?G.init():x==2?A.init():(w.error("意外，手动判定的值不在范围内"),$(M))):j?(o.info("自动判定为移动端"),G.init()):(o.info("自动判定为PC端"),A.init());
+
+自动判断: 0
+移动端: 1
+PC端: 2`,"0");if(!t)return;let n=parseInt(t);if(isNaN(n)){w.error("输入的不是规范的数字");return}if(!e.includes(n)){w.error("输入的值必须是0或1或2");return}n==0?$(M):k(M,n);}});x!=null?(o.info(`手动判定为${x===1?"移动端":"PC端"}`),x==1?G.init():x==2?A.init():(w.error("意外，手动判定的值不在范围内"),$(M))):j?(o.info("自动判定为移动端"),G.init()):(o.info("自动判定为PC端"),A.init());
 
 })(Qmsg, DOMUtils, Utils);

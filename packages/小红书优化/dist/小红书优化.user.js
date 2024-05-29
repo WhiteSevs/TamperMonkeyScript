@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.29.15
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -1734,41 +1734,42 @@
   let isMobile = utils.isPhone();
   let CHANGE_ENV_SET_KEY = "change_env_set";
   let chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
-  GM_Menu.add(
-    {
-      key: CHANGE_ENV_SET_KEY,
-      text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
-      autoReload: false,
-      isStoreValue: false,
-      showText(text) {
-        if (chooseMode == null) {
-          return text;
-        }
-        return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
-      },
-      callback: () => {
-        let allowValue = [0, 1, 2];
-        let chooseText = window.prompt("请输入当前脚本环境判定\n1. 自动判断: 0\n2. 移动端: 1\n3. PC端: 2", "0");
-        if (!chooseText) {
-          return;
-        }
-        let chooseMode2 = parseInt(chooseText);
-        if (isNaN(chooseMode2)) {
-          Qmsg.error("输入的不是规范的数字");
-          return;
-        }
-        if (!allowValue.includes(chooseMode2)) {
-          Qmsg.error("输入的值必须是0或1或2");
-          return;
-        }
-        if (chooseMode2 == 0) {
-          _GM_deleteValue(CHANGE_ENV_SET_KEY);
-        } else {
-          _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode2);
-        }
+  GM_Menu.add({
+    key: CHANGE_ENV_SET_KEY,
+    text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
+    autoReload: false,
+    isStoreValue: false,
+    showText(text) {
+      if (chooseMode == null) {
+        return text;
+      }
+      return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
+    },
+    callback: () => {
+      let allowValue = [0, 1, 2];
+      let chooseText = window.prompt(
+        "请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2",
+        "0"
+      );
+      if (!chooseText) {
+        return;
+      }
+      let chooseMode2 = parseInt(chooseText);
+      if (isNaN(chooseMode2)) {
+        Qmsg.error("输入的不是规范的数字");
+        return;
+      }
+      if (!allowValue.includes(chooseMode2)) {
+        Qmsg.error("输入的值必须是0或1或2");
+        return;
+      }
+      if (chooseMode2 == 0) {
+        _GM_deleteValue(CHANGE_ENV_SET_KEY);
+      } else {
+        _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode2);
       }
     }
-  );
+  });
   if (chooseMode != null) {
     log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
     if (chooseMode == 1) {

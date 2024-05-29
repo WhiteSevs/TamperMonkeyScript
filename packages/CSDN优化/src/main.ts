@@ -27,7 +27,7 @@ GM_Menu.add({
 	callback: () => {
 		let allowValue = [0, 1, 2];
 		let chooseText = window.prompt(
-			"请输入当前脚本环境判定\n1. 自动判断: 0\n2. 移动端: 1\n3. PC端: 2",
+			"请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2",
 			"0"
 		);
 		if (!chooseText) {

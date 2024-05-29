@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.29.15
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.2/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_cookie
@@ -1986,7 +1986,7 @@
     callback: () => {
       let allowValue = [0, 1, 2];
       let chooseText = window.prompt(
-        "请输入当前脚本环境判定\n1. 自动判断: 0\n2. 移动端: 1\n3. PC端: 2",
+        "请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2",
         "0"
       );
       if (!chooseText) {

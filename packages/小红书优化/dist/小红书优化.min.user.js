@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.29.15
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -218,8 +218,9 @@
     fill: none;
 }
 `);c.init();let oe=s.isPhone(),V="change_env_set",k=S(V);ee.add({key:V,text:`⚙ 自动: ${oe?"移动端":"PC端"}`,autoReload:!1,isStoreValue:!1,showText(t){return k==null?t:t+` 手动: ${k==1?"移动端":k==2?"PC端":"未知"}`},callback:()=>{let t=[0,1,2],e=window.prompt(`请输入当前脚本环境判定
-1. 自动判断: 0
-2. 移动端: 1
-3. PC端: 2`,"0");if(!e)return;let o=parseInt(e);if(isNaN(o)){f.error("输入的不是规范的数字");return}if(!t.includes(o)){f.error("输入的值必须是0或1或2");return}o==0?Z(V):I(V,o);}});k!=null?(n.info(`手动判定为${k===1?"移动端":"PC端"}`),k==1?z.init():k==2?N.init():(f.error("意外，手动判定的值不在范围内"),Z(V))):oe?(n.info("自动判定为移动端"),z.init()):(n.info("自动判定为PC端"),N.init());
+
+自动判断: 0
+移动端: 1
+PC端: 2`,"0");if(!e)return;let o=parseInt(e);if(isNaN(o)){f.error("输入的不是规范的数字");return}if(!t.includes(o)){f.error("输入的值必须是0或1或2");return}o==0?Z(V):I(V,o);}});k!=null?(n.info(`手动判定为${k===1?"移动端":"PC端"}`),k==1?z.init():k==2?N.init():(f.error("意外，手动判定的值不在范围内"),Z(V))):oe?(n.info("自动判定为移动端"),z.init()):(n.info("自动判定为PC端"),N.init());
 
 })(Qmsg, Utils, DOMUtils);
