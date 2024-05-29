@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29
+// @version      2024.5.29.11
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -547,7 +547,7 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
-      if (!PopsPanel.hasValue(key)) {
+      if (!this.$data.data.has(key)) {
         log.warn(`${key} 键不存在`);
         return;
       }
@@ -565,7 +565,7 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
-      if (!PopsPanel.hasValue(key)) {
+      if (!this.$data.data.has(key)) {
         log.warn(`${key} 键不存在`);
         return;
       }

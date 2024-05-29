@@ -213,7 +213,7 @@ const PopsPanel = {
         if (typeof key !== "string") {
             throw new TypeError("key 必须是字符串");
         }
-		if (!PopsPanel.hasValue(key)) {
+		if (!this.$data.data.has(key)) {
 			log.warn(`${key} 键不存在`);
 			return;
 		}
@@ -231,7 +231,7 @@ const PopsPanel = {
         if (typeof key !== "string") {
             throw new TypeError("key 必须是字符串");
         }
-		if (!PopsPanel.hasValue(key)) {
+		if (!this.$data.data.has(key)) {
 			log.warn(`${key} 键不存在`);
 			return;
 		}

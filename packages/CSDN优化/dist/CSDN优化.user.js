@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29
+// @version      2024.5.29.11
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -949,7 +949,7 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
-      if (!PopsPanel.hasValue(key)) {
+      if (!this.$data.data.has(key)) {
         log.warn(`${key} 键不存在`);
         return;
       }
@@ -967,7 +967,7 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
-      if (!PopsPanel.hasValue(key)) {
+      if (!this.$data.data.has(key)) {
         log.warn(`${key} 键不存在`);
         return;
       }
