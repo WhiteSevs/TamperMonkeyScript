@@ -872,6 +872,14 @@
       }
     },
     /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasValue(key) {
+      let locaData = _GM_getValue(KEY, {});
+      return key in locaData;
+    },
+    /**
      * 获取值
      * @param key 键
      * @param defaultValue 默认值
@@ -941,6 +949,10 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
+      if (!PopsPanel.hasValue(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
+      }
       let value = PopsPanel.getValue(key);
       if (value) {
         callback(value);
@@ -954,6 +966,10 @@
     execMenuOnce(key, callback) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
+      }
+      if (!PopsPanel.hasValue(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
       }
       let value = PopsPanel.getValue(key);
       if (value) {

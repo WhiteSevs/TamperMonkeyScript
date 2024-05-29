@@ -181,6 +181,14 @@ const PopsPanel = {
 		}
 	},
 	/**
+	 * 判断该键是否存在
+	 * @param key 键
+	 */
+	hasValue(key: string) {
+		let locaData = GM_getValue(KEY, {}) as any;
+		return key in locaData;
+	},
+	/**
 	 * 获取值
 	 * @param key 键
 	 * @param defaultValue 默认值
@@ -253,6 +261,10 @@ const PopsPanel = {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
+		if (!PopsPanel.hasValue(key)) {
+			log.warn(`${key} 键不存在`);
+			return;
+		}
 		let value = PopsPanel.getValue(key);
 		if (value) {
 			callback(value);
@@ -266,6 +278,10 @@ const PopsPanel = {
 	execMenuOnce(key: string, callback: (value: any) => void) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
+		}
+		if (!PopsPanel.hasValue(key)) {
+			log.warn(`${key} 键不存在`);
+			return;
 		}
 		let value = PopsPanel.getValue(key);
 		if (value) {
