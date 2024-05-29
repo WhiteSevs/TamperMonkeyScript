@@ -1530,6 +1530,25 @@ declare class Utils {
      */
     waitNodeList<T extends HTMLElement>(nodeSelector: string): Promise<T>;
     /**
+     * 等待指定元素出现
+     * @param nodeSelectors
+     * @returns 当nodeSelectors为数组多个时，
+     * 返回如：[ NodeList, NodeList ]，
+     * 当nodeSelectors为单个时，
+     * 返回如：NodeList。
+     * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+     * @example
+     * Utils.waitNodeList("div.xxx").then( nodeList =>{
+     *  console.log(nodeList) // div.xxx => NodeList
+     * })
+     * @example
+     * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
+     *  console.log(nodeListArray[0]) // div.xxx => NodeList
+     *  console.log(nodeListArray[1]) // a.xxx => NodeList
+     * })
+     */
+    waitNodeList<T extends HTMLElement[]>(nodeSelector: string): Promise<T>;
+    /**
      * 等待指定元素出现，支持多个selector
      * @param nodeSelectors
      * @returns 当nodeSelectors为数组多个时，
