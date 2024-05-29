@@ -4212,7 +4212,7 @@
       .pops[type-value=panel] .pops-panel-btn{position:absolute;bottom:0;display:flex;padding:10px 10px 10px 10px;width:100%;height:var(--container-bottom-btn-height);border-top:1px solid rgb(229, 229, 229, var(--pops-bd-opacity));text-align:right;line-height:var(--container-bottom-btn-height);align-items:center;}
       
       /* ↓panel的CSS↓ */
-      aside.pops-panel-aside{overflow:auto;box-sizing:border-box;flex-shrink:0;width:200px;height:100%;background:var(--aside-bg-color);border-right:1px solid var(--aside-bg-color);font-size:0.9em;}
+      aside.pops-panel-aside{overflow:auto;box-sizing:border-box;flex-shrink:0;max-width:200px;height:100%;background:var(--aside-bg-color);border-right:1px solid var(--aside-bg-color);font-size:0.9em;}
       .pops-panel-content{display:flex;flex-direction:row;flex:1;flex-basis:auto;box-sizing:border-box;min-width:0;bottom:0!important}
       section.pops-panel-container{width:100%;padding:10px;overflow:hidden}
       section.pops-panel-container .pops-panel-container-header-ul{border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));}
