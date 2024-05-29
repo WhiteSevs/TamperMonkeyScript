@@ -1,4 +1,5 @@
 import { httpx, log, utils } from "@/env";
+import { XHS_Sign } from "@/sign/xhs_sign";
 import Qmsg from "qmsg";
 
 interface PageInfo {
@@ -10,7 +11,7 @@ interface PageInfo {
 }
 interface LzlPageInfo extends PageInfo {}
 
-let cookieStore = new utils.GM_Cookie();
+const XHS_BASE_URL = "https://edith.xiaohongshu.com";
 const XHSApi = {
 	/**
 	 * 获取页信息
@@ -21,13 +22,23 @@ const XHSApi = {
 		top_comment_id = "",
 		image_formats = "jpg,webp"
 	) {
-		const Api = `/api/sns/web/v2/comment/page?note_id=${note_id}&cursor=${cursor}&top_comment_id=${top_comment_id}&image_formats=${image_formats}`;
-		let getResp = await httpx.get(`https://edith.xiaohongshu.com${Api}`, {
+		const Api = `/api/sns/web/v2/comment/page`;
+		const SearchParamsData = {
+			note_id: note_id,
+			cursor: cursor,
+			top_comment_id: top_comment_id,
+			image_formats: image_formats,
+		};
+		const SearchParams = Api + "?" + utils.toSearchParamsStr(SearchParamsData);
+		// let signInfo = XHS_Sign(Api);
+		let getResp = await httpx.get(`${XHS_BASE_URL}${SearchParams}`, {
 			headers: {
 				Accept: "application/json, text/plain, */*",
 				"User-Agent": utils.getRandomPCUA(),
 				Origin: "https://www.xiaohongshu.com",
 				Referer: "https://www.xiaohongshu.com/",
+				// "X-S": signInfo.xs,
+				// "X-T": signInfo.xt,
 			},
 		});
 		if (!getResp.status) {
@@ -55,17 +66,49 @@ const XHSApi = {
 		image_formats = "jpg,webp,avif",
 		top_comment_id = ""
 	) {
-		const Api = `/api/sns/web/v2/comment/sub/page?note_id=${note_id}&root_comment_id=${root_comment_id}&num=${num}&cursor=${cursor}&image_formats=${image_formats}&top_comment_id=${top_comment_id}`;
-		let getResp = await httpx.get(`https://edith.xiaohongshu.com${Api}`, {
+		const Api = `/api/sns/web/v2/comment/sub/page`;
+		let ApiData = {
+			note_id: note_id,
+			root_comment_id: root_comment_id,
+			num: num,
+			cursor: cursor,
+			image_formats: image_formats,
+			top_comment_id: top_comment_id,
+		};
+		let searchParams = Api + "?" + utils.toSearchParamsStr(ApiData);
+		// let signInfo = XHS_Sign(searchParams);
+		// log.success(["签名信息：", signInfo]);
+		let url = `${XHS_BASE_URL}${Api}?${utils.toSearchParamsStr(ApiData)}`;
+		let getResp = await httpx.get(url, {
 			headers: {
 				Accept: "application/json, text/plain, */*",
-				"User-Agent": utils.getRandomPCUA(),
+				"User-Agent":
+					"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 				Host: "edith.xiaohongshu.com",
 				Origin: "https://www.xiaohongshu.com",
 				Referer: "https://www.xiaohongshu.com/",
+				// "X-S": signInfo.xs,
+				// "X-T": signInfo.xt,
+				// "X-S-Common": signInfo.xsCommon,
+				// "X-B3-Traceid": signInfo.traceId,
 			},
+			onerror() {},
 		});
 		if (!getResp.status) {
+			if (
+				getResp.data.status === 406 &&
+				utils.isNotNull(getResp.data.responseText)
+			) {
+				let errorData = utils.toJSON(getResp.data.responseText);
+				if (errorData["code"] == -1) {
+					Qmsg.error("获取楼中楼信息失败，验证x-s、x-t、x-s-common失败");
+				} else {
+					Qmsg.error("获取楼中楼信息失败");
+				}
+			} else {
+				Qmsg.error("请求异常");
+			}
+			log.error(["获取楼中楼信息失败", getResp]);
 			return;
 		}
 		let data = utils.toJSON(getResp.data.responseText);
