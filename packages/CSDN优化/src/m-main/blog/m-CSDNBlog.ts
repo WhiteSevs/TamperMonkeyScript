@@ -160,7 +160,7 @@ const M_CSDNBlog = {
 			lockFunction.run();
 			utils.mutationObserver($recommend, {
 				callback: () => {
-					lockFunction.run;
+					lockFunction.run();
 				},
 				config: { childList: true, subtree: true, attributes: true },
 			});
