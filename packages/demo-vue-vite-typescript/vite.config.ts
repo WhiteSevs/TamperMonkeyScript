@@ -62,25 +62,33 @@ export default defineConfig({
 			autoInstall: true,
 		}),
 		monkey({
+			// 脚本入口
 			entry: "src/main.ts",
 			userscript: {
+				// 脚本名
 				name: SCRIPT_NAME,
+				// 命名空间
 				namespace: "https://github.com/WhiteSevs/TamperMonkeyScript",
+				// 反馈地址
 				supportURL: "https://github.com/WhiteSevs/TamperMonkeyScript/issues",
 				version: VERSION,
+				// 版本号
 				author: "WhiteSevs",
+				// 运行时刻
 				"run-at": "document-start",
+				// 许可证
 				license: "GPL-3.0-only",
+				// 引用库
 				require: await GetLib(["CoverUMD", "pops"]),
-				resource: {
-					ElementPlusResourceCSS:
-						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
-				},
-
+				// 图标
 				icon: "",
-				description: "demo desc",
-				match: ["*://*/*"],
-				connect: ["*"],
+				// 脚本描述
+				description: "",
+				// 脚本运行域
+				match: [""],
+				// GM_xmlhttpRequest允许访问的域
+				connect: [""],
+				// GM api权限申请
 				grant: [
 					"GM_addStyle",
 					"GM_registerMenuCommand",
@@ -93,18 +101,30 @@ export default defineConfig({
 					"unsafeWindow",
 					"GM_getResourceText",
 				],
+
+				// 引用外部资源
+				resource: {
+					ElementPlusResourceCSS:
+						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+				},
 			},
 			clientAlias: "ViteGM",
 			server: {
+				// 把GM api 挂载到unsafeWindow上
 				mountGmApi: false,
+				// dev时浏览器自动访问地址从而触发脚本管理器安装本脚本
 				open: true,
 			},
 			build: {
+				// 自动申请权限，可以不用填上面的grant
 				autoGrant: true,
+				// 输出文件名
 				fileName: FILE_NAME,
+				// 引入外部资源
 				externalResource: {
 					"element-plus/dist/index.css": cdn.jsdelivr(),
 				},
+				// 引入外部库
 				externalGlobals: {
 					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
 					"vue-router": cdn.jsdelivr("VueRouter", "dist/vue-router.global.js"),
@@ -122,6 +142,7 @@ export default defineConfig({
 					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
 					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
 				},
+				// 样式添加到页面的自定义处理
 				cssSideEffects: () => {
 					return (cssText: string) => {
 						function addStyle(cssText: string) {

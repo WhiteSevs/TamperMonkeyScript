@@ -1,5 +1,5 @@
-import { unsafeWindow } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
-import { } from "@/main";
+import { DemoIndex } from "@/main/demo";
 
 PopsPanel.init();
+DemoIndex.init();

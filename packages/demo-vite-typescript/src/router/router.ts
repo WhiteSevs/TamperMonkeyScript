@@ -1,8 +1,8 @@
-const ScriptRouter = {
+const DemoRouter = {
 
 }
 
 
 export {
-    ScriptRouter
+    DemoRouter
 }
