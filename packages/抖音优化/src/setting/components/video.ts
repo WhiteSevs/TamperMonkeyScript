@@ -15,12 +15,12 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"沉浸模式",
-					"移除右侧工具栏、底部信息栏等",
 					"fullScreen",
 					false,
-					void 0
+					void 0,
+					"移除右侧工具栏、底部信息栏等"
 				),
-				UISwitch("手机模式", "放大各种文字和图标", "mobileMode", false, void 0),
+				UISwitch("手机模式", "mobileMode", false, void 0, "放大各种文字和图标"),
 			],
 		},
 		{
@@ -58,38 +58,38 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					"视频解析",
-					"分享->下载(灰色的也可点击)",
 					"parseVideo",
-					false,
-					void 0
+					true,
+					void 0,
+					"分享->下载(灰色的也可点击)"
 				),
 				UISwitch(
 					"评论区移到中间",
-					"修改评论区为中间弹出而非右侧区域",
 					"changeCommentToBottom",
 					true,
-					void 0
+					void 0,
+					"修改评论区为中间弹出而非右侧区域"
 				),
 				UISwitch(
 					"↑自适应评论区位置",
-					"根据window.screen.orientation.type自动判断是否开启【评论区移到中间】",
 					"douyin-video-autoCheckChangeCommentToBottom",
-					false,
-					void 0
+					true,
+					void 0,
+					"根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
 				),
 				UISwitch(
 					"自动进入网页全屏",
-					"网页加载完毕后自动点击网页全屏按钮进入全屏",
 					"autoEnterElementFullScreen",
 					false,
-					void 0
+					void 0,
+					"网页加载完毕后自动点击网页全屏按钮进入全屏"
 				),
 				UISwitch(
 					"双击进入网页全屏",
-					"双击视频自动进入网页全屏，检测间隔250ms",
 					"dy-video-doubleClickEnterElementFullScreen",
 					false,
-					void 0
+					void 0,
+					"双击视频自动进入网页全屏，检测间隔250ms"
 				),
 			],
 		},
@@ -159,75 +159,81 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】右侧的展开评论按钮",
-					"屏蔽元素",
 					"shieldRightExpandCommentButton",
 					true,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】搜索悬浮栏",
-					"屏蔽元素，一般出现在左上角",
 					"shieldSearchFloatingBar",
 					true,
-					void 0
+					void 0,
+					"屏蔽元素，一般出现在左上角"
 				),
 				UISwitch(
 					"【屏蔽】网页全屏关闭按钮",
-					"屏蔽元素，一般开启网页全屏后出现在左上角",
 					"shieldCloseFullScreenButton",
 					true,
-					void 0
+					void 0,
+					"屏蔽元素，一般开启网页全屏后出现在左上角"
 				),
 				UISwitch(
 					"【屏蔽】切换播放",
-					"屏蔽元素，在右侧作者头像上方",
 					"shieldPlaySwitchButton",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素，在右侧作者头像上方"
 				),
 				UISwitch(
 					"【屏蔽】作者头像",
-					"屏蔽元素",
 					"shieldAuthorAvatar",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
-				UISwitch("【屏蔽】点赞", "屏蔽元素", "shieldLikeButton", false, void 0),
+				UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0, "屏蔽元素"),
 				UISwitch(
 					"【屏蔽】评论",
-					"屏蔽元素",
 					"shieldCommentButton",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】收藏",
-					"屏蔽元素",
 					"shieldCollectionButton",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】分享",
-					"屏蔽元素",
 					"shieldSharenButton",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】看相关",
-					"屏蔽元素",
 					"shieldRelatedRecommendationsButton",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
-				UISwitch("【屏蔽】更多", "...按钮，屏蔽元素", "shieldMoreButton", false, void 0),
+				UISwitch(
+					"【屏蔽】更多",
+					"shieldMoreButton",
+					false,
+					void 0,
+					"...按钮，屏蔽元素"
+				),
 				UISwitch(
 					"【屏蔽】底部视频工具栏",
-					"屏蔽元素",
 					"shieldBottomVideoToolBar",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 			],
 		},
@@ -237,17 +243,17 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】评论工具栏",
-					"屏蔽元素",
 					"dy-video-shieldUserCommentToolBar",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】大家都在搜",
-					"在评论区的顶部出现",
 					"dy-video-shieldUserCommentEveryOneAllSearch",
 					false,
-					void 0
+					void 0,
+					"在评论区的顶部出现"
 				),
 			],
 		},
@@ -257,19 +263,19 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"启用",
-					"开启后可启用下面的屏蔽功能",
 					"shieldVideo",
 					true,
-					void 0
+					void 0,
+					"开启后可启用下面的屏蔽功能"
 				),
 				UISwitch(
 					"【屏蔽】直播",
-					"过滤掉直播",
 					"shieldVideo-live",
 					true,
-					void 0
+					void 0,
+					"过滤掉直播"
 				),
-				UISwitch("【屏蔽】广告", "过滤掉广告", "shieldVideo-ads", true, void 0),
+				UISwitch("【屏蔽】广告", "shieldVideo-ads", true, void 0, "过滤掉广告"),
 
 				{
 					type: "own",

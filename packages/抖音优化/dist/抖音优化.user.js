@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.11
+// @version      2024.5.29.14
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -85,7 +85,7 @@
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const UISwitch = function(text, description, key, defaultValue, clickCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description) {
     let result = {
       text,
       type: "switch",
@@ -116,15 +116,17 @@
         forms: [
           UISwitch(
             "debug模式",
-            "移除抖音的开发者模式检测",
             "debug",
-            false
+            true,
+            void 0,
+            "移除抖音的开发者模式检测"
           ),
           UISwitch(
             "伪装登录",
-            "使用随机UID进行伪装",
             "disguiseLogin",
-            false
+            false,
+            void 0,
+            "使用随机UID进行伪装"
           )
         ]
       },
@@ -134,9 +136,10 @@
         forms: [
           UISwitch(
             "重定向/home",
-            "/home => /",
             "douyin-redirect-url-home-to-root",
-            false
+            false,
+            void 0,
+            "/home => /"
           )
         ]
       },
@@ -146,15 +149,17 @@
         forms: [
           UISwitch(
             "【屏蔽】登录弹窗",
-            "屏蔽元素且自动等待元素出现并关闭登录弹窗",
             "watchLoginDialogToClose",
-            true
+            true,
+            void 0,
+            "屏蔽元素且自动等待元素出现并关闭登录弹窗"
           ),
           UISwitch(
             "【屏蔽】底部？按钮",
-            "屏蔽元素",
             "shieldBottomQuestionButton",
-            true
+            true,
+            void 0,
+            "屏蔽元素"
           )
         ]
       },
@@ -164,47 +169,54 @@
         forms: [
           UISwitch(
             "【屏蔽】客户端提示",
-            "屏蔽元素",
             "shieldClientTip",
-            true
+            true,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】充砖石",
-            "屏蔽元素",
             "shieldFillingBricksAndStones",
-            false
+            true,
+            void 0,
+            "屏蔽元素"
           ),
-          UISwitch("【屏蔽】客户端", "屏蔽元素", "shieldClient", false),
+          UISwitch("【屏蔽】客户端", "shieldClient", true, void 0, "屏蔽元素"),
           UISwitch(
             "【屏蔽】快捷访问",
-            "屏蔽元素",
             "shieldQuickAccess",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】通知",
-            "屏蔽元素",
             "shieldNotifitation",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】私信",
-            "屏蔽元素",
             "shieldPrivateMessage",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
-          UISwitch("【屏蔽】投稿", "屏蔽元素", "shieldSubmission", false),
+          UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
           UISwitch(
             "【屏蔽】左侧导航栏",
-            "屏蔽元素",
             "shieldLeftNavigator",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】顶部导航栏",
-            "屏蔽元素",
             "shieldTopNavigator",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           )
         ]
       },
@@ -212,24 +224,27 @@
         text: "搜索-屏蔽",
         type: "forms",
         forms: [
-          UISwitch("【屏蔽】搜索框", "屏蔽元素", "shieldSearch", false),
+          UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
           UISwitch(
             "【屏蔽】搜索框的提示",
-            "屏蔽元素",
             "shieldSearchPlaceholder",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】猜你想搜",
-            "屏蔽元素",
             "shieldSearchGuessYouWantToSearch",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】抖音热点",
-            "屏蔽元素",
             "shieldSearchTiktokHotspot",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           )
         ]
       }
@@ -379,15 +394,17 @@
         forms: [
           UISwitch(
             "自动进入网页全屏",
-            "网页加载完毕后自动点击网页全屏按钮进入全屏",
             "live-autoEnterElementFullScreen",
-            false
+            false,
+            void 0,
+            "网页加载完毕后自动点击网页全屏按钮进入全屏"
           ),
           UISwitch(
             "解锁画质选择",
-            "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质",
             "live-unlockImageQuality",
-            true
+            true,
+            void 0,
+            "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
           )
         ]
       },
@@ -397,27 +414,31 @@
         forms: [
           UISwitch(
             "【屏蔽】顶栏信息",
-            "屏蔽元素，包括直播作者、右侧的礼物展馆",
             "live-shieldTopToolBarInfo",
-            false
+            false,
+            void 0,
+            "屏蔽元素，包括直播作者、右侧的礼物展馆"
           ),
           UISwitch(
             "【屏蔽】底部的礼物栏",
-            "屏蔽元素",
             "live-shieldGiftColumn",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】礼物特效",
-            "屏蔽元素",
             "live-shieldGiftEffects",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】弹幕",
-            "屏蔽元素",
             "live-shieldDanmuku",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           )
         ]
       },
@@ -427,39 +448,45 @@
         forms: [
           UISwitch(
             "【屏蔽】聊天室",
-            "屏蔽元素",
             "live-shieldChatRoom",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】贵宾席",
-            "屏蔽元素",
             "live-shielChatRoomVipSeats",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】用户等级图标",
-            "屏蔽元素",
             "dy-live-shieldUserLevelIcon",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】VIP图标",
-            "屏蔽元素",
             "dy-live-shieldUserVIPIcon",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】粉丝牌",
-            "屏蔽元素",
             "dy-live-shieldUserFansIcon",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】信息播报",
-            "底部滚动播报的的xxx来了，xxx给主播点赞",
             "dy-live-shieldMessage",
-            false
+            false,
+            void 0,
+            "底部滚动播报的的xxx来了，xxx给主播点赞"
           )
         ]
       },
@@ -469,9 +496,10 @@
         forms: [
           UISwitch(
             "启用",
-            "启用弹幕屏蔽规则",
             "live-danmu-shield-rule-enable",
-            false
+            false,
+            void 0,
+            "启用弹幕屏蔽规则"
           ),
           {
             type: "own",
@@ -1588,11 +1616,12 @@
         forms: [
           UISwitch(
             "沉浸模式",
-            "移除右侧工具栏、底部信息栏等",
             "fullScreen",
-            false
+            false,
+            void 0,
+            "移除右侧工具栏、底部信息栏等"
           ),
-          UISwitch("手机模式", "放大各种文字和图标", "mobileMode", false)
+          UISwitch("手机模式", "mobileMode", false, void 0, "放大各种文字和图标")
         ]
       },
       {
@@ -1630,33 +1659,38 @@
           ),
           UISwitch(
             "视频解析",
-            "分享->下载(灰色的也可点击)",
             "parseVideo",
-            false
+            true,
+            void 0,
+            "分享->下载(灰色的也可点击)"
           ),
           UISwitch(
             "评论区移到中间",
-            "修改评论区为中间弹出而非右侧区域",
             "changeCommentToBottom",
-            true
+            true,
+            void 0,
+            "修改评论区为中间弹出而非右侧区域"
           ),
           UISwitch(
             "↑自适应评论区位置",
-            "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】",
             "douyin-video-autoCheckChangeCommentToBottom",
-            false
+            true,
+            void 0,
+            "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
           ),
           UISwitch(
             "自动进入网页全屏",
-            "网页加载完毕后自动点击网页全屏按钮进入全屏",
             "autoEnterElementFullScreen",
-            false
+            false,
+            void 0,
+            "网页加载完毕后自动点击网页全屏按钮进入全屏"
           ),
           UISwitch(
             "双击进入网页全屏",
-            "双击视频自动进入网页全屏，检测间隔250ms",
             "dy-video-doubleClickEnterElementFullScreen",
-            false
+            false,
+            void 0,
+            "双击视频自动进入网页全屏，检测间隔250ms"
           )
         ]
       },
@@ -1724,65 +1758,81 @@
         forms: [
           UISwitch(
             "【屏蔽】右侧的展开评论按钮",
-            "屏蔽元素",
             "shieldRightExpandCommentButton",
-            true
+            true,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】搜索悬浮栏",
-            "屏蔽元素，一般出现在左上角",
             "shieldSearchFloatingBar",
-            true
+            true,
+            void 0,
+            "屏蔽元素，一般出现在左上角"
           ),
           UISwitch(
             "【屏蔽】网页全屏关闭按钮",
-            "屏蔽元素，一般开启网页全屏后出现在左上角",
             "shieldCloseFullScreenButton",
-            true
+            true,
+            void 0,
+            "屏蔽元素，一般开启网页全屏后出现在左上角"
           ),
           UISwitch(
             "【屏蔽】切换播放",
-            "屏蔽元素，在右侧作者头像上方",
             "shieldPlaySwitchButton",
-            false
+            false,
+            void 0,
+            "屏蔽元素，在右侧作者头像上方"
           ),
           UISwitch(
             "【屏蔽】作者头像",
-            "屏蔽元素",
             "shieldAuthorAvatar",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
-          UISwitch("【屏蔽】点赞", "屏蔽元素", "shieldLikeButton", false),
+          UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0, "屏蔽元素"),
           UISwitch(
             "【屏蔽】评论",
-            "屏蔽元素",
             "shieldCommentButton",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】收藏",
-            "屏蔽元素",
             "shieldCollectionButton",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】分享",
-            "屏蔽元素",
             "shieldSharenButton",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】看相关",
-            "屏蔽元素",
             "shieldRelatedRecommendationsButton",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
-          UISwitch("【屏蔽】更多", "...按钮，屏蔽元素", "shieldMoreButton", false),
+          UISwitch(
+            "【屏蔽】更多",
+            "shieldMoreButton",
+            false,
+            void 0,
+            "...按钮，屏蔽元素"
+          ),
           UISwitch(
             "【屏蔽】底部视频工具栏",
-            "屏蔽元素",
             "shieldBottomVideoToolBar",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           )
         ]
       },
@@ -1792,15 +1842,17 @@
         forms: [
           UISwitch(
             "【屏蔽】评论工具栏",
-            "屏蔽元素",
             "dy-video-shieldUserCommentToolBar",
-            false
+            false,
+            void 0,
+            "屏蔽元素"
           ),
           UISwitch(
             "【屏蔽】大家都在搜",
-            "在评论区的顶部出现",
             "dy-video-shieldUserCommentEveryOneAllSearch",
-            false
+            false,
+            void 0,
+            "在评论区的顶部出现"
           )
         ]
       },
@@ -1810,17 +1862,19 @@
         forms: [
           UISwitch(
             "启用",
-            "开启后可启用下面的屏蔽功能",
             "shieldVideo",
-            true
+            true,
+            void 0,
+            "开启后可启用下面的屏蔽功能"
           ),
           UISwitch(
             "【屏蔽】直播",
-            "过滤掉直播",
             "shieldVideo-live",
-            true
+            true,
+            void 0,
+            "过滤掉直播"
           ),
-          UISwitch("【屏蔽】广告", "过滤掉广告", "shieldVideo-ads", true),
+          UISwitch("【屏蔽】广告", "shieldVideo-ads", true, void 0, "过滤掉广告"),
           {
             type: "own",
             getLiElementCallBack(liElement) {
@@ -1863,9 +1917,10 @@
         forms: [
           UISwitch(
             "【屏蔽】相关搜索",
-            "屏蔽右边的相关搜索",
             "douyin-search-shieldReleatedSearches",
-            false
+            false,
+            void 0,
+            "屏蔽右边的相关搜索"
           )
         ]
       }
@@ -2042,7 +2097,7 @@
      * 判断该键是否存在
      * @param key 键
      */
-    hasValue(key) {
+    hasKey(key) {
       let locaData = _GM_getValue(KEY, {});
       return key in locaData;
     },

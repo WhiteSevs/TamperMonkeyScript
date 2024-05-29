@@ -10,17 +10,17 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"debug模式",
-					"移除抖音的开发者模式检测",
 					"debug",
-					false,
-					void 0
+					true,
+					void 0,
+					"移除抖音的开发者模式检测"
 				),
 				UISwitch(
 					"伪装登录",
-					"使用随机UID进行伪装",
 					"disguiseLogin",
 					false,
-					void 0
+					void 0,
+					"使用随机UID进行伪装"
 				),
 			],
 		},
@@ -30,10 +30,10 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"重定向/home",
-					"/home => /",
 					"douyin-redirect-url-home-to-root",
 					false,
-					void 0
+					void 0,
+					"/home => /"
 				),
 			],
 		},
@@ -43,17 +43,17 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】登录弹窗",
-					"屏蔽元素且自动等待元素出现并关闭登录弹窗",
 					"watchLoginDialogToClose",
 					true,
-					void 0
+					void 0,
+					"屏蔽元素且自动等待元素出现并关闭登录弹窗"
 				),
 				UISwitch(
 					"【屏蔽】底部？按钮",
-					"屏蔽元素",
 					"shieldBottomQuestionButton",
 					true,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 			],
 		},
@@ -63,54 +63,54 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】客户端提示",
-					"屏蔽元素",
 					"shieldClientTip",
 					true,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】充砖石",
-					"屏蔽元素",
 					"shieldFillingBricksAndStones",
-					false,
-					void 0
+					true,
+					void 0,
+					"屏蔽元素"
 				),
-				UISwitch("【屏蔽】客户端", "屏蔽元素", "shieldClient", false, void 0),
+				UISwitch("【屏蔽】客户端", "shieldClient", true, void 0, "屏蔽元素"),
 				UISwitch(
 					"【屏蔽】快捷访问",
-					"屏蔽元素",
 					"shieldQuickAccess",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】通知",
-					"屏蔽元素",
 					"shieldNotifitation",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】私信",
-					"屏蔽元素",
 					"shieldPrivateMessage",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
-				UISwitch("【屏蔽】投稿", "屏蔽元素", "shieldSubmission", false, void 0),
+				UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
 				UISwitch(
 					"【屏蔽】左侧导航栏",
-					"屏蔽元素",
 					"shieldLeftNavigator",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】顶部导航栏",
-					"屏蔽元素",
 					"shieldTopNavigator",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 			],
 		},
@@ -118,27 +118,27 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			text: "搜索-屏蔽",
 			type: "forms",
 			forms: [
-				UISwitch("【屏蔽】搜索框", "屏蔽元素", "shieldSearch", false, void 0),
+				UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
 				UISwitch(
 					"【屏蔽】搜索框的提示",
-					"屏蔽元素",
 					"shieldSearchPlaceholder",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】猜你想搜",
-					"屏蔽元素",
 					"shieldSearchGuessYouWantToSearch",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】抖音热点",
-					"屏蔽元素",
 					"shieldSearchTiktokHotspot",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 			],
 		},

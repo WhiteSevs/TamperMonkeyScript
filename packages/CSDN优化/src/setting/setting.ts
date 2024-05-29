@@ -184,7 +184,7 @@ const PopsPanel = {
 	 * 判断该键是否存在
 	 * @param key 键
 	 */
-	hasValue(key: string) {
+	hasKey(key: string) {
 		let locaData = GM_getValue(KEY, {}) as any;
 		return key in locaData;
 	},

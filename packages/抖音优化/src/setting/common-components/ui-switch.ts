@@ -1,21 +1,23 @@
-import { log } from "../../env";
-import { PopsPanel } from "../setting";
+import { log } from "@/env";
+import { PopsPanel } from "@/setting/setting";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY } from "../config";
 
 /**
  * 获取checkbox按钮配置
  * @param text 文字
- * @param description （可选）描述
  * @param key 键
  * @param defaultValue 默认值
  * @param clickCallBack （可选）点击回调
+ * @param description （可选）左边的文字下面的描述
  */
 const UISwitch = function (
 	text: string,
-	description: string | undefined,
 	key: string,
 	defaultValue: boolean | undefined,
-	clickCallBack: ((event: InputEvent, value: boolean) => boolean) | undefined,
+	clickCallBack?:
+		| ((event: InputEvent, value: boolean) => boolean | void)
+		| undefined,
+	description?: string | undefined
 ): PopsPanelSwitchDetails {
 	let result: PopsPanelSwitchDetails = {
 		text: text,

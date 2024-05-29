@@ -1,5 +1,14 @@
 /**
  * 获取button按钮配置
+ * @param text 左边的文字
+ * @param description 左边的文字下面的描述
+ * @param buttonText 按钮的文字
+ * @param buttonIcon 按钮图标
+ * @param buttonIsRightIcon 按钮是否在右边
+ * @param buttonIconIsLoading 按钮图标是否旋转
+ * @param buttonType 按钮类型
+ * @param clickCallBack 点击回调
+ * @returns
  */
 const UIButton = function (
 	text: string,
@@ -9,7 +18,7 @@ const UIButton = function (
 	buttonIsRightIcon: boolean | undefined,
 	buttonIconIsLoading: boolean | undefined,
 	buttonType: PopsButtonStyleType,
-	clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined,
+	clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined
 ): PopsPanelButtonDetails {
 	let result: PopsPanelButtonDetails = {
 		text: text,

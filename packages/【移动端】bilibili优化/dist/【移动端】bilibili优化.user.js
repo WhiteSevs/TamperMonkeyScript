@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.11
+// @version      2024.5.29.14
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -120,8 +120,10 @@
       },
       afterAddToUListCallBack: void 0
     };
-    result.attributes[ATTRIBUTE_KEY] = key;
-    result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+    }
     return result;
   };
   const SettingUICommon = {

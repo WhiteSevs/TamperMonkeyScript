@@ -12,17 +12,17 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"自动进入网页全屏",
-					"网页加载完毕后自动点击网页全屏按钮进入全屏",
 					"live-autoEnterElementFullScreen",
 					false,
-					void 0
+					void 0,
+					"网页加载完毕后自动点击网页全屏按钮进入全屏"
 				),
 				UISwitch(
 					"解锁画质选择",
-					"未登录的情况下选择原画实际上是未登录的情况下最高选择的画质",
 					"live-unlockImageQuality",
 					true,
-					void 0
+					void 0,
+					"未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
 				),
 			],
 		},
@@ -32,31 +32,31 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】顶栏信息",
-					"屏蔽元素，包括直播作者、右侧的礼物展馆",
 					"live-shieldTopToolBarInfo",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素，包括直播作者、右侧的礼物展馆"
 				),
 				UISwitch(
 					"【屏蔽】底部的礼物栏",
-					"屏蔽元素",
 					"live-shieldGiftColumn",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】礼物特效",
-					"屏蔽元素",
 					"live-shieldGiftEffects",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】弹幕",
-					"屏蔽元素",
 					"live-shieldDanmuku",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 			],
 		},
@@ -66,45 +66,45 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】聊天室",
-					"屏蔽元素",
 					"live-shieldChatRoom",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】贵宾席",
-					"屏蔽元素",
 					"live-shielChatRoomVipSeats",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】用户等级图标",
-					"屏蔽元素",
 					"dy-live-shieldUserLevelIcon",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】VIP图标",
-					"屏蔽元素",
 					"dy-live-shieldUserVIPIcon",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】粉丝牌",
-					"屏蔽元素",
 					"dy-live-shieldUserFansIcon",
 					false,
-					void 0
+					void 0,
+					"屏蔽元素"
 				),
 				UISwitch(
 					"【屏蔽】信息播报",
-					"底部滚动播报的的xxx来了，xxx给主播点赞",
 					"dy-live-shieldMessage",
 					false,
-					void 0
+					void 0,
+					"底部滚动播报的的xxx来了，xxx给主播点赞"
 				),
 			],
 		},
@@ -114,10 +114,10 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"启用",
-					"启用弹幕屏蔽规则",
 					"live-danmu-shield-rule-enable",
 					false,
-					void 0
+					void 0,
+					"启用弹幕屏蔽规则"
 				),
 				{
 					type: "own",

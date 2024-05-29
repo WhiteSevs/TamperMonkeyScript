@@ -10,10 +10,10 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"【屏蔽】相关搜索",
-					"屏蔽右边的相关搜索",
 					"douyin-search-shieldReleatedSearches",
 					false,
-					void 0
+					void 0,
+					"屏蔽右边的相关搜索"
 				),
 			],
 		},

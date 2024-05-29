@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.13
+// @version      2024.5.29.14
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -551,7 +551,7 @@
      * 判断该键是否存在
      * @param key 键
      */
-    hasValue(key) {
+    hasKey(key) {
       let locaData = _GM_getValue(KEY, {});
       return key in locaData;
     },

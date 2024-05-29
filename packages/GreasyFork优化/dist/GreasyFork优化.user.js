@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GreasyFork优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29
+// @version      2024.5.29.14
 // @author       WhiteSevs
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @license      GPL-3.0-only
@@ -143,7 +143,7 @@
     };
     if (result.attributes) {
       result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
     }
     return result;
   };
@@ -845,7 +845,7 @@
     };
     if (result.attributes) {
       result.attributes[ATTRIBUTE_KEY] = key;
-      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
     }
     return result;
   };
@@ -860,7 +860,7 @@
           UISelect(
             "固定当前语言",
             "language-selector-locale",
-            "zh-CN",
+            "",
             function() {
               let result = [
                 {
@@ -2850,7 +2850,7 @@
      * 判断该键是否存在
      * @param key 键
      */
-    hasValue(key) {
+    hasKey(key) {
       let locaData = _GM_getValue(KEY, {});
       return key in locaData;
     },

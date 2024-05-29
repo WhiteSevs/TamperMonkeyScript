@@ -12,7 +12,7 @@ const SettingUIOptimization: PopsPanelContentConfig = {
 				UISelect(
 					"固定当前语言",
 					"language-selector-locale",
-					"zh-CN",
+					"",
 					(function () {
 						let result = [
 							{

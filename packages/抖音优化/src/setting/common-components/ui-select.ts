@@ -19,9 +19,9 @@ const UISelect = function <T extends any>(
 	callback?: (
 		event: PointerEvent | TouchEvent,
 		isSelectedValue: T,
-		isSelectedText: string,
+		isSelectedText: string
 	) => void,
-	description?: string,
+	description?: string
 ): PopsPanelSelectDetails<T> {
 	let selectData: {
 		value: T;

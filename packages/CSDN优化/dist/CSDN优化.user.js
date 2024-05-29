@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.11
+// @version      2024.5.29.14
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -875,7 +875,7 @@
      * 判断该键是否存在
      * @param key 键
      */
-    hasValue(key) {
+    hasKey(key) {
       let locaData = _GM_getValue(KEY, {});
       return key in locaData;
     },
