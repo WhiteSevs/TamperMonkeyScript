@@ -14,7 +14,6 @@ import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 
 const GreasyforkBeautify = {
 	init() {
-		console.log(PopsPanel);
 		PopsPanel.execMenuOnce("beautifyPage", () => {
 			this.beautifyPageElement();
 		});

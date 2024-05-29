@@ -196,6 +196,14 @@ const PopsPanel = {
             console.warn("没有找到对应的监听器");
         }
     },
+	/**
+	 * 判断该键是否存在
+	 * @param key 键
+	 */
+	hasValue(key: string) {
+		let locaData = GM_getValue(KEY, {}) as any;
+		return key in locaData;
+	},
     /**
      * 自动判断菜单是否启用，然后执行回调
      * @param key
@@ -205,6 +213,10 @@ const PopsPanel = {
         if (typeof key !== "string") {
             throw new TypeError("key 必须是字符串");
         }
+		if (!PopsPanel.hasValue(key)) {
+			log.warn(`${key} 键不存在`);
+			return;
+		}
         let value = PopsPanel.getValue(key);
         if (value) {
             callback(value);
@@ -219,6 +231,10 @@ const PopsPanel = {
         if (typeof key !== "string") {
             throw new TypeError("key 必须是字符串");
         }
+		if (!PopsPanel.hasValue(key)) {
+			log.warn(`${key} 键不存在`);
+			return;
+		}
         let value = PopsPanel.getValue(key);
         if (value) {
             if (this.$data.oneSuccessExecMenu.has(key)) {

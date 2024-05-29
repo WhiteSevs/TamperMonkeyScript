@@ -1,6 +1,5 @@
 import { PopsPanel } from "@/setting/setting";
 import "./OwnCSS.css";
-import "./UIScriptListCSS.css";
 import { DOMUtils, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GreasyforkApi } from "@/api/GreasyForkApi";

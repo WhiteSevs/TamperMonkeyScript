@@ -1,5 +1,5 @@
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { GM_Menu, pops, SCRIPT_NAME, utils } from "@/env";
+import { GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
 import { PanelCommonConfig } from "./components/common";
 import { PanelLiveConfig } from "./components/live";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "./config";
@@ -210,6 +210,14 @@ const PopsPanel = {
 		}
 	},
 	/**
+	 * 判断该键是否存在
+	 * @param key 键
+	 */
+	hasValue(key: string) {
+		let locaData = GM_getValue(KEY, {}) as any;
+		return key in locaData;
+	},
+	/**
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key
 	 * @param callback 回调
@@ -217,6 +225,10 @@ const PopsPanel = {
 	execMenu(key: string, callback: (value: any) => void) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
+		}
+		if (!PopsPanel.hasValue(key)) {
+			log.warn(`${key} 键不存在`);
+			return;
 		}
 		let value = PopsPanel.getValue(key);
 		if (value) {
@@ -231,6 +243,10 @@ const PopsPanel = {
 	execMenuOnce(key: string, callback: (value: any) => void) {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
+		}
+		if (!PopsPanel.hasValue(key)) {
+			log.warn(`${key} 键不存在`);
+			return;
 		}
 		let value = PopsPanel.getValue(key);
 		if (value) {
