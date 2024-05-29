@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.28.16
+// @version      2024.5.29
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://m.bilibili.com/*
 // @match        *://live.bilibili.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384463/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.9/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.8/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -531,6 +531,14 @@
       this.$listener.listenData.delete(deleteKey);
     },
     /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasValue(key) {
+      let locaData = _GM_getValue(KEY, {});
+      return key in locaData;
+    },
+    /**
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
@@ -538,6 +546,10 @@
     execMenu(key, callback) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
+      }
+      if (!PopsPanel.hasValue(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
       }
       let value = PopsPanel.getValue(key);
       if (value) {
@@ -553,6 +565,10 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
+      if (!PopsPanel.hasValue(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
+      }
       let value = PopsPanel.getValue(key);
       if (value) {
         if (this.$data.oneSuccessExecMenu.has(key)) {
@@ -564,7 +580,7 @@
     },
     /**
      * 根据key执行一次
-     * @param key 
+     * @param key
      */
     onceExec(key, callback) {
       if (typeof key !== "string") {

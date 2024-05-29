@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.28.16
+// @version      2024.5.29
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
-// @require      https://update.greasyfork.org/scripts/456485/1384463/pops.js
+// @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.1.9/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.0.8/dist/index.umd.js
@@ -2039,6 +2039,14 @@
       }
     },
     /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasValue(key) {
+      let locaData = _GM_getValue(KEY, {});
+      return key in locaData;
+    },
+    /**
      * 自动判断菜单是否启用，然后执行回调
      * @param key
      * @param callback 回调
@@ -2046,6 +2054,10 @@
     execMenu(key, callback) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
+      }
+      if (!PopsPanel.hasValue(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
       }
       let value = PopsPanel.getValue(key);
       if (value) {
@@ -2060,6 +2072,10 @@
     execMenuOnce(key, callback) {
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
+      }
+      if (!PopsPanel.hasValue(key)) {
+        log.warn(`${key} 键不存在`);
+        return;
       }
       let value = PopsPanel.getValue(key);
       if (value) {
