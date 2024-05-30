@@ -1,28 +1,54 @@
-import { GM_addStyle } from "ViteGM";
+import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, GM_Menu, httpx, loadingView, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduResultItem } from "./SearchResultItem";
 import { SearchResultEveryOneSearch } from "./SearchResultEveryOneSearch";
 
+interface PageInfo {
+	pageNum: number;
+	pn: number;
+	nextPageUrl: string;
+}
+
+interface NextPageInfo extends PageInfo {}
 /**
  * 自动加载下一页
  */
 const SearchNextPage = {
 	/**
-	 * 当前页
+	 * 初始页面的信息
 	 */
-	currentPage: 1,
+	initPageInfo: null as PageInfo | null,
+	/**
+	 * 本页的信息，自动跟随请求下一页更新数据
+	 */
+	pageInfo: null as any as PageInfo,
+	/**
+	 * 本页的下一页的信息
+	 */
+	nextPageInfo: null as NextPageInfo | null,
 	/**
 	 * 观察器
 	 */
 	intersectionObserver: null as unknown as IntersectionObserver,
 	init() {
 		this.initPageLineCSS();
+		GM_addStyle(`
+		/* 隐藏分页控制器 */
+		#page-controller{
+			display: none !important;
+		}
+		`);
 		loadingView.initLoadingView(true);
-		DOMUtils.after(
-			document.querySelector("#page-controller") as HTMLElement,
-			loadingView.getLoadingViewElement()
-		);
+		let $loadingViewPrev =
+			document.querySelector<HTMLDivElement>("#page-controller") ||
+			document.querySelector<HTMLDivElement>("#page-bd");
+		if ($loadingViewPrev) {
+			DOMUtils.after($loadingViewPrev, loadingView.getLoadingViewElement());
+		} else {
+			log.error("未找到可以在后面插入加载中的元素");
+			return;
+		}
 		this.setNextPageLoadingObserver();
 	},
 	/**
@@ -99,44 +125,193 @@ const SearchNextPage = {
 		}
 	},
 	/**
+	 * 把参数pn转换为页码
+	 * pn: 10
+	 * pageNum: 2
+	 * @param pn 10的倍数
+	 */
+	parseParamPnToPageNum(pn: number | string) {
+		pn = parseInt(pn as string);
+		if (isNaN(pn)) {
+			throw new TypeError("pn参数解析失败");
+		}
+		let pageNum = pn / 10 + 1;
+		return pageNum;
+	},
+	/**
+	 * 把页码转为参数pn
+	 * pageNum: 2
+	 * pn: 10
+	 * @param pageNum
+	 */
+	parsePageNumToParamPn(pageNum: number | string) {
+		pageNum = parseInt(pageNum as string);
+		if (isNaN(pageNum)) {
+			throw new TypeError("页码解析失败");
+		}
+		let pn = (pageNum - 1) * 10;
+		return pn;
+	},
+	/**
+	 * 解析分页控制器的元素的下一页信息
+	 */
+	parseNextPageInfoWithPageController(
+		$pageController: Node
+	): NextPageInfo | undefined {
+		let nextPageUrl =
+			($pageController as HTMLElement).querySelector<HTMLAnchorElement>(
+				".new-nextpage"
+			)?.href ||
+			($pageController as HTMLElement).querySelector<HTMLAnchorElement>(
+				".new-nextpage-only"
+			)?.href;
+		if (nextPageUrl) {
+			let param_pn_match = new URL(nextPageUrl).search.match(/[0-9]+/);
+			if (param_pn_match == null) {
+				log.warn("获取不到pn参数");
+				return;
+			}
+			let param_pn = parseInt(param_pn_match[0]);
+			let pageNum = this.parseParamPnToPageNum(param_pn);
+			return {
+				pn: param_pn,
+				pageNum: pageNum,
+				nextPageUrl: this.fixNextPageUrl(nextPageUrl),
+			};
+		}
+		return;
+	},
+	/**
+	 * 修复下一页的url
+	 * 有时候获取到的下一页的url的hostname和当前页面的hostname不同
+	 * 因为使用的fetch，不能跨域
+	 * 所以需要把下一页的url的hostname替换成当前页面的hostname
+	 */
+	fixNextPageUrl(url: string) {
+		let urlObj = new URL(url);
+		let newUrl = url;
+		if (urlObj.hostname !== window.location.hostname) {
+			/* 修复下一页的链接在不同域名下，导致无法请求的问题 */
+			/* 如：下一页是https://m.baidu.com/.... 当前页面是https://www.baidu.com 就会无法请求 */
+			urlObj.hostname = window.location.hostname;
+			newUrl = urlObj.toString();
+			log.success("成功修复下一页的链接的不同域名：" + newUrl);
+		}
+		return newUrl;
+	},
+	/**
+	 * 初始化获取本页的页码信息
+	 */
+	getInitPageInfo(): PageInfo | undefined {
+		let initPageInfo = this.parseNextPageInfoWithPageController(document);
+		if (initPageInfo) {
+			initPageInfo.pageNum = initPageInfo.pageNum - 1;
+			initPageInfo.pn = initPageInfo.pn - 10;
+			return initPageInfo;
+		} else {
+			// 未获取到下一页的元素控制台，可能被其它脚本删除了，例如：AC-baidu-重定向...
+			if (typeof (unsafeWindow as any)?.page?.comm?.pn !== "number") {
+				log.warn("page.comm.pn参数未定义");
+				return;
+			}
+			if (typeof (unsafeWindow as any)?.page?.comm?.pageNum !== "number") {
+				log.warn("page.comm.pageNum参数未定义");
+				return;
+			}
+			let pn = (unsafeWindow as any).page.comm.pn;
+			let pageNum = (unsafeWindow as any).page.comm.pageNum;
+			let query =
+				(unsafeWindow as any).page.comm.query ||
+				(unsafeWindow as any).page.comm.prequery ||
+				(unsafeWindow as any).page.comm.rawQuery;
+			let nextPageObj = new URL(window.location.origin);
+			nextPageObj.pathname = "/s";
+			nextPageObj.searchParams.append(
+				"from",
+				(unsafeWindow as any).page.comm.from
+			);
+			nextPageObj.searchParams.append("ssid", "0");
+			nextPageObj.searchParams.append("pn", pn + 10);
+			nextPageObj.searchParams.append("usm", "");
+			nextPageObj.searchParams.append("word", query);
+			// nextPageObj.searchParams.append("rsv_pq", "");
+			// nextPageObj.searchParams.append("rsv_t", "");
+			// nextPageObj.searchParams.append("fqid", "");
+			// nextPageObj.searchParams.append("gb", "");
+			nextPageObj.searchParams.append("rtime", "");
+			nextPageObj.searchParams.append("vfeed", "1024");
+			nextPageObj.searchParams.append("sa", "np");
+			// nextPageObj.searchParams.append("main_srcid", "");
+			nextPageObj.searchParams.append("ms", "1");
+			// nextPageObj.searchParams.append("rqid", "");
+			nextPageObj.searchParams.append("params_ssrt", "node-san");
+			// nextPageObj.searchParams.append("adid", "");
+			nextPageObj.searchParams.append("suv", "");
+			nextPageObj.searchParams.append("cv", "1.0.14");
+			nextPageObj.searchParams.append("mod", "0");
+			nextPageObj.searchParams.append("async", "1");
+			let nextPageUrl = nextPageObj.toString();
+			// let nextPageUrl =
+			// 	window.location.origin +
+			// 	(unsafeWindow as any).page.utils.buildSearchUrl(query, {
+			// 		pn: pn + 10,
+			// 	});
+			return {
+				pn: pn,
+				pageNum: pageNum,
+				nextPageUrl: this.fixNextPageUrl(nextPageUrl),
+			};
+		}
+	},
+	/**
+	 * 添加第xx页的分割线
+	 * @param num 分页
+	 */
+	appendLineDriver(num: number) {
+		let currentResultsDOM = document.querySelector("#results") as HTMLElement;
+		currentResultsDOM.appendChild(SearchNextPage.getPageLineElement(num));
+	},
+	/**
 	 * 滚动事件
 	 * @async
 	 */
 	async scrollEvent() {
-		log.success(`正在加载第 ${SearchNextPage.currentPage} 页`);
-		let nextPageUrl =
-			document.querySelector(".new-nextpage")?.getAttribute("href") ||
-			document.querySelector(".new-nextpage-only")?.getAttribute("href");
-		if (!nextPageUrl) {
-			log.warn("获取不到下一页，怀疑已加载所有的搜索结果");
+		if (this.initPageInfo == null) {
+			// 先初始化获取本页信息
+			let pageInfo = this.getInitPageInfo();
+			if (!pageInfo) {
+				log.warn("初始化失败，未获取到本页信息");
+				SearchNextPage.removeNextPageLoadingObserver();
+				return;
+			}
+			this.initPageInfo = null;
+			this.initPageInfo = pageInfo;
+			this.pageInfo = null as any;
+			this.pageInfo = pageInfo;
+			this.nextPageInfo = null as any;
+			this.nextPageInfo = {
+				pn: pageInfo.pn + 10,
+				pageNum: pageInfo.pageNum + 1,
+				nextPageUrl: pageInfo.nextPageUrl,
+			};
+		}
+		if (this.nextPageInfo == null) {
+			log.warn("不存在下一页，移除监听");
 			SearchNextPage.removeNextPageLoadingObserver();
 			return;
 		}
-		let params_pn = new URL(nextPageUrl).search.match(/[0-9]+/);
-		if (params_pn == null) {
-			log.warn("获取不到pn参数");
+		log.success(`当前第 ${this.pageInfo.pageNum} 页，pn：${this.pageInfo.pn}`);
+		log.success(
+			`请求第 ${this.nextPageInfo.pageNum} 页，pn：${this.nextPageInfo.pn}`
+		);
+		if (!this.nextPageInfo.nextPageUrl) {
+			log.warn("获取不到下一页Url，怀疑已加载所有的搜索结果");
+			SearchNextPage.removeNextPageLoadingObserver();
 			return;
 		}
-		let pn = parseInt(params_pn[0]);
-		log.info(
-			`正在请求${
-				params_pn.length === 0 ? "第 10 条" : "第 " + pn + " 条"
-			}数据: ${nextPageUrl}`
-		);
-		SearchNextPage.currentPage = parseInt((pn / 10).toString());
 		loadingView.setText("Loading...", true);
-		let nextPageUrlObj = new URL(nextPageUrl);
-		if (nextPageUrlObj.hostname !== window.location.hostname) {
-			/* 修复下一页的链接在不同域名下，导致无法请求的问题 */
-			/* 如：下一页是https://m.baidu.com/.... 当前页面是https://www.baidu.com 就会无法请求 */
-			nextPageUrl = nextPageUrl.replace(
-				new RegExp(`^${nextPageUrlObj.origin}`),
-				window.location.origin
-			);
-			log.success("修复下一页的链接的不同域名：" + nextPageUrl);
-		}
 		let getResp = await httpx.get({
-			url: nextPageUrl,
+			url: this.nextPageInfo.nextPageUrl,
 			fetch: true,
 		});
 		let respData = getResp.data;
@@ -147,6 +322,7 @@ const SearchNextPage = {
 				true,
 				true
 			) as Document;
+			// 解析下一页的<script>标签内的数据，（获取某些项的真实链接）
 			let scriptAtomData = DOMUtils.createElement("div");
 			nextPageHTMLNode
 				.querySelectorAll("script[id^=atom-data]")
@@ -156,7 +332,7 @@ const SearchNextPage = {
 			let nextPageScriptOriginUrlMap =
 				BaiduResultItem.parseScriptDOMOriginUrlMap(scriptAtomData);
 			BaiduResultItem.originURLMap.concat(nextPageScriptOriginUrlMap);
-
+			// 将下一页的样式插入到当前页面
 			nextPageHTMLNode
 				.querySelectorAll("style[data-vue-ssr-id]")
 				.forEach((item) => {
@@ -174,40 +350,77 @@ const SearchNextPage = {
 						log.info(["插入Vue的CSS", cssDOM]);
 					}
 				});
-
+			// 解析下一页的搜索结果项
 			let searchResultDOM =
 				nextPageHTMLNode.querySelectorAll(".c-result.result");
+			// 解析下一页的下一页地址的容器（用于判断是否需要请求下下一页）
 			let nextPageControllerDOM =
-				nextPageHTMLNode.querySelector("#page-controller");
+				nextPageHTMLNode.querySelector<HTMLElement>("#page-controller");
+			// 当前页面的搜索结果容器
 			let currentResultsDOM = document.querySelector("#results") as HTMLElement;
 			if (nextPageControllerDOM) {
-				/* 用于划分显示分页 */
-				currentResultsDOM.appendChild(
-					SearchNextPage.getPageLineElement(SearchNextPage.currentPage)
-				);
+				/* 添加显示当前是第xx页的分割项 */
+				this.appendLineDriver(this.pageInfo.pageNum);
 				/* 每一条搜索结果拼接在后面 */
+				let nextPageSearchResultFragment = document.createDocumentFragment();
 				searchResultDOM.forEach((item) => {
-					currentResultsDOM.appendChild(item);
+					nextPageSearchResultFragment.appendChild(item);
 				});
-				DOMUtils.html(
-					document.querySelector("#page-controller") as HTMLElement,
-					nextPageControllerDOM.innerHTML
-				);
+				// 把下一页的搜索结果添加到页面中
+				currentResultsDOM.appendChild(nextPageSearchResultFragment);
+
+				if (PopsPanel.getValue("baidu_search_sync_next_page_address")) {
+					window.history.pushState(
+						"forward",
+						"",
+						this.nextPageInfo.nextPageUrl
+					);
+				}
+				/* 处理下一页的【大家还在搜】 */
+				if (SearchResultEveryOneSearch.refactorEveryoneIsStillSearching) {
+					SearchResultEveryOneSearch.handleBottom(
+						Array.from(nextPageHTMLNode.querySelectorAll("#page-relative"))
+					);
+				}
+				// 解析下下一页的页码信息
+				let nextNextPageInfo =
+					this.parseNextPageInfoWithPageController(nextPageHTMLNode);
+				if (nextNextPageInfo) {
+					if (nextNextPageInfo.pageNum > this.nextPageInfo.pageNum) {
+						let nextPageInfo = this.nextPageInfo;
+
+						this.pageInfo = null as any;
+						this.nextPageInfo = null;
+
+						this.pageInfo = nextPageInfo;
+						this.nextPageInfo = nextNextPageInfo;
+					} else {
+						let nextPageInfo = this.nextPageInfo;
+
+						this.pageInfo = null as any;
+						this.nextPageInfo = null;
+
+						this.pageInfo = nextPageInfo;
+
+						log.warn("下下一页的页码<=当前页码，取消监听");
+						SearchNextPage.removeNextPageLoadingObserver();
+					}
+				} else {
+					let nextPageInfo = this.nextPageInfo;
+					this.pageInfo = null as any;
+					this.nextPageInfo = null;
+
+					this.pageInfo = nextPageInfo;
+					log.warn("获取不到下下一页的页码，怀疑已经加载全部结果");
+					SearchNextPage.removeNextPageLoadingObserver();
+					this.appendLineDriver(this.pageInfo.pageNum);
+				}
 			} else {
 				log.info("已加载所有的搜索结果");
 				SearchNextPage.removeNextPageLoadingObserver();
 			}
-			if (PopsPanel.getValue("baidu_search_sync_next_page_address")) {
-				window.history.pushState("forward", "", nextPageUrl);
-			}
-			/* 处理下一页的【大家还在搜】 */
-			if (SearchResultEveryOneSearch.refactorEveryoneIsStillSearching) {
-				SearchResultEveryOneSearch.handleBottom(
-					Array.from(nextPageHTMLNode.querySelectorAll("#page-relative"))
-				);
-			}
 		} else if (getResp.type === "onerror") {
-			if (utils.isNull(nextPageUrl)) {
+			if (utils.isNull(this.nextPageInfo.nextPageUrl)) {
 				log.error("未获取到下一页的url");
 			} else {
 				log.error("加载失败 👇");
