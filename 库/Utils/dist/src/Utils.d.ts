@@ -1445,143 +1445,206 @@ declare class Utils {
      **/
     waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: Function): Promise<void[]>;
     /**
-     * 等待指定元素出现，支持多个selector
-     * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+     * 等待元素出现
+     * @param selector CSS选择器
+     * @param parent （可选）父元素，默认document
      * @example
-     * Utils.waitNode("div.xxx").then( element =>{
-     *  console.log(element); // div.xxx => HTMLElement
+     * Utils.waitNode("div").then( $div =>{
+     *  console.log($div); // div => HTMLDivELement
      * })
-     * @example
-     * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-     *  console.log(elementList[0]); // div.xxx => HTMLElement
-     *  console.log(elementList[1]); // a.xxx => HTMLElement
+     * Utils.waitNode("div",document).then( $div =>{
+     *  console.log($div); // div => HTMLDivELement
      * })
      */
-    waitNode<T extends HTMLElement>(nodeSelector: string | [string]): Promise<T>;
+    waitNode<T extends Element>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
-     * 等待指定元素出现，支持多个selector
-     * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+     * 等待元素出现
+     * @param selectorList CSS选择器数组
+     * @param parent （可选）父元素，默认document
      * @example
-     * Utils.waitNode("div.xxx").then( element =>{
-     *  console.log(element); // div.xxx => HTMLElement
+     * Utils.waitNode(["div"]).then( ([$div]) =>{
+     *  console.log($div); // div => HTMLDivELement[]
      * })
-     * @example
-     * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-     *  console.log(elementList[0]); // div.xxx => HTMLElement
-     *  console.log(elementList[1]); // a.xxx => HTMLElement
+     * Utils.waitNode(["div"],document).then( ([$div]) =>{
+     *  console.log($div); // div => HTMLDivELement[]
      * })
      */
-    waitNode<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T[]>;
+    waitNode<T extends Element[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
-     * 等待指定元素出现，支持多个selector
-     * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+     * 等待元素出现
+     * @param selector CSS选择器
+     * @param parent 父元素，默认document
+     * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitNode("div.xxx").then( element =>{
-     *  console.log(element); // div.xxx => HTMLElement
-     * })
-     * @example
-     * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-     *  console.log(elementList[0]); // div.xxx => HTMLElement
-     *  console.log(elementList[1]); // a.xxx => HTMLElement
+     * Utils.waitNode("div",document,1000).then( $div =>{
+     *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitNode<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T | T[]>;
+    waitNode<T extends Element>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
-     * 在规定时间内，等待任意元素出现，支持多个selector，如果未出现，则关闭监听
-     * @param nodeSelectorsList 一个或多个节点选择器，必须为字符串类型
-     * @param maxTime （可选）xx毫秒(ms)后关闭监听，默认：0(ms)
+     * 等待元素出现
+     * @param selectorList CSS选择器数组
+     * @param parent 父元素，默认document
+     * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitNodeWithInterval("a.xxx",30000).then(element=>{
-     *   console.log(element);
-     * })
-     * @example
-     * Utils.waitNodeWithInterval(["div.xxx","a.xxx"],30000).then(elementList=>{
-     *   console.log(elementList[0]); // div.xxx => HTMLElement
-     *   console.log(elementList[1]); // a.xxx => HTMLElement
+     * Utils.waitNode(["div"],document,1000).then( ([$div]) =>{
+     *  console.log($div); // $div => HTMLDivELement[] | null
      * })
      */
-    waitNodeWithInterval<T extends HTMLElement>(nodeSelectorsList?: string[] | string, maxTime?: number): Promise<T | T[]>;
+    waitNode<T extends Element[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
-     * 等待任意元素出现，支持多个selector
-     * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+     * 等待元素出现
+     * @param selector CSS选择器
+     * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitAnyNode("div.xxx","a.xxx").then( element =>{
-     *   console.log(element); // a.xxx => HTMLElement
+     * Utils.waitNode("div",1000).then( $div =>{
+     *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitAnyNode<T extends HTMLElement>(...nodeSelectors: any[]): Promise<T>;
+    waitNode<T extends Element>(selector: string, timeout: number): Promise<T | null>;
     /**
-     * 等待指定元素出现
-     * @param nodeSelectors
-     * @returns 当nodeSelectors为数组多个时，
-     * 返回如：[ NodeList, NodeList ]，
-     * 当nodeSelectors为单个时，
-     * 返回如：NodeList。
-     * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+     * 等待元素出现
+     * @param selectorList CSS选择器数组
+     * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitNodeList("div.xxx").then( nodeList =>{
-     *  console.log(nodeList) // div.xxx => NodeList
-     * })
-     * @example
-     * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-     *  console.log(nodeListArray[0]) // div.xxx => NodeList
-     *  console.log(nodeListArray[1]) // a.xxx => NodeList
+     * Utils.waitNode(["div"],1000).then( [$div] =>{
+     *  console.log($div); // $div => HTMLDivELement[] | null
      * })
      */
-    waitNodeList<T extends HTMLElement>(nodeSelector: string): Promise<T>;
+    waitNode<T extends Element[]>(selectorList: string[], timeout: number): Promise<T | null>;
     /**
-     * 等待指定元素出现
-     * @param nodeSelectors
-     * @returns 当nodeSelectors为数组多个时，
-     * 返回如：[ NodeList, NodeList ]，
-     * 当nodeSelectors为单个时，
-     * 返回如：NodeList。
-     * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+     * 等待任意元素出现
+     * @param selectorList CSS选择器数组
+     * @param parent （可选）监听的父元素
      * @example
-     * Utils.waitNodeList("div.xxx").then( nodeList =>{
-     *  console.log(nodeList) // div.xxx => NodeList
+     * Utils.waitAnyNode(["div","div"]).then( $div =>{
+     *  console.log($div); // $div => HTMLDivELement 这里是第一个
      * })
-     * @example
-     * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-     *  console.log(nodeListArray[0]) // div.xxx => NodeList
-     *  console.log(nodeListArray[1]) // a.xxx => NodeList
+     * Utils.waitAnyNode(["a","div"],document).then( $a =>{
+     *  console.log($a); // $a => HTMLAnchorElement 这里是第一个
      * })
      */
-    waitNodeList<T extends HTMLElement[]>(nodeSelector: string): Promise<T>;
+    waitAnyNode<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
-     * 等待指定元素出现，支持多个selector
-     * @param nodeSelectors
-     * @returns 当nodeSelectors为数组多个时，
-     * 返回如：[ NodeList, NodeList ]，
-     * 当nodeSelectors为单个时，
-     * 返回如：NodeList。
-     * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+     * 等待任意元素出现
+     * @param selectorList CSS选择器数组
+     * @param parent 父元素，默认document
+     * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitNodeList("div.xxx").then( nodeList =>{
-     *  console.log(nodeList) // div.xxx => NodeList
-     * })
-     * @example
-     * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-     *  console.log(nodeListArray[0]) // div.xxx => NodeList
-     *  console.log(nodeListArray[1]) // a.xxx => NodeList
+     * Utils.waitAnyNode(["div","div"],document,10000).then( $div =>{
+     *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitNodeList<T extends HTMLElement>(...nodeSelectors: string[]): Promise<NodeListOf<T>[]>;
+    waitAnyNode<T extends Element>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
-     * 等待任意元素出现，支持多个selector
-     * @param nodeSelectors
-     * @returns 返回NodeList
-     * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+     * 等待任意元素出现
+     * @param selectorList CSS选择器数组
+     * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitAnyNodeList("div.xxx").then( nodeList =>{
-     *  console.log(nodeList) // div.xxx => NodeList
-     * })
-     * @example
-     * Utils.waitAnyNodeList("div.xxx","a.xxx").then( nodeList =>{
-     *  console.log(nodeList) // a.xxx => NodeList
+     * Utils.waitAnyNode(["div","div"],10000).then( $div =>{
+     *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitAnyNodeList<T extends HTMLElement>(...nodeSelectors: string[]): Promise<NodeListOf<T>[]>;
+    waitAnyNode<T extends Element>(selectorList: string[], timeout: number): Promise<T | null>;
+    /**
+     * 等待元素数组出现
+     * @param selector CSS选择器
+     * @param parent （可选）监听的父元素
+     * @example
+     * Utils.waitNodeList("div").then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
+     * })
+     * Utils.waitNodeList("div",document).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
+     * })
+     */
+    waitNodeList<T extends NodeListOf<Element>>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    /**
+     * 等待元素数组出现
+     * @param selectorList CSS选择器数组
+     * @param parent （可选）监听的父元素
+     * @example
+     * Utils.waitNodeList(["div"]).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
+     * })
+     */
+    waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    /**
+     * 等待元素数组出现
+     * @param selector CSS选择器
+     * @param parent 监听的父元素
+     * @param timeout 超时时间，默认0
+     * @example
+     * Utils.waitNodeList("div",document,10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+     * })
+     */
+    waitNodeList<T extends NodeListOf<Element>>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    /**
+     * 等待元素数组出现
+     * @param selectorList CSS选择器数组
+     * @param parent 监听的父元素
+     * @param timeout 超时时间，默认0
+     * @example
+     * Utils.waitNodeList("div",document,10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
+     * })
+     */
+    waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    /**
+     * 等待元素数组出现
+     * @param selector CSS选择器数组
+     * @param timeout 超时时间，默认0
+     * @example
+     * Utils.waitNodeList("div",10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+     * })
+     */
+    waitNodeList<T extends NodeListOf<Element>>(selector: string[], timeout: number): Promise<T | null>;
+    /**
+     * 等待元素数组出现
+     * @param selectorList CSS选择器数组
+     * @param timeout 超时时间，默认0
+     * @example
+     * Utils.waitNodeList("div",10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
+     * })
+     */
+    waitNodeList<T extends NodeListOf<Element>>(selectorList: string[], timeout: number): Promise<T[] | null>;
+    /**
+     * 等待任意元素数组出现
+     * @param selectorList CSS选择器数组
+     * @param parent （可选）监听的父元素
+     * @example
+     * Utils.waitAnyNodeList(["div","a"]).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
+     * })
+     * Utils.waitAnyNodeList(["div","a"],document).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>
+     * })
+     */
+    waitAnyNodeList<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<T>>;
+    /**
+     * 等待任意元素数组出现
+     * @param selectorList CSS选择器数组
+     * @param parent 父元素，默认document
+     * @param timeout 超时时间，默认0
+     * @example
+     * Utils.waitAnyNodeList(["div","a"],document,10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+     * })
+     */
+    waitAnyNodeList<T extends Element>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<T> | null>;
+    /**
+     * 等待任意元素出现
+     * @param selectorList CSS选择器数组
+     * @param timeout 超时时间，默认0
+     * @example
+     * Utils.waitAnyNodeList(["div","div"],10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+     * })
+     */
+    waitAnyNodeList<T extends Element>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
     /**
      * 等待对象上的属性出现
      * @param checkObj 检查的对象

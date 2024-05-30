@@ -3171,7 +3171,7 @@ define((function () { 'use strict';
     /// <reference path="./ajaxHooker/index.d.ts" />
     class Utils {
         /** 版本号 */
-        version = "2024.5.28";
+        version = "2024.5.30";
         addStyle(cssText) {
             if (typeof cssText !== "string") {
                 throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -5598,251 +5598,318 @@ define((function () { 'use strict';
                 await UtilsContext.tryCatch(index, item).run(handleFunc);
             }));
         }
-        async waitNode(...nodeSelectors) {
-            /* 检查每个参数是否为字符串类型 */
-            for (let nodeSelector of nodeSelectors) {
-                if (typeof nodeSelector !== "string") {
-                    throw new Error("Utils.waitNode 参数必须都是 string 类型");
+        waitNode(...args) {
+            // 过滤掉undefined
+            args = args.filter((arg) => arg !== void 0);
+            let that = this;
+            // 选择器
+            let selector = args[0];
+            // 父元素（监听的元素）
+            let parent = UtilsCore.document;
+            // 超时时间
+            let timeout = 0;
+            if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
+                throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]");
+            }
+            if (args.length === 1) ;
+            else if (args.length === 2) {
+                let secondParam = args[1];
+                if (typeof secondParam === "number") {
+                    // "div",10000
+                    timeout = secondParam;
+                }
+                else if (typeof secondParam === "object" &&
+                    secondParam instanceof Node) {
+                    // "div",document
+                    parent = secondParam;
+                }
+                else {
+                    throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
                 }
             }
-            let UtilsContext = this;
-            return new Promise((resolve) => {
-                /* 防止触发第二次回调 */
-                let isReturn = false;
-                /**
-                 * 检查所有选择器是否匹配到节点
-                 * @param observer
-                 */
-                let checkNodes = (observer) => {
-                    let isFind = true;
-                    let selectNodeArray = [];
-                    for (let selector of nodeSelectors) {
-                        let element = document.querySelector(selector);
-                        if (!element) {
-                            /* 没找到，直接退出循环 */
-                            isFind = false;
-                            break;
-                        }
-                        selectNodeArray.push(element);
+            else if (args.length === 3) {
+                // "div",document,10000
+                // 第二个参数，parent
+                let secondParam = args[1];
+                // 第三个参数，timeout
+                let thirdParam = args[2];
+                if (typeof secondParam === "object" && secondParam instanceof Node) {
+                    parent = secondParam;
+                    if (typeof thirdParam === "number") {
+                        timeout = thirdParam;
                     }
-                    if (isFind) {
-                        isReturn = true;
-                        observer?.disconnect();
-                        /* 如果只有一个选择器，那么返回数组中存储的第一个 */
-                        if (selectNodeArray.length === 1) {
-                            resolve(selectNodeArray[0]);
-                        }
-                        else {
-                            resolve(selectNodeArray);
-                        }
-                    }
-                };
-                /* 在函数开始时检查节点是否已经存在 */
-                checkNodes();
-                /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-                UtilsContext.mutationObserver(document.documentElement, {
-                    config: { subtree: true, childList: true, attributes: true },
-                    callback: (mutations, observer) => {
-                        if (isReturn) {
-                            return;
-                        }
-                        checkNodes(observer);
-                    },
-                });
-            });
-        }
-        waitNodeWithInterval(nodeSelectorsList = [], maxTime = 0) {
-            let UtilsContext = this;
-            let nodeSelectors = [];
-            /* 检查每个参数是否为字符串类型 */
-            if (Array.isArray(nodeSelectorsList)) {
-                for (let nodeSelector of nodeSelectorsList) {
-                    if (typeof nodeSelector !== "string") {
-                        throw new Error("Utils.waitNodeWithInterval 参数nodeSelectorsList必须为 string[] 类型");
+                    else {
+                        throw new TypeError("Utils.waitNode 第三个参数必须是number");
                     }
                 }
-                nodeSelectors = nodeSelectorsList;
+                else {
+                    throw new TypeError("Utils.waitNode 第二个参数必须是Node");
+                }
             }
             else {
-                nodeSelectors.push(nodeSelectorsList);
-            }
-            return new Promise((resolve, reject) => {
-                /* 防止触发第二次回调 */
-                let isReturn = false;
-                /* 检查所有选择器是否匹配到节点 */
-                let checkNodes = (observer) => {
-                    let isFind = true;
-                    let selectNodeArray = [];
-                    for (let selector of nodeSelectors) {
-                        let element = document.querySelector(selector);
-                        if (!element) {
-                            /* 没找到，直接退出循环 */
-                            isFind = false;
-                            break;
-                        }
-                        selectNodeArray.push(element);
-                    }
-                    if (isFind) {
-                        isReturn = true;
-                        observer?.disconnect();
-                        /* 如果只有一个选择器，那么返回数组中存储的第一个 */
-                        if (selectNodeArray.length === 1) {
-                            resolve(selectNodeArray[0]);
-                        }
-                        else {
-                            resolve(selectNodeArray);
-                        }
-                    }
-                };
-                /* 在函数开始时检查节点是否已经存在 */
-                checkNodes();
-                /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-                let mutationObserver = UtilsContext.mutationObserver(document.documentElement, {
-                    config: { subtree: true, childList: true, attributes: true },
-                    callback: (mutations, observer) => {
-                        if (isReturn) {
-                            return;
-                        }
-                        checkNodes(observer);
-                    },
-                });
-                setTimeout(() => {
-                    mutationObserver.disconnect();
-                    reject();
-                }, maxTime);
-            });
-        }
-        waitAnyNode(...nodeSelectors) {
-            let UtilsContext = this;
-            /* 检查每个参数是否为字符串类型 */
-            for (let nodeSelector of nodeSelectors) {
-                if (typeof nodeSelector !== "string") {
-                    throw new Error("Utils.waitNode 参数必须为 ...string 类型");
-                }
+                throw new TypeError("Utils.waitNode 参数个数错误");
             }
             return new Promise((resolve) => {
-                /* 防止触发第二次回调 */
-                let isReturn = false;
-                /* 检查所有选择器是否存在任意匹配到元素 */
-                let checkNodes = (observer) => {
-                    let selectNode = null;
-                    for (let selector of nodeSelectors) {
-                        selectNode = document.querySelector(selector);
-                        if (selectNode) {
-                            /* 找到，退出循环 */
-                            break;
+                function getNode() {
+                    if (Array.isArray(selector)) {
+                        let result = [];
+                        for (let index = 0; index < selector.length; index++) {
+                            let node = parent.querySelector(selector[index]);
+                            if (node) {
+                                result.push(node);
+                            }
+                        }
+                        if (result.length === selector.length) {
+                            return result;
                         }
                     }
-                    if (selectNode) {
-                        isReturn = true;
-                        observer?.disconnect();
-                        resolve(selectNode);
+                    else {
+                        return parent.querySelector(selector);
                     }
-                };
-                /* 在函数开始时检查节点是否已经存在 */
-                checkNodes();
-                /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-                UtilsContext.mutationObserver(document.documentElement, {
-                    config: { subtree: true, childList: true, attributes: true },
-                    callback: (mutations, observer) => {
-                        if (isReturn) {
+                }
+                let node = getNode();
+                if (node) {
+                    resolve(node);
+                    return;
+                }
+                let observer = that.mutationObserver(parent, {
+                    config: {
+                        subtree: true,
+                        childList: true,
+                        attributes: true,
+                    },
+                    callback() {
+                        let node = getNode();
+                        if (node) {
+                            // 取消观察器
+                            observer.disconnect();
+                            resolve(node);
                             return;
                         }
-                        checkNodes(observer);
                     },
                 });
+                if (timeout > 0) {
+                    setTimeout(() => {
+                        // 取消观察器
+                        observer.disconnect();
+                        resolve(null);
+                    }, timeout);
+                }
             });
         }
-        waitNodeList(...nodeSelectors) {
-            let UtilsContext = this;
-            /* 检查每个参数是否为字符串类型 */
-            for (let nodeSelector of nodeSelectors) {
-                if (typeof nodeSelector !== "string") {
-                    throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+        waitAnyNode(...args) {
+            // 过滤掉undefined
+            args = args.filter((arg) => arg !== void 0);
+            let that = this;
+            // 选择器
+            let selectorList = args[0];
+            // 父元素（监听的元素）
+            let parent = UtilsCore.document;
+            // 超时时间
+            let timeout = 0;
+            if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
+                throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
+            }
+            if (args.length === 1) ;
+            else if (args.length === 2) {
+                let secondParam = args[1];
+                if (typeof secondParam === "number") {
+                    // "div",10000
+                    timeout = secondParam;
+                }
+                else if (typeof secondParam === "object" &&
+                    secondParam instanceof Node) {
+                    // "div",document
+                    parent = secondParam;
+                }
+                else {
+                    throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
                 }
             }
+            else if (args.length === 3) {
+                // "div",document,10000
+                // 第二个参数，parent
+                let secondParam = args[1];
+                // 第三个参数，timeout
+                let thirdParam = args[2];
+                if (typeof secondParam === "object" && secondParam instanceof Node) {
+                    parent = secondParam;
+                    if (typeof thirdParam === "number") {
+                        timeout = thirdParam;
+                    }
+                    else {
+                        throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
+                    }
+                }
+                else {
+                    throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
+                }
+            }
+            else {
+                throw new TypeError("Utils.waitAnyNode 参数个数错误");
+            }
+            let promiseList = selectorList.map((selector) => {
+                return that.waitNode(selector, parent, timeout);
+            });
+            return Promise.any(promiseList);
+        }
+        waitNodeList(...args) {
+            // 过滤掉undefined
+            args = args.filter((arg) => arg !== void 0);
+            let that = this;
+            // 选择器数组
+            let selector = args[0];
+            // 父元素（监听的元素）
+            let parent = UtilsCore.document;
+            // 超时时间
+            let timeout = 0;
+            if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
+                throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
+            }
+            if (args.length === 1) ;
+            else if (args.length === 2) {
+                let secondParam = args[1];
+                if (typeof secondParam === "number") {
+                    // "div",10000
+                    timeout = secondParam;
+                }
+                else if (typeof secondParam === "object" &&
+                    secondParam instanceof Node) {
+                    // "div",document
+                    parent = secondParam;
+                }
+                else {
+                    throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
+                }
+            }
+            else if (args.length === 3) {
+                // "div",document,10000
+                // 第二个参数，parent
+                let secondParam = args[1];
+                // 第三个参数，timeout
+                let thirdParam = args[2];
+                if (typeof secondParam === "object" && secondParam instanceof Node) {
+                    parent = secondParam;
+                    if (typeof thirdParam === "number") {
+                        timeout = thirdParam;
+                    }
+                    else {
+                        throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
+                    }
+                }
+                else {
+                    throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
+                }
+            }
+            else {
+                throw new TypeError("Utils.waitNodeList 参数个数错误");
+            }
             return new Promise((resolve) => {
-                /* 防止触发第二次回调 */
-                let isReturn = false;
-                /* 检查所有选择器是否匹配到节点 */
-                let checkNodes = (observer) => {
-                    let isFind = true;
-                    let selectNodes = [];
-                    for (let selector of nodeSelectors) {
-                        let nodeList = document.querySelectorAll(selector);
-                        if (nodeList.length === 0) {
-                            /* 没找到，直接退出循环 */
-                            isFind = false;
-                            break;
+                function getNodeList() {
+                    if (Array.isArray(selector)) {
+                        let result = [];
+                        for (let index = 0; index < selector.length; index++) {
+                            let nodeList = parent.querySelectorAll(selector[index]);
+                            if (nodeList.length) {
+                                result.push(nodeList);
+                            }
                         }
-                        selectNodes.push(nodeList);
-                    }
-                    if (isFind) {
-                        isReturn = true;
-                        observer?.disconnect();
-                        /* 如果只有一个选择器，那么返回第一个 */
-                        if (selectNodes.length === 1) {
-                            resolve(selectNodes[0]);
-                        }
-                        else {
-                            resolve(selectNodes);
+                        if (result.length === selector.length) {
+                            return result;
                         }
                     }
-                };
-                /* 在函数开始时检查节点是否已经存在 */
-                checkNodes();
-                /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-                UtilsContext.mutationObserver(document.documentElement, {
-                    config: { subtree: true, childList: true, attributes: true },
-                    callback: (mutations, observer) => {
-                        if (isReturn) {
+                    else {
+                        let nodeList = parent.querySelectorAll(selector);
+                        if (nodeList.length) {
+                            return nodeList;
+                        }
+                    }
+                }
+                let nodeList = getNodeList();
+                if (nodeList) {
+                    resolve(nodeList);
+                    return;
+                }
+                let observer = that.mutationObserver(parent, {
+                    config: {
+                        subtree: true,
+                        childList: true,
+                        attributes: true,
+                    },
+                    callback() {
+                        let node = getNodeList();
+                        if (node) {
+                            // 取消观察器
+                            observer.disconnect();
+                            resolve(node);
                             return;
                         }
-                        checkNodes(observer);
                     },
                 });
+                if (timeout > 0) {
+                    setTimeout(() => {
+                        // 取消观察器
+                        observer.disconnect();
+                        resolve(null);
+                    }, timeout);
+                }
             });
         }
-        waitAnyNodeList(...nodeSelectors) {
-            let UtilsContext = this;
-            /* 检查每个参数是否为字符串类型 */
-            for (let nodeSelector of nodeSelectors) {
-                if (typeof nodeSelector !== "string") {
-                    throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+        waitAnyNodeList(...args) {
+            // 过滤掉undefined
+            args = args.filter((arg) => arg !== void 0);
+            let that = this;
+            // 选择器数组
+            let selectorList = args[0];
+            // 父元素（监听的元素）
+            let parent = UtilsCore.document;
+            // 超时时间
+            let timeout = 0;
+            if (!Array.isArray(args[0])) {
+                throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
+            }
+            if (args.length === 1) ;
+            else if (args.length === 2) {
+                let secondParam = args[1];
+                if (typeof secondParam === "number") {
+                    // "div",10000
+                    timeout = secondParam;
+                }
+                else if (typeof secondParam === "object" &&
+                    secondParam instanceof Node) {
+                    // "div",document
+                    parent = secondParam;
+                }
+                else {
+                    throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
                 }
             }
-            return new Promise((resolve) => {
-                /* 防止触发第二次回调 */
-                let isReturn = false;
-                /* 检查所有选择器是否匹配到节点 */
-                let checkNodes = (observer) => {
-                    let selectNodes = [];
-                    for (let selector of nodeSelectors) {
-                        selectNodes = document.querySelectorAll(selector);
-                        if (selectNodes.length) {
-                            /* 找到，退出循环 */
-                            break;
-                        }
+            else if (args.length === 3) {
+                // "div",document,10000
+                // 第二个参数，parent
+                let secondParam = args[1];
+                // 第三个参数，timeout
+                let thirdParam = args[2];
+                if (typeof secondParam === "object" && secondParam instanceof Node) {
+                    parent = secondParam;
+                    if (typeof thirdParam === "number") {
+                        timeout = thirdParam;
                     }
-                    if (selectNodes.length) {
-                        isReturn = true;
-                        observer?.disconnect();
-                        resolve(selectNodes);
+                    else {
+                        throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
                     }
-                };
-                /* 在函数开始时检查节点是否已经存在 */
-                checkNodes();
-                /* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-                UtilsContext.mutationObserver(document.documentElement, {
-                    config: { subtree: true, childList: true, attributes: true },
-                    callback: (mutations, observer) => {
-                        if (isReturn) {
-                            return;
-                        }
-                        checkNodes(observer);
-                    },
-                });
+                }
+                else {
+                    throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
+                }
+            }
+            else {
+                throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
+            }
+            let promiseList = selectorList.map((selector) => {
+                return that.waitNodeList(selector, parent, timeout);
             });
+            return Promise.any(promiseList);
         }
         waitProperty(checkObj, checkPropertyName) {
             return new Promise((resolve) => {

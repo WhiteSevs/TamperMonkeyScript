@@ -67,7 +67,7 @@ export declare interface Vue2Context extends AnyObject {
 
 class Utils {
 	/** 版本号 */
-	version = "2024.5.28";
+	version = "2024.5.30";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -3918,426 +3918,579 @@ class Utils {
 		);
 	}
 	/**
-	 * 等待指定元素出现，支持多个selector
-	 * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+	 * 等待元素出现
+	 * @param selector CSS选择器
+	 * @param parent （可选）父元素，默认document
 	 * @example
-	 * Utils.waitNode("div.xxx").then( element =>{
-	 *  console.log(element); // div.xxx => HTMLElement
+	 * Utils.waitNode("div").then( $div =>{
+	 *  console.log($div); // div => HTMLDivELement
 	 * })
-	 * @example
-	 * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-	 *  console.log(elementList[0]); // div.xxx => HTMLElement
-	 *  console.log(elementList[1]); // a.xxx => HTMLElement
+	 * Utils.waitNode("div",document).then( $div =>{
+	 *  console.log($div); // div => HTMLDivELement
 	 * })
 	 */
-	waitNode<T extends HTMLElement>(nodeSelector: string | [string]): Promise<T>;
+	waitNode<T extends Element>(
+		selector: string,
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T>;
 	/**
-	 * 等待指定元素出现，支持多个selector
-	 * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+	 * 等待元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent （可选）父元素，默认document
 	 * @example
-	 * Utils.waitNode("div.xxx").then( element =>{
-	 *  console.log(element); // div.xxx => HTMLElement
+	 * Utils.waitNode(["div"]).then( ([$div]) =>{
+	 *  console.log($div); // div => HTMLDivELement[]
 	 * })
-	 * @example
-	 * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-	 *  console.log(elementList[0]); // div.xxx => HTMLElement
-	 *  console.log(elementList[1]); // a.xxx => HTMLElement
+	 * Utils.waitNode(["div"],document).then( ([$div]) =>{
+	 *  console.log($div); // div => HTMLDivELement[]
 	 * })
 	 */
-	waitNode<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T[]>;
+	waitNode<T extends Element[]>(
+		selectorList: string[],
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T>;
 	/**
-	 * 等待指定元素出现，支持多个selector
-	 * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
+	 * 等待元素出现
+	 * @param selector CSS选择器
+	 * @param parent 父元素，默认document
+	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNode("div.xxx").then( element =>{
-	 *  console.log(element); // div.xxx => HTMLElement
-	 * })
-	 * @example
-	 * Utils.waitNode("div.xxx","a.xxx").then( (elementList)=>{
-	 *  console.log(elementList[0]); // div.xxx => HTMLElement
-	 *  console.log(elementList[1]); // a.xxx => HTMLElement
+	 * Utils.waitNode("div",document,1000).then( $div =>{
+	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
-	waitNode<T extends HTMLElement>(...nodeSelectors: string[]): Promise<T | T[]>;
-	async waitNode<T extends HTMLElement>(
-		...nodeSelectors: string | string[] | any
-	): Promise<T | T[]> {
-		/* 检查每个参数是否为字符串类型 */
-		for (let nodeSelector of nodeSelectors) {
-			if (typeof nodeSelector !== "string") {
-				throw new Error("Utils.waitNode 参数必须都是 string 类型");
-			}
+	waitNode<T extends Element>(
+		selector: string,
+		parent: Node | Element | Document | HTMLElement,
+		timeout: number
+	): Promise<T | null>;
+	/**
+	 * 等待元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent 父元素，默认document
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNode(["div"],document,1000).then( ([$div]) =>{
+	 *  console.log($div); // $div => HTMLDivELement[] | null
+	 * })
+	 */
+	waitNode<T extends Element[]>(
+		selectorList: string[],
+		parent: Node | Element | Document | HTMLElement,
+		timeout: number
+	): Promise<T | null>;
+	/**
+	 * 等待元素出现
+	 * @param selector CSS选择器
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNode("div",1000).then( $div =>{
+	 *  console.log($div); // $div => HTMLDivELement | null
+	 * })
+	 */
+	waitNode<T extends Element>(
+		selector: string,
+		timeout: number
+	): Promise<T | null>;
+	/**
+	 * 等待元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNode(["div"],1000).then( [$div] =>{
+	 *  console.log($div); // $div => HTMLDivELement[] | null
+	 * })
+	 */
+	waitNode<T extends Element[]>(
+		selectorList: string[],
+		timeout: number
+	): Promise<T | null>;
+	waitNode<T extends Element | Element[]>(...args: any[]): Promise<T | null> {
+		// 过滤掉undefined
+		args = args.filter((arg) => arg !== void 0);
+		let that = this;
+		// 选择器
+		let selector = args[0] as unknown as string | string[];
+		// 父元素（监听的元素）
+		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		// 超时时间
+		let timeout = 0;
+		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
+			throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]");
 		}
-		let UtilsContext = this;
-		return new Promise((resolve) => {
-			/* 防止触发第二次回调 */
-			let isReturn = false;
-
-			/**
-			 * 检查所有选择器是否匹配到节点
-			 * @param observer
-			 */
-			let checkNodes = (observer?: MutationObserver) => {
-				let isFind = true;
-				let selectNodeArray: HTMLElement[] = [];
-				for (let selector of nodeSelectors) {
-					let element = document.querySelector(selector) as HTMLElement | null;
-					if (!element) {
-						/* 没找到，直接退出循环 */
-						isFind = false;
-						break;
-					}
-					selectNodeArray.push(element);
-				}
-				if (isFind) {
-					isReturn = true;
-					observer?.disconnect();
-					/* 如果只有一个选择器，那么返回数组中存储的第一个 */
-					if (selectNodeArray.length === 1) {
-						resolve(selectNodeArray[0] as any);
-					} else {
-						resolve(selectNodeArray as any);
-					}
-				}
-			};
-
-			/* 在函数开始时检查节点是否已经存在 */
-			checkNodes();
-
-			/* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-			UtilsContext.mutationObserver(document.documentElement, {
-				config: { subtree: true, childList: true, attributes: true },
-				callback: (mutations, observer) => {
-					if (isReturn) {
-						return;
-					}
-					checkNodes(observer);
-				},
-			});
-		});
-	}
-	/**
-	 * 在规定时间内，等待任意元素出现，支持多个selector，如果未出现，则关闭监听
-	 * @param nodeSelectorsList 一个或多个节点选择器，必须为字符串类型
-	 * @param maxTime （可选）xx毫秒(ms)后关闭监听，默认：0(ms)
-	 * @example
-	 * Utils.waitNodeWithInterval("a.xxx",30000).then(element=>{
-	 *   console.log(element);
-	 * })
-	 * @example
-	 * Utils.waitNodeWithInterval(["div.xxx","a.xxx"],30000).then(elementList=>{
-	 *   console.log(elementList[0]); // div.xxx => HTMLElement
-	 *   console.log(elementList[1]); // a.xxx => HTMLElement
-	 * })
-	 */
-	waitNodeWithInterval<T extends HTMLElement>(
-		nodeSelectorsList?: string[] | string,
-		maxTime?: number
-	): Promise<T | T[]>;
-	waitNodeWithInterval<T extends HTMLElement>(
-		nodeSelectorsList: string[] | string = [],
-		maxTime: number = 0
-	): Promise<T | T[]> {
-		let UtilsContext = this;
-		let nodeSelectors: string[] = [];
-		/* 检查每个参数是否为字符串类型 */
-		if (Array.isArray(nodeSelectorsList)) {
-			for (let nodeSelector of nodeSelectorsList) {
-				if (typeof nodeSelector !== "string") {
-					throw new Error(
-						"Utils.waitNodeWithInterval 参数nodeSelectorsList必须为 string[] 类型"
-					);
-				}
+		if (args.length === 1) {
+			// 上面已做处理
+		} else if (args.length === 2) {
+			let secondParam = args[1];
+			if (typeof secondParam === "number") {
+				// "div",10000
+				timeout = secondParam;
+			} else if (
+				typeof secondParam === "object" &&
+				secondParam instanceof Node
+			) {
+				// "div",document
+				parent = secondParam;
+			} else {
+				throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
 			}
-			nodeSelectors = nodeSelectorsList;
+		} else if (args.length === 3) {
+			// "div",document,10000
+			// 第二个参数，parent
+			let secondParam = args[1];
+			// 第三个参数，timeout
+			let thirdParam = args[2];
+			if (typeof secondParam === "object" && secondParam instanceof Node) {
+				parent = secondParam;
+				if (typeof thirdParam === "number") {
+					timeout = thirdParam;
+				} else {
+					throw new TypeError("Utils.waitNode 第三个参数必须是number");
+				}
+			} else {
+				throw new TypeError("Utils.waitNode 第二个参数必须是Node");
+			}
 		} else {
-			nodeSelectors.push(nodeSelectorsList);
+			throw new TypeError("Utils.waitNode 参数个数错误");
 		}
-
-		return new Promise((resolve, reject) => {
-			/* 防止触发第二次回调 */
-			let isReturn = false;
-
-			/* 检查所有选择器是否匹配到节点 */
-			let checkNodes = (observer?: MutationObserver) => {
-				let isFind = true;
-				let selectNodeArray = [];
-				for (let selector of nodeSelectors) {
-					let element = document.querySelector(selector);
-					if (!element) {
-						/* 没找到，直接退出循环 */
-						isFind = false;
-						break;
-					}
-					selectNodeArray.push(element);
-				}
-				if (isFind) {
-					isReturn = true;
-					observer?.disconnect();
-					/* 如果只有一个选择器，那么返回数组中存储的第一个 */
-					if (selectNodeArray.length === 1) {
-						resolve(selectNodeArray[0] as any);
-					} else {
-						resolve(selectNodeArray as any);
-					}
-				}
-			};
-
-			/* 在函数开始时检查节点是否已经存在 */
-			checkNodes();
-
-			/* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-			let mutationObserver = UtilsContext.mutationObserver(
-				document.documentElement,
-				{
-					config: { subtree: true, childList: true, attributes: true },
-					callback: (mutations, observer) => {
-						if (isReturn) {
-							return;
+		return new Promise((resolve) => {
+			function getNode() {
+				if (Array.isArray(selector)) {
+					let result: T[] = [];
+					for (let index = 0; index < selector.length; index++) {
+						let node = (parent as Element).querySelector(selector[index]);
+						if (node) {
+							result.push(node as any);
 						}
-						checkNodes(observer);
-					},
-				}
-			);
-			setTimeout(() => {
-				mutationObserver.disconnect();
-				reject();
-			}, maxTime);
-		});
-	}
-
-	/**
-	 * 等待任意元素出现，支持多个selector
-	 * @param nodeSelectors 一个或多个节点选择器，必须为字符串类型
-	 * @example
-	 * Utils.waitAnyNode("div.xxx","a.xxx").then( element =>{
-	 *   console.log(element); // a.xxx => HTMLElement
-	 * })
-	 */
-	waitAnyNode<T extends HTMLElement>(...nodeSelectors: any[]): Promise<T>;
-	waitAnyNode<T extends HTMLElement>(...nodeSelectors: any[]): Promise<T> {
-		let UtilsContext = this;
-		/* 检查每个参数是否为字符串类型 */
-		for (let nodeSelector of nodeSelectors) {
-			if (typeof nodeSelector !== "string") {
-				throw new Error("Utils.waitNode 参数必须为 ...string 类型");
-			}
-		}
-
-		return new Promise((resolve) => {
-			/* 防止触发第二次回调 */
-			let isReturn = false;
-
-			/* 检查所有选择器是否存在任意匹配到元素 */
-			let checkNodes = (observer?: MutationObserver) => {
-				let selectNode = null;
-				for (let selector of nodeSelectors) {
-					selectNode = document.querySelector(selector);
-					if (selectNode) {
-						/* 找到，退出循环 */
-						break;
 					}
+					if (result.length === selector.length) {
+						return result;
+					}
+				} else {
+					return (parent as Element).querySelector(selector);
 				}
-				if (selectNode) {
-					isReturn = true;
-					observer?.disconnect();
-					resolve(selectNode);
-				}
-			};
-
-			/* 在函数开始时检查节点是否已经存在 */
-			checkNodes();
-
-			/* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-			UtilsContext.mutationObserver(document.documentElement, {
-				config: { subtree: true, childList: true, attributes: true },
-				callback: (mutations, observer) => {
-					if (isReturn) {
+			}
+			let node = getNode();
+			if (node) {
+				resolve(node as any as T);
+				return;
+			}
+			let observer = that.mutationObserver(parent, {
+				config: {
+					subtree: true,
+					childList: true,
+					attributes: true,
+				},
+				callback() {
+					let node = getNode();
+					if (node) {
+						// 取消观察器
+						observer.disconnect();
+						resolve(node as any as T);
 						return;
 					}
-					checkNodes(observer);
 				},
 			});
+			if (timeout > 0) {
+				setTimeout(() => {
+					// 取消观察器
+					observer.disconnect();
+					resolve(null);
+				}, timeout);
+			}
 		});
 	}
 	/**
-	 * 等待指定元素出现
-	 * @param nodeSelectors
-	 * @returns 当nodeSelectors为数组多个时，
-	 * 返回如：[ NodeList, NodeList ]，
-	 * 当nodeSelectors为单个时，
-	 * 返回如：NodeList。
-	 * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+	 * 等待任意元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent （可选）监听的父元素
 	 * @example
-	 * Utils.waitNodeList("div.xxx").then( nodeList =>{
-	 *  console.log(nodeList) // div.xxx => NodeList
+	 * Utils.waitAnyNode(["div","div"]).then( $div =>{
+	 *  console.log($div); // $div => HTMLDivELement 这里是第一个
 	 * })
-	 * @example
-	 * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-	 *  console.log(nodeListArray[0]) // div.xxx => NodeList
-	 *  console.log(nodeListArray[1]) // a.xxx => NodeList
+	 * Utils.waitAnyNode(["a","div"],document).then( $a =>{
+	 *  console.log($a); // $a => HTMLAnchorElement 这里是第一个
 	 * })
 	 */
-	waitNodeList<T extends HTMLElement>(nodeSelector: string): Promise<T>;
+	waitAnyNode<T extends Element>(
+		selectorList: string[],
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T>;
 	/**
-	 * 等待指定元素出现
-	 * @param nodeSelectors
-	 * @returns 当nodeSelectors为数组多个时，
-	 * 返回如：[ NodeList, NodeList ]，
-	 * 当nodeSelectors为单个时，
-	 * 返回如：NodeList。
-	 * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+	 * 等待任意元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent 父元素，默认document
+	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNodeList("div.xxx").then( nodeList =>{
-	 *  console.log(nodeList) // div.xxx => NodeList
-	 * })
-	 * @example
-	 * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-	 *  console.log(nodeListArray[0]) // div.xxx => NodeList
-	 *  console.log(nodeListArray[1]) // a.xxx => NodeList
+	 * Utils.waitAnyNode(["div","div"],document,10000).then( $div =>{
+	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
-	waitNodeList<T extends HTMLElement[]>(nodeSelector: string): Promise<T>;
+	waitAnyNode<T extends Element>(
+		selectorList: string[],
+		parent: Node | Element | Document | HTMLElement,
+		timeout: number
+	): Promise<T | null>;
 	/**
-	 * 等待指定元素出现，支持多个selector
-	 * @param nodeSelectors
-	 * @returns 当nodeSelectors为数组多个时，
-	 * 返回如：[ NodeList, NodeList ]，
-	 * 当nodeSelectors为单个时，
-	 * 返回如：NodeList。
-	 * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+	 * 等待任意元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param timeout 超时时间，默认0
 	 * @example
-	 * Utils.waitNodeList("div.xxx").then( nodeList =>{
-	 *  console.log(nodeList) // div.xxx => NodeList
-	 * })
-	 * @example
-	 * Utils.waitNodeList("div.xxx","a.xxx").then( nodeListArray =>{
-	 *  console.log(nodeListArray[0]) // div.xxx => NodeList
-	 *  console.log(nodeListArray[1]) // a.xxx => NodeList
+	 * Utils.waitAnyNode(["div","div"],10000).then( $div =>{
+	 *  console.log($div); // $div => HTMLDivELement | null
 	 * })
 	 */
-	waitNodeList<T extends HTMLElement>(
-		...nodeSelectors: string[]
-	): Promise<NodeListOf<T>[]>;
-	waitNodeList<T extends HTMLElement>(
-		...nodeSelectors: string[]
-	): Promise<NodeListOf<T>[]> {
-		let UtilsContext = this;
-		/* 检查每个参数是否为字符串类型 */
-		for (let nodeSelector of nodeSelectors) {
-			if (typeof nodeSelector !== "string") {
-				throw new Error("Utils.waitNode 参数必须为 ...string 类型");
-			}
+	waitAnyNode<T extends Element>(
+		selectorList: string[],
+		timeout: number
+	): Promise<T | null>;
+	waitAnyNode<T extends Element>(...args: any[]): Promise<T | null> {
+		// 过滤掉undefined
+		args = args.filter((arg) => arg !== void 0);
+		let that = this;
+		// 选择器
+		let selectorList = args[0] as unknown as string[];
+		// 父元素（监听的元素）
+		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		// 超时时间
+		let timeout = 0;
+		if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
+			throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
 		}
+		if (args.length === 1) {
+			// 上面已做处理
+		} else if (args.length === 2) {
+			let secondParam = args[1];
+			if (typeof secondParam === "number") {
+				// "div",10000
+				timeout = secondParam;
+			} else if (
+				typeof secondParam === "object" &&
+				secondParam instanceof Node
+			) {
+				// "div",document
+				parent = secondParam;
+			} else {
+				throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
+			}
+		} else if (args.length === 3) {
+			// "div",document,10000
+			// 第二个参数，parent
+			let secondParam = args[1];
+			// 第三个参数，timeout
+			let thirdParam = args[2];
+			if (typeof secondParam === "object" && secondParam instanceof Node) {
+				parent = secondParam;
+				if (typeof thirdParam === "number") {
+					timeout = thirdParam;
+				} else {
+					throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
+				}
+			} else {
+				throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
+			}
+		} else {
+			throw new TypeError("Utils.waitAnyNode 参数个数错误");
+		}
+		let promiseList = selectorList.map((selector) => {
+			return that.waitNode<T>(selector, parent, timeout);
+		});
+		return Promise.any(promiseList);
+	}
 
+	/**
+	 * 等待元素数组出现
+	 * @param selector CSS选择器
+	 * @param parent （可选）监听的父元素
+	 * @example
+	 * Utils.waitNodeList("div").then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
+	 * })
+	 * Utils.waitNodeList("div",document).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
+	 * })
+	 */
+	waitNodeList<T extends NodeListOf<Element>>(
+		selector: string,
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T>;
+	/**
+	 * 等待元素数组出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent （可选）监听的父元素
+	 * @example
+	 * Utils.waitNodeList(["div"]).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
+	 * })
+	 * Utils.waitNodeList(["div"],document).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
+	 * })
+	 */
+	waitNodeList<T extends NodeListOf<Element>[]>(
+		selectorList: string[],
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<T>;
+	/**
+	 * 等待元素数组出现
+	 * @param selector CSS选择器
+	 * @param parent 监听的父元素
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNodeList("div",document,10000).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+	 * })
+	 */
+	waitNodeList<T extends NodeListOf<Element>>(
+		selector: string,
+		parent: Node | Element | Document | HTMLElement,
+		timeout: number
+	): Promise<T | null>;
+	/**
+	 * 等待元素数组出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent 监听的父元素
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNodeList(["div"],document,10000).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
+	 * })
+	 */
+	waitNodeList<T extends NodeListOf<Element>[]>(
+		selectorList: string[],
+		parent: Node | Element | Document | HTMLElement,
+		timeout: number
+	): Promise<T | null>;
+	/**
+	 * 等待元素数组出现
+	 * @param selector CSS选择器数组
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNodeList("div",10000).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+	 * })
+	 */
+	waitNodeList<T extends NodeListOf<Element>>(
+		selector: string[],
+		timeout: number
+	): Promise<T | null>;
+	/**
+	 * 等待元素数组出现
+	 * @param selectorList CSS选择器数组
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitNodeList(["div"],10000).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
+	 * })
+	 */
+	waitNodeList<T extends NodeListOf<Element>>(
+		selectorList: string[],
+		timeout: number
+	): Promise<T[] | null>;
+	waitNodeList<T extends NodeListOf<Element> | NodeListOf<Element>[]>(
+		...args: any[]
+	): Promise<T | null> {
+		// 过滤掉undefined
+		args = args.filter((arg) => arg !== void 0);
+		let that = this;
+		// 选择器数组
+		let selector = args[0] as unknown as string | string[];
+		// 父元素（监听的元素）
+		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		// 超时时间
+		let timeout = 0;
+		if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
+			throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
+		}
+		if (args.length === 1) {
+			// 上面已做处理
+		} else if (args.length === 2) {
+			let secondParam = args[1];
+			if (typeof secondParam === "number") {
+				// "div",10000
+				timeout = secondParam;
+			} else if (
+				typeof secondParam === "object" &&
+				secondParam instanceof Node
+			) {
+				// "div",document
+				parent = secondParam;
+			} else {
+				throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
+			}
+		} else if (args.length === 3) {
+			// "div",document,10000
+			// 第二个参数，parent
+			let secondParam = args[1];
+			// 第三个参数，timeout
+			let thirdParam = args[2];
+			if (typeof secondParam === "object" && secondParam instanceof Node) {
+				parent = secondParam;
+				if (typeof thirdParam === "number") {
+					timeout = thirdParam;
+				} else {
+					throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
+				}
+			} else {
+				throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
+			}
+		} else {
+			throw new TypeError("Utils.waitNodeList 参数个数错误");
+		}
 		return new Promise((resolve) => {
-			/* 防止触发第二次回调 */
-			let isReturn = false;
-
-			/* 检查所有选择器是否匹配到节点 */
-			let checkNodes = (observer?: MutationObserver) => {
-				let isFind = true;
-				let selectNodes = [];
-				for (let selector of nodeSelectors) {
-					let nodeList = document.querySelectorAll(selector);
-					if (nodeList.length === 0) {
-						/* 没找到，直接退出循环 */
-						isFind = false;
-						break;
+			function getNodeList() {
+				if (Array.isArray(selector)) {
+					let result: T[] = [];
+					for (let index = 0; index < selector.length; index++) {
+						let nodeList = (parent as Element).querySelectorAll(
+							selector[index]
+						) as T;
+						if (nodeList.length) {
+							result.push(nodeList);
+						}
 					}
-					selectNodes.push(nodeList);
-				}
-				if (isFind) {
-					isReturn = true;
-					observer?.disconnect();
-					/* 如果只有一个选择器，那么返回第一个 */
-					if (selectNodes.length === 1) {
-						resolve(selectNodes[0] as any);
-					} else {
-						resolve(selectNodes as any);
+					if (result.length === selector.length) {
+						return result;
+					}
+				} else {
+					let nodeList = (parent as Element).querySelectorAll(selector) as T;
+					if (nodeList.length) {
+						return nodeList;
 					}
 				}
-			};
-
-			/* 在函数开始时检查节点是否已经存在 */
-			checkNodes();
-
-			/* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-			UtilsContext.mutationObserver(document.documentElement, {
-				config: { subtree: true, childList: true, attributes: true },
-				callback: (mutations, observer) => {
-					if (isReturn) {
+			}
+			let nodeList = getNodeList();
+			if (nodeList) {
+				resolve(nodeList as T);
+				return;
+			}
+			let observer = that.mutationObserver(parent, {
+				config: {
+					subtree: true,
+					childList: true,
+					attributes: true,
+				},
+				callback() {
+					let node = getNodeList();
+					if (node) {
+						// 取消观察器
+						observer.disconnect();
+						resolve(node as T);
 						return;
 					}
-					checkNodes(observer);
 				},
 			});
+			if (timeout > 0) {
+				setTimeout(() => {
+					// 取消观察器
+					observer.disconnect();
+					resolve(null);
+				}, timeout);
+			}
 		});
 	}
 	/**
-	 * 等待任意元素出现，支持多个selector
-	 * @param nodeSelectors
-	 * @returns 返回NodeList
-	 * NodeList元素与页面存在强绑定，当已获取该NodeList，但是页面中却删除了，该元素在NodeList中会被自动删除
+	 * 等待任意元素数组出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent （可选）监听的父元素
 	 * @example
-	 * Utils.waitAnyNodeList("div.xxx").then( nodeList =>{
-	 *  console.log(nodeList) // div.xxx => NodeList
+	 * Utils.waitAnyNodeList(["div","a"]).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
 	 * })
-	 * @example
-	 * Utils.waitAnyNodeList("div.xxx","a.xxx").then( nodeList =>{
-	 *  console.log(nodeList) // a.xxx => NodeList
+	 * Utils.waitAnyNodeList(["div","a"],document).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement>
 	 * })
 	 */
-	waitAnyNodeList<T extends HTMLElement>(
-		...nodeSelectors: string[]
-	): Promise<NodeListOf<T>[]>;
-	waitAnyNodeList<T extends HTMLElement>(
-		...nodeSelectors: string[]
-	): Promise<NodeListOf<T>[]> {
-		let UtilsContext = this;
-		/* 检查每个参数是否为字符串类型 */
-		for (let nodeSelector of nodeSelectors) {
-			if (typeof nodeSelector !== "string") {
-				throw new Error("Utils.waitNode 参数必须为 ...string 类型");
+	waitAnyNodeList<T extends Element>(
+		selectorList: string[],
+		parent?: Node | Element | Document | HTMLElement
+	): Promise<NodeListOf<T>>;
+	/**
+	 * 等待任意元素数组出现
+	 * @param selectorList CSS选择器数组
+	 * @param parent 父元素，默认document
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitAnyNodeList(["div","a"],document,10000).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+	 * })
+	 */
+	waitAnyNodeList<T extends Element>(
+		selectorList: string[],
+		parent: Node | Element | Document | HTMLElement,
+		timeout: number
+	): Promise<NodeListOf<T> | null>;
+	/**
+	 * 等待任意元素出现
+	 * @param selectorList CSS选择器数组
+	 * @param timeout 超时时间，默认0
+	 * @example
+	 * Utils.waitAnyNodeList(["div","div"],10000).then( $result =>{
+	 *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+	 * })
+	 */
+	waitAnyNodeList<T extends Element>(
+		selectorList: string[],
+		timeout: number
+	): Promise<NodeListOf<T> | null>;
+	waitAnyNodeList<T extends Element>(
+		...args: any[]
+	): Promise<NodeListOf<T> | null> {
+		// 过滤掉undefined
+		args = args.filter((arg) => arg !== void 0);
+		let that = this;
+		// 选择器数组
+		let selectorList = args[0] as unknown as string[];
+		// 父元素（监听的元素）
+		let parent = UtilsCore.document as Node | Element | Document | HTMLElement;
+		// 超时时间
+		let timeout = 0;
+		if (!Array.isArray(args[0])) {
+			throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
+		}
+		if (args.length === 1) {
+			// 上面已做处理
+		} else if (args.length === 2) {
+			let secondParam = args[1];
+			if (typeof secondParam === "number") {
+				// "div",10000
+				timeout = secondParam;
+			} else if (
+				typeof secondParam === "object" &&
+				secondParam instanceof Node
+			) {
+				// "div",document
+				parent = secondParam;
+			} else {
+				throw new TypeError(
+					"Utils.waitAnyNodeList 第二个参数必须是number|Node"
+				);
 			}
+		} else if (args.length === 3) {
+			// "div",document,10000
+			// 第二个参数，parent
+			let secondParam = args[1];
+			// 第三个参数，timeout
+			let thirdParam = args[2];
+			if (typeof secondParam === "object" && secondParam instanceof Node) {
+				parent = secondParam;
+				if (typeof thirdParam === "number") {
+					timeout = thirdParam;
+				} else {
+					throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
+				}
+			} else {
+				throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
+			}
+		} else {
+			throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
 		}
 
-		return new Promise((resolve) => {
-			/* 防止触发第二次回调 */
-			let isReturn = false;
-
-			/* 检查所有选择器是否匹配到节点 */
-			let checkNodes = (observer?: MutationObserver) => {
-				let selectNodes = [];
-				for (let selector of nodeSelectors) {
-					selectNodes = document.querySelectorAll(selector) as any;
-					if (selectNodes.length) {
-						/* 找到，退出循环 */
-						break;
-					}
-				}
-				if (selectNodes.length) {
-					isReturn = true;
-					observer?.disconnect();
-					resolve(selectNodes);
-				}
-			};
-
-			/* 在函数开始时检查节点是否已经存在 */
-			checkNodes();
-
-			/* 监听 DOM 的变化，直到至少有一个节点被匹配到 */
-			UtilsContext.mutationObserver(document.documentElement, {
-				config: { subtree: true, childList: true, attributes: true },
-				callback: (mutations, observer) => {
-					if (isReturn) {
-						return;
-					}
-					checkNodes(observer);
-				},
-			});
+		let promiseList = selectorList.map((selector) => {
+			return that.waitNodeList<NodeListOf<T>>(selector, parent, timeout);
 		});
+		return Promise.any(promiseList);
 	}
+
 	/**
 	 * 等待对象上的属性出现
 	 * @param checkObj 检查的对象
