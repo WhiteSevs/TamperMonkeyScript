@@ -39,7 +39,7 @@ const TiebaSearch = {
 		return utils.toJSON(respData.responseText);
 	},
 	init() {
-		utils.waitNode("div.more-btn-desc").then((element) => {
+		utils.waitNode<HTMLDivElement>("div.more-btn-desc").then((element) => {
 			element.outerHTML = `
               <input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
               <div class="more-btn-desc">搜索</div>

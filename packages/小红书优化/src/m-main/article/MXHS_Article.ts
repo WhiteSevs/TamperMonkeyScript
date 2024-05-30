@@ -326,7 +326,7 @@ const MXHS_Article = {
 			},
 		};
 		/* 等待内容元素出现 */
-		utils.waitNode(".narmal-note-container").then(async () => {
+		utils.waitNode<HTMLDivElement>(".narmal-note-container").then(async () => {
 			log.info("优化评论浏览-笔记元素出现");
 			let noteViewContainer = document.querySelector(
 				".note-view-container"

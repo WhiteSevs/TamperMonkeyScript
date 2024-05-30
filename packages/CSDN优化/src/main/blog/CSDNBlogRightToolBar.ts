@@ -93,16 +93,18 @@ const CSDNBlogRightToolBar = {
           left: unset !important;
         }
         `);
-		utils.waitNode(".csdn-side-toolbar").then((element) => {
-			DOMUtils.css(element, {
-				top:
-					parseInt(PopsPanel.getValue("csdn-blog-rightToolbarTopOffset")) +
-					"px",
-				right:
-					parseInt(PopsPanel.getValue("csdn-blog-rightToolbarRightOffset")) +
-					"px",
+		utils
+			.waitNode<HTMLDivElement>(".csdn-side-toolbar")
+			.then(($sideToolbar) => {
+				DOMUtils.css($sideToolbar, {
+					top:
+						parseInt(PopsPanel.getValue("csdn-blog-rightToolbarTopOffset")) +
+						"px",
+					right:
+						parseInt(PopsPanel.getValue("csdn-blog-rightToolbarRightOffset")) +
+						"px",
+				});
 			});
-		});
 	},
 	/**
 	 * 【屏蔽】创作中心

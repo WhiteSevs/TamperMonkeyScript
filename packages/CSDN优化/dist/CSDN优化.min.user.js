@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.15
+// @version      2024.5.30.13
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -363,7 +363,7 @@ div.ios-shadowbox {\r
   height: 1.58rem;\r
   /*margin-left: .16rem*/\r
 }\r
-`;function S(e=""){d.waitNodeList(e).then(()=>{document.querySelectorAll(e).forEach(t=>{t.remove();});});}const ve={init(){this.addCSS(),i.execMenu("m-csdn-blog-shieldTopToolbar",()=>{this.shieldTopToolbar();}),i.execMenu("m-csdn-blog-notLimitCodePreMaxHeight",()=>{this.notLimitCodePreMaxHeight();}),i.execMenu("m-csdn-blog-notLimitCommentMaxHeight",()=>{this.notLimitCommentMaxHeight();}),i.execMenu("m-csdn-blog-allowSelectText",()=>{this.allowSelectText();}),i.execMenu("m-csdn-blog-autoExpandContent",()=>{this.autoExpandContent();}),i.execMenu("m-csdn-blog-blockBottomArticle",()=>{this.blockBottomArticle();}),i.execMenu("m-csdn-blog-blockComment",()=>{this.blockComment();}),v.ready(()=>{i.execMenu("m-csdn-blog-removeAds",()=>{this.removeAds();}),i.execMenu("m-csdn-blog-refactoringRecommendation",()=>{this.refactoringRecommendation();}),i.execMenu("m-csdn-blog-unBlockCopy",()=>{W.unBlockCopy();});});},addCSS(){a(we),a(Ce);},shieldTopToolbar(){o.success("屏蔽顶部Toolbar"),a(`
+`;function S(e=""){d.waitNodeList(e).then(t=>{t.forEach(n=>n.remove());});}const ve={init(){this.addCSS(),i.execMenu("m-csdn-blog-shieldTopToolbar",()=>{this.shieldTopToolbar();}),i.execMenu("m-csdn-blog-notLimitCodePreMaxHeight",()=>{this.notLimitCodePreMaxHeight();}),i.execMenu("m-csdn-blog-notLimitCommentMaxHeight",()=>{this.notLimitCommentMaxHeight();}),i.execMenu("m-csdn-blog-allowSelectText",()=>{this.allowSelectText();}),i.execMenu("m-csdn-blog-autoExpandContent",()=>{this.autoExpandContent();}),i.execMenu("m-csdn-blog-blockBottomArticle",()=>{this.blockBottomArticle();}),i.execMenu("m-csdn-blog-blockComment",()=>{this.blockComment();}),v.ready(()=>{i.execMenu("m-csdn-blog-removeAds",()=>{this.removeAds();}),i.execMenu("m-csdn-blog-refactoringRecommendation",()=>{this.refactoringRecommendation();}),i.execMenu("m-csdn-blog-unBlockCopy",()=>{W.unBlockCopy();});});},addCSS(){a(we),a(Ce);},shieldTopToolbar(){o.success("屏蔽顶部Toolbar"),a(`
         #csdn-toolbar{
           display: none !important;
         }

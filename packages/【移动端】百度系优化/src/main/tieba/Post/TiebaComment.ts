@@ -95,14 +95,14 @@ const TiebaComment = {
 			});
 			log.error(["百度验证后的参数👇", TiebaComment.extraSearchSignParams]);
 		}
-		utils.waitNode(".main-page-wrap").then(() => {
+		utils.waitNode<HTMLDivElement>(".main-page-wrap").then(() => {
 			TiebaComment.insertLoadingHTML();
 		});
 		utils
-			.waitAnyNode(
+			.waitAnyNode<HTMLDivElement>([
 				".recommend-item[data-banner-info]",
-				"div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item"
-			)
+				"div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item",
+			])
 			.then(() => {
 				DOMUtils.remove(".post-item");
 				TiebaComment.initReplyDialogCSS();
@@ -111,45 +111,51 @@ const TiebaComment = {
 				TiebaComment.insertOnlyLZ();
 			});
 
-		utils.waitNodeWithInterval(".app-view", 10000).then(async () => {
-			utils
-				.waitPropertyByInterval(
-					() => {
-						return CommonUtil.getVue(document.querySelector(".app-view"));
-					},
-					() => {
-						return CommonUtil.getVue(document.querySelector(".app-view"))
-							?.isHitMedicalPost;
-					},
-					void 0,
-					10000
-				)
-				.then(() => {
-					CommonUtil.getVue(
-						document.querySelector(".app-view")
-					)!.isHitMedicalPost = !1;
-				});
-			utils
-				.waitPropertyByInterval(
-					() => {
-						return CommonUtil.getVue(document.querySelector(".app-view"));
-					},
-					() => {
-						return (
-							typeof CommonUtil.getVue(document.querySelector(".app-view"))
-								?.thread?.reply_num === "number"
-						);
-					},
-					void 0,
-					10000
-				)
-				.then(() => {
-					TiebaComment.reply_num = CommonUtil.getVue(
-						document.querySelector(".app-view")
-					)?.thread?.reply_num;
-					log.success("当前帖子的回复数量：" + TiebaComment.reply_num);
-				});
-		});
+		utils
+			.waitNode<HTMLDivElement>(".app-view", 10000)
+			.then(async ($appView) => {
+				if (!$appView) {
+					log.error(".app-view元素未出现");
+					return;
+				}
+				utils
+					.waitPropertyByInterval(
+						() => {
+							return CommonUtil.getVue($appView);
+						},
+						() => {
+							return (
+								typeof CommonUtil.getVue($appView)?.isHitMedicalPost !==
+								"undefined"
+							);
+						},
+						void 0,
+						10000
+					)
+					.then(() => {
+						CommonUtil.getVue($appView)!.isHitMedicalPost = !1;
+						log.success("成功设置参数isHitMedicalPost: false");
+					});
+				utils
+					.waitPropertyByInterval(
+						() => {
+							return CommonUtil.getVue($appView);
+						},
+						() => {
+							return (
+								typeof CommonUtil.getVue($appView)?.thread?.reply_num ===
+								"number"
+							);
+						},
+						void 0,
+						10000
+					)
+					.then(() => {
+						TiebaComment.reply_num =
+							CommonUtil.getVue($appView)?.thread?.reply_num;
+						log.success("当前帖子的回复数量：" + TiebaComment.reply_num);
+					});
+			});
 		this.addStyle();
 	},
 	addStyle() {
@@ -2134,7 +2140,9 @@ const TiebaComment = {
 		}
 		TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
 		if (!TiebaComment.param_forum_id) {
-			let recommendItemElement = await utils.waitNode(".recommend-item");
+			let recommendItemElement = await utils.waitNode<HTMLDivElement>(
+				".recommend-item"
+			);
 			await utils.waitPropertyByInterval(
 				recommendItemElement,
 				() => {
@@ -2218,7 +2226,9 @@ const TiebaComment = {
 		}
 		TiebaComment.param_forum_id = TiebaPageDataApi.getForumId();
 		if (!TiebaComment.param_forum_id) {
-			let recommendItemElement = await utils.waitNode(".recommend-item");
+			let recommendItemElement = await utils.waitNode<HTMLDivElement>(
+				".recommend-item"
+			);
 			await utils.waitPropertyByInterval(
 				recommendItemElement,
 				() => {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.15
+// @version      2024.5.30
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -78,7 +78,7 @@ footer > div > div {\r
 #note-show .content .show-content-free .note-meta-time {\r
 	margin-top: 0px !important;\r
 }\r
-`,O={isGoWild(){return window.location.pathname==="/go-wild"}},E=function(e=""){l.waitNodeList(e).then(t=>{t.forEach(n=>{n.remove();});});},v={init(){this.addCSS(),a.execMenu("JianShuAutoJumpRedirect_PC",()=>{this.jumpRedirect();}),a.execMenu("JianShuRemoveClipboardHijacking",()=>{this.removeClipboardHijacking();}),a.execMenu("JianShuAutoExpandFullText",()=>{this.autoExpandFullText();}),a.execMenu("JianShuArticleCenter",()=>{this.articleCenter();}),a.execMenu("JianShuShieldRelatedArticles",()=>{this.shieldRelatedArticles();}),a.execMenu("jianshu-shieldClientDialog",()=>{this.shieldClientDialog();}),a.execMenu("JianShuShieldUserComments",()=>{this.shieldUserComments();}),a.execMenu("JianShuShieldRecommendedReading",()=>{this.shieldRecommendedReading();}),a.execMenu("jianshu-shieldTopNav",()=>{this.shieldTopNav();}),a.execMenu("jianshu-shieldBottomToolbar",()=>{this.shieldBottomToolbar();});},addCSS(){i.info("添加屏蔽CSS"),u(W);},articleCenter(){i.info("全文居中"),u(`
+`,O={isGoWild(){return window.location.pathname==="/go-wild"}},E=function(e=""){l.waitNodeList(e).then(t=>{t.forEach(n=>n.remove());});},v={init(){this.addCSS(),a.execMenu("JianShuAutoJumpRedirect_PC",()=>{this.jumpRedirect();}),a.execMenu("JianShuRemoveClipboardHijacking",()=>{this.removeClipboardHijacking();}),a.execMenu("JianShuAutoExpandFullText",()=>{this.autoExpandFullText();}),a.execMenu("JianShuArticleCenter",()=>{this.articleCenter();}),a.execMenu("JianShuShieldRelatedArticles",()=>{this.shieldRelatedArticles();}),a.execMenu("jianshu-shieldClientDialog",()=>{this.shieldClientDialog();}),a.execMenu("JianShuShieldUserComments",()=>{this.shieldUserComments();}),a.execMenu("JianShuShieldRecommendedReading",()=>{this.shieldRecommendedReading();}),a.execMenu("jianshu-shieldTopNav",()=>{this.shieldTopNav();}),a.execMenu("jianshu-shieldBottomToolbar",()=>{this.shieldBottomToolbar();});},addCSS(){i.info("添加屏蔽CSS"),u(W);},articleCenter(){i.info("全文居中"),u(`
         div[role=main] aside,
         div._3Pnjry{
           display: none !important;

@@ -9,10 +9,8 @@ import { JianshuRouter } from "@/router/JianshuRouter";
  * @param selectorText 元素选择器
  */
 const waitForElementToRemove = function (selectorText = "") {
-	utils.waitNodeList(selectorText).then((nodeList) => {
-		(nodeList as any).forEach((item: any) => {
-			item.remove();
-		});
+	utils.waitNodeList<NodeListOf<HTMLElement>>(selectorText).then((nodeList) => {
+		nodeList.forEach((item) => item.remove());
 	});
 };
 const Jianshu = {
@@ -71,11 +69,13 @@ const Jianshu = {
         }`);
 		waitForElementToRemove("div[role=main] aside");
 		waitForElementToRemove("div._3Pnjry");
-		utils.waitNodeList<HTMLElement[]>("div._gp-ck").then((nodeList) => {
-			nodeList.forEach((item) => {
-				item.style["width"] = "100%";
+		utils
+			.waitNodeList<NodeListOf<HTMLElement>>("div._gp-ck")
+			.then((nodeList) => {
+				nodeList.forEach((item) => {
+					item.style["width"] = "100%";
+				});
 			});
-		});
 	},
 	/**
 	 * 去除剪贴板劫持
@@ -92,39 +92,41 @@ const Jianshu = {
 	 * 自动展开全文
 	 */
 	autoExpandFullText() {
-		utils.waitNode(`div#homepage div[class*="dialog-"]`).then((element) => {
-			element.style["visibility"] = "hidden";
-			log.info("自动展开全文");
-			utils.mutationObserver(element, {
-				callback: (mutations) => {
-					if (mutations.length == 0) {
-						return;
-					}
-					mutations.forEach((mutationItem) => {
-						if (
-							(mutationItem.target as HTMLElement).style["display"] != "none"
-						) {
-							log.success("自动展开全文-自动点击");
-							document
-								.querySelector<HTMLElement>(
-									'div#homepage div[class*="dialog-"] .cancel'
-								)
-								?.click();
+		utils
+			.waitNode<HTMLDivElement>(`div#homepage div[class*="dialog-"]`)
+			.then((element) => {
+				element.style["visibility"] = "hidden";
+				log.info("自动展开全文");
+				utils.mutationObserver(element, {
+					callback: (mutations) => {
+						if (mutations.length == 0) {
+							return;
 						}
-					});
-				},
-				config: {
-					/* 子节点的变动（新增、删除或者更改） */
-					childList: false,
-					/* 属性的变动 */
-					attributes: true,
-					/* 节点内容或节点文本的变动 */
-					characterData: true,
-					/* 是否将观察器应用于该节点的所有后代节点 */
-					subtree: true,
-				},
+						mutations.forEach((mutationItem) => {
+							if (
+								(mutationItem.target as HTMLElement).style["display"] != "none"
+							) {
+								log.success("自动展开全文-自动点击");
+								document
+									.querySelector<HTMLElement>(
+										'div#homepage div[class*="dialog-"] .cancel'
+									)
+									?.click();
+							}
+						});
+					},
+					config: {
+						/* 子节点的变动（新增、删除或者更改） */
+						childList: false,
+						/* 属性的变动 */
+						attributes: true,
+						/* 节点内容或节点文本的变动 */
+						characterData: true,
+						/* 是否将观察器应用于该节点的所有后代节点 */
+						subtree: true,
+					},
+				});
 			});
-		});
 	},
 	/**
 	 * 去除简书拦截其它网址的url并自动跳转
@@ -166,7 +168,7 @@ const Jianshu = {
             display: none !important;
         }`);
 		utils
-			.waitNode(
+			.waitNode<HTMLDivElement>(
 				`div[class*="-mask"]:not([class*="-mask-hidden"]) + div[tabindex="-1"][role="dialog"]`
 			)
 			.then((element) => {

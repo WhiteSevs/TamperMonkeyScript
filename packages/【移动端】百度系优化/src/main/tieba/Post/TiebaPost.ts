@@ -47,8 +47,8 @@ const TiebaPost = {
 		}
 		/**
 		 * 查看图片
-		 * @param {Array} imgList
-		 * @param {Number} _index_
+		 * @param imgList
+		 * @param _index_
 		 */
 		function viewIMG(imgList: string[] = [], _index_ = 0) {
 			let viewerULNodeHTML = "";
@@ -161,54 +161,62 @@ const TiebaPost = {
 				}
 			}
 		});
+		GM_addStyle(`
+		/* 图片右上角的APP专享 */
+		div.img-sudoku .img-desc{
+			display: none !important;
+		}
+		`);
 		DOMUtils.ready(function () {
-			utils.waitNodeWithInterval("div.img-sudoku", 10000).then(() => {
-				utils.waitNodeWithInterval("div.img-sudoku img", 10000).then(() => {
-					let imgSudoKuElement = document.querySelector(
-						"div.img-sudoku"
-					) as HTMLDivElement;
-					let imgSudoKuImageElementList = Array.from(
-						imgSudoKuElement.querySelectorAll("img.img")
-					) as HTMLImageElement[];
-					log.success([
-						"重构主内容的图片",
-						imgSudoKuElement,
-						imgSudoKuImageElementList,
-					]);
-					imgSudoKuImageElementList.forEach((element) => {
-						if (element.hasAttribute("data-src")) {
-							element.src = element.getAttribute("data-src") as string;
-						}
-					});
-					/* 通过重新赋值innerHTML来覆盖原有的事件 */
-					imgSudoKuElement.innerHTML = imgSudoKuElement.innerHTML;
+			utils
+				.waitNode<HTMLDivElement>("div.img-sudoku", 10000)
+				.then(($imgSudoKu) => {
+					if (!$imgSudoKu) {
+						log.error("未找到元素 div.img-sudoku");
+						return;
+					}
+					utils
+						.waitNode<HTMLImageElement>("img", $imgSudoKu, 10000)
+						.then((childImg) => {
+							if (!childImg) {
+								log.error("未找到元素 div.img-sudoku img");
+								return;
+							}
+							let imgSudoKuImageElementList =
+								$imgSudoKu.querySelectorAll<HTMLImageElement>("img.img");
+							log.success([
+								"重构主内容的图片",
+								$imgSudoKu,
+								imgSudoKuImageElementList,
+							]);
+							imgSudoKuImageElementList.forEach(($imgItem) => {
+								if ($imgItem.hasAttribute("data-src")) {
+									$imgItem.src = $imgItem.getAttribute("data-src") as string;
+								}
+							});
+							/* 通过重新赋值innerHTML来覆盖原有的事件 */
+							$imgSudoKu.innerHTML = $imgSudoKu.innerHTML;
+						});
+					utils
+						.waitVueByInterval(
+							$imgSudoKu,
+							(__vue__) => {
+								return __vue__?.imgs != null;
+							},
+							250,
+							10000
+						)
+						.then((isFind) => {
+							if (!isFind) {
+								return;
+							}
+							TiebaPost.mainPostImgList = CommonUtil.getVue($imgSudoKu)?.imgs;
+							log.success([
+								"Vue上隐藏的帖子高清图片列表",
+								TiebaPost.mainPostImgList,
+							]);
+						});
 				});
-				utils
-					.waitVueByInterval(
-						() => {
-							return document.querySelector("div.img-sudoku") as HTMLElement;
-						},
-						(__vue__) => {
-							return __vue__?.imgs != null;
-						},
-						250,
-						10000
-					)
-					.then((isFind) => {
-						if (!isFind) {
-							return;
-						}
-						let imgSudoKuElement = document.querySelector(
-							"div.img-sudoku"
-						) as HTMLDivElement;
-						TiebaPost.mainPostImgList =
-							CommonUtil.getVue(imgSudoKuElement)?.imgs;
-						log.success([
-							"Vue上隐藏的帖子高清图片列表",
-							TiebaPost.mainPostImgList,
-						]);
-					});
-			});
 		});
 	},
 	/**
@@ -373,85 +381,88 @@ const TiebaPost = {
 			secondData.floor = 3;
 			return [firstData, secondData];
 		}
-		utils.waitNodeWithInterval(".app-view", 10000).then(async () => {
-			await utils.waitPropertyByInterval(
-				() => {
-					return CommonUtil.getVue(document.querySelector(".app-view"));
-				},
-				() => {
-					return (
-						typeof CommonUtil.getVue(document.querySelector(".app-view"))
-							?.isErrorThread === "boolean"
-					);
-				},
-				void 0,
-				10000
-			);
-			let appViewVue = CommonUtil.getVue(document.querySelector(".app-view"));
-			if (!(appViewVue && appViewVue.isErrorThread)) {
-				return;
-			}
-			/* 该帖子不能查看 */
-			log.warn("该帖子不能查看 修复中...");
-			Qmsg.info("该帖子不能查看 修复中...");
-			let pageInfo = await getPageInfo();
-			if (!pageInfo) {
-				return;
-			}
-			log.info(["获取到的页面信息", pageInfo]);
-			let postList = getPostList(
-				pageInfo.field,
-				pageInfo.PageData,
-				pageInfo.time
-			);
-			appViewVue.postList = postList;
-			appViewVue.postAuthorId = postList[0].author.id;
-			appViewVue.thread = {
-				agree: {
-					agree_num: 0,
-					disagree_num: 0,
-				},
-				collect_mark_pid: "0",
-				collect_status: 0,
-				create_time: postList[0].time,
-				id: appViewVue.tid,
-				is_frs_mask: 0,
-				is_share_thread: 0,
-				reply_num: postList[0].reply_num,
-				robot_thread_type: 0,
-				t_share_img: "",
-				thread_type: 0,
-				valid_post_num: 0,
-				works_info: {},
-			};
-			appViewVue.forum = {
-				/* PageData.forum.avatar */
-				avatar: pageInfo.PageData.forum.avatar,
-				/* PageData.forum.first_class */
-				first_dir: pageInfo.PageData.forum.first_class,
-				/* PageData.forum.id */
-				id: pageInfo.PageData.forum.id,
-				is_exists: 1,
-				is_forbidden: 0,
-				is_forum_merged: 0,
-				/* PageData.forum.name */
-				name: pageInfo.PageData.forum.name,
-				/* PageData.forum.second_class */
-				second_dir: pageInfo.PageData.forum.second_class,
-			};
-			/* 固定一下值吧，没测出什么作用 */
-			appViewVue.postNum = 100;
-
-			appViewVue.isErrorThread = false;
-			setTimeout(() => {
-				DOMUtils.append(
-					document.querySelector(
-						"div.app-view div.thread-main-wrapper .thread-text"
-					) as HTMLDivElement,
-					postList[0].content[0].text
+		utils
+			.waitNode<HTMLDivElement>(".app-view", 10000)
+			.then(async ($appView) => {
+				if (!$appView) {
+					log.error("元素.app-view不存在");
+					return;
+				}
+				utils.waitVueByInterval(
+					$appView,
+					() => {
+						return (
+							typeof CommonUtil.getVue($appView)?.isErrorThread === "boolean"
+						);
+					},
+					250,
+					10000
 				);
-			}, 300);
-		});
+				let appViewVue = CommonUtil.getVue($appView);
+				if (!(appViewVue && appViewVue.isErrorThread)) {
+					return;
+				}
+				/* 该帖子不能查看 */
+				log.warn("该帖子不能查看 修复中...");
+				Qmsg.info("该帖子不能查看 修复中...");
+				let pageInfo = await getPageInfo();
+				if (!pageInfo) {
+					return;
+				}
+				log.info(["获取到的页面信息", pageInfo]);
+				let postList = getPostList(
+					pageInfo.field,
+					pageInfo.PageData,
+					pageInfo.time
+				);
+				appViewVue.postList = postList;
+				appViewVue.postAuthorId = postList[0].author.id;
+				appViewVue.thread = {
+					agree: {
+						agree_num: 0,
+						disagree_num: 0,
+					},
+					collect_mark_pid: "0",
+					collect_status: 0,
+					create_time: postList[0].time,
+					id: appViewVue.tid,
+					is_frs_mask: 0,
+					is_share_thread: 0,
+					reply_num: postList[0].reply_num,
+					robot_thread_type: 0,
+					t_share_img: "",
+					thread_type: 0,
+					valid_post_num: 0,
+					works_info: {},
+				};
+				appViewVue.forum = {
+					/* PageData.forum.avatar */
+					avatar: pageInfo.PageData.forum.avatar,
+					/* PageData.forum.first_class */
+					first_dir: pageInfo.PageData.forum.first_class,
+					/* PageData.forum.id */
+					id: pageInfo.PageData.forum.id,
+					is_exists: 1,
+					is_forbidden: 0,
+					is_forum_merged: 0,
+					/* PageData.forum.name */
+					name: pageInfo.PageData.forum.name,
+					/* PageData.forum.second_class */
+					second_dir: pageInfo.PageData.forum.second_class,
+				};
+				/* 固定一下值吧，没测出什么作用 */
+				appViewVue.postNum = 100;
+
+				appViewVue.isErrorThread = false;
+				setTimeout(() => {
+					DOMUtils.append(
+						document.querySelector(
+							"div.app-view div.thread-main-wrapper .thread-text"
+						) as HTMLDivElement,
+						postList[0].content[0].text
+					);
+				}, 300);
+			});
 	},
 };
 

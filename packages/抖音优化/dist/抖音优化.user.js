@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.30
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -257,9 +257,9 @@
      */
     watchVideDataListChange(callback) {
       domUtils.ready(() => {
-        utils.waitAnyNode("#slidelist").then((slidelist) => {
+        utils.waitNode("#slidelist").then(($slidelist) => {
           let osElement = this.getOSElement();
-          utils.mutationObserver(slidelist, {
+          utils.mutationObserver($slidelist, {
             config: {
               childList: true,
               subtree: true
@@ -369,7 +369,11 @@
      * 弹幕过滤
      */
     filterDanmu() {
-      utils.waitNodeWithInterval("xg-danmu.xgplayer-danmu", 1e5).then(($danmu) => {
+      utils.waitNode("xg-danmu.xgplayer-danmu", 1e5).then(($danmu) => {
+        if (!$danmu) {
+          log.error("xg-danmu.xgplayer-danmu获取失败");
+          return;
+        }
         log.success("弹幕过滤");
         DouYinDanmuFilter.init();
         utils.mutationObserver($danmu, {
@@ -2508,7 +2512,7 @@
       DouYinElement.watchVideDataListChange(() => {
         setLogin(DouYinElement.getOSElement());
       });
-      utils.waitNodeWithInterval("#root div[class*='-os']", WAIT_TIME).then(() => {
+      utils.waitNode("#root div[class*='-os']", WAIT_TIME).then(() => {
         utils.mutationObserver(document.body, {
           config: {
             subtree: true,
@@ -2522,7 +2526,7 @@
       });
       if (DouYinRouter.isLive()) {
         log.info("伪装登录：live");
-        utils.waitNodeWithInterval(
+        utils.waitNode(
           `#douyin-header div:has(.dy-tip-container)`,
           WAIT_TIME
         ).then(() => {
@@ -2552,16 +2556,18 @@
           }
         };
         log.info("伪装登录：search");
-        utils.waitNodeWithInterval("#root > div", WAIT_TIME).then(() => {
+        utils.waitNode("#root > div", WAIT_TIME).then(($rootDiv) => {
+          if (!$rootDiv) {
+            log.error("#root > div获取失败");
+            return;
+          }
           utils.mutationObserver(document.body, {
             config: {
               subtree: true,
               childList: true
             },
             callback: utils.debounce((mutation, observer) => {
-              setUserInfoBySearch(
-                document.querySelector("#root > div")
-              );
+              setUserInfoBySearch($rootDiv);
             }, 70)
           });
         });

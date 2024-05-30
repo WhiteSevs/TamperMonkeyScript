@@ -143,9 +143,9 @@ const CSDNBlog = {
 			}
 		);
 		/* 取消Ctrl+C的禁止 */
-		utils.waitNode("#content_views").then((element) => {
+		utils.waitNode("#content_views").then(($content_views) => {
 			(unsafeWindow as any).$("#content_views")?.unbind("copy");
-			element.addEventListener("copy", function (event) {
+			$content_views.addEventListener("copy", function (event) {
 				utils.preventEvent(event);
 				let selectText = unsafeWindow.getSelection()?.toString();
 				utils.setClip(selectText);
@@ -183,19 +183,25 @@ const CSDNBlog = {
 	restoreComments() {
 		/* 第一条评论 */
 		log.info("恢复评论到正确位置-第一条评论");
-		utils.waitNode(".first-recommend-box").then((element) => {
+		utils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
 			let recommendBoxElement = document.querySelector(
 				".recommend-box.insert-baidu-box.recommend-box-style"
 			) as HTMLDivElement;
-			recommendBoxElement.insertBefore(element, recommendBoxElement.firstChild);
+			recommendBoxElement.insertBefore(
+				$firstRecommendBox,
+				recommendBoxElement.firstChild
+			);
 		});
 		log.info("恢复评论到正确位置-第二条评论");
 		/* 第二条评论 */
-		utils.waitNode(".second-recommend-box").then((element) => {
+		utils.waitNode(".second-recommend-box").then(($secondRecommendBox) => {
 			let recommendBoxElement = document.querySelector(
 				".recommend-box.insert-baidu-box.recommend-box-style"
 			) as HTMLDivElement;
-			recommendBoxElement.insertBefore(element, recommendBoxElement.firstChild);
+			recommendBoxElement.insertBefore(
+				$secondRecommendBox,
+				recommendBoxElement.firstChild
+			);
 		});
 	},
 	/**

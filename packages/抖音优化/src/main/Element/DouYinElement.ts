@@ -8,9 +8,9 @@ const DouYinElement = {
 	 */
 	watchVideDataListChange(callback: (osElement: HTMLDivElement) => void) {
 		DOMUtils.ready(() => {
-			utils.waitAnyNode("#slidelist").then((slidelist) => {
+			utils.waitNode<HTMLDivElement>("#slidelist").then(($slidelist) => {
 				let osElement = this.getOSElement();
-				utils.mutationObserver(slidelist, {
+				utils.mutationObserver($slidelist, {
 					config: {
 						childList: true,
 						subtree: true,

@@ -16,10 +16,10 @@ const GreasyforkCode = {
 			.waitNode<HTMLOListElement>(
 				"#script-content div.code-container pre.prettyprint ol"
 			)
-			.then((element) => {
-				if (element.childElementCount >= 1000) {
+			.then(($prettyPrintOL) => {
+				if ($prettyPrintOL.childElementCount >= 1000) {
 					log.success(
-						`当前代码行数${element.childElementCount}行，超过1000行，优化行号显示问题`
+						`当前代码行数${$prettyPrintOL.childElementCount}行，超过1000行，优化行号显示问题`
 					);
 					GM_addStyle(`
                     pre.prettyprint{

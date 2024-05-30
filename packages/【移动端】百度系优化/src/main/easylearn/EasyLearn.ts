@@ -213,7 +213,7 @@ const BaiduEasyLearn = {
 	 */
 	allowUserSearchInput() {
 		utils
-			.waitNodeWithInterval(".search-input .search-box-wrap.search-box", 10000)
+			.waitNode(".search-input .search-box-wrap.search-box", 10000)
 			.then(async () => {
 				log.success("允许使用顶部的输入框");
 				await utils.waitVueByInterval(

@@ -61,7 +61,7 @@ const clickCancelFollowBtnEvent = () => {
 	let selector = ".j_home_card_request_card:has(.icon_hide)";
 	let $btn = document.querySelector(selector) as HTMLAnchorElement;
 	$btn.click();
-	utils.waitNode(".dia_wrapper").then(($ele) => {
+	utils.waitNode<HTMLDivElement>(".dia_wrapper").then(($ele) => {
 		DOMUtils.on(
 			$ele,
 			"click",

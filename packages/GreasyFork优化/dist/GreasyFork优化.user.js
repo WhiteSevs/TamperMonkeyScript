@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GreasyFork优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.30
 // @author       WhiteSevs
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ViewerCSS  https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
@@ -1387,10 +1387,10 @@
       log.info("修复代码的行号显示不够问题");
       utils.waitNode(
         "#script-content div.code-container pre.prettyprint ol"
-      ).then((element) => {
-        if (element.childElementCount >= 1e3) {
+      ).then(($prettyPrintOL) => {
+        if ($prettyPrintOL.childElementCount >= 1e3) {
           log.success(
-            `当前代码行数${element.childElementCount}行，超过1000行，优化行号显示问题`
+            `当前代码行数${$prettyPrintOL.childElementCount}行，超过1000行，优化行号显示问题`
           );
           _GM_addStyle(`
                     pre.prettyprint{
@@ -1906,7 +1906,11 @@
                   height: pops.isPhone() ? "50vh" : "300px"
                 });
               } else {
-                await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
+                await GreasyforkApi.updateUserSetsInfo(
+                  userId,
+                  setsId,
+                  saveData
+                );
                 Qmsg.success("添加成功");
               }
               loading2.close();
@@ -2173,7 +2177,7 @@
      */
     addCopyCodeButton() {
       log.info("添加复制代码按钮");
-      utils.waitNode("div#script-content div.code-container").then((element) => {
+      utils.waitNode("div#script-content div.code-container").then(($codeContainer) => {
         let copyButton = domUtils.createElement(
           "button",
           {
@@ -2208,7 +2212,7 @@
           utils.setClip(scriptJS.data.responseText);
           Qmsg.success("复制成功");
         });
-        domUtils.before(element, copyButton);
+        domUtils.before($codeContainer, copyButton);
       });
     },
     /**

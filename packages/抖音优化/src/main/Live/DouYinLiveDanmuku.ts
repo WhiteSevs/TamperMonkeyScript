@@ -29,7 +29,7 @@ const DouYinDanmuFilter = {
 	 */
 	change() {
 		let danmakuQueue = Array.from(
-			document.querySelectorAll("xg-danmu.xgplayer-danmu > div > div"),
+			document.querySelectorAll("xg-danmu.xgplayer-danmu > div > div")
 		) as HTMLDivElement[];
 		if (!danmakuQueue.length) {
 			return;
@@ -82,8 +82,12 @@ const DouYinLiveDanmuku = {
 	 */
 	filterDanmu() {
 		utils
-			.waitNodeWithInterval("xg-danmu.xgplayer-danmu", 100000)
+			.waitNode<HTMLElement>("xg-danmu.xgplayer-danmu", 100000)
 			.then(($danmu) => {
+				if (!$danmu) {
+					log.error("xg-danmu.xgplayer-danmu获取失败");
+					return;
+				}
 				log.success("弹幕过滤");
 				DouYinDanmuFilter.init();
 				utils.mutationObserver($danmu as HTMLDivElement, {

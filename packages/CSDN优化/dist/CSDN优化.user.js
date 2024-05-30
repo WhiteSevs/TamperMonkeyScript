@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.15
+// @version      2024.5.30.13
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_cookie
@@ -1278,8 +1278,8 @@
           left: unset !important;
         }
         `);
-      utils.waitNode(".csdn-side-toolbar").then((element) => {
-        domutils.css(element, {
+      utils.waitNode(".csdn-side-toolbar").then(($sideToolbar) => {
+        domutils.css($sideToolbar, {
           top: parseInt(PopsPanel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
           right: parseInt(PopsPanel.getValue("csdn-blog-rightToolbarRightOffset")) + "px"
         });
@@ -1467,10 +1467,10 @@
           capture: true
         }
       );
-      utils.waitNode("#content_views").then((element) => {
+      utils.waitNode("#content_views").then(($content_views) => {
         var _a2;
         (_a2 = _unsafeWindow.$("#content_views")) == null ? void 0 : _a2.unbind("copy");
-        element.addEventListener("copy", function(event) {
+        $content_views.addEventListener("copy", function(event) {
           var _a3;
           utils.preventEvent(event);
           let selectText = (_a3 = _unsafeWindow.getSelection()) == null ? void 0 : _a3.toString();
@@ -1508,18 +1508,24 @@
      */
     restoreComments() {
       log.info("恢复评论到正确位置-第一条评论");
-      utils.waitNode(".first-recommend-box").then((element) => {
+      utils.waitNode(".first-recommend-box").then(($firstRecommendBox) => {
         let recommendBoxElement = document.querySelector(
           ".recommend-box.insert-baidu-box.recommend-box-style"
         );
-        recommendBoxElement.insertBefore(element, recommendBoxElement.firstChild);
+        recommendBoxElement.insertBefore(
+          $firstRecommendBox,
+          recommendBoxElement.firstChild
+        );
       });
       log.info("恢复评论到正确位置-第二条评论");
-      utils.waitNode(".second-recommend-box").then((element) => {
+      utils.waitNode(".second-recommend-box").then(($secondRecommendBox) => {
         let recommendBoxElement = document.querySelector(
           ".recommend-box.insert-baidu-box.recommend-box-style"
         );
-        recommendBoxElement.insertBefore(element, recommendBoxElement.firstChild);
+        recommendBoxElement.insertBefore(
+          $secondRecommendBox,
+          recommendBoxElement.firstChild
+        );
       });
     },
     /**
@@ -1713,10 +1719,8 @@
   const ShieldCSS$1 = "#operate,.feed-Sign-span,\r\n.view_comment_box,\r\n.weixin-shadowbox.wap-shadowbox,\r\n.feed-Sign-span,\r\n.user-desc.user-desc-fix,\r\n.comment_read_more_box,\r\n#content_views pre.set-code-hide .hide-preCode-box,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n.hljs-button[data-title='登录后复制'],\r\n.article-show-more,\r\n#treeSkill,\r\ndiv.btn_open_app_prompt_div,\r\ndiv.readall_box,\r\ndiv.aside-header-fixed,\r\ndiv.feed-Sign-weixin,\r\ndiv.ios-shadowbox {\r\n  display: none !important;\r\n}\r\n";
   const MBlogCSS = "#mainBox {\r\n  width: auto;\r\n}\r\n.user-desc.user-desc-fix {\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n.component-box .praise {\r\n  background: #ff5722;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n}\r\n.component-box .praise,\r\n.component-box .share {\r\n  color: #fff;\r\n}\r\n.component-box a {\r\n  display: inline-block;\r\n  font-size: xx-small;\r\n}\r\n.component-box {\r\n  display: inline;\r\n  margin: 0;\r\n  position: relative;\r\n  white-space: nowrap;\r\n}\r\n.csdn-edu-title {\r\n  background: #4d6de1;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n  color: #fff !important;\r\n}\r\n\r\n.GM-csdn-dl {\r\n  padding: 0.24rem 0.32rem;\r\n  width: 100%;\r\n  justify-content: space-between;\r\n  -webkit-box-pack: justify;\r\n  border-bottom: 1px solid #f5f6f7 !important;\r\n}\r\n.GM-csdn-title {\r\n  font-size: 0.3rem;\r\n  color: #222226;\r\n  letter-spacing: 0;\r\n  line-height: 0.44rem;\r\n  font-weight: 600;\r\n  /*max-height: .88rem;*/\r\n  word-break: break-all;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n}\r\n.GM-csdn-title a {\r\n  word-break: break-all;\r\n  color: #222226;\r\n  font-weight: 600;\r\n}\r\n.GM-csdn-title em,\r\n.GM-csdn-content em {\r\n  font-style: normal;\r\n  color: #fc5531;\r\n}\r\n.GM-csdn-content {\r\n  /*max-width: 5.58rem;*/\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 1;\r\n  -webkit-box-orient: vertical;\r\n  color: #555666;\r\n  font-size: 0.24rem;\r\n  line-height: 0.34rem;\r\n  max-height: 0.34rem;\r\n  word-break: break-all;\r\n  -webkit-box-flex: 1;\r\n  -ms-flex: 1;\r\n  flex: 1;\r\n  margin-top: 0.16rem;\r\n}\r\n.GM-csdn-img img {\r\n  width: 2.18rem;\r\n  height: 1.58rem;\r\n  /*margin-left: .16rem*/\r\n}\r\n";
   function waitForElementToRemove(selectorText = "") {
-    utils.waitNodeList(selectorText).then(() => {
-      document.querySelectorAll(selectorText).forEach((item) => {
-        item.remove();
-      });
+    utils.waitNodeList(selectorText).then((nodeList) => {
+      nodeList.forEach((item) => item.remove());
     });
   }
   const M_CSDNBlog = {

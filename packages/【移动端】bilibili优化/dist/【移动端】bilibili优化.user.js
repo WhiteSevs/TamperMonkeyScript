@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.15
+// @version      2024.5.30.12
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -700,7 +700,7 @@
     },
     /**
      * 修改视频播放器设置参数
-     * 
+     *
      * + __vue__.playBtnNoOpenApp: `true`
      * + __vue__.playBtnOpenApp: `false`
      * + __vue__.coverOpenApp: `false`
@@ -710,12 +710,19 @@
         let check = function(__vue__) {
           return __vue__ != null && typeof __vue__.playBtnNoOpenApp === "boolean" && typeof __vue__.playBtnOpenApp === "boolean" && typeof __vue__.coverOpenApp === "boolean";
         };
-        utils.waitVueByInterval(() => {
-          return document.querySelector(".m-video-player");
-        }, check, 250, 1e4).then(() => {
+        utils.waitVueByInterval(
+          () => {
+            return document.querySelector(".m-video-player");
+          },
+          check,
+          250,
+          1e4
+        ).then(() => {
           $app = document.querySelector(".m-video-player");
           if (check($app.__vue__)) {
-            log.success("成功设置参数 playBtnNoOpenApp、playBtnOpenApp、coverOpenApp");
+            log.success(
+              "成功设置参数 playBtnNoOpenApp、playBtnOpenApp、coverOpenApp"
+            );
             $app.__vue__.playBtnNoOpenApp = true;
             $app.__vue__.playBtnOpenApp = false;
             $app.__vue__.coverOpenApp = false;
@@ -807,10 +814,12 @@
      * 覆盖【选集】的点击事件
      */
     setChooseEpClickEvent() {
-      utils.waitNode(".ep-list-pre-wrapper ul.ep-list-pre-container").then(() => {
+      utils.waitNode(
+        ".ep-list-pre-wrapper ul.ep-list-pre-container"
+      ).then(($preContainer) => {
         log.info("覆盖【选集】的点击事件");
         domutils.on(
-          ".ep-list-pre-wrapper ul.ep-list-pre-container",
+          $preContainer,
           "click",
           "li.episode-item",
           function(event) {
@@ -822,10 +831,10 @@
           }
         );
       });
-      utils.waitNode(".ep-list-pre-wrapper ul.season-list-wrapper").then(() => {
+      utils.waitNode(".ep-list-pre-wrapper ul.season-list-wrapper").then(($listWapper) => {
         log.info("覆盖【xx季】的点击事件");
         domutils.on(
-          ".ep-list-pre-wrapper ul.season-list-wrapper",
+          $listWapper,
           "click",
           "li",
           function(event) {
@@ -837,10 +846,10 @@
           }
         );
       });
-      utils.waitNode(".ep-list-pre-header").then(() => {
+      utils.waitNode(".ep-list-pre-header").then(($preHeader) => {
         log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
         domutils.on(
-          ".ep-list-pre-header",
+          $preHeader,
           "click",
           function(event) {
             utils.preventEvent(event);
@@ -855,10 +864,12 @@
      * 覆盖【PV&其他】、【预告】、【主题曲】的点击事件
      */
     setClickOtherVideo() {
-      utils.waitNode(".section-preview-wrapper ul.ep-list-pre-container").then(() => {
+      utils.waitNode(
+        ".section-preview-wrapper ul.ep-list-pre-container"
+      ).then(($preContainer) => {
         log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
         domutils.on(
-          ".section-preview-wrapper .ep-list-pre-container",
+          $preContainer,
           "click",
           "li.section-preview-item",
           function(event) {
@@ -870,10 +881,12 @@
           }
         );
       });
-      utils.waitNode(".section-preview-header").then(() => {
-        log.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
+      utils.waitNode(".section-preview-header").then(($previewHeader) => {
+        log.info(
+          "覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件"
+        );
         domutils.on(
-          ".section-preview-header",
+          $previewHeader,
           "click",
           function(event) {
             utils.preventEvent(event);
@@ -888,10 +901,10 @@
      * 覆盖【更多推荐】番剧的点击事件
      */
     setRecommendClickEvent() {
-      utils.waitNode(".recom-wrapper ul.recom-list").then(() => {
+      utils.waitNode(".recom-wrapper ul.recom-list").then(($recomList) => {
         log.info("覆盖【更多推荐】番剧的点击事件");
         domutils.on(
-          ".recom-wrapper ul.recom-list",
+          $recomList,
           "click",
           "li.recom-item-v2",
           function(event) {
@@ -1025,7 +1038,7 @@
     },
     /**
      * 设置登录
-     * 
+     *
      * + __vue__.$store.state.common.noCallApp: `true`
      * + __vue__.$store.state.common.userInfo.isLogin: `true`
      */
@@ -1046,7 +1059,7 @@
     },
     /**
      * 设置为客户端(不确定是否有用)
-     * 
+     *
      * + __vue__.$store.state.video.isClient: `true`
      * + __vue__.$store.state.opus.isClient: `true`
      * + __vue__.$store.state.playlist.isClient: `true`
@@ -1068,7 +1081,7 @@
     },
     /**
      * 设置为微应用(可以看评论且视频稿件变大)
-     * 
+     *
      * + __vue__.$store.state.common.tinyApp `true`
      */
     setTinyApp() {
@@ -1087,7 +1100,12 @@
                   return typeof (__vue__ == null ? void 0 : __vue__.initPlayer) === "function";
                 };
                 utils.waitNode(".m-video-player").then(($videoPlayer) => {
-                  utils.waitVueByInterval($videoPlayer, checkInitPlayer, 250, 1e4).then(() => {
+                  utils.waitVueByInterval(
+                    $videoPlayer,
+                    checkInitPlayer,
+                    250,
+                    1e4
+                  ).then(() => {
                     if (checkInitPlayer($videoPlayer.__vue__)) {
                       log.success("成功调用函数 initPlayer()");
                       $videoPlayer.__vue__.initPlayer();
@@ -1100,14 +1118,17 @@
         });
       });
       if (ScriptRouter.isVideo()) {
-        PopsPanel.onceExec("bili-video-repair-bottom-recommend-video-margin-top", () => {
-          _GM_addStyle(`
+        PopsPanel.onceExec(
+          "bili-video-repair-bottom-recommend-video-margin-top",
+          () => {
+            _GM_addStyle(`
                 /* 修复一下底部推荐视频的margin-top */
                 .m-video-bottom-tab .v-switcher__content--multi{
                     margin-top: 34vmin;
                 }
                 `);
-        });
+          }
+        );
       }
     },
     /**

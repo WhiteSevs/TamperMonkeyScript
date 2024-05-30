@@ -19,26 +19,29 @@ const WeiBoHuaTi = {
 	 */
 	isWeibo() {
 		log.info("伪装微博");
-		utils.waitNodeWithInterval("#loadMore", 10000).then(async () => {
-			await utils.waitVueByInterval(
-				() => {
-					return document.querySelector("#loadMore") as HTMLElement;
-				},
-				(__vue__) => {
-					return typeof __vue__.isWeibo === "boolean";
-				},
-				250,
-				10000
-			);
-			let $loadMore = document.querySelector("#loadMore") as any;
-			let loadMoreVue = $loadMore?.__vue__;
-			if (!loadMoreVue) {
-				log.error("未发现#loadMore上的__vue__");
-				return;
-			}
-			loadMoreVue.isWeibo = true;
-			log.success("伪装微博: success");
-		});
+		utils
+			.waitNode<HTMLDivElement>("#loadMore", 10000)
+			.then(async ($loadMore: any) => {
+				if (!$loadMore) {
+					log.error("元素#loadMore获取失败");
+					return;
+				}
+				await utils.waitVueByInterval(
+					$loadMore,
+					(__vue__) => {
+						return typeof __vue__.isWeibo === "boolean";
+					},
+					250,
+					10000
+				);
+				let loadMoreVue = $loadMore?.__vue__;
+				if (!loadMoreVue) {
+					log.error("未发现#loadMore上的__vue__");
+					return;
+				}
+				loadMoreVue.isWeibo = true;
+				log.success("伪装微博: success");
+			});
 	},
 	/**
 	 * 劫持请求让获取更多名人日历信息

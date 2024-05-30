@@ -726,9 +726,12 @@ const BaiduResultItem = {
 	 */
 	replaceVSearchLink() {
 		document
-			.querySelectorAll("#realtime-container  div:not([class])")
+			.querySelectorAll<HTMLDivElement>("#realtime-container  div:not([class])")
 			.forEach((element) => {
-				let linkElement = element.querySelector("a") as HTMLAnchorElement;
+				let linkElement = element.querySelector("a");
+				if (!linkElement) {
+					return;
+				}
 				if (linkElement.hasAttribute("data-sf-visited")) {
 					let dataSfVisited = linkElement.getAttribute(
 						"data-sf-visited"

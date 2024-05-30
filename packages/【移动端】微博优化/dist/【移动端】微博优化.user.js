@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.14
+// @version      2024.5.30
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @resource     ElementPlusResourceCSS  https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
@@ -822,19 +822,20 @@
      * 拦截Vue Router跳转
      */
     hookVueRouter() {
-      utils.waitNode("#app").then(async () => {
+      utils.waitNode("#app").then(async ($app) => {
+        if (!$app) {
+          log.error("元素#app获取失败");
+          return;
+        }
         await utils.waitPropertyByInterval(
+          $app,
           () => {
-            return document.querySelector("#app");
-          },
-          () => {
-            var _a2, _b, _c;
-            return (_c = (_b = (_a2 = document.querySelector("#app")) == null ? void 0 : _a2.__vue__) == null ? void 0 : _b.$router) == null ? void 0 : _c.push;
+            var _a2, _b;
+            return (_b = (_a2 = $app == null ? void 0 : $app.__vue__) == null ? void 0 : _a2.$router) == null ? void 0 : _b.push;
           },
           250,
           1e4
         );
-        let $app = document.querySelector("#app");
         if (!$app.__vue__) {
           log.error("#app的vue属性不存在");
           return;
@@ -917,18 +918,19 @@
      */
     isWeibo() {
       log.info("伪装微博");
-      utils.waitNodeWithInterval("#loadMore", 1e4).then(async () => {
+      utils.waitNode("#loadMore", 1e4).then(async ($loadMore) => {
+        if (!$loadMore) {
+          log.error("元素#loadMore获取失败");
+          return;
+        }
         await utils.waitVueByInterval(
-          () => {
-            return document.querySelector("#loadMore");
-          },
+          $loadMore,
           (__vue__) => {
             return typeof __vue__.isWeibo === "boolean";
           },
           250,
           1e4
         );
-        let $loadMore = document.querySelector("#loadMore");
         let loadMoreVue = $loadMore == null ? void 0 : $loadMore.__vue__;
         if (!loadMoreVue) {
           log.error("未发现#loadMore上的__vue__");

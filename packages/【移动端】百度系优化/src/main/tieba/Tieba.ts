@@ -13,9 +13,6 @@ import { TiebaCore } from "./TiebaCore";
 import { TiebaPost } from "./Post/TiebaPost";
 import { TiebaHome } from "./Home/TiebaHome";
 
-
-
-
 /**
  * 百度贴吧
  * document.querySelector("div.app-view").__vue__
@@ -38,86 +35,83 @@ import { TiebaHome } from "./Home/TiebaHome";
  * + isShowModal 是否显示需要登录的弹窗【继续操作需要登录贴吧账号】
  */
 const BaiduTieBa = {
-    init() {
-        GM_addStyle(TieBaShieldCSS);
-        log.info("插入CSS规则");
-        PopsPanel.execMenu(
-            "baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-            () => {
-                TiebaCore.addAuthorClickEvent();
-            }
-        );
-        PopsPanel.execMenu("baidu_tieba_autoJumpToMainHost", () => {
-            TiebaCore.autoJumpToMainHost();
-        });
-        PopsPanel.execMenu("baidu_tieba_clientCallMasquerade", () => {
-            TiebaCore.clientCallMasquerade();
-        });
-        BaiduHook.hijackElementAppendChild();
-        PopsPanel.execMenu("baidu_tieba_hijack_wake_up", () => {
-            BaiduHook.hijackFunctionCall_WebPack_TieBa();
-        });
-        if (BaiduRouter.isTieBaIndex()) {
-            /* 首页 */
-            log.success("Router: 首页");
-            PopsPanel.execMenu("baidu_tieba_index_openANewTab", () => {
-                TiebaBaNei.openANewTab();
-            });
-        } else if (BaiduRouter.isTieBaPost()) {
-            /* 帖子 */
-            log.success("Router: 帖子");
-            TiebaPost.init();
-        } else if (BaiduRouter.isTieBaNewTopic()) {
-            /* 话题热议 */
-            log.success("Router: 话题热议");
-            TiebaTopic.init();
-        } else if (BaiduRouter.isTieBaHybrid()) {
-            /* 搜索综合 */
-            log.success("Router: 搜索综合");
-            TiebaHybrid.init();
-        } else if (BaiduRouter.isTieBaNei()) {
-            /* 吧内 */
-            log.success("Router: 吧内");
-            TiebaBaNei.init();
-        } else if (BaiduRouter.isTieBaHome()) {
-            /* 主页 */
-            log.success("Router: 用户主页")
-            TiebaHome.init();
-            return;
-        } else {
-            log.error("Router: 未知");
-        }
-        PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
-            TiebaCore.addScrollTopButton();
-        });
-        PopsPanel.execMenu("baidu_tieba_add_search", () => {
-            TiebaSearch.init();
-        });
-        DOMUtils.ready(function () {
-            PopsPanel.execMenu("baidu_tieba_checkSkeleton", () => {
-                TiebaCore.checkSkeleton();
-            });
-            /* 初始化贴吧数据 */
-            /* 例如：吧名，高清图片 */
-            utils
-                .waitAnyNode(".tb-mobile-viewport", ".main-page-wrap")
-                .then(async () => {
-                    let interval = setInterval(() => {
-                        TiebaData.forumName = TiebaCore.getCurrentForumName();
-                        if (TiebaData.forumName) {
-                            log.info("当前吧：" + TiebaData.forumName);
-                            if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
-                                TiebaPost.initPostImageInfo();
-                            }
-                            clearInterval(interval);
-                        }
-                    }, 250);
-                });
-        });
-    }
-}
+	init() {
+		GM_addStyle(TieBaShieldCSS);
+		log.info("插入CSS规则");
+		PopsPanel.execMenu(
+			"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+			() => {
+				TiebaCore.addAuthorClickEvent();
+			}
+		);
+		PopsPanel.execMenu("baidu_tieba_autoJumpToMainHost", () => {
+			TiebaCore.autoJumpToMainHost();
+		});
+		PopsPanel.execMenu("baidu_tieba_clientCallMasquerade", () => {
+			TiebaCore.clientCallMasquerade();
+		});
+		BaiduHook.hijackElementAppendChild();
+		PopsPanel.execMenu("baidu_tieba_hijack_wake_up", () => {
+			BaiduHook.hijackFunctionCall_WebPack_TieBa();
+		});
+		if (BaiduRouter.isTieBaIndex()) {
+			/* 首页 */
+			log.success("Router: 首页");
+			PopsPanel.execMenu("baidu_tieba_index_openANewTab", () => {
+				TiebaBaNei.openANewTab();
+			});
+		} else if (BaiduRouter.isTieBaPost()) {
+			/* 帖子 */
+			log.success("Router: 帖子");
+			TiebaPost.init();
+		} else if (BaiduRouter.isTieBaNewTopic()) {
+			/* 话题热议 */
+			log.success("Router: 话题热议");
+			TiebaTopic.init();
+		} else if (BaiduRouter.isTieBaHybrid()) {
+			/* 搜索综合 */
+			log.success("Router: 搜索综合");
+			TiebaHybrid.init();
+		} else if (BaiduRouter.isTieBaNei()) {
+			/* 吧内 */
+			log.success("Router: 吧内");
+			TiebaBaNei.init();
+		} else if (BaiduRouter.isTieBaHome()) {
+			/* 主页 */
+			log.success("Router: 用户主页");
+			TiebaHome.init();
+			return;
+		} else {
+			log.error("Router: 未知");
+		}
+		PopsPanel.execMenu("baidu_tieba_add_scroll_top_button_in_forum", () => {
+			TiebaCore.addScrollTopButton();
+		});
+		PopsPanel.execMenu("baidu_tieba_add_search", () => {
+			TiebaSearch.init();
+		});
+		DOMUtils.ready(function () {
+			PopsPanel.execMenu("baidu_tieba_checkSkeleton", () => {
+				TiebaCore.checkSkeleton();
+			});
+			/* 初始化贴吧数据 */
+			/* 例如：吧名，高清图片 */
+			utils
+				.waitAnyNode<HTMLDivElement>([".tb-mobile-viewport", ".main-page-wrap"])
+				.then(async () => {
+					let interval = setInterval(() => {
+						TiebaData.forumName = TiebaCore.getCurrentForumName();
+						if (TiebaData.forumName) {
+							log.info("当前吧：" + TiebaData.forumName);
+							if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+								TiebaPost.initPostImageInfo();
+							}
+							clearInterval(interval);
+						}
+					}, 250);
+				});
+		});
+	},
+};
 
-
-export {
-    BaiduTieBa
-}
+export { BaiduTieBa };

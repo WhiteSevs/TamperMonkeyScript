@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.29.15
+// @version      2024.5.30
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/449471/1360565/Viewer.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.2.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addStyle
@@ -1638,25 +1638,34 @@
       utils.waitNode("#search-input").then(($searchInput) => {
         $searchInput.placeholder = "搜索小红书";
         PopsPanel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
-          utils.listenKeyboard($searchInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
-            if (keyName === "Enter" && !otherCodeList.length) {
-              log.info("按下回车键");
-              utils.preventEvent(event);
-              $searchInput.blur();
-              blankSearchText();
+          utils.listenKeyboard(
+            $searchInput,
+            "keydown",
+            (keyName, keyValue, otherCodeList, event) => {
+              if (keyName === "Enter" && !otherCodeList.length) {
+                log.info("按下回车键");
+                utils.preventEvent(event);
+                $searchInput.blur();
+                blankSearchText();
+              }
             }
-          });
+          );
         });
       });
-      utils.waitNode("#search-input + .input-button .search-icon").then(($btn) => {
+      utils.waitNode("#search-input + .input-button .search-icon").then(($searchIconBtn) => {
         PopsPanel.execMenu("pc-xhs-search-open-blank-btn", () => {
-          domutils.on($btn, "click", (event) => {
-            utils.preventEvent(event);
-            log.info("点击搜索按钮");
-            blankSearchText();
-          }, {
-            capture: true
-          });
+          domutils.on(
+            $searchIconBtn,
+            "click",
+            (event) => {
+              utils.preventEvent(event);
+              log.info("点击搜索按钮");
+              blankSearchText();
+            },
+            {
+              capture: true
+            }
+          );
         });
       });
     }

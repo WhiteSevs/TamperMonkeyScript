@@ -67,47 +67,49 @@ const TiebaBaNei = {
 	 */
 	removeForumSignInLimit() {
 		/* 修改页面中的APP内签到 */
-		utils.waitNode(".tb-mobile-viewport").then(async () => {
+		utils.waitNode<HTMLDivElement>(".tb-mobile-viewport").then(async () => {
 			TiebaBaNei.vueRootView = CommonUtil.getVue(
 				document.querySelector(".tb-mobile-viewport")
 			) as Vue2Context;
 			let isLogin = Boolean(TiebaBaNei.vueRootView?.["user"]?.["is_login"]);
-			utils.waitNode(".tb-forum-user__join-btn").then((element) => {
-				if (isLogin) {
-					(element.children[0] as HTMLElement).innerText = "点击签到";
-				} else {
-					(element.children[0] as HTMLElement).innerText = "点击登录";
-				}
-				log.success("修改页面中的APP内签到");
-				DOMUtils.on(
-					element,
-					"click",
-					async function (event) {
-						utils.preventEvent(event);
-						if (isLogin) {
-							/* 已登录-签到 */
-							let userPortrait = TiebaBaNei.vueRootView["user"]["portrait"];
-							let forumName = TiebaBaNei.vueRootView["forum"]["name"];
-							let tbs =
-								TiebaBaNei.vueRootView["$store"]["state"]["common"]["tbs"];
-							let signResult = await TieBaApi.forumSign(forumName, tbs);
-							if (signResult && typeof signResult["data"] === "object") {
-								Qmsg.success(
-									`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
-								);
-							} else {
-								Qmsg.error(signResult?.["error"] as string);
-							}
-						} else {
-							/* 未登录-前往登录 */
-							TiebaBaNei.vueRootView["isShowModal"] = true;
-						}
-					},
-					{
-						capture: true,
+			utils
+				.waitNode<HTMLDivElement>(".tb-forum-user__join-btn")
+				.then((element) => {
+					if (isLogin) {
+						(element.children[0] as HTMLElement).innerText = "点击签到";
+					} else {
+						(element.children[0] as HTMLElement).innerText = "点击登录";
 					}
-				);
-			});
+					log.success("修改页面中的APP内签到");
+					DOMUtils.on(
+						element,
+						"click",
+						async function (event) {
+							utils.preventEvent(event);
+							if (isLogin) {
+								/* 已登录-签到 */
+								let userPortrait = TiebaBaNei.vueRootView["user"]["portrait"];
+								let forumName = TiebaBaNei.vueRootView["forum"]["name"];
+								let tbs =
+									TiebaBaNei.vueRootView["$store"]["state"]["common"]["tbs"];
+								let signResult = await TieBaApi.forumSign(forumName, tbs);
+								if (signResult && typeof signResult["data"] === "object") {
+									Qmsg.success(
+										`今日本吧第${signResult["data"]["finfo"]["current_rank_info"]["sign_count"]}个签到`
+									);
+								} else {
+									Qmsg.error(signResult?.["error"] as string);
+								}
+							} else {
+								/* 未登录-前往登录 */
+								TiebaBaNei.vueRootView["isShowModal"] = true;
+							}
+						},
+						{
+							capture: true,
+						}
+					);
+				});
 		});
 	},
 	/**
@@ -152,21 +154,23 @@ const TiebaBaNei = {
 		let userSortModel = parseInt(
 			PopsPanel.getValue("baidu-tieba-sort-model", 3).toString()
 		);
-		utils.waitNode(".tb-page__main .tb-sort .tab-pack").then((element) => {
-			let originChange = CommonUtil.getVue(element)?.change;
-			originChange(userSortModel);
-			(element as any).__vue__.change = function (index: number) {
-				PopsPanel.setValue("baidu-tieba-sort-model", index);
-				originChange(index);
-			};
-			log.info("注入记住当前选择的看帖排序");
-		});
+		utils
+			.waitNode<HTMLDivElement>(".tb-page__main .tb-sort .tab-pack")
+			.then((element) => {
+				let originChange = CommonUtil.getVue(element)?.change;
+				originChange(userSortModel);
+				(element as any).__vue__.change = function (index: number) {
+					PopsPanel.setValue("baidu-tieba-sort-model", index);
+					originChange(index);
+				};
+				log.info("注入记住当前选择的看帖排序");
+			});
 	},
 	/**
 	 * 过滤重复帖子
 	 */
 	filterDuplicatePosts() {
-		utils.waitNode(".tb-threadlist").then(async (element) => {
+		utils.waitNode<HTMLDivElement>(".tb-threadlist").then(async (element) => {
 			await utils.waitVueByInterval(
 				element,
 				(__vue__) => {

@@ -5,9 +5,7 @@ import { utils } from "@/env";
  * @param selectorText 元素选择器
  */
 export function waitForElementToRemove(selectorText = "") {
-    utils.waitNodeList<HTMLElement>(selectorText).then(() => {
-        document.querySelectorAll(selectorText).forEach((item) => {
-            item.remove();
-        });
-    });
-};
+	utils.waitNodeList<NodeListOf<HTMLElement>>(selectorText).then((nodeList) => {
+		nodeList.forEach((item) => item.remove());
+	});
+}

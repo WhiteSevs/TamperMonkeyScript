@@ -66,7 +66,7 @@ const DouYinAccount = {
 			setLogin(DouYinElement.getOSElement());
 		});
 		utils
-			.waitNodeWithInterval("#root div[class*='-os']", WAIT_TIME)
+			.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
 			.then(() => {
 				utils.mutationObserver(document.body, {
 					config: {
@@ -83,7 +83,7 @@ const DouYinAccount = {
 		if (DouYinRouter.isLive()) {
 			log.info("伪装登录：live");
 			utils
-				.waitNodeWithInterval(
+				.waitNode<HTMLDivElement>(
 					`#douyin-header div:has(.dy-tip-container)`,
 					WAIT_TIME
 				)
@@ -118,19 +118,23 @@ const DouYinAccount = {
 					reactProps.children[1].props.isClient = true;
 				}
 			}
-			utils.waitNodeWithInterval("#root > div", WAIT_TIME).then(() => {
-				utils.mutationObserver(document.body, {
-					config: {
-						subtree: true,
-						childList: true,
-					},
-					callback: utils.debounce((mutation, observer) => {
-						setUserInfoBySearch(
-							document.querySelector("#root > div") as HTMLDivElement
-						);
-					}, 70),
+			utils
+				.waitNode<HTMLDivElement>("#root > div", WAIT_TIME)
+				.then(($rootDiv) => {
+					if (!$rootDiv) {
+						log.error("#root > div获取失败");
+						return;
+					}
+					utils.mutationObserver(document.body, {
+						config: {
+							subtree: true,
+							childList: true,
+						},
+						callback: utils.debounce((mutation, observer) => {
+							setUserInfoBySearch($rootDiv);
+						}, 70),
+					});
 				});
-			});
 		}
 	},
 	/**
@@ -139,7 +143,7 @@ const DouYinAccount = {
 	watchLoginDialogToClose() {
 		log.info("监听登录弹窗并关闭");
 		DouYinElement.addShieldStyle('div[id^="login-full-panel-"]');
-		utils.waitNode("body").then(() => {
+		utils.waitNode<HTMLBodyElement>("body").then(() => {
 			utils.mutationObserver(document.body, {
 				config: {
 					subtree: true,

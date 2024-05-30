@@ -68,73 +68,79 @@ const Greasyfork = {
 	 */
 	setFindCodeSearchBtn() {
 		log.info("设置代码搜索按钮(对于库)");
-		utils.waitNode("ul#script-links li.current span").then(() => {
-			let searchBtn = DOMUtils.createElement("li", {
-				innerHTML: `<a href="javascript:;"><span>寻找引用</span></a>`,
-			});
-			DOMUtils.append(
-				document.querySelector<HTMLUListElement>(
-					"ul#script-links"
-				) as HTMLUListElement,
-				searchBtn
-			);
-			DOMUtils.on(searchBtn, "click", async function () {
-				let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-				if (!scriptIdMatch) {
-					log.error([scriptIdMatch, window.location.pathname]);
-					Qmsg.error("获取脚本id失败");
-					return;
-				}
-				let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-				window.location.href = GreasyforkApi.getCodeSearchUrl(
-					`greasyfork.org/scripts/${scriptId}`
+		utils
+			.waitNode<HTMLSpanElement>("ul#script-links li.current span")
+			.then(() => {
+				let searchBtn = DOMUtils.createElement("li", {
+					innerHTML: `<a href="javascript:;"><span>寻找引用</span></a>`,
+				});
+				DOMUtils.append(
+					document.querySelector<HTMLUListElement>(
+						"ul#script-links"
+					) as HTMLUListElement,
+					searchBtn
 				);
+				DOMUtils.on(searchBtn, "click", async function () {
+					let scriptIdMatch =
+						window.location.pathname.match(/scripts\/([\d]+)/i);
+					if (!scriptIdMatch) {
+						log.error([scriptIdMatch, window.location.pathname]);
+						Qmsg.error("获取脚本id失败");
+						return;
+					}
+					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
+					window.location.href = GreasyforkApi.getCodeSearchUrl(
+						`greasyfork.org/scripts/${scriptId}`
+					);
+				});
 			});
-		});
 	},
 	/**
 	 * 添加收藏按钮
 	 */
 	setCollectScriptBtn() {
 		log.info("添加收藏按钮");
-		utils.waitNode("ul#script-links li.current span").then(() => {
-			let collectBtn = DOMUtils.createElement("li", {
-				innerHTML: `<a href="javascript:;"><span>收藏</span></a>`,
-			});
-			DOMUtils.append(
-				document.querySelector("ul#script-links") as HTMLUListElement,
-				collectBtn
-			);
-			DOMUtils.on(collectBtn, "click", async function () {
-				let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-				if (!scriptIdMatch) {
-					log.error([scriptIdMatch, window.location.pathname]);
-					Qmsg.error("获取脚本id失败");
-					return;
-				}
-				let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-				if (!GreasyforkMenu.isLogin) {
-					Qmsg.error("请先登录账号");
-					log.error("请先登录账号");
-					return;
-				}
-				let userId = GreasyforkApi.getUserId(
-					GreasyforkMenu.getUserLinkElement()!.href
+		utils
+			.waitNode<HTMLSpanElement>("ul#script-links li.current span")
+			.then(() => {
+				let collectBtn = DOMUtils.createElement("li", {
+					innerHTML: `<a href="javascript:;"><span>收藏</span></a>`,
+				});
+				DOMUtils.append(
+					document.querySelector("ul#script-links") as HTMLUListElement,
+					collectBtn
 				);
-				if (userId == null) {
-					Qmsg.error("获取用户id失败");
-					log.error("获取用户id失败");
-					return;
-				}
-				let loading = Qmsg.loading("获取收藏夹中...");
-				let userCollection = await GreasyforkApi.getUserCollection(userId);
-				loading.close();
-				if (!userCollection) {
-					return;
-				}
-				let alertHTML = "";
-				userCollection.forEach((userCollectInfo) => {
-					alertHTML += `
+				DOMUtils.on(collectBtn, "click", async function () {
+					let scriptIdMatch =
+						window.location.pathname.match(/scripts\/([\d]+)/i);
+					if (!scriptIdMatch) {
+						log.error([scriptIdMatch, window.location.pathname]);
+						Qmsg.error("获取脚本id失败");
+						return;
+					}
+					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
+					if (!GreasyforkMenu.isLogin) {
+						Qmsg.error("请先登录账号");
+						log.error("请先登录账号");
+						return;
+					}
+					let userId = GreasyforkApi.getUserId(
+						GreasyforkMenu.getUserLinkElement()!.href
+					);
+					if (userId == null) {
+						Qmsg.error("获取用户id失败");
+						log.error("获取用户id失败");
+						return;
+					}
+					let loading = Qmsg.loading("获取收藏夹中...");
+					let userCollection = await GreasyforkApi.getUserCollection(userId);
+					loading.close();
+					if (!userCollection) {
+						return;
+					}
+					let alertHTML = "";
+					userCollection.forEach((userCollectInfo) => {
+						alertHTML += `
                     <li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
                         <div class="user-collect-name">${userCollectInfo.name}</div>
                         <div class="user-collect-btn-container">
@@ -151,32 +157,32 @@ const Greasyfork = {
                         </div>
                     </li>
               `;
-				});
-				let collectionDialog = pops.alert({
-					title: {
-						text: "收藏集",
-						position: "center",
-					},
-					content: {
-						html: true,
-						text: `<ul>${alertHTML}</ul>`,
-					},
-					mask: {
-						enable: true,
-						clickEvent: {
-							toClose: true,
+					});
+					let collectionDialog = pops.alert({
+						title: {
+							text: "收藏集",
+							position: "center",
 						},
-					},
-					btn: {
-						ok: {
-							enable: false,
+						content: {
+							html: true,
+							text: `<ul>${alertHTML}</ul>`,
 						},
-					},
-					width: pops.isPhone() ? "92dvw" : "500px",
-					height: "auto",
-					drag: true,
-					only: true,
-					style: `
+						mask: {
+							enable: true,
+							clickEvent: {
+								toClose: true,
+							},
+						},
+						btn: {
+							ok: {
+								enable: false,
+							},
+						},
+						width: pops.isPhone() ? "92dvw" : "500px",
+						height: "auto",
+						drag: true,
+						only: true,
+						style: `
                     .pops{
                         --content-max-height: 400px;
                         max-height: var(--content-max-height);
@@ -204,95 +210,96 @@ const Greasyfork = {
                         display: flex;
                     }
                     `,
-				});
-				/* 添加事件 */
-				DOMUtils.on<PointerEvent | MouseEvent>(
-					collectionDialog.$shadowRoot as any,
-					"click",
-					".collect-add-script-id",
-					async function (event) {
-						let currentSelectCollectInfo = (
-							event.target as HTMLLIElement
-						).closest(".user-collect-item") as HTMLElement;
-						let setsId = currentSelectCollectInfo.dataset.id as string;
-						let setsName = currentSelectCollectInfo.dataset.name;
-						let loading = Qmsg.loading("添加中...");
-						let formData = await GreasyforkApi.getUserCollectionInfo(
-							userId,
-							setsId
-						);
-						if (!formData) {
-							loading.close();
-							return;
-						}
-						let addFormData = utils.cloneFormData(formData);
-						let saveFormData = utils.cloneFormData(formData);
-						addFormData.set("add-script", scriptId);
-						addFormData.set("script-action", "i");
-						saveFormData.append("scripts-included[]", scriptId);
-						saveFormData.set("save", "1");
-						let addFormDataSearchParams = new URLSearchParams(
-							addFormData as any
-						);
-						let saveFormDataSearchParams = new URLSearchParams(
-							saveFormData as any
-						);
-						let addData = Array.from(addFormDataSearchParams as any)
-							.map(
-								// @ts-ignore
-								([key, value]) =>
-									`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-							)
-							.join("&");
-						let saveData = Array.from(saveFormDataSearchParams as any)
-							.map(
-								// @ts-ignore
-								([key, value]) =>
-									`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-							)
-							.join("&");
-						log.info(["添加的数据", addData]);
-						log.info(["保存的数据", saveData]);
-						let addResult = await GreasyforkApi.updateUserSetsInfo(
-							userId,
-							setsId,
-							addData
-						);
-						if (!addResult) {
-							loading.close();
-							return;
-						}
-						let changeScriptSet =
-							addResult.querySelector<HTMLElement>(".change-script-set");
-						if (!changeScriptSet) {
-							Qmsg.error("添加失败，.change-script-set元素不存在");
-							loading.close();
-							return;
-						}
-						let section = changeScriptSet.querySelector<HTMLElement>("section");
-						if (!section) {
-							Qmsg.error("添加失败，section元素不存在");
-							loading.close();
-							return;
-						}
-						let alertElement = section.querySelector(".alert");
-						if (alertElement) {
-							pops.alert({
-								title: {
-									text: "添加失败",
-									position: "center",
-								},
-								content: {
-									text: alertElement.innerHTML,
-									html: true,
-								},
-								mask: {
-									enable: true,
-									clickEvent: {
-										toClose: true,
+					});
+					/* 添加事件 */
+					DOMUtils.on<PointerEvent | MouseEvent>(
+						collectionDialog.$shadowRoot as any,
+						"click",
+						".collect-add-script-id",
+						async function (event) {
+							let currentSelectCollectInfo = (
+								event.target as HTMLLIElement
+							).closest(".user-collect-item") as HTMLElement;
+							let setsId = currentSelectCollectInfo.dataset.id as string;
+							let setsName = currentSelectCollectInfo.dataset.name;
+							let loading = Qmsg.loading("添加中...");
+							let formData = await GreasyforkApi.getUserCollectionInfo(
+								userId,
+								setsId
+							);
+							if (!formData) {
+								loading.close();
+								return;
+							}
+							let addFormData = utils.cloneFormData(formData);
+							let saveFormData = utils.cloneFormData(formData);
+							addFormData.set("add-script", scriptId);
+							addFormData.set("script-action", "i");
+							saveFormData.append("scripts-included[]", scriptId);
+							saveFormData.set("save", "1");
+							let addFormDataSearchParams = new URLSearchParams(
+								addFormData as any
+							);
+							let saveFormDataSearchParams = new URLSearchParams(
+								saveFormData as any
+							);
+							let addData = Array.from(addFormDataSearchParams as any)
+								.map(
+									// @ts-ignore
+									([key, value]) =>
+										`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+								)
+								.join("&");
+							let saveData = Array.from(saveFormDataSearchParams as any)
+								.map(
+									// @ts-ignore
+									([key, value]) =>
+										`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+								)
+								.join("&");
+							log.info(["添加的数据", addData]);
+							log.info(["保存的数据", saveData]);
+							let addResult = await GreasyforkApi.updateUserSetsInfo(
+								userId,
+								setsId,
+								addData
+							);
+							if (!addResult) {
+								loading.close();
+								return;
+							}
+							let changeScriptSet =
+								addResult.querySelector<HTMLElement>(".change-script-set");
+							if (!changeScriptSet) {
+								Qmsg.error("添加失败，.change-script-set元素不存在");
+								loading.close();
+								return;
+							}
+							let section =
+								changeScriptSet.querySelector<HTMLElement>("section");
+							if (!section) {
+								Qmsg.error("添加失败，section元素不存在");
+								loading.close();
+								return;
+							}
+							let alertElement = section.querySelector(".alert");
+							if (alertElement) {
+								pops.alert({
+									title: {
+										text: "添加失败",
+										position: "center",
 									},
-								},
-								style: `
+									content: {
+										text: alertElement.innerHTML,
+										html: true,
+									},
+									mask: {
+										enable: true,
+										clickEvent: {
+											toClose: true,
+										},
+									},
+									style: `
                                 .pops-alert-content{
                                     font-style: italic;
                                     background-color: #ffc;
@@ -301,92 +308,96 @@ const Greasyfork = {
                                     padding: .5em;
                                 }
                                 `,
-								drag: true,
-								dragLimit: true,
-								width: pops.isPhone() ? "88vw" : "400px",
-								height: pops.isPhone() ? "50vh" : "300px",
-							});
-						} else {
-							await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-							Qmsg.success("添加成功");
-						}
-						loading.close();
-					}
-				);
-				/* 删除事件 */
-				DOMUtils.on<MouseEvent | PointerEvent>(
-					collectionDialog.$shadowRoot as any,
-					"click",
-					".collect-delete-script-id",
-					async function (event) {
-						let currentSelectCollectInfo = (
-							event.target as HTMLElement
-						).closest(".user-collect-item") as HTMLLIElement;
-						let setsId = currentSelectCollectInfo.dataset.id as string;
-						let setsName = currentSelectCollectInfo.dataset.name;
-						let loading = Qmsg.loading("删除中...");
-						let formData = await GreasyforkApi.getUserCollectionInfo(
-							userId,
-							setsId
-						);
-						if (!formData) {
-							loading.close();
-							return;
-						}
-						let deleteFormData = new FormData();
-						let saveFormData = new FormData();
-						for (const [key, value] of (formData as any).entries()) {
-							deleteFormData.append(key, value);
-							if (
-								key === "scripts-included[]" &&
-								value.toString() === scriptIdMatch.toString()
-							) {
-								continue;
+									drag: true,
+									dragLimit: true,
+									width: pops.isPhone() ? "88vw" : "400px",
+									height: pops.isPhone() ? "50vh" : "300px",
+								});
+							} else {
+								await GreasyforkApi.updateUserSetsInfo(
+									userId,
+									setsId,
+									saveData
+								);
+								Qmsg.success("添加成功");
 							}
-							saveFormData.append(key, value);
-						}
-						deleteFormData.set("remove-scripts-included[]", scriptId);
-						deleteFormData.set("remove-selected-scripts", "i");
-						deleteFormData.delete("script-action");
-						saveFormData.set("save", "1");
-						let deleteFormDataSearchParams = new URLSearchParams(
-							deleteFormData as any
-						);
-						let saveFormDataSearchParams = new URLSearchParams(
-							saveFormData as any
-						);
-						let removeData = Array.from(deleteFormDataSearchParams as any)
-							.map(
-								// @ts-ignore
-								([key, value]) =>
-									`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-							)
-							.join("&");
-						let saveData = Array.from(saveFormDataSearchParams as any)
-							.map(
-								// @ts-ignore
-								([key, value]) =>
-									`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-							)
-							.join("&");
-						log.info(["删除的数据", removeData]);
-						log.info(["保存的数据", saveData]);
-						let removeResult = await GreasyforkApi.updateUserSetsInfo(
-							userId,
-							setsId,
-							removeData
-						);
-						if (!removeResult) {
 							loading.close();
-							return;
 						}
-						await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-						Qmsg.success("删除成功");
-						loading.close();
-					}
-				);
+					);
+					/* 删除事件 */
+					DOMUtils.on<MouseEvent | PointerEvent>(
+						collectionDialog.$shadowRoot as any,
+						"click",
+						".collect-delete-script-id",
+						async function (event) {
+							let currentSelectCollectInfo = (
+								event.target as HTMLElement
+							).closest(".user-collect-item") as HTMLLIElement;
+							let setsId = currentSelectCollectInfo.dataset.id as string;
+							let setsName = currentSelectCollectInfo.dataset.name;
+							let loading = Qmsg.loading("删除中...");
+							let formData = await GreasyforkApi.getUserCollectionInfo(
+								userId,
+								setsId
+							);
+							if (!formData) {
+								loading.close();
+								return;
+							}
+							let deleteFormData = new FormData();
+							let saveFormData = new FormData();
+							for (const [key, value] of (formData as any).entries()) {
+								deleteFormData.append(key, value);
+								if (
+									key === "scripts-included[]" &&
+									value.toString() === scriptIdMatch.toString()
+								) {
+									continue;
+								}
+								saveFormData.append(key, value);
+							}
+							deleteFormData.set("remove-scripts-included[]", scriptId);
+							deleteFormData.set("remove-selected-scripts", "i");
+							deleteFormData.delete("script-action");
+							saveFormData.set("save", "1");
+							let deleteFormDataSearchParams = new URLSearchParams(
+								deleteFormData as any
+							);
+							let saveFormDataSearchParams = new URLSearchParams(
+								saveFormData as any
+							);
+							let removeData = Array.from(deleteFormDataSearchParams as any)
+								.map(
+									// @ts-ignore
+									([key, value]) =>
+										`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+								)
+								.join("&");
+							let saveData = Array.from(saveFormDataSearchParams as any)
+								.map(
+									// @ts-ignore
+									([key, value]) =>
+										`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+								)
+								.join("&");
+							log.info(["删除的数据", removeData]);
+							log.info(["保存的数据", saveData]);
+							let removeResult = await GreasyforkApi.updateUserSetsInfo(
+								userId,
+								setsId,
+								removeData
+							);
+							if (!removeResult) {
+								loading.close();
+								return;
+							}
+							await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
+							Qmsg.success("删除成功");
+							loading.close();
+						}
+					);
+				});
 			});
-		});
 	},
 	/**
 	 * 修复图片显示问题
@@ -626,43 +637,45 @@ const Greasyfork = {
 	 */
 	addCopyCodeButton() {
 		log.info("添加复制代码按钮");
-		utils.waitNode("div#script-content div.code-container").then((element) => {
-			let copyButton = DOMUtils.createElement(
-				"button",
-				{
-					textContent: "复制代码",
-				},
-				{
-					style: "margin-bottom: 1em;",
-				}
-			);
-			DOMUtils.on(copyButton, "click", async function () {
-				let loading = Qmsg.loading("加载文件中...");
-				let getResp = await httpx.get(
-					`https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
+		utils
+			.waitNode<HTMLDivElement>("div#script-content div.code-container")
+			.then(($codeContainer) => {
+				let copyButton = DOMUtils.createElement(
+					"button",
 					{
-						fetch: true,
-						responseType: "json",
+						textContent: "复制代码",
+					},
+					{
+						style: "margin-bottom: 1em;",
 					}
 				);
-				if (!getResp.status) {
+				DOMUtils.on(copyButton, "click", async function () {
+					let loading = Qmsg.loading("加载文件中...");
+					let getResp = await httpx.get(
+						`https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
+						{
+							fetch: true,
+							responseType: "json",
+						}
+					);
+					if (!getResp.status) {
+						loading.close();
+						return;
+					}
+					let respJSON = utils.toJSON(getResp.data.responseText);
+					let code_url = respJSON["code_url"];
+					log.success(["代码地址：", code_url]);
+					let scriptJS = await httpx.get(code_url);
+					if (!scriptJS.status) {
+						loading.close();
+						return;
+					}
 					loading.close();
-					return;
-				}
-				let respJSON = utils.toJSON(getResp.data.responseText);
-				let code_url = respJSON["code_url"];
-				log.success(["代码地址：", code_url]);
-				let scriptJS = await httpx.get(code_url);
-				if (!scriptJS.status) {
-					loading.close();
-					return;
-				}
-				loading.close();
-				utils.setClip(scriptJS.data.responseText);
-				Qmsg.success("复制成功");
+					utils.setClip(scriptJS.data.responseText);
+					Qmsg.success("复制成功");
+				});
+				DOMUtils.before($codeContainer, copyButton);
 			});
-			DOMUtils.before(element, copyButton);
-		});
 	},
 	/**
 	 * F11全屏，F键代码全屏

@@ -257,19 +257,19 @@ const WeiBoHook = {
 	 * 拦截Vue Router跳转
 	 */
 	hookVueRouter() {
-		utils.waitNode("#app").then(async () => {
+		utils.waitNode<HTMLDivElement>("#app").then(async ($app: any) => {
+			if (!$app) {
+				log.error("元素#app获取失败");
+				return;
+			}
 			await utils.waitPropertyByInterval(
+				$app,
 				() => {
-					return document.querySelector("#app");
-				},
-				() => {
-					return (document.querySelector("#app") as any)?.__vue__?.$router
-						?.push;
+					return ($app as any)?.__vue__?.$router?.push;
 				},
 				250,
 				10000
 			);
-			let $app = document.querySelector("#app") as any;
 			if (!($app as any).__vue__) {
 				log.error("#app的vue属性不存在");
 				return;
