@@ -239,7 +239,7 @@ html body code {
 html body code::after,
 html body code::before {
 	letter-spacing: -0.2em;
-	content: "\\00a0";
+	content: "\00a0";
 }
 html body pre > code {
 	padding: 0;

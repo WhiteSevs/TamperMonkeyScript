@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GreasyFork优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.30
+// @version      2024.5.30.13
 // @author       WhiteSevs
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @license      GPL-3.0-only
@@ -283,7 +283,7 @@ html body code {\r
 html body code::after,\r
 html body code::before {\r
 	letter-spacing: -0.2em;\r
-	content: "\\\\00a0";\r
+	content: "\\00a0";\r
 }\r
 html body pre > code {\r
 	padding: 0;\r
