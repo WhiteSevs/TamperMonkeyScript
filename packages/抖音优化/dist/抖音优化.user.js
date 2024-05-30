@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.30
+// @version      2024.5.30.20
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -2340,10 +2340,12 @@
     shieldClientTip() {
       log.info("【屏蔽】客户端提示");
       DouYinElement.addShieldStyle(
-        // '#douyin-header div[data-e2e="im-entry"] div.popShadowAnimation:first-child',
-        // "#douyin-header ul div.userMenuPanelShadowAnimation:first-child",
-        /* 鼠标悬浮在通知，出现在上面的，下载客户端，实时接收消息通知 */
-        'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])'
+        /* 右上角 通知 下载客户端，实时接收消息通知 */
+        'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
+        /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
+        '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
+        /* 右上角 私信 下载客户端，实时接收好友消息 */
+        '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])'
       );
     },
     /**
