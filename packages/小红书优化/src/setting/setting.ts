@@ -7,6 +7,7 @@ import { MSettingUI_Notes } from "./m-components/m-note";
 import { MSettingUI_Other } from "./m-components/m-other";
 import { SettingUI_Common } from "./components/common";
 import { SettingUI_Shield } from "./components/shield";
+import { SettingUI_Article } from "./components/article";
 
 const PopsPanel = {
 	/** 数据 */
@@ -292,7 +293,7 @@ const PopsPanel = {
 	 * 显示设置面板
 	 */
 	showPanel() {
-		let { isMobile, UIWidth, UIHeight } = this.getEnvInfo();
+		let { UIWidth, UIHeight } = this.getUISizeInfo();
 		pops.panel({
 			title: {
 				text: `${SCRIPT_NAME}-设置`,
@@ -308,7 +309,6 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: isMobile,
 			width: UIWidth,
 			height: UIHeight,
 			drag: true,
@@ -319,7 +319,7 @@ const PopsPanel = {
 	 * 显示设置面板
 	 */
 	showPCPanel() {
-		let { isMobile, UIWidth, UIHeight } = this.getEnvInfo();
+		let { UIWidth, UIHeight } = this.getUISizeInfo();
 		pops.panel({
 			title: {
 				text: `${SCRIPT_NAME}-设置`,
@@ -335,23 +335,26 @@ const PopsPanel = {
 					toHide: false,
 				},
 			},
-			isMobile: isMobile,
 			width: UIWidth,
 			height: UIHeight,
 			drag: true,
 			only: true,
 		});
 	},
-	getEnvInfo() {
-		let isMobile = false;
+	/**
+	 * 获取设置界面的宽高
+	 */
+	getUISizeInfo() {
 		let UIWidth = "92dvw";
 		let UIHeight = "80dvh";
 
-		if (window.outerWidth < 550) {
-			isMobile = true;
+		if (window.outerWidth > 800) {
+			UIWidth = "650px";
+		}
+		if (window.outerHeight > 600) {
+			UIHeight = "500px";
 		}
 		return {
-			isMobile,
 			UIWidth,
 			UIHeight,
 		};
@@ -374,6 +377,7 @@ const PopsPanel = {
 	getPCPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUI_Common,
+			SettingUI_Article,
 			SettingUI_Shield,
 		];
 		return configList;

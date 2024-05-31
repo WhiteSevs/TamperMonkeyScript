@@ -1,7 +1,25 @@
 import { XHSUrlApi } from "@/api/XHSUrlApi";
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { GM_addStyle } from "ViteGM";
 import Qmsg from "qmsg";
+
+/**
+ * 一些信息
+ *
+ * 笔记页面，当页面宽度<960px时，会触发笔记布局改变，即变为竖向列表布局
+ * ↓
+ * 图
+ * 介绍
+ * 评论区
+ *
+ * >=960px时
+ *
+ * 图   文
+ *      介绍
+ *      评论区
+ *
+ */
 
 const XHS_Article = {
 	init() {
@@ -11,6 +29,9 @@ const XHS_Article = {
 		) {
 			this.optimizationSearch();
 		}
+		PopsPanel.execMenu("pc-xhs-article-fullWidth", () => {
+			this.fullWidth();
+		});
 	},
 	/**
 	 * 优化搜索
@@ -70,6 +91,31 @@ const XHS_Article = {
 					);
 				});
 			});
+	},
+	/**
+	 * 笔记宽屏
+	 */
+	fullWidth() {
+		log.info("笔记宽屏");
+		let noteContainerWidth = PopsPanel.getValue(
+			"pc-xhs-article-fullWidth-widthSize",
+			90
+		);
+		GM_addStyle(`
+		.main-container .main-content{
+			padding-left: 0 !important;
+		}
+		.outer-link-container{
+			width: 100dvw !important;
+		}
+		/* 隐藏左侧工具栏 */
+		.main-container .side-bar{
+			display: none !important;
+		}
+		#noteContainer{
+			width: ${noteContainerWidth}dvw;
+		}
+		`);
 	},
 };
 

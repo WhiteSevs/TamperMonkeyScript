@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.30
+// @version      2024.6.1
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -341,26 +341,98 @@
         text: "功能",
         type: "forms",
         forms: [
-          UISwitch(
-            "【屏蔽】广告",
-            "pc-xhs-shieldAd",
-            true,
-            void 0,
-            "屏蔽屏蔽屏蔽屏蔽"
-          ),
+          UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
           UISwitch(
             "【屏蔽】登录弹窗",
             "pc-xhs-shield-login-dialog",
             true,
             void 0,
-            "屏蔽自动跳出的需要登录的弹窗"
+            "屏蔽会自动弹出的登录弹窗"
           ),
           UISwitch(
             "【屏蔽】选择文字弹出的搜索提示",
             "pc-xhs-shield-select-text-search-position",
             false,
             void 0,
-            "屏蔽选择文字弹出的搜索提示"
+            "屏蔽元素"
+          ),
+          UISwitch(
+            "【屏蔽】顶部工具栏",
+            "pc-xhs-shield-topToolbar",
+            false,
+            void 0,
+            "屏蔽元素"
+          )
+        ]
+      }
+    ]
+  };
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
+        PopsPanel.setValue(key, value);
+      },
+      min,
+      max
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
+  const SettingUI_Article = {
+    id: "xhs-panel-config-article",
+    title: "笔记",
+    forms: [
+      {
+        text: "笔记宽屏",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "启用",
+            "pc-xhs-article-fullWidth",
+            false,
+            void 0,
+            `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
+          ),
+          UISlider(
+            "占据范围",
+            "pc-xhs-article-fullWidth-widthSize",
+            90,
+            30,
+            100,
+            (event, value) => {
+              let $noteContainer = document.querySelector("#noteContainer");
+              if (!$noteContainer) {
+                log.error("未找到笔记容器");
+                return;
+              }
+              $noteContainer.style.width = `${value}dvw`;
+            },
+            (value) => {
+              return `${value}%，默认：90%`;
+            },
+            "调整笔记页面占据的页面范围"
           )
         ]
       }
@@ -613,7 +685,7 @@
      * 显示设置面板
      */
     showPanel() {
-      let { isMobile: isMobile2, UIWidth, UIHeight } = this.getEnvInfo();
+      let { UIWidth, UIHeight } = this.getUISizeInfo();
       pops.panel({
         title: {
           text: `${SCRIPT_NAME}-设置`,
@@ -629,7 +701,6 @@
             toHide: false
           }
         },
-        isMobile: isMobile2,
         width: UIWidth,
         height: UIHeight,
         drag: true,
@@ -640,7 +711,7 @@
      * 显示设置面板
      */
     showPCPanel() {
-      let { isMobile: isMobile2, UIWidth, UIHeight } = this.getEnvInfo();
+      let { UIWidth, UIHeight } = this.getUISizeInfo();
       pops.panel({
         title: {
           text: `${SCRIPT_NAME}-设置`,
@@ -656,22 +727,25 @@
             toHide: false
           }
         },
-        isMobile: isMobile2,
         width: UIWidth,
         height: UIHeight,
         drag: true,
         only: true
       });
     },
-    getEnvInfo() {
-      let isMobile2 = false;
+    /**
+     * 获取设置界面的宽高
+     */
+    getUISizeInfo() {
       let UIWidth = "92dvw";
       let UIHeight = "80dvh";
-      if (window.outerWidth < 550) {
-        isMobile2 = true;
+      if (window.outerWidth > 800) {
+        UIWidth = "650px";
+      }
+      if (window.outerHeight > 600) {
+        UIHeight = "500px";
       }
       return {
-        isMobile: isMobile2,
         UIWidth,
         UIHeight
       };
@@ -694,6 +768,7 @@
     getPCPanelContentConfig() {
       let configList = [
         SettingUI_Common,
+        SettingUI_Article,
         SettingUI_Shield
       ];
       return configList;
@@ -1557,11 +1632,14 @@
         _GM_addStyle(XHSShieldCSS);
       });
       PopsPanel.execMenu("pc-xhs-shield-select-text-search-position", () => {
-        XHS_Shield.shieldSelectTextVisibleSearchPosition();
+        this.shieldSelectTextVisibleSearchPosition();
+      });
+      PopsPanel.execMenu("pc-xhs-shield-topToolbar", () => {
+        this.shieldTopToolbar();
       });
       domutils.ready(() => {
         PopsPanel.execMenu("pc-xhs-shield-login-dialog", () => {
-          XHS_Shield.shieldLoginContainer();
+          this.shieldLoginContainer();
         });
       });
     },
@@ -1569,7 +1647,7 @@
      * 屏蔽登录弹窗显示
      */
     shieldLoginContainer() {
-      log.success("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
+      log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
       _GM_addStyle(`
         /* 登录弹窗 */
         .login-container{
@@ -1582,7 +1660,9 @@
           childList: true
         },
         callback: () => {
-          let $close = document.querySelector(".login-container .icon-btn-wrapper");
+          let $close = document.querySelector(
+            ".login-container .icon-btn-wrapper"
+          );
           if ($close) {
             $close.click();
             log.success("登录弹窗出现，关闭");
@@ -1594,10 +1674,33 @@
      * 屏蔽选择文字弹出的搜索提示
      */
     shieldSelectTextVisibleSearchPosition() {
-      log.success("屏蔽选择文字弹出的搜索提示");
+      log.info("屏蔽选择文字弹出的搜索提示");
       _GM_addStyle(`
         .search-position{
             display: none !important;
+        }
+        `);
+    },
+    /**
+     * 【屏蔽】顶部工具栏
+     */
+    shieldTopToolbar() {
+      log.info("【屏蔽】顶部工具栏");
+      _GM_addStyle(`
+        #headerContainer{
+            display: none !important;
+        }
+        /* 主内容去除padding */
+        #mfContainer{
+            padding-top: 0 !important;
+        }
+        .outer-link-container{
+            margin-top: 0 !important;
+            height: 100dvh !important;
+            padding: 30px 0;
+        }
+        #noteContainer{
+            height: 100%;
         }
         `);
     }
@@ -1617,6 +1720,9 @@
       if (PopsPanel.getValue("pc-xhs-search-open-blank-btn") || PopsPanel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
         this.optimizationSearch();
       }
+      PopsPanel.execMenu("pc-xhs-article-fullWidth", () => {
+        this.fullWidth();
+      });
     },
     /**
      * 优化搜索
@@ -1668,6 +1774,31 @@
           );
         });
       });
+    },
+    /**
+     * 笔记宽屏
+     */
+    fullWidth() {
+      log.info("笔记宽屏");
+      let noteContainerWidth = PopsPanel.getValue(
+        "pc-xhs-article-fullWidth-widthSize",
+        90
+      );
+      _GM_addStyle(`
+		.main-container .main-content{
+			padding-left: 0 !important;
+		}
+		.outer-link-container{
+			width: 100dvw !important;
+		}
+		/* 隐藏左侧工具栏 */
+		.main-container .side-bar{
+			display: none !important;
+		}
+		#noteContainer{
+			width: ${noteContainerWidth}dvw;
+		}
+		`);
     }
   };
   const XHS = {

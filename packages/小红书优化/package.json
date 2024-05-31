@@ -23,8 +23,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.13",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "element-plus": "^2.7.3",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "element-plus": "^2.7.4",
     "typescript": "^5.4.5",
     "unplugin-auto-import": "^0.17.6",
     "unplugin-element-plus": "^0.8.0",
