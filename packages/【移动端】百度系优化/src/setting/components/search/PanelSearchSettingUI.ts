@@ -149,7 +149,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 				UISwitch(
 					"【beta】新标签页打开",
 					"baidu_search_hijack__onClick_to_blank",
-					true,
+					false,
 					void 0,
 					"实验性功能，需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是粗糙的提取article的链接跳转"
 				),
