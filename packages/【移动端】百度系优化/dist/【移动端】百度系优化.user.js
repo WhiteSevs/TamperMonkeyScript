@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.31
+// @version      2024.5.31.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -3706,14 +3706,34 @@ div[class^="new-summary-container_"] {\r
     }
   };
   const BaiduHook = {
+    $isHook: {
+      hijackBoxJSBefore: false,
+      is_hijack_onClick: false,
+      hijackJQueryAppend: false,
+      hijackOpenBox: false,
+      hijackFunctionCall_WebPack_TieBa: false,
+      hijackFunctionCall_WebPack_HaoKan: false,
+      hijackFunctionCall_BaiJiaHao_Map: false
+    },
+    $data: {
+      hijackFunctionApply: [],
+      hijackElementAppendChild: [],
+      hijackSetTimeout: []
+    },
     /**
      * 统一管理apply的劫持，防止套娃
-     * @param mode copy scheme
+     * @param mode 劫持的类型
      */
     hijackFunctionApply(mode) {
-      mode = mode.toLowerCase();
+      this.$data.hijackFunctionApply.push(mode);
+      if (this.$data.hijackFunctionApply.length > 1) {
+        log.info("Function.apply hook新增劫持参数：" + mode);
+        return;
+      }
+      let that = this;
+      log.info("初始化Function.apply hook");
       _unsafeWindow.Function.prototype.apply = function(...args) {
-        if (mode.includes("copy")) {
+        if (that.$data.hijackFunctionApply.includes("copy")) {
           try {
             let firstParam = args[1];
             if (args.length === 2 && typeof firstParam === "object" && "" + firstParam === "[object Arguments]" && firstParam.length === 1 && typeof firstParam[0] === "object" && firstParam[0] != null && "appName" in firstParam[0] && "checkTokenCopied" in firstParam[0] && "deeplink" in firstParam[0] && "scheme" in firstParam[0] && "token" in firstParam[0] && "useDeeplink" in firstParam[0]) {
@@ -3727,7 +3747,8 @@ div[class^="new-summary-container_"] {\r
             }
           } catch (error) {
           }
-        } else if (mode.includes("scheme")) {
+        }
+        if (that.$data.hijackFunctionApply.includes("scheme")) {
           try {
             let firstParam = args[1];
             if (args.length === 2 && typeof firstParam === "object" && "" + firstParam === "[object Arguments]" && firstParam.length === 2 && firstParam[1] === "scheme") {
@@ -3748,6 +3769,10 @@ div[class^="new-summary-container_"] {\r
      * @param menuKeyName
      */
     hijack_onClick(menuKeyName) {
+      if (this.$isHook.is_hijack_onClick) {
+        return;
+      }
+      this.$isHook.is_hijack_onClick = true;
       _unsafeWindow.Object.defineProperty = function(target, propertyKey, _attributes) {
         if (propertyKey === "_onClick") {
           log.info(["成功劫持_onClick", arguments]);
@@ -3789,15 +3814,21 @@ div[class^="new-summary-container_"] {\r
      * Element.prototype.appendChild
      * @param handleCallBack 处理的回调函数，如果劫持请返回true
      */
-    hijackElementAppendChild(handleCallBack) {
-      _unsafeWindow.Element.prototype.appendChild = function(element) {
-        var _a3;
-        if (element instanceof HTMLIFrameElement) {
-          if (!((_a3 = element == null ? void 0 : element.src) == null ? void 0 : _a3.startsWith("http"))) {
-            log.success(["劫持iframe唤醒：" + element.src, element]);
-            return;
-          }
+    hijackElementAppendChild(handleCallBack = function(element) {
+      var _a3;
+      if (element instanceof HTMLIFrameElement) {
+        if (!((_a3 = element == null ? void 0 : element.src) == null ? void 0 : _a3.startsWith("http"))) {
+          log.success(["劫持iframe唤醒：" + element.src, element]);
+          return;
         }
+      }
+    }) {
+      this.$data.hijackElementAppendChild.push(handleCallBack);
+      if (this.$data.hijackElementAppendChild.length > 1) {
+        log.info("Element.prototype.appendChild hook新增劫持判断回调");
+        return;
+      }
+      _unsafeWindow.Element.prototype.appendChild = function(element) {
         if (typeof handleCallBack === "function") {
           let handleResult = handleCallBack(element);
           if (handleResult) {
@@ -3814,6 +3845,10 @@ div[class^="new-summary-container_"] {\r
      * $().append();
      */
     hijackJQueryAppend() {
+      if (this.$isHook.hijackJQueryAppend) {
+        return;
+      }
+      this.$isHook.hijackJQueryAppend = true;
       let originAppend = _unsafeWindow.$.fn.append;
       _unsafeWindow.$.fn.append = function(params) {
         if (typeof params === "string") {
@@ -3833,6 +3868,10 @@ div[class^="new-summary-container_"] {\r
      * window.OpenBox
      */
     hijackOpenBox() {
+      if (this.$isHook.hijackOpenBox) {
+        return;
+      }
+      this.$isHook.hijackOpenBox = true;
       let OpenBox = function() {
         return {
           open(...args) {
@@ -3887,7 +3926,12 @@ div[class^="new-summary-container_"] {\r
      * window.setTimeout
      * @param matchStr 需要进行匹配的函数字符串
      */
-    hijackSetTimeout(matchStr = "") {
+    hijackSetTimeout(matchStr) {
+      this.$data.hijackSetTimeout.push(matchStr);
+      if (this.$data.hijackSetTimeout.length > 1) {
+        log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
+        return;
+      }
       _unsafeWindow.setTimeout = function(...args) {
         let callBackString = args[0].toString();
         if (callBackString.match(matchStr)) {
@@ -3908,38 +3952,46 @@ div[class^="new-summary-container_"] {\r
      * Released under the BaiDuTieBa License.
      */
     hijackFunctionCall_WebPack_TieBa() {
-      this.hijackWebpack("webpackJsonp", ["core:0"], function(webpackExports) {
-        if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["getSchema"] === "function" && typeof webpackExports.exports["getToken"] === "function" && typeof webpackExports.exports["init"] === "function" && typeof webpackExports.exports["initDiffer"] === "function") {
-          log.success(["成功劫持webpack调用函数", webpackExports]);
-          webpackExports == null ? void 0 : webpackExports["i"];
-          webpackExports.exports.getSchema = function(...args) {
-          };
-          webpackExports.exports.getToken = function(...args) {
-            log.info(["阻止调用getToken", ...args]);
-          };
-          webpackExports.exports.init = function(...args) {
-            var _a3;
-            log.info(["阻止初始化", ...args]);
-            if (((_a3 = args == null ? void 0 : args[0]) == null ? void 0 : _a3["page"]) === "usercenter") {
-              let homeUrl = "/home/main?id=" + args[0]["param"]["portrait"];
-              log.info(["跳转至用户空间", homeUrl]);
-              window.open(homeUrl);
-            }
-            return;
-          };
-          webpackExports.exports.initDiffer = function(...args) {
-            log.info(["阻止初始化差异", ...args]);
-            return;
-          };
+      if (this.$isHook.hijackFunctionCall_WebPack_TieBa) {
+        return;
+      }
+      this.$isHook.hijackFunctionCall_WebPack_TieBa = true;
+      this.hijackWebpack(
+        "webpackJsonp",
+        ["core:0"],
+        function(webpackExports) {
+          if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["getSchema"] === "function" && typeof webpackExports.exports["getToken"] === "function" && typeof webpackExports.exports["init"] === "function" && typeof webpackExports.exports["initDiffer"] === "function") {
+            log.success(["成功劫持webpack调用函数", webpackExports]);
+            webpackExports == null ? void 0 : webpackExports["i"];
+            webpackExports.exports.getSchema = function(...args) {
+            };
+            webpackExports.exports.getToken = function(...args) {
+              log.info(["阻止调用getToken", ...args]);
+            };
+            webpackExports.exports.init = function(...args) {
+              var _a3;
+              log.info(["阻止初始化", ...args]);
+              if (((_a3 = args == null ? void 0 : args[0]) == null ? void 0 : _a3["page"]) === "usercenter") {
+                let homeUrl = "/home/main?id=" + args[0]["param"]["portrait"];
+                log.info(["跳转至用户空间", homeUrl]);
+                window.open(homeUrl);
+              }
+              return;
+            };
+            webpackExports.exports.initDiffer = function(...args) {
+              log.info(["阻止初始化差异", ...args]);
+              return;
+            };
+          }
+          return webpackExports;
         }
-        return webpackExports;
-      });
+      );
     },
     /**
      * 劫持webpack
-     * @param {string} webpackName 当前全局变量的webpack名
-     * @param {string|any[]} mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * @param {(webpackExports: object|undefined)=>{}} checkCallBack 如果mainCoreData匹配上，则调用此回调函数
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
     hijackWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
@@ -3974,24 +4026,32 @@ div[class^="new-summary-container_"] {\r
      *
      */
     hijackFunctionCall_WebPack_HaoKan() {
-      this.hijackWebpack("webpackJsonp", [40, 1], function(webpackExports) {
-        if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["LaunchScheme"] === "function" && typeof webpackExports.exports["__esModule"] === "boolean") {
-          log.success(["成功劫持webpack调用函数", webpackExports]);
-          webpackExports == null ? void 0 : webpackExports["i"];
-          webpackExports.exports["LaunchScheme"] = function() {
-            log.success(["修改参数：LaunchScheme"]);
-            return {
-              launch() {
-                return new Promise(function(resolve) {
-                  log.success(["修改参数：launch"]);
-                  resolve(void 0);
-                });
-              }
+      if (this.$isHook.hijackFunctionCall_WebPack_HaoKan) {
+        return;
+      }
+      this.$isHook.hijackFunctionCall_WebPack_HaoKan = true;
+      this.hijackWebpack(
+        "webpackJsonp",
+        [40, 1],
+        function(webpackExports) {
+          if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["LaunchScheme"] === "function" && typeof webpackExports.exports["__esModule"] === "boolean") {
+            log.success(["成功劫持webpack调用函数", webpackExports]);
+            webpackExports == null ? void 0 : webpackExports["i"];
+            webpackExports.exports["LaunchScheme"] = function() {
+              log.success(["修改参数：LaunchScheme"]);
+              return {
+                launch() {
+                  return new Promise(function(resolve) {
+                    log.success(["修改参数：launch"]);
+                    resolve(void 0);
+                  });
+                }
+              };
             };
-          };
+          }
+          return webpackExports;
         }
-        return webpackExports;
-      });
+      );
     },
     /**
      * 劫持百家号和百度地图的Function的call
@@ -4000,6 +4060,10 @@ div[class^="new-summary-container_"] {\r
      * Function.property.call
      */
     hijackFunctionCall_BaiJiaHao_Map() {
+      if (this.$isHook.hijackFunctionCall_BaiJiaHao_Map) {
+        return;
+      }
+      this.$isHook.hijackFunctionCall_BaiJiaHao_Map = true;
       _unsafeWindow.Function.prototype.call = function(...args) {
         if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
           log.success(["修改参数", args[1]]);
@@ -4018,6 +4082,10 @@ div[class^="new-summary-container_"] {\r
      * window.BoxJSBefore
      */
     hijackBoxJSBefore() {
+      if (this.$isHook.hijackBoxJSBefore) {
+        return;
+      }
+      this.$isHook.hijackBoxJSBefore = true;
       OriginPrototype.Object.defineProperty(_unsafeWindow, "BoxJSBefore", {
         get() {
           return new Proxy(
@@ -4034,7 +4102,7 @@ div[class^="new-summary-container_"] {\r
   };
   const BaiduSearchHook = {
     init() {
-      PopsPanel.execMenu("baidu_search_hijack_define", () => {
+      PopsPanel.execMenuOnce("baidu_search_hijack_define", () => {
         log.success("hook: window.define");
         OriginPrototype.Object.defineProperty(_unsafeWindow, "define", {
           get(...args) {
@@ -4043,30 +4111,23 @@ div[class^="new-summary-container_"] {\r
           }
         });
       });
-      PopsPanel.execMenu("baidu_search_hijack__onClick", () => {
+      PopsPanel.execMenuOnce("baidu_search_hijack__onClick", () => {
         log.success("hooke: baidu onClick");
         BaiduHook.hijack_onClick("baidu_search_hijack__onClick");
       });
-      PopsPanel.execMenu("baidu_search_hijack_openbox", () => {
+      PopsPanel.execMenuOnce("baidu_search_hijack_openbox", () => {
         log.success("hook: window.OpenBox");
         BaiduHook.hijackOpenBox();
       });
-      if (PopsPanel.getValue("baidu_search_hijack_scheme") || PopsPanel.getValue("baidu_search_hijack_copy")) {
-        if (PopsPanel.getValue("baidu_search_hijack_scheme") && PopsPanel.getValue("baidu_search_hijack_copy")) {
-          log.success("hook: Function.apply => copy scheme");
-          BaiduHook.hijackFunctionApply("copy scheme");
-        } else {
-          PopsPanel.execMenu("baidu_search_hijack_scheme", () => {
-            log.success("hook: Function.apply => scheme");
-            BaiduHook.hijackFunctionApply("scheme");
-          });
-          PopsPanel.execMenu("baidu_search_hijack_copy", () => {
-            log.success("hook: Function.apply => copy");
-            BaiduHook.hijackFunctionApply("copy");
-          });
-        }
-      }
-      PopsPanel.execMenu("baidu_search_hijack_setTimeout", () => {
+      PopsPanel.execMenuOnce("baidu_search_hijack_scheme", () => {
+        log.success("hook: Function.apply => scheme");
+        BaiduHook.hijackFunctionApply("scheme");
+      });
+      PopsPanel.execMenuOnce("baidu_search_hijack_copy", () => {
+        log.success("hook: Function.apply => copy");
+        BaiduHook.hijackFunctionApply("copy");
+      });
+      PopsPanel.execMenuOnce("baidu_search_hijack_setTimeout", () => {
         BaiduHook.hijackSetTimeout("getGeoLocation|loopPlay()");
       });
     }
@@ -17293,7 +17354,7 @@ div[class^="new-summary-container_"] {\r
         TiebaCore.clientCallMasquerade();
       });
       BaiduHook.hijackElementAppendChild();
-      PopsPanel.execMenu("baidu_tieba_hijack_wake_up", () => {
+      PopsPanel.execMenuOnce("baidu_tieba_hijack_wake_up", () => {
         BaiduHook.hijackFunctionCall_WebPack_TieBa();
       });
       if (BaiduRouter.isTieBaIndex()) {

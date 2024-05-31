@@ -51,7 +51,7 @@ const BaiduTieBa = {
 			TiebaCore.clientCallMasquerade();
 		});
 		BaiduHook.hijackElementAppendChild();
-		PopsPanel.execMenu("baidu_tieba_hijack_wake_up", () => {
+		PopsPanel.execMenuOnce("baidu_tieba_hijack_wake_up", () => {
 			BaiduHook.hijackFunctionCall_WebPack_TieBa();
 		});
 		if (BaiduRouter.isTieBaIndex()) {
