@@ -51,7 +51,7 @@ const UISelect = function <T extends any>(
 	};
 	if (result.attributes) {
 		result.attributes[ATTRIBUTE_KEY] = key;
-		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = Boolean(defaultValue);
+		result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
 	}
 	return result;
 };
