@@ -19,7 +19,7 @@ interface PostImg {
 }
 
 const TiebaPost = {
-	mainPostImgList: [] as PostImg[],
+	mainPostImgList: <PostImg[]>[],
 	init() {
 		PopsPanel.execMenu("baidu_tieba_optimize_see_comments", () => {
 			log.success("优化查看评论");
@@ -30,7 +30,7 @@ const TiebaPost = {
 			TiebaPost.optimizeImagePreview();
 		});
 		PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
-			log.success("强制查看-贴子不存在或者已被删除");
+			log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
 			TiebaPost.repairErrorThread();
 		});
 	},
@@ -71,41 +71,46 @@ const TiebaPost = {
 			viewer.zoomTo(1);
 			viewer.show();
 		}
-		DOMUtils.on(document, "click", "img", function (event) {
-			let clickElement = event.target as HTMLImageElement;
-			let clickParentElement = clickElement.parentElement as HTMLDivElement;
-			let imgSrc =
-				clickElement.getAttribute("data-src") ||
-				clickElement.getAttribute("src");
-			if (
-				clickParentElement.className === "viewer-canvas" ||
-				clickParentElement.hasAttribute("data-viewer-action")
-			) {
-				return;
-			}
-			if (imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
-				log.info(`点击图片👇`);
-				log.info(clickElement);
-				if (clickParentElement.className === "img-box") {
-					/* 帖子主体内的图片 */
-					let parentMain = clickElement.closest(".img-sudoku.main-img-sudoku");
-					log.info(parentMain);
-					if (!parentMain) {
-						viewIMG([imgSrc]);
-						return;
-					}
-					utils.preventEvent(event);
-					let lazyImgList: string[] = [];
-					if (TiebaPost.mainPostImgList.length) {
-						TiebaPost.mainPostImgList.forEach((item) => {
-							lazyImgList.push(item.src);
-						});
-					} else {
-						Array.from(parentMain.querySelectorAll("img.img")).forEach(
-							(item) => {
-								let _imgSrc_ =
-									item.getAttribute("data-src") ||
-									(item.getAttribute("src") as string);
+		DOMUtils.on<MouseEvent | PointerEvent>(
+			document,
+			"click",
+			"img",
+			function (event) {
+				let clickElement = event.target as HTMLImageElement;
+				let clickParentElement = clickElement.parentElement as HTMLDivElement;
+				let imgSrc =
+					clickElement.getAttribute("data-src") ||
+					clickElement.getAttribute("src");
+				if (
+					clickParentElement.className === "viewer-canvas" ||
+					clickParentElement.hasAttribute("data-viewer-action")
+				) {
+					return;
+				}
+				if (imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+					log.info(`点击图片👇`);
+					log.info(clickElement);
+					if (clickParentElement.className === "img-box") {
+						/* 帖子主体内的图片 */
+						let parentMain = clickElement.closest(
+							".img-sudoku.main-img-sudoku"
+						);
+						log.info(parentMain);
+						if (!parentMain) {
+							viewIMG([imgSrc]);
+							return;
+						}
+						utils.preventEvent(event);
+						let lazyImgList: string[] = [];
+						if (TiebaPost.mainPostImgList.length) {
+							TiebaPost.mainPostImgList.forEach((item) => {
+								lazyImgList.push(item.src);
+							});
+						} else {
+							Array.from(
+								parentMain.querySelectorAll<HTMLImageElement>("img.img")
+							).forEach((item) => {
+								let _imgSrc_ = item.getAttribute("data-src") || item.src;
 								log.info(`获取图片: ${_imgSrc_}`);
 								let imgUrlInfo = new URL(_imgSrc_);
 								if (imgUrlInfo.pathname.startsWith("/forum/")) {
@@ -120,47 +125,46 @@ const TiebaPost = {
 									}
 								}
 								lazyImgList.push(_imgSrc_);
-							}
-						);
-					}
+							});
+						}
 
-					log.info("图片列表👇");
-					log.info(lazyImgList);
-					viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-				} else if (clickParentElement.className === "text-content") {
-					/* 评论区内的图片 */
-					let lazyImgList: string[] = [];
-					log.info(clickParentElement);
-					clickParentElement
-						.querySelectorAll("img.BDE_Image")
-						.forEach((item) => {
-							let _imgSrc_ =
-								item.getAttribute("data-src") ||
-								(item.getAttribute("src") as string);
-							log.info(`获取图片: ${_imgSrc_}`);
-							let imgUrlInfo = new URL(_imgSrc_);
-							if (imgUrlInfo.pathname.startsWith("/forum/")) {
-								let picName = imgUrlInfo.pathname.split("/").pop();
-								let picIdSplit = picName?.split(".");
-								if (picIdSplit) {
-									let picId = picIdSplit[0];
-									if (TiebaData.imageMap.has(picId)) {
-										_imgSrc_ = TiebaData.imageMap.get(picId) as string;
-										log.success(["替换成高清图片", _imgSrc_]);
+						log.info("图片列表👇");
+						log.info(lazyImgList);
+						viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+					} else if (clickParentElement.className === "text-content") {
+						/* 评论区内的图片 */
+						let lazyImgList: string[] = [];
+						log.info(clickParentElement);
+						clickParentElement
+							.querySelectorAll<HTMLImageElement>("img.BDE_Image")
+							.forEach((item) => {
+								let _imgSrc_ =
+									item.getAttribute("data-src") || (item.src as string);
+								log.info(`获取图片: ${_imgSrc_}`);
+								let imgUrlInfo = new URL(_imgSrc_);
+								if (imgUrlInfo.pathname.startsWith("/forum/")) {
+									let picName = imgUrlInfo.pathname.split("/").pop();
+									let picIdSplit = picName?.split(".");
+									if (picIdSplit) {
+										let picId = picIdSplit[0];
+										if (TiebaData.imageMap.has(picId)) {
+											_imgSrc_ = TiebaData.imageMap.get(picId) as string;
+											log.success(["替换成高清图片", _imgSrc_]);
+										}
 									}
 								}
-							}
-							lazyImgList.push(_imgSrc_);
-						});
-					log.info("评论区图片列表👇");
-					log.info(lazyImgList);
-					viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
-				} else {
-					/* 单个图片预览 */
-					viewIMG([imgSrc]);
+								lazyImgList.push(_imgSrc_);
+							});
+						log.info("评论区图片列表👇");
+						log.info(lazyImgList);
+						viewIMG(lazyImgList, lazyImgList.indexOf(imgSrc));
+					} else {
+						/* 单个图片预览 */
+						viewIMG([imgSrc]);
+					}
 				}
 			}
-		});
+		);
 		GM_addStyle(`
 		/* 图片右上角的APP专享 */
 		div.img-sudoku .img-desc{
@@ -250,7 +254,8 @@ const TiebaPost = {
 		}
 	},
 	/**
-	 * 强制查看-贴子不存在或者已被删除
+	 * 强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦
+	 *
 	 */
 	repairErrorThread() {
 		/**
@@ -281,18 +286,18 @@ const TiebaPost = {
 			let field = utils.toJSON(postListFirstElement.getAttribute("data-field"));
 			let PageData = null;
 			let PageDataScriptString = "";
-			Array.from(pageDOM.querySelectorAll("script")).forEach(
-				(scriptElement) => {
+			pageDOM
+				.querySelectorAll<HTMLScriptElement>("script")
+				.forEach((scriptElement) => {
 					if (scriptElement.innerHTML.includes("var PageData")) {
 						PageDataScriptString = `
-                ${PageDataScriptString}
+						${PageDataScriptString}
 
-                ${scriptElement.innerHTML}
+						${scriptElement.innerHTML}
 
-                `;
+						`;
 					}
-				}
-			);
+				});
 			if (PageDataScriptString === "") {
 				log.error("未找到 PageData的script标签");
 				Qmsg.error("未找到 PageData的script标签");
@@ -309,10 +314,8 @@ const TiebaPost = {
 				return;
 			}
 			let time =
-				(
-					pageDOM.querySelector(
-						"#j_p_postlist .post-tail-wrap span.tail-info:nth-child(6)"
-					) as HTMLSpanElement
+				pageDOM.querySelector<HTMLSpanElement>(
+					"#j_p_postlist .post-tail-wrap span.tail-info:nth-child(6)"
 				)?.innerText || "";
 			if (utils.isNotNull(time)) {
 				time = (utils.formatToTimeStamp(time) / 1000) as unknown as string;
@@ -388,7 +391,7 @@ const TiebaPost = {
 					log.error("元素.app-view不存在");
 					return;
 				}
-				utils.waitVueByInterval(
+				await utils.waitVueByInterval(
 					$appView,
 					() => {
 						return (
@@ -400,12 +403,15 @@ const TiebaPost = {
 				);
 				let appViewVue = CommonUtil.getVue($appView);
 				if (!(appViewVue && appViewVue.isErrorThread)) {
+					// 正常帖子，取消处理
+					log.info("验证参数isErrorThread：true，正常帖子");
 					return;
 				}
 				/* 该帖子不能查看 */
 				log.warn("该帖子不能查看 修复中...");
-				Qmsg.info("该帖子不能查看 修复中...");
+				let loading = Qmsg.loading("该帖子不能查看 修复中...");
 				let pageInfo = await getPageInfo();
+				loading.close();
 				if (!pageInfo) {
 					return;
 				}
@@ -455,12 +461,20 @@ const TiebaPost = {
 
 				appViewVue.isErrorThread = false;
 				setTimeout(() => {
+					/* 稍微延迟一下 */
 					DOMUtils.append(
-						document.querySelector(
+						document.querySelector<HTMLDivElement>(
 							"div.app-view div.thread-main-wrapper .thread-text"
-						) as HTMLDivElement,
+						)!,
 						postList[0].content[0].text
 					);
+					if (
+						appViewVue.interactionNum &&
+						typeof pageInfo?.PageData?.thread?.reply_num === "number"
+					) {
+						appViewVue.interactionNum.reply =
+							pageInfo.PageData.thread.reply_num;
+					}
 				}, 300);
 			});
 	},

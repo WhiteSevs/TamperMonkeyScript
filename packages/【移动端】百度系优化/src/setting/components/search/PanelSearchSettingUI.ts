@@ -107,7 +107,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 				UISwitch(
 					"自动翻页",
 					"baidu_search_automatically_expand_next_page",
-					false,
+					true,
 					function (event, enable) {
 						if (
 							enable &&
@@ -149,7 +149,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 				UISwitch(
 					"【beta】新标签页打开",
 					"baidu_search_hijack__onClick_to_blank",
-					false,
+					true,
 					void 0,
 					"实验性功能，需开启【劫持-_onClick函数】和【处理搜索结果】且能成功劫持到该函数才会生效，否则是粗糙的提取article的链接跳转"
 				),
@@ -169,35 +169,35 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 				UISwitch(
 					"劫持-复制",
 					"baidu_search_hijack_copy",
-					false,
+					true,
 					void 0,
 					"阻止百度复制xxx到剪贴板"
 				),
 				UISwitch(
 					"劫持-Scheme唤醒App",
 					"baidu_search_hijack_scheme",
-					false,
+					true,
 					void 0,
 					"阻止唤醒调用App"
 				),
 				UISwitch(
 					"劫持-OpenBox函数",
 					"baidu_search_hijack_openbox",
-					false,
+					true,
 					void 0,
 					"优化搜索结果跳转"
 				),
 				UISwitch(
 					"劫持-_onClick函数",
 					"baidu_search_hijack__onClick",
-					false,
+					true,
 					void 0,
 					"优化搜索结果跳转"
 				),
 				UISwitch(
 					"劫持-setTimeout",
 					"baidu_search_hijack_setTimeout",
-					false,
+					true,
 					void 0,
 					"可阻止获取定位、视频播放"
 				),

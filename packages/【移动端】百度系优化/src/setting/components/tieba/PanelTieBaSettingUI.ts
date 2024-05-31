@@ -305,7 +305,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					function (event, enable) {
 						if (enable) {
 							window.alert(
-								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】，且该帖子在PC端可以查看，那么该修复可以生效。"
+								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
 							);
 						}
 					},
