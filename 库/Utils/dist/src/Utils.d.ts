@@ -34,22 +34,88 @@ export declare interface AnyObject {
     toString(): string;
 }
 export declare interface Vue2Context extends AnyObject {
-    _isVue: true;
+    $attrs: AnyObject;
+    $children: Vue2Context[];
+    $createElement: (...args: any[]) => any;
+    $el: HTMLElement;
+    $listeners: AnyObject;
     $options: AnyObject;
     $parent: Vue2Context;
+    $refs: AnyObject;
     $root: Vue2Context;
-    $children: Vue2Context[];
-    $vnode: AnyObject;
-    $slots: AnyObject;
     $scopedSlots: AnyObject;
-    $attrs: AnyObject;
-    $listeners: AnyObject;
+    $slots: AnyObject;
     $store: AnyObject;
+    $vnode: AnyObject;
+    _data: AnyObject;
+    _directInactive: boolean;
+    _events: AnyObject;
+    _hasHookEvent: boolean;
+    _isBeingDestroyed: boolean;
+    _isDestroyed: boolean;
+    _isMounted: boolean;
+    _isVue: boolean;
+    $data: AnyObject;
+    $isServer: boolean;
+    $props: AnyObject;
+    $route: AnyObject & {
+        fullPath: string;
+        hash: string;
+        matched: AnyObject[];
+        meta: AnyObject;
+        name: string;
+        params: AnyObject;
+        path: string;
+        query: AnyObject;
+    };
+    $router: AnyObject & {
+        afterHooks: AnyObject[];
+        app: Vue2Context;
+        apps: Vue2Context[];
+        beforeHooks: ((...args: any[]) => any)[];
+        fallback: boolean;
+        history: AnyObject & {
+            base: string;
+            current: AnyObject;
+            listeners: AnyObject[];
+            router: Vue2Context["$router"];
+            /**
+             *
+             * @param delta 访问的距离。如果 delta < 0 则后退相应数量的记录，如果 > 0 则前进。
+             * @param triggerListeners 是否应该触发连接到该历史的监听器
+             * @returns
+             */
+            go: (delta: number, triggerListeners?: boolean) => void;
+            /**
+             *
+             * @param to 要设置的地址
+             * @param data 可选的 HistoryState 以关联该导航记录
+             * @returns
+             */
+            push: (to: string, data?: AnyObject) => void;
+            /**
+             *
+             * @param to 要设置的地址
+             * @param data 可选的 HistoryState 以关联该导航记录
+             * @returns
+             */
+            replace: (to: string, data?: AnyObject) => void;
+        };
+        matcher: AnyObject & {
+            addRoute: (...args: any[]) => any;
+            addRoutes: (...args: any[]) => any;
+            getRoutes: () => any;
+            match: (...args: any[]) => any;
+        };
+        mode: string;
+        resolveHooks: ((...args: any[]) => any)[];
+        currentRoute: AnyObject;
+    };
+    $ssrContext: AnyObject;
     $watch: (key: string | string[], handler: (this: any, newVal: any, oldVal: any) => void, options?: {
         immediate?: boolean;
         deep?: boolean;
     }) => void;
-    $el: Element;
 }
 declare class Utils {
     /** 版本号 */
@@ -1567,6 +1633,9 @@ declare class Utils {
      * Utils.waitNodeList(["div"]).then( $result =>{
      *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
      * })
+     * Utils.waitNodeList(["div"],document).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
+     * })
      */
     waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
@@ -1586,7 +1655,7 @@ declare class Utils {
      * @param parent 监听的父元素
      * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitNodeList("div",document,10000).then( $result =>{
+     * Utils.waitNodeList(["div"],document,10000).then( $result =>{
      *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
      * })
      */
@@ -1606,7 +1675,7 @@ declare class Utils {
      * @param selectorList CSS选择器数组
      * @param timeout 超时时间，默认0
      * @example
-     * Utils.waitNodeList("div",10000).then( $result =>{
+     * Utils.waitNodeList(["div"],10000).then( $result =>{
      *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
      * })
      */
