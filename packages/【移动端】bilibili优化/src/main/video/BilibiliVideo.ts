@@ -92,8 +92,8 @@ const BilibiliVideo = {
 		}
 		html.tiny-app{
 			${BilibiliData.className.video}{
-				.bottom-tab{
-					margin-top: 48vmin;
+				.m-video-info-new{
+					margin-top: 72vmin;
 				}
 			}
 		}
