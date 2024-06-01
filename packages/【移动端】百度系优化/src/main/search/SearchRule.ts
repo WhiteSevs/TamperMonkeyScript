@@ -27,8 +27,6 @@ match-href##author.baidu.com/home/
 match-attr##srcid##(sigma|vid_fourfold)
 // 问一问
 match-attr##data-log##wenda_inquiry
-// 自动播放视频
-remove-child##[class*='-video-player']
 // 百度游戏
 match-attr##srcid##yx_entity_san
 // 大家还在看

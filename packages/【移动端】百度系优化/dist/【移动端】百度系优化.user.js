@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.31.11
+// @version      2024.6.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -68,23 +68,27 @@
   const BaiduRouter = {
     /**
      * 百度搜索
-     * @returns 
+     * @returns
      */
     isSearch() {
-      return Boolean(window.location.href.match(
-        /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g
-      ));
+      return Boolean(
+        window.location.href.match(
+          /^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/.*/g
+        )
+      );
     },
     /**
      * 百度搜索 - /bh
-     * @returns 
+     * @returns
      */
     isSearchBh() {
-      return Boolean(this.isSearch() && window.location.pathname.startsWith("/bh"));
+      return Boolean(
+        this.isSearch() && window.location.pathname.startsWith("/bh")
+      );
     },
     /**
      * 百度搜索主页
-     * @returns 
+     * @returns
      */
     isSearchHome() {
       return Boolean(
@@ -96,31 +100,45 @@
       );
     },
     /**
+     * 百度搜索其它卡片搜索结果页面
+     * /sf/vsearch
+     * 例如：视频、笔记、贴吧、图片、资讯、问答、文库...等
+     */
+    isSearchVSearch() {
+      return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
+    },
+    /**
      * 百家号
-     * @returns 
+     * @returns
      */
     isBaiJiaHao() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/baijiahao.baidu.com/g)
+      );
     },
     /**
      * 贴吧
-     * @returns 
+     * @returns
      */
     isTieBa() {
-      return Boolean(window.location.href.match(
-        /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
-      ));
+      return Boolean(
+        window.location.href.match(
+          /^http(s|):\/\/(tieba.baidu|www.tieba|ala.baidu|static.tieba.baidu|nba.baidu).com/g
+        )
+      );
     },
     /**
      * 贴吧 - 帖子
-     * @returns 
+     * @returns
      */
     isTieBaPost() {
-      return Boolean(this.isTieBa() && window.location.pathname.startsWith("/p/"));
+      return Boolean(
+        this.isTieBa() && window.location.pathname.startsWith("/p/")
+      );
     },
     /**
      * 贴吧 - 热帖
-     * @returns 
+     * @returns
      */
     isTieBaNewTopic() {
       return Boolean(
@@ -129,7 +147,7 @@
     },
     /**
      * 贴吧 - 搜索结果界面
-     * @returns 
+     * @returns
      */
     isTieBaHybrid() {
       return Boolean(
@@ -138,181 +156,215 @@
     },
     /**
      * 贴吧 - 吧内
-     * @returns 
+     * @returns
      */
     isTieBaNei() {
       return Boolean(this.isTieBa() && window.location.pathname === "/f");
     },
     /**
      * 贴吧 - 首页
-     * @returns 
+     * @returns
      */
     isTieBaIndex() {
-      return Boolean(this.isTieBa() && window.location.pathname.startsWith("/index"));
+      return Boolean(
+        this.isTieBa() && window.location.pathname.startsWith("/index")
+      );
     },
     /**
      * 贴吧 - 主页
      */
     isTieBaHome() {
-      return Boolean(this.isTieBa() && window.location.pathname.startsWith("/home/main"));
+      return Boolean(
+        this.isTieBa() && window.location.pathname.startsWith("/home/main")
+      );
     },
     /**
      * 百度文库
-     * @returns 
+     * @returns
      */
     isWenKu() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/(wk|tanbi).baidu.com/g)
+      );
     },
     /**
      * 百度经验
-     * @returns 
+     * @returns
      */
     isJingYan() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/jingyan.baidu.com/g)
+      );
     },
     /**
      * 百度百科
-     * @returns 
+     * @returns
      */
     isBaiKe() {
-      return Boolean(window.location.href.match(
-        /^http(s|):\/\/(baike|wapbaike).baidu.com/g
-      ));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/(baike|wapbaike).baidu.com/g)
+      );
     },
     /**
      * 百度百科 - 他说
-     * @returns 
+     * @returns
      */
     isBaiKeTaShuo() {
-      return Boolean(this.isBaiKe() && window.location.pathname.startsWith("/tashuo"));
+      return Boolean(
+        this.isBaiKe() && window.location.pathname.startsWith("/tashuo")
+      );
     },
     /**
      * 百度知道
-     * @returns 
+     * @returns
      */
     isZhiDao() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/zhidao.baidu.com/g)
+      );
     },
     /**
      * 百度翻译
-     * @returns 
+     * @returns
      */
     isFanYi() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/fanyi.baidu.com/g)
+      );
     },
     /**
      * 百度翻译 - App
-     * @returns 
+     * @returns
      */
     isFanYiApp() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/fanyi-app.baidu.com/g)
+      );
     },
     /**
      * 百度图片
-     * @returns 
+     * @returns
      */
     isImage() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/image.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/image.baidu.com/g)
+      );
     },
     /**
      * 百度地图
-     * @returns 
+     * @returns
      */
     isMap() {
       return Boolean(window.location.href.match(/^http(s|):\/\/map.baidu.com/g));
     },
     /**
-     * 
-     * @returns 
+     *
+     * @returns
      */
     isMbd() {
       return Boolean(window.location.href.match(/^http(s|):\/\/mbd.baidu.com/g));
     },
     /**
      * 百度好学
-     * @returns 
+     * @returns
      */
     isXue() {
       return Boolean(window.location.href.match(/^http(s|):\/\/xue.baidu.com/g));
     },
     /**
      * 爱企查
-     * @returns 
+     * @returns
      */
     isAiQiCha() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/aiqicha.baidu.com/g)
+      );
     },
     /**
      * 百度网盟
-     * @returns 
+     * @returns
      */
     isPos() {
       return Boolean(window.location.href.match(/^http(s|):\/\/pos.baidu.com/g));
     },
     /**
      * 好看视频
-     * @returns 
+     * @returns
      */
     isHaoKan() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/haokan.baidu.com/g)
+      );
     },
     /**
      * 百度图片搜索
-     * @returns 
+     * @returns
      */
     isGraph() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/graph.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/graph.baidu.com/g)
+      );
     },
     /**
      * 百度网盘
-     * @returns 
+     * @returns
      */
     isPan() {
       return Boolean(window.location.href.match(/^http(s|):\/\/pan.baidu.com/g));
     },
     /**
      * 文心一言
-     * @returns 
+     * @returns
      */
     isYiYan() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/yiyan.baidu.com/g)
+      );
     },
     /**
      * 搜索AI伙伴
-     * @returns 
+     * @returns
      */
     isChat() {
       return Boolean(window.location.href.match(/^http(s|):\/\/chat.baidu.com/g));
     },
     /**
      * 百度教育
-     * @returns 
+     * @returns
      */
     isMiniJiaoYu() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/uf9kyh.smartapps.cn/g)
+      );
     },
     /**
      * 百度教育
-     * @returns 
+     * @returns
      */
     isEasyLearn() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/easylearn.baidu.com/g)
+      );
     },
     /**
      * 百度基木鱼
-     * @returns 
+     * @returns
      */
     isISite() {
-      return Boolean(window.location.href.match(
-        /^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g
-      ));
+      return Boolean(
+        window.location.href.match(
+          /^http(s|):\/\/isite.baidu.com\/site\/wjz2tdly/g
+        )
+      );
     },
     /**
      * 百度爱学
-     * @returns 
+     * @returns
      */
     isAiStudy() {
-      return Boolean(window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g));
+      return Boolean(
+        window.location.href.match(/^http(s|):\/\/aistudy.baidu.com/g)
+      );
     }
   };
   class LoadingView {
@@ -687,8 +739,6 @@ match-href##author.baidu.com/home/
 match-attr##srcid##(sigma|vid_fourfold)
 // 问一问
 match-attr##data-log##wenda_inquiry
-// 自动播放视频
-remove-child##[class*='-video-player']
 // 百度游戏
 match-attr##srcid##yx_entity_san
 // 大家还在看
@@ -947,6 +997,13 @@ match-attr##srcid##sp_purc_atom
             true,
             void 0,
             "用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
+          ),
+          UISwitch(
+            "【禁止】自动播放视频",
+            "baidu-search-blockAutomaticVideoPlayback",
+            true,
+            void 0,
+            "移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
           )
         ]
       },
@@ -1027,13 +1084,6 @@ match-attr##srcid##sp_purc_atom
         text: "劫持/拦截",
         type: "forms",
         forms: [
-          UISwitch(
-            "劫持-define函数",
-            "baidu_search_hijack_define",
-            false,
-            void 0,
-            "开启后将禁止原有的define"
-          ),
           UISwitch(
             "劫持-复制",
             "baidu_search_hijack_copy",
@@ -3515,161 +3565,170 @@ div.short-mini div[data-module="rec:undefined-undefined"],\r
 /* 相关软件 */\r
 div[srcid="sigma_celebrity_rela"],\r
 /* 搜一些隐私的内容时弹出的来的，开启无痕模式----保护隐私，安全浏览 */\r
-div:has(p.ivk-private-p) {\r
-  display: none !important;\r
+div:has(p.ivk-private-p),\r
+/* 智能卡片的 更多 按钮 */\r
+.c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {\r
+	display: none !important;\r
 }\r
 .searchboxtop.newsearch-white-style .se-form {\r
-  border-color: #4e6ef2 !important;\r
+	border-color: #4e6ef2 !important;\r
 }\r
 .searchboxtop.newsearch-white-style .se-bn {\r
-  color: #fff !important;\r
-  background: #4e6ef2 !important;\r
+	color: #fff !important;\r
+	background: #4e6ef2 !important;\r
 }\r
 .se-head-logo .se-logo img {\r
-  display: inherit !important;\r
+	display: inherit !important;\r
 }\r
 .se-head-tablink {\r
-  border-bottom: 1px solid #e6e6e6 !important;\r
-  /*background-color: #fff !important;*/\r
-  background-color: transparent !important;\r
+	border-bottom: 1px solid #e6e6e6 !important;\r
+	/*background-color: #fff !important;*/\r
+	background-color: transparent !important;\r
 }\r
 \r
 a.se-tabitem span {\r
-  color: #000 !important;\r
+	color: #000 !important;\r
 }\r
 /*div.c-peak-layer{\r
    display:none !important;\r
  } 百度关键字背景*/\r
 .se-tablink-scroll-wrapper .se-tab-cur:after {\r
-  border-bottom: 2px solid #38f !important;\r
+	border-bottom: 2px solid #38f !important;\r
 }\r
 .c-tags-scroll.c-padding-x {\r
-  display: none !important;\r
+	display: none !important;\r
 }\r
 .white-bdsearch-isredirecrt {\r
-  display: inline-flex;\r
-  background: #43ba76;\r
-  color: #fff;\r
-  width: 28px;\r
-  font-size: 16px;\r
-  line-height: 25px;\r
-  justify-content: center;\r
-  align-items: center;\r
-  border-radius: 5px;\r
-  margin: 0 auto;\r
-  margin-right: 6px;\r
+	display: inline-flex;\r
+	background: #43ba76;\r
+	color: #fff;\r
+	width: 28px;\r
+	font-size: 16px;\r
+	line-height: 25px;\r
+	justify-content: center;\r
+	align-items: center;\r
+	border-radius: 5px;\r
+	margin: 0 auto;\r
+	margin-right: 6px;\r
 }\r
 /* 修复图片显示问题 */\r
 .image-strong-card div[class*="image-content__"] > div {\r
-  display: inline-block;\r
-  overflow: hidden;\r
-  vertical-align: top;\r
+	display: inline-block;\r
+	overflow: hidden;\r
+	vertical-align: top;\r
 }\r
 .c-result-content div[class*="tieba-newxml-forum-img-class__"] {\r
-  display: -webkit-box;\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-align: center;\r
-  -moz-box-align: center;\r
-  -webkit-align-items: center;\r
-  align-items: center;\r
+	display: -webkit-box;\r
+	display: -webkit-flex;\r
+	display: flex;\r
+	-webkit-box-align: center;\r
+	-moz-box-align: center;\r
+	-webkit-align-items: center;\r
+	align-items: center;\r
 }\r
 \r
 .c-result-content div[class*="tieba-newxml-forum-img__"] {\r
-  width: 0.553rem;\r
-  height: 0.553rem;\r
+	width: 0.553rem;\r
+	height: 0.553rem;\r
 }\r
 \r
 .c-result-content div[class*="tieba-newxml-forum-img__"] img {\r
-  width: 100%;\r
-  height: 100%;\r
-  border-radius: 0.09rem;\r
+	width: 100%;\r
+	height: 100%;\r
+	border-radius: 0.09rem;\r
 }\r
 .c-result-content div[class*="tieba-newxml-forum-class__"] {\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-orient: vertical;\r
-  -moz-box-orient: vertical;\r
-  -webkit-box-direction: normal;\r
-  -moz-box-direction: normal;\r
-  -webkit-flex-direction: column;\r
-  -moz-flex-direction: column;\r
-  flex-direction: column;\r
-  -webkit-box-pack: center;\r
-  -moz-box-pack: center;\r
-  -webkit-justify-content: center;\r
-  -moz-justify-content: center;\r
-  justify-content: center;\r
-  max-width: 2.2rem;\r
+	display: -webkit-flex;\r
+	display: flex;\r
+	-webkit-box-orient: vertical;\r
+	-moz-box-orient: vertical;\r
+	-webkit-box-direction: normal;\r
+	-moz-box-direction: normal;\r
+	-webkit-flex-direction: column;\r
+	-moz-flex-direction: column;\r
+	flex-direction: column;\r
+	-webkit-box-pack: center;\r
+	-moz-box-pack: center;\r
+	-webkit-justify-content: center;\r
+	-moz-justify-content: center;\r
+	justify-content: center;\r
+	max-width: 2.2rem;\r
 }\r
 .c-result-content div[class*="c-img-content-btn__"] {\r
-  position: absolute;\r
-  right: 0;\r
-  width: 0.55rem;\r
-  text-align: center;\r
-  line-height: 0.28rem;\r
-  border: 1px solid rgba(31, 31, 31, 0.5);\r
-  border-radius: 0.15rem;\r
-  font-family: PingFangSC-Medium;\r
-  font-size: 0.13rem;\r
-  color: #1f1f1f;\r
+	position: absolute;\r
+	right: 0;\r
+	width: 0.55rem;\r
+	text-align: center;\r
+	line-height: 0.28rem;\r
+	border: 1px solid rgba(31, 31, 31, 0.5);\r
+	border-radius: 0.15rem;\r
+	font-family: PingFangSC-Medium;\r
+	font-size: 0.13rem;\r
+	color: #1f1f1f;\r
 }\r
 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] {\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-align: center;\r
-  -moz-box-align: center;\r
-  -webkit-align-items: center;\r
-  -moz-align-items: center;\r
-  align-items: center;\r
-  margin-top: 0.03rem;\r
+	display: -webkit-flex;\r
+	display: flex;\r
+	-webkit-box-align: center;\r
+	-moz-box-align: center;\r
+	-webkit-align-items: center;\r
+	-moz-align-items: center;\r
+	align-items: center;\r
+	margin-top: 0.03rem;\r
 }\r
 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] img {\r
-  width: 0.16rem;\r
-  height: 0.16rem;\r
-  border-radius: 50%;\r
+	width: 0.16rem;\r
+	height: 0.16rem;\r
+	border-radius: 50%;\r
 }\r
 .c-result-content div[class*="tieba-newxml-thread-comment-user__"] span {\r
-  margin-right: 0.08rem;\r
+	margin-right: 0.08rem;\r
 }\r
 .whitesev-gm-refactor-everyone-searching {\r
-  width: 100%;\r
-  box-sizing: border-box;\r
-  height: 2.857em;\r
-  line-height: 2.857;\r
-  background-color: #f5f6f9;\r
-  border-color: #f5f6f9;\r
-  padding: 0 0.08rem;\r
-  /*vertical-align: middle;*/\r
-  outline: 0;\r
-  font-size: 14px;\r
-  overflow: hidden;\r
-  border-radius: 9px;\r
-  text-align: center;\r
-  text-decoration: none;\r
-  -webkit-tap-highlight-color: transparent;\r
-  -moz-tap-highlight-color: transparent;\r
-  text-overflow: ellipsis;\r
-  white-space: nowrap;\r
-  -webkit-box-orient: horizontal;\r
-  -moz-box-orient: horizontal;\r
-  -webkit-box-align: stretch;\r
-  -moz-box-align: stretch;\r
-  display: block;\r
-  justify-content: space-between;\r
-  -webkit-justify-content: space-between;\r
-  -moz-justify-content: space-between;\r
-  -webkit-align-items: stretch;\r
-  -moz-align-items: stretch;\r
-  align-items: stretch;\r
-  flex-wrap: nowrap;\r
-  -webkit-flex-wrap: nowrap;\r
-  -moz-flex-wrap: nowrap;\r
+	width: 100%;\r
+	box-sizing: border-box;\r
+	height: 2.857em;\r
+	line-height: 2.857;\r
+	background-color: #f5f6f9;\r
+	border-color: #f5f6f9;\r
+	padding: 0 0.08rem;\r
+	/*vertical-align: middle;*/\r
+	outline: 0;\r
+	font-size: 14px;\r
+	overflow: hidden;\r
+	border-radius: 9px;\r
+	text-align: center;\r
+	text-decoration: none;\r
+	-webkit-tap-highlight-color: transparent;\r
+	-moz-tap-highlight-color: transparent;\r
+	text-overflow: ellipsis;\r
+	white-space: nowrap;\r
+	-webkit-box-orient: horizontal;\r
+	-moz-box-orient: horizontal;\r
+	-webkit-box-align: stretch;\r
+	-moz-box-align: stretch;\r
+	display: block;\r
+	justify-content: space-between;\r
+	-webkit-justify-content: space-between;\r
+	-moz-justify-content: space-between;\r
+	-webkit-align-items: stretch;\r
+	-moz-align-items: stretch;\r
+	align-items: stretch;\r
+	flex-wrap: nowrap;\r
+	-webkit-flex-wrap: nowrap;\r
+	-moz-flex-wrap: nowrap;\r
 }\r
 \r
 /* 让搜索中某些视频的阶段可以横向滚动 */\r
 div[class^="new-summary-container_"] {\r
-  overflow: auto;\r
+	overflow: auto;\r
+}\r
+\r
+/* 智能卡片 展开更多，这里是拼音 */\r
+.c-result-content\r
+	div[class*="multi-pinyin_"]\r
+	div[class*="multi-pinyin-item"][style*="display: none"] {\r
+	display: block !important;\r
 }\r
 `;
   const SearchHealthShieldCSS = '/* 右下角悬浮的健康直播间图标按钮 */\r\ndiv[class^="index_brandEntry"] {\r\n  display: none !important;\r\n}\r\n';
@@ -3707,33 +3766,34 @@ div[class^="new-summary-container_"] {\r
   };
   const BaiduHook = {
     $isHook: {
-      hijackBoxJSBefore: false,
-      is_hijack_onClick: false,
-      hijackJQueryAppend: false,
-      hijackOpenBox: false,
-      hijackFunctionCall_WebPack_TieBa: false,
-      hijackFunctionCall_WebPack_HaoKan: false,
-      hijackFunctionCall_BaiJiaHao_Map: false
+      windowBoxJSBefore: false,
+      objectDefineProperty_search: false,
+      windowJQueryAppend: false,
+      windowOpenBox: false,
+      windowWebpackJsonp_tieba: false,
+      windowWebpackJsonp_haokan: false,
+      functionCall_baijiahao_map: false
     },
     $data: {
-      hijackFunctionApply: [],
-      hijackElementAppendChild: [],
-      hijackSetTimeout: []
+      functionApply: [],
+      elementAppendChild: [],
+      setTimeout: [],
+      windowDefine: []
     },
     /**
      * 统一管理apply的劫持，防止套娃
      * @param mode 劫持的类型
      */
-    hijackFunctionApply(mode) {
-      this.$data.hijackFunctionApply.push(mode);
-      if (this.$data.hijackFunctionApply.length > 1) {
+    functionApply(mode) {
+      this.$data.functionApply.push(mode);
+      if (this.$data.functionApply.length > 1) {
         log.info("Function.apply hook新增劫持参数：" + mode);
         return;
       }
       let that = this;
       log.info("初始化Function.apply hook");
       _unsafeWindow.Function.prototype.apply = function(...args) {
-        if (that.$data.hijackFunctionApply.includes("copy")) {
+        if (that.$data.functionApply.includes("copy")) {
           try {
             let firstParam = args[1];
             if (args.length === 2 && typeof firstParam === "object" && "" + firstParam === "[object Arguments]" && firstParam.length === 1 && typeof firstParam[0] === "object" && firstParam[0] != null && "appName" in firstParam[0] && "checkTokenCopied" in firstParam[0] && "deeplink" in firstParam[0] && "scheme" in firstParam[0] && "token" in firstParam[0] && "useDeeplink" in firstParam[0]) {
@@ -3748,7 +3808,7 @@ div[class^="new-summary-container_"] {\r
           } catch (error) {
           }
         }
-        if (that.$data.hijackFunctionApply.includes("scheme")) {
+        if (that.$data.functionApply.includes("scheme")) {
           try {
             let firstParam = args[1];
             if (args.length === 2 && typeof firstParam === "object" && "" + firstParam === "[object Arguments]" && firstParam.length === 2 && firstParam[1] === "scheme") {
@@ -3762,17 +3822,59 @@ div[class^="new-summary-container_"] {\r
       };
     },
     /**
+     * 劫持全局define
+     */
+    windowDefine(path, requirePathList, callback) {
+      this.$data.windowDefine.push({
+        path,
+        requirePathList,
+        callback
+      });
+      if (this.$data.windowDefine.length > 1) {
+        log.info("define hook新增劫持参数：" + path);
+        return;
+      }
+      let that = this;
+      let safeDefine = void 0;
+      let unsafeDefine = function(...args) {
+        let define_path = args[0];
+        let define_requrePathList = args[1];
+        args[2];
+        for (let index = 0; index < that.$data.windowDefine.length; index++) {
+          let hookConfig = that.$data.windowDefine[index];
+          if (hookConfig.path === define_path && JSON.stringify(hookConfig.requirePathList) === JSON.stringify(define_requrePathList)) {
+            args[2] = hookConfig.callback;
+            break;
+          }
+        }
+        safeDefine(...args);
+      };
+      unsafeDefine.prototype.amd = {};
+      OriginPrototype.Object.defineProperty(_unsafeWindow, "define", {
+        get() {
+          if (safeDefine == null) {
+            return;
+          }
+          return unsafeDefine;
+        },
+        set(v) {
+          log.success(["define ==> ", v]);
+          safeDefine = v;
+        }
+      });
+    },
+    /**
      * 劫持百度搜索某些项的点击事件
      * + 百度搜索
      *
      * Object.defineProperty
      * @param menuKeyName
      */
-    hijack_onClick(menuKeyName) {
-      if (this.$isHook.is_hijack_onClick) {
+    objectDefineProperty_search(menuKeyName) {
+      if (this.$isHook.objectDefineProperty_search) {
         return;
       }
-      this.$isHook.is_hijack_onClick = true;
+      this.$isHook.objectDefineProperty_search = true;
       _unsafeWindow.Object.defineProperty = function(target, propertyKey, _attributes) {
         if (propertyKey === "_onClick") {
           log.info(["成功劫持_onClick", arguments]);
@@ -3814,7 +3916,7 @@ div[class^="new-summary-container_"] {\r
      * Element.prototype.appendChild
      * @param handleCallBack 处理的回调函数，如果劫持请返回true
      */
-    hijackElementAppendChild(handleCallBack = function(element) {
+    elementAppendChild(handleCallBack = function(element) {
       var _a3;
       if (element instanceof HTMLIFrameElement) {
         if (!((_a3 = element == null ? void 0 : element.src) == null ? void 0 : _a3.startsWith("http"))) {
@@ -3823,8 +3925,8 @@ div[class^="new-summary-container_"] {\r
         }
       }
     }) {
-      this.$data.hijackElementAppendChild.push(handleCallBack);
-      if (this.$data.hijackElementAppendChild.length > 1) {
+      this.$data.elementAppendChild.push(handleCallBack);
+      if (this.$data.elementAppendChild.length > 1) {
         log.info("Element.prototype.appendChild hook新增劫持判断回调");
         return;
       }
@@ -3844,11 +3946,11 @@ div[class^="new-summary-container_"] {\r
      *
      * $().append();
      */
-    hijackJQueryAppend() {
-      if (this.$isHook.hijackJQueryAppend) {
+    windowJQueryAppend() {
+      if (this.$isHook.windowJQueryAppend) {
         return;
       }
-      this.$isHook.hijackJQueryAppend = true;
+      this.$isHook.windowJQueryAppend = true;
       let originAppend = _unsafeWindow.$.fn.append;
       _unsafeWindow.$.fn.append = function(params) {
         if (typeof params === "string") {
@@ -3867,11 +3969,11 @@ div[class^="new-summary-container_"] {\r
      *
      * window.OpenBox
      */
-    hijackOpenBox() {
-      if (this.$isHook.hijackOpenBox) {
+    windowOpenBox() {
+      if (this.$isHook.windowOpenBox) {
         return;
       }
-      this.$isHook.hijackOpenBox = true;
+      this.$isHook.windowOpenBox = true;
       let OpenBox = function() {
         return {
           open(...args) {
@@ -3926,9 +4028,9 @@ div[class^="new-summary-container_"] {\r
      * window.setTimeout
      * @param matchStr 需要进行匹配的函数字符串
      */
-    hijackSetTimeout(matchStr) {
-      this.$data.hijackSetTimeout.push(matchStr);
-      if (this.$data.hijackSetTimeout.length > 1) {
+    setTimeout(matchStr) {
+      this.$data.setTimeout.push(matchStr);
+      if (this.$data.setTimeout.length > 1) {
         log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
         return;
       }
@@ -3951,12 +4053,12 @@ div[class^="new-summary-container_"] {\r
      * (c) 2018-2023 liugui01
      * Released under the BaiDuTieBa License.
      */
-    hijackFunctionCall_WebPack_TieBa() {
-      if (this.$isHook.hijackFunctionCall_WebPack_TieBa) {
+    windowWebpackJsonp_tieba() {
+      if (this.$isHook.windowWebpackJsonp_tieba) {
         return;
       }
-      this.$isHook.hijackFunctionCall_WebPack_TieBa = true;
-      this.hijackWebpack(
+      this.$isHook.windowWebpackJsonp_tieba = true;
+      this.windowWebPack(
         "webpackJsonp",
         ["core:0"],
         function(webpackExports) {
@@ -3993,7 +4095,7 @@ div[class^="new-summary-container_"] {\r
      * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
      * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
-    hijackWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+    windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
       OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -4025,12 +4127,12 @@ div[class^="new-summary-container_"] {\r
      * + 百度好看视频(haokan.baidu.com)
      *
      */
-    hijackFunctionCall_WebPack_HaoKan() {
-      if (this.$isHook.hijackFunctionCall_WebPack_HaoKan) {
+    windowWebpackJsonp_haokan() {
+      if (this.$isHook.windowWebpackJsonp_haokan) {
         return;
       }
-      this.$isHook.hijackFunctionCall_WebPack_HaoKan = true;
-      this.hijackWebpack(
+      this.$isHook.windowWebpackJsonp_haokan = true;
+      this.windowWebPack(
         "webpackJsonp",
         [40, 1],
         function(webpackExports) {
@@ -4059,11 +4161,11 @@ div[class^="new-summary-container_"] {\r
      * + 百度地图(map.baidu.com)
      * Function.property.call
      */
-    hijackFunctionCall_BaiJiaHao_Map() {
-      if (this.$isHook.hijackFunctionCall_BaiJiaHao_Map) {
+    functionCall_baijiahao_map() {
+      if (this.$isHook.functionCall_baijiahao_map) {
         return;
       }
-      this.$isHook.hijackFunctionCall_BaiJiaHao_Map = true;
+      this.$isHook.functionCall_baijiahao_map = true;
       _unsafeWindow.Function.prototype.call = function(...args) {
         if (args.length === 2 && args[0] === void 0 && args[1] != null && "arg" in args[1] && "delegate" in args[1] && "done" in args[1] && "method" in args[1] && "next" in args[1] && "prev" in args[1]) {
           log.success(["修改参数", args[1]]);
@@ -4081,11 +4183,11 @@ div[class^="new-summary-container_"] {\r
      *
      * window.BoxJSBefore
      */
-    hijackBoxJSBefore() {
-      if (this.$isHook.hijackBoxJSBefore) {
+    windowBoxJSBefore() {
+      if (this.$isHook.windowBoxJSBefore) {
         return;
       }
-      this.$isHook.hijackBoxJSBefore = true;
+      this.$isHook.windowBoxJSBefore = true;
       OriginPrototype.Object.defineProperty(_unsafeWindow, "BoxJSBefore", {
         get() {
           return new Proxy(
@@ -4102,33 +4204,24 @@ div[class^="new-summary-container_"] {\r
   };
   const BaiduSearchHook = {
     init() {
-      PopsPanel.execMenuOnce("baidu_search_hijack_define", () => {
-        log.success("hook: window.define");
-        OriginPrototype.Object.defineProperty(_unsafeWindow, "define", {
-          get(...args) {
-            return function(...args2) {
-            };
-          }
-        });
-      });
       PopsPanel.execMenuOnce("baidu_search_hijack__onClick", () => {
-        log.success("hooke: baidu onClick");
-        BaiduHook.hijack_onClick("baidu_search_hijack__onClick");
+        log.success("hook: baidu onClick");
+        BaiduHook.objectDefineProperty_search("baidu_search_hijack__onClick");
       });
       PopsPanel.execMenuOnce("baidu_search_hijack_openbox", () => {
         log.success("hook: window.OpenBox");
-        BaiduHook.hijackOpenBox();
+        BaiduHook.windowOpenBox();
       });
       PopsPanel.execMenuOnce("baidu_search_hijack_scheme", () => {
         log.success("hook: Function.apply => scheme");
-        BaiduHook.hijackFunctionApply("scheme");
+        BaiduHook.functionApply("scheme");
       });
       PopsPanel.execMenuOnce("baidu_search_hijack_copy", () => {
         log.success("hook: Function.apply => copy");
-        BaiduHook.hijackFunctionApply("copy");
+        BaiduHook.functionApply("copy");
       });
       PopsPanel.execMenuOnce("baidu_search_hijack_setTimeout", () => {
-        BaiduHook.hijackSetTimeout("getGeoLocation|loopPlay()");
+        BaiduHook.setTimeout("getGeoLocation|loopPlay()");
       });
     }
   };
@@ -4298,32 +4391,36 @@ div[class^="new-summary-container_"] {\r
         item.href = articleURL;
       });
       Array.from(
-        targetNode.querySelectorAll("div[data-aftclk][class*=img-container]")
-      ).forEach((item) => {
-        let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl(item);
+        targetNode.querySelectorAll(
+          "div[data-aftclk][class*=img-container]"
+        )
+      ).forEach(($imgContainer) => {
+        let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl($imgContainer);
         if (!utils.isNull(domOriginUrl) && !BaiduResultItem.isBlackList(domOriginUrl)) {
-          item.setAttribute("href", domOriginUrl);
-          item.setAttribute("rl-link-href", domOriginUrl);
+          $imgContainer.setAttribute("href", domOriginUrl);
+          $imgContainer.setAttribute("rl-link-href", domOriginUrl);
         }
       });
       Array.from(
-        targetNode.querySelectorAll("div.c-video-container div[data-aftclk]")
-      ).forEach((item) => {
-        let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl(item);
+        targetNode.querySelectorAll(
+          "div.c-video-container div[data-aftclk]"
+        )
+      ).forEach(($aftclk) => {
+        let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl($aftclk);
         if (!utils.isNull(domOriginUrl) && !BaiduResultItem.isBlackList(domOriginUrl)) {
-          item.setAttribute("href", domOriginUrl);
-          item.setAttribute("rl-link-href", domOriginUrl);
+          $aftclk.setAttribute("href", domOriginUrl);
+          $aftclk.setAttribute("rl-link-href", domOriginUrl);
         }
       });
       Array.from(
         targetNode.querySelectorAll(
           'div[data-module="sc_pc"] div[rl-link-href]'
         )
-      ).forEach((item) => {
-        let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl(item);
+      ).forEach(($rlLinkHref) => {
+        let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl($rlLinkHref);
         if (!utils.isNull(domOriginUrl) && !BaiduResultItem.isBlackList(domOriginUrl)) {
-          item.setAttribute("href", domOriginUrl);
-          item.setAttribute("rl-link-href", domOriginUrl);
+          $rlLinkHref.setAttribute("href", domOriginUrl);
+          $rlLinkHref.setAttribute("rl-link-href", domOriginUrl);
         }
       });
     },
@@ -4617,16 +4714,16 @@ div[class^="new-summary-container_"] {\r
     },
     /**
      * 给元素添加【CSDN】下载标识
-     * @param targetNode
+     * @param $result
      */
-    addCSDNFlag(targetNode) {
-      if (targetNode.querySelector(".csdn-flag-component-box")) {
+    addCSDNFlag($result) {
+      if ($result.querySelector(".csdn-flag-component-box")) {
         return;
       }
-      let title_text_element = BaiduResultItem.getItemTitleElement(targetNode);
-      if (title_text_element) {
+      let $titleText = BaiduResultItem.getItemTitleElement($result);
+      if ($titleText) {
         domutils.append(
-          title_text_element,
+          $titleText,
           `<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
         );
         log.success("插入CSDN下载提示标题");
@@ -4682,34 +4779,40 @@ div[class^="new-summary-container_"] {\r
         log.success(`删除 ==> 顶部的部分商品广告 ${ecWiseAdElement.length}个`);
         domutils.remove(domutils.parent(ecWiseAdElement));
       }
-      document.querySelectorAll(".c-result.result").forEach((item) => {
+      document.querySelectorAll(".c-result.result").forEach(($result) => {
         var _a3, _b;
-        let dataLog = utils.toJSON(item.getAttribute("data-log"));
-        let searchArticleOriginal_link = dataLog["mu"] || ((_a3 = item.querySelector("article")) == null ? void 0 : _a3.getAttribute("rl-link-href"));
-        if (BaiduSearchRule.handleCustomRule(
-          item,
-          searchArticleOriginal_link
-        )) {
-          item.remove();
+        let dataLog = utils.toJSON($result.getAttribute("data-log"));
+        let searchArticleOriginal_link = dataLog["mu"] || ((_a3 = $result.querySelector("article")) == null ? void 0 : _a3.getAttribute("rl-link-href"));
+        if (utils.isNotNull(searchArticleOriginal_link) && BaiduSearchRule.handleCustomRule($result, searchArticleOriginal_link)) {
+          log.info(["触发自定义规则，拦截该项：", searchArticleOriginal_link]);
+          $result.remove();
           return;
+        }
+        if (PopsPanel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
+          $result.querySelectorAll("[class*='-video-player']").forEach((ele) => ele.remove());
         }
         if (utils.isNotNull(searchArticleOriginal_link)) {
           if (searchArticleOriginal_link.match(
             /^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
           )) {
-            BaiduResultItem.addCSDNFlag(item);
+            log.success("添加CSDN下载标识");
+            BaiduResultItem.addCSDNFlag($result);
           }
         }
-        if (PopsPanel.getValue("baidu_search_blocking_everyone_is_still_searching")) {
-          let $title = item.querySelector(".rw-little-title");
+        if (PopsPanel.getValue(
+          "baidu_search_blocking_everyone_is_still_searching"
+        )) {
+          let $title = $result.querySelector(
+            ".rw-little-title"
+          );
           if ($title && ((_b = $title.textContent) == null ? void 0 : _b.startsWith("大家还在搜"))) {
-            item == null ? void 0 : item.remove();
+            $result == null ? void 0 : $result.remove();
             log.success("删除广告 ==> 大家都在搜（能看到的）");
           }
-          document.querySelectorAll("span").forEach((item2) => {
+          $result.querySelectorAll("span").forEach((item) => {
             var _a4;
-            let resultParentElement = (_a4 = item2.parentElement) == null ? void 0 : _a4.parentElement;
-            if (item2.innerText.match(/百度APP内打开/) || resultParentElement.getAttribute("data-from") === "etpl") {
+            let resultParentElement = (_a4 = item.parentElement) == null ? void 0 : _a4.parentElement;
+            if (item.innerText.match(/百度APP内打开/) || resultParentElement.getAttribute("data-from") === "etpl") {
               resultParentElement.remove();
               log.success(
                 "删除广告 ==> 百度APP内打开，隐藏的广告，会在滚动时跳出来的"
@@ -4717,18 +4820,15 @@ div[class^="new-summary-container_"] {\r
             }
           });
         }
-        let bottomLogoElement = Array.from(
-          item.querySelectorAll(".c-color-source")
-        );
-        if (bottomLogoElement.length) {
-          bottomLogoElement.forEach((_item_) => {
-            var _a4;
-            if ((_a4 = _item_.outerText) == null ? void 0 : _a4.match(/百度(APP内打开|手机助手)/)) {
-              item.remove();
-              log.success("删除广告 ==> 百度APP内打开|百度手机助手");
-            }
-          });
-        }
+        Array.from(
+          $result.querySelectorAll(".c-color-source")
+        ).forEach(($bottomLogo) => {
+          var _a4;
+          if ((_a4 = $bottomLogo.outerText) == null ? void 0 : _a4.match(/百度(APP内打开|手机助手)/)) {
+            $result.remove();
+            log.success("删除广告 ==> 百度APP内打开|百度手机助手");
+          }
+        });
       });
     },
     /**
@@ -4780,16 +4880,20 @@ div[class^="new-summary-container_"] {\r
         }
         if (searchResultItem.getAttribute("tpl") === "wenda_abstract" && searchResultItem.getAttribute("preventClick") == null) {
           searchResultItem.setAttribute("preventClick", "true");
-          domutils.on(searchResultItem, "click", function(event) {
-            utils.preventEvent(event);
-            let clickNode = event.target;
-            if (clickNode.localName && clickNode.localName === "sup" && clickNode.getAttribute("rl-type") === "stop") {
-              return;
-            } else {
-              window.stop();
-              window.location.href = decodeURI(resultItemOriginURL);
+          domutils.on(
+            searchResultItem,
+            "click",
+            function(event) {
+              utils.preventEvent(event);
+              let clickNode = event.target;
+              if (clickNode.localName && clickNode.localName === "sup" && clickNode.getAttribute("rl-type") === "stop") {
+                return;
+              } else {
+                window.stop();
+                window.location.href = decodeURI(resultItemOriginURL);
+              }
             }
-          });
+          );
           continue;
         }
         if (resultItemOriginURL.match(/^http(s|):\/\/www.internal.video.baidu.com/g)) {
@@ -5502,8 +5606,7 @@ div[class^="new-summary-container_"] {\r
         domutils.ready(function() {
           BaiduResultItem.originURLMap = BaiduResultItem.parseScriptDOMOriginUrlMap(document);
           let baidu_search_handle_search_result_enable = PopsPanel.getValue(
-            "baidu_search_handle_search_result",
-            true
+            "baidu_search_handle_search_result"
           );
           if (baidu_search_handle_search_result_enable) {
             let searchUpdateRealLink = new utils.LockFunction(async () => {
@@ -5556,10 +5659,7 @@ div[class^="new-summary-container_"] {\r
           )) {
             SearchNextPage_SearchCraft.init();
           }
-          if (utils.startsWith(
-            window.location.href,
-            "https://(m[0-9]{0,2}|www).baidu.com/sf/vsearch"
-          )) {
+          if (BaiduRouter.isSearchVSearch()) {
             utils.waitNode("#realtime-container .c-infinite-scroll").then((element) => {
               let replaceVSearchLinkLonkFunction = new utils.LockFunction(
                 BaiduResultItem.replaceVSearchLink,
@@ -5660,11 +5760,11 @@ div[class^="new-summary-container_"] {\r
     init() {
       PopsPanel.execMenu("baijiahao_hijack_wakeup", () => {
         log.success("hook: Function.call");
-        BaiduHook.hijackFunctionCall_BaiJiaHao_Map();
+        BaiduHook.functionCall_baijiahao_map();
       });
       PopsPanel.execMenu("baidu_baijiahao_hijack_iframe", () => {
         log.success("hook: Element.append");
-        BaiduHook.hijackElementAppendChild(function(element) {
+        BaiduHook.elementAppendChild(function(element) {
           var _a3;
           if (element.localName === "script" && ((_a3 = element == null ? void 0 : element.src) == null ? void 0 : _a3.includes("landing-share"))) {
             log.success("阻止加载：" + element.src);
@@ -5674,7 +5774,7 @@ div[class^="new-summary-container_"] {\r
       });
       PopsPanel.execMenu("baidu_baijiahao_hijack_openbox", () => {
         log.success("hook: window.Box");
-        BaiduHook.hijackOpenBox();
+        BaiduHook.windowOpenBox();
       });
     }
   };
@@ -17353,9 +17453,9 @@ div[class^="new-summary-container_"] {\r
       PopsPanel.execMenu("baidu_tieba_clientCallMasquerade", () => {
         TiebaCore.clientCallMasquerade();
       });
-      BaiduHook.hijackElementAppendChild();
+      BaiduHook.elementAppendChild();
       PopsPanel.execMenuOnce("baidu_tieba_hijack_wake_up", () => {
-        BaiduHook.hijackFunctionCall_WebPack_TieBa();
+        BaiduHook.windowWebpackJsonp_tieba();
       });
       if (BaiduRouter.isTieBaIndex()) {
         log.success("Router: 首页");
@@ -17793,14 +17893,14 @@ div[class^="new-summary-container_"] {\r
     init() {
       PopsPanel.execMenu("baidu_map_hijack_wakeup", () => {
         log.success("hook: Element.appendChild");
-        BaiduHook.hijackElementAppendChild();
+        BaiduHook.elementAppendChild();
         log.success("hook: window.setTimeout");
-        BaiduHook.hijackSetTimeout(
+        BaiduHook.setTimeout(
           /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
         );
         domutils.ready(function() {
           log.success("hook: $.append");
-          BaiduHook.hijackJQueryAppend();
+          BaiduHook.windowJQueryAppend();
         });
       });
     }
@@ -17829,14 +17929,18 @@ div#app div.guid-new,\r
 /* 影响定位元素的遮罩层 */\r
 #page_wrapper .bdboxshare>div:first-child,\r
 /* 来百度APP畅享高清图片 */\r
-.contentMedia .openImg {\r
-  display: none !important;\r
+.contentMedia .openImg,\r
+/* 精彩推荐右边的 打开APP看更多精彩推荐 */\r
+div[class*="relateTitle"] span[class*="subTitle"],\r
+/* 会自动在上面弹出的【百度热榜】 */\r
+#page_wrapper div:has(>div[class*="leftbox"]) {\r
+	display: none !important;\r
 }\r
 /* 展开阅读 */\r
 #page_wrapper #dynamicItem,\r
 /* 手机版-展开阅读 */\r
 #mainContentContainer {\r
-  height: auto !important;\r
+	height: auto !important;\r
 }\r
 `;
   const BaiduMbdHook = {
@@ -17856,15 +17960,15 @@ div#app div.guid-new,\r
       });
       PopsPanel.execMenu("baidu_mbd_hijack_wakeup", () => {
         log.info("hook: Function.call");
-        BaiduHook.hijackFunctionCall_BaiJiaHao_Map();
+        BaiduHook.functionCall_baijiahao_map();
       });
-      PopsPanel.execMenu("", () => {
+      PopsPanel.execMenu("baidu_mbd_hijack_BoxJSBefore", () => {
         log.info("hook: window.BoxJSBefore");
-        BaiduHook.hijackBoxJSBefore();
+        BaiduHook.windowBoxJSBefore();
       });
-      PopsPanel.execMenu("", () => {
+      PopsPanel.execMenu("baidu_mbd_hijack_iframe", () => {
         log.info("hook: Element.appendChild");
-        BaiduHook.hijackElementAppendChild();
+        BaiduHook.elementAppendChild();
       });
     }
   };
@@ -17993,7 +18097,7 @@ div#app div.guid-new,\r
     init() {
       PopsPanel.execMenu("baidu_haokan_hijack_wakeup", () => {
         log.success("hook: window.webpackJsonp");
-        BaiduHook.hijackFunctionCall_WebPack_HaoKan();
+        BaiduHook.windowWebpackJsonp_haokan();
       });
     }
   };

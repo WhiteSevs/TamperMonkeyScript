@@ -6,14 +6,14 @@ const BaiduMapHook = {
     init() {
         PopsPanel.execMenu("baidu_map_hijack_wakeup", () => {
             log.success("hook: Element.appendChild")
-            BaiduHook.hijackElementAppendChild();
+            BaiduHook.elementAppendChild();
             log.success("hook: window.setTimeout")
-            BaiduHook.hijackSetTimeout(
+            BaiduHook.setTimeout(
                 /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
             );
             DOMUtils.ready(function () {
                 log.success("hook: $.append")
-                BaiduHook.hijackJQueryAppend();
+                BaiduHook.windowJQueryAppend();
             });
         })
     }

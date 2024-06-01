@@ -77,6 +77,13 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 					void 0,
 					"用于补充下面自定义拦截规则的默认配置的【大家还在搜】"
 				),
+				UISwitch(
+					"【禁止】自动播放视频",
+					"baidu-search-blockAutomaticVideoPlayback",
+					true,
+					void 0,
+					"移除video-player元素，可能会导致某些第一个结果是智能卡片时，点击更多按钮无反应(webview/Safari)"
+				),
 			],
 		},
 		{
@@ -159,13 +166,6 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 			text: "劫持/拦截",
 			type: "forms",
 			forms: [
-				UISwitch(
-					"劫持-define函数",
-					"baidu_search_hijack_define",
-					false,
-					void 0,
-					"开启后将禁止原有的define"
-				),
 				UISwitch(
 					"劫持-复制",
 					"baidu_search_hijack_copy",

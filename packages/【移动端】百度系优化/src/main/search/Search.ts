@@ -42,11 +42,12 @@ const BaiduSearch = {
 				this.openResultBlank();
 			});
 			DOMUtils.ready(function () {
+				/* 解析真实地址 from <script> */
 				BaiduResultItem.originURLMap =
 					BaiduResultItem.parseScriptDOMOriginUrlMap(document);
+				/* 处理搜索结果 */
 				let baidu_search_handle_search_result_enable = PopsPanel.getValue(
-					"baidu_search_handle_search_result",
-					true
+					"baidu_search_handle_search_result"
 				);
 				if (baidu_search_handle_search_result_enable) {
 					let searchUpdateRealLink = new utils.LockFunction(async () => {
@@ -82,7 +83,7 @@ const BaiduSearch = {
 					}
 					removeAdsLockFunction.run();
 				}
-
+				/* 处理搜索置顶的卡片的style */
 				utils
 					.waitNodeList<NodeListOf<HTMLStyleElement>>(
 						"style[class^='vsearch-sigma-style']"
@@ -99,6 +100,7 @@ const BaiduSearch = {
 				PopsPanel.execMenu("baidu_search_refactoring_input_boxes", () => {
 					SearchInputEvent.init();
 				});
+				/* 处理自动加载下一页 */
 				if (PopsPanel.getValue("baidu_search_automatically_expand_next_page")) {
 					SearchNextPage.init();
 				} else if (
@@ -108,12 +110,7 @@ const BaiduSearch = {
 				) {
 					SearchNextPage_SearchCraft.init();
 				}
-				if (
-					utils.startsWith(
-						window.location.href,
-						"https://(m[0-9]{0,2}|www).baidu.com/sf/vsearch"
-					)
-				) {
+				if (BaiduRouter.isSearchVSearch()) {
 					utils
 						.waitNode<HTMLDivElement>("#realtime-container .c-infinite-scroll")
 						.then((element) => {

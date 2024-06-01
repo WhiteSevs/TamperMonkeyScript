@@ -4,31 +4,38 @@ import { DOMUtils, OriginPrototype, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
 type BaiduHookFunctionApplyMode = "copy" | "scheme";
+
+interface BaiduHookDefine {
+	path: string;
+	requirePathList: string[];
+	callback: (...args: any[]) => boolean | void;
+}
 /**
  * 百度劫持
  */
 const BaiduHook = {
 	$isHook: {
-		hijackBoxJSBefore: false,
-		is_hijack_onClick: false,
-		hijackJQueryAppend: false,
-		hijackOpenBox: false,
-		hijackFunctionCall_WebPack_TieBa: false,
-		hijackFunctionCall_WebPack_HaoKan: false,
-		hijackFunctionCall_BaiJiaHao_Map: false,
+		windowBoxJSBefore: false,
+		objectDefineProperty_search: false,
+		windowJQueryAppend: false,
+		windowOpenBox: false,
+		windowWebpackJsonp_tieba: false,
+		windowWebpackJsonp_haokan: false,
+		functionCall_baijiahao_map: false,
 	},
 	$data: {
-		hijackFunctionApply: <BaiduHookFunctionApplyMode[]>[],
-		hijackElementAppendChild: <((element: HTMLElement) => boolean | void)[]>[],
-		hijackSetTimeout: <(string | RegExp)[]>[],
+		functionApply: <BaiduHookFunctionApplyMode[]>[],
+		elementAppendChild: <((element: HTMLElement) => boolean | void)[]>[],
+		setTimeout: <(string | RegExp)[]>[],
+		windowDefine: <BaiduHookDefine[]>[],
 	},
 	/**
 	 * 统一管理apply的劫持，防止套娃
 	 * @param mode 劫持的类型
 	 */
-	hijackFunctionApply(mode: BaiduHookFunctionApplyMode) {
-		this.$data.hijackFunctionApply.push(mode);
-		if (this.$data.hijackFunctionApply.length > 1) {
+	functionApply(mode: BaiduHookFunctionApplyMode) {
+		this.$data.functionApply.push(mode);
+		if (this.$data.functionApply.length > 1) {
 			log.info("Function.apply hook新增劫持参数：" + mode);
 			return;
 		}
@@ -41,7 +48,7 @@ const BaiduHook = {
 			 * 劫持剪贴板写入
 			 * + 百度搜索
 			 */
-			if (that.$data.hijackFunctionApply.includes("copy")) {
+			if (that.$data.functionApply.includes("copy")) {
 				try {
 					let firstParam = args[1];
 					if (
@@ -70,7 +77,7 @@ const BaiduHook = {
 					/*log.error(error);*/
 				}
 			}
-			if (that.$data.hijackFunctionApply.includes("scheme")) {
+			if (that.$data.functionApply.includes("scheme")) {
 				/**
 				 * 劫持apply的Scheme调用
 				 * + 百度搜索
@@ -95,17 +102,67 @@ const BaiduHook = {
 		};
 	},
 	/**
+	 * 劫持全局define
+	 */
+	windowDefine(
+		path: string,
+		requirePathList: string[],
+		callback: (...args: any[]) => boolean | void
+	) {
+		this.$data.windowDefine.push({
+			path: path,
+			requirePathList: requirePathList,
+			callback: callback,
+		});
+		if (this.$data.windowDefine.length > 1) {
+			log.info("define hook新增劫持参数：" + path);
+			return;
+		}
+		let that = this;
+		let safeDefine = void 0;
+		let unsafeDefine = function (...args: any) {
+			let define_path = args[0];
+			let define_requrePathList = args[1];
+			let define_callback = args[2];
+			for (let index = 0; index < that.$data.windowDefine.length; index++) {
+				let hookConfig = that.$data.windowDefine[index];
+				if (
+					hookConfig.path === define_path &&
+					JSON.stringify(hookConfig.requirePathList) ===
+						JSON.stringify(define_requrePathList)
+				) {
+					args[2] = hookConfig.callback;
+					break;
+				}
+			}
+			(safeDefine as any)(...args);
+		};
+		unsafeDefine.prototype.amd = {};
+		OriginPrototype.Object.defineProperty(unsafeWindow, "define", {
+			get() {
+				if(safeDefine == null){
+					return;
+				}
+				return unsafeDefine;
+			},
+			set(v) {
+				log.success(["define ==> ", v]);
+				safeDefine = v;
+			},
+		});
+	},
+	/**
 	 * 劫持百度搜索某些项的点击事件
 	 * + 百度搜索
 	 *
 	 * Object.defineProperty
 	 * @param menuKeyName
 	 */
-	hijack_onClick(menuKeyName: string) {
-		if (this.$isHook.is_hijack_onClick) {
+	objectDefineProperty_search(menuKeyName: string) {
+		if (this.$isHook.objectDefineProperty_search) {
 			return;
 		}
-		this.$isHook.is_hijack_onClick = true;
+		this.$isHook.objectDefineProperty_search = true;
 		unsafeWindow.Object.defineProperty = function <T>(
 			this: any,
 			target: T,
@@ -154,7 +211,7 @@ const BaiduHook = {
 	 * Element.prototype.appendChild
 	 * @param handleCallBack 处理的回调函数，如果劫持请返回true
 	 */
-	hijackElementAppendChild(
+	elementAppendChild(
 		handleCallBack: (element: HTMLElement) => boolean | void = function (
 			element
 		) {
@@ -167,8 +224,8 @@ const BaiduHook = {
 			}
 		}
 	) {
-		this.$data.hijackElementAppendChild.push(handleCallBack);
-		if (this.$data.hijackElementAppendChild.length > 1) {
+		this.$data.elementAppendChild.push(handleCallBack);
+		if (this.$data.elementAppendChild.length > 1) {
 			log.info("Element.prototype.appendChild hook新增劫持判断回调");
 			return;
 		}
@@ -192,11 +249,11 @@ const BaiduHook = {
 	 *
 	 * $().append();
 	 */
-	hijackJQueryAppend() {
-		if (this.$isHook.hijackJQueryAppend) {
+	windowJQueryAppend() {
+		if (this.$isHook.windowJQueryAppend) {
 			return;
 		}
-		this.$isHook.hijackJQueryAppend = true;
+		this.$isHook.windowJQueryAppend = true;
 		let originAppend = (unsafeWindow as any).$.fn.append;
 		(unsafeWindow as any).$.fn.append = function (params: any) {
 			if (typeof params === "string") {
@@ -218,11 +275,11 @@ const BaiduHook = {
 	 *
 	 * window.OpenBox
 	 */
-	hijackOpenBox() {
-		if (this.$isHook.hijackOpenBox) {
+	windowOpenBox() {
+		if (this.$isHook.windowOpenBox) {
 			return;
 		}
-		this.$isHook.hijackOpenBox = true;
+		this.$isHook.windowOpenBox = true;
 		let OpenBox = function () {
 			return {
 				open(...args: any[]) {
@@ -277,9 +334,9 @@ const BaiduHook = {
 	 * window.setTimeout
 	 * @param matchStr 需要进行匹配的函数字符串
 	 */
-	hijackSetTimeout(matchStr: string | RegExp) {
-		this.$data.hijackSetTimeout.push(matchStr);
-		if (this.$data.hijackSetTimeout.length > 1) {
+	setTimeout(matchStr: string | RegExp) {
+		this.$data.setTimeout.push(matchStr);
+		if (this.$data.setTimeout.length > 1) {
 			log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
 			return;
 		}
@@ -303,12 +360,12 @@ const BaiduHook = {
 	 * (c) 2018-2023 liugui01
 	 * Released under the BaiDuTieBa License.
 	 */
-	hijackFunctionCall_WebPack_TieBa() {
-		if (this.$isHook.hijackFunctionCall_WebPack_TieBa) {
+	windowWebpackJsonp_tieba() {
+		if (this.$isHook.windowWebpackJsonp_tieba) {
 			return;
 		}
-		this.$isHook.hijackFunctionCall_WebPack_TieBa = true;
-		this.hijackWebpack(
+		this.$isHook.windowWebpackJsonp_tieba = true;
+		this.windowWebPack(
 			"webpackJsonp",
 			["core:0"],
 			function (webpackExports: {
@@ -361,7 +418,7 @@ const BaiduHook = {
 	 * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
 	 * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
 	 */
-	hijackWebpack(
+	windowWebPack(
 		webpackName = "webpackJsonp",
 		mainCoreData: string[] | number[],
 		checkCallBack: (arg: any) => void
@@ -404,12 +461,12 @@ const BaiduHook = {
 	 * + 百度好看视频(haokan.baidu.com)
 	 *
 	 */
-	hijackFunctionCall_WebPack_HaoKan() {
-		if (this.$isHook.hijackFunctionCall_WebPack_HaoKan) {
+	windowWebpackJsonp_haokan() {
+		if (this.$isHook.windowWebpackJsonp_haokan) {
 			return;
 		}
-		this.$isHook.hijackFunctionCall_WebPack_HaoKan = true;
-		this.hijackWebpack(
+		this.$isHook.windowWebpackJsonp_haokan = true;
+		this.windowWebPack(
 			"webpackJsonp",
 			[40, 1],
 			function (webpackExports: {
@@ -445,11 +502,11 @@ const BaiduHook = {
 	 * + 百度地图(map.baidu.com)
 	 * Function.property.call
 	 */
-	hijackFunctionCall_BaiJiaHao_Map() {
-		if (this.$isHook.hijackFunctionCall_BaiJiaHao_Map) {
+	functionCall_baijiahao_map() {
+		if (this.$isHook.functionCall_baijiahao_map) {
 			return;
 		}
-		this.$isHook.hijackFunctionCall_BaiJiaHao_Map = true;
+		this.$isHook.functionCall_baijiahao_map = true;
 		unsafeWindow.Function.prototype.call = function (...args) {
 			if (
 				args.length === 2 &&
@@ -477,11 +534,11 @@ const BaiduHook = {
 	 *
 	 * window.BoxJSBefore
 	 */
-	hijackBoxJSBefore() {
-		if (this.$isHook.hijackBoxJSBefore) {
+	windowBoxJSBefore() {
+		if (this.$isHook.windowBoxJSBefore) {
 			return;
 		}
-		this.$isHook.hijackBoxJSBefore = true;
+		this.$isHook.windowBoxJSBefore = true;
 		OriginPrototype.Object.defineProperty(unsafeWindow, "BoxJSBefore", {
 			get() {
 				return new Proxy(

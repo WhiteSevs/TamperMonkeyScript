@@ -6,7 +6,7 @@ const BaiduHaoKanHook = {
     init() {
         PopsPanel.execMenu("baidu_haokan_hijack_wakeup", () => {
             log.success("hook: window.webpackJsonp");
-            BaiduHook.hijackFunctionCall_WebPack_HaoKan();
+            BaiduHook.windowWebpackJsonp_haokan();
 
         })
     },

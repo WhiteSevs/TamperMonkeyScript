@@ -70,52 +70,50 @@ const BaiduResultItem = {
 			//log.info("替换成新链接: " + articleURL);
 		});
 		/* 这个是百度笔记(可能) */
-		(
-			Array.from(
-				targetNode.querySelectorAll("div[data-aftclk][class*=img-container]")
-			) as HTMLElement[]
-		).forEach((item) => {
-			let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl(item);
+		Array.from(
+			targetNode.querySelectorAll<HTMLDivElement>(
+				"div[data-aftclk][class*=img-container]"
+			)
+		).forEach(($imgContainer) => {
+			let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl($imgContainer);
 			if (
 				!utils.isNull(domOriginUrl) &&
 				!BaiduResultItem.isBlackList(domOriginUrl)
 			) {
-				item.setAttribute("href", domOriginUrl);
-				item.setAttribute("rl-link-href", domOriginUrl);
+				$imgContainer.setAttribute("href", domOriginUrl);
+				$imgContainer.setAttribute("rl-link-href", domOriginUrl);
 				//log.info("替换成新链接2: " + domOriginUrl);
 			}
 		});
 		/* 对搜索结果中存在的视频进行处理 */
-		(
-			Array.from(
-				targetNode.querySelectorAll("div.c-video-container div[data-aftclk]")
-			) as HTMLElement[]
-		).forEach((item) => {
-			let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl(item);
+		Array.from(
+			targetNode.querySelectorAll<HTMLDivElement>(
+				"div.c-video-container div[data-aftclk]"
+			)
+		).forEach(($aftclk) => {
+			let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl($aftclk);
 			if (
 				!utils.isNull(domOriginUrl) &&
 				!BaiduResultItem.isBlackList(domOriginUrl)
 			) {
-				item.setAttribute("href", domOriginUrl);
-				item.setAttribute("rl-link-href", domOriginUrl);
+				$aftclk.setAttribute("href", domOriginUrl);
+				$aftclk.setAttribute("rl-link-href", domOriginUrl);
 				//log.info("视频替换成新链接1: " + domOriginUrl);
 			}
 		});
 		/* 对搜索结果中存在的视频进行处理 */
-		(
-			Array.from(
-				targetNode.querySelectorAll(
-					'div[data-module="sc_pc"] div[rl-link-href]'
-				)
-			) as HTMLElement[]
-		).forEach((item) => {
-			let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl(item);
+		Array.from(
+			targetNode.querySelectorAll<HTMLDivElement>(
+				'div[data-module="sc_pc"] div[rl-link-href]'
+			)
+		).forEach(($rlLinkHref) => {
+			let domOriginUrl = BaiduResultItem.parseDOMAttrOriginUrl($rlLinkHref);
 			if (
 				!utils.isNull(domOriginUrl) &&
 				!BaiduResultItem.isBlackList(domOriginUrl)
 			) {
-				item.setAttribute("href", domOriginUrl);
-				item.setAttribute("rl-link-href", domOriginUrl);
+				$rlLinkHref.setAttribute("href", domOriginUrl);
+				$rlLinkHref.setAttribute("rl-link-href", domOriginUrl);
 				//log.info("视频替换成新链接2: " + domOriginUrl);
 			}
 		});
@@ -475,16 +473,16 @@ const BaiduResultItem = {
 	},
 	/**
 	 * 给元素添加【CSDN】下载标识
-	 * @param targetNode
+	 * @param $result
 	 */
-	addCSDNFlag(targetNode: HTMLElement) {
-		if (targetNode.querySelector(".csdn-flag-component-box")) {
+	addCSDNFlag($result: HTMLElement) {
+		if ($result.querySelector<HTMLDivElement>(".csdn-flag-component-box")) {
 			return;
 		}
-		let title_text_element = BaiduResultItem.getItemTitleElement(targetNode);
-		if (title_text_element) {
+		let $titleText = BaiduResultItem.getItemTitleElement($result);
+		if ($titleText) {
 			DOMUtils.append(
-				title_text_element,
+				$titleText,
 				`<div class="csdn-flag-component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>`
 			);
 			log.success("插入CSDN下载提示标题");
@@ -544,67 +542,79 @@ const BaiduResultItem = {
 			DOMUtils.remove(DOMUtils.parent(ecWiseAdElement));
 		}
 
-		document.querySelectorAll(".c-result.result").forEach((item) => {
-			/* 获取属性上的LOG */
-			let dataLog = utils.toJSON(item.getAttribute("data-log"));
-			/* 真实链接 */
-			let searchArticleOriginal_link =
-				dataLog["mu"] ||
-				item.querySelector("article")?.getAttribute("rl-link-href");
-			if (
-				BaiduSearchRule.handleCustomRule(
-					item as HTMLDivElement,
-					searchArticleOriginal_link
-				)
-			) {
-				item.remove();
-				return;
-			}
-			if (utils.isNotNull(searchArticleOriginal_link)) {
-				/* 添加CSDN下载标识 */
+		document
+			.querySelectorAll<HTMLDivElement>(".c-result.result")
+			.forEach(($result) => {
+				/* 获取属性上的LOG */
+				let dataLog = utils.toJSON($result.getAttribute("data-log"));
+				/* 真实链接 */
+				let searchArticleOriginal_link =
+					dataLog["mu"] ||
+					$result.querySelector("article")?.getAttribute("rl-link-href");
 				if (
-					searchArticleOriginal_link.match(
-						/^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
+					utils.isNotNull(searchArticleOriginal_link) &&
+					BaiduSearchRule.handleCustomRule($result, searchArticleOriginal_link)
+				) {
+					log.info(["触发自定义规则，拦截该项：", searchArticleOriginal_link]);
+					$result.remove();
+					return;
+				}
+				// 禁止自动播放视频
+				// 原自定义规则：remove-child##[class*='-video-player']
+				// 因为直接删除播放视频的元素会导致在webview和Safari上第一个智能卡片上的按钮点击无法应，如更多按钮
+				if (PopsPanel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
+					$result
+						.querySelectorAll("[class*='-video-player']")
+						.forEach((ele) => ele.remove());
+				}
+				if (utils.isNotNull(searchArticleOriginal_link)) {
+					/* 添加CSDN下载标识 */
+					if (
+						searchArticleOriginal_link.match(
+							/^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
+						)
+					) {
+						log.success("添加CSDN下载标识");
+						BaiduResultItem.addCSDNFlag($result);
+					}
+				}
+				if (
+					PopsPanel.getValue(
+						"baidu_search_blocking_everyone_is_still_searching"
 					)
 				) {
-					BaiduResultItem.addCSDNFlag(item as HTMLDivElement);
-				}
-			}
-			if (
-				PopsPanel.getValue("baidu_search_blocking_everyone_is_still_searching")
-			) {
-				let $title = item.querySelector(".rw-little-title") as HTMLDivElement;
-				if ($title && $title.textContent?.startsWith("大家还在搜")) {
-					item?.remove();
-					log.success("删除广告 ==> 大家都在搜（能看到的）");
-				}
-				document.querySelectorAll("span").forEach((item) => {
-					let resultParentElement = item.parentElement
-						?.parentElement as HTMLElement;
-					if (
-						item.innerText.match(/百度APP内打开/) ||
-						resultParentElement.getAttribute("data-from") === "etpl"
-					) {
-						resultParentElement.remove();
-						log.success(
-							"删除广告 ==> 百度APP内打开，隐藏的广告，会在滚动时跳出来的"
-						);
+					let $title = $result.querySelector<HTMLDivElement>(
+						".rw-little-title"
+					) as HTMLDivElement;
+					if ($title && $title.textContent?.startsWith("大家还在搜")) {
+						$result?.remove();
+						log.success("删除广告 ==> 大家都在搜（能看到的）");
 					}
-				});
-			}
-			/* 底部标识 */
-			let bottomLogoElement = Array.from(
-				item.querySelectorAll(".c-color-source")
-			) as HTMLElement[];
-			if (bottomLogoElement.length) {
-				bottomLogoElement.forEach((_item_) => {
-					if (_item_!.outerText?.match(/百度(APP内打开|手机助手)/)) {
-						item.remove();
+					/* APP内打开 */
+					$result.querySelectorAll("span").forEach((item) => {
+						let resultParentElement = item.parentElement
+							?.parentElement as HTMLElement;
+						if (
+							item.innerText.match(/百度APP内打开/) ||
+							resultParentElement.getAttribute("data-from") === "etpl"
+						) {
+							resultParentElement.remove();
+							log.success(
+								"删除广告 ==> 百度APP内打开，隐藏的广告，会在滚动时跳出来的"
+							);
+						}
+					});
+				}
+				/* 底部标识 */
+				Array.from(
+					$result.querySelectorAll<HTMLDivElement>(".c-color-source")
+				).forEach(($bottomLogo) => {
+					if ($bottomLogo.outerText?.match(/百度(APP内打开|手机助手)/)) {
+						$result.remove();
 						log.success("删除广告 ==> 百度APP内打开|百度手机助手");
 					}
 				});
-			}
-		});
+			});
 	},
 	/**
 	 * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
@@ -645,8 +655,8 @@ const BaiduResultItem = {
 	 */
 	async replaceLink() {
 		let searchResultList = Array.from(
-			document.querySelectorAll(".c-result.result")
-		) as HTMLDivElement[];
+			document.querySelectorAll<HTMLDivElement>(".c-result.result")
+		);
 		for (const searchResultItem of searchResultList) {
 			let resultItemOriginURL =
 				BaiduResultItem.parseDOMAttrOriginUrl(searchResultItem);
@@ -676,20 +686,24 @@ const BaiduResultItem = {
 			) {
 				/* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
 				searchResultItem.setAttribute("preventClick", "true");
-				DOMUtils.on(searchResultItem, "click", function (event) {
-					utils.preventEvent(event);
-					let clickNode = event.target as HTMLElement;
-					if (
-						clickNode.localName &&
-						clickNode.localName === "sup" &&
-						clickNode.getAttribute("rl-type") === "stop"
-					) {
-						return;
-					} else {
-						window.stop();
-						window.location.href = decodeURI(resultItemOriginURL);
+				DOMUtils.on<MouseEvent | PointerEvent>(
+					searchResultItem,
+					"click",
+					function (event) {
+						utils.preventEvent(event);
+						let clickNode = event.target as HTMLElement;
+						if (
+							clickNode.localName &&
+							clickNode.localName === "sup" &&
+							clickNode.getAttribute("rl-type") === "stop"
+						) {
+							return;
+						} else {
+							window.stop();
+							window.location.href = decodeURI(resultItemOriginURL);
+						}
 					}
-				});
+				);
 				continue;
 			}
 
@@ -728,7 +742,7 @@ const BaiduResultItem = {
 		document
 			.querySelectorAll<HTMLDivElement>("#realtime-container  div:not([class])")
 			.forEach((element) => {
-				let linkElement = element.querySelector("a");
+				let linkElement = element.querySelector<HTMLAnchorElement>("a");
 				if (!linkElement) {
 					return;
 				}
@@ -737,7 +751,7 @@ const BaiduResultItem = {
 						"data-sf-visited"
 					) as string;
 					if (dataSfVisited !== linkElement.href) {
-						linkElement.href = dataSfVisited;
+						linkElement!.href = dataSfVisited;
 						log.success("替换链接  " + dataSfVisited);
 					}
 				}

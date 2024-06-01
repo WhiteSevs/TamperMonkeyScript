@@ -50,9 +50,9 @@ const BaiduTieBa = {
 		PopsPanel.execMenu("baidu_tieba_clientCallMasquerade", () => {
 			TiebaCore.clientCallMasquerade();
 		});
-		BaiduHook.hijackElementAppendChild();
+		BaiduHook.elementAppendChild();
 		PopsPanel.execMenuOnce("baidu_tieba_hijack_wake_up", () => {
-			BaiduHook.hijackFunctionCall_WebPack_TieBa();
+			BaiduHook.windowWebpackJsonp_tieba();
 		});
 		if (BaiduRouter.isTieBaIndex()) {
 			/* 首页 */

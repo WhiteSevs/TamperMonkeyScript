@@ -15,12 +15,16 @@ div#app div.guid-new,
 /* 影响定位元素的遮罩层 */
 #page_wrapper .bdboxshare>div:first-child,
 /* 来百度APP畅享高清图片 */
-.contentMedia .openImg {
-  display: none !important;
+.contentMedia .openImg,
+/* 精彩推荐右边的 打开APP看更多精彩推荐 */
+div[class*="relateTitle"] span[class*="subTitle"],
+/* 会自动在上面弹出的【百度热榜】 */
+#page_wrapper div:has(>div[class*="leftbox"]) {
+	display: none !important;
 }
 /* 展开阅读 */
 #page_wrapper #dynamicItem,
 /* 手机版-展开阅读 */
 #mainContentContainer {
-  height: auto !important;
+	height: auto !important;
 }

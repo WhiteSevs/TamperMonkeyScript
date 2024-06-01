@@ -6,11 +6,11 @@ const BaiJiaHaoHook = {
     init() {
         PopsPanel.execMenu("baijiahao_hijack_wakeup", () => {
             log.success("hook: Function.call")
-            BaiduHook.hijackFunctionCall_BaiJiaHao_Map();
+            BaiduHook.functionCall_baijiahao_map();
         })
         PopsPanel.execMenu("baidu_baijiahao_hijack_iframe", () => {
             log.success("hook: Element.append")
-            BaiduHook.hijackElementAppendChild(function (element) {
+            BaiduHook.elementAppendChild(function (element) {
                 if (
                     element.localName === "script" &&
                     (element as HTMLScriptElement)?.src?.includes("landing-share")
@@ -22,7 +22,7 @@ const BaiJiaHaoHook = {
         })
         PopsPanel.execMenu("baidu_baijiahao_hijack_openbox", () => {
             log.success("hook: window.Box")
-            BaiduHook.hijackOpenBox();
+            BaiduHook.windowOpenBox();
         })
     },
 };
