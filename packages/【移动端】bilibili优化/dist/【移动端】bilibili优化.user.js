@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.1
+// @version      2024.6.1.18
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -1079,7 +1079,7 @@
     repairVideoBottomAreaHeight() {
       log.info("修复视频底部区域高度");
       _GM_addStyle(`
-		#app .video {
+		${BilibiliData.className.video} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
 				margin-top: 55.13333vmin;
@@ -1091,6 +1091,13 @@
 			/* 未播放视频状态下的 */
 			.m-video-new:has(> div[style*="display:none"] > .m-video-player) {
 				margin-top: unset;
+			}
+		}
+		html.tiny-app{
+			${BilibiliData.className.video}{
+				.bottom-tab{
+					margin-top: 48vmin;
+				}
 			}
 		}
 		`);
@@ -1773,19 +1780,6 @@
           }
         });
       });
-      if (BilibiliRouter.isVideo()) {
-        PopsPanel.onceExec(
-          "bili-video-repair-bottom-recommend-video-margin-top",
-          () => {
-            _GM_addStyle(`
-                /* 修复一下底部推荐视频的margin-top */
-                .m-video-bottom-tab .v-switcher__content--multi{
-                    margin-top: 34vmin;
-                }
-                `);
-          }
-        );
-      }
     },
     /**
      * 监听路由变化

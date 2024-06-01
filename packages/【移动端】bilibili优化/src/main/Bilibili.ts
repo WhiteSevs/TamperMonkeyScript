@@ -150,19 +150,6 @@ const Bilibili = {
 				}
 			});
 		});
-		if (BilibiliRouter.isVideo()) {
-			PopsPanel.onceExec(
-				"bili-video-repair-bottom-recommend-video-margin-top",
-				() => {
-					GM_addStyle(`
-                /* 修复一下底部推荐视频的margin-top */
-                .m-video-bottom-tab .v-switcher__content--multi{
-                    margin-top: 34vmin;
-                }
-                `);
-				}
-			);
-		}
 	},
 	/**
 	 * 监听路由变化

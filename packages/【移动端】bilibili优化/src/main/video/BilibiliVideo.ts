@@ -76,7 +76,7 @@ const BilibiliVideo = {
 	repairVideoBottomAreaHeight() {
 		log.info("修复视频底部区域高度");
 		GM_addStyle(`
-		#app .video {
+		${BilibiliData.className.video} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
 				margin-top: 55.13333vmin;
@@ -88,6 +88,13 @@ const BilibiliVideo = {
 			/* 未播放视频状态下的 */
 			.m-video-new:has(> div[style*="display:none"] > .m-video-player) {
 				margin-top: unset;
+			}
+		}
+		html.tiny-app{
+			${BilibiliData.className.video}{
+				.bottom-tab{
+					margin-top: 48vmin;
+				}
 			}
 		}
 		`);
