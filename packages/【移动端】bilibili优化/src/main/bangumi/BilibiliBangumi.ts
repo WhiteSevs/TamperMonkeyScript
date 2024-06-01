@@ -2,6 +2,8 @@ import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
 import { Qmsg } from "@/env";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { BilibiliData } from "@/data/BlibiliData";
 
 const BilibiliOpenApp = {
 	getUrl($ele: HTMLElement | null | Element) {
@@ -20,7 +22,7 @@ const BilibiliOpenApp = {
 		if ($biliOpenApp) {
 			let url = BilibiliOpenApp.getUrl($biliOpenApp);
 			if (url) {
-				window.location.href = url;
+				BilibiliUtils.goToUrl(url);
 			} else {
 				Qmsg.error("获取bili-open-app的Url失败");
 				log.error("获取bili-open-app的Url失败");
@@ -55,12 +57,13 @@ const BilibiliBangumi = {
 	 */
 	hookCallApp() {
 		let oldSetTimeout = unsafeWindow.setTimeout;
-		(unsafeWindow as any).setTimeout = function (...args: any) {
+		unsafeWindow.setTimeout = function (...args: any[]): any {
 			let callString = args[0].toString();
 			if (callString.includes("autoOpenApp")) {
 				log.success(["阻止唤醒App", args]);
 				return;
 			}
+			// @ts-ignore
 			return oldSetTimeout.apply(this, args);
 		};
 	},
@@ -71,16 +74,17 @@ const BilibiliBangumi = {
 	 */
 	setPay() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
-			let check = function (__vue__: any) {
+			let checkProperty = function (__vue__: any) {
 				return (
 					__vue__ != null &&
 					typeof __vue__?.$store?.state?.userStat?.pay === "number"
 				);
 			};
-			utils.waitVueByInterval($app, check, 250, 10000).then(() => {
-				if (check($app.__vue__)) {
+			utils.waitVueByInterval($app, checkProperty, 250, 10000).then(() => {
+				let vueObj = BilibiliUtils.getVue($app);
+				if (checkProperty(vueObj)) {
 					log.success("成功设置参数 pay");
-					$app.__vue__.$store.state.userStat.pay = 1;
+					vueObj.$store.state.userStat.pay = 1;
 				}
 			});
 		});
@@ -91,7 +95,8 @@ const BilibiliBangumi = {
 	setChooseEpClickEvent() {
 		utils
 			.waitNode<HTMLUListElement>(
-				".ep-list-pre-wrapper ul.ep-list-pre-container"
+				BilibiliData.className.bangumi +
+					" .ep-list-pre-wrapper ul.ep-list-pre-container"
 			)
 			.then(($preContainer) => {
 				log.info("覆盖【选集】的点击事件");
@@ -109,7 +114,10 @@ const BilibiliBangumi = {
 				);
 			});
 		utils
-			.waitNode<HTMLUListElement>(".ep-list-pre-wrapper ul.season-list-wrapper")
+			.waitNode<HTMLUListElement>(
+				BilibiliData.className.bangumi +
+					" .ep-list-pre-wrapper ul.season-list-wrapper"
+			)
 			.then(($listWapper) => {
 				log.info("覆盖【xx季】的点击事件");
 				DOMUtils.on<PointerEvent | MouseEvent>(
@@ -125,19 +133,23 @@ const BilibiliBangumi = {
 					}
 				);
 			});
-		utils.waitNode<HTMLDivElement>(".ep-list-pre-header").then(($preHeader) => {
-			log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
-			DOMUtils.on<PointerEvent | MouseEvent>(
-				$preHeader,
-				"click",
-				function (event) {
-					utils.preventEvent(event);
-				},
-				{
-					capture: true,
-				}
-			);
-		});
+		utils
+			.waitNode<HTMLDivElement>(
+				BilibiliData.className.bangumi + " .ep-list-pre-header"
+			)
+			.then(($preHeader) => {
+				log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
+				DOMUtils.on<PointerEvent | MouseEvent>(
+					$preHeader,
+					"click",
+					function (event) {
+						utils.preventEvent(event);
+					},
+					{
+						capture: true,
+					}
+				);
+			});
 	},
 	/**
 	 * 覆盖【PV&其他】、【预告】、【主题曲】的点击事件
@@ -145,7 +157,8 @@ const BilibiliBangumi = {
 	setClickOtherVideo() {
 		utils
 			.waitNode<HTMLUListElement>(
-				".section-preview-wrapper ul.ep-list-pre-container"
+				BilibiliData.className.bangumi +
+					" .section-preview-wrapper ul.ep-list-pre-container"
 			)
 			.then(($preContainer) => {
 				log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
@@ -163,7 +176,9 @@ const BilibiliBangumi = {
 				);
 			});
 		utils
-			.waitNode<HTMLDivElement>(".section-preview-header")
+			.waitNode<HTMLDivElement>(
+				BilibiliData.className.bangumi + " .section-preview-header"
+			)
 			.then(($previewHeader) => {
 				log.info(
 					"覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件"
@@ -185,7 +200,9 @@ const BilibiliBangumi = {
 	 */
 	setRecommendClickEvent() {
 		utils
-			.waitNode<HTMLUListElement>(".recom-wrapper ul.recom-list")
+			.waitNode<HTMLUListElement>(
+				BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list"
+			)
 			.then(($recomList) => {
 				log.info("覆盖【更多推荐】番剧的点击事件");
 				DOMUtils.on<PointerEvent | MouseEvent>(

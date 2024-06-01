@@ -1,29 +1,37 @@
 /* 视频标题上面的 打开App，流畅又高清 */
 .m-video2-awaken-btn {
-  display: none !important;
+	display: none !important;
 }
-
+/* 主页，顶部头 */
+.m-head {
+	/* 右上角 下载App */
+	.launch-app-btn.m-nav-openapp,
+	/* 中间底部 打开App，看你感兴趣的视频 */
+	.launch-app-btn.home-float-openapp {
+		display: none !important;
+	}
+}
 /* 主页 */
 .m-home {
-  /* 打开App，看你感兴趣的视频 */
-  .launch-app-btn.home-float-openapp {
-    display: none !important;
-  }
+	/* 打开App，看你感兴趣的视频 */
+	.launch-app-btn.home-float-openapp {
+		display: none !important;
+	}
 }
 /* 空间 */
 .m-space {
-  /* 底部 打开App */
-  .launch-app-btn.m-space-float-openapp,
+	/* 底部 打开App */
+	.launch-app-btn.m-space-float-openapp,
   /* 右上角 下载App */
   .launch-app-btn.m-nav-openapp {
-    display: none !important;
-  }
+		display: none !important;
+	}
 }
 
 /* 视频 */
 #app .video {
-  /* 让选择打开App还是继续浏览 */
-  .openapp-dialog,
+	/* 让选择打开App还是继续浏览 */
+	.openapp-dialog,
   /* 打开App，流畅又高清 */
   .launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
   /* 右上角 下载App */
@@ -32,15 +40,47 @@
   .mplayer-widescreen-callapp,
   /* 右下角 bilibili内打开 */
   .launch-app-btn.m-float-openapp {
-    display: none !important;
-  }
-
+		display: none !important;
+	}
 }
 
 /* 直播 */
 
 #app.LIVE {
-  .open-app-btn.bili-btn-warp {
-    display: none !important;
-  }
+	.open-app-btn.bili-btn-warp {
+		display: none !important;
+	}
+}
+
+/* 动态 */
+#app .m-dynamic{
+	/* 右上角 下载App */
+	.launch-app-btn.m-nav-openapp,
+	.dynamic-float-openapp.dynamic-float-btn{
+		display: none !important;
+	}
+}
+
+/* 专栏 */
+#app .m-opus {
+	/* 右上角 下载App */
+	.float-openapp.opus-float-btn,
+	/* 中间底部 打开App，查看更多精彩内容 */
+	.float-openapp.opus-float-btn,
+	/* UP主投稿的视频->底部->查看更多投稿视频 */
+	.v-switcher .launch-app-btn.list-more,
+	/* 顶部工具栏 右边的下载App */
+	.opus-nav .launch-app-btn.m-nav-openapp {
+		display: none !important;
+	}
+}
+
+/* 话题 */
+#app .topic-detail {
+	/* 右上角 下载App */
+	.launch-app-btn.m-nav-openapp ,
+	/* 中间底部 App内打开 */
+	.launch-app-btn.m-topic-float-openapp {
+		display: none !important;
+	}
 }

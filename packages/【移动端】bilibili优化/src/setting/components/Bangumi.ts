@@ -1,11 +1,11 @@
-import { ScriptRouter } from "@/router/router"
+import { BilibiliRouter } from "@/router/BilibiliRouter"
 import { UISwitch } from "../common-components/ui-switch"
 
 const SettingUIBangumi: PopsPanelContentConfig = {
     id: "panel-bangumi",
     title: "番剧",
     isDefault() {
-        return ScriptRouter.isBangumi();
+        return BilibiliRouter.isBangumi();
     },
     forms: [
         {
@@ -15,7 +15,7 @@ const SettingUIBangumi: PopsPanelContentConfig = {
                 UISwitch(
                     "pay",
                     "bili-bangumi-setPay",
-                    false,
+                    true,
                     void 0,
                     "设置pay为1",
                 ),
@@ -28,21 +28,21 @@ const SettingUIBangumi: PopsPanelContentConfig = {
                 UISwitch(
                     "【选集】",
                     "bili-bangumi-cover-clicl-event-chooseEp",
-                    false,
+                    true,
                     void 0,
                     "让【选集】的视频列表可点击跳转",
                 ),
                 UISwitch(
                     "【其它】",
                     "bili-bangumi-cover-clicl-event-other",
-                    false,
+                    true,
                     void 0,
                     "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转",
                 ),
                 UISwitch(
                     "【更多推荐】",
                     "bili-bangumi-cover-clicl-event-recommend",
-                    false,
+                    true,
                     void 0,
                     "让【更多推荐】的视频列表可点击跳转",
                 ),
@@ -55,7 +55,7 @@ const SettingUIBangumi: PopsPanelContentConfig = {
                 UISwitch(
                     "阻止调用App",
                     "bili-bangumi-hook-callApp",
-                    false,
+                    true,
                     void 0,
                     "",
                 ),

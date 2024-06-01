@@ -6,6 +6,9 @@ import { SettingUIVideo } from "./components/Video";
 import { SettingUIBangumi } from "./components/Bangumi";
 import { SettingUISearch } from "./components/Search";
 import { SettingUILive } from "./components/Live";
+import { SettingUIOpus } from "./components/Opus";
+import { SettingUIDynamic } from "./components/Dynamic";
+import { SettingUITopicDetail } from "./components/TopicDetail";
 
 const PopsPanel = {
 	/** 数据 */
@@ -325,7 +328,10 @@ const PopsPanel = {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUICommon,
 			SettingUIVideo,
+			SettingUIOpus,
+			SettingUIDynamic,
 			SettingUIBangumi,
+			SettingUITopicDetail,
 			SettingUISearch,
 			SettingUILive,
 		];

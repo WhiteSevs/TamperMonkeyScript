@@ -1,6 +1,5 @@
-import { BilibiliHook } from "@/hook/BilibiliHook";
 import "./Bilibili.css";
-import { ScriptRouter } from "@/router/router";
+import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
 import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
@@ -8,6 +7,10 @@ import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
 import { BilibiliLive } from "./live/BilibiliLive";
 import { GM_addStyle } from "ViteGM";
+import { BilibiliOpus } from "./opus/BilibiliOpus";
+import { BilibiliTopicDetail } from "./topic-detail/BilibiliTopicDetail";
+import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
+import { BilibiliHook } from "@/hook/BilibiliHook";
 
 const Bilibili = {
 	init() {
@@ -23,18 +26,37 @@ const Bilibili = {
 		PopsPanel.execMenuOnce("bili-listenRouterChange", () => {
 			this.listenRouterChange();
 		});
-		if (ScriptRouter.isVideo()) {
+		PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
+			log.info("hook  window.setTimeout autoOpenApp");
+			BilibiliHook.setTimeout("autoOpenApp");
+		});
+		PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
+			log.info("覆盖元素.launch-app-btn上的openApp");
+			BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
+		});
+		if (BilibiliRouter.isVideo()) {
 			log.info("Router: 视频稿件");
 			BilibiliVideo.init();
-		} else if (ScriptRouter.isBangumi()) {
+		} else if (BilibiliRouter.isOpus()) {
+			log.info("Router: 专栏稿件");
+			BilibiliOpus.init();
+		} else if (BilibiliRouter.isDynamic()) {
+			log.info("Router: 动态");
+			BilibiliDynamic.init();
+		} else if (BilibiliRouter.isBangumi()) {
 			log.info("Router: 番剧");
 			BilibiliBangumi.init();
-		} else if (ScriptRouter.isSearch()) {
+		} else if (BilibiliRouter.isSearch()) {
 			log.info("Router: 搜索");
 			BilibiliSearch.init();
-		} else if (ScriptRouter.isLive()) {
+		} else if (BilibiliRouter.isLive()) {
 			log.info("Router: 直播");
 			BilibiliLive.init();
+		} else if (BilibiliRouter.isTopicDetail()) {
+			log.info("Router: 话题");
+			BilibiliTopicDetail.init();
+		} else {
+			log.error("该Router暂未适配");
 		}
 	},
 	/**
@@ -128,7 +150,7 @@ const Bilibili = {
 				}
 			});
 		});
-		if (ScriptRouter.isVideo()) {
+		if (BilibiliRouter.isVideo()) {
 			PopsPanel.onceExec(
 				"bili-video-repair-bottom-recommend-video-margin-top",
 				() => {
