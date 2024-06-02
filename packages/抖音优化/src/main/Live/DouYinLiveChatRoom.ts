@@ -1,7 +1,8 @@
 import { GM_addStyle } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "../Element/DouYinElement";
+import { DouYinElement } from "../../utils/DouYinElement";
 import { log } from "@/env";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYinLiveChatRoom = {
 	init() {
@@ -29,7 +30,7 @@ const DouYinLiveChatRoom = {
 	 */
 	shieldChatRoom() {
 		log.info("【屏蔽】评论区");
-		DouYinElement.addShieldStyle("#chatroom");
+		DouYinUtils.addBlockCSS("#chatroom");
 		GM_addStyle(`
 		div[data-e2e="living-container"],
 		div[data-e2e="living-container"] > div{
@@ -41,7 +42,7 @@ const DouYinLiveChatRoom = {
 	 */
 	shielChatRoomVipSeats() {
 		log.info("【屏蔽】评论区的贵宾席");
-		DouYinElement.addShieldStyle(
+		DouYinUtils.addBlockCSS(
 			"#chatroom > div > div:has(#audiencePanelScrollId)"
 		);
 	},
@@ -50,7 +51,7 @@ const DouYinLiveChatRoom = {
 	 */
 	shieldUserLevelIcon() {
 		log.info("【屏蔽】用户等级图标");
-		DouYinElement.addShieldStyle(
+		DouYinUtils.addBlockCSS(
 			'.webcast-chatroom___item span:has(>img[src*="level"])'
 		);
 	},
@@ -59,7 +60,7 @@ const DouYinLiveChatRoom = {
 	 */
 	shieldUserVIPIcon() {
 		log.info("【屏蔽】VIP图标");
-		DouYinElement.addShieldStyle(
+		DouYinUtils.addBlockCSS(
 			'.webcast-chatroom___item span:has(>img[src*="subscribe"])'
 		);
 	},
@@ -68,7 +69,7 @@ const DouYinLiveChatRoom = {
 	 */
 	shieldUserFansIcon() {
 		log.info("【屏蔽】粉丝牌");
-		DouYinElement.addShieldStyle(
+		DouYinUtils.addBlockCSS(
 			'.webcast-chatroom___item span:has(>div[style*="fansclub"])'
 		);
 	},
@@ -77,7 +78,7 @@ const DouYinLiveChatRoom = {
 	 */
 	shieldMessage() {
 		log.info("【屏蔽】信息播报");
-		DouYinElement.addShieldStyle(".webcast-chatroom___bottom-message");
+		DouYinUtils.addBlockCSS(".webcast-chatroom___bottom-message");
 	},
 };
 

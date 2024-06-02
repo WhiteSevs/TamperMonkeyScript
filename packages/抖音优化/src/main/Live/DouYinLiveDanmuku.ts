@@ -1,6 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
-import { DouYinElement } from "../Element/DouYinElement";
+import { DouYinElement } from "../../utils/DouYinElement";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYinDanmuFilter = {
 	key: "douyin-live-danmu-rule",
@@ -74,8 +75,8 @@ const DouYinLiveDanmuku = {
 	 * 屏蔽弹幕
 	 */
 	shieldDanmu() {
-		log.success("屏蔽弹幕");
-		DouYinElement.addShieldStyle("xg-danmu.xgplayer-danmu");
+		log.info("屏蔽弹幕");
+		DouYinUtils.addBlockCSS("xg-danmu.xgplayer-danmu");
 	},
 	/**
 	 * 弹幕过滤

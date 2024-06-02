@@ -1,4 +1,4 @@
-import { log } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { ShieldHeader } from "./UIFrameShield/FrameNavigator";
 import { ShieldSearch } from "./UIFrameShield/FrameSearch";
@@ -9,7 +9,8 @@ import { DouYinRouter } from "@/router/router";
 import { DouYinLive } from "./Live/DouYinLive";
 import { DouYinRedirect } from "./DouYinRedirect";
 import { DouYinSearch } from "./Search/DouYinSearch";
-import { DouYinElement } from "./Element/DouYinElement";
+import { DouYinElement } from "../utils/DouYinElement";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYin = {
 	init() {
@@ -20,11 +21,11 @@ const DouYin = {
 		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
 			DouYinAccount.watchLoginDialogToClose();
 		});
-		PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
-			this.shieldBottomQuestionButton();
-		});
 		PopsPanel.execMenuOnce("disguiseLogin", () => {
 			DouYinAccount.disguiseLogin();
+		});
+		PopsPanel.execMenuOnce("dy-initialScale", () => {
+			this.initialScale();
 		});
 		ShieldHeader.init();
 		ShieldSearch.init();
@@ -43,15 +44,23 @@ const DouYin = {
 		}
 	},
 	/**
-	 * 屏蔽底部问题按钮
+	 * 固定meta viewport缩放倍率为1
 	 */
-	shieldBottomQuestionButton() {
-		log.success("屏蔽底部问题按钮");
-		DouYinElement.addShieldStyle([
-			"#douyin-sidebar",
-			/* 推荐视频右下角的？按钮 */
-			"#douyin-temp-sidebar",
-		]);
+	initialScale() {
+		log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+		let meta = DOMUtils.createElement(
+			"meta",
+			{},
+			{
+				name: "viewport",
+				content:
+					"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+			}
+		);
+		DOMUtils.remove("meta[name='viewport']");
+		utils.waitNode("head").then(() => {
+			document.head.appendChild(meta);
+		});
 	},
 };
 

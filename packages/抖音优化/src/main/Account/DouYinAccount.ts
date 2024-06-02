@@ -1,6 +1,7 @@
 import { log, utils } from "@/env";
-import { DouYinElement } from "../Element/DouYinElement";
+import { DouYinElement } from "../../utils/DouYinElement";
 import { DouYinRouter } from "@/router/router";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYinAccount = {
 	/**
@@ -62,8 +63,8 @@ const DouYinAccount = {
 				});
 			});
 		}
-		DouYinElement.watchVideDataListChange(() => {
-			setLogin(DouYinElement.getOSElement());
+		DouYinElement.watchVideDataListChange(($os) => {
+			setLogin($os);
 		});
 		utils
 			.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
@@ -74,7 +75,11 @@ const DouYinAccount = {
 						childList: true,
 					},
 					callback: utils.debounce(() => {
-						setLogin(DouYinElement.getOSElement());
+						let $os = DouYinElement.getOSElement();
+						if (!$os) {
+							return;
+						}
+						setLogin($os);
 					}, 70),
 				});
 			})
@@ -142,7 +147,7 @@ const DouYinAccount = {
 	 */
 	watchLoginDialogToClose() {
 		log.info("监听登录弹窗并关闭");
-		DouYinElement.addShieldStyle('div[id^="login-full-panel-"]');
+		DouYinUtils.addBlockCSS('div[id^="login-full-panel-"]');
 		utils.waitNode<HTMLBodyElement>("body").then(() => {
 			utils.mutationObserver(document.body, {
 				config: {

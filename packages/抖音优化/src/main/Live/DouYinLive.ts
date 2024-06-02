@@ -1,9 +1,11 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "@/main/Element/DouYinElement";
+import { DouYinElement } from "@/utils/DouYinElement";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 import Qmsg from "qmsg";
+import { DouYinUtils } from "@/utils/DouYinUtils";
+import { GM_addStyle } from "ViteGM";
 
 /**
  * 直播画质
@@ -52,7 +54,7 @@ const DouYinLive = {
 	 * 自动进入网页全屏
 	 */
 	autoEnterElementFullScreen() {
-		log.success("自动进入网页全屏");
+		log.info("自动进入网页全屏");
 		utils
 			.waitNode<HTMLDivElement>(
 				'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
@@ -65,18 +67,26 @@ const DouYinLive = {
 	 * 【屏蔽】底部的礼物栏
 	 */
 	shieldGiftColumn() {
-		log.success("屏蔽底部的礼物栏");
-		DouYinElement.addShieldStyle(
-			'div[data-e2e="living-container"] >div> :last-child'
+		log.info("屏蔽底部的礼物栏");
+		DouYinUtils.addBlockCSS(
+			'div[data-e2e="living-container"] >div> :last-child',
+			/* 全屏状态下的礼物栏 */
+			'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
 		);
+		GM_addStyle(`
+		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+			bottom: 0 !important;
+		}
+		`);
 	},
 	/**
 	 * 【屏蔽】顶栏信息
 	 * 包括直播作者、右侧的礼物展馆
 	 */
 	shieldTopToolBarInfo() {
-		log.success("【屏蔽】顶栏信息");
-		DouYinElement.addShieldStyle(
+		log.info("【屏蔽】顶栏信息");
+		DouYinUtils.addBlockCSS(
 			'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
 		);
 	},
@@ -84,8 +94,8 @@ const DouYinLive = {
 	 * 【屏蔽】礼物特效
 	 */
 	shieldGiftEffects() {
-		log.success("【屏蔽】礼物特效");
-		DouYinElement.addShieldStyle(
+		log.info("【屏蔽】礼物特效");
+		DouYinUtils.addBlockCSS(
 			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
 		);
 	},
@@ -95,7 +105,7 @@ const DouYinLive = {
 	 * 未登录情况下最高选择【高清】画质
 	 */
 	unlockImageQuality() {
-		log.success("解锁画质选择");
+		log.info("解锁画质选择");
 		DOMUtils.on(
 			document,
 			"click",

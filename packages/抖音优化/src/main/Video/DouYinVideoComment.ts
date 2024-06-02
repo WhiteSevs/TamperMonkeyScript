@@ -1,6 +1,7 @@
 import { PopsPanel } from "@/setting/setting";
-import { DouYinElement } from "../Element/DouYinElement";
+import { DouYinElement } from "../../utils/DouYinElement";
 import { log } from "@/env";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYinVideoComment = {
 	init() {
@@ -19,14 +20,14 @@ const DouYinVideoComment = {
 	 */
 	shieldUserCommentToolBar() {
 		log.info("【屏蔽】评论工具栏");
-		DouYinElement.addShieldStyle(".comment-input-container");
+		DouYinUtils.addBlockCSS(".comment-input-container");
 	},
 	/**
 	 * 【屏蔽】大家都在搜
 	 */
 	shieldUserCommentEveryOneAllSearch() {
 		log.info("【屏蔽】大家都在搜");
-		DouYinElement.addShieldStyle(".comment-header-with-search");
+		DouYinUtils.addBlockCSS(".comment-header-with-search");
 	},
 };
 

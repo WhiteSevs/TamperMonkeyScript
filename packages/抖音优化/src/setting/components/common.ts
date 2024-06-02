@@ -22,6 +22,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					void 0,
 					"使用随机UID进行伪装"
 				),
+				UISwitch(
+					"initial-scale=1",
+					"dy-initialScale",
+					false,
+					void 0,
+					"可配合手机模式放大页面"
+				),
 			],
 		},
 		{

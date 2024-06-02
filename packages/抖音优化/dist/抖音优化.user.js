@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.1
+// @version      2024.6.2
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,8 +11,8 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -127,6 +127,13 @@
             false,
             void 0,
             "使用随机UID进行伪装"
+          ),
+          UISwitch(
+            "initial-scale=1",
+            "dy-initialScale",
+            false,
+            void 0,
+            "可配合手机模式放大页面"
           )
         ]
       },
@@ -250,35 +257,26 @@
       }
     ]
   };
-  const DouYinElement = {
+  const DouYinUtils = {
     /**
-     * 观察 #slidelist的加载每条视频
-     * @param callback
+     * 判断是否是竖屏
+     *
+     * window.screen.orientation.type
+     * + landscape-primary 横屏
+     * + portrait-primary 竖屏
      */
-    watchVideDataListChange(callback) {
-      domUtils.ready(() => {
-        utils.waitNode("#slidelist").then(($slidelist) => {
-          let osElement = this.getOSElement();
-          utils.mutationObserver($slidelist, {
-            config: {
-              childList: true,
-              subtree: true
-            },
-            callback: () => {
-              callback(osElement);
-            }
-          });
-        });
-      });
-    },
-    getOSElement() {
-      return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
+    isVerticalScreen() {
+      return !window.screen.orientation.type.includes("landscape");
     },
     /**
      * 添加屏蔽CSS
      * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
      */
-    addShieldStyle(...args) {
+    addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -288,7 +286,7 @@
       }
       args.forEach((selector) => {
         if (Array.isArray(selector)) {
-          selectorList.push(...selector);
+          selectorList = selectorList.concat(selector);
         } else {
           selectorList.push(selector);
         }
@@ -362,8 +360,8 @@
      * 屏蔽弹幕
      */
     shieldDanmu() {
-      log.success("屏蔽弹幕");
-      DouYinElement.addShieldStyle("xg-danmu.xgplayer-danmu");
+      log.info("屏蔽弹幕");
+      DouYinUtils.addBlockCSS("xg-danmu.xgplayer-danmu");
     },
     /**
      * 弹幕过滤
@@ -562,6 +560,38 @@
       result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
     }
     return result;
+  };
+  const DouYinElement = {
+    /**
+     * 观察 #slidelist的加载每条视频
+     * @param callback
+     */
+    watchVideDataListChange(callback) {
+      let $os = null;
+      domUtils.ready(() => {
+        utils.waitNode("#slidelist").then(($slidelist) => {
+          utils.mutationObserver($slidelist, {
+            config: {
+              childList: true,
+              subtree: true
+            },
+            callback: () => {
+              if (!$os) {
+                $os = this.getOSElement();
+              }
+              if (!$os) {
+                log.error("watchVideDataListChange：获取osElement失败");
+                return;
+              }
+              callback($os);
+            }
+          });
+        });
+      });
+    },
+    getOSElement() {
+      return document.querySelector("#root div[class*='-os']") || document.querySelector("#douyin-right-container");
+    }
   };
   const DouYinVideoFilter = {
     key: "douyin-shield-rule",
@@ -952,7 +982,7 @@
      */
     shieldRightExpandCommentButton() {
       log.info("【屏蔽】右侧的展开评论按钮");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
         '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
       );
@@ -968,7 +998,7 @@
      */
     shieldSearchFloatingBar() {
       log.info("【屏蔽】搜索悬浮栏");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '.slider-video div:has([data-e2e="searchbar-button"])',
         'div:has(>div > svg[class] >  defs [d="M0 0h24v24H0z"]',
         'div[data-e2e="feed-active-video"] + div:has(>div>div>div > input[data-e2e="searchbar-input"])',
@@ -983,7 +1013,7 @@
      */
     shieldCloseFullScreenButton() {
       log.info("【屏蔽】网页全屏关闭按钮");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '#sliderVideo[data-e2e="feed-active-video"] div.slider-video > div:has(path[d="M17.448 17.448a1.886 1.886 0 01-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 11.552 14.78L6.332 9 .552 3.22A1.886 1.886 0 113.22.552L9 6.332l5.78-5.78a1.886 1.886 0 112.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 010 2.668z"])'
       );
     },
@@ -992,7 +1022,7 @@
      */
     shieldPlaySwitchButton() {
       log.info("【屏蔽】切换播放");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '.positionBox  .xgplayer-playswitch[data-state="normal"]',
         "div.xgplayer-playswitch",
         /* 全屏下的右侧的切换播放 */
@@ -1010,7 +1040,7 @@
      */
     shieldAuthorAvatar() {
       log.info("【屏蔽】作者头像");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has([data-e2e="video-avatar"])'
       );
     },
@@ -1019,7 +1049,7 @@
      */
     shieldLikeButton() {
       log.info("【屏蔽】点赞");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has([data-e2e="video-player-digg"])'
       );
     },
@@ -1028,7 +1058,7 @@
      */
     shieldCommentButton() {
       log.info("【屏蔽】评论");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has([data-e2e="feed-comment-icon"])'
       );
     },
@@ -1037,7 +1067,7 @@
      */
     shieldCollectionButton() {
       log.info("【屏蔽】收藏");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has([data-e2e="video-player-collect"])'
       );
     },
@@ -1046,7 +1076,7 @@
      */
     shieldSharenButton() {
       log.info("【屏蔽】分享");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has([data-e2e="video-player-share"])'
       );
     },
@@ -1055,7 +1085,7 @@
      */
     shieldRelatedRecommendationsButton() {
       log.info("【屏蔽】看相关");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
         'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
       );
@@ -1065,7 +1095,7 @@
      */
     shieldMoreButton() {
       log.info("【屏蔽】更多");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'div.dy-tip-container:has([data-e2e="video-play-more"])'
       );
     },
@@ -1074,25 +1104,13 @@
      */
     shieldBottomVideoToolBar() {
       log.info("【屏蔽】底部视频工具栏");
-      DouYinElement.addShieldStyle("xg-controls.xgplayer-controls");
+      DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls");
       _GM_addStyle(`
 		div:has( > div > pace-island > #video-info-wrap ),
 		xg-video-container.xg-video-container{
 			bottom: 0 !important;
 		}
   		`);
-    }
-  };
-  const DouYinUtils = {
-    /**
-     * 判断是否是竖屏
-     *
-     * window.screen.orientation.type
-     * + landscape-primary 横屏
-     * + portrait-primary 竖屏
-     */
-    isVerticalScreen() {
-      return !window.screen.orientation.type.includes("landscape");
     }
   };
   const DouYinSearchHideElement = {
@@ -1106,9 +1124,7 @@
      */
     shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
-      DouYinElement.addShieldStyle(
-        "#search-content-area > div > div:nth-child(2)"
-      );
+      DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)");
       _GM_addStyle(`
         #search-content-area > div > div:nth-child(1) > div:nth-child(1){
             width: 100dvw;
@@ -1170,14 +1186,14 @@
      */
     shieldUserCommentToolBar() {
       log.info("【屏蔽】评论工具栏");
-      DouYinElement.addShieldStyle(".comment-input-container");
+      DouYinUtils.addBlockCSS(".comment-input-container");
     },
     /**
      * 【屏蔽】大家都在搜
      */
     shieldUserCommentEveryOneAllSearch() {
       log.info("【屏蔽】大家都在搜");
-      DouYinElement.addShieldStyle(".comment-header-with-search");
+      DouYinUtils.addBlockCSS(".comment-header-with-search");
     }
   };
   const MobileCSS = '/* 右侧工具栏放大 */\r\n.basePlayerContainer .positionBox {\r\n	scale: unset !important;\r\n	bottom: 80px !important;\r\n	padding-right: 5px !important;\r\n	transform: scale(1.12) !important;\r\n}\r\n/* 图标再放大 */\r\n.basePlayerContainer .positionBox svg {\r\n	transform: scale(1.12);\r\n}\r\n/* 重置关注按钮的scale */\r\n.basePlayerContainer\r\n	.positionBox\r\n	.dy-tip-container\r\n	div[data-e2e="feed-follow-icon"]\r\n	svg {\r\n	scale: unset;\r\n}\r\n/* 设备处于横向方向，即宽度大于高度。 */\r\n@media screen and (orientation: landscape) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		/*transform: scale(0.95) !important;\r\n		bottom: 42px !important;*/\r\n		padding-right: 10px !important;\r\n	}\r\n}\r\n/* 该设备是纵向的，即高度大于或等于宽度 */\r\n@media screen and (orientation: portrait) {\r\n}\r\n\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#slidelist {\r\n		width: 100dvw;\r\n		height: 100dvh;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100dvw;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n}\r\n';
@@ -1218,7 +1234,7 @@
      */
     fullScreen() {
       log.info("全屏");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         /* 右侧工具栏 */
         ".slider-video .positionBox",
         /* 中间底部的视频信息（描述、作者、话题等） */
@@ -1440,9 +1456,7 @@
       let Definition_Key = "player_playbackratio";
       function setRate(value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-        document.querySelectorAll(
-          "xg-icon.xgplayer-playback-setting"
-        ).forEach(($playbackSetting) => {
+        document.querySelectorAll("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
           var _a2, _b, _c, _d;
           let $container = utils.getReactObj($playbackSetting).reactContainer;
           (_d = (_c = (_b = (_a2 = $container == null ? void 0 : $container.memoizedState) == null ? void 0 : _a2.element) == null ? void 0 : _b.props) == null ? void 0 : _c.xgCase) == null ? void 0 : _d.updatePlayBackRatio();
@@ -1459,8 +1473,8 @@
         let contentHTML = "";
         srcList.forEach((url) => {
           contentHTML += `
-          <div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
-            `;
+          		<div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
+            	`;
         });
         contentHTML = `<div class="douyin-video-link-container">${contentHTML}</div>`;
         pops.alert({
@@ -1541,18 +1555,9 @@
      * 手机模式
      */
     mobileMode() {
-      log.success("启用手机模式");
-      let meta = domUtils.createElement(
-        "meta",
-        {},
-        {
-          name: "viewport",
-          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-        }
-      );
-      domUtils.remove("meta[name='viewport']");
-      document.head.appendChild(meta);
-      DouYinElement.addShieldStyle("img#douyin-temp-sidebar");
+      log.info("启用手机模式");
+      DouYin.initialScale();
+      DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
       _GM_addStyle(MobileCSS);
       if (DouYinRouter.isSearch()) {
         PopsPanel.onceExec("douyin-search-mobileMode", () => {
@@ -2247,18 +2252,21 @@
       PopsPanel.execMenu("shieldTopNavigator", () => {
         this.shieldTopNavigator();
       });
+      PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
+        this.shieldBottomQuestionButton();
+      });
     },
     /**
      * 【屏蔽】充砖石
      */
     shieldFillingBricksAndStones() {
       log.info("【屏蔽】充砖石");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】充砖石");
-        DouYinElement.addShieldStyle(
+        DouYinUtils.addBlockCSS(
           'div:has(>div>div>div>div[data-e2e="something-button"] path[d="M5.757 12.268a6.397 6.397 0 1112.793 0 6.397 6.397 0 01-12.793 0zm6.396-7.897a7.897 7.897 0 100 15.793 7.897 7.897 0 000-15.793zm2.127 3.52v-.497h-1.5v6.462h.001c0 .854-.685 1.536-1.517 1.536a1.527 1.527 0 01-1.517-1.536c0-.854.685-1.536 1.517-1.536v-1.5c-1.672 0-3.017 1.365-3.017 3.036 0 1.67 1.345 3.036 3.017 3.036s3.017-1.365 3.017-3.036h-.001v-3.228a3.184 3.184 0 001.715.498v-1.5a1.725 1.725 0 01-1.715-1.735z"])'
         );
       }
@@ -2268,12 +2276,12 @@
      */
     shieldClient() {
       log.info("【屏蔽】客户端");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】客户端");
-        DouYinElement.addShieldStyle(
+        DouYinUtils.addBlockCSS(
           'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])'
         );
       }
@@ -2283,12 +2291,12 @@
      */
     shieldQuickAccess() {
       log.info("【屏蔽】快捷访问");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】快捷访问");
-        DouYinElement.addShieldStyle("div:has(>div>div>.quick-access-nav-icon)");
+        DouYinUtils.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)");
       }
     },
     /**
@@ -2296,14 +2304,12 @@
      */
     shieldNotifitation() {
       log.info("【屏蔽】通知");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M9.905 19.407h4.5v-1.5h-4.5v1.5z"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】通知");
-        DouYinElement.addShieldStyle(
-          'ul:has( div>div[data-e2e="notice-entry"] )'
-        );
+        DouYinUtils.addBlockCSS('ul:has( div>div[data-e2e="notice-entry"] )');
       }
     },
     /**
@@ -2311,12 +2317,12 @@
      */
     shieldPrivateMessage() {
       log.info("【屏蔽】私信");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】私信");
-        DouYinElement.addShieldStyle('ul:has( div>div[data-e2e="im-entry"] )');
+        DouYinUtils.addBlockCSS('ul:has( div>div[data-e2e="im-entry"] )');
       }
     },
     /**
@@ -2324,12 +2330,12 @@
      */
     shieldSubmission() {
       log.info("【屏蔽】投稿");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
       );
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】投稿");
-        DouYinElement.addShieldStyle(
+        DouYinUtils.addBlockCSS(
           'div:has(>div >div>div[data-e2e="something-button"] path[d="M11.349 5.17h-.033c-1.068 0-1.915 0-2.598.054-.698.056-1.29.172-1.832.441a4.75 4.75 0 00-2.14 2.14c-.269.542-.386 1.134-.441 1.832-.055.683-.055 1.53-.055 2.599v.064c0 1.069 0 1.916.055 2.599.055.698.172 1.29.441 1.831a4.75 4.75 0 002.14 2.14c.542.27 1.134.386 1.832.442.683.055 1.53.055 2.598.055H12.684c1.068 0 1.915 0 2.598-.055.698-.056 1.29-.172 1.832-.442a4.75 4.75 0 002.14-2.14c.269-.541.386-1.133.441-1.831.055-.683.055-1.53.055-2.599v-.064c0-1.069 0-1.916-.055-2.599-.055-.698-.172-1.29-.441-1.832a4.75 4.75 0 00-2.14-2.14c-.542-.269-1.134-.385-1.832-.441-.683-.055-1.53-.055-2.598-.055h-1.335zM7.554 7.008c.299-.149.676-.241 1.284-.29.616-.05 1.403-.05 2.51-.05h1.303c1.108 0 1.895 0 2.511.05.608.049.985.141 1.284.29a3.25 3.25 0 011.464 1.464c.15.3.241.676.29 1.284.05.616.05 1.403.05 2.51 0 1.109 0 1.896-.05 2.512-.049.608-.14.985-.29 1.284a3.25 3.25 0 01-1.464 1.464c-.299.149-.676.241-1.284.29-.616.05-1.403.05-2.51.05h-1.303c-1.108 0-1.895 0-2.511-.05-.608-.049-.985-.141-1.284-.29a3.25 3.25 0 01-1.464-1.464c-.15-.3-.242-.676-.29-1.284-.05-.616-.05-1.403-.05-2.511s0-1.895.05-2.511c.048-.608.14-.985.29-1.284a3.25 3.25 0 011.464-1.464zm3.696 8.259v-2.25H9v-1.5h2.25v-2.25h1.5v2.25H15v1.5h-2.25v2.25h-1.5z"])'
         );
       }
@@ -2339,7 +2345,7 @@
      */
     shieldClientTip() {
       log.info("【屏蔽】客户端提示");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         /* 右上角 通知 下载客户端，实时接收消息通知 */
         'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
         /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
@@ -2353,7 +2359,7 @@
      */
     shieldLeftNavigator() {
       log.info("【屏蔽】左侧导航栏");
-      DouYinElement.addShieldStyle("#douyin-navigation");
+      DouYinUtils.addBlockCSS("#douyin-navigation");
       _GM_addStyle(`
 		/* 修复顶部导航栏的宽度 */
 		#douyin-header{
@@ -2366,7 +2372,7 @@
      */
     shieldTopNavigator() {
       log.info("【屏蔽】顶部导航栏");
-      DouYinElement.addShieldStyle("#douyin-header");
+      DouYinUtils.addBlockCSS("#douyin-header");
       if (DouYinRouter.isSearch()) {
         _GM_addStyle(`
 			/* 把搜索顶部的工具栏置顶 */
@@ -2375,6 +2381,17 @@
 			}
 			`);
       }
+    },
+    /**
+     * 屏蔽底部问题按钮
+     */
+    shieldBottomQuestionButton() {
+      log.info("屏蔽底部问题按钮");
+      DouYinUtils.addBlockCSS([
+        "#douyin-sidebar",
+        /* 推荐视频右下角的？按钮 */
+        "#douyin-temp-sidebar"
+      ]);
     }
   };
   const ShieldSearch = {
@@ -2397,7 +2414,7 @@
      */
     shieldSearch() {
       log.info("【屏蔽】搜索框");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
       );
     },
@@ -2406,7 +2423,7 @@
      */
     shieldSearchPlaceholder() {
       log.info("【屏蔽】搜索框的提示");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
       );
       _GM_addStyle(`
@@ -2420,7 +2437,7 @@
      */
     shieldSearchGuessYouWantToSearch() {
       log.info("【屏蔽】搜索-猜你想搜");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
       );
@@ -2430,7 +2447,7 @@
      */
     shieldSearchTiktokHotspot() {
       log.info("【屏蔽】搜索-抖音热点");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
       );
@@ -2511,8 +2528,8 @@
           });
         });
       }
-      DouYinElement.watchVideDataListChange(() => {
-        setLogin(DouYinElement.getOSElement());
+      DouYinElement.watchVideDataListChange(($os) => {
+        setLogin($os);
       });
       utils.waitNode("#root div[class*='-os']", WAIT_TIME).then(() => {
         utils.mutationObserver(document.body, {
@@ -2521,7 +2538,11 @@
             childList: true
           },
           callback: utils.debounce(() => {
-            setLogin(DouYinElement.getOSElement());
+            let $os = DouYinElement.getOSElement();
+            if (!$os) {
+              return;
+            }
+            setLogin($os);
           }, 70)
         });
       }).catch((err) => {
@@ -2580,7 +2601,7 @@
      */
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
-      DouYinElement.addShieldStyle('div[id^="login-full-panel-"]');
+      DouYinUtils.addBlockCSS('div[id^="login-full-panel-"]');
       utils.waitNode("body").then(() => {
         utils.mutationObserver(document.body, {
           config: {
@@ -2626,7 +2647,7 @@
      */
     shieldChatRoom() {
       log.info("【屏蔽】评论区");
-      DouYinElement.addShieldStyle("#chatroom");
+      DouYinUtils.addBlockCSS("#chatroom");
       _GM_addStyle(`
 		div[data-e2e="living-container"],
 		div[data-e2e="living-container"] > div{
@@ -2638,7 +2659,7 @@
      */
     shielChatRoomVipSeats() {
       log.info("【屏蔽】评论区的贵宾席");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         "#chatroom > div > div:has(#audiencePanelScrollId)"
       );
     },
@@ -2647,7 +2668,7 @@
      */
     shieldUserLevelIcon() {
       log.info("【屏蔽】用户等级图标");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '.webcast-chatroom___item span:has(>img[src*="level"])'
       );
     },
@@ -2656,7 +2677,7 @@
      */
     shieldUserVIPIcon() {
       log.info("【屏蔽】VIP图标");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '.webcast-chatroom___item span:has(>img[src*="subscribe"])'
       );
     },
@@ -2665,7 +2686,7 @@
      */
     shieldUserFansIcon() {
       log.info("【屏蔽】粉丝牌");
-      DouYinElement.addShieldStyle(
+      DouYinUtils.addBlockCSS(
         '.webcast-chatroom___item span:has(>div[style*="fansclub"])'
       );
     },
@@ -2674,7 +2695,7 @@
      */
     shieldMessage() {
       log.info("【屏蔽】信息播报");
-      DouYinElement.addShieldStyle(".webcast-chatroom___bottom-message");
+      DouYinUtils.addBlockCSS(".webcast-chatroom___bottom-message");
     }
   };
   const DouYinLive = {
@@ -2706,7 +2727,7 @@
      * 自动进入网页全屏
      */
     autoEnterElementFullScreen() {
-      log.success("自动进入网页全屏");
+      log.info("自动进入网页全屏");
       utils.waitNode(
         'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
       ).then((element) => {
@@ -2717,18 +2738,26 @@
      * 【屏蔽】底部的礼物栏
      */
     shieldGiftColumn() {
-      log.success("屏蔽底部的礼物栏");
-      DouYinElement.addShieldStyle(
-        'div[data-e2e="living-container"] >div> :last-child'
+      log.info("屏蔽底部的礼物栏");
+      DouYinUtils.addBlockCSS(
+        'div[data-e2e="living-container"] >div> :last-child',
+        /* 全屏状态下的礼物栏 */
+        'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
       );
+      _GM_addStyle(`
+		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+			bottom: 0 !important;
+		}
+		`);
     },
     /**
      * 【屏蔽】顶栏信息
      * 包括直播作者、右侧的礼物展馆
      */
     shieldTopToolBarInfo() {
-      log.success("【屏蔽】顶栏信息");
-      DouYinElement.addShieldStyle(
+      log.info("【屏蔽】顶栏信息");
+      DouYinUtils.addBlockCSS(
         'div[data-e2e="living-container"] > div > pace-island[id^="island_"]'
       );
     },
@@ -2736,8 +2765,8 @@
      * 【屏蔽】礼物特效
      */
     shieldGiftEffects() {
-      log.success("【屏蔽】礼物特效");
-      DouYinElement.addShieldStyle(
+      log.info("【屏蔽】礼物特效");
+      DouYinUtils.addBlockCSS(
         '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
       );
     },
@@ -2747,7 +2776,7 @@
      * 未登录情况下最高选择【高清】画质
      */
     unlockImageQuality() {
-      log.success("解锁画质选择");
+      log.info("解锁画质选择");
       domUtils.on(
         document,
         "click",
@@ -2801,11 +2830,11 @@
       PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
         DouYinAccount.watchLoginDialogToClose();
       });
-      PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
-        this.shieldBottomQuestionButton();
-      });
       PopsPanel.execMenuOnce("disguiseLogin", () => {
         DouYinAccount.disguiseLogin();
+      });
+      PopsPanel.execMenuOnce("dy-initialScale", () => {
+        this.initialScale();
       });
       ShieldHeader.init();
       ShieldSearch.init();
@@ -2824,15 +2853,22 @@
       }
     },
     /**
-     * 屏蔽底部问题按钮
+     * 固定meta viewport缩放倍率为1
      */
-    shieldBottomQuestionButton() {
-      log.success("屏蔽底部问题按钮");
-      DouYinElement.addShieldStyle([
-        "#douyin-sidebar",
-        /* 推荐视频右下角的？按钮 */
-        "#douyin-temp-sidebar"
-      ]);
+    initialScale() {
+      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      let meta = domUtils.createElement(
+        "meta",
+        {},
+        {
+          name: "viewport",
+          content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+        }
+      );
+      domUtils.remove("meta[name='viewport']");
+      utils.waitNode("head").then(() => {
+        document.head.appendChild(meta);
+      });
     }
   };
   PopsPanel.init();

@@ -1,6 +1,6 @@
 import { GM_addStyle, unsafeWindow } from "ViteGM";
 import { DOMUtils, log, pops, utils } from "@/env";
-import { DouYinElement } from "../Element/DouYinElement";
+import { DouYinElement } from "../../utils/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinVideoFilter } from "./DouYinVideoFilter";
 import { DouYinVideoHideElement } from "./DouYinVideoHideElement";
@@ -11,6 +11,7 @@ import { DouYinRouter } from "@/router/router";
 import { DouYinVideoComment } from "./DouYinVideoComment";
 import MobileCSS from "./mobile.css?raw";
 import Qmsg from "qmsg";
+import { DouYin } from "../DouYin";
 
 type VideoRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
@@ -51,7 +52,7 @@ const DouYinVideo = {
 	 */
 	fullScreen() {
 		log.info("全屏");
-		DouYinElement.addShieldStyle(
+		DouYinUtils.addBlockCSS(
 			/* 右侧工具栏 */
 			".slider-video .positionBox",
 			/* 中间底部的视频信息（描述、作者、话题等） */
@@ -278,14 +279,12 @@ const DouYinVideo = {
 		let Definition_Key = "player_playbackratio";
 		function setRate(value: VideoRate = "1") {
 			unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-			(
-				document.querySelectorAll(
-					"xg-icon.xgplayer-playback-setting"
-				) as NodeListOf<HTMLLIElement>
-			).forEach(($playbackSetting) => {
-				let $container = utils.getReactObj($playbackSetting).reactContainer;
-				$container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
-			});
+			document
+				.querySelectorAll<HTMLLIElement>("xg-icon.xgplayer-playback-setting")
+				.forEach(($playbackSetting) => {
+					let $container = utils.getReactObj($playbackSetting).reactContainer;
+					$container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
+				});
 		}
 		setRate(rate);
 	},
@@ -298,8 +297,8 @@ const DouYinVideo = {
 			let contentHTML = "";
 			srcList.forEach((url) => {
 				contentHTML += `
-          <div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
-            `;
+          		<div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
+            	`;
 			});
 			contentHTML = `<div class="douyin-video-link-container">${contentHTML}</div>`;
 			pops.alert({
@@ -337,7 +336,7 @@ const DouYinVideo = {
                 `,
 			});
 		}
-		DOMUtils.on(
+		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
 			"click",
 			'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
@@ -381,20 +380,10 @@ const DouYinVideo = {
 	 * 手机模式
 	 */
 	mobileMode() {
-		log.success("启用手机模式");
-		let meta = DOMUtils.createElement(
-			"meta",
-			{},
-			{
-				name: "viewport",
-				content:
-					"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
-			}
-		);
-		DOMUtils.remove("meta[name='viewport']");
-		document.head.appendChild(meta);
+		log.info("启用手机模式");
+		DouYin.initialScale();
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
-		DouYinElement.addShieldStyle("img#douyin-temp-sidebar");
+		DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
 		GM_addStyle(MobileCSS);
 		if (DouYinRouter.isSearch()) {
 			PopsPanel.onceExec("douyin-search-mobileMode", () => {
