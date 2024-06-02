@@ -27,6 +27,9 @@ const DouYin = {
 		PopsPanel.execMenuOnce("dy-initialScale", () => {
 			this.initialScale();
 		});
+		PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+			this.removeMetaAppleItunesApp();
+		});
 		ShieldHeader.init();
 		ShieldSearch.init();
 		if (DouYinRouter.isLive()) {
@@ -61,6 +64,24 @@ const DouYin = {
 		utils.waitNode("head").then(() => {
 			document.head.appendChild(meta);
 		});
+	},
+	/**
+	 * 移除<meta>标签name="apple-itunes-app"
+	 */
+	removeMetaAppleItunesApp() {
+		utils
+			.waitNodeList<NodeListOf<HTMLMeterElement>>(
+				['meta[name="apple-itunes-app"]'],
+				10000
+			)
+			.then(($metaList) => {
+				if (!$metaList) {
+					return;
+				}
+				$metaList.forEach(($meta) => {
+					$meta.remove();
+				});
+			});
 	},
 };
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.2
+// @version      2024.6.2.13
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -134,6 +134,13 @@
             false,
             void 0,
             "可配合手机模式放大页面"
+          ),
+          UISwitch(
+            "移除<meta> apple-itunes-app",
+            "dy-apple-removeMetaAppleItunesApp",
+            true,
+            void 0,
+            "Safari使用，移除顶部横幅【Open in the 抖音 app】"
           )
         ]
       },
@@ -2836,6 +2843,9 @@
       PopsPanel.execMenuOnce("dy-initialScale", () => {
         this.initialScale();
       });
+      PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+        this.removeMetaAppleItunesApp();
+      });
       ShieldHeader.init();
       ShieldSearch.init();
       if (DouYinRouter.isLive()) {
@@ -2868,6 +2878,22 @@
       domUtils.remove("meta[name='viewport']");
       utils.waitNode("head").then(() => {
         document.head.appendChild(meta);
+      });
+    },
+    /**
+     * 移除<meta>标签name="apple-itunes-app"
+     */
+    removeMetaAppleItunesApp() {
+      utils.waitNodeList(
+        ['meta[name="apple-itunes-app"]'],
+        1e4
+      ).then(($metaList) => {
+        if (!$metaList) {
+          return;
+        }
+        $metaList.forEach(($meta) => {
+          $meta.remove();
+        });
       });
     }
   };

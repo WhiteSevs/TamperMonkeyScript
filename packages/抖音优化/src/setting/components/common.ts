@@ -29,6 +29,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 					void 0,
 					"可配合手机模式放大页面"
 				),
+				UISwitch(
+					"移除<meta> apple-itunes-app",
+					"dy-apple-removeMetaAppleItunesApp",
+					true,
+					void 0,
+					"Safari使用，移除顶部横幅【Open in the 抖音 app】"
+				),
 			],
 		},
 		{
