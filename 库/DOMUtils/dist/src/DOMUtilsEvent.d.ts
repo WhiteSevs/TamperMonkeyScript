@@ -1,3 +1,6 @@
+export type DOMUtilsEventObject<T extends Node> = Event & {
+    target: T;
+};
 export declare type DOMUtilsCreateElementAttributesMap = {
     style?: string;
     id?: string;
@@ -21,6 +24,7 @@ export interface DOMUtils_MouseEvent {
     mouseover: MouseEvent | PointerEvent;
     mouseout: MouseEvent | PointerEvent;
     mouseup: MouseEvent | PointerEvent;
+    hover: MouseEvent;
 }
 export type DOMUtils_MouseEventType = keyof DOMUtils_MouseEvent;
 /**
@@ -213,7 +217,7 @@ declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: DOMUtils_EventType | DOMUtils_EventType[], callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], callback: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -257,7 +261,7 @@ declare class DOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: DOMUtils_EventType | DOMUtils_EventType[], selector: string | undefined | null, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], selector: string | undefined | null, callback: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -296,7 +300,7 @@ declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: DOMUtils_EventType | DOMUtils_EventType[], callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], callback?: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -325,7 +329,7 @@ declare class DOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: DOMUtils_EventType | DOMUtils_EventType[], selector?: string | undefined, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis, eventType: T | T[], selector?: string | undefined, callback?: (event: DOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -361,7 +365,7 @@ declare class DOMUtilsEvent {
      *   console.log("文档加载完毕")
      * })
      */
-    ready(callback?: any): void;
+    ready<T extends Function>(callback: T): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
@@ -406,7 +410,7 @@ declare class DOMUtilsEvent {
      *  console.log("触发click事件成功")
      * })
      * */
-    click(element: HTMLElement | string | Window, handler?: (event: PointerEvent | MouseEvent) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    click(element: HTMLElement | string | Window, handler?: (event: DOMUtils_Event["click"]) => void, details?: any, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 绑定或触发元素的blur事件
      * @param element 目标元素
@@ -421,7 +425,7 @@ declare class DOMUtilsEvent {
      *  console.log("触发blur事件成功")
      * })
      * */
-    blur(element: HTMLElement | string | Window, handler?: (event: Event) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    blur(element: HTMLElement | string | Window, handler?: (event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 绑定或触发元素的focus事件
      * @param element 目标元素
@@ -436,7 +440,7 @@ declare class DOMUtilsEvent {
      *  console.log("触发focus事件成功")
      * })
      * */
-    focus(element: HTMLElement | string | Window, handler?: (event: Event) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    focus(element: HTMLElement | string | Window, handler?: (event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -451,7 +455,7 @@ declare class DOMUtilsEvent {
      *   console.log("移入/移除");
      * })
      */
-    hover(element: HTMLElement | string, handler: (event: Event) => void, option?: boolean | AddEventListenerOptions): void;
+    hover(element: HTMLElement | string, handler: (event: DOMUtils_Event["hover"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 当按键松开时触发事件
      * keydown - > keypress - > keyup
@@ -467,7 +471,7 @@ declare class DOMUtilsEvent {
      *   console.log("按键松开");
      * })
      */
-    keyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: KeyboardEvent) => void, option?: boolean | AddEventListenerOptions): void;
+    keyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: DOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -483,7 +487,7 @@ declare class DOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    keydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: KeyboardEvent) => void, option?: boolean | AddEventListenerOptions): void;
+    keydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: DOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -499,6 +503,6 @@ declare class DOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    keypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: KeyboardEvent) => void, option?: boolean | AddEventListenerOptions): void;
+    keypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: DOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): void;
 }
 export { DOMUtilsEvent };

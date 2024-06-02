@@ -3,6 +3,10 @@ import { DOMUtilsCore } from "./DOMUtilsCore";
 import { DOMUtilsData } from "./DOMUtilsData";
 import { OriginPrototype } from "./DOMUtilsOriginPrototype";
 
+export type DOMUtilsEventObject<T extends Node> = Event & {
+	target: T;
+};
+
 export declare type DOMUtilsCreateElementAttributesMap = {
 	style?: string;
 	id?: string;
@@ -27,6 +31,7 @@ export interface DOMUtils_MouseEvent {
 	mouseover: MouseEvent | PointerEvent;
 	mouseout: MouseEvent | PointerEvent;
 	mouseup: MouseEvent | PointerEvent;
+	hover: MouseEvent;
 }
 export type DOMUtils_MouseEventType = keyof DOMUtils_MouseEvent;
 /**
@@ -241,7 +246,7 @@ class DOMUtilsEvent {
 	 *    console.log("事件触发",event)
 	 * })
 	 */
-	on<T extends Event>(
+	on<T extends DOMUtils_EventType>(
 		element:
 			| HTMLElement
 			| string
@@ -252,8 +257,8 @@ class DOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: DOMUtils_EventType | DOMUtils_EventType[],
-		callback: (event: T) => void,
+		eventType: T | T[],
+		callback: (event: DOMUtils_Event[T]) => void,
 		option?: boolean | AddEventListenerOptions
 	): void;
 	/**
@@ -313,7 +318,7 @@ class DOMUtilsEvent {
 	 *    console.log("事件触发",event)
 	 * })
 	 */
-	on<T extends Event>(
+	on<T extends DOMUtils_EventType>(
 		element:
 			| HTMLElement
 			| string
@@ -324,9 +329,9 @@ class DOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: DOMUtils_EventType | DOMUtils_EventType[],
+		eventType: T | T[],
 		selector: string | undefined | null,
-		callback: (event: T) => void,
+		callback: (event: DOMUtils_Event[T]) => void,
 		option?: boolean | AddEventListenerOptions
 	): void;
 	/**
@@ -538,7 +543,7 @@ class DOMUtilsEvent {
 	 * DOMUtils.off(document.querySelector("a.xx"),"click")
 	 * DOMUtils.off("a.xx","click")
 	 */
-	off<T extends Event>(
+	off<T extends DOMUtils_EventType>(
 		element:
 			| HTMLElement
 			| string
@@ -549,8 +554,8 @@ class DOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: DOMUtils_EventType | DOMUtils_EventType[],
-		callback?: (event: T) => void,
+		eventType: T | T[],
+		callback?: (event: DOMUtils_Event[T]) => void,
 		option?: boolean | AddEventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -605,7 +610,7 @@ class DOMUtilsEvent {
 	 * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
 	 * DOMUtils.off("a.xx",["click","tap","hover"])
 	 */
-	off<T extends Event>(
+	off<T extends DOMUtils_EventType>(
 		element:
 			| HTMLElement
 			| string
@@ -616,9 +621,9 @@ class DOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: DOMUtils_EventType | DOMUtils_EventType[],
+		eventType: T | T[],
 		selector?: string | undefined,
-		callback?: (event: T) => void,
+		callback?: (event: DOMUtils_Event[T]) => void,
 		option?: boolean | AddEventListenerOptions,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -900,7 +905,7 @@ class DOMUtilsEvent {
 	 *   console.log("文档加载完毕")
 	 * })
 	 */
-	ready(callback?: any) {
+	ready<T extends Function>(callback: T) {
 		if (typeof callback !== "function") {
 			return;
 		}
@@ -1090,8 +1095,8 @@ class DOMUtilsEvent {
 	 * */
 	click(
 		element: HTMLElement | string | Window,
-		handler?: (event: PointerEvent | MouseEvent) => void,
-		details?: object,
+		handler?: (event: DOMUtils_Event["click"]) => void,
+		details?: any,
 		useDispatchToTriggerEvent?: boolean
 	) {
 		let DOMUtilsContext = this;
@@ -1128,7 +1133,7 @@ class DOMUtilsEvent {
 	 * */
 	blur(
 		element: HTMLElement | string | Window,
-		handler?: (event: Event) => void,
+		handler?: (event: DOMUtils_Event["blur"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
@@ -1171,7 +1176,7 @@ class DOMUtilsEvent {
 	 * */
 	focus(
 		element: HTMLElement | string | Window,
-		handler?: (event: Event) => void,
+		handler?: (event: DOMUtils_Event["focus"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
@@ -1209,7 +1214,7 @@ class DOMUtilsEvent {
 	 */
 	hover(
 		element: HTMLElement | string,
-		handler: (event: Event) => void,
+		handler: (event: DOMUtils_Event["hover"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
@@ -1239,7 +1244,7 @@ class DOMUtilsEvent {
 	 */
 	keyup(
 		target: HTMLElement | string | Window | typeof globalThis,
-		handler: (event: KeyboardEvent) => void,
+		handler: (event: DOMUtils_Event["keyup"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
@@ -1268,7 +1273,7 @@ class DOMUtilsEvent {
 	 */
 	keydown(
 		target: HTMLElement | Window | typeof globalThis | string,
-		handler: (event: KeyboardEvent) => void,
+		handler: (event: DOMUtils_Event["keydown"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
@@ -1297,7 +1302,7 @@ class DOMUtilsEvent {
 	 */
 	keypress(
 		target: HTMLElement | Window | typeof globalThis | string,
-		handler: (event: KeyboardEvent) => void,
+		handler: (event: DOMUtils_Event["keypress"]) => void,
 		option?: boolean | AddEventListenerOptions
 	) {
 		let DOMUtilsContext = this;
