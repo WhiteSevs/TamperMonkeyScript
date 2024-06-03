@@ -153,7 +153,6 @@ const CSDNBlog = {
 			$content_views.addEventListener("copy", function (event) {
 				utils.preventEvent(event);
 				let selectText = unsafeWindow.getSelection()?.toString();
-				console.log(selectText);
 				utils.setClip(selectText);
 				return false;
 			});

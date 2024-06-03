@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.30.13
+// @version      2024.6.3
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,8 +11,8 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.3/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_cookie
 // @grant        GM_deleteValue
@@ -304,12 +304,12 @@
             "csdn-blog-rightToolbarBeginnerGuidance",
             false
           ),
-          UISwitch("【屏蔽】客服", "csdn-blog-rightToolbarCustomerService", false),
           UISwitch(
-            "【屏蔽】举报",
-            "csdn-blog-rightToolbarReport",
+            "【屏蔽】客服",
+            "csdn-blog-rightToolbarCustomerService",
             false
           ),
+          UISwitch("【屏蔽】举报", "csdn-blog-rightToolbarReport", false),
           UISwitch("【屏蔽】返回顶部", "csdn-blog-rightToolbarBackToTop", false)
         ]
       },
@@ -329,7 +329,27 @@
             void 0,
             "选中文字弹出的，例如：搜索、评论、笔记"
           ),
-          UISwitch("自动展开内容块", "csdn-blog-autoExpandContent", false),
+          UISwitch(
+            "点击代码块自动展开",
+            "csdn-blog-clickPreCodeAutomatically",
+            true,
+            void 0,
+            "当鼠标点击代码块区域时，将自动展开内容"
+          ),
+          UISwitch(
+            "自动展开代码块",
+            "csdn-blog-autoExpandCodeContent",
+            true,
+            void 0,
+            "懒人操作，免手动点击展开"
+          ),
+          UISwitch(
+            "自动展开内容",
+            "csdn-blog-autoExpandContent",
+            true,
+            void 0,
+            "懒人操作，免手动点击展开"
+          ),
           UISwitch(
             "全文居中",
             "csdn-blog-articleCenter",
@@ -340,8 +360,10 @@
                   "为了更好的呈现效果，请开启功能：【屏蔽】左侧博客信息、【屏蔽】右侧目录信息"
                 );
               }
-            }
-          )
+            },
+            "自动屏蔽左侧和右侧的信息，且将文章居中"
+          ),
+          UISwitch("允许选择内容", "csdn-blog-allowSelectContent", true, void 0)
         ]
       },
       {
@@ -1189,8 +1211,8 @@
     }
   };
   const BlogShieldCSS = ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container {\r\n  display: none !important;\r\n}\r\n\r\n\r\n";
-  const BlogExpandContentCSS = "/* 自动展开代码块 */\r\n.comment-list-box,\r\nmain div.blog-content-box pre {\r\n  max-height: none !important;\r\n}\r\n/* 自动展开全文 */\r\n#article_content,\r\n.user-article.user-article-hide {\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n.blog_container_aside,\r\n#nav {\r\n  margin-left: -45px;\r\n}\r\n.recommend-right.align-items-stretch.clearfix,\r\n.dl_right_fixed {\r\n  margin-left: 45px;\r\n}\r\n#content_views,\r\n#content_views pre,\r\n#content_views pre code {\r\n  user-select: text !important;\r\n}\r\n\r\n/* 屏蔽向下滚动时左边的容器 */\r\naside.blog_container_aside {\r\n  display: none !important;\r\n}\r\n";
-  const BlogArticleCenterCSS = "#mainBox main {\r\n  width: inherit !important;\r\n}\r\n\r\n\r\n@media (min-width: 1320px) and (max-width: 1380px) {\r\n  .nodata .container {\r\n    width: 900px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 900px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 490px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 500px;\r\n  }\r\n}\r\n\r\n@media screen and (max-width: 1320px) {\r\n  .nodata .container {\r\n    width: 760px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 760px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 490px !important;\r\n  }\r\n\r\n  .nodata .container main .toolbox-list .tool-reward {\r\n    display: none;\r\n  }\r\n\r\n  .nodata\r\n    .container\r\n    main\r\n    .more-toolbox-new\r\n    .toolbox-left\r\n    .profile-box\r\n    .profile-name {\r\n    max-width: 128px;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 420px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1380px) {\r\n  .nodata .container {\r\n    width: 1010px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 1010px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 490px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 560px;\r\n  }\r\n}\r\n\r\n@media (min-width: 1550px) and (max-width: 1700px) {\r\n  .nodata .container {\r\n    width: 820px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 820px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 690px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 500px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1700px) {\r\n  .nodata .container {\r\n    width: 1010px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 1010px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 690px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 560px;\r\n  }\r\n}\r\n";
+  const BlogCSS = "/*.blog_container_aside,\r\n#nav {\r\n	margin-left: -45px;\r\n}\r\n.recommend-right.align-items-stretch.clearfix,\r\n.dl_right_fixed {\r\n	margin-left: 45px;\r\n}*/\r\n";
+  const BlogArticleCenterCSS = '#mainBox main {\r\n	width: inherit !important;\r\n}\r\n/* 当文章向下滚动时，触发左侧信息悬浮 */\r\naside.blog_container_aside[style*="position: fixed;"] {\r\n	display: none !important;\r\n}\r\n\r\n@media (min-width: 1320px) and (max-width: 1380px) {\r\n	.nodata .container {\r\n		width: 900px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 900px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 500px;\r\n	}\r\n}\r\n\r\n@media screen and (max-width: 1320px) {\r\n	.nodata .container {\r\n		width: 760px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 760px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .toolbox-list .tool-reward {\r\n		display: none;\r\n	}\r\n\r\n	.nodata\r\n		.container\r\n		main\r\n		.more-toolbox-new\r\n		.toolbox-left\r\n		.profile-box\r\n		.profile-name {\r\n		max-width: 128px;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 420px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1380px) {\r\n	.nodata .container {\r\n		width: 1010px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 1010px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 490px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 560px;\r\n	}\r\n}\r\n\r\n@media (min-width: 1550px) and (max-width: 1700px) {\r\n	.nodata .container {\r\n		width: 820px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 820px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 690px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 500px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1700px) {\r\n	.nodata .container {\r\n		width: 1010px !important;\r\n	}\r\n\r\n	.nodata .container main {\r\n		width: 1010px;\r\n	}\r\n\r\n	.nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n		width: 690px !important;\r\n	}\r\n\r\n	.nodata .container main .articleConDownSource {\r\n		width: 560px;\r\n	}\r\n}\r\n';
   const CSDNBlogRightToolBar = {
     init() {
       if (!PopsPanel.getValue("csdn-blog-rightToolbarEnable")) {
@@ -1348,9 +1370,11 @@
       PopsPanel.execMenu("csdn-blog-shieldLoginDialog", () => {
         this.shieldLoginDialog();
       });
-      PopsPanel.execMenu("m-csdn-blog-autoExpandContent", () => {
+      PopsPanel.execMenu("csdn-blog-autoExpandContent", () => {
         this.autoExpandContent();
-        this.clickPreCodeAutomatically();
+      });
+      PopsPanel.execMenu("csdn-blog-autoExpandCodeContent", () => {
+        this.autoExpandCodeContent();
       });
       PopsPanel.execMenu("csdn-blog-blockComment", () => {
         this.blockComment();
@@ -1376,17 +1400,20 @@
       PopsPanel.execMenu("csdn-blog-shieldArticleSearchTip", () => {
         this.shieldArticleSearchTip();
       });
+      PopsPanel.execMenu("csdn-blog-allowSelectContent", () => {
+        this.allowSelectContent();
+      });
       domutils.ready(() => {
-        PopsPanel.execMenu("ccsdn-blog-removeClipboardHijacking", () => {
+        PopsPanel.execMenu("csdn-blog-removeClipboardHijacking", () => {
           this.removeClipboardHijacking();
         });
-        PopsPanel.execMenu("csdn-blog-unBlockCopy", () => {
+        PopsPanel.execMenuOnce("csdn-blog-unBlockCopy", () => {
           this.unBlockCopy();
         });
         PopsPanel.execMenu("csdn-blog-identityCSDNDownload", () => {
           this.identityCSDNDownload();
         });
-        PopsPanel.execMenu("csdn_pc_clickPreCodeAutomatically", () => {
+        PopsPanel.execMenuOnce("csdn-blog-clickPreCodeAutomatically", () => {
           this.clickPreCodeAutomatically();
         });
         PopsPanel.execMenu("csdn-blog-restoreComments", () => {
@@ -1400,7 +1427,7 @@
     addCSS() {
       log.info("添加屏蔽CSS和功能CSS");
       _GM_addStyle(BlogShieldCSS);
-      _GM_addStyle(BlogExpandContentCSS);
+      _GM_addStyle(BlogCSS);
     },
     /**
      * 去除剪贴板劫持
@@ -1558,13 +1585,36 @@
       _GM_addStyle(`.passport-login-container{display: none !important;}`);
     },
     /**
-     * 自动展开内容块
+     * 自动展开代码块
+     */
+    autoExpandCodeContent() {
+      log.info("自动展开代码块");
+      _GM_addStyle(`
+		pre.set-code-hide{
+			height: auto !important;
+		}
+		pre.set-code-hide .hide-preCode-box{
+			display: none !important;
+		}
+		/* 自动展开代码块 */
+		.comment-list-box,
+		main div.blog-content-box pre {
+			max-height: none !important;
+		}
+        `);
+    },
+    /**
+     * 自动展开全文
      */
     autoExpandContent() {
-      log.info("自动展开内容块");
+      log.info("自动展开全文");
       _GM_addStyle(`
-          pre.set-code-hide{height: auto !important;}
-          pre.set-code-hide .hide-preCode-box{display: none !important;}
+		/* 自动展开全文 */
+		#article_content,
+		.user-article.user-article-hide {
+			height: auto !important;
+			overflow: auto !important;
+		}
         `);
     },
     /**
@@ -1585,6 +1635,7 @@
      * 屏蔽底部xx技能树
      */
     shieldBottomSkillTree() {
+      log.info("屏蔽底部xx技能树");
       _GM_addStyle(`#treeSkill{display: none !important;}`);
     },
     /**
@@ -1598,14 +1649,14 @@
      * 屏蔽左侧博客信息
      */
     shieldLeftBlogContainerAside() {
-      log.success("【屏蔽】左侧博客信息");
+      log.info("【屏蔽】左侧博客信息");
       _GM_addStyle(`aside.blog_container_aside{display: none !important;}`);
     },
     /**
      * 【屏蔽】右侧目录信息
      */
     shieldRightDirectoryInformation() {
-      log.success("【屏蔽】右侧目录信息");
+      log.info("【屏蔽】右侧目录信息");
       _GM_addStyle(`
         #rightAsideConcision,
         #rightAside{
@@ -1617,13 +1668,28 @@
      * 屏蔽顶部Toolbar
      */
     shieldTopToolbar() {
+      log.info("屏蔽顶部Toolbar");
       _GM_addStyle(`#toolbarBox{display: none !important;}`);
     },
     /**
      * 屏蔽文章内的选中搜索悬浮提示
      */
     shieldArticleSearchTip() {
+      log.info("屏蔽文章内的选中搜索悬浮提示");
       _GM_addStyle(`#articleSearchTip{display: none !important;}`);
+    },
+    /**
+     * 允许选择内容
+     */
+    allowSelectContent() {
+      log.info("允许选择内容");
+      _GM_addStyle(`
+		#content_views,
+		#content_views pre,
+		#content_views pre code {
+			user-select: text !important;
+		}
+		`);
     }
   };
   const WenkuCSS = "#chatgpt-article-detail\r\n  > div.layout-center\r\n  > div.main\r\n  > div.article-box\r\n  > div.cont.first-show.forbid {\r\n  max-height: unset !important;\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n\r\n.forbid {\r\n  user-select: text !important;\r\n}\r\n";
