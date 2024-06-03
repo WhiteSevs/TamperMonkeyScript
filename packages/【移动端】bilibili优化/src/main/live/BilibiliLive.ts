@@ -1,6 +1,5 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 
 const BilibiliLive = {
 	init() {
@@ -52,7 +51,7 @@ const BilibiliLive = {
 	 */
 	blockChatRoom() {
 		log.info("屏蔽聊天室");
-		GM_addStyle(`
+		addStyle(`
         #chat-items{
             display: none !important;
         }
@@ -63,7 +62,7 @@ const BilibiliLive = {
 	 */
 	blockBrushPrompt() {
 		log.info("屏蔽xxx进入直播间");
-		GM_addStyle(`
+		addStyle(`
         #brush-prompt{
             display: none !important;
         }
@@ -74,7 +73,7 @@ const BilibiliLive = {
 	 */
 	blockControlPanel() {
 		log.info("屏蔽底部工具栏");
-		GM_addStyle(`
+		addStyle(`
         .control-panel{
             display: none !important;
         }`);

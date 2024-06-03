@@ -1,11 +1,11 @@
-import { DOMUtils, Qmsg, log, utils } from "@/env";
+import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { BilibiliVideoHook } from "./BilibiliVideoHook";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliData } from "@/data/BlibiliData";
 import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
+import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 
 const BilibiliVideo = {
 	$data: {
@@ -33,6 +33,9 @@ const BilibiliVideo = {
 		PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
 			this.coverBottomRecommendVideo();
 		});
+		PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
+			this.gestureReturnToCloseCommentArea();
+		});
 	},
 	/**
 	 * 美化
@@ -42,7 +45,7 @@ const BilibiliVideo = {
 		/* 先添加美化CSS */
 		if (!this.$data.isAddBeautifyCSS) {
 			this.$data.isAddBeautifyCSS = true;
-			GM_addStyle(BilibiliVideoBeautifyCSS);
+			addStyle(BilibiliVideoBeautifyCSS);
 		}
 
 		utils
@@ -161,7 +164,7 @@ const BilibiliVideo = {
 	 */
 	repairVideoBottomAreaHeight() {
 		log.info("修复视频底部区域高度");
-		GM_addStyle(`
+		addStyle(`
 		${BilibiliData.className.video} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
@@ -238,6 +241,63 @@ const BilibiliVideo = {
 				log.info("相关视频的bvid: " + bvid);
 				BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
 				utils.preventEvent(event);
+			},
+			{
+				capture: true,
+			}
+		);
+	},
+	/**
+	 * 手势返回关闭评论区
+	 */
+	gestureReturnToCloseCommentArea() {
+		log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
+		DOMUtils.on(
+			document,
+			"click",
+			".sub-reply-preview",
+			function (event) {
+				let $app = document.querySelector<HTMLDivElement>("#app");
+				let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
+				if (!appVue) {
+					log.error("获取#app元素失败");
+					return;
+				}
+				let hookGestureReturnByVueRouter =
+					BilibiliUtils.hookGestureReturnByVueRouter({
+						vueObj: appVue,
+						hash: "#/seeCommentReply",
+						callback(isFromPopState) {
+							if (!isFromPopState) {
+								return false;
+							}
+							let $dialogCloseIcon =
+								document.querySelector<HTMLDivElement>(".dialog-close-icon");
+							if ($dialogCloseIcon) {
+								$dialogCloseIcon.click();
+							} else {
+								log.error(
+									"评论区关闭失败，原因：元素dialog-close-icon获取失败"
+								);
+							}
+							return true;
+						},
+					});
+				utils
+					.waitNode<HTMLDivElement>(".dialog-close-icon")
+					.then(($dialogCloseIcon) => {
+						DOMUtils.on(
+							$dialogCloseIcon,
+							"click",
+							function () {
+								hookGestureReturnByVueRouter.resumeBack(false);
+							},
+							{
+								capture: true,
+								once: true,
+							}
+						);
+					});
 			},
 			{
 				capture: true,

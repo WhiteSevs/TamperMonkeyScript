@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import Qmsg from "qmsg";
@@ -110,5 +110,61 @@ export const BilibiliUtils = {
 				Math.floor(duration / 60) % 60
 			)}:${zeroPadding(duration % 60)}`;
 		}
+	},
+	/**
+	 * 手势返回
+	 */
+	hookGestureReturnByVueRouter(option: {
+		vueObj: Vue2Context;
+		hash: string;
+		/**
+		 *
+		 * @param isFromPopState 是否由popstate触发
+		 * @returns
+		 */
+		callback: (isFromPopState: boolean) => boolean;
+	}) {
+		/**
+		 * 浏览器地址改变事件
+		 */
+		function popstateEvent() {
+			log.success("触发popstate事件");
+			resumeBack(true);
+		}
+
+		/**
+		 * 禁止浏览器后退按钮
+		 */
+		function banBack() {
+			/* 监听地址改变 */
+			log.success("监听地址改变");
+			option.vueObj.$router.history.push(option.hash);
+			DOMUtils.on(window, "popstate", popstateEvent);
+		}
+
+		/**
+		 * 允许浏览器后退并关闭小窗
+		 * @param [isFromPopState=false] 是否由popstate触发
+		 */
+		async function resumeBack(isFromPopState = false) {
+			DOMUtils.off(window, "popstate", popstateEvent);
+			let callbackResult = option.callback(isFromPopState);
+			if (callbackResult) {
+				return;
+			}
+			while (1) {
+				if (option.vueObj.$router.history.current.hash === option.hash) {
+					log.info("后退！");
+					option.vueObj.$router.back();
+					await utils.sleep(250);
+				} else {
+					return;
+				}
+			}
+		}
+		banBack();
+		return {
+			resumeBack,
+		};
 	},
 };

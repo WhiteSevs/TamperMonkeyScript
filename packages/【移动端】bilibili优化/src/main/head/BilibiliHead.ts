@@ -1,8 +1,7 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { GM_addStyle } from "ViteGM";
 
 export const BilibiliHead = {
 	init() {
@@ -18,7 +17,7 @@ export const BilibiliHead = {
 	 */
 	addVideoListUPInfo() {
 		log.info("添加视频列表UP主信息");
-		GM_addStyle(`
+		addStyle(`
         ${BilibiliData.className.head}{
             .video-list .card-box{
                 .gm-up-info{

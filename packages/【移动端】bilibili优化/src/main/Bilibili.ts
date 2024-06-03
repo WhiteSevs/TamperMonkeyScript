@@ -2,7 +2,7 @@ import "./Bilibili.css";
 import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { log, utils } from "@/env";
+import { addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
@@ -12,7 +12,6 @@ import { BilibiliTopicDetail } from "./topic-detail/BilibiliTopicDetail";
 import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
 import { BilibiliHead } from "./head/BilibiliHead";
-import { GM_addStyle } from "ViteGM";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 
@@ -40,7 +39,7 @@ const Bilibili = {
 		});
 		PopsPanel.execMenuOnce("bili-head-beautify", () => {
 			log.info("添加美化CSS");
-			GM_addStyle(BilibiliBeautifyCSS);
+			addStyle(BilibiliBeautifyCSS);
 		});
 		if (BilibiliRouter.isVideo()) {
 			log.info("Router: 视频稿件");
@@ -78,6 +77,25 @@ const Bilibili = {
 	 * + $store.state.loginInfo.isLogin
 	 */
 	setLogin() {
+		let GM_Cookie = new utils.GM_Cookie();
+		let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
+		if (cookie_DedeUserID != null) {
+			log.info(["Cookie DedeUserID已存在：", cookie_DedeUserID.value]);
+		} else {
+			GM_Cookie.set(
+				{
+					name: "DedeUserID",
+					value: "2333",
+				},
+				(error) => {
+					if (error) {
+						log.error(error);
+					} else {
+						log.success("Cookie成功设置DedeUserID=>2333");
+					}
+				}
+			);
+		}
 		utils.waitNode<HTMLDivElement>("#app").then(($app) => {
 			BilibiliUtils.waitVuePropToSet($app, [
 				{
@@ -157,34 +175,34 @@ const Bilibili = {
 					},
 				},
 				{
-					msg: "设置参数  $store.state.playlist.isClient",
+					msg: "设置参数 $store.state.playlist.isClient",
 					check(vueObj: Vue2Context) {
 						return (
 							typeof vueObj?.$store?.state?.playlist?.isClient === "boolean"
 						);
 					},
 					set(vueObj: Vue2Context) {
-						log.success("成功设置参数  $store.state.playlist.isClient=true");
+						log.success("成功设置参数 $store.state.playlist.isClient=true");
 						vueObj.$store.state.playlist.isClient = true;
 					},
 				},
 				{
-					msg: "设置参数  $store.state.ver.bili",
+					msg: "设置参数 $store.state.ver.bili",
 					check(vueObj: Vue2Context) {
 						return typeof vueObj?.$store?.state?.ver?.bili === "boolean";
 					},
 					set(vueObj: Vue2Context) {
-						log.success("成功设置参数  $store.state.ver.bili=true");
+						log.success("成功设置参数 $store.state.ver.bili=true");
 						vueObj.$store.state.ver.bili = true;
 					},
 				},
 				{
-					msg: "设置参数  $store.state.ver.biliVer",
+					msg: "设置参数 $store.state.ver.biliVer",
 					check(vueObj: Vue2Context) {
 						return typeof vueObj?.$store?.state?.ver?.biliVer === "number";
 					},
 					set(vueObj: Vue2Context) {
-						log.success("成功设置参数  $store.state.ver.biliVer=2333333");
+						log.success("成功设置参数 $store.state.ver.biliVer=2333333");
 						vueObj.$store.state.ver.biliVer = 2333333;
 					},
 				},
@@ -246,10 +264,19 @@ const Bilibili = {
 			utils.waitVueByInterval($app, check).then(() => {
 				if (check($app.__vue__)) {
 					log.success("成功设置监听路由变化");
-					$app.__vue__.$router.afterEach((to: any, from: any) => {
-						log.success(["路由变化", [to, from]]);
-						Bilibili.init();
-					});
+					$app.__vue__.$router.afterEach(
+						(to: Vue2Context["$route"], from: Vue2Context["$route"]) => {
+							log.info(["路由变化", [to, from]]);
+							if (
+								to["hash"] === "#/seeCommentReply" ||
+								from["hash"] === "#/seeCommentReply"
+							) {
+								log.info("该路由变化判定为#/seeCommentReply，不重载");
+								return;
+							}
+							Bilibili.init();
+						}
+					);
 				}
 			});
 		});

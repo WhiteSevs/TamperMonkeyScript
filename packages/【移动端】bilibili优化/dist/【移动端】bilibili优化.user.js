@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.3.15
+// @version      2024.6.3.18
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.3/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.5/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -36,7 +36,6 @@
   'use strict';
 
   var _a;
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -102,6 +101,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   };
+  const addStyle = utils.addStyle;
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -283,6 +283,13 @@
             true,
             void 0,
             "调整底部推荐视频卡片样式类似哔哩哔哩App"
+          ),
+          UISwitch(
+            "手势返回关闭评论区",
+            "bili-video-gestureReturnToCloseCommentArea",
+            false,
+            void 0,
+            "当浏览器手势触发浏览器回退页面时，关闭评论区"
           )
         ]
       },
@@ -933,6 +940,40 @@
         Math.floor(duration / 60) % 60
       )}:${zeroPadding(duration % 60)}`;
       }
+    },
+    /**
+     * 手势返回
+     */
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log.success("监听地址改变");
+        option.vueObj.$router.history.push(option.hash);
+        domutils.on(window, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domutils.off(window, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueObj.$router.history.current.hash === option.hash) {
+            log.info("后退！");
+            option.vueObj.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack
+      };
     }
   };
   const BilibiliHook = {
@@ -1155,6 +1196,9 @@
       PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
         this.coverBottomRecommendVideo();
       });
+      PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
+        this.gestureReturnToCloseCommentArea();
+      });
     },
     /**
      * 美化
@@ -1163,7 +1207,7 @@
       log.info("美化");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
-        _GM_addStyle(BilibiliVideoBeautifyCSS);
+        addStyle(BilibiliVideoBeautifyCSS);
       }
       utils.waitNode(
         BilibiliData.className.video + " .bottom-tab .list-view .card-box",
@@ -1259,7 +1303,7 @@
      */
     repairVideoBottomAreaHeight() {
       log.info("修复视频底部区域高度");
-      _GM_addStyle(`
+      addStyle(`
 		${BilibiliData.className.video} {
 			/* 修复视频区域底部的高度 */
 			.natural-module .fixed-module-margin {
@@ -1332,6 +1376,59 @@
           log.info("相关视频的bvid: " + bvid);
           BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
           utils.preventEvent(event);
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 手势返回关闭评论区
+     */
+    gestureReturnToCloseCommentArea() {
+      log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
+      domutils.on(
+        document,
+        "click",
+        ".sub-reply-preview",
+        function(event) {
+          let $app = document.querySelector("#app");
+          let appVue = BilibiliUtils.getVue($app);
+          if (!appVue) {
+            log.error("获取#app元素失败");
+            return;
+          }
+          let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
+            vueObj: appVue,
+            hash: "#/seeCommentReply",
+            callback(isFromPopState) {
+              if (!isFromPopState) {
+                return false;
+              }
+              let $dialogCloseIcon = document.querySelector(".dialog-close-icon");
+              if ($dialogCloseIcon) {
+                $dialogCloseIcon.click();
+              } else {
+                log.error(
+                  "评论区关闭失败，原因：元素dialog-close-icon获取失败"
+                );
+              }
+              return true;
+            }
+          });
+          utils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
+            domutils.on(
+              $dialogCloseIcon,
+              "click",
+              function() {
+                hookGestureReturnByVueRouter.resumeBack(false);
+              },
+              {
+                capture: true,
+                once: true
+              }
+            );
+          });
         },
         {
           capture: true
@@ -1633,7 +1730,7 @@
      */
     blockChatRoom() {
       log.info("屏蔽聊天室");
-      _GM_addStyle(`
+      addStyle(`
         #chat-items{
             display: none !important;
         }
@@ -1644,7 +1741,7 @@
      */
     blockBrushPrompt() {
       log.info("屏蔽xxx进入直播间");
-      _GM_addStyle(`
+      addStyle(`
         #brush-prompt{
             display: none !important;
         }
@@ -1655,7 +1752,7 @@
      */
     blockControlPanel() {
       log.info("屏蔽底部工具栏");
-      _GM_addStyle(`
+      addStyle(`
         .control-panel{
             display: none !important;
         }`);
@@ -1864,7 +1961,7 @@
      */
     addVideoListUPInfo() {
       log.info("添加视频列表UP主信息");
-      _GM_addStyle(`
+      addStyle(`
         ${BilibiliData.className.head}{
             .video-list .card-box{
                 .gm-up-info{
@@ -1969,7 +2066,7 @@
       });
       PopsPanel.execMenuOnce("bili-head-beautify", () => {
         log.info("添加美化CSS");
-        _GM_addStyle(BilibiliBeautifyCSS);
+        addStyle(BilibiliBeautifyCSS);
       });
       if (BilibiliRouter.isVideo()) {
         log.info("Router: 视频稿件");
@@ -2006,6 +2103,25 @@
      * + $store.state.loginInfo.isLogin
      */
     setLogin() {
+      let GM_Cookie = new utils.GM_Cookie();
+      let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
+      if (cookie_DedeUserID != null) {
+        log.info(["Cookie DedeUserID已存在：", cookie_DedeUserID.value]);
+      } else {
+        GM_Cookie.set(
+          {
+            name: "DedeUserID",
+            value: "2333"
+          },
+          (error) => {
+            if (error) {
+              log.error(error);
+            } else {
+              log.success("Cookie成功设置DedeUserID=>2333");
+            }
+          }
+        );
+      }
       utils.waitNode("#app").then(($app) => {
         BilibiliUtils.waitVuePropToSet($app, [
           {
@@ -2081,35 +2197,35 @@
             }
           },
           {
-            msg: "设置参数  $store.state.playlist.isClient",
+            msg: "设置参数 $store.state.playlist.isClient",
             check(vueObj) {
               var _a2, _b, _c;
               return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
             },
             set(vueObj) {
-              log.success("成功设置参数  $store.state.playlist.isClient=true");
+              log.success("成功设置参数 $store.state.playlist.isClient=true");
               vueObj.$store.state.playlist.isClient = true;
             }
           },
           {
-            msg: "设置参数  $store.state.ver.bili",
+            msg: "设置参数 $store.state.ver.bili",
             check(vueObj) {
               var _a2, _b, _c;
               return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
             },
             set(vueObj) {
-              log.success("成功设置参数  $store.state.ver.bili=true");
+              log.success("成功设置参数 $store.state.ver.bili=true");
               vueObj.$store.state.ver.bili = true;
             }
           },
           {
-            msg: "设置参数  $store.state.ver.biliVer",
+            msg: "设置参数 $store.state.ver.biliVer",
             check(vueObj) {
               var _a2, _b, _c;
               return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
             },
             set(vueObj) {
-              log.success("成功设置参数  $store.state.ver.biliVer=2333333");
+              log.success("成功设置参数 $store.state.ver.biliVer=2333333");
               vueObj.$store.state.ver.biliVer = 2333333;
             }
           }
@@ -2169,10 +2285,16 @@
         utils.waitVueByInterval($app, check).then(() => {
           if (check($app.__vue__)) {
             log.success("成功设置监听路由变化");
-            $app.__vue__.$router.afterEach((to, from) => {
-              log.success(["路由变化", [to, from]]);
-              Bilibili.init();
-            });
+            $app.__vue__.$router.afterEach(
+              (to, from) => {
+                log.info(["路由变化", [to, from]]);
+                if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+                  log.info("该路由变化判定为#/seeCommentReply，不重载");
+                  return;
+                }
+                Bilibili.init();
+              }
+            );
           }
         });
       });

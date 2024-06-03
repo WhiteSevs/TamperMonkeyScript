@@ -33,6 +33,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 					void 0,
 					"调整底部推荐视频卡片样式类似哔哩哔哩App"
 				),
+				UISwitch(
+					"手势返回关闭评论区",
+					"bili-video-gestureReturnToCloseCommentArea",
+					false,
+					void 0,
+					"当浏览器手势触发浏览器回退页面时，关闭评论区"
+				),
 			],
 		},
 		{
