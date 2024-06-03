@@ -5104,7 +5104,10 @@ define((function () { 'use strict';
                 selection.addRange(range);
             }
         }
-        setClip(data, info) {
+        setClip(data, info = {
+            type: "text",
+            mimetype: "text/plain",
+        }) {
             if (typeof data === "object") {
                 if (data instanceof Element) {
                     data = data.outerHTML;

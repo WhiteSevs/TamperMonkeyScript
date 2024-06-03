@@ -3256,12 +3256,15 @@ class Utils {
 	): Promise<boolean>;
 	setClip(
 		data: any,
-		info?:
+		info:
 			| {
 					type: string;
 					mimetype: string;
 			  }
-			| string
+			| string = {
+			type: "text",
+			mimetype: "text/plain",
+		}
 	): Promise<boolean> {
 		if (typeof data === "object") {
 			if (data instanceof Element) {
