@@ -34,8 +34,8 @@ export const BilibiliUtils = {
 			if (typeof needSetOption.msg === "string") {
 				log.info(needSetOption.msg);
 			}
-			function checkVue(ele: any) {
-				let vueObj = BilibiliUtils.getVue(ele);
+			function checkVue() {
+				let vueObj = BilibiliUtils.getVue($vue);
 				if (vueObj == null) {
 					return false;
 				}

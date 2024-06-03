@@ -129,34 +129,38 @@ const BilibiliVideo = {
 				BilibiliData.className.video + " .m-video-player"
 			)
 			.then(($app: any) => {
-				let check = function (__vue__: any) {
-					return (
-						__vue__ != null &&
-						typeof __vue__.playBtnNoOpenApp === "boolean" &&
-						typeof __vue__.playBtnOpenApp === "boolean" &&
-						typeof __vue__.coverOpenApp === "boolean"
-					);
-				};
-				utils
-					.waitVueByInterval(
-						() => {
-							return document.querySelector(".m-video-player") as HTMLElement;
+				BilibiliUtils.waitVuePropToSet($app, [
+					{
+						msg: "设置参数 playBtnNoOpenApp",
+						check(vueObj) {
+							return typeof vueObj.playBtnNoOpenApp === "boolean";
 						},
-						check,
-						250,
-						10000
-					)
-					.then(() => {
-						$app = document.querySelector(".m-video-player") as any;
-						if (check($app.__vue__)) {
-							log.success(
-								"成功设置参数 playBtnNoOpenApp、playBtnOpenApp、coverOpenApp"
-							);
-							$app.__vue__.playBtnNoOpenApp = true;
-							$app.__vue__.playBtnOpenApp = false;
-							$app.__vue__.coverOpenApp = false;
-						}
-					});
+						set(vueObj) {
+							vueObj.playBtnNoOpenApp = true;
+							log.success("成功设置参数 playBtnNoOpenApp=true");
+						},
+					},
+					{
+						msg: "设置参数 playBtnOpenApp",
+						check(vueObj) {
+							return typeof vueObj.playBtnOpenApp === "boolean";
+						},
+						set(vueObj) {
+							vueObj.playBtnOpenApp = false;
+							log.success("成功设置参数 playBtnOpenApp=false");
+						},
+					},
+					{
+						msg: "设置参数 coverOpenApp",
+						check(vueObj) {
+							return typeof vueObj.coverOpenApp === "boolean";
+						},
+						set(vueObj) {
+							vueObj.coverOpenApp = false;
+							log.success("成功设置参数 coverOpenApp=false");
+						},
+					},
+				]);
 			});
 	},
 	/**

@@ -217,44 +217,44 @@ const Bilibili = {
 	setTinyApp() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
 			log.info("设置tinyApp");
-			let check = function (vueObj: Vue2Context) {
-				return typeof vueObj?.$store?.state?.common?.tinyApp === "boolean";
-			};
-			utils.waitVueByInterval($app, check, 250, 10000).then(() => {
-				let vueObj = BilibiliUtils.getVue($app);
-				if (vueObj == null) {
-					log.error("获取#app的vue属性失败");
-					return;
-				}
-				if (check(vueObj)) {
-					vueObj.$store.state.common.tinyApp = true;
-					log.success("成功设置参数 tinyApp");
-					setTimeout(() => {
-						if (!document.querySelector("#bilibiliPlayer video")) {
-							let checkInitPlayer = function (__vue__: any) {
-								return typeof __vue__?.initPlayer === "function";
-							};
+			BilibiliUtils.waitVuePropToSet($app, [
+				{
+					msg: "设置参数 $store.state.common.tinyApp",
+					check(vueObj) {
+						return typeof vueObj?.$store?.state?.common?.tinyApp === "boolean";
+					},
+					set(vueObj) {
+						vueObj.$store.state.common.tinyApp = true;
+						log.success("成功设置参数 $store.state.common.tinyApp=true");
+						setTimeout(() => {
+							let $playerVideo = document.querySelector(
+								"#bilibiliPlayer video"
+							);
+							if (!$playerVideo) {
+								/* 该元素不存在，可能不是/video */
+								return;
+							}
+
 							utils
 								.waitNode<HTMLDivElement>(".m-video-player")
 								.then(($videoPlayer: any) => {
-									utils
-										.waitVueByInterval(
-											$videoPlayer,
-											checkInitPlayer,
-											250,
-											10000
-										)
-										.then(() => {
-											if (checkInitPlayer($videoPlayer.__vue__)) {
+									BilibiliUtils.waitVuePropToSet($videoPlayer, [
+										{
+											msg: "等待获取函数 initPlayer()",
+											check(vueObj) {
+												return typeof vueObj?.initPlayer === "function";
+											},
+											set(vueObj) {
+												vueObj.initPlayer();
 												log.success("成功调用函数 initPlayer()");
-												$videoPlayer.__vue__.initPlayer();
-											}
-										});
+											},
+										},
+									]);
 								});
-						}
-					}, 2000);
-				}
-			});
+						}, 2000);
+					},
+				},
+			]);
 		});
 	},
 	/**
@@ -262,11 +262,15 @@ const Bilibili = {
 	 */
 	listenRouterChange() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
-			let check = function (__vue__: any) {
-				return typeof __vue__?.$router?.afterEach === "function";
+			let check = function (vueObj: Vue2Context) {
+				return typeof vueObj?.$router?.afterEach === "function";
 			};
-			utils.waitVueByInterval($app, check).then(() => {
-				if (check($app.__vue__)) {
+			utils.waitVueByInterval($app, check).then((result) => {
+				let vueObj = BilibiliUtils.getVue($app);
+				if (vueObj == null) {
+					return;
+				}
+				if (check(vueObj)) {
 					log.success("成功设置监听路由变化");
 					$app.__vue__.$router.afterEach(
 						(to: Vue2Context["$route"], from: Vue2Context["$route"]) => {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.3.22
+// @version      2024.6.3.23
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -876,8 +876,8 @@
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        function checkVue(ele) {
-          let vueObj = BilibiliUtils.getVue(ele);
+        function checkVue() {
+          let vueObj = BilibiliUtils.getVue($vue);
           if (vueObj == null) {
             return false;
           }
@@ -1292,27 +1292,38 @@
       utils.waitNode(
         BilibiliData.className.video + " .m-video-player"
       ).then(($app) => {
-        let check = function(__vue__) {
-          return __vue__ != null && typeof __vue__.playBtnNoOpenApp === "boolean" && typeof __vue__.playBtnOpenApp === "boolean" && typeof __vue__.coverOpenApp === "boolean";
-        };
-        utils.waitVueByInterval(
-          () => {
-            return document.querySelector(".m-video-player");
+        BilibiliUtils.waitVuePropToSet($app, [
+          {
+            msg: "设置参数 playBtnNoOpenApp",
+            check(vueObj) {
+              return typeof vueObj.playBtnNoOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.playBtnNoOpenApp = true;
+              log.success("成功设置参数 playBtnNoOpenApp=true");
+            }
           },
-          check,
-          250,
-          1e4
-        ).then(() => {
-          $app = document.querySelector(".m-video-player");
-          if (check($app.__vue__)) {
-            log.success(
-              "成功设置参数 playBtnNoOpenApp、playBtnOpenApp、coverOpenApp"
-            );
-            $app.__vue__.playBtnNoOpenApp = true;
-            $app.__vue__.playBtnOpenApp = false;
-            $app.__vue__.coverOpenApp = false;
+          {
+            msg: "设置参数 playBtnOpenApp",
+            check(vueObj) {
+              return typeof vueObj.playBtnOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.playBtnOpenApp = false;
+              log.success("成功设置参数 playBtnOpenApp=false");
+            }
+          },
+          {
+            msg: "设置参数 coverOpenApp",
+            check(vueObj) {
+              return typeof vueObj.coverOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.coverOpenApp = false;
+              log.success("成功设置参数 coverOpenApp=false");
+            }
           }
-        });
+        ]);
       });
     },
     /**
@@ -2279,41 +2290,41 @@
     setTinyApp() {
       utils.waitNode("#app").then(($app) => {
         log.info("设置tinyApp");
-        let check = function(vueObj) {
-          var _a2, _b, _c;
-          return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
-        };
-        utils.waitVueByInterval($app, check, 250, 1e4).then(() => {
-          let vueObj = BilibiliUtils.getVue($app);
-          if (vueObj == null) {
-            log.error("获取#app的vue属性失败");
-            return;
-          }
-          if (check(vueObj)) {
-            vueObj.$store.state.common.tinyApp = true;
-            log.success("成功设置参数 tinyApp");
-            setTimeout(() => {
-              if (!document.querySelector("#bilibiliPlayer video")) {
-                let checkInitPlayer = function(__vue__) {
-                  return typeof (__vue__ == null ? void 0 : __vue__.initPlayer) === "function";
-                };
+        BilibiliUtils.waitVuePropToSet($app, [
+          {
+            msg: "设置参数 $store.state.common.tinyApp",
+            check(vueObj) {
+              var _a2, _b, _c;
+              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
+            },
+            set(vueObj) {
+              vueObj.$store.state.common.tinyApp = true;
+              log.success("成功设置参数 $store.state.common.tinyApp=true");
+              setTimeout(() => {
+                let $playerVideo = document.querySelector(
+                  "#bilibiliPlayer video"
+                );
+                if (!$playerVideo) {
+                  return;
+                }
                 utils.waitNode(".m-video-player").then(($videoPlayer) => {
-                  utils.waitVueByInterval(
-                    $videoPlayer,
-                    checkInitPlayer,
-                    250,
-                    1e4
-                  ).then(() => {
-                    if (checkInitPlayer($videoPlayer.__vue__)) {
-                      log.success("成功调用函数 initPlayer()");
-                      $videoPlayer.__vue__.initPlayer();
+                  BilibiliUtils.waitVuePropToSet($videoPlayer, [
+                    {
+                      msg: "等待获取函数 initPlayer()",
+                      check(vueObj2) {
+                        return typeof (vueObj2 == null ? void 0 : vueObj2.initPlayer) === "function";
+                      },
+                      set(vueObj2) {
+                        vueObj2.initPlayer();
+                        log.success("成功调用函数 initPlayer()");
+                      }
                     }
-                  });
+                  ]);
                 });
-              }
-            }, 2e3);
+              }, 2e3);
+            }
           }
-        });
+        ]);
       });
     },
     /**
@@ -2321,12 +2332,16 @@
      */
     listenRouterChange() {
       utils.waitNode("#app").then(($app) => {
-        let check = function(__vue__) {
+        let check = function(vueObj) {
           var _a2;
-          return typeof ((_a2 = __vue__ == null ? void 0 : __vue__.$router) == null ? void 0 : _a2.afterEach) === "function";
+          return typeof ((_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.afterEach) === "function";
         };
-        utils.waitVueByInterval($app, check).then(() => {
-          if (check($app.__vue__)) {
+        utils.waitVueByInterval($app, check).then((result) => {
+          let vueObj = BilibiliUtils.getVue($app);
+          if (vueObj == null) {
+            return;
+          }
+          if (check(vueObj)) {
             log.success("成功设置监听路由变化");
             $app.__vue__.$router.afterEach(
               (to, from) => {
