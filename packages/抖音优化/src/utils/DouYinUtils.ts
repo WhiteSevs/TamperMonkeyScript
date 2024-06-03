@@ -1,4 +1,4 @@
-import { GM_addStyle } from "ViteGM";
+import { utils } from "@/env";
 
 export const DouYinUtils = {
 	/**
@@ -38,6 +38,6 @@ export const DouYinUtils = {
 				selectorList.push(selector);
 			}
 		});
-		GM_addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+		utils.addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 };

@@ -6,6 +6,7 @@ import {
 	GM_setValue,
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
+	GM_addStyle,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
@@ -45,6 +46,8 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
+const addStyle = utils.addStyle;
+
 export {
 	utils,
 	domUtils as DOMUtils,
@@ -53,4 +56,5 @@ export {
 	log,
 	GM_Menu,
 	SCRIPT_NAME,
+	addStyle,
 };

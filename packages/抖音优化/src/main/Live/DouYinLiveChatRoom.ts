@@ -1,7 +1,6 @@
-import { GM_addStyle } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "../../utils/DouYinElement";
-import { log } from "@/env";
+import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYinLiveChatRoom = {
@@ -31,7 +30,7 @@ const DouYinLiveChatRoom = {
 	shieldChatRoom() {
 		log.info("【屏蔽】评论区");
 		DouYinUtils.addBlockCSS("#chatroom");
-		GM_addStyle(`
+		addStyle(`
 		div[data-e2e="living-container"],
 		div[data-e2e="living-container"] > div{
 			margin-bottom: 0px !important;

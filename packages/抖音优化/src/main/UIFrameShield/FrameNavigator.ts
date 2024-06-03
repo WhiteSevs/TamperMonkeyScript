@@ -1,8 +1,7 @@
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "@/utils/DouYinElement";
 import { DouYinRouter } from "@/router/router";
-import { GM_addStyle } from "ViteGM";
-import { log } from "@/env";
+import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 /** 顶部屏蔽 */
@@ -143,7 +142,7 @@ const ShieldHeader = {
 	shieldLeftNavigator() {
 		log.info("【屏蔽】左侧导航栏");
 		DouYinUtils.addBlockCSS("#douyin-navigation");
-		GM_addStyle(`
+		addStyle(`
 		/* 修复顶部导航栏的宽度 */
 		#douyin-header{
 			width: 100%;
@@ -158,7 +157,7 @@ const ShieldHeader = {
 		DouYinUtils.addBlockCSS("#douyin-header");
 		if (DouYinRouter.isSearch()) {
 			/* 搜索页面 */
-			GM_addStyle(`
+			addStyle(`
 			/* 把搜索顶部的工具栏置顶 */
 			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
 				top: 0;

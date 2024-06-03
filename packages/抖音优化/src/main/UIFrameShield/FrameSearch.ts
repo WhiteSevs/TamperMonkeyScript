@@ -1,7 +1,6 @@
-import { GM_addStyle } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "../../utils/DouYinElement";
-import { log } from "@/env";
+import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const ShieldSearch = {
@@ -36,7 +35,7 @@ const ShieldSearch = {
 		DouYinUtils.addBlockCSS(
 			'#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
 		);
-		GM_addStyle(`
+		addStyle(`
 		#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
 			color: transparent;
 		}

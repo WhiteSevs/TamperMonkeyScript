@@ -1,5 +1,5 @@
-import { GM_addStyle, unsafeWindow } from "ViteGM";
-import { DOMUtils, log, pops, utils } from "@/env";
+import { unsafeWindow } from "ViteGM";
+import { DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { DouYinElement } from "../../utils/DouYinElement";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinVideoFilter } from "./DouYinVideoFilter";
@@ -61,7 +61,7 @@ const DouYinVideo = {
 			"xg-controls.xgplayer-controls"
 		);
 		DouYinVideoHideElement.shieldSearchFloatingBar();
-		GM_addStyle(`
+		addStyle(`
         /* 视频全屏 */
         xg-video-container.xg-video-container{
             bottom: 0px !important;
@@ -123,7 +123,7 @@ const DouYinVideo = {
 		}
 		autoChangeCommentPosition();
 		/* 2024.5.27 dy更名videoSideBar=>videoSideCard */
-		GM_addStyle(`
+		addStyle(`
 		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
 		html[${ATTRIBUTE_KEY}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
 			display: none !important;
@@ -384,7 +384,7 @@ const DouYinVideo = {
 		DouYin.initialScale();
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
 		DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
-		GM_addStyle(MobileCSS);
+		addStyle(MobileCSS);
 		if (DouYinRouter.isSearch()) {
 			PopsPanel.onceExec("douyin-search-mobileMode", () => {
 				DouYinSearch.mobileMode();

@@ -1,7 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "../../utils/DouYinElement";
-import { log } from "@/env";
-import { GM_addStyle } from "ViteGM";
+import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 
 const DouYinSearchHideElement = {
@@ -16,7 +15,7 @@ const DouYinSearchHideElement = {
 	shieldReleatedSearches() {
 		log.info("【屏蔽】相关搜索");
 		DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)");
-		GM_addStyle(`
+		addStyle(`
         #search-content-area > div > div:nth-child(1) > div:nth-child(1){
             width: 100dvw;
         }

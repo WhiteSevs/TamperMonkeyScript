@@ -1,11 +1,10 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinElement } from "@/utils/DouYinElement";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveDanmuku } from "./DouYinLiveDanmuku";
 import Qmsg from "qmsg";
 import { DouYinUtils } from "@/utils/DouYinUtils";
-import { GM_addStyle } from "ViteGM";
 
 /**
  * 直播画质
@@ -73,7 +72,7 @@ const DouYinLive = {
 			/* 全屏状态下的礼物栏 */
 			'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
 		);
-		GM_addStyle(`
+		addStyle(`
 		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
 		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
 			bottom: 0 !important;

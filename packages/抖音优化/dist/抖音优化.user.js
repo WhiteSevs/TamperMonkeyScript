@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.2.13
+// @version      2024.6.3
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.3/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -47,7 +47,6 @@
     return value;
   };
   var _a, _key, _isWaitPress;
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -82,6 +81,7 @@
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
+  const addStyle = utils.addStyle;
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -298,7 +298,7 @@
           selectorList.push(selector);
         }
       });
-      _GM_addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      utils.addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   };
   const DouYinDanmuFilter = {
@@ -993,7 +993,7 @@
         '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
         '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
       );
-      _GM_addStyle(`
+      addStyle(`
 		.basePlayerContainer .positionBox{
 			padding-right: 20px !important;
 		}
@@ -1035,7 +1035,7 @@
         /* 全屏下的右侧的切换播放 */
         ".xgplayer-playswitch"
       );
-      _GM_addStyle(`
+      addStyle(`
 		div[data-e2e="slideList"]{
 			/* 修复屏蔽后的视频宽度占据 */
 			padding: 0px !important;
@@ -1112,7 +1112,7 @@
     shieldBottomVideoToolBar() {
       log.info("【屏蔽】底部视频工具栏");
       DouYinUtils.addBlockCSS("xg-controls.xgplayer-controls");
-      _GM_addStyle(`
+      addStyle(`
 		div:has( > div > pace-island > #video-info-wrap ),
 		xg-video-container.xg-video-container{
 			bottom: 0 !important;
@@ -1132,7 +1132,7 @@
     shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
       DouYinUtils.addBlockCSS("#search-content-area > div > div:nth-child(2)");
-      _GM_addStyle(`
+      addStyle(`
         #search-content-area > div > div:nth-child(1) > div:nth-child(1){
             width: 100dvw;
         }
@@ -1149,16 +1149,15 @@
      */
     mobileMode() {
       log.info("搜索-手机模式");
-      _GM_addStyle(MobileCSS$1);
+      addStyle(MobileCSS$1);
       utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
         log.info("评论区展开的className：" + $relatedVideoCard.className);
-        _GM_addStyle(`
-			html[data-vertical-screen]
-				#sliderVideo[data-e2e="feed-active-video"]
-				#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
-					width: 100dvw !important;
-			}
-			`);
+        addStyle(`
+				html[data-vertical-screen]
+					#sliderVideo[data-e2e="feed-active-video"]
+					#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
+						width: 100dvw !important;
+				}`);
       });
     }
   };
@@ -1250,7 +1249,7 @@
         "xg-controls.xgplayer-controls"
       );
       DouYinVideoHideElement.shieldSearchFloatingBar();
-      _GM_addStyle(`
+      addStyle(`
         /* 视频全屏 */
         xg-video-container.xg-video-container{
             bottom: 0px !important;
@@ -1307,7 +1306,7 @@
         }
       }
       autoChangeCommentPosition();
-      _GM_addStyle(`
+      addStyle(`
 		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
 		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
 			display: none !important;
@@ -1565,7 +1564,7 @@
       log.info("启用手机模式");
       DouYin.initialScale();
       DouYinUtils.addBlockCSS("img#douyin-temp-sidebar");
-      _GM_addStyle(MobileCSS);
+      addStyle(MobileCSS);
       if (DouYinRouter.isSearch()) {
         PopsPanel.onceExec("douyin-search-mobileMode", () => {
           DouYinSearch.mobileMode();
@@ -2367,7 +2366,7 @@
     shieldLeftNavigator() {
       log.info("【屏蔽】左侧导航栏");
       DouYinUtils.addBlockCSS("#douyin-navigation");
-      _GM_addStyle(`
+      addStyle(`
 		/* 修复顶部导航栏的宽度 */
 		#douyin-header{
 			width: 100%;
@@ -2381,7 +2380,7 @@
       log.info("【屏蔽】顶部导航栏");
       DouYinUtils.addBlockCSS("#douyin-header");
       if (DouYinRouter.isSearch()) {
-        _GM_addStyle(`
+        addStyle(`
 			/* 把搜索顶部的工具栏置顶 */
 			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
 				top: 0;
@@ -2433,7 +2432,7 @@
       DouYinUtils.addBlockCSS(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
       );
-      _GM_addStyle(`
+      addStyle(`
 		#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
 			color: transparent;
 		}
@@ -2655,7 +2654,7 @@
     shieldChatRoom() {
       log.info("【屏蔽】评论区");
       DouYinUtils.addBlockCSS("#chatroom");
-      _GM_addStyle(`
+      addStyle(`
 		div[data-e2e="living-container"],
 		div[data-e2e="living-container"] > div{
 			margin-bottom: 0px !important;
@@ -2751,7 +2750,7 @@
         /* 全屏状态下的礼物栏 */
         'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"])'
       );
-      _GM_addStyle(`
+      addStyle(`
 		/* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
 		div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
 			bottom: 0 !important;
