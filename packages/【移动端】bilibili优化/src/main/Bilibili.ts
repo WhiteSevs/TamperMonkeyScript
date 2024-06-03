@@ -1,5 +1,5 @@
 import "./Bilibili.css";
-import "./BilibiliBeautify.css";
+import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
 import { log, utils } from "@/env";
@@ -12,6 +12,9 @@ import { BilibiliTopicDetail } from "./topic-detail/BilibiliTopicDetail";
 import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
 import { BilibiliHead } from "./head/BilibiliHead";
+import { GM_addStyle } from "ViteGM";
+import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
 
 const Bilibili = {
 	init() {
@@ -34,6 +37,10 @@ const Bilibili = {
 		PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
 			log.info("覆盖元素.launch-app-btn上的openApp");
 			BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
+		});
+		PopsPanel.execMenuOnce("bili-head-beautify", () => {
+			log.info("添加美化CSS");
+			GM_addStyle(BilibiliBeautifyCSS);
 		});
 		if (BilibiliRouter.isVideo()) {
 			log.info("Router: 视频稿件");
@@ -66,51 +73,122 @@ const Bilibili = {
 	/**
 	 * 设置登录
 	 *
-	 * + __vue__.$store.state.common.noCallApp: `true`
-	 * + __vue__.$store.state.common.userInfo.isLogin: `true`
+	 * + $store.state.common.noCallApp
+	 * + $store.state.common.userInfo.isLogin
+	 * + $store.state.loginInfo.isLogin
 	 */
 	setLogin() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app) => {
-			let check = function (__vue__: any) {
-				return (
-					__vue__ != null &&
-					typeof __vue__?.$store?.state?.common?.noCallApp === "boolean" &&
-					typeof __vue__?.$store?.state?.common?.userInfo?.isLogin === "boolean"
-				);
-			};
-			utils.waitVueByInterval($app, check, 250, 10000).then(() => {
-				if (check(($app as any).__vue__)) {
-					log.success("成功设置参数 noCallApp isLogin");
-					($app as any).__vue__.$store.state.common.noCallApp = true;
-					($app as any).__vue__.$store.state.common.userInfo.isLogin = true;
-				}
-			});
+			BilibiliUtils.waitVuePropToSet($app, [
+				{
+					msg: "设置参数 $store.state.common.noCallApp",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof vueObj?.$store?.state?.common?.noCallApp === "boolean"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数 $store.state.common.noCallApp=true");
+						vueObj.$store.state.common.noCallApp = true;
+					},
+				},
+				{
+					msg: "设置参数 $store.state.common.userInfo.isLogin",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof vueObj?.$store?.state?.common?.userInfo?.isLogin ===
+							"boolean"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success(
+							"成功设置参数 $store.state.common.userInfo.isLogin=true"
+						);
+						vueObj.$store.state.common.userInfo.isLogin = true;
+					},
+				},
+				{
+					msg: "设置参数 $store.state.loginInfo.isLogin",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof vueObj?.$store?.state?.loginInfo?.isLogin === "boolean"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
+						vueObj.$store.state.loginInfo.isLogin = true;
+					},
+				},
+			]);
 		});
 	},
 	/**
 	 * 设置为客户端(不确定是否有用)
 	 *
-	 * + __vue__.$store.state.video.isClient: `true`
-	 * + __vue__.$store.state.opus.isClient: `true`
-	 * + __vue__.$store.state.playlist.isClient: `true`
+	 * + $store.state.video.isClient
+	 * + $store.state.opus.isClient
+	 * + $store.state.playlist.isClient
+	 * + $store.state.ver.bili
+	 * + $store.state.ver.biliVer 2333333
 	 */
 	setIsClient() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app) => {
-			let check = function (__vue__: any) {
-				return (
-					__vue__ != null &&
-					typeof __vue__?.$store?.state?.video?.isClient === "boolean" &&
-					typeof __vue__?.$store?.state?.opus?.isClient === "boolean" &&
-					typeof __vue__?.$store?.state?.playlist?.isClient === "boolean"
-				);
-			};
-			utils.waitVueByInterval($app, check, 250, 10000).then(() => {
-				if (check(($app as any).__vue__)) {
-					($app as any).__vue__.$store.state.video.isClient = true;
-					($app as any).__vue__.$store.state.opus.isClient = true;
-					($app as any).__vue__.$store.state.playlist.isClient = true;
-				}
-			});
+			BilibiliUtils.waitVuePropToSet($app, [
+				{
+					msg: "设置参数 $store.state.video.isClient",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof typeof vueObj?.$store?.state?.video?.isClient === "boolean"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数 $store.state.video.isClient=true");
+						vueObj.$store.state.video.isClient = true;
+					},
+				},
+				{
+					msg: "设置参数 $store.state.opus.isClient=true",
+					check(vueObj: Vue2Context) {
+						return typeof vueObj?.$store?.state?.opus?.isClient === "boolean";
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数 $store.state.opus.isClient");
+						vueObj.$store.state.opus.isClient = true;
+					},
+				},
+				{
+					msg: "设置参数  $store.state.playlist.isClient",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof vueObj?.$store?.state?.playlist?.isClient === "boolean"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数  $store.state.playlist.isClient=true");
+						vueObj.$store.state.playlist.isClient = true;
+					},
+				},
+				{
+					msg: "设置参数  $store.state.ver.bili",
+					check(vueObj: Vue2Context) {
+						return typeof vueObj?.$store?.state?.ver?.bili === "boolean";
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数  $store.state.ver.bili=true");
+						vueObj.$store.state.ver.bili = true;
+					},
+				},
+				{
+					msg: "设置参数  $store.state.ver.biliVer",
+					check(vueObj: Vue2Context) {
+						return typeof vueObj?.$store?.state?.ver?.biliVer === "number";
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数  $store.state.ver.biliVer=2333333");
+						vueObj.$store.state.ver.biliVer = 2333333;
+					},
+				},
+			]);
 		});
 	},
 	/**
@@ -120,12 +198,14 @@ const Bilibili = {
 	 */
 	setTinyApp() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
-			let check = function (__vue__: any) {
-				return typeof __vue__?.$store?.state?.common?.tinyApp === "boolean";
+			log.info("设置tinyApp");
+			let check = function (vueObj: any) {
+				return typeof vueObj?.$store?.state?.common?.tinyApp === "boolean";
 			};
 			utils.waitVueByInterval($app, check, 250, 10000).then(() => {
-				if (check($app.__vue__)) {
-					$app.__vue__.$store.state.common.tinyApp = true;
+				let vueObj = BilibiliUtils.getVue($app);
+				if (check(vueObj)) {
+					vueObj.$store.state.common.tinyApp = true;
 					log.success("成功设置参数 tinyApp");
 					setTimeout(() => {
 						if (!document.querySelector("#bilibiliPlayer video")) {

@@ -1,0 +1,72 @@
+#app .video {
+	/* 下面的推荐视频卡片 */
+	.video-list .card-box {
+		--left-card-width: 33%;
+		--right-child-padding: 1.333vmin;
+		.v-card-toapp {
+			width: 100%;
+			border-bottom: 1px solid #b5b5b5;
+			padding-left: 0;
+			padding-right: 0;
+
+			> a {
+				display: flex;
+				flex-wrap: nowrap;
+				.card {
+					width: var(--left-card-width);
+					height: 80px;
+					flex: 0 auto;
+					.count {
+						background: transparent;
+						.left {
+							display: list-item;
+							span.item {
+								display: none;
+							}
+						}
+
+						.duration {
+							background: rgba(0, 0, 0, 0.4);
+							border-radius: 0.6vmin;
+							padding: 0px 0.5vmin;
+							right: 1vmin;
+							bottom: 1vmin;
+						}
+					}
+				}
+
+				.title {
+					flex: 1;
+					padding: var(--right-child-padding);
+					margin-top: 0;
+				}
+
+				/* 开启了bili-video-beautify */
+				.gm-right-container {
+					display: flex;
+					flex-direction: column;
+					width: calc(100% - var(--left-card-width));
+					> * {
+						padding: var(--right-child-padding);
+					}
+					.left {
+					}
+					.gm-up-name,
+					.left {
+						color: #999;
+						font-size: 3vmin;
+						transform-origin: left;
+						display: flex;
+						align-items: safe center;
+					}
+					.gm-up-name-text {
+						margin-left: 1vmin;
+					}
+					.num{
+						margin-right: 4vmin;
+					}
+				}
+			}
+		}
+	}
+}

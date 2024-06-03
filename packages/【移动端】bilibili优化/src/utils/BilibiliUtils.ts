@@ -1,8 +1,22 @@
-import { log } from "@/env";
+import { log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import Qmsg from "qmsg";
 
+interface WaitSetVuePropOption {
+	/**
+	 * 在检测前输出日志
+	 */
+	msg?: string;
+	/**
+	 * 检测属性的函数
+	 */
+	check(vueObj: Vue2Context): boolean;
+	/**
+	 * 进行设置
+	 */
+	set(vueObj: Vue2Context): void;
+}
 export const BilibiliUtils = {
 	/**
 	 * 获取元素上的__vue__属性
@@ -11,6 +25,25 @@ export const BilibiliUtils = {
 	 */
 	getVue(element: HTMLElement | Node | Element) {
 		return (element as any).__vue__ as Vue2Context;
+	},
+	/**
+	 * 等待vue属性并进行设置
+	 */
+	waitVuePropToSet($vue: HTMLElement, needSetList: WaitSetVuePropOption[]) {
+		needSetList.forEach((needSetOption) => {
+			if (typeof needSetOption.msg === "string") {
+				log.info(needSetOption.msg);
+			}
+			utils
+				.waitVueByInterval($vue, needSetOption.check, 250, 10000)
+				.then((result) => {
+					if (!result) {
+						return;
+					}
+					let vueObj = BilibiliUtils.getVue($vue);
+					needSetOption.set(vueObj);
+				});
+		});
 	},
 	/**
 	 * 前往网址

@@ -4,6 +4,7 @@ import { unsafeWindow } from "ViteGM";
 import { Qmsg } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliData } from "@/data/BlibiliData";
+import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 
 const BilibiliOpenApp = {
 	getUrl($ele: HTMLElement | null | Element) {
@@ -70,23 +71,40 @@ const BilibiliBangumi = {
 	/**
 	 * 设置已购买番剧(会员？)
 	 *
-	 * + __vue__.$store.state.userStat.pay `1`
+	 * + $store.state.userStat.pay 1
+	 * + $store.state.mediaInfo.user_status.pay 1
 	 */
 	setPay() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
-			let checkProperty = function (__vue__: any) {
-				return (
-					__vue__ != null &&
-					typeof __vue__?.$store?.state?.userStat?.pay === "number"
-				);
-			};
-			utils.waitVueByInterval($app, checkProperty, 250, 10000).then(() => {
-				let vueObj = BilibiliUtils.getVue($app);
-				if (checkProperty(vueObj)) {
-					log.success("成功设置参数 pay");
-					vueObj.$store.state.userStat.pay = 1;
-				}
-			});
+			BilibiliUtils.waitVuePropToSet($app, [
+				{
+					msg: "设置参数 $store.state.userStat.pay",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof typeof vueObj?.$store?.state?.userStat?.pay === "number"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success("成功设置参数 $store.state.userStat.pay=1");
+						vueObj.$store.state.userStat.pay = 1;
+					},
+				},
+				{
+					msg: "设置参数 $store.state.mediaInfo.user_status.pay",
+					check(vueObj: Vue2Context) {
+						return (
+							typeof vueObj?.$store?.state?.mediaInfo?.user_status?.pay ===
+							"number"
+						);
+					},
+					set(vueObj: Vue2Context) {
+						log.success(
+							"成功设置参数 $store.state.mediaInfo.user_status.pay=1"
+						);
+						vueObj.$store.state.mediaInfo.user_status.pay = 1;
+					},
+				},
+			]);
 		});
 	},
 	/**

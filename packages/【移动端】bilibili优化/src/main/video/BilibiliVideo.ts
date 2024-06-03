@@ -5,8 +5,12 @@ import { GM_addStyle } from "ViteGM";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliData } from "@/data/BlibiliData";
+import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
 
 const BilibiliVideo = {
+	$data: {
+		isAddBeautifyCSS: false,
+	},
 	init() {
 		/* 执行hook */
 		BilibiliVideoHook.init();
@@ -23,9 +27,91 @@ const BilibiliVideo = {
 				this.autoClickContinueToWatchOnTheWebpage();
 			}
 		);
+		PopsPanel.execMenu("bili-video-beautify", () => {
+			this.beautify();
+		});
 		PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
 			this.coverBottomRecommendVideo();
 		});
+	},
+	/**
+	 * 美化
+	 */
+	beautify() {
+		log.info("美化");
+		/* 先添加美化CSS */
+		if (!this.$data.isAddBeautifyCSS) {
+			this.$data.isAddBeautifyCSS = true;
+			GM_addStyle(BilibiliVideoBeautifyCSS);
+		}
+
+		utils
+			.waitNode<HTMLDivElement>(
+				BilibiliData.className.video + " .bottom-tab .list-view .card-box",
+				10000
+			)
+			.then(($cardBox) => {
+				if (!$cardBox) {
+					log.error("$cardBox is null");
+					return;
+				}
+				let lockFunc = new utils.LockFunction(() => {
+					document
+						.querySelectorAll<HTMLDivElement>(
+							BilibiliData.className.video +
+								" .bottom-tab .list-view .card-box .v-card-toapp"
+						)
+						.forEach(($vCard) => {
+							let $title = $vCard.querySelector<HTMLElement>(".title");
+							let $left = $vCard.querySelector<HTMLDivElement>(".count .left");
+							let vueObj = BilibiliUtils.getVue($vCard);
+							if (
+								$title &&
+								$left &&
+								!$vCard.querySelector(".gm-right-container")
+							) {
+								let $upInfo = document.createElement("div");
+								let upName = vueObj?.info?.owner?.name;
+								$upInfo.className = "gm-up-name";
+								$upInfo.innerHTML = `
+								<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+									<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+									</path>
+								</svg>
+								<span class="gm-up-name-text">${upName}</span>
+								`;
+								let $rightContainer = document.createElement("div");
+								let $rightBottom = document.createElement("div");
+								$rightContainer.className = "gm-right-container";
+								$rightBottom.className = "gm-right-bottom";
+								DOMUtils.after($title, $rightContainer);
+								/* 标题 */
+								$rightContainer.appendChild($title);
+
+								/* 底部内容 */
+								$rightContainer.appendChild($rightBottom);
+								/* UP主 */
+								$rightBottom.appendChild($upInfo);
+								/* 播放量 弹幕量 */
+								$rightBottom.appendChild($left);
+							}
+						});
+				}, 25);
+				utils.mutationObserver(
+					document.querySelector(BilibiliData.className.video) as any,
+					{
+						config: {
+							subtree: true,
+							childList: true,
+						},
+						callback() {
+							setTimeout(() => {
+								lockFunc.run();
+							}, 0);
+						},
+					}
+				);
+			});
 	},
 	/**
 	 * 修改视频播放器设置参数

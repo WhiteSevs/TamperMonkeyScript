@@ -9,7 +9,14 @@ export const SettingUIHead: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch(
-					"补充视频信息",
+					"美化显示",
+					"bili-head-beautify",
+					true,
+					void 0,
+					"调整瀑布流视频卡片样式类似哔哩哔哩App"
+				),
+				UISwitch(
+					"补充推荐视频信息",
 					"bili-head-supplementaryVideoStreamingInformation",
 					true,
 					void 0,

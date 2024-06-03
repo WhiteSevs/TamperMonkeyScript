@@ -4,6 +4,11 @@
 	--bg-rever-color: #ffffff;
 	--pd-width: 1.3333vmin;
 	--bd-circle: 1.3333vmin;
+	--card-height: 30vmin;
+	--icon-font-size: 3.2vmin;
+	--icon-text-font-size: 2.6vmin;
+	--icon-font-margin-right: 3vmin;
+	--title-font-size: 2.8vmin;
 
 	background-color: var(--bg-color);
 	.m-home {
@@ -26,19 +31,20 @@
 				border-radius: unset;
 				border-top-left-radius: var(--bd-circle);
 				border-top-right-radius: var(--bd-circle);
+				height: var(--card-height);
 
 				.count {
 					display: flex;
 					justify-content: safe flex-start;
 					padding-right: 0;
 
-					.iconfont{
-						font-size: 3.2vmin;
+					.iconfont {
+						font-size: var(--icon-text-font-size);
 					}
 
 					> span {
-						font-size: 2.2vmin;
-						margin-right: 3vmin;
+						font-size: var(--icon-text-font-size);
+						margin-right: var(--icon-font-margin-right);
 					}
 				}
 			}
@@ -46,7 +52,7 @@
 			.title {
 				padding: 0;
 				margin: var(--pd-width);
-				font-size: 2.8vmin;
+				font-size: var(--title-font-size);
 			}
 		}
 		/* 两列 => 左边的 */

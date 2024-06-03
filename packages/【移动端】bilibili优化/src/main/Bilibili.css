@@ -53,10 +53,10 @@
 }
 
 /* 动态 */
-#app .m-dynamic{
+#app .m-dynamic {
 	/* 右上角 下载App */
 	.launch-app-btn.m-nav-openapp,
-	.dynamic-float-openapp.dynamic-float-btn{
+	.dynamic-float-openapp.dynamic-float-btn {
 		display: none !important;
 	}
 }
@@ -81,6 +81,14 @@
 	.launch-app-btn.m-nav-openapp ,
 	/* 中间底部 App内打开 */
 	.launch-app-btn.m-topic-float-openapp {
+		display: none !important;
+	}
+}
+
+/* 番剧 */
+#app.main-container {
+	/* 右上角 下载App */
+	bili-open-app.btn-download {
 		display: none !important;
 	}
 }

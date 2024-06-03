@@ -26,6 +26,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 					void 0,
 					"可避免弹窗出现且自动点击后播放视频"
 				),
+				UISwitch(
+					"美化显示",
+					"bili-video-beautify",
+					true,
+					void 0,
+					"调整底部推荐视频卡片样式类似哔哩哔哩App"
+				),
 			],
 		},
 		{
