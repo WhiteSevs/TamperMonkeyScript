@@ -121,6 +121,13 @@ export declare interface Vue2Context extends AnyObject {
 		mode: string;
 		resolveHooks: ((...args: any[]) => any)[];
 		currentRoute: AnyObject;
+
+		/**
+		 * 传空就移除上一个监听
+		 */
+		afterEach:
+			| ((to: Vue2Context["$route"], from: Vue2Context["$route"]) => void)
+			| null;
 	};
 	$ssrContext: AnyObject;
 

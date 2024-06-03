@@ -303,8 +303,8 @@ System.register('Utils', [], (function (exports) {
                 }
                 /**
                  *  获取多组Cookie
-                 * @param paramDetails
-                 * @param callback
+                 * @param paramDetails 配置
+                 * @param callback 获取操作后的回调
                  * + cookies object[]
                  * + error string|undefined
                  **/
@@ -358,7 +358,7 @@ System.register('Utils', [], (function (exports) {
                 }
                 /**
                  *  获取多组Cookie
-                 * @param paramDetails
+                 * @param paramDetails 配置
                  **/
                 getList(paramDetails) {
                     if (paramDetails == null) {
@@ -401,10 +401,10 @@ System.register('Utils', [], (function (exports) {
                 }
                 /**
                  * 设置Cookie
-                 * @param paramDetails
-                 * @param callback
+                 * @param paramDetails 配置
+                 * @param callback 设置操作后的回调(成功/失败)
                  */
-                set(paramDetails = {}, callback = (error) => { }) {
+                set(paramDetails, callback = (error) => { }) {
                     try {
                         let details = {
                             url: window.location.href,
@@ -438,10 +438,10 @@ System.register('Utils', [], (function (exports) {
                 }
                 /**
                  * 删除Cookie
-                 * @param paramDetails
-                 * @param callback
+                 * @param paramDetails 配置
+                 * @param callback 删除操作后的回调(成功/失败)
                  */
-                delete(paramDetails = {}, callback = (error) => { }) {
+                delete(paramDetails, callback = (error) => { }) {
                     try {
                         let details = {
                             url: window.location.href,
