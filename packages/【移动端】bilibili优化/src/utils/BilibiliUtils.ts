@@ -24,7 +24,7 @@ export const BilibiliUtils = {
 	 * @returns
 	 */
 	getVue(element: HTMLElement | Node | Element) {
-		return (element as any).__vue__ as Vue2Context;
+		return (element as any)?.__vue__ as Vue2Context | null;
 	},
 	/**
 	 * 等待vue属性并进行设置
@@ -34,15 +34,24 @@ export const BilibiliUtils = {
 			if (typeof needSetOption.msg === "string") {
 				log.info(needSetOption.msg);
 			}
-			utils
-				.waitVueByInterval($vue, needSetOption.check, 250, 10000)
-				.then((result) => {
-					if (!result) {
-						return;
-					}
-					let vueObj = BilibiliUtils.getVue($vue);
-					needSetOption.set(vueObj);
-				});
+			function checkVue(ele: any) {
+				let vueObj = BilibiliUtils.getVue(ele);
+				if (vueObj == null) {
+					return false;
+				}
+				let needOwnCheck = needSetOption.check(vueObj);
+				return Boolean(needOwnCheck);
+			}
+			utils.waitVueByInterval($vue, checkVue, 250, 10000).then((result) => {
+				if (!result) {
+					return;
+				}
+				let vueObj = BilibiliUtils.getVue($vue);
+				if (vueObj == null) {
+					return;
+				}
+				needSetOption.set(vueObj);
+			});
 		});
 	},
 	/**
@@ -53,9 +62,15 @@ export const BilibiliUtils = {
 		let $app = document.querySelector<HTMLDivElement>("#app");
 		if ($app == null) {
 			Qmsg.error("跳转Url: 获取根元素#app失败");
+			log.error("跳转Url: 获取根元素#app失败：" + path);
 			return;
 		}
 		let vueObj = BilibiliUtils.getVue($app);
+		if (vueObj == null) {
+			log.error("获取#app的vue属性失败");
+			Qmsg.error("获取#app的vue属性失败");
+			return;
+		}
 		let $router = vueObj.$router;
 		let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
 		log.info("即将跳转URL：" + path);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.3.20
+// @version      2024.6.3.22
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -866,7 +866,7 @@
      * @returns
      */
     getVue(element) {
-      return element.__vue__;
+      return element == null ? void 0 : element.__vue__;
     },
     /**
      * 等待vue属性并进行设置
@@ -876,11 +876,22 @@
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        utils.waitVueByInterval($vue, needSetOption.check, 250, 1e4).then((result) => {
+        function checkVue(ele) {
+          let vueObj = BilibiliUtils.getVue(ele);
+          if (vueObj == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(vueObj);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitVueByInterval($vue, checkVue, 250, 1e4).then((result) => {
           if (!result) {
             return;
           }
           let vueObj = BilibiliUtils.getVue($vue);
+          if (vueObj == null) {
+            return;
+          }
           needSetOption.set(vueObj);
         });
       });
@@ -893,9 +904,15 @@
       let $app = document.querySelector("#app");
       if ($app == null) {
         Qmsg.error("跳转Url: 获取根元素#app失败");
+        log.error("跳转Url: 获取根元素#app失败：" + path);
         return;
       }
       let vueObj = BilibiliUtils.getVue($app);
+      if (vueObj == null) {
+        log.error("获取#app的vue属性失败");
+        Qmsg.error("获取#app的vue属性失败");
+        return;
+      }
       let $router = vueObj.$router;
       let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
       log.info("即将跳转URL：" + path);
@@ -1388,18 +1405,36 @@
     gestureReturnToCloseCommentArea() {
       log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
       utils.waitNode("#app").then(($app) => {
-        let appVue = BilibiliUtils.getVue($app);
-        let oldScrollBehavior = appVue.$router.options.scrollBehavior;
-        appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
-          if (to["hash"] === "#/seeCommentReply") {
-            log.info("当前操作为打开评论区，scrollBehavior返回null");
-            return null;
-          } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
-            log.info("当前操作为关闭评论区，scrollBehavior返回null");
-            return null;
+        utils.waitVueByInterval(
+          $app,
+          () => {
+            var _a2, _b;
+            let vueObj = BilibiliUtils.getVue($app);
+            if (vueObj == null) {
+              return false;
+            }
+            return typeof ((_b = (_a2 = vueObj == null ? void 0 : vueObj.$router) == null ? void 0 : _a2.options) == null ? void 0 : _b.scrollBehavior) != null;
+          },
+          250,
+          1e4
+        ).then((result) => {
+          let appVue = BilibiliUtils.getVue($app);
+          if (!appVue) {
+            log.error("获取#app的vue属性失败");
+            return;
           }
-          return oldScrollBehavior.call(this, ...arguments);
-        };
+          let oldScrollBehavior = appVue.$router.options.scrollBehavior;
+          appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
+            if (to["hash"] === "#/seeCommentReply") {
+              log.info("当前操作为打开评论区，scrollBehavior返回null");
+              return null;
+            } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
+              log.info("当前操作为关闭评论区，scrollBehavior返回null");
+              return null;
+            }
+            return oldScrollBehavior.call(this, ...arguments);
+          };
+        });
       });
       domutils.on(document, "click", ".sub-reply-preview", function(event) {
         let $app = document.querySelector("#app");
@@ -2250,6 +2285,10 @@
         };
         utils.waitVueByInterval($app, check, 250, 1e4).then(() => {
           let vueObj = BilibiliUtils.getVue($app);
+          if (vueObj == null) {
+            log.error("获取#app的vue属性失败");
+            return;
+          }
           if (check(vueObj)) {
             vueObj.$store.state.common.tinyApp = true;
             log.success("成功设置参数 tinyApp");

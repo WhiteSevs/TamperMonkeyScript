@@ -156,7 +156,7 @@ const BilibiliHook = {
 			},
 			callback() {
 				document
-					.querySelectorAll(".launch-app-btn")
+					.querySelectorAll<HTMLDivElement>(".launch-app-btn")
 					.forEach(($launchAppBtn) => {
 						let vueObj = BilibiliUtils.getVue($launchAppBtn);
 						if (!vueObj) {

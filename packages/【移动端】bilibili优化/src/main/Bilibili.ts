@@ -217,11 +217,15 @@ const Bilibili = {
 	setTinyApp() {
 		utils.waitNode<HTMLDivElement>("#app").then(($app: any) => {
 			log.info("设置tinyApp");
-			let check = function (vueObj: any) {
+			let check = function (vueObj: Vue2Context) {
 				return typeof vueObj?.$store?.state?.common?.tinyApp === "boolean";
 			};
 			utils.waitVueByInterval($app, check, 250, 10000).then(() => {
 				let vueObj = BilibiliUtils.getVue($app);
+				if (vueObj == null) {
+					log.error("获取#app的vue属性失败");
+					return;
+				}
 				if (check(vueObj)) {
 					vueObj.$store.state.common.tinyApp = true;
 					log.success("成功设置参数 tinyApp");

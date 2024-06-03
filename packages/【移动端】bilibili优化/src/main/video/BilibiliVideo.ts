@@ -252,28 +252,50 @@ const BilibiliVideo = {
 	 */
 	gestureReturnToCloseCommentArea() {
 		log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-		utils.waitNode("#app").then(($app) => {
-			let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
-			let oldScrollBehavior = appVue.$router.options.scrollBehavior;
-			appVue.$router.options.scrollBehavior = function (
-				to: Vue2Context["$route"],
-				from: Vue2Context["$route"],
-				scrollInfo?: {
-					x: number;
-					y: number;
-				}
-			) {
-				if (to["hash"] === "#/seeCommentReply") {
-					/* 打开评论区 */
-					log.info("当前操作为打开评论区，scrollBehavior返回null");
-					return null;
-				} else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
-					/* 关闭评论区 */
-					log.info("当前操作为关闭评论区，scrollBehavior返回null");
-					return null;
-				}
-				return oldScrollBehavior.call(this, ...arguments);
-			};
+		utils.waitNode<HTMLDivElement>("#app").then(($app) => {
+			utils
+				.waitVueByInterval(
+					$app,
+					() => {
+						let vueObj = BilibiliUtils.getVue($app as HTMLDivElement);
+						if (vueObj == null) {
+							return false;
+						}
+						return typeof vueObj?.$router?.options?.scrollBehavior != null;
+					},
+					250,
+					10000
+				)
+				.then((result) => {
+					let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
+					if (!appVue) {
+						log.error("获取#app的vue属性失败");
+						return;
+					}
+					let oldScrollBehavior = appVue.$router.options.scrollBehavior;
+					appVue.$router.options.scrollBehavior = function (
+						to: Vue2Context["$route"],
+						from: Vue2Context["$route"],
+						scrollInfo?: {
+							x: number;
+							y: number;
+						}
+					) {
+						if (to["hash"] === "#/seeCommentReply") {
+							/* 打开评论区 */
+							log.info("当前操作为打开评论区，scrollBehavior返回null");
+							return null;
+						} else if (
+							to["hash"] === "" &&
+							from["hash"] === "#/seeCommentReply"
+						) {
+							/* 关闭评论区 */
+							log.info("当前操作为关闭评论区，scrollBehavior返回null");
+							return null;
+						}
+						return oldScrollBehavior.call(this, ...arguments);
+					};
+				});
 		});
 		DOMUtils.on(document, "click", ".sub-reply-preview", function (event) {
 			let $app = document.querySelector<HTMLDivElement>("#app");
