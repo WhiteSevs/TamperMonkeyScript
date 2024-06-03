@@ -252,34 +252,30 @@ const BilibiliVideo = {
 	 */
 	gestureReturnToCloseCommentArea() {
 		log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-		/**
-		 * 获取滚动高度
-		 */
-		function getScrollHeight() {
-			return document.documentElement.scrollTop || document.body.scrollTop;
-		}
-		/**
-		 * 在3秒内重复固定滚动高度
-		 */
-		function intervalSetScrollHeight() {
-			let scrollHeight = getScrollHeight();
-			/* 点击评论区会自动滚动到上面，关闭评论区会返回原先的高度 */
-			log.info("当前页面滚动距离：" + scrollHeight);
-			let intervalId = setInterval(() => {
-				document.documentElement.scrollTo(0, scrollHeight);
-			}, 250);
-
-			let clearIntervalSetScrollHeight = function () {
-				clearInterval(intervalId);
+		utils.waitNode("#app").then(($app) => {
+			let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
+			let oldScrollBehavior = appVue.$router.options.scrollBehavior;
+			appVue.$router.options.scrollBehavior = function (
+				to: Vue2Context["$route"],
+				from: Vue2Context["$route"],
+				scrollInfo?: {
+					x: number;
+					y: number;
+				}
+			) {
+				if (to["hash"] === "#/seeCommentReply") {
+					/* 打开评论区 */
+					log.info("当前操作为打开评论区，scrollBehavior返回null");
+					return null;
+				} else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
+					/* 关闭评论区 */
+					log.info("当前操作为关闭评论区，scrollBehavior返回null");
+					return null;
+				}
+				return oldScrollBehavior.call(this, ...arguments);
 			};
-			setTimeout(() => {
-				/* 3秒后清除重复设置高度 */
-				clearIntervalSetScrollHeight();
-			}, 3000);
-			return clearIntervalSetScrollHeight;
-		}
+		});
 		DOMUtils.on(document, "click", ".sub-reply-preview", function (event) {
-			let clearIntervalSetScrollHeight = intervalSetScrollHeight();
 			let $app = document.querySelector<HTMLDivElement>("#app");
 			let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
 			if (!appVue) {
@@ -294,7 +290,6 @@ const BilibiliVideo = {
 						if (!isFromPopState) {
 							return false;
 						}
-						clearIntervalSetScrollHeight();
 						let $dialogCloseIcon =
 							document.querySelector<HTMLDivElement>(".dialog-close-icon");
 						if ($dialogCloseIcon) {

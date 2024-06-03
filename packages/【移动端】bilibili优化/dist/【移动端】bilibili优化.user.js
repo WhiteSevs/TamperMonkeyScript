@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.3.19
+// @version      2024.6.3.20
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -1387,25 +1387,21 @@
      */
     gestureReturnToCloseCommentArea() {
       log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-      function getScrollHeight() {
-        return document.documentElement.scrollTop || document.body.scrollTop;
-      }
-      function intervalSetScrollHeight() {
-        let scrollHeight = getScrollHeight();
-        log.info("当前页面滚动距离：" + scrollHeight);
-        let intervalId = setInterval(() => {
-          document.documentElement.scrollTo(0, scrollHeight);
-        }, 250);
-        let clearIntervalSetScrollHeight = function() {
-          clearInterval(intervalId);
+      utils.waitNode("#app").then(($app) => {
+        let appVue = BilibiliUtils.getVue($app);
+        let oldScrollBehavior = appVue.$router.options.scrollBehavior;
+        appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
+          if (to["hash"] === "#/seeCommentReply") {
+            log.info("当前操作为打开评论区，scrollBehavior返回null");
+            return null;
+          } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
+            log.info("当前操作为关闭评论区，scrollBehavior返回null");
+            return null;
+          }
+          return oldScrollBehavior.call(this, ...arguments);
         };
-        setTimeout(() => {
-          clearIntervalSetScrollHeight();
-        }, 3e3);
-        return clearIntervalSetScrollHeight;
-      }
+      });
       domutils.on(document, "click", ".sub-reply-preview", function(event) {
-        let clearIntervalSetScrollHeight = intervalSetScrollHeight();
         let $app = document.querySelector("#app");
         let appVue = BilibiliUtils.getVue($app);
         if (!appVue) {
@@ -1419,7 +1415,6 @@
             if (!isFromPopState) {
               return false;
             }
-            clearIntervalSetScrollHeight();
             let $dialogCloseIcon = document.querySelector(".dialog-close-icon");
             if ($dialogCloseIcon) {
               $dialogCloseIcon.click();
