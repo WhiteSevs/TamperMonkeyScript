@@ -252,57 +252,75 @@ const BilibiliVideo = {
 	 */
 	gestureReturnToCloseCommentArea() {
 		log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
-		DOMUtils.on(
-			document,
-			"click",
-			".sub-reply-preview",
-			function (event) {
-				let $app = document.querySelector<HTMLDivElement>("#app");
-				let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
-				if (!appVue) {
-					log.error("获取#app元素失败");
-					return;
-				}
-				let hookGestureReturnByVueRouter =
-					BilibiliUtils.hookGestureReturnByVueRouter({
-						vueObj: appVue,
-						hash: "#/seeCommentReply",
-						callback(isFromPopState) {
-							if (!isFromPopState) {
-								return false;
-							}
-							let $dialogCloseIcon =
-								document.querySelector<HTMLDivElement>(".dialog-close-icon");
-							if ($dialogCloseIcon) {
-								$dialogCloseIcon.click();
-							} else {
-								log.error(
-									"评论区关闭失败，原因：元素dialog-close-icon获取失败"
-								);
-							}
-							return true;
-						},
-					});
-				utils
-					.waitNode<HTMLDivElement>(".dialog-close-icon")
-					.then(($dialogCloseIcon) => {
-						DOMUtils.on(
-							$dialogCloseIcon,
-							"click",
-							function () {
-								hookGestureReturnByVueRouter.resumeBack(false);
-							},
-							{
-								capture: true,
-								once: true,
-							}
-						);
-					});
-			},
-			{
-				capture: true,
+		/**
+		 * 获取滚动高度
+		 */
+		function getScrollHeight() {
+			return document.documentElement.scrollTop || document.body.scrollTop;
+		}
+		/**
+		 * 在3秒内重复固定滚动高度
+		 */
+		function intervalSetScrollHeight() {
+			let scrollHeight = getScrollHeight();
+			/* 点击评论区会自动滚动到上面，关闭评论区会返回原先的高度 */
+			log.info("当前页面滚动距离：" + scrollHeight);
+			let intervalId = setInterval(() => {
+				document.documentElement.scrollTo(0, scrollHeight);
+			}, 250);
+
+			let clearIntervalSetScrollHeight = function () {
+				clearInterval(intervalId);
+			};
+			setTimeout(() => {
+				/* 3秒后清除重复设置高度 */
+				clearIntervalSetScrollHeight();
+			}, 3000);
+			return clearIntervalSetScrollHeight;
+		}
+		DOMUtils.on(document, "click", ".sub-reply-preview", function (event) {
+			let clearIntervalSetScrollHeight = intervalSetScrollHeight();
+			let $app = document.querySelector<HTMLDivElement>("#app");
+			let appVue = BilibiliUtils.getVue($app as HTMLDivElement);
+			if (!appVue) {
+				log.error("获取#app元素失败");
+				return;
 			}
-		);
+			let hookGestureReturnByVueRouter =
+				BilibiliUtils.hookGestureReturnByVueRouter({
+					vueObj: appVue,
+					hash: "#/seeCommentReply",
+					callback(isFromPopState) {
+						if (!isFromPopState) {
+							return false;
+						}
+						clearIntervalSetScrollHeight();
+						let $dialogCloseIcon =
+							document.querySelector<HTMLDivElement>(".dialog-close-icon");
+						if ($dialogCloseIcon) {
+							$dialogCloseIcon.click();
+						} else {
+							log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
+						}
+						return true;
+					},
+				});
+			utils
+				.waitNode<HTMLDivElement>(".dialog-close-icon")
+				.then(($dialogCloseIcon) => {
+					DOMUtils.on(
+						$dialogCloseIcon,
+						"click",
+						function () {
+							hookGestureReturnByVueRouter.resumeBack(false);
+						},
+						{
+							capture: true,
+							once: true,
+						}
+					);
+				});
+		});
 	},
 };
 
