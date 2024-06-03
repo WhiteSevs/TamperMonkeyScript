@@ -9,6 +9,7 @@ import { SettingUILive } from "./components/Live";
 import { SettingUIOpus } from "./components/Opus";
 import { SettingUIDynamic } from "./components/Dynamic";
 import { SettingUITopicDetail } from "./components/TopicDetail";
+import { SettingUIHead } from "./components/Head";
 
 const PopsPanel = {
 	/** 数据 */
@@ -327,6 +328,7 @@ const PopsPanel = {
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
 			SettingUICommon,
+			SettingUIHead,
 			SettingUIVideo,
 			SettingUIOpus,
 			SettingUIDynamic,

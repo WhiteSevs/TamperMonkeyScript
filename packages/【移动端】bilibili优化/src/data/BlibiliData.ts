@@ -6,5 +6,6 @@ export const BilibiliData = {
 		search: "#app .m-search",
 		"topic-detail": "#app .topic-detail",
 		video: "#app .video",
+		head: "#app .m-head",
 	},
 };

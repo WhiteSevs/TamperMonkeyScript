@@ -1,4 +1,5 @@
 import "./Bilibili.css";
+import "./BilibiliBeautify.css";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
 import { log, utils } from "@/env";
@@ -6,11 +7,11 @@ import { PopsPanel } from "@/setting/setting";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
 import { BilibiliLive } from "./live/BilibiliLive";
-import { GM_addStyle } from "ViteGM";
 import { BilibiliOpus } from "./opus/BilibiliOpus";
 import { BilibiliTopicDetail } from "./topic-detail/BilibiliTopicDetail";
 import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
+import { BilibiliHead } from "./head/BilibiliHead";
 
 const Bilibili = {
 	init() {
@@ -55,8 +56,11 @@ const Bilibili = {
 		} else if (BilibiliRouter.isTopicDetail()) {
 			log.info("Router: 话题");
 			BilibiliTopicDetail.init();
+		} else if (BilibiliRouter.isHead()) {
+			log.info("Router: 首页之类的");
+			BilibiliHead.init();
 		} else {
-			log.error("该Router暂未适配");
+			log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
 		}
 	},
 	/**

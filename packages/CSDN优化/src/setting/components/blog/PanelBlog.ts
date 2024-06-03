@@ -102,12 +102,12 @@ const SettingUIBlog: PopsPanelContentConfig = {
 					"csdn-blog-rightToolbarBeginnerGuidance",
 					false
 				),
-				UISwitch("【屏蔽】客服", "csdn-blog-rightToolbarCustomerService", false),
 				UISwitch(
-					"【屏蔽】举报",
-					"csdn-blog-rightToolbarReport",
+					"【屏蔽】客服",
+					"csdn-blog-rightToolbarCustomerService",
 					false
 				),
+				UISwitch("【屏蔽】举报", "csdn-blog-rightToolbarReport", false),
 				UISwitch("【屏蔽】返回顶部", "csdn-blog-rightToolbarBackToTop", false),
 			],
 		},
@@ -127,7 +127,27 @@ const SettingUIBlog: PopsPanelContentConfig = {
 					void 0,
 					"选中文字弹出的，例如：搜索、评论、笔记"
 				),
-				UISwitch("自动展开内容块", "csdn-blog-autoExpandContent", false),
+				UISwitch(
+					"点击代码块自动展开",
+					"csdn-blog-clickPreCodeAutomatically",
+					true,
+					void 0,
+					"当鼠标点击代码块区域时，将自动展开内容"
+				),
+				UISwitch(
+					"自动展开代码块",
+					"csdn-blog-autoExpandCodeContent",
+					true,
+					void 0,
+					"懒人操作，免手动点击展开"
+				),
+				UISwitch(
+					"自动展开内容",
+					"csdn-blog-autoExpandContent",
+					true,
+					void 0,
+					"懒人操作，免手动点击展开"
+				),
 				UISwitch(
 					"全文居中",
 					"csdn-blog-articleCenter",
@@ -138,8 +158,10 @@ const SettingUIBlog: PopsPanelContentConfig = {
 								"为了更好的呈现效果，请开启功能：【屏蔽】左侧博客信息、【屏蔽】右侧目录信息"
 							);
 						}
-					}
+					},
+					"自动屏蔽左侧和右侧的信息，且将文章居中"
 				),
+				UISwitch("允许选择内容", "csdn-blog-allowSelectContent", true, void 0),
 			],
 		},
 		{

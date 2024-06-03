@@ -1,0 +1,63 @@
+/* 主页 */
+#app .m-head {
+	--bg-color: #f0f1f3;
+	--bg-rever-color: #ffffff;
+	--pd-width: 1.3333vmin;
+	--bd-circle: 1.3333vmin;
+
+	background-color: var(--bg-color);
+	.m-home {
+		background-color: var(--bg-color);
+	}
+	/* 美化视频卡片 */
+	.video-list .card-box {
+		.v-card {
+			background-color: var(--bg-rever-color);
+			padding: 0px;
+			margin: 0px;
+			width: calc(50% - var(--pd-width) / 2);
+			border-radius: var(--bd-circle);
+			margin-top: var(--pd-width);
+			display: grid;
+
+			/* 视频封面区域 */
+			.card {
+				background: var(--bg-rever-color);
+				border-radius: unset;
+				border-top-left-radius: var(--bd-circle);
+				border-top-right-radius: var(--bd-circle);
+
+				.count {
+					display: flex;
+					justify-content: safe flex-start;
+					padding-right: 0;
+
+					.iconfont{
+						font-size: 3.2vmin;
+					}
+
+					> span {
+						font-size: 2.2vmin;
+						margin-right: 3vmin;
+					}
+				}
+			}
+			/* 视频标题区域 */
+			.title {
+				padding: 0;
+				margin: var(--pd-width);
+				font-size: 2.8vmin;
+			}
+		}
+		/* 两列 => 左边的 */
+		.v-card:nth-child(2n-1) {
+			/*background-color: red;*/
+			margin-right: calc(var(--pd-width) / 2);
+		}
+		/* 两列 => 右边的 */
+		.v-card:nth-child(2n) {
+			/*background-color: rebeccapurple;*/
+			margin-left: calc(var(--pd-width) / 2);
+		}
+	}
+}

@@ -48,6 +48,17 @@ const BilibiliRouter = {
 	isDynamic() {
 		return window.location.pathname.startsWith("/dynamic");
 	},
+	/**
+	 * 判断当前路径
+	 * + /
+	 * + /channel
+	 */
+	isHead() {
+		return (
+			window.location.pathname === "/" ||
+			window.location.pathname.startsWith("/channel")
+		);
+	},
 };
 
 export { BilibiliRouter };

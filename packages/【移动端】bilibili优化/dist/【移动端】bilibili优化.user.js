@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.1.18
+// @version      2024.6.3
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -12,8 +12,8 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.1/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -30,7 +30,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .openapp-dialog,#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important} ");
+(p=>{function n(e){if(typeof e!="string")throw new TypeError("cssText must be a string");let a=document.createElement("style");return a.setAttribute("type","text/css"),a.innerHTML=e,document.head?document.head.appendChild(a):document.body?document.body.appendChild(a):document.documentElement.childNodes.length===0?document.documentElement.appendChild(a):document.documentElement.insertBefore(a,document.documentElement.childNodes[0]),a}if(typeof GM_addStyle=="function"){GM_addStyle(p);return}n(p)})(" .m-video2-awaken-btn,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .openapp-dialog,#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app .m-head{--bg-color: #f0f1f3;--bg-rever-color: #ffffff;--pd-width: 1.3333vmin;--bd-circle: 1.3333vmin;background-color:var(--bg-color)}#app .m-head .m-home{background-color:var(--bg-color)}#app .m-head .video-list .card-box .v-card{background-color:var(--bg-rever-color);padding:0;margin:0;width:calc(50% - var(--pd-width) / 2);border-radius:var(--bd-circle);margin-top:var(--pd-width);display:grid}#app .m-head .video-list .card-box .v-card .card{background:var(--bg-rever-color);border-radius:unset;border-top-left-radius:var(--bd-circle);border-top-right-radius:var(--bd-circle)}#app .m-head .video-list .card-box .v-card .card .count{display:flex;justify-content:safe flex-start;padding-right:0}#app .m-head .video-list .card-box .v-card .card .count .iconfont{font-size:3.2vmin}#app .m-head .video-list .card-box .v-card .card .count>span{font-size:2.2vmin;margin-right:3vmin}#app .m-head .video-list .card-box .v-card .title{padding:0;margin:var(--pd-width);font-size:2.8vmin}#app .m-head .video-list .card-box .v-card:nth-child(2n-1){margin-right:calc(var(--pd-width) / 2)}#app .m-head .video-list .card-box .v-card:nth-child(2n){margin-left:calc(var(--pd-width) / 2)} ");
 
 (function (Qmsg, Utils, DOMUtils) {
   'use strict';
@@ -242,6 +242,14 @@
      */
     isDynamic() {
       return window.location.pathname.startsWith("/dynamic");
+    },
+    /**
+     * 判断当前路径
+     * + /
+     * + /channel
+     */
+    isHead() {
+      return window.location.pathname === "/" || window.location.pathname.startsWith("/channel");
     }
   };
   const SettingUIVideo = {
@@ -517,6 +525,25 @@
       return BilibiliRouter.isTopicDetail();
     },
     forms: []
+  };
+  const SettingUIHead = {
+    id: "panel-head",
+    title: "首页",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "补充视频信息",
+            "bili-head-supplementaryVideoStreamingInformation",
+            true,
+            void 0,
+            "给视频添加UP主名，当前视频总时长信息"
+          )
+        ]
+      }
+    ]
   };
   const PopsPanel = {
     /** 数据 */
@@ -798,6 +825,7 @@
     getPanelContentConfig() {
       let configList = [
         SettingUICommon,
+        SettingUIHead,
         SettingUIVideo,
         SettingUIOpus,
         SettingUIDynamic,
@@ -810,6 +838,11 @@
     }
   };
   const BilibiliUtils = {
+    /**
+     * 获取元素上的__vue__属性
+     * @param element
+     * @returns
+     */
     getVue(element) {
       return element.__vue__;
     },
@@ -835,6 +868,38 @@
         } else {
           $router.push(path);
         }
+      }
+    },
+    /**
+     * 转换时长为显示的时长
+     *
+     * + 30 => 0:30
+     * + 120 => 2:00
+     * + 14400 => 4:00:00
+     * @param duration 秒
+     */
+    parseDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      function zeroPadding(num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      }
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      } else {
+        return `${Math.floor(duration / 3600)}:${zeroPadding(
+        Math.floor(duration / 60) % 60
+      )}:${zeroPadding(duration % 60)}`;
       }
     }
   };
@@ -1017,7 +1082,8 @@
       opus: "#app .m-opus",
       search: "#app .m-search",
       "topic-detail": "#app .topic-detail",
-      video: "#app .video"
+      video: "#app .video",
+      head: "#app .m-head"
     }
   };
   const BilibiliVideo = {
@@ -1653,6 +1719,101 @@
       );
     }
   };
+  const BilibiliHead = {
+    init() {
+      PopsPanel.execMenuOnce(
+        "bili-head-supplementaryVideoStreamingInformation",
+        () => {
+          this.addVideoListUPInfo();
+        }
+      );
+    },
+    /**
+     * 添加视频列表UP主信息
+     */
+    addVideoListUPInfo() {
+      log.info("添加视频列表UP主信息");
+      _GM_addStyle(`
+        ${BilibiliData.className.head}{
+            .video-list .card-box{
+                .gm-up-info{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin: var(--pd-width);
+
+                    .gm-up-name{
+                        display: flex;
+                        align-items: center;
+                        font-size: 2.4vmin;
+                        color: #999A9E;
+    
+                        svg{
+                            margin-right: calc(var(--pd-width) / 2);
+                        }
+                    }
+                }
+            }
+            .gm-video-duration{
+                margin: 0 auto;
+            }
+        }
+        `);
+      utils.waitNode(
+        BilibiliData.className.head + " .video-list .card-box"
+      ).then(() => {
+        let lockFunc = new utils.LockFunction(() => {
+          document.querySelectorAll(
+            BilibiliData.className.head + " .video-list .card-box .v-card"
+          ).forEach(($vcard) => {
+            var _a2, _b, _c, _d, _e;
+            let vueObj = BilibiliUtils.getVue($vcard);
+            let upName = ((_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.author) == null ? void 0 : _b.name) || ((_d = (_c = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _c.owner) == null ? void 0 : _d.name);
+            let duration = (_e = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _e.duration;
+            if (upName && !$vcard.querySelector(".gm-up-info")) {
+              let $upInfo = document.createElement("div");
+              $upInfo.innerHTML = `
+                                    <div class="gm-up-name">
+                                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                            <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+                                            </path>
+                                        </svg>
+                                        ${upName}
+                                    </div>
+                                    <div class="gm-video-handle">
+                                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                            <path fill="#2E2F30" d="M512 256a85.333333 85.333333 0 1 1 0-170.666667 85.333333 85.333333 0 0 1 0 170.666667z m0 341.333333a85.333333 85.333333 0 1 1 0-170.666666 85.333333 85.333333 0 0 1 0 170.666666z m0 341.333334a85.333333 85.333333 0 1 1 0-170.666667 85.333333 85.333333 0 0 1 0 170.666667z">
+                                            </path>
+                                        </svg>
+                                    </div>`;
+              $upInfo.className = "gm-up-info";
+              $vcard.appendChild($upInfo);
+            }
+            if (duration) {
+              let $count = $vcard.querySelector(".count");
+              if ($count && !$count.querySelector(".gm-video-duration")) {
+                let showDuration = typeof duration === "string" ? duration : BilibiliUtils.parseDuration(duration);
+                let $duration = document.createElement("span");
+                $duration.className = "gm-video-duration";
+                $duration.innerHTML = showDuration;
+                $count.appendChild($duration);
+              }
+            }
+          });
+        }, 25);
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true,
+            attributes: true
+          },
+          callback() {
+            lockFunc.run();
+          }
+        });
+      });
+    }
+  };
   const Bilibili = {
     init() {
       PopsPanel.execMenu("bili-setLogin", () => {
@@ -1695,8 +1856,11 @@
         BilibiliLive.init();
       } else if (BilibiliRouter.isTopicDetail()) {
         log.info("Router: 话题");
+      } else if (BilibiliRouter.isHead()) {
+        log.info("Router: 首页之类的");
+        BilibiliHead.init();
       } else {
-        log.error("该Router暂未适配");
+        log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
     },
     /**

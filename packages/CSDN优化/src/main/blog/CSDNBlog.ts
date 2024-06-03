@@ -1,5 +1,5 @@
 import BlogShieldCSS from "./css/shield.css?raw";
-import BlogExpandContentCSS from "./css/expandContent.css?raw";
+import BlogCSS from "./css/CSDNBlog.css?raw";
 import BlogArticleCenterCSS from "./css/articleCenter.css?raw";
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
@@ -16,9 +16,11 @@ const CSDNBlog = {
 		PopsPanel.execMenu("csdn-blog-shieldLoginDialog", () => {
 			this.shieldLoginDialog();
 		});
-		PopsPanel.execMenu("m-csdn-blog-autoExpandContent", () => {
+		PopsPanel.execMenu("csdn-blog-autoExpandContent", () => {
 			this.autoExpandContent();
-			this.clickPreCodeAutomatically();
+		});
+		PopsPanel.execMenu("csdn-blog-autoExpandCodeContent", () => {
+			this.autoExpandCodeContent();
 		});
 		PopsPanel.execMenu("csdn-blog-blockComment", () => {
 			this.blockComment();
@@ -44,17 +46,20 @@ const CSDNBlog = {
 		PopsPanel.execMenu("csdn-blog-shieldArticleSearchTip", () => {
 			this.shieldArticleSearchTip();
 		});
+		PopsPanel.execMenu("csdn-blog-allowSelectContent", () => {
+			this.allowSelectContent();
+		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("ccsdn-blog-removeClipboardHijacking", () => {
+			PopsPanel.execMenu("csdn-blog-removeClipboardHijacking", () => {
 				this.removeClipboardHijacking();
 			});
-			PopsPanel.execMenu("csdn-blog-unBlockCopy", () => {
+			PopsPanel.execMenuOnce("csdn-blog-unBlockCopy", () => {
 				this.unBlockCopy();
 			});
 			PopsPanel.execMenu("csdn-blog-identityCSDNDownload", () => {
 				this.identityCSDNDownload();
 			});
-			PopsPanel.execMenu("csdn_pc_clickPreCodeAutomatically", () => {
+			PopsPanel.execMenuOnce("csdn-blog-clickPreCodeAutomatically", () => {
 				this.clickPreCodeAutomatically();
 			});
 			PopsPanel.execMenu("csdn-blog-restoreComments", () => {
@@ -68,7 +73,7 @@ const CSDNBlog = {
 	addCSS() {
 		log.info("添加屏蔽CSS和功能CSS");
 		GM_addStyle(BlogShieldCSS);
-		GM_addStyle(BlogExpandContentCSS);
+		GM_addStyle(BlogCSS);
 	},
 	/**
 	 * 去除剪贴板劫持
@@ -148,6 +153,7 @@ const CSDNBlog = {
 			$content_views.addEventListener("copy", function (event) {
 				utils.preventEvent(event);
 				let selectText = unsafeWindow.getSelection()?.toString();
+				console.log(selectText);
 				utils.setClip(selectText);
 				return false;
 			});
@@ -209,19 +215,19 @@ const CSDNBlog = {
 	 */
 	identityCSDNDownload() {
 		log.info("标识CSDN下载的链接");
-		(
-			document.querySelectorAll(
+		document
+			.querySelectorAll<HTMLDivElement>(
 				".recommend-item-box[data-url*='https://download.csdn.net/']"
-			) as NodeListOf<HTMLDivElement>
-		).forEach((item) => {
-			if (PopsPanel.getValue("csdn-blog-removeResourceDownloadArticle")) {
-				item.remove();
-			} else {
-				(
-					item.querySelector(".content-box") as HTMLDivElement
-				).style.setProperty("border", "2px solid red");
-			}
-		});
+			)
+			.forEach((item) => {
+				if (PopsPanel.getValue("csdn-blog-removeResourceDownloadArticle")) {
+					item.remove();
+				} else {
+					(
+						item.querySelector(".content-box") as HTMLDivElement
+					).style.setProperty("border", "2px solid red");
+				}
+			});
 	},
 	/**
 	 * 全文居中
@@ -238,13 +244,36 @@ const CSDNBlog = {
 		GM_addStyle(`.passport-login-container{display: none !important;}`);
 	},
 	/**
-	 * 自动展开内容块
+	 * 自动展开代码块
+	 */
+	autoExpandCodeContent() {
+		log.info("自动展开代码块");
+		GM_addStyle(`
+		pre.set-code-hide{
+			height: auto !important;
+		}
+		pre.set-code-hide .hide-preCode-box{
+			display: none !important;
+		}
+		/* 自动展开代码块 */
+		.comment-list-box,
+		main div.blog-content-box pre {
+			max-height: none !important;
+		}
+        `);
+	},
+	/**
+	 * 自动展开全文
 	 */
 	autoExpandContent() {
-		log.info("自动展开内容块");
+		log.info("自动展开全文");
 		GM_addStyle(`
-          pre.set-code-hide{height: auto !important;}
-          pre.set-code-hide .hide-preCode-box{display: none !important;}
+		/* 自动展开全文 */
+		#article_content,
+		.user-article.user-article-hide {
+			height: auto !important;
+			overflow: auto !important;
+		}
         `);
 	},
 	/**
@@ -265,6 +294,7 @@ const CSDNBlog = {
 	 * 屏蔽底部xx技能树
 	 */
 	shieldBottomSkillTree() {
+		log.info("屏蔽底部xx技能树");
 		GM_addStyle(`#treeSkill{display: none !important;}`);
 	},
 	/**
@@ -278,14 +308,14 @@ const CSDNBlog = {
 	 * 屏蔽左侧博客信息
 	 */
 	shieldLeftBlogContainerAside() {
-		log.success("【屏蔽】左侧博客信息");
+		log.info("【屏蔽】左侧博客信息");
 		GM_addStyle(`aside.blog_container_aside{display: none !important;}`);
 	},
 	/**
 	 * 【屏蔽】右侧目录信息
 	 */
 	shieldRightDirectoryInformation() {
-		log.success("【屏蔽】右侧目录信息");
+		log.info("【屏蔽】右侧目录信息");
 		GM_addStyle(`
         #rightAsideConcision,
         #rightAside{
@@ -297,13 +327,28 @@ const CSDNBlog = {
 	 * 屏蔽顶部Toolbar
 	 */
 	shieldTopToolbar() {
+		log.info("屏蔽顶部Toolbar");
 		GM_addStyle(`#toolbarBox{display: none !important;}`);
 	},
 	/**
 	 * 屏蔽文章内的选中搜索悬浮提示
 	 */
 	shieldArticleSearchTip() {
+		log.info("屏蔽文章内的选中搜索悬浮提示");
 		GM_addStyle(`#articleSearchTip{display: none !important;}`);
+	},
+	/**
+	 * 允许选择内容
+	 */
+	allowSelectContent() {
+		log.info("允许选择内容");
+		GM_addStyle(`
+		#content_views,
+		#content_views pre,
+		#content_views pre code {
+			user-select: text !important;
+		}
+		`);
 	},
 };
 
