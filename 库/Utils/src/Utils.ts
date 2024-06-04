@@ -14,6 +14,7 @@ import { Progress } from "./Progress";
 import { TryCatch } from "./TryCatch";
 import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
+import type { UtilsCoreOption } from "./UtilsCore";
 
 export declare var unsafeWindow: Window & typeof globalThis;
 
@@ -142,8 +143,11 @@ export declare interface Vue2Context extends AnyObject {
 }
 
 class Utils {
+	constructor(option?: UtilsCoreOption) {
+		UtilsCore.init(option);
+	}
 	/** 版本号 */
-	version = "2024.5.30";
+	version = "2024.6.5";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -4881,6 +4885,15 @@ class Utils {
 				},
 			});
 		}
+	}
+
+	/**
+	 * 创建一个新的Utils实例
+	 * @param option
+	 * @returns
+	 */
+	createUtils(option?: UtilsCoreOption) {
+		return new Utils(option);
 	}
 }
 

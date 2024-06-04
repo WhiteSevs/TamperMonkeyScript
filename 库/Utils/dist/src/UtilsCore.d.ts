@@ -1,4 +1,4 @@
-declare interface UtilsCoreOption {
+export declare interface UtilsCoreOption {
     document: Document;
     window: Window;
     globalThis: typeof globalThis;

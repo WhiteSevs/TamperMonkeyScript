@@ -3173,8 +3173,11 @@ System.register('Utils', [], (function (exports) {
 
             /// <reference path="./ajaxHooker/index.d.ts" />
             class Utils {
+                constructor(option) {
+                    UtilsCore.init(option);
+                }
                 /** 版本号 */
-                version = "2024.5.30";
+                version = "2024.6.5";
                 addStyle(cssText) {
                     if (typeof cssText !== "string") {
                         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -6050,6 +6053,14 @@ System.register('Utils', [], (function (exports) {
                             },
                         });
                     }
+                }
+                /**
+                 * 创建一个新的Utils实例
+                 * @param option
+                 * @returns
+                 */
+                createUtils(option) {
+                    return new Utils(option);
                 }
             }
             let utils = exports("default", new Utils());

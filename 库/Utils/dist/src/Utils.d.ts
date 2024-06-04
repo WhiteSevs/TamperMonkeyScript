@@ -11,6 +11,7 @@ import { Log } from "./Log";
 import { Progress } from "./Progress";
 import { UtilsDictionary } from "./Dictionary";
 import type { DOMUtils_EventType } from "./Event";
+import type { UtilsCoreOption } from "./UtilsCore";
 export declare var unsafeWindow: Window & typeof globalThis;
 export type JSTypeMap = {
     string: string;
@@ -110,6 +111,10 @@ export declare interface Vue2Context extends AnyObject {
         mode: string;
         resolveHooks: ((...args: any[]) => any)[];
         currentRoute: AnyObject;
+        /**
+         * 传空就移除上一个监听
+         */
+        afterEach: ((to: Vue2Context["$route"], from: Vue2Context["$route"]) => void) | null;
     };
     $ssrContext: AnyObject;
     $watch: (key: string | string[], handler: (this: any, newVal: any, oldVal: any) => void, options?: {
@@ -118,6 +123,7 @@ export declare interface Vue2Context extends AnyObject {
     }) => void;
 }
 declare class Utils {
+    constructor(option?: UtilsCoreOption);
     /** 版本号 */
     version: string;
     /**
@@ -1792,6 +1798,12 @@ declare class Utils {
      * > 111;
      */
     watchObject(target: AnyObject, propertyName: string, getCallBack: (value: any) => void, setCallBack: (value: any) => void): void;
+    /**
+     * 创建一个新的Utils实例
+     * @param option
+     * @returns
+     */
+    createUtils(option?: UtilsCoreOption): Utils;
 }
 declare let utils: Utils;
 export { utils as Utils };
