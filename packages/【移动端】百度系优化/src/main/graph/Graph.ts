@@ -1,14 +1,12 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduGraphApi } from "./GraphApi";
 import GraphShieldCSS from "./shield.css?raw";
-import { GM_addStyle } from "ViteGM";
 
 const BaiduGraph = {
 	init() {
-		GM_addStyle(GraphShieldCSS);
+		addStyle(GraphShieldCSS);
 		log.info("插入CSS规则");
-		this.addNewUploadImageButton();
 		PopsPanel.execMenu("baidu-graph-repairHomeRecognitionPicture", () => {
 			this.repairHomeRecognitionPicture();
 		});
@@ -21,27 +19,29 @@ const BaiduGraph = {
 		PopsPanel.execMenu("baidu-graph-baidu-graph-repairRetakeButton", () => {
 			this.repairRetakeButton();
 		});
+
+		DOMUtils.ready(() => {
+			this.addNewUploadImageButton();
+		});
 	},
 	/**
 	 * 添加上传图片按钮（不可见的）
 	 */
 	addNewUploadImageButton() {
-		DOMUtils.ready(function () {
-			log.info("添加上传图片按钮（不可见的）");
-			let uploadImageInput = DOMUtils.createElement(
-				"input",
-				{
-					id: "whitesev-upload-image",
-				},
-				{
-					type: "file",
-					accept: "image/*",
-					style: "display: none",
-				}
-			);
-			DOMUtils.on(uploadImageInput, "change", BaiduGraphApi.uploadImage);
-			DOMUtils.append(document.body, uploadImageInput);
-		});
+		log.info("添加上传图片按钮（不可见的）");
+		let uploadImageInput = DOMUtils.createElement(
+			"input",
+			{
+				id: "whitesev-upload-image",
+			},
+			{
+				type: "file",
+				accept: "image/*",
+				style: "display: none",
+			}
+		);
+		DOMUtils.on(uploadImageInput, "change", BaiduGraphApi.uploadImage);
+		DOMUtils.append(document.body, uploadImageInput);
 	},
 	/**
 	 *重构主页的识图一下
@@ -51,7 +51,7 @@ const BaiduGraph = {
 			.waitNode<HTMLDivElement>(
 				"#app section.vf-home-booth div.vf-w-button.vf-home-booth-camera"
 			)
-			.then((element) => {
+			.then(($vfHomeBoothCamera) => {
 				log.success("重构主页的识图一下");
 				let uploadImageDivDOM = DOMUtils.createElement("div", {
 					className: "vf-home-booth-camera",
@@ -80,14 +80,14 @@ const BaiduGraph = {
 					).click();
 				});
 
-				DOMUtils.after(element, uploadImageDivDOM);
+				DOMUtils.after($vfHomeBoothCamera, uploadImageDivDOM);
 			});
 	},
 	/**
 	 * 重构主页的往下滑动右下角出现的搜索图标按钮
 	 */
 	repairSearchButton() {
-		utils.waitNode<HTMLDivElement>(".vf-home.view-page").then((element) => {
+		utils.waitNode<HTMLDivElement>(".vf-home.view-page").then(($viewPage) => {
 			log.success("重构主页的往下滑动右下角出现的搜索图标按钮");
 			let divHomeCamera = DOMUtils.createElement("div", {
 				className: "whitesev-vf-home-camera",
@@ -111,9 +111,9 @@ const BaiduGraph = {
 					) as HTMLInputElement
 				).click();
 			});
-			DOMUtils.append(element, divHomeCamera);
+			DOMUtils.append($viewPage, divHomeCamera);
 			utils.watchObject(
-				(element as any).__vue__,
+				($viewPage as any).__vue__,
 				"showBottomCamera",
 				() => {
 					return false;
@@ -132,7 +132,7 @@ const BaiduGraph = {
 	 * 如果出现识图没结果，重新识别，可能是因为后面参数多了tpl_from=pc的问题
 	 */
 	repairSearchNoResult() {
-		utils.waitNode("#app .graph-noresult-text1").then(() => {
+		utils.waitNode<HTMLElement>("#app .graph-noresult-text1").then(() => {
 			log.info("判断网页参数是否包含tpl_from=pc");
 			if (window.location.search.endsWith("&tpl_from=pc")) {
 				window.location.href = window.location.href.replace(
@@ -148,7 +148,7 @@ const BaiduGraph = {
 	repairRetakeButton() {
 		utils
 			.waitNode<HTMLDivElement>("#viewport .graph-imagecut-banner-ctn")
-			.then((element) => {
+			.then(($imageCutBanner) => {
 				log.info("在已搜索出相关结果的界面中的重构【重拍】按钮");
 				let retakeDivDOM = DOMUtils.createElement("div", {
 					className: "retake-image",
@@ -180,7 +180,7 @@ const BaiduGraph = {
 					);
 				});
 				setTimeout(() => {
-					DOMUtils.append(element, retakeDivDOM);
+					DOMUtils.append($imageCutBanner, retakeDivDOM);
 				}, 2000);
 			});
 	},

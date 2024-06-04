@@ -1,9 +1,16 @@
-import { DOMUtils, httpx, loadingView, log, pops, utils } from "@/env";
+import {
+	DOMUtils,
+	addStyle,
+	httpx,
+	loadingView,
+	log,
+	pops,
+	utils,
+} from "@/env";
 import { TiebaComment } from "./Post/TiebaComment";
 import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "./api/TiebaApi";
 import { TiebaData } from "./Home/data";
-import { GM_addStyle } from "ViteGM";
 
 interface SearchResultInfo {
 	url: string;
@@ -18,6 +25,16 @@ interface SearchResultInfo {
 
 const TiebaSearch = {
 	searchSuggestion: null as unknown as any,
+	$data: {
+		/* 吧内 */
+		isSetClickEvent_kw: false,
+		/* 贴内 */
+		isSetClickEvent_p: false,
+		/* 主页 */
+		isSetClickEvent_home: false,
+		/* 是否是首次点击 */
+		isFirstClick: true,
+	},
 	/**
 	 * 获取搜索建议
 	 * @param queryText 搜索内容
@@ -39,6 +56,7 @@ const TiebaSearch = {
 		return utils.toJSON(respData.responseText);
 	},
 	init() {
+		let that = this;
 		utils.waitNode<HTMLDivElement>("div.more-btn-desc").then((element) => {
 			element.outerHTML = `
               <input type="search" id="tieba-search" placeholder="请输入搜索内容..." autocomplete="off">
@@ -68,10 +86,6 @@ const TiebaSearch = {
               </style>
               `;
 			/* 用于判断是否已设置点击事件 */
-			let isSetClickEvent_kw = false;
-			let isSetClickEvent_p = false;
-			let isSetClickEvent_home = false;
-			let isFirstClick = true;
 			DOMUtils.on(
 				document.querySelector("div.more-btn-desc") as HTMLDivElement,
 				"click",
@@ -82,29 +96,29 @@ const TiebaSearch = {
 						utils.isNotNull(searchParams.get("kw"))
 					) {
 						/* 当前是在吧内，搜索按钮判定搜索帖子 */
-						if (!isSetClickEvent_kw) {
-							isSetClickEvent_kw = true;
+						if (!that.$data.isSetClickEvent_kw) {
+							that.$data.isSetClickEvent_kw = true;
 							loadingView.removeAll();
 							loadingView.initLoadingView();
 							DOMUtils.after(
 								document.querySelector("div.tb-page__main") as HTMLDivElement,
 								loadingView.getLoadingViewElement()
 							);
-							TiebaSearch.postsSearch(isFirstClick);
+							TiebaSearch.postsSearch(that.$data.isFirstClick);
 						}
 					} else if (
 						window.location.href.startsWith("https://tieba.baidu.com/p/")
 					) {
 						/* 当前是在帖子内，搜索按钮判定搜索帖子 */
-						if (!isSetClickEvent_p) {
-							isSetClickEvent_p = true;
-							TiebaSearch.postsSearch(isFirstClick);
+						if (!that.$data.isSetClickEvent_p) {
+							that.$data.isSetClickEvent_p = true;
+							TiebaSearch.postsSearch(that.$data.isFirstClick);
 						}
 					} else {
 						/* 当前是在主页中，搜索按钮判定为搜索吧 */
 						TiebaSearch.frontPageSeach();
-						if (isSetClickEvent_home) {
-							isSetClickEvent_home = true;
+						if (that.$data.isSetClickEvent_home) {
+							that.$data.isSetClickEvent_home = true;
 							utils.listenKeyboard(
 								document.querySelector("#tieba-search") as HTMLDivElement,
 								"keypress",
@@ -116,8 +130,8 @@ const TiebaSearch = {
 							);
 						}
 					}
-					if (isFirstClick) {
-						isFirstClick = false;
+					if (that.$data.isFirstClick) {
+						that.$data.isFirstClick = false;
 					}
 				}
 			);
@@ -547,7 +561,7 @@ const TiebaSearch = {
 			return resultElement;
 		}
 		function setCSS() {
-			GM_addStyle(`
+			addStyle(`
             .search-result-content img.BDE_Smiley{
               width: .2rem;
               height: .2rem;
@@ -582,13 +596,12 @@ const TiebaSearch = {
 				globalThis.location.pathname === "/f"
 			) {
 				/* 吧内和贴内的background不同 */
-				GM_addStyle(`
-              .s_post.search_result{
-                background: #ffffff;
-              }
-              `);
+				addStyle(`
+				.s_post.search_result{
+					background: #ffffff;
+				}`);
 			}
-			GM_addStyle(`
+			addStyle(`
             .s_post,
             .s_order,
             .s_search {

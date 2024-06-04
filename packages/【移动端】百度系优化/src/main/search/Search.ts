@@ -1,5 +1,4 @@
-import { GM_addStyle } from "ViteGM";
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, log, utils, addStyle } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { PopsPanel } from "@/setting/setting";
 import SearchShieldCSS from "./shield.css?raw";
@@ -25,18 +24,18 @@ const UserCustomStyle = {
 
 const BaiduSearch = {
 	async init() {
-		GM_addStyle(UserCustomStyle.getUserStyle());
+		addStyle(UserCustomStyle.getUserStyle());
 		log.info("插入用户CSS规则");
 		BaiduSearchRule.init();
 		if (BaiduRouter.isSearchBh()) {
 			/* 百度健康 */
-			GM_addStyle(SearchHealthShieldCSS);
+			addStyle(SearchHealthShieldCSS);
 			log.info("插入CSS规则");
 			BaiduHeadlth.init();
 		} else {
 			BaiduSearchHook.init();
 			/* 默认的百度搜索 */
-			GM_addStyle(SearchShieldCSS);
+			addStyle(SearchShieldCSS);
 			log.info("插入CSS规则");
 			PopsPanel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
 				this.openResultBlank();

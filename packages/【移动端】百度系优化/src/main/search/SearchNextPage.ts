@@ -1,8 +1,17 @@
-import { GM_addStyle, unsafeWindow } from "ViteGM";
-import { DOMUtils, GM_Menu, httpx, loadingView, log, utils } from "@/env";
+import { unsafeWindow } from "ViteGM";
+import {
+	DOMUtils,
+	GM_Menu,
+	addStyle,
+	httpx,
+	loadingView,
+	log,
+	utils,
+} from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduResultItem } from "./SearchResultItem";
 import { SearchResultEveryOneSearch } from "./SearchResultEveryOneSearch";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 interface PageInfo {
 	pageNum: number;
@@ -33,12 +42,10 @@ const SearchNextPage = {
 	intersectionObserver: null as unknown as IntersectionObserver,
 	init() {
 		this.initPageLineCSS();
-		GM_addStyle(`
-		/* 隐藏分页控制器 */
-		#page-controller{
-			display: none !important;
-		}
-		`);
+		CommonUtils.addBlockCSS(
+			/* 隐藏分页控制器 */
+			"#page-controller"
+		);
 		loadingView.initLoadingView(true);
 		let $loadingViewPrev =
 			document.querySelector<HTMLDivElement>("#page-controller") ||
@@ -345,7 +352,7 @@ const SearchNextPage = {
 							`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`
 						)
 					) {
-						let cssDOM = GM_addStyle(item.innerHTML);
+						let cssDOM = addStyle(item.innerHTML);
 						cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
 						log.info(["插入Vue的CSS", cssDOM]);
 					}
@@ -442,7 +449,7 @@ const SearchNextPage = {
 	 */
 	initPageLineCSS() {
 		log.info("初始化页码的CSS");
-		GM_addStyle(`
+		addStyle(`
         .whitesev-page-info{-webkit-tap-highlight-color:transparent}
         .whitesev-page-info .whitesev-new-pagenav{display:block;width:auto;color:#333;z-index:1;font-weight:700;text-decoration:none;position:relative;height:52px;line-height:52px}
         .whitesev-page-info .whitesev-new-pagenav{margin:.08rem;background:#fff;word-wrap:break-word;border:0;border-radius:.06rem;text-align:center;text-align:-webkit-center}

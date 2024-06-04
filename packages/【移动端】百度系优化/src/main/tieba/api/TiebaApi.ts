@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import { TiebaCore } from "../TiebaCore";
-import { CommonUtil } from "@/util/CommonUtil";
+import { CommonUtils } from "@/utils/CommonUtils";
 
 interface HonorGradeInfo {
     "count": number,
@@ -532,7 +532,7 @@ const TiebaPageDataApi = {
         if (dataBannerInfo["forum_id"]) {
             return dataBannerInfo["forum_id"];
         } else {
-            return CommonUtil.getVue(document.querySelector(".app-view"))?.forum?.id;
+            return CommonUtils.getVue(document.querySelector(".app-view"))?.forum?.id;
         }
     },
 

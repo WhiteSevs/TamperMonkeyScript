@@ -1,7 +1,6 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { SearchResultEveryOneSearch } from "./SearchResultEveryOneSearch";
-import { GM_addStyle } from "ViteGM";
 import { BaiduSearchRule } from "./SearchRule";
 import type { UtilsDictionary } from "@whitesev/utils/dist/src/Dictionary";
 
@@ -446,7 +445,7 @@ const BaiduResultItem = {
 	 * 添加CSDN的CSS
 	 */
 	addCSDNFlagCSS() {
-		GM_addStyle(`
+		addStyle(`
         .csdn-flag-component-box{display:flex;margin:0;text-align:left;font-size:0;position:relative;width:260px;margin:5px 0}
         .csdn-flag-component-box a{display:inline-block;font-size:14px}
         .csdn-flag-component-box .praise {

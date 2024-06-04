@@ -1,5 +1,5 @@
-import { GM_addStyle, unsafeWindow } from "ViteGM";
-import { DOMUtils, log, utils } from "@/env";
+import { unsafeWindow } from "ViteGM";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { BaiduRouter } from "@/router/BaiduRouter";
@@ -36,7 +36,7 @@ import { TiebaHome } from "./Home/TiebaHome";
  */
 const BaiduTieBa = {
 	init() {
-		GM_addStyle(TieBaShieldCSS);
+		addStyle(TieBaShieldCSS);
 		log.info("插入CSS规则");
 		PopsPanel.execMenu(
 			"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",

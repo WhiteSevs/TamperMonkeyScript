@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
-import { CommonUtil } from "@/util/CommonUtil";
+import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 
@@ -68,7 +68,7 @@ const TiebaBaNei = {
 	removeForumSignInLimit() {
 		/* 修改页面中的APP内签到 */
 		utils.waitNode<HTMLDivElement>(".tb-mobile-viewport").then(async () => {
-			TiebaBaNei.vueRootView = CommonUtil.getVue(
+			TiebaBaNei.vueRootView = CommonUtils.getVue(
 				document.querySelector(".tb-mobile-viewport")
 			) as Vue2Context;
 			let isLogin = Boolean(TiebaBaNei.vueRootView?.["user"]?.["is_login"]);
@@ -122,7 +122,7 @@ const TiebaBaNei = {
 			"div.tb-threadlist__item",
 			function (event) {
 				utils.preventEvent(event);
-				let vueObj = CommonUtil.getVue(event.target);
+				let vueObj = CommonUtils.getVue(event.target);
 				let pbUrl = vueObj?.pbUrl;
 				let tid = vueObj?.tid ?? vueObj?.thread?.tid;
 				let id = vueObj?.id ?? vueObj?.thread?.id;
@@ -157,7 +157,7 @@ const TiebaBaNei = {
 		utils
 			.waitNode<HTMLDivElement>(".tb-page__main .tb-sort .tab-pack")
 			.then((element) => {
-				let originChange = CommonUtil.getVue(element)?.change;
+				let originChange = CommonUtils.getVue(element)?.change;
 				originChange(userSortModel);
 				(element as any).__vue__.change = function (index: number) {
 					PopsPanel.setValue("baidu-tieba-sort-model", index);
@@ -179,7 +179,7 @@ const TiebaBaNei = {
 				100,
 				10000
 			);
-			let tbThreadListVue = CommonUtil.getVue(
+			let tbThreadListVue = CommonUtils.getVue(
 				document.querySelector(".tb-threadlist")
 			);
 			if (!tbThreadListVue) {

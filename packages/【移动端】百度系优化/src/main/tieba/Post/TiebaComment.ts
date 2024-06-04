@@ -1,12 +1,12 @@
-import { DOMUtils, httpx, loadingView, log, utils } from "@/env";
+import { DOMUtils, addStyle, httpx, loadingView, log, utils } from "@/env";
 import { TieBaApi, TiebaPageDataApi, TiebaUrlApi } from "../api/TiebaApi";
-import { GM_addStyle } from "ViteGM";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/util/CommonUtil";
+import { CommonUtils } from "@/utils/CommonUtils";
 import { TiebaCore } from "../TiebaCore";
 import { TiebaData } from "../Home/data";
-import { LoadingView } from "@/util/LoadingView";
+import { LoadingView } from "@/utils/LoadingView";
 import type { HttpxDetails } from "@whitesev/utils/dist/src/Httpx";
+import { TiebaSearch } from "../TiebaSearch";
 
 interface PageComment {
 	commentList: {
@@ -30,6 +30,116 @@ interface CommentData {
 	userPostId: number | string;
 	userReplyContent: string;
 	userReplyTime: string;
+}
+interface AffixOption {
+	/**
+	 * 偏移距离，默认0
+	 */
+	offset: number;
+	/**
+	 * 固钉位置，默认top
+	 */
+	position: "top" | "bottom";
+	/**
+	 * 指定容器（CSS 选择器）
+	 */
+	target: string;
+	/**
+	 * 指定根元素
+	 */
+	root: Element | Document | null | undefined;
+	/**
+	 * z-index，默认100
+	 */
+	"z-index": number | string;
+	/**
+	 * 固钉状态改变时触发的事件素
+	 */
+	change: ($target: HTMLElement, isIntersecting: boolean) => void;
+}
+/**
+ * 设置元素固钉
+ */
+function setAffix(option: Partial<AffixOption>) {
+	let defaultOption: AffixOption = {
+		offset: 0,
+		position: "top",
+		target: "",
+		"z-index": 100,
+		root: null,
+		change: () => {},
+	};
+	utils.assign(defaultOption, option);
+	if (utils.isNull(defaultOption)) {
+		throw new TypeError("target不能为空");
+	}
+	utils
+		.waitNode<HTMLDivElement>(defaultOption.target, 10000)
+		.then(($target) => {
+			if (!$target) {
+				return;
+			}
+			addStyle(`
+			.affix-container-top-fixed[data-target="${defaultOption.target}"]{
+				position: fixed;
+				top: ${defaultOption.offset}px;
+				left: 0;
+				z-index: ${defaultOption["z-index"]};
+			}
+			`);
+			let $affixLine = document.createElement("div");
+			$affixLine.className = "affix-line";
+			$target.setAttribute("data-target", defaultOption.target);
+			DOMUtils.before($target, $affixLine);
+			let rootMargin = `0px`;
+			if (defaultOption.position === "bottom") {
+				rootMargin = `0px 0px ${-defaultOption.offset}px 0px`;
+			} else {
+				rootMargin = `${-defaultOption.offset}px 0px 0px 0px`;
+			}
+			let threshold = [0.01, 0.99];
+			let thresholdMinValue = threshold[0] * defaultOption.offset;
+			let thresholdMaxValue =
+				threshold[threshold.length - 1] * defaultOption.offset;
+			let lockFunc = new utils.LockFunction(
+				(entries: IntersectionObserverEntry[]) => {
+					let intersectionObserverEntry = entries[0];
+					let boundTop = intersectionObserverEntry.boundingClientRect.top;
+					// let boundTop = $affixLine.getBoundingClientRect().top;
+					if (defaultOption.position === "top") {
+						/* top */
+						if (boundTop < thresholdMaxValue) {
+							$affixLine.style.height = DOMUtils.outerHeight($target) + "px";
+							$target.classList.add("affix-container-top-fixed");
+						} else {
+							$affixLine.style.height = "";
+							$target.classList.remove("affix-container-top-fixed");
+						}
+					} else {
+						/* bottom */
+					}
+				},
+				0
+			);
+			const observer = new IntersectionObserver(
+				(entries) => {
+					if (TiebaSearch.$data.isSetClickEvent_p) {
+						/* 当前为进行贴内搜索，取消观察器 */
+						log.warn("当前为进行贴内搜索，取消观察器");
+						observer.disconnect();
+						return;
+					}
+					lockFunc.run(entries);
+				},
+				{
+					root: null,
+					threshold: threshold, // threshold 设置为 1 表示目标元素完全可见时触发回调函数
+					rootMargin: rootMargin, // rootMargin 设置为 0px 表示目标元素与视窗之间的距离
+				}
+			);
+
+			observer.observe($affixLine);
+		});
 }
 
 const TiebaComment = {
@@ -109,6 +219,17 @@ const TiebaComment = {
 				TiebaComment.mainPositive();
 				TiebaComment.insertReverseBtn();
 				TiebaComment.insertOnlyLZ();
+				utils
+					.waitNode<HTMLDivElement>('.nav-bar-v2-fixed[main-type="forum"]')
+					.then(($navBar) => {
+						setAffix({
+							target: "#replySwitch",
+							position: "top",
+							root: $navBar,
+							offset: 48,
+							change() {},
+						});
+					});
 			});
 
 		utils
@@ -121,11 +242,11 @@ const TiebaComment = {
 				utils
 					.waitPropertyByInterval(
 						() => {
-							return CommonUtil.getVue($appView);
+							return CommonUtils.getVue($appView);
 						},
 						() => {
 							return (
-								typeof CommonUtil.getVue($appView)?.isHitMedicalPost !==
+								typeof CommonUtils.getVue($appView)?.isHitMedicalPost !==
 								"undefined"
 							);
 						},
@@ -133,17 +254,17 @@ const TiebaComment = {
 						10000
 					)
 					.then(() => {
-						CommonUtil.getVue($appView)!.isHitMedicalPost = !1;
+						CommonUtils.getVue($appView)!.isHitMedicalPost = !1;
 						log.success("成功设置参数isHitMedicalPost: false");
 					});
 				utils
 					.waitPropertyByInterval(
 						() => {
-							return CommonUtil.getVue($appView);
+							return CommonUtils.getVue($appView);
 						},
 						() => {
 							return (
-								typeof CommonUtil.getVue($appView)?.thread?.reply_num ===
+								typeof CommonUtils.getVue($appView)?.thread?.reply_num ===
 								"number"
 							);
 						},
@@ -152,7 +273,7 @@ const TiebaComment = {
 					)
 					.then(() => {
 						TiebaComment.reply_num =
-							CommonUtil.getVue($appView)?.thread?.reply_num;
+							CommonUtils.getVue($appView)?.thread?.reply_num;
 						log.success("当前帖子的回复数量：" + TiebaComment.reply_num);
 					});
 			});
@@ -160,7 +281,7 @@ const TiebaComment = {
 	},
 	addStyle() {
 		/* 此处是百度贴吧帖子的css，应对贴吧前端重新编译文件 */
-		GM_addStyle(`
+		addStyle(`
           /* 去除底部高度设定 */
           .pb-page-wrapper{
             margin-bottom: 0 !important;
@@ -376,10 +497,12 @@ const TiebaComment = {
           }
           /* 修复全部回复距离上面的空白区域 */
           #replySwitch{
-            padding-top: 0.06rem;
+			padding-top: 0.06rem;
+			width: -webkit-fill-available;
+			background: #ffffff;
           }
           `);
-		GM_addStyle(`
+		addStyle(`
           .thread-text .BDE_Smiley {
             width: .2rem;
             height: .2rem;
@@ -398,12 +521,12 @@ const TiebaComment = {
             color: #614FBC;
           }`);
 		/* 隐藏百度贴吧精选帖子的底部空栏 */
-		GM_addStyle(`
+		addStyle(`
           body > div.main-page-wrap > div.app-view.transition-fade.pb-page-wrapper.mask-hidden > div.placeholder,
           div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item[data-track]{
             display: none;
           }`);
-		GM_addStyle(this.getLevelCSS());
+		addStyle(this.getLevelCSS());
 	},
 	/** 用户贴吧等级CSS */
 	getLevelCSS() {
@@ -1074,7 +1197,7 @@ const TiebaComment = {
 	 */
 	initReplyDialogCSS() {
 		log.success("初始化回复的弹窗");
-		GM_addStyle(`
+		addStyle(`
           /* 主 */
           #whitesev-reply-dialog{
             z-index: 99999;
@@ -1457,7 +1580,7 @@ const TiebaComment = {
 		function banBack() {
 			/* 监听地址改变 */
 			log.success("监听地址改变");
-			CommonUtil.getVue(TiebaComment.vueRootView)?.$router.push("/seeLzlReply");
+			CommonUtils.getVue(TiebaComment.vueRootView)?.$router.push("/seeLzlReply");
 			DOMUtils.on(window, "popstate", popstateEvent);
 		}
 
@@ -1470,11 +1593,11 @@ const TiebaComment = {
 			closeDialogByUrlChange();
 			while (1) {
 				if (
-					CommonUtil.getVue(TiebaComment.vueRootView)?.$router.history.current
+					CommonUtils.getVue(TiebaComment.vueRootView)?.$router.history.current
 						.fullPath === "/seeLzlReply"
 				) {
 					log.info("后退！");
-					CommonUtil.getVue(TiebaComment.vueRootView)?.$router.back();
+					CommonUtils.getVue(TiebaComment.vueRootView)?.$router.back();
 					await utils.sleep(250);
 				} else {
 					return;
@@ -1766,7 +1889,7 @@ const TiebaComment = {
 			this.vueRootView = document.querySelector(
 				".main-page-wrap"
 			) as HTMLDivElement;
-			log.success(["成功获取Vue根元素", CommonUtil.getVue(this.vueRootView)]);
+			log.success(["成功获取Vue根元素", CommonUtils.getVue(this.vueRootView)]);
 			if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
 				banBack();
 			}
@@ -1835,6 +1958,11 @@ const TiebaComment = {
 					userReplyTimeNumber,
 					"auto"
 				) + "前";
+
+			if (utils.isNull(userName)) {
+				/* 某些情况下获取到的user_name是空的 */
+				userName = userShowName;
+			}
 			result["data"].push({
 				userName: userName,
 				userShowName: userShowName,
@@ -1861,8 +1989,7 @@ const TiebaComment = {
 	},
 	/**
 	 * 获取第XX页的评论（不包括楼中楼评论）
-	 * @param {string} url
-	 * @returns {?HTMLElement|string}
+	 * @param url
 	 */
 	async getPageComment(url: string) {
 		let getDetails: HttpxDetails = {
@@ -1966,7 +2093,7 @@ const TiebaComment = {
 			log.error("元素.reply-right-container不存在");
 			return;
 		}
-		GM_addStyle(`
+		addStyle(`
           .white-only-lz{
             display: -webkit-flex;
             display: -ms-flexbox;
@@ -2010,7 +2137,7 @@ const TiebaComment = {
 			log.error("元素#replySwitch不存在");
 			return;
 		}
-		GM_addStyle(`
+		addStyle(`
           .reply-right-container {
             display: flex;
             align-items: center;

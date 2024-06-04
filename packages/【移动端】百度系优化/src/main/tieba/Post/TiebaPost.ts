@@ -1,13 +1,13 @@
-import { DOMUtils, httpx, log, utils } from "@/env";
+import { DOMUtils, addStyle, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaData } from "../Home/data";
-import { CommonUtil } from "@/util/CommonUtil";
+import { CommonUtils } from "@/utils/CommonUtils";
 import { TieBaApi } from "../api/TiebaApi";
 import { TiebaCore } from "../TiebaCore";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
-import { GM_addStyle, GM_getResourceText } from "ViteGM";
+import { GM_getResourceText } from "ViteGM";
 
 interface PostImg {
 	bsize: string;
@@ -40,10 +40,10 @@ const TiebaPost = {
 	optimizeImagePreview() {
 		if (import.meta.env.DEV) {
 			import("viewerjs/dist/viewer.css?raw").then((ViewerCSS) => {
-				GM_addStyle(ViewerCSS.default);
+				addStyle(ViewerCSS.default);
 			});
 		} else {
-			GM_addStyle(GM_getResourceText("ViewerCSS"));
+			addStyle(GM_getResourceText("ViewerCSS"));
 		}
 		/**
 		 * 查看图片
@@ -165,12 +165,10 @@ const TiebaPost = {
 				}
 			}
 		);
-		GM_addStyle(`
-		/* 图片右上角的APP专享 */
-		div.img-sudoku .img-desc{
-			display: none !important;
-		}
-		`);
+		CommonUtils.addBlockCSS(
+			/* 图片右上角的APP专享 */
+			"div.img-sudoku .img-desc"
+		);
 		DOMUtils.ready(function () {
 			utils
 				.waitNode<HTMLDivElement>("div.img-sudoku", 10000)
@@ -214,7 +212,7 @@ const TiebaPost = {
 							if (!isFind) {
 								return;
 							}
-							TiebaPost.mainPostImgList = CommonUtil.getVue($imgSudoKu)?.imgs;
+							TiebaPost.mainPostImgList = CommonUtils.getVue($imgSudoKu)?.imgs;
 							log.success([
 								"Vue上隐藏的帖子高清图片列表",
 								TiebaPost.mainPostImgList,
@@ -395,13 +393,13 @@ const TiebaPost = {
 					$appView,
 					() => {
 						return (
-							typeof CommonUtil.getVue($appView)?.isErrorThread === "boolean"
+							typeof CommonUtils.getVue($appView)?.isErrorThread === "boolean"
 						);
 					},
 					250,
 					10000
 				);
-				let appViewVue = CommonUtil.getVue($appView);
+				let appViewVue = CommonUtils.getVue($appView);
 				if (!(appViewVue && appViewVue.isErrorThread)) {
 					// 正常帖子，取消处理
 					log.info("验证参数isErrorThread：true，正常帖子");

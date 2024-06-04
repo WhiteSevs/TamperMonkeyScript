@@ -1,13 +1,13 @@
-import { GM_addStyle, unsafeWindow } from "ViteGM";
-import { DOMUtils, log, utils } from "@/env";
+import { unsafeWindow } from "ViteGM";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/util/CommonUtil";
+import { CommonUtils } from "@/utils/CommonUtils";
 import EasyLearnShieldCSS from "./shield.css?raw";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 
 const BaiduEasyLearn = {
 	init() {
-		GM_addStyle(EasyLearnShieldCSS);
+		addStyle(EasyLearnShieldCSS);
 		log.info("插入CSS规则");
 		PopsPanel.execMenu("baidu_easylearn_shield_this_question_paper", () => {
 			this.shieldQuestionPaper();
@@ -49,163 +49,132 @@ const BaiduEasyLearn = {
 	 * 屏蔽题卷
 	 */
 	shieldQuestionPaper() {
-		log.success("屏蔽题卷");
-		GM_addStyle(`
-        .question-shijuan-wrap,
-        /* PC端 */
-        .question-cont .timu-wrap .doc-cont-v2 .left{
-            display: none !important;
-        }
-        `);
+		log.info("屏蔽题卷");
+		CommonUtils.addBlockCSS(
+			".question-shijuan-wrap",
+			/* PC端 */
+			".question-cont .timu-wrap .doc-cont-v2 .left"
+		);
 	},
 	/**
 	 * 屏蔽本卷好题
 	 */
 	shieldGoodQuestionsInThisVolume() {
-		log.success("屏蔽本卷好题");
-		GM_addStyle(`
-        .exercise-questions-wrap{
-            display: none !important;
-        }
-        `);
+		log.info("屏蔽本卷好题");
+		CommonUtils.addBlockCSS(".exercise-questions-wrap");
 	},
 	/**
 	 * 屏蔽本卷相关试卷
 	 */
 	shieldRelatedTestPapers() {
-		log.success("屏蔽本卷相关试卷");
-		GM_addStyle(`
-        .related-papers-wrap,
-        /* PC端 */
-        .question-cont .timu-wrap .doc-cont-v2 .right{
-            display: none !important;
-        }{
-            display: none !important;
-        }
-        `);
+		log.info("屏蔽本卷相关试卷");
+		CommonUtils.addBlockCSS(
+			".related-papers-wrap",
+			/* PC端 */
+			".question-cont .timu-wrap .doc-cont-v2 .right"
+		);
 	},
 	/**
 	 * 屏蔽视频解析
 	 */
 	shieldVideoExplanation() {
-		log.success("屏蔽视频解析");
-		GM_addStyle(`
-        .video-doc-compo,
-        /* PC端 */
-        .container #questionVideo{
-            display: none !important;
-        }
-        `);
+		log.info("屏蔽视频解析");
+		CommonUtils.addBlockCSS(
+			".video-doc-compo",
+			/* PC端 */
+			".container #questionVideo"
+		);
 	},
 	/**
 	 * 屏蔽学霸
 	 */
 	shieldXuebaNotes() {
-		log.success("屏蔽学霸");
-		GM_addStyle(`
-        .note-list{
-            display: none !important;
-        }
-        `);
+		log.info("屏蔽学霸");
+		CommonUtils.addBlockCSS(".note-list");
 	},
 	/**
 	 * 屏蔽底部工具栏
 	 */
 	shieldBottomToolbar() {
-		log.success("屏蔽底部工具栏");
-		GM_addStyle(`
-        .question-bottom-bar,
-        #app .bgk-question-detail .float-btm{
-            display: none !important;
-        }
-        `);
+		log.info("屏蔽底部工具栏");
+		CommonUtils.addBlockCSS(
+			".question-bottom-bar",
+			"#app .bgk-question-detail .float-btm"
+		);
 	},
 	/**
 	 * 显示答案内容
 	 */
 	showAnswerContent() {
-		utils.waitNode("div.question-swiper").then(async () => {
-			log.success("显示答案内容");
-			await utils.waitVueByInterval(
-				function () {
-					return document.querySelector(
-						"div.question-swiper"
-					) as HTMLDivElement;
-				},
-				function (__vue__) {
-					return "$watch" in __vue__;
-				},
-				100,
-				10000
-			);
-			CommonUtil.getVue(
-				document.querySelector("div.question-swiper") as any
-			)?.$watch(
-				["isShowAnswer", "isShowAnswerContent"],
-				function (newVal: any, oldVal: any) {
-					log.success("显示答案");
-					this.isShowAnswer = true;
-					this.isShowAnswerContent = true;
-				},
-				{
-					deep: true,
-					immediate: true,
+		utils
+			.waitNode<HTMLDivElement>("div.question-swiper")
+			.then(async ($questionSwiper) => {
+				log.info("显示答案内容");
+				await utils.waitVueByInterval(
+					$questionSwiper,
+					function (vueObj) {
+						return "$watch" in vueObj;
+					},
+					100,
+					10000
+				);
+				let vueObj = CommonUtils.getVue($questionSwiper);
+				if (!vueObj) {
+					log.error("获取vue属性失败 => div.question-swiper");
+					return;
 				}
-			);
-			CommonUtil.getVue(
-				document.querySelector("div.question-swiper") as any
-			)?.$parent.$watch(
-				"isOnAlternativeDialog",
-				function (newVal: any, oldVal: any) {
-					log.success("禁止显示弹窗");
-					this.isOnAlternativeDialog = false;
-				},
-				{
-					deep: true,
-					immediate: true,
-				}
-			);
-			CommonUtil.getVue(
-				document.querySelector("div.question-swiper") as any
-			)?.$parent.$watch(
-				"userChangeQuestionCount",
-				function () {
-					log.success("滑动改变题目");
-					CommonUtil.getVue(
-						document.querySelector("div.question-swiper") as any
-					)!.isShowAnswer = true;
-					CommonUtil.getVue(
-						document.querySelector("div.question-swiper") as any
-					)!.isShowAnswerContent = true;
-				},
-				{
-					deep: true,
-					immediate: true,
-				}
-			);
-			/* 阻止调用App Scheme */
-			CommonUtil.getVue(
-				document.querySelector("div.question-swiper") as any
-			)!.$parent.openBgkApp = function () {
-				log.success(["openBgkApp：阻止调用App Scheme", arguments]);
-			};
-			CommonUtil.getVue(
-				document.querySelector("div.question-swiper") as any
-			)!.openApp = function () {
-				log.success(["openApp：阻止调用App Scheme", arguments]);
-			};
-			CommonUtil.getVue(
-				document.querySelector("div.question-swiper") as any
-			)!.$parent.goToApp = function () {
-				log.success(["goToApp：阻止调用App Scheme", arguments]);
-			};
-		});
+				vueObj.$watch(
+					["isShowAnswer", "isShowAnswerContent"],
+					function (newVal: any, oldVal: any) {
+						log.success("显示答案");
+						this.isShowAnswer = true;
+						this.isShowAnswerContent = true;
+					},
+					{
+						deep: true,
+						immediate: true,
+					}
+				);
+				vueObj.$parent.$watch(
+					"isOnAlternativeDialog",
+					function (newVal: any, oldVal: any) {
+						log.success("禁止显示弹窗");
+						this.isOnAlternativeDialog = false;
+					},
+					{
+						deep: true,
+						immediate: true,
+					}
+				);
+				vueObj.$parent.$watch(
+					"userChangeQuestionCount",
+					function () {
+						log.success("滑动改变题目");
+						vueObj.isShowAnswer = true;
+						vueObj.isShowAnswerContent = true;
+					},
+					{
+						deep: true,
+						immediate: true,
+					}
+				);
+				/* 阻止调用App Scheme */
+				vueObj.$parent.openBgkApp = function (...args: any[]) {
+					log.success(["openBgkApp：阻止调用App Scheme", args]);
+				};
+				vueObj.openApp = function (...args: any[]) {
+					log.success(["openApp：阻止调用App Scheme", args]);
+				};
+				vueObj.$parent.goToApp = function (...args: any[]) {
+					log.success(["goToApp：阻止调用App Scheme", args]);
+				};
+			});
 	},
 	/**
 	 * 劫持-今日搜题次数已达上限
 	 */
 	hijackUserSearchQuestCount() {
-		log.success("劫持-今日搜题次数已达上限");
+		log.info("移除-【今日搜题次数已达上限】的本次存储的记录");
 		unsafeWindow.localStorage.removeItem("user_search_quest_count");
 	},
 	/**
@@ -213,24 +182,32 @@ const BaiduEasyLearn = {
 	 */
 	allowUserSearchInput() {
 		utils
-			.waitNode(".search-input .search-box-wrap.search-box", 10000)
-			.then(async () => {
+			.waitNode<HTMLDivElement>(
+				".search-input .search-box-wrap.search-box",
+				10000
+			)
+			.then(async ($searchBox) => {
+				if (!$searchBox) {
+					log.error("元素.search-input .search-box-wrap.search-box未出现");
+					return;
+				}
 				log.success("允许使用顶部的输入框");
 				await utils.waitVueByInterval(
-					function () {
-						return document.querySelector(
-							".search-input .search-box-wrap.search-box"
-						) as HTMLDivElement;
-					},
-					function (__vue__: Vue2Context) {
-						return "$watch" in __vue__;
+					$searchBox,
+					function (vueObj: Vue2Context) {
+						return "$watch" in vueObj;
 					},
 					250,
 					10000
 				);
-				CommonUtil.getVue(
-					document.querySelector(".search-input .search-box-wrap.search-box")
-				)!.$watch(
+				let vueObj = CommonUtils.getVue($searchBox);
+				if (vueObj == null) {
+					log.error(
+						"获取vue属性失败 => .search-input .search-box-wrap.search-box"
+					);
+					return;
+				}
+				vueObj.$watch(
 					"isFake",
 					function (newVal, oldVal) {
 						log.success("允许使用顶部搜索输入框");

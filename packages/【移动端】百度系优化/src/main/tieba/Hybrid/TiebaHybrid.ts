@@ -1,9 +1,7 @@
-import { GM_addStyle } from "ViteGM";
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils, addStyle, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { TiebaCore } from "../TiebaCore";
-import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
-import { CommonUtil } from "@/util/CommonUtil";
+import { TiebaUrlApi } from "../api/TiebaApi";
+import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
 
 const TiebaHybrid = {
@@ -17,13 +15,13 @@ const TiebaHybrid = {
 	 * 屏蔽广告
 	 */
 	blockAds() {
-		GM_addStyle(`
-          /* 顶部横幅 */
-          .tb-index-navbar .fix-nav-guide-bar,
-          /* 底部的百度贴吧app内打开 */
-          .tb-index-navbar div:has(.fix-nav-bar-bottom){
-            display: none !important;
-          }
+		CommonUtils.addBlockCSS(
+			/* 顶部横幅 */
+			".tb-index-navbar .fix-nav-guide-bar",
+			/* 底部的百度贴吧app内打开 */
+			".tb-index-navbar div:has(.fix-nav-bar-bottom)"
+		);
+		addStyle(`
           /* 把下面的内容往上移 */
           #app_container ul.navbar-box{
             top: 0px !important;
@@ -31,8 +29,8 @@ const TiebaHybrid = {
           /* 把下面的内容往上移 */
           #app_container .navbar-view{
             padding-top: 0px !important;
-          }
-          `);
+          } 
+		  `);
 	},
 	/**
 	 * 新标签页打开
@@ -45,7 +43,7 @@ const TiebaHybrid = {
 			function (event) {
 				utils.preventEvent(event);
 				let clickNode = event.target;
-				let tid = CommonUtil.getVue(clickNode)?.tid;
+				let tid = CommonUtils.getVue(clickNode)?.tid;
 				if (utils.isNull(tid)) {
 					Qmsg.error("获取帖子的tid失败");
 					return;

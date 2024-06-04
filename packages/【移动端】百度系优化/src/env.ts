@@ -7,10 +7,9 @@ import {
 	GM_registerMenuCommand,
 	GM_unregisterMenuCommand,
 	GM_xmlhttpRequest,
-	GM_addStyle,
 	GM_getResourceText,
 } from "ViteGM";
-import { LoadingView } from "./util/LoadingView";
+import { LoadingView } from "./utils/LoadingView";
 import ElementPlus from "element-plus";
 import { createApp } from "vue";
 import Qmsg from "qmsg";
@@ -89,6 +88,8 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
+const addStyle = utils.addStyle;
+
 const VUE_ELE_NAME_ID = "vite-app";
 /**
  * 注册vue、element-plus、element-plus/icons-vue
@@ -124,9 +125,9 @@ const MountVue = async function (targetApp: any, router?: any) {
 	});
 	if (import.meta.env.DEV) {
 		let elementPlusCSS = await import("element-plus/dist/index.css?raw");
-		GM_addStyle(elementPlusCSS.default);
+		addStyle(elementPlusCSS.default);
 	} else {
-		GM_addStyle(GM_getResourceText("ElementPlusResourceCSS"));
+		addStyle(GM_getResourceText("ElementPlusResourceCSS"));
 	}
 };
 
@@ -143,4 +144,5 @@ export {
 	loadingView,
 	MountVue,
 	VUE_ELE_NAME_ID,
+	addStyle,
 };
