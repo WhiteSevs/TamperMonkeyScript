@@ -1,8 +1,11 @@
+import { DOMUtils } from "@/env";
 import { GreasyforkForumFilter } from "./GreasyforkForumFilter";
 
 const GreasyforkForum = {
 	init() {
-		GreasyforkForumFilter.init();
+		DOMUtils.ready(() => {
+			GreasyforkForumFilter.init();
+		});
 	},
 };
 

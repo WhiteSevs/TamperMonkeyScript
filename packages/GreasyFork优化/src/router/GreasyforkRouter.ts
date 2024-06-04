@@ -30,10 +30,16 @@ const GreasyforkRouter = {
 		return window.location.pathname.includes("/scripts/");
 	},
 	/**
+	 * 脚本列表页面
+	 */
+	isScriptList() {
+		return window.location.pathname.endsWith("/scripts");
+	},
+	/**
 	 * 讨论页面
 	 */
 	isDiscuessions() {
-		return window.location.pathname.includes("/discussions/");
+		return window.location.pathname.endsWith("/discussions");
 	},
 };
 

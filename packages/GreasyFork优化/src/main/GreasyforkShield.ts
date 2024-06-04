@@ -1,14 +1,31 @@
-import { utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 
 const GreasyforkShield = {
 	key: "gf-shield-rule",
 	init() {
+		let lockFunction = new utils.LockFunction(() => {
+			this.filter();
+		}, 50);
+		DOMUtils.ready(() => {
+			utils.mutationObserver(document.body, {
+				config: {
+					subtree: true,
+					childList: true,
+				},
+				callback: () => {
+					lockFunction.run();
+				},
+			});
+			lockFunction.run();
+		});
+	},
+	filter() {
 		document
 			.querySelectorAll<HTMLLIElement>("#browse-script-list > li")
-			.forEach(($element) => {
-				let data = $element.dataset;
-				let scriptDescription = $element.querySelector<HTMLElement>(
+			.forEach(($scriptList) => {
+				let data = $scriptList.dataset;
+				let scriptDescription = $scriptList.querySelector<HTMLElement>(
 					".script-description"
 				);
 				data["scriptDescription"] =
@@ -36,7 +53,8 @@ const GreasyforkShield = {
 								(data["scriptRatingScore"] as any) >
 								parseFloat(ruleValue.slice(1))
 							) {
-								$element.remove();
+								log.info(["触发过滤规则", [localRule, data]]);
+								$scriptList.remove();
 								break;
 							}
 						} else if (ruleValue.startsWith("<")) {
@@ -45,7 +63,8 @@ const GreasyforkShield = {
 								(data["scriptRatingScore"] as any) <
 								parseFloat(ruleValue.slice(1))
 							) {
-								$element.remove();
+								log.info(["触发过滤规则", [localRule, data]]);
+								$scriptList.remove();
 								break;
 							}
 						}
@@ -55,7 +74,8 @@ const GreasyforkShield = {
 						}
 						let regexpRuleValue = new RegExp(ruleValue, "ig");
 						if ((data as any)[ruleName].match(regexpRuleValue)) {
-							$element.remove();
+							log.info(["触发过滤规则", [localRule, data]]);
+							$scriptList.remove();
 							break;
 						}
 					}

@@ -1,17 +1,44 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { log } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
 
 const GreasyforkForumFilter = {
 	init() {
-		this.filterDiscussions();
+		log.info("论坛-过滤");
+		GM_addStyle(`
+        .discussion-list-container {
+          --discusstion-repeat-color: #ffa700;
+        }
+        
+        .discussion-list-container a.discussion-title[data-repeat-tip-show]::before {
+          content: attr(data-repeat-tip-show);
+          color: var(--discusstion-repeat-color);
+          border-radius: 5px;
+          border: 2px solid var(--discusstion-repeat-color);
+          padding: 2px 5px;
+          font-weight: 800;
+          font-size: 14px;
+        }
+        `);
+		let lockFunction = new utils.LockFunction(() => {
+			this.filterDiscussions();
+		}, 50);
+		utils.mutationObserver(document.body, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFunction.run();
+			},
+		});
+		lockFunction.run();
 	},
 	/**
 	 * 论坛-过滤
 	 */
 	filterDiscussions() {
-		log.info("论坛-过滤");
 		const FILTER_SCRIPT_KEY = "greasyfork-discussions-filter-script";
 		const FILTER_POST_USER_KEY = "greasyfork-discussions-filter-post-user";
 		const FILTER_REPLY_USER_KEY = "greasyfork-discussions-filter-reply-user";
@@ -28,64 +55,50 @@ const GreasyforkForumFilter = {
 
 		const SNIPPET_MAP = new Map<string, HTMLElement>();
 
-		GM_addStyle(`
-        .discussion-list-container {
-          --discusstion-repeat-color: #ffa700;
-        }
-        
-        .discussion-list-container a.discussion-title[data-repeat-tip-show]::before {
-          content: attr(data-repeat-tip-show);
-          color: var(--discusstion-repeat-color);
-          border-radius: 5px;
-          border: 2px solid var(--discusstion-repeat-color);
-          padding: 2px 5px;
-          font-weight: 800;
-          font-size: 14px;
-        }
-        `);
-		let discussionListContainer = document.querySelectorAll(
+		let discussionListContainer = document.querySelectorAll<HTMLDivElement>(
 			".discussion-list-container"
 		);
 
-		Array.from(discussionListContainer).forEach((listContainer, index) => {
-			if (!listContainer.querySelector("a.script-link")) {
+		discussionListContainer.forEach(($listContainer, index) => {
+			if (!$listContainer.querySelector<HTMLAnchorElement>("a.script-link")) {
 				return;
 			}
 			const discussionInfo = {
 				/** 脚本名 */
 				scriptName:
-					listContainer.querySelector<HTMLAnchorElement>("a.script-link")!
+					$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!
 						.innerText,
 				/** 脚本主页地址 */
 				scriptUrl:
-					listContainer.querySelector<HTMLAnchorElement>("a.script-link")!.href,
+					$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!
+						.href,
 				/** 脚本id */
 				scriptId: GreasyforkApi.getScriptId(
-					listContainer.querySelector<HTMLAnchorElement>("a.script-link")!.href
+					$listContainer.querySelector<HTMLAnchorElement>("a.script-link")!.href
 				),
 				/** 发布的用户名 */
 				postUserName:
-					listContainer.querySelector<HTMLAnchorElement>("a.user-link")!
+					$listContainer.querySelector<HTMLAnchorElement>("a.user-link")!
 						.innerText,
 				/** 发布的用户主页地址 */
 				postUserHomeUrl:
-					listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href,
+					$listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href,
 				/** 发布的用户id */
 				postUserId: GreasyforkApi.getUserId(
-					listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href
+					$listContainer.querySelector<HTMLAnchorElement>("a.user-link")!.href
 				),
 				/** 发布的时间 */
 				postTimeStamp: new Date(
-					listContainer
+					$listContainer
 						.querySelector<HTMLElement>("relative-time")!
 						.getAttribute("datetime") as any
 				),
 				/** 发布的地址*/
 				snippetUrl:
-					listContainer.querySelector<HTMLAnchorElement>("a.discussion-title")!
+					$listContainer.querySelector<HTMLAnchorElement>("a.discussion-title")!
 						.href,
 				/** 发布的内容片段*/
-				snippet: listContainer.querySelector<HTMLSpanElement>(
+				snippet: $listContainer.querySelector<HTMLSpanElement>(
 					"span.discussion-snippet"
 				)!.innerText,
 				/** 回复的用户名*/
@@ -99,24 +112,24 @@ const GreasyforkForumFilter = {
 			};
 
 			if (
-				listContainer.querySelector(
+				$listContainer.querySelector<HTMLDivElement>(
 					".discussion-meta-item .discussion-meta-item"
 				)
 			) {
 				discussionInfo.replyUserName =
-					listContainer.querySelector<HTMLAnchorElement>(
+					$listContainer.querySelector<HTMLAnchorElement>(
 						".discussion-meta-item .discussion-meta-item a.user-link"
 					)!.innerText as string;
 				discussionInfo.replyUserHomeUrl =
-					listContainer.querySelector<HTMLAnchorElement>(
+					$listContainer.querySelector<HTMLAnchorElement>(
 						".discussion-meta-item .discussion-meta-item a.user-link"
 					)!.href as string;
 				discussionInfo.replyUserId = GreasyforkApi.getUserId(
 					discussionInfo.replyUserHomeUrl
 				);
 				discussionInfo.replyTimeStamp = new Date(
-					listContainer
-						.querySelector(
+					$listContainer
+						.querySelector<HTMLElement>(
 							".discussion-meta-item .discussion-meta-item relative-time"
 						)
 						?.getAttribute("datetime") as string
@@ -151,18 +164,18 @@ const GreasyforkForumFilter = {
 					"过滤重复内容：" + discussionInfo.snippet,
 					discussionInfo,
 				]);
-				listContainer.remove();
+				$listContainer.remove();
 				return;
 			}
 
-			SNIPPET_MAP.set(discussionInfo.snippet, listContainer as HTMLElement);
+			SNIPPET_MAP.set(discussionInfo.snippet, $listContainer as HTMLElement);
 			for (const filterScriptId of filterScriptList) {
 				if (discussionInfo.scriptId === filterScriptId) {
 					log.success([
 						"过滤脚本id：" + discussionInfo.scriptId,
 						discussionInfo,
 					]);
-					listContainer.remove();
+					$listContainer.remove();
 					return;
 				}
 			}
@@ -173,7 +186,7 @@ const GreasyforkForumFilter = {
 						"过滤发布用户id：" + discussionInfo.postUserId,
 						discussionInfo,
 					]);
-					listContainer.remove();
+					$listContainer.remove();
 					return;
 				}
 			}
@@ -185,7 +198,7 @@ const GreasyforkForumFilter = {
 							"过滤回复用户id：" + discussionInfo.replyUserId,
 							discussionInfo,
 						]);
-						listContainer.remove();
+						$listContainer.remove();
 						return;
 					}
 				}

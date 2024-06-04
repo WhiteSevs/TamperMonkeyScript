@@ -38,7 +38,9 @@ const Greasyfork = {
 		DOMUtils.ready(() => {
 			GreasyforkMenu.initEnv();
 			GreasyforkAccount.init();
-			GreasyforkShield.init();
+			if (GreasyforkRouter.isScriptList()) {
+				GreasyforkShield.init();
+			}
 			GreasyforkMenu.handleLocalGotoCallBack();
 			Greasyfork.setFindCodeSearchBtn();
 			Greasyfork.setCollectScriptBtn();
