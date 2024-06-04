@@ -226,32 +226,41 @@ const Bilibili = {
 					set(vueObj) {
 						vueObj.$store.state.common.tinyApp = true;
 						log.success("成功设置参数 $store.state.common.tinyApp=true");
-						setTimeout(() => {
-							let $playerVideo = document.querySelector(
-								"#bilibiliPlayer video"
-							);
-							if (!$playerVideo) {
-								/* 该元素不存在，可能不是/video */
-								return;
-							}
 
-							utils
-								.waitNode<HTMLDivElement>(".m-video-player")
-								.then(($videoPlayer: any) => {
-									BilibiliUtils.waitVuePropToSet($videoPlayer, [
-										{
-											msg: "等待获取函数 initPlayer()",
-											check(vueObj) {
-												return typeof vueObj?.initPlayer === "function";
+						utils
+							.waitNode("#bilibiliPlayer", 3000)
+							.then(async ($bilibiliPlayer) => {
+								if (!$bilibiliPlayer) {
+									/* 该元素不存在，可能不是/video */
+									return;
+								}
+								await utils.sleep(300);
+								utils
+									.waitNode<HTMLDivElement>(".m-video-player", 10000)
+									.then(($videoPlayer: any) => {
+										if (!$videoPlayer) {
+											return;
+										}
+										BilibiliUtils.waitVuePropToSet($videoPlayer, [
+											{
+												msg: "等待获取函数 initPlayer()",
+												check(vueObj) {
+													return typeof vueObj?.initPlayer === "function";
+												},
+												set(vueObj) {
+													let $playerVideo =
+														$bilibiliPlayer.querySelector("video");
+													if ($playerVideo) {
+														log.success("检测ing，视频已成功初始化");
+														return;
+													}
+													vueObj.initPlayer();
+													log.success("调用初始化视频函数 initPlayer()");
+												},
 											},
-											set(vueObj) {
-												vueObj.initPlayer();
-												log.success("成功调用函数 initPlayer()");
-											},
-										},
-									]);
-								});
-						}, 2000);
+										]);
+									});
+							});
 					},
 				},
 			]);

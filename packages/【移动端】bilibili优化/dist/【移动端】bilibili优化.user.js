@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.3.23
+// @version      2024.6.5
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.5/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.6/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -2300,14 +2300,15 @@
             set(vueObj) {
               vueObj.$store.state.common.tinyApp = true;
               log.success("成功设置参数 $store.state.common.tinyApp=true");
-              setTimeout(() => {
-                let $playerVideo = document.querySelector(
-                  "#bilibiliPlayer video"
-                );
-                if (!$playerVideo) {
+              utils.waitNode("#bilibiliPlayer", 3e3).then(async ($bilibiliPlayer) => {
+                if (!$bilibiliPlayer) {
                   return;
                 }
-                utils.waitNode(".m-video-player").then(($videoPlayer) => {
+                await utils.sleep(300);
+                utils.waitNode(".m-video-player", 1e4).then(($videoPlayer) => {
+                  if (!$videoPlayer) {
+                    return;
+                  }
                   BilibiliUtils.waitVuePropToSet($videoPlayer, [
                     {
                       msg: "等待获取函数 initPlayer()",
@@ -2315,13 +2316,18 @@
                         return typeof (vueObj2 == null ? void 0 : vueObj2.initPlayer) === "function";
                       },
                       set(vueObj2) {
+                        let $playerVideo = $bilibiliPlayer.querySelector("video");
+                        if ($playerVideo) {
+                          log.success("检测ing，视频已成功初始化");
+                          return;
+                        }
                         vueObj2.initPlayer();
-                        log.success("成功调用函数 initPlayer()");
+                        log.success("调用初始化视频函数 initPlayer()");
                       }
                     }
                   ]);
                 });
-              }, 2e3);
+              });
             }
           }
         ]);
