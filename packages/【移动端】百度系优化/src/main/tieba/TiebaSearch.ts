@@ -116,7 +116,7 @@ const TiebaSearch = {
 						}
 					} else {
 						/* 当前是在主页中，搜索按钮判定为搜索吧 */
-						TiebaSearch.frontPageSeach();
+						TiebaSearch.frontPageSeach(that.$data.isFirstClick);
 						if (that.$data.isSetClickEvent_home) {
 							that.$data.isSetClickEvent_home = true;
 							utils.listenKeyboard(
@@ -124,7 +124,7 @@ const TiebaSearch = {
 								"keypress",
 								(keyName) => {
 									if (keyName === "Enter") {
-										TiebaSearch.frontPageSeach();
+										TiebaSearch.frontPageSeach(that.$data.isFirstClick);
 									}
 								}
 							);
@@ -234,7 +234,7 @@ const TiebaSearch = {
 	/**
 	 * 帖子外搜索(也就是首页搜索吧)
 	 */
-	frontPageSeach() {
+	frontPageSeach(isFirstClick: boolean) {
 		log.success("当前是在首页");
 		let searchInputElement = document.querySelector(
 			"#tieba-search"
@@ -245,6 +245,11 @@ const TiebaSearch = {
 			(searchInputElement.previousElementSibling as HTMLElement).style.display =
 				"none";
 			searchInputElement.style.display = "block";
+			if (isFirstClick) {
+				setTimeout(() => {
+					searchInputElement.focus();
+				}, 20);
+			}
 		} else {
 			/* 已显示出来的话就跳转搜索 */
 			if (utils.isNull(searchText)) {

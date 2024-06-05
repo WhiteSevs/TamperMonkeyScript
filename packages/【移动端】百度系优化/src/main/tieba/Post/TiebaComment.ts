@@ -232,51 +232,28 @@ const TiebaComment = {
 					});
 			});
 
-		utils
-			.waitNode<HTMLDivElement>(".app-view", 10000)
-			.then(async ($appView) => {
-				if (!$appView) {
-					log.error(".app-view元素未出现");
-					return;
-				}
-				utils
-					.waitPropertyByInterval(
-						() => {
-							return CommonUtils.getVue($appView);
-						},
-						() => {
-							return (
-								typeof CommonUtils.getVue($appView)?.isHitMedicalPost !==
-								"undefined"
-							);
-						},
-						void 0,
-						10000
-					)
-					.then(() => {
-						CommonUtils.getVue($appView)!.isHitMedicalPost = !1;
-						log.success("成功设置参数isHitMedicalPost: false");
-					});
-				utils
-					.waitPropertyByInterval(
-						() => {
-							return CommonUtils.getVue($appView);
-						},
-						() => {
-							return (
-								typeof CommonUtils.getVue($appView)?.thread?.reply_num ===
-								"number"
-							);
-						},
-						void 0,
-						10000
-					)
-					.then(() => {
-						TiebaComment.reply_num =
-							CommonUtils.getVue($appView)?.thread?.reply_num;
-						log.success("当前帖子的回复数量：" + TiebaComment.reply_num);
-					});
-			});
+		CommonUtils.waitVuePropToSet(".app-view", [
+			{
+				msg: "设置参数 isHitMedicalPost",
+				check(vueObj) {
+					return typeof vueObj?.isHitMedicalPost === "boolean";
+				},
+				set(vueObj) {
+					vueObj.isHitMedicalPost = false;
+					log.success("成功设置参数 isHitMedicalPost=false");
+				},
+			},
+			{
+				msg: "获取参数 thread.reply_num",
+				check(vueObj) {
+					return typeof vueObj?.thread?.reply_num === "number";
+				},
+				set(vueObj) {
+					TiebaComment.reply_num = vueObj.thread.reply_num;
+					log.success("获取当前帖子的回复数量：" + TiebaComment.reply_num);
+				},
+			},
+		]);
 		this.addStyle();
 	},
 	addStyle() {
@@ -593,6 +570,86 @@ const TiebaComment = {
           `;
 	},
 	/**
+	 * 滚动事件
+	 * @param isPrev
+	 * @param pageDOM
+	 * @param pageCommentList
+	 * @returns
+	 */
+	scrollEvent(
+		isNext: boolean,
+		pageDOM: string | Document | undefined,
+		pageCommentList:
+			| {
+					commentList: any;
+					userList: any;
+			  }
+			| undefined
+	) {
+		if (
+			!pageDOM ||
+			typeof pageDOM === "string" ||
+			!pageCommentList?.commentList
+		) {
+			loadingView.setText(
+				typeof pageDOM === "string" ? (pageDOM as string) : "获取评论失败"
+			);
+			log.error(pageDOM);
+			log.error(pageCommentList);
+			TiebaComment.removeScrollListener();
+			return;
+		}
+		log.info("成功获取评论和楼中楼评论");
+		let comments = Array.from(
+			pageDOM.querySelectorAll<HTMLDivElement>(".l_post.l_post_bright")
+		);
+		if (TiebaComment.page == 1) {
+			/* 为第一页时，去除第一个，也就是主评论 */
+			comments.splice(0, 1);
+		}
+		if (isNext) {
+			/* 正序 */
+		} else {
+			/* 逆序 */
+			comments.reverse();
+		}
+		comments.forEach((ele) => {
+			TiebaComment.insertNewCommentInnerElement(
+				TiebaComment.getNewCommentInnerElement(ele, pageCommentList)
+			);
+			TiebaComment.floor_num++;
+		});
+		let $onlyLz = document.querySelector<HTMLDivElement>(".white-only-lz");
+		if ($onlyLz && $onlyLz.classList.contains("white-only-lz-qx")) {
+			document
+				.querySelectorAll<HTMLDivElement>(".post-item")
+				.forEach(($postItem) => {
+					let landlord = $postItem.getAttribute("landlord");
+					if (landlord == "0") {
+						$postItem.classList.add("white-only-lz-none");
+					}
+				});
+		}
+		loadingView.hide();
+		if (
+			(isNext && TiebaComment.page >= TiebaComment.maxPage) ||
+			(!isNext && TiebaComment.page <= 1)
+		) {
+			log.info("已加载所有的评论");
+			loadingView.setText("已加载所有的评论");
+			loadingView.hide();
+			TiebaComment.removeScrollListener();
+			return;
+		}
+		if (isNext) {
+			TiebaComment.page++;
+		} else {
+			TiebaComment.page--;
+		}
+
+		utils.dispatchEvent(document, "scroll");
+	},
+	/**
 	 * scroll事件触发 自动加载下一页的评论
 	 */
 	nextPageScrollEvent: async (event: Event) => {
@@ -614,53 +671,7 @@ const TiebaComment = {
 		let pageCommentList = await TiebaComment.getPageCommentList(
 			nextPageAllCommentUrl
 		);
-		if (
-			!pageDOM ||
-			typeof pageDOM === "string" ||
-			!pageCommentList?.commentList
-		) {
-			loadingView.setText(
-				typeof pageDOM === "string" ? (pageDOM as string) : "获取评论失败"
-			);
-			log.error(pageDOM);
-			log.error(pageCommentList);
-			TiebaComment.removeScrollListener();
-			return;
-		}
-		log.info("成功获取下一页评论和楼中楼评论");
-		let comments = Array.from(
-			pageDOM.querySelectorAll(".l_post.l_post_bright")
-		) as HTMLDivElement[];
-		if (TiebaComment.page == 1) {
-			/* 为第一页时，去除第一个，也就是主评论 */
-			comments.splice(0, 1);
-		}
-		comments.forEach((ele) => {
-			TiebaComment.insertNewCommentInnerElement(
-				TiebaComment.getNewCommentInnerElement(ele, pageCommentList)
-			);
-			TiebaComment.floor_num += 1;
-		});
-		if (
-			(
-				document.querySelector(".white-only-lz") as HTMLElement
-			).classList.contains("white-only-lz-qx")
-		) {
-			document.querySelectorAll(".post-item").forEach((ele) => {
-				let landlord = ele.getAttribute("landlord");
-				if (landlord == "0") {
-					ele.classList.add("white-only-lz-none");
-				}
-			});
-		}
-		loadingView.hide();
-		if (TiebaComment.page >= TiebaComment.maxPage) {
-			log.info("已加载所有的评论");
-			loadingView.setText("已加载所有的评论");
-			loadingView.hide();
-			TiebaComment.removeScrollListener();
-		}
-		TiebaComment.page++;
+		TiebaComment.scrollEvent(true, pageDOM, pageCommentList);
 	},
 	/**
 	 * scroll事件触发 自动加载上一页的评论
@@ -684,54 +695,7 @@ const TiebaComment = {
 		let pageCommentList = await TiebaComment.getPageCommentList(
 			pageAllCommentUrl
 		);
-		if (
-			!pageDOM ||
-			typeof pageDOM === "string" ||
-			!pageCommentList?.commentList
-		) {
-			loadingView.setText(
-				typeof pageDOM === "string" ? pageDOM : "获取评论失败"
-			);
-			log.error(pageDOM);
-			log.error(pageCommentList);
-			TiebaComment.removeScrollListener();
-			return;
-		}
-		log.info("成功获取上一页评论和楼中楼评论");
-		let comments = Array.from(
-			pageDOM.querySelectorAll(".l_post.l_post_bright")
-		) as HTMLDivElement[];
-		if (TiebaComment.page == 1) {
-			/* 为第一页时，去除第一个，也就是主评论 */
-			comments.splice(0, 1);
-		}
-		comments.reverse();
-		comments.forEach((element) => {
-			TiebaComment.insertNewCommentInnerElement(
-				TiebaComment.getNewCommentInnerElement(element, pageCommentList)
-			);
-			TiebaComment.floor_num++;
-		});
-		if (
-			(
-				document.querySelector(".white-only-lz") as HTMLElement
-			).classList.contains("white-only-lz-qx")
-		) {
-			document.querySelectorAll(".post-item").forEach((ele) => {
-				let landlord = ele.getAttribute("landlord");
-				if (landlord == "0") {
-					ele.classList.add("white-only-lz-none");
-				}
-			});
-		}
-		loadingView.hide();
-		if (TiebaComment.page <= 1) {
-			log.info("已加载所有的评论");
-			loadingView.setText("已加载所有的评论");
-			loadingView.hide();
-			TiebaComment.removeScrollListener();
-		}
-		TiebaComment.page--;
+		TiebaComment.scrollEvent(false, pageDOM, pageCommentList);
 	},
 	/**
 	 * 设置自动加载下一页的scrol事件
@@ -910,7 +874,8 @@ const TiebaComment = {
 			element
 				.querySelector(".p_author_face > img")
 				?.getAttribute("data-tb-lazyload") ||
-			(element.querySelector(".p_author_face > img") as HTMLImageElement)?.src;
+			element.querySelector<HTMLImageElement>(".p_author_face > img")?.src ||
+			"";
 
 		/* 判断是否楼主 */
 		let is_landlord = 0;
@@ -972,15 +937,15 @@ const TiebaComment = {
 							'<svg data-v-5b60f30b="" class="landlord"><use xlink:href="#icon_landlord"></use></svg>';
 					}
 					/* 每一项楼中楼的回复html */
-					let lzlCommentItemHTML = `<div data-v-5b60f30b="" class="lzl-post-item" style="">
-                  <div data-v-5b60f30b="" class="text-box">
-                    <span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
-                    <div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
-                      <span data-v-ab14b3fe="" class="text-content">${u_content}</span>
-                    </div>
-                  </div>
-                </div>
-                `;
+					let lzlCommentItemHTML = `
+					<div data-v-5b60f30b="" class="lzl-post-item" style="">
+						<div data-v-5b60f30b="" class="text-box">
+							<span data-v-5b60f30b="" class="link username" data-home-url="${u_user_home_url}">${u_user_name}</span>
+							<div data-v-ab14b3fe="" data-v-5b60f30b="" class="thread-text lzl-post-text">
+								<span data-v-ab14b3fe="" class="text-content">${u_content}</span>
+							</div>
+						</div>
+					</div>`;
 					newUserCommentHTML += lzlCommentItemHTML;
 				}
 			);
@@ -1077,6 +1042,10 @@ const TiebaComment = {
 				landlord: is_landlord,
 			}
 		);
+		/* 过滤掉<embed>该元素没啥作用 */
+		newCommentElement
+			.querySelectorAll(".text-content embed.BDE_Music")
+			.forEach((ele) => ele.remove());
 		return newCommentElement;
 	},
 	/**
@@ -1580,7 +1549,9 @@ const TiebaComment = {
 		function banBack() {
 			/* 监听地址改变 */
 			log.success("监听地址改变");
-			CommonUtils.getVue(TiebaComment.vueRootView)?.$router.push("/seeLzlReply");
+			CommonUtils.getVue(TiebaComment.vueRootView)?.$router.push(
+				"/seeLzlReply"
+			);
 			DOMUtils.on(window, "popstate", popstateEvent);
 		}
 

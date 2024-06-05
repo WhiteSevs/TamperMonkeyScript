@@ -199,25 +199,21 @@ const TiebaPost = {
 							/* 通过重新赋值innerHTML来覆盖原有的事件 */
 							$imgSudoKu.innerHTML = $imgSudoKu.innerHTML;
 						});
-					utils
-						.waitVueByInterval(
-							$imgSudoKu,
-							(__vue__) => {
-								return __vue__?.imgs != null;
+					CommonUtils.waitVuePropToSet("div.img-sudoku", [
+						{
+							msg: "等待获取属性 imgs",
+							check(vueObj) {
+								return vueObj?.imgs != null;
 							},
-							250,
-							10000
-						)
-						.then((isFind) => {
-							if (!isFind) {
-								return;
-							}
-							TiebaPost.mainPostImgList = CommonUtils.getVue($imgSudoKu)?.imgs;
-							log.success([
-								"Vue上隐藏的帖子高清图片列表",
-								TiebaPost.mainPostImgList,
-							]);
-						});
+							set(vueObj) {
+								TiebaPost.mainPostImgList = vueObj.imgs;
+								log.success([
+									"Vue上隐藏的帖子高清图片列表",
+									TiebaPost.mainPostImgList,
+								]);
+							},
+						},
+					]);
 				});
 		});
 	},

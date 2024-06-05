@@ -170,74 +170,67 @@ const TiebaBaNei = {
 	 * 过滤重复帖子
 	 */
 	filterDuplicatePosts() {
-		utils.waitNode<HTMLDivElement>(".tb-threadlist").then(async (element) => {
-			await utils.waitVueByInterval(
-				element,
-				(__vue__) => {
-					return Boolean(__vue__?.$props?.list);
+		CommonUtils.waitVuePropToSet(".tb-threadlist", [
+			{
+				msg: "等待获取$watch监听帖子列表",
+				check(vueObj) {
+					return typeof vueObj?.$watch === "function";
 				},
-				100,
-				10000
-			);
-			let tbThreadListVue = CommonUtils.getVue(
-				document.querySelector(".tb-threadlist")
-			);
-			if (!tbThreadListVue) {
-				log.error("未找到.tb-threadlist元素的vue属性");
-				return;
-			}
-			log.success("监听帖子数量改变");
-			tbThreadListVue.$watch(
-				"list",
-				function (
-					this: {
-						$props: {
-							list: BaNeiPostInfo[];
-						} & NestedObjectWithToString;
-					} & NestedObjectWithToString,
-					newVal: any,
-					oldVal: any
-				) {
-					log.success("帖子数量触发改变");
-					let postsMap: {
-						[key: number]: number;
-					} = {};
-					let samePostList: {
-						title: string;
-						id: number;
-						index: number;
-					}[] = [];
-					for (let index = 0; index < this.$props.list.length; index++) {
-						let postsInfo = this.$props.list[index];
-						if (!postsInfo.id) {
-							continue;
+				set(vueObj) {
+					log.success("监听帖子数量改变");
+					vueObj.$watch(
+						"list",
+						function (
+							this: {
+								$props: {
+									list: BaNeiPostInfo[];
+								} & NestedObjectWithToString;
+							} & NestedObjectWithToString,
+							newVal: any,
+							oldVal: any
+						) {
+							log.success("帖子数量触发改变");
+							let postsMap: {
+								[key: number]: number;
+							} = {};
+							let samePostList: {
+								title: string;
+								id: number;
+								index: number;
+							}[] = [];
+							for (let index = 0; index < this.$props.list.length; index++) {
+								let postsInfo = this.$props.list[index];
+								if (!postsInfo.id) {
+									continue;
+								}
+								if (postsInfo.id in postsMap) {
+									samePostList.push({
+										title: postsInfo.title ?? "",
+										id: postsInfo.id,
+										index: index,
+									});
+								} else {
+									postsMap[postsInfo.id] = index;
+								}
+							}
+							if (samePostList.length) {
+								console.log(postsMap);
+								console.log(samePostList);
+							}
+							for (let index = samePostList.length - 1; index >= 0; index--) {
+								let removePostInfo = samePostList[index];
+								log.error("移除重复帖子：" + removePostInfo.title);
+								this.$props.list.splice(removePostInfo.index, 1);
+							}
+						},
+						{
+							deep: true,
+							immediate: true,
 						}
-						if (postsInfo.id in postsMap) {
-							samePostList.push({
-								title: postsInfo.title ?? "",
-								id: postsInfo.id,
-								index: index,
-							});
-						} else {
-							postsMap[postsInfo.id] = index;
-						}
-					}
-					if (samePostList.length) {
-						console.log(postsMap);
-						console.log(samePostList);
-					}
-					for (let index = samePostList.length - 1; index >= 0; index--) {
-						let removePostInfo = samePostList[index];
-						log.error("移除重复帖子：" + removePostInfo.title);
-						this.$props.list.splice(removePostInfo.index, 1);
-					}
+					);
 				},
-				{
-					deep: true,
-					immediate: true,
-				}
-			);
-		});
+			},
+		]);
 	},
 };
 
