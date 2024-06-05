@@ -1,0 +1,185 @@
+import { BilibiliData } from "@/data/BlibiliData";
+import { log, utils } from "@/env";
+import { PopsPanel } from "@/setting/setting";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { unsafeWindow } from "ViteGM";
+
+export const BilibiliVideoVueProp = {
+	$data: {
+		isInitPlayer: false,
+		isUnlockUpower: false,
+	},
+	init() {
+		PopsPanel.execMenu("bili-video-initPlayer", () => {
+			this.initPlayer();
+		});
+		PopsPanel.execMenu("bili-video-setVideoPlayer", () => {
+			this.setVideoPlayer();
+		});
+		PopsPanel.execMenu("bili-video-unlockUpower", () => {
+			this.unlockUpower();
+		});
+	},
+	/**
+	 * 设置了某些vue属性后，会导致视频不出现播放按钮
+	 */
+	initPlayer() {
+		if (this.$data.isInitPlayer) {
+			return;
+		}
+		this.$data.isInitPlayer = true;
+		let that = this;
+		utils
+			.waitNode<HTMLDivElement>("#bilibiliPlayer", 3000)
+			.then(async ($bilibiliPlayer) => {
+				if (!$bilibiliPlayer) {
+					/* 该元素不存在，可能不是/video */
+					that.$data.isInitPlayer = false;
+					return;
+				}
+				await utils.sleep(300);
+
+				BilibiliUtils.waitVuePropToSet(".m-video-player", [
+					{
+						msg: "等待获取函数 initPlayer()",
+						check(vueObj) {
+							return typeof vueObj?.initPlayer === "function";
+						},
+						set(vueObj) {
+							that.$data.isInitPlayer = false;
+							function intervalCheck() {
+								let intervalId: number | undefined = void 0;
+								let timeoutId: number | undefined = void 0;
+								let checkCount = 1;
+								let isSuccess = false;
+								let lockFunc = new utils.LockFunction(async () => {
+									let $playerVideo = document.querySelector(
+										"#bilibiliPlayer video"
+									);
+									if ($playerVideo) {
+										isSuccess = true;
+										log.success("<video>标签已成功初始化");
+										return;
+									}
+									if ((unsafeWindow as any).BPlayerMobile == null) {
+										/* 未加载player播放器，主动引入script标签 */
+										log.error("未加载player播放器，主动引入script标签");
+										await BilibiliUtils.loadScript(
+											"https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
+										);
+									}
+									vueObj.initPlayer();
+									log.success(
+										"第 " +
+											checkCount +
+											" 次未检测到视频，调用初始化视频函数 initPlayer()"
+									);
+									await utils.sleep(300);
+									checkCount++;
+								});
+								intervalId = setInterval(async () => {
+									await lockFunc.run();
+									if (isSuccess) {
+										clearTimeout(timeoutId);
+										clearInterval(intervalId);
+									}
+								}, 600);
+								timeoutId = setTimeout(() => {
+									log.warn("检测视频超时3s，取消检测");
+									clearInterval(intervalId);
+								}, 3000);
+							}
+							intervalCheck();
+						},
+					},
+				]);
+			});
+	},
+
+	/**
+	 * + __vue__.info.is_upower_exclusive=false
+	 * + __vue__.info.is_upower_play=false
+	 * + __vue__.info.is_upower_preview=false
+	 */
+	unlockUpower() {
+		BilibiliUtils.waitVuePropToSet(BilibiliData.className.video, [
+			{
+				msg: "设置属性 __vue__.info.is_upower_exclusive",
+				check(vueObj) {
+					console.log(typeof vueObj?.info?.is_upower_exclusive);
+					return typeof vueObj?.info?.is_upower_exclusive === "boolean";
+				},
+				set(vueObj) {
+					vueObj.info.is_upower_exclusive = false;
+					log.success("成功设置属性  __vue__.info.is_upower_exclusive=false");
+				},
+			},
+			{
+				msg: "设置属性 __vue__.info.is_upower_play",
+				check(vueObj) {
+					return typeof vueObj?.info?.is_upower_play === "boolean";
+				},
+				set(vueObj) {
+					vueObj.info.is_upower_play = false;
+					log.success("成功设置属性  __vue__.info.is_upower_play=false");
+				},
+			},
+			{
+				msg: "设置属性 __vue__.info.is_upower_preview",
+				check(vueObj) {
+					return typeof vueObj?.info?.is_upower_preview === "boolean";
+				},
+				set(vueObj) {
+					vueObj.info.is_upower_preview = false;
+					log.success("成功设置属性  __vue__.info.is_upower_preview=false");
+				},
+			},
+		]);
+	},
+
+	/**
+	 * 修改视频播放器设置参数
+	 *
+	 * + __vue__.playBtnNoOpenApp: `true`
+	 * + __vue__.playBtnOpenApp: `false`
+	 * + __vue__.coverOpenApp: `false`
+	 */
+	setVideoPlayer() {
+		BilibiliUtils.waitVuePropToSet(
+			BilibiliData.className.video + " .m-video-player",
+			[
+				{
+					msg: "设置参数 playBtnNoOpenApp",
+					check(vueObj) {
+						return typeof vueObj.playBtnNoOpenApp === "boolean";
+					},
+					set(vueObj) {
+						vueObj.playBtnNoOpenApp = true;
+						log.success("成功设置参数 playBtnNoOpenApp=true");
+					},
+				},
+				{
+					msg: "设置参数 playBtnOpenApp",
+					check(vueObj) {
+						return typeof vueObj.playBtnOpenApp === "boolean";
+					},
+					set(vueObj) {
+						vueObj.playBtnOpenApp = false;
+						log.success("成功设置参数 playBtnOpenApp=false");
+					},
+				},
+				{
+					msg: "设置参数 coverOpenApp",
+					check(vueObj) {
+						return typeof vueObj.coverOpenApp === "boolean";
+					},
+					set(vueObj) {
+						vueObj.coverOpenApp = false;
+						log.success("成功设置参数 coverOpenApp=false");
+					},
+				},
+			]
+		);
+	},
+};

@@ -36,9 +36,16 @@ const SettingUIVideo: PopsPanelContentConfig = {
 				UISwitch(
 					"手势返回关闭评论区",
 					"bili-video-gestureReturnToCloseCommentArea",
-					false,
+					true,
 					void 0,
 					"当浏览器手势触发浏览器回退页面时，关闭评论区"
+				),
+				UISwitch(
+					"initPlayer",
+					"bili-video-initPlayer",
+					true,
+					void 0,
+					"自动执行初始化播放器"
 				),
 			],
 		},
@@ -51,7 +58,14 @@ const SettingUIVideo: PopsPanelContentConfig = {
 					"bili-video-setVideoPlayer",
 					true,
 					void 0,
-					"设置playBtnNoOpenApp为true,playBtnOpenApp为false,coverOpenApp为false"
+					"playBtnNoOpenApp=true<br>playBtnOpenApp=false<br>coverOpenApp=false"
+				),
+				UISwitch(
+					"解锁充电限制",
+					"bili-video-unlockUpower",
+					false,
+					void 0,
+					"is_upower_exclusive=true<br>is_upower_play=false<br>is_upower_preview=false"
 				),
 			],
 		},

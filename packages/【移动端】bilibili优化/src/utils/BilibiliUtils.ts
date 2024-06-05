@@ -29,29 +29,57 @@ export const BilibiliUtils = {
 	/**
 	 * 等待vue属性并进行设置
 	 */
-	waitVuePropToSet($vue: HTMLElement, needSetList: WaitSetVuePropOption[]) {
+	waitVuePropToSet(
+		$target: HTMLElement | (() => HTMLElement | null) | string,
+		needSetList: WaitSetVuePropOption[]
+	) {
+		function getTarget() {
+			let __target__ = null;
+			if (typeof $target === "string") {
+				__target__ = document.querySelector($target);
+			} else if (typeof $target === "function") {
+				__target__ = $target();
+			} else if ($target instanceof HTMLElement) {
+				__target__ = $target;
+			}
+			return __target__;
+		}
 		needSetList.forEach((needSetOption) => {
 			if (typeof needSetOption.msg === "string") {
 				log.info(needSetOption.msg);
 			}
 			function checkVue() {
-				let vueObj = BilibiliUtils.getVue($vue);
+				let target = getTarget();
+				if (target == null) {
+					return false;
+				}
+				let vueObj = BilibiliUtils.getVue(target);
 				if (vueObj == null) {
 					return false;
 				}
 				let needOwnCheck = needSetOption.check(vueObj);
 				return Boolean(needOwnCheck);
 			}
-			utils.waitVueByInterval($vue, checkVue, 250, 10000).then((result) => {
-				if (!result) {
-					return;
-				}
-				let vueObj = BilibiliUtils.getVue($vue);
-				if (vueObj == null) {
-					return;
-				}
-				needSetOption.set(vueObj);
-			});
+			utils
+				.waitVueByInterval(
+					() => {
+						return getTarget();
+					},
+					checkVue,
+					250,
+					10000
+				)
+				.then((result) => {
+					if (!result) {
+						return;
+					}
+					let target = getTarget();
+					let vueObj = BilibiliUtils.getVue(target as HTMLElement);
+					if (vueObj == null) {
+						return;
+					}
+					needSetOption.set(vueObj);
+				});
 		});
 	},
 	/**
@@ -181,5 +209,21 @@ export const BilibiliUtils = {
 		return {
 			resumeBack,
 		};
+	},
+	/**
+	 * 加载<script>标签到页面
+	 */
+	loadScript(src: string) {
+		let $script = document.createElement("script");
+		$script.src = src;
+		document.head.appendChild($script);
+		return new Promise((resolve) => {
+			$script.onload = function () {
+				log.success("script标签加载完毕：" + src);
+				setTimeout(() => {
+					resolve(true);
+				}, 100);
+			};
+		});
 	},
 };

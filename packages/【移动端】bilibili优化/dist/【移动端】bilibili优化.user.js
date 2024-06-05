@@ -154,20 +154,26 @@
         text: "变量设置",
         type: "forms",
         forms: [
-          UISwitch("isLogin", "bili-setLogin", true, void 0, "设置isLogin为true"),
+          UISwitch(
+            "isLogin",
+            "bili-setLogin",
+            true,
+            void 0,
+            "$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
+          ),
           UISwitch(
             "isClient",
             "bili-setIsClient",
             true,
             void 0,
-            "设置isClient为true"
+            "$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
           ),
           UISwitch(
             "tinyApp",
             "bili-setTinyApp",
             true,
             void 0,
-            "设置tinyApp为true"
+            "$store.state.common.tinyApp=true"
           )
         ]
       },
@@ -287,9 +293,16 @@
           UISwitch(
             "手势返回关闭评论区",
             "bili-video-gestureReturnToCloseCommentArea",
-            false,
+            true,
             void 0,
             "当浏览器手势触发浏览器回退页面时，关闭评论区"
+          ),
+          UISwitch(
+            "initPlayer",
+            "bili-video-initPlayer",
+            true,
+            void 0,
+            "自动执行初始化播放器"
           )
         ]
       },
@@ -302,7 +315,14 @@
             "bili-video-setVideoPlayer",
             true,
             void 0,
-            "设置playBtnNoOpenApp为true,playBtnOpenApp为false,coverOpenApp为false"
+            "playBtnNoOpenApp=true<br>playBtnOpenApp=false<br>coverOpenApp=false"
+          ),
+          UISwitch(
+            "解锁充电限制",
+            "bili-video-unlockUpower",
+            false,
+            void 0,
+            "is_upower_exclusive=true<br>is_upower_play=false<br>is_upower_preview=false"
           )
         ]
       },
@@ -350,7 +370,7 @@
             "bili-bangumi-setPay",
             true,
             void 0,
-            "设置pay为1"
+            "$store.state.userStat.pay=1<br>$store.state.mediaInfo.user_status.pay=1"
           )
         ]
       },
@@ -385,13 +405,7 @@
         text: "劫持/拦截",
         type: "forms",
         forms: [
-          UISwitch(
-            "阻止调用App",
-            "bili-bangumi-hook-callApp",
-            true,
-            void 0,
-            ""
-          )
+          UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")
         ]
       }
     ]
@@ -871,24 +885,47 @@
     /**
      * 等待vue属性并进行设置
      */
-    waitVuePropToSet($vue, needSetList) {
+    waitVuePropToSet($target, needSetList) {
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
       needSetList.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
         function checkVue() {
-          let vueObj = BilibiliUtils.getVue($vue);
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let vueObj = BilibiliUtils.getVue(target);
           if (vueObj == null) {
             return false;
           }
           let needOwnCheck = needSetOption.check(vueObj);
           return Boolean(needOwnCheck);
         }
-        utils.waitVueByInterval($vue, checkVue, 250, 1e4).then((result) => {
+        utils.waitVueByInterval(
+          () => {
+            return getTarget();
+          },
+          checkVue,
+          250,
+          1e4
+        ).then((result) => {
           if (!result) {
             return;
           }
-          let vueObj = BilibiliUtils.getVue($vue);
+          let target = getTarget();
+          let vueObj = BilibiliUtils.getVue(target);
           if (vueObj == null) {
             return;
           }
@@ -991,6 +1028,22 @@
       return {
         resumeBack
       };
+    },
+    /**
+     * 加载<script>标签到页面
+     */
+    loadScript(src) {
+      let $script = document.createElement("script");
+      $script.src = src;
+      document.head.appendChild($script);
+      return new Promise((resolve) => {
+        $script.onload = function() {
+          log.success("script标签加载完毕：" + src);
+          setTimeout(() => {
+            resolve(true);
+          }, 100);
+        };
+      });
     }
   };
   const BilibiliHook = {
@@ -1188,16 +1241,186 @@
       head: "#app .m-head"
     }
   };
-  const BilibiliVideoBeautifyCSS = "#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n	.video-list .card-box {\r\n		--left-card-width: 33%;\r\n		--right-child-padding: 1.333vmin;\r\n		.v-card-toapp {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n\r\n			> a {\r\n				display: flex;\r\n				flex-wrap: nowrap;\r\n				.card {\r\n					width: var(--left-card-width);\r\n					height: 80px;\r\n					flex: 0 auto;\r\n					.count {\r\n						background: transparent;\r\n						.left {\r\n							display: list-item;\r\n							span.item {\r\n								display: none;\r\n							}\r\n						}\r\n\r\n						.duration {\r\n							background: rgba(0, 0, 0, 0.4);\r\n							border-radius: 0.6vmin;\r\n							padding: 0px 0.5vmin;\r\n							right: 1vmin;\r\n							bottom: 1vmin;\r\n						}\r\n					}\r\n				}\r\n\r\n				.title {\r\n					flex: 1;\r\n					padding: var(--right-child-padding);\r\n					margin-top: 0;\r\n				}\r\n\r\n				/* 开启了bili-video-beautify */\r\n				.gm-right-container {\r\n					display: flex;\r\n					flex-direction: column;\r\n					width: calc(100% - var(--left-card-width));\r\n					> * {\r\n						padding: var(--right-child-padding);\r\n					}\r\n					.left {\r\n					}\r\n					.gm-up-name,\r\n					.left {\r\n						color: #999;\r\n						font-size: 3vmin;\r\n						transform-origin: left;\r\n						display: flex;\r\n						align-items: safe center;\r\n					}\r\n					.gm-up-name-text {\r\n						margin-left: 1vmin;\r\n					}\r\n					.num{\r\n						margin-right: 4vmin;\r\n					}\r\n				}\r\n			}\r\n		}\r\n	}\r\n}\r\n";
+  const BilibiliVideoBeautifyCSS = "#app .video {\r\n	/* 下面的推荐视频卡片 */\r\n	.video-list .card-box {\r\n		--left-card-width: 33%;\r\n		--right-child-padding: 1.333vmin;\r\n		.v-card-toapp {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n\r\n			> a {\r\n				display: flex;\r\n				flex-wrap: nowrap;\r\n				.card {\r\n					width: var(--left-card-width);\r\n					height: 80px;\r\n					flex: 0 auto;\r\n					.count {\r\n						background: transparent;\r\n						.left {\r\n							display: list-item;\r\n							span.item {\r\n								display: none;\r\n							}\r\n						}\r\n\r\n						.duration {\r\n							background: rgba(0, 0, 0, 0.4);\r\n							border-radius: 0.6vmin;\r\n							padding: 0px 0.5vmin;\r\n							right: 1vmin;\r\n							bottom: 1vmin;\r\n						}\r\n					}\r\n				}\r\n\r\n				.title {\r\n					flex: 1;\r\n					padding: var(--right-child-padding);\r\n					margin-top: 0;\r\n				}\r\n			}\r\n		}\r\n\r\n		/* 开启了bili-video-beautify */\r\n		.gm-right-container {\r\n			display: flex;\r\n			flex-direction: column;\r\n			width: calc(100% - var(--left-card-width));\r\n			> * {\r\n				padding: var(--right-child-padding);\r\n			}\r\n			.gm-up-name,\r\n			.left {\r\n				color: #999;\r\n				font-size: 3vmin;\r\n				transform-origin: left;\r\n				display: flex;\r\n				align-items: safe center;\r\n			}\r\n			.gm-up-name-text {\r\n				margin-left: 1vmin;\r\n			}\r\n			.num {\r\n				margin-right: 4vmin;\r\n			}\r\n		}\r\n\r\n		> a.v-card {\r\n			width: 100%;\r\n			border-bottom: 1px solid #b5b5b5;\r\n			padding-left: 0;\r\n			padding-right: 0;\r\n			display: flex;\r\n			flex-wrap: nowrap;\r\n			.card {\r\n				width: var(--left-card-width);\r\n				height: 80px;\r\n				flex: 0 auto;\r\n				.count {\r\n					background: transparent;\r\n					span {\r\n						display: none;\r\n					}\r\n					.duration {\r\n						background-color: rgba(0, 0, 0, 0.3);\r\n						border-radius: 4px;\r\n						color: #fff;\r\n						font-size: 12px;\r\n						height: 16px;\r\n						line-height: 16px;\r\n						margin-left: auto;\r\n						padding-left: 4px;\r\n						padding-right: 4px;\r\n					}\r\n				}\r\n			}\r\n\r\n			.title {\r\n				flex: 1;\r\n				padding: var(--right-child-padding);\r\n				margin-top: 0;\r\n			}\r\n		}\r\n	}\r\n}\r\n";
+  const BilibiliVideoVueProp = {
+    $data: {
+      isInitPlayer: false,
+      isUnlockUpower: false
+    },
+    init() {
+      PopsPanel.execMenu("bili-video-initPlayer", () => {
+        this.initPlayer();
+      });
+      PopsPanel.execMenu("bili-video-setVideoPlayer", () => {
+        this.setVideoPlayer();
+      });
+      PopsPanel.execMenu("bili-video-unlockUpower", () => {
+        this.unlockUpower();
+      });
+    },
+    /**
+     * 设置了某些vue属性后，会导致视频不出现播放按钮
+     */
+    initPlayer() {
+      if (this.$data.isInitPlayer) {
+        return;
+      }
+      this.$data.isInitPlayer = true;
+      let that = this;
+      utils.waitNode("#bilibiliPlayer", 3e3).then(async ($bilibiliPlayer) => {
+        if (!$bilibiliPlayer) {
+          that.$data.isInitPlayer = false;
+          return;
+        }
+        await utils.sleep(300);
+        BilibiliUtils.waitVuePropToSet(".m-video-player", [
+          {
+            msg: "等待获取函数 initPlayer()",
+            check(vueObj) {
+              return typeof (vueObj == null ? void 0 : vueObj.initPlayer) === "function";
+            },
+            set(vueObj) {
+              that.$data.isInitPlayer = false;
+              function intervalCheck() {
+                let intervalId = void 0;
+                let timeoutId = void 0;
+                let checkCount = 1;
+                let isSuccess = false;
+                let lockFunc = new utils.LockFunction(async () => {
+                  let $playerVideo = document.querySelector(
+                    "#bilibiliPlayer video"
+                  );
+                  if ($playerVideo) {
+                    isSuccess = true;
+                    log.success("<video>标签已成功初始化");
+                    return;
+                  }
+                  if (_unsafeWindow.BPlayerMobile == null) {
+                    log.error("未加载player播放器，主动引入script标签");
+                    await BilibiliUtils.loadScript(
+                      "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
+                    );
+                  }
+                  vueObj.initPlayer();
+                  log.success(
+                    "第 " + checkCount + " 次未检测到视频，调用初始化视频函数 initPlayer()"
+                  );
+                  await utils.sleep(300);
+                  checkCount++;
+                });
+                intervalId = setInterval(async () => {
+                  await lockFunc.run();
+                  if (isSuccess) {
+                    clearTimeout(timeoutId);
+                    clearInterval(intervalId);
+                  }
+                }, 600);
+                timeoutId = setTimeout(() => {
+                  log.warn("检测视频超时3s，取消检测");
+                  clearInterval(intervalId);
+                }, 3e3);
+              }
+              intervalCheck();
+            }
+          }
+        ]);
+      });
+    },
+    /**
+     * + __vue__.info.is_upower_exclusive=false
+     * + __vue__.info.is_upower_play=false
+     * + __vue__.info.is_upower_preview=false
+     */
+    unlockUpower() {
+      BilibiliUtils.waitVuePropToSet(BilibiliData.className.video, [
+        {
+          msg: "设置属性 __vue__.info.is_upower_exclusive",
+          check(vueObj) {
+            var _a2, _b;
+            console.log(typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_exclusive));
+            return typeof ((_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.is_upower_exclusive) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.info.is_upower_exclusive = false;
+            log.success("成功设置属性  __vue__.info.is_upower_exclusive=false");
+          }
+        },
+        {
+          msg: "设置属性 __vue__.info.is_upower_play",
+          check(vueObj) {
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_play) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.info.is_upower_play = false;
+            log.success("成功设置属性  __vue__.info.is_upower_play=false");
+          }
+        },
+        {
+          msg: "设置属性 __vue__.info.is_upower_preview",
+          check(vueObj) {
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_preview) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.info.is_upower_preview = false;
+            log.success("成功设置属性  __vue__.info.is_upower_preview=false");
+          }
+        }
+      ]);
+    },
+    /**
+     * 修改视频播放器设置参数
+     *
+     * + __vue__.playBtnNoOpenApp: `true`
+     * + __vue__.playBtnOpenApp: `false`
+     * + __vue__.coverOpenApp: `false`
+     */
+    setVideoPlayer() {
+      BilibiliUtils.waitVuePropToSet(
+        BilibiliData.className.video + " .m-video-player",
+        [
+          {
+            msg: "设置参数 playBtnNoOpenApp",
+            check(vueObj) {
+              return typeof vueObj.playBtnNoOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.playBtnNoOpenApp = true;
+              log.success("成功设置参数 playBtnNoOpenApp=true");
+            }
+          },
+          {
+            msg: "设置参数 playBtnOpenApp",
+            check(vueObj) {
+              return typeof vueObj.playBtnOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.playBtnOpenApp = false;
+              log.success("成功设置参数 playBtnOpenApp=false");
+            }
+          },
+          {
+            msg: "设置参数 coverOpenApp",
+            check(vueObj) {
+              return typeof vueObj.coverOpenApp === "boolean";
+            },
+            set(vueObj) {
+              vueObj.coverOpenApp = false;
+              log.success("成功设置参数 coverOpenApp=false");
+            }
+          }
+        ]
+      );
+    }
+  };
   const BilibiliVideo = {
     $data: {
       isAddBeautifyCSS: false
     },
     init() {
       BilibiliVideoHook.init();
-      PopsPanel.execMenu("bili-video-setVideoPlayer", () => {
-        this.setVideoPlayer();
-      });
+      BilibiliVideoVueProp.init();
       PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
         this.repairVideoBottomAreaHeight();
       });
@@ -1234,35 +1457,77 @@
           log.error("$cardBox is null");
           return;
         }
+        function handleVCardTopApp($vCard) {
+          var _a2, _b;
+          let $title = $vCard.querySelector(".title");
+          let $left = $vCard.querySelector(".count .left");
+          let vueObj = BilibiliUtils.getVue($vCard);
+          if ($title && $left && !$vCard.querySelector(".gm-right-container")) {
+            let $upInfo = document.createElement("div");
+            let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
+            $upInfo.className = "gm-up-name";
+            $upInfo.innerHTML = `
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+							</path>
+						</svg>
+						<span class="gm-up-name-text">${upName}</span>
+						`;
+            let $rightContainer = document.createElement("div");
+            let $rightBottom = document.createElement("div");
+            $rightContainer.className = "gm-right-container";
+            $rightBottom.className = "gm-right-bottom";
+            domutils.after($title, $rightContainer);
+            $rightContainer.appendChild($title);
+            $rightContainer.appendChild($rightBottom);
+            $rightBottom.appendChild($upInfo);
+            $rightBottom.appendChild($left);
+          }
+        }
+        function handleVCard($vCard) {
+          var _a2, _b, _c;
+          let $title = $vCard.querySelector(".title");
+          let $count = $vCard.querySelector(".count");
+          let vueObj = BilibiliUtils.getVue($vCard);
+          if ($title && $count && !$vCard.querySelector(".gm-right-container")) {
+            let duration = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.duration;
+            let $duration = document.createElement("div");
+            $duration.className = "duration";
+            $duration.innerText = BilibiliUtils.parseDuration(duration);
+            let $cloneCount = $count.cloneNode(true);
+            $cloneCount.className = "left";
+            let $upInfo = document.createElement("div");
+            let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
+            $count.appendChild($duration);
+            $upInfo.className = "gm-up-name";
+            $upInfo.innerHTML = `
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+							</path>
+						</svg>
+						<span class="gm-up-name-text">${upName}</span>
+						`;
+            let $rightContainer = document.createElement("div");
+            let $rightBottom = document.createElement("div");
+            $rightContainer.className = "gm-right-container";
+            $rightBottom.className = "gm-right-bottom";
+            domutils.after($title, $rightContainer);
+            $rightContainer.appendChild($title);
+            $rightContainer.appendChild($rightBottom);
+            $rightBottom.appendChild($upInfo);
+            $rightBottom.appendChild($cloneCount);
+          }
+        }
         let lockFunc = new utils.LockFunction(() => {
           document.querySelectorAll(
             BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
-          ).forEach(($vCard) => {
-            var _a2, _b;
-            let $title = $vCard.querySelector(".title");
-            let $left = $vCard.querySelector(".count .left");
-            let vueObj = BilibiliUtils.getVue($vCard);
-            if ($title && $left && !$vCard.querySelector(".gm-right-container")) {
-              let $upInfo = document.createElement("div");
-              let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
-              $upInfo.className = "gm-up-name";
-              $upInfo.innerHTML = `
-								<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-									<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
-									</path>
-								</svg>
-								<span class="gm-up-name-text">${upName}</span>
-								`;
-              let $rightContainer = document.createElement("div");
-              let $rightBottom = document.createElement("div");
-              $rightContainer.className = "gm-right-container";
-              $rightBottom.className = "gm-right-bottom";
-              domutils.after($title, $rightContainer);
-              $rightContainer.appendChild($title);
-              $rightContainer.appendChild($rightBottom);
-              $rightBottom.appendChild($upInfo);
-              $rightBottom.appendChild($left);
-            }
+          ).forEach((_$vCard_) => {
+            handleVCardTopApp(_$vCard_);
+          });
+          document.querySelectorAll(
+            BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
+          ).forEach((_$vCard_) => {
+            handleVCard(_$vCard_);
           });
         }, 25);
         utils.mutationObserver(
@@ -1279,51 +1544,6 @@
             }
           }
         );
-      });
-    },
-    /**
-     * 修改视频播放器设置参数
-     *
-     * + __vue__.playBtnNoOpenApp: `true`
-     * + __vue__.playBtnOpenApp: `false`
-     * + __vue__.coverOpenApp: `false`
-     */
-    setVideoPlayer() {
-      utils.waitNode(
-        BilibiliData.className.video + " .m-video-player"
-      ).then(($app) => {
-        BilibiliUtils.waitVuePropToSet($app, [
-          {
-            msg: "设置参数 playBtnNoOpenApp",
-            check(vueObj) {
-              return typeof vueObj.playBtnNoOpenApp === "boolean";
-            },
-            set(vueObj) {
-              vueObj.playBtnNoOpenApp = true;
-              log.success("成功设置参数 playBtnNoOpenApp=true");
-            }
-          },
-          {
-            msg: "设置参数 playBtnOpenApp",
-            check(vueObj) {
-              return typeof vueObj.playBtnOpenApp === "boolean";
-            },
-            set(vueObj) {
-              vueObj.playBtnOpenApp = false;
-              log.success("成功设置参数 playBtnOpenApp=false");
-            }
-          },
-          {
-            msg: "设置参数 coverOpenApp",
-            check(vueObj) {
-              return typeof vueObj.coverOpenApp === "boolean";
-            },
-            set(vueObj) {
-              vueObj.coverOpenApp = false;
-              log.success("成功设置参数 coverOpenApp=false");
-            }
-          }
-        ]);
       });
     },
     /**
@@ -1486,6 +1706,45 @@
       });
     }
   };
+  const BilibiliBangumiVueProp = {
+    init() {
+      PopsPanel.execMenu("bili-bangumi-setPay", () => {
+        this.setPay();
+      });
+    },
+    /**
+     * 设置已购买番剧(会员？)
+     *
+     * + $store.state.userStat.pay 1
+     * + $store.state.mediaInfo.user_status.pay 1
+     */
+    setPay() {
+      BilibiliUtils.waitVuePropToSet("#app", [
+        {
+          msg: "设置参数 $store.state.userStat.pay",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.userStat.pay=1");
+            vueObj.$store.state.userStat.pay = 1;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.mediaInfo.user_status.pay",
+          check(vueObj) {
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
+            vueObj.$store.state.mediaInfo.user_status.pay = 1;
+          }
+        }
+      ]);
+    }
+  };
   const BilibiliOpenApp = {
     getUrl($ele) {
       if ($ele == null) {
@@ -1516,11 +1775,9 @@
   };
   const BilibiliBangumi = {
     init() {
+      BilibiliBangumiVueProp.init();
       PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
         this.hookCallApp();
-      });
-      PopsPanel.execMenu("bili-bangumi-setPay", () => {
-        this.setPay();
       });
       PopsPanel.execMenu("bili-bangumi-cover-clicl-event-chooseEp", () => {
         this.setChooseEpClickEvent();
@@ -1553,34 +1810,30 @@
      * + $store.state.mediaInfo.user_status.pay 1
      */
     setPay() {
-      utils.waitNode("#app").then(($app) => {
-        BilibiliUtils.waitVuePropToSet($app, [
-          {
-            msg: "设置参数 $store.state.userStat.pay",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.userStat.pay=1");
-              vueObj.$store.state.userStat.pay = 1;
-            }
+      BilibiliUtils.waitVuePropToSet("#app", [
+        {
+          msg: "设置参数 $store.state.userStat.pay",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.userStat) == null ? void 0 : _c.pay) === "number";
           },
-          {
-            msg: "设置参数 $store.state.mediaInfo.user_status.pay",
-            check(vueObj) {
-              var _a2, _b, _c, _d;
-              return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
-            },
-            set(vueObj) {
-              log.success(
-                "成功设置参数 $store.state.mediaInfo.user_status.pay=1"
-              );
-              vueObj.$store.state.mediaInfo.user_status.pay = 1;
-            }
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.userStat.pay=1");
+            vueObj.$store.state.userStat.pay = 1;
           }
-        ]);
-      });
+        },
+        {
+          msg: "设置参数 $store.state.mediaInfo.user_status.pay",
+          check(vueObj) {
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.mediaInfo) == null ? void 0 : _c.user_status) == null ? void 0 : _d.pay) === "number";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.mediaInfo.user_status.pay=1");
+            vueObj.$store.state.mediaInfo.user_status.pay = 1;
+          }
+        }
+      ]);
     },
     /**
      * 覆盖【选集】的点击事件
@@ -2092,7 +2345,7 @@
       });
     }
   };
-  const Bilibili = {
+  const BilibiliVueProp = {
     init() {
       PopsPanel.execMenu("bili-setLogin", () => {
         this.setLogin();
@@ -2103,6 +2356,162 @@
       PopsPanel.execMenu("bili-setTinyApp", () => {
         this.setTinyApp();
       });
+    },
+    /**
+     * 设置登录
+     *
+     * + $store.state.common.noCallApp
+     * + $store.state.common.userInfo.isLogin
+     * + $store.state.loginInfo.isLogin
+     */
+    setLogin() {
+      let GM_Cookie = new utils.GM_Cookie();
+      let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
+      if (cookie_DedeUserID != null) {
+        log.info(["Cookie DedeUserID已存在：", cookie_DedeUserID.value]);
+      } else {
+        GM_Cookie.set(
+          {
+            name: "DedeUserID",
+            value: "2333"
+          },
+          (error) => {
+            if (error) {
+              log.error(error);
+            } else {
+              log.success("Cookie成功设置DedeUserID=>2333");
+            }
+          }
+        );
+      }
+      BilibiliUtils.waitVuePropToSet("#app", [
+        {
+          msg: "设置参数 $store.state.common.noCallApp",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.common.noCallApp=true");
+            vueObj.$store.state.common.noCallApp = true;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.common.userInfo.isLogin",
+          check(vueObj) {
+            var _a2, _b, _c, _d;
+            return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
+            vueObj.$store.state.common.userInfo.isLogin = true;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.loginInfo.isLogin",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.loginInfo) == null ? void 0 : _c.isLogin) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
+            vueObj.$store.state.loginInfo.isLogin = true;
+          }
+        }
+      ]);
+    },
+    /**
+     * 设置为客户端(不确定是否有用)
+     *
+     * + $store.state.video.isClient
+     * + $store.state.opus.isClient
+     * + $store.state.playlist.isClient
+     * + $store.state.ver.bili
+     * + $store.state.ver.biliVer 2333333
+     */
+    setIsClient() {
+      BilibiliUtils.waitVuePropToSet("#app", [
+        {
+          msg: "设置参数 $store.state.video.isClient",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.video) == null ? void 0 : _c.isClient) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.video.isClient=true");
+            vueObj.$store.state.video.isClient = true;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.opus.isClient=true",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.opus.isClient");
+            vueObj.$store.state.opus.isClient = true;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.playlist.isClient",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.playlist.isClient=true");
+            vueObj.$store.state.playlist.isClient = true;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.ver.bili",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.ver.bili=true");
+            vueObj.$store.state.ver.bili = true;
+          }
+        },
+        {
+          msg: "设置参数 $store.state.ver.biliVer",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
+          },
+          set(vueObj) {
+            log.success("成功设置参数 $store.state.ver.biliVer=2333333");
+            vueObj.$store.state.ver.biliVer = 2333333;
+          }
+        }
+      ]);
+    },
+    /**
+     * 设置为微应用(可以看评论且视频稿件变大)
+     *
+     * + __vue__.$store.state.common.tinyApp `true`
+     */
+    setTinyApp() {
+      BilibiliUtils.waitVuePropToSet("#app", [
+        {
+          msg: "设置参数 $store.state.common.tinyApp",
+          check(vueObj) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
+          },
+          set(vueObj) {
+            vueObj.$store.state.common.tinyApp = true;
+            log.success("成功设置参数 $store.state.common.tinyApp=true");
+          }
+        }
+      ]);
+    }
+  };
+  const Bilibili = {
+    init() {
+      BilibiliVueProp.init();
       PopsPanel.execMenuOnce("bili-listenRouterChange", () => {
         this.listenRouterChange();
       });
@@ -2144,194 +2553,6 @@
       } else {
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
-    },
-    /**
-     * 设置登录
-     *
-     * + $store.state.common.noCallApp
-     * + $store.state.common.userInfo.isLogin
-     * + $store.state.loginInfo.isLogin
-     */
-    setLogin() {
-      let GM_Cookie = new utils.GM_Cookie();
-      let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
-      if (cookie_DedeUserID != null) {
-        log.info(["Cookie DedeUserID已存在：", cookie_DedeUserID.value]);
-      } else {
-        GM_Cookie.set(
-          {
-            name: "DedeUserID",
-            value: "2333"
-          },
-          (error) => {
-            if (error) {
-              log.error(error);
-            } else {
-              log.success("Cookie成功设置DedeUserID=>2333");
-            }
-          }
-        );
-      }
-      utils.waitNode("#app").then(($app) => {
-        BilibiliUtils.waitVuePropToSet($app, [
-          {
-            msg: "设置参数 $store.state.common.noCallApp",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.common.noCallApp=true");
-              vueObj.$store.state.common.noCallApp = true;
-            }
-          },
-          {
-            msg: "设置参数 $store.state.common.userInfo.isLogin",
-            check(vueObj) {
-              var _a2, _b, _c, _d;
-              return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
-            },
-            set(vueObj) {
-              log.success(
-                "成功设置参数 $store.state.common.userInfo.isLogin=true"
-              );
-              vueObj.$store.state.common.userInfo.isLogin = true;
-            }
-          },
-          {
-            msg: "设置参数 $store.state.loginInfo.isLogin",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.loginInfo) == null ? void 0 : _c.isLogin) === "boolean";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
-              vueObj.$store.state.loginInfo.isLogin = true;
-            }
-          }
-        ]);
-      });
-    },
-    /**
-     * 设置为客户端(不确定是否有用)
-     *
-     * + $store.state.video.isClient
-     * + $store.state.opus.isClient
-     * + $store.state.playlist.isClient
-     * + $store.state.ver.bili
-     * + $store.state.ver.biliVer 2333333
-     */
-    setIsClient() {
-      utils.waitNode("#app").then(($app) => {
-        BilibiliUtils.waitVuePropToSet($app, [
-          {
-            msg: "设置参数 $store.state.video.isClient",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.video) == null ? void 0 : _c.isClient) === "boolean";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.video.isClient=true");
-              vueObj.$store.state.video.isClient = true;
-            }
-          },
-          {
-            msg: "设置参数 $store.state.opus.isClient=true",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.opus.isClient");
-              vueObj.$store.state.opus.isClient = true;
-            }
-          },
-          {
-            msg: "设置参数 $store.state.playlist.isClient",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.playlist.isClient=true");
-              vueObj.$store.state.playlist.isClient = true;
-            }
-          },
-          {
-            msg: "设置参数 $store.state.ver.bili",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.ver.bili=true");
-              vueObj.$store.state.ver.bili = true;
-            }
-          },
-          {
-            msg: "设置参数 $store.state.ver.biliVer",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
-            },
-            set(vueObj) {
-              log.success("成功设置参数 $store.state.ver.biliVer=2333333");
-              vueObj.$store.state.ver.biliVer = 2333333;
-            }
-          }
-        ]);
-      });
-    },
-    /**
-     * 设置为微应用(可以看评论且视频稿件变大)
-     *
-     * + __vue__.$store.state.common.tinyApp `true`
-     */
-    setTinyApp() {
-      utils.waitNode("#app").then(($app) => {
-        log.info("设置tinyApp");
-        BilibiliUtils.waitVuePropToSet($app, [
-          {
-            msg: "设置参数 $store.state.common.tinyApp",
-            check(vueObj) {
-              var _a2, _b, _c;
-              return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.tinyApp) === "boolean";
-            },
-            set(vueObj) {
-              vueObj.$store.state.common.tinyApp = true;
-              log.success("成功设置参数 $store.state.common.tinyApp=true");
-              utils.waitNode("#bilibiliPlayer", 3e3).then(async ($bilibiliPlayer) => {
-                if (!$bilibiliPlayer) {
-                  return;
-                }
-                await utils.sleep(300);
-                utils.waitNode(".m-video-player", 1e4).then(($videoPlayer) => {
-                  if (!$videoPlayer) {
-                    return;
-                  }
-                  BilibiliUtils.waitVuePropToSet($videoPlayer, [
-                    {
-                      msg: "等待获取函数 initPlayer()",
-                      check(vueObj2) {
-                        return typeof (vueObj2 == null ? void 0 : vueObj2.initPlayer) === "function";
-                      },
-                      set(vueObj2) {
-                        let $playerVideo = $bilibiliPlayer.querySelector("video");
-                        if ($playerVideo) {
-                          log.success("检测ing，视频已成功初始化");
-                          return;
-                        }
-                        vueObj2.initPlayer();
-                        log.success("调用初始化视频函数 initPlayer()");
-                      }
-                    }
-                  ]);
-                });
-              });
-            }
-          }
-        ]);
-      });
     },
     /**
      * 监听路由变化

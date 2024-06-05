@@ -6,6 +6,7 @@ import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliData } from "@/data/BlibiliData";
 import BilibiliVideoBeautifyCSS from "./BilibiliVideoBeautify.css?raw";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { BilibiliVideoVueProp } from "./BilibiliVideoVueProp";
 
 const BilibiliVideo = {
 	$data: {
@@ -14,10 +15,7 @@ const BilibiliVideo = {
 	init() {
 		/* 执行hook */
 		BilibiliVideoHook.init();
-
-		PopsPanel.execMenu("bili-video-setVideoPlayer", () => {
-			this.setVideoPlayer();
-		});
+		BilibiliVideoVueProp.init();
 		PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
 			this.repairVideoBottomAreaHeight();
 		});
@@ -58,46 +56,99 @@ const BilibiliVideo = {
 					log.error("$cardBox is null");
 					return;
 				}
+				function handleVCardTopApp($vCard: HTMLDivElement) {
+					let $title = $vCard.querySelector<HTMLElement>(".title");
+					let $left = $vCard.querySelector<HTMLDivElement>(".count .left");
+					let vueObj = BilibiliUtils.getVue($vCard);
+					if ($title && $left && !$vCard.querySelector(".gm-right-container")) {
+						let $upInfo = document.createElement("div");
+						let upName = vueObj?.info?.owner?.name;
+						$upInfo.className = "gm-up-name";
+						$upInfo.innerHTML = `
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+							</path>
+						</svg>
+						<span class="gm-up-name-text">${upName}</span>
+						`;
+						let $rightContainer = document.createElement("div");
+						let $rightBottom = document.createElement("div");
+						$rightContainer.className = "gm-right-container";
+						$rightBottom.className = "gm-right-bottom";
+						DOMUtils.after($title, $rightContainer);
+						/* 标题 */
+						$rightContainer.appendChild($title);
+
+						/* 底部内容 */
+						$rightContainer.appendChild($rightBottom);
+						/* UP主 */
+						$rightBottom.appendChild($upInfo);
+						/* 播放量 弹幕量 */
+						$rightBottom.appendChild($left);
+					}
+				}
+				function handleVCard($vCard: HTMLDivElement) {
+					let $title = $vCard.querySelector<HTMLElement>(".title");
+					let $count = $vCard.querySelector<HTMLDivElement>(".count");
+					let vueObj = BilibiliUtils.getVue($vCard);
+					if (
+						$title &&
+						$count &&
+						!$vCard.querySelector(".gm-right-container")
+					) {
+						/* 这个里面没有播放时长，自己添加一个 */
+						let duration = vueObj?.info?.duration;
+						let $duration = document.createElement("div");
+						$duration.className = "duration";
+						$duration.innerText = BilibiliUtils.parseDuration(duration);
+						let $cloneCount = $count.cloneNode(true) as HTMLDivElement;
+						$cloneCount.className = "left";
+						let $upInfo = document.createElement("div");
+						let upName = vueObj?.info?.owner?.name;
+
+						$count.appendChild($duration);
+						$upInfo.className = "gm-up-name";
+						$upInfo.innerHTML = `
+						<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+							<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+							</path>
+						</svg>
+						<span class="gm-up-name-text">${upName}</span>
+						`;
+						let $rightContainer = document.createElement("div");
+						let $rightBottom = document.createElement("div");
+						$rightContainer.className = "gm-right-container";
+						$rightBottom.className = "gm-right-bottom";
+						DOMUtils.after($title, $rightContainer);
+						/* 标题 */
+						$rightContainer.appendChild($title);
+
+						/* 底部内容 */
+						$rightContainer.appendChild($rightBottom);
+						/* UP主 */
+						$rightBottom.appendChild($upInfo);
+						/* 播放量 弹幕量 */
+						$rightBottom.appendChild($cloneCount);
+					}
+				}
 				let lockFunc = new utils.LockFunction(() => {
+					/* isLogin不生效的情况下 */
 					document
 						.querySelectorAll<HTMLDivElement>(
 							BilibiliData.className.video +
 								" .bottom-tab .list-view .card-box .v-card-toapp"
 						)
-						.forEach(($vCard) => {
-							let $title = $vCard.querySelector<HTMLElement>(".title");
-							let $left = $vCard.querySelector<HTMLDivElement>(".count .left");
-							let vueObj = BilibiliUtils.getVue($vCard);
-							if (
-								$title &&
-								$left &&
-								!$vCard.querySelector(".gm-right-container")
-							) {
-								let $upInfo = document.createElement("div");
-								let upName = vueObj?.info?.owner?.name;
-								$upInfo.className = "gm-up-name";
-								$upInfo.innerHTML = `
-								<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-									<path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
-									</path>
-								</svg>
-								<span class="gm-up-name-text">${upName}</span>
-								`;
-								let $rightContainer = document.createElement("div");
-								let $rightBottom = document.createElement("div");
-								$rightContainer.className = "gm-right-container";
-								$rightBottom.className = "gm-right-bottom";
-								DOMUtils.after($title, $rightContainer);
-								/* 标题 */
-								$rightContainer.appendChild($title);
-
-								/* 底部内容 */
-								$rightContainer.appendChild($rightBottom);
-								/* UP主 */
-								$rightBottom.appendChild($upInfo);
-								/* 播放量 弹幕量 */
-								$rightBottom.appendChild($left);
-							}
+						.forEach((_$vCard_) => {
+							handleVCardTopApp(_$vCard_);
+						});
+					/* isLogin生效 */
+					document
+						.querySelectorAll<HTMLDivElement>(
+							BilibiliData.className.video +
+								" .bottom-tab .list-view .card-box>a.v-card"
+						)
+						.forEach((_$vCard_) => {
+							handleVCard(_$vCard_);
 						});
 				}, 25);
 				utils.mutationObserver(
@@ -114,53 +165,6 @@ const BilibiliVideo = {
 						},
 					}
 				);
-			});
-	},
-	/**
-	 * 修改视频播放器设置参数
-	 *
-	 * + __vue__.playBtnNoOpenApp: `true`
-	 * + __vue__.playBtnOpenApp: `false`
-	 * + __vue__.coverOpenApp: `false`
-	 */
-	setVideoPlayer() {
-		utils
-			.waitNode<HTMLDivElement>(
-				BilibiliData.className.video + " .m-video-player"
-			)
-			.then(($app: any) => {
-				BilibiliUtils.waitVuePropToSet($app, [
-					{
-						msg: "设置参数 playBtnNoOpenApp",
-						check(vueObj) {
-							return typeof vueObj.playBtnNoOpenApp === "boolean";
-						},
-						set(vueObj) {
-							vueObj.playBtnNoOpenApp = true;
-							log.success("成功设置参数 playBtnNoOpenApp=true");
-						},
-					},
-					{
-						msg: "设置参数 playBtnOpenApp",
-						check(vueObj) {
-							return typeof vueObj.playBtnOpenApp === "boolean";
-						},
-						set(vueObj) {
-							vueObj.playBtnOpenApp = false;
-							log.success("成功设置参数 playBtnOpenApp=false");
-						},
-					},
-					{
-						msg: "设置参数 coverOpenApp",
-						check(vueObj) {
-							return typeof vueObj.coverOpenApp === "boolean";
-						},
-						set(vueObj) {
-							vueObj.coverOpenApp = false;
-							log.success("成功设置参数 coverOpenApp=false");
-						},
-					},
-				]);
 			});
 	},
 	/**

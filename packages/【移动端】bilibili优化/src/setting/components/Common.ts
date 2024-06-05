@@ -28,20 +28,26 @@ const SettingUICommon: PopsPanelContentConfig = {
 			text: "变量设置",
 			type: "forms",
 			forms: [
-				UISwitch("isLogin", "bili-setLogin", true, void 0, "设置isLogin为true"),
+				UISwitch(
+					"isLogin",
+					"bili-setLogin",
+					true,
+					void 0,
+					"$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
+				),
 				UISwitch(
 					"isClient",
 					"bili-setIsClient",
 					true,
 					void 0,
-					"设置isClient为true"
+					"$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
 				),
 				UISwitch(
 					"tinyApp",
 					"bili-setTinyApp",
 					true,
 					void 0,
-					"设置tinyApp为true"
+					"$store.state.common.tinyApp=true"
 				),
 			],
 		},
