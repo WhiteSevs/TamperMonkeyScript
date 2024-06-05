@@ -19,9 +19,7 @@ import { BilibiliVueProp } from "./BilibiliVueProp";
 const Bilibili = {
 	init() {
 		BilibiliVueProp.init();
-		PopsPanel.execMenuOnce("bili-listenRouterChange", () => {
-			this.listenRouterChange();
-		});
+		this.listenRouterChange();
 		PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
 			log.info("hook  window.setTimeout autoOpenApp");
 			BilibiliHook.setTimeout("autoOpenApp");
@@ -77,9 +75,35 @@ const Bilibili = {
 				}
 				if (check(vueObj)) {
 					log.success("成功设置监听路由变化");
+					$app.__vue__.$router.beforeEach(
+						(
+							to: Vue2Context["$route"],
+							from: Vue2Context["$route"],
+							next: Function
+						) => {
+							log.info([
+								"路由变化 => 更新前",
+								{
+									to,
+									from,
+								},
+							]);
+							if (to.name === "space") {
+								window.location.href = to.fullPath;
+								return;
+							}
+							next();
+						}
+					);
 					$app.__vue__.$router.afterEach(
 						(to: Vue2Context["$route"], from: Vue2Context["$route"]) => {
-							log.info(["路由变化", [to, from]]);
+							log.info([
+								"路由变化 => 更新后",
+								{
+									to,
+									from,
+								},
+							]);
 							if (
 								to["hash"] === "#/seeCommentReply" ||
 								from["hash"] === "#/seeCommentReply"
@@ -87,7 +111,9 @@ const Bilibili = {
 								log.info("该路由变化判定为#/seeCommentReply，不重载");
 								return;
 							}
-							Bilibili.init();
+							PopsPanel.execMenu("bili-listenRouterChange", () => {
+								Bilibili.init();
+							});
 						}
 					);
 				}

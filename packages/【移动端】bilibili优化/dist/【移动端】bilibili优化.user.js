@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.5.23
+// @version      2024.6.6.0
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.8/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.9/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -135,11 +135,18 @@
         type: "forms",
         forms: [
           UISwitch(
-            "监听路由改变",
+            "监听路由-重载所有功能",
             "bili-listenRouterChange",
             true,
             void 0,
-            "用于处理页面跳转时功能不生效问题"
+            "用于处理页面跳转(本页)时功能不生效问题"
+          ),
+          UISwitch(
+            "修复点击UP主正确进入空间",
+            "bili-repairEnterUserHome",
+            true,
+            void 0,
+            "可以修复点击UP主进入个人空间但是跳转404的问题"
           ),
           UISwitch(
             "新标签页打开",
@@ -423,21 +430,7 @@
     isDefault() {
       return BilibiliRouter.isSearch();
     },
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "修复点击UP主正确进入空间",
-            "bili-search-repair-enter-user-home",
-            true,
-            void 0,
-            "可以修复点击UP主进入个人空间但是是404问题"
-          )
-        ]
-      }
-    ]
+    forms: []
   };
   const SettingUILive = {
     id: "panel-live",
@@ -2024,38 +2017,6 @@
       });
     }
   };
-  const BilibiliSearch = {
-    init() {
-      PopsPanel.execMenuOnce("bili-search-repair-enter-user-home", () => {
-        this.repairEnterUserHome();
-      });
-    },
-    /**
-     * 修复点击UP主正确进入空间
-     */
-    repairEnterUserHome() {
-      utils.waitNode(
-        BilibiliData.className.search + " .result-panel"
-      ).then(($cardBox) => {
-        log.info("修复点击UP主正确进入空间");
-        domutils.on(
-          $cardBox,
-          "click",
-          "a.m-search-user-item[href]",
-          function(event) {
-            utils.preventEvent(event);
-            let $click = event.target;
-            let url = $click.href;
-            log.success("链接跳转: " + url);
-            window.location.href = url;
-          },
-          {
-            capture: true
-          }
-        );
-      });
-    }
-  };
   const BilibiliLive = {
     init() {
       PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
@@ -2585,9 +2546,7 @@
   const Bilibili = {
     init() {
       BilibiliVueProp.init();
-      PopsPanel.execMenuOnce("bili-listenRouterChange", () => {
-        this.listenRouterChange();
-      });
+      this.listenRouterChange();
       PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
         log.info("hook  window.setTimeout autoOpenApp");
         BilibiliHook.setTimeout("autoOpenApp");
@@ -2614,7 +2573,6 @@
         BilibiliBangumi.init();
       } else if (BilibiliRouter.isSearch()) {
         log.info("Router: 搜索");
-        BilibiliSearch.init();
       } else if (BilibiliRouter.isLive()) {
         log.info("Router: 直播");
         BilibiliLive.init();
@@ -2643,14 +2601,38 @@
           }
           if (check(vueObj)) {
             log.success("成功设置监听路由变化");
+            $app.__vue__.$router.beforeEach(
+              (to, from, next) => {
+                log.info([
+                  "路由变化 => 更新前",
+                  {
+                    to,
+                    from
+                  }
+                ]);
+                if (to.name === "space") {
+                  window.location.href = to.fullPath;
+                  return;
+                }
+                next();
+              }
+            );
             $app.__vue__.$router.afterEach(
               (to, from) => {
-                log.info(["路由变化", [to, from]]);
+                log.info([
+                  "路由变化 => 更新后",
+                  {
+                    to,
+                    from
+                  }
+                ]);
                 if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
                   log.info("该路由变化判定为#/seeCommentReply，不重载");
                   return;
                 }
-                Bilibili.init();
+                PopsPanel.execMenu("bili-listenRouterChange", () => {
+                  Bilibili.init();
+                });
               }
             );
           }

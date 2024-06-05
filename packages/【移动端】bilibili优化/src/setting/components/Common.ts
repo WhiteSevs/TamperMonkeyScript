@@ -1,4 +1,5 @@
 import { UISwitch } from "../common-components/ui-switch";
+import { PopsPanel } from "../setting";
 
 const SettingUICommon: PopsPanelContentConfig = {
 	id: "panel-common",
@@ -9,11 +10,18 @@ const SettingUICommon: PopsPanelContentConfig = {
 			type: "forms",
 			forms: [
 				UISwitch(
-					"监听路由改变",
+					"监听路由-重载所有功能",
 					"bili-listenRouterChange",
 					true,
 					void 0,
-					"用于处理页面跳转时功能不生效问题"
+					"用于处理页面跳转(本页)时功能不生效问题"
+				),
+				UISwitch(
+					"修复点击UP主正确进入空间",
+					"bili-repairEnterUserHome",
+					true,
+					void 0,
+					"可以修复点击UP主进入个人空间但是跳转404的问题"
 				),
 				UISwitch(
 					"新标签页打开",
