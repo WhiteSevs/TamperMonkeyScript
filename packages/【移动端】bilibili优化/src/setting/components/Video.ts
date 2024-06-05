@@ -80,6 +80,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 					void 0,
 					"点击下面的相关视频可正确跳转至该视频"
 				),
+				UISwitch(
+					"选集",
+					"bili-video-cover-seasonNew",
+					true,
+					void 0,
+					"点击下面的选集列表内的视频可正确跳转至该视频"
+				),
 			],
 		},
 		{

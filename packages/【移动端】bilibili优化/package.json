@@ -15,13 +15,13 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@whitesev/domutils": "^1.1.1",
-    "@whitesev/utils": "^1.3.6",
+    "@whitesev/utils": "^1.3.8",
     "qmsg": "^1.1.0",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2"
   },
   "devDependencies": {
-    "@types/node": "^20.14.1",
+    "@types/node": "^20.14.2",
     "@vitejs/plugin-vue": "^5.0.5",
     "element-plus": "^2.7.4",
     "typescript": "^5.4.5",

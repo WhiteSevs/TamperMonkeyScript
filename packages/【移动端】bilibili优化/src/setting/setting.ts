@@ -10,6 +10,8 @@ import { SettingUIOpus } from "./components/Opus";
 import { SettingUIDynamic } from "./components/Dynamic";
 import { SettingUITopicDetail } from "./components/TopicDetail";
 import { SettingUIHead } from "./components/Head";
+import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
 
 const PopsPanel = {
 	/** 数据 */
@@ -69,6 +71,18 @@ const PopsPanel = {
 				},
 				callback: () => {
 					this.showPanel();
+				},
+			},
+			{
+				key: "go_to_login",
+				text: "🛠 前往登录",
+				autoReload: false,
+				isStoreValue: false,
+				showText(text) {
+					return text;
+				},
+				callback() {
+					BilibiliUtils.goToLogin(window.location.href);
 				},
 			},
 		]);

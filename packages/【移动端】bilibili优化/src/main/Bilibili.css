@@ -22,8 +22,8 @@
 .m-space {
 	/* 底部 打开App */
 	.launch-app-btn.m-space-float-openapp,
-  /* 右上角 下载App */
-  .launch-app-btn.m-nav-openapp {
+	/* 右上角 下载App */
+	.launch-app-btn.m-nav-openapp {
 		display: none !important;
 	}
 }
@@ -32,14 +32,16 @@
 #app .video {
 	/* 让选择打开App还是继续浏览 */
 	.openapp-dialog,
-  /* 打开App，流畅又高清 */
-  .launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
-  /* 右上角 下载App */
-  .launch-app-btn.m-nav-openapp,
-  /* 当tinyApp为false时，视频全屏出现的 打开App，看高清全屏 */
-  .mplayer-widescreen-callapp,
-  /* 右下角 bilibili内打开 */
-  .launch-app-btn.m-float-openapp {
+  	/* 打开App，流畅又高清 */
+  	.launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
+  	/* 右上角 下载App */
+  	.launch-app-btn.m-nav-openapp,
+  	/* 当tinyApp为false时，视频全屏出现的 打开App，看高清全屏 */
+  	.mplayer-widescreen-callapp,
+  	/* 右下角 bilibili内打开 */
+  	.launch-app-btn.m-float-openapp,
+  	/* 选集 视频信息下面的 App内打开 */
+  	.m-video-season-panel .launch-app-btn .open-app {
 		display: none !important;
 	}
 }

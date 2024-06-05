@@ -34,6 +34,9 @@ const BilibiliVideo = {
 		PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
 			this.gestureReturnToCloseCommentArea();
 		});
+		PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
+			this.coverSeasonNew();
+		});
 	},
 	/**
 	 * 美化
@@ -250,6 +253,49 @@ const BilibiliVideo = {
 				BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
 				utils.preventEvent(event);
 			},
+			{
+				capture: true,
+			}
+		);
+	},
+	/**
+	 * 覆盖选集视频列表的点击事件
+	 */
+	coverSeasonNew() {
+		log.info("覆盖 选集视频列表 点击事件");
+		function ClickCallBack(event: PointerEvent | MouseEvent) {
+			let $click = event.target as HTMLDivElement;
+			let vueObj = BilibiliUtils.getVue($click);
+			if (!vueObj) {
+				Qmsg.error("获取选集视频的目标视频的__vue__失败");
+				return;
+			}
+			let bvid = vueObj.bvid;
+			if (utils.isNull(bvid)) {
+				Qmsg.error("获取相关视频的bvid失败");
+				return;
+			}
+			log.info("相关视频的bvid: " + bvid);
+			BilibiliUtils.goToUrl(BilibiliUrlUtils.getVideoUrl(bvid));
+			utils.preventEvent(event);
+		}
+		DOMUtils.on<MouseEvent | PointerEvent>(
+			document,
+			"click",
+			BilibiliData.className.video +
+				" .m-video-season-new .video-card .launch-app-btn",
+			ClickCallBack,
+			{
+				capture: true,
+			}
+		);
+		/* 查看更多 展开后的视频列表 */
+		DOMUtils.on<MouseEvent | PointerEvent>(
+			document,
+			"click",
+			BilibiliData.className.video +
+				" .m-video-season-panel .season-video-item .launch-app-btn",
+			ClickCallBack,
 			{
 				capture: true,
 			}

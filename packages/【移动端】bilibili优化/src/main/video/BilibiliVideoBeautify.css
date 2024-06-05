@@ -76,7 +76,7 @@
 			flex-wrap: nowrap;
 			.card {
 				width: var(--left-card-width);
-				height: 80px;
+				height: 100%;
 				flex: 0 auto;
 				.count {
 					background: transparent;

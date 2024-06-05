@@ -108,11 +108,22 @@ export const BilibiliUtils = {
 		} else {
 			/* 本页打开 */
 			if (path.startsWith("http") || path.startsWith("//")) {
-				window.location.href = path;
-			} else {
-				$router.push(path);
+				let urlObj = new URL(path);
+				path = urlObj.pathname + urlObj.search + urlObj.hash;
 			}
+			log.info("$router push跳转Url：" + path);
+			$router.push(path);
 		}
+	},
+	/**
+	 * 前往登录
+	 */
+	goToLogin(fromUrl: string = "") {
+		window.open(
+			`https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(
+				fromUrl
+			)}`
+		);
 	},
 	/**
 	 * 转换时长为显示的时长
