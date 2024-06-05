@@ -6921,6 +6921,12 @@ div[class^="new-summary-container_"] {\r
       } else {
         TiebaComment.page--;
       }
+      TiebaComment.triggerScrollEvent();
+    },
+    /**
+     * 主动触发滚动事件
+     */
+    triggerScrollEvent() {
       setTimeout(() => {
         document.dispatchEvent(new Event("scroll"));
       }, 400);
@@ -8117,10 +8123,27 @@ div[class^="new-summary-container_"] {\r
         textContent: "只看楼主"
       });
       replyRightContainer.appendChild(onlyLzInnerElement);
-      domutils.on(document.querySelector(".white-only-lz"), "click", (event) => {
-        TiebaComment.displayComment(
-          Array.from(event.currentTarget.classList)
-        );
+      let $whiteOnlyLz = document.querySelector(".white-only-lz");
+      if (!$whiteOnlyLz) {
+        throw new TypeError("$whiteOnlyLz is null");
+      }
+      domutils.on($whiteOnlyLz, "click", (event) => {
+        let $postItemList = document.querySelectorAll(".post-item");
+        if (Array.from($whiteOnlyLz.classList).includes("white-only-lz-qx")) {
+          $whiteOnlyLz.classList.remove("white-only-lz-qx");
+          $postItemList.forEach(($postItem) => {
+            $postItem.classList.remove("white-only-lz-none");
+          });
+        } else {
+          $whiteOnlyLz.classList.add("white-only-lz-qx");
+          $postItemList.forEach(($postItem) => {
+            let landlord = $postItem.getAttribute("landlord");
+            if (landlord == "0") {
+              $postItem.classList.add("white-only-lz-none");
+            }
+          });
+          TiebaComment.triggerScrollEvent();
+        }
       });
     },
     /**
@@ -8218,26 +8241,6 @@ div[class^="new-summary-container_"] {\r
           log.info("获取评论===>正序");
         }
       });
-    },
-    /**
-     * 动态显示只看楼主
-     * @param classlist
-     */
-    displayComment(classlist) {
-      if (classlist.includes("white-only-lz-qx")) {
-        document.querySelector(".white-only-lz").classList.remove("white-only-lz-qx");
-        document.querySelectorAll(".post-item").forEach((ele) => {
-          ele.classList.remove("white-only-lz-none");
-        });
-      } else {
-        document.querySelector(".white-only-lz").classList.add("white-only-lz-qx");
-        document.querySelectorAll(".post-item").forEach((ele) => {
-          let landlord = ele.getAttribute("landlord");
-          if (landlord == "0") {
-            ele.classList.add("white-only-lz-none");
-          }
-        });
-      }
     },
     /**
      * 查看-正序
