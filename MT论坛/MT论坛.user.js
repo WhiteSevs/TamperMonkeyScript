@@ -5,7 +5,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @description  更新日志: 新增判断为Via时，签到请求使用ajax;
-// @version      2024.6.5
+// @version      2024.6.5.12
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -68,8 +68,8 @@
 
 	let WhiteSev_GM_Cookie = new utils.GM_Cookie();
 
-	console.log("$jq.ajax请求的数据: ", requestData);
 	var ajax_xmlHttpRequest = (requestData) => {
+		console.log("$jq.ajax请求的数据: ", requestData);
 		let headers_options = {};
 		let headers_options_key = [
 			"Accept-Charset",
