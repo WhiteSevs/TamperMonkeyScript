@@ -45,7 +45,7 @@
 	}
 	const console = unsafeWindow.console;
 	/**
-	 * @type {import("../库/Utils")}
+	 * @type {import("../库/Utils@deprecated/index.js")}
 	 */
 	const utils = (window.Utils || Utils).noConflict();
 	let $jq = null;
@@ -67,6 +67,11 @@
 	let xtip = window.xtip;
 
 	let WhiteSev_GM_Cookie = new utils.GM_Cookie();
+
+	/**
+	 * @type {(requestData: any) => void}
+	 */
+	var ownGM_xmlHttpRequest = null;
 	/**
 	 * 自定义新的popups弹窗代替popup
 	 */
@@ -959,7 +964,7 @@
 				"background:#24272A; color:#ffffff",
 				"background:#fff;"
 			);
-			window.GM_xmlhttpRequest = (requestData) => {
+			ownGM_xmlHttpRequest = (requestData) => {
 				console.log("$jq.ajax请求的数据: ", requestData);
 				let headers_options = {};
 				let headers_options_key = [
@@ -1049,6 +1054,8 @@
 					},
 				});
 			};
+
+			window.GM_xmlhttpRequest = ownGM_xmlHttpRequest;
 		} else {
 			window.GM_xmlhttpRequest_isRepair = false;
 			console.log(
@@ -3817,9 +3824,152 @@
 			 * @param {string} _formhash_ 账号的hash值
 			 */
 			function signIn(_formhash_) {
+				function successCallBack(response) {
+					console.log(response);
+					GM_setValue(
+						"mt_sign",
+						parseInt(utils.formatTime(undefined, "yyyyMMdd"))
+					);
+					if (response.lastChild || response.type == "ajax") {
+						/* ajax函数版本 */
+						if (response.responseText === "") {
+							popups.toast({
+								text: "签到: 成功",
+								delayTime: 4000,
+							});
+							return;
+						}
+
+						let signInContent = response.lastChild.firstChild.nodeValue;
+						if (signInContent.includes("您已经被列入黑名单")) {
+							popups.toast({
+								text: "签到: 您已经被列入黑名单",
+								delayTime: 4000,
+							});
+							return;
+						}
+						if (signInContent.includes("今日已签")) {
+							popups.toast({
+								text: "签到: 今日已签",
+								delayTime: 4000,
+							});
+							return;
+						}
+						if (signInContent.includes("绑定手机号后才可以签到")) {
+							popups.toast({
+								text: "签到: 绑定手机号后才可以签到",
+								delayTime: 6000,
+							});
+							return;
+						}
+						if (
+							response.responseText.includes(
+								"您当前的访问请求当中含有非法字符，已经被系统拒绝"
+							)
+						) {
+							popups.toast({
+								text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
+								delayTime: 6000,
+							});
+							return;
+						}
+						popups.confirm({
+							title: "签到的响应内容",
+							text: response.responseText || response?.firstChild?.innerHTML,
+						});
+						popups.toast({
+							text: "签到: 未知结果,请查看控制台信息",
+							delayTime: 4000,
+						});
+					} else {
+						/* GM_xmlhttpRequest版本 */
+						let CDATA = utils.parseCDATA(response.responseText);
+						let CDATAElement = $jq(`<div>${CDATA}</div>`);
+						let content = CDATAElement.text();
+						console.log(content);
+						if (content.includes("您已经被列入黑名单")) {
+							popups.toast({
+								text: "签到: 您已经被列入黑名单",
+								delayTime: 4000,
+							});
+							return;
+						} else if (content.includes("今日已签")) {
+							popups.toast({
+								text: "签到: 今日已签",
+								delayTime: 4000,
+							});
+							return;
+						} else if (content.includes("绑定手机号后才可以签到")) {
+							popups.toast({
+								text: "签到: 绑定手机号后才可以签到",
+								delayTime: 6000,
+							});
+							return;
+						}
+						if (
+							response.responseText.includes(
+								"您当前的访问请求当中含有非法字符，已经被系统拒绝"
+							)
+						) {
+							popups.toast({
+								text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
+								delayTime: 6000,
+							});
+							return;
+						}
+						let signIn_con = CDATAElement.find(".con"); /* 签到奖励 */
+						let signIn_line = CDATAElement.find(".line"); /* 签到排名 */
+						if (signIn_con.length && signIn_line.length) {
+							let con = signIn_con.text().match(/([0-9]+)金币/);
+							let line = signIn_line.text().match(/([0-9]+)/);
+							con = con[con.length - 1];
+							line = line[line.length - 1];
+							console.log(`金币${con}，排名${line}`);
+							popups.toast({
+								text: `<div style="display: flex;${
+									!envIsMobile() ? "padding: 20px;" : ""
+								}"><div style="align-self: center;margin-right: 20px;">签到</div><div>排名 ${line}<br>金币 ${con}</div></div>`,
+								delayTime: 4000,
+							});
+
+							return;
+						}
+						popups.confirm({
+							title: "签到的响应内容",
+							text: response.responseText,
+						});
+						popups.toast({
+							text: "签到: 未知结果,请查看控制台信息",
+							delayTime: 4000,
+						});
+					}
+					if (typeof response === "string") {
+						/* 无油猴函数的版本的签到成功是没有返回值的 */
+						popups.toast({
+							text: "签到: 成功",
+							delayTime: 4000,
+						});
+						return;
+					}
+				}
+				function errorCalBack(response) {
+					console.log(response);
+					console.log("签到: 网络异常");
+					popups.toast({
+						text: "签到: 网络异常",
+						delayTime: 4000,
+					});
+				}
+				function timeoutCallback() {
+					console.log("签到: 网络超时");
+					popups.toast({
+						text: "签到: 网络超时",
+						delayTime: 4000,
+					});
+				}
 				console.log("发送签到请求");
 				let signUrl = `https://bbs.binmt.cc/k_misign-sign.html?operation=qiandao&format=button&formhash=${_formhash_}&inajax=1&ajaxtarget=midaben_sign`;
-				GM_xmlhttpRequest({
+				let details = {
 					method: "GET",
 					url: signUrl,
 					headers: {
@@ -3827,149 +3977,20 @@
 					},
 					timeout: 5000,
 					onload: (response) => {
-						console.log(response);
-						GM_setValue(
-							"mt_sign",
-							parseInt(utils.formatTime(undefined, "yyyyMMdd"))
-						);
-						if (response.lastChild || response.type == "ajax") {
-							/* ajax函数版本 */
-							if (response.responseText === "") {
-								popups.toast({
-									text: "签到: 成功",
-									delayTime: 4000,
-								});
-								return;
-							}
-
-							let signInContent = response.lastChild.firstChild.nodeValue;
-							if (signInContent.includes("您已经被列入黑名单")) {
-								popups.toast({
-									text: "签到: 您已经被列入黑名单",
-									delayTime: 4000,
-								});
-								return;
-							}
-							if (signInContent.includes("今日已签")) {
-								popups.toast({
-									text: "签到: 今日已签",
-									delayTime: 4000,
-								});
-								return;
-							}
-							if (signInContent.includes("绑定手机号后才可以签到")) {
-								popups.toast({
-									text: "签到: 绑定手机号后才可以签到",
-									delayTime: 6000,
-								});
-								return;
-							}
-							if (
-								response.responseText.includes(
-									"您当前的访问请求当中含有非法字符，已经被系统拒绝"
-								)
-							) {
-								popups.toast({
-									text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
-									delayTime: 6000,
-								});
-								return;
-							}
-							popups.confirm({
-								title: "签到的响应内容",
-								text: response.responseText || response?.firstChild?.innerHTML,
-							});
-							popups.toast({
-								text: "签到: 未知结果,请查看控制台信息",
-								delayTime: 4000,
-							});
-						} else {
-							/* GM_xmlhttpRequest版本 */
-							let CDATA = utils.parseCDATA(response.responseText);
-							let CDATAElement = $jq(`<div>${CDATA}</div>`);
-							let content = CDATAElement.text();
-							console.log(content);
-							if (content.includes("您已经被列入黑名单")) {
-								popups.toast({
-									text: "签到: 您已经被列入黑名单",
-									delayTime: 4000,
-								});
-								return;
-							} else if (content.includes("今日已签")) {
-								popups.toast({
-									text: "签到: 今日已签",
-									delayTime: 4000,
-								});
-								return;
-							} else if (content.includes("绑定手机号后才可以签到")) {
-								popups.toast({
-									text: "签到: 绑定手机号后才可以签到",
-									delayTime: 6000,
-								});
-								return;
-							}
-							if (
-								response.responseText.includes(
-									"您当前的访问请求当中含有非法字符，已经被系统拒绝"
-								)
-							) {
-								popups.toast({
-									text: "签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝",
-									delayTime: 6000,
-								});
-								return;
-							}
-							let signIn_con = CDATAElement.find(".con"); /* 签到奖励 */
-							let signIn_line = CDATAElement.find(".line"); /* 签到排名 */
-							if (signIn_con.length && signIn_line.length) {
-								let con = signIn_con.text().match(/([0-9]+)金币/);
-								let line = signIn_line.text().match(/([0-9]+)/);
-								con = con[con.length - 1];
-								line = line[line.length - 1];
-								console.log(`金币${con}，排名${line}`);
-								popups.toast({
-									text: `<div style="display: flex;${
-										!envIsMobile() ? "padding: 20px;" : ""
-									}"><div style="align-self: center;margin-right: 20px;">签到</div><div>排名 ${line}<br>金币 ${con}</div></div>`,
-									delayTime: 4000,
-								});
-
-								return;
-							}
-							popups.confirm({
-								title: "签到的响应内容",
-								text: response.responseText,
-							});
-							popups.toast({
-								text: "签到: 未知结果,请查看控制台信息",
-								delayTime: 4000,
-							});
-						}
-						if (typeof response === "string") {
-							/* 无油猴函数的版本的签到成功是没有返回值的 */
-							popups.toast({
-								text: "签到: 成功",
-								delayTime: 4000,
-							});
-							return;
-						}
+						successCallBack(response);
 					},
 					onerror: (response) => {
-						console.log(response);
-						console.log("签到: 网络异常");
-						popups.toast({
-							text: "签到: 网络异常",
-							delayTime: 4000,
-						});
+						errorCalBack(response);
 					},
 					ontimeout: () => {
-						console.log("签到: 网络超时");
-						popups.toast({
-							text: "签到: 网络超时",
-							delayTime: 4000,
-						});
+						timeoutCallback();
 					},
-				});
+				};
+				if (utils.isWebView_Via()) {
+					ownGM_xmlHttpRequest(details);
+				} else {
+					GM_xmlhttpRequest(details);
+				}
 			}
 
 			if (!GM_getValue("v17")) {
