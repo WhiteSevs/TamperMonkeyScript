@@ -646,8 +646,9 @@ const TiebaComment = {
 		} else {
 			TiebaComment.page--;
 		}
-
-		utils.dispatchEvent(document, "scroll");
+		setTimeout(() => {
+			document.dispatchEvent(new Event("scroll"));
+		}, 400);
 	},
 	/**
 	 * scroll事件触发 自动加载下一页的评论
