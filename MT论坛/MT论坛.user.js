@@ -68,10 +68,93 @@
 
 	let WhiteSev_GM_Cookie = new utils.GM_Cookie();
 
-	/**
-	 * @type {(requestData: any) => void}
-	 */
-	var ownGM_xmlHttpRequest = null;
+	console.log("$jq.ajax请求的数据: ", requestData);
+	var ajax_xmlHttpRequest = (requestData) => {
+		let headers_options = {};
+		let headers_options_key = [
+			"Accept-Charset",
+			"Accept-Encoding",
+			"Access-Control-Request-Headers",
+			"Access-Control-Request-Method",
+			"Connection",
+			"Content-Length",
+			"Cookie",
+			"Cookie2",
+			"Date",
+			"DNT",
+			"Expect",
+			"Host",
+			"Keep-Alive",
+			"Origin",
+			"Referer",
+			"TE",
+			"Trailer",
+			"Transfer-Encoding",
+			"Upgrade",
+			"User-Agent",
+			"Via",
+		];
+		if (requestData.headers != null) {
+			Array.from(headers_options_key).forEach((item) => {
+				delete requestData.headers[item];
+			});
+		} else {
+			requestData.headers = {};
+		}
+		$jq.ajax({
+			url: requestData.url,
+			type: requestData.method,
+			data: requestData.data,
+			timeout: requestData.timeout,
+			dataType: requestData.responseType,
+			headers: headers_options,
+			success: (response) => {
+				let resolveDetails = {};
+				if (typeof response === "string") {
+					resolveDetails = {
+						responseText: response,
+						type: "ajax",
+						status: 200,
+						readyState: 4,
+					};
+				} else {
+					resolveDetails = response;
+				}
+				console.log("$jq.ajax的success回调", resolveDetails);
+				requestData.onload(resolveDetails);
+			},
+			error: (response, textStatus, errorThrown) => {
+				let resolveDetails = {};
+				if (response.status === 200 && typeof response === "string") {
+					resolveDetails = {
+						responseText: response,
+						type: "ajax",
+						status: 200,
+						readyState: 4,
+					};
+				} else if (response.status !== 200 && typeof response === "string") {
+					resolveDetails = {
+						responseText: response,
+						type: "ajax",
+						status: 404,
+						readyState: 4,
+					};
+				} else {
+					resolveDetails = response;
+				}
+				if (textStatus === "timeout") {
+					console.error("$jq.ajax的error回调", response);
+					requestData.ontimeout(resolveDetails);
+				} else if (resolveDetails.status === 200) {
+					console.log("$jq.ajax的error->success回调", response);
+					requestData.onload(resolveDetails);
+				} else {
+					console.error("$jq.ajax的error回调", response);
+					requestData.onerror(resolveDetails);
+				}
+			},
+		});
+	};
 	/**
 	 * 自定义新的popups弹窗代替popup
 	 */
@@ -964,98 +1047,8 @@
 				"background:#24272A; color:#ffffff",
 				"background:#fff;"
 			);
-			ownGM_xmlHttpRequest = (requestData) => {
-				console.log("$jq.ajax请求的数据: ", requestData);
-				let headers_options = {};
-				let headers_options_key = [
-					"Accept-Charset",
-					"Accept-Encoding",
-					"Access-Control-Request-Headers",
-					"Access-Control-Request-Method",
-					"Connection",
-					"Content-Length",
-					"Cookie",
-					"Cookie2",
-					"Date",
-					"DNT",
-					"Expect",
-					"Host",
-					"Keep-Alive",
-					"Origin",
-					"Referer",
-					"TE",
-					"Trailer",
-					"Transfer-Encoding",
-					"Upgrade",
-					"User-Agent",
-					"Via",
-				];
-				if (requestData.headers != null) {
-					Array.from(headers_options_key).forEach((item) => {
-						delete requestData.headers[item];
-					});
-				} else {
-					requestData.headers = {};
-				}
-				$jq.ajax({
-					url: requestData.url,
-					type: requestData.method,
-					data: requestData.data,
-					timeout: requestData.timeout,
-					dataType: requestData.responseType,
-					headers: headers_options,
-					success: (response) => {
-						let resolveDetails = {};
-						if (typeof response === "string") {
-							resolveDetails = {
-								responseText: response,
-								type: "ajax",
-								status: 200,
-								readyState: 4,
-							};
-						} else {
-							resolveDetails = response;
-						}
-						console.log("$jq.ajax的success回调", resolveDetails);
-						requestData.onload(resolveDetails);
-					},
-					error: (response, textStatus, errorThrown) => {
-						let resolveDetails = {};
-						if (response.status === 200 && typeof response === "string") {
-							resolveDetails = {
-								responseText: response,
-								type: "ajax",
-								status: 200,
-								readyState: 4,
-							};
-						} else if (
-							response.status !== 200 &&
-							typeof response === "string"
-						) {
-							resolveDetails = {
-								responseText: response,
-								type: "ajax",
-								status: 404,
-								readyState: 4,
-							};
-						} else {
-							resolveDetails = response;
-						}
-						if (textStatus === "timeout") {
-							console.error("$jq.ajax的error回调", response);
-							requestData.ontimeout(resolveDetails);
-						} else if (resolveDetails.status === 200) {
-							console.log("$jq.ajax的error->success回调", response);
-							requestData.onload(resolveDetails);
-						} else {
-							console.error("$jq.ajax的error回调", response);
-							requestData.onerror(resolveDetails);
-						}
-					},
-				});
-			};
 
-			window.GM_xmlhttpRequest = ownGM_xmlHttpRequest;
+			window.GM_xmlhttpRequest = ajax_xmlHttpRequest;
 		} else {
 			window.GM_xmlhttpRequest_isRepair = false;
 			console.log(
@@ -3987,7 +3980,7 @@
 					},
 				};
 				if (utils.isWebView_Via()) {
-					ownGM_xmlHttpRequest(details);
+					ajax_xmlHttpRequest(details);
 				} else {
 					GM_xmlhttpRequest(details);
 				}
