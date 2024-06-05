@@ -6062,6 +6062,22 @@ System.register('Utils', [], (function (exports) {
                 createUtils(option) {
                     return new Utils(option);
                 }
+                /**
+                 * 将对象转换为FormData
+                 */
+                toFormData(data) {
+                    const formData = new FormData();
+                    Object.keys(data).forEach((key) => {
+                        let value = data[key];
+                        if (value instanceof File) {
+                            formData.append(key, value, value.name);
+                        }
+                        else {
+                            formData.append(key, value);
+                        }
+                    });
+                    return formData;
+                }
             }
             let utils = exports("default", new Utils());
 

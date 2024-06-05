@@ -1804,6 +1804,12 @@ declare class Utils {
      * @returns
      */
     createUtils(option?: UtilsCoreOption): Utils;
+    /**
+     * 将对象转换为FormData
+     */
+    toFormData(data: {
+        [key: string]: string | Blob | File;
+    }): FormData;
 }
 declare let utils: Utils;
 export { utils as Utils };
