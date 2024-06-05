@@ -6061,11 +6061,19 @@ class Utils {
     }
     /**
      * 将对象转换为FormData
+     * @param data 待转换的对象
+     * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)
      */
-    toFormData(data) {
+    toFormData(data, isEncode = false) {
         const formData = new FormData();
         Object.keys(data).forEach((key) => {
             let value = data[key];
+            if (typeof value === "number") {
+                value = value.toString();
+            }
+            if (isEncode && typeof value === "string") {
+                value = encodeURIComponent(value);
+            }
             if (value instanceof File) {
                 formData.append(key, value, value.name);
             }

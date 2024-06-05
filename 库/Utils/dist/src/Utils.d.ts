@@ -1806,10 +1806,12 @@ declare class Utils {
     createUtils(option?: UtilsCoreOption): Utils;
     /**
      * 将对象转换为FormData
+     * @param data 待转换的对象
+     * @param isEncode 是否对值为string进行编码转换(encodeURIComponent)
      */
     toFormData(data: {
-        [key: string]: string | Blob | File;
-    }): FormData;
+        [key: string]: string | Blob | File | number;
+    }, isEncode?: boolean): FormData;
 }
 declare let utils: Utils;
 export { utils as Utils };
