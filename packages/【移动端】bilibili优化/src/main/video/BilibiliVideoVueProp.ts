@@ -42,6 +42,26 @@ export const BilibiliVideoVueProp = {
 
 				BilibiliUtils.waitVuePropToSet(".m-video-player", [
 					{
+						msg: "等待设置参数 fullScreenCallApp",
+						check(vueObj) {
+							return typeof vueObj?.fullScreenCallApp === "boolean";
+						},
+						set(vueObj) {
+							vueObj.fullScreenCallApp = false;
+							log.success("成功设置参数 fullScreenCallApp=false");
+						},
+					},
+					{
+						msg: "等待设置参数 gameMode",
+						check(vueObj) {
+							return typeof vueObj?.gameMode === "boolean";
+						},
+						set(vueObj) {
+							vueObj.gameMode = true;
+							log.success("成功设置参数 gameMode=true");
+						},
+					},
+					{
 						msg: "等待获取函数 initPlayer()",
 						check(vueObj) {
 							return typeof vueObj?.initPlayer === "function";
@@ -59,6 +79,8 @@ export const BilibiliVideoVueProp = {
 									);
 									if ($playerVideo) {
 										isSuccess = true;
+										(unsafeWindow as any)?.player?.off("restart_call_app");
+										(unsafeWindow as any)?.player?.off("force_call_app_show");
 										log.success("<video>标签已成功初始化");
 										return;
 									}
@@ -69,13 +91,15 @@ export const BilibiliVideoVueProp = {
 											"https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
 										);
 									}
-									vueObj.initPlayer();
+									vueObj.initPlayer(true);
 									log.success(
 										"第 " +
 											checkCount +
 											" 次未检测到视频，调用初始化视频函数 initPlayer()"
 									);
 									await utils.sleep(300);
+									(unsafeWindow as any)?.player?.off("restart_call_app");
+									(unsafeWindow as any)?.player?.off("force_call_app_show");
 									checkCount++;
 								});
 								intervalId = setInterval(async () => {
@@ -107,7 +131,6 @@ export const BilibiliVideoVueProp = {
 			{
 				msg: "设置属性 __vue__.info.is_upower_exclusive",
 				check(vueObj) {
-					console.log(typeof vueObj?.info?.is_upower_exclusive);
 					return typeof vueObj?.info?.is_upower_exclusive === "boolean";
 				},
 				set(vueObj) {

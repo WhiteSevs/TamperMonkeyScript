@@ -47,6 +47,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
 					void 0,
 					"自动执行初始化播放器"
 				),
+				UISwitch(
+					"强制本页刷新跳转",
+					"bili-video-forceThisPageToRefreshAndRedirect",
+					false,
+					void 0,
+					"用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
+				),
 			],
 		},
 		{

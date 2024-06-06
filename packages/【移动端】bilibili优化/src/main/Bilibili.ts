@@ -15,6 +15,7 @@ import { BilibiliHead } from "./head/BilibiliHead";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
+import { unsafeWindow } from "ViteGM";
 
 const Bilibili = {
 	init() {
@@ -89,6 +90,16 @@ const Bilibili = {
 								},
 							]);
 							if (to.name === "space") {
+								window.location.href = to.fullPath;
+								return;
+							}
+							if (
+								to.fullPath.startsWith("/video") &&
+								from.fullPath.startsWith("/video") &&
+								PopsPanel.getValue(
+									"bili-video-forceThisPageToRefreshAndRedirect"
+								)
+							) {
 								window.location.href = to.fullPath;
 								return;
 							}

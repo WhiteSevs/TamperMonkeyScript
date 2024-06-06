@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.6.9
+// @version      2024.6.6.23
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.9/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.0/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @connect      *
 // @connect      m.bilibili.com
@@ -310,6 +310,13 @@
             true,
             void 0,
             "自动执行初始化播放器"
+          ),
+          UISwitch(
+            "强制本页刷新跳转",
+            "bili-video-forceThisPageToRefreshAndRedirect",
+            false,
+            void 0,
+            "用于解决跳转播放视频时，播放当前视频会有上一个播放视频的声音的情况"
           )
         ]
       },
@@ -1359,6 +1366,26 @@
         await utils.sleep(300);
         BilibiliUtils.waitVuePropToSet(".m-video-player", [
           {
+            msg: "等待设置参数 fullScreenCallApp",
+            check(vueObj) {
+              return typeof (vueObj == null ? void 0 : vueObj.fullScreenCallApp) === "boolean";
+            },
+            set(vueObj) {
+              vueObj.fullScreenCallApp = false;
+              log.success("成功设置参数 fullScreenCallApp=false");
+            }
+          },
+          {
+            msg: "等待设置参数 gameMode",
+            check(vueObj) {
+              return typeof (vueObj == null ? void 0 : vueObj.gameMode) === "boolean";
+            },
+            set(vueObj) {
+              vueObj.gameMode = true;
+              log.success("成功设置参数 gameMode=true");
+            }
+          },
+          {
             msg: "等待获取函数 initPlayer()",
             check(vueObj) {
               return typeof (vueObj == null ? void 0 : vueObj.initPlayer) === "function";
@@ -1371,11 +1398,14 @@
                 let checkCount = 1;
                 let isSuccess = false;
                 let lockFunc = new utils.LockFunction(async () => {
+                  var _a2, _b, _c, _d;
                   let $playerVideo = document.querySelector(
                     "#bilibiliPlayer video"
                   );
                   if ($playerVideo) {
                     isSuccess = true;
+                    (_a2 = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _a2.off("restart_call_app");
+                    (_b = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _b.off("force_call_app_show");
                     log.success("<video>标签已成功初始化");
                     return;
                   }
@@ -1385,11 +1415,13 @@
                       "https://s1.hdslb.com/bfs/static/player/main/html5/mplayer.js?v=2862592"
                     );
                   }
-                  vueObj.initPlayer();
+                  vueObj.initPlayer(true);
                   log.success(
                     "第 " + checkCount + " 次未检测到视频，调用初始化视频函数 initPlayer()"
                   );
                   await utils.sleep(300);
+                  (_c = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _c.off("restart_call_app");
+                  (_d = _unsafeWindow == null ? void 0 : _unsafeWindow.player) == null ? void 0 : _d.off("force_call_app_show");
                   checkCount++;
                 });
                 intervalId = setInterval(async () => {
@@ -1420,9 +1452,8 @@
         {
           msg: "设置属性 __vue__.info.is_upower_exclusive",
           check(vueObj) {
-            var _a2, _b;
-            console.log(typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_exclusive));
-            return typeof ((_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.is_upower_exclusive) === "boolean";
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.is_upower_exclusive) === "boolean";
           },
           set(vueObj) {
             vueObj.info.is_upower_exclusive = false;
@@ -2713,6 +2744,12 @@
                   }
                 ]);
                 if (to.name === "space") {
+                  window.location.href = to.fullPath;
+                  return;
+                }
+                if (to.fullPath.startsWith("/video") && from.fullPath.startsWith("/video") && PopsPanel.getValue(
+                  "bili-video-forceThisPageToRefreshAndRedirect"
+                )) {
                   window.location.href = to.fullPath;
                   return;
                 }
