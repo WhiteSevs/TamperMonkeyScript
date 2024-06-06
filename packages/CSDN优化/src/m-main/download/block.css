@@ -1,0 +1,10 @@
+/* 右下角悬浮图标 买1年送3个月 */
+.page-container .blind_box,
+/* 底部工具栏右边的 开会员按钮（低至xx元/次） */
+.page-container .btn .ml-12,
+/* 登录弹窗 */
+.passport-login-container,
+/* 通用广告className匹配 */
+.ads {
+	display: none !important;
+}

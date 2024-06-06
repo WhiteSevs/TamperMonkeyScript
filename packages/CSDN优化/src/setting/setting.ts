@@ -1,16 +1,17 @@
 import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { SettingUIBlog } from "./components/blog/PanelBlog";
-import { SettingUILink } from "./components/link/PanelLink";
-import { SettingUIHuaWeiCloud } from "./components/huaWeiCloud/PanelHuaWeiCloud";
-import { SettingUIWenKu } from "./components/wenku/PanelWenKu";
-import { SettingUISo } from "./components/so/PanelSo";
-import { MSettingUIBlog } from "./m-components/blog/MPanelBlog";
-import { MSettingUILink } from "./m-components/link/MPanelLink";
-import { MSettingUISo } from "./m-components/so/MPanelSo";
-import { MSettingUIWenKu } from "./m-components/wenku/MPanelWenKu";
-import { MSettingUIHuaWeiCloud } from "./m-components/huaWeiCloud/MPanelHuaWeiCloud";
+import { SettingUIBlog } from "./components/PanelBlog";
+import { SettingUILink } from "./components/PanelLink";
+import { SettingUIHuaWeiCloud } from "./components/PanelHuaWeiCloud";
+import { SettingUIWenKu } from "./components/PanelWenKu";
+import { SettingUISo } from "./components/PanelSo";
+import { MSettingUIBlog } from "./m-components/MPanelBlog";
+import { MSettingUILink } from "./m-components/MPanelLink";
+import { MSettingUISo } from "./m-components/MPanelSo";
+import { MSettingUIWenKu } from "./m-components/MPanelWenKu";
+import { MSettingUIHuaWeiCloud } from "./m-components/MPanelHuaWeiCloud";
+import { MSettingUIDownload } from "./m-components/MPanelDownload";
 
 type PopsPanelValueChangeCallBack = (
 	key: string,
@@ -404,6 +405,7 @@ const PopsPanel = {
 			MSettingUIHuaWeiCloud,
 			MSettingUIWenKu,
 			MSettingUISo,
+			MSettingUIDownload,
 		];
 		return configList;
 	},

@@ -1,9 +1,9 @@
 import BlogShieldCSS from "./css/shield.css?raw";
 import BlogCSS from "./css/CSDNBlog.css?raw";
 import BlogArticleCenterCSS from "./css/articleCenter.css?raw";
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle, unsafeWindow } from "ViteGM";
+import { unsafeWindow } from "ViteGM";
 import { CSDNBlogRightToolBar } from "./CSDNBlogRightToolBar";
 
 const CSDNBlog = {
@@ -72,15 +72,15 @@ const CSDNBlog = {
 	 */
 	addCSS() {
 		log.info("添加屏蔽CSS和功能CSS");
-		GM_addStyle(BlogShieldCSS);
-		GM_addStyle(BlogCSS);
+		addStyle(BlogShieldCSS);
+		addStyle(BlogCSS);
 	},
 	/**
 	 * 去除剪贴板劫持
 	 */
 	removeClipboardHijacking() {
 		log.info("去除剪贴板劫持");
-		document.querySelector(".article-copyright")?.remove();
+		document.querySelector<HTMLDivElement>(".article-copyright")?.remove();
 		if ((unsafeWindow as any).articleType) {
 			(unsafeWindow as any).articleType = 0;
 		}
@@ -104,7 +104,8 @@ const CSDNBlog = {
 	 */
 	unBlockCopy() {
 		log.info("取消禁止复制");
-		document.addEventListener(
+		DOMUtils.on(
+			document,
 			"click",
 			function (event) {
 				let $click = event.target as HTMLElement;
@@ -114,7 +115,15 @@ const CSDNBlog = {
 				}
 				utils.preventEvent(event);
 				/* 需要复制的文本 */
-				let copyText = $parent.innerText || $parent.textContent;
+				let copyText = (
+					$parent.innerText ||
+					$parent.textContent ||
+					""
+				).toString();
+				log.info(
+					"点击复制按钮复制内容：" +
+						(copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
+				);
 				utils.setClip(copyText);
 				$click.setAttribute("data-title", "复制成功");
 			},
@@ -122,25 +131,21 @@ const CSDNBlog = {
 				capture: true,
 			}
 		);
+		/* 修改点击复制按钮后修改悬浮的文字 */
 		let changeDataTitle = new utils.LockFunction(function (event: Event) {
 			let $mouse = event.target as HTMLElement;
 			if ($mouse.localName !== "pre") {
 				return;
 			}
-			$mouse.querySelector(".hljs-button")?.setAttribute("data-title", "复制");
-		});
-		document.addEventListener(
-			"mouseenter",
-			function (event: MouseEvent) {
-				changeDataTitle.run(event);
-			},
-			{
-				capture: true,
+			let $hljsBtn = $mouse.querySelector<HTMLDivElement>(".hljs-button");
+			if ($hljsBtn) {
+				$hljsBtn.setAttribute("data-title", "复制");
 			}
-		);
-		document.addEventListener(
-			"mouseleave",
-			function (event: MouseEvent) {
+		});
+		DOMUtils.on(
+			document,
+			["mouseenter", "mouseleave"],
+			function (event) {
 				changeDataTitle.run(event);
 			},
 			{
@@ -148,23 +153,41 @@ const CSDNBlog = {
 			}
 		);
 		/* 取消Ctrl+C的禁止 */
-		utils.waitNode("#content_views").then(($content_views) => {
-			(unsafeWindow as any).$("#content_views")?.unbind("copy");
-			$content_views.addEventListener("copy", function (event) {
-				utils.preventEvent(event);
-				let selectText = unsafeWindow.getSelection()?.toString();
-				utils.setClip(selectText);
-				return false;
-			});
+		utils.waitNode<HTMLDivElement>("#content_views").then(($content_views) => {
+			if ((unsafeWindow as any).$) {
+				(unsafeWindow as any).$("#content_views")?.unbind("copy");
+			}
+			DOMUtils.on(
+				$content_views,
+				"copy",
+				function (event) {
+					utils.preventEvent(event);
+					let selectText = unsafeWindow.getSelection()!;
+					let copyText = selectText?.toString();
+					log.info(
+						"Ctrl+C复制内容：" +
+							(copyText.length > 8
+								? copyText.substring(0, 8) + "..."
+								: copyText)
+					);
+					utils.setClip(copyText);
+					return false;
+				},
+				{
+					capture: true,
+				}
+			);
 		});
 		/* 删除所有复制按钮的原有的复制事件 */
 		utils.waitNode(".hljs-button").then(() => {
 			setTimeout(() => {
-				document.querySelectorAll(".hljs-button").forEach((element) => {
-					element.removeAttribute("onclick");
-					element.removeAttribute("data-report-click");
-					element.setAttribute("data-title", "复制");
-				});
+				document
+					.querySelectorAll<HTMLDivElement>(".hljs-button")
+					.forEach((element) => {
+						element.removeAttribute("onclick");
+						element.removeAttribute("data-report-click");
+						element.setAttribute("data-title", "复制");
+					});
 			}, 250);
 		});
 	},
@@ -233,21 +256,21 @@ const CSDNBlog = {
 	 */
 	articleCenter() {
 		log.info("全文居中");
-		GM_addStyle(BlogArticleCenterCSS);
+		addStyle(BlogArticleCenterCSS);
 	},
 	/**
 	 * 屏蔽登录弹窗
 	 */
 	shieldLoginDialog() {
 		log.info("屏蔽登录弹窗");
-		GM_addStyle(`.passport-login-container{display: none !important;}`);
+		addStyle(`.passport-login-container{display: none !important;}`);
 	},
 	/**
 	 * 自动展开代码块
 	 */
 	autoExpandCodeContent() {
 		log.info("自动展开代码块");
-		GM_addStyle(`
+		addStyle(`
 		pre.set-code-hide{
 			height: auto !important;
 		}
@@ -266,7 +289,7 @@ const CSDNBlog = {
 	 */
 	autoExpandContent() {
 		log.info("自动展开全文");
-		GM_addStyle(`
+		addStyle(`
 		/* 自动展开全文 */
 		#article_content,
 		.user-article.user-article-hide {
@@ -280,42 +303,42 @@ const CSDNBlog = {
 	 */
 	blockComment() {
 		log.info("屏蔽评论区");
-		GM_addStyle(`#pcCommentBox{display: none !important;}`);
+		addStyle(`#pcCommentBox{display: none !important;}`);
 	},
 	/**
 	 * 屏蔽底部推荐文章
 	 */
 	shieldBottomRecommendArticle() {
 		log.info("屏蔽底部推荐文章");
-		GM_addStyle(`main > div.recommend-box {display: none !important;}`);
+		addStyle(`main > div.recommend-box {display: none !important;}`);
 	},
 	/**
 	 * 屏蔽底部xx技能树
 	 */
 	shieldBottomSkillTree() {
 		log.info("屏蔽底部xx技能树");
-		GM_addStyle(`#treeSkill{display: none !important;}`);
+		addStyle(`#treeSkill{display: none !important;}`);
 	},
 	/**
 	 * 屏蔽底部悬浮工具栏
 	 */
 	shieldBottomFloatingToolbar() {
 		log.info("屏蔽底部悬浮工具栏");
-		GM_addStyle(`#toolBarBox{display: none !important;}`);
+		addStyle(`#toolBarBox{display: none !important;}`);
 	},
 	/**
 	 * 屏蔽左侧博客信息
 	 */
 	shieldLeftBlogContainerAside() {
 		log.info("【屏蔽】左侧博客信息");
-		GM_addStyle(`aside.blog_container_aside{display: none !important;}`);
+		addStyle(`aside.blog_container_aside{display: none !important;}`);
 	},
 	/**
 	 * 【屏蔽】右侧目录信息
 	 */
 	shieldRightDirectoryInformation() {
 		log.info("【屏蔽】右侧目录信息");
-		GM_addStyle(`
+		addStyle(`
         #rightAsideConcision,
         #rightAside{
           display: none !important;
@@ -327,21 +350,21 @@ const CSDNBlog = {
 	 */
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
-		GM_addStyle(`#toolbarBox{display: none !important;}`);
+		addStyle(`#toolbarBox{display: none !important;}`);
 	},
 	/**
 	 * 屏蔽文章内的选中搜索悬浮提示
 	 */
 	shieldArticleSearchTip() {
 		log.info("屏蔽文章内的选中搜索悬浮提示");
-		GM_addStyle(`#articleSearchTip{display: none !important;}`);
+		addStyle(`#articleSearchTip{display: none !important;}`);
 	},
 	/**
 	 * 允许选择内容
 	 */
 	allowSelectContent() {
 		log.info("允许选择内容");
-		GM_addStyle(`
+		addStyle(`
 		#content_views,
 		#content_views pre,
 		#content_views pre code {

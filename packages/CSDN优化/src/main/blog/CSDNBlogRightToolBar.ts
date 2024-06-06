@@ -1,6 +1,5 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 
 const CSDNBlogRightToolBar = {
 	init() {
@@ -37,7 +36,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldRightToolbar() {
 		log.info("屏蔽右侧工具栏");
-		GM_addStyle(`div.csdn-side-toolbar{display: none !important;}`);
+		addStyle(`div.csdn-side-toolbar{display: none !important;}`);
 	},
 	/**
 	 * 【添加】前往评论按钮，在返回顶部的下面
@@ -88,7 +87,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	initRightToolbarOffset() {
 		log.info("初始化右侧工具栏的偏移（top、right）");
-		GM_addStyle(`
+		addStyle(`
         .csdn-side-toolbar{
           left: unset !important;
         }
@@ -111,7 +110,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldCreativeCenter() {
 		log.info("【屏蔽】创作中心");
-		GM_addStyle(
+		addStyle(
 			".csdn-side-toolbar .sidetool-writeguide-box{display:none !important}"
 		);
 	},
@@ -120,14 +119,14 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldShowOrSidebar() {
 		log.info("【屏蔽】显示/隐藏侧栏");
-		GM_addStyle(".csdn-side-toolbar a.sidecolumn{display:none !important}");
+		addStyle(".csdn-side-toolbar a.sidecolumn{display:none !important}");
 	},
 	/**
 	 * 【屏蔽】新手引导
 	 */
 	shieldBeginnerGuidance() {
 		log.info("【屏蔽】新手引导");
-		GM_addStyle(
+		addStyle(
 			'.csdn-side-toolbar a.option-box[data-type="guide"]{display:none !important}'
 		);
 	},
@@ -136,7 +135,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldCustomerService() {
 		log.info("【屏蔽】客服");
-		GM_addStyle(
+		addStyle(
 			'.csdn-side-toolbar a.option-box[data-type="cs"]{display:none !important}'
 		);
 	},
@@ -145,7 +144,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldReport() {
 		log.info("【屏蔽】举报");
-		GM_addStyle(
+		addStyle(
 			'.csdn-side-toolbar a.option-box[data-type="report"]{display:none !important}'
 		);
 	},
@@ -154,7 +153,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldBackToTop() {
 		log.info("【屏蔽】返回顶部");
-		GM_addStyle(
+		addStyle(
 			'.csdn-side-toolbar a.option-box[data-type="gotop"]{display:none !important}'
 		);
 	},

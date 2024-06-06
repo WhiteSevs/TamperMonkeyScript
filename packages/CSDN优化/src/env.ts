@@ -83,6 +83,8 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
+const addStyle = utils.addStyle;
+
 export {
 	utils,
 	domutils as DOMUtils,
@@ -94,4 +96,5 @@ export {
 	OriginPrototype,
 	// Viewer,
 	httpx,
+	addStyle,
 };

@@ -1,7 +1,6 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { CSDNBlog } from "@/main/blog/CSDNBlog";
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 import ShieldCSS from "./css/shield.css?raw";
 import MBlogCSS from "./css/blog.css?raw";
 import { waitForElementToRemove } from "@/utils/CSDNUtils";
@@ -43,15 +42,15 @@ const M_CSDNBlog = {
 		});
 	},
 	addCSS() {
-		GM_addStyle(ShieldCSS);
-		GM_addStyle(MBlogCSS);
+		addStyle(ShieldCSS);
+		addStyle(MBlogCSS);
 	},
 	/**
 	 * 屏蔽顶部Toolbar
 	 */
 	shieldTopToolbar() {
-		log.success("屏蔽顶部Toolbar");
-		GM_addStyle(`
+		log.info("屏蔽顶部Toolbar");
+		addStyle(`
         #csdn-toolbar{
           display: none !important;
         }
@@ -73,7 +72,7 @@ const M_CSDNBlog = {
 	refactoringRecommendation() {
 		function refactoring() {
 			/* 反复执行的重构函数 */
-			log.success("重构底部推荐");
+			log.info("重构底部推荐");
 			(
 				document.querySelectorAll(
 					".container-fluid"
@@ -155,8 +154,8 @@ const M_CSDNBlog = {
 			});
 		}
 		let lockFunction = new utils.LockFunction(refactoring, 50);
-		utils.waitNode("#recommend").then(($recommend) => {
-			log.success("重构底部推荐");
+		utils.waitNode<HTMLDivElement>("#recommend").then(($recommend) => {
+			log.info("重构底部推荐");
 			lockFunction.run();
 			utils.mutationObserver($recommend, {
 				callback: () => {
@@ -170,15 +169,15 @@ const M_CSDNBlog = {
 	 * 屏蔽底部文章
 	 */
 	blockBottomArticle() {
-		log.success("屏蔽底部文章");
-		GM_addStyle("#recommend{display:none !important;}");
+		log.info("屏蔽底部文章");
+		addStyle("#recommend{display:none !important;}");
 	},
 	/**
 	 * 屏蔽评论
 	 */
 	blockComment() {
-		log.success("屏蔽评论");
-		GM_addStyle("#comment{display:none !important;}");
+		log.info("屏蔽评论");
+		addStyle("#comment{display:none !important;}");
 	},
 	/**
 	 * 去除广告
@@ -200,8 +199,8 @@ const M_CSDNBlog = {
 	 * 不限制代码块最大高度
 	 */
 	notLimitCodePreMaxHeight() {
-		log.success("不限制代码块最大高度");
-		GM_addStyle(`
+		log.info("不限制代码块最大高度");
+		addStyle(`
         pre{
             max-height: unset !important;
         }
@@ -211,8 +210,8 @@ const M_CSDNBlog = {
 	 * 不限制评论区最大高度
 	 */
 	notLimitCommentMaxHeight() {
-		log.success("不限制评论区最大高度");
-		GM_addStyle(`
+		log.info("不限制评论区最大高度");
+		addStyle(`
         #comment{
           max-height: none !important;
         }
@@ -222,8 +221,8 @@ const M_CSDNBlog = {
 	 * 允许选择文字
 	 */
 	allowSelectText() {
-		log.success("允许选择文字");
-		GM_addStyle(`
+		log.info("允许选择文字");
+		addStyle(`
         #content_views,
         #content_views pre,
         #content_views pre code{
@@ -240,8 +239,8 @@ const M_CSDNBlog = {
 	 * 自动展开内容
 	 */
 	autoExpandContent() {
-		log.success("自动展开内容");
-		GM_addStyle(`
+		log.info("自动展开内容");
+		addStyle(`
         #content_views pre.set-code-hide,
         .article_content{
           height: 100% !important;
