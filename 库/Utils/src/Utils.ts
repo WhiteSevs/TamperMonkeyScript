@@ -133,7 +133,7 @@ export declare interface Vue2Context extends AnyObject {
 	$ssrContext: AnyObject;
 
 	$watch: (
-		key: string | string[],
+		key: string | string[] | (() => any),
 		handler: (this: any, newVal: any, oldVal: any) => void,
 		options?: {
 			immediate?: boolean;

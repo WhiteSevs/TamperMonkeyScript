@@ -117,7 +117,7 @@ export declare interface Vue2Context extends AnyObject {
         afterEach: ((to: Vue2Context["$route"], from: Vue2Context["$route"]) => void) | null;
     };
     $ssrContext: AnyObject;
-    $watch: (key: string | string[], handler: (this: any, newVal: any, oldVal: any) => void, options?: {
+    $watch: (key: string | string[] | (() => any), handler: (this: any, newVal: any, oldVal: any) => void, options?: {
         immediate?: boolean;
         deep?: boolean;
     }) => void;
