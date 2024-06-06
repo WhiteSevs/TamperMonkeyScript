@@ -3,7 +3,7 @@ import { CSDNBlog } from "@/main/blog/CSDNBlog";
 import { PopsPanel } from "@/setting/setting";
 import ShieldCSS from "./css/shield.css?raw";
 import MBlogCSS from "./css/blog.css?raw";
-import { waitForElementToRemove } from "@/utils/CSDNUtils";
+import { CSDNUtils } from "@/utils/CSDNUtils";
 
 const M_CSDNBlog = {
 	init() {
@@ -50,10 +50,8 @@ const M_CSDNBlog = {
 	 */
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
+		CSDNUtils.addBlockCSS("#csdn-toolbar");
 		addStyle(`
-        #csdn-toolbar{
-          display: none !important;
-        }
         /* 内容顶部要归位 */
         body #main,
         .margin_sides{
@@ -170,14 +168,14 @@ const M_CSDNBlog = {
 	 */
 	blockBottomArticle() {
 		log.info("屏蔽底部文章");
-		addStyle("#recommend{display:none !important;}");
+		CSDNUtils.addBlockCSS("#recommend");
 	},
 	/**
 	 * 屏蔽评论
 	 */
 	blockComment() {
 		log.info("屏蔽评论");
-		addStyle("#comment{display:none !important;}");
+		CSDNUtils.addBlockCSS("#comment");
 	},
 	/**
 	 * 去除广告
@@ -185,15 +183,17 @@ const M_CSDNBlog = {
 	removeAds() {
 		log.info("去除广告");
 		/* 登录窗口 */
-		waitForElementToRemove(".passport-login-container");
+		CSDNUtils.waitForElementToRemove(".passport-login-container");
 		/* 打开APP */
-		waitForElementToRemove(".btn_open_app_prompt_box.detail-open-removed");
+		CSDNUtils.waitForElementToRemove(
+			".btn_open_app_prompt_box.detail-open-removed"
+		);
 		/* 广告 */
-		waitForElementToRemove(".add-firstAd");
+		CSDNUtils.waitForElementToRemove(".add-firstAd");
 		/* 打开CSDN APP 小程序看全文 */
-		waitForElementToRemove("div.feed-Sign-weixin");
+		CSDNUtils.waitForElementToRemove("div.feed-Sign-weixin");
 		/* ios版本提示 */
-		waitForElementToRemove("div.ios-shadowbox");
+		CSDNUtils.waitForElementToRemove("div.ios-shadowbox");
 	},
 	/**
 	 * 不限制代码块最大高度

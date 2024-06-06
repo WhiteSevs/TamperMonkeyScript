@@ -1,5 +1,6 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { CSDNUtils } from "@/utils/CSDNUtils";
 
 const CSDNBlogRightToolBar = {
 	init() {
@@ -36,7 +37,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldRightToolbar() {
 		log.info("屏蔽右侧工具栏");
-		addStyle(`div.csdn-side-toolbar{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`div.csdn-side-toolbar`);
 	},
 	/**
 	 * 【添加】前往评论按钮，在返回顶部的下面
@@ -110,42 +111,36 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldCreativeCenter() {
 		log.info("【屏蔽】创作中心");
-		addStyle(
-			".csdn-side-toolbar .sidetool-writeguide-box{display:none !important}"
-		);
+		CSDNUtils.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
 	},
 	/**
 	 * 【屏蔽】显示/隐藏侧栏
 	 */
 	shieldShowOrSidebar() {
 		log.info("【屏蔽】显示/隐藏侧栏");
-		addStyle(".csdn-side-toolbar a.sidecolumn{display:none !important}");
+		CSDNUtils.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
 	},
 	/**
 	 * 【屏蔽】新手引导
 	 */
 	shieldBeginnerGuidance() {
 		log.info("【屏蔽】新手引导");
-		addStyle(
-			'.csdn-side-toolbar a.option-box[data-type="guide"]{display:none !important}'
-		);
+		CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="guide"]');
 	},
 	/**
 	 * 【屏蔽】客服
 	 */
 	shieldCustomerService() {
 		log.info("【屏蔽】客服");
-		addStyle(
-			'.csdn-side-toolbar a.option-box[data-type="cs"]{display:none !important}'
-		);
+		CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="cs"]');
 	},
 	/**
 	 * 【屏蔽】举报
 	 */
 	shieldReport() {
 		log.info("【屏蔽】举报");
-		addStyle(
-			'.csdn-side-toolbar a.option-box[data-type="report"]{display:none !important}'
+		CSDNUtils.addBlockCSS(
+			'.csdn-side-toolbar a.option-box[data-type="report"]'
 		);
 	},
 	/**
@@ -153,9 +148,7 @@ const CSDNBlogRightToolBar = {
 	 */
 	shieldBackToTop() {
 		log.info("【屏蔽】返回顶部");
-		addStyle(
-			'.csdn-side-toolbar a.option-box[data-type="gotop"]{display:none !important}'
-		);
+		CSDNUtils.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="gotop"]');
 	},
 };
 

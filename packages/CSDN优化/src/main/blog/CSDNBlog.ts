@@ -5,6 +5,7 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
 import { CSDNBlogRightToolBar } from "./CSDNBlogRightToolBar";
+import { CSDNUtils } from "@/utils/CSDNUtils";
 
 const CSDNBlog = {
 	init() {
@@ -263,19 +264,17 @@ const CSDNBlog = {
 	 */
 	shieldLoginDialog() {
 		log.info("屏蔽登录弹窗");
-		addStyle(`.passport-login-container{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`.passport-login-container`);
 	},
 	/**
 	 * 自动展开代码块
 	 */
 	autoExpandCodeContent() {
 		log.info("自动展开代码块");
+		CSDNUtils.addBlockCSS("pre.set-code-hide .hide-preCode-box");
 		addStyle(`
 		pre.set-code-hide{
 			height: auto !important;
-		}
-		pre.set-code-hide .hide-preCode-box{
-			display: none !important;
 		}
 		/* 自动展开代码块 */
 		.comment-list-box,
@@ -303,61 +302,56 @@ const CSDNBlog = {
 	 */
 	blockComment() {
 		log.info("屏蔽评论区");
-		addStyle(`#pcCommentBox{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`#pcCommentBox`);
 	},
 	/**
 	 * 屏蔽底部推荐文章
 	 */
 	shieldBottomRecommendArticle() {
 		log.info("屏蔽底部推荐文章");
-		addStyle(`main > div.recommend-box {display: none !important;}`);
+		CSDNUtils.addBlockCSS(`main > div.recommend-box`);
 	},
 	/**
 	 * 屏蔽底部xx技能树
 	 */
 	shieldBottomSkillTree() {
 		log.info("屏蔽底部xx技能树");
-		addStyle(`#treeSkill{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`#treeSkill`);
 	},
 	/**
 	 * 屏蔽底部悬浮工具栏
 	 */
 	shieldBottomFloatingToolbar() {
 		log.info("屏蔽底部悬浮工具栏");
-		addStyle(`#toolBarBox{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`#toolBarBox`);
 	},
 	/**
 	 * 屏蔽左侧博客信息
 	 */
 	shieldLeftBlogContainerAside() {
 		log.info("【屏蔽】左侧博客信息");
-		addStyle(`aside.blog_container_aside{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`aside.blog_container_aside`);
 	},
 	/**
 	 * 【屏蔽】右侧目录信息
 	 */
 	shieldRightDirectoryInformation() {
 		log.info("【屏蔽】右侧目录信息");
-		addStyle(`
-        #rightAsideConcision,
-        #rightAside{
-          display: none !important;
-        }
-        `);
+		CSDNUtils.addBlockCSS("#rightAsideConcision", "#rightAside");
 	},
 	/**
 	 * 屏蔽顶部Toolbar
 	 */
 	shieldTopToolbar() {
 		log.info("屏蔽顶部Toolbar");
-		addStyle(`#toolbarBox{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`#toolbarBox`);
 	},
 	/**
 	 * 屏蔽文章内的选中搜索悬浮提示
 	 */
 	shieldArticleSearchTip() {
 		log.info("屏蔽文章内的选中搜索悬浮提示");
-		addStyle(`#articleSearchTip{display: none !important;}`);
+		CSDNUtils.addBlockCSS(`#articleSearchTip`);
 	},
 	/**
 	 * 允许选择内容

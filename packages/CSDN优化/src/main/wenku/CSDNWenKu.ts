@@ -2,6 +2,7 @@ import WenkuCSS from "./css/wenku.css?raw";
 import ShieldCSS from "./css/shield.css?raw";
 import { PopsPanel } from "@/setting/setting";
 import { addStyle, log } from "@/env";
+import { CSDNUtils } from "@/utils/CSDNUtils";
 
 const CSDNWenKu = {
 	init() {
@@ -22,21 +23,21 @@ const CSDNWenKu = {
 	 */
 	shieldResourceRecommend() {
 		log.info("【屏蔽】资源推荐");
-		addStyle(`#recommend{display:none !important;}`);
+		CSDNUtils.addBlockCSS("#recommend");
 	},
 	/**
 	 * 【屏蔽】右侧用户信息
 	 */
 	shieldRightUserInfo() {
 		log.info("【屏蔽】右侧用户信息");
-		addStyle(`.layout-right{display:none !important;}`);
+		CSDNUtils.addBlockCSS(".layout-right");
 	},
 	/**
 	 * 【屏蔽】右侧悬浮工具栏
 	 */
 	shieldRightToolBar() {
 		log.info("【屏蔽】右侧悬浮工具栏");
-		addStyle(`.csdn-side-toolbar {display:none !important;}`);
+		CSDNUtils.addBlockCSS(".csdn-side-toolbar");
 	},
 };
 
