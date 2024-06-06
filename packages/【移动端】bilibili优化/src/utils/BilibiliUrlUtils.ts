@@ -4,20 +4,27 @@ export const BilibiliUrlUtils = {
 	 * @param userId 用户id
 	 */
 	getUserSpaceUrl(userId: string) {
-		return `https://space.bilibili.com/${userId}`;
+		return `https://m.bilibili.com/space/${userId}`;
 	},
 	/**
-	 * 获取用户个人空间动态链接
+	 * 获取用户个人空间动态链接-dynamic
 	 * @param userId 用户id
 	 */
 	getUserSpaceDynamicUrl(userId: string) {
-		return this.getUserSpaceUrl(userId) + "/dynamic";
+		return `https://m.bilibili.com/dynamic/${userId}`;
+	},
+	/**
+	 * 获取用户个人空间动态链接-opus
+	 * @param userId 用户id
+	 */
+	getUserSpaceOpusUrl(userId: string) {
+		return `https://m.bilibili.com/opus/${userId}`;
 	},
 	/**
 	 * 获取视频链接
 	 * @param id bv/av号
 	 */
 	getVideoUrl(id: string) {
-		return `https://www.bilibili.com/video/${id}`;
+		return `https://m.bilibili.com/video/${id}`;
 	},
 };

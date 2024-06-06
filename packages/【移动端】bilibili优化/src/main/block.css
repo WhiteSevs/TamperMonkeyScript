@@ -1,7 +1,14 @@
+/* ------ 全局匹配 ------ */
+
 /* 视频标题上面的 打开App，流畅又高清 */
-.m-video2-awaken-btn {
+.m-video2-awaken-btn,
+/* 让选择打开App还是继续浏览 */
+.openapp-dialog {
 	display: none !important;
 }
+
+/* ------ 全局匹配 ------ */
+
 /* 主页，顶部头 */
 .m-head {
 	/* 右上角 下载App */
@@ -30,10 +37,8 @@
 
 /* 视频 */
 #app .video {
-	/* 让选择打开App还是继续浏览 */
-	.openapp-dialog,
-  	/* 打开App，流畅又高清 */
-  	.launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
+	/* 打开App，流畅又高清 */
+	.launch-app-btn.m-video-main-launchapp:has([class^="m-video2-awaken"]),
   	/* 右上角 下载App */
   	.launch-app-btn.m-nav-openapp,
   	/* 当tinyApp为false时，视频全屏出现的 打开App，看高清全屏 */

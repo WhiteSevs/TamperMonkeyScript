@@ -1,13 +1,22 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, Qmsg, log, utils } from "@/env";
-import { BilibiliHook } from "@/hook/BilibiliHook";
+import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 
 export const BilibiliOpus = {
 	init() {
 		PopsPanel.execMenuOnce("bili-opus-cover-topicJump", () => {
 			this.coverTopicJump();
+		});
+		PopsPanel.execMenuOnce(
+			"bili-opus-automaticallyExpandToReadFullText",
+			() => {
+				this.automaticallyExpandToReadFullText();
+			}
+		);
+		PopsPanel.execMenuOnce("bili-opus-cover-header", () => {
+			this.coverHeaderJump();
 		});
 	},
 	/**
@@ -34,6 +43,48 @@ export const BilibiliOpus = {
 				}
 				log.info(["话题的跳转信息: ", data]);
 				BilibiliUtils.goToUrl(jump_url);
+			},
+			{
+				capture: true,
+			}
+		);
+	},
+	/**
+	 * 自动展开阅读全文
+	 */
+	automaticallyExpandToReadFullText() {
+		log.info("自动展开阅读全文");
+		BilibiliUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more");
+		addStyle(`
+		${BilibiliData.className.opus} .opus-module-content{
+			overflow: unset !important;
+    		max-height: unset !important;
+		}
+		`);
+	},
+	/**
+	 * 覆盖header点击事件
+	 */
+	coverHeaderJump() {
+		log.info("覆盖header点击事件");
+		DOMUtils.on<PointerEvent | MouseEvent>(
+			document,
+			"click",
+			BilibiliData.className.opus + " .opus-module-author",
+			function (event) {
+				utils.preventEvent(event);
+				let $click = event.target as HTMLDivElement;
+				let vueObj = BilibiliUtils.getVue($click);
+				if (!vueObj) {
+					Qmsg.error("获取vue属性失败");
+					return;
+				}
+				let mid = vueObj?.data?.mid;
+				if (!mid) {
+					Qmsg.error("获取mid失败");
+					return;
+				}
+				BilibiliUtils.goToUrl(BilibiliUrlUtils.getUserSpaceUrl(mid));
 			},
 			{
 				capture: true,

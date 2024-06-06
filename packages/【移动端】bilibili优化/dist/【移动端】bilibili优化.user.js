@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.6.0
+// @version      2024.6.6.9
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -30,7 +30,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .openapp-dialog,#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important} ");
+(a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(" .m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important} ");
 
 (function (Qmsg, Utils, DOMUtils) {
   'use strict';
@@ -489,6 +489,19 @@
     },
     forms: [
       {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "自动展开阅读全文",
+            "bili-opus-automaticallyExpandToReadFullText",
+            true,
+            void 0,
+            "屏蔽【展开阅读全文】按钮并自动处理全文高度"
+          )
+        ]
+      },
+      {
         text: "覆盖点击事件",
         type: "forms",
         forms: [
@@ -498,6 +511,13 @@
             true,
             void 0,
             "点击话题正确跳转"
+          ),
+          UISwitch(
+            "header用户",
+            "bili-opus-cover-header",
+            true,
+            void 0,
+            "点击内容上的发布本动态的用户正确跳转个人空间"
           )
         ]
       }
@@ -664,8 +684,17 @@
         window.open(path, "_blank");
       } else {
         if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
           let urlObj = new URL(path);
-          path = urlObj.pathname + urlObj.search + urlObj.hash;
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
         }
         log.info("$router push跳转Url：" + path);
         $router.push(path);
@@ -762,6 +791,31 @@
           }, 100);
         };
       });
+    },
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   };
   const PopsPanel = {
@@ -1236,21 +1290,28 @@
      * @param userId 用户id
      */
     getUserSpaceUrl(userId) {
-      return `https://space.bilibili.com/${userId}`;
+      return `https://m.bilibili.com/space/${userId}`;
     },
     /**
-     * 获取用户个人空间动态链接
+     * 获取用户个人空间动态链接-dynamic
      * @param userId 用户id
      */
     getUserSpaceDynamicUrl(userId) {
-      return this.getUserSpaceUrl(userId) + "/dynamic";
+      return `https://m.bilibili.com/dynamic/${userId}`;
+    },
+    /**
+     * 获取用户个人空间动态链接-opus
+     * @param userId 用户id
+     */
+    getUserSpaceOpusUrl(userId) {
+      return `https://m.bilibili.com/opus/${userId}`;
     },
     /**
      * 获取视频链接
      * @param id bv/av号
      */
     getVideoUrl(id) {
-      return `https://www.bilibili.com/video/${id}`;
+      return `https://m.bilibili.com/video/${id}`;
     }
   };
   const BilibiliData = {
@@ -2067,38 +2128,36 @@
      */
     blockChatRoom() {
       log.info("屏蔽聊天室");
-      addStyle(`
-        #chat-items{
-            display: none !important;
-        }
-        `);
+      BilibiliUtils.addBlockCSS("#chat-items");
     },
     /**
      * 屏蔽xxx进入直播间
      */
     blockBrushPrompt() {
       log.info("屏蔽xxx进入直播间");
-      addStyle(`
-        #brush-prompt{
-            display: none !important;
-        }
-        `);
+      BilibiliUtils.addBlockCSS("#brush-prompt");
     },
     /**
      * 屏蔽底部工具栏
      */
     blockControlPanel() {
       log.info("屏蔽底部工具栏");
-      addStyle(`
-        .control-panel{
-            display: none !important;
-        }`);
+      BilibiliUtils.addBlockCSS(".control-panel");
     }
   };
   const BilibiliOpus = {
     init() {
       PopsPanel.execMenuOnce("bili-opus-cover-topicJump", () => {
         this.coverTopicJump();
+      });
+      PopsPanel.execMenuOnce(
+        "bili-opus-automaticallyExpandToReadFullText",
+        () => {
+          this.automaticallyExpandToReadFullText();
+        }
+      );
+      PopsPanel.execMenuOnce("bili-opus-cover-header", () => {
+        this.coverHeaderJump();
       });
     },
     /**
@@ -2126,6 +2185,49 @@
           }
           log.info(["话题的跳转信息: ", data]);
           BilibiliUtils.goToUrl(jump_url);
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 自动展开阅读全文
+     */
+    automaticallyExpandToReadFullText() {
+      log.info("自动展开阅读全文");
+      BilibiliUtils.addBlockCSS(BilibiliData.className.opus + " .opus-read-more");
+      addStyle(`
+		${BilibiliData.className.opus} .opus-module-content{
+			overflow: unset !important;
+    		max-height: unset !important;
+		}
+		`);
+    },
+    /**
+     * 覆盖header点击事件
+     */
+    coverHeaderJump() {
+      log.info("覆盖header点击事件");
+      domutils.on(
+        document,
+        "click",
+        BilibiliData.className.opus + " .opus-module-author",
+        function(event) {
+          var _a2;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let vueObj = BilibiliUtils.getVue($click);
+          if (!vueObj) {
+            Qmsg.error("获取vue属性失败");
+            return;
+          }
+          let mid = (_a2 = vueObj == null ? void 0 : vueObj.data) == null ? void 0 : _a2.mid;
+          if (!mid) {
+            Qmsg.error("获取mid失败");
+            return;
+          }
+          BilibiliUtils.goToUrl(BilibiliUrlUtils.getUserSpaceUrl(mid));
         },
         {
           capture: true

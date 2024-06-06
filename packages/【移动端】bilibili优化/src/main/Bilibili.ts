@@ -1,4 +1,4 @@
-import "./Bilibili.css";
+import "./block.css";
 import BilibiliBeautifyCSS from "./BilibiliBeautify.css?raw";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";

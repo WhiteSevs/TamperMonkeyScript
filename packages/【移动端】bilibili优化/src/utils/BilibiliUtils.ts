@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 import Qmsg from "qmsg";
@@ -108,8 +108,18 @@ export const BilibiliUtils = {
 		} else {
 			/* 本页打开 */
 			if (path.startsWith("http") || path.startsWith("//")) {
+				if (path.startsWith("//")) {
+					path = window.location.protocol + path;
+				}
 				let urlObj = new URL(path);
-				path = urlObj.pathname + urlObj.search + urlObj.hash;
+				if (urlObj.origin === window.location.origin) {
+					/* 同域名 */
+					path = urlObj.pathname + urlObj.search + urlObj.hash;
+				} else {
+					log.info("不同域名，直接本页打开，不用Router：" + path);
+					window.location.href = path;
+					return;
+				}
 			}
 			log.info("$router push跳转Url：" + path);
 			$router.push(path);
@@ -236,5 +246,34 @@ export const BilibiliUtils = {
 				}, 100);
 			};
 		});
+	},
+	/**
+	 * 添加屏蔽CSS
+	 * @param args
+	 * @example
+	 * addBlockCSS("")
+	 * addBlockCSS("","")
+	 * addBlockCSS(["",""])
+	 */
+	addBlockCSS(...args: (string | string[])[]) {
+		let selectorList: string[] = [];
+		if (args.length === 0) {
+			return;
+		}
+		if (
+			args.length === 1 &&
+			typeof args[0] === "string" &&
+			args[0].trim() === ""
+		) {
+			return;
+		}
+		args.forEach((selector) => {
+			if (Array.isArray(selector)) {
+				selectorList = selectorList.concat(selector);
+			} else {
+				selectorList.push(selector);
+			}
+		});
+		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 };
