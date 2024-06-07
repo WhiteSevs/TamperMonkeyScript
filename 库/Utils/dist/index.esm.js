@@ -5952,6 +5952,9 @@ class Utils {
                 if (typeof obj !== "object") {
                     return;
                 }
+                if (obj == null) {
+                    return;
+                }
                 if ((typeof checkPropertyName === "function" && checkPropertyName(obj)) ||
                     Reflect.has(obj, checkPropertyName)) {
                     isResolve = true;
