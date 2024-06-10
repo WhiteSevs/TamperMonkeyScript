@@ -25,10 +25,10 @@ if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
 
-let VERSION =
-	process.env.NODE_ENV === "development"
-		? "0.0.1"
-		: Utils.getScriptVersion(!isEmptyOutDir);
+let VERSION = "0.0.1";
+if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+}
 
 const ElementPlusUrl = await GetLib("Element-Plus");
 
@@ -127,6 +127,8 @@ export default defineConfig({
 				// 引入外部库
 				externalGlobals: {
 					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
+					"vue-demi": cdn.jsdelivr("VueDemi", "lib/index.iife.min.js"),
+					pinia: cdn.jsdelivr("Pinia", "dist/pinia.iife.prod.js"),
 					"vue-router": cdn.jsdelivr("VueRouter", "dist/vue-router.global.js"),
 					"element-plus": [
 						"ElementPlus",

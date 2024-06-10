@@ -21,7 +21,7 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
-let VERSION = "2024.5.1";
+let VERSION = "0.0.1";
 if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
 	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
 }

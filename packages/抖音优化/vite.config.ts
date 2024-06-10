@@ -16,10 +16,11 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
-let VERSION =
-	process.env.NODE_ENV === "development"
-		? "0.0.1"
-		: Utils.getScriptVersion(!isEmptyOutDir);
+
+let VERSION = "0.0.1";
+if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
