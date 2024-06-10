@@ -18,6 +18,8 @@ export type QmsgPosition =
 
 export type QmsgType = "info" | "warning" | "success" | "error" | "loading";
 
+export type QmsgLimitWidthWrap = "no-wrap" | "wrap" | "ellipsis";
+
 export interface QmsgOption {
 	/**
 	 * 是否使用动画
@@ -143,10 +145,9 @@ class Qmsg {
 	 */
 	config(option?: QmsgDetails) {
 		if (option == null) return;
-		QmsgStore.DEFAULT =
-			option && typeof option === "object"
-				? Object.assign(QmsgStore.DEFAULT, option)
-				: QmsgStore.DEFAULT;
+		if (typeof option !== "object") return;
+		(QmsgStore.INS_DEFAULT as any) = null;
+		(QmsgStore.INS_DEFAULT as any) = option;
 	}
 	/**
 	 * 信息Toast

@@ -1,6 +1,7 @@
 import { QmsgMsg } from "./QmsgMsg";
 export type QmsgPosition = "topleft" | "top" | "topright" | "left" | "center" | "right" | "bottomleft" | "bottom" | "bottomright";
 export type QmsgType = "info" | "warning" | "success" | "error" | "loading";
+export type QmsgLimitWidthWrap = "no-wrap" | "wrap" | "ellipsis";
 export interface QmsgOption {
     /**
      * 是否使用动画

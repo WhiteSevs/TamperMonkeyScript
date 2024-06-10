@@ -46,7 +46,12 @@ export class QmsgMsg {
 		this.#timerId = void 0;
 		this.#startTime = null;
 		this.#endTime = null;
-		this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
+		// this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
+		this.#setting = QmsgUtils.toDynamicObject(
+			QmsgStore.DEFAULT,
+			option,
+			QmsgStore.INS_DEFAULT
+		);
 		this.#uuid = uuid;
 		this.#state = "opening";
 		this.$Qmsg = document.createElement("div");

@@ -1,11 +1,15 @@
 import { QmsgOption } from "./Qmsg";
 import { QmsgAnimation } from "./QmsgAnimation";
+import { QmsgUtils } from "./QmsgUtils";
 
 export const QmsgStore = {
 	/** 声明插件名称 */
 	PLUGIN_NAME: "qmsg",
 	/** 命名空间，用于css和事件 */
 	NAMESPACE: "qmsg",
+	/** 实例配置的固定的默认值 */
+	INS_DEFAULT: {},
+	/** 固定的默认值 */
 	DEFAULT: <Required<QmsgOption>>{
 		animation: true,
 		autoClose: true,

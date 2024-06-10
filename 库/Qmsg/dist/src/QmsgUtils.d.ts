@@ -23,11 +23,18 @@ export declare const QmsgUtils: {
      * @param config 配置
      * @private
      */
-    mergeArgs(content?: string, config?: object): Required<QmsgOption>;
+    mergeArgs(content?: string, config?: object): QmsgOption;
     /**
      * 通过配置信息 来判断是否为同一条消息,并返回消息实例
      * @param option 配置项
      * @private
      */
     judgeReMsg(option: QmsgOption): QmsgMsg;
+    /**
+     * 转换为动态对象
+     * @param obj 需要配置的对象
+     * @param other_obj 获取的其它对象
+     * @returns
+     */
+    toDynamicObject(obj: any, ...other_objs: any[]): any;
 };

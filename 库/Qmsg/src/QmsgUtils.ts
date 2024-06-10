@@ -43,7 +43,7 @@ export const QmsgUtils = {
 	 * @private
 	 */
 	mergeArgs(content = "", config?: object) {
-		let opts = Object.assign({}, QmsgStore.DEFAULT);
+		let opts = {} as QmsgOption;
 		if (arguments.length === 0) {
 			return opts;
 		}
@@ -115,5 +115,34 @@ export const QmsgUtils = {
 		}
 
 		return QmsgInstance;
+	},
+	/**
+	 * 转换为动态对象
+	 * @param obj 需要配置的对象
+	 * @param other_obj 获取的其它对象
+	 * @returns
+	 */
+	toDynamicObject(obj: any, ...other_objs: any[]) {
+		let __obj__ = Object.assign({}, obj);
+		Object.keys(__obj__).forEach((keyName) => {
+			let objValue = __obj__[keyName];
+			Object.defineProperty(__obj__, keyName, {
+				get() {
+					let findIndex = other_objs.findIndex((other_obj) => {
+						// 判断其他对象中是否有该属性
+						return other_obj.hasOwnProperty.call(other_obj, keyName);
+					});
+					if (findIndex !== -1) {
+						return other_objs[findIndex][keyName];
+					} else {
+						return objValue;
+					}
+				},
+				set(newValue) {
+					objValue = newValue;
+				},
+			});
+		});
+		return __obj__;
 	},
 };

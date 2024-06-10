@@ -124,6 +124,9 @@ define((function () { 'use strict';
         PLUGIN_NAME: "qmsg",
         /** 命名空间，用于css和事件 */
         NAMESPACE: "qmsg",
+        /** 实例配置的固定的默认值 */
+        INS_DEFAULT: {},
+        /** 固定的默认值 */
         DEFAULT: {
             animation: true,
             autoClose: true,
@@ -296,7 +299,8 @@ define((function () { 'use strict';
             this.#timerId = void 0;
             this.#startTime = null;
             this.#endTime = null;
-            this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
+            // this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
+            this.#setting = QmsgUtils.toDynamicObject(QmsgStore.DEFAULT, option, QmsgStore.INS_DEFAULT);
             this.#uuid = uuid;
             this.#state = "opening";
             this.$Qmsg = document.createElement("div");
@@ -657,7 +661,7 @@ define((function () { 'use strict';
          * @private
          */
         mergeArgs(content = "", config) {
-            let opts = Object.assign({}, QmsgStore.DEFAULT);
+            let opts = {};
             if (arguments.length === 0) {
                 return opts;
             }
@@ -728,6 +732,36 @@ define((function () { 'use strict';
             }
             return QmsgInstance;
         },
+        /**
+         * 转换为动态对象
+         * @param obj 需要配置的对象
+         * @param other_obj 获取的其它对象
+         * @returns
+         */
+        toDynamicObject(obj, ...other_objs) {
+            let __obj__ = Object.assign({}, obj);
+            Object.keys(__obj__).forEach((keyName) => {
+                let objValue = __obj__[keyName];
+                Object.defineProperty(__obj__, keyName, {
+                    get() {
+                        let findIndex = other_objs.findIndex((other_obj) => {
+                            // 判断其他对象中是否有该属性
+                            return other_obj.hasOwnProperty.call(other_obj, keyName);
+                        });
+                        if (findIndex !== -1) {
+                            return other_objs[findIndex][keyName];
+                        }
+                        else {
+                            return objValue;
+                        }
+                    },
+                    set(newValue) {
+                        objValue = newValue;
+                    },
+                });
+            });
+            return __obj__;
+        },
     };
 
     /* 执行兼容 */
@@ -754,10 +788,10 @@ define((function () { 'use strict';
         config(option) {
             if (option == null)
                 return;
-            QmsgStore.DEFAULT =
-                option && typeof option === "object"
-                    ? Object.assign(QmsgStore.DEFAULT, option)
-                    : QmsgStore.DEFAULT;
+            if (typeof option !== "object")
+                return;
+            QmsgStore.INS_DEFAULT = null;
+            QmsgStore.INS_DEFAULT = option;
         }
         info(content, option) {
             let params = QmsgUtils.mergeArgs(content, option);
