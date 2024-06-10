@@ -445,6 +445,9 @@ class QmsgMsg {
             $wrapper.style.flexDirection = "column";
         }
         let zIndex = this.#setting.zIndex;
+        if (typeof zIndex === "function") {
+            zIndex = zIndex();
+        }
         if (!isNaN(zIndex)) {
             $wrapper.style.zIndex = zIndex.toString();
         }
@@ -515,12 +518,18 @@ class QmsgMsg {
             parseInt(this.#setting.timeout.toString()) <= Number.MAX_VALUE)) {
             this.#setting.timeout = QmsgStore.DEFAULT.timeout;
         }
+        if (typeof this.#setting.zIndex === "function") {
+            this.#setting.zIndex = this.#setting.zIndex();
+        }
         if (this.#setting.zIndex != null &&
             typeof this.#setting.zIndex === "string") {
             this.#setting.zIndex = parseInt(this.#setting.zIndex);
         }
         if (isNaN(this.#setting.zIndex)) {
-            this.#setting.zIndex = QmsgStore.DEFAULT.zIndex;
+            this.#setting.zIndex =
+                typeof QmsgStore.DEFAULT.zIndex === "function"
+                    ? QmsgStore.DEFAULT.zIndex()
+                    : QmsgStore.DEFAULT.zIndex;
         }
     }
     /**
@@ -733,7 +742,7 @@ class Qmsg {
     /** 每个Qmsg实例 */
     #obj;
     constructor() {
-        this.#version = "2024.5.23";
+        this.#version = "2024.6.10";
         this.#data = QmsgStore;
         this.#icons = QmsgIcon;
         this.#obj = QmsgObj;

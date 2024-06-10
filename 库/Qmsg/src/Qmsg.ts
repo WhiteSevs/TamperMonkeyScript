@@ -91,7 +91,7 @@ export interface QmsgOption {
 	 * 元素层级
 	 * + 默认：50000
 	 */
-	zIndex?: number;
+	zIndex?: number | (() => number);
 	/**
 	 * 自定义的style
 	 */
@@ -132,7 +132,7 @@ class Qmsg {
 	/** 每个Qmsg实例 */
 	#obj: typeof QmsgObj;
 	constructor() {
-		this.#version = "2024.5.23";
+		this.#version = "2024.6.10";
 		this.#data = QmsgStore;
 		this.#icons = QmsgIcon;
 		this.#obj = QmsgObj;

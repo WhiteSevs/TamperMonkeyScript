@@ -209,6 +209,9 @@ export class QmsgMsg {
 			$wrapper.style.flexDirection = "column";
 		}
 		let zIndex = this.#setting.zIndex;
+		if (typeof zIndex === "function") {
+			zIndex = zIndex();
+		}
 		if (!isNaN(zIndex)) {
 			$wrapper.style.zIndex = zIndex.toString();
 		}
@@ -290,6 +293,9 @@ export class QmsgMsg {
 			this.#setting.timeout = QmsgStore.DEFAULT.timeout;
 		}
 
+		if (typeof this.#setting.zIndex === "function") {
+			this.#setting.zIndex = this.#setting.zIndex();
+		}
 		if (
 			this.#setting.zIndex != null &&
 			typeof this.#setting.zIndex === "string"
@@ -297,7 +303,10 @@ export class QmsgMsg {
 			this.#setting.zIndex = parseInt(this.#setting.zIndex);
 		}
 		if (isNaN(this.#setting.zIndex)) {
-			this.#setting.zIndex = QmsgStore.DEFAULT.zIndex;
+			this.#setting.zIndex =
+				typeof QmsgStore.DEFAULT.zIndex === "function"
+					? QmsgStore.DEFAULT.zIndex()
+					: QmsgStore.DEFAULT.zIndex;
 		}
 	}
 	/**

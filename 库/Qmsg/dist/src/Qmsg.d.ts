@@ -74,7 +74,7 @@ export interface QmsgOption {
      * 元素层级
      * + 默认：50000
      */
-    zIndex?: number;
+    zIndex?: number | (() => number);
     /**
      * 自定义的style
      */
