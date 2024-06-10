@@ -47,6 +47,9 @@ const DouYinLive = {
 		PopsPanel.execMenu("live-unlockImageQuality", () => {
 			this.unlockImageQuality();
 		});
+		PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+			this.waitToRemovePauseDialog();
+		});
 		DouYinLiveChatRoom.init();
 	},
 	/**
@@ -134,6 +137,51 @@ const DouYinLive = {
 				capture: true,
 			}
 		);
+	},
+	/**
+	 * 长时间无操作，已暂停播放
+	 * 累计节能xx分钟
+	 */
+	waitToRemovePauseDialog() {
+		log.info("监听【长时间无操作，已暂停播放】弹窗");
+		DOMUtils.ready(() => {
+			utils.mutationObserver(document.body, {
+				config: {
+					subtree: true,
+					childList: true,
+				},
+				callback() {
+					let $elementTiming = document.querySelector<HTMLDivElement>(
+						"body > div[elementtiming='element-timing']"
+					);
+					if ($elementTiming) {
+						log.success(
+							"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+						);
+						Qmsg.success(
+							"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+						);
+						$elementTiming.remove();
+					}
+					document
+						.querySelectorAll<HTMLDivElement>('body > div:not([id="root"])')
+						.forEach(($ele) => {
+							if (
+								$ele.innerText.includes("长时间无操作") &&
+								$ele.innerText.includes("暂停播放")
+							) {
+								log.success(
+									"检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+								);
+								Qmsg.success(
+									"检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+								);
+								$ele.remove();
+							}
+						});
+				},
+			});
+		});
 	},
 };
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.3
+// @version      2024.6.10
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -10,8 +10,8 @@
 // @match        *://*.douyin.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.3/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.2/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -73,7 +73,8 @@
     maxNums: 5,
     autoClose: true,
     showClose: false,
-    showReverse: true
+    showReverse: true,
+    zIndex: 1e7
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -414,6 +415,13 @@
             true,
             void 0,
             "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
+          ),
+          UISwitch(
+            "监听并关闭【长时间无操作，已暂停播放】弹窗",
+            "live-waitToRemovePauseDialog",
+            true,
+            void 0,
+            "自动监听并检测弹窗"
           )
         ]
       },
@@ -2727,6 +2735,9 @@
       PopsPanel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
       });
+      PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+        this.waitToRemovePauseDialog();
+      });
       DouYinLiveChatRoom.init();
     },
     /**
@@ -2809,6 +2820,46 @@
           capture: true
         }
       );
+    },
+    /**
+     * 长时间无操作，已暂停播放
+     * 累计节能xx分钟
+     */
+    waitToRemovePauseDialog() {
+      log.info("监听【长时间无操作，已暂停播放】弹窗");
+      domUtils.ready(() => {
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          callback() {
+            let $elementTiming = document.querySelector(
+              "body > div[elementtiming='element-timing']"
+            );
+            if ($elementTiming) {
+              log.success(
+                "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+              );
+              Qmsg.success(
+                "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+              );
+              $elementTiming.remove();
+            }
+            document.querySelectorAll('body > div:not([id="root"])').forEach(($ele) => {
+              if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
+                log.success(
+                  "检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+                );
+                Qmsg.success(
+                  "检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+                );
+                $ele.remove();
+              }
+            });
+          }
+        });
+      });
     }
   };
   const DouYinRedirect = {

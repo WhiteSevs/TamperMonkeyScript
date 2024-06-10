@@ -24,6 +24,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					void 0,
 					"未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
 				),
+				UISwitch(
+					"监听并关闭【长时间无操作，已暂停播放】弹窗",
+					"live-waitToRemovePauseDialog",
+					true,
+					void 0,
+					"自动监听并检测弹窗"
+				),
 			],
 		},
 		{

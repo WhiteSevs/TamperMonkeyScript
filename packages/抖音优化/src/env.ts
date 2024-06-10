@@ -36,6 +36,7 @@ Qmsg.config({
 	autoClose: true,
 	showClose: false,
 	showReverse: true,
+	zIndex: 10000000,
 });
 
 /** 油猴菜单 */
