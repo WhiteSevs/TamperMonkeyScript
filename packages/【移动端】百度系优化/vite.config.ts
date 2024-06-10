@@ -21,12 +21,10 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
-
-const VERSION =
-	process.env.NODE_ENV === "development"
-		? "2024.5.1"
-		: Utils.getScriptVersion(!isEmptyOutDir);
-
+let VERSION = "2024.5.1";
+if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+}
 let ElementPlusUrl = await GetLib("Element-Plus");
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -120,6 +118,8 @@ export default defineConfig({
 				fileName: FILE_NAME,
 				externalGlobals: {
 					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
+					"vue-demi": cdn.jsdelivr("VueDemi", "lib/index.iife.min.js"),
+					pinia: cdn.jsdelivr("Pinia", "dist/pinia.iife.prod.js"),
 					"vue-router": cdn.jsdelivr("VueRouter", "dist/vue-router.global.js"),
 					"element-plus": [
 						"ElementPlus",
@@ -135,6 +135,11 @@ export default defineConfig({
 					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
 					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
 					viewerjs: cdn.jsdelivr("Viewer", "dist/viewer.min.js"),
+					// "@tiptap/vue-3": cdn.jsdelivr(""),
+					// "@tiptap/starter-kit": cdn.jsdelivr(""),
+					// "@tiptap/pm": cdn.jsdelivr(""),
+					// "@tiptap/extension-placeholder": cdn.jsdelivr(""),
+					// "@tiptap/extension-image": cdn.jsdelivr(""),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

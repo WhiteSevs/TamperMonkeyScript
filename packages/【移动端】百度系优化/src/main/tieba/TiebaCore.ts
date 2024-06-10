@@ -2,6 +2,7 @@ import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
 import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
+import { VueUtils } from "@/utils/VueUtils";
 
 interface LandlordInfo {
 	id: number;
@@ -92,19 +93,19 @@ const TiebaCore = {
 	 * 获取当前的贴吧名字
 	 */
 	getCurrentForumName(): string {
-		let tbMobileViewport = CommonUtils.getVue(
+		let tbMobileViewport = VueUtils.getVue(
 			document.querySelector(".tb-mobile-viewport")
 		)?.forum?.name;
 
-		let mainPageWrap = CommonUtils.getVue(
+		let mainPageWrap = VueUtils.getVue(
 			document.querySelector(".main-page-wrap")
 		)?.$children[0]?.$children[0]?.forum?.name;
 
-		let tbForum = CommonUtils.getVue(
+		let tbForum = VueUtils.getVue(
 			document.querySelector(".tb-mobile-viewport .tb-forum")
 		)?.forum?.name;
 
-		let appView = CommonUtils.getVue(document.querySelector(".app-view"))?.forum
+		let appView = VueUtils.getVue(document.querySelector(".app-view"))?.forum
 			?.name;
 		return tbMobileViewport || mainPageWrap || tbForum || appView;
 	},
@@ -113,7 +114,7 @@ const TiebaCore = {
 	 */
 	getCurrentForumPostTid(): string {
 		let tid = null;
-		let appViewVue = CommonUtils.getVue(document.querySelector(".app-view"));
+		let appViewVue = VueUtils.getVue(document.querySelector(".app-view"));
 		if (appViewVue?.thread?.id !== "" && appViewVue?.thread?.id != null) {
 			tid = appViewVue.thread.id.toString();
 		} else {
@@ -200,13 +201,15 @@ const TiebaCore = {
 	 */
 	addAuthorClickEvent() {
 		utils
-			.waitNode<HTMLDivElement>("div.main-page-wrap .main-thread-content .user-line")
+			.waitNode<HTMLDivElement>(
+				"div.main-page-wrap .main-thread-content .user-line"
+			)
 			.then((element) => {
 				log.info("添加顶部的楼主头像/名字的点击事件-直接进入楼主的个人主页");
 				DOMUtils.on(element, "click", function () {
 					let vueInfo =
-						CommonUtils.getVue(element.parentElement) ||
-						CommonUtils.getVue(element.closest(".user-line-wrapper"));
+						VueUtils.getVue(element.parentElement) ||
+						VueUtils.getVue(element.closest(".user-line-wrapper"));
 					let authorInfo = vueInfo?.author;
 					if (!authorInfo) {
 						log.error(["获取贴主信息失败", vueInfo]);

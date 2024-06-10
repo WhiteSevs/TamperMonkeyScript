@@ -10,7 +10,6 @@ import {
 	GM_getResourceText,
 } from "ViteGM";
 import { LoadingView } from "./utils/LoadingView";
-import ElementPlus from "element-plus";
 import { createApp } from "vue";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
@@ -42,14 +41,25 @@ log.config({
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config({
-	position: "bottom",
-	html: true,
-	maxNums: 5,
-	autoClose: true,
-	showClose: false,
-	showReverse: true,
-});
+Qmsg.config(
+	Object.defineProperty(
+		{
+			position: "bottom",
+			html: true,
+			maxNums: 5,
+			autoClose: true,
+			showClose: false,
+			showReverse: true,
+			zIndex: utils.getMaxZIndex(10),
+		},
+		"zIndex",
+		{
+			get() {
+				return utils.getMaxZIndex(10);
+			},
+		}
+	)
+);
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
@@ -93,9 +103,10 @@ const addStyle = utils.addStyle;
 const VUE_ELE_NAME_ID = "vite-app";
 /**
  * 注册vue、element-plus、element-plus/icons-vue
- * @param targetApp
+ * @param targetApp vue实例
+ * @param plugin 插件之类的，如vue-router、Element-Plus
  */
-const MountVue = async function (targetApp: any, router?: any) {
+const MountVue = async function (targetApp: any, plugin: any[] = []) {
 	DOMUtils.ready(async () => {
 		const app = createApp(targetApp);
 		let $mount = DOMUtils.createElement("div", {
@@ -119,8 +130,9 @@ const MountVue = async function (targetApp: any, router?: any) {
 			}
 		}
 		document.body.appendChild($mount);
-		app.use(router);
-		app.use(ElementPlus);
+		plugin.forEach((item) => {
+			app.use(item);
+		});
 		app.mount($mount);
 	});
 	if (import.meta.env.DEV) {

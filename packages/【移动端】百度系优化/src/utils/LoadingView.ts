@@ -1,5 +1,4 @@
 import { utils } from "@/env";
-import { GM_addStyle } from "ViteGM";
 
 class LoadingView {
 	config: {
@@ -247,14 +246,12 @@ class LoadingView {
 	}
 	/**
 	 * 判断Loading是否已加载到页面中
-	 * @returns {boolean}
 	 */
 	isExists() {
 		return Boolean(document.querySelector(`.${this.config.className}`));
 	}
 	/**
 	 * 判断Loading是否存在Loading图标
-	 * @returns {boolean}
 	 */
 	isExistsIcon() {
 		return Boolean(this.getIconElement());

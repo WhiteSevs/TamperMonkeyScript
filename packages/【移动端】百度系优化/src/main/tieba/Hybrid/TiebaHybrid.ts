@@ -3,6 +3,7 @@ import { PopsPanel } from "@/setting/setting";
 import { TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
+import { VueUtils } from "@/utils/VueUtils";
 
 const TiebaHybrid = {
 	init() {
@@ -43,7 +44,7 @@ const TiebaHybrid = {
 			function (event) {
 				utils.preventEvent(event);
 				let clickNode = event.target;
-				let tid = CommonUtils.getVue(clickNode)?.tid;
+				let tid = VueUtils.getVue(clickNode)?.tid;
 				if (utils.isNull(tid)) {
 					Qmsg.error("获取帖子的tid失败");
 					return;

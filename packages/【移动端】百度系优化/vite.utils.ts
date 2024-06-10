@@ -285,6 +285,13 @@ const LIB_MAP = {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
 		},
 	},
+	"SpEditor": {
+		localPath:
+			"file://" + viteUtils.getAbsolutePath("./../../库/SpEditor/sp-editor.umd.js"),
+		url: async () => {
+			return "file://" + viteUtils.getAbsolutePath("./../../库/SpEditor/sp-editor.umd.js")
+		},
+	},
 };
 
 async function GetLib(libName: keyof typeof LIB_MAP): Promise<string>;

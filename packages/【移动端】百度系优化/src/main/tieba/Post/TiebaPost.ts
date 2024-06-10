@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, httpx, log, utils } from "@/env";
+import { DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaData } from "../Home/data";
@@ -8,6 +8,11 @@ import { TiebaCore } from "../TiebaCore";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
 import { GM_getResourceText } from "ViteGM";
+import { TiebaReply } from "./TiebaReply";
+import App from "./App.vue";
+import pinia from "./stores";
+import { VueUtils } from "@/utils/VueUtils";
+import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
 
 interface PostImg {
 	bsize: string;
@@ -19,11 +24,29 @@ interface PostImg {
 }
 
 const TiebaPost = {
+	$data: {
+		appName: "vite-app",
+	},
 	mainPostImgList: <PostImg[]>[],
 	init() {
+		PopsPanel.execMenu("baidu-tieba-blockCommentInput", () => {
+			CommonUtils.addBlockCSS(".comment-box-wrap");
+		});
 		PopsPanel.execMenu("baidu_tieba_optimize_see_comments", () => {
 			log.success("优化查看评论");
 			TiebaComment.init();
+			if (!PopsPanel.getValue("baidu-tieba-blockCommentInput")) {
+				/* 非屏蔽才启用 */
+				if (PopsPanel.getValue("baidu_tieba_optimize_comments_toolbar")) {
+					CommonUtils.addBlockCSS(".comment-box-wrap");
+					TiebaReply.waitCommentBoxWrap(() => {
+						MountVue(App, [pinia]);
+					});
+				}
+			}
+		});
+		PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
+			this.overrideVueRouterMatch();
 		});
 		PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
 			log.success("优化图片预览");
@@ -33,6 +56,8 @@ const TiebaPost = {
 			log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
 			TiebaPost.repairErrorThread();
 		});
+
+		TiebaReply.init();
 	},
 	/**
 	 * 注册全局贴吧图片点击预览(只预览通过贴吧上传的图片，非其它图床图片)
@@ -199,7 +224,7 @@ const TiebaPost = {
 							/* 通过重新赋值innerHTML来覆盖原有的事件 */
 							$imgSudoKu.innerHTML = $imgSudoKu.innerHTML;
 						});
-					CommonUtils.waitVuePropToSet("div.img-sudoku", [
+					VueUtils.waitVuePropToSet("div.img-sudoku", [
 						{
 							msg: "等待获取属性 imgs",
 							check(vueObj) {
@@ -389,13 +414,13 @@ const TiebaPost = {
 					$appView,
 					() => {
 						return (
-							typeof CommonUtils.getVue($appView)?.isErrorThread === "boolean"
+							typeof VueUtils.getVue($appView)?.isErrorThread === "boolean"
 						);
 					},
 					250,
 					10000
 				);
-				let appViewVue = CommonUtils.getVue($appView);
+				let appViewVue = VueUtils.getVue($appView);
 				if (!(appViewVue && appViewVue.isErrorThread)) {
 					// 正常帖子，取消处理
 					log.info("验证参数isErrorThread：true，正常帖子");
@@ -471,6 +496,36 @@ const TiebaPost = {
 					}
 				}, 300);
 			});
+	},
+	/**
+	 * 覆盖vue的Router.matcher.match，阻止改变路由后页面__vue__属性也改变导致无法获取属性
+	 */
+	overrideVueRouterMatch() {
+		VueUtils.waitVuePropToSet(".app-view", [
+			{
+				msg: "等待获取 root的$router",
+				check(vueObj) {
+					return typeof vueObj?.$root?.$router?.matcher?.match === "function";
+				},
+				set(vueObj) {
+					let $oldRouterMatch = vueObj.$root.$router.matcher.match;
+					let $oldRoute = vueObj.$root.$route;
+					vueObj.$root.$router.matcher.match = function (...args: any[]) {
+						let raw = args[0];
+						let currentRoute: Vue2Context["$route"] = args[1];
+						log.info(["$router match", args]);
+						// if (raw === "/seeLzlReply") {
+						// 	log.error(
+						// 		"$router match：当前是/seeLzlReply，阻止match，返回currentRoute"
+						// 	);
+						// }
+						let result = $oldRouterMatch.apply(this, args);
+						return result;
+					};
+					log.success("成功覆盖 __vue__.$root.$router.matcher.match");
+				},
+			},
+		]);
 	},
 };
 

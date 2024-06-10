@@ -2,6 +2,7 @@ import { MountVue, VUE_ELE_NAME_ID, addStyle } from "@/env";
 import App from "./App.vue";
 import { TiebaRouter } from "./router";
 import AppCSS from "./app.css?raw";
+import ElementPlus from "element-plus";
 
 const TiebaHome = {
 	$data: {
@@ -9,7 +10,7 @@ const TiebaHome = {
 	},
 	init() {
 		TiebaRouter.init();
-		MountVue(App, TiebaRouter.router);
+		MountVue(App, [TiebaRouter.router, ElementPlus]);
 		addStyle(`
         #${VUE_ELE_NAME_ID}{
             z-index: 1000;

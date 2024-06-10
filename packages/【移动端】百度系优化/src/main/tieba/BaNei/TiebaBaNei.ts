@@ -4,6 +4,7 @@ import { TieBaApi, TiebaUrlApi } from "../api/TiebaApi";
 import { CommonUtils } from "@/utils/CommonUtils";
 import Qmsg from "qmsg";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { VueUtils } from "@/utils/VueUtils";
 
 interface BaNeiPostInfo {
 	abstract: [
@@ -68,7 +69,7 @@ const TiebaBaNei = {
 	removeForumSignInLimit() {
 		/* 修改页面中的APP内签到 */
 		utils.waitNode<HTMLDivElement>(".tb-mobile-viewport").then(async () => {
-			TiebaBaNei.vueRootView = CommonUtils.getVue(
+			TiebaBaNei.vueRootView = VueUtils.getVue(
 				document.querySelector(".tb-mobile-viewport")
 			) as Vue2Context;
 			let isLogin = Boolean(TiebaBaNei.vueRootView?.["user"]?.["is_login"]);
@@ -122,7 +123,7 @@ const TiebaBaNei = {
 			"div.tb-threadlist__item",
 			function (event) {
 				utils.preventEvent(event);
-				let vueObj = CommonUtils.getVue(event.target);
+				let vueObj = VueUtils.getVue(event.target);
 				let pbUrl = vueObj?.pbUrl;
 				let tid = vueObj?.tid ?? vueObj?.thread?.tid;
 				let id = vueObj?.id ?? vueObj?.thread?.id;
@@ -157,7 +158,7 @@ const TiebaBaNei = {
 		utils
 			.waitNode<HTMLDivElement>(".tb-page__main .tb-sort .tab-pack")
 			.then((element) => {
-				let originChange = CommonUtils.getVue(element)?.change;
+				let originChange = VueUtils.getVue(element)?.change;
 				originChange(userSortModel);
 				(element as any).__vue__.change = function (index: number) {
 					PopsPanel.setValue("baidu-tieba-sort-model", index);
@@ -170,7 +171,7 @@ const TiebaBaNei = {
 	 * 过滤重复帖子
 	 */
 	filterDuplicatePosts() {
-		CommonUtils.waitVuePropToSet(".tb-threadlist", [
+		VueUtils.waitVuePropToSet(".tb-threadlist", [
 			{
 				msg: "等待获取$watch监听帖子列表",
 				check(vueObj) {

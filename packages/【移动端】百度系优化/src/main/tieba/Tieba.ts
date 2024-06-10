@@ -1,4 +1,3 @@
-import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
 import { PopsPanel } from "@/setting/setting";

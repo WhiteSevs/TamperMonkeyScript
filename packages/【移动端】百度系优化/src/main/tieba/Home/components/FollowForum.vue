@@ -176,6 +176,7 @@ const loadMore = async () => {
 	display: flex;
 	align-items: center;
 	width: -webkit-fill-available;
+	width: -moz-available;
 }
 
 .follow-forum-item-level[data-level] {

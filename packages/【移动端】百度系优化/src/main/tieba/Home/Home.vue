@@ -147,13 +147,14 @@ watch(
 			<el-row :justify="'center'">
 				<el-col>
 					<div class="user-avatar-top-background"></div>
-					<el-row :gutter="20" :align="'bottom'" style="margin: 0px 0px">
-						<el-col :span="12">
+					<el-row class="user-info-container" :gutter="20" :align="'bottom'" style="margin: 0px 0px">
+						<el-col :span="12" style="padding: 0;">
 							<el-avatar :src="props.UserData.avatar" :size="90" />
 						</el-col>
-						<el-col :span="12">
+						<el-col :span="12" style="padding: 0;">
 							<el-row :justify="'end'" style="flex-wrap: nowrap">
 								<el-button
+									class="user-handler-follow-btn"
 									color="#7558FE"
 									round
 									:icon="Plus"
@@ -163,6 +164,7 @@ watch(
 								>
 								<el-button
 									color="#7558FE"
+									class="user-handler-cancel-follow-btn"
 									plain
 									round
 									:icon="Check"
@@ -172,6 +174,7 @@ watch(
 								>
 								<el-button
 									color="#7558FE"
+									class="user-handler-private-message-btn"
 									:plain="!props.UserData.is_like"
 									round
 									:icon="Message"
@@ -347,6 +350,7 @@ watch(
 
 .top-container {
 	width: -webkit-fill-available;
+	width: -moz-available;
 	padding: 15px;
 	padding-bottom: 0;
 }
@@ -375,5 +379,8 @@ watch(
 	border-top-right-radius: 12px;
 	background: #ffffff;
 	transform: translateY(100%);
+}
+.user-info-container{
+	padding: 0px 10px;
 }
 </style>

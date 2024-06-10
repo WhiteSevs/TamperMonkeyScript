@@ -292,6 +292,13 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					"可以查看更多的评论"
 				),
 				UISwitch(
+					"优化评论工具栏",
+					"baidu_tieba_optimize_comments_toolbar",
+					true,
+					void 0,
+					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
+				),
+				UISwitch(
 					"优化图片点击预览",
 					"baidu_tieba_optimize_image_preview",
 					true,
@@ -338,6 +345,19 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					false,
 					void 0,
 					"非浏览器插件使用"
+				),
+			],
+		},
+		{
+			text: "屏蔽",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"【屏蔽】评论输入框",
+					"baidu-tieba-blockCommentInput",
+					false,
+					void 0,
+					"屏蔽元素"
 				),
 			],
 		},

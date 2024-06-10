@@ -4,6 +4,7 @@ import { PopsPanel } from "@/setting/setting";
 import { CommonUtils } from "@/utils/CommonUtils";
 import EasyLearnShieldCSS from "./shield.css?raw";
 import type { Vue2Context } from "@whitesev/utils/dist/src/Utils";
+import { VueUtils } from "@/utils/VueUtils";
 
 const BaiduEasyLearn = {
 	init() {
@@ -118,7 +119,7 @@ const BaiduEasyLearn = {
 					100,
 					10000
 				);
-				let vueObj = CommonUtils.getVue($questionSwiper);
+				let vueObj = VueUtils.getVue($questionSwiper);
 				if (!vueObj) {
 					log.error("获取vue属性失败 => div.question-swiper");
 					return;
@@ -200,7 +201,7 @@ const BaiduEasyLearn = {
 					250,
 					10000
 				);
-				let vueObj = CommonUtils.getVue($searchBox);
+				let vueObj = VueUtils.getVue($searchBox);
 				if (vueObj == null) {
 					log.error(
 						"获取vue属性失败 => .search-input .search-box-wrap.search-box"

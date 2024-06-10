@@ -4,7 +4,6 @@
 .ertiao-wrap-defensive,
 .feed-warp.gray-background,
 .pb-page-wrapper.app-view.transition-fade nav:first-child,
-.comment-box,
 .only-lz,
 .nav-bar-v2 .nav-bar-bottom,
 .more-image-desc,
@@ -20,7 +19,11 @@ div.diy-guide-wrapper,
 /* 底部评论滚动栏上面的空白 */
 .individuality,
 /* 吧内的广告 */
-.tb-threadlist__wrapper .tb-banner-wrapper-defensive {
+.tb-threadlist__wrapper .tb-banner-wrapper-defensive,
+/* 首页-我的-底部的 年轻人的潮流文化社区 */
+.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,
+/* 首页-我的-底部的 立即下载 */
+.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn {
   display: none !important;
 }
 body.tb-modal-open {

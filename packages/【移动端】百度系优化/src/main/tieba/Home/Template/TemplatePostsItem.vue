@@ -43,6 +43,7 @@
 <style scoped>
 .posts-container-item {
     width: -webkit-fill-available;
+	width: -moz-available;
 }
 
 .posts-item-title {
