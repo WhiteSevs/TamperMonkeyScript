@@ -11,6 +11,7 @@ import compatibleBeautifyCSS from "./css/compatibleBeautify.css?raw";
 import { DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
+import i18next from "i18next";
 
 const GreasyforkBeautify = {
 	init() {
@@ -89,7 +90,7 @@ const GreasyforkBeautify = {
 				"ul.history_versions"
 			);
 			if (!historyVersionsULElement) {
-				Qmsg.error("未找到history_versions元素列表");
+				Qmsg.error(i18next.t("未找到history_versions元素列表"));
 				return;
 			}
 			/* 遍历每一个版本块 */
@@ -112,7 +113,10 @@ const GreasyforkBeautify = {
 
 				let versionDateElement = DOMUtils.createElement("span", {
 					className: "script-version-date",
-					innerHTML: utils.formatTime(versionDate, "yyyy年MM月dd日 HH:mm:ss"),
+					innerHTML: utils.formatTime(
+						versionDate,
+						i18next.t("yyyy年MM月dd日 HH:mm:ss")
+					),
 				});
 				let tagElement = DOMUtils.createElement("div", {
 					className: "script-tag",
@@ -207,7 +211,7 @@ const GreasyforkBeautify = {
 						DOMUtils.after(
 							fileElement,
 							DOMUtils.createElement("p", {
-								textContent: `❌ 最多同时长传5张图片`,
+								textContent: i18next.t(`❌ 最多同时长传5张图片`),
 							})
 						);
 					}
@@ -227,9 +231,10 @@ const GreasyforkBeautify = {
 						DOMUtils.after(
 							fileElement,
 							DOMUtils.createElement("p", {
-								textContent: `❌ 图片：${
-									imageFile.name
-								} 大小：${utils.formatByteToSize(imageFile.size)}`,
+								textContent: i18next.t("❌ 图片：{{name}} 大小：{{size}}", {
+									name: imageFile.name,
+									size: imageFile.size,
+								}),
 							})
 						);
 					});

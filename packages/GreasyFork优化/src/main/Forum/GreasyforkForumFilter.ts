@@ -2,6 +2,7 @@ import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { GM_addStyle } from "ViteGM";
+import i18next from "i18next";
 
 const GreasyforkForumFilter = {
 	init() {
@@ -158,10 +159,10 @@ const GreasyforkForumFilter = {
 				);
 				discussionTitleElement.setAttribute(
 					"data-repeat-tip-show",
-					`已过滤：${oldCount}`
+					i18next.t("已过滤：{{oldCount}}", { oldCount })
 				);
 				log.success([
-					"过滤重复内容：" + discussionInfo.snippet,
+					`过滤重复内容：${discussionInfo.snippet}`,
 					discussionInfo,
 				]);
 				$listContainer.remove();
@@ -172,7 +173,7 @@ const GreasyforkForumFilter = {
 			for (const filterScriptId of filterScriptList) {
 				if (discussionInfo.scriptId === filterScriptId) {
 					log.success([
-						"过滤脚本id：" + discussionInfo.scriptId,
+						`过滤脚本id：${discussionInfo.scriptId}`,
 						discussionInfo,
 					]);
 					$listContainer.remove();
@@ -183,7 +184,7 @@ const GreasyforkForumFilter = {
 			for (const filterPostUserId of filterPostUserList) {
 				if (discussionInfo.postUserId === filterPostUserId) {
 					log.success([
-						"过滤发布用户id：" + discussionInfo.postUserId,
+						`过滤发布用户id：${discussionInfo.postUserId}`,
 						discussionInfo,
 					]);
 					$listContainer.remove();
@@ -195,7 +196,7 @@ const GreasyforkForumFilter = {
 				for (const filterReplyUserId of filterReplyUserList) {
 					if (discussionInfo.replyUserId === filterReplyUserId) {
 						log.success([
-							"过滤回复用户id：" + discussionInfo.replyUserId,
+							`过滤回复用户id：${discussionInfo.replyUserId}`,
 							discussionInfo,
 						]);
 						$listContainer.remove();

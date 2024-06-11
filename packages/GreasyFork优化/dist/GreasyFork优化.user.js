@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GreasyFork优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.5
+// @version      2024.6.11
 // @author       WhiteSevs
 // @description  自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @license      GPL-3.0-only
@@ -10,10 +10,11 @@
 // @match        *://greasyfork.org/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.6/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
+// @require      https://cdn.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js
 // @resource     ViewerCSS  https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect      greasyfork.org
 // @grant        GM_addStyle
@@ -31,7 +32,7 @@
 
 (t=>{function d(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=n,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(t);return}d(t)})(" .whitesev-hide{display:none}.whitesev-hide-important{display:none!important} ");
 
-(function (Qmsg, DOMUtils, Utils, Viewer) {
+(function (Qmsg, DOMUtils, Utils, i18next, Viewer) {
   'use strict';
 
   var _a;
@@ -45,7 +46,288 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const _SCRIPT_NAME_ = "GreasyFork优化";
+  const zh_CN_language = {
+    GreasyFork优化: "GreasyFork优化",
+    请求取消: "请求取消",
+    请求超时: "请求超时",
+    请求异常: "请求异常",
+    通用: "通用",
+    账号: "账号",
+    密码: "密码",
+    语言: "语言",
+    "账号/密码": "账号/密码",
+    请输入账号: "请输入账号",
+    请输入密码: "请输入密码",
+    自动登录: "自动登录",
+    自动登录当前保存的账号: "自动登录当前保存的账号",
+    "清空账号/密码": "清空账号/密码",
+    点击清空: "点击清空",
+    "确定清空账号和密码？": "确定清空账号和密码？",
+    "已清空账号/密码": "已清空账号/密码",
+    "源代码同步【脚本列表】": "源代码同步【脚本列表】",
+    一键同步: "一键同步",
+    前往用户主页: "前往用户主页",
+    获取当前已登录的用户主页失败: "获取当前已登录的用户主页失败",
+    "源代码同步【未上架的脚本】": "源代码同步【未上架的脚本】",
+    "源代码同步【库】": "源代码同步【库】",
+    论坛: "论坛",
+    功能: "功能",
+    过滤重复的评论: "过滤重复的评论",
+    "过滤掉重复的评论数量(≥2)": "过滤掉重复的评论数量(≥2)",
+    "过滤脚本(id)": "过滤脚本(id)",
+    "请输入脚本id，每行一个": "请输入脚本id，每行一个",
+    "过滤发布的用户(id)": "过滤发布的用户(id)",
+    "请输入用户id，每行一个": "请输入用户id，每行一个",
+    "过滤回复的用户(id)": "过滤回复的用户(id)",
+    优化: "优化",
+    固定当前语言: "固定当前语言",
+    无: "无",
+    "如button、input、textarea": "如button、input、textarea",
+    更直观的查看版本迭代: "更直观的查看版本迭代",
+    美化上传图片按钮: "美化上传图片按钮",
+    放大上传区域: "放大上传区域",
+    优化图片浏览: "优化图片浏览",
+    使用Viewer浏览图片: "使用Viewer浏览图片",
+    覆盖图床图片跳转: "覆盖图床图片跳转",
+    "配合上面的【优化图片浏览】更优雅浏览图片": "配合上面的【优化图片浏览】更优雅浏览图片",
+    '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>': '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>',
+    代码: "代码",
+    添加复制代码按钮: "添加复制代码按钮",
+    更优雅的复制: "更优雅的复制",
+    快捷键: "快捷键",
+    "【F】键全屏、【Alt+Shift+F】键宽屏": "【F】键全屏、【Alt+Shift+F】键宽屏",
+    库: "库",
+    脚本列表: "脚本列表",
+    屏蔽: "屏蔽",
+    "规则(可正则)": "规则(可正则)",
+    "请输入屏蔽规则，每行一个": "请输入屏蔽规则，每行一个",
+    请求admin内容失败: "请求admin内容失败",
+    解析admin的源代码同步表单失败: "解析admin的源代码同步表单失败",
+    源代码同步失败: "源代码同步失败",
+    获取用户信息失败: "获取用户信息失败",
+    获取用户的收藏集失败: "获取用户的收藏集失败",
+    "解析Script Sets失败": "解析Script Sets失败",
+    "获取收藏集{{setsId}}失败": "获取收藏集{{setsId}}失败",
+    "获取表单元素#edit_script_set失败": "获取表单元素#edit_script_set失败",
+    更新收藏集表单请求失败: "更新收藏集表单请求失败",
+    请先在菜单中录入账号: "请先在菜单中录入账号",
+    请先在菜单中录入密码: "请先在菜单中录入密码",
+    "获取csrf-token失败": "获取csrf-token失败",
+    "正在登录中...": "正在登录中...",
+    "登录失败，请在控制台查看原因": "登录失败，请在控制台查看原因",
+    "登录成功，1s后自动跳转": "登录成功，1s后自动跳转",
+    "登录失败，可能是账号/密码错误，请在控制台查看原因": "登录失败，可能是账号/密码错误，请在控制台查看原因",
+    "美化 历史版本 页面": "美化 历史版本 页面",
+    未找到history_versions元素列表: "未找到history_versions元素列表",
+    "yyyy年MM月dd日 HH:mm:ss": "yyyy-MM-dd HH:mm:ss",
+    "美化 Greasyfork Beautify脚本": "美化 Greasyfork Beautify脚本",
+    "❌ 最多同时长传5张图": "❌ 最多同时长传5张图片",
+    "❌ 图片：{{name}} 大小：{{size}}": "❌ 图片：{{name}} 大小：{{size}}",
+    "已过滤：{{oldCount}}": "已过滤：{{oldCount}}",
+    寻找引用: "寻找引用",
+    获取脚本id失败: "获取脚本id失败",
+    收藏: "收藏",
+    请先登录账号: "请先登录账号",
+    获取用户id失败: "获取用户id失败",
+    "获取收藏夹中...": "获取收藏夹中...",
+    收藏集: "收藏集",
+    "添加中...": "添加中...",
+    "添加失败，{{selector}}元素不存在": "添加失败，{{selector}}元素不存在",
+    "未找到{{selector}}元素": "未找到{{selector}}元素",
+    添加失败: "添加失败",
+    添加成功: "添加成功",
+    "删除中...": "删除中...",
+    删除成功: "删除成功",
+    添加: "添加",
+    刪除: "刪除",
+    "拦截跳转：": "拦截跳转：",
+    今日检查: "今日检查",
+    复制代码: "复制代码",
+    "加载文件中...": "加载文件中...",
+    复制成功: "复制成功",
+    "✅ 复制成功!": "✅ 复制成功!",
+    "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}": "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}",
+    "导航至：": "导航至：",
+    "请先登录账号！": "请先登录账号！",
+    "获取信息中，请稍后...": "获取信息中，请稍后...",
+    "获取成功，共 {{count}} 个": "获取成功，共 {{count}} 个",
+    "评分：": "评分：",
+    "语言：": "语言：",
+    "版本：": "版本：",
+    "更新：": "更新：",
+    同步代码: "同步代码",
+    "同步中...": "同步中...",
+    手动: "手动",
+    自动: "自动",
+    "同步方式：{{syncMode}}": "同步方式：{{syncMode}}",
+    同步成功: "同步成功",
+    同步失败: "同步失败",
+    该脚本未设置同步信息: "该脚本未设置同步信息",
+    "上次重载时间 {{time}}，5秒内拒绝反复重载": "上次重载时间 {{time}}，5秒内拒绝反复重载",
+    "名称：": "名称：",
+    "进度：": "进度：",
+    "未获取到【脚本列表】": "未获取到【脚本列表】",
+    "源代码同步成功，3秒后更新下一个": "源代码同步成功，3秒后更新下一个",
+    全部更新失败: "全部更新失败",
+    "全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}": "全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}",
+    "⚙ 设置": "⚙ 设置",
+    "{{SCRIPT_NAME}}-设置": "{{SCRIPT_NAME}}-设置",
+    美化页面元素: "美化页面元素",
+    美化历史版本页面: "美化历史版本页面",
+    "美化Greasyfork Beautify脚本": "美化Greasyfork Beautify脚本"
+  };
+  const en_US_language = {
+    GreasyFork优化: "GreasyFork Optimization",
+    请求取消: "http request cancel",
+    请求超时: "http request timeout",
+    请求异常: "http request error",
+    通用: "General",
+    账号: "Account",
+    密码: "Password",
+    语言: "Language",
+    "账号/密码": "Account/Password",
+    请输入账号: "Please enter your account number",
+    请输入密码: "Please enter password",
+    自动登录: "Auto Login",
+    自动登录当前保存的账号: "Automatically log in to the currently saved account",
+    "清空账号/密码": "Clear account/password",
+    点击清空: "Clear",
+    "确定清空账号和密码？": "Are you sure to clear your account and password?",
+    "已清空账号/密码": "Account/password cleared",
+    "源代码同步【脚本列表】": "Source Code Synchronization [Script List]",
+    一键同步: "Sync All",
+    前往用户主页: "Go to the user's homepage",
+    获取当前已登录的用户主页失败: "Failed to retrieve the currently logged in user's homepage",
+    "源代码同步【未上架的脚本】": "Source code synchronization [Script not listed]",
+    "源代码同步【库】": "Source code synchronization 【 Library 】",
+    论坛: "Forum",
+    功能: "Function",
+    过滤重复的评论: "Filter duplicate comments",
+    "过滤掉重复的评论数量(≥2)": "Filter out duplicate comments (≥ 2)",
+    "过滤脚本(id)": "Filter script (id)",
+    "请输入脚本id，每行一个": "Please enter the script ID, one per line",
+    "过滤发布的用户(id)": "Filter published users (id)",
+    "请输入用户id，每行一个": "Please enter the user ID, one per line",
+    "过滤回复的用户(id)": "User (ID) who filters replies",
+    优化: "Optimization",
+    固定当前语言: "Fix current language",
+    无: "nothing",
+    "如button、input、textarea": "For example button、input、textarea",
+    更直观的查看版本迭代: "More intuitive viewing of version iterations",
+    美化上传图片按钮: "Beautify upload image button",
+    放大上传区域: "Enlarge the upload area",
+    优化图片浏览: "Optimize image browsing",
+    使用Viewer浏览图片: "Using Viewer to browse images",
+    覆盖图床图片跳转: "Overlay bed image jump",
+    "配合上面的【优化图片浏览】更优雅浏览图片": "Collaborate with the optimization of image browsing above to browse images more elegantly",
+    '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>': 'Greasyfork Beauty script needs to be installed，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐 Click me to install</a>',
+    代码: "Code",
+    添加复制代码按钮: "Add Copy Code Button",
+    更优雅的复制: "More elegant replication",
+    快捷键: "Shortcut keys",
+    "【F】键全屏、【Alt+Shift+F】键宽屏": "【F】 Key full screen, [Alt+Shift+F] key wide screen",
+    库: "Library",
+    脚本列表: "Script List",
+    屏蔽: "Shield",
+    "规则(可正则)": "Rules (regularizable)",
+    "请输入屏蔽规则，每行一个": "Please enter a blocking rule, one per line",
+    请求admin内容失败: "Request for admin content failed",
+    解析admin的源代码同步表单失败: "Failed to parse the source code of admin and synchronize the form",
+    源代码同步失败: "Source code synchronization failed",
+    获取用户信息失败: "Failed to obtain user information",
+    获取用户的收藏集失败: "Failed to retrieve user's collection",
+    "解析Script Sets失败": "Parsing Script Sets failed",
+    "获取收藏集{{setsId}}失败": "Failed to retrieve collection {{setsId}}",
+    "获取表单元素#edit_script_set失败": "Failed to retrieve form element #edit_script_set",
+    更新收藏集表单请求失败: "Update collection form request failed",
+    请先在菜单中录入账号: "Please enter your account in the menu first",
+    请先在菜单中录入密码: "Please enter your password in the menu first",
+    "获取csrf-token失败": "Failed to obtain csrf token",
+    "正在登录中...": "Logging in...",
+    "登录失败，请在控制台查看原因": "Login failed, please check the reason in the console",
+    "登录成功，1s后自动跳转": "Login successful, automatically redirect after 1 second",
+    "登录失败，可能是账号/密码错误，请在控制台查看原因": "Login failed, possibly due to incorrect account/password. Please check the reason in the console",
+    "美化 历史版本 页面": "Beautify the historical version page",
+    未找到history_versions元素列表: "History_versions element list not found",
+    "yyyy年MM月dd日 HH:mm:ss": "yyyy-MM-dd HH:mm:ss",
+    "美化 Greasyfork Beautify脚本": "Beautify Greasyfork Beauty Script",
+    "❌ 最多同时长传5张图": "❌ Upload up to 5 images simultaneously",
+    "❌ 图片：{{name}} 大小：{{size}}": "❌ Image:{{name}} Size:{{size}}",
+    "已过滤：{{oldCount}}": "Filtered:{{oldCount}}",
+    寻找引用: "Find references",
+    获取脚本id失败: "Failed to obtain script ID",
+    收藏: "collection",
+    请先登录账号: "Please log in to your account first",
+    获取用户id失败: "Failed to obtain user ID",
+    "获取收藏夹中...": "Get in favorites...",
+    收藏集: "Collection",
+    "添加中...": "Adding...",
+    "添加失败，{{selector}}元素不存在": "Add failed, {{selector}} element does not exist",
+    "未找到{{selector}}元素": "{{selector}} element not found",
+    添加失败: "Add failed",
+    添加成功: "Successfully added",
+    "删除中...": "Deleting...",
+    删除成功: "Delete successful",
+    添加: "Add in deletion",
+    刪除: "Delete",
+    "拦截跳转：": "Intercept jump:",
+    今日检查: "Today's inspection",
+    复制代码: "Copy Code",
+    "加载文件中...": "Loading files...",
+    复制成功: "Copy successful",
+    "✅ 复制成功!": "✅ Copy successful!",
+    "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}": "Current language: {{currentLocaleLanguage}}, switch to {{localeLanguage}} in 3 seconds",
+    "导航至：": "Navigation to:",
+    "请先登录账号！": "Please log in to your account first!",
+    "获取信息中，请稍后...": "Obtaining information, please wait...",
+    "获取成功，共 {{count}} 个": "Successfully obtained, a total of {{count}}",
+    "评分：": "Rating:",
+    "语言：": "Language:",
+    "版本：": "Version:",
+    "更新：": "Update:",
+    同步代码: "Synchronize Code",
+    "同步中...": "Synchronizing...",
+    手动: "Manual",
+    自动: "Automatic",
+    "同步方式：{{syncMode}}": "Synchronization method: {{syncMode}}",
+    同步成功: "Sync successful",
+    同步失败: "Sync failed",
+    该脚本未设置同步信息: "The script has not set synchronization information",
+    "上次重载时间 {{time}}，5秒内拒绝反复重载": "Last reload time {{time}}, rejected repeated reloads within 5 seconds",
+    "名称：": "Name:",
+    "进度：": "Progress:",
+    "未获取到【脚本列表】": "Unable to obtain [Script List]",
+    "源代码同步成功，3秒后更新下一个": "Source code synchronization successful, update next one in 3 seconds",
+    全部更新失败: "All updates failed",
+    "全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}": "All updates completed<br>Success: {{successNums}}<br>Failure: {{failed Nums}}<br>Total: {{scriptUrlListLength}}",
+    "⚙ 设置": "⚙  Setting",
+    "{{SCRIPT_NAME}}-设置": "{{SCRIPT_NAME}}-Setting",
+    美化页面元素: "Beautify page elements",
+    美化历史版本页面: "Beautify the historical version page",
+    "美化Greasyfork Beautify脚本": "Beautify Greasyfork Beauty Script"
+  };
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const LanguageInit = function() {
+    let settingPanel = _GM_getValue(KEY, {});
+    let lng = settingPanel["setting-language"] || "zh-CN";
+    i18next.init({
+      lng,
+      // lng: "zh-CN",
+      fallbackLng: "zh-CN",
+      resources: {
+        "zh-CN": {
+          translation: { ...zh_CN_language }
+        },
+        "en-US": {
+          translation: { ...en_US_language }
+        }
+      }
+    });
+  };
+  LanguageInit();
+  const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const pops = _monkeyWindow.pops || _unsafeWindow.pops;
@@ -61,14 +343,25 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true
-  });
+  Qmsg.config(
+    Object.defineProperty(
+      {
+        position: "bottom",
+        html: true,
+        maxNums: 5,
+        autoClose: true,
+        showClose: false,
+        showReverse: true,
+        zIndex: utils.getMaxZIndex(10)
+      },
+      "zIndex",
+      {
+        get() {
+          return utils.getMaxZIndex(10);
+        }
+      }
+    )
+  );
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
@@ -79,13 +372,13 @@
   httpx.config({
     logDetails: DEBUG,
     onabort() {
-      Qmsg.warning("请求取消");
+      Qmsg.warning(i18next.t("请求取消"));
     },
     ontimeout() {
-      Qmsg.error("请求超时");
+      Qmsg.error(i18next.t("请求超时"));
     },
     onerror(response) {
-      Qmsg.error("请求异常");
+      Qmsg.error(i18next.t("请求异常"));
       log.error(["httpx-onerror 请求异常", response]);
     }
   });
@@ -102,9 +395,6 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack) {
     let result = {
       text,
@@ -270,14 +560,14 @@
       );
       log.success(getResp);
       if (!getResp.status) {
-        Qmsg.error("请求admin内容失败");
+        Qmsg.error(i18next.t("请求admin内容失败"));
         return;
       }
       let adminHTML = getResp.data.responseText;
       let adminHTMLElement = domUtils.parseHTML(adminHTML, false, true);
       let formElement = adminHTMLElement.querySelector("form.edit_script");
       if (!formElement) {
-        Qmsg.error("解析admin的源代码同步表单失败");
+        Qmsg.error(i18next.t("解析admin的源代码同步表单失败"));
         return;
       }
       let formData = new FormData(formElement);
@@ -298,7 +588,7 @@
       );
       log.success(postResp);
       if (!postResp.status) {
-        Qmsg.error("源代码同步失败");
+        Qmsg.error(i18next.t("源代码同步失败"));
         return;
       }
       return postResp;
@@ -315,7 +605,7 @@
       );
       log.success(getResp);
       if (!getResp.status) {
-        Qmsg.error("获取用户信息失败");
+        Qmsg.error(i18next.t("获取用户信息失败"));
         return;
       }
       let data = utils.toJSON(getResp.data.responseText);
@@ -343,7 +633,7 @@
       );
       log.info(["获取用户的收藏集", getResp]);
       if (!getResp.status) {
-        Qmsg.error("获取用户的收藏集失败");
+        Qmsg.error(i18next.t("获取用户的收藏集失败"));
         return;
       }
       let respText = getResp.data.responseText;
@@ -386,7 +676,7 @@
         }
       );
       if (!getResp.status) {
-        Qmsg.error(`获取收藏集${setsId}失败`);
+        Qmsg.error(i18next.t("获取收藏集{{setsId}}失败", { setsId }));
         return;
       }
       let respText = getResp.data.responseText;
@@ -395,7 +685,7 @@
         'form[id^="edit_script_set"]'
       );
       if (!$edit_script_set_form) {
-        Qmsg.error("获取表单元素#edit_script_set失败");
+        Qmsg.error(i18next.t("获取表单元素#edit_script_set失败"));
         return;
       }
       let formData = new FormData($edit_script_set_form);
@@ -438,7 +728,7 @@
         }
       );
       if (!postResp.status) {
-        Qmsg.error("更新收藏集表单请求失败");
+        Qmsg.error(i18next.t("更新收藏集表单请求失败"));
         return;
       }
       let respText = postResp.data.responseText;
@@ -538,13 +828,17 @@
     async updateScript(scriptUrlList) {
       let getLoadingHTML = function(scriptName, progress = 1) {
         return `
-        <div style="display: flex;flex-direction: column;align-items: flex-start;">
-          <div style="height: 30px;line-height: 30px;">名称：${scriptName}</div>
-          <div style="height: 30px;line-height: 30px;">进度：${progress}/${scriptUrlList.length}</div>
-        </div>`;
+			<div style="display: flex;flex-direction: column;align-items: flex-start;">
+				<div style="height: 30px;line-height: 30px;">${i18next.t(
+        "名称："
+      )}${scriptName}</div>
+				<div style="height: 30px;line-height: 30px;">${i18next.t(
+        "进度："
+      )}${progress}/${scriptUrlList.length}</div>
+			</div>`;
       };
       if (utils.isNull(scriptUrlList)) {
-        Qmsg.error("未获取到【脚本列表】");
+        Qmsg.error(i18next.t("未获取到【脚本列表】"));
       } else {
         let loading = Qmsg.loading(
           getLoadingHTML(GreasyforkApi.getScriptName(scriptUrlList[0])),
@@ -569,27 +863,31 @@
               codeSyncFormData
             );
             if (syncUpdateStatus) {
-              Qmsg.success("源代码同步成功，3秒后更新下一个");
+              Qmsg.success(i18next.t("源代码同步成功，3秒后更新下一个"));
               await utils.sleep(3e3);
               successNums++;
             } else {
-              Qmsg.error("源代码同步失败");
+              Qmsg.error(i18next.t("源代码同步失败"));
               failedNums++;
             }
           } else {
-            Qmsg.error("源代码同步失败");
+            Qmsg.error(i18next.t("源代码同步失败"));
             failedNums++;
           }
         }
         loading.close();
         if (successNums === 0) {
-          Qmsg.error("全部更新失败");
+          Qmsg.error(i18next.t("全部更新失败"));
         } else {
           Qmsg.success(
-            `全部更新完毕<br >
-          成功：${successNums}<br >
-          失败：${failedNums}<br >
-          总计：${scriptUrlList.length}`,
+            i18next.t(
+              "全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}",
+              {
+                successNums,
+                failedNums,
+                scriptUrlListLength: scriptUrlList.length
+              }
+            ),
             {
               html: true
             }
@@ -609,10 +907,10 @@
             true
           );
           if (GreasyforkMenu.getUserLinkElement()) {
-            Qmsg.success("前往用户主页");
+            Qmsg.success(i18next.t("前往用户主页"));
             window.location.href = GreasyforkMenu.getUserLinkElement().href;
           } else {
-            Qmsg.error("获取当前已登录的用户主页失败");
+            Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
           }
           return;
         }
@@ -635,10 +933,10 @@
             true
           );
           if (GreasyforkMenu.getUserLinkElement()) {
-            Qmsg.success("前往用户主页");
+            Qmsg.success(i18next.t("前往用户主页"));
             window.location.href = GreasyforkMenu.getUserLinkElement().href;
           } else {
-            Qmsg.error("获取当前已登录的用户主页失败");
+            Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
           }
           return;
         }
@@ -661,10 +959,10 @@
             true
           );
           if (GreasyforkMenu.getUserLinkElement()) {
-            Qmsg.success("前往用户主页");
+            Qmsg.success(i18next.t("前往用户主页"));
             window.location.href = GreasyforkMenu.getUserLinkElement().href;
           } else {
-            Qmsg.error("获取当前已登录的用户主页失败");
+            Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
           }
           return;
         }
@@ -679,155 +977,6 @@
         GreasyforkMenu.updateScript(scriptUrlList);
       }
     }
-  };
-  const SettingUIAccount = {
-    id: "greasy-fork-panel-config-account",
-    title: "账号",
-    forms: [
-      {
-        text: "账号/密码",
-        type: "forms",
-        forms: [
-          UIInput("账号", "user", "", void 0, void 0, "请输入账号"),
-          UIInput("密码", "pwd", "", void 0, void 0, "请输入密码", false, true)
-        ]
-      },
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "自动登录",
-            "autoLogin",
-            true,
-            void 0,
-            "自动登录当前保存的账号"
-          ),
-          UIButton(
-            "清空账号/密码",
-            void 0,
-            "点击清空",
-            void 0,
-            void 0,
-            false,
-            "default",
-            (event) => {
-              if (confirm("确定清空账号和密码？")) {
-                PopsPanel.deleteValue("user");
-                PopsPanel.deleteValue("pwd");
-                Qmsg.success("已清空账号/密码");
-                let $shadowRoot = event.target.getRootNode();
-                $shadowRoot.querySelector(
-                  `li[data-key="user"] .pops-panel-input input`
-                ).value = "";
-                $shadowRoot.querySelector(
-                  `li[data-key="pwd"] .pops-panel-input input`
-                ).value = "";
-              }
-            }
-          ),
-          UIButton(
-            "源代码同步【脚本列表】",
-            void 0,
-            "一键同步",
-            void 0,
-            void 0,
-            false,
-            "primary",
-            (event) => {
-              if (!GreasyforkRouter.isUserHome()) {
-                PopsPanel.setValue(
-                  "goto_updateSettingsAndSynchronize_scriptList",
-                  true
-                );
-                if (GreasyforkMenu.getUserLinkElement()) {
-                  Qmsg.success("前往用户主页");
-                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
-                } else {
-                  Qmsg.error("获取当前已登录的用户主页失败");
-                }
-                return;
-              }
-              let scriptUrlList = [];
-              document.querySelectorAll(
-                "#user-script-list-section li a.script-link"
-              ).forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-              GreasyforkMenu.updateScript(scriptUrlList);
-            }
-          ),
-          UIButton(
-            "源代码同步【未上架的脚本】",
-            void 0,
-            "一键同步",
-            void 0,
-            void 0,
-            false,
-            "primary",
-            (event) => {
-              if (!GreasyforkRouter.isUserHome()) {
-                PopsPanel.setValue(
-                  "goto_updateSettingsAndSynchronize_unlistedScriptList",
-                  true
-                );
-                if (GreasyforkMenu.getUserLinkElement()) {
-                  Qmsg.success("前往用户主页");
-                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
-                } else {
-                  Qmsg.error("获取当前已登录的用户主页失败");
-                }
-                return;
-              }
-              let scriptUrlList = [];
-              document.querySelectorAll(
-                "#user-unlisted-script-list li a.script-link"
-              ).forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-              GreasyforkMenu.updateScript(scriptUrlList);
-            }
-          ),
-          UIButton(
-            "源代码同步【库】",
-            void 0,
-            "一键同步",
-            void 0,
-            void 0,
-            false,
-            "primary",
-            (event) => {
-              if (!GreasyforkRouter.isUserHome()) {
-                PopsPanel.setValue(
-                  "goto_updateSettingsAndSynchronize_libraryScriptList",
-                  true
-                );
-                if (GreasyforkMenu.getUserLinkElement()) {
-                  Qmsg.success("前往用户主页");
-                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
-                } else {
-                  Qmsg.error("获取当前已登录的用户主页失败");
-                }
-                return;
-              }
-              let scriptUrlList = [];
-              document.querySelectorAll(
-                "#user-library-script-list li a.script-link"
-              ).forEach((item) => {
-                scriptUrlList = scriptUrlList.concat(
-                  GreasyforkApi.getAdminUrl(item.href)
-                );
-              });
-              GreasyforkMenu.updateScript(scriptUrlList);
-            }
-          )
-        ]
-      }
-    ]
   };
   const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
@@ -846,6 +995,9 @@
       },
       callback(event, isSelectedValue, isSelectedText) {
         PopsPanel.setValue(key, isSelectedValue);
+        if (typeof callback === "function") {
+          callback(event, isSelectedValue, isSelectedText);
+        }
       },
       data: selectData
     };
@@ -855,23 +1007,207 @@
     }
     return result;
   };
-  const SettingUIOptimization = {
-    id: "greasy-fork-panel-config-optimization",
-    title: "优化",
+  const SettingUIGeneral = {
+    id: "greasy-fork-panel-config-account",
+    title: i18next.t("通用"),
     forms: [
       {
-        text: "功能",
+        text: i18next.t("账号/密码"),
+        type: "forms",
+        forms: [
+          UIInput(
+            i18next.t("账号"),
+            "user",
+            "",
+            void 0,
+            void 0,
+            i18next.t("请输入账号")
+          ),
+          UIInput(
+            i18next.t("密码"),
+            "pwd",
+            "",
+            void 0,
+            void 0,
+            i18next.t("请输入密码"),
+            false,
+            true
+          )
+        ]
+      },
+      {
+        text: i18next.t("功能"),
         type: "forms",
         forms: [
           UISelect(
-            "固定当前语言",
+            i18next.t("语言"),
+            "setting-language",
+            "zh-CN",
+            [
+              {
+                value: "zh-CN",
+                text: "中文"
+              },
+              {
+                value: "en-US",
+                text: "English"
+              }
+            ],
+            (event, isSelectValue, isSelectText) => {
+              log.info("改变语言：" + isSelectText);
+              i18next.changeLanguage(isSelectValue);
+            }
+          ),
+          UISwitch(
+            i18next.t("自动登录"),
+            "autoLogin",
+            true,
+            void 0,
+            i18next.t("自动登录当前保存的账号")
+          ),
+          UIButton(
+            i18next.t("清空账号/密码"),
+            void 0,
+            i18next.t("点击清空"),
+            void 0,
+            void 0,
+            false,
+            "default",
+            (event) => {
+              if (confirm(i18next.t("确定清空账号和密码？"))) {
+                PopsPanel.deleteValue("user");
+                PopsPanel.deleteValue("pwd");
+                Qmsg.success(i18next.t("已清空账号/密码"));
+                let $shadowRoot = event.target.getRootNode();
+                $shadowRoot.querySelector(
+                  `li[data-key="user"] .pops-panel-input input`
+                ).value = "";
+                $shadowRoot.querySelector(
+                  `li[data-key="pwd"] .pops-panel-input input`
+                ).value = "";
+              }
+            }
+          ),
+          UIButton(
+            i18next.t("源代码同步【脚本列表】"),
+            void 0,
+            i18next.t("一键同步"),
+            void 0,
+            void 0,
+            false,
+            "primary",
+            (event) => {
+              if (!GreasyforkRouter.isUserHome()) {
+                PopsPanel.setValue(
+                  "goto_updateSettingsAndSynchronize_scriptList",
+                  true
+                );
+                if (GreasyforkMenu.getUserLinkElement()) {
+                  Qmsg.success(i18next.t("前往用户主页"));
+                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
+                } else {
+                  Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
+                }
+                return;
+              }
+              let scriptUrlList = [];
+              document.querySelectorAll(
+                "#user-script-list-section li a.script-link"
+              ).forEach((item) => {
+                scriptUrlList = scriptUrlList.concat(
+                  GreasyforkApi.getAdminUrl(item.href)
+                );
+              });
+              GreasyforkMenu.updateScript(scriptUrlList);
+            }
+          ),
+          UIButton(
+            i18next.t("源代码同步【未上架的脚本】"),
+            void 0,
+            i18next.t("一键同步"),
+            void 0,
+            void 0,
+            false,
+            "primary",
+            (event) => {
+              if (!GreasyforkRouter.isUserHome()) {
+                PopsPanel.setValue(
+                  "goto_updateSettingsAndSynchronize_unlistedScriptList",
+                  true
+                );
+                if (GreasyforkMenu.getUserLinkElement()) {
+                  Qmsg.success(i18next.t("前往用户主页"));
+                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
+                } else {
+                  Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
+                }
+                return;
+              }
+              let scriptUrlList = [];
+              document.querySelectorAll(
+                "#user-unlisted-script-list li a.script-link"
+              ).forEach((item) => {
+                scriptUrlList = scriptUrlList.concat(
+                  GreasyforkApi.getAdminUrl(item.href)
+                );
+              });
+              GreasyforkMenu.updateScript(scriptUrlList);
+            }
+          ),
+          UIButton(
+            i18next.t("源代码同步【库】"),
+            void 0,
+            i18next.t("一键同步"),
+            void 0,
+            void 0,
+            false,
+            "primary",
+            (event) => {
+              if (!GreasyforkRouter.isUserHome()) {
+                PopsPanel.setValue(
+                  "goto_updateSettingsAndSynchronize_libraryScriptList",
+                  true
+                );
+                if (GreasyforkMenu.getUserLinkElement()) {
+                  Qmsg.success(i18next.t("前往用户主页"));
+                  window.location.href = GreasyforkMenu.getUserLinkElement().href;
+                } else {
+                  Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
+                }
+                return;
+              }
+              let scriptUrlList = [];
+              document.querySelectorAll(
+                "#user-library-script-list li a.script-link"
+              ).forEach((item) => {
+                scriptUrlList = scriptUrlList.concat(
+                  GreasyforkApi.getAdminUrl(item.href)
+                );
+              });
+              GreasyforkMenu.updateScript(scriptUrlList);
+            }
+          )
+        ]
+      }
+    ]
+  };
+  const SettingUIOptimization = {
+    id: "greasy-fork-panel-config-optimization",
+    title: i18next.t("优化"),
+    forms: [
+      {
+        text: i18next.t("功能"),
+        type: "forms",
+        forms: [
+          UISelect(
+            i18next.t("固定当前语言"),
             "language-selector-locale",
             "",
             function() {
               let result = [
                 {
                   value: "",
-                  text: "无"
+                  text: i18next.t("无")
                 }
               ];
               document.querySelectorAll(
@@ -891,66 +1227,68 @@
             }()
           ),
           UISwitch(
-            "美化页面元素",
+            i18next.t("美化页面元素"),
             "beautifyPage",
             true,
             void 0,
-            "如button、input、textarea"
+            i18next.t("如button、input、textarea")
           ),
           UISwitch(
-            "美化历史版本页面",
+            i18next.t("美化历史版本页面"),
             "beautifyHistoryVersionPage",
             true,
             void 0,
-            "更直观的查看版本迭代"
+            i18next.t("更直观的查看版本迭代")
           ),
           UISwitch(
-            "美化上传图片按钮",
+            i18next.t("美化上传图片按钮"),
             "beautifyUploadImage",
             true,
             void 0,
-            "放大上传区域"
+            i18next.t("放大上传区域")
           ),
           UISwitch(
-            "优化图片浏览",
+            i18next.t("优化图片浏览"),
             "optimizeImageBrowsing",
             true,
             void 0,
-            "使用Viewer浏览图片"
+            i18next.t("使用Viewer浏览图片")
           ),
           UISwitch(
-            "覆盖图床图片跳转",
+            i18next.t("覆盖图床图片跳转"),
             "overlayBedImageClickEvent",
             true,
             void 0,
-            "配合上面的【优化图片浏览】更优雅浏览图片"
+            i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
           ),
           UISwitch(
-            "美化Greasyfork Beautify脚本",
+            i18next.t("美化Greasyfork Beautify脚本"),
             "beautifyGreasyforkBeautify",
             true,
             void 0,
-            '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
+            i18next.t(
+              '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
+            )
           )
         ]
       },
       {
-        text: "代码",
+        text: i18next.t("代码"),
         type: "forms",
         forms: [
           UISwitch(
-            "添加复制代码按钮",
+            i18next.t("添加复制代码按钮"),
             "addCopyCodeButton",
             true,
             void 0,
-            "更优雅的复制"
+            i18next.t("更优雅的复制")
           ),
           UISwitch(
-            "快捷键",
+            i18next.t("快捷键"),
             "fullScreenOptimization",
             true,
             void 0,
-            "【F】键全屏、【Alt+Shift+F】键宽屏"
+            i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
           )
         ]
       }
@@ -958,23 +1296,23 @@
   };
   const SettingUIDiscuessions = {
     id: "greasy-fork-panel-config-discussions",
-    title: "论坛",
+    title: i18next.t("论坛"),
     forms: [
       {
-        text: "功能",
+        text: i18next.t("功能"),
         type: "forms",
         forms: [
           UISwitch(
-            "过滤重复的评论",
+            i18next.t("过滤重复的评论"),
             "greasyfork-discussions-filter-duplicate-comments",
             false,
             void 0,
-            "过滤掉重复的评论数量(≥2)"
+            i18next.t("过滤掉重复的评论数量(≥2)")
           )
         ]
       },
       {
-        text: "过滤脚本(id)",
+        text: i18next.t("过滤脚本(id)"),
         type: "forms",
         forms: [
           {
@@ -984,7 +1322,10 @@
                 "div",
                 {
                   className: "pops-panel-textarea",
-                  innerHTML: `<textarea placeholder="请输入脚本id，每行一个" style="height:150px;"></textarea>`
+                  innerHTML: `
+								<textarea placeholder="${i18next.t(
+                  "请输入脚本id，每行一个"
+                )}" style="height:150px;"></textarea>`
                 },
                 {
                   style: "width: 100%;"
@@ -1010,7 +1351,7 @@
         ]
       },
       {
-        text: "过滤发布的用户(id)",
+        text: i18next.t("过滤发布的用户(id)"),
         type: "forms",
         forms: [
           {
@@ -1020,7 +1361,10 @@
                 "div",
                 {
                   className: "pops-panel-textarea",
-                  innerHTML: `<textarea placeholder="请输入用户id，每行一个" style="height:150px;"></textarea>`
+                  innerHTML: `
+								<textarea placeholder="${i18next.t(
+                  "请输入用户id，每行一个"
+                )}" style="height:150px;"></textarea>`
                 },
                 {
                   style: "width: 100%;"
@@ -1046,7 +1390,7 @@
         ]
       },
       {
-        text: "过滤回复的用户(id)",
+        text: i18next.t("过滤回复的用户(id)"),
         type: "forms",
         forms: [
           {
@@ -1056,7 +1400,10 @@
                 "div",
                 {
                   className: "pops-panel-textarea",
-                  innerHTML: `<textarea placeholder="请输入用户id，每行一个" style="height:150px;"></textarea>`
+                  innerHTML: `
+								<textarea placeholder="${i18next.t(
+                  "请输入用户id，每行一个"
+                )}" style="height:150px;"></textarea>`
                 },
                 {
                   style: "width: 100%;"
@@ -1161,10 +1508,10 @@
   };
   const SettingUIShield = {
     id: "greasy-fork-panel-config-shield",
-    title: "屏蔽",
+    title: i18next.t("屏蔽"),
     forms: [
       {
-        text: "规则(可正则)",
+        text: i18next.t("规则(可正则)"),
         type: "forms",
         forms: [
           {
@@ -1174,7 +1521,9 @@
                 "div",
                 {
                   className: "pops-panel-textarea",
-                  innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                  innerHTML: `<textarea placeholder="${i18next.t(
+                  "请输入屏蔽规则，每行一个"
+                )}" style="height:350px;"></textarea>`
                 },
                 {
                   style: "width: 100%;"
@@ -1278,7 +1627,7 @@
           "ul.history_versions"
         );
         if (!historyVersionsULElement) {
-          Qmsg.error("未找到history_versions元素列表");
+          Qmsg.error(i18next.t("未找到history_versions元素列表"));
           return;
         }
         Array.from(historyVersionsULElement.children).forEach((liElement) => {
@@ -1291,7 +1640,10 @@
           let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? void 0 : _b.innerHTML) || "";
           let versionDateElement = domUtils.createElement("span", {
             className: "script-version-date",
-            innerHTML: utils.formatTime(versionDate, "yyyy年MM月dd日 HH:mm:ss")
+            innerHTML: utils.formatTime(
+              versionDate,
+              i18next.t("yyyy年MM月dd日 HH:mm:ss")
+            )
           });
           let tagElement = domUtils.createElement("div", {
             className: "script-tag",
@@ -1375,7 +1727,7 @@
               domUtils.after(
                 fileElement,
                 domUtils.createElement("p", {
-                  textContent: `❌ 最多同时长传5张图片`
+                  textContent: i18next.t(`❌ 最多同时长传5张图片`)
                 })
               );
             }
@@ -1392,7 +1744,10 @@
               domUtils.after(
                 fileElement,
                 domUtils.createElement("p", {
-                  textContent: `❌ 图片：${imageFile.name} 大小：${utils.formatByteToSize(imageFile.size)}`
+                  textContent: i18next.t("❌ 图片：{{name}} 大小：{{size}}", {
+                    name: imageFile.name,
+                    size: imageFile.size
+                  })
                 })
               );
             });
@@ -1442,19 +1797,19 @@
         let user = PopsPanel.getValue("user");
         let pwd = PopsPanel.getValue("pwd");
         if (utils.isNull(user)) {
-          Qmsg.error("请先在菜单中录入账号");
+          Qmsg.error(i18next.t("请先在菜单中录入账号"));
           return;
         }
         if (utils.isNull(pwd)) {
-          Qmsg.error("请先在菜单中录入密码");
+          Qmsg.error(i18next.t("请先在菜单中录入密码"));
           return;
         }
         let csrfToken = document.querySelector("meta[name='csrf-token']");
         if (!csrfToken) {
-          Qmsg.error("获取csrf-token失败");
+          Qmsg.error(i18next.t("获取csrf-token失败"));
           return;
         }
-        let loginTip = Qmsg.loading("正在登录中...");
+        let loginTip = Qmsg.loading(i18next.t("正在登录中..."));
         let postResp = await httpx.post(
           "https://greasyfork.org/zh-CN/users/sign_in",
           {
@@ -1472,7 +1827,7 @@
         loginTip.destroy();
         if (!postResp.status) {
           log.error(postResp);
-          Qmsg.error("登录失败，请在控制台查看原因");
+          Qmsg.error(i18next.t("登录失败，请在控制台查看原因"));
           return;
         }
         let respText = postResp.data.responseText;
@@ -1480,7 +1835,7 @@
         if (parseLoginHTMLNode.querySelectorAll(
           ".sign-out-link a[rel=nofollow][data-method='delete']"
         ).length) {
-          Qmsg.success("登录成功，1s后自动跳转");
+          Qmsg.success(i18next.t("登录成功，1s后自动跳转"));
           setTimeout(() => {
             window.location.reload();
           }, 1e3);
@@ -1488,7 +1843,9 @@
           log.error(postResp);
           log.error(`当前账号:${user}`);
           log.error(`当前密码:${pwd}`);
-          Qmsg.error("登录失败，可能是账号/密码错误，请在控制台查看原因");
+          Qmsg.error(
+            i18next.t("登录失败，可能是账号/密码错误，请在控制台查看原因")
+          );
         }
       });
     }
@@ -1619,10 +1976,10 @@
           );
           discussionTitleElement.setAttribute(
             "data-repeat-tip-show",
-            `已过滤：${oldCount}`
+            i18next.t("已过滤：{{oldCount}}", { oldCount })
           );
           log.success([
-            "过滤重复内容：" + discussionInfo.snippet,
+            `过滤重复内容：${discussionInfo.snippet}`,
             discussionInfo
           ]);
           $listContainer.remove();
@@ -1632,7 +1989,7 @@
         for (const filterScriptId of filterScriptList) {
           if (discussionInfo.scriptId === filterScriptId) {
             log.success([
-              "过滤脚本id：" + discussionInfo.scriptId,
+              `过滤脚本id：${discussionInfo.scriptId}`,
               discussionInfo
             ]);
             $listContainer.remove();
@@ -1642,7 +1999,7 @@
         for (const filterPostUserId of filterPostUserList) {
           if (discussionInfo.postUserId === filterPostUserId) {
             log.success([
-              "过滤发布用户id：" + discussionInfo.postUserId,
+              `过滤发布用户id：${discussionInfo.postUserId}`,
               discussionInfo
             ]);
             $listContainer.remove();
@@ -1653,7 +2010,7 @@
           for (const filterReplyUserId of filterReplyUserList) {
             if (discussionInfo.replyUserId === filterReplyUserId) {
               log.success([
-                "过滤回复用户id：" + discussionInfo.replyUserId,
+                `过滤回复用户id：${discussionInfo.replyUserId}`,
                 discussionInfo
               ]);
               $listContainer.remove();
@@ -1721,7 +2078,10 @@
       log.info("设置代码搜索按钮(对于库)");
       utils.waitNode("ul#script-links li.current span").then(() => {
         let searchBtn = domUtils.createElement("li", {
-          innerHTML: `<a href="javascript:;"><span>寻找引用</span></a>`
+          innerHTML: `
+					<a href="javascript:;">
+						<span>${i18next.t("寻找引用")}</span>
+					</a>`
         });
         domUtils.append(
           document.querySelector(
@@ -1733,7 +2093,7 @@
           let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
           if (!scriptIdMatch) {
             log.error([scriptIdMatch, window.location.pathname]);
-            Qmsg.error("获取脚本id失败");
+            Qmsg.error(i18next.t("获取脚本id失败"));
             return;
           }
           let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
@@ -1750,7 +2110,10 @@
       log.info("添加收藏按钮");
       utils.waitNode("ul#script-links li.current span").then(() => {
         let collectBtn = domUtils.createElement("li", {
-          innerHTML: `<a href="javascript:;"><span>收藏</span></a>`
+          innerHTML: `
+					<a href="javascript:;">
+						<span>${i18next.t("收藏")}</span>
+					</a>`
         });
         domUtils.append(
           document.querySelector("ul#script-links"),
@@ -1760,24 +2123,24 @@
           let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
           if (!scriptIdMatch) {
             log.error([scriptIdMatch, window.location.pathname]);
-            Qmsg.error("获取脚本id失败");
+            Qmsg.error(i18next.t("获取脚本id失败"));
             return;
           }
           let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
           if (!GreasyforkMenu.isLogin) {
-            Qmsg.error("请先登录账号");
             log.error("请先登录账号");
+            Qmsg.error(i18next.t("请先登录账号"));
             return;
           }
           let userId = GreasyforkApi.getUserId(
             GreasyforkMenu.getUserLinkElement().href
           );
           if (userId == null) {
-            Qmsg.error("获取用户id失败");
             log.error("获取用户id失败");
+            Qmsg.error(i18next.t("获取用户id失败"));
             return;
           }
-          let loading = Qmsg.loading("获取收藏夹中...");
+          let loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
           let userCollection = await GreasyforkApi.getUserCollection(userId);
           loading.close();
           if (!userCollection) {
@@ -1786,26 +2149,26 @@
           let alertHTML = "";
           userCollection.forEach((userCollectInfo) => {
             alertHTML += `
-                    <li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
-                        <div class="user-collect-name">${userCollectInfo.name}</div>
-                        <div class="user-collect-btn-container">
-                        <div class="pops-panel-button collect-add-script-id">
-                            <button type="primary" data-icon="" data-righticon="">
-                            <span>添加</span>
-                            </button>
-                        </div>
-                        <div class="pops-panel-button collect-delete-script-id">
-                            <button type="danger" data-icon="" data-righticon="">
-                            <span>删除</span>
-                            </button>
-                        </div>
-                        </div>
-                    </li>
-              `;
+						<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
+							<div class="user-collect-name">${userCollectInfo.name}</div>
+							<div class="user-collect-btn-container">
+							<div class="pops-panel-button collect-add-script-id">
+								<button type="primary" data-icon="" data-righticon="">
+								<span>${i18next.t("添加")}</span>
+								</button>
+							</div>
+							<div class="pops-panel-button collect-delete-script-id">
+								<button type="danger" data-icon="" data-righticon="">
+								<span>${i18next.t("刪除")}</span>
+								</button>
+							</div>
+							</div>
+						</li>
+              			`;
           });
           let collectionDialog = pops.alert({
             title: {
-              text: "收藏集",
+              text: i18next.t("收藏集"),
               position: "center"
             },
             content: {
@@ -1828,33 +2191,33 @@
             drag: true,
             only: true,
             style: `
-                    .pops{
-                        --content-max-height: 400px;
-                        max-height: var(--content-max-height);
-                    }
-                    .pops[type-value=alert] .pops-alert-content {
-                        max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
-                    }
-                    .user-collect-item{
-                        -webkit-user-select: none;
-                        user-select: none;
-                        padding: 5px 10px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        border-bottom: 1px dotted #c9c9c9;
-                    }
-                    .user-collect-name{
-        
-                    }
-                    .user-collect-item:hover{
-                        
-                    }
-                    .user-collect-btn-container{
-                        margin-left: 10px;
-                        display: flex;
-                    }
-                    `
+						.pops{
+							--content-max-height: 400px;
+							max-height: var(--content-max-height);
+						}
+						.pops[type-value=alert] .pops-alert-content {
+							max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
+						}
+						.user-collect-item{
+							-webkit-user-select: none;
+							user-select: none;
+							padding: 5px 10px;
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							border-bottom: 1px dotted #c9c9c9;
+						}
+						.user-collect-name{
+			
+						}
+						.user-collect-item:hover{
+							
+						}
+						.user-collect-btn-container{
+							margin-left: 10px;
+							display: flex;
+						}
+						`
           });
           domUtils.on(
             collectionDialog.$shadowRoot,
@@ -1864,7 +2227,7 @@
               let currentSelectCollectInfo = event.target.closest(".user-collect-item");
               let setsId = currentSelectCollectInfo.dataset.id;
               currentSelectCollectInfo.dataset.name;
-              let loading2 = Qmsg.loading("添加中...");
+              let loading2 = Qmsg.loading(i18next.t("添加中..."));
               let formData = await GreasyforkApi.getUserCollectionInfo(
                 userId,
                 setsId
@@ -1906,13 +2269,21 @@
               }
               let changeScriptSet = addResult.querySelector(".change-script-set");
               if (!changeScriptSet) {
-                Qmsg.error("添加失败，.change-script-set元素不存在");
+                Qmsg.error(
+                  i18next.t("添加失败，{{selector}}元素不存在", {
+                    selector: ".change-script-set"
+                  })
+                );
                 loading2.close();
                 return;
               }
               let section = changeScriptSet.querySelector("section");
               if (!section) {
-                Qmsg.error("添加失败，section元素不存在");
+                Qmsg.error(
+                  i18next.t("添加失败，{{selector}}元素不存在", {
+                    selector: "section"
+                  })
+                );
                 loading2.close();
                 return;
               }
@@ -1920,7 +2291,7 @@
               if (alertElement) {
                 pops.alert({
                   title: {
-                    text: "添加失败",
+                    text: i18next.t("添加失败"),
                     position: "center"
                   },
                   content: {
@@ -1934,14 +2305,14 @@
                     }
                   },
                   style: `
-                                .pops-alert-content{
-                                    font-style: italic;
-                                    background-color: #ffc;
-                                    border: none;
-                                    border-left: 6px solid #FFEB3B;
-                                    padding: .5em;
-                                }
-                                `,
+									.pops-alert-content{
+										font-style: italic;
+										background-color: #ffc;
+										border: none;
+										border-left: 6px solid #FFEB3B;
+										padding: .5em;
+									}
+                                	`,
                   drag: true,
                   dragLimit: true,
                   width: pops.isPhone() ? "88vw" : "400px",
@@ -1953,7 +2324,7 @@
                   setsId,
                   saveData
                 );
-                Qmsg.success("添加成功");
+                Qmsg.success(i18next.t("添加成功"));
               }
               loading2.close();
             }
@@ -1966,7 +2337,7 @@
               let currentSelectCollectInfo = event.target.closest(".user-collect-item");
               let setsId = currentSelectCollectInfo.dataset.id;
               currentSelectCollectInfo.dataset.name;
-              let loading2 = Qmsg.loading("删除中...");
+              let loading2 = Qmsg.loading(i18next.t("删除中..."));
               let formData = await GreasyforkApi.getUserCollectionInfo(
                 userId,
                 setsId
@@ -2014,7 +2385,7 @@
                 return;
               }
               await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-              Qmsg.success("删除成功");
+              Qmsg.success(i18next.t("删除成功"));
               loading2.close();
             }
           );
@@ -2166,7 +2537,9 @@
         linkElement.removeAttribute("href");
         domUtils.on(linkElement, "click", void 0, function(event) {
           Qmsg.warning(
-            `<div style="overflow-wrap: anywhere;">拦截跳转：<a href="${url}" target="_blank">${url}</a></div>`,
+            `<div style="overflow-wrap: anywhere;">${i18next.t(
+            "拦截跳转："
+          )}<a href="${url}" target="_blank">${url}</a></div>`,
             {
               html: true,
               timeout: 5e3,
@@ -2203,7 +2576,7 @@
         "dd.script-show-daily-installs",
         domUtils.createElement("dt", {
           className: "script-show-daily-update_checks",
-          innerHTML: "<span>今日检查</span>"
+          innerHTML: `<span>${i18next.t("今日检查")}</span>`
         })
       );
       domUtils.after(
@@ -2223,14 +2596,14 @@
         let copyButton = domUtils.createElement(
           "button",
           {
-            textContent: "复制代码"
+            textContent: i18next.t("复制代码")
           },
           {
             style: "margin-bottom: 1em;"
           }
         );
         domUtils.on(copyButton, "click", async function() {
-          let loading = Qmsg.loading("加载文件中...");
+          let loading = Qmsg.loading(i18next.t("加载文件中..."));
           let getResp = await httpx.get(
             `https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
             {
@@ -2252,7 +2625,7 @@
           }
           loading.close();
           utils.setClip(scriptJS.data.responseText);
-          Qmsg.success("复制成功");
+          Qmsg.success(i18next.t("复制成功"));
         });
         domUtils.before($codeContainer, copyButton);
       });
@@ -2413,14 +2786,14 @@
         let copyElement = domUtils.createElement("div", {
           className: "zeroclipboard-container",
           innerHTML: `
-            <clipboard-copy class="js-clipboard-copy">
-              <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
-                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
-              </svg>
-              <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
-                <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
-              </svg>
-            </clipboard-copy>
+				<clipboard-copy class="js-clipboard-copy">
+				<svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
+					<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+				</svg>
+				<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
+					<path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+				</svg>
+				</clipboard-copy>
             `
         });
         let clipboardCopyElement = copyElement.querySelector(
@@ -2438,7 +2811,7 @@
             codeElement = copyElement.parentElement;
           }
           if (!codeElement) {
-            Qmsg.error("未找到code元素");
+            Qmsg.error(i18next.t("未找到{{selector}}元素", { selector: "code" }));
             return;
           }
           utils.setClip(codeElement.innerText || codeElement.textContent);
@@ -2447,7 +2820,7 @@
           octiconCheckCopyElement.removeAttribute("aria-hidden");
           let tooltip = pops.tooltip({
             target: clipboardCopyElement,
-            content: "✅ 复制成功!",
+            content: i18next.t("✅ 复制成功!"),
             position: "left",
             className: "github-tooltip",
             alwaysShow: true
@@ -2496,7 +2869,13 @@
         GreasyforkApi.switchLanguage(url);
         log.success("新Url：" + url);
         Qmsg.loading(
-          `当前语言：${currentLocaleLanguage}，3秒后切换至：${localeLanguage}`,
+          i18next.t(
+            "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}",
+            {
+              currentLocaleLanguage,
+              localeLanguage
+            }
+          ),
           {
             timeout: 3e3,
             showClose: true,
@@ -2505,7 +2884,7 @@
             }
           }
         );
-        Qmsg.info("导航至：" + url, {
+        Qmsg.info(i18next.t("导航至：") + url, {
           timeout: 3e3
         });
         timer = setTimeout(() => {
@@ -2524,7 +2903,7 @@
     async UIScriptList(type, event, rightHeaderElement, rightContainerElement) {
       var _a2, _b, _c;
       if (!GreasyforkMenu.isLogin) {
-        Qmsg.error("请先登录账号！");
+        Qmsg.error(i18next.t("请先登录账号！"));
         return;
       }
       let userLinkElement = GreasyforkMenu.getUserLinkElement();
@@ -2536,7 +2915,7 @@
         },
         parent: rightContainerElement,
         content: {
-          text: "获取信息中，请稍后..."
+          text: i18next.t("获取信息中，请稍后...")
         },
         addIndexCSS: false
       });
@@ -2547,32 +2926,36 @@
       }
       log.info(userInfo);
       let scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
-      Qmsg.success(`获取成功，共 ${scriptList.length} 个`);
+      Qmsg.success(
+        i18next.t("获取成功，共 {{count}} 个", {
+          count: scriptList.length
+        })
+      );
       for (const scriptInfo of scriptList) {
         let liElement = domUtils.createElement("li", {
           className: "w-script-list-item",
           innerHTML: `
-            <div class="w-script-info">
-              <div class="w-script-name">
-                <a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
-              </div>
-              <div class="w-script-fan-score">
-                <p>评分：${scriptInfo["fan_score"]}</p>
-              </div>
-              <div class="w-script-locale">
-                <p>语言：${scriptInfo["locale"]}</p>
-              </div>
-              <div class="w-script-version">
-                <p>版本：${scriptInfo["version"]}</p>
-              </div>
-              <div class="w-script-update-time">
-                <p>更新：${utils.getDaysDifference(
+				<div class="w-script-info">
+				<div class="w-script-name">
+					<a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
+				</div>
+				<div class="w-script-fan-score">
+					<p>${i18next.t("评分：")}${scriptInfo["fan_score"]}</p>
+				</div>
+				<div class="w-script-locale">
+					<p>${i18next.t("语言：")}${scriptInfo["locale"]}</p>
+				</div>
+				<div class="w-script-version">
+					<p>${i18next.t("版本：")}${scriptInfo["version"]}</p>
+				</div>
+				<div class="w-script-update-time">
+					<p>${i18next.t("更新：")}${utils.getDaysDifference(
           new Date(scriptInfo["code_updated_at"]).getTime(),
           void 0,
           "auto"
         )}前</p>
-              </div>
-            </div>
+				</div>
+				</div>
             `
         });
         let scriptInfoElement = liElement.querySelector(
@@ -2581,10 +2964,10 @@
         let buttonElement = domUtils.createElement("div", {
           className: "pops-panel-button",
           innerHTML: `
-            <button type="primary" data-icon="" data-righticon="false">
-              <span>同步代码</span>
-            </button>
-            `
+				<button type="primary" data-icon="" data-righticon="false">
+				<span>${i18next.t("同步代码")}</span>
+				</button>
+				`
         });
         if (scriptInfo["deleted"]) {
           liElement.classList.add("w-script-deleted");
@@ -2608,7 +2991,7 @@
           );
           btn.setAttribute("disabled", "true");
           btn.setAttribute("data-icon", "true");
-          span.innerText = "同步中...";
+          span.innerText = i18next.t("同步中...");
           domUtils.before(span, iconElement);
           let scriptId = scriptInfo == null ? void 0 : scriptInfo["id"];
           let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
@@ -2622,9 +3005,9 @@
               );
               let syncMode = "";
               if (syncTypeId.toString() === "1") {
-                syncMode = "手动";
+                syncMode = i18next.t("手动");
               } else if (syncTypeId.toString() === "2") {
-                syncMode = "自动";
+                syncMode = i18next.t("自动");
               } else if (syncTypeId.toString() === "3") {
                 syncMode = "webhook";
               }
@@ -2632,17 +3015,20 @@
                 ".w-script-sync-type"
               );
               if (oldSyncTypeElement) {
-                oldSyncTypeElement.querySelector(
-                  "p"
-                ).innerText = `同步方式：${syncMode}`;
+                oldSyncTypeElement.querySelector("p").innerText = i18next.t(
+                  "同步方式：{{syncMode}}",
+                  { syncMode }
+                );
               } else {
                 domUtils.append(
                   scriptInfoElement,
                   `
-                    <div class="w-script-sync-type">
-                      <p>同步方式：${syncMode}</p>
-                    </div>
-                    `
+								<div class="w-script-sync-type">
+									<p>${i18next.t("同步方式：{{syncMode}}", {
+                  syncMode
+                })}
+									</p>
+								</div>`
                 );
               }
               let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
@@ -2650,17 +3036,17 @@
                 codeSyncFormData
               );
               if (syncUpdateResponse) {
-                Qmsg.success("同步成功");
+                Qmsg.success(i18next.t("同步成功"));
               } else {
-                Qmsg.error("同步失败");
+                Qmsg.error(i18next.t("同步失败"));
               }
             } else {
-              Qmsg.error("该脚本未设置同步信息");
+              Qmsg.error(i18next.t("该脚本未设置同步信息"));
             }
           }
           btn.removeAttribute("disabled");
           btn.removeAttribute("data-icon");
-          span.innerText = "同步代码";
+          span.innerText = i18next.t("同步代码");
           iconElement.remove();
         });
         liElement.appendChild(buttonElement);
@@ -2685,10 +3071,9 @@
           );
           if (checkPageTime && Date.now() - checkPageTime < 5 * 1e3) {
             Qmsg.error(
-              `上次重载时间 ${utils.formatTime(
-              checkPageTime,
-              "yyyy-MM-dd HH:mm:ss"
-            )}，5秒内拒绝反复重载`
+              i18next.t("上次重载时间 {{time}}，5秒内拒绝反复重载", {
+                time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss")
+              })
             );
             return;
           }
@@ -2700,7 +3085,7 @@
   };
   const SettingUIScriptList = {
     id: "greasy-fork-panel-config-script-list",
-    title: "脚本列表",
+    title: i18next.t("脚本列表"),
     callback(event, rightHeaderElement, rightContainerElement) {
       Greasyfork.UIScriptList(
         "script-list",
@@ -2713,7 +3098,7 @@
   };
   const SettingUIScriptLib = {
     id: "greasy-fork-panel-config-library",
-    title: "库",
+    title: i18next.t("库"),
     callback(event, rightHeaderElement, rightContainerElement) {
       Greasyfork.UIScriptList(
         "script-library",
@@ -2724,7 +3109,7 @@
     },
     forms: []
   };
-  const UIScriptListCSS = '.w-script-list-item {\r\n	padding: 10px 0;\r\n	border-bottom: 1px solid #e5e5e5;\r\n	font-size: 16px;\r\n	text-align: left;\r\n}\r\n.w-script-version,\r\n.w-script-fan-score,\r\n.w-script-create-time,\r\n.w-script-update-time,\r\n.w-script-locale,\r\n.w-script-sync-type {\r\n	font-size: 14px;\r\n	color: #7c7c7c;\r\n}\r\n.w-script-fan-score {\r\n	margin-left: unset !important;\r\n	text-align: unset !important;\r\n	max-width: unset !important;\r\n}\r\n.w-script-deleted {\r\n	text-decoration: line-through;\r\n	font-style: italic;\r\n	color: red;\r\n}\r\n.w-script-deleted .w-script-name::before {\r\n	content: "【删除】";\r\n}\r\n';
+  const UIScriptListCSS = '.w-script-list-item {\r\n	padding: 10px 0;\r\n	border-bottom: 1px solid #e5e5e5;\r\n	font-size: 16px;\r\n	text-align: left;\r\n}\r\n.w-script-version,\r\n.w-script-fan-score,\r\n.w-script-create-time,\r\n.w-script-update-time,\r\n.w-script-locale,\r\n.w-script-sync-type {\r\n	font-size: 14px;\r\n	color: #7c7c7c;\r\n}\r\n.w-script-fan-score {\r\n	margin-left: unset !important;\r\n	text-align: unset !important;\r\n	max-width: unset !important;\r\n}\r\n.w-script-deleted {\r\n	text-decoration: line-through;\r\n	font-style: italic;\r\n	color: red;\r\n}\r\n.w-script-deleted .w-script-name::before {\r\n	content: "【删除】";\r\n}\r\n\r\nli[data-key="user"] .pops-panel-input,\r\nli[data-key="pwd"] .pops-panel-input {\r\n	max-width: 200px;\r\n}\r\n';
   const PopsPanel = {
     /** 数据 */
     $data: {
@@ -2767,7 +3152,7 @@
       GM_Menu.add([
         {
           key: "show_pops_panel_setting",
-          text: "⚙ 设置",
+          text: i18next.t("⚙ 设置"),
           autoReload: false,
           isStoreValue: false,
           showText(text) {
@@ -2960,7 +3345,7 @@
     showPanel() {
       pops.panel({
         title: {
-          text: `${SCRIPT_NAME}-设置`,
+          text: i18next.t("{{SCRIPT_NAME}}-设置", { SCRIPT_NAME }),
           position: "center",
           html: false,
           style: ""
@@ -2978,7 +3363,9 @@
         height: this.getHeight(),
         drag: true,
         only: true,
-        style: UIScriptListCSS
+        style: `
+			${UIScriptListCSS}
+			`
       });
     },
     isMobile() {
@@ -3009,7 +3396,7 @@
      */
     getPanelContentConfig() {
       let configList = [
-        SettingUIAccount,
+        SettingUIGeneral,
         SettingUIOptimization,
         SettingUIDiscuessions,
         SettingUIShield,
@@ -3022,4 +3409,4 @@
   PopsPanel.init();
   Greasyfork.init();
 
-})(Qmsg, DOMUtils, Utils, Viewer);
+})(Qmsg, DOMUtils, Utils, i18next, Viewer);

@@ -1,5 +1,6 @@
 import { log, utils } from "@/env";
 import { GM_addStyle } from "ViteGM";
+import i18next from "i18next";
 
 const GreasyforkCode = {
 	init() {

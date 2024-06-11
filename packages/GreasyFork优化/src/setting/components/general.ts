@@ -6,43 +6,81 @@ import { PopsPanel } from "../setting";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
+import i18next from "i18next";
+import { UISelect } from "../common-components/ui-select";
+import { log } from "@/env";
 
-const SettingUIAccount: PopsPanelContentConfig = {
+const SettingUIGeneral: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",
-	title: "账号",
+	title: i18next.t("通用"),
 	forms: [
 		{
-			text: "账号/密码",
+			text: i18next.t("账号/密码"),
 			type: "forms",
 			forms: [
-				UIInput("账号", "user", "", void 0, void 0, "请输入账号"),
-				UIInput("密码", "pwd", "", void 0, void 0, "请输入密码", false, true),
+				UIInput(
+					i18next.t("账号"),
+					"user",
+					"",
+					void 0,
+					void 0,
+					i18next.t("请输入账号")
+				),
+				UIInput(
+					i18next.t("密码"),
+					"pwd",
+					"",
+					void 0,
+					void 0,
+					i18next.t("请输入密码"),
+					false,
+					true
+				),
 			],
 		},
 		{
-			text: "功能",
+			text: i18next.t("功能"),
 			type: "forms",
 			forms: [
+				UISelect(
+					i18next.t("语言"),
+					"setting-language",
+					"zh-CN",
+					[
+						{
+							value: "zh-CN",
+							text: "中文",
+						},
+						{
+							value: "en-US",
+							text: "English",
+						},
+					],
+					(event, isSelectValue, isSelectText) => {
+						log.info("改变语言：" + isSelectText);
+						i18next.changeLanguage(isSelectValue);
+					}
+				),
 				UISwitch(
-					"自动登录",
+					i18next.t("自动登录"),
 					"autoLogin",
 					true,
 					void 0,
-					"自动登录当前保存的账号"
+					i18next.t("自动登录当前保存的账号")
 				),
 				UIButton(
-					"清空账号/密码",
+					i18next.t("清空账号/密码"),
 					void 0,
-					"点击清空",
+					i18next.t("点击清空"),
 					void 0,
 					void 0,
 					false,
 					"default",
 					(event) => {
-						if (confirm("确定清空账号和密码？")) {
+						if (confirm(i18next.t("确定清空账号和密码？"))) {
 							PopsPanel.deleteValue("user");
 							PopsPanel.deleteValue("pwd");
-							Qmsg.success("已清空账号/密码");
+							Qmsg.success(i18next.t("已清空账号/密码"));
 							let $shadowRoot = (
 								event.target as HTMLInputElement
 							).getRootNode() as ShadowRoot;
@@ -56,9 +94,9 @@ const SettingUIAccount: PopsPanelContentConfig = {
 					}
 				),
 				UIButton(
-					"源代码同步【脚本列表】",
+					i18next.t("源代码同步【脚本列表】"),
 					void 0,
-					"一键同步",
+					i18next.t("一键同步"),
 					void 0,
 					void 0,
 					false,
@@ -70,11 +108,11 @@ const SettingUIAccount: PopsPanelContentConfig = {
 								true
 							);
 							if (GreasyforkMenu.getUserLinkElement()) {
-								Qmsg.success("前往用户主页");
+								Qmsg.success(i18next.t("前往用户主页"));
 								window.location.href =
 									GreasyforkMenu.getUserLinkElement()!.href;
 							} else {
-								Qmsg.error("获取当前已登录的用户主页失败");
+								Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
 							}
 							return;
 						}
@@ -92,9 +130,9 @@ const SettingUIAccount: PopsPanelContentConfig = {
 					}
 				),
 				UIButton(
-					"源代码同步【未上架的脚本】",
+					i18next.t("源代码同步【未上架的脚本】"),
 					void 0,
-					"一键同步",
+					i18next.t("一键同步"),
 					void 0,
 					void 0,
 					false,
@@ -106,11 +144,11 @@ const SettingUIAccount: PopsPanelContentConfig = {
 								true
 							);
 							if (GreasyforkMenu.getUserLinkElement()) {
-								Qmsg.success("前往用户主页");
+								Qmsg.success(i18next.t("前往用户主页"));
 								window.location.href =
 									GreasyforkMenu.getUserLinkElement()!.href;
 							} else {
-								Qmsg.error("获取当前已登录的用户主页失败");
+								Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
 							}
 							return;
 						}
@@ -128,9 +166,9 @@ const SettingUIAccount: PopsPanelContentConfig = {
 					}
 				),
 				UIButton(
-					"源代码同步【库】",
+					i18next.t("源代码同步【库】"),
 					void 0,
-					"一键同步",
+					i18next.t("一键同步"),
 					void 0,
 					void 0,
 					false,
@@ -142,11 +180,11 @@ const SettingUIAccount: PopsPanelContentConfig = {
 								true
 							);
 							if (GreasyforkMenu.getUserLinkElement()) {
-								Qmsg.success("前往用户主页");
+								Qmsg.success(i18next.t("前往用户主页"));
 								window.location.href =
 									GreasyforkMenu.getUserLinkElement()!.href;
 							} else {
-								Qmsg.error("获取当前已登录的用户主页失败");
+								Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
 							}
 							return;
 						}
@@ -168,4 +206,4 @@ const SettingUIAccount: PopsPanelContentConfig = {
 	],
 };
 
-export { SettingUIAccount };
+export { SettingUIGeneral };

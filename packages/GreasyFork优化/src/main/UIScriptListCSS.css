@@ -26,3 +26,8 @@
 .w-script-deleted .w-script-name::before {
 	content: "【删除】";
 }
+
+li[data-key="user"] .pops-panel-input,
+li[data-key="pwd"] .pops-panel-input {
+	max-width: 200px;
+}

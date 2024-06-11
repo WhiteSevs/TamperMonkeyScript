@@ -1,5 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import type { HttpxAsyncResultData } from "@whitesev/utils/dist/src/Httpx";
+import i18next from "i18next";
 import Qmsg from "qmsg";
 
 interface GreasyForkScriptInfo {
@@ -206,7 +207,7 @@ const GreasyforkApi = {
 		);
 		log.success(getResp);
 		if (!getResp.status) {
-			Qmsg.error("请求admin内容失败");
+			Qmsg.error(i18next.t("请求admin内容失败"));
 			return;
 		}
 		let adminHTML = getResp.data.responseText;
@@ -214,7 +215,7 @@ const GreasyforkApi = {
 		let formElement =
 			adminHTMLElement.querySelector<HTMLFormElement>("form.edit_script");
 		if (!formElement) {
-			Qmsg.error("解析admin的源代码同步表单失败");
+			Qmsg.error(i18next.t("解析admin的源代码同步表单失败"));
 			return;
 		}
 		let formData = new FormData(formElement);
@@ -235,7 +236,7 @@ const GreasyforkApi = {
 		);
 		log.success(postResp);
 		if (!postResp.status) {
-			Qmsg.error("源代码同步失败");
+			Qmsg.error(i18next.t("源代码同步失败"));
 			return;
 		}
 		return postResp;
@@ -252,7 +253,7 @@ const GreasyforkApi = {
 		);
 		log.success(getResp);
 		if (!getResp.status) {
-			Qmsg.error("获取用户信息失败");
+			Qmsg.error(i18next.t("获取用户信息失败"));
 			return;
 		}
 		let data = utils.toJSON<GreasyForkUserInfo>(getResp.data.responseText);
@@ -280,7 +281,7 @@ const GreasyforkApi = {
 		);
 		log.info(["获取用户的收藏集", getResp]);
 		if (!getResp.status) {
-			Qmsg.error("获取用户的收藏集失败");
+			Qmsg.error(i18next.t("获取用户的收藏集失败"));
 			return;
 		}
 		let respText = getResp.data.responseText;
@@ -327,7 +328,7 @@ const GreasyforkApi = {
 			}
 		);
 		if (!getResp.status) {
-			Qmsg.error(`获取收藏集${setsId}失败`);
+			Qmsg.error(i18next.t("获取收藏集{{setsId}}失败", { setsId }));
 			return;
 		}
 		let respText = getResp.data.responseText;
@@ -336,7 +337,7 @@ const GreasyforkApi = {
 			'form[id^="edit_script_set"]'
 		);
 		if (!$edit_script_set_form) {
-			Qmsg.error("获取表单元素#edit_script_set失败");
+			Qmsg.error(i18next.t("获取表单元素#edit_script_set失败"));
 			return;
 		}
 		let formData = new FormData($edit_script_set_form);
@@ -380,7 +381,7 @@ const GreasyforkApi = {
 			}
 		);
 		if (!postResp.status) {
-			Qmsg.error("更新收藏集表单请求失败");
+			Qmsg.error(i18next.t("更新收藏集表单请求失败"));
 			return;
 		}
 		let respText = postResp.data.responseText;

@@ -1,8 +1,9 @@
 import { Greasyfork } from "@/main/Greasyfork";
+import i18next from "i18next";
 
 const SettingUIScriptLib: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-library",
-	title: "库",
+	title: i18next.t("库"),
 	callback(event, rightHeaderElement, rightContainerElement) {
 		Greasyfork.UIScriptList(
 			"script-library",

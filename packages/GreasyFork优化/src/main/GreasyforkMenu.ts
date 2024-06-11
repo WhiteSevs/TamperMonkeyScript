@@ -2,6 +2,7 @@ import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { GM_Menu, log, utils } from "@/env";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { PopsPanel } from "@/setting/setting";
+import i18next from "i18next";
 import Qmsg from "qmsg";
 
 const GreasyforkMenu = {
@@ -35,13 +36,17 @@ const GreasyforkMenu = {
 	async updateScript(scriptUrlList: string[]) {
 		let getLoadingHTML = function (scriptName: string, progress = 1) {
 			return `
-        <div style="display: flex;flex-direction: column;align-items: flex-start;">
-          <div style="height: 30px;line-height: 30px;">名称：${scriptName}</div>
-          <div style="height: 30px;line-height: 30px;">进度：${progress}/${scriptUrlList.length}</div>
-        </div>`;
+			<div style="display: flex;flex-direction: column;align-items: flex-start;">
+				<div style="height: 30px;line-height: 30px;">${i18next.t(
+					"名称："
+				)}${scriptName}</div>
+				<div style="height: 30px;line-height: 30px;">${i18next.t(
+					"进度："
+				)}${progress}/${scriptUrlList.length}</div>
+			</div>`;
 		};
 		if (utils.isNull(scriptUrlList)) {
-			Qmsg.error("未获取到【脚本列表】");
+			Qmsg.error(i18next.t("未获取到【脚本列表】"));
 		} else {
 			let loading = Qmsg.loading(
 				getLoadingHTML(GreasyforkApi.getScriptName(scriptUrlList[0]) as string),
@@ -66,27 +71,31 @@ const GreasyforkMenu = {
 						codeSyncFormData
 					);
 					if (syncUpdateStatus) {
-						Qmsg.success("源代码同步成功，3秒后更新下一个");
+						Qmsg.success(i18next.t("源代码同步成功，3秒后更新下一个"));
 						await utils.sleep(3000);
 						successNums++;
 					} else {
-						Qmsg.error("源代码同步失败");
+						Qmsg.error(i18next.t("源代码同步失败"));
 						failedNums++;
 					}
 				} else {
-					Qmsg.error("源代码同步失败");
+					Qmsg.error(i18next.t("源代码同步失败"));
 					failedNums++;
 				}
 			}
 			loading.close();
 			if (successNums === 0) {
-				Qmsg.error("全部更新失败");
+				Qmsg.error(i18next.t("全部更新失败"));
 			} else {
 				Qmsg.success(
-					`全部更新完毕<br >
-          成功：${successNums}<br >
-          失败：${failedNums}<br >
-          总计：${scriptUrlList.length}`,
+					i18next.t(
+						"全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}",
+						{
+							successNums,
+							failedNums,
+							scriptUrlListLength: scriptUrlList.length,
+						}
+					),
 					{
 						html: true,
 					}
@@ -107,10 +116,10 @@ const GreasyforkMenu = {
 					true
 				);
 				if (GreasyforkMenu.getUserLinkElement()) {
-					Qmsg.success("前往用户主页");
+					Qmsg.success(i18next.t("前往用户主页"));
 					window.location.href = GreasyforkMenu.getUserLinkElement()!.href;
 				} else {
-					Qmsg.error("获取当前已登录的用户主页失败");
+					Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
 				}
 				return;
 			}
@@ -138,10 +147,10 @@ const GreasyforkMenu = {
 					true
 				);
 				if (GreasyforkMenu.getUserLinkElement()) {
-					Qmsg.success("前往用户主页");
+					Qmsg.success(i18next.t("前往用户主页"));
 					window.location.href = GreasyforkMenu.getUserLinkElement()!.href;
 				} else {
-					Qmsg.error("获取当前已登录的用户主页失败");
+					Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
 				}
 				return;
 			}
@@ -169,10 +178,10 @@ const GreasyforkMenu = {
 					true
 				);
 				if (GreasyforkMenu.getUserLinkElement()) {
-					Qmsg.success("前往用户主页");
+					Qmsg.success(i18next.t("前往用户主页"));
 					window.location.href = GreasyforkMenu.getUserLinkElement()!.href;
 				} else {
-					Qmsg.error("获取当前已登录的用户主页失败");
+					Qmsg.error(i18next.t("获取当前已登录的用户主页失败"));
 				}
 				return;
 			}

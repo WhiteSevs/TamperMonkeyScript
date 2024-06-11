@@ -1,26 +1,27 @@
 import { DOMUtils, utils } from "@/env";
 import { UISwitch } from "../common-components/ui-switch";
 import { PopsPanel } from "../setting";
+import i18next from "i18next";
 
 const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",
-	title: "论坛",
+	title: i18next.t("论坛"),
 	forms: [
 		{
-			text: "功能",
+			text: i18next.t("功能"),
 			type: "forms",
 			forms: [
 				UISwitch(
-					"过滤重复的评论",
+					i18next.t("过滤重复的评论"),
 					"greasyfork-discussions-filter-duplicate-comments",
 					false,
 					void 0,
-					"过滤掉重复的评论数量(≥2)"
+					i18next.t("过滤掉重复的评论数量(≥2)")
 				),
 			],
 		},
 		{
-			text: "过滤脚本(id)",
+			text: i18next.t("过滤脚本(id)"),
 			type: "forms",
 			forms: [
 				{
@@ -30,7 +31,10 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 							"div",
 							{
 								className: "pops-panel-textarea",
-								innerHTML: `<textarea placeholder="请输入脚本id，每行一个" style="height:150px;"></textarea>`,
+								innerHTML: `
+								<textarea placeholder="${i18next.t(
+									"请输入脚本id，每行一个"
+								)}" style="height:150px;"></textarea>`,
 							},
 							{
 								style: "width: 100%;",
@@ -56,7 +60,7 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 			],
 		},
 		{
-			text: "过滤发布的用户(id)",
+			text: i18next.t("过滤发布的用户(id)"),
 			type: "forms",
 			forms: [
 				{
@@ -66,7 +70,10 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 							"div",
 							{
 								className: "pops-panel-textarea",
-								innerHTML: `<textarea placeholder="请输入用户id，每行一个" style="height:150px;"></textarea>`,
+								innerHTML: `
+								<textarea placeholder="${i18next.t(
+									"请输入用户id，每行一个"
+								)}" style="height:150px;"></textarea>`,
 							},
 							{
 								style: "width: 100%;",
@@ -92,7 +99,7 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 			],
 		},
 		{
-			text: "过滤回复的用户(id)",
+			text: i18next.t("过滤回复的用户(id)"),
 			type: "forms",
 			forms: [
 				{
@@ -102,7 +109,10 @@ const SettingUIDiscuessions: PopsPanelContentConfig = {
 							"div",
 							{
 								className: "pops-panel-textarea",
-								innerHTML: `<textarea placeholder="请输入用户id，每行一个" style="height:150px;"></textarea>`,
+								innerHTML: `
+								<textarea placeholder="${i18next.t(
+									"请输入用户id，每行一个"
+								)}" style="height:150px;"></textarea>`,
 							},
 							{
 								style: "width: 100%;",

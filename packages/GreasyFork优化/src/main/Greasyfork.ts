@@ -15,10 +15,10 @@ import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { GreasyforkCode } from "./Code/GreasyforkCode";
 import { GreasyforkAccount } from "./Account/GreasyforkAccount";
 import { GreasyforkShield } from "./GreasyforkShield";
-import { GreasyforkForumFilter } from "./Forum/GreasyforkForumFilter";
 import Viewer from "viewerjs";
 import ViewerCSS from "viewerjs/dist/viewer.css?raw";
 import { GreasyforkForum } from "./Forum/GreasyforkForum";
+import i18next from "i18next";
 
 const Greasyfork = {
 	init() {
@@ -74,7 +74,10 @@ const Greasyfork = {
 			.waitNode<HTMLSpanElement>("ul#script-links li.current span")
 			.then(() => {
 				let searchBtn = DOMUtils.createElement("li", {
-					innerHTML: `<a href="javascript:;"><span>寻找引用</span></a>`,
+					innerHTML: `
+					<a href="javascript:;">
+						<span>${i18next.t("寻找引用")}</span>
+					</a>`,
 				});
 				DOMUtils.append(
 					document.querySelector<HTMLUListElement>(
@@ -87,7 +90,7 @@ const Greasyfork = {
 						window.location.pathname.match(/scripts\/([\d]+)/i);
 					if (!scriptIdMatch) {
 						log.error([scriptIdMatch, window.location.pathname]);
-						Qmsg.error("获取脚本id失败");
+						Qmsg.error(i18next.t("获取脚本id失败"));
 						return;
 					}
 					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
@@ -106,7 +109,10 @@ const Greasyfork = {
 			.waitNode<HTMLSpanElement>("ul#script-links li.current span")
 			.then(() => {
 				let collectBtn = DOMUtils.createElement("li", {
-					innerHTML: `<a href="javascript:;"><span>收藏</span></a>`,
+					innerHTML: `
+					<a href="javascript:;">
+						<span>${i18next.t("收藏")}</span>
+					</a>`,
 				});
 				DOMUtils.append(
 					document.querySelector("ul#script-links") as HTMLUListElement,
@@ -117,24 +123,24 @@ const Greasyfork = {
 						window.location.pathname.match(/scripts\/([\d]+)/i);
 					if (!scriptIdMatch) {
 						log.error([scriptIdMatch, window.location.pathname]);
-						Qmsg.error("获取脚本id失败");
+						Qmsg.error(i18next.t("获取脚本id失败"));
 						return;
 					}
 					let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
 					if (!GreasyforkMenu.isLogin) {
-						Qmsg.error("请先登录账号");
 						log.error("请先登录账号");
+						Qmsg.error(i18next.t("请先登录账号"));
 						return;
 					}
 					let userId = GreasyforkApi.getUserId(
 						GreasyforkMenu.getUserLinkElement()!.href
 					);
 					if (userId == null) {
-						Qmsg.error("获取用户id失败");
 						log.error("获取用户id失败");
+						Qmsg.error(i18next.t("获取用户id失败"));
 						return;
 					}
-					let loading = Qmsg.loading("获取收藏夹中...");
+					let loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
 					let userCollection = await GreasyforkApi.getUserCollection(userId);
 					loading.close();
 					if (!userCollection) {
@@ -143,26 +149,28 @@ const Greasyfork = {
 					let alertHTML = "";
 					userCollection.forEach((userCollectInfo) => {
 						alertHTML += `
-                    <li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
-                        <div class="user-collect-name">${userCollectInfo.name}</div>
-                        <div class="user-collect-btn-container">
-                        <div class="pops-panel-button collect-add-script-id">
-                            <button type="primary" data-icon="" data-righticon="">
-                            <span>添加</span>
-                            </button>
-                        </div>
-                        <div class="pops-panel-button collect-delete-script-id">
-                            <button type="danger" data-icon="" data-righticon="">
-                            <span>删除</span>
-                            </button>
-                        </div>
-                        </div>
-                    </li>
-              `;
+						<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${
+							userCollectInfo.name
+						}">
+							<div class="user-collect-name">${userCollectInfo.name}</div>
+							<div class="user-collect-btn-container">
+							<div class="pops-panel-button collect-add-script-id">
+								<button type="primary" data-icon="" data-righticon="">
+								<span>${i18next.t("添加")}</span>
+								</button>
+							</div>
+							<div class="pops-panel-button collect-delete-script-id">
+								<button type="danger" data-icon="" data-righticon="">
+								<span>${i18next.t("刪除")}</span>
+								</button>
+							</div>
+							</div>
+						</li>
+              			`;
 					});
 					let collectionDialog = pops.alert({
 						title: {
-							text: "收藏集",
+							text: i18next.t("收藏集"),
 							position: "center",
 						},
 						content: {
@@ -185,33 +193,33 @@ const Greasyfork = {
 						drag: true,
 						only: true,
 						style: `
-                    .pops{
-                        --content-max-height: 400px;
-                        max-height: var(--content-max-height);
-                    }
-                    .pops[type-value=alert] .pops-alert-content {
-                        max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
-                    }
-                    .user-collect-item{
-                        -webkit-user-select: none;
-                        user-select: none;
-                        padding: 5px 10px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        border-bottom: 1px dotted #c9c9c9;
-                    }
-                    .user-collect-name{
-        
-                    }
-                    .user-collect-item:hover{
-                        
-                    }
-                    .user-collect-btn-container{
-                        margin-left: 10px;
-                        display: flex;
-                    }
-                    `,
+						.pops{
+							--content-max-height: 400px;
+							max-height: var(--content-max-height);
+						}
+						.pops[type-value=alert] .pops-alert-content {
+							max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
+						}
+						.user-collect-item{
+							-webkit-user-select: none;
+							user-select: none;
+							padding: 5px 10px;
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							border-bottom: 1px dotted #c9c9c9;
+						}
+						.user-collect-name{
+			
+						}
+						.user-collect-item:hover{
+							
+						}
+						.user-collect-btn-container{
+							margin-left: 10px;
+							display: flex;
+						}
+						`,
 					});
 					/* 添加事件 */
 					DOMUtils.on<PointerEvent | MouseEvent>(
@@ -224,7 +232,7 @@ const Greasyfork = {
 							).closest(".user-collect-item") as HTMLElement;
 							let setsId = currentSelectCollectInfo.dataset.id as string;
 							let setsName = currentSelectCollectInfo.dataset.name;
-							let loading = Qmsg.loading("添加中...");
+							let loading = Qmsg.loading(i18next.t("添加中..."));
 							let formData = await GreasyforkApi.getUserCollectionInfo(
 								userId,
 								setsId
@@ -273,14 +281,22 @@ const Greasyfork = {
 							let changeScriptSet =
 								addResult.querySelector<HTMLElement>(".change-script-set");
 							if (!changeScriptSet) {
-								Qmsg.error("添加失败，.change-script-set元素不存在");
+								Qmsg.error(
+									i18next.t("添加失败，{{selector}}元素不存在", {
+										selector: ".change-script-set",
+									})
+								);
 								loading.close();
 								return;
 							}
 							let section =
 								changeScriptSet.querySelector<HTMLElement>("section");
 							if (!section) {
-								Qmsg.error("添加失败，section元素不存在");
+								Qmsg.error(
+									i18next.t("添加失败，{{selector}}元素不存在", {
+										selector: "section",
+									})
+								);
 								loading.close();
 								return;
 							}
@@ -288,7 +304,7 @@ const Greasyfork = {
 							if (alertElement) {
 								pops.alert({
 									title: {
-										text: "添加失败",
+										text: i18next.t("添加失败"),
 										position: "center",
 									},
 									content: {
@@ -302,14 +318,14 @@ const Greasyfork = {
 										},
 									},
 									style: `
-                                .pops-alert-content{
-                                    font-style: italic;
-                                    background-color: #ffc;
-                                    border: none;
-                                    border-left: 6px solid #FFEB3B;
-                                    padding: .5em;
-                                }
-                                `,
+									.pops-alert-content{
+										font-style: italic;
+										background-color: #ffc;
+										border: none;
+										border-left: 6px solid #FFEB3B;
+										padding: .5em;
+									}
+                                	`,
 									drag: true,
 									dragLimit: true,
 									width: pops.isPhone() ? "88vw" : "400px",
@@ -321,7 +337,7 @@ const Greasyfork = {
 									setsId,
 									saveData
 								);
-								Qmsg.success("添加成功");
+								Qmsg.success(i18next.t("添加成功"));
 							}
 							loading.close();
 						}
@@ -337,7 +353,7 @@ const Greasyfork = {
 							).closest(".user-collect-item") as HTMLLIElement;
 							let setsId = currentSelectCollectInfo.dataset.id as string;
 							let setsName = currentSelectCollectInfo.dataset.name;
-							let loading = Qmsg.loading("删除中...");
+							let loading = Qmsg.loading(i18next.t("删除中..."));
 							let formData = await GreasyforkApi.getUserCollectionInfo(
 								userId,
 								setsId
@@ -394,7 +410,7 @@ const Greasyfork = {
 								return;
 							}
 							await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-							Qmsg.success("删除成功");
+							Qmsg.success(i18next.t("删除成功"));
 							loading.close();
 						}
 					);
@@ -582,7 +598,9 @@ const Greasyfork = {
 				linkElement.removeAttribute("href");
 				DOMUtils.on(linkElement, "click", undefined, function (event) {
 					Qmsg.warning(
-						`<div style="overflow-wrap: anywhere;">拦截跳转：<a href="${url}" target="_blank">${url}</a></div>`,
+						`<div style="overflow-wrap: anywhere;">${i18next.t(
+							"拦截跳转："
+						)}<a href="${url}" target="_blank">${url}</a></div>`,
 						{
 							html: true,
 							timeout: 5000,
@@ -623,7 +641,7 @@ const Greasyfork = {
 			"dd.script-show-daily-installs",
 			DOMUtils.createElement("dt", {
 				className: "script-show-daily-update_checks",
-				innerHTML: "<span>今日检查</span>",
+				innerHTML: `<span>${i18next.t("今日检查")}</span>`,
 			})
 		);
 		DOMUtils.after(
@@ -645,14 +663,14 @@ const Greasyfork = {
 				let copyButton = DOMUtils.createElement(
 					"button",
 					{
-						textContent: "复制代码",
+						textContent: i18next.t("复制代码"),
 					},
 					{
 						style: "margin-bottom: 1em;",
 					}
 				);
 				DOMUtils.on(copyButton, "click", async function () {
-					let loading = Qmsg.loading("加载文件中...");
+					let loading = Qmsg.loading(i18next.t("加载文件中..."));
 					let getResp = await httpx.get(
 						`https://greasyfork.org/zh-CN/scripts/${GreasyforkApi.getScriptId()}.json`,
 						{
@@ -674,7 +692,7 @@ const Greasyfork = {
 					}
 					loading.close();
 					utils.setClip(scriptJS.data.responseText);
-					Qmsg.success("复制成功");
+					Qmsg.success(i18next.t("复制成功"));
 				});
 				DOMUtils.before($codeContainer, copyButton);
 			});
@@ -850,14 +868,14 @@ const Greasyfork = {
 			let copyElement = DOMUtils.createElement("div", {
 				className: "zeroclipboard-container",
 				innerHTML: `
-            <clipboard-copy class="js-clipboard-copy">
-              <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
-                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
-              </svg>
-              <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
-                <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
-              </svg>
-            </clipboard-copy>
+				<clipboard-copy class="js-clipboard-copy">
+				<svg height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-copy">
+					<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+				</svg>
+				<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon-check-copy">
+					<path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+				</svg>
+				</clipboard-copy>
             `,
 			});
 			let clipboardCopyElement = copyElement.querySelector<HTMLElement>(
@@ -880,7 +898,7 @@ const Greasyfork = {
 					codeElement = copyElement.parentElement;
 				}
 				if (!codeElement) {
-					Qmsg.error("未找到code元素");
+					Qmsg.error(i18next.t("未找到{{selector}}元素", { selector: "code" }));
 					return;
 				}
 				utils.setClip(codeElement.innerText || codeElement.textContent);
@@ -889,7 +907,7 @@ const Greasyfork = {
 				octiconCheckCopyElement.removeAttribute("aria-hidden");
 				let tooltip = pops.tooltip({
 					target: clipboardCopyElement,
-					content: "✅ 复制成功!",
+					content: i18next.t("✅ 复制成功!"),
 					position: "left",
 					className: "github-tooltip",
 					alwaysShow: true,
@@ -941,7 +959,13 @@ const Greasyfork = {
 			GreasyforkApi.switchLanguage(url);
 			log.success("新Url：" + url);
 			Qmsg.loading(
-				`当前语言：${currentLocaleLanguage}，3秒后切换至：${localeLanguage}`,
+				i18next.t(
+					"当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}",
+					{
+						currentLocaleLanguage,
+						localeLanguage,
+					}
+				),
 				{
 					timeout: 3000,
 					showClose: true,
@@ -950,7 +974,7 @@ const Greasyfork = {
 					},
 				}
 			);
-			Qmsg.info("导航至：" + url, {
+			Qmsg.info(i18next.t("导航至：") + url, {
 				timeout: 3000,
 			});
 			timer = setTimeout(() => {
@@ -973,7 +997,7 @@ const Greasyfork = {
 		rightContainerElement: HTMLUListElement
 	) {
 		if (!GreasyforkMenu.isLogin) {
-			Qmsg.error("请先登录账号！");
+			Qmsg.error(i18next.t("请先登录账号！"));
 			return;
 		}
 		let userLinkElement = GreasyforkMenu.getUserLinkElement();
@@ -988,7 +1012,7 @@ const Greasyfork = {
 			},
 			parent: rightContainerElement,
 			content: {
-				text: "获取信息中，请稍后...",
+				text: i18next.t("获取信息中，请稍后..."),
 			},
 			addIndexCSS: false,
 		});
@@ -1002,34 +1026,36 @@ const Greasyfork = {
 			type === "script-list"
 				? userInfo["scriptList"]
 				: userInfo["scriptLibraryList"];
-		Qmsg.success(`获取成功，共 ${scriptList.length} 个`);
+		Qmsg.success(
+			i18next.t("获取成功，共 {{count}} 个", {
+				count: scriptList.length,
+			})
+		);
 		for (const scriptInfo of scriptList) {
 			let liElement = DOMUtils.createElement("li", {
 				className: "w-script-list-item",
 				innerHTML: `
-            <div class="w-script-info">
-              <div class="w-script-name">
-                <a href="${scriptInfo["url"]}" target="_blank">${
-					scriptInfo["name"]
-				}</a>
-              </div>
-              <div class="w-script-fan-score">
-                <p>评分：${scriptInfo["fan_score"]}</p>
-              </div>
-              <div class="w-script-locale">
-                <p>语言：${scriptInfo["locale"]}</p>
-              </div>
-              <div class="w-script-version">
-                <p>版本：${scriptInfo["version"]}</p>
-              </div>
-              <div class="w-script-update-time">
-                <p>更新：${utils.getDaysDifference(
-									new Date(scriptInfo["code_updated_at"]).getTime(),
-									undefined,
-									"auto"
-								)}前</p>
-              </div>
-            </div>
+				<div class="w-script-info">
+				<div class="w-script-name">
+					<a href="${scriptInfo["url"]}" target="_blank">${scriptInfo["name"]}</a>
+				</div>
+				<div class="w-script-fan-score">
+					<p>${i18next.t("评分：")}${scriptInfo["fan_score"]}</p>
+				</div>
+				<div class="w-script-locale">
+					<p>${i18next.t("语言：")}${scriptInfo["locale"]}</p>
+				</div>
+				<div class="w-script-version">
+					<p>${i18next.t("版本：")}${scriptInfo["version"]}</p>
+				</div>
+				<div class="w-script-update-time">
+					<p>${i18next.t("更新：")}${utils.getDaysDifference(
+					new Date(scriptInfo["code_updated_at"]).getTime(),
+					void 0,
+					"auto"
+				)}前</p>
+				</div>
+				</div>
             `,
 			});
 			let scriptInfoElement = liElement.querySelector(
@@ -1038,10 +1064,10 @@ const Greasyfork = {
 			let buttonElement = DOMUtils.createElement("div", {
 				className: "pops-panel-button",
 				innerHTML: `
-            <button type="primary" data-icon="" data-righticon="false">
-              <span>同步代码</span>
-            </button>
-            `,
+				<button type="primary" data-icon="" data-righticon="false">
+				<span>${i18next.t("同步代码")}</span>
+				</button>
+				`,
 			});
 			if (scriptInfo["deleted"]) {
 				/* 该脚本已给删除 */
@@ -1069,7 +1095,7 @@ const Greasyfork = {
 				);
 				btn.setAttribute("disabled", "true");
 				btn.setAttribute("data-icon", "true");
-				span.innerText = "同步中...";
+				span.innerText = i18next.t("同步中...");
 				DOMUtils.before(span, iconElement);
 				let scriptId = scriptInfo?.["id"];
 				let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
@@ -1085,9 +1111,9 @@ const Greasyfork = {
 						) as FormDataEntryValue;
 						let syncMode = "";
 						if (syncTypeId.toString() === "1") {
-							syncMode = "手动";
+							syncMode = i18next.t("手动");
 						} else if (syncTypeId.toString() === "2") {
-							syncMode = "自动";
+							syncMode = i18next.t("自动");
 						} else if (syncTypeId.toString() === "3") {
 							syncMode = "webhook";
 						}
@@ -1095,17 +1121,20 @@ const Greasyfork = {
 							".w-script-sync-type"
 						) as HTMLElement;
 						if (oldSyncTypeElement) {
-							oldSyncTypeElement.querySelector(
-								"p"
-							)!.innerText = `同步方式：${syncMode}`;
+							oldSyncTypeElement.querySelector("p")!.innerText = i18next.t(
+								"同步方式：{{syncMode}}",
+								{ syncMode }
+							);
 						} else {
 							DOMUtils.append(
 								scriptInfoElement,
 								`
-                    <div class="w-script-sync-type">
-                      <p>同步方式：${syncMode}</p>
-                    </div>
-                    `
+								<div class="w-script-sync-type">
+									<p>${i18next.t("同步方式：{{syncMode}}", {
+										syncMode,
+									})}
+									</p>
+								</div>`
 							);
 						}
 						let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
@@ -1113,18 +1142,18 @@ const Greasyfork = {
 							codeSyncFormData
 						);
 						if (syncUpdateResponse) {
-							Qmsg.success("同步成功");
+							Qmsg.success(i18next.t("同步成功"));
 						} else {
-							Qmsg.error("同步失败");
+							Qmsg.error(i18next.t("同步失败"));
 						}
 					} else {
-						Qmsg.error("该脚本未设置同步信息");
+						Qmsg.error(i18next.t("该脚本未设置同步信息"));
 					}
 				}
 
 				btn.removeAttribute("disabled");
 				btn.removeAttribute("data-icon");
-				span.innerText = "同步代码";
+				span.innerText = i18next.t("同步代码");
 				iconElement.remove();
 			});
 			liElement.appendChild(buttonElement);
@@ -1154,10 +1183,9 @@ const Greasyfork = {
 				if (checkPageTime && Date.now() - checkPageTime < 5 * 1000) {
 					/* 上次重载时间在5秒内的话就拒绝重载 */
 					Qmsg.error(
-						`上次重载时间 ${utils.formatTime(
-							checkPageTime,
-							"yyyy-MM-dd HH:mm:ss"
-						)}，5秒内拒绝反复重载`
+						i18next.t("上次重载时间 {{time}}，5秒内拒绝反复重载", {
+							time: utils.formatTime(checkPageTime, "yyyy-MM-dd HH:mm:ss"),
+						})
 					);
 					return;
 				}

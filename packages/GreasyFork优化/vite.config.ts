@@ -18,10 +18,10 @@ if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
 
-let VERSION =
-	process.env.NODE_ENV === "development"
-		? "0.0.1"
-		: Utils.getScriptVersion(!isEmptyOutDir);
+let VERSION = "0.0.1";
+if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -72,6 +72,7 @@ export default defineConfig({
 					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
 					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
 					viewerjs: cdn.jsdelivr("Viewer", "dist/viewer.min.js"),
+					i18next: cdn.jsdelivr("i18next", "i18next.min.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

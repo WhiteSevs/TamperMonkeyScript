@@ -1,13 +1,14 @@
 import { GM_Menu, SCRIPT_NAME, log, pops, utils } from "@/env";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, KEY } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { SettingUIAccount } from "./components/account";
+import { SettingUIGeneral } from "./components/general";
 import { SettingUIOptimization } from "./components/optimization";
 import { SettingUIDiscuessions } from "./components/discussions";
 import { SettingUIShield } from "./components/shield";
 import { SettingUIScriptList } from "./components/script-list";
 import { SettingUIScriptLib } from "./components/script-lib";
 import UIScriptListCSS from "@/main/UIScriptListCSS.css?raw";
+import i18next from "i18next";
 
 const PopsPanel = {
 	/** 数据 */
@@ -59,7 +60,7 @@ const PopsPanel = {
 		GM_Menu.add([
 			{
 				key: "show_pops_panel_setting",
-				text: "⚙ 设置",
+				text: i18next.t("⚙ 设置"),
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {
@@ -281,7 +282,7 @@ const PopsPanel = {
 	showPanel() {
 		pops.panel({
 			title: {
-				text: `${SCRIPT_NAME}-设置`,
+				text: i18next.t("{{SCRIPT_NAME}}-设置", { SCRIPT_NAME }),
 				position: "center",
 				html: false,
 				style: "",
@@ -299,7 +300,9 @@ const PopsPanel = {
 			height: this.getHeight(),
 			drag: true,
 			only: true,
-			style: UIScriptListCSS,
+			style: `
+			${UIScriptListCSS}
+			`,
 		});
 	},
 	isMobile() {
@@ -330,7 +333,7 @@ const PopsPanel = {
 	 */
 	getPanelContentConfig() {
 		let configList: PopsPanelContentConfig[] = [
-			SettingUIAccount,
+			SettingUIGeneral,
 			SettingUIOptimization,
 			SettingUIDiscuessions,
 			SettingUIShield,

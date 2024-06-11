@@ -13,9 +13,12 @@ import {
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
+import { LanguageInit } from "./language/language";
+import i18next from "i18next";
 
+LanguageInit();
 /* 脚本名 */
-const _SCRIPT_NAME_ = "GreasyFork优化";
+const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const pops: typeof import("@pops/index") =
@@ -43,14 +46,25 @@ log.config({
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config({
-	position: "bottom",
-	html: true,
-	maxNums: 5,
-	autoClose: true,
-	showClose: false,
-	showReverse: true,
-});
+Qmsg.config(
+	Object.defineProperty(
+		{
+			position: "bottom",
+			html: true,
+			maxNums: 5,
+			autoClose: true,
+			showClose: false,
+			showReverse: true,
+			zIndex: utils.getMaxZIndex(10),
+		},
+		"zIndex",
+		{
+			get() {
+				return utils.getMaxZIndex(10);
+			},
+		}
+	)
+);
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
@@ -64,13 +78,13 @@ const httpx = new utils.Httpx(GM_xmlhttpRequest);
 httpx.config({
 	logDetails: DEBUG,
 	onabort() {
-		Qmsg.warning("请求取消");
+		Qmsg.warning(i18next.t("请求取消"));
 	},
 	ontimeout() {
-		Qmsg.error("请求超时");
+		Qmsg.error(i18next.t("请求超时"));
 	},
 	onerror(response: any) {
-		Qmsg.error("请求异常");
+		Qmsg.error(i18next.t("请求异常"));
 		log.error(["httpx-onerror 请求异常", response]);
 	},
 });

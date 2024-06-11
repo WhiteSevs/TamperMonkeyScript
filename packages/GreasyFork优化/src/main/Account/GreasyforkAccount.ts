@@ -1,5 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
+import i18next from "i18next";
 import Qmsg from "qmsg";
 
 const GreasyforkAccount = {
@@ -19,19 +20,19 @@ const GreasyforkAccount = {
 				let user = PopsPanel.getValue("user");
 				let pwd = PopsPanel.getValue("pwd");
 				if (utils.isNull(user)) {
-					Qmsg.error("请先在菜单中录入账号");
+					Qmsg.error(i18next.t("请先在菜单中录入账号"));
 					return;
 				}
 				if (utils.isNull(pwd)) {
-					Qmsg.error("请先在菜单中录入密码");
+					Qmsg.error(i18next.t("请先在菜单中录入密码"));
 					return;
 				}
 				let csrfToken = document.querySelector("meta[name='csrf-token']");
 				if (!csrfToken) {
-					Qmsg.error("获取csrf-token失败");
+					Qmsg.error(i18next.t("获取csrf-token失败"));
 					return;
 				}
-				let loginTip = Qmsg.loading("正在登录中...");
+				let loginTip = Qmsg.loading(i18next.t("正在登录中..."));
 				let postResp = await httpx.post(
 					"https://greasyfork.org/zh-CN/users/sign_in",
 					{
@@ -49,7 +50,7 @@ const GreasyforkAccount = {
 				loginTip.destroy();
 				if (!postResp.status) {
 					log.error(postResp);
-					Qmsg.error("登录失败，请在控制台查看原因");
+					Qmsg.error(i18next.t("登录失败，请在控制台查看原因"));
 					return;
 				}
 				let respText = postResp.data.responseText;
@@ -59,7 +60,7 @@ const GreasyforkAccount = {
 						".sign-out-link a[rel=nofollow][data-method='delete']"
 					).length
 				) {
-					Qmsg.success("登录成功，1s后自动跳转");
+					Qmsg.success(i18next.t("登录成功，1s后自动跳转"));
 					setTimeout(() => {
 						window.location.reload();
 					}, 1000);
@@ -67,7 +68,9 @@ const GreasyforkAccount = {
 					log.error(postResp);
 					log.error(`当前账号:${user}`);
 					log.error(`当前密码:${pwd}`);
-					Qmsg.error("登录失败，可能是账号/密码错误，请在控制台查看原因");
+					Qmsg.error(
+						i18next.t("登录失败，可能是账号/密码错误，请在控制台查看原因")
+					);
 				}
 			});
 	},
