@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.10
+// @version      2024.6.11
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -16,11 +16,11 @@
 // @require      https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js
 // @require      https://cdn.jsdelivr.net/npm/vue-demi@0.14.8/lib/index.iife.min.js
 // @require      https://cdn.jsdelivr.net/npm/pinia@2.1.7/dist/pinia.iife.prod.js
-// @require      https://cdn.jsdelivr.net/npm/vue-router@4.3.2/dist/vue-router.global.js
+// @require      https://cdn.jsdelivr.net/npm/vue-router@4.3.3/dist/vue-router.global.js
 // @require      https://update.greasyfork.org/scripts/495227/1378053/Element-Plus.js
 // @require      https://cdn.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.1/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @resource     ElementPlusResourceCSS  https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
@@ -10393,7 +10393,22 @@ div[class^="new-summary-container_"] {\r
      */
     setGlobalContentClick() {
       let that = this;
+      function checkNotTriggerReply(event) {
+        let currentComposed = event.composedPath()[0];
+        if (currentComposed.localName === "a") {
+          log.info("<a>标签不触发回复功能");
+          return false;
+        }
+        if (currentComposed.localName === "img" && !currentComposed.classList.contains("BDE_Smiley")) {
+          log.info("<img>标签不触发回复功能");
+          return false;
+        }
+        return true;
+      }
       domutils.on(document, "click", ".post-item .content", (event) => {
+        if (!checkNotTriggerReply(event)) {
+          return;
+        }
         let $clickContent = event.target;
         that.$data.replyCommentData.value = void 0;
         that.$data.type.value = void 0;
@@ -10438,6 +10453,9 @@ div[class^="new-summary-container_"] {\r
           if ($clickContent.classList.contains(
             "whitesev-reply-dialog-sheet-main-content"
           )) {
+            return;
+          }
+          if (!checkNotTriggerReply(event)) {
             return;
           }
           that.$data.replyLzlCommentData.value = void 0;
@@ -17229,6 +17247,17 @@ div[class^="new-summary-container_"] {\r
     },
     mainPostImgList: [],
     init() {
+      PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
+        log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
+        TiebaPost.repairErrorThread();
+      });
+      PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+        log.success("优化图片预览");
+        TiebaPost.optimizeImagePreview();
+      });
+      PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
+        this.overrideVueRouterMatch();
+      });
       PopsPanel.execMenu("baidu-tieba-blockCommentInput", () => {
         CommonUtils.addBlockCSS(".comment-box-wrap");
       });
@@ -17243,17 +17272,6 @@ div[class^="new-summary-container_"] {\r
             });
           }
         }
-      });
-      PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
-        this.overrideVueRouterMatch();
-      });
-      PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
-        log.success("优化图片预览");
-        TiebaPost.optimizeImagePreview();
-      });
-      PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
-        log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
-        TiebaPost.repairErrorThread();
       });
       TiebaReply.init();
     },
@@ -17297,6 +17315,7 @@ div[class^="new-summary-container_"] {\r
             return;
           }
           if (imgSrc == null ? void 0 : imgSrc.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+            utils.preventEvent(event);
             log.info(`点击图片👇`);
             log.info(clickElement);
             if (clickParentElement.className === "img-box") {

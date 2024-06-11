@@ -4,25 +4,25 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"clear": "del .\\SCRIPT_VERSION.json && pnpm store prune",
 		"dev": "vue-tsc --noEmit && vite",
 		"build": "vue-tsc --noEmit && vite build",
 		"build:min": "vue-tsc --noEmit && vite build --minify",
 		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
 		"build:watch": "vue-tsc --noEmit && vite build --watch",
 		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-		"preview": "vue-tsc --noEmit && vite preview --host 0.0.0.0"
+		"preview": "vue-tsc --noEmit && vite preview --host 0.0.0.0",
+		"clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
 	},
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.3.1",
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.4.1",
+		"@whitesev/utils": "^1.4.3",
 		"pinia": "^2.1.7",
 		"qmsg": "^1.1.2",
 		"viewerjs": "^1.11.6",
 		"vue": "^3.4.27",
 		"vue-demi": "^0.14.8",
-		"vue-router": "^4.3.2"
+		"vue-router": "^4.3.3"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.2",

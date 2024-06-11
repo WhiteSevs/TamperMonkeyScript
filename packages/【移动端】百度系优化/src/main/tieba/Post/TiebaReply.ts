@@ -334,7 +334,25 @@ export const TiebaReply = {
 	setGlobalContentClick() {
 		let that = this;
 		/* 评论区内容 */
+		function checkNotTriggerReply(event: Event) {
+			let currentComposed = event.composedPath()[0] as Element;
+			if ((currentComposed as HTMLAnchorElement).localName === "a") {
+				log.info("<a>标签不触发回复功能");
+				return false;
+			}
+			if (
+				currentComposed.localName === "img" &&
+				!(currentComposed as HTMLImageElement).classList.contains("BDE_Smiley")
+			) {
+				log.info("<img>标签不触发回复功能");
+				return false;
+			}
+			return true;
+		}
 		DOMUtils.on(document, "click", ".post-item .content", (event) => {
+			if (!checkNotTriggerReply(event)) {
+				return;
+			}
 			let $clickContent = event.target as HTMLDivElement;
 			that.$data.replyCommentData.value = void 0;
 			that.$data.type.value = void 0;
@@ -384,6 +402,9 @@ export const TiebaReply = {
 					)
 				) {
 					/* 点击的是最顶部的层主 */
+					return;
+				}
+				if (!checkNotTriggerReply(event)) {
 					return;
 				}
 				that.$data.replyLzlCommentData.value = void 0;

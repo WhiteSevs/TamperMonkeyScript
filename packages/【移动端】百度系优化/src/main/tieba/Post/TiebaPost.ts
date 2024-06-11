@@ -29,6 +29,17 @@ const TiebaPost = {
 	},
 	mainPostImgList: <PostImg[]>[],
 	init() {
+		PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
+			log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
+			TiebaPost.repairErrorThread();
+		});
+		PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+			log.success("优化图片预览");
+			TiebaPost.optimizeImagePreview();
+		});
+		PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
+			this.overrideVueRouterMatch();
+		});
 		PopsPanel.execMenu("baidu-tieba-blockCommentInput", () => {
 			CommonUtils.addBlockCSS(".comment-box-wrap");
 		});
@@ -44,17 +55,6 @@ const TiebaPost = {
 					});
 				}
 			}
-		});
-		PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
-			this.overrideVueRouterMatch();
-		});
-		PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
-			log.success("优化图片预览");
-			TiebaPost.optimizeImagePreview();
-		});
-		PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
-			log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
-			TiebaPost.repairErrorThread();
 		});
 
 		TiebaReply.init();
@@ -113,6 +113,7 @@ const TiebaPost = {
 					return;
 				}
 				if (imgSrc?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
+					utils.preventEvent(event);
 					log.info(`点击图片👇`);
 					log.info(clickElement);
 					if (clickParentElement.className === "img-box") {
