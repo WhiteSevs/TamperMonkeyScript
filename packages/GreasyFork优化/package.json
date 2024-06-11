@@ -1,5 +1,6 @@
 {
-	"name": "demo-vite-typescript",
+	"name": "greasyfork-optimization",
+	"description": "自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",

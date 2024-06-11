@@ -99,7 +99,7 @@ export const en_US_language = {
 
 	寻找引用: "Find references",
 	获取脚本id失败: "Failed to obtain script ID",
-	收藏: "collection",
+	收藏: "Collection",
 	请先登录账号: "Please log in to your account first",
 	获取用户id失败: "Failed to obtain user ID",
 	"获取收藏夹中...": "Get in favorites...",
