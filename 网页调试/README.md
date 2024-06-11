@@ -4,18 +4,6 @@
 
 当`开启`菜单功能`允许在iframe内运行`时，会自动将iframe的地址注册到油猴菜单中。
 
-## 设置截图
-
-![图片1](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-46-48.png)
-
-![图片2](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-10.png)
-
-![图片3](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-29.png)
-
-![图片4](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-43.png)
-
-![图片4](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-55.png)
-
 ## erdua
 
 - 最新版本：[![npm version](https://img.shields.io/npm/v/eruda/latest.svg)](https://www.npmjs.com/package/eruda)
@@ -64,3 +52,15 @@
 
 - 项目主页<br>[https://github.com/liriliri/chii/blob/master/README_CN.md](https://github.com/liriliri/chii/blob/master/README_CN.md)
 - 调试示例页面(demo)<br>[https://chii.liriliri.io/](https://chii.liriliri.io/)
+
+## 设置截图
+
+![图片1](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-46-48.png)
+
+![图片2](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-10.png)
+
+![图片3](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-29.png)
+
+![图片4](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-43.png)
+
+![图片4](https://www.z4a.net/images/2024/03/17/PixPin_2024-03-17_13-47-55.png)
