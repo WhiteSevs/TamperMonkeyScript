@@ -1768,6 +1768,13 @@
      */
     repairCodeLineNumber() {
       log.info("修复代码的行号显示不够问题");
+      if (PopsPanel.getValue("beautifyGreasyforkBeautify")) {
+        _GM_addStyle(`
+			.code-container pre code .marker{
+				padding-left: 6px;
+			}	
+			`);
+      }
       utils.waitNode(
         "#script-content div.code-container pre.prettyprint ol"
       ).then(($prettyPrintOL) => {
@@ -1777,10 +1784,9 @@
           );
           _GM_addStyle(`
                     pre.prettyprint{
-                        padding-left: 10px;
-                        font-family: Monaco,Consolas,'Lucida Console','Courier New',serif;
-                        font-size: 12px;
-                    }`);
+                        padding-left: 26px;
+                    }
+					`);
         }
       });
     }
