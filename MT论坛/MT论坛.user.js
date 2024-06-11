@@ -4,8 +4,8 @@
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
-// @description  更新日志: 新增判断为Via时，签到请求使用ajax;
-// @version      2024.6.5.12
+// @description  更新日志: 1. 调整小窗pushState，现在可以打开小窗口后刷新页面不会再跳转到首页了；2. 修复indexDB获取本地存储的数据失败问题；3. 修复在个人中心-帖子页面小窗、显示UID功能不生效问题
+// @version      2024.6.11
 // @author       WhiteSevs
 // @run-at       document-start
 // @match        *://bbs.binmt.cc/*
@@ -2825,11 +2825,11 @@
 			if (
 				!GM_getValue("v45", false) &&
 				(!window.location.href.match(DOM_CONFIG.urlRegexp.forumGuideUrl) ||
-					!window.location.href.match(DOM_CONFIG.urlRegexp.searchUrl))
+					!window.location.href.match(DOM_CONFIG.urlRegexp.searchUrl) ||
+					!window.location.href.match(DOM_CONFIG.urlRegexp.homeUrlBrief))
 			) {
 				return;
 			}
-
 			let small_icon_width = 24;
 			let small_right_btn_width = 115;
 			let small_title_width = `calc(100% - ${
@@ -2931,42 +2931,19 @@
 					DOM_CONFIG.element.comiisMmlist
 				);
 			}
-			let forumlist = null; /* 帖子列表 */
-			let isFind = false; /* 是否找到帖子 */
-			let isFinding = false; /* 是否正在找到帖子 */
-			let smallWindowId = null; /* 小窗对象 */
-			utils.mutationObserver(document.documentElement, {
-				callback: (mutations, observer) => {
-					/* 判断是否已找到 */
-					if (isFind) {
-						initCSS();
-						handleForumPost();
-						/* console.log("成功找到小窗"); */
-						observer.disconnect();
-						return;
-					}
-					/* 正在寻找中 */
-					if (isFinding) {
-						return;
-					}
-					isFinding = true;
-					forumlist = getForumList();
-					isFind = forumlist.length ? true : false;
-					!isFind && (forumlist = null);
 
-					setTimeout(() => {
-						isFinding = false;
-					}, 250);
-				},
-				config: { subtree: true, childList: true },
-			});
-
+			function setUrlHash() {
+				oldUrl = window.location.href;
+				let smallWindowHashUrl = oldUrl + smallWindowHash;
+				window.history.pushState({}, null, smallWindowHashUrl);
+				console.log("设置小窗hash Url：" + smallWindowHashUrl);
+				window.history.forward(1);
+			}
 			/**
 			 * 设置浏览器历史地址
 			 */
-			function popstateFunction() {
-				window.history.pushState("forward", null, "#");
-				window.history.forward(1);
+			function popStateEvent() {
+				setUrlHash();
 				resumeBack();
 			}
 
@@ -2975,11 +2952,10 @@
 			 */
 			function banBack() {
 				if (window.history && window.history.pushState) {
-					$jq(window).on("popstate", popstateFunction);
+					$jq(window).on("popstate", popStateEvent);
 				}
 				/* 在IE中必须得有这两行 */
-				window.history.pushState("forward", null, "#");
-				window.history.forward(1);
+				setUrlHash();
 			}
 
 			/**
@@ -2989,11 +2965,11 @@
 			async function resumeBack() {
 				xtip.close(smallWindowId);
 				smallWindowId = null;
-				$jq(window).off("popstate", popstateFunction);
+				$jq(window).off("popstate", popStateEvent);
 				while (1) {
-					if (window.location.href == "https://bbs.binmt.cc/#") {
+					if (window.location.hash.startsWith(smallWindowHash)) {
 						console.log("back！");
-						await utils.setTimeout("window.history.back();", 100);
+						window.history.back();
 						await utils.sleep(100);
 					} else {
 						return;
@@ -3250,8 +3226,9 @@
 			}
 			/**
 			 * 对帖子进行处理，实现点击某个区域打开小窗
+			 * @param {NodeListOf<HTMLDivElement} forumlist
 			 */
-			async function handleForumPost() {
+			async function handleForumPost(forumlist) {
 				$jq.each(forumlist, function (index, value) {
 					value = $jq(value);
 					if (value.attr("data-injection-small-window")) {
@@ -3291,6 +3268,31 @@
 					});
 				});
 			}
+			let isHandling = false;
+			let smallWindowId = null; /* 小窗对象 */
+			let smallWindowHash = "#/smallWindow";
+			let oldUrl = window.location.href;
+			utils.mutationObserver(document.documentElement, {
+				callback: (mutations, observer) => {
+					/* 正在寻找中 */
+					if (isHandling) {
+						return;
+					}
+					isHandling = true;
+					let forumlist = getForumList();
+					if (forumlist.length) {
+						initCSS();
+						handleForumPost(forumlist);
+						isHandling = false;
+						observer.disconnect();
+						return;
+					}
+					setTimeout(() => {
+						isFinding = false;
+					}, 250);
+				},
+				config: { subtree: true, childList: true },
+			});
 		},
 		/**
 		 * 代码块优化
@@ -8849,6 +8851,10 @@
 						forumId: DOM_CONFIG.getForumId(window.location.href),
 					};
 					db.get("data").then((result) => {
+						if (!result.success) {
+							console.warn(result);
+							return;
+						}
 						let localDataIndex = result.data.findIndex((item) => {
 							return (
 								item.replyUrl === data.replyUrl && item.forumId === data.forumId
@@ -9326,6 +9332,10 @@
 			 */
 			function initLocalReplyData(isUserReply = false, replyUrl = undefined) {
 				db.get("data").then((result) => {
+					if (!result.success) {
+						console.warn(result);
+						return;
+					}
 					let localReplyData = result.data.find((item) => {
 						if (isUserReply) {
 							return (
@@ -9360,6 +9370,10 @@
 			 */
 			function deleteLocalReplyData(isUserReply = false, replyUrl = undefined) {
 				db.get("data").then((result) => {
+					if (!result.success) {
+						console.warn(result);
+						return;
+					}
 					let localDataIndex = result.data.findIndex((item) => {
 						if (isUserReply) {
 							return (
@@ -10285,6 +10299,10 @@
 				let isUserReply = window.location.href.indexOf("&repquote=") !== -1;
 				let replyUrl = window.location.href;
 				db.get("data").then((result) => {
+					if (!result.success) {
+						console.warn(result);
+						return;
+					}
 					let localReplyData = result.data.find((item) => {
 						if (isUserReply) {
 							return (
@@ -10316,6 +10334,10 @@
 				let isUserReply = window.location.href.indexOf("&repquote=") !== -1;
 				let replyUrl = window.location.href;
 				db.get("data").then((result) => {
+					if (!result.success) {
+						console.warn(result);
+						return;
+					}
 					let localDataIndex = result.data.findIndex((item) => {
 						if (isUserReply) {
 							return (
@@ -10357,6 +10379,10 @@
 						forumId: DOM_CONFIG.getForumId(window.location.href),
 					};
 					db.get("data").then((result) => {
+						if (!result.success) {
+							console.warn(result);
+							return;
+						}
 						let localDataIndex = result.data.findIndex((item) => {
 							return (
 								item.replyUrl === data.replyUrl && item.forumId === data.forumId
@@ -16299,6 +16325,10 @@
 				);
 				let db = new utils.indexedDB("mt_reply_record", "input_text");
 				db.get("data").then((result) => {
+					if (!result.success) {
+						console.warn(result);
+						return;
+					}
 					let settingNameDOM = document
 						.querySelector(
 							'.whitesev-mt-setting-checkbox input[data-key="v58"]'
