@@ -1163,7 +1163,17 @@ declare class Utils {
       );
      **/
     mutationObserver(target: HTMLElement | Node | NodeList | Document, observer_config: {
+        /**
+         * observer的配置
+         */
         config?: MutationObserverInit;
+        /**
+         * 是否主动触发一次
+         */
+        immediate?: boolean;
+        /**
+         * 触发的回调函数
+         */
         callback: MutationCallback;
     }): MutationObserver;
     /**

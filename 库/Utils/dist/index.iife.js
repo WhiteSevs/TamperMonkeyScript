@@ -3060,7 +3060,7 @@ var Utils = (function () {
             UtilsCore.init(option);
         }
         /** 版本号 */
-        version = "2024.6.10";
+        version = "2024.6.11";
         addStyle(cssText) {
             if (typeof cssText !== "string") {
                 throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -4659,6 +4659,7 @@ var Utils = (function () {
                      */
                     characterDataOldValue: void 0,
                 },
+                immediate: false,
             };
             observer_config = UtilsContext.assign(default_obverser_config, observer_config);
             let windowMutationObserver = window.MutationObserver ||
@@ -4686,6 +4687,10 @@ var Utils = (function () {
             else {
                 /* 未知 */
                 console.error("Utils.mutationObserver 未知参数", arguments);
+            }
+            if (observer_config.immediate) {
+                /* 主动触发一次 */
+                observer_config.callback([], mutationObserver);
             }
             return mutationObserver;
         }

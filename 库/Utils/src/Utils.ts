@@ -147,7 +147,7 @@ class Utils {
 		UtilsCore.init(option);
 	}
 	/** 版本号 */
-	version = "2024.6.10";
+	version = "2024.6.11";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -2579,14 +2579,34 @@ class Utils {
 	mutationObserver(
 		target: HTMLElement | Node | NodeList | Document,
 		observer_config: {
+			/**
+			 * observer的配置
+			 */
 			config?: MutationObserverInit;
+			/**
+			 * 是否主动触发一次
+			 */
+			immediate?: boolean;
+			/**
+			 * 触发的回调函数
+			 */
 			callback: MutationCallback;
 		}
 	): MutationObserver;
 	mutationObserver(
 		target: HTMLElement | Node | NodeList | Document,
 		observer_config: {
+			/**
+			 * observer的配置
+			 */
 			config?: MutationObserverInit;
+			/**
+			 * 是否主动触发一次
+			 */
+			immediate?: boolean;
+			/**
+			 * 触发的回调函数
+			 */
 			callback: MutationCallback;
 		}
 	): MutationObserver {
@@ -2640,6 +2660,7 @@ class Utils {
 				 */
 				characterDataOldValue: void 0 as any as boolean,
 			},
+			immediate: false,
 		};
 		observer_config = UtilsContext.assign(
 			default_obverser_config,
@@ -2671,6 +2692,10 @@ class Utils {
 		} else {
 			/* 未知 */
 			console.error("Utils.mutationObserver 未知参数", arguments);
+		}
+		if (observer_config.immediate) {
+			/* 主动触发一次 */
+			observer_config.callback([], mutationObserver);
 		}
 		return mutationObserver;
 	}
