@@ -10,8 +10,8 @@
 		"build:all": "vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir",
 		"build:watch": "vue-tsc --noEmit && vite build --watch",
 		"build:no-cache": "pnpm store prune && vue-tsc --noEmit && vite build",
-		"clear": "pnpm store prune && del SCRIPT_version.json",
-		"preview": "vue-tsc --noEmit && vite preview"
+		"preview": "vue-tsc --noEmit && vite preview",
+		"clear": "del .\\SCRIPT_VERSION.json && pnpm store prune"
 	},
 	"dependencies": {
 		"@whitesev/domutils": "^1.1.1",
