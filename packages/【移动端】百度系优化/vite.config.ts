@@ -96,9 +96,9 @@ export default defineConfig({
 				require: await GetLib(["CoverUMD", "pops", "showdown"]),
 				resource: {
 					ElementPlusResourceCSS:
-						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+						"https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 					ViewerCSS:
-						"https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
+						"https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
 				},
 			},
 			clientAlias: "ViteGM",
@@ -109,37 +109,43 @@ export default defineConfig({
 			build: {
 				autoGrant: true,
 				externalResource: {
-					"element-plus/dist/index.css": cdn.jsdelivr(),
-					"viewerjs/dist/viewer.css": cdn.jsdelivr(
+					"element-plus/dist/index.css": cdn.jsdelivrFastly(),
+					"viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
 						"Viewer",
 						"dist/viewer.min.css"
 					),
 				},
 				fileName: FILE_NAME,
 				externalGlobals: {
-					vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
-					"vue-demi": cdn.jsdelivr("VueDemi", "lib/index.iife.min.js"),
-					pinia: cdn.jsdelivr("Pinia", "dist/pinia.iife.prod.js"),
-					"vue-router": cdn.jsdelivr("VueRouter", "dist/vue-router.global.js"),
+					vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
+					"vue-demi": cdn.jsdelivrFastly("VueDemi", "lib/index.iife.min.js"),
+					pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
+					"vue-router": cdn.jsdelivrFastly(
+						"VueRouter",
+						"dist/vue-router.global.js"
+					),
 					"element-plus": [
 						"ElementPlus",
 						() => {
 							return ElementPlusUrl;
 						},
 					],
-					"@element-plus/icons-vue": cdn.jsdelivr(
+					"@element-plus/icons-vue": cdn.jsdelivrFastly(
 						"ElementPlusIconsVue",
 						"dist/index.iife.min.js"
 					),
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
-					viewerjs: cdn.jsdelivr("Viewer", "dist/viewer.min.js"),
-					// "@tiptap/vue-3": cdn.jsdelivr(""),
-					// "@tiptap/starter-kit": cdn.jsdelivr(""),
-					// "@tiptap/pm": cdn.jsdelivr(""),
-					// "@tiptap/extension-placeholder": cdn.jsdelivr(""),
-					// "@tiptap/extension-image": cdn.jsdelivr(""),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
+					viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+					// "@tiptap/vue-3": cdn.jsdelivrFastly(""),
+					// "@tiptap/starter-kit": cdn.jsdelivrFastly(""),
+					// "@tiptap/pm": cdn.jsdelivrFastly(""),
+					// "@tiptap/extension-placeholder": cdn.jsdelivrFastly(""),
+					// "@tiptap/extension-image": cdn.jsdelivrFastly(""),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

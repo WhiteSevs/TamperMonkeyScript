@@ -1519,17 +1519,17 @@ const TiebaComment = {
           }
         }); */
 		/* 评论的回复的回复，点击头像跳转到这个人的空间 */
-		/* newCommentDOM.querySelectorAll("a.at").forEach((item) => {
-          item.removeAttribute("onclick");
-          item.removeAttribute("onmouseover");
-          item.removeAttribute("onmouseout");
-          if (item.hasAttribute("portrait")) {
-            item.setAttribute(
-              "href",
-              "/home/main?id=" + item.getAttribute("portrait")
-            );
-          }
-        }); */
+		newCommentDOM.querySelectorAll("a.at").forEach((item) => {
+			item.removeAttribute("onclick");
+			item.removeAttribute("onmouseover");
+			item.removeAttribute("onmouseout");
+			if (item.hasAttribute("portrait")) {
+				item.setAttribute(
+					"href",
+					"/home/main?id=" + item.getAttribute("portrait")
+				);
+			}
+		});
 
 		if (document.querySelector(".post-cut-guide")) {
 			DOMUtils.before(
