@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.6.12
+// @version            2024.6.12.11
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -194,7 +194,8 @@
     最多显示的数量: "最多显示的数量",
     限制Toast显示的数量: "限制Toast显示的数量",
     逆序弹出: "逆序弹出",
-    修改Toast弹出的顺序: "修改Toast弹出的顺序"
+    修改Toast弹出的顺序: "修改Toast弹出的顺序",
+    该脚本已经在该收藏集中: "该脚本已经在该收藏集中"
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -342,7 +343,8 @@
     最多显示的数量: "Maximum number of displays",
     限制Toast显示的数量: "Limit the number of Toast displays",
     逆序弹出: "Reverse pop-up",
-    修改Toast弹出的顺序: "Modify the order in which Toast pops up"
+    修改Toast弹出的顺序: "Modify the order in which Toast pops up",
+    该脚本已经在该收藏集中: "The script is already in this collection"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
@@ -2313,6 +2315,21 @@
           }
           let editForm = utils.cloneFormData(formData);
           let saveEditForm = utils.cloneFormData(formData);
+          let isCollect = false;
+          for (const [key, value] of formData.entries()) {
+            if (key === "scripts-included[]" && JSON.stringify(value) == JSON.stringify(scriptId)) {
+              isCollect = true;
+              break;
+            } else {
+              saveEditForm.append(key, value);
+              editForm.append(key, value);
+            }
+          }
+          if (isCollect) {
+            Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
+            loading2.close();
+            return;
+          }
           editForm.set("add-script", scriptId);
           editForm.set("script-action", "i");
           saveEditForm.append("scripts-included[]", scriptId);

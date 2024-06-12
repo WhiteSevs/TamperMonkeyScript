@@ -150,6 +150,25 @@ export const GreasyforkCollection = {
 				}
 				let editForm = utils.cloneFormData(formData);
 				let saveEditForm = utils.cloneFormData(formData);
+
+				let isCollect = false;
+				for (const [key, value] of (formData as any).entries()) {
+					if (
+						key === "scripts-included[]" &&
+						JSON.stringify(value) == JSON.stringify(scriptId)
+					) {
+						isCollect = true;
+						break;
+					} else {
+						saveEditForm.append(key, value);
+						editForm.append(key, value);
+					}
+				}
+				if (isCollect) {
+					Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
+					loading.close();
+					return;
+				}
 				editForm.set("add-script", scriptId);
 				editForm.set("script-action", "i");
 				saveEditForm.append("scripts-included[]", scriptId);
@@ -183,7 +202,7 @@ export const GreasyforkCollection = {
 				}
 				let changeScriptSet =
 					addResult.querySelector<HTMLElement>(".change-script-set");
-				if (!changeScriptSet) { 
+				if (!changeScriptSet) {
 					Qmsg.error(
 						i18next.t("添加失败，{{selector}}元素不存在", {
 							selector: ".change-script-set",

@@ -176,4 +176,6 @@ export const en_US_language = {
 	限制Toast显示的数量:"Limit the number of Toast displays",
 	逆序弹出:"Reverse pop-up",
 	修改Toast弹出的顺序:"Modify the order in which Toast pops up",
+	
+	该脚本已经在该收藏集中:"The script is already in this collection",
 };

@@ -166,4 +166,6 @@ export const zh_CN_language = {
 	限制Toast显示的数量:"限制Toast显示的数量",
 	逆序弹出:"逆序弹出",
 	修改Toast弹出的顺序:"修改Toast弹出的顺序",
+
+	该脚本已经在该收藏集中:"该脚本已经在该收藏集中",
 };
