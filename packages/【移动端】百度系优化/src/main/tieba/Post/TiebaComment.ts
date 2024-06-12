@@ -21,6 +21,7 @@ import { CommonUtils } from "@/utils/CommonUtils";
 import { TiebaPostApi } from "../api/TiebaPostApi";
 import { TiebaPost } from "./TiebaPost";
 import { VueUtils } from "@/utils/VueUtils";
+import { TiebaReply } from "./TiebaReply";
 
 interface PageComment {
 	commentList: {
@@ -734,9 +735,15 @@ const TiebaComment = {
 
 			let $deleteBtn = $drawer.$shadowRoot.querySelector(".reply-tool-delete");
 			if (
-				TiebaComment.userInfo.value.id != null &&
-				TiebaComment.userInfo.value.id === data.userId
+				(TiebaComment.userInfo.value.id != null &&
+					TiebaComment.userInfo.value.id.toString() ===
+						data.userId.toString()) ||
+				(TiebaComment.userInfo.value.id != null &&
+					TiebaComment.userInfo.value.id.toString() ===
+						TiebaComment.postAuthorId.toString())
 			) {
+				/* 要求 该回复用户id和已登录用户id一致 */
+				/* 或者 本帖楼主id和已登录用户id一致 */
 				DOMUtils.on($deleteBtn, "click", function () {
 					$drawer.close();
 					pops.confirm({
