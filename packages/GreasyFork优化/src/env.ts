@@ -15,8 +15,10 @@ import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import { LanguageInit } from "./language/language";
 import i18next from "i18next";
+import { KEY } from "./setting/config";
 
 LanguageInit();
+const PanelData = GM_getValue(KEY, {}) as any;
 /* 脚本名 */
 const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
 const utils = Utils.noConflict();
@@ -45,22 +47,25 @@ log.config({
 	autoClearConsole: true,
 	tag: true,
 });
+
 /* 配置吐司Qmsg */
 Qmsg.config(
 	Object.defineProperty(
 		{
-			position: "bottom",
+			position: PanelData["qmsg-config-position"] || "bottom",
 			html: true,
-			maxNums: 5,
+			maxNums: PanelData["qmsg-config-maxnums"] || 5,
 			autoClose: true,
 			showClose: false,
-			showReverse: true,
+			showReverse: PanelData["qmsg-config-showreverse"] ?? true,
 			zIndex: utils.getMaxZIndex(10),
 		},
 		"zIndex",
 		{
 			get() {
-				return utils.getMaxZIndex(10);
+				let maxZIndex = utils.getMaxZIndex(10);
+				let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+				return utils.getMaxValue(maxZIndex, popsMaxZIndex);
 			},
 		}
 	)

@@ -345,7 +345,8 @@ const GreasyforkApi = {
 			'meta[name="csrf-token"]'
 		);
 		if (!csrfToken) {
-			throw new Error("获取表单csrfToken失败");
+			Qmsg.error(i18next.t("获取表单csrfToken失败"));
+			return;
 		}
 		if (csrfToken.hasAttribute("content")) {
 			let authenticity_token = csrfToken.getAttribute("content");

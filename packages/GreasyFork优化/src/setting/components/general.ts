@@ -39,7 +39,97 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 			],
 		},
 		{
-			text: i18next.t("功能"),
+			text: i18next.t("Toast配置"),
+			type: "forms",
+			forms: [
+				UISelect(
+					i18next.t("Toast位置"),
+					"qmsg-config-position",
+					"bottom",
+					[
+						{
+							value: "topleft",
+							text: i18next.t("左上角"),
+						},
+						{
+							value: "top",
+							text: i18next.t("顶部"),
+						},
+						{
+							value: "topright",
+							text: i18next.t("右上角"),
+						},
+						{
+							value: "left",
+							text: i18next.t("左边"),
+						},
+						{
+							value: "center",
+							text: i18next.t("中间"),
+						},
+						{
+							value: "right",
+							text: i18next.t("右边"),
+						},
+						{
+							value: "bottomleft",
+							text: i18next.t("左下角"),
+						},
+						{
+							value: "bottom",
+							text: i18next.t("底部"),
+						},
+						{
+							value: "bottomright",
+							text: i18next.t("右下角"),
+						},
+					],
+					(event, isSelectValue, isSelectText) => {
+						log.info("设置当前Qmsg弹出位置" + isSelectText);
+						i18next.changeLanguage(isSelectValue);
+					},
+					i18next.t("Toast显示在页面九宫格的位置")
+				),
+				UISelect(
+					i18next.t("最多显示的数量"),
+					"qmsg-config-maxnums",
+					3,
+					[
+						{
+							value: 1,
+							text: "1",
+						},
+						{
+							value: 2,
+							text: "2",
+						},
+						{
+							value: 3,
+							text: "3",
+						},
+						{
+							value: 4,
+							text: "4",
+						},
+						{
+							value: 5,
+							text: "5",
+						},
+					],
+					void 0,
+					i18next.t("限制Toast显示的数量")
+				),
+				UISwitch(
+					i18next.t("逆序弹出"),
+					"qmsg-config-showreverse",
+					false,
+					void 0,
+					i18next.t("修改Toast弹出的顺序")
+				),
+			],
+		},
+		{
+			text: i18next.t("脚本配置"),
 			type: "forms",
 			forms: [
 				UISelect(
@@ -61,6 +151,12 @@ const SettingUIGeneral: PopsPanelContentConfig = {
 						i18next.changeLanguage(isSelectValue);
 					}
 				),
+			],
+		},
+		{
+			text: i18next.t("功能"),
+			type: "forms",
+			forms: [
 				UISwitch(
 					i18next.t("自动登录"),
 					"autoLogin",

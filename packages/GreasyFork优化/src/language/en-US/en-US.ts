@@ -27,6 +27,7 @@ export const en_US_language = {
 
 	论坛: "Forum",
 	功能: "Function",
+	脚本配置:"Script Configuration",
 	过滤重复的评论: "Filter duplicate comments",
 	"过滤掉重复的评论数量(≥2)": "Filter out duplicate comments (≥ 2)",
 	"过滤脚本(id)": "Filter script (id)",
@@ -156,4 +157,23 @@ export const en_US_language = {
 	美化页面元素: "Beautify page elements",
 	美化历史版本页面: "Beautify the historical version page",
 	"美化Greasyfork Beautify脚本": "Beautify Greasyfork Beauty Script",
+
+	"获取表单csrfToken失败":"Failed to obtain form csrfToken",
+
+	Toast配置: "Toast Config",
+	Toast位置: "Toast position",
+	左上角:"Top left",
+	顶部:"Top",
+	右上角:"Top right",
+	左边:"Left",
+	中间:"Center",
+	右边:"Right",
+	左下角:"Bottom left",
+	底部:"Bottom",
+	右下角:"Bottom right",
+	"Toast显示在页面九宫格的位置":"Toast is displayed in the nine grid position on the page",
+	最多显示的数量:"Maximum number of displays",
+	限制Toast显示的数量:"Limit the number of Toast displays",
+	逆序弹出:"Reverse pop-up",
+	修改Toast弹出的顺序:"Modify the order in which Toast pops up",
 };
