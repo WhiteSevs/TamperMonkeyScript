@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.6.12.11
+// @version            2024.6.12.16
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -1838,22 +1838,23 @@
      * 美化上传图片
      */
     beautifyUploadImage() {
+      log.info("美化上传图片");
       _GM_addStyle(beautifyUploadImageCSS);
-      domUtils.ready(function() {
+      domUtils.ready(() => {
         function clearErrorTip(element) {
           while (element.nextElementSibling) {
             element.parentElement.removeChild(element.nextElementSibling);
           }
         }
-        let fileElementList = document.querySelectorAll('input[type="file"]');
-        fileElementList.forEach((fileElement) => {
-          if (fileElement.getAttribute("name") === "code_upload") {
+        let $fileInputList = document.querySelectorAll('input[type="file"]');
+        $fileInputList.forEach(($input) => {
+          if ($input.getAttribute("name") === "code_upload") {
             return;
           }
-          if (fileElement.hasAttribute("accept") && fileElement.getAttribute("accept").includes("javascript")) {
+          if ($input.hasAttribute("accept") && $input.getAttribute("accept").includes("javascript")) {
             return;
           }
-          domUtils.on(fileElement, "change", function(event) {
+          domUtils.on($input, ["propertychange", "input"], function(event) {
             clearErrorTip(event.target);
             let chooseImageFiles = event.currentTarget.files;
             if (!chooseImageFiles) {
@@ -1865,7 +1866,7 @@
             log.info(["选择的图片", chooseImageFiles]);
             if (chooseImageFiles.length > 5) {
               domUtils.after(
-                fileElement,
+                $input,
                 domUtils.createElement("p", {
                   textContent: i18next.t(`❌ 最多同时长传5张图片`)
                 })
@@ -1873,7 +1874,7 @@
             }
             let notAllowImage = [];
             Array.from(chooseImageFiles).forEach((imageFile) => {
-              if (imageFile.size > 204800 || !imageFile.type.match(/png|gif|jpeg|webp/i)) {
+              if (imageFile.size > 204800 || !imageFile.type.match(/png|jpg|jpeg|gif|apng|webp/i)) {
                 notAllowImage.push(imageFile);
               }
             });
@@ -1882,7 +1883,7 @@
             }
             notAllowImage.forEach((imageFile) => {
               domUtils.after(
-                fileElement,
+                $input,
                 domUtils.createElement("p", {
                   textContent: i18next.t("❌ 图片：{{name}} 大小：{{size}}", {
                     name: imageFile.name,
@@ -1891,6 +1892,20 @@
                 })
               );
             });
+          });
+        });
+        let $textAreaSelectorString = [
+          /* 某条反馈内的回复框 */
+          "textarea#comment_text",
+          /* 反馈页面的回复框 */
+          "textarea.comment-entry"
+        ];
+        $textAreaSelectorString.forEach((selector) => {
+          domUtils.on(selector, "paste", (event) => {
+            log.info(["触发粘贴事件", event]);
+            setTimeout(() => {
+              domUtils.trigger($fileInputList, "input");
+            }, 100);
           });
         });
       });

@@ -173,8 +173,9 @@ const GreasyforkBeautify = {
 	 * 美化上传图片
 	 */
 	beautifyUploadImage() {
+		log.info("美化上传图片");
 		GM_addStyle(beautifyUploadImageCSS);
-		DOMUtils.ready(function () {
+		DOMUtils.ready(() => {
 			/**
 			 * 清空错误的提示
 			 * @param element
@@ -184,19 +185,20 @@ const GreasyforkBeautify = {
 					element.parentElement!.removeChild(element.nextElementSibling);
 				}
 			}
-			let fileElementList =
+			let $fileInputList =
 				document.querySelectorAll<HTMLInputElement>('input[type="file"]');
-			fileElementList.forEach((fileElement) => {
-				if (fileElement.getAttribute("name") === "code_upload") {
+
+			$fileInputList.forEach(($input) => {
+				if ($input.getAttribute("name") === "code_upload") {
 					return;
 				}
 				if (
-					fileElement.hasAttribute("accept") &&
-					fileElement.getAttribute("accept")!.includes("javascript")
+					$input.hasAttribute("accept") &&
+					$input.getAttribute("accept")!.includes("javascript")
 				) {
 					return;
 				}
-				DOMUtils.on<InputEvent>(fileElement, "change", function (event) {
+				DOMUtils.on($input, ["propertychange", "input"], function (event) {
 					clearErrorTip(event.target as HTMLInputElement);
 					let chooseImageFiles = (event.currentTarget as HTMLInputElement)
 						.files;
@@ -209,7 +211,7 @@ const GreasyforkBeautify = {
 					log.info(["选择的图片", chooseImageFiles]);
 					if (chooseImageFiles.length > 5) {
 						DOMUtils.after(
-							fileElement,
+							$input,
 							DOMUtils.createElement("p", {
 								textContent: i18next.t(`❌ 最多同时长传5张图片`),
 							})
@@ -219,7 +221,7 @@ const GreasyforkBeautify = {
 					Array.from(chooseImageFiles).forEach((imageFile) => {
 						if (
 							imageFile.size > 204800 ||
-							!imageFile.type.match(/png|gif|jpeg|webp/i)
+							!imageFile.type.match(/png|jpg|jpeg|gif|apng|webp/i)
 						) {
 							notAllowImage.push(imageFile);
 						}
@@ -229,7 +231,7 @@ const GreasyforkBeautify = {
 					}
 					notAllowImage.forEach((imageFile) => {
 						DOMUtils.after(
-							fileElement,
+							$input,
 							DOMUtils.createElement("p", {
 								textContent: i18next.t("❌ 图片：{{name}} 大小：{{size}}", {
 									name: imageFile.name,
@@ -238,6 +240,21 @@ const GreasyforkBeautify = {
 							})
 						);
 					});
+				});
+			});
+			let $textAreaSelectorString = [
+				/* 某条反馈内的回复框 */
+				"textarea#comment_text",
+				/* 反馈页面的回复框 */
+				"textarea.comment-entry",
+			];
+			$textAreaSelectorString.forEach((selector) => {
+				DOMUtils.on(selector, "paste", (event) => {
+					log.info(["触发粘贴事件", event]);
+					setTimeout(() => {
+						/* 主动触发input */
+						DOMUtils.trigger($fileInputList, "input");
+					}, 100);
 				});
 			});
 		});
