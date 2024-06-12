@@ -13,3 +13,4 @@ node_modules
 pnpm-lock.yaml
 packages/test-hook-network/*
 packages/test-hook-baidu/*
+分支同步.bat
