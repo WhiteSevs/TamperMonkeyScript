@@ -12,11 +12,11 @@
 // @match              *://greasyfork.org/*
 // @require            https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require            https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require            https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require            https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
-// @require            https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
-// @require            https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
-// @require            https://cdn.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js
 // @resource           ViewerCSS  https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css
 // @connect            greasyfork.org
 // @grant              GM_addStyle

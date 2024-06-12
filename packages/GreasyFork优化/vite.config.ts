@@ -9,8 +9,7 @@ const localizedConfig = {
 		"en-US": "GreasyFork Optimization",
 	},
 	description: {
-		"":
-			"自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
+		"": "自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
 		"en-US":
 			"Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button",
 	},
@@ -79,11 +78,14 @@ export default defineConfig({
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalGlobals: {
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
-					viewerjs: cdn.jsdelivr("Viewer", "dist/viewer.min.js"),
-					i18next: cdn.jsdelivr("i18next", "i18next.min.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
+					viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+					i18next: cdn.jsdelivrFastly("i18next", "i18next.min.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {
