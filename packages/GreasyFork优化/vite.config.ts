@@ -54,7 +54,7 @@ export default defineConfig({
 				connect: ["greasyfork.org"],
 				resource: {
 					ViewerCSS:
-						"https://cdn.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
+						"https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.css",
 				},
 				grant: [
 					"GM_addStyle",
