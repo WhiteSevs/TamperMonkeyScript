@@ -98,7 +98,9 @@ const DouYinLive = {
 	shieldGiftEffects() {
 		log.info("【屏蔽】礼物特效");
 		DouYinUtils.addBlockCSS(
-			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+			// ↓该屏蔽会把连麦的用户也屏蔽了
+			// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+			'.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
 		);
 	},
 	/**
@@ -151,18 +153,24 @@ const DouYinLive = {
 					childList: true,
 				},
 				callback() {
-					let $elementTiming = document.querySelector<HTMLDivElement>(
-						"body > div[elementtiming='element-timing']"
-					);
-					if ($elementTiming) {
-						log.success(
-							"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-						);
-						Qmsg.success(
-							"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-						);
-						$elementTiming.remove();
-					}
+					document
+						.querySelectorAll<HTMLDivElement>(
+							"body > div[elementtiming='element-timing']"
+						)
+						.forEach(($elementTiming) => {
+							if (
+								$elementTiming.innerText.includes("长时间无操作") &&
+								$elementTiming.innerText.includes("暂停播放")
+							) {
+								log.success(
+									"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+								);
+								Qmsg.success(
+									"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+								);
+								$elementTiming.remove();
+							}
+						});
 					document
 						.querySelectorAll<HTMLDivElement>('body > div:not([id="root"])')
 						.forEach(($ele) => {

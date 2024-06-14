@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.10
+// @version      2024.6.14
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.2/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -28,24 +28,13 @@
 (function (Qmsg, Utils, DOMUtils) {
   'use strict';
 
-  var __accessCheck = (obj, member, msg) => {
-    if (!member.has(obj))
-      throw TypeError("Cannot " + msg);
+  var __typeError = (msg) => {
+    throw TypeError(msg);
   };
-  var __privateGet = (obj, member, getter) => {
-    __accessCheck(obj, member, "read from private field");
-    return getter ? getter.call(obj) : member.get(obj);
-  };
-  var __privateAdd = (obj, member, value) => {
-    if (member.has(obj))
-      throw TypeError("Cannot add the same private member more than once");
-    member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-  };
-  var __privateSet = (obj, member, value, setter) => {
-    __accessCheck(obj, member, "write to private field");
-    member.set(obj, value);
-    return value;
-  };
+  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+  var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+  var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+  var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value), value);
   var _a, _key, _isWaitPress;
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -318,8 +307,7 @@
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
       localRuleSplit.forEach((item) => {
-        if (item.trim() == "")
-          return;
+        if (item.trim() == "") return;
         item = item.trim();
         let itemRegExp = new RegExp(item.trim());
         this.$data.rule.push(itemRegExp);
@@ -2784,7 +2772,9 @@
     shieldGiftEffects() {
       log.info("【屏蔽】礼物特效");
       DouYinUtils.addBlockCSS(
-        '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+        // ↓该屏蔽会把连麦的用户也屏蔽了
+        // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+        '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div:not([class*="video_layout_container"])>div)'
       );
     },
     /**
@@ -2834,18 +2824,19 @@
             childList: true
           },
           callback() {
-            let $elementTiming = document.querySelector(
+            document.querySelectorAll(
               "body > div[elementtiming='element-timing']"
-            );
-            if ($elementTiming) {
-              log.success(
-                "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-              );
-              Qmsg.success(
-                "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-              );
-              $elementTiming.remove();
-            }
+            ).forEach(($elementTiming) => {
+              if ($elementTiming.innerText.includes("长时间无操作") && $elementTiming.innerText.includes("暂停播放")) {
+                log.success(
+                  "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+                );
+                Qmsg.success(
+                  "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
+                );
+                $elementTiming.remove();
+              }
+            });
             document.querySelectorAll('body > div:not([id="root"])').forEach(($ele) => {
               if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
                 log.success(
