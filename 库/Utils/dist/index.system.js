@@ -463,13 +463,14 @@ System.register('Utils', [], (function (exports) {
             /// <reference path="./index.d.ts" />
             // @name         ajaxHooker
             // @author       cxxjackie
-            // @version      1.4.2
-            // @updateLog    修复了fetch请求的参数为Request类型时body类型不正确的bug。
+            // @version      1.4.3
+            // @updateLog    修复特殊情况下有部分请求头丢失的问题。
+            // @updateLog    xhr事件增加currentTarget劫持。
             // @supportURL   https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
 
             const AjaxHooker = function () {
             	return function() {
-            		const version = '1.4.2';
+            		const version = '1.4.3';
             		const hookInst = {
             			hookFns: [],
             			filters: []
@@ -724,6 +725,7 @@ System.register('Utils', [], (function (exports) {
             			dispatchEvent(e) {
             				e.stopImmediatePropagation = stopImmediatePropagation;
             				defineProp(e, 'target', () => this.proxyXhr);
+            				defineProp(e, 'currentTarget', () => this.proxyXhr);
             				this.proxyEvents[e.type] && this.proxyEvents[e.type].forEach(fn => {
             					this.resThenable.then(() => !e.ajaxHooker_isStopped && fn.call(this.proxyXhr, e));
             				});
@@ -733,7 +735,7 @@ System.register('Utils', [], (function (exports) {
             			}
             			setRequestHeader(header, value) {
             				this.originalXhr.setRequestHeader(header, value);
-            				if (this.originalXhr.readyState !== 1) return;
+            				if (!this.request) return;
             				const headers = this.request.headers;
             				headers[header] = header in headers ? `${headers[header]}, ${value}` : value;
             			}
@@ -3062,7 +3064,7 @@ System.register('Utils', [], (function (exports) {
                     UtilsCore.init(option);
                 }
                 /** 版本号 */
-                version = "2024.6.11";
+                version = "2024.6.14";
                 addStyle(cssText) {
                     if (typeof cssText !== "string") {
                         throw new Error("Utils.addStyle 参数cssText 必须为String类型");

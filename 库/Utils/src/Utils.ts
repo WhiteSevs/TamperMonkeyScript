@@ -147,7 +147,7 @@ class Utils {
 		UtilsCore.init(option);
 	}
 	/** 版本号 */
-	version = "2024.6.11";
+	version = "2024.6.14";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
