@@ -1,10 +1,13 @@
+import { WeiBoApi } from "@/api/WeiBoApi";
 import { log } from "@/env";
 import { WeiBoHook } from "@/hook/WeiBoHook";
 import { PopsPanel } from "@/setting/setting";
+import { VueUtils } from "@/utils/VueUtils";
 import { GM_addStyle } from "ViteGM";
 
 const WeiBoVideo = {
 	init() {
+		WeiBoVideo.hookWebpack();
 		PopsPanel.execMenu("weibo_video_shield_bottom_toolbar", () => {
 			this.shieldBottomToolBar();
 		});
@@ -14,7 +17,6 @@ const WeiBoVideo = {
 		PopsPanel.execMenu("weibo_video_shield_recommend", () => {
 			this.shieldRecommend();
 		});
-		WeiBoVideo.hookWebpack();
 	},
 	/**
 	 * 劫持webpack

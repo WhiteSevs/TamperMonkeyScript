@@ -39,18 +39,18 @@ export default defineConfig({
 				require: await GetLib(["CoverUMD", "pops"]),
 				resource: {
 					ElementPlusResourceCSS:
-						"https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
+						"https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 				},
 
 				icon: "https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32",
 				description:
-					"劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表",
+					"劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p)",
 				match: [
 					"http*://m.weibo.cn/*",
 					"http*://huati.weibo.cn/*",
 					"http*://h5.video.weibo.com/*",
 				],
-				connect: ["m.weibo.cn"],
+				connect: ["m.weibo.cn", "weibo.com"],
 				grant: [
 					"GM_addStyle",
 					"GM_registerMenuCommand",
@@ -72,9 +72,12 @@ export default defineConfig({
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalGlobals: {
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

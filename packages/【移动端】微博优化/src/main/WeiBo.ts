@@ -6,6 +6,7 @@ import { WeiBoRouter } from "@/router/WeiBoRouter";
 import { WeiBoHuaTi } from "./huati/WeiBoHuaTi";
 import { log } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
+import { WeiBoDetail } from "./WeiBoDetail";
 
 const WeiBo = {
 	init() {
@@ -17,9 +18,11 @@ const WeiBo = {
 		);
 
 		if (WeiBoRouter.isHuaTi()) {
+			log.info("Router: 话题");
 			WeiBoHuaTi.init();
 		} else if (WeiBoRouter.isMWeiBo()) {
 			// 移动端微博
+			log.info("Router: 移动端微博");
 			WeiBoHook.hookNetWork();
 			WeiBoHook.hookApply();
 			WeiBoHook.hookVueRouter();
@@ -30,12 +33,17 @@ const WeiBo = {
 			PopsPanel.execMenu("weibo_shield_bottom_bar", () => {
 				this.shieldBottomBar();
 			});
+			if (WeiBoRouter.isMWeiBoDetail()) {
+				log.info("Router: 移动端微博帖子");
+				WeiBoDetail.init();
+			}
 		} else if (WeiBoRouter.isVideo()) {
 			// 视频页
+			log.info("Router: 视频页");
 			WeiBoVideo.init();
 		} else {
 			// 未适配Router
-			log.warn("未适配Router: " + window.location.href);
+			log.error("Router: 未适配 => " + window.location.href);
 		}
 	},
 	/**

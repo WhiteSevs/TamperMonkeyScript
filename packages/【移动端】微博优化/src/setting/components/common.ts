@@ -5,7 +5,7 @@ const SettingUICommon: PopsPanelContentConfig = {
 	title: "通用",
 	forms: [
 		{
-			text: "功能",
+			text: "屏蔽",
 			type: "forms",
 			forms: [
 				UISwitch(

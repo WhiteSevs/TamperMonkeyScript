@@ -1,4 +1,6 @@
+import { UISelect } from "../common-components/ui-select";
 import { UISwitch } from "../common-components/ui-switch";
+import { PopsPanel } from "../setting";
 
 const SettingUIVideo: PopsPanelContentConfig = {
 	id: "weibo-panel-config-video",
@@ -6,6 +8,48 @@ const SettingUIVideo: PopsPanelContentConfig = {
 	forms: [
 		{
 			text: "功能",
+			type: "forms",
+			forms: [
+				UISelect(
+					"视频清晰度",
+					"weibo-video-quality",
+					"",
+					[
+						{
+							value: "",
+							text: "自动",
+						},
+						{
+							value: "mp4_ld_mp4",
+							text: "流畅360p",
+						},
+						{
+							value: "mp4_hd_mp4",
+							text: "标清480p",
+						},
+						{
+							value: "mp4_720p_mp4",
+							text: "高清720p",
+						},
+						{
+							value: "mp4_1080p_mp4",
+							text: "超清1080p",
+						},
+					],
+					void 0,
+					"设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
+				),
+				UISwitch(
+					"解锁1080p",
+					"weibo-video-unlockVideo1080p",
+					true,
+					void 0,
+					"请求PC端的视频1080p链接，开启该功能↑选择的1080p才会生效"
+				),
+			],
+		},
+		{
+			text: "屏蔽",
 			type: "forms",
 			forms: [
 				UISwitch(
