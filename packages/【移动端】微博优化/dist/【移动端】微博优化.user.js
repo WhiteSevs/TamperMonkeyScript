@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.30
+// @version      2024.6.14
 // @author       WhiteSevs
-// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表
+// @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，自定义视频清晰度(可1080p)
 // @license      GPL-3.0-only
 // @icon         https://favicon.yandex.net/favicon/v2/https://m.weibo.cn/?size=32
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
@@ -12,11 +12,12 @@
 // @match        http*://h5.video.weibo.com/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
-// @resource     ElementPlusResourceCSS  https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css
 // @connect      m.weibo.cn
+// @connect      weibo.com
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -99,6 +100,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
+  utils.addStyle;
   const KEY = "GM_Panel";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
@@ -128,7 +130,7 @@
     title: "通用",
     forms: [
       {
-        text: "功能",
+        text: "屏蔽",
         type: "forms",
         forms: [
           UISwitch(
@@ -297,12 +299,80 @@
       }
     ]
   };
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      getValue() {
+        return PopsPanel.getValue(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        PopsPanel.setValue(key, isSelectedValue);
+      },
+      data: selectData
+    };
+    if (result.attributes) {
+      result.attributes[ATTRIBUTE_KEY] = key;
+      result.attributes[ATTRIBUTE_DEFAULT_VALUE] = defaultValue;
+    }
+    return result;
+  };
   const SettingUIVideo = {
     id: "weibo-panel-config-video",
     title: "视频",
     forms: [
       {
         text: "功能",
+        type: "forms",
+        forms: [
+          UISelect(
+            "视频清晰度",
+            "weibo-video-quality",
+            "",
+            [
+              {
+                value: "",
+                text: "自动"
+              },
+              {
+                value: "mp4_ld_mp4",
+                text: "流畅360p"
+              },
+              {
+                value: "mp4_hd_mp4",
+                text: "标清480p"
+              },
+              {
+                value: "mp4_720p_mp4",
+                text: "高清720p"
+              },
+              {
+                value: "mp4_1080p_mp4",
+                text: "超清1080p"
+              }
+            ],
+            void 0,
+            "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
+          ),
+          UISwitch(
+            "解锁1080p",
+            "weibo-video-unlockVideo1080p",
+            true,
+            void 0,
+            "请求PC端的视频1080p链接，开启该功能↑选择的1080p才会生效"
+          )
+        ]
+      },
+      {
+        text: "屏蔽",
         type: "forms",
         forms: [
           UISwitch(
@@ -742,8 +812,7 @@
               }
             });
           });
-        } else
-          ;
+        } else ;
         return originApply.call(this, ...args);
       };
     },
@@ -887,6 +956,12 @@
       return globalThis.location.hostname === "m.weibo.cn";
     },
     /**
+     * 移动端微博-帖子
+     */
+    isMWeiBoDetail() {
+      return this.isMWeiBo() && globalThis.location.pathname.startsWith("/detail/");
+    },
+    /**
      * 话题
      * @returns
      */
@@ -973,6 +1048,7 @@
   };
   const WeiBoVideo = {
     init() {
+      WeiBoVideo.hookWebpack();
       PopsPanel.execMenu("weibo_video_shield_bottom_toolbar", () => {
         this.shieldBottomToolBar();
       });
@@ -982,7 +1058,6 @@
       PopsPanel.execMenu("weibo_video_shield_recommend", () => {
         this.shieldRecommend();
       });
-      WeiBoVideo.hookWebpack();
     },
     /**
      * 劫持webpack
@@ -1024,6 +1099,195 @@
         }`);
     }
   };
+  const WeiBoApi = {
+    /**
+     * 获取组件播放信息
+     * @param oid 格式：xxxx:xxxxxxxxxxx
+     */
+    async component(oid) {
+      let postParams = {
+        page: "/tv/show/" + oid
+      };
+      const params = new URLSearchParams();
+      params.append(
+        "data",
+        JSON.stringify({ Component_Play_Playinfo: { oid } })
+      );
+      let api = `https://weibo.com/tv/api/component?${utils.toSearchParamsStr(
+      postParams
+    )}`;
+      let postResp = await httpx.post(api, {
+        data: params.toString(),
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "application/json, text/plain, */*",
+          Host: "weibo.com",
+          Origin: "https://weibo.com",
+          "Page-Referer": postParams.page,
+          Referer: "https://weibo.com" + postParams.page
+        }
+      });
+      if (!postResp.status) {
+        return;
+      }
+      let data = utils.toJSON(postResp.data.responseText);
+      if (data["code"] !== "100000") {
+        Qmsg.error("获取播放信息失败");
+        return;
+      }
+      let Component_Play_Playinfo = data["data"]["Component_Play_Playinfo"];
+      return Component_Play_Playinfo;
+    }
+  };
+  const VueUtils = {
+    /**
+     * 获取vue实例
+     * @param element
+     * @returns
+     */
+    getVue(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+    },
+    /**
+     * 等待vue属性并进行设置
+     */
+    waitVuePropToSet($target, needSetList) {
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkVue() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let vueObj = VueUtils.getVue(target);
+          if (vueObj == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(vueObj);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitVueByInterval(
+          () => {
+            return getTarget();
+          },
+          checkVue,
+          250,
+          1e4
+        ).then((result) => {
+          if (!result) {
+            return;
+          }
+          let target = getTarget();
+          let vueObj = VueUtils.getVue(target);
+          if (vueObj == null) {
+            return;
+          }
+          needSetOption.set(vueObj);
+        });
+      });
+    }
+  };
+  const WeiBoDetail = {
+    init() {
+      this.quality();
+    },
+    /**
+     * 锁定视频清晰度
+     */
+    quality() {
+      log.info("锁定视频清晰度");
+      VueUtils.waitVuePropToSet(".weibo-media-wraps", [
+        {
+          msg: "等待获取属性 __vue__.item.object_id",
+          check(vueObj) {
+            var _a2;
+            return typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.object_id) === "string";
+          },
+          async set(vueObj) {
+            let unlockVideo1080p = PopsPanel.getValue(
+              "weibo-video-unlockVideo1080p"
+            );
+            let urlsMap = {
+              "标清 480P": "mp4_hd_mp4",
+              "流畅 360P": "mp4_ld_mp4",
+              "高清 720P": "mp4_720p_mp4",
+              "高清 1080P": "mp4_1080p_mp4"
+            };
+            const object_id = vueObj.item.object_id;
+            log.success("成功获取属性 __vue__.item.object_id=" + object_id);
+            if (unlockVideo1080p) {
+              let componentInfo = await WeiBoApi.component(object_id);
+              if (!componentInfo) {
+                return;
+              }
+              log.info(["获取组件信息成功", componentInfo]);
+              if (!componentInfo.urls) {
+                log.error("获取组件信息urls失败");
+                Qmsg.error("获取组件信息urls失败");
+                return;
+              }
+              if (typeof componentInfo.urls !== "object") {
+                log.error("组件信息urls不是一个对象");
+                Qmsg.error("组件信息urls不是一个对象");
+                return;
+              }
+              if (!Object.keys(componentInfo.urls).length) {
+                log.error("组件信息urls为空");
+                Qmsg.error("组件信息urls为空");
+                return;
+              }
+              Object.keys(componentInfo.urls).forEach((srcName) => {
+                let src = componentInfo.urls[srcName];
+                if (srcName in urlsMap) {
+                  let newSrcName = urlsMap[srcName];
+                  if (newSrcName in vueObj.item.urls) ;
+                  else {
+                    log.success("新增清晰度：" + newSrcName);
+                    vueObj.item.urls[newSrcName] = src;
+                  }
+                } else {
+                  log.error(["视频清晰度映射尚未补充", { srcName, src }]);
+                }
+              });
+            }
+            let userSetQuality = PopsPanel.getValue(
+              "weibo-video-quality"
+            );
+            if (userSetQuality && Object.keys(vueObj.item.urls).includes(userSetQuality)) {
+              let userSetQualitySrc = vueObj.item.urls[userSetQuality];
+              vueObj.item.media_info.stream_url = userSetQualitySrc;
+              Object.keys(vueObj.item.urls).forEach((keyName) => {
+                if (keyName === userSetQuality) {
+                  return;
+                }
+                delete vueObj.item.urls[keyName];
+              });
+              log.success(
+                "成功设置属性 __vue__.item.media_info.stream_url=" + userSetQualitySrc
+              );
+            }
+          }
+        }
+      ]);
+    }
+  };
   const WeiBo = {
     init() {
       PopsPanel.execMenuOnce(
@@ -1033,8 +1297,10 @@
         }
       );
       if (WeiBoRouter.isHuaTi()) {
+        log.info("Router: 话题");
         WeiBoHuaTi.init();
       } else if (WeiBoRouter.isMWeiBo()) {
+        log.info("Router: 移动端微博");
         WeiBoHook.hookNetWork();
         WeiBoHook.hookApply();
         WeiBoHook.hookVueRouter();
@@ -1044,10 +1310,15 @@
         PopsPanel.execMenu("weibo_shield_bottom_bar", () => {
           this.shieldBottomBar();
         });
+        if (WeiBoRouter.isMWeiBoDetail()) {
+          log.info("Router: 移动端微博帖子");
+          WeiBoDetail.init();
+        }
       } else if (WeiBoRouter.isVideo()) {
+        log.info("Router: 视频页");
         WeiBoVideo.init();
       } else {
-        log.warn("未适配Router: " + window.location.href);
+        log.error("Router: 未适配 => " + window.location.href);
       }
     },
     /**
