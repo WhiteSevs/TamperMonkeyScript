@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2024.6.12.16
+// @version            2024.6.15
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,7 +13,7 @@
 // @require            https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require            https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.6/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js
