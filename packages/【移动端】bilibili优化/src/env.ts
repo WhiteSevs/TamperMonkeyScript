@@ -38,7 +38,7 @@ const DEBUG = false;
 /* 配置控制台日志 */
 log.config({
 	debug: DEBUG,
-	logMaxCount: 20000,
+	logMaxCount: 1000,
 	autoClearConsole: true,
 	tag: true,
 });

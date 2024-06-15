@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.15
+// @version      2024.6.15.13
 // @author       WhiteSevs
 // @description  bilibili(哔哩哔哩)优化，免登录等
 // @license      GPL-3.0-only
@@ -61,7 +61,7 @@
   const DEBUG = false;
   log.config({
     debug: DEBUG,
-    logMaxCount: 2e4,
+    logMaxCount: 1e3,
     autoClearConsole: true,
     tag: true
   });
@@ -2895,6 +2895,9 @@
       });
       domutils.before($vSwitcher, $recommendTag);
       this.setScrollEvent();
+      if (window.location.hash === "#/recommend/") {
+        $recommendTag.click();
+      }
     },
     /**
      * 推荐标签的点击事件（切换router）
@@ -2935,6 +2938,7 @@
       if (!videoInfo) {
         return;
       }
+      log.success(["获取推荐视频信息", videoInfo]);
       let $fragment = document.createDocumentFragment();
       let allowLoadPictureCard = PopsPanel.getValue(
         "bili-head-recommend-push-graphic"
@@ -2978,7 +2982,6 @@
       if (!getResp.status) {
         return;
       }
-      log.info(["获取推荐视频信息", getResp.data]);
       let data2 = utils.toJSON(
         getResp.data.responseText
       );
@@ -3051,8 +3054,9 @@
      * + av
      */
     getRecommendItemAVElement(data2) {
+      var _a2;
       let goto = data2.goto;
-      let aid = data2.player_args.aid;
+      let aid = ((_a2 = data2 == null ? void 0 : data2.player_args) == null ? void 0 : _a2.aid) || data2.args.aid;
       let bvid = av2bv(aid);
       let url = "/video/" + bvid;
       let upName = data2.args.up_name;

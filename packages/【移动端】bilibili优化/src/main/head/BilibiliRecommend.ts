@@ -150,6 +150,10 @@ export const BilibiliRecommend = {
 		DOMUtils.before($vSwitcher, $recommendTag);
 		// DOMUtils.before($parent.firstChild as HTMLAnchorElement, $recommendTag);
 		this.setScrollEvent();
+		// 如果hash值正好是设定的，那么，主动触发一下，因为可能是刷新的
+		if (window.location.hash === "#/recommend/") {
+			$recommendTag.click();
+		}
 	},
 	/**
 	 * 推荐标签的点击事件（切换router）
@@ -189,6 +193,7 @@ export const BilibiliRecommend = {
 		if (!videoInfo) {
 			return;
 		}
+		log.success(["获取推荐视频信息", videoInfo]);
 		let $fragment = document.createDocumentFragment();
 		let allowLoadPictureCard = PopsPanel.getValue(
 			"bili-head-recommend-push-graphic"
@@ -236,7 +241,6 @@ export const BilibiliRecommend = {
 		if (!getResp.status) {
 			return;
 		}
-		log.info(["获取推荐视频信息", getResp.data]);
 		let data = utils.toJSON<android.AppRecommendJson>(
 			getResp.data.responseText
 		);
@@ -311,8 +315,8 @@ export const BilibiliRecommend = {
 	 */
 	getRecommendItemAVElement(data: Required<android.AppRecItem>) {
 		let goto = data.goto;
-		let aid = data.player_args.aid;
-		let bvid = av2bv(aid);
+		let aid = data?.player_args?.aid || data.args.aid;
+		let bvid = av2bv(aid!);
 		let url = "/video/" + bvid;
 		let upName = data.args.up_name;
 		let title = data.title;
