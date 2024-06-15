@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.5.30
+// @version      2024.6.15
 // @author       WhiteSevs
 // @description  支持手机端和PC端，屏蔽广告，优化浏览体验，自动跳转拦截的URL
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.jianshu.io/*
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
-// @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.3.0/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@1.4.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -57,14 +57,27 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config({
-    position: "bottom",
-    html: true,
-    maxNums: 5,
-    autoClose: true,
-    showClose: false,
-    showReverse: true
-  });
+  Qmsg.config(
+    Object.defineProperty(
+      {
+        position: "bottom",
+        html: true,
+        maxNums: 5,
+        autoClose: true,
+        showClose: false,
+        showReverse: true,
+        zIndex: utils.getMaxZIndex(10)
+      },
+      "zIndex",
+      {
+        get() {
+          let maxZIndex = utils.getMaxZIndex(10);
+          let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+          return utils.getMaxValue(maxZIndex, popsMaxZIndex);
+        }
+      }
+    )
+  );
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,

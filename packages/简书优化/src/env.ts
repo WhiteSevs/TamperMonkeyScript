@@ -43,14 +43,27 @@ log.config({
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config({
-	position: "bottom",
-	html: true,
-	maxNums: 5,
-	autoClose: true,
-	showClose: false,
-	showReverse: true,
-});
+Qmsg.config(
+	Object.defineProperty(
+		{
+			position: "bottom",
+			html: true,
+			maxNums: 5,
+			autoClose: true,
+			showClose: false,
+			showReverse: true,
+			zIndex: utils.getMaxZIndex(10),
+		},
+		"zIndex",
+		{
+			get() {
+				let maxZIndex = utils.getMaxZIndex(10);
+				let popsMaxZIndex = pops.config.Utils.getPopsMaxZIndex(10).zIndex;
+				return utils.getMaxValue(maxZIndex, popsMaxZIndex);
+			},
+		}
+	)
+);
 
 /** 油猴菜单 */
 const GM_Menu = new utils.GM_Menu({
