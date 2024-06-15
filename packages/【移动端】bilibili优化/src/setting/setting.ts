@@ -12,6 +12,8 @@ import { SettingUITopicDetail } from "./components/TopicDetail";
 import { SettingUIHead } from "./components/Head";
 import { BilibiliUrlUtils } from "@/utils/BilibiliUrlUtils";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { BilibiliLogin } from "@/account/BilibiliLogin";
+import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 
 const PopsPanel = {
 	/** 数据 */
@@ -82,7 +84,19 @@ const PopsPanel = {
 					return text;
 				},
 				callback() {
-					BilibiliUtils.goToLogin(window.location.href);
+					BilibiliUtils.goToLogin();
+				},
+			},
+			{
+				key: "go_to_login_to_parse_access_key",
+				text: "🛠 登录并解析access_key",
+				autoReload: false,
+				isStoreValue: false,
+				showText(text) {
+					return text;
+				},
+				callback() {
+					BilibiliQrCodeLogin.init();
 				},
 			},
 		]);

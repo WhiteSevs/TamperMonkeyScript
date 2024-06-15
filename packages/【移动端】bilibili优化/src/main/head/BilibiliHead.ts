@@ -2,6 +2,7 @@ import { BilibiliData } from "@/data/BlibiliData";
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { BilibiliRecommend } from "./BilibiliRecommend";
 
 export const BilibiliHead = {
 	init() {
@@ -11,6 +12,9 @@ export const BilibiliHead = {
 				this.addVideoListUPInfo();
 			}
 		);
+		PopsPanel.execMenu("bili-head-recommend-enable", () => {
+			BilibiliRecommend.init();
+		});
 	},
 	/**
 	 * 添加视频列表UP主信息

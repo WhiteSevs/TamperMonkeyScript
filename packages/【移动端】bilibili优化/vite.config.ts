@@ -21,7 +21,11 @@ let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
 }
-const VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+
+let VERSION = "0.0.1";
+if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+	VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -62,7 +66,7 @@ export default defineConfig({
 				author: "WhiteSevs",
 				"run-at": "document-start",
 				license: "GPL-3.0-only",
-				require: await GetLib(["CoverUMD", "pops"]),
+				require: await GetLib(["CoverUMD", "pops", "QRCode"]),
 				resource: {
 					// "ElementPlusResourceCSS": "https://cdn.jsdelivr.net/npm/element-plus@2.7.2/dist/index.min.css",
 				},
@@ -75,6 +79,7 @@ export default defineConfig({
 					"m.bilibili.com",
 					"www.bilibili.com",
 					"api.bilibili.com",
+					"app.bilibili.com",
 				],
 				grant: [
 					"GM_addStyle",
@@ -97,24 +102,28 @@ export default defineConfig({
 				autoGrant: true,
 				fileName: FILE_NAME,
 				externalResource: {
-					// 'element-plus/dist/index.css': cdn.jsdelivr(),
+					// 'element-plus/dist/index.css': cdn.jsdelivrFastly(),
 				},
 				externalGlobals: {
-					// vue: cdn.jsdelivr("Vue", "dist/vue.global.prod.js"),
-					// "vue-router": cdn.jsdelivr("VueRouter", "dist/vue-router.global.js"),
+					// vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
+					// "vue-router": cdn.jsdelivrFastly("VueRouter", "dist/vue-router.global.js"),
 					// "element-plus": [
 					// 	"ElementPlus",
 					// 	() => {
 					// 		return ElementPlusUrl;
 					// 	},
 					// ],
-					// "@element-plus/icons-vue": cdn.jsdelivr(
+					// "@element-plus/icons-vue": cdn.jsdelivrFastly(
 					// 	"ElementPlusIconsVue",
 					// 	"dist/index.iife.min.js"
 					// ),
-					qmsg: cdn.jsdelivr("Qmsg", "dist/index.umd.js"),
-					"@whitesev/utils": cdn.jsdelivr("Utils", "dist/index.umd.js"),
-					"@whitesev/domutils": cdn.jsdelivr("DOMUtils", "dist/index.umd.js"),
+					qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
+					"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
+					"@whitesev/domutils": cdn.jsdelivrFastly(
+						"DOMUtils",
+						"dist/index.umd.js"
+					),
+					md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
 				},
 				cssSideEffects: () => {
 					return (cssText: string) => {

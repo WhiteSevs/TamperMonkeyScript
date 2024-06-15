@@ -175,7 +175,8 @@ const LIB_MAP = {
 	},
 	Qmsg: {
 		localPath:
-			"file://" + viteUtils.getAbsolutePath("./../../库/Qmsg/dist/index.umd.js"),
+			"file://" +
+			viteUtils.getAbsolutePath("./../../库/Qmsg/dist/index.umd.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(462234);
 		},
@@ -283,6 +284,13 @@ const LIB_MAP = {
 			"file://" + viteUtils.getAbsolutePath("./../../库/Element-Plus/index.js"),
 		url: async () => {
 			return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
+		},
+	},
+	QRCode: {
+		localPath:
+			"file://" + viteUtils.getAbsolutePath("./../../库/QRCode/index.umd.js"),
+		url: async () => {
+			return await viteUtils.getGreasyForkLibLatestVersionUrl(497907);
 		},
 	},
 };

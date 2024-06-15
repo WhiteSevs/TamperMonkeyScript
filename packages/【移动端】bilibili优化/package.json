@@ -15,23 +15,26 @@
 	},
 	"dependencies": {
 		"@element-plus/icons-vue": "^2.3.1",
+		"@mgdn/bvid": "^0.2.0",
 		"@whitesev/domutils": "^1.1.1",
-		"@whitesev/utils": "^1.4.0",
-		"qmsg": "^1.1.0",
+		"@whitesev/utils": "^1.4.3",
+		"md5": "^2.3.0",
+		"qmsg": "^1.1.2",
 		"vue": "^3.4.27",
-		"vue-router": "^4.3.2"
+		"vue-router": "^4.3.3"
 	},
 	"devDependencies": {
+		"@types/md5": "^2.3.5",
 		"@types/node": "^20.14.2",
 		"@vitejs/plugin-vue": "^5.0.5",
-		"element-plus": "^2.7.4",
+		"element-plus": "^2.7.5",
 		"typescript": "^5.4.5",
 		"unplugin-auto-import": "^0.17.6",
 		"unplugin-element-plus": "^0.8.0",
 		"unplugin-icons": "^0.19.0",
 		"unplugin-vue-components": "^0.27.0",
-		"vite": "^5.2.12",
-		"vite-plugin-monkey": "4.0.0",
-		"vue-tsc": "^2.0.19"
+		"vite": "^5.3.0",
+		"vite-plugin-monkey": "4.0.3",
+		"vue-tsc": "^2.0.21"
 	}
 }

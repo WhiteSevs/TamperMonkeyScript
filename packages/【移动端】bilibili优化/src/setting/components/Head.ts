@@ -1,3 +1,5 @@
+import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
+import { UIInput } from "../common-components/ui-input";
 import { UISwitch } from "../common-components/ui-switch";
 
 export const SettingUIHead: PopsPanelContentConfig = {
@@ -21,6 +23,36 @@ export const SettingUIHead: PopsPanelContentConfig = {
 					true,
 					void 0,
 					"给视频添加UP主名，当前视频总时长信息"
+				),
+			],
+		},
+		{
+			text: "推荐",
+			type: "forms",
+			forms: [
+				UISwitch(
+					"启用",
+					"bili-head-recommend-enable",
+					false,
+					void 0,
+					"添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
+				),
+				UISwitch(
+					"显示【图文】",
+					"bili-head-recommend-push-graphic",
+					true,
+					void 0,
+					"加载App端推送的【图文】卡片"
+				),
+				UIInput(
+					"access_token",
+					"bili-head-recommend-access_token",
+					BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
+					"填入access_token，即可获取推荐视频数据",
+					void 0,
+					void 0,
+					false,
+					true
 				),
 			],
 		},

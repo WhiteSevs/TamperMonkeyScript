@@ -20,7 +20,9 @@ import { unsafeWindow } from "ViteGM";
 const Bilibili = {
 	init() {
 		BilibiliVueProp.init();
-		this.listenRouterChange();
+		PopsPanel.onceExec("listenRouterChange", () => {
+			this.listenRouterChange();
+		});
 		PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
 			log.info("hook  window.setTimeout autoOpenApp");
 			BilibiliHook.setTimeout("autoOpenApp");

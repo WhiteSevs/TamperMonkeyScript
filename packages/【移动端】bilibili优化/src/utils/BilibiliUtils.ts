@@ -85,8 +85,9 @@ export const BilibiliUtils = {
 	/**
 	 * 前往网址
 	 * @param path
+	 * @param [useRouter=false] 是否强制使用Router
 	 */
-	goToUrl(path: string) {
+	goToUrl(path: string, useRouter = false) {
 		let $app = document.querySelector<HTMLDivElement>("#app");
 		if ($app == null) {
 			Qmsg.error("跳转Url: 获取根元素#app失败");
@@ -102,6 +103,9 @@ export const BilibiliUtils = {
 		let $router = vueObj.$router;
 		let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
 		log.info("即将跳转URL：" + path);
+		if (useRouter) {
+			isGoToUrlBlank = false;
+		}
 		if (isGoToUrlBlank) {
 			/* 新标签打开 */
 			window.open(path, "_blank");
@@ -277,3 +281,12 @@ export const BilibiliUtils = {
 		addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
 	},
 };
+
+/**
+ * check json has {code: 0, message: "0"}
+ */
+export function isWebApiSuccess(json: any) {
+	return (
+		json?.code === 0 && (json?.message === "0" || json?.message === "success")
+	);
+}

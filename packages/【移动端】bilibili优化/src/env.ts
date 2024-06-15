@@ -21,12 +21,15 @@ const utils = Utils.noConflict();
 const domutils = DOMUtils.noConflict();
 const pops: typeof import("@库/pops") =
 	(monkeyWindow as any).pops || (unsafeWindow as any).pops;
+const QRCodeJS: typeof import("@库/QRCode/index.d.ts") =
+	(monkeyWindow as any).QRCode || (unsafeWindow as any).QRCode;
+
 const log = new utils.Log(
 	GM_info,
 	(unsafeWindow as any).console || (monkeyWindow as any).console
 );
 const SCRIPT_NAME = GM_info?.script?.name || _SCRIPT_NAME_;
-
+const GMCookie = new utils.GM_Cookie();
 /**
  * 是否为调试模式
  */
@@ -127,6 +130,7 @@ const MountVue = async function (targetApp: any, router?: any) {
 	}
 };
 const addStyle = utils.addStyle;
+
 export {
 	utils,
 	domutils as DOMUtils,
@@ -140,4 +144,6 @@ export {
 	MountVue,
 	VUE_ELE_NAME_ID,
 	addStyle,
+	GMCookie,
+	QRCodeJS,
 };
