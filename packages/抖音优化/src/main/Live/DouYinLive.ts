@@ -146,6 +146,16 @@ const DouYinLive = {
 	 */
 	waitToRemovePauseDialog() {
 		log.info("监听【长时间无操作，已暂停播放】弹窗");
+		function deepFindFunction(target: any, propName: string, funcName: string) {
+			let targetValue = target[propName];
+			if (typeof targetValue === "object") {
+				if (typeof targetValue[funcName] === "function") {
+					return targetValue[funcName];
+				} else {
+					return deepFindFunction(targetValue, propName, funcName);
+				}
+			}
+		}
 		function checkDialogToClose($ele: HTMLElement, from: string) {
 			if (
 				$ele.innerText.includes("长时间无操作") &&
@@ -154,13 +164,17 @@ const DouYinLive = {
 				log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
 				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
 				let $rect = utils.getReactObj($ele);
-				if (
-					typeof $rect.reactContainer?.child?.child?.child?.memoizedProps
-						?.onClose === "function"
-				) {
-					$rect.reactContainer.child.child.child.memoizedProps.onClose();
-					log.success(`检测${from}：调用onClose关闭弹窗`);
-					Qmsg.success("调用onClose关闭弹窗");
+				if (typeof $rect.reactContainer === "object") {
+					let onClose = deepFindFunction(
+						$rect.reactContainer,
+						"child",
+						"onClose"
+					);
+					if (typeof onClose === "function") {
+						log.success(`检测${from}：调用onClose关闭弹窗`);
+						Qmsg.success("调用onClose关闭弹窗");
+						onClose();
+					}
 				}
 			}
 		}
