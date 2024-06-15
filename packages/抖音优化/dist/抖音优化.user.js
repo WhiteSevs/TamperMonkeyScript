@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2024.6.14
+// @version      2024.6.15
 // @author       WhiteSevs
 // @description  过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://update.greasyfork.org/scripts/494167/1376186/CoverUMD.js
 // @require      https://update.greasyfork.org/scripts/456485/1384984/pops.js
 // @require      https://cdn.jsdelivr.net/npm/qmsg@1.1.2/dist/index.umd.js
-// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.3/dist/index.umd.js
+// @require      https://cdn.jsdelivr.net/npm/@whitesev/utils@1.4.4/dist/index.umd.js
 // @require      https://cdn.jsdelivr.net/npm/@whitesev/domutils@1.1.1/dist/index.umd.js
 // @grant        GM_addStyle
 // @grant        GM_deleteValue
@@ -2817,6 +2817,19 @@
      */
     waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
+      function checkDialogToClose($ele, from) {
+        var _a2, _b, _c, _d, _e;
+        if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
+          log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+          let $rect = utils.getReactObj($ele);
+          if (typeof ((_e = (_d = (_c = (_b = (_a2 = $rect.reactContainer) == null ? void 0 : _a2.child) == null ? void 0 : _b.child) == null ? void 0 : _c.child) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.onClose) === "function") {
+            $rect.reactContainer.child.child.child.memoizedProps.onClose();
+            log.success(`检测${from}：调用onClose关闭弹窗`);
+            Qmsg.success("调用onClose关闭弹窗");
+          }
+        }
+      }
       domUtils.ready(() => {
         utils.mutationObserver(document.body, {
           config: {
@@ -2827,26 +2840,10 @@
             document.querySelectorAll(
               "body > div[elementtiming='element-timing']"
             ).forEach(($elementTiming) => {
-              if ($elementTiming.innerText.includes("长时间无操作") && $elementTiming.innerText.includes("暂停播放")) {
-                log.success(
-                  "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-                );
-                Qmsg.success(
-                  "检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-                );
-                $elementTiming.remove();
-              }
+              checkDialogToClose($elementTiming, "1");
             });
             document.querySelectorAll('body > div:not([id="root"])').forEach(($ele) => {
-              if ($ele.innerText.includes("长时间无操作") && $ele.innerText.includes("暂停播放")) {
-                log.success(
-                  "检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-                );
-                Qmsg.success(
-                  "检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-                );
-                $ele.remove();
-              }
+              checkDialogToClose($ele, "2");
             });
           }
         });

@@ -146,6 +146,24 @@ const DouYinLive = {
 	 */
 	waitToRemovePauseDialog() {
 		log.info("监听【长时间无操作，已暂停播放】弹窗");
+		function checkDialogToClose($ele: HTMLElement, from: string) {
+			if (
+				$ele.innerText.includes("长时间无操作") &&
+				$ele.innerText.includes("暂停播放")
+			) {
+				log.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+				Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+				let $rect = utils.getReactObj($ele);
+				if (
+					typeof $rect.reactContainer?.child?.child?.child?.memoizedProps
+						?.onClose === "function"
+				) {
+					$rect.reactContainer.child.child.child.memoizedProps.onClose();
+					log.success(`检测${from}：调用onClose关闭弹窗`);
+					Qmsg.success("调用onClose关闭弹窗");
+				}
+			}
+		}
 		DOMUtils.ready(() => {
 			utils.mutationObserver(document.body, {
 				config: {
@@ -158,34 +176,12 @@ const DouYinLive = {
 							"body > div[elementtiming='element-timing']"
 						)
 						.forEach(($elementTiming) => {
-							if (
-								$elementTiming.innerText.includes("长时间无操作") &&
-								$elementTiming.innerText.includes("暂停播放")
-							) {
-								log.success(
-									"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-								);
-								Qmsg.success(
-									"检测1：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-								);
-								$elementTiming.remove();
-							}
+							checkDialogToClose($elementTiming, "1");
 						});
 					document
 						.querySelectorAll<HTMLDivElement>('body > div:not([id="root"])')
 						.forEach(($ele) => {
-							if (
-								$ele.innerText.includes("长时间无操作") &&
-								$ele.innerText.includes("暂停播放")
-							) {
-								log.success(
-									"检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-								);
-								Qmsg.success(
-									"检测2：出现【长时间无操作，已暂停播放】弹窗，自动关闭"
-								);
-								$ele.remove();
-							}
+							checkDialogToClose($ele, "2");
 						});
 				},
 			});
